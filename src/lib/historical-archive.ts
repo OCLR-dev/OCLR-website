@@ -266,6 +266,24 @@ export const historicalArchiveSchema = z
         p.maps.map((m) => m.slot),
         "pool slot",
       );
+  })
+  .transform((archive, ctx) => {
+    if (archive.editionSlug !== "s10") return archive;
+    return {
+      ...archive,
+      pools: archive.pools.map((pool, index) => {
+        const separator = pool.name.indexOf("//");
+        if (separator === -1) return pool;
+        const name = pool.name.slice(0, separator).trim();
+        if (!name)
+          ctx.addIssue({
+            code: "custom",
+            path: ["pools", index, "name"],
+            message: "Add a pool name before //.",
+          });
+        return { ...pool, name };
+      }),
+    };
   });
 export type HistoricalArchive = z.infer<typeof historicalArchiveSchema>;
 
