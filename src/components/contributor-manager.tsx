@@ -101,7 +101,7 @@ export function ContributorManager({
                   )}
                 <strong>{entry.name || tr("New contributor")}</strong>
                 <span className="badge">
-                  {entry.published ? tr("Public") : tr("Hidden")}
+                  {entry.published ? tr("Public") : tr("Hidden from About")}
                 </span>
               </div>
               <div className="contributor-fields">
