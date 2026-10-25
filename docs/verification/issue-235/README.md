@@ -114,8 +114,11 @@ scores are demo data.
 
 - `npm run lint` and `npm run typecheck`: no errors.
 - `npm test` on the isolated `oclr_esports_test` database after merging the latest
-  `main` (75800fe, with Manga halftone's 0039): 966 passed, 1 skipped (the same
-  skip as on `main`), including the new 0041 migration upgrade test.
+  `main` (889304d, with Manga halftone's 0039, Glassmorphism's 0040 and the
+  compact mobile header from #295): 968 passed, 1 skipped (the same skip as on
+  `main`), including the new 0041 migration upgrade test. The compact mobile header
+  checks (two rows, 44px targets, unobstructed, in viewport) pass for this
+  appearance at 320–430px in all locales and both themes.
 - `npm run build` passed; `npm audit --omit=dev` found 0 vulnerabilities.
 - `npm run i18n:extract` and `npm run test:i18n` passed.
 - Header navigation at 951px is exactly as wide as the default appearance in all
