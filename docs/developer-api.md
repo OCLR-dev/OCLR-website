@@ -47,12 +47,14 @@ do not down-migrate or erase authorization history.
 ## Origins and browser use
 
 The backend's optional exported `OCLR_DEVELOPER_ORIGINS` is an exact comma-separated
-allowlist. Defaults: `http://localhost:3000,http://127.0.0.1:3000`. An explicitly empty
-value disables issuance and browser CORS. At most 20 canonical HTTP/HTTPS loopback
-origins are allowed; localhost, 127.0.0.1 and [::1], schemes and ports are distinct.
-Paths, trailing slashes, credentials, `null`, suffixes and wildcard origins fail
-validation. For a different frontend port, the operator configures its exact origin
-on the backend; the developer chooses one configured origin when issuing access.
+allowlist. By default it includes `http://localhost:3000`, `http://127.0.0.1:3000`,
+`http://localhost:4000` and `http://127.0.0.1:4000`. An explicitly empty value
+disables issuance and browser CORS. At most 20 canonical HTTP/HTTPS loopback origins
+are allowed; localhost, 127.0.0.1 and [::1], schemes and ports are distinct. Paths,
+trailing slashes, credentials, `null`, suffixes and wildcard origins fail validation.
+If the operator sets `OCLR_DEVELOPER_ORIGINS`, that exact list replaces the defaults
+and must include each desired origin. The developer chooses one configured origin
+when issuing access.
 
 ```js
 // token is supplied privately at runtime and kept in memory.

@@ -34,6 +34,13 @@ describe("Developer API transport and abuse boundaries", () => {
       "http://LOCALHOST:3000",
     ])
       expect(isDeveloperOrigin(origin), origin).toBe(false);
+    vi.stubEnv("OCLR_DEVELOPER_ORIGINS", undefined);
+    expect(developerOrigins()).toEqual([
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+      "http://localhost:4000",
+      "http://127.0.0.1:4000",
+    ]);
     vi.stubEnv(
       "OCLR_DEVELOPER_ORIGINS",
       "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3000",

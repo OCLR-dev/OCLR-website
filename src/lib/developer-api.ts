@@ -32,7 +32,7 @@ export class DeveloperApiError extends HttpError {
 export function developerOrigins() {
   const origins = (
     process.env.OCLR_DEVELOPER_ORIGINS ??
-    "http://localhost:3000,http://127.0.0.1:3000"
+    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:4000,http://127.0.0.1:4000"
   )
     .split(",")
     .map((v) => v.trim())
