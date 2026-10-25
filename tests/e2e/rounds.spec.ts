@@ -39,6 +39,14 @@ test.describe("independent round management and safe deletion", () => {
     await expect(
       page.getByRole("navigation", { name: "Breadcrumb", exact: true }),
     ).toContainText("Rounds");
+    const stageTabs = page.getByRole("tablist", {
+      name: "Competition stage",
+    });
+    await expect(stageTabs).toHaveAttribute("data-appearance", "line");
+    await expect(stageTabs).toHaveCSS("border-radius", "0px");
+    await expect(
+      stageTabs.getByRole("tab", { name: "Group Stage", exact: true }),
+    ).toHaveCSS("border-radius", "0px");
     await expect(
       page.getByText("No rounds in this stage.", { exact: true }),
     ).toBeVisible();

@@ -368,7 +368,12 @@
   margin: 0;
 }
 .themed-site.private-site
-  :is(.tournament-settings, .mappool-workbench, .fixture-workspace)
+  :is(
+    .tournament-settings,
+    .mappool-workbench,
+    .fixture-workspace,
+    .round-manager
+  )
   .workspace-tabs[data-appearance="line"] {
   width: max-content;
   max-width: 100%;
@@ -381,7 +386,12 @@
   scrollbar-width: thin;
 }
 .themed-site.private-site
-  :is(.tournament-settings, .mappool-workbench, .fixture-workspace)
+  :is(
+    .tournament-settings,
+    .mappool-workbench,
+    .fixture-workspace,
+    .round-manager
+  )
   .workspace-tabs[data-appearance="line"]
   button {
   min-height: 44px;
@@ -393,14 +403,24 @@
   box-shadow: none;
 }
 .themed-site.private-site
-  :is(.tournament-settings, .mappool-workbench, .fixture-workspace)
+  :is(
+    .tournament-settings,
+    .mappool-workbench,
+    .fixture-workspace,
+    .round-manager
+  )
   .workspace-tabs[data-appearance="line"]
   button[aria-selected="true"] {
   border-bottom-color: var(--site-accent);
   color: var(--site-accent);
 }
 .themed-site.private-site
-  :is(.tournament-settings, .mappool-workbench, .fixture-workspace)
+  :is(
+    .tournament-settings,
+    .mappool-workbench,
+    .fixture-workspace,
+    .round-manager
+  )
   .workspace-tabs[data-appearance="line"]
   button:hover {
   color: var(--site-accent-strong);

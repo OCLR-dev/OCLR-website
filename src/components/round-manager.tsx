@@ -119,11 +119,12 @@ export function RoundManager({
   }
   const failed = (message: string) => setFeedback({ message, error: true });
   return (
-    <div className={styles.manager}>
+    <div className={`${styles.manager} round-manager`}>
       <div className={styles.toolbar}>
         <WorkspaceTabs
           id={`${id}-stage`}
           label={tr("Competition stage")}
+          appearance="line"
           value={stage}
           items={[
             { value: "group", label: "Group Stage" },
