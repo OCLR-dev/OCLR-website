@@ -77,6 +77,11 @@ const optional = {
     lightBackground: "rgb(246, 243, 236)",
     darkBackground: "rgb(23, 21, 18)",
   },
+  glassmorphism: {
+    label: "Glassmorphism",
+    lightBackground: "rgb(241, 237, 248)",
+    darkBackground: "rgb(18, 16, 28)",
+  },
   "esports-broadcast": {
     label: "Esports broadcast",
     lightBackground: "rgb(238, 241, 246)",

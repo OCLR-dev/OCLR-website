@@ -8,13 +8,14 @@ import {
 } from "../../src/lib/preferences";
 
 describe("visitor appearance preference", () => {
-  it("supports only the whitelisted original, pastel, Swiss, clay, manga and esports designs", () => {
+  it("supports only the whitelisted original, pastel, Swiss, clay, manga, glass and esports designs", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",
       "swiss-minimal",
       "claymorphism",
       "manga-halftone",
+      "glassmorphism",
       "esports-broadcast",
     ]);
     expect(appearanceCookie).toBe("oclr-appearance");
@@ -57,6 +58,10 @@ describe("visitor appearance preference", () => {
       "manga-halftone",
     );
     expect(readAppearance(undefined, "manga-halftone")).toBe("manga-halftone");
+    expect(readAppearance("glassmorphism", "claymorphism")).toBe(
+      "glassmorphism",
+    );
+    expect(readAppearance(undefined, "glassmorphism")).toBe("glassmorphism");
     expect(readAppearance("esports-broadcast", "claymorphism")).toBe(
       "esports-broadcast",
     );

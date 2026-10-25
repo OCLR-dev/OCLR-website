@@ -1,6 +1,6 @@
 # H — 毛玻璃風 / Glassmorphism
 
-追蹤：[#240](https://github.com/PhoenixEmik/OCLR-website/issues/240) · **P3** · 未實作／未註冊為正式 appearance。
+追蹤：[#240](https://github.com/PhoenixEmik/OCLR-website/issues/240) · **P3** · 已註冊為正式 appearance `glassmorphism`，見文末「正式實作」。
 
 ## 視覺主張與範圍
 
@@ -123,3 +123,15 @@ H 的辨識點是局部透光層次，不是把已存在 pastel 加大漸層或�
 - forced colors 降級通過。另以 Chrome emulation 實際驗證 reduced transparency，得到實色背景及 backdrop-filter:none。
 - [Desktop Light](desktop-light.webp)／[Dark](desktop-dark.webp)；[Mobile Light](mobile-light.webp)／[Dark](mobile-dark.webp)。
 - [本款機器可讀報告](verification.json)。這些結果只涵蓋離線 CSS specimen，未驗收正式頁面、三語、DB migration 或部署。
+
+## 正式實作（#240）
+
+正式樣式位於 [src/app/glass-theme.css](../../../../src/app/glass-theme.css)，以 `html[data-appearance="glassmorphism"] .themed-site` 為範圍；OBS／presenter 不受影響。下列為與上方候選 CSS 的差異：
+
+- **分層玻璃。**由後到前：固定的彩色色場（粉、橙、天藍、紫色光暈與數顆漂浮球體）→ 承載整頁內容的一塊毛玻璃板 → 板上較亮的玻璃磚（面板、表格、卡片）→ 實色的選取晶片、輸入框與選單。每層都有上亮下暗的斜面邊框、光澤與多層投影，玻璃板右下方另露出一片較薄的背板，形成立體層次。球體一半露在玻璃板外（清晰），一半在板下（被模糊），呈現玻璃折射感。
+- **模糊只用三處。**僅 header、玻璃板與 footer 使用 `backdrop-filter`；玻璃磚、表格與反覆資料列一律不模糊。header 內的選單維持實色，因為巢狀在已模糊 header 內的 backdrop-filter 看不到下方頁面。
+- **透明度與對比（與 issue 數值不同，需主辦方確認）。**各層為 50–72% 不透明，而非 issue 建議的 94–96%。取而代之的保證方式：色場完全由本主題控制，故以色場中最飽和的光暈顏色（未模糊、並套用 saturate 加強）作為最差背景計算，所有文字 token ≥4.5:1、控制邊界 ≥3:1，無論是否有模糊皆成立；sticky header 另以純黑與純白內容為最差背景驗算。玻璃層不會疊在賽事主視覺上，主視覺本身維持原圖，只加玻璃邊框。
+- **降級。**不支援 `backdrop-filter` 或 `prefers-reduced-transparency: reduce` 時，所有玻璃層回到實色；`forced-colors` 隱藏色場與球體並移除模糊與陰影。
+- **配色。**文字為墨藍 `#1b1830`，連結、選取與焦點為靛藍 `#3a2fa6`；主要按鈕沿用來源桃紅 `#ff4f9a`，配深色文字 `#2a1020` 與內側光澤。暗版為深色煙燻玻璃與較暗的球體。與 cute-pastel（粉底、圓體字）及 Frutiger Aero（水藍光澤、無模糊）區隔。
+- **狀態不依賴透明或陰影。**selected／pressed 為白色實心晶片、靛藍邊框與粗體；hover 只改底色；disabled 為虛線邊框加既有透明度；focus 為 3px 實線、4px offset。
+- **字體。**沿用系統 sans，標題 600、內文行高 1.65；無遠端字體請求。

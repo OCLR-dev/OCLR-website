@@ -1,6 +1,17 @@
 .root {
   position: relative;
 }
+.shortName {
+  display: none;
+}
+@media (max-width: 760px) {
+  .fullName {
+    display: none;
+  }
+  .shortName {
+    display: inline;
+  }
+}
 .trigger {
   min-height: 44px;
   padding: 0.5rem 0.65rem;

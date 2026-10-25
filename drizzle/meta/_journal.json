@@ -285,8 +285,15 @@
     {
       "idx": 40,
       "version": "7",
-      "when": 1792908434564,
-      "tag": "0040_esports_broadcast_appearance",
+      "when": 1792908380165,
+      "tag": "0040_glassmorphism_appearance",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1792909142511,
+      "tag": "0041_esports_broadcast_appearance",
       "breakpoints": true
     }
   ]

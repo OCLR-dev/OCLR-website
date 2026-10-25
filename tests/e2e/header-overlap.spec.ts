@@ -4,8 +4,12 @@ import { seedSession } from "./session";
 
 test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
 let staffCookie: Awaited<ReturnType<typeof seedSession>>;
+let playerCookie: Awaited<ReturnType<typeof seedSession>>;
 test.beforeAll(async () => {
-  if (process.env.TEST_DATABASE_URL) staffCookie = await seedSession(60001);
+  if (process.env.TEST_DATABASE_URL) {
+    staffCookie = await seedSession(60001);
+    playerCookie = await seedSession(60002);
+  }
 });
 test.afterAll(closeDb);
 
@@ -44,6 +48,40 @@ async function withinViewport(page: Page, menu: Locator, width: number) {
   ).toBe(true);
 }
 
+const mobileWidths = [320, 360, 375, 390, 412, 430];
+
+async function compactHeader(page: Page, width: number, locale: string) {
+  const header = page.locator(".site-header");
+  const controls = header.locator(
+    ".brand, .menu-toggle, .account-control, .nav-login, .site-preferences > button, .site-preferences > div > button",
+  );
+  const boxes = await controls.evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const { x, y, width, height } = node.getBoundingClientRect();
+      return { x, y, width, height, brand: node.classList.contains("brand") };
+    }),
+  );
+  // Count visual rows, including the logo and every preference control.
+  expect(
+    new Set(boxes.map((box) => Math.round(box.y + box.height / 2))).size,
+  ).toBeLessThanOrEqual(2);
+  for (const box of boxes) {
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(width);
+    if (!box.brand) {
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(Math.round(box.height)).toBeGreaterThanOrEqual(44);
+    }
+  }
+  await unobstructed(controls);
+  await expect(header.locator(".menu-toggle")).toHaveText("");
+  const language = header.locator(".language-control > button");
+  expect((await language.innerText()).trim()).toBe(
+    { "zh-Hans": "简", "zh-Hant": "繁", en: "EN" }[locale],
+  );
+  await withinViewport(page, header, width);
+}
+
 for (const locale of ["zh-Hans", "zh-Hant", "en"])
   for (const theme of ["light", "dark"])
     for (const appearance of [
@@ -52,6 +90,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
       "swiss-minimal",
       "claymorphism",
       "manga-halftone",
+      "glassmorphism",
       "esports-broadcast",
     ]) {
       test(`header overlays ${locale} ${theme} ${appearance}`, async ({
@@ -81,9 +120,23 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
         const appearanceTrigger = header.locator(".appearance-trigger");
         const language = header.locator(".language-control > button");
         for (const width of [
-          320, 360, 390, 412, 674, 819, 950, 951, 1024, 1100, 1101, 1440,
+          ...mobileWidths,
+          674,
+          760,
+          819,
+          950,
+          951,
+          1024,
+          1100,
+          1101,
+          1440,
         ]) {
           await page.setViewportSize({ width, height: 900 });
+          if (width <= 760) {
+            await compactHeader(page, width, locale);
+            expect((await account.boundingBox())!.width).toBeLessThan(76);
+            await expect(account.locator(".avatar")).toBeVisible();
+          }
           await unobstructed(header.locator("button:visible"));
           if (width <= 950) {
             const toggle = await header.locator(".menu-toggle").boundingBox();
@@ -96,23 +149,17 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
                   box.right - parseFloat(getComputedStyle(node).paddingRight)
                 );
               });
-            if (width > 480) {
-              expect(toggle!.x).toBeGreaterThanOrEqual(
-                actions!.x + actions!.width,
-              );
-              expect(
-                Math.abs(
-                  toggle!.y +
-                    toggle!.height / 2 -
-                    actions!.y -
-                    actions!.height / 2,
-                ),
-              ).toBeLessThan(2);
-            } else {
-              expect(toggle!.y + toggle!.height).toBeLessThanOrEqual(
-                actions!.y,
-              );
-            }
+            expect(toggle!.x).toBeGreaterThanOrEqual(
+              actions!.x + actions!.width,
+            );
+            expect(
+              Math.abs(
+                toggle!.y +
+                  toggle!.height / 2 -
+                  actions!.y -
+                  actions!.height / 2,
+              ),
+            ).toBeLessThan(2);
             expect(toggle!.x + toggle!.width).toBeCloseTo(rightEdge, 0);
           }
 
@@ -180,22 +227,42 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
           );
           await activate(header.locator(".theme-control"));
         }
+        await context.addCookies([playerCookie]);
+        await page.reload();
+        await expect(header.locator("a.account-control")).toHaveAttribute(
+          "href",
+          "/dashboard",
+        );
+        await expect(header.locator(".account-control .avatar")).toBeVisible();
+        for (const width of mobileWidths) {
+          await page.setViewportSize({ width, height: 900 });
+          await compactHeader(page, width, locale);
+        }
         await context.clearCookies({ name: "oclr_session" });
         await page.reload();
         await expect(header.locator(".nav-login")).toBeVisible();
         await expect(account).toHaveCount(0);
-        await page.setViewportSize({ width: 320, height: 900 });
+        for (const width of mobileWidths) {
+          await page.setViewportSize({ width, height: 900 });
+          await compactHeader(page, width, locale);
+        }
         await unobstructed(header.locator("button:visible, .nav-login"));
         const signedOutToggle = await header
           .locator(".menu-toggle")
           .boundingBox();
         const login = await header.locator(".nav-login").boundingBox();
-        expect(
-          signedOutToggle!.y + signedOutToggle!.height,
-        ).toBeLessThanOrEqual(login!.y);
+        expect(signedOutToggle!.x).toBeGreaterThanOrEqual(
+          login!.x + login!.width,
+        );
 
         await activate(header.locator(".menu-toggle"));
         await expect(header.locator(".main-nav")).toBeVisible();
         await unobstructed(header.locator(".main-nav > a"));
+        await page.keyboard.press("Escape");
+        await expect(header.locator(".main-nav")).toBeHidden();
+        await expect(header.locator(".menu-toggle")).toBeFocused();
+        await activate(header.locator(".menu-toggle"));
+        await language.focus();
+        await expect(header.locator(".main-nav")).toBeHidden();
       });
     }

@@ -84,6 +84,7 @@ describe("localized interface catalogs", () => {
             ![
               "UTC",
               "OCLR",
+              "osu!", // Game branding on the compact sign-in control stays literal.
               "osu! Chinese League Rookie",
               "Muziyami", // Contributor identity, kept literal in every locale.
               "/tournaments/",

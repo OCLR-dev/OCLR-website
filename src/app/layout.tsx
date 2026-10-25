@@ -24,6 +24,7 @@ import "./pastel-theme.css";
 import "./swiss-theme.css";
 import "./clay-theme.css";
 import "./manga-theme.css";
+import "./glass-theme.css";
 import "./esports-theme.css";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";

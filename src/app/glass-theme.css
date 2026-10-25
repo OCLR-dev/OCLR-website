@@ -1,0 +1,789 @@
+/* Glassmorphism (#240), based on the organizer's osu! Cup batch-2 style H.
+ * Layers, back to front: a fixed colour field (pink, orange, sky, violet orbs),
+ * one frosted glass board carrying the page content, lighter glass tiles on the
+ * board, then solid chips and menus. Each pane has a bevelled rim (bright top,
+ * dim bottom) and a soft drop so it reads as a sheet lifted off the field.
+ *
+ * Contrast does not rely on blur: every translucent fill was checked over the
+ * field's most saturated orb colours, unblurred and with the saturate boost, so
+ * text stays ≥4.5:1 and control edges ≥3:1. The field is the only thing behind
+ * the board; the sticky header was also checked over black and white content.
+ * Translucency is enabled only with backdrop-filter support; otherwise, and for
+ * prefers-reduced-transparency, every pane falls back to a solid surface.
+ * Only the header, board and footer blur; tiles, tables and repeated rows never
+ * do. Scoped to ordinary pages: OBS output has no .themed-site. System fonts.
+ */
+html[data-appearance="glassmorphism"]:not(:has(.broadcast-site)),
+html[data-appearance="glassmorphism"]:not(:has(.broadcast-site)) body {
+  background: #f1edf8;
+}
+html[data-appearance="glassmorphism"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  ),
+html[data-appearance="glassmorphism"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  )
+  body {
+  background: #12101c;
+}
+
+html[data-appearance="glassmorphism"] .themed-site {
+  --site-background: #f1edf8;
+  --site-surface: #ffffff;
+  --site-raised: #f7f5fc;
+  --site-tint: #ebe7fa;
+  --site-foreground: #1b1830;
+  --site-muted: #4a4466;
+  --site-secondary-text: #332e55;
+  --site-accent: #3a2fa6;
+  --site-accent-strong: #2a2190;
+  --site-border: #dcd6ec;
+  --site-control-border: #5f5985;
+  --site-header: #ffffff;
+  --site-primary: #ff4f9a;
+  --site-primary-hover: #ff70ae;
+  --site-on-primary: #2a1020;
+  --site-success: #155c41;
+  --site-warning: #6e4700;
+  --site-danger: #9c1d3a;
+  --site-focus: #3a2fa6;
+  --site-selection: #dedafb;
+  --site-highlight: #93104e;
+  --site-connector: #a9a2c6;
+  --site-shadow: #461e8c29;
+  --site-soft-shadow: #461e8c14;
+  --site-panel-shadow: #461e8c47;
+  --site-dialog-shadow: #461e8c59;
+  --site-backdrop: #1b183066;
+  /* Pane fills: solid fallbacks, and the translucent values used with blur. */
+  --glass-board-solid: #fbf9ff;
+  --glass-board-clear: #ffffff94;
+  --glass-tile-solid: #ffffff;
+  --glass-tile-clear: #ffffff9e;
+  --glass-track-solid: #efebfb;
+  --glass-track-clear: #ffffff80;
+  --glass-bar-solid: #ffffff;
+  --glass-bar-clear: #ffffffb8;
+  --glass-footer-clear: #ffffff99;
+  --glass-board: var(--glass-board-solid);
+  --glass-tile: var(--glass-tile-solid);
+  --glass-track: var(--glass-track-solid);
+  --glass-bar: var(--glass-bar-solid);
+  --glass-footer: var(--glass-bar-solid);
+  /* Light falls from the top left: bright top rim, dim bottom rim. */
+  --glass-sheen: linear-gradient(155deg, #ffffff59, #ffffff00 32%);
+  --glass-tile-sheen: linear-gradient(165deg, #ffffff73, #ffffff00 55%);
+  --glass-rim-top: #ffffffeb;
+  --glass-rim-side: #ffffffa6;
+  --glass-rim-bottom: #ffffff59;
+  --glass-edge: #4b3f8f2e;
+  --glass-mat: #ffffff4d;
+  --glass-blur: blur(36px) saturate(160%);
+  --glass-bar-blur: blur(24px) saturate(160%);
+  --glass-primary-edge: #c01f68;
+  --glass-board-shadow:
+    inset 0 1px 0 var(--glass-rim-top), inset 1px 0 0 #ffffff66,
+    inset 0 -1px 0 #ffffff33, 0 2px 4px -2px #461e8c1f,
+    0 24px 48px -28px #461e8c66, 0 60px 90px -60px #461e8c80;
+  /* A thinner sheet behind the board, peeking out at the bottom right. */
+  --glass-back-pane: 14px 18px 0 -4px #ffffff47, 14px 30px 40px -24px #461e8c4d;
+  --glass-tile-shadow:
+    inset 0 1px 0 #ffffff, inset 0 -1px 0 #ffffff40, 0 1px 2px #461e8c14,
+    0 14px 30px -18px #461e8c59;
+  --glass-flat-shadow: inset 0 1px 0 #ffffffcc, 0 6px 14px -10px #461e8c4d;
+  --glass-well: inset 0 1px 3px #461e8c24, inset 0 -1px 0 #ffffff80;
+  --glass-field:
+    radial-gradient(34% 40% at 10% 10%, #ff5fa8e6, transparent 70%),
+    radial-gradient(32% 38% at 92% 8%, #2fb8ffd9, transparent 70%),
+    radial-gradient(38% 44% at 88% 90%, #ff9a4dd9, transparent 70%),
+    radial-gradient(34% 40% at 6% 92%, #8a63ffcc, transparent 70%),
+    radial-gradient(26% 30% at 52% 46%, #ffffff8c, transparent 70%),
+    linear-gradient(135deg, #ffd1e6, #ffe3c4 35%, #cfe9ff 70%, #e4d7ff);
+  /* Glass spheres floating in the field: crisp in the gaps, frosted behind the
+   * board. Each is a highlight over a shaded disc; edges stay within the orb
+   * colours used for the contrast budget. */
+  --glass-spheres:
+    radial-gradient(circle closest-side at 34% 30%, #ffffffd9, #fff0 60%)
+      right -90px top 150px / 260px 260px no-repeat,
+    radial-gradient(circle closest-side, #ffc4e0, #ff5fa8 93%, #ff5fa800 95%)
+      right -90px top 150px / 260px 260px no-repeat,
+    radial-gradient(circle closest-side at 34% 30%, #ffffffd9, #fff0 60%)
+      left -84px top 56% / 200px 200px no-repeat,
+    radial-gradient(circle closest-side, #c9ecff, #2fb8ff 93%, #2fb8ff00 95%)
+      left -84px top 56% / 200px 200px no-repeat,
+    radial-gradient(circle closest-side at 34% 30%, #ffffffd9, #fff0 60%) right
+      30% bottom -70px / 180px 180px no-repeat,
+    radial-gradient(circle closest-side, #ffe2c8, #ff9a4d 93%, #ff9a4d00 95%)
+      right 30% bottom -70px / 180px 180px no-repeat,
+    radial-gradient(circle closest-side at 34% 30%, #ffffffd9, #fff0 60%) left
+      22% top 34px / 120px 120px no-repeat,
+    radial-gradient(circle closest-side, #ddd2ff, #8a63ff 93%, #8a63ff00 95%)
+      left 22% top 34px / 120px 120px no-repeat;
+  /* Rounded corners shared by the board (32px), tiles (20px) and controls. */
+  --glass-board-radius: 32px;
+  --button-radius: 12px;
+  --radius-panel: 20px;
+  color-scheme: light;
+  isolation: isolate;
+  background: var(--site-background);
+  color: var(--site-foreground);
+  line-height: 1.65;
+}
+html[data-appearance="glassmorphism"][data-theme="dark"] .themed-site {
+  --site-background: #12101c;
+  --site-surface: #211e36;
+  --site-raised: #2a2642;
+  --site-tint: #302b4c;
+  --site-foreground: #f6f3ff;
+  --site-muted: #c9c2e6;
+  --site-secondary-text: #e0dbf5;
+  --site-accent: #cbc6ff;
+  --site-accent-strong: #dcd8ff;
+  --site-border: #3d3758;
+  --site-control-border: #aea7d8;
+  --site-header: #16132a;
+  --site-primary: #ff6fae;
+  --site-primary-hover: #ff8fc0;
+  --site-on-primary: #2a0f1f;
+  --site-success: #93e8c4;
+  --site-warning: #f5d48f;
+  --site-danger: #ffb0c1;
+  --site-focus: #cbc6ff;
+  --site-selection: #3f3870;
+  --site-highlight: #ffbedb;
+  --site-connector: #615a88;
+  --site-shadow: #0000008c;
+  --site-soft-shadow: #00000059;
+  --site-panel-shadow: #000000a6;
+  --site-dialog-shadow: #000000b3;
+  --site-backdrop: #000000a6;
+  --glass-board-solid: #1d1a31;
+  --glass-board-clear: #1c1834a8;
+  --glass-tile-solid: #252140;
+  --glass-tile-clear: #231f40ad;
+  --glass-track-solid: #2d2850;
+  --glass-track-clear: #2d285099;
+  --glass-bar-solid: #16132a;
+  --glass-bar-clear: #16132acc;
+  --glass-footer-clear: #16132aad;
+  /* Smoked glass: a faint rim light, depth from black drops. */
+  --glass-sheen: linear-gradient(155deg, #ffffff0d, #ffffff00 32%);
+  --glass-tile-sheen: linear-gradient(165deg, #ffffff0a, #ffffff00 55%);
+  --glass-rim-top: #ffffff38;
+  --glass-rim-side: #ffffff1f;
+  --glass-rim-bottom: #ffffff0f;
+  --glass-edge: #ffffff1a;
+  --glass-mat: #ffffff14;
+  --glass-primary-edge: #ff6fae;
+  --glass-board-shadow:
+    inset 0 1px 0 var(--glass-rim-top), inset 1px 0 0 #ffffff14,
+    inset 0 -1px 0 #ffffff0a, 0 2px 4px -2px #0000004d,
+    0 24px 48px -28px #000000a6, 0 60px 90px -60px #000000b3;
+  --glass-back-pane: 14px 18px 0 -4px #ffffff12, 14px 30px 40px -24px #00000080;
+  --glass-tile-shadow:
+    inset 0 1px 0 #ffffff26, inset 0 -1px 0 #ffffff08, 0 1px 2px #0000004d,
+    0 14px 30px -18px #000000a6;
+  --glass-flat-shadow: inset 0 1px 0 #ffffff1f, 0 6px 14px -10px #00000099;
+  --glass-well: inset 0 1px 3px #00000066, inset 0 -1px 0 #ffffff0f;
+  --glass-field:
+    radial-gradient(34% 40% at 10% 10%, #ff3d8fb3, transparent 70%),
+    radial-gradient(32% 38% at 92% 8%, #1fa8ffa6, transparent 70%),
+    radial-gradient(38% 44% at 88% 90%, #ff8a3d8c, transparent 70%),
+    radial-gradient(34% 40% at 6% 92%, #7b4dffb3, transparent 70%),
+    linear-gradient(135deg, #1a1030, #120d22 45%, #0d1630);
+  /* Dark spheres shade towards black so light text keeps its contrast. */
+  --glass-spheres:
+    radial-gradient(circle closest-side, #ff3d8f, #8a1550 93%, #8a155000 95%)
+      right -90px top 150px / 260px 260px no-repeat,
+    radial-gradient(circle closest-side, #1fa8ff, #0b4a86 93%, #0b4a8600 95%)
+      left -84px top 56% / 200px 200px no-repeat,
+    radial-gradient(circle closest-side, #ff8a3d, #8a3a10 93%, #8a3a1000 95%)
+      right 30% bottom -70px / 180px 180px no-repeat,
+    radial-gradient(circle closest-side, #7b4dff, #33197f 93%, #33197f00 95%)
+      left 22% top 34px / 120px 120px no-repeat;
+  color-scheme: dark;
+}
+/* Layer 0: the colour field stays fixed behind everything; decoration only. */
+html[data-appearance="glassmorphism"] .themed-site::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background: var(--glass-field);
+  pointer-events: none;
+}
+html[data-appearance="glassmorphism"] .themed-site::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background: var(--glass-spheres);
+  pointer-events: none;
+}
+
+/* Clean type: system sans at 500/600, tight display headings. */
+html[data-appearance="glassmorphism"] .themed-site :is(h1, h2, h3, .brand) {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+html[data-appearance="glassmorphism"] .themed-site .eyebrow {
+  color: var(--site-accent);
+  letter-spacing: 0.14em;
+}
+html[data-appearance="glassmorphism"] .themed-site :focus-visible {
+  outline: 3px solid var(--site-focus);
+  outline-offset: 4px;
+}
+html[data-appearance="glassmorphism"] .themed-site ::selection {
+  background: var(--site-selection);
+  color: var(--site-foreground);
+}
+
+/* Layer 1: one glass board carries the page content. */
+html[data-appearance="glassmorphism"] .themed-site > main {
+  margin: 20px clamp(8px, 3.4vw, 52px) 0;
+  overflow: clip;
+  border: 1px solid;
+  border-color: var(--glass-rim-top) var(--glass-rim-side)
+    var(--glass-rim-bottom) var(--glass-rim-side);
+  border-radius: var(--glass-board-radius);
+  background: var(--glass-sheen), var(--glass-board);
+  box-shadow: var(--glass-board-shadow), var(--glass-back-pane);
+}
+
+/* The header and footer are glass bars on the field. */
+html[data-appearance="glassmorphism"] .themed-site .site-header {
+  border-bottom: 1px solid var(--glass-rim-side);
+  background: var(--glass-bar);
+  box-shadow:
+    inset 0 -1px 0 var(--glass-edge),
+    0 12px 28px -20px var(--site-panel-shadow);
+}
+html[data-appearance="glassmorphism"] .themed-site .site-footer {
+  margin-block: 28px;
+  padding-inline: 1.25rem;
+  border: 1px solid;
+  border-color: var(--glass-rim-top) var(--glass-rim-side)
+    var(--glass-rim-bottom);
+  border-radius: 18px;
+  background: var(--glass-footer);
+  box-shadow: var(--glass-tile-shadow);
+}
+
+/* Buttons: a glossy hot-pink primary; secondary buttons are white chips. */
+html[data-appearance="glassmorphism"] .themed-site {
+  --site-button-shadow:
+    inset 0 1px 0 #ffffff8c, inset 0 -3px 6px #a0105233,
+    0 8px 18px -10px #ff4f9aa6;
+}
+html[data-appearance="glassmorphism"][data-theme="dark"] .themed-site {
+  --site-button-shadow:
+    inset 0 1px 0 #ffffff80, inset 0 -3px 6px #a0105240,
+    0 8px 20px -10px #ff6faeb3;
+}
+html[data-appearance="glassmorphism"] .themed-site :is(button, .button) {
+  border-color: var(--glass-primary-edge);
+  font-weight: 600;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+html[data-appearance="glassmorphism"] .themed-site :is(button, .button):hover {
+  transform: none;
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(button, .button).secondary {
+  --site-button-shadow: var(--glass-flat-shadow);
+  border-color: var(--site-control-border);
+  background: var(--site-surface);
+  color: var(--site-accent);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(button, .button).secondary:hover {
+  background: var(--site-tint);
+  color: var(--site-accent-strong);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(button, .button):active:not(:disabled) {
+  --site-button-shadow: inset 0 2px 4px #461e8c40;
+  background: var(--site-primary);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(button, .button).secondary:active:not(:disabled) {
+  background: var(--site-selection);
+}
+/* Disabled reads as clouded glass: flat, dashed edge, plus the base opacity. */
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(button, .button):disabled,
+html[data-appearance="glassmorphism"]
+  .themed-site
+  .button[aria-disabled="true"] {
+  --site-button-shadow: none;
+  border-style: dashed;
+  border-color: var(--site-control-border);
+}
+
+/* Inputs: solid, never translucent, so typed text is always readable. */
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea
+  ) {
+  border-color: var(--site-control-border);
+  border-radius: var(--button-radius);
+  background-color: var(--site-surface);
+  box-shadow: var(--glass-well);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(input, select, textarea):disabled {
+  border-style: dashed;
+  background-color: var(--site-raised);
+  box-shadow: none;
+  color: var(--site-muted);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(.check-field, .check-label)
+  input {
+  accent-color: var(--site-accent);
+}
+
+/* The homepage header normally keeps the S11 palette (home.css); glass restores
+ * its own tokens there. `inherit` takes the glass values from .themed-site. */
+html[data-appearance="glassmorphism"]
+  .themed-site:has(.home-redesign)
+  .site-header,
+html[data-appearance="glassmorphism"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header {
+  --site-header: inherit;
+  --site-surface: inherit;
+  --site-raised: inherit;
+  --site-foreground: inherit;
+  --site-secondary-text: inherit;
+  --site-muted: inherit;
+  --site-accent: inherit;
+  --site-accent-strong: inherit;
+  --site-control-border: inherit;
+  --site-border: inherit;
+  --site-tint: inherit;
+  --site-primary: inherit;
+  --site-primary-hover: inherit;
+  --site-on-primary: inherit;
+  --color-muted: inherit;
+  --color-foreground: inherit;
+  --color-border: inherit;
+  background: var(--glass-bar);
+  color: var(--site-foreground);
+  color-scheme: inherit;
+}
+html[data-appearance="glassmorphism"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login {
+  border-color: var(--glass-primary-edge);
+  border-radius: var(--button-radius);
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+}
+html[data-appearance="glassmorphism"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login:hover {
+  background: var(--site-primary-hover);
+}
+html[data-appearance="glassmorphism"] .themed-site .main-nav > a[aria-current] {
+  color: var(--site-accent-strong);
+  border-color: var(--site-accent-strong);
+}
+/* Header controls are white chips. Menus stay solid: the header is already the
+ * glass layer, and a blur nested inside it cannot see the page below. */
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(.site-preferences .secondary, .menu-toggle) {
+  border-color: var(--site-control-border);
+  background: var(--site-surface);
+  color: var(--site-accent);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(.appearance-control, .language-control, .account-menu)
+  :is([role="menu"], .account-dropdown) {
+  border: 1px solid;
+  border-color: var(--glass-rim-top) var(--site-border) var(--site-border);
+  border-radius: 16px;
+  background: var(--site-surface);
+  box-shadow:
+    inset 0 1px 0 var(--glass-rim-top),
+    0 28px 56px -24px var(--site-dialog-shadow);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[role] {
+  border-color: transparent;
+  border-radius: 10px;
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[aria-checked="true"] {
+  border-color: var(--site-accent);
+  background: var(--site-selection);
+  color: var(--site-accent-strong);
+  font-weight: 600;
+}
+@media (max-width: 950px) {
+  html[data-appearance="glassmorphism"] .themed-site .main-nav.open {
+    border-color: var(--site-border);
+    background: var(--site-surface);
+    box-shadow: 0 28px 44px -28px var(--site-dialog-shadow);
+  }
+  html[data-appearance="glassmorphism"] .themed-site .main-nav > a {
+    border: 1px solid transparent;
+    border-radius: var(--button-radius);
+  }
+  html[data-appearance="glassmorphism"]
+    .themed-site
+    .main-nav
+    > a[aria-current] {
+    border-color: var(--site-accent);
+    background: var(--site-selection);
+    font-weight: 600;
+  }
+}
+
+/* Selection tracks are grooves in the glass; the selected item is a raised
+ * solid chip with an indigo edge. */
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(
+    .tournament-navigation nav,
+    .workspace-tabs,
+    .mappool-mods,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs
+  ) {
+  border: 1px solid var(--glass-rim-side);
+  border-radius: 16px;
+  background: var(--glass-track);
+  box-shadow: var(--glass-well);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs :is(button, .button),
+    .mappool-mods :is(button, .button),
+    .event-pills :is(button, .button),
+    .bracket-tabs :is(button, .button),
+    .event-tabs :is(button, .button)
+  ) {
+  --site-button-shadow: none;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--site-secondary-text);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs :is(button, .button),
+    .mappool-mods :is(button, .button),
+    .event-pills :is(button, .button),
+    .bracket-tabs :is(button, .button),
+    .event-tabs :is(button, .button)
+  ):hover {
+  background: color-mix(in srgb, var(--site-surface) 55%, transparent);
+  color: var(--site-accent-strong);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a[aria-current],
+    .workspace-tabs :is(button, .button)[aria-selected="true"],
+    .mappool-mods :is(button, .button)[aria-pressed="true"],
+    .event-pills :is(button, .button)[aria-pressed="true"],
+    .bracket-tabs :is(button, .button)[aria-pressed="true"],
+    .event-tabs :is(button, .button)[aria-pressed="true"]
+  ) {
+  --site-button-shadow: var(--glass-flat-shadow);
+  border-color: var(--site-accent);
+  background: var(--site-surface);
+  color: var(--site-accent-strong);
+  font-weight: 600;
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  .tournament-navigation
+  nav
+  a[aria-current] {
+  box-shadow: var(--glass-flat-shadow);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  .tournament-navigation
+  nav
+  a[aria-current]::before {
+  background: var(--site-primary);
+}
+html[data-appearance="glassmorphism"] .themed-site .event-tabs {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.3rem;
+}
+html[data-appearance="glassmorphism"] .themed-site .tournament-menu {
+  border-radius: 16px;
+}
+
+/* Layer 2: glass tiles sit on the board with their own bevel and drop. */
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(
+    .panel,
+    .season-overview-hero,
+    .edition-card,
+    .directory-details,
+    .about-aside,
+    .settings-card,
+    .identity-panel,
+    .registration-card,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .mappool-context,
+    .mappool-setup,
+    .information-active,
+    .table-scroll,
+    .information-table-scroll
+  ) {
+  border: 1px solid;
+  border-color: var(--glass-rim-top) var(--glass-rim-side)
+    var(--glass-rim-bottom);
+  border-radius: var(--radius-panel);
+  background: var(--glass-tile-sheen), var(--glass-tile);
+  box-shadow: var(--glass-tile-shadow);
+}
+/* Never stack tiles: anything nested in a tile is a plain solid surface. */
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(.panel, .season-overview-hero, .settings-card, .registration-card)
+  :is(
+    .panel,
+    .edition-card,
+    .settings-card,
+    .identity-panel,
+    .registration-card,
+    .table-scroll
+  ) {
+  border-color: var(--site-border);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+/* Repeated data: tiles with a light drop only, no blur per row or card. */
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(.match-card, .public-match-card, .map-browse-card, .player-card) {
+  border: 1px solid;
+  border-color: var(--glass-rim-top) var(--glass-rim-side)
+    var(--glass-rim-bottom);
+  border-radius: 16px;
+  background: var(--glass-tile-sheen), var(--glass-tile);
+  box-shadow: var(--glass-flat-shadow);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  :is(.mappool-public-round, .captain-player-card, .captain-order > li, table) {
+  border-color: var(--site-border);
+  box-shadow: none;
+}
+html[data-appearance="glassmorphism"] .themed-site :is(th, td) {
+  border-color: var(--glass-edge);
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="glassmorphism"] .themed-site th {
+  background: var(--site-raised);
+  color: var(--site-secondary-text);
+}
+html[data-appearance="glassmorphism"] .themed-site .badge {
+  border-color: var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-accent-strong);
+  font-weight: 600;
+}
+html[data-appearance="glassmorphism"] .themed-site .notice {
+  border-radius: 14px;
+}
+html[data-appearance="glassmorphism"] .themed-site .empty-state {
+  border-color: var(--site-control-border);
+  border-radius: 16px;
+}
+html[data-appearance="glassmorphism"] .themed-site dialog {
+  border: 1px solid;
+  border-color: var(--glass-rim-top) var(--site-border) var(--site-border);
+  border-radius: 24px;
+  background: var(--site-surface);
+  box-shadow:
+    inset 0 1px 0 var(--glass-rim-top),
+    0 40px 80px -32px var(--site-dialog-shadow);
+}
+
+/* Hero artwork stays literal inside a glass frame: a translucent mat and rim. */
+html[data-appearance="glassmorphism"] .themed-site .information-banner {
+  border-radius: 22px;
+  box-shadow:
+    0 0 0 6px var(--glass-mat),
+    0 0 0 7px var(--glass-rim-side),
+    0 30px 60px -30px var(--site-panel-shadow);
+}
+html[data-appearance="glassmorphism"] .themed-site .information-banner::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border: 1px solid #ffffff8c;
+  border-radius: inherit;
+  pointer-events: none;
+}
+/* Stage wheel: the current row sits in a solid chip. */
+html[data-appearance="glassmorphism"] .themed-site .stage-scroll-drum::before {
+  border: 1px solid var(--site-accent);
+  border-radius: 16px;
+  background: var(--site-surface);
+  box-shadow: var(--glass-flat-shadow);
+}
+html[data-appearance="glassmorphism"] .themed-site .event-intro {
+  border-radius: var(--radius-panel);
+}
+
+/* Progress: explicit rendering since accent-color varies across engines. */
+html[data-appearance="glassmorphism"] .themed-site progress {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 10px;
+  border: 1px solid var(--site-control-border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--site-surface);
+  color: var(--site-highlight);
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  progress::-webkit-progress-bar {
+  border-radius: inherit;
+  background: transparent;
+}
+html[data-appearance="glassmorphism"]
+  .themed-site
+  progress::-webkit-progress-value {
+  border-radius: inherit;
+  background: var(--site-highlight);
+}
+html[data-appearance="glassmorphism"] .themed-site progress::-moz-progress-bar {
+  border-radius: inherit;
+  background: var(--site-highlight);
+}
+
+@media (max-width: 640px) {
+  html[data-appearance="glassmorphism"] .themed-site {
+    --glass-board-radius: 24px;
+    --radius-panel: 16px;
+    --glass-back-pane: 6px 10px 0 -3px #ffffff47, 6px 18px 28px -18px #461e8c4d;
+  }
+  html[data-appearance="glassmorphism"][data-theme="dark"] .themed-site {
+    --glass-back-pane: 6px 10px 0 -3px #ffffff12, 6px 18px 28px -18px #00000080;
+  }
+  html[data-appearance="glassmorphism"] .themed-site > main {
+    margin-top: 12px;
+  }
+}
+
+/* Glass only where blur exists; otherwise the solid fills above apply. */
+@supports (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  html[data-appearance="glassmorphism"] .themed-site {
+    --glass-board: var(--glass-board-clear);
+    --glass-tile: var(--glass-tile-clear);
+    --glass-track: var(--glass-track-clear);
+    --glass-bar: var(--glass-bar-clear);
+    --glass-footer: var(--glass-footer-clear);
+  }
+  html[data-appearance="glassmorphism"] .themed-site > main {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+  html[data-appearance="glassmorphism"]
+    .themed-site
+    :is(.site-header, .site-footer) {
+    -webkit-backdrop-filter: var(--glass-bar-blur);
+    backdrop-filter: var(--glass-bar-blur);
+  }
+}
+
+/* Reduced transparency: every pane returns to its solid fallback. */
+@media (prefers-reduced-transparency: reduce) {
+  html[data-appearance="glassmorphism"] .themed-site {
+    --glass-board: var(--glass-board-solid);
+    --glass-tile: var(--glass-tile-solid);
+    --glass-track: var(--glass-track-solid);
+    --glass-bar: var(--glass-bar-solid);
+    --glass-footer: var(--glass-bar-solid);
+  }
+  html[data-appearance="glassmorphism"]
+    .themed-site
+    :is(main, .site-header, .site-footer) {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-appearance="glassmorphism"] .themed-site :is(button, .button, a) {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="glassmorphism"] .themed-site::before,
+  html[data-appearance="glassmorphism"] .themed-site::after,
+  html[data-appearance="glassmorphism"]
+    .themed-site
+    .information-banner::before {
+    display: none;
+  }
+  html[data-appearance="glassmorphism"] .themed-site {
+    --glass-board: Canvas;
+    --glass-tile: Canvas;
+    --glass-track: Canvas;
+    --glass-bar: Canvas;
+    --glass-footer: Canvas;
+    --glass-sheen: none;
+    --glass-tile-sheen: none;
+    --site-button-shadow: none;
+  }
+  html[data-appearance="glassmorphism"] .themed-site,
+  html[data-appearance="glassmorphism"] .themed-site * {
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  html[data-appearance="glassmorphism"] .themed-site progress {
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
+  html[data-appearance="glassmorphism"] .themed-site :focus-visible {
+    outline-color: Highlight;
+  }
+}

@@ -115,7 +115,7 @@ scores are demo data.
 - `npm run lint` and `npm run typecheck`: no errors.
 - `npm test` on the isolated `oclr_esports_test` database after merging the latest
   `main` (75800fe, with Manga halftone's 0039): 966 passed, 1 skipped (the same
-  skip as on `main`), including the new 0040 migration upgrade test.
+  skip as on `main`), including the new 0041 migration upgrade test.
 - `npm run build` passed; `npm audit --omit=dev` found 0 vulnerabilities.
 - `npm run i18n:extract` and `npm run test:i18n` passed.
 - Header navigation at 951px is exactly as wide as the default appearance in all
