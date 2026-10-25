@@ -115,7 +115,7 @@ scores are demo data.
 - `npm run lint` and `npm run typecheck`: no errors.
 - `npm test` on the isolated `oclr_esports_test` database after merging the latest
   `main` (5c5b3a3): 964 passed, 1 skipped (the same skip as on `main`), including
-  the new 0039 migration upgrade test.
+  the new 0040 migration upgrade test.
 - `npm run build` passed; `npm audit --omit=dev` found 0 vulnerabilities.
 - `npm run i18n:extract` and `npm run test:i18n` passed.
 - Header navigation at 951px is exactly as wide as the default appearance in all

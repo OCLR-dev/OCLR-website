@@ -1,0 +1,1211 @@
+/* Manga / Halftone (#238), based on the organizer's osu! Cup batch-2 style F.
+ * Ink-line hierarchy: 3px for the hero and large sections, 2px for controls
+ * and repeated cards, 1px for table rows, all with 2px square corners.
+ * Bangers sets English display titles; Chinese stays on the system sans at
+ * 700. Speech bubbles carry captions and notices, halftone sits around the
+ * hero, and speed lines are limited to a strip under page titles. Textures
+ * never sit behind text and ignore the pointer; nothing is rotated. The dark
+ * variant draws with warm-white ink instead of pure-white frames.
+ * Scoped to ordinary pages: OBS output has no .themed-site.
+ * Bangers is bundled under SIL OFL 1.1; see public/fonts/Bangers-OFL.txt.
+ */
+@font-face {
+  font-family: "Bangers";
+  src: url("/fonts/bangers-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  /* Latin only: CJK and other scripts fall through to the system sans. */
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+html[data-appearance="manga-halftone"]:not(:has(.broadcast-site)),
+html[data-appearance="manga-halftone"]:not(:has(.broadcast-site)) body {
+  background: #fbfaf8;
+}
+html[data-appearance="manga-halftone"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  ),
+html[data-appearance="manga-halftone"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  )
+  body {
+  background: #171418;
+}
+
+html[data-appearance="manga-halftone"] .themed-site {
+  --site-background: #fbfaf8;
+  --site-surface: #fff;
+  --site-raised: #f3edf1;
+  --site-tint: #fce1ed;
+  --site-foreground: #171515;
+  --site-muted: #64565c;
+  --site-secondary-text: #45343d;
+  --site-accent: #b42366;
+  --site-accent-strong: #8e1a50;
+  --site-border: #171515;
+  --site-control-border: #171515;
+  --site-header: #fff;
+  --site-primary: #171515;
+  --site-primary-hover: #40303a;
+  --site-on-primary: #fff;
+  --site-success: #21664c;
+  --site-warning: #805500;
+  --site-danger: #b32343;
+  --site-focus: #b42366;
+  --site-selection: #fce1ed;
+  --site-highlight: #b42366;
+  --site-connector: #171515;
+  --site-shadow: #17151526;
+  --site-soft-shadow: #17151514;
+  --site-panel-shadow: #17151520;
+  --site-dialog-shadow: #171515;
+  --site-backdrop: #10131d80;
+  /* Ink for every line; screentone pink is decoration, never a state. */
+  --manga-ink: #171515;
+  --manga-tone: #ff4f9a;
+  --manga-offset: #ff4f9a;
+  --manga-display: "Bangers", var(--font-sans);
+  /* G-pen nib (slit and breather hole cut out) with a drop of ink. */
+  --manga-nib: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cpath fill-rule='evenodd' d='M10 2h10l3 9-6 19-2 1-6-20zm5 9.5a2 2 0 1 0 0.01 0zM14.6 14h0.8l-.2 13h-.4z'/%3E%3Cpath d='M28 20c2 3 3 5 3 6.5a3 3 0 0 1-6 0c0-1.5 1-3.5 3-6.5z'/%3E%3C/svg%3E");
+  --manga-dots: radial-gradient(
+    circle,
+    var(--manga-tone) 1.7px,
+    transparent 2.2px
+  );
+  --manga-speed: repeating-linear-gradient(
+    180deg,
+    var(--manga-ink) 0 2px,
+    transparent 2px 5px
+  );
+  --site-button-shadow: 3px 3px 0 var(--manga-offset);
+  --button-radius: 2px;
+  --radius-panel: 2px;
+  color-scheme: light;
+  background: var(--site-background);
+  color: var(--site-foreground);
+  line-height: 1.65;
+}
+html[data-appearance="manga-halftone"][data-theme="dark"] .themed-site {
+  --site-background: #171418;
+  --site-surface: #251e25;
+  --site-raised: #352b34;
+  --site-tint: #4d2e41;
+  --site-foreground: #fff5fa;
+  --site-muted: #d6b8c8;
+  --site-secondary-text: #efd7e4;
+  --site-accent: #ff97c7;
+  --site-accent-strong: #ffc2de;
+  --site-border: #e9dccb;
+  --site-control-border: #e9dccb;
+  --site-header: #1e1920;
+  --site-primary: #ff7eb9;
+  --site-primary-hover: #ffacd3;
+  --site-on-primary: #291020;
+  --site-success: #91e0bd;
+  --site-warning: #f0ce85;
+  --site-danger: #ffa0b4;
+  --site-focus: #ff97c7;
+  --site-selection: #4d2e41;
+  --site-highlight: #ff97c7;
+  --site-connector: #e9dccb;
+  --site-shadow: #0006;
+  --site-soft-shadow: #0003;
+  --site-panel-shadow: #0005;
+  --site-dialog-shadow: #000;
+  --site-backdrop: #050810b3;
+  /* Warm-white ink, never a pure-white page frame. */
+  --manga-ink: #e9dccb;
+  --manga-tone: #c94a85;
+  --manga-offset: #ff7eb9;
+  color-scheme: dark;
+}
+
+/* Type: Bangers for display Latin, system sans 700 for Chinese and body. */
+html[data-appearance="manga-halftone"] .themed-site :is(h1, h2, h3) {
+  font-weight: 700;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    .page-heading h1,
+    .information-heading h1,
+    .event-section-heading h1,
+    .event-statistics > h1,
+    .information-document section > h2,
+    .archive-overview-rules > h2,
+    .section-title h2,
+    .home-redesign h2
+  ) {
+  font-family: var(--manga-display);
+  letter-spacing: 0.03em;
+  /* Bangers ships one weight: never fake-bold it, keep CJK fallback at 700. */
+  font-synthesis-weight: none;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    .page-heading h1,
+    .information-heading h1,
+    .event-section-heading h1,
+    .event-statistics > h1
+  ) {
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  line-height: 1.05;
+  /* Break CJK titles at spaces and punctuation, not inside a word. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.information-document section > h2, .archive-overview-rules > h2) {
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  line-height: 1.15;
+}
+html[data-appearance="manga-halftone"] .themed-site :focus-visible {
+  outline: 3px solid var(--site-focus);
+  outline-offset: 4px;
+}
+html[data-appearance="manga-halftone"] .themed-site ::selection {
+  background: var(--site-selection);
+  color: var(--site-foreground);
+}
+
+/* Page titles: a speed-line strip under the words, never behind them. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    .page-heading h1,
+    .information-heading h1,
+    .event-section-heading h1,
+    .event-statistics > h1
+  )::after {
+  content: "";
+  display: block;
+  width: min(16rem, 70%);
+  height: 12px;
+  margin-top: 0.45rem;
+  background: var(--manga-speed);
+  /* Staggered streak ends: each line fades out at a different length. */
+  -webkit-mask:
+    linear-gradient(90deg, #000 45%, transparent) 0 0 / 100% 5px no-repeat,
+    linear-gradient(90deg, #000 75%, transparent) 0 5px / 100% 2px no-repeat,
+    linear-gradient(90deg, #000 25%, transparent 65%) 0 10px / 100% 2px
+      no-repeat;
+  mask:
+    linear-gradient(90deg, #000 45%, transparent) 0 0 / 100% 5px no-repeat,
+    linear-gradient(90deg, #000 75%, transparent) 0 5px / 100% 2px no-repeat,
+    linear-gradient(90deg, #000 25%, transparent 65%) 0 10px / 100% 2px
+      no-repeat;
+  pointer-events: none;
+}
+/* Page eyebrows become a speech-bubble caption above the title. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.page-heading, .information-heading, .event-intro)
+  > .eyebrow {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.15rem 0.9rem;
+  border: 2px solid var(--manga-ink);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-foreground);
+  font-family: var(--manga-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-synthesis-weight: none;
+  letter-spacing: 0.08em;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.page-heading, .information-heading, .event-intro)
+  > .eyebrow::after {
+  content: "";
+  position: absolute;
+  left: 1.1rem;
+  bottom: -7px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--manga-ink);
+  border-bottom: 2px solid var(--manga-ink);
+  background: inherit;
+  transform: skewX(-25deg) rotate(45deg);
+  pointer-events: none;
+}
+/* Section headings: a tapered G-pen stroke under the heading text. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.information-document section > h2, .archive-overview-rules > h2) {
+  border-bottom: 0;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.information-document section > h2, .archive-overview-rules > h2)::after {
+  content: "";
+  display: block;
+  width: min(30rem, 85%);
+  height: 9px;
+  margin-top: 0.3rem;
+  background: var(--manga-ink);
+  /* Pressure curve: a firm start, a swell, then a long thinning tail. */
+  clip-path: polygon(
+    0 45%,
+    2% 10%,
+    18% 0,
+    55% 25%,
+    100% 62%,
+    100% 70%,
+    60% 82%,
+    20% 100%,
+    3% 95%
+  );
+  pointer-events: none;
+}
+
+/* Hero: a 3px ink panel. Outside the overview it keeps a pink print offset. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.season-overview-hero, .hero, .information-banner) {
+  border: 3px solid var(--manga-ink);
+  border-radius: var(--radius-panel);
+  box-shadow: 7px 7px 0 var(--manga-offset);
+}
+html[data-appearance="manga-halftone"] .themed-site .season-overview-hero {
+  background: var(--site-surface);
+}
+
+/* Koma: the edition overview reads as a manga page. Title, artwork and stage
+ * wheel are three ink panels split by narrow paper gutters; the title panel
+ * has a cut corner, and its speech bubble breaks the top frame. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .information-page
+  > .information-heading {
+  --koma-cut: 36px;
+  position: relative;
+  margin-bottom: 14px;
+  padding: 1.75rem 1.5rem 1.25rem;
+  border: 3px solid var(--manga-ink);
+  border-radius: 0;
+  background:
+    linear-gradient(
+        to top left,
+        transparent 50%,
+        var(--manga-ink) 50% calc(50% + 4px),
+        transparent calc(50% + 4px)
+      )
+      right bottom / var(--koma-cut) var(--koma-cut) no-repeat border-box,
+    var(--site-surface);
+  /* Extends above the frame so the breaking bubble is not clipped. */
+  clip-path: polygon(
+    0 -3rem,
+    100% -3rem,
+    100% calc(100% - var(--koma-cut)),
+    calc(100% - var(--koma-cut)) 100%,
+    0 100%
+  );
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .information-page
+  > .information-heading
+  > .eyebrow {
+  margin-top: calc(-1.75rem - 3px - 0.95rem);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .information-page
+  > .information-banner {
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .information-page
+  > .stage-scroll {
+  margin: 14px 0 2.5rem;
+  padding-top: 0.5rem;
+  border: 3px solid var(--manga-ink);
+  border-radius: 0;
+  background: var(--site-surface);
+}
+@media (min-width: 768px) {
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-page
+    > .information-heading {
+    --koma-tone: 24%;
+  }
+}
+@media (min-width: 1200px) {
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-page
+    > .information-heading {
+    --koma-tone: min(36%, 360px);
+  }
+}
+@media (min-width: 768px) {
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-page
+    > .information-heading
+    > * {
+    position: relative;
+    max-width: calc(100% - var(--koma-tone) - 1rem);
+  }
+  /* Two screentone layers inside the title panel: large dots gather in the
+   * cut corner beside the artwork, small dots fade out toward the title. */
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-page
+    > .information-heading::before,
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-page
+    > .information-heading::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: var(--koma-tone);
+    height: 100%;
+    pointer-events: none;
+  }
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-page
+    > .information-heading::before {
+    background: radial-gradient(
+        circle,
+        var(--manga-tone) 2.8px,
+        transparent 3.3px
+      )
+      0 0 / 10px 10px;
+    -webkit-mask: radial-gradient(
+      circle at 100% 100%,
+      #000 0 26%,
+      transparent 46%
+    );
+    mask: radial-gradient(circle at 100% 100%, #000 0 26%, transparent 46%);
+  }
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-page
+    > .information-heading::after {
+    background: radial-gradient(
+        circle,
+        var(--manga-tone) 1.5px,
+        transparent 2px
+      )
+      0 0 / 10px 10px;
+    -webkit-mask: radial-gradient(
+      circle at 100% 100%,
+      transparent 0 34%,
+      #000 46%,
+      transparent 88%
+    );
+    mask: radial-gradient(
+      circle at 100% 100%,
+      transparent 0 34%,
+      #000 46%,
+      transparent 88%
+    );
+  }
+}
+
+/* Buttons: ink plates with a pink print offset; press closes the gap. */
+html[data-appearance="manga-halftone"] .themed-site :is(button, .button) {
+  border-width: 2px;
+  border-color: var(--manga-ink);
+  font-weight: 700;
+  transition:
+    box-shadow 120ms ease-out,
+    background-color 120ms ease-out,
+    transform 120ms ease-out;
+}
+html[data-appearance="manga-halftone"] .themed-site :is(button, .button):hover {
+  transform: none;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(button, .button):active:not(:disabled) {
+  --site-button-shadow: 1px 1px 0 var(--manga-offset);
+  transform: translate(2px, 2px);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(button, .button).secondary {
+  --site-button-shadow: none;
+  color: var(--site-foreground);
+  background: var(--site-surface);
+  border-color: var(--manga-ink);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(button, .button).secondary:hover {
+  background: var(--site-tint);
+}
+/* Disabled reads as an unfinished pencil line: dashed, flat, base opacity. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(button, .button):disabled,
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .button[aria-disabled="true"] {
+  --site-button-shadow: none;
+  border-style: dashed;
+  transform: none;
+}
+/* Buttons inside tracks and menus never carry the print offset. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    [role="menu"],
+    [role="tablist"],
+    [role="listbox"],
+    .workspace-tabs,
+    .mappool-mods,
+    .mappool-rounds,
+    .mappool-pools,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs,
+    .archive-status-tabs,
+    .main-nav,
+    .site-preferences,
+    .stage-scroll-controls
+  ) {
+  --site-button-shadow: none;
+}
+
+/* Inputs: square ink boxes on paper. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea
+  ) {
+  border-width: 2px;
+  border-color: var(--manga-ink);
+  border-radius: var(--button-radius);
+  background-color: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(input, select, textarea):disabled {
+  border-style: dashed;
+  color: var(--site-muted);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.check-field, .check-label)
+  input {
+  accent-color: var(--site-accent);
+}
+
+/* Header: a paper strip over a 3px ink rule; the current section is an ink tab. */
+html[data-appearance="manga-halftone"] .themed-site .site-header {
+  background: var(--site-header);
+  border-bottom: 3px solid var(--manga-ink);
+  box-shadow: none;
+}
+/* The homepage header normally keeps the S11 palette (home.css); manga
+ * restores its own ink tokens there. `inherit` takes them from .themed-site. */
+html[data-appearance="manga-halftone"]
+  .themed-site:has(.home-redesign)
+  .site-header,
+html[data-appearance="manga-halftone"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header {
+  --site-header: inherit;
+  --site-surface: inherit;
+  --site-raised: inherit;
+  --site-foreground: inherit;
+  --site-secondary-text: inherit;
+  --site-muted: inherit;
+  --site-accent: inherit;
+  --site-accent-strong: inherit;
+  --site-control-border: inherit;
+  --site-border: inherit;
+  --site-tint: inherit;
+  --site-primary: inherit;
+  --site-primary-hover: inherit;
+  --site-on-primary: inherit;
+  --color-muted: inherit;
+  --color-foreground: inherit;
+  --color-border: inherit;
+  background: var(--site-header);
+  color: var(--site-foreground);
+  color-scheme: inherit;
+}
+html[data-appearance="manga-halftone"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login {
+  border-color: var(--manga-ink);
+  border-radius: var(--button-radius);
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+}
+html[data-appearance="manga-halftone"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login:hover {
+  background: var(--site-primary-hover);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.appearance-control, .language-control, .account-menu)
+  :is([role="menu"], .account-dropdown) {
+  border: 2px solid var(--manga-ink);
+  border-radius: var(--radius-panel);
+  background: var(--site-surface);
+  box-shadow: 4px 4px 0 var(--manga-offset);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[role] {
+  border-radius: var(--button-radius);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[aria-checked="true"],
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .account-dropdown
+  a[aria-current] {
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  font-weight: 700;
+}
+@media (min-width: 951px) {
+  /* Padded tabs with a tight gap stay narrower than the default nav at 951px. */
+  html[data-appearance="manga-halftone"] .themed-site .main-nav {
+    gap: 0.3rem;
+  }
+  html[data-appearance="manga-halftone"] .themed-site .main-nav > a {
+    padding-inline: 0.45rem;
+    border-bottom: 0;
+    color: var(--site-secondary-text);
+    transition: none;
+  }
+  html[data-appearance="manga-halftone"] .themed-site .main-nav > a:hover {
+    color: var(--site-foreground);
+    text-decoration: underline 2px;
+    text-underline-offset: 5px;
+  }
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .main-nav
+    > a[aria-current] {
+    background: var(--site-primary);
+    color: var(--site-on-primary);
+    font-weight: 700;
+    text-decoration: none;
+  }
+}
+@media (max-width: 950px) {
+  html[data-appearance="manga-halftone"] .themed-site .main-nav.open {
+    border: 3px solid var(--manga-ink);
+    border-radius: var(--radius-panel);
+    background: var(--site-surface);
+    box-shadow: 5px 5px 0 var(--manga-offset);
+  }
+  html[data-appearance="manga-halftone"] .themed-site .main-nav > a {
+    border-radius: var(--button-radius);
+  }
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .main-nav
+    > a[aria-current] {
+    border-color: var(--site-primary);
+    background: var(--site-primary);
+    color: var(--site-on-primary);
+    font-weight: 700;
+  }
+}
+
+/* Selection tracks: an ink-framed strip; the selected item is an inverted cell. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    .tournament-navigation nav,
+    .workspace-tabs,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs
+  ) {
+  border: 2px solid var(--manga-ink);
+  border-radius: var(--radius-panel);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs button,
+    .event-pills button,
+    .bracket-tabs button,
+    .event-tabs button
+  ) {
+  border: 0;
+  border-radius: var(--button-radius);
+  background: transparent;
+  color: var(--site-secondary-text);
+  box-shadow: none;
+}
+/* Mod filters in private tools are separate ink chips, like the source's tabs. */
+html[data-appearance="manga-halftone"] .themed-site .mappool-mods {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"] .themed-site .mappool-mods button {
+  border: 2px solid var(--manga-ink);
+  border-radius: var(--button-radius);
+  background: var(--site-surface);
+  color: var(--site-foreground);
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs button,
+    .mappool-mods button,
+    .event-pills button,
+    .bracket-tabs button,
+    .event-tabs button
+  ):hover {
+  background: var(--site-tint);
+  color: var(--site-foreground);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a[aria-current],
+    .workspace-tabs button[aria-selected="true"],
+    .mappool-mods button[aria-pressed="true"],
+    .event-pills button[aria-pressed="true"],
+    .bracket-tabs button[aria-pressed="true"],
+    .event-tabs button[aria-pressed="true"]
+  ) {
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  font-weight: 700;
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .mappool-mods
+  button[aria-pressed="true"] {
+  border-color: var(--site-primary);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .tournament-navigation
+  nav
+  a[aria-current]::before {
+  border-radius: 0;
+  background: var(--site-on-primary);
+}
+html[data-appearance="manga-halftone"] .themed-site .event-tabs {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.25rem;
+}
+
+/* Speech bubbles: the current phase and status notices. */
+html[data-appearance="manga-halftone"] .themed-site .notice {
+  position: relative;
+  border: 2px solid var(--manga-ink);
+  border-radius: 1.25rem;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"] .themed-site .notice {
+  margin-bottom: 1rem;
+}
+html[data-appearance="manga-halftone"] .themed-site .notice::after {
+  content: "";
+  position: absolute;
+  left: 2rem;
+  bottom: -9px;
+  width: 14px;
+  height: 14px;
+  border-right: inherit;
+  border-bottom: inherit;
+  background: inherit;
+  transform: skewX(-25deg) rotate(45deg);
+  pointer-events: none;
+}
+/* Stage wheel: the current phase sits in a speech bubble; ::after becomes its
+ * tail instead of the default accent bar. */
+html[data-appearance="manga-halftone"] .themed-site .stage-scroll-drum::before {
+  border: 3px solid var(--manga-ink);
+  border-radius: 1.25rem;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"] .themed-site .stage-scroll-drum::after {
+  top: calc(var(--wheel-row) * 2 - 8px);
+  left: 2.25rem;
+  z-index: -1;
+  width: 14px;
+  height: 14px;
+  border-right: 3px solid var(--manga-ink);
+  border-bottom: 3px solid var(--manga-ink);
+  border-radius: 0;
+  background: var(--site-surface);
+  transform: skewX(-25deg) rotate(45deg);
+}
+/* Narrow rows wrap past the wheel row height (also on the default design);
+ * give the bubble 6px of air so the ink line never cuts through the title. */
+@media (max-width: 480px) {
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .stage-scroll-drum::before {
+    inset-block-start: calc(var(--wheel-row) - 6px);
+    height: calc(var(--wheel-row) + 12px);
+  }
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .stage-scroll-drum::after {
+    top: calc(var(--wheel-row) * 2 - 2px);
+  }
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .stage-scroll-controls
+  button {
+  border-radius: var(--button-radius);
+}
+html[data-appearance="manga-halftone"] .themed-site .event-intro {
+  border-radius: var(--radius-panel);
+}
+
+/* Large sections: 3px ink panels. Repeated cards 2px; table rows 1px. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    .panel,
+    .edition-card,
+    .directory-details,
+    .about-aside,
+    .settings-card,
+    .identity-panel,
+    .registration-card,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .rules-article,
+    [data-handbook],
+    .mappool-context,
+    .mappool-setup,
+    .pool-summary,
+    .tournament-menu
+  ) {
+  border-width: 3px;
+  border-color: var(--manga-ink);
+  border-radius: var(--radius-panel);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"] .themed-site .tournament-menu {
+  border-width: 2px;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(
+    .match-card,
+    .public-match-card,
+    .map-browse-card,
+    .mappool-public-round,
+    .player-card,
+    .captain-player-card,
+    .captain-order > li,
+    .table-scroll,
+    .event-table-scroll,
+    .event-bracket-scroll,
+    table
+  ) {
+  border-color: var(--manga-ink);
+  border-radius: var(--radius-panel);
+  box-shadow: none;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.match-card, .public-match-card, .map-browse-card, .player-card) {
+  border-width: 2px;
+}
+html[data-appearance="manga-halftone"] .themed-site :is(th, td) {
+  border-color: var(--manga-ink);
+  border-width: 0 0 1px;
+  font-variant-numeric: tabular-nums;
+}
+/* Table headers read as a black caption band; :is() outranks the
+ * statistics table's transparent header rule. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(table, .event-table)
+  th {
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  font-weight: 700;
+}
+html[data-appearance="manga-halftone"] .themed-site .badge {
+  border: 2px solid var(--manga-ink);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-foreground);
+  font-weight: 700;
+}
+/* Slot labels are solid ink plates lettered in Bangers, like the source's map tags. */
+html[data-appearance="manga-halftone"] .themed-site .map-slot-badge {
+  border: 0;
+  border-radius: 0;
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  font-family: var(--manga-display);
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+/* Missing covers stay neutral paper, not a large pink block. */
+html[data-appearance="manga-halftone"] .themed-site .beatmap-cover {
+  border-radius: var(--radius-panel);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.beatmap-cover, .map-card-cover):not(:has(img)) {
+  background: var(--site-raised);
+}
+/* Rules contents: the current chapter is an inverted ink cell. */
+html[data-appearance="manga-halftone"] .themed-site .rules-handbook nav a {
+  border-radius: var(--button-radius);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .rules-handbook
+  nav
+  a:hover {
+  background: var(--site-tint);
+  color: var(--site-foreground);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .rules-handbook
+  nav
+  a[aria-current] {
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  font-weight: 700;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .rules-handbook
+  nav
+  a[aria-current]
+  span {
+  color: inherit;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  :is(.rules-article, [data-handbook])
+  section
+  + section {
+  border-top: 1px solid var(--manga-ink);
+}
+/* Thought balloon: empty states are a soft cloud trailing two small bubbles. */
+html[data-appearance="manga-halftone"] .themed-site .empty-state {
+  position: relative;
+  margin-bottom: 2.5rem;
+  padding: 1.25rem 2rem;
+  border: 2px solid var(--manga-ink);
+  border-radius: 2.5rem / 2rem;
+  background: var(--site-surface);
+  color: var(--site-secondary-text);
+}
+html[data-appearance="manga-halftone"] .themed-site .empty-state::before,
+html[data-appearance="manga-halftone"] .themed-site .empty-state::after {
+  content: "";
+  position: absolute;
+  border: 2px solid var(--manga-ink);
+  border-radius: 50%;
+  background: var(--site-surface);
+  pointer-events: none;
+}
+html[data-appearance="manga-halftone"] .themed-site .empty-state::before {
+  left: 2.75rem;
+  bottom: -20px;
+  width: 16px;
+  height: 14px;
+}
+html[data-appearance="manga-halftone"] .themed-site .empty-state::after {
+  left: 2rem;
+  bottom: -34px;
+  width: 9px;
+  height: 8px;
+}
+/* Shout balloon: the current phase label bursts out of the wheel. The label
+ * keeps a solid pill behind its text; the spikes are an extra layer. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .stage-scroll-row.is-current
+  .stage-scroll-status {
+  position: relative;
+  isolation: isolate;
+  margin-inline: 0.5rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  font-weight: 700;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .stage-scroll-row.is-current
+  .stage-scroll-status::before {
+  content: "";
+  position: absolute;
+  inset: -7px -10px;
+  z-index: -1;
+  background: var(--site-primary);
+  clip-path: polygon(
+    50% 0,
+    60.4% 11.4%,
+    75% 6.7%,
+    78.3% 21.7%,
+    93.3% 25%,
+    88.6% 39.6%,
+    100% 50%,
+    88.6% 60.4%,
+    93.3% 75%,
+    78.3% 78.3%,
+    75% 93.3%,
+    60.4% 88.6%,
+    50% 100%,
+    39.6% 88.6%,
+    25% 93.3%,
+    21.7% 78.3%,
+    6.7% 75%,
+    11.4% 60.4%,
+    0 50%,
+    11.4% 39.6%,
+    6.7% 25%,
+    21.7% 21.7%,
+    25% 6.7%,
+    39.6% 11.4%
+  );
+  pointer-events: none;
+}
+/* Narration box: the rules contents label is a square caption. */
+html[data-appearance="manga-halftone"]
+  .themed-site
+  .rules-desktop-contents
+  > .eyebrow {
+  width: fit-content;
+  padding: 0.1rem 0.6rem;
+  border: 2px solid var(--manga-ink);
+  background: var(--site-surface);
+  color: var(--site-foreground);
+  font-family: var(--manga-display);
+  font-size: 0.95rem;
+  font-synthesis-weight: none;
+  letter-spacing: 0.1em;
+}
+/* Line tone: tournament cards cast a hatched screentone shade, drawn by a
+ * lower layer under a paper layer so the hatching never reaches the content. */
+html[data-appearance="manga-halftone"] .themed-site .edition-card {
+  position: relative;
+  isolation: isolate;
+}
+html[data-appearance="manga-halftone"] .themed-site .edition-card::before,
+html[data-appearance="manga-halftone"] .themed-site .edition-card::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+html[data-appearance="manga-halftone"] .themed-site .edition-card::before {
+  inset: 9px -12px -12px 9px;
+  z-index: -2;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--manga-ink) 0 1.5px,
+    transparent 1.5px 5px
+  );
+  opacity: 0.75;
+}
+html[data-appearance="manga-halftone"] .themed-site .edition-card::after {
+  inset: 0;
+  z-index: -1;
+  background: var(--site-surface);
+}
+/* Ink and pen: a G-pen nib and a drop of ink rest on the footer rule. */
+html[data-appearance="manga-halftone"] .themed-site .site-footer {
+  position: relative;
+}
+/* ::before opens a paper gap in the rule; ::after draws the nib in it. */
+html[data-appearance="manga-halftone"] .themed-site .site-footer::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 52px;
+  height: 9px;
+  transform: translateX(-50%);
+  background: var(--site-background);
+  pointer-events: none;
+}
+html[data-appearance="manga-halftone"] .themed-site .site-footer::after {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translateX(-50%);
+  background: var(--manga-ink);
+  -webkit-mask: var(--manga-nib) center / contain no-repeat;
+  mask: var(--manga-nib) center / contain no-repeat;
+  pointer-events: none;
+}
+html[data-appearance="manga-halftone"] .themed-site dialog {
+  border: 3px solid var(--manga-ink);
+  border-radius: var(--radius-panel);
+  background: var(--site-surface);
+  box-shadow: 8px 8px 0 var(--manga-offset);
+}
+html[data-appearance="manga-halftone"] .themed-site .site-footer {
+  border-top: 3px solid var(--manga-ink);
+}
+
+/* Progress: an ink box over a screentone track; explicit since accent-color varies. */
+html[data-appearance="manga-halftone"] .themed-site progress {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 14px;
+  border: 2px solid var(--manga-ink);
+  border-radius: var(--button-radius);
+  overflow: hidden;
+  background:
+    var(--manga-dots) 0 0 / 6px 6px,
+    var(--site-surface);
+  color: var(--site-accent);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  progress::-webkit-progress-bar {
+  border-radius: 0;
+  background: transparent;
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  progress::-webkit-progress-value {
+  border-right: 2px solid var(--manga-ink);
+  border-radius: 0;
+  background: var(--site-accent);
+}
+html[data-appearance="manga-halftone"]
+  .themed-site
+  progress::-moz-progress-bar {
+  border-radius: 0;
+  background: var(--site-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-appearance="manga-halftone"] .themed-site :is(button, .button, a) {
+    transition: none;
+  }
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    :is(button, .button):active:not(:disabled) {
+    transform: none;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="manga-halftone"] .themed-site,
+  html[data-appearance="manga-halftone"] .themed-site * {
+    --site-button-shadow: none;
+    box-shadow: none !important;
+  }
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    :is(
+      .page-heading h1,
+      .information-heading h1,
+      .event-section-heading h1,
+      .event-statistics > h1,
+      .information-document section > h2,
+      .archive-overview-rules > h2,
+      .eyebrow,
+      .notice,
+      .empty-state,
+      .edition-card,
+      .site-footer
+    )::after,
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    :is(.empty-state, .edition-card, .site-footer)::before,
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .stage-scroll-row.is-current
+    .stage-scroll-status::before,
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-heading::before,
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-heading::after,
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .stage-scroll-drum::after {
+    display: none;
+  }
+  /* Fills are replaced by system colours, so selection also gets an underline. */
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    :is(
+      .main-nav > a[aria-current],
+      .tournament-navigation nav a[aria-current],
+      .workspace-tabs button[aria-selected="true"],
+      .mappool-mods button[aria-pressed="true"],
+      .event-pills button[aria-pressed="true"],
+      .bracket-tabs button[aria-pressed="true"],
+      .event-tabs button[aria-pressed="true"],
+      .rules-handbook nav a[aria-current],
+      [role="menu"] button[aria-checked="true"]
+    ) {
+    text-decoration: underline 3px;
+    text-underline-offset: 4px;
+  }
+  html[data-appearance="manga-halftone"] .themed-site progress {
+    appearance: auto;
+    -webkit-appearance: auto;
+    background: Canvas;
+  }
+  html[data-appearance="manga-halftone"] .themed-site :focus-visible {
+    outline-color: Highlight;
+  }
+  /* The cut corner's diagonal is a background, so keep the panel square. */
+  html[data-appearance="manga-halftone"]
+    .themed-site
+    .information-page
+    > .information-heading {
+    clip-path: none;
+  }
+}

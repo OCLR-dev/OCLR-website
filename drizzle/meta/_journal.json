@@ -278,8 +278,15 @@
     {
       "idx": 39,
       "version": "7",
-      "when": 1792899518650,
-      "tag": "0039_esports_broadcast_appearance",
+      "when": 1792899526350,
+      "tag": "0039_manga_halftone_appearance",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1792908434564,
+      "tag": "0040_esports_broadcast_appearance",
       "breakpoints": true
     }
   ]

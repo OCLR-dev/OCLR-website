@@ -1,6 +1,6 @@
 # F — 漫畫風 / Manga / Halftone
 
-追蹤：[#238](https://github.com/PhoenixEmik/OCLR-website/issues/238) · **P3** · 未實作／未註冊為正式 appearance。
+追蹤：[#238](https://github.com/PhoenixEmik/OCLR-website/issues/238) · **P3** · 已註冊為正式 appearance `manga-halftone`，見文末「正式實作」。
 
 ## 視覺主張與範圍
 
@@ -123,3 +123,19 @@ B Swiss 用細線與留白；F 使用粗墨線、網點及對話框造型。不�
 - forced colors 降級通過。
 - [Desktop Light](desktop-light.webp)／[Dark](desktop-dark.webp)；[Mobile Light](mobile-light.webp)／[Dark](mobile-dark.webp)。
 - [本款機器可讀報告](verification.json)。這些結果只涵蓋離線 CSS specimen，未驗收正式頁面、三語、DB migration 或部署。
+
+## 正式實作（#238）
+
+正式樣式位於 [src/app/manga-theme.css](../../../../src/app/manga-theme.css)，以 `html[data-appearance="manga-halftone"] .themed-site` 為範圍；OBS／presenter 不受影響。實作對照本文件的規格：
+
+- **配色沿用上方候選 token。**亮版白紙 `#fbfaf8`、墨 `#171515`、強調 `#b42366`；暗版 `#171418`／`#251e25`、主要按鈕 `#ff7eb9`。網點粉 `#ff4f9a`（暗版 `#c94a85`）只作裝飾，不作狀態色。所有文字對 background／surface／raised／tint／selected ≥5.0:1，墨線與 focus ≥5.0:1。
+- **墨線分級，2px 方角。**3px：hero 橫幅、面板、規則、賽事卡、dialog 等大區塊；2px：按鈕、輸入框、選單、篩選軌道與反覆卡片；1px：表格列線。表格表頭改為黑底白字的旁白帶。來源中每個數值都加粗框的做法不保留。
+- **字體。**英文 display 標題、頁面 eyebrow 與譜面 slot 標籤使用 Bangers（SIL OFL 1.1，取自 `@fontsource/bangers` 5.3.0 的 Latin woff2，本地打包於 `public/fonts`）。`unicode-range` 只含 Latin，中文字自動回退系統 sans 並維持 700；Bangers 只有 400，關閉粗體合成。已核對字形涵蓋英文、數字與常用標點（★ 回退系統字體）；無遠端字體請求。
+- **漫畫分格（コマ）。**賽事概覽頁以漫畫頁面編排：標題、主視覺與階段滾輪為三個 3px 墨線格，間以窄白縫；標題格切一個斜角，標題上方的對話框突出格框。
+- **對話框種類。**對白框：頁面 eyebrow 與狀態提示 `.notice`（含尾巴）；目前階段為對白框，「當前階段」標籤為爆炸框（墨色實心底上的白字，尖角為額外圖層）；空狀態為思考框（圓角雲框加兩個小泡）；規則目錄標題為旁白框。裝飾偽元素皆 `pointer-events: none`。
+- **漫畫家工具。**網點：標題格斜角處的大小漸變網點與進度條；網線（斜線網點）：賽事卡片的陰影，由紙張圖層隔開，不會落在內容上；G 筆：章節標題下方粗細漸變的筆觸；速度線：頁面標題下方；墨水與筆尖：頁尾分隔線中央的 G 筆筆尖與墨滴。
+- **紋理限定面積。**網點只在標題格的斜角一側，大點靠近角落、小點向外淡出，不疊在賽事主視覺上，768px 以下不顯示；標題文字與網點不重疊（已在 768／1024／1440px 量測）。全部紋理不在文字背後。
+- **按鈕不旋轉。**移除來源的 `rotate(-2deg)`；主要按鈕為墨色實心加 3px 粉色套印偏移，按下時偏移縮為 1px 並平移 2px（`transform` 不影響版面）。
+- **狀態不依賴陰影或顏色。**selected／目前分頁／已勾選選單為墨色反白加粗；disabled 為虛線框加既有透明度；focus 為 3px 實線、4px offset。`forced-colors` 移除陰影與裝飾，並為選中項加底線。
+- **暗版溫白墨線。**暗版所有墨線為溫白 `#e9dccb`，沒有滿頁純白粗框。
+- **首頁 header。**與 Claymorphism 相同，只在選擇本款時改用本款墨線 header；其他 appearance 保留 S11 首頁配色。

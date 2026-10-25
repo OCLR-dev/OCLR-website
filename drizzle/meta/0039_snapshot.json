@@ -1,5 +1,5 @@
 {
-  "id": "a94ae777-dfe2-40f3-b97f-fa83b497bb64",
+  "id": "0f5d26d0-9ca4-47a4-a9be-3636b07b3144",
   "prevId": "27374fb4-2e48-410e-b263-467743afdeeb",
   "version": "7",
   "dialect": "postgresql",
@@ -3550,7 +3550,7 @@
         },
         "site_setting_events_appearances": {
           "name": "site_setting_events_appearances",
-          "value": "\"site_setting_events\".\"before_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'esports-broadcast') AND \"site_setting_events\".\"after_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'esports-broadcast') AND \"site_setting_events\".\"before_appearance\" <> \"site_setting_events\".\"after_appearance\""
+          "value": "\"site_setting_events\".\"before_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone') AND \"site_setting_events\".\"after_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone') AND \"site_setting_events\".\"before_appearance\" <> \"site_setting_events\".\"after_appearance\""
         }
       },
       "isRLSEnabled": false
@@ -3604,7 +3604,7 @@
         },
         "site_settings_appearance": {
           "name": "site_settings_appearance",
-          "value": "\"site_settings\".\"default_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'esports-broadcast')"
+          "value": "\"site_settings\".\"default_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone')"
         }
       },
       "isRLSEnabled": false
