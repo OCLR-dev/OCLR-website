@@ -53,9 +53,46 @@ test.describe("tournament overview alignment (#265)", () => {
             await expect(
               page.locator(".information-page > .information-heading"),
             ).toBeVisible();
+            const banner = await page
+              .locator(".information-page > .information-banner")
+              .boundingBox();
+            const overview = await page
+              .locator(".information-page")
+              .boundingBox();
+            expect(banner!.width).toBeCloseTo(overview!.width, 0);
             await expect(
-              page.locator(".information-page > .information-banner"),
-            ).toBeVisible();
+              page.locator(
+                ".information-contents, .information-intro, .rules-handbook-overview",
+              ),
+            ).toHaveCount(0);
+            const schedule = page.locator(
+              ".information-overview-details > .information-document",
+            );
+            await expect(schedule).toHaveCSS("border-top-width", "0px");
+            await expect(schedule).toHaveCSS(
+              "background-color",
+              "rgba(0, 0, 0, 0)",
+            );
+            const scheduleBox = await schedule.boundingBox();
+            if (!isMobile) {
+              const index = await page
+                .locator("#rules .rules-desktop-contents")
+                .boundingBox();
+              const article = await page
+                .locator("#rules .rules-article")
+                .boundingBox();
+              expect(index!.x + index!.width).toBeLessThanOrEqual(article!.x);
+              expect(index!.y).toBeGreaterThan(
+                scheduleBox!.y + scheduleBox!.height,
+              );
+            } else {
+              const index = await page
+                .locator("#rules .rules-mobile-contents")
+                .boundingBox();
+              expect(index!.y).toBeGreaterThan(
+                scheduleBox!.y + scheduleBox!.height,
+              );
+            }
             await expect(
               page.locator(
                 '#organization, #links, a[href="#organization"], a[href="#links"]',
@@ -101,6 +138,35 @@ test.describe("tournament overview alignment (#265)", () => {
           });
         }
       }
+    }
+    // Reported tablet width and the former breakpoint both keep the banner full width.
+    for (const width of [819, 647]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/tournaments/overview-test");
+      const banner = await page.locator(".information-banner").boundingBox();
+      const overview = await page.locator(".information-page").boundingBox();
+      expect(banner!.width).toBeCloseTo(overview!.width, 0);
+      const index = page.locator(
+        width > 760
+          ? "#rules .rules-desktop-contents"
+          : "#rules .rules-mobile-contents",
+      );
+      await expect(index).toBeVisible();
+      const indexBox = await index.boundingBox();
+      const scheduleBox = await page.locator("#schedule").boundingBox();
+      expect(indexBox!.y).toBeGreaterThan(scheduleBox!.y + scheduleBox!.height);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      await page.screenshot({
+        path: info.outputPath(`overview-${width}-full-width.png`),
+        fullPage: true,
+      });
+      if (width <= 760) await index.locator("summary").click();
+      await index.locator('a[href="#rules-2"]').click();
+      await expect(page.locator("#rules-2")).toBeInViewport();
     }
     await page.goto("/tournaments/overview-test#rules-2");
     await expect(page.locator("#rules-2")).toBeInViewport();

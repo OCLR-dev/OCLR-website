@@ -25,21 +25,6 @@ export async function InformationDocument({
         .formatToParts(new Date())
         .find((part) => part.type === "timeZoneName")!
         .value.replace("GMT", "UTC");
-  const sections = [
-    ...(document.schedule.length
-      ? [{ id: "schedule", title: tr("Tournament schedule") }]
-      : []),
-    ...(document.prizes.length ? [{ id: "prizes", title: tr("Prizes") }] : []),
-    ...(document.teams.length
-      ? [{ id: "participants", title: tr("Participants") }]
-      : []),
-    ...(document.pools.length
-      ? [{ id: "mappools", title: tr("Mappools") }]
-      : []),
-    ...(document.rules.length
-      ? [{ id: "rules", title: tr("Tournament rules") }]
-      : []),
-  ];
   return (
     <div className="information-page">
       <header className="information-heading">
@@ -72,15 +57,11 @@ export async function InformationDocument({
         }}
       />
 
-      <div className="information-layout">
+      <div className="information-overview-details">
         <article
           className="information-document document-typeset"
-          data-handbook=""
           aria-labelledby="information-title"
         >
-          {document.intro && (
-            <p className="information-intro">{document.intro}</p>
-          )}
           {document.schedule.length > 0 && (
             <section id="schedule">
               <h2>{tr("Tournament schedule")}</h2>
@@ -204,28 +185,6 @@ export async function InformationDocument({
             </section>
           )}
         </article>
-        {sections.length > 0 && (
-          <aside className="information-contents">
-            <nav aria-label={tr("Contents")}>
-              <h2>{tr("Contents")}</h2>
-              <ol>
-                {sections.map((section, i) => (
-                  <li key={section.id}>
-                    <a href={`#${section.id}`}>
-                      <span aria-hidden="true">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      {section.title}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-              <a className="information-back-top" href="#information-title">
-                {tr("Back to top")} ↑
-              </a>
-            </nav>
-          </aside>
-        )}
       </div>
       {document.rules.length > 0 && (
         <section

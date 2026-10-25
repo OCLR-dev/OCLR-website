@@ -528,3 +528,15 @@ html[data-appearance="cute-pastel"] .public-tournament .information-layout {
   > strong {
   display: block;
 }
+
+/* The overview spans the page; the left index belongs only to the rules below. */
+.information-overview-details {
+  margin-top: 2rem;
+}
+.public-tournament .information-overview-details > .information-document {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
