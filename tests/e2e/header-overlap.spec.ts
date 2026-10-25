@@ -46,7 +46,12 @@ async function withinViewport(page: Page, menu: Locator, width: number) {
 
 for (const locale of ["zh-Hans", "zh-Hant", "en"])
   for (const theme of ["light", "dark"])
-    for (const appearance of ["default", "cute-pastel", "swiss-minimal"]) {
+    for (const appearance of [
+      "default",
+      "cute-pastel",
+      "swiss-minimal",
+      "claymorphism",
+    ]) {
       test(`header overlays ${locale} ${theme} ${appearance}`, async ({
         page,
         context,

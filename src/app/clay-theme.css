@@ -1,0 +1,614 @@
+/* Claymorphism (#237), based on the organizer's osu! Cup batch-2 style E.
+ * Warm putty surfaces; only the hero, real buttons and popovers are raised,
+ * inputs and selection tracks are pressed in, and data rows stay flat.
+ * Borders and focus rings carry every boundary, so states remain readable
+ * without shadows. Scoped to ordinary pages: OBS output has no .themed-site.
+ * Headings reuse the bundled Quicksand from pastel-theme.css; no remote fonts.
+ */
+html[data-appearance="claymorphism"]:not(:has(.broadcast-site)),
+html[data-appearance="claymorphism"]:not(:has(.broadcast-site)) body {
+  background: #f8ebe4;
+}
+html[data-appearance="claymorphism"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  ),
+html[data-appearance="claymorphism"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  )
+  body {
+  background: #271b19;
+}
+
+html[data-appearance="claymorphism"] .themed-site {
+  --site-background: #f8ebe4;
+  --site-surface: #fffaf6;
+  --site-raised: #f4e2d9;
+  --site-tint: #efd8cd;
+  --site-foreground: #47291f;
+  --site-muted: #7a5145;
+  --site-secondary-text: #5e3a2f;
+  --site-accent: #a33a3f;
+  --site-accent-strong: #842a30;
+  --site-border: #e5cbbf;
+  --site-control-border: #9a6f62;
+  --site-header: #fbf1eb;
+  --site-primary: #f2a493;
+  --site-primary-hover: #f6b3a4;
+  --site-on-primary: #4a1c17;
+  --site-success: #1e6649;
+  --site-warning: #7a5300;
+  --site-danger: #ad2a39;
+  --site-focus: #842a30;
+  --site-selection: #f6cfc4;
+  --site-highlight: #d4566a;
+  --site-connector: #c19a8d;
+  --site-shadow: #8f4f3d2e;
+  --site-soft-shadow: #8f4f3d1a;
+  --site-panel-shadow: #8f4f3d59;
+  --site-dialog-shadow: #47291f4d;
+  --site-backdrop: #47291f66;
+  /* Small-area mint selection, never a status colour. */
+  --clay-mint: #c9ecd9;
+  --clay-mint-foreground: #1b5640;
+  --clay-mint-border: #4f9877;
+  /* Material: warm drop shadows plus inner highlight/shade. */
+  --clay-drop: #8f4f3d2e;
+  --clay-drop-strong: #8f4f3d45;
+  --clay-highlight: #ffffffd9;
+  --clay-shade: #a3604d33;
+  --clay-well-shade: #9a5a483d;
+  --clay-button-highlight: #ffffff99;
+  --clay-button-shade: #9b3f2e40;
+  --clay-raised:
+    0 22px 40px -22px var(--clay-drop-strong),
+    12px 16px 32px -24px var(--clay-drop),
+    inset 6px 6px 14px var(--clay-highlight),
+    inset -8px -10px 20px var(--clay-shade);
+  --clay-button:
+    0 8px 16px -8px var(--clay-drop-strong),
+    inset 3px 3px 6px var(--clay-button-highlight),
+    inset -4px -5px 8px var(--clay-button-shade);
+  --clay-soft:
+    0 5px 12px -8px var(--clay-drop-strong),
+    inset 2px 2px 4px var(--clay-highlight),
+    inset -3px -3px 6px var(--clay-shade);
+  --clay-pressed:
+    inset 3px 4px 8px var(--clay-well-shade),
+    inset -2px -2px 5px var(--clay-highlight);
+  --clay-well:
+    inset 3px 3px 7px var(--clay-well-shade),
+    inset -3px -3px 7px var(--clay-highlight);
+  --clay-panel:
+    0 14px 28px -24px var(--clay-drop-strong),
+    inset 0 1px 0 var(--clay-highlight);
+  --site-button-shadow: var(--clay-button);
+  --button-radius: 18px;
+  --radius-panel: 24px;
+  color-scheme: light;
+  background: var(--site-background);
+  color: var(--site-foreground);
+  line-height: 1.65;
+}
+html[data-appearance="claymorphism"][data-theme="dark"] .themed-site {
+  --site-background: #271b19;
+  --site-surface: #352523;
+  --site-raised: #3f2c29;
+  --site-tint: #4b3430;
+  --site-foreground: #fbede7;
+  --site-muted: #d6b6ab;
+  --site-secondary-text: #ecd4cb;
+  --site-accent: #ffb4a6;
+  --site-accent-strong: #ffd3c9;
+  --site-border: #5d4440;
+  --site-control-border: #a9857a;
+  --site-header: #2d201e;
+  --site-primary: #f2a493;
+  --site-primary-hover: #f7b9ab;
+  --site-on-primary: #3f1814;
+  --site-success: #91ddbc;
+  --site-warning: #f0cd85;
+  --site-danger: #ffa3ae;
+  --site-focus: #ffd3c9;
+  --site-selection: #6a3d36;
+  --site-highlight: #ff9d8c;
+  --site-connector: #8f6b61;
+  --site-shadow: #0000006b;
+  --site-soft-shadow: #00000040;
+  --site-panel-shadow: #0000008c;
+  --site-dialog-shadow: #000000a6;
+  --site-backdrop: #000000a6;
+  --clay-mint: #264f40;
+  --clay-mint-foreground: #cff3e2;
+  --clay-mint-border: #74c3a1;
+  /* Fired clay: depth comes from darker drops and a faint rim light, not inverted pinks. */
+  --clay-drop: #0000008c;
+  --clay-drop-strong: #000000b3;
+  --clay-highlight: #ffffff1a;
+  --clay-shade: #00000059;
+  --clay-well-shade: #00000080;
+  --clay-button-highlight: #ffffff73;
+  --clay-button-shade: #7a2c2259;
+  color-scheme: dark;
+}
+
+/* Rounded type: Quicksand display headings, system text for long Chinese copy. */
+html[data-appearance="claymorphism"] .themed-site :is(h1, h2, h3, .brand) {
+  font-family: "Quicksand", var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+html[data-appearance="claymorphism"] .themed-site .eyebrow {
+  color: var(--site-accent);
+  letter-spacing: 0.12em;
+}
+html[data-appearance="claymorphism"] .themed-site :focus-visible {
+  outline: 3px solid var(--site-focus);
+  outline-offset: 4px;
+}
+html[data-appearance="claymorphism"] .themed-site ::selection {
+  background: var(--site-selection);
+  color: var(--site-foreground);
+}
+
+/* Buttons: real buttons are clay pebbles that sink when pressed. */
+html[data-appearance="claymorphism"] .themed-site :is(button, .button) {
+  transition:
+    box-shadow 150ms ease-out,
+    background-color 150ms ease-out,
+    transform 150ms ease-out;
+}
+html[data-appearance="claymorphism"] .themed-site :is(button, .button):hover {
+  transform: none;
+}
+html[data-appearance="claymorphism"] .themed-site .secondary {
+  --site-button-shadow: var(--clay-soft);
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(button, .button):active:not(:disabled) {
+  --site-button-shadow: var(--clay-pressed);
+  transform: translateY(1px);
+}
+/* Disabled reads as unbaked: flat with a dashed edge, plus the base opacity. */
+html[data-appearance="claymorphism"] .themed-site :is(button, .button):disabled,
+html[data-appearance="claymorphism"]
+  .themed-site
+  .button[aria-disabled="true"] {
+  --site-button-shadow: none;
+  border-style: dashed;
+  border-color: var(--site-control-border);
+}
+/* Ghost buttons inside tracks and menus never get button material. */
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(
+    [role="menu"],
+    [role="tablist"],
+    [role="listbox"],
+    .workspace-tabs,
+    .mappool-mods,
+    .mappool-rounds,
+    .mappool-pools,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs,
+    .archive-status-tabs,
+    .main-nav,
+    .site-preferences,
+    .menu-toggle
+  ) {
+  --site-button-shadow: none;
+}
+html[data-appearance="claymorphism"] .themed-site .site-preferences .secondary,
+html[data-appearance="claymorphism"] .themed-site .menu-toggle {
+  --site-button-shadow: var(--clay-soft);
+}
+
+/* Inputs are pressed into the surface. */
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea
+  ) {
+  border-color: var(--site-control-border);
+  border-radius: 14px;
+  background-color: var(--site-raised);
+  box-shadow: var(--clay-well);
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(input, select, textarea):disabled {
+  border-style: dashed;
+  box-shadow: none;
+  color: var(--site-muted);
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(.check-field, .check-label)
+  input {
+  accent-color: var(--site-accent);
+}
+
+/* Header: a soft slab with a raised pebble for the current section. */
+html[data-appearance="claymorphism"] .themed-site .site-header {
+  background: var(--site-header);
+  border-bottom: 1px solid var(--site-border);
+  box-shadow: 0 10px 24px -22px var(--clay-drop-strong);
+}
+/* The homepage header normally keeps the S11 palette (home.css); clay restores
+ * its own tokens there. `inherit` takes the clay values from .themed-site. */
+html[data-appearance="claymorphism"]
+  .themed-site:has(.home-redesign)
+  .site-header,
+html[data-appearance="claymorphism"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header {
+  --site-header: inherit;
+  --site-surface: inherit;
+  --site-raised: inherit;
+  --site-foreground: inherit;
+  --site-secondary-text: inherit;
+  --site-muted: inherit;
+  --site-accent: inherit;
+  --site-accent-strong: inherit;
+  --site-control-border: inherit;
+  --site-border: inherit;
+  --site-tint: inherit;
+  --site-primary: inherit;
+  --site-primary-hover: inherit;
+  --site-on-primary: inherit;
+  --color-muted: inherit;
+  --color-foreground: inherit;
+  --color-border: inherit;
+  background: var(--site-header);
+  color: var(--site-foreground);
+  color-scheme: inherit;
+}
+html[data-appearance="claymorphism"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login {
+  border-color: var(--site-accent);
+  border-radius: var(--button-radius);
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+}
+html[data-appearance="claymorphism"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login:hover {
+  background: var(--site-primary-hover);
+}
+html[data-appearance="claymorphism"] .themed-site .brand {
+  letter-spacing: -0.04em;
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(.appearance-control, .language-control, .account-menu)
+  :is([role="menu"], .account-dropdown) {
+  border-color: var(--site-border);
+  border-radius: 18px;
+  background: var(--site-surface);
+  box-shadow:
+    0 20px 36px -18px var(--clay-drop-strong),
+    inset 2px 2px 4px var(--clay-highlight);
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[role] {
+  border-radius: 12px;
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[aria-checked="true"] {
+  background: var(--clay-mint);
+  color: var(--clay-mint-foreground);
+  font-weight: 700;
+}
+@media (min-width: 951px) {
+  /* Padded pebbles with a tight gap stay no wider than the default nav at 951px. */
+  html[data-appearance="claymorphism"] .themed-site .main-nav {
+    align-self: center;
+    gap: 0.1rem;
+  }
+  html[data-appearance="claymorphism"] .themed-site .main-nav > a {
+    min-height: 44px;
+    padding-inline: 0.55rem;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    transition:
+      background-color 150ms ease-out,
+      box-shadow 150ms ease-out;
+  }
+  html[data-appearance="claymorphism"] .themed-site .main-nav > a:hover {
+    border-color: var(--site-border);
+    background: var(--site-raised);
+  }
+  html[data-appearance="claymorphism"]
+    .themed-site
+    .main-nav
+    > a[aria-current] {
+    border-color: var(--site-control-border);
+    background: var(--site-surface);
+    color: var(--site-accent-strong);
+    box-shadow: var(--clay-soft);
+  }
+}
+@media (max-width: 950px) {
+  html[data-appearance="claymorphism"] .themed-site .main-nav.open {
+    background: var(--site-surface);
+    border-color: var(--site-border);
+    box-shadow: 0 20px 32px -24px var(--clay-drop-strong);
+  }
+  html[data-appearance="claymorphism"] .themed-site .main-nav > a {
+    border: 1px solid transparent;
+    border-radius: 14px;
+  }
+  html[data-appearance="claymorphism"]
+    .themed-site
+    .main-nav
+    > a[aria-current] {
+    border-color: var(--clay-mint-border);
+    background: var(--clay-mint);
+    color: var(--clay-mint-foreground);
+    font-weight: 700;
+  }
+}
+
+/* Selection tracks: a pressed-in groove holding a raised mint pebble. */
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(
+    .tournament-navigation nav,
+    .workspace-tabs,
+    .mappool-mods,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs
+  ) {
+  border: 1px solid var(--site-border);
+  border-radius: 20px;
+  background: var(--site-tint);
+  box-shadow: var(--clay-well);
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs button,
+    .mappool-mods button,
+    .event-pills button,
+    .bracket-tabs button,
+    .event-tabs button
+  ) {
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--site-secondary-text);
+  box-shadow: none;
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs button,
+    .mappool-mods button,
+    .event-pills button,
+    .bracket-tabs button,
+    .event-tabs button
+  ):hover {
+  color: var(--site-accent-strong);
+  background: color-mix(in srgb, var(--site-surface) 55%, transparent);
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a[aria-current],
+    .workspace-tabs button[aria-selected="true"],
+    .mappool-mods button[aria-pressed="true"],
+    .event-pills button[aria-pressed="true"],
+    .bracket-tabs button[aria-pressed="true"],
+    .event-tabs button[aria-pressed="true"]
+  ) {
+  border-color: var(--clay-mint-border);
+  background: var(--clay-mint);
+  color: var(--clay-mint-foreground);
+  font-weight: 700;
+  box-shadow:
+    0 4px 10px -6px var(--clay-drop-strong),
+    inset 2px 2px 4px var(--clay-highlight);
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  .tournament-navigation
+  nav
+  a[aria-current]::before {
+  background: var(--clay-mint-border);
+}
+html[data-appearance="claymorphism"] .themed-site .event-tabs {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.3rem;
+}
+html[data-appearance="claymorphism"] .themed-site .tournament-menu {
+  border-radius: 18px;
+}
+
+/* Hero: the one big raised slab per page. Artwork stays literal. */
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(.season-overview-hero, .hero) {
+  border: 1px solid var(--site-border);
+  border-radius: 32px;
+  box-shadow: var(--clay-raised);
+}
+html[data-appearance="claymorphism"] .themed-site .season-overview-hero {
+  background: var(--site-surface);
+}
+/* Information banner: a rounded slab with soft clay edges over literal artwork. */
+html[data-appearance="claymorphism"] .themed-site .information-banner {
+  border-radius: 32px;
+  box-shadow: 0 22px 40px -22px var(--clay-drop-strong);
+}
+html[data-appearance="claymorphism"] .themed-site .information-banner::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 5px 5px 12px #ffffff40,
+    inset -8px -10px 20px #0000004d;
+  pointer-events: none;
+}
+html[data-appearance="claymorphism"] .themed-site .information-active {
+  border-radius: 20px;
+  background: var(--site-surface);
+  box-shadow: var(--clay-soft);
+}
+/* Stage wheel: the current row sits in a pressed-in groove. */
+html[data-appearance="claymorphism"] .themed-site .stage-scroll-drum::before {
+  border: 1px solid var(--site-control-border);
+  border-radius: 18px;
+  background: var(--site-tint);
+  box-shadow: var(--clay-well);
+}
+html[data-appearance="claymorphism"] .themed-site .event-intro {
+  border-radius: 24px;
+}
+
+/* Panels sit lightly on the page; repeated data stays flat. */
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(
+    .panel,
+    .edition-card,
+    .directory-details,
+    .about-aside,
+    .settings-card,
+    .identity-panel,
+    .registration-card,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .mappool-context,
+    .mappool-setup
+  ) {
+  border-color: var(--site-border);
+  border-radius: var(--radius-panel);
+  background: var(--site-surface);
+  box-shadow: var(--clay-panel);
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(
+    .match-card,
+    .public-match-card,
+    .map-browse-card,
+    .mappool-public-round,
+    .player-card,
+    .captain-player-card,
+    .captain-order > li,
+    .table-scroll,
+    table
+  ) {
+  border-color: var(--site-border);
+  box-shadow: none;
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  :is(.match-card, .public-match-card, .map-browse-card, .player-card) {
+  border-radius: 20px;
+}
+html[data-appearance="claymorphism"] .themed-site :is(th, td) {
+  border-color: var(--site-border);
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="claymorphism"] .themed-site th {
+  background: var(--site-raised);
+  color: var(--site-secondary-text);
+}
+html[data-appearance="claymorphism"] .themed-site .badge {
+  border-color: var(--site-border);
+  border-radius: 999px;
+  background: var(--site-raised);
+  color: var(--site-accent-strong);
+}
+html[data-appearance="claymorphism"] .themed-site .notice {
+  border-radius: 18px;
+}
+html[data-appearance="claymorphism"] .themed-site .empty-state {
+  border-color: var(--site-control-border);
+  border-radius: 20px;
+}
+html[data-appearance="claymorphism"] .themed-site dialog {
+  border: 1px solid var(--site-border);
+  border-radius: 28px;
+  background: var(--site-surface);
+  box-shadow:
+    0 32px 64px -28px var(--site-dialog-shadow),
+    inset 3px 3px 6px var(--clay-highlight);
+}
+html[data-appearance="claymorphism"] .themed-site .site-footer {
+  border-top: 1px solid var(--site-border);
+}
+
+/* Progress: a groove filled with clay; explicit since accent-color varies. */
+html[data-appearance="claymorphism"] .themed-site progress {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 14px;
+  border: 1px solid var(--site-control-border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--site-tint);
+  box-shadow: var(--clay-well);
+  color: var(--site-accent);
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  progress::-webkit-progress-bar {
+  border-radius: inherit;
+  background: transparent;
+}
+html[data-appearance="claymorphism"]
+  .themed-site
+  progress::-webkit-progress-value {
+  border-radius: inherit;
+  background: var(--site-accent);
+  box-shadow: inset 2px 2px 3px var(--clay-button-highlight);
+}
+html[data-appearance="claymorphism"] .themed-site progress::-moz-progress-bar {
+  border-radius: inherit;
+  background: var(--site-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-appearance="claymorphism"] .themed-site :is(button, .button, a) {
+    transition: none;
+  }
+  html[data-appearance="claymorphism"]
+    .themed-site
+    :is(button, .button):active:not(:disabled) {
+    transform: none;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="claymorphism"] .themed-site,
+  html[data-appearance="claymorphism"] .themed-site * {
+    --site-button-shadow: none;
+    box-shadow: none !important;
+  }
+  html[data-appearance="claymorphism"] .themed-site progress {
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
+  html[data-appearance="claymorphism"] .themed-site :focus-visible {
+    outline-color: Highlight;
+  }
+}

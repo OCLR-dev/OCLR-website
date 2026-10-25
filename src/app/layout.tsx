@@ -11,6 +11,7 @@ import "./public-tournament.css";
 import "./workspace.css";
 import "./pastel-theme.css";
 import "./swiss-theme.css";
+import "./clay-theme.css";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";
 import { tournamentAppearanceScopes } from "@/lib/tournaments";

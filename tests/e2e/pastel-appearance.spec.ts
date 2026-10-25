@@ -10,6 +10,7 @@ import { prepareDraft } from "../fixtures/draft";
 import { seedBrowserEditions } from "./setup";
 import { readTournament } from "../../src/lib/tournaments";
 import { seedEditions } from "../fixtures/editions";
+import { appearances } from "../../src/lib/preferences";
 const origin = "http://127.0.0.1:3100",
   base = "/tournaments/test-cup";
 async function preferences(
@@ -55,12 +56,25 @@ async function accessible(page: Page) {
     ).violations,
   ).toEqual([]);
 }
-for (const appearance of ["cute-pastel", "swiss-minimal"] as const) {
-  const label = appearance === "cute-pastel" ? "Cute pastel" : "Swiss minimal";
-  const lightBackground =
-    appearance === "cute-pastel" ? "rgb(255, 244, 248)" : "rgb(255, 255, 255)";
-  const darkBackground =
-    appearance === "cute-pastel" ? "rgb(36, 26, 32)" : "rgb(20, 20, 20)";
+const optional = {
+  "cute-pastel": {
+    label: "Cute pastel",
+    lightBackground: "rgb(255, 244, 248)",
+    darkBackground: "rgb(36, 26, 32)",
+  },
+  "swiss-minimal": {
+    label: "Swiss minimal",
+    lightBackground: "rgb(255, 255, 255)",
+    darkBackground: "rgb(20, 20, 20)",
+  },
+  claymorphism: {
+    label: "Claymorphism",
+    lightBackground: "rgb(248, 235, 228)",
+    darkBackground: "rgb(39, 27, 25)",
+  },
+} as const;
+for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
+  const { label, lightBackground, darkBackground } = optional[appearance];
   const setPreferences = (
     context: BrowserContext,
     locale: string,
@@ -112,8 +126,14 @@ for (const appearance of ["cute-pastel", "swiss-minimal"] as const) {
           exact: true,
         });
         await trigger.focus();
+        // ArrowUp opens on the last option; step up to this appearance.
         await page.keyboard.press("ArrowUp");
-        if (appearance === "cute-pastel") await page.keyboard.press("ArrowUp");
+        for (
+          let step = appearances.indexOf(appearance);
+          step < appearances.length - 1;
+          step++
+        )
+          await page.keyboard.press("ArrowUp");
         const option = page.getByRole("menuitemradio", {
           name: label,
           exact: true,

@@ -1,6 +1,6 @@
 # E — 黏土風 / Claymorphism
 
-追蹤：[#237](https://github.com/PhoenixEmik/OCLR-website/issues/237) · **P3** · 未實作／未註冊為正式 appearance。
+追蹤：[#237](https://github.com/PhoenixEmik/OCLR-website/issues/237) · **P3** · 已註冊為正式 appearance `claymorphism`，見文末「正式實作」。
 
 ## 視覺主張與範圍
 
@@ -123,3 +123,13 @@
 - forced colors 降級通過。
 - [Desktop Light](desktop-light.webp)／[Dark](desktop-dark.webp)；[Mobile Light](mobile-light.webp)／[Dark](mobile-dark.webp)。
 - [本款機器可讀報告](verification.json)。這些結果只涵蓋離線 CSS specimen，未驗收正式頁面、三語、DB migration 或部署。
+
+## 正式實作（#237）
+
+正式樣式位於 [src/app/clay-theme.css](../../../../src/app/clay-theme.css)，以 `html[data-appearance="claymorphism"] .themed-site` 為範圍；OBS／presenter 不受影響。下列為與上方候選 CSS 的差異：
+
+- **配色改為暖黏土色。**候選色（`#fff3f7`／`#9c2a5d`）與 cute-pastel（`#fff4f8`／`#b02a5f`）幾乎相同，正式版改用偏杏桃的暖粉底 `#f8ebe4`、陶土玫瑰強調色 `#a33a3f` 與珊瑚色主要按鈕 `#f2a493`，保留小面積薄荷選取。暗版為「燒製黏土」：深可可色表面，深度來自更深的落影與微弱邊緣高光，不反相粉色陰影。
+- **材質分三層。**凸起：hero／資訊橫幅、真實按鈕、header 目前分頁與彈出選單。凹陷：輸入框、進度條、賽事導覽與篩選軌道、階段滾輪目前列。平面：表格、譜面卡、比賽卡與反覆資料列。
+- **按鈕材質經由 `--site-button-shadow`。**MainSheet 共用按鈕規則改讀此可選 token（未設定時為 `none`），自訂陰影的元件維持原樣；其他 appearance 不受影響。
+- **狀態不依賴陰影。**disabled 為虛線邊框加既有透明度；selected／pressed 為薄荷底、薄荷邊框與粗體；focus 為 3px 實線、4px offset。`forced-colors` 移除所有陰影。
+- **字體。**標題沿用已打包的 Quicksand，內文維持系統字體以保持中文可讀性；無遠端字體請求。

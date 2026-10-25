@@ -10,6 +10,8 @@ export function appearanceLabel(
       return tr("Cute pastel");
     case "swiss-minimal":
       return tr("Swiss minimal");
+    case "claymorphism":
+      return tr("Claymorphism");
     default:
       return tr("Original design");
   }

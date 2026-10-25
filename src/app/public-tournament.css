@@ -105,7 +105,8 @@ html[data-theme="dark"] .themed-site {
   color: var(--site-on-primary);
   background: var(--site-primary);
   border-color: var(--site-accent);
-  box-shadow: none;
+  /* Optional appearance material; components that set their own shadow keep it. */
+  box-shadow: var(--site-button-shadow, none);
   min-height: 44px;
 }
 .themed-site :is(button, .button):hover {

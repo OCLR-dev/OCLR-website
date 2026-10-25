@@ -17,7 +17,12 @@ const approvedPaths = Array.from(
 );
 
 for (const locale of ["zh-Hans", "zh-Hant", "en"] as const)
-  for (const appearance of ["default", "cute-pastel", "swiss-minimal"])
+  for (const appearance of [
+    "default",
+    "cute-pastel",
+    "swiss-minimal",
+    "claymorphism",
+  ])
     for (const theme of ["light", "dark"])
       test(`OCLR header: ${locale}, ${appearance}, ${theme}`, async ({
         page,

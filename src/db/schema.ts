@@ -42,7 +42,7 @@ export const siteSettings = pgTable(
     check("site_settings_revision", sql`${t.revision} >= 0`),
     check(
       "site_settings_appearance",
-      sql`${t.defaultAppearance} IN ('default', 'cute-pastel', 'swiss-minimal')`,
+      sql`${t.defaultAppearance} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism')`,
     ),
   ],
 );
@@ -65,7 +65,7 @@ export const siteSettingEvents = pgTable(
     check("site_setting_events_revision", sql`${t.revision} > 0`),
     check(
       "site_setting_events_appearances",
-      sql`${t.before} IN ('default', 'cute-pastel', 'swiss-minimal') AND ${t.after} IN ('default', 'cute-pastel', 'swiss-minimal') AND ${t.before} <> ${t.after}`,
+      sql`${t.before} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism') AND ${t.after} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism') AND ${t.before} <> ${t.after}`,
     ),
   ],
 );
