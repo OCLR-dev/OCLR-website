@@ -7,10 +7,13 @@ import { useAppTranslations } from "@/i18n/shared";
 import type { HistoricalArchive } from "@/lib/historical-archive";
 import { formatBeatmapDuration } from "@/lib/mappool-model";
 import { WorkspaceTabs } from "./workspace-tabs";
+import { BeatmapActions } from "./beatmap-actions";
+import { MapDetailsDialog } from "./map-details-dialog";
 
 type MapEntry = HistoricalArchive["pools"][number]["maps"][number];
 function ArchiveMapDetails({
   map,
+  setId,
   stats,
   previous,
   next,
@@ -18,80 +21,27 @@ function ArchiveMapDetails({
   onClose,
 }: {
   map: MapEntry;
+  setId: number | null | undefined;
   stats: React.ReactNode;
   previous?: MapEntry;
   next?: MapEntry;
   onMove: (slot: string) => void;
   onClose: () => void;
 }) {
-  const tr = useAppTranslations(),
-    title = useId();
-  const dialog = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const node = dialog.current!,
-      trigger = document.activeElement;
-    node.showModal();
-    return () => {
-      node.close();
-      if (trigger instanceof HTMLElement && trigger.isConnected)
-        trigger.focus();
-    };
-  }, []);
   return (
-    <dialog
-      ref={dialog}
-      className="map-dialog"
-      aria-labelledby={title}
-      onCancel={(event) => {
-        event.preventDefault();
-        onClose();
-      }}
+    <MapDetailsDialog
+      context={map.slot}
+      title={map.title}
+      beatmapId={map.beatmapId}
+      setId={setId}
+      previous={Boolean(previous)}
+      next={Boolean(next)}
+      onPrevious={() => previous && onMove(previous.slot)}
+      onNext={() => next && onMove(next.slot)}
+      onClose={onClose}
     >
-      <header>
-        <span className="eyebrow">{map.slot}</span>
-        <button
-          type="button"
-          className="secondary"
-          aria-label={tr("Close map details")}
-          onClick={onClose}
-        >
-          {tr("Close")}
-        </button>
-      </header>
-      <div className="map-dialog-body">
-        <h2 id={title}>{map.title}</h2>
-        <p className="muted">{map.mapper ?? tr("Not recorded")}</p>
-        {stats}
-        {map.beatmapId ? (
-          <a
-            className="button"
-            href={`https://osu.ppy.sh/beatmaps/${map.beatmapId}`}
-          >
-            {tr("Open on osu!")}
-          </a>
-        ) : (
-          <p>{tr("Beatmap ID unresolved")}</p>
-        )}
-        <div className="map-dialog-navigation">
-          <button
-            type="button"
-            className="secondary"
-            disabled={!previous}
-            onClick={() => previous && onMove(previous.slot)}
-          >
-            {tr("Previous map")}
-          </button>
-          <button
-            type="button"
-            className="secondary"
-            disabled={!next}
-            onClick={() => next && onMove(next.slot)}
-          >
-            {tr("Next map")}
-          </button>
-        </div>
-      </div>
-    </dialog>
+      {stats}
+    </MapDetailsDialog>
   );
 }
 type Pool = HistoricalArchive["pools"][number];
@@ -289,7 +239,12 @@ export function ArchiveMappools({
                     <span className="map-slot-badge">{m.slot}</span>
                   </div>
                 ) : (
-                  <span className="archive-map-slot">{m.slot}</span>
+                  <div className="archive-map-thumbnail">
+                    <BeatmapCover
+                      setId={m.beatmapId ? artworkSetIds[m.beatmapId] : null}
+                    />
+                    <span className="archive-map-slot">{m.slot}</span>
+                  </div>
                 )}
                 <div
                   className={
@@ -300,28 +255,17 @@ export function ArchiveMappools({
                 >
                   <div className="archive-map-identity">
                     <h3>
-                      {view === "cards" ? (
-                        <button
-                          type="button"
-                          className="map-open-button"
-                          aria-label={tr("View {value0}: {value1}", {
-                            value0: m.slot,
-                            value1: m.title,
-                          })}
-                          onClick={() => setSelected(m.slot)}
-                        >
-                          {m.title}
-                        </button>
-                      ) : m.beatmapId ? (
-                        <a
-                          className="context-link"
-                          href={`https://osu.ppy.sh/beatmaps/${m.beatmapId}`}
-                        >
-                          {m.title}
-                        </a>
-                      ) : (
-                        m.title
-                      )}
+                      <button
+                        type="button"
+                        className="map-open-button"
+                        aria-label={tr("View {value0}: {value1}", {
+                          value0: m.slot,
+                          value1: m.title,
+                        })}
+                        onClick={() => setSelected(m.slot)}
+                      >
+                        {m.title}
+                      </button>
                     </h3>
                     <p className="muted small">
                       {tr("Mapper")}: {m.mapper ?? tr("Not recorded")}
@@ -336,6 +280,12 @@ export function ArchiveMappools({
                     </p>
                   </div>
                   {stats(m)}
+                  <BeatmapActions
+                    beatmapId={m.beatmapId}
+                    setId={m.beatmapId ? artworkSetIds[m.beatmapId] : null}
+                    compact
+                    name={m.slot}
+                  />
                 </div>
               </li>
             ))}
@@ -347,6 +297,11 @@ export function ArchiveMappools({
       {maps[activeIndex] && (
         <ArchiveMapDetails
           map={maps[activeIndex]}
+          setId={
+            maps[activeIndex].beatmapId
+              ? artworkSetIds[maps[activeIndex].beatmapId!]
+              : null
+          }
           stats={stats(maps[activeIndex])}
           previous={maps[activeIndex - 1]}
           next={maps[activeIndex + 1]}

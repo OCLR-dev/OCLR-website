@@ -3,7 +3,7 @@
 import { useAppTranslations } from "@/i18n/shared";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useState } from "react";
 import type { publicMappools } from "@/lib/mappools";
 import {
   categories,
@@ -15,6 +15,8 @@ import {
 } from "@/lib/mappool-model";
 import { BeatmapCover } from "./beatmap-cover";
 import { MappoolView } from "./mappool-view";
+import { BeatmapActions } from "./beatmap-actions";
+import { MapDetailsDialog } from "./map-details-dialog";
 type Pool = Awaited<ReturnType<typeof publicMappools>>[number];
 type Entry = Pool["entries"][number];
 function modRating(entry: Entry) {
@@ -46,123 +48,71 @@ function MapDetails({
 }) {
   const tr = useAppTranslations();
 
-  const dialog = useRef<HTMLDialogElement>(null);
-  const title = useId();
-  useEffect(() => {
-    const node = dialog.current!;
-    const trigger = document.activeElement;
-    node.showModal();
-    return () => {
-      node.close();
-      if (trigger instanceof HTMLElement && trigger.isConnected)
-        trigger.focus();
-    };
-  }, []);
   const m = entry.metadata;
   return (
-    <dialog
-      ref={dialog}
-      className="map-dialog"
-      aria-labelledby={title}
-      onCancel={(event) => {
-        event.preventDefault();
-        onClose();
-      }}
-    >
-      <header>
-        <span className="eyebrow">
-          {pool.name} / {slotLabel(entry.category, entry.position)}
-        </span>
-        <button
-          className="secondary"
-          type="button"
+    <MapDetailsDialog
+      context={`${pool.name} / ${slotLabel(entry.category, entry.position)}`}
+      title={m.title}
+      artist={m.artist}
+      subtitle={
+        <>
+          <span>[{m.difficulty}]</span>
+          <span>{m.mapper}</span>
+        </>
+      }
+      beatmapId={entry.beatmapId}
+      setId={m.setId}
+      previous={Boolean(previous)}
+      next={Boolean(next)}
+      onPrevious={() => previous && onMove(previous.id)}
+      onNext={() => next && onMove(next.id)}
+      onClose={onClose}
+      permalink={
+        <Link
+          className="text-link map-detail-permalink"
+          href={`/tournaments/${slug}/mappools/${pool.id}#map-${entry.id}`}
           onClick={onClose}
-          aria-label={tr("Close map details")}
         >
-          {tr("Close")}
-        </button>
-      </header>
-      <div className="map-dialog-body">
-        <BeatmapCover key={m.setId} setId={m.setId} />
-        <p className="eyebrow">{m.artist}</p>
-        <h2 id={title}>{m.title}</h2>
-        <p className="muted">
-          [{m.difficulty}] · {m.mapper}
+          {tr("Map permalink")}
+        </Link>
+      }
+    >
+      <dl className="map-detail-grid">
+        {[
+          ["Base difficulty", `${number(m.stars, 2)} ★`],
+          ["Official Mod SR", tr(modRating(entry))],
+          ["Base BPM", number(m.bpm)],
+          ["Base length", duration(m.duration)],
+          [
+            "AR / OD / CS / HP",
+            [m.ar, m.od, m.cs, m.hp].map((v) => number(v)).join(" / "),
+          ],
+          ...(m.attributes
+            ? [
+                ["Ruleset", m.attributes.ruleset],
+                ["Max combo", number(m.attributes.maxCombo)],
+                ...Object.entries(m.attributes.values).map(([label, value]) => [
+                  label.replaceAll("_", " "),
+                  number(value),
+                ]),
+              ]
+            : []),
+        ].map(([label, value]) => (
+          <div key={label}>
+            <dt>{tr(String(label))}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {entry.category === "FM" && (
+        <p className="notice">
+          {fmPolicyName(pool.fmMode) ?? tr("FM policy not configured")}
+          {pool.fmRestrictions
+            ? `: ${pool.fmRestrictions}`
+            : tr(": Detailed restrictions have not been published.")}
         </p>
-        <dl className="map-detail-grid">
-          {[
-            ["Beatmap ID", entry.beatmapId],
-            ["Beatmapset ID", m.setId],
-            ["Base difficulty", `${number(m.stars, 2)} ★`],
-            ["Official Mod SR", tr(modRating(entry))],
-            ["Base BPM", number(m.bpm)],
-            ["Base length", duration(m.duration)],
-            [
-              "AR / OD / CS / HP",
-              [m.ar, m.od, m.cs, m.hp].map((v) => number(v)).join(" / "),
-            ],
-            ...(m.attributes
-              ? [
-                  ["Ruleset", m.attributes.ruleset],
-                  ["Max combo", number(m.attributes.maxCombo)],
-                  ...Object.entries(m.attributes.values).map(
-                    ([label, value]) => [
-                      label.replaceAll("_", " "),
-                      number(value),
-                    ],
-                  ),
-                ]
-              : []),
-          ].map(([label, value]) => (
-            <div key={label}>
-              <dt>{tr(String(label))}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
-        </dl>
-        {entry.category === "FM" && (
-          <p className="notice">
-            {fmPolicyName(pool.fmMode) ?? tr("FM policy not configured")}
-            {pool.fmRestrictions
-              ? `: ${pool.fmRestrictions}`
-              : tr(": Detailed restrictions have not been published.")}
-          </p>
-        )}
-        <div className="actions">
-          <a
-            className="button"
-            href={`https://osu.ppy.sh/beatmaps/${entry.beatmapId}`}
-          >
-            {tr("Open on osu!")}
-          </a>
-          <Link
-            className="button secondary"
-            href={`/tournaments/${slug}/mappools/${pool.id}#map-${entry.id}`}
-            onClick={onClose}
-          >
-            {tr("Map permalink")}
-          </Link>
-        </div>
-        <div className="map-dialog-navigation">
-          <button
-            className="secondary"
-            type="button"
-            disabled={!previous}
-            onClick={() => previous && onMove(previous.id)}
-          >
-            {tr("Previous map")}
-          </button>
-          <button
-            className="secondary"
-            type="button"
-            disabled={!next}
-            onClick={() => next && onMove(next.id)}
-          >
-            {tr("Next map")}
-          </button>
-        </div>
-      </div>
-    </dialog>
+      )}
+    </MapDetailsDialog>
   );
 }
 export function MappoolBrowser({
@@ -317,7 +267,12 @@ export function MappoolBrowser({
       </div>
 
       {view === "compact" ? (
-        <MappoolView pool={{ ...pool, entries }} headingLevel={headingLevel} />
+        <MappoolView
+          pool={{ ...pool, entries }}
+          headingLevel={headingLevel}
+          onSelect={setSelected}
+          showCategoryLinks={false}
+        />
       ) : (
         <>
           <p className="map-values-note muted small">
@@ -389,6 +344,12 @@ export function MappoolBrowser({
                       {tr(modRating(e))}
                     </p>
                   )}
+                  <BeatmapActions
+                    beatmapId={e.beatmapId}
+                    setId={e.metadata.setId}
+                    compact
+                    name={slotLabel(e.category, e.position)}
+                  />
                 </div>
               </article>
             ))}

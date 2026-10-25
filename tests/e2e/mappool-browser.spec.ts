@@ -120,12 +120,25 @@ test.describe("anonymous inline mappool browser", () => {
     await expect(page.getByText("Unconfigured", { exact: true })).toHaveCount(
       0,
     );
+    const opener = page.getByRole("button", {
+      name: "View NM1: Opening pool map 1",
+      exact: true,
+    });
+    await opener.click();
+    const dialog = page.getByRole("dialog");
     await expect(
-      page.getByRole("link", {
-        name: "Synthetic Artist — Opening pool map 1",
-        exact: true,
-      }),
+      dialog.getByRole("link", { name: "Open on osu!", exact: true }),
     ).toHaveAttribute("href", "https://osu.ppy.sh/beatmaps/830001");
+    await expect(
+      dialog.getByRole("link", { name: "osu!direct", exact: true }),
+    ).toHaveAttribute("href", "osu://b/830001");
+    await expect(dialog.locator('a[href*="/download"]')).toHaveCount(0);
+    await dialog.getByRole("button", { name: "Next map", exact: true }).click();
+    await expect(
+      dialog.getByRole("link", { name: "osu!direct", exact: true }),
+    ).toHaveAttribute("href", "osu://b/830002");
+    await page.keyboard.press("Escape");
+    await expect(opener).toBeFocused();
     await expect(
       page.locator(".mappool-map-identity img").first(),
     ).toBeVisible();
@@ -175,15 +188,7 @@ test.describe("anonymous inline mappool browser", () => {
       .locator("[id]")
       .evaluateAll((nodes) => nodes.map((node) => node.id));
     expect(new Set(ids).size).toBe(ids.length);
-    for (const nav of await page.locator(".mappool-category-links").all()) {
-      for (const link of await nav.getByRole("link").all()) {
-        const target = await link.getAttribute("href");
-        await expect(page.locator(target!)).toHaveCount(1);
-        expect(
-          await page.locator(target!).getAttribute("aria-labelledby"),
-        ).toBe(`${target!.slice(1)}-title`);
-      }
-    }
+    await expect(page.locator(".mappool-category-links")).toHaveCount(0);
     let navigations = 0;
     page.on("request", (request) => {
       if (request.isNavigationRequest()) navigations++;
@@ -213,15 +218,21 @@ test.describe("anonymous inline mappool browser", () => {
     await expect(page.locator(".mappool-public-round")).toHaveCount(0);
     await expect(page.locator(`#pool-${first}-maps-NM`)).toBeVisible();
     await expect(page).toHaveTitle(/Published mappools/);
-    const shortcut = page
-      .getByRole("navigation", {
-        name: "Supplement pool: map categories",
-        exact: true,
-      })
-      .getByRole("link", { name: "NM 1", exact: true });
-    await shortcut.focus();
+    const supplementFilters = page.getByRole("group", {
+      name: "Supplement pool: mod filter",
+      exact: true,
+    });
+    await supplementFilters
+      .getByRole("button", { name: "HD", exact: true })
+      .focus();
     await page.keyboard.press("Enter");
-    await expect(page).toHaveURL(`${index}#pool-${supplement}-maps-NM`);
+    await expect(page.locator(`#pool-${supplement}-maps-HD`)).toBeVisible();
+    await expect(page.locator(`#pool-${supplement}-maps-NM`)).toHaveCount(0);
+    await supplementFilters
+      .getByRole("button", { name: "All mods", exact: true })
+      .click();
+    await expect(page.locator(`#pool-${supplement}-maps-NM`)).toBeVisible();
+    await expect(page).toHaveURL(index);
     const mobileDetails = page
       .locator(`#pool-${first}-maps-NM .mappool-mobile-details`)
       .first();
@@ -240,6 +251,33 @@ test.describe("anonymous inline mappool browser", () => {
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth),
       ).toBeLessThanOrEqual(width);
+      const columnWidths = await page
+        .locator(".mappool-sheet")
+        .evaluateAll((tables) =>
+          tables.map((table) =>
+            Array.from(
+              table.querySelectorAll("thead th"),
+              (cell) =>
+                Math.round(cell.getBoundingClientRect().width * 100) / 100,
+            ),
+          ),
+        );
+      expect(columnWidths.length).toBeGreaterThan(1);
+      for (const columns of columnWidths)
+        expect(columns).toEqual(columnWidths[0]);
+      const actionBounds = await page
+        .locator(".mappool-actions-cell .beatmap-actions")
+        .first()
+        .locator("a")
+        .evaluateAll((links) =>
+          links.map((link) => {
+            const box = link.getBoundingClientRect();
+            return { x: box.x, y: box.y, bottom: box.bottom };
+          }),
+        );
+      expect(actionBounds).toHaveLength(2);
+      expect(actionBounds[0].x).toBeCloseTo(actionBounds[1].x, 1);
+      expect(actionBounds[1].y).toBeGreaterThanOrEqual(actionBounds[0].bottom);
       expect(
         (
           await new AxeBuilder({ page })

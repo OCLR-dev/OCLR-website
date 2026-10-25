@@ -686,10 +686,11 @@ test.describe("historical archive browser workflow", () => {
       await page.getByRole("tab", { name: "TB", exact: true }).click();
       const tb = pool.maps.find((m) => m.slot === "TB1")!;
       await expect(page.locator(".archive-map-item")).toHaveCount(1);
-      await expect(page.locator(".archive-map-identity a")).toHaveAttribute(
-        "href",
-        `https://osu.ppy.sh/beatmaps/${tb.beatmapId}`,
-      );
+      await expect(
+        page.locator(
+          '.archive-map-item .beatmap-actions a[href^="https://osu.ppy.sh/"]',
+        ),
+      ).toHaveAttribute("href", `https://osu.ppy.sh/beatmaps/${tb.beatmapId}`);
       await page.getByRole("tab", { name: "TB", exact: true }).press("Home");
       await expect(
         page.getByRole("tab", { name: "All mods", exact: true }),
