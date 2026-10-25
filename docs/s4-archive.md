@@ -60,8 +60,9 @@ update; no results or publication state changed.
   schema rejects ties. Their source scores are preserved without inventing a
   winner; draw-aware approval/statistics need a separate compatibility change.
 - A22 G–J is `FF` with the other score blank and no MP. Do not fabricate 0:6.
-- The 33 MP rooms, red/blue sides, per-game exclusions and 30 VOD titles have
-  not yet been checked. Fixture `poolId` stays null until played maps are checked.
+- MP review now covers 32 complete rooms, with red/blue sides and pool IDs saved
+  as pending evidence. See [the per-match review](s4-mp-review.md). A19 returns
+  404 and A22 has no MP; their pool IDs stay null. VOD titles remain unchecked.
 - The Team RANK column disagrees with knockout outcomes and is not treated as
   final placing. The knockout table implies E/B/C/I as the first four,
   K/L tied fifth and D/H tied seventh, pending review. Official standings remain empty.
