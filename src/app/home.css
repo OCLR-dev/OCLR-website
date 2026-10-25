@@ -99,11 +99,6 @@
   font-size: 0.85rem;
   font-weight: 600;
 }
-.home-contact-number {
-  margin-left: 0.35rem;
-  font-size: inherit;
-  font-weight: inherit;
-}
 .home-contact > span:last-child {
   color: inherit;
 }
@@ -367,9 +362,6 @@ html[data-theme="dark"]
   }
   .home-feature .home-contact > span:last-child {
     padding-left: 0.3rem;
-  }
-  .home-contact-number {
-    margin-left: 0;
   }
   .home-registration-label {
     gap: 0.4rem;

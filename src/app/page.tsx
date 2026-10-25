@@ -165,10 +165,7 @@ async function HomeContent() {
                   className="home-contact"
                 >
                   <EntryIcon kind="qq" />
-                  <span>
-                    {"QQ群"}{" "}
-                    <span className="home-contact-number">926872640</span>
-                  </span>
+                  <span>{tr("QQ group")}</span>
                   <span aria-hidden="true">→</span>
                 </a>
               </div>
