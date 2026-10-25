@@ -1,4 +1,5 @@
 import Link from "next/link";
+import "./broadcast-tools.css";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff";
@@ -26,22 +27,29 @@ export default async function ControlRoom({
     }
     return (
       <>
-        <PageHeading eyebrow={edition} title={tr("Draft control room")} />
-        <nav className="actions" aria-label={tr("Draft broadcast")}>
-          <Link
-            className="button secondary"
-            href={`/tournaments/${edition}/draft?presenter=1`}
-          >
-            {tr("Open presenter view")}
-          </Link>
-          <Link
-            className="button secondary"
-            href={`/tournaments/${edition}/draft/overlay`}
-          >
-            {tr("Open broadcast overlay")}
-          </Link>
-        </nav>
-        <ObsSourceLink slug={edition} origin={origin} />
+        <div className="draft-control-heading">
+          <PageHeading eyebrow={edition} title={tr("Draft control room")} />
+        </div>
+        <section
+          className="draft-broadcast-tools"
+          aria-label={tr("Draft broadcast")}
+        >
+          <nav className="actions" aria-label={tr("Draft broadcast")}>
+            <Link
+              className="button secondary"
+              href={`/tournaments/${edition}/draft?presenter=1`}
+            >
+              {tr("Open presenter view")}
+            </Link>
+            <Link
+              className="button secondary"
+              href={`/tournaments/${edition}/draft/overlay`}
+            >
+              {tr("Open broadcast overlay")}
+            </Link>
+          </nav>
+          <ObsSourceLink slug={edition} origin={origin} />
+        </section>
         <StaffDraftRoom slug={edition} initial={initial} />
       </>
     );

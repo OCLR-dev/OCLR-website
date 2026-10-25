@@ -119,6 +119,17 @@ test.describe("isolated multi-captain rehearsal", () => {
     await expect(
       staff.page.getByRole("status").filter({ hasText: "URL copied." }),
     ).toBeVisible();
+    expect(
+      await staff.page.evaluate(
+        () => (window as unknown as { copied: string }).copied,
+      ),
+    ).toBe(`http://127.0.0.1:3100/tournaments/${slug}/draft/overlay`);
+    await expect(
+      staff.page.getByText(
+        "Only released draft information appears in the overlay.",
+        { exact: true },
+      ),
+    ).toBeVisible();
     await spectator.page.goto(`/tournaments/${slug}/draft`);
     const closedRegistration = await spectator.context.newPage();
     await closedRegistration.goto(`/tournaments/${slug}/register`);

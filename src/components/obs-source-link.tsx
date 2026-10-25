@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useId, useRef, useState, useSyncExternalStore } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { draftOverlayUrl } from "@/lib/overlay-url";
 const subscribe = () => () => {};
@@ -13,6 +13,7 @@ export function ObsSourceLink({
   origin?: string;
 }) {
   const tr = useAppTranslations();
+  const id = useId();
   const localOrigin = useSyncExternalStore(
     subscribe,
     browserOrigin,
@@ -21,7 +22,7 @@ export function ObsSourceLink({
   const resolvedOrigin = origin || localOrigin;
   const url = resolvedOrigin ? draftOverlayUrl(resolvedOrigin, slug) : "";
   const [feedback, setFeedback] = useState("");
-  const field = useRef<HTMLTextAreaElement>(null);
+  const field = useRef<HTMLInputElement>(null);
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
@@ -34,31 +35,33 @@ export function ObsSourceLink({
   }
   return (
     <section className="obs-source-link">
-      <label className="field">
-        <span>{tr("OBS Browser Source / Overlay URL")}</span>
-        <textarea
-          ref={field}
-          value={url}
-          readOnly
-          rows={2}
-          spellCheck={false}
-          onFocus={(e) => e.currentTarget.select()}
-        />
-      </label>
-      <div className="actions">
-        <button
-          type="button"
-          className="secondary"
-          disabled={!url}
-          onClick={copy}
-        >
-          {tr("Copy URL")}
-        </button>
+      <div className="field">
+        <label htmlFor={id}>{tr("OBS Browser Source / Overlay URL")}</label>
+        <div className="obs-source-controls">
+          <input
+            id={id}
+            ref={field}
+            type="text"
+            value={url}
+            readOnly
+            spellCheck={false}
+            onFocus={(e) => e.currentTarget.select()}
+          />
+          <button
+            type="button"
+            className="secondary"
+            disabled={!url}
+            onClick={copy}
+          >
+            {tr("Copy URL")}
+          </button>
+        </div>
       </div>
-      <p className="muted small" role="status">
-        {feedback
-          ? tr(feedback)
-          : tr("Only released draft information appears in the overlay.")}
+      <p className="muted small">
+        {tr("Only released draft information appears in the overlay.")}
+      </p>
+      <p className="small obs-copy-feedback" role="status">
+        {feedback}
       </p>
     </section>
   );

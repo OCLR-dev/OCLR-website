@@ -1,0 +1,73 @@
+.admin-workspace .draft-control-heading .page-heading {
+  margin-bottom: 1rem;
+}
+.admin-workspace .draft-control-heading .page-heading h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.draft-broadcast-tools {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--site-border);
+}
+.draft-broadcast-tools .actions {
+  margin: 0;
+  gap: 0.5rem;
+}
+.draft-broadcast-tools :is(button, .button) {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.draft-broadcast-tools .obs-source-link {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.draft-broadcast-tools .obs-source-link .field {
+  min-width: 0;
+  margin: 0;
+  gap: 0.5rem;
+}
+.obs-source-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: start;
+  min-width: 0;
+}
+.draft-broadcast-tools .obs-source-controls input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: var(--font-mono, monospace);
+}
+.draft-broadcast-tools .obs-source-link p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.obs-copy-feedback:empty {
+  display: none;
+}
+@media (max-width: 480px) {
+  .obs-source-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .obs-source-controls button {
+    justify-self: start;
+  }
+}
+
+.draft-control-heading .eyebrow {
+  overflow-wrap: anywhere;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
