@@ -1,15 +1,16 @@
+import { TournamentEditor } from "@/components/tournament-editor";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff";
+import { remotePage } from "@/lib/remote-page";
 import { tournamentForAdmin } from "@/lib/tournaments";
-import { PageHeading } from "@/components/ui";
-import { TournamentEditor } from "@/components/tournament-editor";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Tournament settings") };
 }
 
-export default async function Settings({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -37,4 +38,8 @@ export default async function Settings({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

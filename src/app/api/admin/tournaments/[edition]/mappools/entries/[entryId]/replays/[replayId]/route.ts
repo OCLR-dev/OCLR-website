@@ -1,17 +1,24 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { requireUser } from "@/lib/auth/user";
+import { remoteMode } from "@/lib/data-source";
+import { frontendMedia } from "@/lib/frontend-media";
+import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import {
-  downloadMappoolReplay,
   deleteMappoolReplay,
+  downloadMappoolReplay,
 } from "@/lib/mappool-replays";
-import { apiError, requireSameOrigin, readJson } from "@/lib/http";
 type Context = {
   params: Promise<{ edition: string; entryId: string; replayId: string }>;
 };
 export const runtime = "nodejs";
-export async function GET(_request: Request, context: Context) {
+async function readGET(_request: Request, context: Context) {
   try {
     const user = await requireUser(),
       { edition, entryId, replayId } = await context.params;
+    if (remoteMode())
+      return frontendMedia(
+        `/staff/tournaments/${edition}/mappool-entries/${entryId}/replays/${replayId}/file`,
+      );
     const { bytes, filename } = await downloadMappoolReplay(
       user,
       edition,
@@ -50,4 +57,8 @@ export async function DELETE(request: Request, context: Context) {
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

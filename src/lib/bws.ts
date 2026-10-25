@@ -1,3 +1,5 @@
+import { frontendResource, assertRemoteSubject } from "./frontend-resource";
+import { remoteMode } from "./data-source";
 import { createHash } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -79,7 +81,7 @@ async function applicant(
   if (!row) throw new HttpError(404, "Application not found.");
   return row;
 }
-export async function staffBws(
+async function databaseStaffBws(
   actor: User,
   slug: string,
   id: string,
@@ -115,6 +117,22 @@ export async function staffBws(
     summary: (await profileBws(snapshot, slug))!,
   };
 }
+export async function staffBws(
+  actor: User,
+  slug: string,
+  id: string,
+  mode: unknown,
+): Promise<Awaited<ReturnType<typeof databaseStaffBws>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseStaffBws>>>(
+      "staffBws",
+      { slug, id, mode },
+    );
+  }
+  return databaseStaffBws(actor, slug, id, mode);
+}
+
 const command = z
   .object({
     mode: z.literal("osu"),

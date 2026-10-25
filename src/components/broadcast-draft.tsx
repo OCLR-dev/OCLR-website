@@ -1,10 +1,11 @@
 "use client";
 import { useAppTranslations } from "@/i18n/shared";
 
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import type { DraftBoard, DraftIdentity } from "@/lib/draft-types";
 import { Avatar } from "./avatar";
 import { draftLabels } from "./draft-board";
+import { RemoteReadOnlyContext } from "./staff-read-only";
 import { usePoll } from "./use-poll";
 import styles from "./broadcast-draft.module.css";
 
@@ -90,6 +91,7 @@ export function BroadcastDraft({
   background: "opaque" | "transparent";
 }) {
   const tr = useAppTranslations();
+  const remote = useContext(RemoteReadOnlyContext);
 
   const {
     value: board,
@@ -97,7 +99,7 @@ export function BroadcastDraft({
     received,
   } = usePoll<DraftBoard>(`/api/tournaments/${slug}/draft?overlay=1`, initial, {
     accept: acceptBroadcastSnapshot,
-    credentials: "omit",
+    credentials: remote ? "same-origin" : "omit",
     initiallyConnected: available,
   });
   const previous = useRef(initial);

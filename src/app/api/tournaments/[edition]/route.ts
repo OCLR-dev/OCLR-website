@@ -1,3 +1,4 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { remoteMode } from "@/lib/data-source";
 import { frontendTournament } from "@/lib/frontend-data";
 import { legacyTournamentProjection } from "@/lib/frontend-legacy";
@@ -6,7 +7,7 @@ import { getPublicEdition } from "@/lib/content";
 import { publicEditionSummary } from "@/lib/tournaments";
 import { registrationAvailability } from "@/lib/registrations";
 import { apiError, HttpError } from "@/lib/http";
-export async function GET(
+async function readGET(
   _request: Request,
   context: { params: Promise<{ edition: string }> },
 ) {
@@ -29,4 +30,8 @@ export async function GET(
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

@@ -1,3 +1,4 @@
+import paths from "./remote-route-paths.json" with { type: "json" };
 /** Shared with proxy: no database, request state or credentials in this module. */
 export function remoteMode() {
   const source = process.env.OCLR_DATA_SOURCE;
@@ -43,32 +44,39 @@ export function remoteConfiguration() {
     );
   return { local: local.origin, upstream: upstream.origin };
 }
-export function remotePageSupported(path: string) {
-  if (path === "/admin/tournaments/new") return false;
+function matchesRoute(path: string, template: string, api = false) {
+  const actual = path.split("/"),
+    parts = template.split("/");
   return (
-    [
-      "/",
-      "/tournaments",
-      "/remote",
-      "/remote/unsupported",
-      "/login",
-      "/developer",
-      "/admin/tournaments",
-    ].includes(path) ||
-    /^\/tournaments\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/(?:rules|players|participants)|\/players\/[1-9]\d*)?$/.test(
-      path,
-    ) ||
-    /^\/players\/[1-9]\d*$/.test(path) ||
-    /^\/admin\/tournaments\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(path)
+    parts.every((part, index) => {
+      if (part === "[...path]") return actual.length > index;
+      if (part.startsWith("[")) {
+        const value = actual[index] ?? "";
+        if (
+          api &&
+          [
+            "[id]",
+            "[teamId]",
+            "[fixtureId]",
+            "[entryId]",
+            "[replayId]",
+          ].includes(part)
+        )
+          return /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(value);
+        if (part === "[osuId]")
+          return (
+            /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value))
+          );
+        return /^[a-zA-Z0-9_-]+$/.test(value);
+      }
+      return actual[index] === part;
+    }) &&
+    (template.includes("[...path]") || parts.length === actual.length)
   );
 }
+export function remotePageSupported(path: string) {
+  return paths.pages.some((template) => matchesRoute(path, template));
+}
 export function remoteApiSupported(path: string) {
-  return (
-    path === "/api/remote/connection" ||
-    path.startsWith("/api/remote/read/") ||
-    path === "/api/me" ||
-    ["/api/tournaments", "/api/players"].includes(path) ||
-    /^\/api\/tournaments\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/players)?$/.test(path) ||
-    /^\/api\/players\/[1-9]\d*$/.test(path)
-  );
+  return paths.reads.some((template) => matchesRoute(path, template, true));
 }

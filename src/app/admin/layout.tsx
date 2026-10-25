@@ -1,14 +1,10 @@
-import { remoteMode } from "@/lib/data-source";
-import { frontendConnection } from "@/lib/frontend-data";
-import { remotePage } from "@/lib/remote-page";
-import { RemoteDataError } from "@/lib/remote-errors";
-import { getAppTranslations } from "@/i18n/server";
 import { StaffNavigation } from "@/components/staff-navigation";
-import { notFound, redirect } from "next/navigation";
-import { currentUser } from "@/lib/auth/user";
-import { staffAccess, canRead, isDeveloper, permits } from "@/lib/auth/staff";
-import { tournamentList } from "@/lib/tournaments";
+import { getAppTranslations } from "@/i18n/server";
 import { globalNavigation, tournamentNavigation } from "@/lib/admin-navigation";
+import { canRead, isDeveloper, permits, staffAccess } from "@/lib/auth/staff";
+import { currentUser } from "@/lib/auth/user";
+import { tournamentList } from "@/lib/tournaments";
+import { notFound, redirect } from "next/navigation";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return {
@@ -22,13 +18,6 @@ export default async function StaffLayout({
 }: {
   children: React.ReactNode;
 }) {
-  if (remoteMode())
-    return remotePage(async () => {
-      const context = await frontendConnection();
-      if (!context.identity?.access.scopes.includes("tournaments:private:read"))
-        throw new RemoteDataError("REMOTE_FORBIDDEN", 403);
-      return <div className="container page">{children}</div>;
-    });
   const user = await currentUser();
   if (!user) redirect("/login");
   const grants = await staffAccess(user);

@@ -1,9 +1,10 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { remoteMode } from "@/lib/data-source";
 import { frontendConnection } from "@/lib/frontend-data";
 import { requireUser } from "@/lib/auth/user";
 import { apiError, HttpError } from "@/lib/http";
-export async function GET() {
+async function readGET() {
   try {
     const user = remoteMode()
       ? (await frontendConnection()).identity?.user
@@ -15,4 +16,8 @@ export async function GET() {
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

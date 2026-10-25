@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
 import { getPublicEdition } from "@/lib/content";
-export default async function Players({
+import { remotePage } from "@/lib/remote-page";
+import { redirect } from "next/navigation";
+async function Issue271Page({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -15,5 +16,9 @@ export default async function Players({
       `/tournaments/${edition}/players${search.size ? `?${search}` : ""}`,
     );
   }
-  redirect("/tournaments");
+  return redirect("/tournaments");
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

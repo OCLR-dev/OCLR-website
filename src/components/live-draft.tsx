@@ -2,13 +2,14 @@
 
 import { useAppTranslations } from "@/i18n/shared";
 
-import { useState } from "react";
 import type { CaptainBoard, DraftBoard } from "@/lib/draft-types";
-import { usePoll } from "./use-poll";
-import { DraftBoardView, draftLabels } from "./draft-board";
+import { useState } from "react";
 import { CaptainDraftOverview } from "./captain-draft-overview";
+import { DraftBoardView, draftLabels } from "./draft-board";
 import { DraftPick } from "./draft-pick";
+import { useStaffReadOnly } from "./staff-read-only";
 import { Action, EmptyState } from "./ui";
+import { usePoll } from "./use-poll";
 export function LiveDraft({
   slug,
   initial,
@@ -21,6 +22,7 @@ export function LiveDraft({
   presenter?: boolean;
 }) {
   const tr = useAppTranslations();
+  const readOnly = useStaffReadOnly();
 
   const [feedback, setFeedback] = useState<{
     message: string;
@@ -33,6 +35,7 @@ export function LiveDraft({
     authorizationLost,
   } = usePoll<DraftBoard | CaptainBoard>(endpoint, initial);
   const canPick = Boolean(
+    !readOnly &&
     captainId &&
     board?.state === "live" &&
     board.activeTeam?.captain.osuId === captainId &&

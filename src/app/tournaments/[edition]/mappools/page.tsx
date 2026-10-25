@@ -1,15 +1,16 @@
 import { historicalPage } from "@/components/historical-archive";
-import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
-import { publicMappools } from "@/lib/mappools";
-import { EmptyState, PageHeading } from "@/components/ui";
 import { MappoolBrowser } from "@/components/mappool-browser";
 import { MappoolStages } from "@/components/mappool-stages";
+import { EmptyState, PageHeading } from "@/components/ui";
+import { getAppTranslations } from "@/i18n/server";
+import { publicMappools } from "@/lib/mappools";
+import { remotePage } from "@/lib/remote-page";
+import Link from "next/link";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Published mappools") };
 }
-export default async function MappoolsPage({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -104,4 +105,8 @@ export default async function MappoolsPage({
       )}
     </>
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

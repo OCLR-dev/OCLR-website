@@ -1,36 +1,38 @@
-import { approvedRatingGames } from "./approved-rating-games";
-import { createHash } from "node:crypto";
-import { and, desc, eq, isNull, ne } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   awardSettings,
-  fixtures,
   captains,
-  teams,
-  draftSessions,
   draftPicks,
-  weeklyAwardReleases,
-  editionState,
+  draftSessions,
   editionEvents,
+  editionState,
+  fixtures,
   registrations,
+  teams,
   users,
+  weeklyAwardReleases,
 } from "@/db/schema";
-import { assertReadCapability, assertCapability } from "./auth/staff";
+import { and, desc, eq, isNull, ne } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { z } from "zod";
+import { approvedRatingGames } from "./approved-rating-games";
 import type { User } from "./auth/sessions";
-import { HttpError } from "./http";
-import { readTournament } from "./tournaments";
+import { assertCapability, assertReadCapability } from "./auth/staff";
 import {
   awardConfigurationSchema,
   awardPolicySchema,
   weeklyStandings,
-  type AwardWeek,
   type AwardStanding,
+  type AwardWeek,
 } from "./award-model";
+import { draftAwardTiers } from "./award-tiers";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { HttpError } from "./http";
 import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
 import { staffRoundRatings } from "./ratings";
+import { readTournament } from "./tournaments";
 import { YUMU_POLICY } from "./yumu-rating";
-import { draftAwardTiers } from "./award-tiers";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export type AwardReport = AwardWeek &
   AwardStanding & {
@@ -212,13 +214,27 @@ async function calculation(slug: string, reader: Reader) {
     releases,
   };
 }
-export async function awardWorkspace(actor: User, slug: string) {
+async function databaseAwardWorkspace(actor: User, slug: string) {
   await assertReadCapability(actor, "approve_results", slug);
   return db().transaction((tx) => calculation(slug, tx), {
     isolationLevel: "repeatable read",
     accessMode: "read only",
   });
 }
+export async function awardWorkspace(
+  actor: User,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseAwardWorkspace>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseAwardWorkspace>>>(
+      "awardWorkspace",
+      { slug },
+    );
+  }
+  return databaseAwardWorkspace(actor, slug);
+}
+
 const common = {
   expectedVersion: z.number().int().nonnegative(),
   confirmed: z.literal(true),
@@ -399,7 +415,7 @@ export async function awardCommand(actor: User, slug: string, input: unknown) {
   });
   return awardWorkspace(actor, slug);
 }
-export async function publicAwards(slug: string) {
+async function databasePublicAwards(slug: string) {
   if (!process.env.DATABASE_URL) return null;
   return db().transaction(
     async (tx) => {
@@ -439,4 +455,15 @@ export async function publicAwards(slug: string) {
     },
     { isolationLevel: "repeatable read", accessMode: "read only" },
   );
+}
+export async function publicAwards(
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databasePublicAwards>>> {
+  if (remoteMode()) {
+    return frontendResource<Awaited<ReturnType<typeof databasePublicAwards>>>(
+      "publicAwards",
+      { slug },
+    );
+  }
+  return databasePublicAwards(slug);
 }

@@ -1,3 +1,7 @@
+import { english } from "../../src/i18n/translate";
+vi.mock("../../src/i18n/server", () => ({
+  getAppTranslations: async () => english,
+}));
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -25,19 +29,19 @@ describe("explicit osu! privacy contact", () => {
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
   });
-  const html = () =>
+  const html = async () =>
     renderToStaticMarkup(
       <NextIntlClientProvider locale="en" messages={messages} timeZone="UTC">
-        <Privacy />
+        {await Privacy()}
       </NextIntlClientProvider>,
     );
-  it("needs only a valid designated privacy contact and the existing OAuth settings", () => {
+  it("needs only a valid designated privacy contact and the existing OAuth settings", async () => {
     expect(privacyReady()).toBe(true);
     expect(authReady()).toBe(true);
     expect(oauthConfig().redirectUri).toBe(
       "https://oclr.example.test/auth/osu/callback",
     );
-    const page = html();
+    const page = await html();
     expect(
       page.match(/href="https:\/\/osu.ppy.sh\/users\/60001"/g),
     ).toHaveLength(1);
@@ -67,13 +71,13 @@ describe("explicit osu! privacy contact", () => {
     "https://osu.ppy.sh/users/60001",
     "9007199254740992",
     "<script>",
-  ])("fails closed for invalid or missing explicit ID %s", (value) => {
+  ])("fails closed for invalid or missing explicit ID %s", async (value) => {
     vi.stubEnv("PRIVACY_CONTACT_OSU_ID", value);
     expect(privacyContact()).toBeNull();
     expect(privacyReady()).toBe(false);
     expect(authReady()).toBe(false);
     expect(() => oauthConfig()).toThrow(/not configured/);
-    const page = html();
+    const page = await html();
     expect(page).toContain("Public contact details have not been announced.");
     expect(page).not.toContain("https://osu.ppy.sh/users/");
     expect(page).not.toContain("mailto:");

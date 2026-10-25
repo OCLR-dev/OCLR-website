@@ -247,3 +247,138 @@ test.describe("versioned read API and existing SSR", () => {
     }
   });
 });
+
+test.describe("full-site direct browser transport", () => {
+  test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
+  // This test uses the same localhost document server as the contract test above.
+  test.beforeAll(async () => {
+    if (!transport.listening)
+      await new Promise<void>((resolve, reject) => {
+        transport.once("error", reject);
+        transport.listen(31468, "127.0.0.1", resolve);
+      });
+  });
+  test.afterAll(async () => {
+    if (transport.listening)
+      await new Promise<void>((resolve) => transport.close(() => resolve()));
+    await closeDb();
+  });
+  test("preflights and reads protected media and saved registration data with Bearer/omit, then denies revoked access", async ({
+    page,
+    context,
+    isMobile,
+  }) => {
+    const { seedRemoteSite, remoteBusinessState, remoteFileState } =
+      await import("../fixtures/remote-site");
+    const { createSession } = await import("../../src/lib/auth/sessions");
+    const fixture = await seedRemoteSite(isMobile ? 2726000 : 2725000);
+    const session = await createSession(fixture.owner);
+    await context.addCookies([
+      {
+        name: "oclr_session",
+        value: session.token,
+        domain: "127.0.0.1",
+        path: "/",
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: false,
+      },
+    ]);
+    const issued = await context.request.post(
+      backend + "/api/developer/tokens",
+      {
+        headers: { Origin: backend },
+        data: {
+          origin: local,
+          scopes: [
+            "identity:read",
+            "tournaments:read",
+            "tournaments:private:read",
+            "profiles:read",
+          ],
+        },
+      },
+    );
+    expect(issued.status()).toBe(201);
+    const credential = await issued.json();
+    const replay = `/staff/tournaments/test-cup/mappool-entries/${fixture.entryId}/replays/${fixture.replayId}/file`;
+    const options = await context.request.fetch(backend + "/api/v1" + replay, {
+      method: "OPTIONS",
+      headers: {
+        Origin: local,
+        "Access-Control-Request-Method": "GET",
+        "Access-Control-Request-Headers": "authorization",
+      },
+    });
+    expect(options.status()).toBe(204);
+    expect(options.headers()["access-control-allow-origin"]).toBe(local);
+    expect(
+      options.headers()["access-control-allow-credentials"],
+    ).toBeUndefined();
+    const before = await remoteBusinessState(),
+      files = await remoteFileState();
+    await page.goto(local);
+    const result = await page.evaluate(
+      async ({ backend, token, replay, avatar, bws }) => {
+        const read = async (path: string) => {
+          const response = await fetch(backend + "/api/v1" + path, {
+            credentials: "omit",
+            cache: "no-store",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          return {
+            status: response.status,
+            type: response.headers.get("content-type"),
+            filename: response.headers.get("content-disposition"),
+            version: response.headers.get("X-OCLR-Read-Contract"),
+            requestId: response.headers.get("X-Request-Id"),
+            length: (await response.arrayBuffer()).byteLength,
+          };
+        };
+        return {
+          replay: await read(replay),
+          avatar: await read(avatar),
+          bws: await read(bws),
+        };
+      },
+      {
+        backend,
+        token: credential.token,
+        replay,
+        avatar: `/media/teams/${fixture.home.teamId}/avatar`,
+        bws: `/staff/tournaments/test-cup/registrations/${fixture.registrationId}/bws`,
+      },
+    );
+    expect(result.replay.status).toBe(200);
+    expect(result.replay.type).toBe("application/octet-stream");
+    expect(result.replay.filename).toContain("Synthetic%20readable");
+    expect(result.replay.length).toBe(fixture.replayBytes.length);
+    expect(result.avatar.status).toBe(200);
+    expect(result.avatar.type).toBe("image/webp");
+    expect(result.bws.status).toBe(200);
+    expect(result.replay.version).toBe("1.1.0");
+    expect(result.replay.requestId).toBeTruthy();
+    expect(await remoteBusinessState()).toEqual(before);
+    expect(await remoteFileState()).toEqual(files);
+    expect(
+      (
+        await context.request.delete(
+          backend + "/api/developer/tokens/" + credential.access.id,
+          { headers: { Origin: backend } },
+        )
+      ).ok(),
+    ).toBe(true);
+    expect(
+      await page.evaluate(
+        async ({ backend, token, replay }) =>
+          (
+            await fetch(backend + "/api/v1" + replay, {
+              credentials: "omit",
+              headers: { Authorization: `Bearer ${token}` },
+            })
+          ).status,
+        { backend, token: credential.token, replay },
+      ),
+    ).toBe(401);
+  });
+});

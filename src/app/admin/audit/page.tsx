@@ -1,18 +1,19 @@
+import { AuditModuleTabs } from "@/components/audit-module-tabs";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
+import { auditChanges, auditLog, auditModules } from "@/lib/audit";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff";
-import { auditLog, auditModules, auditChanges } from "@/lib/audit";
-import { tournamentList } from "@/lib/tournaments";
 import { HttpError } from "@/lib/http";
-import { PageHeading } from "@/components/ui";
-import { AuditModuleTabs } from "@/components/audit-module-tabs";
+import { remotePage } from "@/lib/remote-page";
+import { tournamentList } from "@/lib/tournaments";
+import Link from "next/link";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Audit log") };
 }
 
-export default async function Audit({
+async function Issue271Page({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -283,4 +284,8 @@ export default async function Audit({
       </div>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

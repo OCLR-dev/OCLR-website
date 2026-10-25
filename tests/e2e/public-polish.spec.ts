@@ -171,6 +171,12 @@ test.describe("public presentation follow-ups", () => {
         });
       }
     }
+    // Next Image loads lazily; bring the deliberately broken NM6 cover into
+    // view before checking its failure state, especially on narrow screens.
+    await page
+      .locator(".map-browse-card")
+      .filter({ has: page.getByText("NM6", { exact: true }) })
+      .scrollIntoViewIfNeeded();
     await expect(page.getByText("Cover unavailable")).toBeVisible();
     const first = page.locator(".map-open-button").first();
     await first.focus();

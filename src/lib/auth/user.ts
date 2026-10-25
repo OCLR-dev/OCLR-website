@@ -1,16 +1,24 @@
 import { cookies, headers } from "next/headers.js";
-import { readSession, readSessionContext } from "./sessions";
-import { sessionCookie } from "./config";
 import { HttpError } from "../http";
+import { sessionCookie } from "./config";
+import { readSession, readSessionContext } from "./sessions";
 export async function currentUser() {
-  if (process.env.OCLR_DATA_SOURCE === "remote") throw new HttpError(403, "Remote development does not grant browser write roles.");
+  if (process.env.OCLR_DATA_SOURCE === "remote")
+    return (
+      (await (await import("../frontend-data")).frontendConnection()).identity
+        ?.user ?? null
+    );
   // A bearer request must never inherit a browser's independent write roles.
   if ((await headers()).has("authorization"))
     throw new HttpError(403, "Use a browser session for this operation.");
   return readSession((await cookies()).get(sessionCookie())?.value);
 }
 export async function requireBrowserSession() {
-  if (process.env.OCLR_DATA_SOURCE === "remote") throw new HttpError(403, "Remote development does not grant browser write roles.");
+  if (process.env.OCLR_DATA_SOURCE === "remote")
+    throw new HttpError(
+      403,
+      "Remote development does not grant browser write roles.",
+    );
   if ((await headers()).has("authorization"))
     throw new HttpError(403, "Use a browser session for this operation.");
   const session = await readSessionContext(

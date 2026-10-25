@@ -6,6 +6,8 @@ import { assertCapability, assertReadCapability } from "./auth/staff";
 import type { User } from "./auth/sessions";
 import { contributorListSchema } from "./contributor-model";
 import { HttpError } from "./http";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 
 async function readDirectory() {
   const [row] = await db()
@@ -14,15 +16,31 @@ async function readDirectory() {
     .where(eq(contributorDirectory.id, 1));
   return row ?? { id: 1, entries: [], revision: 0 };
 }
-export async function contributorsForAdmin(actor: User) {
+async function databaseContributorsForAdmin(actor: User) {
   await assertReadCapability(actor, "configure_tournament");
   return readDirectory();
 }
-export async function publicContributors() {
+async function databasePublicContributors() {
   if (!process.env.DATABASE_URL) return [];
   return (await readDirectory()).entries
     .filter((entry) => entry.published)
     .map(({ name, osuId }) => ({ name, osuId }));
+}
+export async function contributorsForAdmin(
+  actor: User,
+): Promise<Awaited<ReturnType<typeof databaseContributorsForAdmin>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource("contributorsForAdmin");
+  }
+  return databaseContributorsForAdmin(actor);
+}
+export async function publicContributors(): Promise<
+  Awaited<ReturnType<typeof databasePublicContributors>>
+> {
+  return remoteMode()
+    ? frontendResource("publicContributors")
+    : databasePublicContributors();
 }
 export async function updateContributors(actor: User, input: unknown) {
   await assertCapability(actor, "configure_tournament");
@@ -65,14 +83,12 @@ export async function updateContributors(actor: User, input: unknown) {
       .set({ entries: parsed.data.entries, revision: before.revision + 1 })
       .where(eq(contributorDirectory.id, 1))
       .returning();
-    await tx
-      .insert(contributorEvents)
-      .values({
-        actorId: actor.osuId,
-        before: before.entries,
-        after: after.entries,
-        revision: after.revision,
-      });
+    await tx.insert(contributorEvents).values({
+      actorId: actor.osuId,
+      before: before.entries,
+      after: after.entries,
+      revision: after.revision,
+    });
     return after;
   });
 }

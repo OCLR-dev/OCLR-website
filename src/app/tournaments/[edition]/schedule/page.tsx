@@ -1,10 +1,11 @@
-import { historicalPage } from "@/components/historical-archive";
-import { publicCompetition } from "@/lib/public-competition";
-import { notFound } from "next/navigation";
-import { getPublicEdition } from "@/lib/content";
 import { EventSchedule } from "@/components/event-schedule";
+import { historicalPage } from "@/components/historical-archive";
+import { getPublicEdition } from "@/lib/content";
 import { eventPreview, type EventMatch } from "@/lib/event-preview";
-export default async function Schedule({
+import { publicCompetition } from "@/lib/public-competition";
+import { remotePage } from "@/lib/remote-page";
+import { notFound } from "next/navigation";
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -44,4 +45,8 @@ export default async function Schedule({
       groups={competition?.groups}
     />
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

@@ -1,24 +1,25 @@
-import { cachedOsuUserProfile, getOsuUserProfile } from "@/lib/osu-profiles";
-import { applicationAnswers } from "@/lib/application-answers";
-import Link from "next/link";
-import { RegistrationRemoval } from "@/components/registration-removal";
+import { BwsReview } from "@/components/bws-review";
 import { EligibilitySummary } from "@/components/eligibility-summary";
+import { RegistrationRemoval } from "@/components/registration-removal";
+import { ReviewForm } from "@/components/review-form";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { notFound } from "next/navigation";
+import { applicationAnswers } from "@/lib/application-answers";
 import { authorizedPage } from "@/lib/auth/page";
 import {
+  hasCapability,
+  isDeveloper,
   requireStaff,
   staffAccess,
-  isDeveloper,
-  hasCapability,
 } from "@/lib/auth/staff";
+import { formatDate } from "@/lib/editions";
+import { cachedOsuUserProfile, getOsuUserProfile } from "@/lib/osu-profiles";
+import { remotePage } from "@/lib/remote-page";
 import { applicationDetails } from "@/lib/staff";
 import { readTournament } from "@/lib/tournaments";
-import { formatDate } from "@/lib/editions";
-import { PageHeading } from "@/components/ui";
-import { BwsReview } from "@/components/bws-review";
-import { ReviewForm } from "@/components/review-form";
-export default async function Application({
+import Link from "next/link";
+import { notFound } from "next/navigation";
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ id: string; edition: string }>;
@@ -216,4 +217,8 @@ export default async function Application({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

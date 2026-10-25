@@ -35,6 +35,7 @@ export async function connectRemote(
       (await remoteRead("/me", undefined, input.token)).data,
     );
   }
+  if (input.mode === "anonymous") await remoteRead("/site");
   if (entries().size >= 50 && (!previous || !entries().has(previous)))
     throw new RemoteDataError("REMOTE_UNAVAILABLE", 503);
   const id = randomBytes(32).toString("base64url");
@@ -70,6 +71,7 @@ export async function verifiedConnection(id?: string) {
       identity = apiIdentitySchema.parse(
         (await remoteRead("/me", undefined, connection.token)).data,
       );
+    if (connection.mode === "anonymous") await remoteRead("/site");
     return { ...connection, identity };
   } catch (error) {
     if (error instanceof RemoteDataError && [401, 403].includes(error.status))

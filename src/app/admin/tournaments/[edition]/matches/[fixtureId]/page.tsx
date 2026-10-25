@@ -1,25 +1,26 @@
-import { matchRatingWorkspace } from "@/lib/ratings";
+import { MatchReviewPanel } from "@/components/match-review";
+import { MatchSourceCompletion } from "@/components/match-source-completion";
 import { PlayerRatings } from "@/components/player-ratings";
+import { StreamingManager } from "@/components/streaming-manager";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
+import { canRead, staffAccess } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
-import { staffAccess, canRead } from "@/lib/auth/staff";
-import { canViewStreaming, streamingWorkspace } from "@/lib/streaming";
-import { StreamingManager } from "@/components/streaming-manager";
-import { staffFixtures } from "@/lib/fixtures";
-import { fixtureSlot } from "@/lib/fixture-views";
-import { HttpError } from "@/lib/http";
-import { matchReview } from "@/lib/results";
-import { MatchSourceCompletion } from "@/components/match-source-completion";
-import { MatchReviewPanel } from "@/components/match-review";
 import { formatDate } from "@/lib/editions";
-import { PageHeading } from "@/components/ui";
+import { fixtureSlot } from "@/lib/fixture-views";
+import { staffFixtures } from "@/lib/fixtures";
+import { HttpError } from "@/lib/http";
+import { matchRatingWorkspace } from "@/lib/ratings";
+import { remotePage } from "@/lib/remote-page";
+import { matchReview } from "@/lib/results";
+import { canViewStreaming, streamingWorkspace } from "@/lib/streaming";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Fixture review") };
 }
 
-export default async function FixturePage({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string; fixtureId: string }>;
@@ -144,4 +145,8 @@ export default async function FixturePage({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

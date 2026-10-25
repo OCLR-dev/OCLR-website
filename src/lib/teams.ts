@@ -1,23 +1,25 @@
-import { assertOperationalEdition } from "./archive-guard";
-import { and, eq, isNull, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   captains,
+  draftSessions,
   editionEvents,
   editionState,
   memberships,
-  teams,
   teamCoaches,
-  users,
+  teams,
   userProfileCache,
-  draftSessions,
+  users,
 } from "@/db/schema";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import { z } from "zod";
+import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
-import { assertReadCapability, assertCapability } from "./auth/staff";
+import { assertCapability, assertReadCapability } from "./auth/staff";
 import { getEdition, getPublicEdition } from "./content";
-import { draftSetupProtection } from "./draft-setup";
+import { remoteMode } from "./data-source";
 import { refreshDraftSnapshot } from "./draft";
+import { draftSetupProtection } from "./draft-setup";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 import { getOsuUserProfile } from "./osu-profiles";
 const teamInput = z
@@ -72,7 +74,7 @@ const commandSchema = z
     ]),
   })
   .strict();
-export async function staffTeams(actor: User, slug: string) {
+async function databaseStaffTeams(actor: User, slug: string) {
   await assertReadCapability(actor, "manage_teams", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -123,6 +125,20 @@ export async function staffTeams(actor: User, slug: string) {
     { isolationLevel: "repeatable read" },
   );
 }
+export async function staffTeams(
+  actor: User,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseStaffTeams>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseStaffTeams>>>(
+      "staffTeams",
+      { slug },
+    );
+  }
+  return databaseStaffTeams(actor, slug);
+}
+
 export async function updateTeams(
   actor: User,
   slug: string,
@@ -376,7 +392,7 @@ export async function updateTeams(
   });
   return staffTeams(actor, slug);
 }
-export async function ownTeam(userId: number, slug: string) {
+async function databaseOwnTeam(userId: number, slug: string) {
   const [team] = await db()
     .select()
     .from(teams)
@@ -418,7 +434,21 @@ export async function ownTeam(userId: number, slug: string) {
         .map(({ osuId, username }) => ({ osuId, username })),
   };
 }
-export async function publishedTeams(slug: string) {
+export async function ownTeam(
+  userId: number,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseOwnTeam>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(userId);
+    return frontendResource<Awaited<ReturnType<typeof databaseOwnTeam>>>(
+      "ownTeam",
+      { slug },
+    );
+  }
+  return databaseOwnTeam(userId, slug);
+}
+
+async function databasePublishedTeams(slug: string) {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return [];
   return db().transaction(
     async (tx) => {
@@ -507,4 +537,15 @@ export async function publishedTeams(slug: string) {
     },
     { isolationLevel: "repeatable read" },
   );
+}
+export async function publishedTeams(
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databasePublishedTeams>>> {
+  if (remoteMode()) {
+    return frontendResource<Awaited<ReturnType<typeof databasePublishedTeams>>>(
+      "publishedTeams",
+      { slug },
+    );
+  }
+  return databasePublishedTeams(slug);
 }

@@ -1,13 +1,15 @@
-import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { userProfileCache } from "@/db/schema";
+import { and, eq, inArray } from "drizzle-orm";
+import { remoteMode } from "./data-source";
 import { publicDraft } from "./draft";
 import type { DraftBoard, DraftIdentity } from "./draft-types";
+import { frontendResource } from "./frontend-resource";
 import { getOsuUserProfile, PROFILE_TTL_MS } from "./osu-profiles";
 
 /** Enrich only already-published identities. One cache read; only the featured
  * player may refresh after the response. No provider fan-out on roster polls. */
-export async function publicBroadcastDraft(
+async function databasePublicBroadcastDraft(
   slug: string,
   defer?: (work: () => Promise<void>) => void,
 ): Promise<DraftBoard | null> {
@@ -97,4 +99,15 @@ export async function publicBroadcastDraft(
     // Cache enrichment is optional and must never hide an authoritative board.
     return board;
   }
+}
+export async function publicBroadcastDraft(
+  slug: string,
+  defer?: (work: () => Promise<void>) => void,
+): Promise<Awaited<ReturnType<typeof databasePublicBroadcastDraft>>> {
+  if (remoteMode()) {
+    return frontendResource<
+      Awaited<ReturnType<typeof databasePublicBroadcastDraft>>
+    >("publicBroadcastDraft", { slug });
+  }
+  return databasePublicBroadcastDraft(slug, defer);
 }

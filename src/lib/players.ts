@@ -13,6 +13,8 @@ import {
 import { getPublicEditions } from "./content";
 import { HttpError } from "./http";
 import { parseOsuProfile } from "./osu-profile-model";
+import { remoteMode } from "./data-source";
+import { frontendResource } from "./frontend-resource";
 const filtersSchema = z
   .object({
     q: z.string().trim().max(100).default(""),
@@ -235,8 +237,19 @@ export async function publicPlayers(input: unknown, exactOsuId?: number) {
     { isolationLevel: "repeatable read" },
   );
 }
-export async function publicPlayer(osuId: number, edition?: string) {
+async function databasePublicPlayer(osuId: number, edition?: string) {
   return (await publicPlayers(edition ? { edition } : {}, osuId)).rows;
+}
+export async function publicPlayer(
+  osuId: number,
+  edition?: string,
+): Promise<Awaited<ReturnType<typeof databasePublicPlayer>>> {
+  return remoteMode()
+    ? frontendResource("publicPlayerParticipation", {
+        osuId,
+        ...(edition ? { edition } : {}),
+      })
+    : databasePublicPlayer(osuId, edition);
 }
 
 /** Same accepted/public boundary as the directory; never count private applications. */

@@ -1,25 +1,26 @@
-import { appearances } from "../../src/lib/preferences";
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { eq, sql } from "drizzle-orm";
 import { readFileSync } from "node:fs";
-import { db, closeDb } from "../../src/db";
+import { closeDb, db } from "../../src/db";
 import {
-  staffRoles,
-  users,
-  registrations,
-  userProfileCache,
-  siteSettings,
-  editionState,
   developerApiTokens,
+  editionState,
+  registrations,
+  siteSettings,
+  staffRoles,
+  userProfileCache,
+  users,
 } from "../../src/db/schema";
-import { seedSession } from "../e2e/session";
-import { seedPublicDirectory } from "../fixtures/players";
-import { seedEditions } from "../fixtures/editions";
-import { edition } from "../fixtures/edition";
-import { historicalArchive } from "../fixtures/historical-archive";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
-import { profileResponse } from "../fixtures/osu-profile";
+import { appearances } from "../../src/lib/preferences";
 import { assertTestDatabase } from "../database";
+import { seedSession } from "../e2e/session";
+import { edition } from "../fixtures/edition";
+import { seedEditions } from "../fixtures/editions";
+import { historicalArchive } from "../fixtures/historical-archive";
+import { profileResponse } from "../fixtures/osu-profile";
+import { seedPublicDirectory } from "../fixtures/players";
+import { waitForRemoteRateWindow } from "../fixtures/remote-rate-window";
 const backend = "http://127.0.0.1:3100",
   local = "http://127.0.0.1:31470";
 test.afterAll(async () => {
@@ -77,7 +78,7 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
     .set({
       configuration: {
         ...row.configuration!,
-        defaultAppearance: "swiss-minimal",
+        defaultAppearance: "esports-broadcast",
       },
     })
     .where(eq(editionState.slug, "test-cup"));
@@ -92,7 +93,7 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
     .set({
       configuration: {
         ...privateEdition.configuration!,
-        defaultAppearance: "claymorphism",
+        defaultAppearance: "retro-arcade",
       },
     })
     .where(eq(editionState.slug, "private-test-cup"));
@@ -149,6 +150,34 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
   });
   expect(issued.status()).toBe(201);
   const credential = await issued.json();
+  async function renewConnection(returnTo?: string) {
+    const renewed = await backendContext.request.post("/api/developer/tokens", {
+      headers: { Origin: backend },
+      data: {
+        origin: local,
+        scopes: [
+          "identity:read",
+          "tournaments:read",
+          "tournaments:private:read",
+          "profiles:read",
+        ],
+      },
+    });
+    expect(renewed.status()).toBe(201);
+    credential.token = (await renewed.json()).token;
+    await page.goto("/remote");
+    await page
+      .getByLabel("Developer token", { exact: true })
+      .fill(credential.token);
+    await Promise.all([
+      page.waitForEvent("load"),
+      page.getByRole("button", { name: "Connect", exact: true }).click(),
+    ]);
+    await expect(
+      page.getByText(`Connected as Synthetic Player ${owner}`),
+    ).toBeVisible();
+    if (returnTo) await page.goto(returnTo);
+  }
   const authHeaders: string[] = [];
   page.on("request", (r) => {
     if (r.headers().authorization) authHeaders.push(r.url());
@@ -165,6 +194,7 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
   await page
     .getByLabel("Developer token", { exact: true })
     .fill(credential.token);
+  await waitForRemoteRateWindow(page);
   await page.getByRole("button", { name: "Connect", exact: true }).click();
   await expect(
     page.getByText(`Connected as Synthetic Player ${owner}`),
@@ -220,7 +250,7 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
     .click();
   await expect(page.locator("html")).toHaveAttribute(
     "data-appearance",
-    "swiss-minimal",
+    "esports-broadcast",
   );
   await expect(
     page.getByText("Synthetic rules for automated testing only.", {
@@ -293,32 +323,39 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
     .getByRole("link", { name: "Internal tournaments", exact: true })
     .click();
   await page
-    .locator(".edition-card")
-    .filter({
-      has: page.locator('a[href="/admin/tournaments/private-test-cup"]'),
-    })
-    .getByRole("link", { name: "View tournament", exact: true })
+    .locator('a[href="/admin/tournaments/private-test-cup"]')
+    .filter({ hasText: "Open tournament" })
     .click();
   await expect(page.locator("html")).toHaveAttribute(
     "data-appearance",
-    "claymorphism",
+    "retro-arcade",
   );
   await expect(
-    page.getByText("Developer access is read-only.", { exact: true }),
+    page
+      .getByRole("status")
+      .filter({ hasText: "Developer access is read-only." }),
   ).toBeVisible();
   const privateRead = await context.request.get(
     "/api/remote/read/staff/tournaments/private-test-cup",
   );
   expect(privateRead.status()).toBe(200);
   expect((await privateRead.json()).data.configuration.published).toBe(false);
-  await page.route("**/api/remote/connection", (route) =>
-    route.fulfill({
+  await renewConnection("/admin/tournaments/private-test-cup");
+  let failedHealthChecks = 0;
+  await page.route("**/api/remote/connection", (route) => {
+    failedHealthChecks++;
+    return route.fulfill({
       status: 503,
       contentType: "application/json",
       body: JSON.stringify({ code: "REMOTE_UNAVAILABLE" }),
-    }),
-  );
-  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    });
+  });
+  await expect
+    .poll(async () => {
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      return failedHealthChecks;
+    })
+    .toBeGreaterThan(0);
   await expect(
     page
       .getByText(
@@ -327,12 +364,16 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
       .first(),
   ).toBeVisible();
   await expect(
-    page.getByText("Developer access is read-only.", { exact: true }),
+    page
+      .getByRole("status")
+      .filter({ hasText: "Developer access is read-only." }),
   ).toHaveCount(0);
   await page.unroute("**/api/remote/connection");
   await page.reload();
   await expect(
-    page.getByText("Developer access is read-only.", { exact: true }),
+    page
+      .getByRole("status")
+      .filter({ hasText: "Developer access is read-only." }),
   ).toBeVisible();
   const other = await browser.newContext({
     baseURL: local,
@@ -383,38 +424,18 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
   ).toBe(400);
   await page.goto("/tournaments/test-cup/mappools");
   await expect(
+    page.getByRole("heading", { name: "Mappools", exact: true }),
+  ).toBeVisible();
+  await expect(
     page.getByText(
       "This page or feature is not supported in remote development yet. See the coverage list.",
     ),
-  ).toBeVisible();
+  ).toHaveCount(0);
   // Appearance/navigation coverage is intentionally a separate workload from
   // authorization checks; keep the backend's real per-token rate limit intact.
-  const renewed = await backendContext.request.post("/api/developer/tokens", {
-    headers: { Origin: backend },
-    data: {
-      origin: local,
-      scopes: [
-        "identity:read",
-        "tournaments:read",
-        "tournaments:private:read",
-        "profiles:read",
-      ],
-    },
-  });
-  expect(renewed.status()).toBe(201);
-  credential.token = (await renewed.json()).token;
-  await page.goto("/remote");
-  await page
-    .getByLabel("Developer token", { exact: true })
-    .fill(credential.token);
-  await Promise.all([
-    page.waitForEvent("load"),
-    page.getByRole("button", { name: "Connect", exact: true }).click(),
-  ]);
-  await expect(
-    page.getByText(`Connected as Synthetic Player ${owner}`),
-  ).toBeVisible();
-  for (const appearance of appearances) {
+  await renewConnection();
+  for (const [index, appearance] of appearances.entries()) {
+    if (index > 0 && index % 4 === 0) await renewConnection();
     await context.addCookies([
       { name: "oclr-appearance", value: appearance, url: local },
     ]);
@@ -458,7 +479,9 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
       .first(),
   ).toBeVisible();
   await expect(
-    page.getByText("Developer access is read-only.", { exact: true }),
+    page
+      .getByRole("status")
+      .filter({ hasText: "Developer access is read-only." }),
   ).toHaveCount(0);
   await db()
     .update(staffRoles)

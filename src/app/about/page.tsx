@@ -1,11 +1,14 @@
-import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
 import { Avatar } from "@/components/avatar";
 import { CountryFlag } from "@/components/country-flag";
 import { publicContributors } from "@/lib/contributors";
 import { publicStaff } from "@/lib/public-staff";
+import { getAppTranslations } from "@/i18n/server";
 import { privacyContact } from "@/lib/auth/config";
+import { remoteMode } from "@/lib/data-source";
+import { frontendSite } from "@/lib/frontend-data";
 import { organizerDirectory } from "@/lib/organizer-directory";
+import { remotePage } from "@/lib/remote-page";
+import Link from "next/link";
 import "./organizers.css";
 
 export async function generateMetadata() {
@@ -14,11 +17,13 @@ export async function generateMetadata() {
 }
 
 export const dynamic = "force-dynamic";
-export default async function About() {
+async function Issue271Page() {
   const tr = await getAppTranslations();
   const staff = await publicStaff();
   const contributors = await publicContributors();
-  const contact = privacyContact();
+  const contact = remoteMode()
+    ? (await frontendSite()).privacyContact
+    : privacyContact();
   const groups = [
     {
       id: "pooler",
@@ -194,4 +199,8 @@ export default async function About() {
       </div>
     </div>
   );
+}
+
+export default function Page() {
+  return remotePage(() => Issue271Page());
 }

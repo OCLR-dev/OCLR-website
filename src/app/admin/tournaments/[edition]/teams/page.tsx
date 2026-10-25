@@ -1,16 +1,17 @@
+import { ConfirmMutation } from "@/components/confirm-mutation";
+import { TeamAvatar } from "@/components/team-avatar";
 import { TeamCoachManager } from "@/components/team-coach-manager";
 import { TeamEditor } from "@/components/team-editor";
-import { TeamAvatar } from "@/components/team-avatar";
+import { TeamManager } from "@/components/team-manager";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff";
 import { captainSetup } from "@/lib/captains";
+import { remotePage } from "@/lib/remote-page";
 import { staffTeams } from "@/lib/teams";
-import { PageHeading } from "@/components/ui";
-import { TeamManager } from "@/components/team-manager";
-import { ConfirmMutation } from "@/components/confirm-mutation";
-export default async function Teams({
+import Link from "next/link";
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -177,4 +178,8 @@ export default async function Teams({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

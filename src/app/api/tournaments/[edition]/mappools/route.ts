@@ -1,7 +1,8 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { publicMappools } from "@/lib/mappools";
 import { apiError } from "@/lib/http";
-export async function GET(
+async function readGET(
   _request: Request,
   context: { params: Promise<{ edition: string }> },
 ) {
@@ -13,4 +14,8 @@ export async function GET(
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

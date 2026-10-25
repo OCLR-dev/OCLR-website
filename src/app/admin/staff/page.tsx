@@ -1,18 +1,19 @@
 import { StaffReadOnlyContext } from "@/components/staff-read-only";
-import { staffAccess, permits } from "@/lib/auth/staff";
-import { getAppTranslations } from "@/i18n/server";
-import { notFound } from "next/navigation";
-import { authorizedPage } from "@/lib/auth/page";
-import { requireUser } from "@/lib/auth/user";
-import { listStaffRoles } from "@/lib/staff-roles";
-import { getEditions } from "@/lib/content";
-import { PageHeading, EmptyState } from "@/components/ui";
 import {
-  StaffRoleForm,
   RevokeRole,
   StaffPublicVisibility,
+  StaffRoleForm,
 } from "@/components/staff-role-form";
-export default async function StaffPage({
+import { EmptyState, PageHeading } from "@/components/ui";
+import { getAppTranslations } from "@/i18n/server";
+import { authorizedPage } from "@/lib/auth/page";
+import { permits, staffAccess } from "@/lib/auth/staff";
+import { requireUser } from "@/lib/auth/user";
+import { getEditionChoices } from "@/lib/content";
+import { remotePage } from "@/lib/remote-page";
+import { listStaffRoles } from "@/lib/staff-roles";
+import { notFound } from "next/navigation";
+async function Issue271Page({
   searchParams,
 }: {
   searchParams: Promise<{ edition?: string }>;
@@ -24,7 +25,7 @@ export default async function StaffPage({
     const access = await staffAccess(actor);
     const { grants, scopes, writeScopes } = await listStaffRoles(actor);
     const requested = (await searchParams).edition ?? "";
-    const editions = (await getEditions()).filter(
+    const editions = (await getEditionChoices()).filter(
       (edition) => !scopes || scopes.includes(edition.slug),
     );
     const selected = editions.find(
@@ -181,4 +182,8 @@ export default async function StaffPage({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

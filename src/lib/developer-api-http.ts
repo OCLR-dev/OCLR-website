@@ -1,7 +1,7 @@
+import { readContractHeader, readContractVersion } from "./read-api-version";
+import { readOnlyData } from "@/db";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { readOnlyData } from "@/db";
-import { appUrl, HttpError } from "./http";
 import {
   authenticateDeveloperRead,
   DeveloperApiError,
@@ -10,20 +10,25 @@ import {
   type DeveloperReadPrincipal,
 } from "./developer-api";
 import type { DeveloperApiScope } from "./developer-api-model";
+import { appUrl, HttpError } from "./http";
 import type { ReadPayload } from "./read-api-contract";
+import { withReadChannel } from "./read-channel";
+import type { ReadMedia } from "./read-media";
+import { mediaDisposition } from "./read-media";
 
 function responseHeaders(request: Request, id: string) {
   const headers = new Headers({
     "Cache-Control": "no-store",
     "X-Request-Id": id,
     Vary: "Origin",
+    [readContractHeader]: readContractVersion,
   });
   const origin = request.headers.get("origin");
   if (origin !== null && developerOrigins().includes(origin)) {
     headers.set("Access-Control-Allow-Origin", origin);
     headers.set(
       "Access-Control-Expose-Headers",
-      "X-Request-Id, Retry-After, WWW-Authenticate",
+      "X-Request-Id, Retry-After, WWW-Authenticate, Content-Disposition, Content-Length, X-OCLR-Read-Contract",
     );
   }
   return headers;
@@ -63,6 +68,7 @@ export type ReadResponseOptions<T> = {
   database?: boolean;
   maxBytes?: number;
   rawDocument?: boolean;
+  binary?: boolean;
 };
 /** Optional bearer auth is still strict: an explicit invalid token never becomes anonymous. */
 export async function readDataResponse<T>(
@@ -79,6 +85,7 @@ export async function readDataResponse<T>(
     "Cache-Control": "no-store",
     "X-Request-Id": id,
     Vary: "Origin",
+    [readContractHeader]: readContractVersion,
   });
   try {
     headers = responseHeaders(request, id);
@@ -165,8 +172,24 @@ export async function readDataResponse<T>(
         "Saved data is temporarily unavailable.",
       );
     const payload = options.database
-      ? await readOnlyData(execute)
+      ? await withReadChannel(() => readOnlyData(execute))
       : await execute();
+    if (options.binary) {
+      const media = payload.data as ReadMedia;
+      if (media.bytes.byteLength > (options.maxBytes ?? 8388608))
+        throw new HttpError(413, "Media is too large.");
+      if (principal) await authenticateDeveloperRead(request, scope);
+      headers.set("Content-Type", media.contentType);
+      headers.set("Content-Length", String(media.bytes.byteLength));
+      headers.set("X-Content-Type-Options", "nosniff");
+      headers.set("Content-Security-Policy", "default-src 'none'; sandbox");
+      if (media.filename)
+        headers.set("Content-Disposition", mediaDisposition(media.filename));
+      return new Response(
+        request.method === "HEAD" ? null : new Uint8Array(media.bytes),
+        { headers },
+      );
+    }
     const body = JSON.stringify(
       options.rawDocument
         ? payload.data

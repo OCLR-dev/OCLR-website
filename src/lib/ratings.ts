@@ -1,26 +1,28 @@
-import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
-import { createHash } from "node:crypto";
-import { and, eq, inArray, ne } from "drizzle-orm";
 import { db } from "@/db";
 import {
-  registrations,
-  users,
   captains,
-  memberships,
   fixtures as fixtureTable,
+  memberships,
+  registrations,
   tournamentRounds,
   tournamentStages,
+  users,
 } from "@/db/schema";
+import { and, eq, inArray, ne } from "drizzle-orm";
+import { createHash } from "node:crypto";
 import {
   approvedRatingGames,
   type RatingReader,
 } from "./approved-rating-games";
-import { calculateRating, type RatingGame } from "./yumu-rating";
-import { publicCompetition } from "./public-competition";
-import { assertReadCapability } from "./auth/staff";
 import type { User } from "./auth/sessions";
-import { readTournament } from "./tournaments";
+import { assertReadCapability } from "./auth/staff";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
+import { publicCompetition } from "./public-competition";
+import { readTournament } from "./tournaments";
+import { calculateRating, type RatingGame } from "./yumu-rating";
 
 export async function ratingIdentities(
   slug: string,
@@ -96,7 +98,7 @@ export function ratingSnapshot(
       .digest("hex"),
   };
 }
-export async function matchRatingWorkspace(
+async function databaseMatchRatingWorkspace(
   actor: User,
   slug: string,
   fixtureId: string,
@@ -115,7 +117,21 @@ export async function matchRatingWorkspace(
     { isolationLevel: "repeatable read", accessMode: "read only" },
   );
 }
-export async function publicMatchRating(slug: string, fixtureId: string) {
+export async function matchRatingWorkspace(
+  actor: User,
+  slug: string,
+  fixtureId: string,
+): Promise<Awaited<ReturnType<typeof databaseMatchRatingWorkspace>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseMatchRatingWorkspace>>
+    >("matchRatingWorkspace", { slug, fixtureId });
+  }
+  return databaseMatchRatingWorkspace(actor, slug, fixtureId);
+}
+
+async function databasePublicMatchRating(slug: string, fixtureId: string) {
   if (!process.env.DATABASE_URL) return null;
   return db().transaction(
     async (tx) => {
@@ -140,9 +156,20 @@ export async function publicMatchRating(slug: string, fixtureId: string) {
     { isolationLevel: "repeatable read", accessMode: "read only" },
   );
 }
+export async function publicMatchRating(
+  slug: string,
+  fixtureId: string,
+): Promise<Awaited<ReturnType<typeof databasePublicMatchRating>>> {
+  if (remoteMode()) {
+    return frontendResource<
+      Awaited<ReturnType<typeof databasePublicMatchRating>>
+    >("publicMatchRating", { slug, fixtureId });
+  }
+  return databasePublicMatchRating(slug, fixtureId);
+}
 
 /** Same population and approval gates as single fixtures, with raw-game reaggregation. */
-export async function publicRoundRatings(slug: string) {
+async function databasePublicRoundRatings(slug: string) {
   if (!process.env.DATABASE_URL) return [];
   return db().transaction(
     async (tx) => {
@@ -229,6 +256,16 @@ export async function publicRoundRatings(slug: string) {
     },
     { isolationLevel: "repeatable read", accessMode: "read only" },
   );
+}
+export async function publicRoundRatings(
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databasePublicRoundRatings>>> {
+  if (remoteMode()) {
+    return frontendResource<
+      Awaited<ReturnType<typeof databasePublicRoundRatings>>
+    >("publicRoundRatings", { slug });
+  }
+  return databasePublicRoundRatings(slug);
 }
 
 export async function staffRoundRatings(

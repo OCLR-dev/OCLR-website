@@ -1,56 +1,58 @@
-import { assertOperationalEdition } from "./archive-guard";
-import { randomUUID } from "node:crypto";
-import { isDeepStrictEqual } from "node:util";
-import {
-  and,
-  or,
-  sql,
-  eq,
-  inArray,
-  notInArray,
-  isNotNull,
-  isNull,
-  getTableColumns,
-} from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   captains,
-  staffRoles,
-  editionState,
   editionEvents,
-  resultRevisions,
+  editionState,
   fixtureReferees,
   fixtureStreams,
   fixtures,
+  mappoolEntries,
+  mappools,
+  matchResults,
   memberships,
+  resultAuditEvents,
+  resultRevisions,
+  staffRoles,
   teams,
-  users,
   tournamentRounds,
   tournamentStages,
-  mappools,
-  mappoolEntries,
-  matchResults,
-  resultAuditEvents,
+  users,
 } from "@/db/schema";
+import {
+  and,
+  eq,
+  getTableColumns,
+  inArray,
+  isNotNull,
+  isNull,
+  notInArray,
+  or,
+  sql,
+} from "drizzle-orm";
+import { randomUUID } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
+import { z } from "zod";
+import { assertOperationalEdition } from "./archive-guard";
+import type { User } from "./auth/sessions";
 import {
   assertCapability,
   assertReadCapability,
-  canRead,
-  isDeveloper,
   bootstrapAdminIds,
+  canRead,
   hasCapability,
+  isDeveloper,
   permits,
   staffAccess,
 } from "./auth/staff";
-import type { User } from "./auth/sessions";
-import { getEdition } from "./content";
 import {
   groupConfigurationInputSchema,
   scoringRulesSchema,
   standingsRulesSchema,
   validTimeZone,
 } from "./competition-model";
+import { getEdition } from "./content";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 const confirmation = {
   confirmed: z.literal(true),
@@ -323,7 +325,7 @@ export async function assignFixtureReferees(
   });
   return staffFixtures(actor, slug);
 }
-export async function staffFixtures(actor: User, slug: string) {
+async function databaseStaffFixtures(actor: User, slug: string) {
   const access = await staffAccess(actor);
   const canManage = permits(access, "manage_fixtures", slug);
   const viewAll = canRead(access, "manage_fixtures", slug);
@@ -481,9 +483,23 @@ export async function staffFixtures(actor: User, slug: string) {
     { isolationLevel: "repeatable read" },
   );
 }
+export async function staffFixtures(
+  actor: User,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseStaffFixtures>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseStaffFixtures>>>(
+      "staffFixtures",
+      { slug },
+    );
+  }
+  return databaseStaffFixtures(actor, slug);
+}
+
 export type FixtureWorkspace = Awaited<ReturnType<typeof staffFixtures>>;
 /** Private typed contract used by the MP importer. No browser-provided identity is accepted. */
-export async function fixtureForReview(
+async function databaseFixtureForReview(
   actor: User,
   slug: string,
   id: string,
@@ -581,6 +597,22 @@ export async function fixtureForReview(
     ? read(reader)
     : db().transaction(read, { isolationLevel: "repeatable read" });
 }
+export async function fixtureForReview(
+  actor: User,
+  slug: string,
+  id: string,
+  reader?: Reader,
+  readOnly = false,
+): Promise<Awaited<ReturnType<typeof databaseFixtureForReview>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseFixtureForReview>>
+    >("fixtureForReview", { slug, id });
+  }
+  return databaseFixtureForReview(actor, slug, id, reader, readOnly);
+}
+
 export type FixtureReviewContext = Awaited<ReturnType<typeof fixtureForReview>>;
 function validateSources(
   rows: (typeof fixtures.$inferSelect)[],

@@ -1,9 +1,10 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { awardCommand, awardWorkspace } from "@/lib/awards";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 type Context = { params: Promise<{ edition: string }> };
-export async function GET(_request: Request, context: Context) {
+async function readGET(_request: Request, context: Context) {
   try {
     return NextResponse.json(
       await awardWorkspace(await requireUser(), (await context.params).edition),
@@ -27,4 +28,8 @@ export async function POST(request: Request, context: Context) {
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

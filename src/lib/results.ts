@@ -1,13 +1,9 @@
-import { createHash } from "node:crypto";
-import { isDeepStrictEqual } from "node:util";
-import { and, desc, eq, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
-  editionState,
   editionEvents,
-  fixtures,
+  editionState,
   fixtureReferees,
+  fixtures,
   mappoolEvents,
   mappools,
   matchGames,
@@ -17,15 +13,22 @@ import {
   resultGameClaims,
   resultRevisions,
 } from "@/db/schema";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
+import { z } from "zod";
 import type { User } from "./auth/sessions";
 import { assertCapability, hasCapability } from "./auth/staff";
+import { scoringRulesSchema } from "./competition-model";
+import { remoteMode } from "./data-source";
 import {
   fixtureForReview,
-  staffFixtures,
   officialTeams,
+  staffFixtures,
   type FixtureReviewContext,
 } from "./fixtures";
-import { scoringRulesSchema } from "./competition-model";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { HttpError } from "./http";
 import {
   gameDecisionSchema,
   matchSourceSchema,
@@ -39,7 +42,6 @@ import {
   fetchMatchSource,
   parseMatchId,
 } from "./osu-matches";
-import { HttpError } from "./http";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 const common = {
   requestKey: z.uuid(),
@@ -229,7 +231,7 @@ function proposalFrom(
     series: preview.series,
   });
 }
-export async function matchReview(
+async function databaseMatchReview(
   actor: User,
   slug: string,
   fixtureId: string,
@@ -387,6 +389,21 @@ export async function matchReview(
     { isolationLevel: "repeatable read" },
   );
 }
+export async function matchReview(
+  actor: User,
+  slug: string,
+  fixtureId: string,
+): Promise<Awaited<ReturnType<typeof databaseMatchReview>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseMatchReview>>>(
+      "matchReview",
+      { slug, fixtureId },
+    );
+  }
+  return databaseMatchReview(actor, slug, fixtureId);
+}
+
 export type MatchReview = Awaited<ReturnType<typeof matchReview>>;
 export async function importFixtureMatch(
   actor: User,

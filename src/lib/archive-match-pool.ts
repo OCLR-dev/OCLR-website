@@ -1,4 +1,4 @@
-import s10Evidence from "@/content/s10-match-pools.json";
+import s10Evidence from "@/content/s10-match-pools.json" with { type: "json" };
 import type { HistoricalArchive } from "./historical-archive";
 
 // Source-specific aliases: group letters identify teams, not separate pools.

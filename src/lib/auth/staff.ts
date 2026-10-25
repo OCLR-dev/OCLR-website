@@ -1,9 +1,11 @@
-import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { staffRoles } from "@/db/schema";
+import { and, eq, isNull } from "drizzle-orm";
+import { remoteMode } from "../data-source";
+import { HttpError } from "../http";
+import { inReadChannel } from "../read-channel";
 import type { User } from "./sessions";
 import { requireUser } from "./user";
-import { HttpError } from "../http";
 
 export const capabilities = [
   "view_streaming",
@@ -49,6 +51,7 @@ export function permits(
   capability: Capability,
   edition?: string,
 ) {
+  if (remoteMode() || inReadChannel()) return false;
   return grants.some(
     (g) =>
       (g.editionSlug === null || g.editionSlug === edition) &&
@@ -80,6 +83,8 @@ export async function assertBusinessWrite(
   edition?: string,
   reader?: StaffReader,
 ) {
+  if (remoteMode() || inReadChannel())
+    throw new HttpError(403, "Developer access is read-only.");
   const grants = await staffAccess(user, reader);
   if (
     isDeveloper(grants) &&
@@ -101,15 +106,28 @@ export async function staffAccess(
   user: User,
   reader?: StaffReader,
 ): Promise<StaffGrant[]> {
-  if (bootstrapAdminIds().includes(user.osuId))
+  if (remoteMode()) {
+    const { frontendResource, assertRemoteSubject } =
+      await import("../frontend-resource");
+    await assertRemoteSubject(user.osuId);
+    return frontendResource<StaffGrant[]>("staffAccess");
+  }
+  if (!inReadChannel() && bootstrapAdminIds().includes(user.osuId))
     return [{ role: "admin", editionSlug: null }];
   if (!process.env.DATABASE_URL) return [];
-  return (reader ?? db())
+  const grants = await (reader ?? db())
     .select({ role: staffRoles.role, editionSlug: staffRoles.editionSlug })
     .from(staffRoles)
     .where(
       and(eq(staffRoles.userId, user.osuId), isNull(staffRoles.revokedAt)),
     );
+  if (
+    inReadChannel() &&
+    bootstrapAdminIds().includes(user.osuId) &&
+    !grants.some((g) => g.role === "admin" && g.editionSlug === null)
+  )
+    grants.push({ role: "admin", editionSlug: null });
+  return grants;
 }
 export async function hasCapability(
   user: User,

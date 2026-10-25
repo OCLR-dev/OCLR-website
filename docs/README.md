@@ -16,3 +16,13 @@ The repository root README ([English](../README.md) / [简体中文](../README.z
 | [Appearance design backlog](design/appearance-backlog/README.md) | Unimplemented reference styles, P3 issues, extracted CSS and detailed MainSheet design notes |
 
 **Where to start:** use [Development](development.md) to work locally, [Tournament administration](tournament-management.md) to understand enrollment and permissions, and [Deployment](deployment.md) for running or updating production. Never use production credentials or personal registration records in tests.
+
+## Developer read API and remote frontend
+
+- [Remote setup and troubleshooting](remote-development.md) — fresh frontend without a local DB/OAuth secret.
+- [Full coverage and service boundaries](remote-coverage.md), [generated page/module inventory](remote-coverage.json).
+- [Read API contract and browser/SSR examples](read-api.md), [OpenAPI](read-api.openapi.json).
+- [Developer grant, short-lived access and exact-origin CORS](developer-api.md).
+
+Local synthetic acceptance and actual CI are recorded per commit on #271/#272;
+real grants/OAuth/deployment and new Chinese wording acceptance remain separate.

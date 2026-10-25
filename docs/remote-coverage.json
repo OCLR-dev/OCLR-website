@@ -1,0 +1,2300 @@
+{
+  "issues": [271, 272],
+  "rows": [
+    {
+      "file": "src/app/about/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getPublicSite", "publicContributors", "publicStaff"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/contributors.ts#publicContributors",
+        "src/lib/public-staff.ts#publicStaff",
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicSite)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/audit/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["auditLog", "staffAccess", "tournamentList"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/audit.ts#auditLog",
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/tournaments.ts#tournamentList"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/contributors/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["contributorsForAdmin", "getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/contributors.ts#contributorsForAdmin"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/layout.tsx",
+      "kind": "layout",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "staffAccess", "tournamentList"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/tournaments.ts#tournamentList"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Rendered by matching page direct load and navigation"
+    },
+    {
+      "file": "src/app/admin/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["listApplications", "staffAccess", "tournamentList"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/staff.ts#listApplications",
+        "src/lib/tournaments.ts#tournamentList"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/registrations/[id]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["applicationDetails", "staffAccess"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/staff.ts#applicationDetails"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/registrations/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["listApplications", "listStaffTournaments", "staffAccess"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/staff.ts#listApplications",
+        "src/lib/public-read-models.ts / frontend-data.ts (listStaffTournaments)",
+        "src/lib/auth/staff.ts#staffAccess"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/settings/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "siteSettingsForAdmin"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/site-settings.ts#siteSettingsForAdmin"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/staff/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "getApiIdentity",
+        "listStaffRoles",
+        "listStaffTournaments",
+        "staffAccess"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/public-read-models.ts / frontend-data.ts (listStaffTournaments)",
+        "src/lib/staff-roles.ts#listStaffRoles"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/archive/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["staffAccess", "tournamentForAdmin"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/tournaments.ts#tournamentForAdmin"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/archive/preview/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicEnrollment", "staffAccess", "tournamentForAdmin"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/tournaments.ts#tournamentForAdmin"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/awards/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["awardWorkspace", "getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/awards.ts#awardWorkspace"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/captains/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["captainIdentities", "captainSetup", "staffAccess"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/frontend-read-models.ts#captainIdentities",
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/captains.ts#captainSetup"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/draft/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["staffAccess", "staffDraft"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/draft.ts#staffDraft"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/layout.tsx",
+      "kind": "layout",
+      "authority": "saved-read",
+      "operations": ["getStaffTournament", "staffAccess", "tournamentList"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getStaffTournament)",
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/tournaments.ts#tournamentList"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Rendered by matching page direct load and navigation"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/mappools/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "downloadReplay",
+        "getApiIdentity",
+        "mappoolWorkspace",
+        "replayList"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/mappool-replays.ts#replayList",
+        "src/lib/public-read-models.ts / frontend-data.ts (downloadReplay)",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/mappools.ts#mappoolWorkspace"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/matches/[fixtureId]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "getApiIdentity",
+        "matchRatingWorkspace",
+        "matchReview",
+        "staffAccess",
+        "staffFixtures",
+        "streamingWorkspace"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/streaming.ts#streamingWorkspace",
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/fixtures.ts#staffFixtures",
+        "src/lib/ratings.ts#matchRatingWorkspace",
+        "src/lib/results.ts#matchReview"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/matches/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "getApiIdentity",
+        "staffAccess",
+        "staffFixtures",
+        "streamingWorkspace"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/streaming.ts#streamingWorkspace",
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/fixtures.ts#staffFixtures"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["staffAccess", "tournamentForAdmin", "tournamentList"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/tournaments.ts#tournamentForAdmin",
+        "src/lib/tournaments.ts#tournamentList"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/registrations/[id]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "applicationDetails",
+        "getSavedProfile",
+        "ownSavedProfile",
+        "privateSavedTournament",
+        "staffAccess"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/public-read-models.ts / frontend-data.ts (getSavedProfile)",
+        "src/lib/frontend-read-models.ts#ownSavedProfile",
+        "src/lib/staff.ts#applicationDetails",
+        "src/lib/frontend-read-models.ts#privateSavedTournament"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/registrations/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["listApplications", "listStaffTournaments", "staffAccess"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/staff.ts#listApplications",
+        "src/lib/public-read-models.ts / frontend-data.ts (listStaffTournaments)",
+        "src/lib/auth/staff.ts#staffAccess"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/rounds/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "mappoolWorkspace"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/mappools.ts#mappoolWorkspace"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/settings/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["staffAccess", "tournamentForAdmin"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/tournaments.ts#tournamentForAdmin"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/statistics/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["staffAccess", "statisticsWorkspace"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/archive-statistics.ts#statisticsWorkspace",
+        "src/lib/auth/staff.ts#staffAccess"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/streaming/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "streamingWorkspace"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/streaming.ts#streamingWorkspace",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/[edition]/teams/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "captainSetup",
+        "getTeamAvatar",
+        "staffAccess",
+        "staffTeams"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)",
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/captains.ts#captainSetup",
+        "src/lib/teams.ts#staffTeams"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/new/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/admin/tournaments/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "tournamentList"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/tournaments.ts#tournamentList"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/audit/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["auditLog", "getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/audit.ts#auditLog"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/contributors/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["contributorsForAdmin", "getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/contributors.ts#contributorsForAdmin"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/registrations/export/route.ts",
+      "kind": "read-route",
+      "authority": "denied",
+      "operations": ["staffAccess"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/auth/staff.ts#staffAccess"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Denied in remote mode",
+      "adapter": "proxy rejection",
+      "media": "Existing public assets",
+      "requiredVerification": "403 without database/provider access"
+    },
+    {
+      "file": "src/app/api/admin/registrations/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["listApplications", "staffAccess"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/staff.ts#listApplications"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/settings/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "siteSettingsForAdmin"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/site-settings.ts#siteSettingsForAdmin"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/staff/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "listStaffRoles"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/staff-roles.ts#listStaffRoles"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/awards/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["awardWorkspace", "getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/awards.ts#awardWorkspace"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/captains/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["captainSetup", "staffAccess"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/captains.ts#captainSetup"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/draft/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["staffAccess", "staffDraft"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/draft.ts#staffDraft"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["downloadReplay", "getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/public-read-models.ts / frontend-data.ts (downloadReplay)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "replayList"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/mappool-replays.ts#replayList"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/mappools/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "mappoolWorkspace"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/mappools.ts#mappoolWorkspace"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/results/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "matchReview"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/results.ts#matchReview"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["fixtureForReview", "getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/fixtures.ts#fixtureForReview"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/matches/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "staffFixtures"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/fixtures.ts#staffFixtures"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/registrations/[id]/bws/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "staffBws"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/bws.ts#staffBws"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "tournamentForAdmin"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/tournaments.ts#tournamentForAdmin"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/statistics/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "statisticsWorkspace"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/archive-statistics.ts#statisticsWorkspace"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/streaming/[fixtureId]/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "streamingWorkspace"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/streaming.ts#streamingWorkspace"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/streaming/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "streamingWorkspace"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/streaming.ts#streamingWorkspace"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/[edition]/teams/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["staffAccess", "staffTeams"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/auth/staff.ts#staffAccess",
+        "src/lib/teams.ts#staffTeams"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/admin/tournaments/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "tournamentList"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/tournaments.ts#tournamentList"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/developer/tokens/route.ts",
+      "kind": "read-route",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Denied in remote mode",
+      "adapter": "proxy rejection",
+      "media": "Existing public assets",
+      "requiredVerification": "403 without database/provider access"
+    },
+    {
+      "file": "src/app/api/health/route.ts",
+      "kind": "read-route",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Denied in remote mode",
+      "adapter": "proxy rejection",
+      "media": "Existing public assets",
+      "requiredVerification": "403 without database/provider access"
+    },
+    {
+      "file": "src/app/api/me/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/players/[osuId]/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getPublicPlayer"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicPlayer)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/players/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["listPublicPlayers"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (listPublicPlayers)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/registrations/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "ownRegistrations"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/registrations.ts#ownRegistrations"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/remote/connection/route.ts",
+      "kind": "read-route",
+      "authority": "connection-control",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "bounded in-memory connection",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/remote/read/[...path]/route.ts",
+      "kind": "read-route",
+      "authority": "connection-control",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "bounded in-memory connection",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/teams/[teamId]/avatar/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "getTeamAvatar", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/awards/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["publicAwards"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/awards.ts#publicAwards"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/bracket/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["publicBracket", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/brackets.ts#publicBracket",
+        "src/lib/frontend-read-models.ts#publicEnrollment"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/draft/captain/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["captainDraft", "getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/draft.ts#captainDraft"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Actual token subject; existing appointment checks",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/draft/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["publicBroadcastDraft", "publicDraft"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/draft.ts#publicDraft",
+        "src/lib/broadcast.ts#publicBroadcastDraft"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/mappools/[poolId]/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["publicMappools"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/mappools.ts#publicMappools"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/mappools/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["publicMappools"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/mappools.ts#publicMappools"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/matches/[fixtureId]/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["publicFixture"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/public-competition.ts#publicFixture"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/matches/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["publicCompetition"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/public-competition.ts#publicCompetition"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/players/[osuId]/messages/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "publicPlayerMessages"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/player-messages.ts#publicPlayerMessages"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/players/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["listPublicPlayers"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (listPublicPlayers)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/[edition]/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["getPublicTournament", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicTournament)",
+        "src/lib/frontend-read-models.ts#publicEnrollment"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/tournaments/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["listPublicTournaments"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (listPublicTournaments)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/api/v1/[...path]/route.ts",
+      "kind": "read-route",
+      "authority": "backend-only",
+      "operations": ["ALL_REGISTERED_READS"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/read-api.ts#readApiRoute"],
+      "test": "integration/read-api.test.ts + integration/extended-read.test.ts + e2e/read-api.spec.ts + remote-e2e/interactions.spec.ts",
+      "authorization": "Authoritative backend public/Bearer checks; local remote frontend rejects these URLs with 403",
+      "adapter": "Backend registry; frontend uses its legacy reads/local BFF instead of hosting another v1 backend",
+      "media": "Existing public assets",
+      "requiredVerification": "Backend contract/CORS and local frontend 403 without database/provider access"
+    },
+    {
+      "file": "src/app/api/v1/me/route.ts",
+      "kind": "read-route",
+      "authority": "backend-only",
+      "operations": ["ALL_REGISTERED_READS"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/read-api.ts#readApiRoute"],
+      "test": "integration/read-api.test.ts + integration/extended-read.test.ts + e2e/read-api.spec.ts + remote-e2e/interactions.spec.ts",
+      "authorization": "Authoritative backend public/Bearer checks; local remote frontend rejects these URLs with 403",
+      "adapter": "Backend registry; frontend uses its legacy reads/local BFF instead of hosting another v1 backend",
+      "media": "Existing public assets",
+      "requiredVerification": "Backend contract/CORS and local frontend 403 without database/provider access"
+    },
+    {
+      "file": "src/app/auth/osu/callback/route.ts",
+      "kind": "read-route",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Denied in remote mode",
+      "adapter": "proxy rejection",
+      "media": "Existing public assets",
+      "requiredVerification": "403 without database/provider access"
+    },
+    {
+      "file": "src/app/auth/osu/route.ts",
+      "kind": "read-route",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Denied in remote mode",
+      "adapter": "proxy rejection",
+      "media": "Existing public assets",
+      "requiredVerification": "403 without database/provider access"
+    },
+    {
+      "file": "src/app/dashboard/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "getApiIdentity",
+        "ownSavedProfile",
+        "playerApplications",
+        "publicPlayerParticipation"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/players.ts#publicPlayer",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/dashboard.ts#playerApplications",
+        "src/lib/frontend-read-models.ts#ownSavedProfile"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Actual token subject; existing appointment checks",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/developer/page.tsx",
+      "kind": "page",
+      "authority": "connection-control",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "bounded in-memory connection",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/layout.tsx",
+      "kind": "layout",
+      "authority": "saved-read",
+      "operations": [
+        "getApiIdentity",
+        "getPublicSite",
+        "listPublicTournaments",
+        "listStaffTournaments"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicSite)",
+        "src/lib/public-read-models.ts / frontend-data.ts (listPublicTournaments)",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/public-read-models.ts / frontend-data.ts (listStaffTournaments)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Rendered by matching page direct load and navigation"
+    },
+    {
+      "file": "src/app/login/page.tsx",
+      "kind": "page",
+      "authority": "connection-control",
+      "operations": ["getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "bounded in-memory connection",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/news/[slug]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicNewsModel"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": ["src/lib/frontend-read-models.ts#publicNewsModel"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/news/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicNewsModel"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": ["src/lib/frontend-read-models.ts#publicNewsModel"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["listPublicTournaments"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (listPublicTournaments)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/players/[osuId]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getPublicPlayer", "publicRoundRatings"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicPlayer)",
+        "src/lib/ratings.ts#publicRoundRatings"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/players/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/frontend-read-models.ts#publicEnrollment"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/privacy/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getPublicSite"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicSite)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/remote/page.tsx",
+      "kind": "page",
+      "authority": "connection-control",
+      "operations": ["getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "bounded in-memory connection",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/remote/unsupported/page.tsx",
+      "kind": "page",
+      "authority": "connection-control",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "bounded in-memory connection",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/bracket/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicBracket", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/brackets.ts#publicBracket"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/draft/captain/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "captainAppointment",
+        "captainDraft",
+        "getApiIdentity",
+        "publicDraft"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/draft.ts#publicDraft",
+        "src/lib/draft.ts#captainDraft",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/captains.ts#captainAppointment"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Actual token subject; existing appointment checks",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/draft/overlay/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicBroadcastDraft", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/broadcast.ts#publicBroadcastDraft",
+        "src/lib/frontend-read-models.ts#publicEnrollment"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/draft/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "captainDraft",
+        "getApiIdentity",
+        "publicDraft",
+        "publicEnrollment"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/draft.ts#publicDraft",
+        "src/lib/draft.ts#captainDraft",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/layout.tsx",
+      "kind": "layout",
+      "authority": "saved-read",
+      "operations": ["getPublicTournament", "publicDraft", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicTournament)",
+        "src/lib/draft.ts#publicDraft",
+        "src/lib/frontend-read-models.ts#publicEnrollment"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Rendered by matching page direct load and navigation"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/mappools/[poolId]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicEnrollment", "publicMappools"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/mappools.ts#publicMappools"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/mappools/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicEnrollment", "publicMappools"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/mappools.ts#publicMappools"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/matches/[fixtureId]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicEnrollment", "publicFixture", "publicMatchRating"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/public-competition.ts#publicFixture",
+        "src/lib/ratings.ts#publicMatchRating"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getPublicTournament", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicTournament)",
+        "src/lib/frontend-read-models.ts#publicEnrollment"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/players/[osuId]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/frontend-read-models.ts#publicEnrollment"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/players/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "getPublicTournament",
+        "listPublicPlayers",
+        "publicEnrollment",
+        "publicPlayerMessages"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (listPublicPlayers)",
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicTournament)",
+        "src/lib/player-messages.ts#publicPlayerMessages",
+        "src/lib/frontend-read-models.ts#publicEnrollment"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/register/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "getApiIdentity",
+        "ownEligibility",
+        "ownRegistrationForm",
+        "ownRegistrations",
+        "publicEnrollment",
+        "publicEnrollmentState"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/frontend-read-models.ts#ownRegistrationForm",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/frontend-read-models.ts#ownEligibility",
+        "src/lib/registrations.ts#ownRegistrations",
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/frontend-read-models.ts#publicEnrollmentState"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/results/awards/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicAwards", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/awards.ts#publicAwards"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/results/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "publicCompetition",
+        "publicEnrollment",
+        "publicRoundRatings"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/public-competition.ts#publicCompetition",
+        "src/lib/ratings.ts#publicRoundRatings"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/rules/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getPublicTournament"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getPublicTournament)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/schedule/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicCompetition", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/public-competition.ts#publicCompetition"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/staff/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": ["src/lib/frontend-read-models.ts#publicEnrollment"],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/statistics/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicArchiveStatistics", "publicEnrollment"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/archive-statistics.ts#publicArchiveStatistics",
+        "src/lib/frontend-read-models.ts#publicEnrollment"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/team/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["getApiIdentity", "ownTeam"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/teams.ts#ownTeam"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Actual token subject; existing appointment checks",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/teams/[teamId]/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["publicEnrollment", "publishedTeams"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/teams.ts#publishedTeams"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/[edition]/teams/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": [
+        "getTeamAvatar",
+        "publicCompetition",
+        "publicEnrollment",
+        "publishedTeams"
+      ],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)",
+        "src/lib/public-competition.ts#publicCompetition",
+        "src/lib/teams.ts#publishedTeams"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/tournaments/page.tsx",
+      "kind": "page",
+      "authority": "saved-read",
+      "operations": ["listPublicTournaments"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (listPublicTournaments)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/wiki/[article]/page.tsx",
+      "kind": "page",
+      "authority": "static-or-local-interaction",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/app/wiki/layout.tsx",
+      "kind": "layout",
+      "authority": "static-or-local-interaction",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Rendered by matching page direct load and navigation"
+    },
+    {
+      "file": "src/app/wiki/page.tsx",
+      "kind": "page",
+      "authority": "static-or-local-interaction",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
+      "file": "src/components/application-form.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/award-manager.tsx",
+      "kind": "client",
+      "authority": "saved-read",
+      "operations": ["awardWorkspace"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/awards.ts#awardWorkspace"],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/beatmap-preview.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/bulk-manual-registration.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/bws-review.tsx",
+      "kind": "client",
+      "authority": "saved-read",
+      "operations": ["staffBws"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/bws.ts#staffBws"],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/captain-manager.tsx",
+      "kind": "client",
+      "authority": "saved-read",
+      "operations": ["captainSetup"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/captains.ts#captainSetup"],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/captain-player-card.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/confirm-mutation.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/contributor-manager.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/developer-access.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/draft-pick.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/manual-registration.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/mappool-batch.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/mappool-order.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/mappool-replays.tsx",
+      "kind": "client",
+      "authority": "saved-read",
+      "operations": ["downloadReplay", "replayList"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/mappool-replays.ts#replayList",
+        "src/lib/public-read-models.ts / frontend-data.ts (downloadReplay)"
+      ],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Replay list/file authorization",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/match-source-completion.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/player-message-board.tsx",
+      "kind": "client",
+      "authority": "saved-read",
+      "operations": ["publicPlayerMessages"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/player-messages.ts#publicPlayerMessages"],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/referee-assignment.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/remote-development.tsx",
+      "kind": "client",
+      "authority": "static-or-local-interaction",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/site-appearance-form.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/statistics-manager.tsx",
+      "kind": "client",
+      "authority": "saved-read",
+      "operations": ["statisticsWorkspace"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/archive-statistics.ts#statisticsWorkspace"],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/team-coach-manager.tsx",
+      "kind": "client",
+      "authority": "command-disabled",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/team-editor.tsx",
+      "kind": "client",
+      "authority": "saved-read",
+      "operations": ["getTeamAvatar", "staffTeams"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/teams.ts#staffTeams",
+        "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)"
+      ],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/tournament-editor.tsx",
+      "kind": "client",
+      "authority": "saved-read",
+      "operations": ["tournamentForAdmin"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/tournaments.ts#tournamentForAdmin"],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/use-poll.ts",
+      "kind": "client",
+      "authority": "static-or-local-interaction",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    }
+  ]
+}

@@ -1,21 +1,22 @@
-import { verifyEligibility } from "@/lib/eligibility";
+import { remoteMode } from "@/lib/data-source";
+import { ownRegistrationForm } from "@/lib/frontend-read-models";
+import { ApplicationForm } from "@/components/application-form";
+import { Action, EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { notFound } from "next/navigation";
-import { db } from "@/db";
-import { readTournament } from "@/lib/tournaments";
 import { currentUser } from "@/lib/auth/user";
+import { verifyEligibility } from "@/lib/eligibility";
 import {
   ownRegistrations,
   registrationAvailability,
 } from "@/lib/registrations";
-import { Action, EmptyState, PageHeading } from "@/components/ui";
-import { ApplicationForm } from "@/components/application-form";
+import { remotePage } from "@/lib/remote-page";
+import { notFound } from "next/navigation";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Individual registration") };
 }
 
-export default async function Register({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -23,13 +24,16 @@ export default async function Register({
   const tr = await getAppTranslations();
 
   const { edition: slug } = await params;
-  const record = process.env.DATABASE_URL
-    ? await readTournament(slug, db(), true)
-    : undefined;
+  const user = await currentUser();
+  const record =
+    remoteMode() && user
+      ? await ownRegistrationForm(user, slug)
+      : await (
+          await import("@/lib/frontend-read-models")
+        ).publicEnrollment(slug);
   const edition = record?.edition;
   if (!edition) notFound();
   const availability = await registrationAvailability(edition);
-  const user = await currentUser();
   const existing = user
     ? (await ownRegistrations(user.osuId)).find((r) => r.editionSlug === slug)
     : null;
@@ -109,4 +113,8 @@ export default async function Register({
       )}
     </>
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

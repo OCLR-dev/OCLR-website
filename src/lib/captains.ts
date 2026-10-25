@@ -1,22 +1,24 @@
-import { assertOperationalEdition } from "./archive-guard";
-import { and, eq, sql, isNull, or } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   captains,
   editionEvents,
   editionState,
-  registrations,
-  users,
-  teams,
-  memberships,
   fixtures,
+  memberships,
+  registrations,
+  teams,
+  users,
 } from "@/db/schema";
-import { getEdition, getPublicEdition } from "./content";
-import { assertReadCapability, assertCapability } from "./auth/staff";
+import { and, eq, isNull, or, sql } from "drizzle-orm";
+import { z } from "zod";
+import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
-import { draftSetupProtection } from "./draft-setup";
+import { assertCapability, assertReadCapability } from "./auth/staff";
+import { getEdition, getPublicEdition } from "./content";
+import { remoteMode } from "./data-source";
 import { refreshDraftSnapshot } from "./draft";
+import { draftSetupProtection } from "./draft-setup";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 const id = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const commands = z.discriminatedUnion("action", [
@@ -55,7 +57,7 @@ const commandSchema = z
     confirmed: z.literal(true),
   })
   .strict();
-export async function captainSetup(actor: User, slug: string) {
+async function databaseCaptainSetup(actor: User, slug: string) {
   await assertReadCapability(actor, "manage_captains", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -125,6 +127,20 @@ export async function captainSetup(actor: User, slug: string) {
     { isolationLevel: "repeatable read" },
   );
 }
+export async function captainSetup(
+  actor: User,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseCaptainSetup>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseCaptainSetup>>>(
+      "captainSetup",
+      { slug },
+    );
+  }
+  return databaseCaptainSetup(actor, slug);
+}
+
 export async function updateCaptains(
   actor: User,
   slug: string,
@@ -441,7 +457,7 @@ export async function updateCaptains(
   });
   return captainSetup(actor, slug);
 }
-export async function publicCaptains(slug: string) {
+async function databasePublicCaptains(slug: string) {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return [];
   return db()
     .select({
@@ -454,7 +470,19 @@ export async function publicCaptains(slug: string) {
     .where(and(eq(captains.editionSlug, slug), eq(captains.published, true)))
     .orderBy(captains.position);
 }
-export async function captainAppointment(userId: number, slug: string) {
+export async function publicCaptains(
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databasePublicCaptains>>> {
+  if (remoteMode()) {
+    return frontendResource<Awaited<ReturnType<typeof databasePublicCaptains>>>(
+      "publicCaptains",
+      { slug },
+    );
+  }
+  return databasePublicCaptains(slug);
+}
+
+async function databaseCaptainAppointment(userId: number, slug: string) {
   return (
     (
       await db()
@@ -463,4 +491,16 @@ export async function captainAppointment(userId: number, slug: string) {
         .where(and(eq(captains.editionSlug, slug), eq(captains.userId, userId)))
     )[0] ?? null
   );
+}
+export async function captainAppointment(
+  userId: number,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseCaptainAppointment>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(userId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseCaptainAppointment>>
+    >("captainAppointment", { slug });
+  }
+  return databaseCaptainAppointment(userId, slug);
 }

@@ -1,16 +1,17 @@
-import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
-import { publicNewsKind } from "@/lib/public-news-model";
-import { publicNews } from "@/lib/public-news";
-import { formatDate } from "@/lib/editions";
 import { PageHeading } from "@/components/ui";
+import { getAppTranslations } from "@/i18n/server";
+import { formatDate } from "@/lib/editions";
+import { publicNews } from "@/lib/public-news";
+import { publicNewsKind } from "@/lib/public-news-model";
+import { remotePage } from "@/lib/remote-page";
+import Link from "next/link";
 export const dynamic = "force-dynamic";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("News & announcements") };
 }
 
-export default async function News() {
+async function Issue271Page() {
   const tr = await getAppTranslations();
 
   const announcements = await publicNews(undefined, tr);
@@ -44,4 +45,8 @@ export default async function News() {
       )}
     </div>
   );
+}
+
+export default function Page() {
+  return remotePage(() => Issue271Page());
 }

@@ -1,7 +1,7 @@
 # Issue #298 — rules on the edition homepage
 
-Recorded on 2026-10-25. The branch was fast-forwarded to upstream main
-`f5bdb92d84685579f00fc5467b9bf0941043952d` before final checks.
+Recorded on 2026-10-25. Final checks were repeated after merging upstream main
+`41512cf5e7d6131743016aceb58d6684e58801e9`, including its #271–#272 saved-read changes.
 
 Public current/historical navigation no longer lists a separate Rules page.
 Registration acknowledgements link to their own edition's `#rules`. The old route
@@ -26,10 +26,14 @@ retain their existing paths.
 - `npm run i18n:extract` and `npm run test:i18n`: passed; no message/catalog changes.
 - Rules-navigation/public-navigation unit checks: 41 passed.
 - `npm audit --omit=dev`: zero production vulnerabilities.
-- Full `npm test`: 539 passed, 376 skipped, 54 failed. The same seven
-  platform-dependent suites fail on this Windows host because of POSIX
+- Full `npm test`: 546 passed, 379 skipped, 55 failed. Fifty-four failures in seven
+  platform-dependent suites occur on this Windows host because of POSIX
   executable / file-symlink prerequisites: cleanup-releases, oclr-script,
   production-script, replay-parser, replay-storage, team-media and update-script.
+  The additional read-api-dx contract-regeneration failure also reproduced on a
+  clean, detached checkout of upstream `41512cf` with the same dependencies and
+  host. It is not reported as passed. The 137-row route inventory check passed
+  with filesystem path separators normalized for Windows.
 - The isolated browser run passed **121 cases**, with no page errors or page
   horizontal overflow. The [JSON report](verification.json) records each case
   and measured rule-title/header positions. It covers 72 current/historical
@@ -41,8 +45,9 @@ retain their existing paths.
 
 The browser run used the real Next development frontend in remote mode, an
 anonymous local connection and a contract-validated HTTP fixture backend bound
-only to loopback. Current identities and rules were synthetic; the historical
-DTO reused the repository's existing public S8 rulebook and illustrations under
+only to loopback, including the 1.1.0 public-configuration resource. Current
+identities and rules were synthetic; the historical fixture reused the
+repository's existing public S8 rulebook and illustrations under
 a synthetic edition identity. Screenshots hide the Next development indicator.
 No database, real OAuth/provider credential, production data or service was used.
 

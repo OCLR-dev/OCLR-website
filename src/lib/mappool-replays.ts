@@ -1,25 +1,27 @@
-import { createHash, randomUUID } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   editionState,
-  mappools,
   mappoolEntries,
-  mappoolReplays,
   mappoolEvents,
+  mappoolReplays,
+  mappools,
 } from "@/db/schema";
-import { assertCapability, assertReadCapability } from "./auth/staff";
-import type { User } from "./auth/sessions";
+import { and, eq, sql } from "drizzle-orm";
+import { createHash, randomUUID } from "node:crypto";
+import { z } from "zod";
 import { assertOperationalEdition } from "./archive-guard";
+import type { User } from "./auth/sessions";
+import { assertCapability, assertReadCapability } from "./auth/staff";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
-import { parseReplay } from "./replay-parser";
-import { readReplay, storeReplay, removeReplayFile } from "./replay-storage";
 import {
   REPLAY_ENTRY_LIMIT,
   REPLAY_MAX_BYTES,
   type ReplaySummary,
 } from "./replay-model";
+import { parseReplay } from "./replay-parser";
+import { readReplay, removeReplayFile, storeReplay } from "./replay-storage";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 function validId(id: string) {
   if (!z.uuid().safeParse(id).success)
@@ -72,7 +74,7 @@ const command = z
     confirmed: z.literal(true),
   })
   .strict();
-export async function replayList(actor: User, slug: string, entryId: string) {
+async function databaseReplayList(actor: User, slug: string, entryId: string) {
   const { entry } = await target(actor, slug, entryId);
   const rows = await db()
     .select()
@@ -88,6 +90,21 @@ export async function replayList(actor: User, slug: string, entryId: string) {
         : ("unverified" as const),
   }));
 }
+export async function replayList(
+  actor: User,
+  slug: string,
+  entryId: string,
+): Promise<Awaited<ReturnType<typeof databaseReplayList>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseReplayList>>>(
+      "replayList",
+      { slug, entryId },
+    );
+  }
+  return databaseReplayList(actor, slug, entryId);
+}
+
 export type ReplayItem = Awaited<ReturnType<typeof replayList>>[number];
 export async function authorizeReplayUpload(
   actor: User,

@@ -1,15 +1,15 @@
 import { NextRequest } from "next/server";
-import { proxy } from "../../src/proxy";
+import { execFileSync } from "node:child_process";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { getPool } from "../../src/db";
 import {
-  remoteMode,
-  remoteConfiguration,
-  remotePageSupported,
   remoteApiSupported,
+  remoteConfiguration,
+  remoteMode,
+  remotePageSupported,
 } from "../../src/lib/data-source";
 import { remoteOperation } from "../../src/lib/remote-transport";
-import { getPool } from "../../src/db";
-import { execFileSync } from "node:child_process";
+import { proxy } from "../../src/proxy";
 beforeEach(() => {
   vi.stubEnv("NODE_ENV", "development");
   vi.stubEnv("OCLR_DATA_SOURCE", "remote");
@@ -70,11 +70,11 @@ describe("explicit remote frontend boundaries", () => {
         remoteOperation("/staff/profiles/123", new URLSearchParams(query)),
       ).toThrow();
     expect(remotePageSupported("/tournaments/s9/players/123")).toBe(true);
-    expect(remotePageSupported("/tournaments/s9/mappools")).toBe(false);
+    expect(remotePageSupported("/tournaments/s9/mappools")).toBe(true);
     expect(remoteApiSupported("/api/teams/id/avatar")).toBe(false);
-    expect(remoteApiSupported("/api/admin/tournaments/s11")).toBe(false);
+    expect(remoteApiSupported("/api/admin/tournaments/s11")).toBe(true);
   });
-  it("rejects unsafe transport and local writes before any service; redirects unsupported pages locally", () => {
+  it("rejects unsafe transport and local writes before any service; allows covered pages without permitting writes", () => {
     const request = (path: string, method = "GET", headers = {}) =>
       new NextRequest(`http://localhost:3000${path}`, {
         method,
@@ -104,10 +104,8 @@ describe("explicit remote frontend boundaries", () => {
       proxy(request("/tournaments/s11/teams/unavailable.png")).status,
     ).toBe(307);
     const unsupported = proxy(request("/tournaments/s11/mappools"));
-    expect(unsupported.status).toBe(307);
-    expect(unsupported.headers.get("location")).toBe(
-      "http://localhost:3000/remote/unsupported",
-    );
+    expect(unsupported.status).toBe(200);
+    expect(unsupported.headers.get("location")).toBeNull();
     expect(unsupported.headers.get("cache-control")).toBe("no-store");
   });
   it("refuses any local database pool even with a configured URL", () => {

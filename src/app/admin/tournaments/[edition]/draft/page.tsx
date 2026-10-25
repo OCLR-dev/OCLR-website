@@ -1,14 +1,15 @@
 import Link from "next/link";
 import "./broadcast-tools.css";
+import { ObsSourceLink } from "@/components/obs-source-link";
+import { StaffDraftRoom } from "@/components/staff-draft";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff";
 import { staffDraft } from "@/lib/draft";
-import { PageHeading } from "@/components/ui";
-import { ObsSourceLink } from "@/components/obs-source-link";
 import { appUrl } from "@/lib/http";
-import { StaffDraftRoom } from "@/components/staff-draft";
-export default async function ControlRoom({
+import { remotePage } from "@/lib/remote-page";
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -54,4 +55,8 @@ export default async function ControlRoom({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

@@ -1,10 +1,11 @@
+import { AwardManager } from "@/components/award-manager";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
 import { awardWorkspace } from "@/lib/awards";
-import { PageHeading } from "@/components/ui";
-import { AwardManager } from "@/components/award-manager";
-export default async function Awards({
+import { remotePage } from "@/lib/remote-page";
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -21,4 +22,8 @@ export default async function Awards({
       />
     </>
   ));
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

@@ -1,10 +1,11 @@
+import { ArchiveImporter } from "@/components/archive-importer";
+import { PageHeading } from "@/components/ui";
+import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff";
+import { remotePage } from "@/lib/remote-page";
 import { tournamentForAdmin } from "@/lib/tournaments";
-import { getAppTranslations } from "@/i18n/server";
-import { PageHeading } from "@/components/ui";
-import { ArchiveImporter } from "@/components/archive-importer";
-export default async function Archive({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -30,4 +31,8 @@ export default async function Archive({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

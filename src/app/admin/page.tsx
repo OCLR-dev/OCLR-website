@@ -1,17 +1,18 @@
+import { Action, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff, staffAccess } from "@/lib/auth/staff";
+import { remotePage } from "@/lib/remote-page";
 import { listApplications, parseFilters } from "@/lib/staff";
 import { tournamentList } from "@/lib/tournaments";
-import { PageHeading, Action } from "@/components/ui";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Administration overview") };
 }
 
-export default async function Admin({
+async function Issue271Page({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -131,4 +132,8 @@ export default async function Admin({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

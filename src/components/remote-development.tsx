@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState, type ReactNode, type FormEvent } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
 import { remoteErrorMessage } from "@/lib/remote-errors";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { RemoteReadOnlyContext } from "./staff-read-only";
 export function RemoteNotice({
   code = "REMOTE_UNSUPPORTED",
 }: {
@@ -69,9 +70,16 @@ export function RemoteBoundary({
       window.removeEventListener("pageshow", check);
     };
   }, [path, router]);
-  if (["/remote", "/login", "/developer"].includes(path)) return children;
+  if (["/remote", "/login", "/developer"].includes(path))
+    return (
+      <RemoteReadOnlyContext value={true}>{children}</RemoteReadOnlyContext>
+    );
   const code = error ?? (failure?.path === path ? failure.code : undefined);
-  return code ? <RemoteNotice code={code} /> : children;
+  return code ? (
+    <RemoteNotice code={code} />
+  ) : (
+    <RemoteReadOnlyContext value={true}>{children}</RemoteReadOnlyContext>
+  );
 }
 export function RemoteConnectionForm({ connected }: { connected: boolean }) {
   const tr = useAppTranslations();

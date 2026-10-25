@@ -1,11 +1,8 @@
-import { and, asc, eq, isNotNull, isNull } from "drizzle-orm";
-import { readTournament } from "./tournaments";
-import type { RatingReader } from "./approved-rating-games";
 import { db } from "@/db";
 import {
   captains,
-  mappools,
   fixtures,
+  mappools,
   matchImports,
   matchResults,
   resultRevisions,
@@ -13,14 +10,19 @@ import {
   tournamentRounds,
   tournamentStages,
 } from "@/db/schema";
-import { getPublicEdition } from "./content";
+import { and, asc, eq, isNotNull, isNull } from "drizzle-orm";
+import type { RatingReader } from "./approved-rating-games";
 import {
   groupConfigurationSchema,
   standingsRulesSchema,
   type StandingsRules,
 } from "./competition-model";
+import { getPublicEdition } from "./content";
+import { remoteMode } from "./data-source";
+import { frontendResource } from "./frontend-resource";
 import { reviewedResultSchema } from "./match-model";
 import { calculateStandings } from "./standings";
+import { readTournament } from "./tournaments";
 export type PublicTeam = {
   id: string;
   name: string;
@@ -80,7 +82,7 @@ export type PublicFixture = {
   result: PublicMatchResult | null;
   updatedAt: string;
 };
-export async function publicCompetition(slug: string, reader?: RatingReader) {
+async function databasePublicCompetition(slug: string, reader?: RatingReader) {
   if (
     !(reader
       ? await readTournament(slug, reader, true)
@@ -370,13 +372,37 @@ export async function publicCompetition(slug: string, reader?: RatingReader) {
         isolationLevel: "repeatable read",
       });
 }
+export async function publicCompetition(
+  slug: string,
+  reader?: RatingReader,
+): Promise<Awaited<ReturnType<typeof databasePublicCompetition>>> {
+  if (remoteMode()) {
+    return frontendResource<
+      Awaited<ReturnType<typeof databasePublicCompetition>>
+    >("publicCompetition", { slug });
+  }
+  return databasePublicCompetition(slug, reader);
+}
+
 export type PublicGroup = {
   key: string;
   name: string;
   version: string;
 } & ReturnType<typeof calculateStandings>;
-export async function publicFixture(slug: string, id: string) {
+async function databasePublicFixture(slug: string, id: string) {
   return (
     (await publicCompetition(slug))?.fixtures.find((f) => f.id === id) ?? null
   );
+}
+export async function publicFixture(
+  slug: string,
+  id: string,
+): Promise<Awaited<ReturnType<typeof databasePublicFixture>>> {
+  if (remoteMode()) {
+    return frontendResource<Awaited<ReturnType<typeof databasePublicFixture>>>(
+      "publicFixture",
+      { slug, id },
+    );
+  }
+  return databasePublicFixture(slug, id);
 }

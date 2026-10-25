@@ -3,13 +3,16 @@
 import {
   createContext,
   useContext,
-  type ReactNode,
   type ComponentProps,
+  type ReactNode,
 } from "react";
 
 export const StaffReadOnlyContext = createContext(false);
+export const RemoteReadOnlyContext = createContext(false);
 export function useStaffReadOnly() {
-  return useContext(StaffReadOnlyContext);
+  const staff = useContext(StaffReadOnlyContext);
+  const remote = useContext(RemoteReadOnlyContext);
+  return staff || remote;
 }
 /** Only wrap mutation fields, leaving navigation, search and history interactive. */
 export function ReadOnlyFields({ children }: { children: ReactNode }) {

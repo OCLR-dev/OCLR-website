@@ -1,6 +1,3 @@
-import { assertOperationalEdition } from "./archive-guard";
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   captains,
@@ -8,28 +5,33 @@ import {
   draftSessions,
   editionEvents,
   editionState,
+  fixtures,
   memberships,
   registrations,
   teams,
   users,
-  fixtures,
 } from "@/db/schema";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { z } from "zod";
+import { assertOperationalEdition } from "./archive-guard";
+import type { User } from "./auth/sessions";
 import {
-  assertReadCapability,
   assertCapability,
+  assertReadCapability,
   hasCapability,
 } from "./auth/staff";
-import type { User } from "./auth/sessions";
 import { hashToken } from "./auth/tokens";
 import { getEdition, getPublicEdition } from "./content";
-import { HttpError } from "./http";
+import { remoteMode } from "./data-source";
+import { turnSequenceStructureProblem } from "./draft-order";
 import type {
   CaptainBoard,
   DraftBoard,
   DraftIdentity,
   DraftTeam,
 } from "./draft-types";
-import { turnSequenceStructureProblem } from "./draft-order";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { HttpError } from "./http";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 async function draftData(tx: Reader, slug: string) {
   const [session] = await tx
@@ -213,7 +215,7 @@ function sequenceTeams(data: Data) {
     members: data.members.filter((m) => m.membership.teamId === team.id).length,
   }));
 }
-export async function staffDraft(actor: User, slug: string) {
+async function databaseStaffDraft(actor: User, slug: string) {
   await assertReadCapability(actor, "manage_draft", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -237,8 +239,22 @@ export async function staffDraft(actor: User, slug: string) {
     { isolationLevel: "repeatable read" },
   );
 }
+export async function staffDraft(
+  actor: User,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseStaffDraft>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseStaffDraft>>>(
+      "staffDraft",
+      { slug },
+    );
+  }
+  return databaseStaffDraft(actor, slug);
+}
+
 export type StaffDraft = Awaited<ReturnType<typeof staffDraft>>;
-export async function publicDraft(slug: string) {
+async function databasePublicDraft(slug: string) {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return null;
   return db().transaction(
     async (tx) => {
@@ -288,7 +304,19 @@ export async function publicDraft(slug: string) {
     { isolationLevel: "repeatable read" },
   );
 }
-export async function captainDraft(
+export async function publicDraft(
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databasePublicDraft>>> {
+  if (remoteMode()) {
+    return frontendResource<Awaited<ReturnType<typeof databasePublicDraft>>>(
+      "publicDraft",
+      { slug },
+    );
+  }
+  return databasePublicDraft(slug);
+}
+
+async function databaseCaptainDraft(
   actor: User,
   slug: string,
 ): Promise<CaptainBoard | null> {
@@ -306,6 +334,20 @@ export async function captainDraft(
     .where(eq(draftSessions.editionSlug, slug));
   return session?.snapshot ?? null;
 }
+export async function captainDraft(
+  actor: User,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseCaptainDraft>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseCaptainDraft>>>(
+      "captainDraft",
+      { slug },
+    );
+  }
+  return databaseCaptainDraft(actor, slug);
+}
+
 const commandSchema = z
   .object({
     expectedVersion: z.number().int().nonnegative(),

@@ -1,16 +1,18 @@
 import { publicPlayer } from "@/lib/players";
-import { applicationAnswers } from "@/lib/application-answers";
-import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
-import Image from "next/image";
-import { getOsuUserProfile } from "@/lib/osu-profiles";
-import { redirect } from "next/navigation";
-import { currentUser } from "@/lib/auth/user";
-import { playerApplications, statusCopy } from "@/lib/dashboard";
-import { formatDate } from "@/lib/editions";
-import { Action, EmptyState, PageHeading } from "@/components/ui";
 import { Avatar } from "@/components/avatar";
 import { ConfirmMutation } from "@/components/confirm-mutation";
+import { Action, EmptyState, PageHeading } from "@/components/ui";
+import { getAppTranslations } from "@/i18n/server";
+import { applicationAnswers } from "@/lib/application-answers";
+import { currentUser } from "@/lib/auth/user";
+import { playerApplications, statusCopy } from "@/lib/dashboard";
+import { remoteMode } from "@/lib/data-source";
+import { formatDate } from "@/lib/editions";
+import { getOsuUserProfile } from "@/lib/osu-profiles";
+import { remotePage } from "@/lib/remote-page";
+import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return {
@@ -19,7 +21,7 @@ export async function generateMetadata() {
   };
 }
 
-export default async function Dashboard({
+async function Issue271Page({
   searchParams,
 }: {
   searchParams: Promise<{ submitted?: string }>;
@@ -48,9 +50,13 @@ export default async function Dashboard({
       <div className="workspace-main">
         <div className="player-page-heading">
           <PageHeading title={tr("Player dashboard")} />
-          <form action="/auth/logout" method="post">
-            <button className="secondary">{tr("Sign out")}</button>
-          </form>
+          {remoteMode() ? (
+            <Action href="/remote">{tr("Manage remote connection")}</Action>
+          ) : (
+            <form action="/auth/logout" method="post">
+              <button className="secondary">{tr("Sign out")}</button>
+            </form>
+          )}
         </div>
         {params.submitted && (
           <p className="notice" role="status">
@@ -317,4 +323,8 @@ export default async function Dashboard({
       </div>
     </div>
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

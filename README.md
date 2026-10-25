@@ -31,6 +31,27 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Configure `APP_URL`, `DATABASE_URL`, `OSU_CLIENT_ID`, `OSU_CLIENT_SECRET`, `ADMIN_OSU_IDS` and the approved `PRIVACY_CONTACT_OSU_ID` as described in [.env.example](.env.example) and the [development guide](docs/development.md). The osu! OAuth callback must be exactly `APP_URL/auth/osu/callback`. Authentication and registration need the corresponding services and configuration; there is no development login bypass.
 
+### Frontend development without a local database
+
+Use an existing OCLR backend with read API 1.1.0+ within v1:
+
+```sh
+npm ci
+export APP_URL=http://127.0.0.1:3000
+export OCLR_DATA_SOURCE=remote
+export OCLR_API_BASE_URL=https://YOUR_OCLR_BACKEND
+npm run dev -- --hostname 127.0.0.1
+```
+
+Open `/remote` and connect with short-lived Developer access, or explicitly choose
+anonymous public reads. A fresh frontend checkout needs no local database,
+migration, seed, OAuth secret or media directory. Public/historical pages, saved
+staff workspaces, your own applications/team and appointed Captain views retain
+the existing publication/identity boundaries. Business writes and provider
+refreshes are disabled. See [remote setup and troubleshooting](docs/remote-development.md),
+[coverage matrix](docs/remote-coverage.json) and [read API/OpenAPI](docs/read-api.md).
+Backend provisioning and real grants remain separate operator responsibilities.
+
 For a fresh frontend checkout with Docker and no existing `.env.local`, the optional local demo workflow is:
 
 ```sh

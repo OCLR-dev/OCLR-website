@@ -1,3 +1,4 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
@@ -6,7 +7,7 @@ import {
   statisticsWorkspace,
 } from "@/lib/archive-statistics";
 type Context = { params: Promise<{ edition: string }> };
-export async function GET(request: Request, context: Context) {
+async function readGET(request: Request, context: Context) {
   try {
     return NextResponse.json(
       await statisticsWorkspace(
@@ -34,4 +35,8 @@ export async function POST(request: Request, context: Context) {
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

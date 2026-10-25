@@ -1,18 +1,19 @@
-import { publicMatchRating } from "@/lib/ratings";
-import { PlayerRatings } from "@/components/player-ratings";
 import { historicalPage } from "@/components/historical-archive";
+import { PlayerRatings } from "@/components/player-ratings";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
+import { formatDate } from "@/lib/editions";
+import { publicFixture } from "@/lib/public-competition";
+import { publicMatchRating } from "@/lib/ratings";
+import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { publicFixture } from "@/lib/public-competition";
-import { formatDate } from "@/lib/editions";
-import { PageHeading } from "@/components/ui";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Match details") };
 }
 
-export default async function MatchPage({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string; fixtureId: string }>;
@@ -173,4 +174,8 @@ export default async function MatchPage({
       )}
     </>
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

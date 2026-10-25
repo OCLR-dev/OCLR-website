@@ -1,36 +1,38 @@
-import { assertOperationalEdition } from "./archive-guard";
-import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   editionState,
   fixtures,
-  resultRevisions,
-  tournamentStages,
-  tournamentRounds,
-  mappools,
   mappoolEntries,
   mappoolEvents,
   mappoolReplays,
+  mappools,
+  resultRevisions,
+  tournamentRounds,
+  tournamentStages,
 } from "@/db/schema";
-import { assertReadCapability, assertCapability } from "./auth/staff";
+import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
+import { z } from "zod";
+import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
+import { assertCapability, assertReadCapability } from "./auth/staff";
 import { getEdition, getPublicEdition } from "./content";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { HttpError } from "./http";
+import {
+  categories,
+  difficultyConfigurations,
+  moveMappoolEntries,
+  parseBeatmapId,
+  parseMappoolRows,
+  type BeatmapMetadata,
+  type BeatmapSnapshot,
+} from "./mappool-model";
 import {
   fetchBeatmap,
   fetchBeatmaps,
   withBeatmapAttributes,
 } from "./osu-beatmaps";
-import { HttpError } from "./http";
-import {
-  categories,
-  difficultyConfigurations,
-  parseBeatmapId,
-  parseMappoolRows,
-  moveMappoolEntries,
-  type BeatmapSnapshot,
-  type BeatmapMetadata,
-} from "./mappool-model";
 const confirmation = {
   confirmed: z.literal(true),
 };
@@ -218,7 +220,7 @@ const poolFields = {
   showcaseAt: mappools.showcaseAt,
   updatedAt: mappools.updatedAt,
 };
-export async function mappoolWorkspace(actor: User, slug: string) {
+async function databaseMappoolWorkspace(actor: User, slug: string) {
   await assertReadCapability(actor, "view_replays", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -254,6 +256,19 @@ export async function mappoolWorkspace(actor: User, slug: string) {
     { isolationLevel: "repeatable read" },
   );
 }
+export async function mappoolWorkspace(
+  actor: User,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseMappoolWorkspace>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseMappoolWorkspace>>
+    >("mappoolWorkspace", { slug });
+  }
+  return databaseMappoolWorkspace(actor, slug);
+}
+
 export type MappoolWorkspace = Awaited<ReturnType<typeof mappoolWorkspace>>;
 // Preview is a protected read, not a mutation. No registration or audit data is returned.
 export async function previewBeatmap(
@@ -787,16 +802,14 @@ export async function mappoolCommand(
           })
           .where(eq(mappools.id, pool.id))
           .returning();
-        await tx
-          .insert(mappoolEvents)
-          .values({
-            editionSlug: slug,
-            poolId: pool.id,
-            actorId: actor.osuId,
-            action: c.lockSelection ? "selection_lock" : "showcase_schedule",
-            before: { pool },
-            after: { pool: updated },
-          });
+        await tx.insert(mappoolEvents).values({
+          editionSlug: slug,
+          poolId: pool.id,
+          actorId: actor.osuId,
+          action: c.lockSelection ? "selection_lock" : "showcase_schedule",
+          before: { pool },
+          after: { pool: updated },
+        });
         return;
       }
       // Stable entry IDs retain attachments through moves. Removal/replacement requires explicit attachment cleanup.
@@ -1068,7 +1081,7 @@ export async function mappoolCommand(
   }
   return mappoolWorkspace(actor, slug);
 }
-export async function publicMappools(slug: string, poolId?: string) {
+async function databasePublicMappools(slug: string, poolId?: string) {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return [];
   if (poolId && !z.uuid().safeParse(poolId).success) return [];
   return db().transaction(
@@ -1130,4 +1143,16 @@ export async function publicMappools(slug: string, poolId?: string) {
     },
     { isolationLevel: "repeatable read" },
   );
+}
+export async function publicMappools(
+  slug: string,
+  poolId?: string,
+): Promise<Awaited<ReturnType<typeof databasePublicMappools>>> {
+  if (remoteMode()) {
+    return frontendResource<Awaited<ReturnType<typeof databasePublicMappools>>>(
+      "publicMappools",
+      { slug, poolId },
+    );
+  }
+  return databasePublicMappools(slug, poolId);
 }

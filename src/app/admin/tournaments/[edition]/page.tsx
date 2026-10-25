@@ -1,24 +1,21 @@
-import { remoteMode } from "@/lib/data-source";
-import { RemoteStaffTournaments } from "@/components/remote-staff-tournaments";
 import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
 import { authorizedPage } from "@/lib/auth/page";
-import { requireStaff, staffAccess, canRead } from "@/lib/auth/staff";
-import { tournamentForAdmin, tournamentList } from "@/lib/tournaments";
-import { HttpError } from "@/lib/http";
+import { canRead, requireStaff, staffAccess } from "@/lib/auth/staff";
 import { formatDate } from "@/lib/editions";
+import { HttpError } from "@/lib/http";
+import { remotePage } from "@/lib/remote-page";
+import { tournamentForAdmin, tournamentList } from "@/lib/tournaments";
+import Link from "next/link";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Tournament dashboard") };
 }
 
-export default async function Tournament({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
 }) {
-  if (remoteMode())
-    return <RemoteStaffTournaments slug={(await params).edition} />;
   const tr = await getAppTranslations();
 
   return authorizedPage(async () => {
@@ -167,4 +164,8 @@ export default async function Tournament({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

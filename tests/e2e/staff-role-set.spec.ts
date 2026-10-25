@@ -17,7 +17,11 @@ test.describe("staff multi-role editing (#260)", () => {
     await context.addCookies([await seedSession(admin)]);
     await page.goto("/admin/staff?edition=test-cup");
     await page.getByLabel("Verified osu! user ID").fill(String(target));
-    await page.getByRole("checkbox", { name: "Referee", exact: true }).check();
+    await page
+      .locator(".staff-readonly-fields")
+      .filter({ has: page.getByLabel("Verified osu! user ID") })
+      .getByRole("checkbox", { name: "Referee", exact: true })
+      .check();
     await page.getByRole("button", { name: "Review role grant" }).click();
     await page.getByRole("button", { name: "Confirm", exact: true }).click();
     const group = page.locator(".staff-role-group").filter({

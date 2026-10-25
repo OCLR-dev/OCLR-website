@@ -31,6 +31,25 @@ npm run dev
 
 打开 [http://localhost:3000](http://localhost:3000)。按照 [.env.example](.env.example) 与[开发指南](docs/development.md)，配置 `APP_URL`、`DATABASE_URL`、`OSU_CLIENT_ID`、`OSU_CLIENT_SECRET`、`ADMIN_OSU_IDS` 及经批准的 `PRIVACY_CONTACT_OSU_ID`。osu! OAuth 回调网址必须完全符合 `APP_URL/auth/osu/callback`。登录与报名需要对应的服务及配置；开发环境没有绕过登录验证的入口。
 
+### 无需本地数据库的前端开发
+
+使用已有的 OCLR 后端，要求 read API 为 1.1.0 或更新的 v1 版本：
+
+```sh
+npm ci
+export APP_URL=http://127.0.0.1:3000
+export OCLR_DATA_SOURCE=remote
+export OCLR_API_BASE_URL=https://YOUR_OCLR_BACKEND
+npm run dev -- --hostname 127.0.0.1
+```
+
+打开 `/remote`，使用短期 Developer 访问凭据连接，或明确选择匿名公开读取。
+新的前端 checkout 无需本地数据库、迁移、seed、OAuth 密钥或媒体目录。
+公开／历史页面、已保存的工作人员工具、本人报名／队伍及已获任命的 Captain 页面
+保留原有身份与发布边界；业务写入和外部资料刷新已禁用。
+参阅[远端开发说明](docs/remote-development.md)、[覆盖矩阵](docs/remote-coverage.json)
+及[读取 API／OpenAPI](docs/read-api.md)。后端部署和真实授权由运营者另行处理。
+
 如果是全新的前端开发目录，已安装 Docker，且尚无 `.env.local`，可选择本地演示流程：
 
 ```sh

@@ -1,32 +1,34 @@
-import { createHash } from "node:crypto";
-import { and, eq } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import { editionEvents, editionState, historicalStatistics } from "@/db/schema";
-import { readTournament } from "./tournaments";
-import {
-  assertReadCapability,
-  assertCapability,
-  hasCapability,
-} from "./auth/staff";
-import type { User } from "./auth/sessions";
-import type { HistoricalArchive } from "./historical-archive";
-import { HttpError } from "./http";
-import { fetchMatchSource } from "./osu-matches";
-import { matchSourceSchema } from "./match-model";
+import { and, eq } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { z } from "zod";
 import {
   archiveMpId,
-  statisticsSeasons,
-  statisticsFixtures,
-  statisticsGameIssues,
-  suggestStatisticsPool,
-  fixtureStatisticsIssues,
-  projectStatistics,
-  validStatisticsExclusions,
   canExcludeNonParticipantScore,
   canExcludeStatisticsBenchScore,
+  fixtureStatisticsIssues,
+  projectStatistics,
+  statisticsFixtures,
+  statisticsGameIssues,
+  statisticsSeasons,
+  suggestStatisticsPool,
+  validStatisticsExclusions,
   type StatisticsSnapshot,
 } from "./archive-statistics-model";
+import type { User } from "./auth/sessions";
+import {
+  assertCapability,
+  assertReadCapability,
+  hasCapability,
+} from "./auth/staff";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import type { HistoricalArchive } from "./historical-archive";
+import { HttpError } from "./http";
+import { matchSourceSchema } from "./match-model";
+import { fetchMatchSource } from "./osu-matches";
+import { readTournament } from "./tournaments";
 
 const excludedScoresSchema = z
   .array(
@@ -158,7 +160,7 @@ async function stored(slug: string, reader: Reader = db()) {
     published: r.published ? snapshotSchema.parse(r.published) : null,
   }));
 }
-export async function statisticsWorkspace(
+async function databaseStatisticsWorkspace(
   actor: User,
   slug: string,
   fixtureId = "",
@@ -261,6 +263,20 @@ export async function statisticsWorkspace(
       : [],
   };
 }
+export async function statisticsWorkspace(
+  actor: User,
+  slug: string,
+  fixtureId = "",
+): Promise<Awaited<ReturnType<typeof databaseStatisticsWorkspace>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseStatisticsWorkspace>>
+    >("statisticsWorkspace", { slug, fixtureId });
+  }
+  return databaseStatisticsWorkspace(actor, slug, fixtureId);
+}
+
 export type StatisticsWorkspace = Awaited<
   ReturnType<typeof statisticsWorkspace>
 >;
@@ -490,7 +506,7 @@ export async function statisticsCommand(
   });
   return statisticsWorkspace(actor, slug, fixture.id);
 }
-export async function publicArchiveStatistics(slug: string) {
+async function databasePublicArchiveStatistics(slug: string) {
   const archive = await archiveFor(slug, db(), true);
   const key = statisticsArchiveKey(archive);
   const rows = await stored(slug);
@@ -545,6 +561,17 @@ export async function publicArchiveStatistics(slug: string) {
     mpCovered: published.length,
   };
 }
+export async function publicArchiveStatistics(
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databasePublicArchiveStatistics>>> {
+  if (remoteMode()) {
+    return frontendResource<
+      Awaited<ReturnType<typeof databasePublicArchiveStatistics>>
+    >("publicArchiveStatistics", { slug });
+  }
+  return databasePublicArchiveStatistics(slug);
+}
+
 export type PublicArchiveStatistics = Awaited<
   ReturnType<typeof publicArchiveStatistics>
 >;

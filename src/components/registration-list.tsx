@@ -5,7 +5,7 @@ import { authorizedPage } from "@/lib/auth/page";
 import type { User } from "@/lib/auth/sessions";
 import { canRead, permits, staffAccess } from "@/lib/auth/staff";
 import { listApplications } from "@/lib/staff";
-import { getEditions } from "@/lib/content";
+import { getEditionChoices } from "@/lib/content";
 import { formatDate } from "@/lib/editions";
 import { BulkManualRegistration } from "./bulk-manual-registration";
 import { ManualRegistration } from "./manual-registration";
@@ -36,7 +36,7 @@ export async function RegistrationList({
       edition: filters.edition,
       status: filters.status,
     });
-    const editions = (await getEditions()).filter((e) =>
+    const editions = (await getEditionChoices()).filter((e) =>
       canRead(access, "manage_registrations", e.slug),
     );
     return (

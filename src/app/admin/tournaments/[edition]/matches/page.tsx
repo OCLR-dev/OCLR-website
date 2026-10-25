@@ -1,18 +1,19 @@
+import { FixtureManager } from "@/components/fixture-manager";
+import { StreamingManager } from "@/components/streaming-manager";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
+import { canRead, staffAccess } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
-import { staffAccess, canRead } from "@/lib/auth/staff";
-import { canViewStreaming, streamingWorkspace } from "@/lib/streaming";
-import { StreamingManager } from "@/components/streaming-manager";
 import { staffFixtures } from "@/lib/fixtures";
-import { PageHeading } from "@/components/ui";
-import { FixtureManager } from "@/components/fixture-manager";
+import { remotePage } from "@/lib/remote-page";
+import { canViewStreaming, streamingWorkspace } from "@/lib/streaming";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Competition fixtures") };
 }
 
-export default async function FixturesPage({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -54,4 +55,8 @@ export default async function FixturesPage({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

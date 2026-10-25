@@ -21,6 +21,7 @@ export function usePoll<T>(
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
     let active = true;
+    let stopped = false;
     async function update() {
       try {
         const response = await fetch(endpoint, {
@@ -32,6 +33,7 @@ export function usePoll<T>(
           ]),
         });
         if ([401, 403].includes(response.status)) {
+          stopped = true;
           if (active) {
             setValue(null);
             setAuthorizationLost(true);
@@ -52,7 +54,7 @@ export function usePoll<T>(
       } catch {
         if (active) setConnected(false);
       } finally {
-        if (active) timer = setTimeout(update, 2000);
+        if (active && !stopped) timer = setTimeout(update, 2000);
       }
     }
     void update();

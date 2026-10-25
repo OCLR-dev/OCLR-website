@@ -1,11 +1,12 @@
-import { notFound } from "next/navigation";
-import { authorizedPage } from "@/lib/auth/page";
-import { requireStaff } from "@/lib/auth/staff";
-import { tournamentForAdmin } from "@/lib/tournaments";
 import {
   HistoricalArchiveView,
   type ArchiveSection,
 } from "@/components/historical-archive";
+import { authorizedPage } from "@/lib/auth/page";
+import { requireStaff } from "@/lib/auth/staff";
+import { remotePage } from "@/lib/remote-page";
+import { tournamentForAdmin } from "@/lib/tournaments";
+import { notFound } from "next/navigation";
 const sections = new Set<ArchiveSection>([
   "overview",
   "teams",
@@ -23,7 +24,7 @@ const sections = new Set<ArchiveSection>([
   "rules",
   "awards",
 ]);
-export default async function Preview({
+async function Issue271Page({
   params,
   searchParams,
 }: {
@@ -59,4 +60,8 @@ export default async function Preview({
       />
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

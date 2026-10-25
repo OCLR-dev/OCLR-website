@@ -1,11 +1,11 @@
 "use client";
+import { useAppTranslations } from "@/i18n/shared";
+import type { EventPlayer } from "@/lib/event-preview";
+import Link from "next/link";
+import { useState } from "react";
 import { Avatar } from "./avatar";
 import { PlayerMessageBoard } from "./player-message-board";
 import { PlayerReactions } from "./player-reactions";
-import { useState } from "react";
-import Link from "next/link";
-import { useAppTranslations } from "@/i18n/shared";
-import type { EventPlayer } from "@/lib/event-preview";
 export function EventPlayers({
   players,
   edition,
@@ -138,13 +138,7 @@ export function EventPlayers({
                 </div>
                 <div className="event-player-messages">
                   <h4>{tr("Message board")}</h4>
-                  {remote ? (
-                    <p className="muted small">
-                      {tr(
-                        "Message boards are not supported in remote development yet.",
-                      )}
-                    </p>
-                  ) : preview ? (
+                  {preview ? (
                     <div className="event-message-scroll">
                       {p.messages?.map((m, i) => (
                         <div key={i}>
@@ -159,8 +153,8 @@ export function EventPlayers({
                       edition={edition}
                       playerId={p.id}
                       name={p.name}
-                      signedIn={signedIn}
-                      viewerId={viewerId}
+                      signedIn={signedIn && !remote}
+                      viewerId={remote ? undefined : viewerId}
                     />
                   )}
                 </div>

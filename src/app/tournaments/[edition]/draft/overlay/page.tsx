@@ -1,10 +1,11 @@
-import { getAppTranslations } from "@/i18n/server";
-import { notFound } from "next/navigation";
 import { BroadcastDraft } from "@/components/broadcast-draft";
-import { getPublicEdition } from "@/lib/content";
-import { after } from "next/server";
+import { getAppTranslations } from "@/i18n/server";
 import { publicBroadcastDraft } from "@/lib/broadcast";
+import { getPublicEdition } from "@/lib/content";
 import type { DraftBoard } from "@/lib/draft-types";
+import { remotePage } from "@/lib/remote-page";
+import { notFound } from "next/navigation";
+import { after } from "next/server";
 
 export async function generateMetadata() {
   const tr = await getAppTranslations();
@@ -14,7 +15,7 @@ export async function generateMetadata() {
   };
 }
 
-export default async function Overlay({
+async function Issue271Page({
   params,
   searchParams,
 }: {
@@ -44,4 +45,8 @@ export default async function Overlay({
       }
     />
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

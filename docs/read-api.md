@@ -1,9 +1,9 @@
-# Versioned saved-data read API (#269)
+# Versioned saved-data read API (#269–#272)
 
-This is stage 2 of #268–#272. It exposes backend data for frontend development.
-The #270 remote adapter supports the documented core pages without a local DB;
-see [remote-development.md](remote-development.md). Full-site coverage and overall
-DB-free acceptance remain in #271–#272.
+The saved-read API serves the existing OCLR frontend through one versioned
+resource contract. The [full-site remote adapter](remote-development.md) needs no
+local database, migrations, seed or OAuth secret. Its minimum compatible contract
+is 1.1.0 within v1, returned in `X-OCLR-Read-Contract` and the OpenAPI version.
 
 The machine-readable OpenAPI 3.1 document is served, without authentication or a
 DB connection, at `/api/v1/openapi.json`. It is a raw OpenAPI document; all business
@@ -30,6 +30,36 @@ node --import tsx scripts/read-api-spec.ts
 | `/staff/tournaments/{edition}`           | No        | `tournaments:private:read` | Whitelisted saved tournament configuration and archive metadata/counts   |
 | `/staff/profiles/{osuId}`                | No        | `profiles:read`            | Saved osu! profile snapshot only                                         |
 
+The full resource/operation list is the generated OpenAPI document. Additional
+resource families use the same authorization/envelope and existing domain models:
+
+| Resource family                                                                                                                                                     | Scope / behavior                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/site/staff`, `/site/news?locale=...`                                                                                                                              | Public-only published identities/news; explicit interface locale.                                                                                                |
+| `/tournaments/{edition}/configuration`                                                                                                                              | Published configuration and saved revision; archive fields are available only for a published edition; questions and staff eligibility settings remain excluded. |
+| `/tournaments/{edition}/competition`, `/bracket`, `/teams`, `/captains`, `/mappools`, `/draft`, `/draft/broadcast`, `/ratings`, `/awards`, `/statistics`            | Existing publication boundaries and saved snapshots; optional mappool UUID filter.                                                                               |
+| `/tournaments/{edition}/matches/{id}`, `/matches/{id}/ratings`, `/players/{osuId}/messages`                                                                         | Edition-scoped published records.                                                                                                                                |
+| `/staff/tournaments/{edition}/configuration`, `/workspace`, `/captains`, `/teams`, `/draft`, `/mappools`, `/fixtures`, `/awards`, `/statistics`, `/streaming`       | `tournaments:private:read`; full saved workspaces, with commands disabled. Historical statistics use a recorded fixture key.                                     |
+| `/staff/tournaments/{edition}/matches/{id}`, `/matches/{id}/ratings`, `/matches/{id}/review`, `/mappool-entries/{id}/replays`                                       | `tournaments:private:read`; existing authorized saved evidence and replay metadata.                                                                              |
+| `/staff/tournament-workspace`, `/staff/roles`, `/staff/site-settings`, `/staff/registrations`, `/staff/registrations/{id}`, `/staff/audit`                          | `tournaments:private:read`; existing bounded filters/redaction. Selectors reuse the versioned private summary collection; there is no sensitive batch export.    |
+| `/me/staff-access`, `/me/profile`, `/me/applications`, `/me/registrations`, `/me/tournaments/{edition}/team`, `/captain`, `/draft`, `/eligibility`, `/registration` | `identity:read`; the backend supplies the actual subject, with real Captain appointment checks and saved-only eligibility/profile data.                          |
+| `/media/teams/{id}/avatar`                                                                                                                                          | Published WebP; unpublished identities also require private scope and live staff read authorization.                                                             |
+| `/staff/tournaments/{edition}/mappool-entries/{id}/replays/{replayId}/file`                                                                                         | `tournaments:private:read`; authorized binary download, never a storage path or provider proxy.                                                                  |
+
+The global contributor directory uses `/site/contributors` for the published
+name/osu! ID projection and `/staff/contributors` for the saved private workspace
+under `tournaments:private:read`. `/players/{osuId}/participations` supplies public
+participation for the dashboard profile link, with an optional edition filter.
+These reuse the existing #275/#277 models without a local database fallback.
+
+Badge review reads at `/staff/tournaments/{edition}/registrations/{id}/bws` additionally require both `tournaments:private:read` and `profiles:read`; only `mode=osu` is supported. They read saved snapshots and reviews without a provider refresh.
+
+Binary resources return their bytes directly, with matching MIME, bounded length,
+`nosniff`, sandbox and safe attachment filename headers. WebP is limited to 1 MiB;
+replays to 8 MiB. CORS exposes the download/contract/request headers. All binary
+reads revalidate access after reading. Public JSON resources still never expose
+private records merely because a Bearer token is supplied.
+
 An explicit Authorization header is always validated, including on public routes.
 Invalid credentials never fall back to anonymous access or a browser session.
 A valid token on a public route still gets only the public projection; it cannot
@@ -42,7 +72,7 @@ CORS configuration. Use `credentials: "omit"` in local browser requests.
 
 Both profile resources accept only `mode=osu|taiko|fruits|mania`, default `osu`.
 IDs are positive safe integers and edition slugs use the existing edition schema.
-Site, identity and tournament detail accept no query parameters. Unknown/repeated
+Site, identity and core tournament detail accept no query parameters. Unknown/repeated
 parameters return 400; technical values, authored text, names, metadata and URLs
 are never translated by the API. Timestamps retain their stored values; display
 formatting uses the returned tournament `timeZone`.
@@ -56,7 +86,7 @@ localized display text in the client; do not parse the message. All responses ar
 the same status/headers without a body. OPTIONS is unauthenticated and returns
 only CORS/method headers. Mutation methods return 405 `READ_ONLY`.
 
-List resources accept `q` (trimmed, at most 100 characters), `page` (default 1),
+The versioned summary/player collection resources accept `q` (trimmed, at most 100 characters), `page` (default 1),
 `pageSize` (default 50, maximum 100), and `version`. `meta.pagination` contains
 `page`, `pageSize`, `total`, `totalPages`, `nextPage`, and `collectionVersion`.
 The version is a SHA-256 of the full filtered ordered projection, including saved
@@ -101,8 +131,8 @@ async function publicPlayers(backend: string): Promise<PublicPlayer[]> {
 }
 ```
 
-This illustrates the collection contract, not the #270 remote adapter or a retry
-policy. The shared Zod schemas, serializable TypeScript types and envelopes live
+This illustrates the collection contract. The application adapter implements
+whole-collection restart and bounds; do not silently accept a partial list. The shared Zod schemas, serializable TypeScript types and envelopes live
 in `src/lib/read-api-contract.ts`; operation definitions live in
 `src/lib/read-api-operations.ts`. Runtime responses and generated OpenAPI use the
 same schemas. Database, provider clients and credentials are server-only.
@@ -142,8 +172,12 @@ missing mode-specific profile does not erase saved standard-mode directory stats
 Overview modules retain existing fail-soft behavior: `overview.unavailable`
 identifies unavailable secondary modules without returning database errors or
 pretending a failed read is authoritative empty data. Missing rules/dates remain
-null/empty as configured. Public schemas never contain registration questions or
-internal configuration; staff configuration uses its separate whitelist.
+null/empty as configured. The core summary/overview/player schemas exclude application questions and
+internal configuration. The published configuration resource additionally serves the approved archive.
+Application questions and automatic/staff eligibility settings remain excluded
+from anonymous configuration. The subject-bound registration form supplies the
+existing published questions only while registration is open. Submitted answers,
+review notes and unpublished configurations remain private.
 
 ## Read-only behavior and compatibility
 
@@ -152,7 +186,7 @@ five-second statement timeout. Existing domain services reuse that connection;
 services with savepoints run serially. V1 GET/HEAD never fetch a provider, claim a
 cache refresh, write a registration decision, import, publish or change business
 versions. Token authentication and process-local request limits remain separate.
-Responses are bounded at 256 KiB for `/me`, 2 MiB for other v1 resources/spec;
+JSON responses are bounded at 256 KiB for `/me`, 2 MiB for other v1 resources/spec;
 oversized data returns 413 `RESOURCE_TOO_LARGE`, never a partial success.
 
 Legacy `/api/players/...` and existing authenticated refresh workflows retain
@@ -173,4 +207,85 @@ responses and the shared error envelope.
 Local verification uses a named isolated `TEST_DATABASE_URL`, synthetic provider
 fixtures and desktop/mobile browsers. It establishes contract, publication,
 collection completeness and read-only behavior, not real OAuth, organizer grants
-or a production deployment. No migration is added by #269.
+or a production deployment. No migration is added by #269, #271 or #272.
+
+## Shared request/response schemas and issue mapping
+
+`src/lib/read-api-queries.ts` supplies the exact request schemas also used by
+registration/audit/streaming services. OpenAPI query types, enums, defaults, UUIDs,
+dates and limits come from those schemas. The finite resource registry maps
+operationId to its existing service. `generate-extended-contracts.ts` generates
+strict response JSON Schemas from the same TypeScript return types, including
+nullable first-row results, tuples, normalized profiles and saved snapshots.
+Runtime Zod validation and OpenAPI share those definitions. JSON dates are ISO
+strings; the existing SSR service adapter restores Dates using schema metadata.
+Unknown audit/answer JSON keeps its existing authorized, bounded projection.
+
+Every operation has `x-oclr-issues`; GET operations also identify the query model,
+read-only behavior and [page/module matrix](remote-coverage.json). The matrix links
+operation IDs to services, pages and required tests. `read-api-dx.test.ts` checks
+source drift and every OpenAPI reference; `extended-read.test.ts` checks all domain
+responses and unchanged stored state.
+
+Rate counters are shared across Next route bundles, while each bundle constructs
+its own error instances. `developer-api-bundles.test.ts` reloads the module graph
+against the same exhausted counters and verifies HTTP 429, `RATE_LIMITED` and
+`Retry-After: 60`; route bundling must not turn throttling into an internal error.
+
+```sh
+node --import tsx scripts/generate-extended-contracts.ts
+node --import tsx scripts/read-api-spec.ts
+node --import tsx scripts/generate-remote-matrix.ts
+# CI/unit checks use --check for the generated contracts and inventory.
+```
+
+## Browser Bearer and existing Next SSR/BFF examples
+
+For a separate browser frontend, keep the short-lived credential in memory and
+let the browser supply Origin/preflight. Do not send backend session cookies:
+
+```ts
+async function savedProfile(backend: string, osuId: number, token: string) {
+  const response = await fetch(
+    `${backend}/api/v1/staff/profiles/${osuId}?mode=osu`,
+    {
+      method: "GET",
+      credentials: "omit",
+      cache: "no-store",
+      headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+    },
+  );
+  const body = await response.json();
+  if (!response.ok) throw body.error; // Match code; respect Retry-After on 429.
+  return body.data; // Validate with the shared SavedProfile schema.
+}
+```
+
+For this Next application, use its existing service boundary in a server component:
+
+```tsx
+import { publicMappools } from "@/lib/mappools";
+import { MappoolBrowser } from "@/components/mappool-browser";
+export async function SavedPools({ edition }: { edition: string }) {
+  const pools = await publicMappools(edition);
+  return (
+    <>
+      {pools.map((pool) => (
+        <MappoolBrowser key={pool.id} slug={edition} pool={pool} />
+      ))}
+    </>
+  );
+}
+```
+
+With `OCLR_DATA_SOURCE=remote`, that service calls only the registered BFF resource;
+database mode runs the existing backend service. Client polling continues to use
+its same-origin legacy read URL, such as `/api/tournaments/{edition}/draft`, and
+receives no Bearer token. The application BFF, not a browser bundle, stores the
+credential. Local connection/preferences are independent of business writes.
+
+A missing/older successful contract header produces `REMOTE_INCOMPATIBLE`; a new
+additive 1.x minor remains compatible. New optional fields must preserve existing
+v1 projections; incompatible meaning/authorization changes require a new major
+contract. See the setup/troubleshooting guide for backend prerequisites and the
+separate local-versus-real-deployment acceptance boundary.

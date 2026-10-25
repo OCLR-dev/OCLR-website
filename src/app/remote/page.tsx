@@ -56,7 +56,7 @@ export default async function RemotePage() {
         <h2>{tr("Supported in this stage")}</h2>
         <p>
           {tr(
-            "Public tournament lists, overview, rules, complete players and saved profiles; scope-gated internal tournament configuration. Writes, messages, round ratings and other pages are not supported yet.",
+            "Public and historical pages, saved staff workspaces, your own applications and appointed captain views use remote saved data. Business commands and provider refreshes are disabled.",
           )}
         </p>
         <div className="actions">

@@ -1,14 +1,16 @@
-import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { editionState, editionRevisions, registrations } from "@/db/schema";
-import { getPublicEditions } from "./content";
+import { editionRevisions, editionState, registrations } from "@/db/schema";
+import { and, eq, sql } from "drizzle-orm";
 import { captainAppointment } from "./captains";
+import { getPublicEditions } from "./content";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import {
   canWithdraw,
-  registrationOperation,
   registrationAvailability,
+  registrationOperation,
 } from "./registrations";
-export async function playerApplications(userId: number) {
+async function databasePlayerApplications(userId: number) {
   const rows = await db()
     .select({
       registration: registrations,
@@ -65,6 +67,18 @@ export async function playerApplications(userId: number) {
     ),
   );
 }
+export async function playerApplications(
+  userId: number,
+): Promise<Awaited<ReturnType<typeof databasePlayerApplications>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(userId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databasePlayerApplications>>
+    >("playerApplications", {});
+  }
+  return databasePlayerApplications(userId);
+}
+
 export const statusCopy = {
   pending: "Your application is saved and awaiting staff review.",
   accepted:

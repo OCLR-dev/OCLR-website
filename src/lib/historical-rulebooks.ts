@@ -1,6 +1,6 @@
-import s9 from "@/content/s9-rulebook.json";
-import s10 from "@/content/s10-rulebook.json";
-import s8 from "@/content/s8-rulebook.json";
+import s9 from "@/content/s9-rulebook.json" with { type: "json" };
+import s10 from "@/content/s10-rulebook.json" with { type: "json" };
+import s8 from "@/content/s8-rulebook.json" with { type: "json" };
 import type { HistoricalArchive } from "./historical-archive";
 
 type HistoricalRulebook = {

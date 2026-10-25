@@ -69,7 +69,10 @@ export function projectPublicNews(
         Date.parse(a.publishedAt) <= now.getTime(),
     )
     .map((a) => ({
-      ...a,
+      slug: a.slug,
+      title: a.title,
+      summary: a.summary,
+      sections: a.sections,
       at: a.publishedAt!,
       timeZone: "UTC",
       kind: "announcement",

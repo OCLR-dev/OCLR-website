@@ -1,19 +1,20 @@
-import { publicRoundRatings } from "@/lib/ratings";
-import { RoundRatings } from "@/components/round-ratings";
 import { historicalPage } from "@/components/historical-archive";
+import { GroupStandings, PublicMatches } from "@/components/public-matches";
+import { RoundRatings } from "@/components/round-ratings";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { notFound } from "next/navigation";
 import { getPublicEdition } from "@/lib/content";
 import { publicCompetition } from "@/lib/public-competition";
+import { publicRoundRatings } from "@/lib/ratings";
+import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
-import { PageHeading } from "@/components/ui";
-import { PublicMatches, GroupStandings } from "@/components/public-matches";
+import { notFound } from "next/navigation";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Competition results") };
 }
 
-export default async function Results({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -43,4 +44,8 @@ export default async function Results({
       <GroupStandings groups={data?.groups ?? []} slug={slug} />
     </>
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

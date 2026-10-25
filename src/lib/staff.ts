@@ -1,64 +1,46 @@
+import { staffApplicationFilters } from "./read-api-queries";
+import { db } from "@/db";
+import {
+  editionRevisions,
+  editionState,
+  registrationAttempts,
+  registrationEvents,
+  registrations,
+  users,
+} from "@/db/schema";
 import {
   and,
   count,
   desc,
   eq,
+  exists,
   ilike,
-  or,
   inArray,
   ne,
+  or,
   sql,
-  exists,
 } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db";
-import {
-  editionState,
-  editionRevisions,
-  registrationEvents,
-  registrationAttempts,
-  registrations,
-  users,
-} from "@/db/schema";
+import { applicationAnswers } from "./application-answers";
 import type { User } from "./auth/sessions";
 import {
-  assertReadCapability,
   assertCapability,
+  assertReadCapability,
   capabilityScope,
   readCapabilityScope,
 } from "./auth/staff";
+import { remoteMode } from "./data-source";
+import type { EditionConfiguration } from "./editions";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import { cachedExportStatistics } from "./osu-profiles";
 import {
   assertRegistrationUnassigned,
   registrationOperation,
 } from "./registrations";
-import { applicationAnswers } from "./application-answers";
-import type { EditionConfiguration } from "./editions";
-import { cachedExportStatistics } from "./osu-profiles";
-const filterSchema = z
-  .object({
-    q: z.string().trim().max(100).default(""),
-    edition: z
-      .string()
-      .regex(/^[a-z0-9-]*$/)
-      .max(80)
-      .default(""),
-    status: z
-      .enum([
-        "active",
-        "",
-        "pending",
-        "deferred",
-        "accepted",
-        "rejected",
-        "withdrawn",
-      ])
-      .default("active"),
-    page: z.coerce.number().int().min(1).max(10000).default(1),
-  })
-  .strict();
+import { RemoteDataError } from "./remote-errors";
 export function parseFilters(input: unknown) {
-  const result = filterSchema.safeParse(input);
+  const result = staffApplicationFilters.safeParse(input);
   if (!result.success) throw new HttpError(400, "Invalid search or filter.");
   return result.data;
 }
@@ -93,7 +75,7 @@ const listFields = {
   createdAt: registrations.createdAt,
   updatedAt: registrations.updatedAt,
 };
-export async function listApplications(
+async function databaseListApplications(
   actor: User,
   input: unknown,
   exporting = false,
@@ -128,6 +110,21 @@ export async function listApplications(
     );
   return { rows, total: totals[0].count, filters };
 }
+export async function listApplications(
+  actor: User,
+  input: unknown,
+  exporting = false,
+): Promise<Awaited<ReturnType<typeof databaseListApplications>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    if (exporting) throw new RemoteDataError("REMOTE_FORBIDDEN", 403);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseListApplications>>
+    >("listApplications", { input });
+  }
+  return databaseListApplications(actor, input, exporting);
+}
+
 export async function exportApplications(actor: User, input: unknown) {
   const { rows } = await listApplications(actor, input, true);
   if (!rows.length) return [];
@@ -202,7 +199,7 @@ export async function exportApplications(actor: User, input: unknown) {
     };
   });
 }
-export async function applicationDetails(actor: User, id: string) {
+async function databaseApplicationDetails(actor: User, id: string) {
   await readCapabilityScope(actor, "manage_registrations");
   if (!z.uuid().safeParse(id).success)
     throw new HttpError(404, "Application not found.");
@@ -247,6 +244,19 @@ export async function applicationDetails(actor: User, id: string) {
     .orderBy(desc(registrationAttempts.attempt));
   return { ...row, attempts };
 }
+export async function applicationDetails(
+  actor: User,
+  id: string,
+): Promise<Awaited<ReturnType<typeof databaseApplicationDetails>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseApplicationDetails>>
+    >("applicationDetails", { id });
+  }
+  return databaseApplicationDetails(actor, id);
+}
+
 export async function reviewApplication(
   actor: User,
   id: string,

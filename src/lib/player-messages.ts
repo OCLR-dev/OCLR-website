@@ -1,15 +1,17 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
-  editionState,
   editionEvents,
+  editionState,
   playerMessages,
   registrations,
   users,
 } from "@/db/schema";
-import { assertBusinessWrite } from "./auth/staff";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { z } from "zod";
 import type { User } from "./auth/sessions";
+import { assertBusinessWrite } from "./auth/staff";
+import { remoteMode } from "./data-source";
+import { frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 
 export type PlayerMessage = {
@@ -30,7 +32,7 @@ const visible = (edition: string, playerId: number) =>
     eq(registrations.status, "accepted"),
     sql`${editionState.configuration}->>'published' = 'true'`,
   );
-export async function publicPlayerMessages(
+async function databasePublicPlayerMessages(
   edition: string,
   playerId: number,
 ): Promise<PlayerMessage[]> {
@@ -67,6 +69,18 @@ export async function publicPlayerMessages(
     createdAt: row.createdAt.toISOString(),
   }));
 }
+export async function publicPlayerMessages(
+  edition: string,
+  playerId: number,
+): Promise<Awaited<ReturnType<typeof databasePublicPlayerMessages>>> {
+  if (remoteMode()) {
+    return frontendResource<
+      Awaited<ReturnType<typeof databasePublicPlayerMessages>>
+    >("publicPlayerMessages", { edition, playerId });
+  }
+  return databasePublicPlayerMessages(edition, playerId);
+}
+
 export async function postPlayerMessage(
   actor: User,
   edition: string,

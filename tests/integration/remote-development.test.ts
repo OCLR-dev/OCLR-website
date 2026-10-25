@@ -1,3 +1,8 @@
+import { withFrontendReadRequest } from "../../src/lib/frontend-read-context";
+import {
+  readContractHeader,
+  readContractVersion,
+} from "../../src/lib/read-api-version";
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import {
@@ -10,7 +15,8 @@ import {
   it,
   vi,
 } from "vitest";
-import { remoteRead } from "../../src/lib/remote-transport";
+import { remoteRead, remoteMedia } from "../../src/lib/remote-transport";
+import { publicPlayer } from "../../src/lib/players";
 import {
   connectRemote,
   verifiedConnection,
@@ -18,6 +24,7 @@ import {
   remoteConnection,
 } from "../../src/lib/remote-sessions";
 import {
+  frontendConnection,
   frontendTournaments,
   frontendPlayers,
   frontendSite,
@@ -88,6 +95,8 @@ const seen: {
   origin?: string;
 }[] = [];
 const server = createServer((request, response) => {
+  if (mode !== "incompatible")
+    response.setHeader(readContractHeader, readContractVersion);
   const url = new URL(request.url!, "http://localhost");
   seen.push({
     path: url.pathname,
@@ -121,6 +130,27 @@ const server = createServer((request, response) => {
     send({ data: { token: "SECRET_SENTINEL" }, meta: { apiVersion: "1" } });
     return;
   }
+  if (
+    url.pathname.endsWith("/replays/12345678-1234-4234-8234-123456789abc/file")
+  ) {
+    response.writeHead(200, {
+      "Content-Type": "application/octet-stream",
+      "Content-Disposition": `attachment; filename="replay.osr"; filename*=UTF-8''${encodeURIComponent("測".repeat(176) + ".osr")}`,
+    });
+    response.end("synthetic-replay");
+    return;
+  }
+  if (url.pathname.startsWith("/api/v1/media/teams/")) {
+    response.writeHead(200, {
+      "Content-Type": mode === "wrong-media" ? "text/html" : "image/webp",
+    });
+    response.end(
+      mode === "large-media"
+        ? Buffer.alloc(1048577)
+        : Buffer.from("synthetic-webp"),
+    );
+    return;
+  }
   const token = request.headers.authorization?.replace("Bearer ", "");
   if (url.pathname === "/api/v1/me") {
     if (revoked || ![tokenA, tokenB].includes(token!)) {
@@ -144,7 +174,12 @@ const server = createServer((request, response) => {
     return;
   }
   let payload: { data: unknown; meta?: unknown };
-  if (url.pathname === "/api/v1/tournaments")
+  if (
+    url.pathname === "/api/v1/players/27001/participations" &&
+    url.searchParams.get("edition") === "test-cup"
+  )
+    payload = { data: [] };
+  else if (url.pathname === "/api/v1/tournaments")
     payload = collectionPage([summary], url.searchParams);
   else if (url.pathname.endsWith("/players")) {
     if (mode === "change" && url.searchParams.get("page") === "2" && !changed) {
@@ -213,6 +248,14 @@ afterEach(() => {
   vi.useRealTimers();
 });
 describe("remote frontend transport with no local DB", () => {
+  it("maps the public participation service's osuId and optional edition to its registered resource", async () => {
+    const session = await connectRemote({ mode: "developer", token: tokenA });
+    jar.set("oclr_remote_session", session.id);
+    expect(await publicPlayer(27001, "test-cup")).toEqual([]);
+    expect(
+      seen.some((r) => r.path === "/api/v1/players/27001/participations"),
+    ).toBe(true);
+  });
   it("binds independent browser sessions to real upstream identities, supports explicit anonymous mode and rechecks revocation", async () => {
     const a = await connectRemote({ mode: "developer", token: tokenA }),
       b = await connectRemote({ mode: "developer", token: tokenB });
@@ -276,6 +319,55 @@ describe("remote frontend transport with no local DB", () => {
     await expect(remoteRead("/site")).rejects.toMatchObject({
       code: "REMOTE_UNAVAILABLE",
     });
+  });
+  it("rejects incompatible backends and bounds binary transport without an arbitrary URL or content type", async () => {
+    mode = "incompatible";
+    await expect(remoteRead("/site")).rejects.toMatchObject({
+      code: "REMOTE_INCOMPATIBLE",
+    });
+    mode = "healthy";
+    const path = "/media/teams/12345678-1234-4234-8234-123456789abc/avatar";
+    const image = await remoteMedia(path, tokenA);
+    expect(image.headers.get("content-type")).toBe("image/webp");
+    expect(await image.text()).toBe("synthetic-webp");
+    const replay = await remoteMedia(
+      "/staff/tournaments/test-cup/mappool-entries/12345678-1234-4234-8234-123456789abc/replays/12345678-1234-4234-8234-123456789abc/file",
+      tokenA,
+    );
+    expect(replay.headers.get("content-disposition")).toContain(
+      encodeURIComponent("測".repeat(176) + ".osr"),
+    );
+    expect(await replay.text()).toBe("synthetic-replay");
+    mode = "wrong-media";
+    await expect(remoteMedia(path, tokenA)).rejects.toMatchObject({
+      code: "REMOTE_UNAVAILABLE",
+    });
+    mode = "large-media";
+    await expect(remoteMedia(path, tokenA)).rejects.toMatchObject({
+      code: "REMOTE_UNAVAILABLE",
+    });
+    await expect(
+      remoteMedia("https://outside.example/file", tokenA),
+    ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
+  });
+  it("deduplicates verification and reads only inside one BFF request, and revalidates the next request", async () => {
+    const session = await connectRemote({ mode: "developer", token: tokenA });
+    jar.set("oclr_remote_session", session.id);
+    seen.length = 0;
+    await withFrontendReadRequest(async () => {
+      await Promise.all([
+        frontendConnection(),
+        frontendConnection(),
+        frontendSite(),
+        frontendSite(),
+      ]);
+    });
+    expect(seen.filter((r) => r.path === "/api/v1/me")).toHaveLength(1);
+    expect(seen.filter((r) => r.path === "/api/v1/site")).toHaveLength(1);
+    revoked = true;
+    await expect(
+      withFrontendReadRequest(() => frontendConnection()),
+    ).rejects.toMatchObject({ code: "REMOTE_EXPIRED" });
   });
   it("bounds sessions, rotates connection IDs and expires memory access without persisting credentials", async () => {
     let session = await connectRemote({ mode: "anonymous" });

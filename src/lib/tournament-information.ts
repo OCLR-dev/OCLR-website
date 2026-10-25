@@ -1,3 +1,4 @@
+import { remoteMode } from "./data-source";
 export type TournamentInformation = {
   name: string;
   intro: string;
@@ -17,7 +18,12 @@ export type TournamentInformation = {
 };
 
 export function informationPreview(slug: string): TournamentInformation | null {
-  if (process.env.NODE_ENV === "production" || slug !== "dev-s11") return null;
+  if (
+    remoteMode() ||
+    process.env.NODE_ENV === "production" ||
+    slug !== "dev-s11"
+  )
+    return null;
   const base = `/tournaments/${slug}`;
   return {
     name: "OCLR S11",

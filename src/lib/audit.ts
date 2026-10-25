@@ -1,50 +1,12 @@
-import { sql, type SQL } from "drizzle-orm";
-import { z } from "zod";
+import { auditFilters } from "./read-api-queries";
+export { auditModules } from "./read-api-queries";
 import { db } from "@/db";
+import { sql, type SQL } from "drizzle-orm";
 import type { User } from "./auth/sessions";
 import { readCapabilityScope } from "./auth/staff";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
-export const auditModules = [
-  "site",
-  "tournament",
-  "registrations",
-  "captains",
-  "teams",
-  "draft",
-  "mappools",
-  "staff",
-  "fixtures",
-  "results",
-  "developer_api",
-] as const;
-const filtersSchema = z
-  .object({
-    edition: z
-      .string()
-      .regex(/^[a-z0-9-]*$/)
-      .max(80)
-      .default(""),
-    actor: z
-      .string()
-      .regex(/^(?:[1-9]\d*)?$/)
-      .refine((v) => !v || Number.isSafeInteger(Number(v)))
-      .default(""),
-    action: z
-      .string()
-      .trim()
-      .max(80)
-      .regex(/^[a-z0-9_ -]*$/)
-      .default(""),
-    module: z.enum(["", ...auditModules]).default(""),
-    from: z.union([z.literal(""), z.iso.date()]).default(""),
-    to: z.union([z.literal(""), z.iso.date()]).default(""),
-    page: z.coerce.number().int().min(1).max(10000).default(1),
-  })
-  .strict()
-  .refine(
-    (v) => !v.from || !v.to || v.from <= v.to,
-    "End date must follow start date",
-  );
 /** Bounded, redacted projection only. The original events remain untouched. */
 export function safeAuditDetails(value: unknown) {
   let remaining = 16000;
@@ -179,9 +141,9 @@ type AuditRow = {
   details: unknown;
   created_at: Date | string;
 };
-export async function auditLog(actor: User, input: unknown) {
+async function databaseAuditLog(actor: User, input: unknown) {
   const scopes = await readCapabilityScope(actor, "manage_staff");
-  const parsed = filtersSchema.safeParse(input);
+  const parsed = auditFilters.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Check the audit filters and UTC date range.");
   const filters = parsed.data;
@@ -235,4 +197,17 @@ export async function auditLog(actor: User, input: unknown) {
     },
     { isolationLevel: "repeatable read", accessMode: "read only" },
   );
+}
+export async function auditLog(
+  actor: User,
+  input: unknown,
+): Promise<Awaited<ReturnType<typeof databaseAuditLog>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseAuditLog>>>(
+      "auditLog",
+      { input },
+    );
+  }
+  return databaseAuditLog(actor, input);
 }

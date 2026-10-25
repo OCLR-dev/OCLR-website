@@ -49,8 +49,8 @@ Client interactions call the corresponding `/api/...` route, which reuses the sa
 
 Developer API authentication and local cross-origin reads are documented in
 [Developer API access](developer-api.md). #268 supplies token management, #269
-supplies the saved-data contract, and #270 adds the [remote core-page frontend](remote-development.md).
-Full-site coverage and overall acceptance remain in #271–#272.
+supplies the saved-data contract, and #270–#272 add the [full saved-read remote frontend](remote-development.md), coverage inventory and consolidated verification.
+Check the issues for commit-specific local results, actual CI and organizer review.
 
 `npm run check` runs ESLint, generated route types and TypeScript. `npm run build` creates the production build; `npm start` serves it on a conventional Node.js host. CI runs the same checks. No Vercel services are required.
 
@@ -80,19 +80,41 @@ Set `APP_URL`, `DATABASE_URL`, `OSU_CLIENT_ID`, `OSU_CLIENT_SECRET`, `PRIVACY_CO
 
 Run `npm run db:migrate` after pulling database changes and before starting the updated app. The Drizzle configuration uses Next.js environment loading, including `.env.local`; an explicitly exported `DATABASE_URL` takes precedence. CLI commands default to development environment files; set `NODE_ENV=production` when using production files. Migration `0017` adds `staff_roles.about_published`; missing it causes Staff Management queries to fail. Existing staff stay private after migration. Generate reviewed SQL changes with `npm run db:generate`, commit the migration and snapshots, then apply migrations before deploying application code. Use separate databases and OAuth apps for staging/production, an explicit PostgreSQL transport choice from the deployment guide and HTTPS on the canonical origin. Session cookies are HTTP-only, SameSite=Lax, host-only, and Secure with `__Host-` names on HTTPS. Raw 256-bit session tokens never enter the database; only SHA-256 hashes do. Sessions expire after seven days; logout revokes the current session. OAuth state is one-use, browser-bound and expires after ten minutes. Reverse proxies must redact callback query strings and never log Authorization or Cookie headers.
 
-Database-backed tests require **an isolated database whose name contains `test`**, passed explicitly as `TEST_DATABASE_URL`. Apply migrations there first, then run `TEST_DATABASE_URL=... npm test`. Migration-upgrade tests create and drop isolated temporary databases, so the test role needs `CREATEDB`; never use a production/runtime role. Provider HTTP responses are mocked only inside test files; callbacks, state consumption and sessions use real PostgreSQL. Live osu! consent/token exchange requires organizer-owned credentials and remains unverified until staging login/logout with two real accounts is performed.
+Database-backed tests require **an isolated database whose name contains `test`**, passed explicitly as `TEST_DATABASE_URL`. Apply migrations there first, then run `TEST_DATABASE_URL=... npm test`. Migration-upgrade tests create and drop isolated temporary databases, so the test role needs `CREATEDB`; never use a production/runtime role. Provider HTTP responses are mocked only inside test files; callbacks, state consumption and sessions use real PostgreSQL. These synthetic tests do not establish live osu! consent/token exchange. The organizer separately confirmed the live OAuth and multi-account rehearsal under #10 on 2026-10-23; preserve that attested evidence without treating it as a test performed by this development session.
 
-The versioned saved-data API is documented in [read-api.md](read-api.md), with
-[credential/origin setup](developer-api.md) and a generated
-[OpenAPI document](read-api.openapi.json). Stage #269 supplies shared backend
-read contracts; #270 adds remote core-page development. Full-site coverage and
-overall DB-free acceptance remain in #271–#272.
+## Remote frontend without a local database
 
-For the stage #270 core-page remote frontend mode, see
-[remote-development.md](remote-development.md). It uses `next dev`, a separate
-backend origin and an in-memory Developer connection or explicit anonymous mode;
-it needs no local database, migration, seed or OAuth secret. The coverage table
-identifies remaining #271–#272 work. Production entry points reject this mode.
+For the full agreed saved-read frontend, follow [remote development](remote-development.md):
+
+```sh
+npm ci
+export APP_URL=http://127.0.0.1:3000
+export OCLR_DATA_SOURCE=remote
+export OCLR_API_BASE_URL=https://YOUR_OCLR_BACKEND
+npm run dev -- --hostname 127.0.0.1
+```
+
+A fresh frontend checkout needs no environment file, PostgreSQL, migration, seed,
+local OAuth secret or upload directory. An operator separately supplies a backend
+with read contract 1.1.0+ within v1, saved data, allowed exact local origin and an
+explicit Developer grant when private reads are needed. Connect at `/remote` with
+short-lived access, or explicitly select anonymous public reads. Preserve an
+existing checkout's local environment files and services.
+
+The [coverage inventory](remote-coverage.json) includes public/historical pages,
+staff workspaces, the actual subject's dashboard/registration/team/Captain views,
+OBS/presenter reads, protected media and polling. Existing appointment/publication
+boundaries remain enforced. Business commands, provider refreshes and uploads are
+disabled. Preferences and local connection management remain available.
+
+Use [read API](read-api.md), [OpenAPI](read-api.openapi.json) and
+[credential/origin setup](developer-api.md) for direct browser Bearer or existing
+Next SSR/BFF integration. This remote mode is separate from the local synthetic
+database workflow above, which remains available for command development. The
+isolated full-site acceptance harness requires its own disposable backend DB;
+it is not a frontend developer prerequisite. Commit-specific results and current
+CI are recorded on #271/#272; real grants/OAuth/deployment and Chinese wording
+acceptance remain distinct organizer-owned evidence.
 
 ## CI browser isolation and execution time
 

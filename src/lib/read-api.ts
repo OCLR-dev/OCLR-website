@@ -1,36 +1,29 @@
+import { collectionQuery, readQuerySchema } from "./read-api-queries";
 import { createHash } from "node:crypto";
 import { z } from "zod";
-import { editionSchema } from "./editions";
-import { profileMode } from "./osu-profile-model";
 import { DeveloperApiError } from "./developer-api";
 import {
-  readDataResponse,
   missingDeveloperResource,
+  readDataResponse,
 } from "./developer-api-http";
-import { readApiSpecification } from "./read-api-openapi";
-import { readOperations, readSchemas } from "./read-api-operations";
+import { editionSchema } from "./editions";
+import { extendedRead } from "./extended-read";
+import { extendedResources } from "./extended-read-resources";
+import { profileMode } from "./osu-profile-model";
 import {
+  privateTournamentListModel,
+  privateTournamentModel,
+  publicPlayerDirectoryModel,
+  publicPlayerProfileModel,
   publicSiteModel,
   publicTournamentListModel,
   publicTournamentModel,
-  publicPlayerDirectoryModel,
-  publicPlayerProfileModel,
-  privateTournamentListModel,
-  privateTournamentModel,
   savedProfileModel,
 } from "./public-read-models";
 import type { ReadPayload } from "./read-api-contract";
-const collectionQuery = z
-  .object({
-    q: z.string().trim().max(100).default(""),
-    page: z.coerce.number().int().min(1).max(10000).default(1),
-    pageSize: z.coerce.number().int().min(1).max(100).default(50),
-    version: z
-      .string()
-      .regex(/^[a-f0-9]{64}$/)
-      .optional(),
-  })
-  .strict();
+import { readApiSpecification } from "./read-api-openapi";
+import { readOperations, readSchemas } from "./read-api-operations";
+import { readMedia } from "./read-media";
 export function collectionPage<T>(
   items: T[],
   params: URLSearchParams,
@@ -157,6 +150,73 @@ export function readApiRoute(request: Request) {
     request,
     operation.scope,
     async (principal, query): Promise<ReadPayload<unknown>> => {
+      if (
+        operation.additionalScopes?.some(
+          (scope) => !principal?.scopes.includes(scope),
+        )
+      )
+        throw new DeveloperApiError(
+          403,
+          "INSUFFICIENT_SCOPE",
+          "This token does not include the required read scope.",
+        );
+      if (
+        !readQuerySchema(operation.id, operation.query).safeParse(
+          Object.fromEntries(query),
+        ).success
+      )
+        throw new DeveloperApiError(
+          400,
+          "INVALID_REQUEST",
+          "Choose valid API query parameters.",
+        );
+      if (operation.binary) {
+        for (const key of ["id", "replayId"])
+          if (params[key] && !z.uuid().safeParse(params[key]).success)
+            throw new DeveloperApiError(
+              400,
+              "INVALID_REQUEST",
+              "Choose a valid resource ID.",
+            );
+        if (params.edition) edition(params.edition);
+        return { data: await readMedia(operation.id, params, principal) };
+      }
+      if (extendedResources.some((r) => r.id === operation.id)) {
+        if (params.edition) edition(params.edition);
+        for (const key of ["id", "replayId"])
+          if (params[key] && !z.uuid().safeParse(params[key]).success)
+            throw new DeveloperApiError(
+              400,
+              "INVALID_REQUEST",
+              "Choose a valid resource ID.",
+            );
+        if (params.osuId) osuId(params.osuId);
+        if (query.has("mode")) mode(query);
+        if (
+          query.has("locale") &&
+          !["en", "zh-Hans", "zh-Hant"].includes(query.get("locale")!)
+        )
+          throw new DeveloperApiError(
+            400,
+            "INVALID_REQUEST",
+            "Choose a supported interface locale.",
+          );
+        for (const key of ["poolId", "fixtureId"]) {
+          const value = query.get(key);
+          const valid =
+            key === "fixtureId" && operation.id === "statisticsWorkspace"
+              ? /^[a-z0-9][a-z0-9-]{0,79}$/.test(value ?? "")
+              : z.uuid().safeParse(value).success;
+          if (value && !valid)
+            throw new DeveloperApiError(
+              400,
+              "INVALID_REQUEST",
+              "Choose a valid resource ID.",
+            );
+        }
+        const data = await extendedRead(operation.id, params, query, principal);
+        return { data: JSON.parse(JSON.stringify(data ?? null)) };
+      }
       switch (operation.id) {
         case "getApiIdentity":
           return {
@@ -229,9 +289,17 @@ export function readApiRoute(request: Request) {
     {
       anonymous: operation.public,
       query: operation.query,
-      schema: readSchemas[operation.schema],
+      schema: operation.binary ? undefined : readSchemas[operation.schema],
+      binary: operation.binary,
       database: operation.id !== "getApiIdentity",
-      maxBytes: operation.id === "getApiIdentity" ? 262144 : 2097152,
+      maxBytes:
+        operation.id === "getTeamAvatar"
+          ? 1048576
+          : operation.binary
+            ? 8388608
+            : operation.id === "getApiIdentity"
+              ? 262144
+              : 2097152,
     },
   );
 }

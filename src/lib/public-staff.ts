@@ -1,7 +1,9 @@
-import { and, eq, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { editionState, staffRoles, users, userProfileCache } from "@/db/schema";
-export async function publicStaff() {
+import { editionState, staffRoles, userProfileCache, users } from "@/db/schema";
+import { and, eq, isNull, or, sql } from "drizzle-orm";
+import { remoteMode } from "./data-source";
+import { frontendResource } from "./frontend-resource";
+async function databasePublicStaff() {
   if (!process.env.DATABASE_URL) return [];
   const rows = await db()
     .select({
@@ -62,4 +64,15 @@ export async function publicStaff() {
     people.set(row.osuId, person);
   }
   return [...people.values()];
+}
+export async function publicStaff(): Promise<
+  Awaited<ReturnType<typeof databasePublicStaff>>
+> {
+  if (remoteMode()) {
+    return frontendResource<Awaited<ReturnType<typeof databasePublicStaff>>>(
+      "publicStaff",
+      {},
+    );
+  }
+  return databasePublicStaff();
 }

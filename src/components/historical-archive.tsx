@@ -1,41 +1,38 @@
-import { remoteMode } from "@/lib/data-source";
-import { frontendTournament, frontendPlayers } from "@/lib/frontend-data";
-import { RemoteArchiveCore } from "./remote-archive-core";
-import { RemoteDataError } from "@/lib/remote-errors";
-import { archiveStaff } from "@/lib/archive-staff";
-import { archiveArtworkSetIds } from "@/lib/archive-artwork";
-import { deriveS8Standings } from "@/lib/s8-standings";
-import Link from "next/link";
-import Image from "next/image";
-import { notFound, redirect } from "next/navigation";
-import { ArchivePlayerSearch } from "./archive-player-search";
-import { ArchiveMappools } from "./archive-mappools";
-import { Avatar } from "./avatar";
-import { EventSchedule } from "./event-schedule";
-import { archiveEventMatches } from "@/lib/archive-event-matches";
-import { ArchiveCompetition } from "./archive-competition";
-import { archiveBracket } from "@/lib/archive-bracket";
 import { getAppTranslations } from "@/i18n/server";
-import {
-  publicEditionContext,
-  historicalTournamentOverview,
-  historicalPlayerModel,
-} from "@/lib/public-read-models";
-import type { PublicPlayer } from "@/lib/read-api-contract";
-import { HttpError } from "@/lib/http";
+import { archiveArtworkSetIds } from "@/lib/archive-artwork";
+import { archiveBracket } from "@/lib/archive-bracket";
+import { archiveEventMatches } from "@/lib/archive-event-matches";
+import { archiveStaff } from "@/lib/archive-staff";
+import { remoteMode } from "@/lib/data-source";
 import { formatDate, type Edition } from "@/lib/editions";
 import {
   archiveWinner,
   recordedArchiveMatch,
   type HistoricalArchive,
 } from "@/lib/historical-archive";
-import { PageHeading, Badge } from "./ui";
-import { RulesHandbook } from "./rules-handbook";
-import { RulesSection } from "./rules-section";
 import {
   historicalRulebook,
   historicalRulebookSeason,
 } from "@/lib/historical-rulebooks";
+import { HttpError } from "@/lib/http";
+import {
+  historicalPlayerModel,
+  historicalTournamentOverview,
+  publicEditionContext,
+} from "@/lib/public-read-models";
+import type { PublicPlayer } from "@/lib/read-api-contract";
+import { deriveS8Standings } from "@/lib/s8-standings";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { ArchiveCompetition } from "./archive-competition";
+import { ArchiveMappools } from "./archive-mappools";
+import { ArchivePlayerSearch } from "./archive-player-search";
+import { Avatar } from "./avatar";
+import { EventSchedule } from "./event-schedule";
+import { RulesHandbook } from "./rules-handbook";
+import { RulesSection } from "./rules-section";
+import { Badge, PageHeading } from "./ui";
 
 export type ArchiveSection =
   | "overview"
@@ -58,26 +55,12 @@ export async function historicalPage(
   section: Exclude<ArchiveSection, "rules">,
   id?: string,
 ) {
-  if (remoteMode()) {
-    const edition = await frontendTournament(slug);
-    if (edition.overview.kind !== "historical_archive") return null;
-    if (!["overview", "players", "player"].includes(section))
-      throw new RemoteDataError("REMOTE_UNSUPPORTED", 501);
-    const players = ["players", "player"].includes(section)
-      ? (await frontendPlayers(slug)).rows
-      : [];
-    return (
-      <RemoteArchiveCore
-        edition={edition}
-        players={players}
-        section={section as "overview" | "players" | "player"}
-        id={id}
-      />
-    );
-  }
   let edition: Edition;
   try {
-    edition = (await publicEditionContext(slug)).edition;
+    edition = remoteMode()
+      ? (await (await import("@/lib/content")).getPublicEdition(slug))!
+      : (await publicEditionContext(slug)).edition;
+    if (!edition) notFound();
   } catch (error) {
     if (error instanceof HttpError && error.status === 404) notFound();
     throw error;

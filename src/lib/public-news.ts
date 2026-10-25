@@ -1,14 +1,16 @@
-import { english, type AppTranslator } from "@/i18n/translate";
-import { formatDate } from "./editions";
-import { cache } from "react";
-import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { mappools, tournamentRounds } from "@/db/schema";
-import { readTournaments } from "./tournaments";
+import { english, type AppTranslator } from "@/i18n/translate";
+import { and, eq, inArray, isNotNull } from "drizzle-orm";
+import { cache } from "react";
 import { getAnnouncements } from "./announcements";
 import { privacyReady } from "./auth/config";
+import { remoteMode } from "./data-source";
+import { formatDate } from "./editions";
+import { frontendResource } from "./frontend-resource";
 import { publicCompetition } from "./public-competition";
 import { projectPublicNews, type OfficialNewsEvent } from "./public-news-model";
+import { readTournaments } from "./tournaments";
 async function loadNews(now: Date, tr: AppTranslator) {
   const editions = await readTournaments(true);
   const events: OfficialNewsEvent[] = [];
@@ -47,12 +49,15 @@ async function loadNews(now: Date, tr: AppTranslator) {
       })),
     );
     // Reuse the existing privacy/progression projection; never publish imported or unapproved scores.
-    const competitions = await Promise.all(
-      editions.map(async ({ edition }) => ({
+    const competitions: {
+      slug: string;
+      data: Awaited<ReturnType<typeof publicCompetition>>;
+    }[] = [];
+    for (const { edition } of editions)
+      competitions.push({
         slug: edition.slug,
         data: await publicCompetition(edition.slug),
-      })),
-    );
+      });
     for (const { slug, data } of competitions)
       for (const f of data?.fixtures ?? []) {
         events.push({
@@ -112,6 +117,11 @@ async function loadNews(now: Date, tr: AppTranslator) {
 // Request-scoped memoization only: fresh requests reflect time windows, retractions and corrections.
 const requestNews = cache((tr: AppTranslator) => loadNews(new Date(), tr));
 export function publicNewsContext(now?: Date, tr: AppTranslator = english) {
+  if (remoteMode())
+    return frontendResource<Awaited<ReturnType<typeof loadNews>>>(
+      "publicNewsModel",
+      { locale: tr.locale.startsWith("en") ? "en" : tr.locale },
+    );
   return now ? loadNews(now, tr) : requestNews(tr);
 }
 export async function publicNews(now?: Date, tr: AppTranslator = english) {

@@ -1,17 +1,21 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { db } from "@/db";
+import { captains, teams } from "@/db/schema";
+import { assertReadCapability } from "@/lib/auth/staff";
+import { currentUser } from "@/lib/auth/user";
+import { getPublicEdition } from "@/lib/content";
+import { remoteMode } from "@/lib/data-source";
+import { frontendMedia } from "@/lib/frontend-media";
+import { readTeamImage } from "@/lib/team-media";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db";
-import { teams, captains } from "@/db/schema";
-import { getPublicEdition } from "@/lib/content";
-import { currentUser } from "@/lib/auth/user";
-import { assertReadCapability } from "@/lib/auth/staff";
-import { readTeamImage } from "@/lib/team-media";
-export async function GET(
+async function readGET(
   _request: Request,
   context: { params: Promise<{ teamId: string }> },
 ) {
   try {
     const { teamId } = await context.params;
+    if (remoteMode()) return frontendMedia(`/media/teams/${teamId}/avatar`);
     if (!z.uuid().safeParse(teamId).success)
       return new Response(null, { status: 404 });
     const [row] = await db()
@@ -52,4 +56,8 @@ export async function GET(
       headers: { "Cache-Control": "no-store" },
     });
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

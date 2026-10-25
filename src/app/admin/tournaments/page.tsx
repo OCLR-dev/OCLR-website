@@ -1,18 +1,17 @@
-import { remoteMode } from "@/lib/data-source";
-import { RemoteStaffTournaments } from "@/components/remote-staff-tournaments";
+import { Action, EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
-import { tournamentList } from "@/lib/tournaments";
 import { formatDate } from "@/lib/editions";
-import { PageHeading, EmptyState, Action } from "@/components/ui";
+import { remotePage } from "@/lib/remote-page";
+import { tournamentList } from "@/lib/tournaments";
+import Link from "next/link";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Tournament management") };
 }
 
-export default async function Tournaments({
+async function Issue271Page({
   searchParams,
 }: {
   searchParams: Promise<{
@@ -20,7 +19,6 @@ export default async function Tournaments({
     visibility?: string | string[];
   }>;
 }) {
-  if (remoteMode()) return <RemoteStaffTournaments />;
   const tr = await getAppTranslations();
 
   return authorizedPage(async () => {
@@ -133,4 +131,8 @@ export default async function Tournaments({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

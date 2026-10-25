@@ -1,16 +1,17 @@
 import { historicalPage } from "@/components/historical-archive";
+import { MappoolBrowser } from "@/components/mappool-browser";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
+import { publicMappools } from "@/lib/mappools";
+import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { publicMappools } from "@/lib/mappools";
-import { PageHeading } from "@/components/ui";
-import { MappoolBrowser } from "@/components/mappool-browser";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Mappool") };
 }
 
-export default async function PoolPage({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string; poolId: string }>;
@@ -37,4 +38,8 @@ export default async function PoolPage({
       <MappoolBrowser slug={edition} pool={pool} />
     </>
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

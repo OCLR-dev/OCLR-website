@@ -3,16 +3,17 @@ import {
   developerApiScopes,
   type DeveloperApiScope,
 } from "./developer-api-model";
+import { extendedResources, extendedSchemas } from "./extended-read-resources";
 import {
-  siteSchema,
-  publicTournamentSchema,
-  publicTournamentSummarySchema,
+  paginationSchema,
   privateTournamentSchema,
   privateTournamentSummarySchema,
-  publicPlayerSchema,
   publicPlayerProfileSchema,
+  publicPlayerSchema,
+  publicTournamentSchema,
+  publicTournamentSummarySchema,
   savedProfileSchema,
-  paginationSchema,
+  siteSchema,
 } from "./read-api-contract";
 export const apiIdentitySchema = z
   .object({
@@ -28,7 +29,8 @@ export const apiIdentitySchema = z
       .strict(),
   })
   .strict();
-export const readSchemas = {
+export const readSchemas: Record<string, z.ZodType> = {
+  ...extendedSchemas,
   Site: siteSchema,
   PublicTournament: publicTournamentSchema,
   PublicTournamentSummary: publicTournamentSummarySchema,
@@ -51,9 +53,56 @@ export type ReadOperation = {
   query: readonly string[];
   issues: number[];
   description: string;
+  binary?: boolean;
+  additionalScopes?: readonly DeveloperApiScope[];
 };
 const collection = ["q", "page", "pageSize", "version"] as const;
 export const readOperations: readonly ReadOperation[] = [
+  {
+    id: "getTeamAvatar",
+    path: "/media/teams/{id}/avatar",
+    schema: "Site",
+    public: true,
+    scope: "tournaments:read",
+    query: [],
+    issues: [269, 271, 272],
+    description:
+      "Bounded WebP; unpublished identities additionally require private scope and live staff read authorization.",
+    binary: true,
+  },
+  {
+    id: "downloadReplay",
+    path: "/staff/tournaments/{edition}/mappool-entries/{id}/replays/{replayId}/file",
+    schema: "Site",
+    public: false,
+    scope: "tournaments:private:read",
+    query: [],
+    issues: [269, 271, 272],
+    description:
+      "Authorized saved replay download, at most 8 MiB; no storage path or provider proxy.",
+    binary: true,
+  },
+  ...extendedResources.map((resource) => ({
+    id: resource.id,
+    path: resource.path,
+    schema: resource.id,
+    public: resource.public,
+    scope: resource.scope as DeveloperApiScope,
+    additionalScopes:
+      "additionalScopes" in resource
+        ? (resource.additionalScopes as DeveloperApiScope[])
+        : [],
+    query: resource.query,
+    issues: [
+      269,
+      271,
+      272,
+      186,
+      ...("issues" in resource ? (resource.issues as number[]) : []),
+    ],
+    description:
+      "Saved-only domain projection for the existing site. Subject-bound resources use the actual token identity; no initialization, provider request or mutation.",
+  })),
   {
     id: "getApiIdentity",
     path: "/me",

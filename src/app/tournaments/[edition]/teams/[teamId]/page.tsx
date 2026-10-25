@@ -1,12 +1,13 @@
 import { historicalPage } from "@/components/historical-archive";
-import { TeamAvatar } from "@/components/team-avatar";
-import { getAppTranslations } from "@/i18n/server";
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { publishedTeams } from "@/lib/teams";
-import { PageHeading, EmptyState } from "@/components/ui";
 import { PublicPlayerIdentity } from "@/components/public-player-identity";
-export default async function Team({
+import { TeamAvatar } from "@/components/team-avatar";
+import { EmptyState, PageHeading } from "@/components/ui";
+import { getAppTranslations } from "@/i18n/server";
+import { remotePage } from "@/lib/remote-page";
+import { publishedTeams } from "@/lib/teams";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string; teamId: string }>;
@@ -61,4 +62,8 @@ export default async function Team({
       )}
     </>
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

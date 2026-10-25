@@ -1,10 +1,12 @@
+import { db } from "@/db";
+import { siteSettingEvents, siteSettings } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { cache } from "react";
 import { z } from "zod";
-import { db } from "@/db";
-import { siteSettings, siteSettingEvents } from "@/db/schema";
-import { assertReadCapability, assertCapability } from "./auth/staff";
 import type { User } from "./auth/sessions";
+import { assertCapability, assertReadCapability } from "./auth/staff";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 import { appearances, readAppearance } from "./preferences";
 
@@ -37,10 +39,21 @@ export const defaultSiteAppearance = cache(async () => {
   }
 });
 
-export async function siteSettingsForAdmin(actor: User) {
+async function databaseSiteSettingsForAdmin(actor: User) {
   // No edition argument deliberately requires a global Admin grant.
   await assertReadCapability(actor, "configure_tournament");
   return readSiteSettings();
+}
+export async function siteSettingsForAdmin(
+  actor: User,
+): Promise<Awaited<ReturnType<typeof databaseSiteSettingsForAdmin>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseSiteSettingsForAdmin>>
+    >("siteSettingsForAdmin", {});
+  }
+  return databaseSiteSettingsForAdmin(actor);
 }
 
 export async function updateSiteSettings(actor: User, input: unknown) {

@@ -6,9 +6,14 @@ import base from "./playwright.config";
 const server = Array.isArray(base.webServer)
   ? base.webServer[0]
   : base.webServer;
-const attempts = join(tmpdir(), `oclr-remote-no-local-db-${process.pid}.log`);
+const inheritedAttempts = process.env.OCLR_TEST_NO_DB_ATTEMPTS;
+const attempts =
+  inheritedAttempts ??
+  join(tmpdir(), `oclr-remote-no-local-db-${process.pid}.log`);
 process.env.OCLR_TEST_NO_DB_ATTEMPTS = attempts;
-writeFileSync(attempts, "");
+// Workers inherit the server's actual monitor file; never replace/truncate it
+// while loading the config in a different process.
+if (!inheritedAttempts) writeFileSync(attempts, "");
 export default defineConfig({
   testDir: "./tests/remote-e2e",
   globalSetup: "./tests/e2e/setup.ts",
@@ -55,6 +60,7 @@ export default defineConfig({
         APP_URL: "http://127.0.0.1:31470",
         DATABASE_URL: "",
         TEST_DATABASE_URL: "",
+        OCLR_MEDIA_DIR: "",
         OSU_CLIENT_ID: "",
         OSU_CLIENT_SECRET: "",
         PRIVACY_CONTACT_OSU_ID: "",

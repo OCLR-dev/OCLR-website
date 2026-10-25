@@ -1,16 +1,16 @@
-import { publicRoundRatings } from "@/lib/ratings";
+import { PlayerProfile } from "@/components/player-profile";
 import { RoundRatings } from "@/components/round-ratings";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
 import { remoteMode } from "@/lib/data-source";
 import { frontendProfile } from "@/lib/frontend-data";
+import { publicRoundRatings } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";
-import { PageHeading } from "@/components/ui";
-import { PlayerProfile } from "@/components/player-profile";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 
-import { modeNames, profileModes } from "@/lib/osu-profile-model";
 import { HttpError } from "@/lib/http";
+import { modeNames, profileModes } from "@/lib/osu-profile-model";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Player profile") };
@@ -54,7 +54,7 @@ async function ProfileContent({
   )
     redirect(`/tournaments/${first.editionSlug}/players/${first.osuId}`);
   const ratingHistory =
-    !remoteMode() && typeof query.edition === "string"
+    typeof query.edition === "string"
       ? (await publicRoundRatings(query.edition))
           .filter((r) =>
             r.report.players.some((p) => p.userId === Number(osuId)),
@@ -130,14 +130,7 @@ async function ProfileContent({
           {tr(" Published OCLR participation is shown below.")}
         </p>
       )}
-      {remoteMode() && (
-        <p className="notice">
-          {tr(
-            "Round rating history is not supported in remote development yet.",
-          )}
-        </p>
-      )}
-      {!remoteMode() && typeof query.edition === "string" && (
+      {typeof query.edition === "string" && (
         <RoundRatings data={ratingHistory} slug={query.edition} />
       )}
       <section className="spaced" aria-labelledby="participation">

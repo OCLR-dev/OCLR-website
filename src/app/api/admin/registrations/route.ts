@@ -1,8 +1,9 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff";
 import { listApplications } from "@/lib/staff";
 import { apiError } from "@/lib/http";
-export async function GET(request: NextRequest) {
+async function readGET(request: NextRequest) {
   try {
     return NextResponse.json(
       await listApplications(
@@ -14,4 +15,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

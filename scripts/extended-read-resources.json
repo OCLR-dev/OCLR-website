@@ -1,0 +1,517 @@
+[
+  {
+    "module": "public-staff",
+    "fn": "publicStaff",
+    "id": "publicStaff",
+    "path": "/site/staff",
+    "args": [],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "public-competition",
+    "fn": "publicCompetition",
+    "id": "publicCompetition",
+    "path": "/tournaments/{edition}/competition",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "brackets",
+    "fn": "publicBracket",
+    "id": "publicBracket",
+    "path": "/tournaments/{edition}/bracket",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "mappools",
+    "fn": "publicMappools",
+    "id": "publicMappools",
+    "path": "/tournaments/{edition}/mappools",
+    "args": ["slug", "poolId"],
+    "public": true,
+    "query": ["poolId"],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "teams",
+    "fn": "publishedTeams",
+    "id": "publishedTeams",
+    "path": "/tournaments/{edition}/teams",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "captains",
+    "fn": "publicCaptains",
+    "id": "publicCaptains",
+    "path": "/tournaments/{edition}/captains",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "draft",
+    "fn": "publicDraft",
+    "id": "publicDraft",
+    "path": "/tournaments/{edition}/draft",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "broadcast",
+    "fn": "publicBroadcastDraft",
+    "id": "publicBroadcastDraft",
+    "path": "/tournaments/{edition}/draft/broadcast",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "ratings",
+    "fn": "publicRoundRatings",
+    "id": "publicRoundRatings",
+    "path": "/tournaments/{edition}/ratings",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "awards",
+    "fn": "publicAwards",
+    "id": "publicAwards",
+    "path": "/tournaments/{edition}/awards",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "archive-statistics",
+    "fn": "publicArchiveStatistics",
+    "id": "publicArchiveStatistics",
+    "path": "/tournaments/{edition}/statistics",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "public-competition",
+    "fn": "publicFixture",
+    "id": "publicFixture",
+    "path": "/tournaments/{edition}/matches/{id}",
+    "args": ["slug", "id"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "ratings",
+    "fn": "publicMatchRating",
+    "id": "publicMatchRating",
+    "path": "/tournaments/{edition}/matches/{id}/ratings",
+    "args": ["slug", "fixtureId"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "player-messages",
+    "fn": "publicPlayerMessages",
+    "id": "publicPlayerMessages",
+    "path": "/tournaments/{edition}/players/{osuId}/messages",
+    "args": ["edition", "playerId"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "tournaments",
+    "fn": "tournamentForAdmin",
+    "id": "tournamentForAdmin",
+    "path": "/staff/tournaments/{edition}/workspace",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "captains",
+    "fn": "captainSetup",
+    "id": "captainSetup",
+    "path": "/staff/tournaments/{edition}/captains",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "teams",
+    "fn": "staffTeams",
+    "id": "staffTeams",
+    "path": "/staff/tournaments/{edition}/teams",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "draft",
+    "fn": "staffDraft",
+    "id": "staffDraft",
+    "path": "/staff/tournaments/{edition}/draft",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "mappools",
+    "fn": "mappoolWorkspace",
+    "id": "mappoolWorkspace",
+    "path": "/staff/tournaments/{edition}/mappools",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "fixtures",
+    "fn": "staffFixtures",
+    "id": "staffFixtures",
+    "path": "/staff/tournaments/{edition}/fixtures",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "awards",
+    "fn": "awardWorkspace",
+    "id": "awardWorkspace",
+    "path": "/staff/tournaments/{edition}/awards",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "archive-statistics",
+    "fn": "statisticsWorkspace",
+    "id": "statisticsWorkspace",
+    "path": "/staff/tournaments/{edition}/statistics",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": ["fixtureId"],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "streaming",
+    "fn": "streamingWorkspace",
+    "id": "streamingWorkspace",
+    "path": "/staff/tournaments/{edition}/streaming",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": ["date", "round", "view", "fixtureId"],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "ratings",
+    "fn": "matchRatingWorkspace",
+    "id": "matchRatingWorkspace",
+    "path": "/staff/tournaments/{edition}/matches/{id}/ratings",
+    "args": ["actor", "slug", "fixtureId"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "results",
+    "fn": "matchReview",
+    "id": "matchReview",
+    "path": "/staff/tournaments/{edition}/matches/{id}/review",
+    "args": ["actor", "slug", "fixtureId"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "mappool-replays",
+    "fn": "replayList",
+    "id": "replayList",
+    "path": "/staff/tournaments/{edition}/mappool-entries/{id}/replays",
+    "args": ["actor", "slug", "entryId"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "tournaments",
+    "fn": "tournamentList",
+    "id": "tournamentList",
+    "path": "/staff/tournament-workspace",
+    "args": ["actor"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "staff-roles",
+    "fn": "listStaffRoles",
+    "id": "listStaffRoles",
+    "path": "/staff/roles",
+    "args": ["actor"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "site-settings",
+    "fn": "siteSettingsForAdmin",
+    "id": "siteSettingsForAdmin",
+    "path": "/staff/site-settings",
+    "args": ["actor"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "staff",
+    "fn": "listApplications",
+    "id": "listApplications",
+    "path": "/staff/registrations",
+    "args": ["actor", "input"],
+    "public": false,
+    "query": ["q", "edition", "status", "page"],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "staff",
+    "fn": "applicationDetails",
+    "id": "applicationDetails",
+    "path": "/staff/registrations/{id}",
+    "args": ["actor", "id"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "audit",
+    "fn": "auditLog",
+    "id": "auditLog",
+    "path": "/staff/audit",
+    "args": ["actor", "input"],
+    "public": false,
+    "query": ["edition", "module", "actor", "action", "from", "to", "page"],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "auth/staff",
+    "fn": "staffAccess",
+    "id": "staffAccess",
+    "path": "/me/staff-access",
+    "args": ["user"],
+    "public": false,
+    "query": [],
+    "scope": "identity:read"
+  },
+  {
+    "module": "dashboard",
+    "fn": "playerApplications",
+    "id": "playerApplications",
+    "path": "/me/applications",
+    "args": ["userId"],
+    "public": false,
+    "query": [],
+    "scope": "identity:read"
+  },
+  {
+    "module": "registrations",
+    "fn": "ownRegistrations",
+    "id": "ownRegistrations",
+    "path": "/me/registrations",
+    "args": ["userId"],
+    "public": false,
+    "query": [],
+    "scope": "identity:read"
+  },
+  {
+    "module": "teams",
+    "fn": "ownTeam",
+    "id": "ownTeam",
+    "path": "/me/tournaments/{edition}/team",
+    "args": ["userId", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "identity:read"
+  },
+  {
+    "module": "captains",
+    "fn": "captainAppointment",
+    "id": "captainAppointment",
+    "path": "/me/tournaments/{edition}/captain",
+    "args": ["userId", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "identity:read"
+  },
+  {
+    "module": "draft",
+    "fn": "captainDraft",
+    "id": "captainDraft",
+    "path": "/me/tournaments/{edition}/draft",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "identity:read"
+  },
+  {
+    "module": "frontend-read-models",
+    "fn": "publicEnrollment",
+    "id": "publicEnrollment",
+    "path": "/tournaments/{edition}/configuration",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read",
+    "model": "publicConfigurationModel"
+  },
+  {
+    "module": "frontend-read-models",
+    "fn": "privateSavedTournament",
+    "id": "privateSavedTournament",
+    "path": "/staff/tournaments/{edition}/configuration",
+    "args": ["slug"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "frontend-read-models",
+    "fn": "publicNewsModel",
+    "id": "publicNewsModel",
+    "path": "/site/news",
+    "args": ["locale"],
+    "public": true,
+    "query": ["locale"],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "frontend-read-models",
+    "fn": "captainIdentities",
+    "id": "captainIdentities",
+    "path": "/staff/tournaments/{edition}/captain-identities",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "frontend-read-models",
+    "fn": "publicEnrollmentState",
+    "id": "publicEnrollmentState",
+    "path": "/tournaments/{edition}/enrollment-state",
+    "args": ["slug"],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
+    "module": "frontend-read-models",
+    "fn": "ownSavedProfile",
+    "id": "ownSavedProfile",
+    "path": "/me/profile",
+    "args": ["actor", "mode"],
+    "public": false,
+    "query": ["mode"],
+    "scope": "identity:read"
+  },
+  {
+    "module": "frontend-read-models",
+    "fn": "ownEligibility",
+    "id": "ownEligibility",
+    "path": "/me/tournaments/{edition}/eligibility",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "identity:read"
+  },
+  {
+    "module": "fixtures",
+    "fn": "fixtureForReview",
+    "id": "fixtureForReview",
+    "path": "/staff/tournaments/{edition}/matches/{id}",
+    "args": ["actor", "slug", "id"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
+  },
+  {
+    "module": "bws",
+    "fn": "staffBws",
+    "id": "staffBws",
+    "path": "/staff/tournaments/{edition}/registrations/{id}/bws",
+    "args": ["actor", "slug", "id", "mode"],
+    "public": false,
+    "query": ["mode"],
+    "scope": "tournaments:private:read",
+    "additionalScopes": ["profiles:read"]
+  },
+  {
+    "module": "frontend-read-models",
+    "fn": "ownRegistrationForm",
+    "id": "ownRegistrationForm",
+    "path": "/me/tournaments/{edition}/registration",
+    "args": ["actor", "slug"],
+    "public": false,
+    "query": [],
+    "scope": "identity:read"
+  },
+  {
+    "module": "contributors",
+    "fn": "publicContributors",
+    "id": "publicContributors",
+    "path": "/site/contributors",
+    "args": [],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read",
+    "issues": [275]
+  },
+  {
+    "module": "contributors",
+    "fn": "contributorsForAdmin",
+    "id": "contributorsForAdmin",
+    "path": "/staff/contributors",
+    "args": ["actor"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read",
+    "issues": [275]
+  },
+  {
+    "module": "players",
+    "fn": "publicPlayer",
+    "id": "publicPlayerParticipation",
+    "path": "/players/{osuId}/participations",
+    "args": ["osuId", "edition"],
+    "public": true,
+    "query": ["edition"],
+    "scope": "tournaments:read",
+    "issues": [277]
+  }
+]

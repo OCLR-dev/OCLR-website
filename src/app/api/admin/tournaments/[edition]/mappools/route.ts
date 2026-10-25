@@ -1,9 +1,10 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { mappoolWorkspace, mappoolCommand } from "@/lib/mappools";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
-export async function GET(
+async function readGET(
   _request: Request,
   context: { params: Promise<{ edition: string }> },
 ) {
@@ -34,4 +35,8 @@ export async function POST(
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

@@ -1,15 +1,5 @@
-import { isDeepStrictEqual } from "node:util";
-import {
-  and,
-  desc,
-  eq,
-  inArray,
-  isNotNull,
-  isNull,
-  or,
-  sql,
-} from "drizzle-orm";
-import { z } from "zod";
+import { streamingFilters } from "./read-api-queries";
+export { streamingFilters } from "./read-api-queries";
 import { db } from "@/db";
 import {
   editionEvents,
@@ -24,14 +14,28 @@ import {
   users,
 } from "@/db/schema";
 import {
+  and,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+  sql,
+} from "drizzle-orm";
+import { isDeepStrictEqual } from "node:util";
+import { z } from "zod";
+import { assertOperationalEdition } from "./archive-guard";
+import type { User } from "./auth/sessions";
+import {
   assertCapability,
   canRead,
   permits,
   staffAccess,
   type StaffGrant,
 } from "./auth/staff";
-import type { User } from "./auth/sessions";
-import { assertOperationalEdition } from "./archive-guard";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 
 type Reader = Pick<ReturnType<typeof db>, "select">;
@@ -57,14 +61,7 @@ export async function eligibleStreamers(reader: Reader, slug: string) {
     .groupBy(users.osuId, users.username)
     .orderBy(users.username);
 }
-export const streamingFilters = z
-  .object({
-    date: z.iso.date().or(z.literal("")).default(""),
-    round: z.uuid().or(z.literal("")).default(""),
-    view: z.enum(["all", "unassigned", "mine"]).default("all"),
-  })
-  .strict();
-export async function streamingWorkspace(
+async function databaseStreamingWorkspace(
   actor: User,
   slug: string,
   input: unknown = {},
@@ -274,6 +271,21 @@ export async function streamingWorkspace(
     { isolationLevel: "repeatable read" },
   );
 }
+export async function streamingWorkspace(
+  actor: User,
+  slug: string,
+  input: unknown = {},
+  fixtureId?: string,
+): Promise<Awaited<ReturnType<typeof databaseStreamingWorkspace>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseStreamingWorkspace>>
+    >("streamingWorkspace", { slug, input, fixtureId });
+  }
+  return databaseStreamingWorkspace(actor, slug, input, fixtureId);
+}
+
 const commandSchema = z
   .object({
     action: z.enum(["select", "assign", "cancel", "reconfirm"]),

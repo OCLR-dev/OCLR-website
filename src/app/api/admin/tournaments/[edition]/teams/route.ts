@@ -1,8 +1,9 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff";
 import { staffTeams, updateTeams } from "@/lib/teams";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
-export async function GET(
+async function readGET(
   _request: Request,
   context: { params: Promise<{ edition: string }> },
 ) {
@@ -31,4 +32,8 @@ export async function POST(
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

@@ -1,3 +1,4 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { requireUser } from "@/lib/auth/user";
 import {
   authorizeReplayUpload,
@@ -8,7 +9,7 @@ import { apiError, requireSameOrigin, HttpError } from "@/lib/http";
 import { REPLAY_MAX_BYTES } from "@/lib/replay-model";
 type Context = { params: Promise<{ edition: string; entryId: string }> };
 export const runtime = "nodejs";
-export async function GET(_request: Request, context: Context) {
+async function readGET(_request: Request, context: Context) {
   try {
     const user = await requireUser(),
       { edition, entryId } = await context.params;
@@ -89,4 +90,8 @@ export async function POST(request: Request, context: Context) {
   } catch (error) {
     return apiError(error);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

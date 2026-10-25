@@ -1,16 +1,17 @@
+import { MappoolEditor } from "@/components/mappool-editor";
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { hasCapability } from "@/lib/auth/staff";
 import { authorizedPage } from "@/lib/auth/page";
+import { hasCapability } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
 import { mappoolWorkspace } from "@/lib/mappools";
-import { PageHeading } from "@/components/ui";
-import { MappoolEditor } from "@/components/mappool-editor";
+import { remotePage } from "@/lib/remote-page";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Manage mappools") };
 }
 
-export default async function MappoolsPage({
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -42,4 +43,8 @@ export default async function MappoolsPage({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

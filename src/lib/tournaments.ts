@@ -1,36 +1,38 @@
-import { and, desc, eq, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { editionState } from "@/db/schema";
-import { editionSchema } from "./editions";
-import { z } from "zod";
-import { randomUUID } from "node:crypto";
-import { isDeepStrictEqual } from "node:util";
-import { suggestEditionSlug } from "./editions";
 import {
+  draftSessions,
   editionEvents,
   editionRevisions,
+  editionState,
   registrations,
-  draftSessions,
   teams,
   tournamentStages,
 } from "@/db/schema";
-import {
-  assertReadCapability,
-  assertCapability,
-  staffAccess,
-  permits,
-  canRead,
-} from "./auth/staff";
-import type { User } from "./auth/sessions";
+import { and, desc, eq, isNotNull, sql } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
+import { z } from "zod";
+import { tournamentNavigation } from "./admin-navigation";
 import { privacyReady } from "./auth/config";
-import { HttpError } from "./http";
+import type { User } from "./auth/sessions";
 import {
+  assertCapability,
+  assertReadCapability,
+  canRead,
+  permits,
+  staffAccess,
+} from "./auth/staff";
+import { remoteMode } from "./data-source";
+import {
+  editionSchema,
   enrollmentState,
   registrationBlockers,
+  suggestEditionSlug,
   type Edition,
 } from "./editions";
 import { compareTournamentSeasons } from "./tournament-order";
-import { tournamentNavigation } from "./admin-navigation";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { HttpError } from "./http";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export function storedEdition(row: typeof editionState.$inferSelect) {
   if (!row.configuration) return undefined;
@@ -44,10 +46,15 @@ export function storedEdition(row: typeof editionState.$inferSelect) {
 }
 export async function readTournament(
   slug: string,
-  reader: Reader = db(),
+  reader?: Reader,
   publicOnly = false,
-) {
-  const [row] = await reader
+): Promise<ReturnType<typeof storedEdition>> {
+  if (remoteMode())
+    return frontendResource<Awaited<ReturnType<typeof readTournament>>>(
+      publicOnly ? "publicEnrollment" : "privateSavedTournament",
+      { slug },
+    );
+  const [row] = await (reader ?? db())
     .select()
     .from(editionState)
     .where(
@@ -198,7 +205,7 @@ export function tournamentLinks(
       })),
   );
 }
-export async function tournamentList(actor: User) {
+async function databaseTournamentList(actor: User) {
   const grants = await staffAccess(actor);
   if (!grants.length) throw new HttpError(403, "Staff access is required.");
   const rows = await readTournaments();
@@ -238,6 +245,19 @@ export async function tournamentList(actor: User) {
       .sort(compareTournamentSeasons),
   };
 }
+export async function tournamentList(
+  actor: User,
+): Promise<Awaited<ReturnType<typeof databaseTournamentList>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseTournamentList>>>(
+      "tournamentList",
+      {},
+    );
+  }
+  return databaseTournamentList(actor);
+}
+
 export async function competitionStructureProtected(
   slug: string,
   locked: boolean,
@@ -258,7 +278,7 @@ export async function competitionStructureProtected(
     Boolean(session && !["setup", "aborted"].includes(session.state))
   );
 }
-export async function tournamentForAdmin(actor: User, slug: string) {
+async function databaseTournamentForAdmin(actor: User, slug: string) {
   await assertReadCapability(actor, "configure_tournament", slug);
   const row = await readTournament(slug);
   if (!row) throw new HttpError(404, "Tournament not found.");
@@ -273,6 +293,19 @@ export async function tournamentForAdmin(actor: User, slug: string) {
     links: tournamentLinks(await staffAccess(actor), slug),
   };
 }
+export async function tournamentForAdmin(
+  actor: User,
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databaseTournamentForAdmin>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseTournamentForAdmin>>
+    >("tournamentForAdmin", { slug });
+  }
+  return databaseTournamentForAdmin(actor, slug);
+}
+
 export async function createTournament(actor: User, input: unknown) {
   await assertCapability(actor, "configure_tournament");
   const parsed = createSchema.safeParse(input);

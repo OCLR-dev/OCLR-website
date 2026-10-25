@@ -1,10 +1,11 @@
-import { authorizedPage } from "@/lib/auth/page";
-import { requireStaff } from "@/lib/auth/staff";
-import { statisticsWorkspace } from "@/lib/archive-statistics";
 import { StatisticsManager } from "@/components/statistics-manager";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-export default async function Page({
+import { statisticsWorkspace } from "@/lib/archive-statistics";
+import { authorizedPage } from "@/lib/auth/page";
+import { requireStaff } from "@/lib/auth/staff";
+import { remotePage } from "@/lib/remote-page";
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -22,4 +23,8 @@ export default async function Page({
       </>
     );
   });
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

@@ -1,10 +1,11 @@
-import { notFound } from "next/navigation";
-import { publicArchiveStatistics } from "@/lib/archive-statistics";
-import { HttpError } from "@/lib/http";
-import { getPublicEdition } from "@/lib/content";
 import { EventStatistics } from "@/components/event-statistics";
+import { publicArchiveStatistics } from "@/lib/archive-statistics";
+import { getPublicEdition } from "@/lib/content";
 import { previewScores, type EventScore } from "@/lib/event-statistics";
-export default async function Page({
+import { HttpError } from "@/lib/http";
+import { remotePage } from "@/lib/remote-page";
+import { notFound } from "next/navigation";
+async function Issue271Page({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -37,4 +38,8 @@ export default async function Page({
     if (!(error instanceof HttpError && error.status === 404)) throw error;
   }
   return <EventStatistics scores={scores} />;
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

@@ -1,10 +1,11 @@
+import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
+import { formatDate } from "@/lib/editions";
+import { publicNewsItem } from "@/lib/public-news";
+import { publicNewsKind } from "@/lib/public-news-model";
+import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { publicNewsKind } from "@/lib/public-news-model";
-import { publicNewsItem } from "@/lib/public-news";
-import { formatDate } from "@/lib/editions";
-import { PageHeading } from "@/components/ui";
 export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
@@ -19,11 +20,7 @@ export async function generateMetadata({
     description: item?.summary,
   };
 }
-export default async function Announcement({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+async function Issue271Page({ params }: { params: Promise<{ slug: string }> }) {
   const tr = await getAppTranslations();
 
   const { slug } = await params;
@@ -59,4 +56,8 @@ export default async function Announcement({
       ))}
     </article>
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

@@ -1,136 +1,171 @@
-# Remote frontend development (#270)
+# Remote frontend development (#270–#272)
 
-Stage 3 supplies the data adapter and core pages. Full page coverage belongs to
-#271; consolidated DB-free acceptance belongs to #272.
+Use the existing Next.js application against a separate OCLR backend. The agreed
+**saved-read frontend** needs no local PostgreSQL, migrations, seed, OAuth app,
+provider credentials, Python or upload directory. Backend data and authorization
+remain authoritative. Database mode remains available for developing commands and
+running the existing synthetic workflows.
 
-## Core read inventory
+## Fresh frontend checkout
 
-| Entry                                          | Existing dependencies                                                                        | Remote source / behavior                                                                   |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Root layout / Header / navigation              | session, staff grants, site setting, edition appearance, featured edition                    | `/me`, `/site`, full `/tournaments`; explicit bearer read scopes, no staff write roles     |
-| Home / `/tournaments`                          | public editions, registration state, cards                                                   | full public summaries, recorded registration state                                         |
-| Tournament layout / metadata / overview        | edition, draft, teams, pools, staff, fixtures                                                | published `/tournaments/{edition}` and its overview projection                             |
-| `/rules` (legacy link)                         | published edition / rulebook chapter identities                                              | same-edition overview `#rules` or matching chapter; no separate rules content              |
-| `/players`                                     | full identities, saved ranks/PP, public introductions; refresh callback, messages, reactions | full versioned player collection; no refresh; unsupported interactive widgets identified   |
-| Existing profile links and `/api/players/{id}` | saved/provider profile, membership, BWS, round ratings                                       | edition-scoped saved profile; historical identity remains recorded; round ratings deferred |
-| Historical overview / rules / players / player | archive selection, counts, key visual, rulebook, identities                                  | recorded projections; no present-day profile overlay                                       |
-| Internal tournament list / saved configuration | Developer authorization, private edition settings                                            | scope-gated `/staff/tournaments` resources; no admin write roles                           |
-| Private media / other routes                   | storage, staff services and further publication models                                       | explicitly unsupported in stage 3; no local storage/DB fallback                            |
+Tournament rules are displayed on each current or historical edition's overview
+at `#rules`. Legacy `/tournaments/{edition}/rules` links only redirect to that
+edition's overview or a recognized chapter there; they are not a separate content
+page. Anonymous and Developer reads use the same publication boundaries.
 
-The connection page and unsupported-route notice remain accessible without a
-connection. No browser/metadata/core SSR path may query local PostgreSQL in remote
-mode. Local preference cookies are independent of the remote identity.
-
-## Start without local PostgreSQL
-
-Install the existing Node/npm dependencies with `npm ci`. Do not migrate, seed,
-configure DATABASE_URL, or configure local OAuth credentials. In an exported local
-development environment, set:
+Use Node.js 24 LTS (minimum 22.13) and the existing npm lockfile:
 
 ```sh
+npm ci
 export APP_URL=http://127.0.0.1:3000
 export OCLR_DATA_SOURCE=remote
 export OCLR_API_BASE_URL=https://YOUR_OCLR_BACKEND
 npm run dev -- --hostname 127.0.0.1
 ```
 
-APP_URL is the exact local origin; OCLR_API_BASE_URL is the backend origin only,
-without a path, query, fragment or credentials. HTTPS upstream is required except
-for an explicit loopback test backend. Remote mode works only with `next dev` on
-a loopback APP_URL. Production setup/start/update and production Next commands
-reject it. Database mode remains the default. `.next-remote` isolates the local
-remote development output from the ordinary production build.
+Do not copy an environment file or run any `db:*` command for this mode. For an
+already configured checkout, preserve its environment files; exported empty
+`DATABASE_URL`, `TEST_DATABASE_URL`, `OSU_CLIENT_ID`, `OSU_CLIENT_SECRET` and
+`OCLR_MEDIA_DIR` can isolate this frontend process from existing local services.
+The database pool refuses remote mode even if a URL is accidentally present.
 
-Open `/remote`. On the specified backend, use the existing osu! login and
-`/developer` to issue a short-lived token with `identity:read`, `tournaments:read`
-and any required `tournaments:private:read` / `profiles:read`. The backend operator
-must allow the exact local origin in OCLR_DEVELOPER_ORIGINS. Paste the token once
-into the local connection form. No local OAuth app, bootstrap Admin or database
-is required. Backend issuance still requires an explicit live Developer grant;
-repository or Admin status is insufficient.
+`APP_URL` is the exact local loopback origin. `OCLR_API_BASE_URL` is a separate
+backend origin without credentials, path, query or fragment. HTTPS upstream is
+required except for an explicit loopback test backend. Only `next dev` supports
+remote mode; production entry points reject it. `.next-remote` keeps development
+output separate from the ordinary production build.
 
-Alternatively, explicitly select **Browse public data anonymously**. This mode
-reads only public projections and never acquires a private identity. It does not
-silently replace a failed Developer connection. `/login` and `/developer` on the
-local frontend show connection management; backend OAuth/callback paths remain
-unchanged. Use the backend site to issue/revoke access, not the local frontend.
+Open `/remote`. Sign in on the **backend**, then use its `/developer` page to
+create short-lived access bound to the exact local origin. Paste it once into the
+local password input. Request `identity:read` and `tournaments:read`; add
+`tournaments:private:read` for staff workspaces and `profiles:read` for other saved
+private profile snapshots. The subject's own saved profile/applications/team and
+appointed Captain room use `identity:read`. A live explicit Developer grant is
+required; Admin status or repository access does not imply that grant.
 
-## Credential and request lifecycle
+Alternatively choose **Browse public data anonymously**. This explicitly selects
+public-only reads. Failed Developer access never silently becomes anonymous.
+Local `/login` and `/developer` show connection management. Real OAuth, issuance
+and revocation stay on the backend's existing paths.
 
-The BFF holds the token only in process memory, behind a cryptographically random,
-HttpOnly, SameSite=Strict session cookie scoped to the local origin. At most 50
-active connections exist per process. Entries expire within one hour and no later
-than the backend token. The connection endpoint bounds input to 1 KiB and at most
-20 connection attempts per minute per process; disconnect remains available. Reconnecting rotates the local ID; disconnect,
-expiry, backend auth rejection or process restart removes access. Changing the
-connection reloads the local app to discard previous client router payloads. A restart or an
-expired/revoked connection requires reconnecting. Nothing writes the token to a
-file, environment, browser storage, cookie, URL, HTML, React props or logs.
+## Backend prerequisites and compatibility
 
-The local browser sends only its local session cookie. Its same-origin
-`/api/remote/read/...` route allows only the registered v1 GET/HEAD resources and
-query keys; there is no arbitrary proxy destination. The server sends only
-Accept, the selected bearer when connected, and the configured local Origin.
-It forwards no browser Cookie or Authorization headers and refuses redirects.
-Each upstream fetch has an eight-second timeout and a 2 MiB streamed body bound;
-returned envelopes/data are validated with the shared schemas. Errors are
-sanitized to known machine codes and localized locally. Backend throttling keeps
-429 / RATE_LIMITED and Retry-After; the adapter does not retry it automatically.
+An operator must separately provide a configured OCLR backend with saved data,
+its existing PostgreSQL and durable media storage where applicable. Apply the
+existing migration history through `0043_contributor_directory` for this batch,
+including `0037_developer_api_access`. #271–#272 add no migration. Provisioning that backend is
+not part of a frontend checkout and does not authorize a deployment or real grant.
 
-Server components, metadata, the frame and supported legacy profile read route
-share `src/lib/frontend-data.ts`. Pagination is completed server-side, with a
-10,000-record/100-request bound, consistent collection versions, exact totals and
-one whole-collection restart on a concurrent change. No partial collection is
-rendered. Memoization is request-local only. Fetches use `no-store`; the remote
-Next development HMR cache is disabled so it cannot preserve revoked private
-reads. There is no cross-session data cache. The live `/me` check precedes each
-request's data access, and subsequent reads recheck current scopes/grants at the
-backend. The mounted frontend also checks connection health on focus and every
-15 seconds and on restored pages, hiding its content on failed checks and
-rechecking the private-read scope for internal pages.
+The full-site adapter requires read contract **1.1.0 or a newer additive v1
+version**, exposed as `X-OCLR-Read-Contract`. The OpenAPI document reports the same
+version. Missing/older/incompatible successful responses produce
+`REMOTE_INCOMPATIBLE`, with no local fallback. The backend operator must allow the
+exact local origin in `OCLR_DEVELOPER_ORIGINS`; a proxy must preserve the contract
+and CORS headers. See [Developer access](developer-api.md).
 
-Local writes, OAuth/provider entry points, private media, unsupported API reads
-and unimplemented pages are blocked before their local service logic. The local
-DB pool also refuses remote mode as a defense in depth. Locale/theme/appearance
-preferences still use their own existing local cookies. The header displays the
-actual remote identity; it never turns the Developer read principal into an
-Admin, Captain or other writable browser role. Internal tournament pages show
-only saved configuration in this stage; other staff tools remain unsupported.
+## Read coverage and authority
 
-Supported legacy read URLs also use this adapter: `/api/me` retains its user
-shape; `/api/tournaments`, `/api/tournaments/{edition}`, `/api/players`,
-`/api/tournaments/{edition}/players`, and `/api/players/{id}` preserve their core
-read projections. Player collections stay complete. The legacy tournament list
-embeds all detail/rulebook documents and is bounded at 50 editions; larger lists
-must use the v1 summary collection. No arbitrary legacy read is forwarded.
+[The coverage inventory](remote-coverage.json) enumerates all current pages,
+layouts/metadata, GET routes and client fetch/poll modules. Its
+`requiredVerification` entries state required checks, not test results. See
+[coverage implementation and evidence](remote-coverage.md) for service mappings.
 
-## Limits and verification
+The existing public, historical and private components are reused: public
+information/news/wiki/privacy, every tournament section, saved profiles/ratings,
+global administration and edition workspaces, the actual subject's dashboard,
+registration/team/Captain pages, and approved OBS/presenter snapshots. Historical
+statistics and MP reviews consume saved source evidence. Current edition profiles
+keep their existing `/players/{osuId}?edition=...` links; the nested historical
+profile and staff routes retain their original archive-only behavior.
 
-The API supplies current public data, saved profiles, released identities, source
-metadata and historical projections. Missing/stale/zero values retain the v1
-contract. The historical overview includes the authoritative optional rulebook
-season so rules formatting survives serialization; older backend responses may
-omit it. This is formatting metadata, not a replacement archive or invented rule.
+Missing, unreleased or unavailable records keep the existing empty/not-recorded
+or authorization state. A Captain room without an actual appointment remains
+denied. No read creates records, setup state, locks, imports, cached provider
+claims or publications. Commands, uploads, reactions and provider refreshes are
+disabled; forms retain their existing structure with read-only controls. Developer
+plus Admin/Mappooler/Referee roles still cannot write through this channel. Ordinary
+database-backed sessions keep their independent original capabilities.
 
-Messages, reactions, round rating history, uploads/private media and other pages
-are intentionally outside this stage. Their notices/coverage list identify the
-limit; no local DB, provider refresh or synthetic fallback supplies missing data.
-This is **core-page DB-free development**, not full-site completion.
+Local locale, theme and appearance preferences remain separate cookies. Connection
+POST/DELETE is local credential management, not a business write. Use the backend
+site for real login/logout and credential management. None of these mechanisms
+bypass edition appointments or publication boundaries.
 
-Run the ordinary database checks against a separate named TEST_DATABASE_URL.
-After building the backend, run the additional browser test:
+## Request and credential lifecycle
+
+The BFF stores the credential only in a bounded process-memory map behind a random
+HttpOnly, SameSite=Strict local cookie. At most 50 connections exist per process;
+access expires within one hour and no later than the backend token/parent session.
+The connection endpoint accepts at most 1 KiB and 20 connection attempts/minute.
+Reconnect rotates the ID and reloads the application. Disconnect, expiry, backend
+auth rejection or process restart removes access. Never put tokens in files,
+environment variables, URLs, browser storage, React props, screenshots or logs.
+
+Each request verifies `/me`; domain reads recheck token, parent session, origin,
+scopes and live Developer grant. Request-local memoization deduplicates repeated
+SSR/layout reads; route handlers have a separate AsyncLocalStorage cache limited
+to one request, so actor checks and polling do not repeat `/me` within that request.
+Neither cache shares private data between requests or sessions. Fetches use
+`no-store`; the development HMR fetch cache is disabled. Mounted pages check on
+focus, restored pages and every 15 seconds. Polls discard private snapshots and
+stop after 401/403; reconnecting reloads them. Authorization failures hide private
+content on the next poll/health check.
+
+Only registered relative resources and query keys reach the fixed backend origin.
+`/api/v1/...` belongs to that backend; the local remote frontend rejects those
+URLs and uses its existing legacy read URLs/local BFF instead.
+No browser Cookie/Authorization headers are forwarded. Redirects are refused.
+JSON reads have an eight-second timeout and 2 MiB streamed body bound. Complete
+player/tournament collections retain consistent versions, exact totals and a
+10,000-record/100-page bound, restarting once after 409. Partial lists never render.
+
+Team avatars use the existing local URLs with bounded WebP responses (1 MiB).
+Replay downloads retain their authorized local URLs, MIME, filename, sandbox and
+`nosniff` headers (8 MiB). Access is checked per request and again after binary
+reading. Neither credentials nor storage paths become public asset URLs. No local
+storage or provider service supplies missing remote data.
+
+## Troubleshooting
+
+| Result                                            | Action                                                                                           |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Disconnected / process restarted                  | Open `/remote` and reconnect or explicitly select anonymous mode.                                |
+| 401 / expired or revoked                          | Issue fresh access on the backend; check the parent login session.                               |
+| 403                                               | Check the live Developer grant, requested scopes, bound origin and actual edition appointment.   |
+| `REMOTE_INCOMPATIBLE`                             | Update the separate backend to read API 1.1.0+ within v1 and preserve its contract header.       |
+| Missing saved profile / historical “Not recorded” | These are saved-data states; a GET cannot refresh or invent a profile.                           |
+| 409 collection changed                            | Discard the whole collection and restart; the adapter retries one complete read.                 |
+| 413                                               | Narrow a supported filter; no truncated response is accepted.                                    |
+| 429                                               | Respect `Retry-After` (currently 60 seconds); do not bypass issuance/read quotas.                |
+| 5xx / invalid response                            | Check backend availability, migration/configuration and request ID; no local DB fallback occurs. |
+| CORS / preflight denied                           | Allow the exact local origin; use `credentials: "omit"` for direct browser Bearer reads.         |
+
+## Verification and remaining external gates
+
+The isolated acceptance harness runs a real database-backed backend separately
+from a frontend with empty database/OAuth/storage configuration and a PostgreSQL
+connection trap. After building the backend, run:
 
 ```sh
 PLAYWRIGHT_CHANNEL=chrome TEST_DATABASE_URL=postgresql://USER@127.0.0.1:PORT/oclr_test \
-  npx playwright test --config playwright.remote.config.ts
+  npm run test:e2e:remote
 ```
 
-It starts a real isolated database-backed backend and a separate `next dev`
-frontend with empty DATABASE_URL / OAuth secrets. The frontend preloads a guard
-that makes any pg connection fail and records attempted connections. Both browser
-projects cover direct requests, reload/navigation, complete collections, saved
-and historical profiles, local preferences, independent sessions, backend
-revocation/expiry, readonly behavior and reconnection. Unit/integration transport
-tests additionally cover unavailable/malformed upstreams, redirect rejection,
-collection restart and bounded memory. Synthetic tokens/test accounts establish
-local behavior, not real OAuth, organizer grants or deployment.
+Tests use a dedicated disposable backend database; never use the demo/production
+DB. The full-site browser test emits per-page/read-route evidence. Integration
+tests cover every domain resource, saved MP/replay evidence, subject/role/scope
+boundaries, unchanged business data and denied mutations. Transport tests cover
+version mismatch, invalid/oversized data, redirects, session isolation, expiry,
+revocation and unavailable upstreams. The ordinary database-mode browser suite and
+production audit remain part of batch verification.
+
+The frontend server and browser workers inherit the same monitor file; workers
+never truncate it. Its self-test proves that an attempted PostgreSQL connection
+is recorded and blocked before connecting. Large browser workloads wait for the
+backend's real read windows and use normal token issuance limits; acceptance
+does not disable or raise quotas. These waits are part of the test duration.
+
+Commit-specific local results and actual CI status are recorded on #271/#272.
+Synthetic local evidence does not establish a real OAuth login, real grant,
+external backend deployment or organizer acceptance of new Chinese wording. The
+previous organizer-attested #10 rehearsal remains completed independently.

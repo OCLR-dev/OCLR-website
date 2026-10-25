@@ -1,13 +1,15 @@
-import { readFileSync } from "node:fs";
 import defaultBrackets from "@/content/brackets.json" with { type: "json" };
+import { readFileSync } from "node:fs";
+import type { ResolvedBracket, ResolvedMatch } from "./bracket-model";
 import {
   bracketTeamIds,
   bracketsSchema,
   resolveBracket,
 } from "./bracket-model";
 import { getPublicEdition } from "./content";
+import { remoteMode } from "./data-source";
+import { frontendResource } from "./frontend-resource";
 import { publicCompetition } from "./public-competition";
-import type { ResolvedBracket, ResolvedMatch } from "./bracket-model";
 import { publishedTeams } from "./teams";
 export function getBrackets() {
   const file = process.env.OCLR_BRACKETS_FILE;
@@ -17,7 +19,7 @@ export function getBrackets() {
       : defaultBrackets,
   );
 }
-export async function publicBracket(slug: string) {
+async function databasePublicBracket(slug: string) {
   if (!(await getPublicEdition(slug))) return null;
   const competition = await publicCompetition(slug);
   if (competition?.databaseAuthority) {
@@ -80,4 +82,15 @@ export async function publicBracket(slug: string) {
   if (bracketTeamIds(bracket).some((id) => !teams.some((t) => t.id === id)))
     return null;
   return resolveBracket(bracket, teams);
+}
+export async function publicBracket(
+  slug: string,
+): Promise<Awaited<ReturnType<typeof databasePublicBracket>>> {
+  if (remoteMode()) {
+    return frontendResource<Awaited<ReturnType<typeof databasePublicBracket>>>(
+      "publicBracket",
+      { slug },
+    );
+  }
+  return databasePublicBracket(slug);
 }

@@ -1,6 +1,7 @@
 import { compareTournamentSeasons } from "./tournament-order";
+import { frontendRequestValue } from "./frontend-read-context";
 import { cache } from "react";
-import { cookies } from "next/headers";
+import { cookies } from "next/headers.js";
 import { remoteMode } from "./data-source";
 import { remoteCookie, verifiedConnection } from "./remote-sessions";
 import { remoteRead, remoteOperation } from "./remote-transport";
@@ -16,14 +17,15 @@ import {
 } from "./read-api-contract";
 import { z } from "zod";
 import { disconnectRemote } from "./remote-sessions";
-export const frontendConnection = cache(async () => {
+const renderConnection = cache(async () => {
   const id = (await cookies()).get(remoteCookie)?.value;
   return { id, ...(await verifiedConnection(id)) };
 });
-export async function frontendRemoteRead(
-  path: string,
-  query = new URLSearchParams(),
-) {
+export function frontendConnection() {
+  return frontendRequestValue("connection", () => renderConnection());
+}
+const requestRead = cache(async (path: string, queryString: string) => {
+  const query = new URLSearchParams(queryString);
   remoteOperation(path, query);
   const context = await frontendConnection();
   try {
@@ -33,6 +35,14 @@ export async function frontendRemoteRead(
       disconnectRemote(context.id);
     throw error;
   }
+});
+export function frontendRemoteRead(
+  path: string,
+  query = new URLSearchParams(),
+) {
+  return frontendRequestValue("read:" + path + "?" + query.toString(), () =>
+    requestRead(path, query.toString()),
+  );
 }
 async function completeCollection<T>(
   path: string,

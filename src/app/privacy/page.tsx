@@ -1,16 +1,20 @@
-import { getAppTranslations } from "@/i18n/server";
-import { useAppTranslations } from "@/i18n/shared";
 import { PageHeading } from "@/components/ui";
+import { getAppTranslations } from "@/i18n/server";
 import { privacyContact } from "@/lib/auth/config";
+import { remoteMode } from "@/lib/data-source";
+import { frontendSite } from "@/lib/frontend-data";
+import { remotePage } from "@/lib/remote-page";
 import styles from "./privacy.module.css";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Privacy") };
 }
 
-export default function Privacy() {
-  const tr = useAppTranslations();
-  const contact = privacyContact();
+async function Issue271Page() {
+  const tr = await getAppTranslations();
+  const contact = remoteMode()
+    ? (await frontendSite()).privacyContact
+    : privacyContact();
   return (
     <div className={`container page prose ${styles.page}`}>
       <PageHeading title={tr("Privacy at OCLR")} />
@@ -56,4 +60,8 @@ export default function Privacy() {
       )}
     </div>
   );
+}
+
+export default function Page() {
+  return remotePage(() => Issue271Page());
 }

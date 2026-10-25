@@ -1,16 +1,18 @@
-import { randomUUID } from "node:crypto";
-import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { userProfileCache, users } from "@/db/schema";
-import { osuApi } from "./osu-api";
+import { and, eq, inArray, sql } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
+import { remoteMode } from "./data-source";
 import { HttpError } from "./http";
-import { safeSavedOsuProfile } from "./read-api-contract";
+import { osuApi } from "./osu-api";
 import {
   normalizeOsuProfile,
   parseOsuProfile,
   type ProfileMode,
   type ProfileSnapshot,
 } from "./osu-profile-model";
+import { safeSavedOsuProfile } from "./read-api-contract";
+import { inReadChannel } from "./read-channel";
 export const PROFILE_TTL_MS = 30 * 60 * 1000;
 export const PROFILE_CACHE_LIMIT = 1000;
 export type DirectoryStatistics = {
@@ -162,7 +164,39 @@ function saved(
     : null;
 }
 /** Saved profile only, for private read-only diagnostics. No provider I/O or claims. */
-export async function cachedOsuUserProfile(osuId: number, mode: ProfileMode) {
+export async function cachedOsuUserProfile(
+  osuId: number,
+  mode: ProfileMode,
+): Promise<ProfileSnapshot | null> {
+  if (remoteMode()) {
+    const { frontendRemoteRead, frontendViewer } =
+      await import("./frontend-data");
+    const viewer = await frontendViewer();
+    if (viewer?.osuId === osuId)
+      return (await import("./frontend-read-models")).ownSavedProfile(
+        viewer,
+        mode,
+      );
+    try {
+      const { savedProfileSchema } = await import("./read-api-contract");
+      const data = savedProfileSchema.parse(
+        (
+          await frontendRemoteRead(
+            `/staff/profiles/${osuId}`,
+            new URLSearchParams({ mode }),
+          )
+        ).data,
+      );
+      return {
+        profile: data.profile,
+        stale: data.state === "stale",
+        notice: null,
+      };
+    } catch (error) {
+      if (error instanceof HttpError && error.status === 404) return null;
+      throw error;
+    }
+  }
   const [row] = await db()
     .select()
     .from(userProfileCache)
@@ -303,6 +337,11 @@ export async function getOsuUserProfile(
   mode: ProfileMode = "osu",
   options: { refresh?: boolean } = {},
 ): Promise<ProfileSnapshot> {
+  if (remoteMode() || inReadChannel()) {
+    const snapshot = await cachedOsuUserProfile(osuId, mode);
+    if (!snapshot) throw unavailable(404);
+    return snapshot;
+  }
   parseOsuProfile(String(osuId), mode);
   const key = `${osuId}:${mode}`;
   const existing = pending.get(key);

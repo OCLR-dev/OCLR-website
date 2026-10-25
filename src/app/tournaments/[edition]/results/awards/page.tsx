@@ -1,16 +1,17 @@
-import { awardTierLabel } from "@/lib/award-tiers";
 import { Avatar } from "@/components/avatar";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { publicAwards } from "@/lib/awards";
-import { getAppTranslations } from "@/i18n/server";
-import { historicalPage } from "@/components/historical-archive";
-import { PageHeading } from "@/components/ui";
 import { AwardPolicy } from "@/components/award-policy";
 import { AwardTable } from "@/components/award-table";
+import { historicalPage } from "@/components/historical-archive";
+import { PageHeading } from "@/components/ui";
+import { getAppTranslations } from "@/i18n/server";
 import { awardValue } from "@/lib/award-model";
+import { awardTierLabel } from "@/lib/award-tiers";
+import { publicAwards } from "@/lib/awards";
+import { remotePage } from "@/lib/remote-page";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
-export default async function Awards({
+async function Issue271Page({
   params,
   searchParams,
 }: {
@@ -142,4 +143,8 @@ export default async function Awards({
         ))}
     </>
   );
+}
+
+export default function Page(props: Parameters<typeof Issue271Page>[0]) {
+  return remotePage(() => Issue271Page(props));
 }

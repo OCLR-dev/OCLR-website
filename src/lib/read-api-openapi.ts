@@ -1,17 +1,31 @@
+import { readQuerySchema } from "./read-api-queries";
+import { readContractVersion } from "./read-api-version";
 import { z } from "zod";
+import contracts from "./extended-read-contracts.json" with { type: "json" };
 import { readOperations, readSchemas } from "./read-api-operations";
 export function readApiSpecification() {
   const components = Object.fromEntries(
-    Object.entries(readSchemas).map(([name, schema]) => {
-      const { $schema, ...definition } = z.toJSONSchema(schema);
-      void $schema;
-      return [name, definition];
-    }),
+    Object.entries(readSchemas)
+      .filter(([name]) => !(name in contracts.resources))
+      .map(([name, schema]) => {
+        const { $schema, ...definition } = z.toJSONSchema(schema);
+        void $schema;
+        return [name, definition];
+      }),
+  );
+  const replaceRefs = (value: unknown): unknown =>
+    JSON.parse(
+      JSON.stringify(value).replaceAll("#/$defs/", "#/components/schemas/"),
+    );
+  Object.assign(
+    components,
+    replaceRefs(contracts.$defs),
+    replaceRefs(contracts.resources),
   );
   const paths: Record<string, unknown> = {};
   for (const operation of readOperations) {
     const parameters: unknown[] = [];
-    for (const key of ["edition", "osuId"])
+    for (const key of ["edition", "osuId", "id", "replayId"])
       if (operation.path.includes(`{${key}}`))
         parameters.push({
           name: key,
@@ -24,8 +38,13 @@ export function readApiSpecification() {
                   pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$",
                   maxLength: 80,
                 }
-              : { type: "string", pattern: "^[1-9][0-9]*$" },
+              : key === "osuId"
+                ? { type: "string", pattern: "^[1-9][0-9]*$" }
+                : { type: "string", format: "uuid" },
         });
+    const querySchema = z.toJSONSchema(
+      readQuerySchema(operation.id, operation.query),
+    );
     for (const key of operation.query)
       parameters.push({
         name: key,
@@ -33,25 +52,11 @@ export function readApiSpecification() {
         required: false,
         description:
           key === "version"
-            ? "Pass collectionVersion from page 1 on every subsequent page. A change returns 409; restart the collection."
-            : undefined,
-        schema:
-          key === "mode"
-            ? {
-                type: "string",
-                enum: ["osu", "taiko", "fruits", "mania"],
-                default: "osu",
-              }
-            : key === "page" || key === "pageSize"
-              ? {
-                  type: "integer",
-                  minimum: 1,
-                  maximum: key === "pageSize" ? 100 : 10000,
-                  default: key === "pageSize" ? 50 : 1,
-                }
-              : key === "version"
-                ? { type: "string", pattern: "^[a-f0-9]{64}$" }
-                : { type: "string", maxLength: 100 },
+            ? "Pass collectionVersion from page 1 on subsequent pages; restart the entire collection after 409."
+            : key === "fixtureId" && operation.id === "statisticsWorkspace"
+              ? "Recorded historical fixture key, never a provider lookup."
+              : undefined,
+        schema: querySchema.properties?.[key],
       });
     const successSchema = {
       type: "object",
@@ -64,14 +69,48 @@ export function readApiSpecification() {
     };
     const responses: Record<string, unknown> = {
       "200": {
-        description: "Read projection",
-        content: { "application/json": { schema: successSchema } },
+        description:
+          "Saved read projection; no provider work or business writes",
+        headers: {
+          "Cache-Control": { schema: { type: "string", const: "no-store" } },
+          "X-Request-Id": { schema: { type: "string", format: "uuid" } },
+          "X-OCLR-Read-Contract": {
+            schema: { type: "string", const: readContractVersion },
+          },
+          ...(operation.binary
+            ? {
+                "Content-Disposition": {
+                  description: "Replay attachment filename; CORS-exposed",
+                  schema: { type: "string" },
+                },
+              }
+            : {}),
+        },
+        content: operation.binary
+          ? {
+              [operation.id === "getTeamAvatar"
+                ? "image/webp"
+                : "application/octet-stream"]: {
+                schema: { type: "string", format: "binary" },
+              },
+            }
+          : { "application/json": { schema: successSchema } },
       },
     };
     for (const code of [400, 401, 403, 404, 409, 413, 429, 500, 503])
       responses[String(code)] = {
         description:
           "Machine-readable error; no-store and matching CORS headers for allowed origins",
+        headers:
+          code === 429
+            ? {
+                "Retry-After": {
+                  description:
+                    "Wait this many seconds before a new request; no automatic replay",
+                  schema: { type: "integer", minimum: 1 },
+                },
+              }
+            : undefined,
         content: {
           "application/json": {
             schema: { $ref: "#/components/schemas/ReadError" },
@@ -83,9 +122,21 @@ export function readApiSpecification() {
         operationId: operation.id,
         description: operation.description,
         "x-oclr-issues": operation.issues,
-        "x-oclr-scopes": [operation.scope],
+        "x-oclr-scopes": [
+          operation.scope,
+          ...(operation.additionalScopes ?? []),
+        ],
+        "x-oclr-query-model": operation.schema,
+        "x-oclr-coverage": "docs/remote-coverage.json",
+        "x-oclr-read-only": true,
         "x-response-size-limit":
-          operation.id === "getApiIdentity" ? 262144 : 2097152,
+          operation.id === "getTeamAvatar"
+            ? 1048576
+            : operation.binary
+              ? 8388608
+              : operation.id === "getApiIdentity"
+                ? 262144
+                : 2097152,
         security: operation.public
           ? [{}, { DeveloperBearer: [] }]
           : [{ DeveloperBearer: [] }],
@@ -123,9 +174,9 @@ export function readApiSpecification() {
     openapi: "3.1.0",
     info: {
       title: "OCLR Read API",
-      version: "1.0.0",
+      version: readContractVersion,
       description:
-        "Stage 2 (#269). Public projections remain public-only even with a token. Explicit invalid Authorization never falls back to anonymous/cookies. Reads never fetch providers or mutate business data. Later collection pages require version and restart on 409.",
+        "Versioned saved reads (#269–#272). Public projections remain public-only even with a token. Explicit invalid Authorization never falls back to anonymous/cookies. Reads never fetch providers or mutate business data. Later collection pages require version and restart on 409.",
     },
     servers: [{ url: "/" }],
     paths,

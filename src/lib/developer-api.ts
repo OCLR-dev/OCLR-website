@@ -47,8 +47,9 @@ export function developerOrigins() {
 }
 
 /** Bounded process-local abuse protection. Never store raw credentials or IP headers. */
+type RateWindow = { count: number; until: number };
 export class DeveloperApiLimiter {
-  private windows = new Map<string, { count: number; until: number }>();
+  constructor(private windows = new Map<string, RateWindow>()) {}
   take(key: string, limit: number, now = Date.now()) {
     const previous = this.windows.get(key);
     if (previous && previous.until > now) {
@@ -75,10 +76,13 @@ export class DeveloperApiLimiter {
   }
 }
 const state = globalThis as unknown as {
-  oclrDeveloperApiLimiter?: DeveloperApiLimiter;
+  oclrDeveloperApiRateWindows?: Map<string, RateWindow>;
 };
-export const developerApiLimiter = (state.oclrDeveloperApiLimiter ??=
-  new DeveloperApiLimiter());
+// Next route bundles have distinct Error constructors. Share only counters so
+// each bundle throws its own DeveloperApiError, preserving 429 classification.
+export const developerApiLimiter = new DeveloperApiLimiter(
+  (state.oclrDeveloperApiRateWindows ??= new Map()),
+);
 
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export async function hasDeveloperAccess(osuId: number, reader: Reader = db()) {
@@ -231,14 +235,12 @@ export async function createDeveloperToken(
       })
       .returning();
     const after = metadata(row);
-    await tx
-      .insert(developerApiEvents)
-      .values({
-        actorId: session.osuId,
-        accessId: row.id,
-        action: "create",
-        detail: { before: null, after },
-      });
+    await tx.insert(developerApiEvents).values({
+      actorId: session.osuId,
+      accessId: row.id,
+      action: "create",
+      detail: { before: null, after },
+    });
     return { backend, access: after, token };
   });
 }
@@ -277,14 +279,12 @@ export async function revokeDeveloperToken(
       .set({ revokedAt: new Date() })
       .where(eq(developerApiTokens.id, id))
       .returning();
-    await tx
-      .insert(developerApiEvents)
-      .values({
-        actorId: session.osuId,
-        accessId: id,
-        action: "revoke",
-        detail: { before: metadata(before), after: metadata(after) },
-      });
+    await tx.insert(developerApiEvents).values({
+      actorId: session.osuId,
+      accessId: id,
+      action: "revoke",
+      detail: { before: metadata(before), after: metadata(after) },
+    });
     return metadata(after);
   });
 }

@@ -1,8 +1,9 @@
+import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { frontendProfile } from "@/lib/frontend-data";
 import { remoteMode } from "@/lib/data-source";
 import { apiError, HttpError } from "@/lib/http";
-export async function GET(
+async function readGET(
   request: Request,
   { params }: { params: Promise<{ osuId: string }> },
 ) {
@@ -30,4 +31,8 @@ export async function GET(
   } catch (e) {
     return apiError(e);
   }
+}
+
+export async function GET(...args: Parameters<typeof readGET>) {
+  return withFrontendReadRequest(() => readGET(...args));
 }

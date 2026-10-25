@@ -1,4 +1,4 @@
-import fallbackZones from "@/content/time-zones.json";
+import fallbackZones from "@/content/time-zones.json" with { type: "json" };
 import { editionSchema } from "./editions";
 export const commonTimeZones = [
   "UTC",

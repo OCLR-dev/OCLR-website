@@ -1,23 +1,24 @@
-import { assertBusinessWrite } from "./auth/staff";
-import { and, eq, isNull, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
+  captains,
   editionState,
+  memberships,
+  registrationAttempts,
   registrationEvents,
   registrations,
-  registrationAttempts,
-  captains,
-  memberships,
 } from "@/db/schema";
-import { readTournament } from "./tournaments";
-import { withinRankGrace, ELIGIBILITY_FRESH_MS } from "./eligibility-model";
-import { verifyEligibility } from "./eligibility";
-import { storedEdition } from "./tournaments";
-import { enrollmentState, type Edition } from "./editions";
-import type { User } from "./auth/sessions";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import { z } from "zod";
 import { privacyReady } from "./auth/config";
+import type { User } from "./auth/sessions";
+import { assertBusinessWrite } from "./auth/staff";
+import { remoteMode } from "./data-source";
+import { enrollmentState, type Edition } from "./editions";
+import { verifyEligibility } from "./eligibility";
+import { ELIGIBILITY_FRESH_MS, withinRankGrace } from "./eligibility-model";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import { readTournament, storedEdition } from "./tournaments";
 // Latest explicit provenance, without rewriting legacy audit records or storing
 // a second registration status. Mutations timestamp the event and row together.
 // Keep the outer qualifier literal: single-table projections otherwise strip it.
@@ -30,6 +31,10 @@ export const registrationOperation = sql<
 export async function registrationAvailability(
   edition: Edition,
 ): Promise<ReturnType<typeof enrollmentState> | "unavailable"> {
+  if (remoteMode())
+    return (await import("./frontend-read-models")).publicEnrollmentState(
+      edition.slug,
+    );
   const state = enrollmentState(edition);
   if (state !== "open") return state;
   if (!privacyReady() || !process.env.DATABASE_URL) return "unavailable";
@@ -396,7 +401,7 @@ export async function withdrawRegistration(
     return updated;
   });
 }
-export async function ownRegistrations(userId: number) {
+async function databaseOwnRegistrations(userId: number) {
   return db()
     .select({
       id: registrations.id,
@@ -417,6 +422,17 @@ export async function ownRegistrations(userId: number) {
     .from(registrations)
     .where(eq(registrations.userId, userId))
     .orderBy(registrations.createdAt);
+}
+export async function ownRegistrations(
+  userId: number,
+): Promise<Awaited<ReturnType<typeof databaseOwnRegistrations>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(userId);
+    return frontendResource<
+      Awaited<ReturnType<typeof databaseOwnRegistrations>>
+    >("ownRegistrations", {});
+  }
+  return databaseOwnRegistrations(userId);
 }
 
 export async function assertRegistrationUnassigned(

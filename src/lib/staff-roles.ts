@@ -1,15 +1,17 @@
+import { db } from "@/db";
+import { editionState, staffRoleEvents, staffRoles, users } from "@/db/schema";
 import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db";
-import { editionState, staffRoles, staffRoleEvents, users } from "@/db/schema";
+import type { User } from "./auth/sessions";
 import {
   assertCapability,
   capabilityScope,
   readCapabilityScope,
   roles,
 } from "./auth/staff";
-import type { User } from "./auth/sessions";
 import { getEdition } from "./content";
+import { remoteMode } from "./data-source";
+import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 const confirmation = {
   confirmed: z.literal(true),
@@ -41,7 +43,7 @@ const command = z.discriminatedUnion("action", [
     .object({ ...confirmation, action: z.literal("revoke"), grantId: z.uuid() })
     .strict(),
 ]);
-export async function listStaffRoles(actor: User) {
+async function databaseListStaffRoles(actor: User) {
   const scopes = await readCapabilityScope(actor, "manage_staff");
   const where = scopes ? inArray(staffRoles.editionSlug, scopes) : undefined;
   const grants = await db()
@@ -59,6 +61,19 @@ export async function listStaffRoles(actor: User) {
   );
   return { grants, scopes, writeScopes };
 }
+export async function listStaffRoles(
+  actor: User,
+): Promise<Awaited<ReturnType<typeof databaseListStaffRoles>>> {
+  if (remoteMode()) {
+    await assertRemoteSubject(actor.osuId);
+    return frontendResource<Awaited<ReturnType<typeof databaseListStaffRoles>>>(
+      "listStaffRoles",
+      {},
+    );
+  }
+  return databaseListStaffRoles(actor);
+}
+
 export async function changeStaffRole(actor: User, input: unknown) {
   await capabilityScope(actor, "manage_staff");
   const parsed = command.safeParse(input);

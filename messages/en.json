@@ -2609,6 +2609,14 @@
     "m19ffe7c7e9e3": "Save contributors",
     "m4e849a072ca4": "Check contributor names, unique osu! IDs and revision.",
     "m7a831a823240": "Contributors changed. Refresh before saving.",
-    "mcf5d6c49524c": "Contributor management"
+    "mcf5d6c49524c": "Contributor management",
+    "md3d98eb60904": "Media is too large.",
+    "m7332726e1b97": "Read resource not found.",
+    "m243b43de2842": "Provider requests are unavailable in the read-only channel.",
+    "m805f87037a76": "Choose a valid resource ID.",
+    "maf284d4a60ba": "Choose a supported interface locale.",
+    "mfcb2ac8dcb88": "This backend does not support the full-site read contract. Update the backend to read API 1.1.0 or later within v1.",
+    "mf829692e5eb9": "Public and historical pages, saved staff workspaces, your own applications and appointed captain views use remote saved data. Business commands and provider refreshes are disabled.",
+    "md59d43641cdb": "Choose valid API query parameters."
   }
 }

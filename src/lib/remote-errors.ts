@@ -24,6 +24,10 @@ export function remoteErrorMessage(
       return tr(
         "This remote token does not permit this read. Check its scopes and Developer grant.",
       );
+    case "REMOTE_INCOMPATIBLE":
+      return tr(
+        "This backend does not support the full-site read contract. Update the backend to read API 1.1.0 or later within v1.",
+      );
     case "REMOTE_UNSUPPORTED":
       return tr(
         "This page or feature is not supported in remote development yet. See the coverage list.",
