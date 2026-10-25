@@ -33,6 +33,8 @@ export function ApplicationForm({
   const id = useId();
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pending) return;
+    let submitted = false;
     const element = event.currentTarget;
     const form = new FormData(element);
     setPending(true);
@@ -76,6 +78,7 @@ export function ApplicationForm({
         } else setError(data.error ?? "Your application could not be saved.");
         return;
       }
+      submitted = true;
       router.push("/dashboard?submitted=1");
       router.refresh();
     } catch {
@@ -83,7 +86,8 @@ export function ApplicationForm({
         "Your connection was interrupted. Check your dashboard before trying again.",
       );
     } finally {
-      setPending(false);
+      // Stay pending after success until the dashboard replaces this form.
+      if (!submitted) setPending(false);
     }
   }
   return (

@@ -35,7 +35,11 @@ export function TeamCoachManager({
         }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
+      if (!response.ok) {
+        // Load the current version so a retry is not rejected as stale again.
+        router.refresh();
+        throw new Error(result.error);
+      }
       setId("");
       router.refresh();
     } catch (e) {
