@@ -30,6 +30,13 @@ export const globalNavigation: readonly (AdminLink & {
     globalOnly: true,
   },
   {
+    href: "/admin/contributors",
+    label: "Contributor management",
+    group: "Administration",
+    capability: "configure_tournament",
+    globalOnly: true,
+  },
+  {
     href: "/admin/audit",
     label: "Audit log",
     group: "Administration",

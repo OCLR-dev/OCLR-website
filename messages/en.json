@@ -2588,6 +2588,23 @@
     "m864ca4393ac2": "Round rating history is not supported in remote development yet.",
     "m29c2670bb584": "Manga halftone",
     "m5d1490338949": "Glassmorphism",
-    "m8c9d5a67a578": "Esports broadcast"
+    "m8c9d5a67a578": "Esports broadcast",
+    "m2b4371ccd00e": "Contributors saved.",
+    "m10afe881e97a": "Changes take effect only when you save. Public entries appear on About. Contributor entries do not grant staff access.",
+    "ma37672249320": "No contributors",
+    "m888fd80730b6": "Contributor {number}",
+    "mf0f7f1d75db7": "New contributor",
+    "m7e6fefff0f0a": "Hidden",
+    "m2b7f6a84de91": "Display name",
+    "m9ca99ef6eaf6": "osu! user ID",
+    "m2615964649b8": "Move contributor {number} up",
+    "mc66feb5eb8f2": "Move up",
+    "mbeed1a9e88bf": "Move contributor {number} down",
+    "m40bb50da160c": "Move down",
+    "m59d72a2a2a73": "Add contributor",
+    "m19ffe7c7e9e3": "Save contributors",
+    "m4e849a072ca4": "Check contributor names, unique osu! IDs and revision.",
+    "m7a831a823240": "Contributors changed. Refresh before saving.",
+    "mcf5d6c49524c": "Contributor management"
   }
 }

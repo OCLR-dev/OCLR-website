@@ -159,7 +159,11 @@ const projection = sql`
     '{}'::jsonb, created_at FROM site_setting_events
   UNION ALL
   SELECT 'developer_api', id, NULL::text, actor_id, 'developer_api_' || action, 'developer_api', 'developer API access', access_id::text,
-    detail->'before', detail->'after', '{}'::jsonb, created_at FROM developer_api_events`;
+    detail->'before', detail->'after', '{}'::jsonb, created_at FROM developer_api_events
+  UNION ALL
+  SELECT 'contributors', id, NULL::text, actor_id, 'contributors_updated', 'site', 'contributors', '1',
+    jsonb_build_object('entries', before, 'revision', revision - 1),
+    jsonb_build_object('entries', after, 'revision', revision), '{}'::jsonb, created_at FROM contributor_events`;
 type AuditRow = {
   source: string;
   id: string;

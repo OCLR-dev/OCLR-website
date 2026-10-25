@@ -2,6 +2,7 @@ import { getAppTranslations } from "@/i18n/server";
 import Link from "next/link";
 import { Avatar } from "@/components/avatar";
 import { CountryFlag } from "@/components/country-flag";
+import { publicContributors } from "@/lib/contributors";
 import { publicStaff } from "@/lib/public-staff";
 import { privacyContact } from "@/lib/auth/config";
 import { organizerDirectory } from "@/lib/organizer-directory";
@@ -16,6 +17,7 @@ export const dynamic = "force-dynamic";
 export default async function About() {
   const tr = await getAppTranslations();
   const staff = await publicStaff();
+  const contributors = await publicContributors();
   const contact = privacyContact();
   const groups = [
     {
@@ -157,24 +159,24 @@ export default async function About() {
           </section>
           <section id="contributors" aria-labelledby="contributors-title">
             <h2 id="contributors-title">{tr("Contributors")}</h2>
-            <ul className="organizer-people">
-              <li>
-                <Avatar osuId={6963321} username="qi_e" />
-                <div>
-                  <h4>
-                    <a href="https://osu.ppy.sh/users/6963321">qi_e</a>
-                  </h4>
-                </div>
-              </li>
-              <li>
-                <Avatar osuId={7003013} username="Muziyami" />
-                <div>
-                  <h4>
-                    <a href="https://osu.ppy.sh/users/7003013">Muziyami</a>
-                  </h4>
-                </div>
-              </li>
-            </ul>
+            {contributors.length ? (
+              <ul className="organizer-people">
+                {contributors.map((person) => (
+                  <li key={person.osuId}>
+                    <Avatar osuId={person.osuId} username={person.name} />
+                    <div>
+                      <h4>
+                        <a href={`https://osu.ppy.sh/users/${person.osuId}`}>
+                          {person.name}
+                        </a>
+                      </h4>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="muted">{tr("Not announced")}</p>
+            )}
           </section>
           <footer className="organizer-contact">
             <div>

@@ -1137,3 +1137,51 @@ describe.skipIf(!base)("Yumu award policy upgrade", () => {
       }
     }));
 });
+
+describe.skipIf(!base)("contributor directory migration (#275)", () => {
+  it("preserves the two published identities and does not recreate removed entries on repeat", async () =>
+    isolated(async (pool) => {
+      await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
+      const { entries } = (
+        await pool.query("SELECT entries FROM contributor_directory WHERE id=1")
+      ).rows[0];
+      expect(
+        entries.map(
+          ({
+            name,
+            osuId,
+            published,
+          }: {
+            name: string;
+            osuId: number;
+            published: boolean;
+          }) => ({ name, osuId, published }),
+        ),
+      ).toEqual([
+        { name: "qi_e", osuId: 6963321, published: true },
+        { name: "Muziyami", osuId: 7003013, published: true },
+      ]);
+      expect(
+        new Set(entries.map((entry: { id: string }) => entry.id)).size,
+      ).toBe(2);
+      await pool.query(
+        "UPDATE contributor_directory SET entries='[]', revision=1",
+      );
+      await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
+      const insertion = readFileSync(
+        "drizzle/0042_contributor_directory.sql",
+        "utf8",
+      )
+        .split("--> statement-breakpoint")
+        .at(-1)!;
+      await pool.query(insertion);
+      expect(
+        (
+          await pool.query(
+            "SELECT entries,revision FROM contributor_directory WHERE id=1",
+          )
+        ).rows,
+      ).toEqual([{ entries: [], revision: 1 }]);
+      expect((await pool.query("SELECT * FROM staff_roles")).rows).toEqual([]);
+    }));
+});

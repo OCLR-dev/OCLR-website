@@ -1158,3 +1158,45 @@ export const playerMessages = pgTable(
     ),
   ],
 );
+
+// Ordered, global display identities. These entries never grant staff access.
+export const contributorDirectory = pgTable(
+  "contributor_directory",
+  {
+    id: integer("id").primaryKey().default(1),
+    entries: jsonb("entries")
+      .$type<import("@/lib/contributor-model").Contributor[]>()
+      .notNull()
+      .default([]),
+    revision: integer("revision").notNull().default(0),
+  },
+  (t) => [
+    check("contributor_directory_singleton", sql`${t.id} = 1`),
+    check("contributor_directory_revision", sql`${t.revision} >= 0`),
+    check(
+      "contributor_directory_array",
+      sql`jsonb_typeof(${t.entries}) = 'array'`,
+    ),
+  ],
+);
+export const contributorEvents = pgTable(
+  "contributor_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    actorId: bigint("actor_id", { mode: "number" }).references(
+      () => users.osuId,
+      { onDelete: "set null" },
+    ),
+    before: jsonb("before")
+      .$type<import("@/lib/contributor-model").Contributor[]>()
+      .notNull(),
+    after: jsonb("after")
+      .$type<import("@/lib/contributor-model").Contributor[]>()
+      .notNull(),
+    revision: integer("revision").notNull().unique(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [check("contributor_events_revision", sql`${t.revision} > 0`)],
+);

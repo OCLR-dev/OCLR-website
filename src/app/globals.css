@@ -5244,3 +5244,40 @@ body:has([data-broadcast]) .site-shell {
   cursor: pointer;
   padding-block: 0.75rem;
 }
+
+.contributor-manager > fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.contributor-manager .settings-card {
+  min-width: 0;
+  margin: 0;
+}
+.contributor-identity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.contributor-identity strong {
+  min-width: 0;
+}
+.contributor-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+}
+.contributor-public {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+}
+.contributor-public input {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+}
