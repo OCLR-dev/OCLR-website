@@ -2505,6 +2505,8 @@
     "m670569010296": "Update staff roles?",
     "md9459997be8c": "Set roles for osu! ID {userId} in {scope} to: {roles}. Other scopes and retained roles’ public visibility stay unchanged.",
     "m9ab580a99427": "Role assignments changed. Refresh before saving.",
-    "m3b3489d07a9e": "Edit roles"
+    "m3b3489d07a9e": "Edit roles",
+    "md6eafe823591": "Download",
+    "m4c8677063acd": "osu!direct"
   }
 }

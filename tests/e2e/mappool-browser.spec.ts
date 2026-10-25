@@ -54,7 +54,7 @@ test.describe("anonymous inline mappool browser", () => {
             position: Math.floor(i / categories.length) + 1,
             beatmapId: 830001 + i,
             metadata: {
-              setId: 42,
+              setId: 42 + i,
               artist: "Synthetic Artist",
               title: `${name} map ${i + 1}`,
               difficulty: "Expert",
@@ -137,6 +137,10 @@ test.describe("anonymous inline mappool browser", () => {
     await expect(
       dialog.getByRole("link", { name: "osu!direct", exact: true }),
     ).toHaveAttribute("href", "osu://b/830002");
+    await expect(dialog.locator(".beatmap-cover img")).toHaveAttribute(
+      "src",
+      "https://assets.ppy.sh/beatmaps/43/covers/cover.jpg",
+    );
     await page.keyboard.press("Escape");
     await expect(opener).toBeFocused();
     await expect(
