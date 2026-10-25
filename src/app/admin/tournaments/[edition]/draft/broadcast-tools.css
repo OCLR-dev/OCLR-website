@@ -35,7 +35,7 @@
   margin: 0;
   gap: 0.5rem;
 }
-.obs-source-controls {
+.draft-broadcast-tools .obs-source-controls {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.5rem;
@@ -54,14 +54,14 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
-.obs-copy-feedback:empty {
+.draft-broadcast-tools .obs-copy-feedback:empty {
   display: none;
 }
 @media (max-width: 480px) {
-  .obs-source-controls {
+  .draft-broadcast-tools .obs-source-controls {
     grid-template-columns: minmax(0, 1fr);
   }
-  .obs-source-controls button {
+  .draft-broadcast-tools .obs-source-controls button {
     justify-self: start;
   }
 }
