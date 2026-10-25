@@ -6,7 +6,7 @@ export async function WikiDocument({ article }: { article: WikiArticle }) {
   return (
     <div className="container page wiki-page information-page">
       <nav className="wiki-articles" aria-label={tr("Wiki articles")}>
-        {wikiArticles.map((item) => (
+        {wikiArticles(tr).map((item) => (
           <Link
             key={item.slug}
             href={wikiHref(item.slug)}
@@ -17,7 +17,10 @@ export async function WikiDocument({ article }: { article: WikiArticle }) {
         ))}
       </nav>
       <div className="information-layout">
-        <article className="information-document document-typeset" aria-labelledby="wiki-title">
+        <article
+          className="information-document document-typeset"
+          aria-labelledby="wiki-title"
+        >
           <header className="information-heading">
             <p className="eyebrow">
               {tr("OCLR Wiki")} · {article.category}

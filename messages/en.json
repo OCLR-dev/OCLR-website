@@ -2588,6 +2588,8 @@
     "m864ca4393ac2": "Round rating history is not supported in remote development yet.",
     "m29c2670bb584": "Manga halftone",
     "m5d1490338949": "Glassmorphism",
-    "m8c9d5a67a578": "Esports broadcast"
+    "m8c9d5a67a578": "Esports broadcast",
+    "m3ddab86da3a0": "Read the current tournament's {informationPage} for registration dates, eligibility and the schedule.",
+    "m50d5eac6519c": ". The community shares tournament announcements, team discussions and multiplayer sessions. Open {informationPage} in the header for this season's registration and stages."
   }
 }
