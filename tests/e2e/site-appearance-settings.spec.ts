@@ -133,6 +133,7 @@ test.describe("Admin default and visitor appearance overrides", () => {
         "retro-arcade",
         "manga-halftone",
         "glassmorphism",
+        "esports-broadcast",
         "claymorphism",
         "swiss-minimal",
         "default",
@@ -204,8 +205,8 @@ test.describe("Admin default and visitor appearance overrides", () => {
     } finally {
       await guest.close();
     }
-    expect(await db().select().from(siteSettingEvents)).toHaveLength(9);
-    expect((await db().select().from(siteSettings))[0].revision).toBe(9);
+    expect(await db().select().from(siteSettingEvents)).toHaveLength(10);
+    expect((await db().select().from(siteSettings))[0].revision).toBe(10);
     expect(errors).toEqual([]);
   });
   test("enforces global Admin authorization, origin and concurrency through the API", async ({

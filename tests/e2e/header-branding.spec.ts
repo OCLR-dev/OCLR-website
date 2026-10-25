@@ -24,6 +24,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"] as const)
     "claymorphism",
     "manga-halftone",
     "glassmorphism",
+    "esports-broadcast",
     "retro-arcade",
   ])
     for (const theme of ["light", "dark"])

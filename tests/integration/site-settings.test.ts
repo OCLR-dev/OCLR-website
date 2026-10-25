@@ -56,6 +56,7 @@ describe.skipIf(!url)("global site appearance settings", () => {
     "claymorphism",
     "manga-halftone",
     "glassmorphism",
+    "esports-broadcast",
     "retro-arcade",
   ])("saves %s with an authoritative audit event", async (appearance) => {
     expect(await siteSettingsForAdmin(admin)).toMatchObject({

@@ -74,8 +74,9 @@ surface. Text on the primary key is 14.4:1 / 16.1:1; on the cursor block
 
 - `npm run lint`, `npm run typecheck`: no errors.
 - `npm test` on the isolated `oclr_arcade_test` database after syncing with
-  upstream main (`889304d`, which added Manga halftone 0039 and Glassmorphism
-  0040): 968 passed, 1 skipped, including the new 0041 migration upgrade test.
+  upstream main (`5f3e9d9`, which added Manga halftone 0039, Glassmorphism 0040
+  and Esports broadcast 0041): 970 passed, 1 skipped, including the new 0042
+  migration upgrade test.
 - `npm run build` passed; `npm audit --omit=dev` found 0 vulnerabilities.
 - `npm run i18n:extract` and `npm run test:i18n` passed.
 - Press Start 2P and the locale's Fusion Pixel file load from `/fonts/` (HTTP 200); no external font requests.

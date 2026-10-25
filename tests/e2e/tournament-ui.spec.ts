@@ -2,9 +2,8 @@ import { englishStorage } from "../fixtures/preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { seedSession } from "./session";
-import { db, closeDb } from "../../src/db";
-import { editionState } from "../../src/db/schema";
-import { eq } from "drizzle-orm";
+import { closeDb } from "../../src/db";
+import { randomUUID } from "node:crypto";
 test.describe("registration readiness and confirmation layout", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.afterAll(closeDb);
@@ -15,8 +14,8 @@ test.describe("registration readiness and confirmation layout", () => {
     isMobile,
   }, info) => {
     await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
-    const slug = isMobile ? "ui-mobile-test" : "ui-desktop-test";
-    await db().delete(editionState).where(eq(editionState.slug, slug));
+    // Repeats must not delete an edition referenced by registrations/audit events.
+    const slug = `ui-${isMobile ? "mobile" : "desktop"}-${randomUUID().slice(0, 8)}-test`;
     const endpoint = `/api/admin/tournaments/${slug}`;
     const headers = { origin: "http://127.0.0.1:3100" };
     const current = async () => (await context.request.get(endpoint)).json();
@@ -140,7 +139,9 @@ test.describe("registration readiness and confirmation layout", () => {
         nodes.map((node) => {
           const style = getComputedStyle(node);
           return [
-            node.getBoundingClientRect().height,
+            // Hover transforms can add subpixel rounding to the visual rect.
+            // Compare the actual layout height, retaining the strict 44px check.
+            (node as HTMLElement).offsetHeight,
             style.fontSize,
             style.padding,
             style.borderRadius,
@@ -149,6 +150,7 @@ test.describe("registration readiness and confirmation layout", () => {
       );
     expect(
       new Set(dialogButtons.map((style) => JSON.stringify(style))).size,
+      JSON.stringify(dialogButtons),
     ).toBe(1);
     expect(dialogButtons[0][0]).toBe(44);
     const centered = async () => {

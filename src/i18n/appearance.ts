@@ -16,6 +16,8 @@ export function appearanceLabel(
       return tr("Manga halftone");
     case "glassmorphism":
       return tr("Glassmorphism");
+    case "esports-broadcast":
+      return tr("Esports broadcast");
     case "retro-arcade":
       return tr("Retro arcade");
     default:

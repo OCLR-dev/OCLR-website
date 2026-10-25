@@ -82,6 +82,11 @@ const optional = {
     lightBackground: "rgb(241, 237, 248)",
     darkBackground: "rgb(18, 16, 28)",
   },
+  "esports-broadcast": {
+    label: "Esports broadcast",
+    lightBackground: "rgb(238, 241, 246)",
+    darkBackground: "rgb(11, 14, 20)",
+  },
   "retro-arcade": {
     label: "Retro arcade",
     lightBackground: "rgb(21, 18, 43)",
