@@ -1,0 +1,1087 @@
+/* Esports Broadcast (#235), based on the organizer's osu! Cup batch-1 style A.
+ * An arena broadcast package: a black bar with a magenta rule and hazard tape
+ * tops both brightness modes, pages sit on an LED dot grid, and the dark mode is
+ * a lit stage. Magenta marks interaction, cyan marks data and the selected slot,
+ * signal yellow only appears on black, and red marks the live phase and side 1.
+ * Slants, stripes and corner cuts live on decorative layers (pseudo-elements with
+ * pointer-events:none, or backgrounds): no skewed text, no clipped containers,
+ * no recoloured art. Scoped to ordinary pages: OBS output has no .themed-site.
+ * Barlow Condensed is bundled under SIL OFL 1.1; see public/fonts/README.md.
+ */
+@font-face {
+  /* The italic file is declared upright so only Latin glyphs slant; CJK falls
+   * back to the upright system sans instead of a synthesised oblique. */
+  font-family: "OCLR Barlow Condensed";
+  src: url("/fonts/barlow-condensed-latin-800-italic.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+html[data-appearance="esports-broadcast"]:not(:has(.broadcast-site)),
+html[data-appearance="esports-broadcast"]:not(:has(.broadcast-site)) body {
+  background: #eef1f6;
+}
+html[data-appearance="esports-broadcast"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  ),
+html[data-appearance="esports-broadcast"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  )
+  body {
+  background: #0b0e14;
+}
+
+html[data-appearance="esports-broadcast"] .themed-site {
+  --site-background: #eef1f6;
+  --site-surface: #fff;
+  --site-raised: #e4e8f0;
+  --site-tint: #fbe4ee;
+  --site-foreground: #111722;
+  --site-muted: #4b5567;
+  --site-secondary-text: #2f394a;
+  --site-accent: #b0105a;
+  --site-accent-strong: #8a0b46;
+  --site-border: #c9d0dc;
+  --site-control-border: #687387;
+  --site-header: #0d1118;
+  --site-primary: #c2125f;
+  --site-primary-hover: #9e0e4c;
+  --site-on-primary: #fff;
+  --site-success: #1b6a4b;
+  --site-warning: #7a5200;
+  --site-danger: #ae1f3e;
+  --site-focus: #a3104f;
+  --site-selection: #fbd3e4;
+  --site-highlight: #c2125f;
+  --site-connector: #687387;
+  --site-shadow: #11172224;
+  --site-soft-shadow: #11172214;
+  --site-panel-shadow: #1117221f;
+  --site-dialog-shadow: #11172247;
+  --site-backdrop: #0d111880;
+  /* Cyan is the data/selected-slot colour, never a status colour. */
+  --esports-cyan: #14d8f5;
+  --esports-on-cyan: #06121a;
+  --esports-cyan-ink: #006277;
+  --esports-cyan-edge: #006277;
+  /* Broadcast package colours: black bar, magenta rule, signal yellow (only on
+   * black) and live red (white text, 5.3:1). */
+  --esports-bar: #0d1118;
+  --esports-black: #07080b;
+  --esports-rule: #ff3d8b;
+  --esports-yellow: #ffd60a;
+  --esports-red: #d4142f;
+  --esports-head: #0d1118;
+  --esports-head-text: #eef2f7;
+  --esports-dot: #1117221c;
+  --esports-offset: #0d1118;
+  --site-button-shadow: 3px 3px 0 var(--esports-offset);
+  --button-radius: 4px;
+  --radius-panel: 6px;
+  color-scheme: light;
+  /* LED wall: a fine dot grid behind content; panels keep solid surfaces. */
+  background-color: var(--site-background);
+  background-image: radial-gradient(
+    circle,
+    var(--esports-dot) 1px,
+    transparent 1.6px
+  );
+  background-size: 16px 16px;
+  color: var(--site-foreground);
+  line-height: 1.65;
+}
+html[data-appearance="esports-broadcast"][data-theme="dark"] .themed-site {
+  --site-background: #0b0e14;
+  --site-surface: #141922;
+  --site-raised: #1d2430;
+  --site-tint: #3a1c2d;
+  --site-foreground: #e8edf3;
+  --site-muted: #a7b2c2;
+  --site-secondary-text: #c8d1dd;
+  --site-accent: #ff6ba9;
+  --site-accent-strong: #ffa3ca;
+  --site-border: #333d4e;
+  --site-control-border: #7a879c;
+  --site-header: #0d1118;
+  --site-primary: #ff4f9a;
+  --site-primary-hover: #ff7ab4;
+  --site-on-primary: #16060e;
+  --site-success: #8fe0bd;
+  --site-warning: #f0cd85;
+  --site-danger: #ffa0b4;
+  --site-focus: #ff8fbf;
+  --site-selection: #4a2238;
+  --site-highlight: #ff4f9a;
+  --site-connector: #7a879c;
+  --site-shadow: #0008;
+  --site-soft-shadow: #0004;
+  --site-panel-shadow: #0006;
+  --site-dialog-shadow: #000a;
+  --site-backdrop: #000000b3;
+  --esports-cyan: #19e3ff;
+  --esports-on-cyan: #04121a;
+  --esports-cyan-ink: #4fe3fb;
+  --esports-cyan-edge: #19e3ff;
+  --esports-bar: #07090e;
+  --esports-head: #1d2430;
+  --esports-dot: #ffffff10;
+  --esports-offset: #0e8ea3;
+  color-scheme: dark;
+  /* Stage lighting: a magenta wash from the top over the dot grid. */
+  background-image:
+    radial-gradient(ellipse 80% 420px at 50% 0, #ff3d8b1c, transparent 75%),
+    radial-gradient(circle, var(--esports-dot) 1px, transparent 1.6px);
+  background-size:
+    100% 100%,
+    16px 16px;
+  background-repeat: no-repeat, repeat;
+}
+
+/* Type: event titles use Barlow Condensed ExtraBold Italic for Latin glyphs;
+ * page labels and body text stay on the system sans, 16px/1.65. */
+html[data-appearance="esports-broadcast"] .themed-site :is(h1, h2, h3) {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    .information-heading h1,
+    .event-intro h1,
+    .hero h1,
+    .season-overview-hero :is(h1, h2),
+    .information-banner > span
+  ) {
+  /* Named CJK fallbacks keep Chinese upright when the locale stack has none. */
+  font-family:
+    "OCLR Barlow Condensed", var(--font-sans), "PingFang SC", "Microsoft YaHei",
+    "Noto Sans CJK SC", sans-serif;
+  font-style: normal;
+  font-weight: 800;
+  font-synthesis: none;
+  letter-spacing: 0;
+}
+html[data-appearance="esports-broadcast"] .themed-site .information-heading h1 {
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  line-height: 1.05;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .information-banner
+  > span {
+  font-size: clamp(2.4rem, 5.5vw, 5rem);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    td,
+    .score,
+    .event-score,
+    .statistics-game-score,
+    .archive-scoreboard,
+    .pool-summary strong,
+    .countdown-days strong,
+    .profile-statistics dd
+  ) {
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="esports-broadcast"] .themed-site :focus-visible {
+  outline: 3px solid var(--site-focus);
+  outline-offset: 4px;
+}
+html[data-appearance="esports-broadcast"] .themed-site ::selection {
+  background: var(--site-selection);
+  color: var(--site-foreground);
+}
+
+/* Lower-third: the page eyebrow sits on a slanted magenta plate, followed by a
+ * black tag carrying yellow speed slashes. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.information-heading, .page-heading)
+  > .eyebrow {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  margin-right: 3.25rem;
+  padding: 0.15rem 0.75rem;
+  color: var(--site-on-primary);
+  font-weight: 700;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.information-heading, .page-heading)
+  > .eyebrow::before,
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.information-heading, .page-heading)
+  > .eyebrow::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--site-primary);
+  transform: skewX(-14deg);
+  pointer-events: none;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.information-heading, .page-heading)
+  > .eyebrow::after {
+  inset: 0 auto 0 calc(100% + 0.4rem);
+  width: 2.5rem;
+  background:
+    repeating-linear-gradient(
+        90deg,
+        var(--esports-yellow) 0 3px,
+        transparent 3px 7px
+      )
+      center / 70% 60% no-repeat,
+    var(--esports-black);
+}
+/* Section titles carry three slanted speed bars. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.information-document section > h2, .archive-overview-rules > h2) {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    .information-document section > h2,
+    .archive-overview-rules > h2
+  )::before {
+  content: "";
+  flex: none;
+  width: 1.1rem;
+  height: 0.85em;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--site-primary) 0 3px,
+    transparent 3px 7px
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+
+/* Links inside running text are underlined, so colour is never the only cue. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.document-typeset, .prose)
+  :is(p, li)
+  a:not(.button) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* Buttons stay upright with 4px corners; primary actions cast a hard offset
+ * plate (black in light, cyan in dark) and press into it. */
+html[data-appearance="esports-broadcast"] .themed-site :is(button, .button) {
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out,
+    color 150ms ease-out,
+    box-shadow 150ms ease-out,
+    transform 150ms ease-out;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(button, .button):hover {
+  transform: none;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(button, .button):active:not(:disabled) {
+  --site-button-shadow: 0 0 0 transparent;
+  transform: translate(2px, 2px);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(button, .button).secondary:hover {
+  border-color: var(--site-accent);
+  background: var(--site-tint);
+}
+/* Secondary, header, menu and track buttons stay flat. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    .secondary,
+    .site-header,
+    [role="menu"],
+    [role="tablist"],
+    [role="listbox"],
+    .workspace-tabs,
+    .mappool-mods,
+    .mappool-rounds,
+    .mappool-pools,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs,
+    .tournament-navigation,
+    .stage-scroll-controls,
+    .archive-status-tabs
+  ) {
+  --site-button-shadow: none;
+}
+/* Disabled is flat and dashed, so it never reads as a selected slot. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(button, .button):disabled,
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .button[aria-disabled="true"] {
+  --site-button-shadow: none;
+  border-style: dashed;
+  border-color: var(--site-control-border);
+  background: var(--site-raised);
+  color: var(--site-muted);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea
+  ) {
+  border-radius: var(--button-radius);
+  border-color: var(--site-control-border);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(input, select, textarea):disabled {
+  border-style: dashed;
+  background: var(--site-raised);
+  color: var(--site-muted);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.check-field, .check-label)
+  input {
+  accent-color: var(--site-accent);
+}
+
+/* Broadcast bar: black with fine pinstripes in both modes, including the
+ * homepage header. The repeated class outweighs home.css's S11 palette. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .site-header.site-header.site-header {
+  --site-header: var(--esports-bar);
+  --site-surface: #161c26;
+  --site-raised: #202835;
+  --site-tint: #3d1d30;
+  --site-foreground: #eef2f7;
+  --site-secondary-text: #c6cfdb;
+  --site-muted: #9ca7b8;
+  --site-accent: #ff6ba9;
+  --site-accent-strong: #ffa3ca;
+  --site-border: #2a3342;
+  --site-control-border: #6f7c91;
+  --site-primary: #ff4f9a;
+  --site-primary-hover: #ff7ab4;
+  --site-on-primary: #16060e;
+  --site-focus: #ff8fbf;
+  --site-shadow: #000a;
+  --color-muted: #9ca7b8;
+  --color-foreground: #eef2f7;
+  --color-border: #2a3342;
+  color-scheme: dark;
+  border-bottom: 3px solid var(--esports-rule);
+  background-color: var(--site-header);
+  background-image: repeating-linear-gradient(
+    115deg,
+    #ffffff08 0 1px,
+    transparent 1px 7px
+  );
+  color: var(--site-foreground);
+}
+/* The rule ends in a cyan segment and yellow/black hazard tape. */
+html[data-appearance="esports-broadcast"] .themed-site .site-header::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  width: calc(clamp(56px, 12vw, 168px) + 44px);
+  height: 3px;
+  background:
+    linear-gradient(var(--esports-cyan), var(--esports-cyan)) left / 32px 100%
+      no-repeat,
+    repeating-linear-gradient(
+        -55deg,
+        var(--esports-yellow) 0 5px,
+        var(--esports-black) 5px 10px
+      )
+      right / clamp(56px, 12vw, 168px) 100% no-repeat,
+    var(--esports-black);
+  pointer-events: none;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .site-header
+  .brand
+  .oclr-wordmark {
+  --oclr-letter-top: #ffeef9;
+  --oclr-letter-mid: #f5b9eb;
+  --oclr-letter-bottom: #bc7bf2;
+  --oclr-letter-outline: #fae3f4;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .site-header.site-header.site-header
+  .nav-login {
+  border: 1px solid var(--site-accent);
+  border-radius: var(--button-radius);
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .site-header.site-header.site-header
+  .nav-login:hover {
+  background: var(--site-primary-hover);
+}
+html[data-appearance="esports-broadcast"] .themed-site .main-nav > a {
+  color: var(--site-secondary-text);
+  border-bottom-width: 3px;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .main-nav
+  > a:is(:hover, [aria-current]) {
+  color: var(--site-foreground);
+  border-color: var(--esports-rule);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.appearance-control, .language-control, .account-menu)
+  :is([role="menu"], .account-dropdown) {
+  border-color: var(--site-border);
+  border-top: 3px solid var(--esports-rule);
+  border-radius: var(--radius-panel);
+  background: var(--site-surface);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[role] {
+  border-radius: var(--button-radius);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[aria-checked="true"] {
+  background: var(--esports-cyan);
+  color: var(--esports-on-cyan);
+  font-weight: 700;
+}
+@media (max-width: 950px) {
+  html[data-appearance="esports-broadcast"] .themed-site .main-nav.open {
+    background: var(--site-surface);
+    border-bottom: 3px solid var(--esports-rule);
+  }
+  html[data-appearance="esports-broadcast"] .themed-site .main-nav > a {
+    border-bottom: 0;
+    border-left: 3px solid transparent;
+    border-radius: 0 var(--button-radius) var(--button-radius) 0;
+  }
+  html[data-appearance="esports-broadcast"]
+    .themed-site
+    .main-nav
+    > a[aria-current] {
+    border-left-color: var(--esports-rule);
+    background: var(--site-raised);
+    font-weight: 700;
+  }
+}
+
+/* Selection tracks: square rails with a faint diagonal grain; the selected
+ * slot lights up cyan. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    .tournament-navigation nav,
+    .workspace-tabs,
+    .mappool-mods,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs
+  ) {
+  border: 1px solid var(--site-border);
+  border-radius: var(--radius-panel);
+  background-color: var(--site-raised);
+  background-image: repeating-linear-gradient(
+    115deg,
+    var(--esports-dot) 0 1px,
+    transparent 1px 6px
+  );
+  box-shadow: none;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs button,
+    .mappool-mods button,
+    .event-pills button,
+    .bracket-tabs button,
+    .event-tabs button
+  ) {
+  border: 1px solid transparent;
+  border-radius: var(--button-radius);
+  background: transparent;
+  color: var(--site-secondary-text);
+  box-shadow: none;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs button,
+    .mappool-mods button,
+    .event-pills button,
+    .bracket-tabs button,
+    .event-tabs button
+  ):hover {
+  color: var(--site-accent);
+  background: var(--site-surface);
+  transform: none;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a[aria-current],
+    .workspace-tabs button[aria-selected="true"],
+    .mappool-mods button[aria-pressed="true"],
+    .event-pills button[aria-pressed="true"],
+    .bracket-tabs button[aria-pressed="true"],
+    .event-tabs button[aria-pressed="true"]
+  ) {
+  border-color: var(--esports-cyan-edge);
+  background: var(--esports-cyan);
+  color: var(--esports-on-cyan);
+  font-weight: 700;
+  box-shadow: 2px 2px 0 var(--esports-black);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .tournament-navigation
+  nav
+  a[aria-current]::before {
+  width: 0.35rem;
+  height: 0.8rem;
+  border-radius: 0;
+  background: var(--esports-on-cyan);
+  transform: skewX(-14deg);
+  pointer-events: none;
+}
+html[data-appearance="esports-broadcast"] .themed-site .event-tabs {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.25rem;
+}
+html[data-appearance="esports-broadcast"] .themed-site .tournament-menu {
+  border-radius: var(--button-radius);
+}
+
+/* Hero: a magenta edge plus a decorative corner cut and cyan frame mark drawn
+ * on a layer above the art; the container and artwork stay unclipped. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.season-overview-hero, .information-banner) {
+  border-left: 5px solid var(--site-primary);
+  border-radius: var(--radius-panel);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .information-banner::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background:
+    linear-gradient(
+        135deg,
+        transparent calc(50% - 2px),
+        var(--site-primary) calc(50% - 2px) calc(50% + 1px),
+        var(--site-background) calc(50% + 1px)
+      )
+      right bottom / 34px 34px no-repeat,
+    linear-gradient(var(--esports-cyan), var(--esports-cyan)) right 14px top
+      14px / 26px 3px no-repeat,
+    linear-gradient(var(--esports-cyan), var(--esports-cyan)) right 14px top
+      14px / 3px 26px no-repeat;
+  pointer-events: none;
+}
+html[data-appearance="esports-broadcast"] .themed-site .season-overview-hero {
+  border-top: 1px solid var(--site-border);
+  border-right: 1px solid var(--site-border);
+  border-bottom: 1px solid var(--site-border);
+  background: var(--site-surface);
+}
+html[data-appearance="esports-broadcast"] .themed-site .information-active {
+  border-radius: var(--radius-panel);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .stage-scroll-drum::before {
+  border: 1px solid var(--site-border);
+  border-left: 3px solid var(--site-primary);
+  border-radius: var(--radius-panel);
+  background: var(--site-surface);
+}
+/* The current phase reads like an on-air tag. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .stage-scroll-row.is-current
+  .stage-scroll-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.05rem 0.5rem;
+  border-radius: 2px;
+  background: var(--esports-red);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .stage-scroll-row.is-current
+  .stage-scroll-status::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #fff;
+}
+html[data-appearance="esports-broadcast"] .themed-site .event-intro {
+  border-radius: var(--radius-panel);
+}
+
+/* Light mode keeps a dark stage at the top of public pages and the login page
+ * (private workspaces have sidebars and are left alone): the breadcrumb and
+ * tournament navigation, the page title and (on the overview) the top half of
+ * the hero sit on a full-width dark band; content below stays light. The band
+ * is a border-image outset, so it adds no layout or horizontal scroll, and its
+ * top outset slides under the sticky bar. Inside the band the dark-mode tokens
+ * apply, including the --color-* aliases resolved on .themed-site. */
+html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
+  .themed-site:is(.public-site, :has(.auth-page))
+  :is(
+    .public-tournament > .event-context,
+    .event-content > :first-child:is(.information-heading, .page-heading),
+    .event-content
+      > :first-child:not(.information-heading, .page-heading)
+      > :first-child:is(.information-heading, .event-section-heading, h1),
+    .container.page > .page-heading:first-child
+  ) {
+  --site-background: #0b0e14;
+  --site-surface: #141922;
+  --site-raised: #1d2430;
+  --site-tint: #3a1c2d;
+  --site-foreground: #e8edf3;
+  --site-muted: #a7b2c2;
+  --site-secondary-text: #c8d1dd;
+  --site-accent: #ff6ba9;
+  --site-accent-strong: #ffa3ca;
+  --site-border: #333d4e;
+  --site-control-border: #7a879c;
+  --site-primary: #ff4f9a;
+  --site-primary-hover: #ff7ab4;
+  --site-on-primary: #16060e;
+  --site-focus: #ff8fbf;
+  --site-selection: #4a2238;
+  --site-highlight: #ff4f9a;
+  --esports-cyan: #19e3ff;
+  --esports-on-cyan: #04121a;
+  --esports-cyan-ink: #4fe3fb;
+  --esports-cyan-edge: #19e3ff;
+  --esports-dot: #ffffff10;
+  --esports-offset: #0e8ea3;
+  --color-background: #0b0e14;
+  --color-surface: #141922;
+  --color-raised: #1d2430;
+  --color-foreground: #e8edf3;
+  --color-muted: #a7b2c2;
+  --color-accent: #ff6ba9;
+  --color-border: #333d4e;
+  color-scheme: dark;
+  color: var(--site-foreground);
+}
+/* The breadcrumb band carries the stage wash and reaches under the bar. */
+html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
+  .themed-site:is(.public-site, :has(.auth-page))
+  .public-tournament
+  > .event-context {
+  margin-bottom: 1rem;
+  border-image: linear-gradient(#2a1020, #0b0e14 9rem) fill 0 / /4rem 100vw 1rem;
+}
+/* Titles close the stage with a magenta rule below some breathing room. */
+html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
+  .themed-site:is(.public-site, :has(.auth-page))
+  :is(
+    .event-content > :first-child:is(.information-heading, .page-heading),
+    .event-content
+      > :first-child:not(.information-heading, .page-heading)
+      > :first-child:is(.information-heading, .event-section-heading, h1)
+  ) {
+  margin-top: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 1.5rem;
+  border-image: linear-gradient(
+      #0b0e14 calc(100% - 2px),
+      var(--esports-rule) calc(100% - 2px)
+    )
+    fill 0 / /1px 100vw 0;
+}
+/* Pages without the tournament context strip open the stage themselves. */
+html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
+  .themed-site:is(.public-site, :has(.auth-page))
+  .container.page
+  > .page-heading:first-child {
+  padding-bottom: 1.5rem;
+  border-image: linear-gradient(
+      #2a1020,
+      #0b0e14 9rem,
+      #0b0e14 calc(100% - 2px),
+      var(--esports-rule) calc(100% - 2px)
+    )
+    fill 0 / /4rem 100vw 0;
+}
+/* On the overview the stage runs behind the top half of the hero (the banner
+ * is 3.7:1 and spans the tournament container), with the rule behind it. */
+html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
+  .themed-site:is(.public-site, :has(.auth-page))
+  .event-content
+  > :first-child
+  > .information-heading:first-child:has(+ .information-banner) {
+  border-image: linear-gradient(
+      #0b0e14 calc(100% - 2px),
+      var(--esports-rule) calc(100% - 2px)
+    )
+    fill 0 / /1px 100vw calc(1.5rem + 100cqw / 7.4);
+}
+
+/* Panels are flat plates with a magenta corner bracket drawn by the background;
+ * repeated data rows carry no extra material. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    .panel,
+    .edition-card,
+    .directory-details,
+    .about-aside,
+    .settings-card,
+    .identity-panel,
+    .registration-card,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .mappool-context,
+    .mappool-setup,
+    .match-card,
+    .public-match-card,
+    .map-browse-card,
+    .mappool-public-round,
+    .player-card,
+    .captain-player-card,
+    .captain-order > li,
+    .table-scroll,
+    .notice,
+    .empty-state
+  ) {
+  border-color: var(--site-border);
+  border-radius: var(--radius-panel);
+  box-shadow: none;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(
+    .panel,
+    .edition-card,
+    .settings-card,
+    .identity-panel,
+    .registration-card,
+    .rules-desktop-contents
+  ) {
+  background-image:
+    linear-gradient(var(--site-primary), var(--site-primary)),
+    linear-gradient(var(--site-primary), var(--site-primary));
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size:
+    20px 3px,
+    3px 20px;
+}
+html[data-appearance="esports-broadcast"] .themed-site .empty-state {
+  border-color: var(--site-control-border);
+}
+/* Player plates and bracket boards use steel, not the pastel tint wash. */
+html[data-appearance="esports-broadcast"] .themed-site .event-player-basic {
+  background: linear-gradient(120deg, var(--site-raised), transparent);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.event-bracket, .event-knockout) {
+  background: linear-gradient(
+    140deg,
+    var(--site-raised),
+    var(--site-surface) 60%
+  );
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.match-card, .public-match-card, .map-browse-card):hover {
+  border-color: var(--site-control-border);
+}
+/* Table heads echo the broadcast bar with a magenta underline; tokens flip so
+ * links stay legible, and alternate rows help scan long tables. */
+html[data-appearance="esports-broadcast"] .themed-site table {
+  background-color: var(--site-surface);
+}
+html[data-appearance="esports-broadcast"] .themed-site :is(th, td) {
+  border-color: var(--site-border);
+}
+html[data-appearance="esports-broadcast"] .themed-site th {
+  --site-foreground: var(--esports-head-text);
+  --site-secondary-text: #c6cfdb;
+  --site-muted: #b3bdcc;
+  --site-accent: #ff8fbf;
+  --site-accent-strong: #ffb8d6;
+  background: var(--esports-head);
+  color: var(--esports-head-text);
+  letter-spacing: 0.04em;
+}
+html[data-appearance="esports-broadcast"] .themed-site thead th {
+  box-shadow: inset 0 -2px 0 var(--esports-rule);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  tbody
+  tr:nth-child(even)
+  > td {
+  background-color: color-mix(in srgb, var(--site-raised) 55%, transparent);
+}
+html[data-appearance="esports-broadcast"] .themed-site .badge {
+  border-color: var(--site-border);
+  border-radius: 2px;
+}
+/* Scoreboard strip: pool totals read in cyan on the bar's black. */
+html[data-appearance="esports-broadcast"] .themed-site .pool-summary {
+  --site-foreground: #eef2f7;
+  --site-secondary-text: #c6cfdb;
+  --site-muted: #9ca7b8;
+  --site-border: #2a3342;
+  --esports-cyan-ink: #19e3ff;
+  border: 0;
+  border-left: 5px solid var(--esports-rule);
+  border-radius: var(--radius-panel);
+  background-color: var(--esports-bar);
+  background-image: repeating-linear-gradient(
+    115deg,
+    #ffffff08 0 1px,
+    transparent 1px 7px
+  );
+  color: #eef2f7;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.pool-summary strong, .event-match-side b) {
+  color: var(--esports-cyan-ink);
+  font-variant-numeric: tabular-nums;
+}
+/* Bracket sides: red for slot 1, cyan for slot 2, like a broadcast scorebug. */
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .event-match-side
+  > span:first-child {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.1rem;
+  border-radius: 2px;
+  background: var(--esports-red);
+  color: #fff;
+  font-weight: 700;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  .event-match-side
+  + .event-match-side
+  > span:first-child {
+  background: var(--esports-cyan);
+  color: var(--esports-on-cyan);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  :is(.map-card-cover, .beatmap-cover) {
+  background: var(--site-raised);
+}
+/* Map slots: a cyan plate with a slanted tail on a decorative pseudo-element. */
+html[data-appearance="esports-broadcast"] .themed-site .map-slot-badge {
+  border-radius: 2px 0 0 2px;
+  background: var(--esports-cyan);
+  color: var(--esports-on-cyan);
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="esports-broadcast"] .themed-site .map-slot-badge::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% - 0.3rem);
+  width: 0.7rem;
+  background: var(--esports-cyan);
+  transform: skewX(-20deg);
+  transform-origin: bottom left;
+  pointer-events: none;
+}
+html[data-appearance="esports-broadcast"] .themed-site dialog {
+  border: 1px solid var(--site-border);
+  border-top: 3px solid var(--site-primary);
+  border-radius: var(--radius-panel);
+  background: var(--site-surface);
+  box-shadow: 0 24px 56px -24px var(--site-dialog-shadow);
+}
+html[data-appearance="esports-broadcast"] .themed-site .site-footer {
+  border-top: 1px solid var(--site-border);
+}
+
+/* Progress: segmented cyan meter, drawn explicitly since accent-color varies. */
+html[data-appearance="esports-broadcast"] .themed-site progress {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 14px;
+  border: 1px solid var(--site-control-border);
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--site-raised);
+  color: var(--esports-cyan-ink);
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  progress::-webkit-progress-bar {
+  border-radius: inherit;
+  background: transparent;
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  progress::-webkit-progress-value {
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--esports-cyan-ink) 0 8px,
+    transparent 8px 11px
+  );
+}
+html[data-appearance="esports-broadcast"]
+  .themed-site
+  progress::-moz-progress-bar {
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--esports-cyan-ink) 0 8px,
+    transparent 8px 11px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-appearance="esports-broadcast"]
+    .themed-site
+    :is(button, .button, a) {
+    transition: none;
+  }
+  html[data-appearance="esports-broadcast"]
+    .themed-site
+    :is(button, .button):active:not(:disabled) {
+    transform: none;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="esports-broadcast"] .themed-site,
+  html[data-appearance="esports-broadcast"] .themed-site * {
+    --site-button-shadow: none;
+    box-shadow: none !important;
+  }
+  /* Decorative layers carry no information; system colours replace them. */
+  html[data-appearance="esports-broadcast"]
+    .themed-site
+    :is(
+      :is(.information-heading, .page-heading) > .eyebrow,
+      .information-document section > h2,
+      .archive-overview-rules > h2,
+      .tournament-navigation nav a[aria-current],
+      .information-banner,
+      .stage-scroll-row.is-current .stage-scroll-status
+    )::before,
+  html[data-appearance="esports-broadcast"] .themed-site .map-slot-badge::after,
+  html[data-appearance="esports-broadcast"]
+    .themed-site
+    :is(
+      :is(.information-heading, .page-heading) > .eyebrow,
+      .site-header
+    )::after {
+    display: none;
+  }
+  html[data-appearance="esports-broadcast"]
+    .themed-site
+    :is(.information-heading, .page-heading)
+    > .eyebrow {
+    color: CanvasText;
+  }
+  /* System colours do not replace border-image, so drop the stage band. */
+  html[data-appearance="esports-broadcast"]
+    .themed-site
+    :is(
+      .public-tournament > .event-context,
+      .event-content > :first-child,
+      .event-content > :first-child > :first-child,
+      .container.page > .page-heading
+    ) {
+    border-image-source: none !important;
+  }
+  /* System colours replace the cyan fill, so selection maps to Highlight. */
+  html[data-appearance="esports-broadcast"]
+    .themed-site
+    :is(
+      .tournament-navigation nav a[aria-current],
+      .workspace-tabs button[aria-selected="true"],
+      .mappool-mods button[aria-pressed="true"],
+      .event-pills button[aria-pressed="true"],
+      .bracket-tabs button[aria-pressed="true"],
+      .event-tabs button[aria-pressed="true"],
+      [role="menu"] button[aria-checked="true"]
+    ) {
+    /* Opt out of the text backplate, which would paint Canvas behind
+     * HighlightText and hide the label. */
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+  html[data-appearance="esports-broadcast"]
+    .themed-site
+    :is(
+      .map-slot-badge,
+      .event-match-side > span:first-child,
+      .stage-scroll-row.is-current .stage-scroll-status
+    ) {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+  html[data-appearance="esports-broadcast"] .themed-site progress {
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
+  html[data-appearance="esports-broadcast"] .themed-site :focus-visible {
+    outline-color: Highlight;
+  }
+}

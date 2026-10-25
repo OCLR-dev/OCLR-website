@@ -72,6 +72,11 @@ const optional = {
     lightBackground: "rgb(248, 235, 228)",
     darkBackground: "rgb(39, 27, 25)",
   },
+  "esports-broadcast": {
+    label: "Esports broadcast",
+    lightBackground: "rgb(238, 241, 246)",
+    darkBackground: "rgb(11, 14, 20)",
+  },
 } as const;
 for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
   const { label, lightBackground, darkBackground } = optional[appearance];

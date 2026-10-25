@@ -274,6 +274,13 @@
       "when": 1792893344677,
       "tag": "0038_claymorphism_appearance",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1792899518650,
+      "tag": "0039_esports_broadcast_appearance",
+      "breakpoints": true
     }
   ]
 }

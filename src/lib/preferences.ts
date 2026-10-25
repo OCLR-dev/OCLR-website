@@ -8,6 +8,7 @@ export const appearances = [
   "cute-pastel",
   "swiss-minimal",
   "claymorphism",
+  "esports-broadcast",
 ] as const;
 export type Appearance = (typeof appearances)[number];
 export const appearanceCookie = "oclr-appearance";

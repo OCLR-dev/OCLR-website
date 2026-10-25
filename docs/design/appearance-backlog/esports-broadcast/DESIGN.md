@@ -1,6 +1,6 @@
 # A — 電競轉播風 / Esports Broadcast
 
-追蹤：[#235](https://github.com/PhoenixEmik/OCLR-website/issues/235) · **P3** · 未實作／未註冊為正式 appearance。
+追蹤：[#235](https://github.com/PhoenixEmik/OCLR-website/issues/235) · **P3** · 已註冊為正式 appearance `esports-broadcast`，見文末「正式實作」。
 
 ## 視覺主張與範圍
 
@@ -123,3 +123,17 @@
 - forced colors 降級通過。
 - [Desktop Light](desktop-light.webp)／[Dark](desktop-dark.webp)；[Mobile Light](mobile-light.webp)／[Dark](mobile-dark.webp)。
 - [本款機器可讀報告](verification.json)。這些結果只涵蓋離線 CSS specimen，未驗收正式頁面、三語、DB migration 或部署。
+
+## 正式實作（#235）
+
+正式樣式位於 [src/app/esports-theme.css](../../../../src/app/esports-theme.css)，以 `html[data-appearance="esports-broadcast"] .themed-site` 為範圍；OBS／presenter 不受影響（草稿 overlay 在本款與原有風格下逐像素相同）。整體方向是「賽場轉播包裝」，下列為與上方候選 CSS 的差異：
+
+- **轉播條。**header 在明暗兩版都是黑色轉播條（細斜紋底），底部 3px 桃紅線，線尾接一段青色與黃黑警示膠帶；目前頁以桃紅底線標示。外觀／語言／帳號選單與手機導覽從轉播條展開，沿用同組深色 token。首頁 header 只在選用本款時改為轉播條，其他 appearance 仍保留 `home.css` 的 S11 配色。暗色版整頁是「深色舞台」（`#0b0e14`）。亮色版是獨立配色（冷灰 `#eef1f6`），只在公開頁與登入頁頂部保留深色舞台：麵包屑與賽事導覽、頁面標題，以及賽事主頁 hero 的上半部，坐在全寬深色帶上並以桃紅線收尾；以下內容維持亮色，修正來源整站固定深色的限制。舞台帶以 `border-image` outset 繪製，不改變版面、不產生橫向捲動；`forced-colors` 下移除；有側欄的 Admin／Player／Captain 工作區不套用。
+- **材質。**頁面底層是細 LED 點陣；暗版另加頂部桃紅舞台光。分頁軌道帶極淡斜紋。面板與卡片保持實色底，文字不壓在花紋上。
+- **配色角色。**桃紅＝操作與主要按鈕（亮 `#c2125f`／暗 `#ff4f9a`）；青色＝資料與選中槽位（分頁、mod 篩選、選單項目、譜面槽位牌、比分、圖池統計）。訊號黃只出現在黑底上（警示膠帶、頁首標籤後的斜線牌），避免與 S7 金屬黃混淆；直播紅標示「目前階段」與對戰卡第 1 方（第 2 方為青色），白字對比 5.33:1。青、黃、紅都只是裝飾或位置提示，不覆蓋 success／warning／danger 或 NM／HD／HR／DT／FM 語意。
+- **銳利度。**主要按鈕帶無模糊的硬投影板（亮版黑、暗版青），按下時位移 2px 嵌入；選中槽位帶 2px 黑色硬投影。次要、header、選單與軌道按鈕維持平面。圖池統計改為黑底記分板條，數字青色。
+- **斜切只在裝飾層。**頁首 eyebrow 的斜向桃紅底牌與黑底黃斜線牌、段落標題前的三道速度斜線、目前分頁的斜向刻度都是 `pointer-events:none` 的偽元素；面板左上角的桃紅角標由背景繪製；譜面槽位牌的斜尾也是偽元素。主視覺的「截角」是覆蓋在框角的裝飾層（右下角斜線截角、右上角青色框角），容器不 clip-path，原圖不調色。
+- **字體。**活動標題（賽事主頁標題、橫幅標題、賽季 hero）使用本地打包的 Barlow Condensed ExtraBold Italic（SIL OFL 1.1，`public/fonts`，只含 Latin 子集的單一 woff2，約 24 KB；來源的 600 字重沒有對應用途，故不打包）；`unicode-range` 只涵蓋 Latin，中文標題維持直立系統字體。頁面標籤與中英文內文沿用系統 sans、16px／行高 1.65，比分使用 tabular-nums。無遠端字體請求。
+- **表格。**表頭呼應轉播條並加桃紅底線，在表頭內局部翻轉文字／連結 token；資料列維持端正，偶數列加淡底以利掃讀。
+- **狀態。**disabled 為虛線框加 raised 底與 muted 文字且無投影；selected 為青色填色加邊框與粗體；focus 為 3px 實線、4px offset；連續文字中的連結加底線。`forced-colors` 下移除投影與所有裝飾層，選中改用 `Highlight`／`HighlightText`（並關閉文字背板以免蓋住文字）；`prefers-reduced-motion` 移除過渡與按壓位移；無閃爍或持續動畫。
+- **對比。**正常文字在 background／surface／raised／tint／selected 上均 ≥4.5:1（亮版最低 4.84，暗版最低 5.03），控制邊框與焦點 ≥3:1（最低 3.51）；轉播條與記分板上文字最低 6.09:1。

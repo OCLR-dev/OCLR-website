@@ -12,6 +12,8 @@ export function appearanceLabel(
       return tr("Swiss minimal");
     case "claymorphism":
       return tr("Claymorphism");
+    case "esports-broadcast":
+      return tr("Esports broadcast");
     default:
       return tr("Original design");
   }
