@@ -1563,7 +1563,13 @@
           },
           "defaultAppearance": {
             "type": "string",
-            "enum": ["default", "cute-pastel", "swiss-minimal", "claymorphism"]
+            "enum": [
+              "default",
+              "cute-pastel",
+              "swiss-minimal",
+              "claymorphism",
+              "retro-arcade"
+            ]
           },
           "defaultLocale": { "type": "string", "const": "zh-Hans" },
           "locales": {
@@ -1719,7 +1725,8 @@
                   "default",
                   "cute-pastel",
                   "swiss-minimal",
-                  "claymorphism"
+                  "claymorphism",
+                  "retro-arcade"
                 ]
               },
               { "type": "null" }
@@ -2555,7 +2562,8 @@
                   "default",
                   "cute-pastel",
                   "swiss-minimal",
-                  "claymorphism"
+                  "claymorphism",
+                  "retro-arcade"
                 ]
               },
               { "type": "null" }
@@ -2746,7 +2754,8 @@
                     "default",
                     "cute-pastel",
                     "swiss-minimal",
-                    "claymorphism"
+                    "claymorphism",
+                    "retro-arcade"
                   ]
                 },
                 { "type": "null" }
@@ -2933,7 +2942,8 @@
                       "default",
                       "cute-pastel",
                       "swiss-minimal",
-                      "claymorphism"
+                      "claymorphism",
+                      "retro-arcade"
                     ]
                   },
                   { "type": "null" }
@@ -3443,7 +3453,8 @@
                     "default",
                     "cute-pastel",
                     "swiss-minimal",
-                    "claymorphism"
+                    "claymorphism",
+                    "retro-arcade"
                   ]
                 },
                 { "type": "null" }

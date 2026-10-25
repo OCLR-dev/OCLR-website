@@ -1,0 +1,800 @@
+/* Retro arcade (#236), based on the organizer's osu! Cup batch-1 style D.
+ * A dark cabinet in both modes (dark: black; light: a slightly brighter deep
+ * indigo), yellow / cyan / magenta, square corners, 4px frames, hard offset
+ * shadows, pixel type for headings and interface chrome, and neon segmented
+ * section dividers. Each colour has one job so they never compete: yellow
+ * fills the primary action and draws the marquee rule, cyan is the selection
+ * cursor, links, focus, the hero frame and the neon dividers, and magenta is
+ * decoration only (hard shadows and small labels). Success, warning and danger
+ * stay separate. Body copy, tables, form fields and beatmap/team/news titles
+ * keep the system stack for readability. Scanlines are faint, static and
+ * limited to decorative bands; nothing flashes or loops. Scoped to ordinary
+ * pages: OBS output has no .themed-site.
+ */
+/* Press Start 2P (big Latin titles), SIL OFL 1.1 with Reserved Font Name;
+ * shipped unmodified, see public/fonts/PressStart2P-OFL.txt. size-adjust maps
+ * the 48/36/24px headings onto its 8px grid (32/24/16px). */
+@font-face {
+  font-family: "Press Start 2P";
+  src: url("/fonts/PressStart2P-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 66.667%;
+  unicode-range:
+    U+0020-007E, U+00A0-00B6, U+00B8-00FF, U+2013-2014, U+2018-201D;
+}
+/* Fusion Pixel 12px (Chinese and interface labels), SIL OFL 1.1, shipped
+ * unmodified with its licences in public/fonts/fusion-pixel/. One file per
+ * locale; it renders crisp at 12/24/36/48px. */
+@font-face {
+  font-family: "Fusion Pixel 12px SC";
+  src: url("/fonts/fusion-pixel/fusion-pixel-12px-proportional-zh_hans.otf.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fusion Pixel 12px TC";
+  src: url("/fonts/fusion-pixel/fusion-pixel-12px-proportional-zh_hant.otf.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fusion Pixel 12px Latin";
+  src: url("/fonts/fusion-pixel/fusion-pixel-12px-proportional-latin.otf.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+html[data-appearance="retro-arcade"]:not(:has(.broadcast-site)),
+html[data-appearance="retro-arcade"]:not(:has(.broadcast-site)) body {
+  background: #15122b;
+}
+html[data-appearance="retro-arcade"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  ),
+html[data-appearance="retro-arcade"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  )
+  body {
+  background: #050508;
+}
+
+/* Light: arcade night. A deep indigo cabinet, a step brighter than black. */
+html[data-appearance="retro-arcade"] .themed-site {
+  --site-background: #15122b;
+  --site-surface: #1e1a3b;
+  --site-raised: #29244c;
+  --site-tint: #0d3242;
+  --site-foreground: #faf7ff;
+  --site-muted: #bcb5d8;
+  --site-secondary-text: #e2ddf2;
+  --site-accent: #5ce1ff;
+  --site-accent-strong: #a6efff;
+  --site-border: #3d3766;
+  --site-control-border: #958fbd;
+  --site-header: #050508;
+  --site-primary: #ffe600;
+  --site-primary-hover: #fff15c;
+  --site-on-primary: #15122b;
+  --site-success: #6fe3a8;
+  --site-warning: #ffb454;
+  --site-danger: #ff8a7a;
+  --site-focus: #5ce1ff;
+  --site-selection: #1b5266;
+  --site-highlight: #ff2e97;
+  --site-connector: #7a73a6;
+  --site-shadow: #00000066;
+  --site-soft-shadow: #00000033;
+  --site-panel-shadow: #00000080;
+  --site-dialog-shadow: #000000a6;
+  --site-backdrop: #050508b3;
+  /* Selection cursor: a solid cyan block. */
+  --arcade-cursor: #00e5ff;
+  --arcade-on-cursor: #15122b;
+  --arcade-cursor-edge: #00e5ff;
+  --arcade-key-edge: #ffe600;
+  /* Decoration only; never a state or status. */
+  --arcade-magenta: #ff2e97;
+  --arcade-label: #ff7acb;
+  --arcade-neon: #00e5ff;
+  --arcade-marquee: #ffe600;
+  --arcade-frame: #00e5ff;
+  --arcade-scanline: #ffffff0d;
+  --arcade-segments: repeating-linear-gradient(
+    90deg,
+    var(--arcade-neon) 0 8px,
+    transparent 8px 12px
+  );
+  --arcade-pixel: "Fusion Pixel 12px SC";
+  --arcade-display: "Press Start 2P", var(--arcade-pixel), var(--font-sans);
+  --arcade-label-font: var(--arcade-pixel), var(--font-sans);
+  --site-button-shadow: 4px 4px 0 var(--arcade-magenta);
+  --button-radius: 0;
+  --radius-panel: 0;
+  color-scheme: dark;
+  background: var(--site-background);
+  color: var(--site-foreground);
+}
+html[lang="zh-Hant"][data-appearance="retro-arcade"] .themed-site {
+  --arcade-pixel: "Fusion Pixel 12px TC";
+}
+html[lang="en"][data-appearance="retro-arcade"] .themed-site {
+  --arcade-pixel: "Fusion Pixel 12px Latin";
+}
+/* Dark: the black cabinet itself. */
+html[data-appearance="retro-arcade"][data-theme="dark"] .themed-site {
+  --site-background: #050508;
+  --site-surface: #111118;
+  --site-raised: #1b1b25;
+  --site-tint: #0b2a33;
+  --site-foreground: #f8f6ec;
+  --site-muted: #b6b3c6;
+  --site-secondary-text: #dddae8;
+  --site-border: #33334a;
+  --site-control-border: #8a8aa3;
+  --site-on-primary: #050508;
+  --site-danger: #ff7a6b;
+  --site-selection: #164a5a;
+  --site-connector: #6c6c88;
+  --site-shadow: #00000080;
+  --site-soft-shadow: #00000040;
+  --site-panel-shadow: #00000099;
+  --site-dialog-shadow: #000000b3;
+  --site-backdrop: #000000b3;
+  --arcade-on-cursor: #050508;
+  --arcade-label: #ff6ec4;
+}
+/* The header is always the black marquee, in both brightness modes, so its
+ * menus and the mobile navigation use the cabinet tokens. */
+html[data-appearance="retro-arcade"] .themed-site .site-header,
+html[data-appearance="retro-arcade"]
+  .themed-site:has(.home-redesign)
+  .site-header,
+html[data-appearance="retro-arcade"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header {
+  --site-header: #050508;
+  --site-surface: #111118;
+  --site-raised: #1b1b25;
+  --site-tint: #0b2a33;
+  --site-foreground: #f8f6ec;
+  --site-muted: #b6b3c6;
+  --site-secondary-text: #dddae8;
+  --site-accent: #5ce1ff;
+  --site-accent-strong: #a6efff;
+  --site-border: #33334a;
+  --site-control-border: #8a8aa3;
+  --site-primary: #ffe600;
+  --site-primary-hover: #fff15c;
+  --site-on-primary: #050508;
+  --site-focus: #5ce1ff;
+  --site-selection: #164a5a;
+  --color-muted: #b6b3c6;
+  --color-foreground: #f8f6ec;
+  --color-border: #33334a;
+  --arcade-cursor: #00e5ff;
+  --arcade-on-cursor: #050508;
+  --arcade-cursor-edge: #00e5ff;
+  --arcade-key-edge: #ffe600;
+  --arcade-magenta: #ff2e97;
+  --arcade-marquee: #ffe600;
+  border-bottom: 4px solid var(--arcade-marquee);
+  box-shadow: none;
+  background: var(--site-header);
+  color: var(--site-foreground);
+  color-scheme: dark;
+}
+/* The wordmark uses its dark-background colours on the black marquee. */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  .site-header
+  .brand
+  .oclr-wordmark {
+  --oclr-letter-top: #ffeef9;
+  --oclr-letter-mid: #f5b9eb;
+  --oclr-letter-bottom: #bc7bf2;
+  --oclr-letter-outline: #fae3f4;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login {
+  border: 2px solid var(--arcade-key-edge);
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  box-shadow: var(--site-button-shadow);
+}
+html[data-appearance="retro-arcade"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login:hover {
+  background: var(--site-primary-hover);
+}
+
+/* Pixel headings: page titles and section headings. Authored content headings
+ * (beatmap, team and news titles) and small bracket labels keep system type. */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(h1:not(.home-wordmark), h2):not(
+    .map-detail-identity h2,
+    .event-bracket-round h2,
+    .public-team-card h2,
+    .news-list h2,
+    .prose h1
+  ) {
+  font-family: var(--arcade-display);
+  /* Single-weight pixel faces are never smeared by synthetic bold. */
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+/* Pixel sizes sit on the 12px grid so glyphs stay crisp. */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  h1:not(.home-wordmark, .prose h1) {
+  font-size: 48px;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  h2:not(
+    .map-detail-identity h2,
+    .event-bracket-round h2,
+    .public-team-card h2,
+    .news-list h2
+  ) {
+  font-size: 24px;
+}
+/* Content: body copy, tables, form fields and authored titles also use the
+ * pixel face (contributor review asked for pixel type throughout). Bold text
+ * keeps synthetic bold for emphasis; headings and labels are single weight. */
+html[data-appearance="retro-arcade"] .themed-site,
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(input, select, textarea, button, table, th, td) {
+  font-family: var(--arcade-label-font);
+}
+/* Small text snaps to the native 12px grid (never below it): captions, dates,
+ * table cells, definitions, footnotes and the schedule's bracket cards. */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    small,
+    .small,
+    .muted,
+    time,
+    th,
+    td,
+    dt,
+    dd,
+    h4,
+    figcaption,
+    .site-footer,
+    .site-footer *,
+    .stage-scroll-status,
+    .event-record,
+    .event-match-side,
+    .event-match-side *,
+    .event-bracket-round a,
+    .event-bracket-round small
+  ) {
+  font-size: 12px;
+}
+/* Interface chrome: navigation, tabs, keys, menus, badges and labels use the
+ * 12px pixel face at its native size. Form fields and beatmap titles/artists
+ * (even inside buttons and eyebrows) stay on the system stack. */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    .main-nav > a,
+    .site-header :is(button, .button, .nav-login),
+    .tournament-navigation nav a,
+    .tournament-menu,
+    .context-link,
+    button,
+    .button,
+    [role="menu"] :is(button, a),
+    .account-dropdown a,
+    .badge,
+    .eyebrow,
+    .map-slot-badge,
+    .event-bracket-round h2,
+    .information-active .badge,
+    .pool-summary,
+    .rules-desktop-contents a,
+    .rules-mobile-contents a
+  ):not(
+    .map-open-button,
+    .map-card-copy .eyebrow,
+    .map-detail-identity .eyebrow
+  ) {
+  font-family: var(--arcade-label-font);
+  font-size: 12px;
+  font-weight: 400;
+  font-synthesis: none;
+}
+html[data-appearance="retro-arcade"] .themed-site .pool-summary strong {
+  font-family: var(--arcade-label-font);
+  font-size: 24px;
+  font-weight: 400;
+}
+@media (max-width: 640px) {
+  html[data-appearance="retro-arcade"]
+    .themed-site
+    h1:not(.home-wordmark, .prose h1) {
+    font-size: 36px;
+  }
+}
+html[data-appearance="retro-arcade"] .themed-site .eyebrow {
+  color: var(--arcade-label);
+  letter-spacing: 0.12em;
+}
+/* Everything is square, down to avatars, monograms and indicator dots. */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  *:not(input[type="radio"]):not([class*="spinner"]),
+html[data-appearance="retro-arcade"] .themed-site *::before,
+html[data-appearance="retro-arcade"] .themed-site *::after {
+  border-radius: 0;
+}
+html[data-appearance="retro-arcade"] .themed-site :focus-visible {
+  outline: 3px solid var(--site-focus);
+  outline-offset: 3px;
+}
+html[data-appearance="retro-arcade"] .themed-site ::selection {
+  background: var(--site-selection);
+  color: var(--site-foreground);
+}
+
+/* Neon segmented dividers replace the section rules. */
+html[data-appearance="retro-arcade"] .themed-site .document-typeset h2,
+html[data-appearance="retro-arcade"] .themed-site .mappool-release-heading,
+html[data-appearance="retro-arcade"] .themed-site .home-archive-heading {
+  border-bottom: 0;
+  padding-bottom: calc(0.5rem + 4px);
+  background: var(--arcade-segments) left bottom / 100% 4px no-repeat;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  .rules-article
+  section
+  + section,
+html[data-appearance="retro-arcade"] .themed-site main hr {
+  border-top: 0;
+  background: var(--arcade-segments) left top / 100% 4px no-repeat;
+}
+html[data-appearance="retro-arcade"] .themed-site main hr {
+  height: 4px;
+  border: 0;
+}
+
+/* Keys: square, 2px edge; only the primary action carries the 4px hard
+ * shadow, and pressing it pushes the key into the shadow. */
+html[data-appearance="retro-arcade"] .themed-site :is(button, .button) {
+  border-width: 2px;
+  border-color: var(--arcade-key-edge);
+  transition:
+    transform 80ms steps(2, end),
+    box-shadow 80ms steps(2, end),
+    background-color 80ms steps(2, end);
+}
+html[data-appearance="retro-arcade"] .themed-site :is(button, .button):hover {
+  transform: none;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(button, .button):active:not(:disabled) {
+  --site-button-shadow: 0 0 0 var(--arcade-magenta);
+  transform: translate(4px, 4px);
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(button, .button).secondary,
+html[data-appearance="retro-arcade"] .themed-site .secondary {
+  --site-button-shadow: none;
+  border-color: var(--site-control-border);
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(button, .button).secondary:hover {
+  border-color: var(--site-accent);
+  background: var(--site-raised);
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(button, .button).secondary:active:not(:disabled) {
+  transform: none;
+  background: var(--site-tint);
+}
+/* Disabled: flat, dashed edge, plus the base opacity. */
+html[data-appearance="retro-arcade"] .themed-site :is(button, .button):disabled,
+html[data-appearance="retro-arcade"]
+  .themed-site
+  .button[aria-disabled="true"] {
+  --site-button-shadow: none;
+  border-style: dashed;
+  border-color: var(--site-control-border);
+  transform: none;
+}
+/* Ghost buttons inside tracks and menus never get the hard shadow. */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    [role="menu"],
+    [role="tablist"],
+    [role="listbox"],
+    .workspace-tabs,
+    .mappool-mods,
+    .mappool-rounds,
+    .mappool-pools,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs,
+    .archive-status-tabs,
+    .main-nav,
+    .site-preferences,
+    .menu-toggle
+  ) {
+  --site-button-shadow: none;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(.site-preferences, .menu-toggle)
+  :is(button, .button):active:not(:disabled),
+html[data-appearance="retro-arcade"]
+  .themed-site
+  .menu-toggle:active:not(:disabled) {
+  transform: none;
+}
+
+/* Inputs: square, 2px edge; focus adds the cyan edge as well as the ring. */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea
+  ) {
+  border: 2px solid var(--site-control-border);
+  background-color: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(input, select, textarea):focus-visible {
+  border-color: var(--site-accent);
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(input, select, textarea):disabled {
+  border-style: dashed;
+  color: var(--site-muted);
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(.check-field, .check-label)
+  input {
+  accent-color: var(--site-accent);
+}
+
+/* Marquee navigation and popovers. */
+html[data-appearance="retro-arcade"] .themed-site .main-nav > a[aria-current] {
+  color: var(--site-accent);
+  border-color: var(--site-accent);
+  font-weight: 700;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(.appearance-control, .language-control, .account-menu)
+  :is([role="menu"], .account-dropdown) {
+  border: 2px solid var(--site-control-border);
+  background: var(--site-surface);
+  box-shadow: 4px 4px 0 var(--arcade-magenta);
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[aria-checked="true"],
+html[data-appearance="retro-arcade"]
+  .themed-site
+  .account-dropdown
+  a[aria-current] {
+  background: var(--arcade-cursor);
+  color: var(--arcade-on-cursor);
+  font-weight: 700;
+}
+/* The pixel face is slightly wider in English; a tighter gap keeps the
+ * 951px header no wider than the default. */
+@media (min-width: 951px) and (max-width: 1050px) {
+  html[data-appearance="retro-arcade"] .themed-site .main-nav {
+    gap: 0.9rem;
+  }
+}
+@media (max-width: 950px) {
+  html[data-appearance="retro-arcade"] .themed-site .main-nav.open {
+    border: 2px solid var(--site-control-border);
+    background: var(--site-surface);
+    box-shadow: 4px 4px 0 var(--arcade-magenta);
+  }
+  html[data-appearance="retro-arcade"]
+    .themed-site
+    .main-nav
+    > a[aria-current] {
+    background: var(--arcade-cursor);
+    color: var(--arcade-on-cursor);
+  }
+}
+
+/* Selection tracks: a framed strip; the current item is a solid cursor block
+ * with an edge, so it reads without colour too (bold text, ink/cyan edge). */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    .tournament-navigation nav,
+    .workspace-tabs,
+    .mappool-mods,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs
+  ) {
+  border: 2px solid var(--site-border);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs button,
+    .mappool-mods button,
+    .event-pills button,
+    .bracket-tabs button,
+    .event-tabs button
+  ) {
+  border: 2px solid transparent;
+  background: transparent;
+  color: var(--site-secondary-text);
+  box-shadow: none;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs button,
+    .mappool-mods button,
+    .event-pills button,
+    .bracket-tabs button,
+    .event-tabs button
+  ):hover {
+  border-color: var(--site-control-border);
+  background: var(--site-raised);
+  color: var(--site-foreground);
+  transform: none;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a[aria-current],
+    .workspace-tabs button[aria-selected="true"],
+    .mappool-mods button[aria-pressed="true"],
+    .event-pills button[aria-pressed="true"],
+    .bracket-tabs button[aria-pressed="true"],
+    .event-tabs button[aria-pressed="true"]
+  ) {
+  border-color: var(--arcade-cursor-edge);
+  background: var(--arcade-cursor);
+  color: var(--arcade-on-cursor);
+  font-weight: 700;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  .tournament-navigation
+  nav
+  a[aria-current]::before {
+  background: currentColor;
+}
+html[data-appearance="retro-arcade"] .themed-site .event-tabs {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.25rem;
+}
+
+/* Hero: one framed screen per page, 4px cyan frame and a magenta hard shadow.
+ * The outline sits outside the artwork, which stays literal. */
+html[data-appearance="retro-arcade"] .themed-site .information-banner {
+  outline: 4px solid var(--arcade-frame);
+  outline-offset: 0;
+  box-shadow: 10px 10px 0 var(--arcade-magenta);
+  margin-right: 10px;
+}
+html[data-appearance="retro-arcade"] .themed-site .information-active {
+  border-left: 4px solid var(--arcade-neon);
+  background: var(--site-surface);
+}
+html[data-appearance="retro-arcade"] .themed-site .stage-scroll-drum::before {
+  border: 2px solid var(--site-accent);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+
+/* Panels are flat and square with a 2px edge; repeated data stays thin. */
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    .panel,
+    .edition-card,
+    .directory-details,
+    .about-aside,
+    .settings-card,
+    .identity-panel,
+    .registration-card,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .mappool-context,
+    .mappool-setup,
+    .map-browse-card,
+    .public-match-card,
+    .match-card,
+    .player-card
+  ) {
+  border: 2px solid var(--site-border);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(.map-browse-card, .public-match-card, .match-card, .player-card):hover {
+  border-color: var(--site-control-border);
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  :is(
+    .mappool-public-round,
+    .captain-player-card,
+    .captain-order > li,
+    .table-scroll,
+    table
+  ) {
+  border-color: var(--site-border);
+  box-shadow: none;
+}
+html[data-appearance="retro-arcade"] .themed-site :is(th, td) {
+  border-color: var(--site-border);
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="retro-arcade"] .themed-site th {
+  background: var(--site-raised);
+  color: var(--site-secondary-text);
+}
+html[data-appearance="retro-arcade"] .themed-site .badge {
+  border: 1px solid var(--site-control-border);
+  background: var(--site-surface);
+  color: var(--site-foreground);
+  font-weight: 700;
+}
+/* Slot codes (NM1, HD2…): a cyan counter in the 12px pixel face. */
+html[data-appearance="retro-arcade"] .themed-site .map-slot-badge {
+  border: 2px solid var(--site-accent);
+  background: var(--site-surface);
+  color: var(--site-accent);
+}
+html[data-appearance="retro-arcade"] .themed-site .notice {
+  border-left-width: 4px;
+}
+/* Empty screens and the footer band are the only places with scanlines. */
+html[data-appearance="retro-arcade"] .themed-site .empty-state {
+  border: 2px dashed var(--site-control-border);
+  background-image: repeating-linear-gradient(
+    0deg,
+    var(--arcade-scanline) 0 1px,
+    transparent 1px 4px
+  );
+}
+html[data-appearance="retro-arcade"] .themed-site .site-footer {
+  border-top: 0;
+  background:
+    var(--arcade-segments) left top / 100% 4px no-repeat,
+    repeating-linear-gradient(
+      0deg,
+      var(--arcade-scanline) 0 1px,
+      transparent 1px 4px
+    );
+}
+html[data-appearance="retro-arcade"] .themed-site dialog {
+  border: 2px solid var(--site-control-border);
+  background: var(--site-surface);
+  box-shadow: 6px 6px 0 var(--arcade-magenta);
+}
+
+/* Progress: a segmented power bar; explicit since accent-color varies. */
+html[data-appearance="retro-arcade"] .themed-site progress {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 14px;
+  border: 2px solid var(--site-control-border);
+  overflow: hidden;
+  background: var(--site-raised);
+  color: var(--site-accent);
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  progress::-webkit-progress-bar {
+  background: transparent;
+}
+html[data-appearance="retro-arcade"]
+  .themed-site
+  progress::-webkit-progress-value {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--site-accent) 0 8px,
+    transparent 8px 10px
+  );
+}
+html[data-appearance="retro-arcade"] .themed-site progress::-moz-progress-bar {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--site-accent) 0 8px,
+    transparent 8px 10px
+  );
+}
+
+@media (max-width: 640px) {
+  html[data-appearance="retro-arcade"] .themed-site .information-banner {
+    box-shadow: 6px 6px 0 var(--arcade-magenta);
+    margin-right: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-appearance="retro-arcade"] .themed-site :is(button, .button, a) {
+    transition: none;
+  }
+  html[data-appearance="retro-arcade"]
+    .themed-site
+    :is(button, .button):active:not(:disabled) {
+    transform: none;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="retro-arcade"] .themed-site,
+  html[data-appearance="retro-arcade"] .themed-site * {
+    --site-button-shadow: none;
+    box-shadow: none !important;
+  }
+  html[data-appearance="retro-arcade"] .themed-site .site-header {
+    border-bottom-color: CanvasText;
+  }
+  html[data-appearance="retro-arcade"]
+    .themed-site
+    :is(
+      .document-typeset h2,
+      .mappool-release-heading,
+      .home-archive-heading,
+      .site-footer,
+      .empty-state
+    ) {
+    background-image: none;
+  }
+  html[data-appearance="retro-arcade"]
+    .themed-site
+    :is(.document-typeset h2, .mappool-release-heading, .home-archive-heading) {
+    border-bottom: 1px solid CanvasText;
+  }
+  html[data-appearance="retro-arcade"] .themed-site .site-footer {
+    border-top: 1px solid CanvasText;
+  }
+  html[data-appearance="retro-arcade"] .themed-site progress {
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
+  html[data-appearance="retro-arcade"] .themed-site :focus-visible {
+    outline-color: Highlight;
+  }
+}
