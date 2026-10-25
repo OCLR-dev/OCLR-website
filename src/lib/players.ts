@@ -34,7 +34,7 @@ type PublishedPlayer = {
   participation: "accepted" | "captain" | "finalized_roster" | "coach";
   coachedTeams?: { id: string; name: string }[];
 };
-export async function publicPlayers(input: unknown, exactOsuId?: number) {
+export function publicPlayerFilters(input: unknown, exactOsuId?: number) {
   const parsed = filtersSchema.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Choose a valid player search, edition and page.");
@@ -45,6 +45,10 @@ export async function publicPlayers(input: unknown, exactOsuId?: number) {
     throw new HttpError(400, "Choose a tournament to browse its players.");
   if (filters.q.startsWith("https://"))
     filters.q = String(parseOsuProfile(filters.q).osuId);
+  return filters;
+}
+export async function publicPlayers(input: unknown, exactOsuId?: number) {
+  const filters = publicPlayerFilters(input, exactOsuId);
   const editions = (await getPublicEditions()).filter(
     (e) => !filters.edition || filters.edition === e.slug,
   );

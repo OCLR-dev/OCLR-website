@@ -2545,6 +2545,18 @@
     "m0d22da7ad450": "This token does not include the required read scope.",
     "m9e3210f2865b": "Use a browser session for this operation.",
     "mf52cf5fbbf85": "Developer API access",
+    "mbb3a9f3a5418": "View API specification",
+    "m366e8b5fc0e3": "Private data requires an active Developer grant. Use the API specification to choose a resource and its read scope.",
+    "m0dbcf09e28ef": "Choose valid API query parameters without duplicates.",
+    "m99e4bbb11472": "Saved data is temporarily unavailable.",
+    "m3dab64bbc6e0": "This response is too large. Request a smaller collection page.",
+    "mfb03933714e0": "Choose valid API collection filters and page limits.",
+    "m95eb082ec706": "Narrow the collection filters to at most 10,000 records.",
+    "mdac1875370ad": "Use the first page collection version to request later pages.",
+    "mf3bcfab59c13": "The collection changed. Restart from the first page.",
+    "m827186d07d3a": "Choose a valid tournament edition.",
+    "m2f7e0f92812e": "Choose a valid osu! user ID.",
+    "m081d06cb4f84": "Choose a supported profile ruleset.",
     "m296711136b18": "Claymorphism"
   }
 }

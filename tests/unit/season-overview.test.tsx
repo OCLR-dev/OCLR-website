@@ -17,6 +17,20 @@ vi.mock("../../src/i18n/server", () => ({
   getAppTranslations: async () => english,
 }));
 vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
+vi.mock("../../src/db", () => ({ db: () => ({}) }));
+vi.mock("../../src/lib/tournaments", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/lib/tournaments")>()),
+  readTournament: vi.fn(async () => {
+    const current = await getPublicEdition(edition.slug);
+    return current
+      ? {
+          edition: current,
+          revision: 1,
+          updatedAt: new Date("2026-10-23T00:00:00Z"),
+        }
+      : undefined;
+  }),
+}));
 vi.mock("../../src/lib/registrations", () => ({
   registrationAvailability: async () => "unavailable",
 }));
@@ -34,6 +48,7 @@ vi.mock("../../src/components/season-countdown", () => ({
 describe("overview partial data failures", () => {
   beforeEach(() => {
     vi.stubGlobal("React", React);
+    vi.stubEnv("DATABASE_URL", "postgresql://synthetic@localhost/unit_test");
     vi.mocked(getPublicEdition).mockResolvedValue(edition);
     vi.mocked(publicCompetition).mockResolvedValue({
       fixtures: [],
@@ -48,6 +63,7 @@ describe("overview partial data failures", () => {
   afterEach(() => {
     vi.clearAllMocks();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
   const render = async () => {
     const stream = await renderToReadableStream(

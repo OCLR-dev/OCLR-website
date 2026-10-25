@@ -1,15 +1,10 @@
+import { publicTournamentModel } from "@/lib/public-read-models";
 import { historicalPage } from "@/components/historical-archive";
 import { InformationDocument } from "@/components/tournament-information";
 import { getAppTranslations } from "@/i18n/server";
 import { notFound } from "next/navigation";
 import { getPublicEdition } from "@/lib/content";
 import { formatDate, publicEditionSummary } from "@/lib/editions";
-import { registrationAvailability } from "@/lib/registrations";
-import { publicCompetition } from "@/lib/public-competition";
-import { publicMappools } from "@/lib/mappools";
-import { publishedTeams } from "@/lib/teams";
-import { publicStaff } from "@/lib/public-staff";
-import { publicDraft } from "@/lib/draft";
 import {
   informationPreview,
   type TournamentInformation,
@@ -40,10 +35,10 @@ export default async function Overview({
   const { edition: slug } = await params;
   const archivePage = await historicalPage(slug, "overview");
   if (archivePage) return archivePage;
-  const edition = await getPublicEdition(slug);
-  if (!edition) notFound();
+  const edition = await publicTournamentModel(slug);
   const base = `/tournaments/${slug}`;
-  const preview = informationPreview(slug);
+  const preview =
+    edition.overview.kind === "preview" ? edition.overview.document : null;
   if (preview)
     return (
       <InformationDocument
@@ -77,54 +72,19 @@ export default async function Overview({
       />
     );
 
-  const [state, results] = await Promise.all([
-    registrationAvailability(edition),
-    Promise.allSettled([
-      publishedTeams(slug),
-      publicMappools(slug),
-      publicStaff(),
-      publicDraft(slug),
-      publicCompetition(slug),
-    ]),
-  ]);
-  const [
-    teamsResult,
-    poolsResult,
-    staffResult,
-    draftResult,
-    competitionResult,
-  ] = results;
-  const teams = teamsResult.status === "fulfilled" ? teamsResult.value : [];
-  const pools = poolsResult.status === "fulfilled" ? poolsResult.value : [];
-  const staff = staffResult.status === "fulfilled" ? staffResult.value : [];
-  const draft = draftResult.status === "fulfilled" ? draftResult.value : null;
-  const competition =
-    competitionResult.status === "fulfilled" ? competitionResult.value : null;
-  const fixture = competition?.fixtures
-    .filter((f) => !f.result && f.status !== "cancelled")
-    .sort((a, b) =>
-      (a.scheduledAt ?? "9999").localeCompare(b.scheduledAt ?? "9999"),
-    )[0];
-  const roles = new Map<
-    string,
-    TournamentInformation["organization"][number]["members"]
-  >();
-  for (const person of staff)
-    for (const grant of person.roles) {
-      if (grant.edition && grant.edition.slug !== slug) continue;
-      const names = roles.get(grant.role) ?? [];
-      if (
-        !names.some(
-          (member) =>
-            member.href === `https://osu.ppy.sh/users/${person.osuId}`,
-        )
-      )
-        names.push({
-          name: person.username,
-          href: `https://osu.ppy.sh/users/${person.osuId}`,
-        });
-      roles.set(grant.role, names);
-    }
+  if (edition.overview.kind !== "database") notFound();
+  const {
+    teams,
+    pools,
+    draft,
+    nextFixture: fixture,
+    unavailable,
+    hasFixtures,
+  } = edition.overview;
+  const state = edition.registration?.state ?? "unannounced";
+  const roles = new Map(
+    edition.overview.organization.map((entry) => [entry.role, entry.members]),
+  );
   const document: TournamentInformation = {
     name: edition.name,
     intro: publicEditionSummary(edition.summary) ?? "",
@@ -170,7 +130,7 @@ export default async function Overview({
       { label: tr("Schedule"), href: `${base}/schedule` },
       { label: tr("Players"), href: `${base}/players` },
       ...(draft ? [{ label: tr("Live draft"), href: `${base}/draft` }] : []),
-      ...(competition?.fixtures.length
+      ...(hasFixtures
         ? [
             { label: tr("Bracket"), href: `${base}/bracket` },
             { label: tr("Results"), href: `${base}/results` },
@@ -194,8 +154,8 @@ export default async function Overview({
           maps: pool.entries
             .filter((entry) => entry.category === category)
             .map((entry) => ({
-              title: `${entry.metadata.artist} — ${entry.metadata.title} [${entry.metadata.difficulty}]`,
-              href: `https://osu.ppy.sh/beatmaps/${entry.beatmapId}`,
+              title: entry.title,
+              href: entry.href,
             })),
         }),
       ),
@@ -248,7 +208,7 @@ export default async function Overview({
             };
   return (
     <>
-      {results.some((result) => result.status === "rejected") && (
+      {unavailable.length > 0 && (
         <p className="notice" role="status">
           {tr(
             "Some competition information is temporarily unavailable. Please try again later.",

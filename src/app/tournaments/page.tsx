@@ -1,7 +1,7 @@
 import { getAppTranslations } from "@/i18n/server";
 import { PageHeading } from "@/components/ui";
 import { EditionCard } from "@/components/edition-card";
-import { getPublicEditions } from "@/lib/content";
+import { publicTournamentListModel } from "@/lib/public-read-models";
 export const dynamic = "force-dynamic";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
@@ -11,7 +11,7 @@ export async function generateMetadata() {
 export default async function Tournaments() {
   const tr = await getAppTranslations();
 
-  const editions = (await getPublicEditions()).sort((a, b) =>
+  const editions = (await publicTournamentListModel()).sort((a, b) =>
     (b.season ?? b.slug).localeCompare(a.season ?? a.slug, "en", {
       numeric: true,
     }),

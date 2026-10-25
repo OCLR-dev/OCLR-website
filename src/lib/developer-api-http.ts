@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { z } from "zod";
+import { readOnlyData } from "@/db";
 import { appUrl, HttpError } from "./http";
 import {
   authenticateDeveloperRead,
@@ -8,6 +10,7 @@ import {
   type DeveloperReadPrincipal,
 } from "./developer-api";
 import type { DeveloperApiScope } from "./developer-api-model";
+import type { ReadPayload } from "./read-api-contract";
 
 function responseHeaders(request: Request, id: string) {
   const headers = new Headers({
@@ -27,12 +30,18 @@ function responseHeaders(request: Request, id: string) {
 }
 function failure(error: unknown, id: string, headers: Headers, head: boolean) {
   const status = error instanceof HttpError ? error.status : 500;
+  const codes: Record<number, string> = {
+    400: "INVALID_REQUEST",
+    401: "INVALID_TOKEN",
+    403: "FORBIDDEN",
+    404: "NOT_FOUND",
+    413: "RESOURCE_TOO_LARGE",
+    503: "API_UNAVAILABLE",
+  };
   const code =
     error instanceof DeveloperApiError
       ? error.code
-      : status === 500
-        ? "INTERNAL_ERROR"
-        : "INVALID_REQUEST";
+      : (codes[status] ?? "INTERNAL_ERROR");
   const message =
     error instanceof HttpError
       ? error.message
@@ -47,11 +56,23 @@ function failure(error: unknown, id: string, headers: Headers, head: boolean) {
         { status, headers },
       );
 }
-/** The only cross-origin surface. Its callback receives a read principal, not User. */
-export async function developerReadResponse(
+export type ReadResponseOptions<T> = {
+  anonymous?: boolean;
+  query?: readonly string[];
+  schema?: z.ZodType<T>;
+  database?: boolean;
+  maxBytes?: number;
+  rawDocument?: boolean;
+};
+/** Optional bearer auth is still strict: an explicit invalid token never becomes anonymous. */
+export async function readDataResponse<T>(
   request: Request,
   scope: DeveloperApiScope,
-  read: (principal: DeveloperReadPrincipal) => unknown | Promise<unknown>,
+  read: (
+    principal: DeveloperReadPrincipal | null,
+    query: URLSearchParams,
+  ) => ReadPayload<T> | Promise<ReadPayload<T>>,
+  options: ReadResponseOptions<T> = {},
 ) {
   const id = randomUUID();
   let headers = new Headers({
@@ -61,7 +82,6 @@ export async function developerReadResponse(
   });
   try {
     headers = responseHeaders(request, id);
-    // Validate configured transport even for an anonymous preflight/error.
     appUrl();
     developerApiLimiter.take("all-reads", 600);
     const origin = request.headers.get("origin");
@@ -77,12 +97,13 @@ export async function developerReadResponse(
         request.headers.get("access-control-request-headers") ?? ""
       )
         .split(",")
-        .map((v) => v.trim().toLowerCase())
+        .map((value) => value.trim().toLowerCase())
         .filter(Boolean);
       if (
         (method && !["GET", "HEAD"].includes(method)) ||
         requestedHeaders.some(
-          (v) => !["authorization", "accept", "accept-language"].includes(v),
+          (value) =>
+            !["authorization", "accept", "accept-language"].includes(value),
         )
       )
         throw new DeveloperApiError(
@@ -111,27 +132,71 @@ export async function developerReadResponse(
         "Developer API access is read-only.",
       );
     }
-    if (new URL(request.url).search)
+    const principal =
+      !options.anonymous || request.headers.has("authorization")
+        ? await authenticateDeveloperRead(request, scope)
+        : null;
+    const query = new URL(request.url).searchParams;
+    if (
+      [...query.keys()].some(
+        (key) =>
+          !(options.query ?? []).includes(key) ||
+          query.getAll(key).length !== 1,
+      )
+    )
       throw new DeveloperApiError(
         400,
         "INVALID_REQUEST",
-        "This endpoint does not accept query parameters.",
+        "Choose valid API query parameters without duplicates.",
       );
-    const principal = await authenticateDeveloperRead(request, scope);
-    const data = await read(principal);
-    const body = JSON.stringify({
-      data,
-      meta: { apiVersion: "1", requestId: id },
-    });
-    if (Buffer.byteLength(body) > 262144)
-      throw new Error("Bounded API response exceeded");
+    const execute = async () => {
+      const payload = await read(principal, query);
+      return {
+        ...payload,
+        data: options.schema
+          ? options.schema.parse(payload.data)
+          : payload.data,
+      };
+    };
+    if (options.database && !process.env.DATABASE_URL)
+      throw new DeveloperApiError(
+        503,
+        "DATA_UNAVAILABLE",
+        "Saved data is temporarily unavailable.",
+      );
+    const payload = options.database
+      ? await readOnlyData(execute)
+      : await execute();
+    const body = JSON.stringify(
+      options.rawDocument
+        ? payload.data
+        : {
+            data: payload.data,
+            meta: { apiVersion: "1", requestId: id, ...payload.meta },
+          },
+    );
+    if (Buffer.byteLength(body) > (options.maxBytes ?? 262144))
+      throw new DeveloperApiError(
+        413,
+        "RESOURCE_TOO_LARGE",
+        "This response is too large. Request a smaller collection page.",
+      );
     headers.set("Content-Type", "application/json");
     return new Response(request.method === "HEAD" ? null : body, { headers });
   } catch (error) {
     return failure(error, id, headers, request.method === "HEAD");
   }
 }
-/** Unknown v1 resources share the same error/CORS policy, without exposing data. */
+/** Backwards-compatible stage-1 surface; callbacks receive no write-capable User. */
+export function developerReadResponse(
+  request: Request,
+  scope: DeveloperApiScope,
+  read: (principal: DeveloperReadPrincipal) => unknown | Promise<unknown>,
+) {
+  return readDataResponse(request, scope, async (principal) => ({
+    data: await read(principal!),
+  }));
+}
 export function missingDeveloperResource(request: Request) {
   return developerReadResponse(request, "identity:read", () => {
     throw new DeveloperApiError(

@@ -1,10 +1,10 @@
-import { missingDeveloperResource } from "@/lib/developer-api-http";
+import { readApiRoute } from "@/lib/read-api";
 export {
-  missingDeveloperResource as GET,
-  missingDeveloperResource as HEAD,
-  missingDeveloperResource as OPTIONS,
-  missingDeveloperResource as POST,
-  missingDeveloperResource as PUT,
-  missingDeveloperResource as PATCH,
-  missingDeveloperResource as DELETE,
+  readApiRoute as GET,
+  readApiRoute as HEAD,
+  readApiRoute as OPTIONS,
+  readApiRoute as POST,
+  readApiRoute as PUT,
+  readApiRoute as PATCH,
+  readApiRoute as DELETE,
 };

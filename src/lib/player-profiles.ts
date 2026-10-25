@@ -11,6 +11,24 @@ import { publicPlayer } from "./players";
 import { cachedOsuUserProfile, getOsuUserProfile } from "./osu-profiles";
 import { parseOsuProfile } from "./osu-profile-model";
 import { HttpError } from "./http";
+import { safeSavedOsuProfile } from "./read-api-contract";
+import type { ProfileSnapshot, ProfileMode } from "./osu-profile-model";
+/** Shared whitelist for saved diagnostics and legacy provider-backed consumers. */
+export function projectSavedPlayerProfile(
+  snapshot: ProfileSnapshot | null,
+  osuId: number,
+  mode: ProfileMode,
+): ProfileSnapshot | null {
+  const profile = safeSavedOsuProfile(snapshot?.profile, osuId, mode);
+  return snapshot && profile ? { ...snapshot, profile } : null;
+}
+export async function readSavedPlayerProfile(osuId: number, mode: ProfileMode) {
+  return projectSavedPlayerProfile(
+    await cachedOsuUserProfile(osuId, mode),
+    osuId,
+    mode,
+  );
+}
 export async function publishedPlayerProfile(
   input: string,
   mode?: string,
@@ -23,7 +41,11 @@ export async function publishedPlayerProfile(
   let snapshot = null;
   let error = null;
   try {
-    snapshot = await getOsuUserProfile(identity.osuId, identity.mode);
+    snapshot = projectSavedPlayerProfile(
+      await getOsuUserProfile(identity.osuId, identity.mode),
+      identity.osuId,
+      identity.mode,
+    );
   } catch (e) {
     if (!(e instanceof HttpError)) throw e;
     error = { status: e.status, message: e.message };
@@ -60,7 +82,10 @@ export async function staffPlayerProfile(user: User, input: unknown) {
   ) {
     if (parsed.data.refresh)
       throw new HttpError(403, "Developer access is read-only.");
-    const snapshot = await cachedOsuUserProfile(identity.osuId, identity.mode);
+    const snapshot = await readSavedPlayerProfile(
+      identity.osuId,
+      identity.mode,
+    );
     await readCapabilityScope(user, "manage_registrations");
     if (!snapshot) throw new HttpError(404, "No saved profile is available.");
     return snapshot;

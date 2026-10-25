@@ -110,6 +110,11 @@ export function DeveloperAccess({
             "This token can only read data, even if your account has other roles.",
           )}
         </p>
+        <p>
+          <a className="context-link" href="/api/v1/openapi.json">
+            {tr("View API specification")}
+          </a>
+        </p>
         <form className="form-stack" onSubmit={create}>
           <label className="field">
             {tr("Local origin")}
@@ -152,7 +157,7 @@ export function DeveloperAccess({
           </fieldset>
           <p className="muted small">
             {tr(
-              "Private data requires an active Developer grant. Profile and tournament data endpoints will be added in the next stage.",
+              "Private data requires an active Developer grant. Use the API specification to choose a resource and its read scope.",
             )}
           </p>
           <div className="actions">

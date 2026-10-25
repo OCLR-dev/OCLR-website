@@ -1,20 +1,10 @@
-import { developerReadResponse } from "@/lib/developer-api-http";
-function respond(request: Request) {
-  return developerReadResponse(request, "identity:read", (principal) => ({
-    user: principal.subject,
-    access: {
-      kind: principal.kind,
-      scopes: principal.scopes,
-      expiresAt: principal.expiresAt,
-    },
-  }));
-}
+import { readApiRoute } from "@/lib/read-api";
 export {
-  respond as GET,
-  respond as HEAD,
-  respond as OPTIONS,
-  respond as POST,
-  respond as PUT,
-  respond as PATCH,
-  respond as DELETE,
+  readApiRoute as GET,
+  readApiRoute as HEAD,
+  readApiRoute as OPTIONS,
+  readApiRoute as POST,
+  readApiRoute as PUT,
+  readApiRoute as PATCH,
+  readApiRoute as DELETE,
 };

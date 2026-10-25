@@ -263,8 +263,14 @@ test.describe("published mappools and restricted editing", () => {
         guestPage.getByText(/Force Mod: Synthetic test restrictions/),
       ).toBeVisible();
       await expect(
-        guestPage.getByRole("link", { name: /Synthetic Browser Song/ }),
+        guestPage.getByRole("link", { name: "BID 123", exact: true }),
       ).toHaveAttribute("href", "https://osu.ppy.sh/beatmaps/123");
+      await expect(
+        guestPage.getByRole("button", {
+          name: "View FM1: Synthetic Browser Song",
+          exact: true,
+        }),
+      ).toBeVisible();
       expect(
         (
           await new AxeBuilder({ page: guestPage })

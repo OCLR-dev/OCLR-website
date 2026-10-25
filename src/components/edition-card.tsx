@@ -1,3 +1,4 @@
+import type { PublicTournamentSummary } from "@/lib/read-api-contract";
 import { getAppTranslations } from "@/i18n/server";
 import { registrationAvailability } from "@/lib/registrations";
 import { Action, Badge } from "./ui";
@@ -7,12 +8,15 @@ export async function EditionCard({
   edition,
   href,
 }: {
-  edition: Edition;
+  edition: Edition | PublicTournamentSummary;
   href?: string;
 }) {
   const tr = await getAppTranslations();
 
-  const state = await registrationAvailability(edition);
+  const state =
+    "source" in edition
+      ? (edition.registration?.state ?? "unannounced")
+      : await registrationAvailability(edition);
   const summary = publicEditionSummary(edition.summary);
   const historical = edition.status === "completed";
   return (

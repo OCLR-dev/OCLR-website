@@ -1,4 +1,4 @@
-# Developer API access — stage 1 (#268)
+# Developer API access (#268–#269)
 
 An explicitly granted global Developer can open **Dashboard → Developer API access**
 at `/developer`, choose an exact local origin and read scopes, and create or revoke
@@ -6,9 +6,10 @@ their own short-lived API access. Use the existing osu! login on the backend.
 No role is granted by opening this page. Global Admin alone is not a Developer
 grant; a bootstrap Admin with an explicit Developer grant can use this feature.
 
-This stage supplies token management and `GET /api/v1/me`. Profile/tournament
-resources follow in #269, the existing frontend's remote adapter in #270, complete
-page coverage in #271, and consolidated documentation/verification in #272.
+Token management and the versioned saved-data resources are implemented in
+#268–#269; see [read-api.md](read-api.md) and `/api/v1/openapi.json` for their
+contracts. The existing frontend's remote adapter follows in #270, complete page
+coverage in #271, and consolidated documentation/verification in #272.
 **The current frontend is not yet able to run without a local database.**
 
 ## Credential policy
@@ -22,8 +23,8 @@ page coverage in #271, and consolidated documentation/verification in #272.
   explicit global Developer grant. Logout deletes the parent session and cascades
   its tokens; expiration and role/token revocation apply on the next request.
 - Tokens have only the selected `identity:read`, `tournaments:read`,
-  `tournaments:private:read`, and `profiles:read` scopes. The last three reserve the
-  read boundary for #269; issuing them does not make unimplemented routes available.
+  `tournaments:private:read`, and `profiles:read` scopes. Public resources permit
+  anonymous reads; an explicit bearer must have the resource's matching scope.
   `/me` requires `identity:read` and reports the token's scopes, not staff capabilities.
 - Independent Admin/Mappooler/Referee/Captain grants still operate through the normal
   website session. They are never added to a bearer principal. An Authorization
@@ -65,8 +66,8 @@ For v1 read resources, OPTIONS supports GET/HEAD and Authorization, Accept and
 Accept-Language request headers. It requires no token and discloses no data.
 Allowed origins receive matching CORS headers on success and errors, `Vary: Origin`
 and exposed X-Request-Id/Retry-After/WWW-Authenticate headers. Credentialed cookies
-are not enabled. Actual browser reads require both the backend allowlist and the
-token's exact bound origin. A server/BFF request may omit Origin and must still
+are not enabled. Bearer browser reads require both the backend allowlist and the
+token's exact bound origin. Anonymous public reads need only the backend allowlist. A private server/BFF request may omit Origin and must still
 supply a valid bearer token and scope. CORS is a browser policy, not proof of identity.
 All remote backend traffic uses HTTPS; APP_URL permits HTTP only on loopback.
 
@@ -98,8 +99,9 @@ active tokens remains authoritative across processes. Multiple Node processes
 need an ingress/shared aggregate request limit; the application does not claim
 distributed rate limiting. Do not trust arbitrary forwarded IP headers as identity.
 
-Management JSON is limited to 4096 bytes, API responses to 256 KiB, and credential
-transactions use a five-second PostgreSQL statement timeout. Provider traffic is
-never part of a `/me` read. Test fixtures require an isolated database explicitly
+Management JSON is limited to 4096 bytes; `/me` responses to 256 KiB and other
+v1 resources/specification to 2 MiB. Credential transactions and read-only data
+queries use a five-second PostgreSQL statement timeout. Provider traffic is never
+part of a v1 read. Test fixtures require an isolated database explicitly
 named with a `test` segment; synthetic browser/transport tests do not establish
 real organizer authorization, live OAuth or a production deployment.

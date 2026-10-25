@@ -1,4 +1,3 @@
-import { archiveKeyVisual } from "@/lib/archive-key-visual";
 import { archiveStaff } from "@/lib/archive-staff";
 import { archiveArtworkSetIds } from "@/lib/archive-artwork";
 import { deriveS8Standings } from "@/lib/s8-standings";
@@ -13,10 +12,15 @@ import { archiveEventMatches } from "@/lib/archive-event-matches";
 import { ArchiveCompetition } from "./archive-competition";
 import { archiveBracket } from "@/lib/archive-bracket";
 import { getAppTranslations } from "@/i18n/server";
-import { getPublicEdition } from "@/lib/content";
+import {
+  publicEditionContext,
+  historicalTournamentOverview,
+  historicalPlayerModel,
+} from "@/lib/public-read-models";
+import type { PublicPlayer } from "@/lib/read-api-contract";
+import { HttpError } from "@/lib/http";
 import { formatDate, type Edition } from "@/lib/editions";
 import {
-  archiveCounts,
   archiveWinner,
   recordedArchiveMatch,
   type HistoricalArchive,
@@ -49,8 +53,13 @@ export async function historicalPage(
   section: ArchiveSection,
   id?: string,
 ) {
-  const edition = await getPublicEdition(slug);
-  if (!edition) notFound();
+  let edition: Edition;
+  try {
+    edition = (await publicEditionContext(slug)).edition;
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 404) notFound();
+    throw error;
+  }
   if (edition.archive && section === "results")
     redirect(`/tournaments/${slug}/schedule?status=recorded`);
   return edition.archive ? (
@@ -90,10 +99,12 @@ export async function HistoricalArchiveView({
   const teamLink = (id: string) => (
     <Link href={href("teams", id)}>{team(id).name}</Link>
   );
-  const playerLink = (p: HistoricalArchive["players"][number]) => (
+  const playerLink = (p: Pick<PublicPlayer, "osuId" | "username">) => (
     <Link href={href("players", String(p.osuId))}>{p.username}</Link>
   );
-  const role = (p: HistoricalArchive["players"][number]) =>
+  const role = (
+    p: Pick<HistoricalArchive["players"][number], "role" | "tier">,
+  ) =>
     p.role === "captain"
       ? "Captain"
       : p.role === "coach"
@@ -104,7 +115,7 @@ export async function HistoricalArchiveView({
             ? tr("Not recorded")
             : `Tier ${p.tier}`;
   const rosterCard = (
-    p: HistoricalArchive["players"][number],
+    p: HistoricalArchive["players"][number] | PublicPlayer,
     showTeam = true,
   ) => (
     <li className="archive-player-card" key={p.osuId} data-role={p.role}>
@@ -123,13 +134,18 @@ export async function HistoricalArchiveView({
           {tr("osu! ID ")}
           {p.osuId}
         </span>
-        {showTeam && p.teamId && (
-          <span className="archive-player-team">{teamLink(p.teamId)}</span>
+        {showTeam && ("teamId" in p ? p.teamId : p.team?.id) && (
+          <span className="archive-player-team">
+            {teamLink(("teamId" in p ? p.teamId : p.team?.id)!)}
+          </span>
         )}
       </div>
     </li>
   );
-  const roster = (members: HistoricalArchive["players"], showTeam = true) => (
+  const roster = (
+    members: (HistoricalArchive["players"][number] | PublicPlayer)[],
+    showTeam = true,
+  ) => (
     <ul className="archive-player-grid">
       {members.map((p) => rosterCard(p, showTeam))}
     </ul>
@@ -341,8 +357,10 @@ export async function HistoricalArchiveView({
   let content;
   let title = edition.name;
   if (section === "overview") {
-    const counts = archiveCounts(a);
-    const visual = archiveKeyVisual(a, edition.branding.keyVisual);
+    const { counts, keyVisual: visual } = historicalTournamentOverview(
+      edition,
+      a,
+    );
     content = (
       <>
         <div
@@ -474,10 +492,16 @@ export async function HistoricalArchiveView({
       </div>
     );
   } else if (section === "players" || section === "player") {
+    const allPlayers = historicalPlayerModel(edition, a, {
+      kind: "historical_archive",
+      revision: null,
+      updatedAt: null,
+      capturedOn: a.capturedOn,
+    });
     const players =
       section === "player"
-        ? a.players.filter((p) => String(p.osuId) === id)
-        : a.players;
+        ? allPlayers.filter((p) => String(p.osuId) === id)
+        : allPlayers;
     if (!players.length) notFound();
     title = section === "player" ? players[0].username : tr("Players");
     content = (
@@ -486,11 +510,7 @@ export async function HistoricalArchiveView({
           <ArchivePlayerSearch
             players={players.map((p) => ({
               id: p.osuId,
-              searchText: [
-                p.username,
-                p.osuId,
-                p.teamId ? team(p.teamId).name : "",
-              ].join(" "),
+              searchText: [p.username, p.osuId, p.team?.name ?? ""].join(" "),
               card: rosterCard(p),
             }))}
           />

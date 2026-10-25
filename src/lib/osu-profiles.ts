@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { userProfileCache, users } from "@/db/schema";
 import { osuApi } from "./osu-api";
 import { HttpError } from "./http";
+import { safeSavedOsuProfile } from "./read-api-contract";
 import {
   normalizeOsuProfile,
   parseOsuProfile,
@@ -105,14 +106,15 @@ export async function cachedDirectoryStatistics(osuIds: number[]) {
   const byId = new Map(rows.map((row) => [row.osuId, row]));
   const now = Date.now();
   for (const row of rows) {
-    if (!row.profile || row.errorStatus === 404) continue;
+    const profile = safeSavedOsuProfile(row.profile, row.osuId, "osu");
+    if (!profile || row.errorStatus === 404) continue;
     statistics.set(row.osuId, {
-      globalRank: row.profile.statistics.globalRank,
-      pp: row.profile.statistics.pp,
-      fetchedAt: row.profile.fetchedAt,
+      globalRank: profile.statistics.globalRank,
+      pp: profile.statistics.pp,
+      fetchedAt: profile.fetchedAt,
       stale:
         row.errorStatus !== null ||
-        now - Date.parse(row.profile.fetchedAt) >= PROFILE_TTL_MS,
+        now - Date.parse(profile.fetchedAt) >= PROFILE_TTL_MS,
     });
   }
   // Oldest attempts first so repeated visits progressively fill the page.
@@ -152,7 +154,9 @@ function saved(
   return row.profile
     ? {
         profile: row.profile,
-        stale: Date.now() - Date.parse(row.profile.fetchedAt) >= PROFILE_TTL_MS,
+        stale:
+          row.errorStatus !== null ||
+          Date.now() - Date.parse(row.profile.fetchedAt) >= PROFILE_TTL_MS,
         notice: null,
       }
     : null;

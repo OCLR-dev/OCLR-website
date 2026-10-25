@@ -28,8 +28,26 @@ vi.mock("../../src/lib/auth/user", () => ({ currentUser: async () => null }));
 vi.mock("../../src/lib/player-messages", () => ({
   publicPlayerIntroductions: async () => new Map(),
 }));
-vi.mock("../../src/lib/players", () => ({ publicPlayers: vi.fn() }));
+vi.mock("../../src/lib/players", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/lib/players")>()),
+  publicPlayers: vi.fn(),
+}));
+vi.mock("../../src/lib/draft", () => ({ publicDraft: async () => null }));
 vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
+vi.mock("../../src/db", () => ({ db: () => ({}) }));
+vi.mock("../../src/lib/tournaments", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/lib/tournaments")>()),
+  readTournament: vi.fn(async () => {
+    const current = await getPublicEdition(edition.slug);
+    return current
+      ? {
+          edition: current,
+          revision: 1,
+          updatedAt: new Date("2026-10-23T00:00:00Z"),
+        }
+      : undefined;
+  }),
+}));
 vi.mock("../../src/lib/osu-profiles", () => ({
   cachedDirectoryStatistics: vi.fn(),
   refreshDirectoryStatistics: vi.fn(),
@@ -64,6 +82,7 @@ async function html(query = {}) {
 describe("cache-first edition player cards", () => {
   beforeEach(() => {
     vi.stubGlobal("React", React);
+    vi.stubEnv("DATABASE_URL", "postgresql://synthetic@localhost/unit_test");
     callbacks.length = 0;
     vi.mocked(getPublicEdition).mockResolvedValue(edition);
     vi.mocked(publicPlayers).mockResolvedValue(result());
@@ -85,6 +104,7 @@ describe("cache-first edition player cards", () => {
   afterEach(() => {
     vi.resetAllMocks();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
   it("renders minimal cached stats and separate canonical links before any refresh", async () => {
     const page = await html();
