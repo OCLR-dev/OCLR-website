@@ -73,17 +73,18 @@ surface. Text on the primary key is 14.4:1 / 16.1:1; on the cursor block
 ## Local verification (2026-10-24)
 
 - `npm run lint`, `npm run typecheck`: no errors.
-- `npm test` on the isolated `oclr_arcade_test` database: 949 passed, 1 skipped,
-  including the new 0039 migration upgrade test (one run first failed only because
-  that database had not yet been migrated to 0039; the affected files were rerun
-  after migrating).
+- `npm test` on the isolated `oclr_arcade_test` database after syncing with
+  upstream main (`5c5b3a3`): 964 passed, 1 skipped, including the new 0039
+  migration upgrade test.
 - `npm run build` passed; `npm audit --omit=dev` found 0 vulnerabilities.
 - `npm run i18n:extract` and `npm run test:i18n` passed.
 - Press Start 2P and the locale's Fusion Pixel file load from `/fonts/` (HTTP 200); no external font requests.
 - Dev-server checks: 13 public pages at 320/390/768/951/1024/1440px in both
   themes showed no horizontal overflow and no script errors. At 951px the header
   nav is no wider than the default (zh-Hans 272px vs 302px, en 385px vs 389px). The
-  appearance menu stays inside the viewport at 320px and 1440px.
+  appearance menu stays inside the viewport at 320px and 1440px. Header buttons
+  and links are neither covered nor off-screen at the header-overlap widths
+  (320–1440px, including 1100/1101px) in all three locales and both themes.
 - Playwright e2e was not run locally; the updated appearance, site-settings,
   header-overlap and header-branding specs run in CI, which is authoritative.
 
@@ -91,5 +92,8 @@ surface. Text on the primary key is 14.4:1 / 16.1:1; on the cursor block
 
 - Organizer confirmation of the style direction and name.
 - Organizer review of the new Chinese label 街机复古风 / 街機復古風.
+- Organizer sign-off on two contributor-review decisions that go beyond the
+  issue text: light mode is a deep-indigo dark variant rather than a light one,
+  and all text (including body copy, tables and beatmap titles) uses pixel type.
 - Admin, Player and Captain pages behind osu! OAuth were not opened locally
   (no OAuth app configured); they share the same MainSheet tokens and selectors.
