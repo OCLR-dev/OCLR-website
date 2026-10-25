@@ -24,7 +24,10 @@ import { publicDraft } from "./draft";
 import { publicCompetition } from "./public-competition";
 import { draftAwardTiers, awardTierLabel } from "./award-tiers";
 import { archiveCounts, type HistoricalArchive } from "./historical-archive";
-import { historicalRulebook } from "./historical-rulebooks";
+import {
+  historicalRulebook,
+  historicalRulebookSeason,
+} from "./historical-rulebooks";
 import { archiveKeyVisual } from "./archive-key-visual";
 import { informationPreview } from "./tournament-information";
 import { eventPreview } from "./event-preview";
@@ -77,6 +80,9 @@ export function historicalTournamentOverview(
     counts: { teams, players, results, pools, maps },
     keyVisual: archiveKeyVisual(archive, edition.branding.keyVisual) ?? null,
     rulebook: historicalRulebook(archive),
+    rulebookSeason: historicalRulebook(archive)
+      ? (historicalRulebookSeason(historicalRulebook(archive)!) ?? null)
+      : null,
   });
 }
 async function summary(row: StoredTournament) {

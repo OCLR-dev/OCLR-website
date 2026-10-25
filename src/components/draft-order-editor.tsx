@@ -6,8 +6,8 @@ import { useAppTranslations } from "@/i18n/shared";
 import { useState } from "react";
 import type { StaffDraft } from "@/lib/draft";
 import {
-  detectDraftOrder,
   generateTurnSequence,
+  initialDraftOrderMode,
   maxDraftTurns,
   turnSequenceStructureProblem,
   type DraftOrderMode,
@@ -24,8 +24,8 @@ export function DraftOrderEditor({
 
   const teamIds = data.teams.map((t) => t.team.id);
   const saved = data.session?.turnSequence ?? [];
-  const [mode, setMode] = useState<DraftOrderMode | "">(() =>
-    saved.length ? detectDraftOrder(teamIds, saved) : "",
+  const [mode, setMode] = useState<DraftOrderMode>(() =>
+    initialDraftOrderMode(teamIds, saved),
   );
   const [custom, setCustom] = useState(saved);
   const capacities = data.teams.map((t) =>
@@ -58,19 +58,16 @@ export function DraftOrderEditor({
     sequence.length < committed ||
     sequence.slice(0, committed).some((id, i) => id !== saved[i])
       ? "Confirmed turns cannot be reassigned or removed. Edit future turns, or explicitly reset the draft."
-      : !mode
-        ? "Choose a pick order."
-        : generationError ||
-          turnSequenceStructureProblem(
-            sequence,
-            data.teams.map(({ team }) => ({
-              id: team.id,
-              capacity: team.capacity,
-              members: data.members.filter(
-                (m) => m.membership.teamId === team.id,
-              ).length,
-            })),
-          );
+      : generationError ||
+        turnSequenceStructureProblem(
+          sequence,
+          data.teams.map(({ team }) => ({
+            id: team.id,
+            capacity: team.capacity,
+            members: data.members.filter((m) => m.membership.teamId === team.id)
+              .length,
+          })),
+        );
   const sameSaved = JSON.stringify(sequence) === JSON.stringify(saved);
   const version = data.session?.version ?? 0;
   const url = `/api/admin/tournaments/${slug}/draft`;
@@ -112,15 +109,12 @@ export function DraftOrderEditor({
                 setMode(next);
               }}
             >
-              <option value="" disabled>
-                {tr("Choose a pattern")}
-              </option>
               <option value="snake">{tr("Snake")}</option>
               <option value="forward">{tr("Repeat forward")}</option>
               <option value="custom">{tr("Custom")}</option>
             </select>
           </label>
-          {mode && mode !== "custom" && (
+          {mode !== "custom" && (
             <label className="field">
               <span>{tr("Pick rounds")}</span>
               <input

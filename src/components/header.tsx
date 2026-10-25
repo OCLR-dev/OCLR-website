@@ -206,6 +206,7 @@ function AccountControl({
   );
 }
 export function Header({
+  remote = false,
   informationHref = "/tournaments",
   user,
   theme,
@@ -213,6 +214,7 @@ export function Header({
   defaultAppearance = "default",
   appearancePreference,
 }: {
+  remote?: boolean;
   informationHref?: string;
   user: Account | null;
   theme: Theme;
@@ -295,7 +297,16 @@ export function Header({
           role="group"
           aria-label={tr("Account actions")}
         >
-          {user ? (
+          {remote ? (
+            <Link
+              href="/remote"
+              className="button secondary account-control"
+              title={tr("Remote connection")}
+            >
+              {user && <Avatar osuId={user.osuId} username={user.username} />}
+              <span>{user?.username ?? tr("Remote connection")}</span>
+            </Link>
+          ) : user ? (
             <AccountControl
               key={path}
               user={user}

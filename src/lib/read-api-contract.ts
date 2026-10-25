@@ -94,6 +94,7 @@ export const historicalOverviewSchema = z
       .strict()
       .nullable(),
     rulebook,
+    rulebookSeason: text.nullable().default(null),
   })
   .strict();
 const member = z.object({ osuId: id, username: text }).strict();

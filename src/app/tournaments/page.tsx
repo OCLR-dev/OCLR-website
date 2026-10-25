@@ -1,17 +1,18 @@
 import { getAppTranslations } from "@/i18n/server";
 import { PageHeading } from "@/components/ui";
 import { EditionCard } from "@/components/edition-card";
-import { publicTournamentListModel } from "@/lib/public-read-models";
+import { frontendTournaments } from "@/lib/frontend-data";
+import { remotePage } from "@/lib/remote-page";
 export const dynamic = "force-dynamic";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Tournaments") };
 }
 
-export default async function Tournaments() {
+async function TournamentsContent() {
   const tr = await getAppTranslations();
 
-  const editions = (await publicTournamentListModel()).sort((a, b) =>
+  const editions = (await frontendTournaments()).sort((a, b) =>
     (b.season ?? b.slug).localeCompare(a.season ?? a.slug, "en", {
       numeric: true,
     }),
@@ -43,4 +44,8 @@ export default async function Tournaments() {
       )}
     </div>
   );
+}
+
+export default function Tournaments() {
+  return remotePage(TournamentsContent);
 }

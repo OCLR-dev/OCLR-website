@@ -1,5 +1,11 @@
-import { currentUser } from "@/lib/auth/user";
-import { publicPlayerDirectoryModel } from "@/lib/public-read-models";
+import {
+  frontendViewer,
+  frontendPlayers,
+  frontendTournament,
+} from "@/lib/frontend-data";
+import { remoteMode } from "@/lib/data-source";
+import { remotePage } from "@/lib/remote-page";
+
 import { EventPlayers } from "@/components/event-players";
 import { eventPreview } from "@/lib/event-preview";
 import { historicalPage } from "@/components/historical-archive";
@@ -22,7 +28,7 @@ export async function generateMetadata() {
   };
 }
 
-export default async function Players({
+async function PlayersContent({
   searchParams,
   params,
 }: {
@@ -34,9 +40,11 @@ export default async function Players({
   const { edition } = await params;
   const archivePage = await historicalPage(edition, "players");
   if (archivePage) return archivePage;
-  const currentEdition = await getPublicEdition(edition);
+  const currentEdition = remoteMode()
+    ? await frontendTournament(edition)
+    : await getPublicEdition(edition);
   if (!currentEdition) notFound();
-  const preview = eventPreview(edition);
+  const preview = remoteMode() ? null : eventPreview(edition);
   if (preview)
     return (
       <>
@@ -72,10 +80,7 @@ export default async function Players({
     );
   }
   const { filters } = result;
-  const { rows, refreshIds } = await publicPlayerDirectoryModel(
-    edition,
-    filters.q,
-  );
+  const { rows, refreshIds } = await frontendPlayers(edition, filters.q);
   if (refreshIds.length)
     after(async () => {
       try {
@@ -89,7 +94,7 @@ export default async function Players({
         // Stats refresh must never prevent an otherwise usable public directory.
       }
     });
-  const viewer = await currentUser();
+  const viewer = await frontendViewer();
   return (
     <div className="directory-page edition-players">
       <PageHeading title={tr("Players")} />
@@ -106,6 +111,7 @@ export default async function Players({
       </form>
       <EventPlayers
         edition={edition}
+        remote={remoteMode()}
         search={false}
         signedIn={Boolean(viewer)}
         viewerId={viewer?.osuId}
@@ -124,4 +130,8 @@ export default async function Players({
       />
     </div>
   );
+}
+
+export default function Players(props: Parameters<typeof PlayersContent>[0]) {
+  return remotePage(() => PlayersContent(props));
 }

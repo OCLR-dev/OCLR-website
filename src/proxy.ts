@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  remoteMode,
+  remoteConfiguration,
+  remotePageSupported,
+  remoteApiSupported,
+} from "@/lib/data-source";
 import { appUrl } from "@/lib/http";
 import { localeCookie, readLocale } from "@/i18n/config";
 export function proxy(request: NextRequest) {
@@ -12,6 +18,40 @@ export function proxy(request: NextRequest) {
       { error: "Use a browser session for this operation." },
       { status: 403, headers: { "Cache-Control": "no-store" } },
     );
+  let remote = false;
+  try {
+    remote = remoteMode();
+    if (remote) {
+      const { local } = remoteConfiguration();
+      if (
+        request.headers.get("host") !== new URL(local).host ||
+        request.headers.get("sec-fetch-site") === "cross-site"
+      )
+        return NextResponse.json(
+          { error: { code: "REMOTE_FORBIDDEN" } },
+          { status: 403, headers: { "Cache-Control": "no-store" } },
+        );
+      const path = request.nextUrl.pathname;
+      if (
+        (!["GET", "HEAD"].includes(request.method) &&
+          !(
+            path === "/api/remote/connection" &&
+            ["POST", "DELETE"].includes(request.method)
+          )) ||
+        (path.startsWith("/api/") && !remoteApiSupported(path)) ||
+        path.startsWith("/auth/")
+      )
+        return NextResponse.json(
+          { error: { code: "REMOTE_READ_ONLY" } },
+          { status: 403, headers: { "Cache-Control": "no-store" } },
+        );
+    }
+  } catch {
+    return NextResponse.json(
+      { error: { code: "REMOTE_CONFIGURATION_INVALID" } },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    );
+  }
   let canonical: URL | null = null;
   try {
     canonical = process.env.APP_URL ? new URL(appUrl()) : null;
@@ -50,7 +90,20 @@ export function proxy(request: NextRequest) {
   // Overwrite inbound values; layouts never trust caller-supplied route context.
   headers.set("x-oclr-pathname", request.nextUrl.pathname);
   headers.set("x-oclr-search", request.nextUrl.search);
-  const response = NextResponse.next({ request: { headers } });
+  const path = request.nextUrl.pathname;
+  const response =
+    remote &&
+    !path.startsWith("/api/") &&
+    !path.startsWith("/_next/") &&
+    !/^\/(?:branding\/|archive\/|fonts\/|[^/]+\.(?:svg|png|jpg|jpeg|webp|ico)$)/.test(
+      path,
+    ) &&
+    !remotePageSupported(path)
+      ? NextResponse.redirect(
+          new URL("/remote/unsupported", canonical?.origin ?? request.url),
+          307,
+        )
+      : NextResponse.next({ request: { headers } });
   if (!request.nextUrl.pathname.startsWith("/api/")) {
     response.headers.set(
       "Content-Language",
@@ -61,6 +114,7 @@ export function proxy(request: NextRequest) {
   if (canonical?.protocol === "https:")
     response.headers.set("Strict-Transport-Security", "max-age=31536000");
   if (
+    remote ||
     request.nextUrl.pathname.startsWith("/api/") ||
     request.nextUrl.pathname.startsWith("/auth/")
   )

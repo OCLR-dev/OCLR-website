@@ -1,4 +1,7 @@
 import "./event-pages.css";
+import { frontendTournament } from "@/lib/frontend-data";
+import { remoteMode } from "@/lib/data-source";
+import { remotePage } from "@/lib/remote-page";
 import { getAppTranslations } from "@/i18n/server";
 import { TournamentShell } from "@/components/tournament-navigation";
 import { notFound } from "next/navigation";
@@ -13,6 +16,24 @@ export default async function EditionLayout({
   children: React.ReactNode;
   params: Promise<{ edition: string }>;
 }) {
+  if (remoteMode())
+    return remotePage(async () => {
+      const { edition: slug } = await params;
+      const edition = await frontendTournament(slug);
+      return (
+        <TournamentShell
+          slug={slug}
+          name={edition.name}
+          liveDraft={
+            edition.overview.kind === "database" &&
+            Boolean(edition.overview.draft)
+          }
+          archived={edition.source.kind === "historical_archive"}
+        >
+          {children}
+        </TournamentShell>
+      );
+    });
   const tr = await getAppTranslations();
 
   const { edition: slug } = await params;

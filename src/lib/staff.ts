@@ -75,7 +75,8 @@ function conditions(filters: StaffFilters) {
         : undefined,
     filters.q
       ? or(
-          ilike(users.username, `%${filters.q}%`),
+          // Usernames often contain "_"; match it (and "%") literally.
+          ilike(users.username, `%${filters.q.replace(/[\\%_]/g, "\\$&")}%`),
           /^\d+$/.test(filters.q) && Number.isSafeInteger(Number(filters.q))
             ? eq(users.osuId, Number(filters.q))
             : undefined,

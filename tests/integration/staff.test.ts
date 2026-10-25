@@ -126,6 +126,16 @@ describe.skipIf(!url)("staff review boundaries and concurrency", () => {
     expect(
       (await listApplications(staff, { status: "accepted" })).rows,
     ).toHaveLength(0);
+    // LIKE wildcards in the search box match literally.
+    for (const [q, total] of [
+      ["Synthetic", 1],
+      ["_", 0],
+      ["%", 0],
+      ["Synthetic_Player", 0],
+    ] as const)
+      expect((await listApplications(staff, { q, status: "" })).total).toBe(
+        total,
+      );
     expect(
       JSON.stringify(await listApplications(staff, {}, true)),
     ).not.toContain("Do not export");

@@ -2,9 +2,14 @@ name: CI
 on: [push, pull_request]
 permissions:
   contents: read
+# A newer commit supersedes the same branch/PR's expensive browser sweep.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  check:
+  verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:17
@@ -45,12 +50,116 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run build
-      - run: npx playwright install --with-deps chromium firefox webkit
-      - run: npm run test:e2e
       - run: npm audit --omit=dev
+      - name: Package production build
+        run: tar --exclude='.next/cache' -czf /tmp/oclr-next-build.tgz .next
+      - uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: /tmp/oclr-next-build.tgz
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  e2e:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    # Each runner has its own PostgreSQL service. Keep workers: 1 within it:
+    # tests intentionally truncate shared fixtures and cannot share a database.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: oclr_test
+          POSTGRES_PASSWORD: isolated_ci_fixture
+          POSTGRES_DB: oclr_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: /tmp
+      - run: tar -xzf /tmp/oclr-next-build.tgz
+      - run: npm run db:migrate
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run test:e2e -- --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-test-results
+          name: browser-test-results-${{ matrix.shard }}
           path: test-results/
           retention-days: 7
+
+  remote-e2e:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: oclr_test
+          POSTGRES_PASSWORD: isolated_ci_fixture
+          POSTGRES_DB: oclr_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: /tmp
+      - run: tar -xzf /tmp/oclr-next-build.tgz
+      - run: npm run db:migrate
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:remote
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: remote-browser-test-results
+          path: test-results/
+          retention-days: 7
+
+  # Keep the original required check name; skipped/failed shards must fail it.
+  check:
+    if: always()
+    needs: [verify, e2e, remote-e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require all verification jobs
+        env:
+          VERIFY_RESULT: ${{ needs.verify.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
+          REMOTE_RESULT: ${{ needs.remote-e2e.result }}
+        run: |
+          test "$VERIFY_RESULT" = success
+          test "$E2E_RESULT" = success
+          test "$REMOTE_RESULT" = success

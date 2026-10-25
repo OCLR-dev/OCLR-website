@@ -1,3 +1,5 @@
+import { remoteMode } from "@/lib/data-source";
+import { frontendLegacyPlayers } from "@/lib/frontend-legacy";
 import { NextResponse } from "next/server";
 import { publicPlayers } from "@/lib/players";
 import { apiError, HttpError } from "@/lib/http";
@@ -13,7 +15,7 @@ export async function GET(
     )
       throw new HttpError(400, "Choose a valid player search and page.");
     return NextResponse.json(
-      await publicPlayers({
+      await (remoteMode() ? frontendLegacyPlayers : publicPlayers)({
         ...Object.fromEntries(query),
         edition: (await params).edition,
       }),

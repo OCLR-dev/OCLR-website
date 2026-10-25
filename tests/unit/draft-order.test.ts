@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   detectDraftOrder,
   generateTurnSequence,
+  initialDraftOrderMode,
   turnSequenceProblem,
 } from "../../src/lib/draft-order";
 describe("explicit draft order generation", () => {
@@ -39,6 +40,31 @@ describe("explicit draft order generation", () => {
     for (const sequence of [[], ["A", "B"], ["B", "A", "A"], ["A", "A"]])
       expect(detectDraftOrder(["A", "B"], sequence)).toBe("custom");
     expect(detectDraftOrder(["A"], ["A", "A"])).toBe("custom");
+  });
+  it("preselects Snake only while no order is saved and keeps saved modes (#280)", () => {
+    const ids = ["A", "B", "C"];
+    expect(initialDraftOrderMode(ids, [])).toBe("snake");
+    expect(initialDraftOrderMode([], [])).toBe("snake");
+    expect(generateTurnSequence(ids, 2, "snake")).toEqual([
+      "A",
+      "B",
+      "C",
+      "C",
+      "B",
+      "A",
+    ]);
+    expect(
+      initialDraftOrderMode(ids, generateTurnSequence(ids, 2, "snake")),
+    ).toBe("snake");
+    expect(
+      initialDraftOrderMode(ids, generateTurnSequence(ids, 2, "forward")),
+    ).toBe("forward");
+    for (const saved of [
+      ["A", "B", "C"],
+      ["C", "A", "B"],
+      ["A", "A", "B"],
+    ])
+      expect(initialDraftOrderMode(ids, saved)).toBe("custom");
   });
   it("rejects invalid generation and enforces bounded turns", () => {
     for (const ids of [[], [""], ["A", "A"]])

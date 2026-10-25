@@ -1,3 +1,5 @@
+import { remoteMode } from "@/lib/data-source";
+import RemotePage from "@/app/remote/page";
 import { getAppTranslations } from "@/i18n/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -14,6 +16,7 @@ export default async function Login({
 }: {
   searchParams: Promise<{ error?: string; loggedOut?: string }>;
 }) {
+  if (remoteMode()) return <RemotePage />;
   const tr = await getAppTranslations();
 
   if (await currentUser()) redirect("/dashboard");

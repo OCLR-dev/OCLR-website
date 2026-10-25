@@ -9,12 +9,14 @@ import type { EventPlayer } from "@/lib/event-preview";
 export function EventPlayers({
   players,
   edition,
+  remote = false,
   grouped = false,
   preview = false,
   search = true,
   signedIn = false,
   viewerId,
 }: {
+  remote?: boolean;
   players: EventPlayer[];
   edition: string;
   grouped?: boolean;
@@ -119,11 +121,13 @@ export function EventPlayers({
                       </dl>
                     </div>
                   </div>
-                  <PlayerReactions
-                    edition={edition}
-                    playerId={p.id}
-                    name={p.name}
-                  />
+                  {!remote && (
+                    <PlayerReactions
+                      edition={edition}
+                      playerId={p.id}
+                      name={p.name}
+                    />
+                  )}
                 </div>
                 <div className="event-player-bio">
                   <h4>{tr("Self introduction")}</h4>
@@ -131,7 +135,13 @@ export function EventPlayers({
                 </div>
                 <div className="event-player-messages">
                   <h4>{tr("Message board")}</h4>
-                  {preview ? (
+                  {remote ? (
+                    <p className="muted small">
+                      {tr(
+                        "Message boards are not supported in remote development yet.",
+                      )}
+                    </p>
+                  ) : preview ? (
                     <div className="event-message-scroll">
                       {p.messages?.map((m, i) => (
                         <div key={i}>
