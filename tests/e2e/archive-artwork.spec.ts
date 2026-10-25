@@ -87,6 +87,11 @@ test.describe("archive official covers", () => {
         .getByRole("button", { name: "Compact table", exact: true })
         .click();
       await expect(page.locator(".archive-map-item")).toHaveCount(4);
+      await expect(
+        page.locator(
+          '.archive-map-list .beatmap-cover [aria-label="Cover unavailable"]',
+        ),
+      ).toHaveCount(2);
       await page
         .getByRole("button", { name: "Map cards", exact: true })
         .click();

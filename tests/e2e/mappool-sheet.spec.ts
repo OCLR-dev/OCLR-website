@@ -165,14 +165,14 @@ test.describe("published mappool mainsheet", () => {
       sheet.locator(`#pool-${poolId}-maps-HD tbody tr`).nth(1),
     ).toContainText("Not calculated");
 
-    expect(
-      await sheet
-        .getByRole("navigation", {
-          name: "Synthetic Released 30-Map Pool: map categories",
-        })
-        .getByRole("link")
-        .allTextContents(),
-    ).toEqual(categories.map((c) => `${c} 5`));
+    await expect(sheet.locator(".mappool-category-links")).toHaveCount(0);
+    const modFilter = page.getByRole("group", {
+      name: "Synthetic Released 30-Map Pool: mod filter",
+    });
+    for (const category of categories)
+      await expect(
+        modFilter.getByRole("button", { name: category, exact: true }),
+      ).toBeVisible();
     for (const c of categories)
       expect(
         await sheet
@@ -192,13 +192,22 @@ test.describe("published mappool mainsheet", () => {
           .filter({ hasText: "Variable" }),
       ).toHaveCount(5);
     }
-    await expect(sheet.getByText("Cover unavailable")).toBeVisible();
     await expect(
-      sheet.getByRole("link", {
-        name: "Provider Artist — Synthetic NM1",
+      sheet.locator('.beatmap-cover [aria-label="Cover unavailable"]').first(),
+    ).toBeVisible();
+    const opener = sheet.getByRole("button", {
+      name: "View NM1: Synthetic NM1",
+      exact: true,
+    });
+    await opener.click();
+    await expect(
+      page.getByRole("dialog").getByRole("link", {
+        name: "Open on osu!",
         exact: true,
       }),
     ).toHaveAttribute("href", "https://osu.ppy.sh/beatmaps/820001");
+    await page.keyboard.press("Escape");
+    await expect(opener).toBeFocused();
     if (isMobile) {
       const details = sheet
         .locator(`#pool-${poolId}-maps-DT .mappool-mobile-details`)

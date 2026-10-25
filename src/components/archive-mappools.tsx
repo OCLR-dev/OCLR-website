@@ -1,5 +1,6 @@
 "use client";
 
+import { BeatmapActions } from "./beatmap-actions";
 import { BeatmapCover } from "./beatmap-cover";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
@@ -7,41 +8,93 @@ import { useAppTranslations } from "@/i18n/shared";
 import type { HistoricalArchive } from "@/lib/historical-archive";
 import { formatBeatmapDuration } from "@/lib/mappool-model";
 import { WorkspaceTabs } from "./workspace-tabs";
-import { BeatmapActions } from "./beatmap-actions";
-import { MapDetailsDialog } from "./map-details-dialog";
 
 type MapEntry = HistoricalArchive["pools"][number]["maps"][number];
 function ArchiveMapDetails({
   map,
-  setId,
   stats,
+  setId,
   previous,
   next,
   onMove,
   onClose,
 }: {
   map: MapEntry;
-  setId: number | null | undefined;
   stats: React.ReactNode;
+  setId: number | null | undefined;
   previous?: MapEntry;
   next?: MapEntry;
   onMove: (slot: string) => void;
   onClose: () => void;
 }) {
+  const tr = useAppTranslations(),
+    title = useId();
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const node = dialog.current!,
+      trigger = document.activeElement;
+    node.showModal();
+    return () => {
+      node.close();
+      if (trigger instanceof HTMLElement && trigger.isConnected)
+        trigger.focus();
+    };
+  }, []);
   return (
-    <MapDetailsDialog
-      context={map.slot}
-      title={map.title}
-      beatmapId={map.beatmapId}
-      setId={setId}
-      previous={Boolean(previous)}
-      next={Boolean(next)}
-      onPrevious={() => previous && onMove(previous.slot)}
-      onNext={() => next && onMove(next.slot)}
-      onClose={onClose}
+    <dialog
+      ref={dialog}
+      className="map-dialog"
+      aria-labelledby={title}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
     >
-      {stats}
-    </MapDetailsDialog>
+      <header>
+        <span className="eyebrow">{map.slot}</span>
+        <button
+          type="button"
+          className="secondary"
+          aria-label={tr("Close map details")}
+          onClick={onClose}
+        >
+          {tr("Close")}
+        </button>
+      </header>
+      <div className="map-dialog-body">
+        <div className="map-detail-identity">
+          <BeatmapCover setId={setId} />
+          <div>
+            <h2 id={title}>{map.title}</h2>
+            {map.mapper && !map.title.includes(map.mapper) && (
+              <p className="muted">
+                {tr("Mapper")}: {map.mapper}
+              </p>
+            )}
+          </div>
+        </div>
+        {stats}
+        <BeatmapActions beatmapId={map.beatmapId} setId={setId} />
+        <div className="map-dialog-navigation">
+          <button
+            type="button"
+            className="secondary"
+            disabled={!previous}
+            onClick={() => previous && onMove(previous.slot)}
+          >
+            {tr("Previous map")}
+          </button>
+          <button
+            type="button"
+            className="secondary"
+            disabled={!next}
+            onClick={() => next && onMove(next.slot)}
+          >
+            {tr("Next map")}
+          </button>
+        </div>
+      </div>
+    </dialog>
   );
 }
 type Pool = HistoricalArchive["pools"][number];
@@ -242,6 +295,7 @@ export function ArchiveMappools({
                   <div className="archive-map-thumbnail">
                     <BeatmapCover
                       setId={m.beatmapId ? artworkSetIds[m.beatmapId] : null}
+                      compact
                     />
                     <span className="archive-map-slot">{m.slot}</span>
                   </div>
@@ -281,9 +335,9 @@ export function ArchiveMappools({
                   </div>
                   {stats(m)}
                   <BeatmapActions
+                    compact
                     beatmapId={m.beatmapId}
                     setId={m.beatmapId ? artworkSetIds[m.beatmapId] : null}
-                    compact
                     name={m.slot}
                   />
                 </div>

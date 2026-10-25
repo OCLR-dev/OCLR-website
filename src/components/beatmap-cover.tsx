@@ -4,7 +4,13 @@ import { useAppTranslations } from "@/i18n/shared";
 import { beatmapCoverUrl } from "@/lib/beatmap-artwork";
 import Image from "next/image";
 import { useState } from "react";
-export function BeatmapCover({ setId }: { setId: number | null | undefined }) {
+export function BeatmapCover({
+  setId,
+  compact = false,
+}: {
+  setId: number | null | undefined;
+  compact?: boolean;
+}) {
   const tr = useAppTranslations();
 
   const src = beatmapCoverUrl(setId);
@@ -12,7 +18,13 @@ export function BeatmapCover({ setId }: { setId: number | null | undefined }) {
   return (
     <div className="beatmap-cover">
       {!src || failedSource === src ? (
-        <span className="muted small">{tr("Cover unavailable")}</span>
+        <span
+          className="muted small"
+          aria-label={compact ? tr("Cover unavailable") : undefined}
+          title={compact ? tr("Cover unavailable") : undefined}
+        >
+          {compact ? "—" : tr("Cover unavailable")}
+        </span>
       ) : (
         <Image
           src={src}

@@ -97,7 +97,7 @@ function MappoolRow({
       </th>
       <td className="mappool-map">
         <div className="mappool-map-identity">
-          <BeatmapCover setId={m.setId} />
+          <BeatmapCover setId={m.setId} compact />
           <div>
             {onSelect ? (
               <button

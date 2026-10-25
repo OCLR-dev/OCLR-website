@@ -50,9 +50,12 @@ export function BeatmapActions({
   const links = beatmapLinks(beatmapId, setId);
   const labels = {
     web: tr("Open on osu!"),
-    direct: "osu!direct",
+    direct: tr("osu!direct"),
   };
-  if (!links.web && !links.direct) return null;
+  if (!links.web && !links.direct)
+    return compact ? null : (
+      <p className="muted small">{tr("Beatmap ID unresolved")}</p>
+    );
   return (
     <div
       className={`beatmap-actions${compact ? " beatmap-actions-compact" : ""}`}
