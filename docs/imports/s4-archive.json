@@ -711,50 +711,49 @@
       "tier": 4,
       "source": "Team!J49",
       "osuId": 9887164
-    }
-  ],
-  "unresolvedPlayers": [
+    },
     {
+      "osuId": 7660383,
       "username": "Pigeons",
       "teamId": "a",
       "role": "coach",
       "tier": null,
-      "source": "Team!F5",
-      "id": "a-6"
+      "source": "Team!F5"
     },
     {
+      "osuId": 12494307,
       "username": "Monoblos-",
       "teamId": "a",
       "role": "player",
       "tier": 1,
-      "source": "Team!G5",
-      "id": "a-7"
+      "source": "Team!G5"
     },
     {
+      "osuId": 760389,
       "username": "Refia Vridis",
       "teamId": "e",
       "role": "coach",
       "tier": null,
-      "source": "Team!F21",
-      "id": "e-6"
+      "source": "Team!F21"
     },
     {
+      "osuId": 4561097,
       "username": "NoirMei",
       "teamId": "f",
       "role": "player",
       "tier": 4,
-      "source": "Team!J25",
-      "id": "f-10"
+      "source": "Team!J25"
     },
     {
+      "osuId": 714369,
       "username": "TaneshimaPopura",
       "teamId": "i",
       "role": "player",
       "tier": 2,
-      "source": "Team!H37",
-      "id": "i-8"
+      "source": "Team!H37"
     }
   ],
+  "unresolvedPlayers": [],
   "picks": [],
   "draftMode": "final-tiers",
   "staff": [
@@ -3732,9 +3731,9 @@
     },
     {
       "category": "review",
-      "label": "未確認 UID",
-      "text": "Pigeons、Monoblos-、Refia Vridis、NoirMei、TaneshimaPopura。僅合併大小寫及空白差異可唯一匹配的 roster 名稱；其餘不推斷改名。",
-      "source": "Team / roster"
+      "label": "UID 搜尋與 MP 交叉核對",
+      "text": "2026-10-26 核對：Pigeons = 7660383（官方個人頁 previous_usernames 包含 Pigeons）；Refia Vridis = 760389（官方個人頁 previous_usernames 包含 Refia Vridis）；Monoblos- = 12494307（S4 A–C MP 62579255 使用該名字與 UID）；NoirMei = 4561097（S4 F–I MP 62621461 使用該名字與 UID，MainSheet roster 為 Misshime）；TaneshimaPopura = 714369（S5 MainSheet 既有對照、官方個人頁歷史隊伍連結及 S4 F–I MP 62621461 的 GreySTrip_VoV 交叉吻合）。保留 S4 Team 原始顯示名，5 筆身分已補 UID。 來源：https://osu.ppy.sh/users/7660383 ; https://osu.ppy.sh/users/760389 ; https://osu.ppy.sh/users/714369 ; https://osu.ppy.sh/community/matches/62579255 ; https://osu.ppy.sh/community/matches/62621461",
+      "source": "osu! 官方個人頁、S4 MP 62579255 / 62621461、S5 MainSheet"
     },
     {
       "category": "review",

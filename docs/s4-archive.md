@@ -10,8 +10,7 @@ No results were approved and no edition was published.
 The saved archive was read back through the Admin source appendix and compared
 field-for-field with `imports/s4-archive.json`. It contains:
 
-- 12 teams and 84 roster positions: 79 unique source-matched osu! IDs and five
-  unresolved identities. Captain, VICE, coach and final Tier allocations remain
+- 12 teams and 84 roster positions: 84 resolved osu! IDs. Captain, VICE, coach and final Tier allocations remain
   distinct; no chronological draft order is invented.
 - 34 fixtures: 24 group-stage rows and ten knockout rows, 33 MP links and 30
   source VOD links. Scores remain null pending review. Original scores and the
@@ -44,10 +43,19 @@ sheet is used only to resolve identities actually present in `Team`; case and
 whitespace differences are normalized for matching, while authored names are
 preserved. Other historical names are not silently merged.
 
+## Identity cross-check — 2026-10-26
+
+Five initially unresolved identities were resolved and saved through the Admin UI.
+Original S4 names are preserved. Pigeons (7660383) and Refia Vridis (760389)
+are listed in their official profile previous usernames. MP 62579255 identifies
+Monoblos- as 12494307; MP 62621461 identifies NoirMei as 4561097 and includes
+GreySTrip_VoV (714369), matching TaneshimaPopura through the S5 MainSheet
+and the historical team link on that official profile. Evidence URLs are retained
+in the administrator-only source appendix. Full UI readback matched the submitted
+update; no results or publication state changed.
+
 ## Remaining review
 
-- Unknown UID: A coach Pigeons, A Tier 1 Monoblos-, E coach Refia Vridis,
-  F Tier 4 NoirMei, I Tier 2 TaneshimaPopura.
 - Five group games are 5:5: A5, A10, A11, A17, A20. The current approved-result
   schema rejects ties. Their source scores are preserved without inventing a
   winner; draw-aware approval/statistics need a separate compatibility change.
