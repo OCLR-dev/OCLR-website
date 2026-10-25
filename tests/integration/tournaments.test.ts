@@ -28,6 +28,11 @@ import {
   registrations,
 } from "../../src/db/schema";
 import { submitRegistration } from "../../src/lib/registrations";
+import {
+  publicTournamentListModel,
+  privateTournamentListModel,
+} from "../../src/lib/public-read-models";
+import { collectionPage } from "../../src/lib/read-api";
 import { getPublicEdition } from "../../src/lib/content";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
@@ -89,6 +94,54 @@ describe.skipIf(!url)("authoritative tournament edition storage", () => {
   afterAll(async () => {
     await closeDb();
     vi.unstubAllEnvs();
+  });
+  it("orders authorized lists and API pagination by numeric season before slicing", async () => {
+    await seedEditions(
+      [10, 11, 7, 8, 9, 12].map((season) => ({
+        ...edition,
+        slug: `s${season}`,
+        season: String(season),
+        name: `Synthetic Season ${season}`,
+        published: season !== 12,
+      })),
+    );
+    await db()
+      .insert(staffRoles)
+      .values(
+        [7, 10, 11].map((season) => ({
+          userId: mapper.osuId,
+          role: "mappooler" as const,
+          editionSlug: `s${season}`,
+          grantedBy: admin.osuId,
+        })),
+      );
+    expect(
+      (await tournamentList(admin)).rows
+        .filter((row) => row.season)
+        .map((row) => row.season),
+    ).toEqual(["12", "11", "10", "9", "8", "7"]);
+    expect(
+      (await tournamentList(mapper)).rows
+        .filter((row) => row.season)
+        .map((row) => row.season),
+    ).toEqual(["11", "10", "7"]);
+    expect(
+      (await publicTournamentListModel())
+        .filter((row) => row.season)
+        .map((row) => row.season),
+    ).toEqual(["11", "10", "9", "8", "7"]);
+    const all = await privateTournamentListModel();
+    const first = collectionPage(all, new URLSearchParams({ pageSize: "2" }));
+    expect(first.data.map((row) => row.season)).toEqual(["12", "11"]);
+    const second = collectionPage(
+      all,
+      new URLSearchParams({
+        page: "2",
+        pageSize: "2",
+        version: first.meta!.pagination!.collectionVersion,
+      }),
+    );
+    expect(second.data.map((row) => row.season)).toEqual(["10", "9"]);
   });
   it("stores optional appearance defaults with scoped authorization, revisions and audit", async () => {
     const created = await create();

@@ -1,3 +1,4 @@
+import { compareTournamentSeasons } from "./tournament-order";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { remoteMode } from "./data-source";
@@ -107,7 +108,9 @@ export const frontendSite = cache(async () =>
 );
 export const frontendTournaments = cache(async () =>
   remoteMode()
-    ? completeCollection("/tournaments", publicTournamentSummarySchema)
+    ? (
+        await completeCollection("/tournaments", publicTournamentSummarySchema)
+      ).sort(compareTournamentSeasons)
     : (await import("./public-read-models")).publicTournamentListModel(),
 );
 export const frontendTournament = cache(async (slug: string) =>
@@ -134,10 +137,12 @@ export const frontendPlayers = cache(async (slug: string, q = "") =>
 );
 export const frontendPrivateTournaments = cache(async () => {
   if (!remoteMode()) throw new RemoteDataError("REMOTE_UNSUPPORTED", 404);
-  return completeCollection(
-    "/staff/tournaments",
-    privateTournamentSummarySchema,
-  );
+  return (
+    await completeCollection(
+      "/staff/tournaments",
+      privateTournamentSummarySchema,
+    )
+  ).sort(compareTournamentSeasons);
 });
 export const frontendPrivateTournament = cache(async (slug: string) => {
   if (!remoteMode()) throw new RemoteDataError("REMOTE_UNSUPPORTED", 404);

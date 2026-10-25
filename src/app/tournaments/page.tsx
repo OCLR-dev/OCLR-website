@@ -12,11 +12,7 @@ export async function generateMetadata() {
 async function TournamentsContent() {
   const tr = await getAppTranslations();
 
-  const editions = (await frontendTournaments()).sort((a, b) =>
-    (b.season ?? b.slug).localeCompare(a.season ?? a.slug, "en", {
-      numeric: true,
-    }),
-  );
+  const editions = await frontendTournaments();
   const current = editions.filter((e) => e.status !== "completed");
   const historical = editions.filter((e) => e.status === "completed");
   return (

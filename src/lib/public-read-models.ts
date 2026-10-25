@@ -1,3 +1,4 @@
+import { compareTournamentSeasons } from "./tournament-order";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { draftSessions } from "@/db/schema";
@@ -107,12 +108,7 @@ export async function publicTournamentListModel() {
   const rows = await readTournaments(true);
   const output = [];
   for (const row of rows) output.push(await summary(row));
-  return output.sort(
-    (a, b) =>
-      (b.season ?? b.slug).localeCompare(a.season ?? a.slug, "en", {
-        numeric: true,
-      }) || a.slug.localeCompare(b.slug),
-  );
+  return output.sort(compareTournamentSeasons);
 }
 export async function privateTournamentListModel() {
   const output = [];
@@ -124,7 +120,7 @@ export async function privateTournamentListModel() {
         registrationPaused: row.registrationPaused,
       }),
     );
-  return output;
+  return output.sort(compareTournamentSeasons);
 }
 export async function privateTournamentModel(slug: string) {
   const row = await readTournament(slug);

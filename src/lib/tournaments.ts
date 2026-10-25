@@ -29,6 +29,7 @@ import {
   registrationBlockers,
   type Edition,
 } from "./editions";
+import { compareTournamentSeasons } from "./tournament-order";
 import { tournamentNavigation } from "./admin-navigation";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export function storedEdition(row: typeof editionState.$inferSelect) {
@@ -233,7 +234,8 @@ export async function tournamentList(actor: User) {
         timeZone: row.edition.timeZone,
         updatedAt: row.updatedAt,
         links: tournamentLinks(grants, row.edition.slug),
-      })),
+      }))
+      .sort(compareTournamentSeasons),
   };
 }
 export async function competitionStructureProtected(
