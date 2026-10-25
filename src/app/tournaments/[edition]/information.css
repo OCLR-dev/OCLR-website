@@ -69,7 +69,7 @@
 }
 .information-banner {
   position: relative;
-  aspect-ratio: 3.7 / 1;
+  aspect-ratio: 4.6 / 1;
   overflow: hidden;
   border-radius: 0.5rem;
   background: #121626;
@@ -531,7 +531,7 @@ html[data-appearance="cute-pastel"] .public-tournament .information-layout {
 
 /* The overview spans the page; the left index belongs only to the rules below. */
 .information-overview-details {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 .public-tournament .information-overview-details > .information-document {
   padding: 0;
