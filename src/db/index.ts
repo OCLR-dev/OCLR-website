@@ -6,6 +6,7 @@ type Database = ReturnType<typeof drizzle>;
 const readScope = new AsyncLocalStorage<Database>();
 const globalDb = globalThis as unknown as { oclrPool?: Pool };
 export function getPool() {
+  if (process.env.OCLR_DATA_SOURCE === "remote") throw new Error("Local database access is disabled in remote development.");
   if (!process.env.DATABASE_URL) throw new Error("Database is not configured");
   if (!globalDb.oclrPool) {
     const pool = new Pool({

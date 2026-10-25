@@ -244,36 +244,40 @@ export function PlayerMessageBoard({
             {tr("Sign in with osu! to leave a signed message")}
           </Link>
         )}
-        {current?.authorId === viewerId && !open && !deleting && (
-          <>
-            <button
-              type="button"
-              className="secondary"
-              aria-label={tr("Edit message")}
-              disabled={busy}
-              onClick={() => {
-                setEditing(current);
-                setEditText(current.text);
-                setOpen(true);
-                setError("");
-              }}
-            >
-              {tr("Edit")}
-            </button>
-            <button
-              type="button"
-              className="secondary"
-              aria-label={tr("Delete message")}
-              disabled={busy}
-              onClick={() => {
-                setDeleting(true);
-                setError("");
-              }}
-            >
-              {tr("Delete")}
-            </button>
-          </>
-        )}
+        {current &&
+          viewerId !== undefined &&
+          current.authorId === viewerId &&
+          !open &&
+          !deleting && (
+            <>
+              <button
+                type="button"
+                className="secondary"
+                aria-label={tr("Edit message")}
+                disabled={busy}
+                onClick={() => {
+                  setEditing(current);
+                  setEditText(current.text);
+                  setOpen(true);
+                  setError("");
+                }}
+              >
+                {tr("Edit")}
+              </button>
+              <button
+                type="button"
+                className="secondary"
+                aria-label={tr("Delete message")}
+                disabled={busy}
+                onClick={() => {
+                  setDeleting(true);
+                  setError("");
+                }}
+              >
+                {tr("Delete")}
+              </button>
+            </>
+          )}
       </div>
       {deleting && (
         <div

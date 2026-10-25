@@ -1,6 +1,7 @@
+import { remotePage } from "@/lib/remote-page";
 import { notFound } from "next/navigation";
 import { historicalPage } from "@/components/historical-archive";
-export default async function HistoricalPlayer({
+async function HistoricalPlayerContent({
   params,
 }: {
   params: Promise<{ edition: string; osuId: string }>;
@@ -9,4 +10,10 @@ export default async function HistoricalPlayer({
   const page = await historicalPage(edition, "player", osuId);
   if (!page) notFound();
   return page;
+}
+
+export default function HistoricalPlayer(
+  props: Parameters<typeof HistoricalPlayerContent>[0],
+) {
+  return remotePage(() => HistoricalPlayerContent(props));
 }

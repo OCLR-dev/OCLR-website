@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { publishedPlayerProfile } from "@/lib/player-profiles";
+import { frontendProfile } from "@/lib/frontend-data";
+import { remoteMode } from "@/lib/data-source";
 import { apiError, HttpError } from "@/lib/http";
 export async function GET(
   request: Request,
@@ -16,14 +17,14 @@ export async function GET(
       (query.has("edition") && !/^[a-z0-9-]+$/.test(query.get("edition")!))
     )
       throw new HttpError(400, "Choose one supported ruleset.");
-    const result = await publishedPlayerProfile(
+    const result = await frontendProfile(
       (await params).osuId,
       query.get("mode") ?? undefined,
       query.get("edition") ?? undefined,
     );
     // Preserve explicit upstream errors for clients when no saved profile exists.
     return NextResponse.json(result, {
-      status: result.error?.status ?? 200,
+      status: remoteMode() ? 200 : (result.error?.status ?? 200),
       headers: { "Cache-Control": "no-store" },
     });
   } catch (e) {

@@ -2,8 +2,10 @@ import { getAppTranslations } from "@/i18n/server";
 import Link from "next/link";
 import Image from "next/image";
 import { EditionCard } from "@/components/edition-card";
-import { getPublicEditions } from "@/lib/content";
-import { registrationAvailability } from "@/lib/registrations";
+import { frontendTournaments } from "@/lib/frontend-data";
+import { remoteMode } from "@/lib/data-source";
+import { remotePage } from "@/lib/remote-page";
+
 import { formatDate } from "@/lib/editions";
 import "./home.css";
 
@@ -52,14 +54,14 @@ function EntryIcon({ kind }: { kind: "discord" | "qq" | "info" | "calendar" }) {
   );
 }
 
-export default async function Home() {
+async function HomeContent() {
   const tr = await getAppTranslations();
-  const editions = await getPublicEditions();
+  const editions = await frontendTournaments();
   const featured =
     editions.find((e) => e.status === "live") ??
     editions.find((e) => e.status === "upcoming");
   const availability = featured
-    ? await registrationAvailability(featured)
+    ? (featured.registration?.state ?? "unannounced")
     : null;
   const archives = editions
     .filter((e) => e.status === "completed")
@@ -69,7 +71,7 @@ export default async function Home() {
       }),
     );
   const previewArchive =
-    process.env.NODE_ENV !== "production"
+    !remoteMode() && process.env.NODE_ENV !== "production"
       ? archives.find((edition) => edition.slug === "dev-archive")
       : undefined;
   const archiveCards = previewArchive
@@ -245,4 +247,8 @@ export default async function Home() {
       </div>
     </div>
   );
+}
+
+export default function Home() {
+  return remotePage(HomeContent);
 }

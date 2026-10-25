@@ -43,14 +43,14 @@ The main sources are:
 | Appearance default                                                 | `site_settings`                                                                   |
 | Authored announcements and historical source material              | Repository JSON under `src/content`; explicit import/configuration where required |
 
-Client interactions call the corresponding `/api/...` route, which reuses the same services and server-side permission checks. Initial page rendering can query these services directly without making a browser API request. The homepage combines database events with authored announcement JSON; it does not scrape the live website. A missing `DATABASE_URL` produces an empty tournament list, while a configured but unreachable/unmigrated database can fail queries. `/api/health` returns HTTP 200 only when a database query succeeds; it does not verify schema migrations or demo content.
+Client interactions call the corresponding `/api/...` route, which reuses the same services and server-side permission checks. Initial page rendering can query these services directly without making a browser API request. The homepage combines database events with authored announcement JSON; it does not scrape the live website. In database mode, a missing `DATABASE_URL` produces an empty tournament list, while a configured but unreachable/unmigrated database can fail queries. Explicit remote mode instead uses the adapter and connection states described below; it never falls back to local database reads. `/api/health` returns HTTP 200 only when a database query succeeds; it does not verify schema migrations or demo content.
 
 ## Checks and hosting
 
 Developer API authentication and local cross-origin reads are documented in
-[Developer API access](developer-api.md). Stage 1 (#268) supplies token management
-and `/api/v1/me`; it does not yet replace local frontend database access. Remote
-frontend mode and complete page coverage are tracked in #270–#272.
+[Developer API access](developer-api.md). #268 supplies token management, #269
+supplies the saved-data contract, and #270 adds the [remote core-page frontend](remote-development.md).
+Full-site coverage and overall acceptance remain in #271–#272.
 
 `npm run check` runs ESLint, generated route types and TypeScript. `npm run build` creates the production build; `npm start` serves it on a conventional Node.js host. CI runs the same checks. No Vercel services are required.
 
@@ -79,5 +79,38 @@ Database-backed tests require **an isolated database whose name contains `test`*
 The versioned saved-data API is documented in [read-api.md](read-api.md), with
 [credential/origin setup](developer-api.md) and a generated
 [OpenAPI document](read-api.openapi.json). Stage #269 supplies shared backend
-read contracts; the existing frontend still requires a database until its remote
-adapter and coverage work (#270–#272) are complete.
+read contracts; #270 adds remote core-page development. Full-site coverage and
+overall DB-free acceptance remain in #271–#272.
+
+For the stage #270 core-page remote frontend mode, see
+[remote-development.md](remote-development.md). It uses `next dev`, a separate
+backend origin and an in-memory Developer connection or explicit anonymous mode;
+it needs no local database, migration, seed or OAuth secret. The coverage table
+identifies remaining #271–#272 work. Production entry points reject this mode.
+
+## CI browser isolation and execution time
+
+CI builds the production app once after lint/types and unit/integration checks,
+then restores that exact build into four Playwright shard jobs and a separate
+remote-mode browser job. Each job migrates its own PostgreSQL service; browser
+workers remain set to one because the fixtures truncate shared tables. Do not
+increase workers against a shared database. Playwright shards whole test files
+(`fullyParallel: false`), preserving file hooks and sequential test behavior.
+
+Every regular browser project, including Firefox header coverage, remains in
+the four shards. Remote-mode checks run independently so ordinary E2E failures
+do not prevent that coverage. Per-shard failure traces/screenshots retain unique
+artifact names. The aggregate `check` job requires verification, every shard and
+the remote job to succeed; it fails if a dependency fails or is skipped. New
+commits cancel superseded runs for the same branch or PR. Runner availability
+and the slowest test file still affect elapsed time; compare completed CI runs
+before claiming an actual speedup.
+
+To reproduce a shard locally after building and migrating an isolated test DB:
+
+```sh
+DATABASE_URL="$TEST_DATABASE_URL" npm run test:e2e -- --shard=1/4
+```
+
+Run shards sequentially locally, or give each concurrent run a separate database,
+server port and storage paths. The default full local command is unchanged.

@@ -597,7 +597,17 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
     expect((await mappoolWorkspace(mapper, edition.slug)).entries).toHaveLength(
       0,
     );
-    for (const actor of [referee, player])
+    // Replay roles can read the workspace but must not spend batch lookups.
+    const tester = { osuId: 190005, username: "Synthetic Tester" };
+    await db().insert(users).values(tester);
+    await db().insert(staffRoles).values({
+      userId: tester.osuId,
+      role: "tester",
+      editionSlug: edition.slug,
+      grantedBy: admin.osuId,
+    });
+    vi.mocked(fetchBeatmaps).mockClear();
+    for (const actor of [referee, player, tester])
       await expect(
         previewMappoolBatch(actor, edition.slug, {
           poolId: pool.id,
@@ -605,6 +615,7 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
           text: "NM1 123",
         }),
       ).rejects.toMatchObject({ status: 403 });
+    expect(fetchBeatmaps).not.toHaveBeenCalled();
   });
   async function batch(
     poolId: string,

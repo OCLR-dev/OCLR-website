@@ -289,6 +289,8 @@ export async function previewMappoolBatch(
   slug: string,
   input: unknown,
 ) {
+  // Batch preview prepares an edit and spends the osu! lookup budget.
+  await assertCapability(actor, "manage_mappools", slug);
   const data = await mappoolWorkspace(actor, slug);
   const parsed = z
     .object({

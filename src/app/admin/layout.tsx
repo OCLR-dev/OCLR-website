@@ -1,3 +1,7 @@
+import { remoteMode } from "@/lib/data-source";
+import { frontendConnection } from "@/lib/frontend-data";
+import { remotePage } from "@/lib/remote-page";
+import { RemoteDataError } from "@/lib/remote-errors";
 import { getAppTranslations } from "@/i18n/server";
 import { StaffNavigation } from "@/components/staff-navigation";
 import { notFound, redirect } from "next/navigation";
@@ -18,6 +22,13 @@ export default async function StaffLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if (remoteMode())
+    return remotePage(async () => {
+      const context = await frontendConnection();
+      if (!context.identity?.access.scopes.includes("tournaments:private:read"))
+        throw new RemoteDataError("REMOTE_FORBIDDEN", 403);
+      return <div className="container page">{children}</div>;
+    });
   const user = await currentUser();
   if (!user) redirect("/login");
   const grants = await staffAccess(user);

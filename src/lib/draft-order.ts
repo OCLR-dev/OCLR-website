@@ -41,6 +41,13 @@ export function detectDraftOrder(
     forward = same("forward");
   return snake === forward ? "custom" : snake ? "snake" : "forward";
 }
+// Unsaved drafts preselect Snake (#280); a saved sequence keeps its detected mode.
+export function initialDraftOrderMode(
+  teamIds: string[],
+  saved: string[],
+): DraftOrderMode {
+  return saved.length ? detectDraftOrder(teamIds, saved) : "snake";
+}
 export function turnSequenceProblem(
   sequence: string[],
   teams: { id: string; capacity: number | null; members: number }[],

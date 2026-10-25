@@ -1,3 +1,5 @@
+import { remoteMode } from "@/lib/data-source";
+import { RemoteStaffTournaments } from "@/components/remote-staff-tournaments";
 import { getAppTranslations } from "@/i18n/server";
 import Link from "next/link";
 import { authorizedPage } from "@/lib/auth/page";
@@ -18,6 +20,7 @@ export default async function Tournaments({
     visibility?: string | string[];
   }>;
 }) {
+  if (remoteMode()) return <RemoteStaffTournaments />;
   const tr = await getAppTranslations();
 
   return authorizedPage(async () => {

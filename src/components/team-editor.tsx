@@ -24,7 +24,8 @@ export function TeamEditor({
     [preview, setPreview] = useState<string | null>(null),
     [remove, setRemove] = useState(false),
     [pending, setPending] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [opened, setOpened] = useState(0);
   useEffect(
     () => () => {
       if (preview) URL.revokeObjectURL(preview);
@@ -49,7 +50,11 @@ export function TeamEditor({
         body: form,
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error);
+      if (!r.ok) {
+        // Load the current team so the form is not resubmitted with stale data.
+        router.refresh();
+        throw new Error(data.error);
+      }
       dialog.current?.close();
       router.refresh();
     } catch (e) {
@@ -69,6 +74,7 @@ export function TeamEditor({
           chooseImage(null);
           setRemove(false);
           setError("");
+          setOpened((n) => n + 1);
           dialog.current?.showModal();
         }}
       >
@@ -82,7 +88,12 @@ export function TeamEditor({
           if (pending) e.preventDefault();
         }}
       >
-        <form className="form-stack" onSubmit={save}>
+        {/* Remount so inputs show the latest saved team, not earlier typing. */}
+        <form
+          key={`${opened}:${version}`}
+          className="form-stack"
+          onSubmit={save}
+        >
           <ReadOnlyFields>
             <h2>{tr("Edit team")}</h2>
             <label className="field">

@@ -1,8 +1,9 @@
 # Versioned saved-data read API (#269)
 
 This is stage 2 of #268–#272. It exposes backend data for frontend development.
-The current Next.js frontend still needs its database: the remote adapter belongs
-in #270 and full coverage/DB-free acceptance in #271–#272.
+The #270 remote adapter supports the documented core pages without a local DB;
+see [remote-development.md](remote-development.md). Full-site coverage and overall
+DB-free acceptance remain in #271–#272.
 
 The machine-readable OpenAPI 3.1 document is served, without authentication or a
 DB connection, at `/api/v1/openapi.json`. It is a raw OpenAPI document; all business
