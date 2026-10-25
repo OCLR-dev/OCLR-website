@@ -8,12 +8,13 @@ import {
 } from "../../src/lib/preferences";
 
 describe("visitor appearance preference", () => {
-  it("supports only the whitelisted original, pastel, Swiss, clay and arcade designs", () => {
+  it("supports only the whitelisted original, pastel, Swiss, clay, manga and arcade designs", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",
       "swiss-minimal",
       "claymorphism",
+      "manga-halftone",
       "retro-arcade",
     ]);
     expect(appearanceCookie).toBe("oclr-appearance");
@@ -52,6 +53,10 @@ describe("visitor appearance preference", () => {
     );
     expect(readAppearance("claymorphism", "default")).toBe("claymorphism");
     expect(readAppearance(undefined, "claymorphism")).toBe("claymorphism");
+    expect(readAppearance("manga-halftone", "claymorphism")).toBe(
+      "manga-halftone",
+    );
+    expect(readAppearance(undefined, "manga-halftone")).toBe("manga-halftone");
     expect(readAppearance("retro-arcade", "claymorphism")).toBe("retro-arcade");
     expect(readAppearance(undefined, "retro-arcade")).toBe("retro-arcade");
     expect(isAppearance("default")).toBe(true);

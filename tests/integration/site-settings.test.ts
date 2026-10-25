@@ -50,41 +50,42 @@ describe.skipIf(!url)("global site appearance settings", () => {
     await closeDb();
     vi.unstubAllEnvs();
   });
-  it.each(["cute-pastel", "swiss-minimal", "claymorphism", "retro-arcade"])(
-    "saves %s with an authoritative audit event",
-    async (appearance) => {
-      expect(await siteSettingsForAdmin(admin)).toMatchObject({
-        defaultAppearance: "default",
-        revision: 0,
-      });
-      const saved = await updateSiteSettings(admin, save(appearance));
-      expect(saved).toMatchObject({
-        id: 1,
-        defaultAppearance: appearance,
-        revision: 1,
-      });
-      expect(await defaultSiteAppearance()).toBe(appearance);
-      const logs = await auditLog(admin, { module: "site" });
-      expect(logs.total).toBe(1);
-      expect(logs.rows[0]).toMatchObject({
-        actorId: admin.osuId,
-        username: admin.username,
-        edition: null,
-        entityType: "site settings",
-        entityId: "1",
-        action: "site_appearance_changed",
-        before: { defaultAppearance: "default", revision: 0 },
-        after: { defaultAppearance: appearance, revision: 1 },
-      });
-      expect(new Date(logs.rows[0].timestamp).getTime()).toBeGreaterThan(
-        Date.now() - 30000,
-      );
-      expect(await updateSiteSettings(admin, save(appearance, 1))).toEqual(
-        saved,
-      );
-      expect(await db().select().from(siteSettingEvents)).toHaveLength(1);
-    },
-  );
+  it.each([
+    "cute-pastel",
+    "swiss-minimal",
+    "claymorphism",
+    "manga-halftone",
+    "retro-arcade",
+  ])("saves %s with an authoritative audit event", async (appearance) => {
+    expect(await siteSettingsForAdmin(admin)).toMatchObject({
+      defaultAppearance: "default",
+      revision: 0,
+    });
+    const saved = await updateSiteSettings(admin, save(appearance));
+    expect(saved).toMatchObject({
+      id: 1,
+      defaultAppearance: appearance,
+      revision: 1,
+    });
+    expect(await defaultSiteAppearance()).toBe(appearance);
+    const logs = await auditLog(admin, { module: "site" });
+    expect(logs.total).toBe(1);
+    expect(logs.rows[0]).toMatchObject({
+      actorId: admin.osuId,
+      username: admin.username,
+      edition: null,
+      entityType: "site settings",
+      entityId: "1",
+      action: "site_appearance_changed",
+      before: { defaultAppearance: "default", revision: 0 },
+      after: { defaultAppearance: appearance, revision: 1 },
+    });
+    expect(new Date(logs.rows[0].timestamp).getTime()).toBeGreaterThan(
+      Date.now() - 30000,
+    );
+    expect(await updateSiteSettings(admin, save(appearance, 1))).toEqual(saved);
+    expect(await db().select().from(siteSettingEvents)).toHaveLength(1);
+  });
   it.each([
     ["admin", edition.slug],
     ["mappooler", null],

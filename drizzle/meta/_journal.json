@@ -278,8 +278,15 @@
     {
       "idx": 39,
       "version": "7",
-      "when": 1792899376039,
-      "tag": "0039_retro_arcade_appearance",
+      "when": 1792899526350,
+      "tag": "0039_manga_halftone_appearance",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1792908474625,
+      "tag": "0040_retro_arcade_appearance",
       "breakpoints": true
     }
   ]

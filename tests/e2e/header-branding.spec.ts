@@ -22,6 +22,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"] as const)
     "cute-pastel",
     "swiss-minimal",
     "claymorphism",
+    "manga-halftone",
     "retro-arcade",
   ])
     for (const theme of ["light", "dark"])

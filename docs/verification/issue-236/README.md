@@ -74,8 +74,8 @@ surface. Text on the primary key is 14.4:1 / 16.1:1; on the cursor block
 
 - `npm run lint`, `npm run typecheck`: no errors.
 - `npm test` on the isolated `oclr_arcade_test` database after syncing with
-  upstream main (`5c5b3a3`): 964 passed, 1 skipped, including the new 0039
-  migration upgrade test.
+  upstream main (`75800fe`, which added Manga halftone and its migration 0039):
+  966 passed, 1 skipped, including the new 0040 migration upgrade test.
 - `npm run build` passed; `npm audit --omit=dev` found 0 vulnerabilities.
 - `npm run i18n:extract` and `npm run test:i18n` passed.
 - Press Start 2P and the locale's Fusion Pixel file load from `/fonts/` (HTTP 200); no external font requests.
