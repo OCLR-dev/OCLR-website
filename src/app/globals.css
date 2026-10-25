@@ -3494,7 +3494,14 @@ html:lang(zh-Hant) .eyebrow {
   }
   .menu-toggle {
     display: inline-flex;
+    order: 2;
+    margin-left: 0;
+  }
+  .site-preferences {
     margin-left: auto;
+  }
+  .nav-actions {
+    order: 1;
   }
   .main-nav {
     display: none;
@@ -3513,6 +3520,16 @@ html:lang(zh-Hant) .eyebrow {
   }
   .main-nav > a {
     padding: 0.8rem;
+  }
+}
+@media (max-width: 480px) {
+  .menu-toggle {
+    margin-left: auto;
+  }
+  .nav-actions {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: flex-end;
   }
 }
 @media (max-width: 400px) {

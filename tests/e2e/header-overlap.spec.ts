@@ -73,9 +73,42 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
         const account = header.locator("button.account-control");
         const appearanceTrigger = header.locator(".appearance-trigger");
         const language = header.locator(".language-control > button");
-        for (const width of [320, 360, 390, 412, 951, 1024, 1440]) {
+        for (const width of [
+          320, 360, 390, 412, 674, 819, 950, 951, 1024, 1440,
+        ]) {
           await page.setViewportSize({ width, height: 900 });
           await unobstructed(header.locator("button:visible"));
+          if (width <= 950) {
+            const toggle = await header.locator(".menu-toggle").boundingBox();
+            const actions = await header.locator(".nav-actions").boundingBox();
+            const rightEdge = await header
+              .locator(".nav-wrap")
+              .evaluate((node) => {
+                const box = node.getBoundingClientRect();
+                return (
+                  box.right - parseFloat(getComputedStyle(node).paddingRight)
+                );
+              });
+            if (width > 480) {
+              expect(toggle!.x).toBeGreaterThanOrEqual(
+                actions!.x + actions!.width,
+              );
+              expect(
+                Math.abs(
+                  toggle!.y +
+                    toggle!.height / 2 -
+                    actions!.y -
+                    actions!.height / 2,
+                ),
+              ).toBeLessThan(2);
+            } else {
+              expect(toggle!.y + toggle!.height).toBeLessThanOrEqual(
+                actions!.y,
+              );
+            }
+            expect(toggle!.x + toggle!.width).toBeCloseTo(rightEdge, 0);
+          }
+
           await activate(account);
           const menu = header.locator(".account-dropdown");
           await expect(menu).toBeVisible();
@@ -90,9 +123,9 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
             "href",
             "/admin",
           );
-          if (width === 360 && locale === "zh-Hans")
+          if ((width === 360 || width === 674) && locale === "zh-Hans")
             await page.screenshot({
-              path: info.outputPath(`${theme}-${appearance}.png`),
+              path: info.outputPath(`${width}-${theme}-${appearance}.png`),
             });
           await page.keyboard.press("End");
           await expect(menu.getByRole("menuitem").last()).toBeFocused();
@@ -146,6 +179,14 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
         await expect(account).toHaveCount(0);
         await page.setViewportSize({ width: 320, height: 900 });
         await unobstructed(header.locator("button:visible, .nav-login"));
+        const signedOutToggle = await header
+          .locator(".menu-toggle")
+          .boundingBox();
+        const login = await header.locator(".nav-login").boundingBox();
+        expect(
+          signedOutToggle!.y + signedOutToggle!.height,
+        ).toBeLessThanOrEqual(login!.y);
+
         await activate(header.locator(".menu-toggle"));
         await expect(header.locator(".main-nav")).toBeVisible();
         await unobstructed(header.locator(".main-nav > a"));
