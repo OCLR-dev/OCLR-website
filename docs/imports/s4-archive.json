@@ -786,9 +786,13 @@
       "teamA": "b",
       "teamB": "l",
       "scheduledAt": "2020-06-06T19:00:00+08:00",
-      "score": null,
+      "score": [6, 2],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 2],
         "rawScore": [5, 3],
         "possibleScore": null,
@@ -996,9 +1000,13 @@
       "teamA": "c",
       "teamB": "a",
       "scheduledAt": "2020-06-06T20:00:00+08:00",
-      "score": null,
+      "score": [6, 2],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 2],
         "rawScore": [6, 2],
         "possibleScore": null,
@@ -1188,9 +1196,13 @@
       "teamA": "d",
       "teamB": "k",
       "scheduledAt": "2020-06-05T21:00:00+08:00",
-      "score": null,
+      "score": [6, 1],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 1],
         "rawScore": [6, 1],
         "possibleScore": null,
@@ -1380,9 +1392,13 @@
       "teamA": "e",
       "teamB": "j",
       "scheduledAt": "2020-06-06T20:30:00+08:00",
-      "score": null,
+      "score": [6, 0],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 0],
         "rawScore": [6, 0],
         "possibleScore": null,
@@ -1575,10 +1591,10 @@
       "score": null,
       "review": {
         "status": "pending",
-        "workingScore": [5, 5],
+        "workingScore": null,
         "rawScore": [5, 5],
-        "possibleScore": null,
-        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。",
+        "possibleScore": [5, 5],
+        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。 主辦者2026-10-26核准5:5；系統不接受平局核准，保留原比分待相容版本。",
         "startedAt": "2020-06-07T12:17:25Z",
         "redTeamId": "f",
         "blueTeamId": "i",
@@ -1818,9 +1834,13 @@
       "teamA": "g",
       "teamB": "h",
       "scheduledAt": "2020-06-07T21:00:00+08:00",
-      "score": null,
+      "score": [4, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [4, 6],
         "rawScore": [4, 6],
         "possibleScore": null,
@@ -2064,9 +2084,13 @@
       "teamA": "g",
       "teamB": "i",
       "scheduledAt": "2020-06-14T21:30:00+08:00",
-      "score": null,
+      "score": [3, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [3, 6],
         "rawScore": [3, 7],
         "possibleScore": null,
@@ -2346,9 +2370,13 @@
       "teamA": "h",
       "teamB": "f",
       "scheduledAt": "2020-06-14T20:00:00+08:00",
-      "score": null,
+      "score": [6, 4],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 4],
         "rawScore": [6, 4],
         "possibleScore": null,
@@ -2610,9 +2638,13 @@
       "teamA": "k",
       "teamB": "l",
       "scheduledAt": "2020-06-13T22:00:00+08:00",
-      "score": null,
+      "score": [6, 4],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 4],
         "rawScore": [6, 4],
         "possibleScore": null,
@@ -2877,10 +2909,10 @@
       "score": null,
       "review": {
         "status": "pending",
-        "workingScore": [5, 5],
+        "workingScore": null,
         "rawScore": [5, 5],
-        "possibleScore": null,
-        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。",
+        "possibleScore": [5, 5],
+        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。 主辦者2026-10-26核准5:5；系統不接受平局核准，保留原比分待相容版本。",
         "startedAt": "2020-06-13T12:52:03Z",
         "redTeamId": "j",
         "blueTeamId": "a",
@@ -3159,10 +3191,10 @@
       "score": null,
       "review": {
         "status": "pending",
-        "workingScore": [5, 5],
+        "workingScore": null,
         "rawScore": [5, 5],
-        "possibleScore": null,
-        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。",
+        "possibleScore": [5, 5],
+        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。 主辦者2026-10-26核准5:5；系統不接受平局核准，保留原比分待相容版本。",
         "startedAt": "2020-06-13T14:50:42Z",
         "redTeamId": "e",
         "blueTeamId": "c",
@@ -3438,9 +3470,13 @@
       "teamA": "b",
       "teamB": "d",
       "scheduledAt": "2020-06-13T21:00:00+08:00",
-      "score": null,
+      "score": [6, 0],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 0],
         "rawScore": [6, 0],
         "possibleScore": null,
@@ -3612,9 +3648,13 @@
       "teamA": "a",
       "teamB": "k",
       "scheduledAt": "2020-06-20T22:00:00+08:00",
-      "score": null,
+      "score": [3, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [3, 6],
         "rawScore": [3, 6],
         "possibleScore": null,
@@ -3858,9 +3898,13 @@
       "teamA": "e",
       "teamB": "d",
       "scheduledAt": "2020-06-20T20:30:00+08:00",
-      "score": null,
+      "score": [6, 4],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 4],
         "rawScore": [6, 4],
         "possibleScore": null,
@@ -4104,9 +4148,13 @@
       "teamA": "f",
       "teamB": "j",
       "scheduledAt": "2020-06-21T21:00:00+08:00",
-      "score": null,
+      "score": [6, 0],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 0],
         "rawScore": [5, 1],
         "possibleScore": null,
@@ -4278,9 +4326,13 @@
       "teamA": "l",
       "teamB": "g",
       "scheduledAt": "2020-06-21T21:30:00+08:00",
-      "score": null,
+      "score": [6, 0],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 0],
         "rawScore": [6, 0],
         "possibleScore": null,
@@ -4473,10 +4525,10 @@
       "score": null,
       "review": {
         "status": "pending",
-        "workingScore": [5, 5],
+        "workingScore": null,
         "rawScore": [5, 5],
-        "possibleScore": null,
-        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。",
+        "possibleScore": [5, 5],
+        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。 主辦者2026-10-26核准5:5；系統不接受平局核准，保留原比分待相容版本。",
         "startedAt": "2020-06-21T14:53:00Z",
         "redTeamId": "c",
         "blueTeamId": "i",
@@ -4716,9 +4768,13 @@
       "teamA": "b",
       "teamB": "h",
       "scheduledAt": "2020-06-21T22:00:00+08:00",
-      "score": null,
+      "score": [6, 1],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 1],
         "rawScore": [6, 1],
         "possibleScore": null,
@@ -4926,7 +4982,7 @@
       "teamA": "c",
       "teamB": "f",
       "scheduledAt": "2020-06-27T22:00:00+08:00",
-      "score": null,
+      "score": [6, 2],
       "mpUrls": ["https://osu.ppy.sh/community/matches/63437706"],
       "vodUrl": "https://www.bilibili.com/video/BV1YT4y1776F",
       "referee": "Refia Vridis",
@@ -4947,10 +5003,10 @@
       "score": null,
       "review": {
         "status": "pending",
-        "workingScore": [5, 5],
+        "workingScore": null,
         "rawScore": [5, 5],
-        "possibleScore": null,
-        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。",
+        "possibleScore": [5, 5],
+        "note": "完整 MP 分頁、正分選手 UID 與 Team 名單交叉吻合；排除圖池外局及未完成局。 MainSheet 5:5；MP完成圖 5:5。比分順序為原表 teamA–teamB；所有核准另行進行。 2026-10-26 主辦者指定最終比分以 MainSheet 記錄為準；MP 差異只作來源備註，重打／娛樂的具體原因未獲確認。 主辦者2026-10-26核准5:5；系統不接受平局核准，保留原比分待相容版本。",
         "startedAt": "2020-06-27T12:44:55Z",
         "redTeamId": "d",
         "blueTeamId": "i",
@@ -5208,9 +5264,13 @@
       "teamA": "a",
       "teamB": "l",
       "scheduledAt": "2020-06-27T22:00:00+08:00",
-      "score": null,
+      "score": [1, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [1, 6],
         "rawScore": [1, 6],
         "possibleScore": null,
@@ -5401,6 +5461,7 @@
       "teamB": "j",
       "scheduledAt": "2020-06-27T21:00:00+08:00",
       "score": null,
+      "forfeitWinner": 1,
       "mpUrls": [],
       "vodUrl": null,
       "referee": null,
@@ -5418,9 +5479,13 @@
       "teamA": "h",
       "teamB": "k",
       "scheduledAt": "2020-06-27T22:00:00+08:00",
-      "score": null,
+      "score": [4, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [4, 6],
         "rawScore": [4, 6],
         "possibleScore": null,
@@ -5664,9 +5729,13 @@
       "teamA": "b",
       "teamB": "e",
       "scheduledAt": "2020-06-27T20:00:00+08:00",
-      "score": null,
+      "score": [6, 1],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 1],
         "rawScore": [6, 1],
         "possibleScore": null,
@@ -5856,9 +5925,13 @@
       "teamA": "b",
       "teamB": "e",
       "scheduledAt": "2020-07-04T21:00:00+08:00",
-      "score": null,
+      "score": [5, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [5, 6],
         "rawScore": [5, 6],
         "possibleScore": null,
@@ -6174,9 +6247,13 @@
       "teamA": "c",
       "teamB": "k",
       "scheduledAt": "2020-07-05T22:30:00+08:00",
-      "score": null,
+      "score": [6, 2],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 2],
         "rawScore": [6, 2],
         "possibleScore": null,
@@ -6384,9 +6461,13 @@
       "teamA": "d",
       "teamB": "i",
       "scheduledAt": "2020-07-04T21:30:00+08:00",
-      "score": null,
+      "score": [5, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [5, 6],
         "rawScore": [5, 6],
         "possibleScore": null,
@@ -6684,9 +6765,13 @@
       "teamA": "h",
       "teamB": "l",
       "scheduledAt": "2020-07-04T15:00:00+08:00",
-      "score": null,
+      "score": [2, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [2, 6],
         "rawScore": [2, 6],
         "possibleScore": null,
@@ -6912,9 +6997,13 @@
       "teamA": "c",
       "teamB": "e",
       "scheduledAt": "2020-07-11T21:30:00+08:00",
-      "score": null,
+      "score": [1, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [1, 6],
         "rawScore": [1, 7],
         "possibleScore": null,
@@ -7104,9 +7193,13 @@
       "teamA": "i",
       "teamB": "k",
       "scheduledAt": "2020-07-11T22:00:00+08:00",
-      "score": null,
+      "score": [6, 4],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 4],
         "rawScore": [7, 4],
         "possibleScore": null,
@@ -7386,9 +7479,13 @@
       "teamA": "b",
       "teamB": "l",
       "scheduledAt": "2020-07-11T22:00:00+08:00",
-      "score": null,
+      "score": [6, 1],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [6, 1],
         "rawScore": [6, 1],
         "possibleScore": null,
@@ -7578,9 +7675,13 @@
       "teamA": "i",
       "teamB": "b",
       "scheduledAt": "2020-07-12T21:00:00+08:00",
-      "score": null,
+      "score": [5, 6],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [5, 6],
         "rawScore": [5, 6],
         "possibleScore": null,
@@ -7878,9 +7979,13 @@
       "teamA": "b",
       "teamB": "c",
       "scheduledAt": "2020-07-18T22:30:00+08:00",
-      "score": null,
+      "score": [7, 4],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [7, 4],
         "rawScore": [6, 3],
         "possibleScore": null,
@@ -8178,9 +8283,13 @@
       "teamA": "b",
       "teamB": "e",
       "scheduledAt": "2020-07-19T21:00:00+08:00",
-      "score": null,
+      "score": [4, 7],
       "review": {
-        "status": "pending",
+        "status": "approved",
+        "approval": {
+          "approvedOn": "2026-10-25",
+          "source": "Admin approval"
+        },
         "workingScore": [4, 7],
         "rawScore": [4, 7],
         "possibleScore": null,
@@ -10838,6 +10947,18 @@
       "label": "MainSheet 比分權威及 A19 連結搜尋",
       "text": "2026-10-26 主辦者指定最終比分以 MainSheet 為準。32 場已有紅藍隊的 workingScore 已依 MainSheet 設定，保留 pending 及原始 MP 證據；A19 C–F 6:2 仍保存於來源紀錄。提供的 37 個 MP 中，30 個對應其他正式場次，另 7 個為圖池展示、測試或五月的資格／表演房間，其官方標題和時間均不對應 A19（6月27日22:00 UTC+8）。原連結 63437706 再次回傳 404；沒有找到可驗證替代連結。A22 維持 FF 原樣，不補造數字比分。",
       "source": "主辦者指示；osu! 公開 MP 標題與起訖時間"
+    },
+    {
+      "category": "review",
+      "label": "S4 主辦核准與系統限制",
+      "text": "主辦者2026-10-26核准MainSheet全部比分；A19 C–F 6:2；A22 G棄權、J勝，不填數字比分。五場A5/A10/A11/A17/A20為5:5，主辦已核准，但現行系統不接受平局，暫保留pending及possibleScore原分數。",
+      "source": "主辦者明確核准；MainSheet"
+    },
+    {
+      "category": "review",
+      "label": "最終排名整理",
+      "text": "依實際淘汰賽：1 E New Year Burst！；2 B GXY 970 Ti；3 C 白果子抱抱；4 I 46miss；並列5 K 122粉丝天团／L 工作日不愉快；並列7 D 麻吉亚巴库内／H [青蛙Hello]。小組出局隊依積分與相互對戰推定：9 F Baby's Breath（3分、對J勝）；10 J 五三题霸：圆锥曲线（3分，含A22棄權勝）；11 A 爆炸奶油面包（1分）；12 G 德州点金虾仁狂（0分）。F/D均3分但F淨勝圖較高，實際D晉級；晉級差異未明，9–12名為整理推定，未冒充原表官方名次。",
+      "source": "MainSheet Group / Knockout Schedule；A22主辦核准"
     }
   ]
 }
