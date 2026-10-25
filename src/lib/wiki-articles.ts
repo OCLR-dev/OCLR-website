@@ -88,53 +88,71 @@ export function wikiArticles(tr: AppTranslator): WikiArticle[] {
     },
     {
       slug: "ex",
-      title: "EX 模式与后排选手",
-      category: "赛制知识",
-      intro:
-        "EX 是一种面向后排选手的比赛安排。EX 图的难度相对同一图池中的其他图更低，同时限制队长与 T1 的上场人数，让更多队员有机会承担比赛中的关键任务。",
+      title: tr("EX mode and back-row players"),
+      category: tr("Tournament format"),
+      intro: tr(
+        "In S11, EX is a mode declared when a team picks a map. Neither Captain nor T1 may play, and each team fields one fewer player than in the normal format.",
+      ),
       sections: [
         {
           id: "purpose",
-          title: "为什么设置 EX",
+          title: tr("S11 rules reference"),
           paragraphs: [
-            "常规图池中，队伍容易把出场机会集中在较强的选手身上。EX 通过较低的谱面难度和阵容限制，让后排选手也能参与比分争夺，成为队伍准备阵容时需要认真考虑的一环。",
-            "难度降低不代表不需要训练。EX 更看重把熟悉的谱面打稳、减少失误，以及队友之间的整体发挥。",
+            [
+              tr(
+                "This article follows the EX section of the S11 rules. Read the full tournament rules here: ",
+              ),
+              { label: tr("S11 EX rules"), href: "/tournaments/s11#rules-6" },
+            ],
           ],
         },
         {
           id: "lineup",
-          title: "上场人数限制",
+          title: tr("Lineup restrictions"),
           paragraphs: [
-            "一张 EX 图的上场阵容中，Captain 与 T1 选手合计最多一人。这里的“一人”是两类选手共享的名额，不是队长和 T1 各有一个名额。",
-            "队长上场时，T1 选手不能同时上场；一名 T1 上场时，队长及其他 T1 选手不能同时上场。其余上场位置由队长与 T1 以外的选手组成。",
+            tr(
+              "Neither Captain nor T1 may play in EX mode. Each team fields one fewer player: for example, a 4v4 match becomes 3v3. EX mode must still follow the FM rules.",
+            ),
           ],
           table: {
-            headers: ["阵容组合", "是否符合限制"],
+            headers: [tr("Lineup"), tr("EX restriction")],
             rows: [
-              ["一名 Captain ＋ 后排选手", "符合"],
-              ["一名 T1 ＋ 后排选手", "符合"],
-              ["全部由后排选手组成", "符合"],
-              ["Captain ＋ 一名 T1", "不符合：合计两人"],
-              ["两名 T1 同时上场", "不符合：合计两人"],
+              [tr("Includes Captain"), tr("Not allowed")],
+              [tr("Includes T1"), tr("Not allowed")],
+              [
+                tr("Excludes both Captain and T1"),
+                tr(
+                  "Also field one fewer player per team and follow the FM rules.",
+                ),
+              ],
             ],
           },
         },
         {
           id: "maps",
-          title: "EX 图有什么不同",
-          paragraphs: [
-            "EX 图相对于同池其他图更容易上手，目的是给后排选手留下能够练习、能够发挥的空间。这是图池内部的相对难度安排，并不对应一个固定的星数范围。",
-            "EX 的阵容限制不会改变选手本身的身份或 Tier。Captain 仍然是 Captain，选手的 Tier 也不会因为参加 EX 而调整。",
+          title: tr("Maps and activation"),
+          items: [
+            tr(
+              "Each team may use EX mode up to twice per match; using it zero times or once is also allowed. EX cannot be used on TB.",
+            ),
+            tr(
+              "Except for TB, EX can be used on any map in the pool. A team must declare EX to the referee immediately when making its own pick.",
+            ),
+            tr(
+              "EX cannot be activated on the opponent's pick or on either team's first pick of the match.",
+            ),
           ],
         },
         {
           id: "practice",
-          title: "怎样准备 EX",
-          items: [
-            "先核对上场阵容，确认 Captain 与 T1 合计不超过一人。",
-            "优先练习容易断连或失误的段落，让各位上场选手都有稳定完成的把握。",
-            "队长与队员一起比较稳定性，不只看偶尔出现的最高分。",
-            "在比赛前沟通换人与出场安排，避免临场才发现阵容不符合限制。",
+          title: tr("Insufficient eligible players"),
+          paragraphs: [
+            tr(
+              "If one team cannot field the players required for EX and the opponent can, the opponent makes one fewer pick (applied in the final round of picks) and automatically receives one win. No EX mode is used for that match.",
+            ),
+            tr(
+              "If a Captain deliberately keeps back-row players from playing to trigger this rule, report it to the organizing committee.",
+            ),
           ],
         },
       ],
