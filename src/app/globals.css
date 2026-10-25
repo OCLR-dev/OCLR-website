@@ -3004,11 +3004,8 @@ body:has(.presenter-view) .site-footer,
   color: var(--color-danger);
 }
 @media (max-width: 600px) {
-  .mappool-context > .mappool-toolbar {
-    align-items: stretch;
-  }
-  .mappool-context > .mappool-toolbar .workspace-tabs {
-    flex: 1 1 100%;
+  .mappool-context > .workspace-tabs {
+    width: 100%;
   }
   .mappool-rounds {
     flex-basis: 100%;

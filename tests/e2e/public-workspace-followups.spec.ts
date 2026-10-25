@@ -19,6 +19,7 @@ import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
 import { profileResponse } from "../fixtures/osu-profile";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { fixtureCommand } from "../../src/lib/fixtures";
+import { openTournamentTool } from "./navigation";
 const origin = { origin: "http://127.0.0.1:3100" };
 const locales = ["en", "zh-Hans", "zh-Hant"];
 async function preferences(
@@ -715,9 +716,10 @@ test.describe("public and operational follow-ups", () => {
       .click();
     await expect(page.locator(".mappool-inline-editor:visible")).toBeVisible();
     await page.locator(".mappool-inline-heading button:visible").click();
-    await page
-      .getByRole("link", { name: "Manage rounds", exact: true })
-      .click();
+    await expect(
+      page.getByRole("link", { name: "Manage rounds", exact: true }),
+    ).toHaveCount(0);
+    await openTournamentTool(page, "test-cup", "Rounds", isMobile);
     await expect(page.getByLabel("Round order", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Cancel", exact: true }).click();
     await page.goto("/admin/tournaments/test-cup/mappools");

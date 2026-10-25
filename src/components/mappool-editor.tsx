@@ -456,32 +456,22 @@ function MappoolEditorContent({
   return (
     <div className="mappool-workbench">
       <div className="mappool-context">
-        <div className="mappool-toolbar">
-          <WorkspaceTabs
-            appearance="line"
-            id={`${id}-stage`}
-            label={tr("Competition stage")}
-            value={stage}
-            items={[
-              { value: "group", label: "Group Stage" },
-              { value: "knockout", label: "Knockout Stage" },
-            ]}
-            onChange={(value) => {
-              setStage(value);
-              setRoundId("");
-              setPoolId("");
-              resetContext();
-            }}
-          />
-          {!readOnly && (
-            <Link
-              className="button secondary"
-              href={`/admin/tournaments/${slug}/rounds${round ? `?round=${round.id}` : `?stage=${stage}`}`}
-            >
-              {tr("Manage rounds")}
-            </Link>
-          )}
-        </div>
+        <WorkspaceTabs
+          appearance="line"
+          id={`${id}-stage`}
+          label={tr("Competition stage")}
+          value={stage}
+          items={[
+            { value: "group", label: "Group Stage" },
+            { value: "knockout", label: "Knockout Stage" },
+          ]}
+          onChange={(value) => {
+            setStage(value);
+            setRoundId("");
+            setPoolId("");
+            resetContext();
+          }}
+        />
         <div
           role="tabpanel"
           id={`${id}-stage-panel`}

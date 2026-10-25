@@ -410,7 +410,7 @@ test.describe("published mappools and restricted editing", () => {
     ).toHaveCount(0);
     await expect(
       page.getByRole("link", { name: "Manage rounds", exact: true }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await maps.focus();
     await page.keyboard.press("End");
     await expect(
