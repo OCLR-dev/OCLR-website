@@ -421,6 +421,7 @@ test.describe("historical archive browser workflow", () => {
         const card = page
           .locator(".edition-card")
           .filter({ has: page.locator(`a[href="/tournaments/${slug}"]`) });
+        await card.scrollIntoViewIfNeeded();
         const thumbnail = card.locator(".edition-art img");
         await expect(thumbnail).toHaveAttribute(
           "src",

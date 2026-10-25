@@ -1,3 +1,6 @@
+import { frontendTournament } from "@/lib/frontend-data";
+import { remoteMode } from "@/lib/data-source";
+import { remotePage } from "@/lib/remote-page";
 import { historicalPage } from "@/components/historical-archive";
 import { hasEligibilityLimits } from "@/lib/eligibility-model";
 import { getAppTranslations } from "@/i18n/server";
@@ -10,7 +13,7 @@ export async function generateMetadata() {
   return { title: tr("Tournament rules") };
 }
 
-export default async function Rules({
+async function RulesContent({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -20,7 +23,9 @@ export default async function Rules({
   const { edition: slug } = await params;
   const archivePage = await historicalPage(slug, "rules");
   if (archivePage) return archivePage;
-  const edition = await getPublicEdition(slug);
+  const edition = remoteMode()
+    ? await frontendTournament(slug)
+    : await getPublicEdition(slug);
   if (!edition) notFound();
   return (
     <>
@@ -73,4 +78,8 @@ export default async function Rules({
       </p>
     </>
   );
+}
+
+export default function Rules(props: Parameters<typeof RulesContent>[0]) {
+  return remotePage(() => RulesContent(props));
 }

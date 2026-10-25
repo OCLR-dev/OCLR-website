@@ -1,4 +1,6 @@
-import { publicTournamentModel } from "@/lib/public-read-models";
+import { frontendTournament } from "@/lib/frontend-data";
+import { remoteMode } from "@/lib/data-source";
+import { remotePage } from "@/lib/remote-page";
 import { historicalPage } from "@/components/historical-archive";
 import { InformationDocument } from "@/components/tournament-information";
 import { getAppTranslations } from "@/i18n/server";
@@ -20,13 +22,17 @@ export async function generateMetadata({
   const { edition } = await params;
   return {
     title:
-      informationPreview(edition)?.name ??
-      (await getPublicEdition(edition))?.name ??
+      (remoteMode() ? undefined : informationPreview(edition)?.name) ??
+      (remoteMode()
+        ? await frontendTournament(edition)
+            .then((e) => e.name)
+            .catch(() => undefined)
+        : (await getPublicEdition(edition))?.name) ??
       "Tournament",
   };
 }
 
-export default async function Overview({
+async function OverviewContent({
   params,
 }: {
   params: Promise<{ edition: string }>;
@@ -35,7 +41,7 @@ export default async function Overview({
   const { edition: slug } = await params;
   const archivePage = await historicalPage(slug, "overview");
   if (archivePage) return archivePage;
-  const edition = await publicTournamentModel(slug);
+  const edition = await frontendTournament(slug);
   const base = `/tournaments/${slug}`;
   const preview =
     edition.overview.kind === "preview" ? edition.overview.document : null;
@@ -248,4 +254,8 @@ export default async function Overview({
       />
     </>
   );
+}
+
+export default function Overview(props: Parameters<typeof OverviewContent>[0]) {
+  return remotePage(() => OverviewContent(props));
 }

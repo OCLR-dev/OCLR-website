@@ -5,6 +5,7 @@ set +x
 set -Eeuo pipefail
 
 fail() { printf '%s\n' "$1" >&2; exit 1; }
+[[ ${OCLR_DATA_SOURCE-database} == database ]] || fail "Production commands require the database data source; remote development is disabled."
 usage='Usage: bash scripts/production.sh setup|prepare --apply|--dry-run | start [--dry-run]'
 action=${1-}
 option=${2-}
@@ -53,6 +54,14 @@ migrate() {
   export DATABASE_URL="$migration_url"
   exec npm run db:migrate
 }
+preparation_command() {
+  # Only check/build children inherit this budget, never the serving process.
+  # Keep other Node flags private and preserve an operator's existing heap limit.
+  if [[ -n "$build_heap_mb" ]]; then
+    export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=$build_heap_mb"
+  fi
+  exec npm "$@"
+}
 
 port=${PORT:-3000}
 host=${OCLR_BIND_HOST:-127.0.0.1}
@@ -73,8 +82,19 @@ if ! "$dry_run"; then
 fi
 
 if [[ "$action" == setup || "$action" == prepare ]]; then
+  build_heap_mb=${OCLR_BUILD_HEAP_MB-}
+  if [[ ${OCLR_BUILD_HEAP_MB+x} ]]; then
+    [[ "$build_heap_mb" =~ ^[1-9][0-9]{0,4}$ ]] && (( build_heap_mb >= 128 && build_heap_mb <= 65536 )) || fail 'OCLR_BUILD_HEAP_MB must be an integer from 128 to 65536 (MiB).'
+  elif [[ ! ${NODE_OPTIONS-} =~ --max[-_]old[-_]space[-_]size([=[:space:]]|[-_]percentage) ]]; then
+    build_heap_mb=2048
+  fi
   if [[ "$action" == setup ]] && ! "$dry_run"; then
     [[ -n "$migration_url" ]] || fail 'Setup requires MIGRATION_DATABASE_URL for this invocation only.'
+  fi
+  if [[ -n "$build_heap_mb" ]]; then
+    printf 'Preparation Node heap budget: %s MiB per process (check/build only).\n' "$build_heap_mb"
+  else
+    printf '%s\n' 'Preparation uses the operator-configured Node heap budget.'
   fi
   run 'npm ci --include=dev' npm ci --include=dev
   if [[ "$action" == setup ]]; then
@@ -82,11 +102,11 @@ if [[ "$action" == setup || "$action" == prepare ]]; then
   fi
   unset migration_url
   if [[ "$action" == setup ]]; then
-    run 'npm run release:check' npm run release:check
+    run 'npm run release:check' preparation_command run release:check
   else
-    run 'npm run check' npm run check
+    run 'npm run check' preparation_command run check
   fi
-  run 'npm run build' npm run build
+  run 'npm run build' preparation_command run build
   if "$dry_run"; then
     printf '%s\n' 'Preparation preview only; no commands executed.'
   else

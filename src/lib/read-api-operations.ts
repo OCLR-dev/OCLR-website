@@ -94,7 +94,7 @@ export const readOperations: readonly ReadOperation[] = [
     public: true,
     scope: "tournaments:read",
     query: [],
-    issues: [269, 29, 265],
+    issues: [269, 270, 29, 265],
     description:
       "Published configuration and SSR overview projection, with explicit database/archive/preview provenance.",
   },

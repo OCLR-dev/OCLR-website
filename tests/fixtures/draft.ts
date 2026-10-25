@@ -19,6 +19,7 @@ export async function prepareDraft(
   base: number,
   turns = 2,
   start = true,
+  configure = true,
 ) {
   assertTestDatabase(process.env.TEST_DATABASE_URL);
   const staff = { osuId: base, username: `Synthetic Operator ${base}` };
@@ -112,18 +113,21 @@ export async function prepareDraft(
     { length: turns },
     (_, i) => ordered[i % ordered.length].teamId!,
   );
-  await draftCommand(staff, slug, {
-    command: {
-      action: "configure",
-      turnSequence: sequence,
-      expectedSetupVersion: (await staffDraft(staff, slug)).edition!
-        .setupVersion,
-    },
-    expectedVersion: 0,
+  if (configure)
+    await draftCommand(staff, slug, {
+      command: {
+        action: "configure",
+        turnSequence: sequence,
+        expectedSetupVersion: (await staffDraft(staff, slug)).edition!
+          .setupVersion,
+      },
+      expectedVersion: 0,
 
-    confirmed: true,
-  });
-  for (const action of start ? ["ready", "start", "publish"] : []) {
+      confirmed: true,
+    });
+  for (const action of start && configure
+    ? ["ready", "start", "publish"]
+    : []) {
     const session = (await staffDraft(staff, slug)).session!;
     await draftCommand(staff, slug, {
       command: { action },

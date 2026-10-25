@@ -2,10 +2,13 @@ import { publicRoundRatings } from "@/lib/ratings";
 import { RoundRatings } from "@/components/round-ratings";
 import { getAppTranslations } from "@/i18n/server";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { remoteMode } from "@/lib/data-source";
+import { frontendProfile } from "@/lib/frontend-data";
+import { remotePage } from "@/lib/remote-page";
 import { PageHeading } from "@/components/ui";
 import { PlayerProfile } from "@/components/player-profile";
-import { publishedPlayerProfile } from "@/lib/player-profiles";
+
 import { modeNames, profileModes } from "@/lib/osu-profile-model";
 import { HttpError } from "@/lib/http";
 export async function generateMetadata() {
@@ -13,7 +16,7 @@ export async function generateMetadata() {
   return { title: tr("Player profile") };
 }
 
-export default async function Profile({
+async function ProfileContent({
   params,
   searchParams,
 }: {
@@ -34,7 +37,7 @@ export default async function Profile({
     notFound();
   let data;
   try {
-    data = await publishedPlayerProfile(
+    data = await frontendProfile(
       osuId,
       query.mode as string | undefined,
       query.edition as string | undefined,
@@ -43,8 +46,15 @@ export default async function Profile({
     if (e instanceof HttpError && [400, 404].includes(e.status)) notFound();
     throw e;
   }
+  const first = data.participation[0];
+  if (
+    remoteMode() &&
+    "source" in first &&
+    first.source.kind === "historical_archive"
+  )
+    redirect(`/tournaments/${first.editionSlug}/players/${first.osuId}`);
   const ratingHistory =
-    typeof query.edition === "string"
+    !remoteMode() && typeof query.edition === "string"
       ? (await publicRoundRatings(query.edition))
           .filter((r) =>
             r.report.players.some((p) => p.userId === Number(osuId)),
@@ -116,11 +126,18 @@ export default async function Profile({
         <PlayerProfile snapshot={data.snapshot} bws={data.bws} />
       ) : (
         <p className="notice" role="status">
-          {data.error?.message}{" "}
+          {data.error?.message ? tr(data.error.message) : ""}{" "}
           {tr(" Published OCLR participation is shown below.")}
         </p>
       )}
-      {typeof query.edition === "string" && (
+      {remoteMode() && (
+        <p className="notice">
+          {tr(
+            "Round rating history is not supported in remote development yet.",
+          )}
+        </p>
+      )}
+      {!remoteMode() && typeof query.edition === "string" && (
         <RoundRatings data={ratingHistory} slug={query.edition} />
       )}
       <section className="spaced" aria-labelledby="participation">
@@ -173,4 +190,8 @@ export default async function Profile({
       </section>
     </div>
   );
+}
+
+export default function Profile(props: Parameters<typeof ProfileContent>[0]) {
+  return remotePage(() => ProfileContent(props));
 }

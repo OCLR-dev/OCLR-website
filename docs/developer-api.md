@@ -8,9 +8,10 @@ grant; a bootstrap Admin with an explicit Developer grant can use this feature.
 
 Token management and the versioned saved-data resources are implemented in
 #268–#269; see [read-api.md](read-api.md) and `/api/v1/openapi.json` for their
-contracts. The existing frontend's remote adapter follows in #270, complete page
-coverage in #271, and consolidated documentation/verification in #272.
-**The current frontend is not yet able to run without a local database.**
+contracts. The core-page remote frontend adapter is implemented in #270; see
+[remote-development.md](remote-development.md) for its connection flow and coverage.
+Complete page coverage remains in #271 and consolidated verification in #272.
+**Only the documented core pages currently support development without a local database.**
 
 ## Credential policy
 

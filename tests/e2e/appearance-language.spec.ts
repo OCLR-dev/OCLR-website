@@ -45,6 +45,15 @@ test.describe("appearance and language preferences", () => {
       },
     ]);
     await context.clearCookies();
+    // CSS color assertions below exercise the original appearance, independently
+    // of an organizer/site default left by another isolated browser fixture.
+    await context.addCookies([
+      {
+        name: "oclr-appearance",
+        value: "default",
+        url: "http://127.0.0.1:3100",
+      },
+    ]);
     await context.route("https://a.ppy.sh/**", (route) => route.abort());
     await context.route("https://assets.ppy.sh/**", (route) => route.abort());
     const base = "/tournaments/test-cup";
