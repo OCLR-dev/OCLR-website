@@ -5,16 +5,29 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { RemoteReadOnlyContext } from "./staff-read-only";
+import { remoteHealthMonitor } from "@/lib/remote-health";
 export function RemoteNotice({
   code = "REMOTE_UNSUPPORTED",
 }: {
   code?: string;
 }) {
   const tr = useAppTranslations();
+  const router = useRouter();
   return (
     <section className="container page" role="status">
       <h1>{tr("Remote frontend development")}</h1>
       <p className="notice">{remoteErrorMessage(code, tr)}</p>
+      {["REMOTE_UNAVAILABLE", "RATE_LIMITED", "COLLECTION_CHANGED"].includes(
+        code,
+      ) && (
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => router.refresh()}
+        >
+          {tr("Try again")}
+        </button>
+      )}
       <Link className="context-link" href="/remote">
         {tr("Manage remote connection")}
       </Link>
@@ -34,42 +47,45 @@ export function RemoteBoundary({
   );
   const router = useRouter();
   useEffect(() => {
+    const monitor = remoteHealthMonitor({
+      privatePage: path.startsWith("/admin/"),
+      initialFailure: Boolean(error),
+      read: (signal) =>
+        fetch("/api/remote/connection", { cache: "no-store", signal }),
+      failed: (code) => setFailure({ path, code }),
+      recovered: () => {
+        setFailure(null);
+        router.refresh();
+      },
+    });
     let active = true;
-    async function check() {
-      try {
-        const response = await fetch("/api/remote/connection", {
-          cache: "no-store",
-          signal: AbortSignal.timeout(10000),
-        });
-        const state = await response.json();
-        if (active) {
-          const allowed =
-            !path.startsWith("/admin/") ||
-            state.identity?.access.scopes.includes("tournaments:private:read");
-          if (!response.ok || !allowed) {
-            setFailure({
-              path,
-              code: !response.ok
-                ? (state.code ?? "REMOTE_UNAVAILABLE")
-                : "REMOTE_FORBIDDEN",
-            });
-            router.refresh();
-          } else setFailure(null);
-        }
-      } catch {
-        if (active) setFailure({ path, code: "REMOTE_UNAVAILABLE" });
-      }
-    }
-    const timer = window.setInterval(check, 15000);
+    let timer: number;
+    const check = async () => {
+      if (document.visibilityState === "visible") await monitor.check();
+      if (!active) return;
+      window.clearTimeout(timer);
+      const delay = monitor.delay();
+      if (delay !== null)
+        timer = window.setTimeout(
+          check,
+          document.visibilityState === "visible"
+            ? Math.max(1000, delay)
+            : 15000,
+        );
+    };
+    timer = window.setTimeout(check, 15000);
     window.addEventListener("focus", check);
     window.addEventListener("pageshow", check);
+    document.addEventListener("visibilitychange", check);
     return () => {
       active = false;
-      clearInterval(timer);
+      monitor.dispose();
+      clearTimeout(timer);
       window.removeEventListener("focus", check);
       window.removeEventListener("pageshow", check);
+      document.removeEventListener("visibilitychange", check);
     };
-  }, [path, router]);
+  }, [path, router, error]);
   if (["/remote", "/login", "/developer"].includes(path))
     return (
       <RemoteReadOnlyContext value={true}>{children}</RemoteReadOnlyContext>
@@ -148,6 +164,16 @@ export function RemoteConnectionForm({ connected }: { connected: boolean }) {
           >
             {tr("Browse public data anonymously")}
           </button>
+          {connected && (
+            <button
+              type="button"
+              className="secondary"
+              disabled={busy}
+              onClick={() => change("POST", { mode: "refresh" })}
+            >
+              {tr("Refresh")}
+            </button>
+          )}
           {connected && (
             <button
               type="button"

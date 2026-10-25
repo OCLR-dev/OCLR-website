@@ -7,10 +7,12 @@ import {
   connectRemote,
   disconnectRemote,
   verifiedConnection,
+  remoteConnection,
 } from "@/lib/remote-sessions";
 import { RemoteDataError } from "@/lib/remote-errors";
 import { readJson, requireSameOrigin, HttpError } from "@/lib/http";
 const inputSchema = z.discriminatedUnion("mode", [
+  z.object({ mode: z.literal("refresh") }).strict(),
   z.object({ mode: z.literal("anonymous") }).strict(),
   z
     .object({ mode: z.literal("developer"), token: z.string().max(100) })
@@ -19,12 +21,12 @@ const inputSchema = z.discriminatedUnion("mode", [
 const attempts = globalThis as unknown as {
   oclrRemoteAttempts?: { start: number; count: number };
 };
-const response = (value: unknown, status = 200) =>
+const response = (value: unknown, status = 200, retryAfter = 60) =>
   NextResponse.json(value, {
     status,
     headers: {
       "Cache-Control": "no-store",
-      ...(status === 429 ? { "Retry-After": "60" } : {}),
+      ...(status === 429 ? { "Retry-After": String(retryAfter) } : {}),
     },
   });
 function failure(error: unknown) {
@@ -39,6 +41,7 @@ function failure(error: unknown) {
             : "REMOTE_UNAVAILABLE",
     },
     error instanceof HttpError ? error.status : 503,
+    error instanceof RemoteDataError ? error.retryAfterSeconds : undefined,
   );
 }
 export async function GET() {
@@ -69,6 +72,10 @@ export async function POST(request: Request) {
     const parsed = inputSchema.safeParse(await readJson(request, 1024));
     if (!parsed.success) throw new RemoteDataError("INVALID_REQUEST", 400);
     const cookieJar = await cookies();
+    if (parsed.data.mode === "refresh") {
+      remoteConnection(cookieJar.get(remoteCookie)?.value).publicCache?.clear();
+      return response({ state: "refreshed" });
+    }
     const created = await connectRemote(
       parsed.data,
       cookieJar.get(remoteCookie)?.value,

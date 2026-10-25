@@ -3,6 +3,7 @@ export class RemoteDataError extends HttpError {
   constructor(
     public code: string,
     status = 503,
+    public retryAfterSeconds?: number,
   ) {
     super(status, remoteErrorMessage(code));
   }

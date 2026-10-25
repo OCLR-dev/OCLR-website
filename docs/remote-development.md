@@ -105,11 +105,43 @@ Each request verifies `/me`; domain reads recheck token, parent session, origin,
 scopes and live Developer grant. Request-local memoization deduplicates repeated
 SSR/layout reads; route handlers have a separate AsyncLocalStorage cache limited
 to one request, so actor checks and polling do not repeat `/me` within that request.
-Neither cache shares private data between requests or sessions. Fetches use
-`no-store`; the development HMR fetch cache is disabled. Mounted pages check on
-focus, restored pages and every 15 seconds. Polls discard private snapshots and
-stop after 401/403; reconnecting reloads them. Authorization failures hide private
-content on the next poll/health check.
+Neither request cache shares private data between requests or sessions. Fetches
+still use `no-store`; the development HMR fetch cache remains disabled so it cannot
+cache authorization checks.
+
+For UI development, each local connection additionally keeps an **explicit public
+snapshot cache** for five minutes. It covers site settings/staff/news/contributors,
+tournament summaries/overviews/configuration, public player directories/profiles/
+participation and historical statistics. An allowlist excludes private and personal
+resources, live draft/OBS, fixtures, messages and binary downloads. A cache hit still
+requires current connection verification and the resource's scope; it never turns
+failed Developer access into anonymous access. Identity verification itself is not
+cached. The public snapshot may lag publication/configuration changes by up to five
+minutes; it is a development preview, not a live authority.
+
+Snapshots are isolated per connection, local/backend origin, contract and normalized
+resource/query. Each connection retains at most 128 entries / 4 MiB of serialized
+JSON and 128 tracked in-flight reads (at most 50 connections). Concurrent identical
+reads share one load; returned objects are independent. The in-memory connection
+store survives normal HMR, but a server restart requires reconnecting. No snapshots
+or credentials are written to files, browser storage or a database. Disconnect,
+replacement, expiry and observed revocation discard the corresponding snapshots.
+Paginated reads still require an exact total/version; a 409 clears the connection's
+public cache and restarts the complete collection, including request-local reads.
+
+Open `/remote` and select **Refresh** to clear your public snapshots and reload;
+the next page fetches fresh resources as needed, without issuing a new credential.
+This is local cache management, not a backend business write. Changing theme or
+appearance remains local; page navigation and server HMR can reuse snapshots.
+This is resource caching, not a delta-sync or ETag/304 protocol.
+
+Visible mounted pages check the connection on focus, restoration and every 15
+seconds. Checks do not overlap, and focus cannot bypass the minimum interval or
+backoff. Transient failures hide page content conservatively but do not refresh the
+whole route repeatedly; checks back off to 60 seconds, or honor `Retry-After` for
+429. Recovery refreshes once to clear server-rendered errors. Individual page read
+errors also provide **Try again**. On 401/403, checks hide content and stop until
+reconnection; protected resource reads still enforce their existing authorization.
 
 Only registered relative resources and query keys reach the fixed backend origin.
 `/api/v1/...` belongs to that backend; the local remote frontend rejects those

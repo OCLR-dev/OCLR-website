@@ -3,12 +3,14 @@ import { apiIdentitySchema } from "./read-api-operations";
 import { remoteRead } from "./remote-transport";
 import { RemoteDataError } from "./remote-errors";
 import type { z } from "zod";
+import { RemotePublicCache } from "./remote-public-cache";
 export const remoteCookie = "oclr_remote_session";
 export type RemoteIdentity = z.infer<typeof apiIdentitySchema>;
 type Connection = {
   mode: "developer" | "anonymous";
   token?: string;
   expiresAt: number;
+  publicCache?: RemotePublicCache;
 };
 const globalConnections = globalThis as unknown as {
   oclrRemoteConnections?: Map<string, Connection>;
@@ -17,10 +19,13 @@ const entries = () => (globalConnections.oclrRemoteConnections ??= new Map());
 const lifetime = 60 * 60 * 1000;
 function prune() {
   for (const [key, item] of entries())
-    if (item.expiresAt <= Date.now()) entries().delete(key);
+    if (item.expiresAt <= Date.now()) disconnectRemote(key);
 }
 export function disconnectRemote(id?: string) {
-  if (id) entries().delete(id);
+  if (id) {
+    entries().get(id)?.publicCache?.clear();
+    entries().delete(id);
+  }
 }
 export async function connectRemote(
   input: { mode: "developer" | "anonymous"; token?: string },
@@ -61,6 +66,7 @@ export function remoteConnection(id?: string) {
       401,
     );
   }
+  connection.publicCache ??= new RemotePublicCache();
   return connection;
 }
 export async function verifiedConnection(id?: string) {

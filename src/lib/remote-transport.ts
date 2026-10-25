@@ -6,6 +6,7 @@ import { profileMode } from "./osu-profile-model";
 import { paginationSchema } from "./read-api-contract";
 import { readOperations, readSchemas } from "./read-api-operations";
 import { RemoteDataError } from "./remote-errors";
+import { remoteRetrySeconds } from "./remote-retry";
 const metaSchema = z
   .object({
     apiVersion: z.literal("1"),
@@ -77,7 +78,12 @@ export async function remoteRead(
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
-    if (response.status === 429) throw new RemoteDataError("RATE_LIMITED", 429);
+    if (response.status === 429)
+      throw new RemoteDataError(
+        "RATE_LIMITED",
+        429,
+        remoteRetrySeconds(response.headers.get("retry-after")),
+      );
     if (response.status === 401)
       throw new RemoteDataError("REMOTE_EXPIRED", 401);
     if (response.status === 403)

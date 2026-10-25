@@ -2,7 +2,9 @@ import { compareTournamentSeasons } from "./tournament-order";
 import { frontendRequestValue } from "./frontend-read-context";
 import { cache } from "react";
 import { cookies } from "next/headers.js";
-import { remoteMode } from "./data-source";
+import { remoteMode, remoteConfiguration } from "./data-source";
+import { cachePublicOperation } from "./remote-public-cache";
+import { readContractVersion } from "./read-api-version";
 import { remoteCookie, verifiedConnection } from "./remote-sessions";
 import { remoteRead, remoteOperation } from "./remote-transport";
 import { RemoteDataError } from "./remote-errors";
@@ -24,18 +26,35 @@ const renderConnection = cache(async () => {
 export function frontendConnection() {
   return frontendRequestValue("connection", () => renderConnection());
 }
-const requestRead = cache(async (path: string, queryString: string) => {
+async function readRemoteResource(path: string, queryString: string) {
   const query = new URLSearchParams(queryString);
-  remoteOperation(path, query);
+  const operation = remoteOperation(path, query);
   const context = await frontendConnection();
   try {
-    return await remoteRead(path, query, context.token);
+    if (
+      context.identity &&
+      !context.identity.access.scopes.includes(operation.scope)
+    )
+      throw new RemoteDataError("REMOTE_FORBIDDEN", 403);
+    const load = () => remoteRead(path, query, context.token);
+    if (!cachePublicOperation(operation)) return await load();
+    const { local, upstream } = remoteConfiguration();
+    query.sort();
+    const key = JSON.stringify([
+      local,
+      upstream,
+      readContractVersion,
+      path,
+      query.toString(),
+    ]);
+    return await context.publicCache!.read(key, load);
   } catch (error) {
     if (error instanceof RemoteDataError && error.code === "REMOTE_EXPIRED")
       disconnectRemote(context.id);
     throw error;
   }
-});
+}
+const requestRead = cache(readRemoteResource);
 export function frontendRemoteRead(
   path: string,
   query = new URLSearchParams(),
@@ -64,7 +83,11 @@ async function completeCollection<T>(
           q,
         });
         if (version) query.set("version", version);
-        const result = await frontendRemoteRead(path, query);
+        // A restarted collection must also bypass request-local memoization of
+        // its old first page / rejected page, not just the development snapshot.
+        const result = attempt
+          ? await readRemoteResource(path, query.toString())
+          : await frontendRemoteRead(path, query);
         const pagination = result.meta.pagination;
         if (
           !pagination ||
@@ -104,8 +127,10 @@ async function completeCollection<T>(
         attempt === 0 &&
         error instanceof RemoteDataError &&
         error.code === "COLLECTION_CHANGED"
-      )
+      ) {
+        (await frontendConnection()).publicCache?.clear();
         continue;
+      }
       throw error;
     }
   }

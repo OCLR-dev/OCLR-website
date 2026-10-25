@@ -33,6 +33,10 @@ import {
 import { collectionPage } from "../../src/lib/read-api";
 import { edition } from "../fixtures/edition";
 import { publicPlayerSchema } from "../../src/lib/read-api-contract";
+import {
+  GET as connectionGET,
+  POST as connectionPOST,
+} from "../../src/app/api/remote/connection/route";
 const jar = vi.hoisted(() => new Map<string, string>());
 vi.mock("next/headers", () => ({
   cookies: async () => ({
@@ -119,6 +123,7 @@ const server = createServer((request, response) => {
     return;
   }
   if (mode === "throttled") {
+    response.setHeader("Retry-After", "90");
     send({ error: { code: "RATE_LIMITED" } }, 429);
     return;
   }
@@ -165,7 +170,10 @@ const server = createServer((request, response) => {
         },
         access: {
           kind: "developer-read",
-          scopes: ["identity:read", "tournaments:read", "profiles:read"],
+          scopes:
+            mode === "limited"
+              ? ["identity:read"]
+              : ["identity:read", "tournaments:read", "profiles:read"],
           expiresAt: new Date(Date.now() + 3600000).toISOString(),
         },
       },
@@ -288,7 +296,10 @@ describe("remote frontend transport with no local DB", () => {
       globalRank: null,
     });
     mode = "change";
-    expect((await frontendPlayers(edition.slug)).rows).toEqual(players);
+    remoteConnection(session.id).publicCache?.clear();
+    expect(
+      (await withFrontendReadRequest(() => frontendPlayers(edition.slug))).rows,
+    ).toEqual(players);
     expect(changed).toBe(true);
     const profile = await frontendProfile("2700000", "osu", edition.slug);
     expect(profile.participation[0]).toEqual(players[0]);
@@ -314,6 +325,7 @@ describe("remote frontend transport with no local DB", () => {
     await expect(remoteRead("/site")).rejects.toMatchObject({
       code: "RATE_LIMITED",
       status: 429,
+      retryAfterSeconds: 90,
     });
     mode = "malformed";
     await expect(remoteRead("/site")).rejects.toMatchObject({
@@ -364,9 +376,20 @@ describe("remote frontend transport with no local DB", () => {
     });
     expect(seen.filter((r) => r.path === "/api/v1/me")).toHaveLength(1);
     expect(seen.filter((r) => r.path === "/api/v1/site")).toHaveLength(1);
+    await withFrontendReadRequest(() => frontendSite());
+    expect(seen.filter((r) => r.path === "/api/v1/me")).toHaveLength(2);
+    expect(seen.filter((r) => r.path === "/api/v1/site")).toHaveLength(1);
+    remoteConnection(session.id).publicCache?.clear();
+    await withFrontendReadRequest(() => frontendSite());
+    expect(seen.filter((r) => r.path === "/api/v1/site")).toHaveLength(2);
+    mode = "limited";
+    await expect(
+      withFrontendReadRequest(() => frontendSite()),
+    ).rejects.toMatchObject({ code: "REMOTE_FORBIDDEN" });
+    mode = "healthy";
     revoked = true;
     await expect(
-      withFrontendReadRequest(() => frontendConnection()),
+      withFrontendReadRequest(() => frontendSite()),
     ).rejects.toMatchObject({ code: "REMOTE_EXPIRED" });
   });
   it("bounds sessions, rotates connection IDs and expires memory access without persisting credentials", async () => {
@@ -382,5 +405,46 @@ describe("remote frontend transport with no local DB", () => {
     vi.setSystemTime(Date.now() + 3600001);
     expect(() => remoteConnection(session.id)).toThrow();
     vi.useRealTimers();
+  });
+  it("refreshes only the current session's snapshots and forwards rate-limit timing", async () => {
+    const first = await connectRemote({ mode: "developer", token: tokenA });
+    const second = await connectRemote({ mode: "developer", token: tokenB });
+    for (const session of [first, second]) {
+      jar.set("oclr_remote_session", session.id);
+      await withFrontendReadRequest(() => frontendSite());
+    }
+    const count = () => seen.filter((r) => r.path === "/api/v1/site").length;
+    expect(count()).toBe(2);
+    jar.set("oclr_remote_session", first.id);
+    const refresh = await connectionPOST(
+      new Request("http://localhost:3000/api/remote/connection", {
+        method: "POST",
+        headers: {
+          Origin: "http://localhost:3000",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mode: "refresh" }),
+      }),
+    );
+    expect(refresh.status).toBe(200);
+    await withFrontendReadRequest(() => frontendSite());
+    jar.set("oclr_remote_session", second.id);
+    await withFrontendReadRequest(() => frontendSite());
+    expect(count()).toBe(3);
+    const denied = await connectionPOST(
+      new Request("http://localhost:3000/api/remote/connection", {
+        method: "POST",
+        headers: {
+          Origin: "https://outside.example",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mode: "refresh" }),
+      }),
+    );
+    expect(denied.status).toBe(403);
+    mode = "throttled";
+    const response = await connectionGET();
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("90");
   });
 });
