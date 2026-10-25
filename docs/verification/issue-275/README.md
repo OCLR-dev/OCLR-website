@@ -2,7 +2,7 @@
 
 `/admin/contributors` manages one ordered directory with explicit public/hidden state. A single revision-checked save persists additions, edits, removals and ordering atomically with a site audit event. New entries are hidden. Display names remain literal; osu! links are derived from validated numeric IDs. The directory neither requires a login identity nor changes staff roles. Global Admins can write; Developers can read; edition-only Admins cannot access the global directory.
 
-About now reads only published minimal identities from that directory. Migration `0042_contributor_directory` preserves qi_e and Muziyami in the former order, without recreating entries on a repeated initialization after removal.
+About now reads only published minimal identities from that directory. Migration `0043_contributor_directory` preserves qi_e and Muziyami in the former order, without recreating entries on a repeated initialization after removal.
 
 Verification performed with isolated PostgreSQL test databases:
 

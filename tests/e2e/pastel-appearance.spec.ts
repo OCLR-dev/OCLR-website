@@ -87,6 +87,11 @@ const optional = {
     lightBackground: "rgb(238, 241, 246)",
     darkBackground: "rgb(11, 14, 20)",
   },
+  "retro-arcade": {
+    label: "Retro arcade",
+    lightBackground: "rgb(21, 18, 43)",
+    darkBackground: "rgb(5, 5, 8)",
+  },
 } as const;
 for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
   const { label, lightBackground, darkBackground } = optional[appearance];

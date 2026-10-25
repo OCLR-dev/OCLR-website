@@ -20,6 +20,7 @@ CREATE TABLE "contributor_events" (
 --> statement-breakpoint
 ALTER TABLE "contributor_events" ADD CONSTRAINT "contributor_events_actor_id_users_osu_id_fk" FOREIGN KEY ("actor_id") REFERENCES "public"."users"("osu_id") ON DELETE set null ON UPDATE no action;
 --> statement-breakpoint
+
 -- Preserve the previously published About identities and their original order.
 -- This migration is tracked once; the insert is also safe to repeat.
 INSERT INTO contributor_directory (id, entries) VALUES (1, '[{"id":"27500000-0000-4000-8000-000000000001","name":"qi_e","osuId":6963321,"published":true},{"id":"27500000-0000-4000-8000-000000000002","name":"Muziyami","osuId":7003013,"published":true}]'::jsonb) ON CONFLICT (id) DO NOTHING;

@@ -1,6 +1,11 @@
 .stage-scroll {
-  --wheel-row: 64px;
-  margin: 0.5rem 0 2.5rem;
+  --wheel-row: 80px;
+  --wheel-peek: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.5rem 0 1.5rem;
   overflow: hidden;
   border: 0;
   background: transparent;
@@ -9,20 +14,22 @@
 }
 .stage-scroll-heading {
   display: flex;
-  justify-content: flex-end;
+  grid-column: 2;
+  grid-row: 1;
+  justify-content: center;
   align-items: center;
-  padding: 0 0.75rem;
 }
 .stage-scroll-controls {
   display: flex;
+  flex-direction: column;
   gap: 0.25rem;
 }
 .stage-scroll .stage-scroll-controls button {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  min-height: 36px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
   font-size: 1rem;
   padding: 0;
   border: 0;
@@ -42,13 +49,16 @@
 }
 .stage-scroll-drum {
   position: relative;
-  margin: 0 0.75rem 0.75rem;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  margin: 0;
   isolation: isolate;
 }
 .stage-scroll-drum::before {
   content: "";
   position: absolute;
-  inset: var(--wheel-row) 0 auto;
+  inset: var(--wheel-peek) 0 auto;
   height: var(--wheel-row);
   border-radius: 0.75rem;
   background: linear-gradient(
@@ -74,7 +84,7 @@
 }
 .stage-scroll-viewport {
   position: relative;
-  height: calc(var(--wheel-row) * 3);
+  height: calc(var(--wheel-row) + var(--wheel-peek) * 2);
   overflow-y: auto;
   overscroll-behavior-y: contain;
   scrollbar-width: none;
@@ -82,7 +92,12 @@
   cursor: grab;
   touch-action: pan-y;
   user-select: none;
-  mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent);
+  mask-image: linear-gradient(
+    transparent,
+    #000 var(--wheel-peek),
+    #000 calc(100% - var(--wheel-peek)),
+    transparent
+  );
 }
 .stage-scroll-viewport::-webkit-scrollbar {
   display: none;
@@ -93,7 +108,7 @@
 }
 .stage-scroll-viewport ol {
   list-style: none;
-  padding: var(--wheel-row) 0;
+  padding: var(--wheel-peek) 0;
   margin: 0;
 }
 .stage-scroll-row {
@@ -104,9 +119,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 1.1rem;
+  gap: 0.75rem;
   height: var(--wheel-row);
-  padding: 0.3rem 1.5rem;
+  padding: 0.5rem 1rem;
   transform: rotateX(var(--wheel-rotation, 0deg));
   opacity: var(--wheel-opacity, 1);
   transform-origin: center;
@@ -148,7 +163,7 @@
   font-weight: 650;
 }
 .stage-scroll-copy p {
-  margin: 0.4rem 0 0;
+  margin: 0.25rem 0 0;
   color: var(--site-muted);
   font-size: 0.75rem;
   line-height: 1.5;
@@ -159,6 +174,8 @@
   color: var(--site-accent);
   font-weight: 600;
   padding: 0.65rem 0;
+  min-height: 44px;
+  overflow-wrap: anywhere;
 }
 .stage-scroll-action:hover {
   text-decoration: underline;
@@ -173,14 +190,8 @@ html[data-appearance="swiss-minimal"]
 }
 @media (max-width: 600px) {
   .stage-scroll {
-    --wheel-row: 88px;
+    --wheel-row: 144px;
     margin-bottom: 1.5rem;
-  }
-  .stage-scroll-heading {
-    padding: 0.5rem 1rem 0;
-  }
-  .stage-scroll-drum {
-    margin-inline: 0.4rem;
   }
   .stage-scroll-face {
     display: grid;
@@ -230,7 +241,7 @@ html[data-appearance="swiss-minimal"]
   .stage-scroll
   ol {
   margin: 0;
-  padding: var(--wheel-row) 0;
+  padding: var(--wheel-peek) 0;
 }
 .themed-site
   .information-page
@@ -259,7 +270,7 @@ html[data-appearance="swiss-minimal"]
   article.information-document
   .stage-scroll
   p {
-  margin: 0.4rem 0 0;
+  margin: 0.25rem 0 0;
   padding: 0;
   font-size: 0.75rem;
   line-height: 1.5;

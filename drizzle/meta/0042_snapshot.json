@@ -1,5 +1,5 @@
 {
-  "id": "3000c8e1-945c-4d05-965a-0ec06ec77297",
+  "id": "be37d2c1-4822-4977-a396-d85eff0c8888",
   "prevId": "ba0d3a24-b098-4890-9e6a-43dbd82e3ef7",
   "version": "7",
   "dialect": "postgresql",
@@ -258,131 +258,6 @@
       },
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.contributor_directory": {
-      "name": "contributor_directory",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "default": 1
-        },
-        "entries": {
-          "name": "entries",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "revision": {
-          "name": "revision",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "contributor_directory_singleton": {
-          "name": "contributor_directory_singleton",
-          "value": "\"contributor_directory\".\"id\" = 1"
-        },
-        "contributor_directory_revision": {
-          "name": "contributor_directory_revision",
-          "value": "\"contributor_directory\".\"revision\" >= 0"
-        },
-        "contributor_directory_array": {
-          "name": "contributor_directory_array",
-          "value": "jsonb_typeof(\"contributor_directory\".\"entries\") = 'array'"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.contributor_events": {
-      "name": "contributor_events",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "actor_id": {
-          "name": "actor_id",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "before": {
-          "name": "before",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "after": {
-          "name": "after",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "revision": {
-          "name": "revision",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "contributor_events_actor_id_users_osu_id_fk": {
-          "name": "contributor_events_actor_id_users_osu_id_fk",
-          "tableFrom": "contributor_events",
-          "tableTo": "users",
-          "columnsFrom": [
-            "actor_id"
-          ],
-          "columnsTo": [
-            "osu_id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "contributor_events_revision_unique": {
-          "name": "contributor_events_revision_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "revision"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {
-        "contributor_events_revision": {
-          "name": "contributor_events_revision",
-          "value": "\"contributor_events\".\"revision\" > 0"
-        }
-      },
       "isRLSEnabled": false
     },
     "public.developer_api_events": {
@@ -3675,7 +3550,7 @@
         },
         "site_setting_events_appearances": {
           "name": "site_setting_events_appearances",
-          "value": "\"site_setting_events\".\"before_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast') AND \"site_setting_events\".\"after_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast') AND \"site_setting_events\".\"before_appearance\" <> \"site_setting_events\".\"after_appearance\""
+          "value": "\"site_setting_events\".\"before_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade') AND \"site_setting_events\".\"after_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade') AND \"site_setting_events\".\"before_appearance\" <> \"site_setting_events\".\"after_appearance\""
         }
       },
       "isRLSEnabled": false
@@ -3729,7 +3604,7 @@
         },
         "site_settings_appearance": {
           "name": "site_settings_appearance",
-          "value": "\"site_settings\".\"default_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast')"
+          "value": "\"site_settings\".\"default_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade')"
         }
       },
       "isRLSEnabled": false
