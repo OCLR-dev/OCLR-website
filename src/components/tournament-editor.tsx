@@ -146,6 +146,10 @@ function IdentityFields({
                   )}
                   {(asset.key === "logo" || asset.key === "keyVisual") && (
                     <>
+                      <option value="/archive/s4/key-visual.avif">
+                        {"OCLR Season 4 — "}
+                        {asset.label}
+                      </option>
                       <option value="/archive/s5/key-visual.png">
                         {"OCLR β (S5) — "}
                         {asset.label}

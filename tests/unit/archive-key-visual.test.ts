@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
 import { archiveKeyVisual } from "../../src/lib/archive-key-visual";
 import { historicalArchiveSchema } from "../../src/lib/historical-archive";
-for (const season of [5, 7, 8, 9, 10])
+for (const season of [4, 5, 7, 8, 9, 10])
   it(`supplies S${season} art without relying on an editable slug`, () => {
     const a = historicalArchiveSchema.parse(
       JSON.parse(readFileSync(`docs/imports/s${season}-archive.json`, "utf8")),

@@ -1,0 +1,3752 @@
+{
+  "formatVersion": 2,
+  "editionSlug": "s4",
+  "sourceUrl": "https://docs.google.com/spreadsheets/d/1QqF8leIqov2l3loi92hFHu82HEuplb9Iau2zPNUcySk",
+  "capturedOn": "2026-10-26",
+  "notes": [],
+  "links": [],
+  "teams": [
+    {
+      "id": "a",
+      "name": "爆炸奶油面包",
+      "source": "Team!B5:C5"
+    },
+    {
+      "id": "b",
+      "name": "GXY 970 Ti",
+      "source": "Team!B9:C9"
+    },
+    {
+      "id": "c",
+      "name": "白果子抱抱",
+      "source": "Team!B13:C13"
+    },
+    {
+      "id": "d",
+      "name": "麻吉亚巴库内",
+      "source": "Team!B17:C17"
+    },
+    {
+      "id": "e",
+      "name": "New Year Burst！",
+      "source": "Team!B21:C21"
+    },
+    {
+      "id": "f",
+      "name": "Baby's Breath",
+      "source": "Team!B25:C25"
+    },
+    {
+      "id": "g",
+      "name": "德州点金虾仁狂",
+      "source": "Team!B29:C29"
+    },
+    {
+      "id": "h",
+      "name": "[青蛙Hello]",
+      "source": "Team!B33:C33"
+    },
+    {
+      "id": "i",
+      "name": "46miss",
+      "source": "Team!B37:C37"
+    },
+    {
+      "id": "j",
+      "name": "五三题霸：圆锥曲线",
+      "source": "Team!B41:C41"
+    },
+    {
+      "id": "k",
+      "name": "122粉丝天团",
+      "source": "Team!B45:C45"
+    },
+    {
+      "id": "l",
+      "name": "工作日不愉快",
+      "source": "Team!B49:C49"
+    }
+  ],
+  "players": [
+    {
+      "username": "qi_e",
+      "teamId": "a",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D5",
+      "osuId": 6963321
+    },
+    {
+      "username": "[ Emiya ]",
+      "teamId": "a",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E5",
+      "sourceRole": "VICE",
+      "osuId": 4341197
+    },
+    {
+      "username": "MyAngelsakiyi",
+      "teamId": "a",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H5",
+      "osuId": 1017287
+    },
+    {
+      "username": "[RyuZu]",
+      "teamId": "a",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I5",
+      "osuId": 10933499
+    },
+    {
+      "username": "-Yozakura-",
+      "teamId": "a",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J5",
+      "osuId": 10276091
+    },
+    {
+      "username": "gxytcgxytc",
+      "teamId": "b",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D9",
+      "osuId": 874891
+    },
+    {
+      "username": "970",
+      "teamId": "b",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E9",
+      "sourceRole": "VICE",
+      "osuId": 4075655
+    },
+    {
+      "username": "buhei",
+      "teamId": "b",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F9",
+      "osuId": 1371514
+    },
+    {
+      "username": "Myoi Mina",
+      "teamId": "b",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G9",
+      "osuId": 9218431
+    },
+    {
+      "username": "Mangent",
+      "teamId": "b",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H9",
+      "osuId": 12609921
+    },
+    {
+      "username": "qqq xing",
+      "teamId": "b",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I9",
+      "osuId": 5845347
+    },
+    {
+      "username": "NECROkuang",
+      "teamId": "b",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J9",
+      "osuId": 11237954
+    },
+    {
+      "username": "Hakumo Shiro",
+      "teamId": "c",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D13",
+      "osuId": 5179557
+    },
+    {
+      "username": "Toruta",
+      "teamId": "c",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E13",
+      "sourceRole": "VICE",
+      "osuId": 2005241
+    },
+    {
+      "username": "EbisuzawaKurumi",
+      "teamId": "c",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F13",
+      "osuId": 5791401
+    },
+    {
+      "username": "DDIsokaze",
+      "teamId": "c",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G13",
+      "osuId": 8567372
+    },
+    {
+      "username": "Curriescaz",
+      "teamId": "c",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H13",
+      "osuId": 8012734
+    },
+    {
+      "username": "shporu",
+      "teamId": "c",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I13",
+      "osuId": 11794003
+    },
+    {
+      "username": "Muziyami",
+      "teamId": "c",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J13",
+      "osuId": 7003013
+    },
+    {
+      "username": "502 Bad Speed",
+      "teamId": "d",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D17",
+      "osuId": 8678381
+    },
+    {
+      "username": "-Artemis",
+      "teamId": "d",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E17",
+      "sourceRole": "VICE",
+      "osuId": 8368266
+    },
+    {
+      "username": "Old K",
+      "teamId": "d",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F17",
+      "osuId": 2385405
+    },
+    {
+      "username": "ShiinaR",
+      "teamId": "d",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G17",
+      "osuId": 8751122
+    },
+    {
+      "username": "Fledin",
+      "teamId": "d",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H17",
+      "osuId": 10085283
+    },
+    {
+      "username": "-xxx Rumia-",
+      "teamId": "d",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I17",
+      "osuId": 5936405
+    },
+    {
+      "username": "liunian1551",
+      "teamId": "d",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J17",
+      "osuId": 12938898
+    },
+    {
+      "username": "Another Flower",
+      "teamId": "e",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D21",
+      "osuId": 6854920
+    },
+    {
+      "username": "Michka",
+      "teamId": "e",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E21",
+      "sourceRole": "VICE",
+      "osuId": 10636530
+    },
+    {
+      "username": "PinkHeart",
+      "teamId": "e",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G21",
+      "osuId": 1269067
+    },
+    {
+      "username": "Europix",
+      "teamId": "e",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H21",
+      "osuId": 10741620
+    },
+    {
+      "username": "KobeNanami",
+      "teamId": "e",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I21",
+      "osuId": 8911619
+    },
+    {
+      "username": "RosaVerrine",
+      "teamId": "e",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J21",
+      "osuId": 9597580
+    },
+    {
+      "username": "Chranthem Tea",
+      "teamId": "f",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D25",
+      "osuId": 2361632
+    },
+    {
+      "username": "[1552828]",
+      "teamId": "f",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E25",
+      "sourceRole": "VICE",
+      "osuId": 8208288
+    },
+    {
+      "username": "vrei",
+      "teamId": "f",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F25",
+      "osuId": 4711096
+    },
+    {
+      "username": "Uspor Su",
+      "teamId": "f",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G25",
+      "osuId": 1405856
+    },
+    {
+      "username": "Banana skin",
+      "teamId": "f",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H25",
+      "osuId": 1371409
+    },
+    {
+      "username": "na-gi",
+      "teamId": "f",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I25",
+      "osuId": 11355787
+    },
+    {
+      "username": "Texas",
+      "teamId": "g",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D29",
+      "osuId": 8281276
+    },
+    {
+      "username": "Cardigan Corgi",
+      "teamId": "g",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E29",
+      "sourceRole": "VICE",
+      "osuId": 4122153
+    },
+    {
+      "username": "cplayer",
+      "teamId": "g",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F29",
+      "osuId": 377473
+    },
+    {
+      "username": "pyj123mxd",
+      "teamId": "g",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G29",
+      "osuId": 4330975
+    },
+    {
+      "username": "djsiyfau",
+      "teamId": "g",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H29",
+      "osuId": 7300968
+    },
+    {
+      "username": "Clivery_V",
+      "teamId": "g",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I29",
+      "osuId": 6918298
+    },
+    {
+      "username": "[KID]",
+      "teamId": "g",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J29",
+      "osuId": 4764449
+    },
+    {
+      "username": "AMasochism",
+      "teamId": "h",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D33",
+      "osuId": 431594
+    },
+    {
+      "username": "Merry Christmas",
+      "teamId": "h",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E33",
+      "sourceRole": "VICE",
+      "osuId": 603925
+    },
+    {
+      "username": "silly me",
+      "teamId": "h",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F33",
+      "osuId": 6433183
+    },
+    {
+      "username": "No rank",
+      "teamId": "h",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G33",
+      "osuId": 10436444
+    },
+    {
+      "username": "MoneyBlue",
+      "teamId": "h",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H33",
+      "osuId": 810331
+    },
+    {
+      "username": "Guozi on Osu",
+      "teamId": "h",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I33",
+      "osuId": 8692802
+    },
+    {
+      "username": "Phirida",
+      "teamId": "h",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J33",
+      "osuId": 1862358
+    },
+    {
+      "username": "MyAngelJackWang",
+      "teamId": "i",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D37",
+      "osuId": 3665920
+    },
+    {
+      "username": "Watera1",
+      "teamId": "i",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E37",
+      "sourceRole": "VICE",
+      "osuId": 6938658
+    },
+    {
+      "username": "NekoKamui",
+      "teamId": "i",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F37",
+      "osuId": 7172340
+    },
+    {
+      "username": "924233086",
+      "teamId": "i",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G37",
+      "osuId": 1967621
+    },
+    {
+      "username": "moe nyannyan",
+      "teamId": "i",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I37",
+      "osuId": 4087427
+    },
+    {
+      "username": "ExSPer",
+      "teamId": "i",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J37",
+      "osuId": 2360046
+    },
+    {
+      "username": "inkCake",
+      "teamId": "j",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D41",
+      "osuId": 7686319
+    },
+    {
+      "username": "MmmushroomTz",
+      "teamId": "j",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E41",
+      "sourceRole": "VICE",
+      "osuId": 13343696
+    },
+    {
+      "username": "Anya Maki",
+      "teamId": "j",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F41",
+      "osuId": 7111118
+    },
+    {
+      "username": "[ Natsu ]",
+      "teamId": "j",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G41",
+      "osuId": 5112995
+    },
+    {
+      "username": "MyangelMitsuha",
+      "teamId": "j",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H41",
+      "osuId": 11652211
+    },
+    {
+      "username": "Zh_Jk",
+      "teamId": "j",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I41",
+      "osuId": 9037287
+    },
+    {
+      "username": "FungusOVO",
+      "teamId": "j",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J41",
+      "osuId": 4928835
+    },
+    {
+      "username": "Carl_X",
+      "teamId": "k",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D45",
+      "osuId": 9207457
+    },
+    {
+      "username": "B C",
+      "teamId": "k",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E45",
+      "sourceRole": "VICE",
+      "osuId": 3917377
+    },
+    {
+      "username": "Sayori_yui",
+      "teamId": "k",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F45",
+      "osuId": 7183040
+    },
+    {
+      "username": "April_23",
+      "teamId": "k",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G45",
+      "osuId": 6792666
+    },
+    {
+      "username": "Duraaa",
+      "teamId": "k",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H45",
+      "osuId": 5185609
+    },
+    {
+      "username": "Reecho",
+      "teamId": "k",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I45",
+      "osuId": 12624507
+    },
+    {
+      "username": "Mikako",
+      "teamId": "k",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J45",
+      "osuId": 2676427
+    },
+    {
+      "username": "zmyk",
+      "teamId": "l",
+      "role": "captain",
+      "tier": 0,
+      "source": "Team!D49",
+      "osuId": 11396041
+    },
+    {
+      "username": "CUWAN",
+      "teamId": "l",
+      "role": "player",
+      "tier": null,
+      "source": "Team!E49",
+      "sourceRole": "VICE",
+      "osuId": 7799707
+    },
+    {
+      "username": "Kishin Sagume",
+      "teamId": "l",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F49",
+      "osuId": 596803
+    },
+    {
+      "username": "Dnwings",
+      "teamId": "l",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G49",
+      "osuId": 8947019
+    },
+    {
+      "username": "Rairakkuhana",
+      "teamId": "l",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H49",
+      "osuId": 12117924
+    },
+    {
+      "username": "Asaotome",
+      "teamId": "l",
+      "role": "player",
+      "tier": 3,
+      "source": "Team!I49",
+      "osuId": 6909701
+    },
+    {
+      "username": "Aurora_fang",
+      "teamId": "l",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J49",
+      "osuId": 9887164
+    }
+  ],
+  "unresolvedPlayers": [
+    {
+      "username": "Pigeons",
+      "teamId": "a",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F5",
+      "id": "a-6"
+    },
+    {
+      "username": "Monoblos-",
+      "teamId": "a",
+      "role": "player",
+      "tier": 1,
+      "source": "Team!G5",
+      "id": "a-7"
+    },
+    {
+      "username": "Refia Vridis",
+      "teamId": "e",
+      "role": "coach",
+      "tier": null,
+      "source": "Team!F21",
+      "id": "e-6"
+    },
+    {
+      "username": "NoirMei",
+      "teamId": "f",
+      "role": "player",
+      "tier": 4,
+      "source": "Team!J25",
+      "id": "f-10"
+    },
+    {
+      "username": "TaneshimaPopura",
+      "teamId": "i",
+      "role": "player",
+      "tier": 2,
+      "source": "Team!H37",
+      "id": "i-8"
+    }
+  ],
+  "picks": [],
+  "draftMode": "final-tiers",
+  "staff": [
+    {
+      "osuId": null,
+      "username": "Explosive",
+      "position": "STAFF",
+      "source": "OCLR S4规则说明.pdf p.3"
+    },
+    {
+      "osuId": null,
+      "username": "Prophet",
+      "position": "STAFF",
+      "source": "OCLR S4规则说明.pdf p.3"
+    },
+    {
+      "osuId": null,
+      "username": "VRainbow",
+      "position": "STAFF",
+      "source": "OCLR S4规则说明.pdf p.3"
+    }
+  ],
+  "standings": [],
+  "matches": [
+    {
+      "id": "a1",
+      "label": "A1",
+      "stage": "小组赛第1轮",
+      "poolId": null,
+      "teamA": "b",
+      "teamB": "l",
+      "scheduledAt": "2020-06-06T19:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62577840"],
+      "vodUrl": "https://www.bilibili.com/video/BV1Kk4y1z7f4",
+      "referee": "osu happy",
+      "streamer": "silly me",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A2:K2"
+    },
+    {
+      "id": "a2",
+      "label": "A2",
+      "stage": "小组赛第1轮",
+      "poolId": null,
+      "teamA": "c",
+      "teamB": "a",
+      "scheduledAt": "2020-06-06T20:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62579255"],
+      "vodUrl": "https://www.bilibili.com/video/BV1cv41167zQ",
+      "referee": "Amamiya Kanade",
+      "streamer": "Alice Mana",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A3:K3"
+    },
+    {
+      "id": "a3",
+      "label": "A3",
+      "stage": "小组赛第1轮",
+      "poolId": null,
+      "teamA": "d",
+      "teamB": "k",
+      "scheduledAt": "2020-06-05T21:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62536120"],
+      "vodUrl": "https://www.bilibili.com/video/BV1qK4y1x759",
+      "referee": "Sonoaoi",
+      "streamer": "- Rainbow -",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A4:K4"
+    },
+    {
+      "id": "a4",
+      "label": "A4",
+      "stage": "小组赛第1轮",
+      "poolId": null,
+      "teamA": "e",
+      "teamB": "j",
+      "scheduledAt": "2020-06-06T20:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62580323"],
+      "vodUrl": "https://www.bilibili.com/video/BV1Zp4y1S7hy",
+      "referee": "demisemiquaver",
+      "streamer": "Sonoaoi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A5:K5"
+    },
+    {
+      "id": "a5",
+      "label": "A5",
+      "stage": "小组赛第1轮",
+      "poolId": null,
+      "teamA": "f",
+      "teamB": "i",
+      "scheduledAt": "2020-06-07T20:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62621461"],
+      "vodUrl": "https://www.bilibili.com/video/BV1aQ4y1P7AD",
+      "referee": "Sonoaoi",
+      "streamer": "Segawa Emi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A6:K6"
+    },
+    {
+      "id": "a6",
+      "label": "A6",
+      "stage": "小组赛第1轮",
+      "poolId": null,
+      "teamA": "g",
+      "teamB": "h",
+      "scheduledAt": "2020-06-07T21:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62623308"],
+      "vodUrl": "https://www.bilibili.com/video/BV1ga4y1v7Ne",
+      "referee": "- Rainbow -",
+      "streamer": "Alice Mana",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A7:K7"
+    },
+    {
+      "id": "a7",
+      "label": "A7",
+      "stage": "小组赛第2轮",
+      "poolId": null,
+      "teamA": "g",
+      "teamB": "i",
+      "scheduledAt": "2020-06-14T21:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62916360"],
+      "vodUrl": null,
+      "referee": "Sonoaoi",
+      "streamer": "Alice mana",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A8:K8"
+    },
+    {
+      "id": "a8",
+      "label": "A8",
+      "stage": "小组赛第2轮",
+      "poolId": null,
+      "teamA": "h",
+      "teamB": "f",
+      "scheduledAt": "2020-06-14T20:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62913512"],
+      "vodUrl": "https://www.bilibili.com/video/BV1va4y1Y76J",
+      "referee": "osu happy",
+      "streamer": "- Rainbow -",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A9:K9"
+    },
+    {
+      "id": "a9",
+      "label": "A9",
+      "stage": "小组赛第2轮",
+      "poolId": null,
+      "teamA": "k",
+      "teamB": "l",
+      "scheduledAt": "2020-06-13T22:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62876523"],
+      "vodUrl": "https://www.bilibili.com/video/BV1Dk4y1z7db",
+      "referee": "demisemiquaver",
+      "streamer": "Explosive",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A10:K10"
+    },
+    {
+      "id": "a10",
+      "label": "A10",
+      "stage": "小组赛第2轮",
+      "poolId": null,
+      "teamA": "j",
+      "teamB": "a",
+      "scheduledAt": "2020-06-13T20:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62873476"],
+      "vodUrl": "https://www.bilibili.com/video/BV1Yz4y1Q7qZ",
+      "referee": "Amamiya Kanade",
+      "streamer": "Alice mana",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A11:K11"
+    },
+    {
+      "id": "a11",
+      "label": "A11",
+      "stage": "小组赛第2轮",
+      "poolId": null,
+      "teamA": "c",
+      "teamB": "e",
+      "scheduledAt": "2020-06-13T22:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62877504"],
+      "vodUrl": "https://www.bilibili.com/video/BV1KD4y1Q777",
+      "referee": "silly me",
+      "streamer": "Sonoaoi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A12:K12"
+    },
+    {
+      "id": "a12",
+      "label": "A12",
+      "stage": "小组赛第2轮",
+      "poolId": null,
+      "teamA": "b",
+      "teamB": "d",
+      "scheduledAt": "2020-06-13T21:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/62874195"],
+      "vodUrl": "https://www.bilibili.com/video/BV1jV411k7up",
+      "referee": "- Rainbow -",
+      "streamer": "Sonoaoi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A13:K13"
+    },
+    {
+      "id": "a13",
+      "label": "A13",
+      "stage": "小组赛第3轮",
+      "poolId": null,
+      "teamA": "a",
+      "teamB": "k",
+      "scheduledAt": "2020-06-20T22:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63165522"],
+      "vodUrl": "https://www.bilibili.com/video/BV1r54y1B73s",
+      "referee": "demisemiquaver",
+      "streamer": "Alice mana",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A14:K14"
+    },
+    {
+      "id": "a14",
+      "label": "A14",
+      "stage": "小组赛第3轮",
+      "poolId": null,
+      "teamA": "e",
+      "teamB": "d",
+      "scheduledAt": "2020-06-20T20:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63162590"],
+      "vodUrl": "https://www.bilibili.com/video/BV1Bk4y1z7Ku",
+      "referee": "osu happy",
+      "streamer": "Sonoaoi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A15:K15"
+    },
+    {
+      "id": "a15",
+      "label": "A15",
+      "stage": "小组赛第3轮",
+      "poolId": null,
+      "teamA": "f",
+      "teamB": "j",
+      "scheduledAt": "2020-06-21T21:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63202308"],
+      "vodUrl": null,
+      "referee": "osu happy",
+      "streamer": "Explosive",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A16:K16"
+    },
+    {
+      "id": "a16",
+      "label": "A16",
+      "stage": "小组赛第3轮",
+      "poolId": null,
+      "teamA": "l",
+      "teamB": "g",
+      "scheduledAt": "2020-06-21T21:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63203255"],
+      "vodUrl": "https://www.bilibili.com/video/BV1r5411W7D8",
+      "referee": "demisemiquaver",
+      "streamer": "Alice mana",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A17:K17"
+    },
+    {
+      "id": "a17",
+      "label": "A17",
+      "stage": "小组赛第3轮",
+      "poolId": null,
+      "teamA": "c",
+      "teamB": "i",
+      "scheduledAt": "2020-06-21T22:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63205109"],
+      "vodUrl": "https://www.bilibili.com/video/BV1zi4y1x73V",
+      "referee": "Ask to Wind",
+      "streamer": "Explosive",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A18:K18"
+    },
+    {
+      "id": "a18",
+      "label": "A18",
+      "stage": "小组赛第3轮",
+      "poolId": null,
+      "teamA": "b",
+      "teamB": "h",
+      "scheduledAt": "2020-06-21T22:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63204136"],
+      "vodUrl": "https://www.bilibili.com/video/BV18v41167NN",
+      "referee": "Sonoaoi",
+      "streamer": "- Rainbow -",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A19:K19"
+    },
+    {
+      "id": "a19",
+      "label": "A19",
+      "stage": "小组赛第4轮",
+      "poolId": null,
+      "teamA": "c",
+      "teamB": "f",
+      "scheduledAt": "2020-06-27T22:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63437706"],
+      "vodUrl": "https://www.bilibili.com/video/BV1YT4y1776F",
+      "referee": "Refia Vridis",
+      "streamer": "Sonoaoi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A20:K20"
+    },
+    {
+      "id": "a20",
+      "label": "A20",
+      "stage": "小组赛第4轮",
+      "poolId": null,
+      "teamA": "i",
+      "teamB": "d",
+      "scheduledAt": "2020-06-27T20:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63434768"],
+      "vodUrl": "https://www.bilibili.com/video/BV1ck4y167kF",
+      "referee": "- Rainbow -",
+      "streamer": "Segawa Emi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A21:K21"
+    },
+    {
+      "id": "a21",
+      "label": "A21",
+      "stage": "小组赛第4轮",
+      "poolId": null,
+      "teamA": "a",
+      "teamB": "l",
+      "scheduledAt": "2020-06-27T22:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63437473"],
+      "vodUrl": "https://www.bilibili.com/video/av456144081",
+      "referee": "- Rainbow -",
+      "streamer": "Alice mana",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A22:K22"
+    },
+    {
+      "id": "a22",
+      "label": "A22",
+      "stage": "小组赛第4轮",
+      "poolId": null,
+      "teamA": "g",
+      "teamB": "j",
+      "scheduledAt": "2020-06-27T21:00:00+08:00",
+      "score": null,
+      "mpUrls": [],
+      "vodUrl": null,
+      "referee": null,
+      "streamer": null,
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A23:K23"
+    },
+    {
+      "id": "a23",
+      "label": "A23",
+      "stage": "小组赛第4轮",
+      "poolId": null,
+      "teamA": "h",
+      "teamB": "k",
+      "scheduledAt": "2020-06-27T22:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63437559"],
+      "vodUrl": "https://www.bilibili.com/video/BV1rt4y197sc",
+      "referee": "demisemiquaver",
+      "streamer": "Selis",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A24:K24"
+    },
+    {
+      "id": "a24",
+      "label": "A24",
+      "stage": "小组赛第4轮",
+      "poolId": null,
+      "teamA": "b",
+      "teamB": "e",
+      "scheduledAt": "2020-06-27T20:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63434117"],
+      "vodUrl": null,
+      "referee": "gxytcgxytc",
+      "streamer": null,
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Group Schedule!A25:K25"
+    },
+    {
+      "id": "k1",
+      "label": "K1",
+      "stage": "胜者组半决赛",
+      "poolId": null,
+      "teamA": "b",
+      "teamB": "e",
+      "scheduledAt": "2020-07-04T21:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63700060"],
+      "vodUrl": "https://www.bilibili.com/video/BV1Vz4y1X7VN",
+      "referee": "osu happy",
+      "streamer": "Alice mana",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A2:K2"
+    },
+    {
+      "id": "k2",
+      "label": "K2",
+      "stage": "胜者组半决赛",
+      "poolId": null,
+      "teamA": "c",
+      "teamB": "k",
+      "scheduledAt": "2020-07-05T22:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63739969"],
+      "vodUrl": "https://www.bilibili.com/video/BV1q5411Y7tm",
+      "referee": "demisemiquaver",
+      "streamer": "Sonoaoi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A3:K3"
+    },
+    {
+      "id": "k3",
+      "label": "K3",
+      "stage": "败者组第一轮",
+      "poolId": null,
+      "teamA": "d",
+      "teamB": "i",
+      "scheduledAt": "2020-07-04T21:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63700812"],
+      "vodUrl": "https://www.bilibili.com/video/BV1xT4y177e1",
+      "referee": "Sonoaoi",
+      "streamer": "- Rainbow -",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A4:K4"
+    },
+    {
+      "id": "k4",
+      "label": "K4",
+      "stage": "败者组第一轮",
+      "poolId": null,
+      "teamA": "h",
+      "teamB": "l",
+      "scheduledAt": "2020-07-04T15:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63691958"],
+      "vodUrl": "https://www.bilibili.com/video/BV16D4y1Q78d",
+      "referee": "Sonoaoi",
+      "streamer": "Alice mana",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A5:K5"
+    },
+    {
+      "id": "k5",
+      "label": "K5",
+      "stage": "胜者组决赛",
+      "poolId": null,
+      "teamA": "c",
+      "teamB": "e",
+      "scheduledAt": "2020-07-11T21:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63969513"],
+      "vodUrl": "https://www.bilibili.com/video/BV1wC4y1h7Np",
+      "referee": "Refia Vridis",
+      "streamer": "Sonoaoi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A6:K6"
+    },
+    {
+      "id": "k6",
+      "label": "K6",
+      "stage": "败者组第二轮",
+      "poolId": null,
+      "teamA": "i",
+      "teamB": "k",
+      "scheduledAt": "2020-07-11T22:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63970347"],
+      "vodUrl": "https://www.bilibili.com/video/BV1ip4y1S7Kb",
+      "referee": "demisemiquaver",
+      "streamer": "Segawa Emi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A7:K7"
+    },
+    {
+      "id": "k7",
+      "label": "K7",
+      "stage": "败者组第二轮",
+      "poolId": null,
+      "teamA": "b",
+      "teamB": "l",
+      "scheduledAt": "2020-07-11T22:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/63970503"],
+      "vodUrl": "https://www.bilibili.com/video/BV1yA411e7Qv",
+      "referee": "osu happy",
+      "streamer": "Explosive",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A8:K8"
+    },
+    {
+      "id": "k8",
+      "label": "K8",
+      "stage": "败者组第三轮",
+      "poolId": null,
+      "teamA": "i",
+      "teamB": "b",
+      "scheduledAt": "2020-07-12T21:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/64008144"],
+      "vodUrl": "https://www.bilibili.com/video/BV1Ka4y1a7hw",
+      "referee": "Sonoaoi(感谢爆炸哥替了一会)",
+      "streamer": "Sonoaoi(感谢BC临时帮忙)",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A9:K9"
+    },
+    {
+      "id": "k9",
+      "label": "K9",
+      "stage": "败者组决赛",
+      "poolId": null,
+      "teamA": "b",
+      "teamB": "c",
+      "scheduledAt": "2020-07-18T22:30:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/64255217"],
+      "vodUrl": "https://www.bilibili.com/video/BV1d5411h7sP",
+      "referee": "osu happy",
+      "streamer": "Sonoaoi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A10:K10"
+    },
+    {
+      "id": "k10",
+      "label": "K10",
+      "stage": "总决赛",
+      "poolId": null,
+      "teamA": "b",
+      "teamB": "e",
+      "scheduledAt": "2020-07-19T21:00:00+08:00",
+      "score": null,
+      "mpUrls": ["https://osu.ppy.sh/community/matches/64292940"],
+      "vodUrl": "https://www.bilibili.com/video/BV1cz4y1Q7s9",
+      "referee": "Old K",
+      "streamer": "Sonoaoi",
+      "commentators": null,
+      "bansA": null,
+      "bansB": null,
+      "source": "Knockout Schedule!A11:K11"
+    }
+  ],
+  "pools": [
+    {
+      "id": "coach",
+      "name": "教练资格赛图池",
+      "source": "Coach Qual Mappool",
+      "maps": [
+        {
+          "slot": "NM1",
+          "beatmapId": 2076750,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Coach Qual Mappool!B2:L2"
+        },
+        {
+          "slot": "NM2",
+          "beatmapId": 2397716,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Coach Qual Mappool!B3:L3"
+        },
+        {
+          "slot": "NM3",
+          "beatmapId": 700445,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": null,
+          "bpm": 230.0,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Coach Qual Mappool!B4:L4"
+        },
+        {
+          "slot": "HD1",
+          "beatmapId": 793845,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Coach Qual Mappool!B6:L6"
+        },
+        {
+          "slot": "HR1",
+          "beatmapId": 2178003,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": 6.23,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Coach Qual Mappool!B8:L8"
+        },
+        {
+          "slot": "DT1",
+          "beatmapId": 1871931,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": 6.25,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Coach Qual Mappool!B10:L10"
+        },
+        {
+          "slot": "DT2",
+          "beatmapId": 1405739,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": 6.07,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Coach Qual Mappool!B11:L11"
+        }
+      ]
+    },
+    {
+      "id": "captain",
+      "name": "队长资格赛图池",
+      "source": "Captain Qual Mappool",
+      "maps": [
+        {
+          "slot": "NM1",
+          "beatmapId": 1941920,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Captain Qual Mappool!B2:L2"
+        },
+        {
+          "slot": "NM2",
+          "beatmapId": 1990317,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Captain Qual Mappool!B3:L3"
+        },
+        {
+          "slot": "NM3",
+          "beatmapId": 1869049,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": null,
+          "bpm": 230.0,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Captain Qual Mappool!B4:L4"
+        },
+        {
+          "slot": "HD1",
+          "beatmapId": 1372142,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Captain Qual Mappool!B6:L6"
+        },
+        {
+          "slot": "HR1",
+          "beatmapId": 158662,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": 5.81,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Captain Qual Mappool!B8:L8"
+        },
+        {
+          "slot": "DT1",
+          "beatmapId": 871267,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": 5.76,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Captain Qual Mappool!B10:L10"
+        },
+        {
+          "slot": "DT2",
+          "beatmapId": 1257802,
+          "title": "#N/A",
+          "mapper": null,
+          "stars": 5.92,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Captain Qual Mappool!B11:L11"
+        }
+      ]
+    },
+    {
+      "id": "gs",
+      "name": "小组赛图池",
+      "source": "GS Mappool",
+      "maps": [
+        {
+          "slot": "NM1",
+          "beatmapId": 2335916,
+          "title": "#N/A",
+          "mapper": "cyndere",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B2:L2"
+        },
+        {
+          "slot": "NM2",
+          "beatmapId": 2276016,
+          "title": "#N/A",
+          "mapper": "TheShadowOfDark",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B3:L3"
+        },
+        {
+          "slot": "NM3",
+          "beatmapId": 2321257,
+          "title": "#N/A",
+          "mapper": "Leader",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B4:L4"
+        },
+        {
+          "slot": "NM4",
+          "beatmapId": 2403914,
+          "title": "#N/A",
+          "mapper": "Realazy, Altai",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B5:L5"
+        },
+        {
+          "slot": "NM5",
+          "beatmapId": 883790,
+          "title": "#N/A",
+          "mapper": "Taeyang",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B6:L6"
+        },
+        {
+          "slot": "NM6",
+          "beatmapId": 1776935,
+          "title": "#N/A",
+          "mapper": "den0saur",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B7:L7"
+        },
+        {
+          "slot": "HD1",
+          "beatmapId": 1392665,
+          "title": "#N/A",
+          "mapper": "Pentori",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B9:L9"
+        },
+        {
+          "slot": "HD2",
+          "beatmapId": 2126751,
+          "title": "#N/A",
+          "mapper": "FCL",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B10:L10"
+        },
+        {
+          "slot": "HD3",
+          "beatmapId": 1770994,
+          "title": "#N/A",
+          "mapper": "captin1",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B11:L11"
+        },
+        {
+          "slot": "HD4",
+          "beatmapId": 1644177,
+          "title": "#N/A",
+          "mapper": "Ambient",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B12:L12"
+        },
+        {
+          "slot": "HR1",
+          "beatmapId": 1262472,
+          "title": "#N/A",
+          "mapper": "Lasse",
+          "stars": 5.37,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B14:L14"
+        },
+        {
+          "slot": "HR2",
+          "beatmapId": 2385882,
+          "title": "#N/A",
+          "mapper": "emu1337",
+          "stars": 5.17,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B15:L15"
+        },
+        {
+          "slot": "HR3",
+          "beatmapId": 2211226,
+          "title": "#N/A",
+          "mapper": "Remapper",
+          "stars": 5.74,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B16:L16"
+        },
+        {
+          "slot": "HR4",
+          "beatmapId": 2306843,
+          "title": "#N/A",
+          "mapper": "Karen",
+          "stars": 5.34,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B17:L17"
+        },
+        {
+          "slot": "DT1",
+          "beatmapId": 2065199,
+          "title": "#N/A",
+          "mapper": "moph",
+          "stars": 5.3,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B19:L19"
+        },
+        {
+          "slot": "DT2",
+          "beatmapId": 2390385,
+          "title": "#N/A",
+          "mapper": "Pandahero",
+          "stars": 5.76,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B20:L20"
+        },
+        {
+          "slot": "DT3",
+          "beatmapId": 2341755,
+          "title": "#N/A",
+          "mapper": "Yusomi",
+          "stars": 5.61,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B21:L21"
+        },
+        {
+          "slot": "DT4",
+          "beatmapId": 2126418,
+          "title": "#N/A",
+          "mapper": "Remapper",
+          "stars": 5.97,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B22:L22"
+        },
+        {
+          "slot": "DT5",
+          "beatmapId": 1939173,
+          "title": "#N/A",
+          "mapper": "ktgster",
+          "stars": 5.94,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "GS Mappool!B23:L23"
+        }
+      ]
+    },
+    {
+      "id": "es",
+      "name": "淘汰赛图池",
+      "source": "Knockout Mappool 1",
+      "maps": [
+        {
+          "slot": "NM1",
+          "beatmapId": 2182483,
+          "title": "#N/A",
+          "mapper": "semaphore, amity",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B2:L2"
+        },
+        {
+          "slot": "NM2",
+          "beatmapId": 1299913,
+          "title": "#N/A",
+          "mapper": "Su1fu7,sammish",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B3:L3"
+        },
+        {
+          "slot": "NM3",
+          "beatmapId": 2321257,
+          "title": "#N/A",
+          "mapper": "Leader",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B4:L4"
+        },
+        {
+          "slot": "NM4",
+          "beatmapId": 2321933,
+          "title": "#N/A",
+          "mapper": "Reform",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B5:L5"
+        },
+        {
+          "slot": "NM5",
+          "beatmapId": 2482069,
+          "title": "#N/A",
+          "mapper": "Fushimi Rio",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B6:L6"
+        },
+        {
+          "slot": "NM6",
+          "beatmapId": 1776935,
+          "title": "#N/A",
+          "mapper": "den0saur",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B7:L7"
+        },
+        {
+          "slot": "HD1",
+          "beatmapId": 1692633,
+          "title": "#N/A",
+          "mapper": "irotuk",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B9:L9"
+        },
+        {
+          "slot": "HD2",
+          "beatmapId": 2126751,
+          "title": "#N/A",
+          "mapper": "FCL",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B10:L10"
+        },
+        {
+          "slot": "HD3",
+          "beatmapId": 1770994,
+          "title": "#N/A",
+          "mapper": "captin1",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B11:L11"
+        },
+        {
+          "slot": "HD4",
+          "beatmapId": 1419909,
+          "title": "#N/A",
+          "mapper": "wa_",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B12:L12"
+        },
+        {
+          "slot": "HR1",
+          "beatmapId": 2452654,
+          "title": "#N/A",
+          "mapper": "papapa213",
+          "stars": 5.12,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B15:L15"
+        },
+        {
+          "slot": "HR2",
+          "beatmapId": 2427894,
+          "title": "#N/A",
+          "mapper": "deetz,Delis",
+          "stars": 5.17,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B16:L16"
+        },
+        {
+          "slot": "HR3",
+          "beatmapId": 614239,
+          "title": "#N/A",
+          "mapper": "Laurier",
+          "stars": 5.96,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B17:L17"
+        },
+        {
+          "slot": "HR4",
+          "beatmapId": 2306843,
+          "title": "#N/A",
+          "mapper": "Karen",
+          "stars": 5.34,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B18:L18"
+        },
+        {
+          "slot": "DT1",
+          "beatmapId": 2025223,
+          "title": "#N/A",
+          "mapper": "Striderin",
+          "stars": 5.36,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B21:L21"
+        },
+        {
+          "slot": "DT2",
+          "beatmapId": 2390385,
+          "title": "#N/A",
+          "mapper": "Pandahero",
+          "stars": 5.76,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B22:L22"
+        },
+        {
+          "slot": "DT3",
+          "beatmapId": 2208451,
+          "title": "#N/A",
+          "mapper": "Gust",
+          "stars": 5.35,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B23:L23"
+        },
+        {
+          "slot": "DT4",
+          "beatmapId": 2126418,
+          "title": "#N/A",
+          "mapper": "Remapper",
+          "stars": 5.97,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B24:L24"
+        },
+        {
+          "slot": "DT5",
+          "beatmapId": 2365667,
+          "title": "#N/A",
+          "mapper": "rrtyui",
+          "stars": 5.86,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B25:L25"
+        },
+        {
+          "slot": "TB1",
+          "beatmapId": 2473856,
+          "title": "#N/A",
+          "mapper": "Lasse,Delis",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Knockout Mappool 1!B27:L27"
+        }
+      ]
+    },
+    {
+      "id": "fs",
+      "name": "Final图池",
+      "source": "Final Mappool",
+      "maps": [
+        {
+          "slot": "NM1",
+          "beatmapId": 2182483,
+          "title": "#N/A",
+          "mapper": "semaphore, amity",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B2:L2"
+        },
+        {
+          "slot": "NM2",
+          "beatmapId": 1299913,
+          "title": "#N/A",
+          "mapper": "Su1fu7,sammish",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B3:L3"
+        },
+        {
+          "slot": "NM3",
+          "beatmapId": 1974602,
+          "title": "#N/A",
+          "mapper": "Mir",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B4:L4"
+        },
+        {
+          "slot": "NM4",
+          "beatmapId": 2321933,
+          "title": "#N/A",
+          "mapper": "Reform",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B5:L5"
+        },
+        {
+          "slot": "NM5",
+          "beatmapId": 2482069,
+          "title": "#N/A",
+          "mapper": "Fushimi Rio",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B6:L6"
+        },
+        {
+          "slot": "NM6",
+          "beatmapId": 2002308,
+          "title": "#N/A",
+          "mapper": "Linada",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B7:L7"
+        },
+        {
+          "slot": "NM7",
+          "beatmapId": 870323,
+          "title": "Camellia - overcomplexification [Strategas' Extra]",
+          "mapper": "Strategas",
+          "stars": 5.88,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B8:L8"
+        },
+        {
+          "slot": "HD1",
+          "beatmapId": 1692633,
+          "title": "#N/A",
+          "mapper": "irotuk",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B10:L10"
+        },
+        {
+          "slot": "HD2",
+          "beatmapId": 1863205,
+          "title": "#N/A",
+          "mapper": "coco",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B11:L11"
+        },
+        {
+          "slot": "HD3",
+          "beatmapId": 2192488,
+          "title": "#N/A",
+          "mapper": "attendant",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B12:L12"
+        },
+        {
+          "slot": "HD4",
+          "beatmapId": 1419909,
+          "title": "#N/A",
+          "mapper": "wa_",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B13:L13"
+        },
+        {
+          "slot": "HD5",
+          "beatmapId": 2116883,
+          "title": "#N/A",
+          "mapper": "pw384",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B14:L14"
+        },
+        {
+          "slot": "HR1",
+          "beatmapId": 2452654,
+          "title": "#N/A",
+          "mapper": "papapa213",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B16:L16"
+        },
+        {
+          "slot": "HR2",
+          "beatmapId": 2427894,
+          "title": "#N/A",
+          "mapper": "deetz,Delis",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B17:L17"
+        },
+        {
+          "slot": "HR3",
+          "beatmapId": 614239,
+          "title": "#N/A",
+          "mapper": "Laurier",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B18:L18"
+        },
+        {
+          "slot": "HR4",
+          "beatmapId": 1018938,
+          "title": "#N/A",
+          "mapper": "-GN",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B19:L19"
+        },
+        {
+          "slot": "HR5",
+          "beatmapId": 1937663,
+          "title": "#N/A",
+          "mapper": "AIR",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B20:L20"
+        },
+        {
+          "slot": "DT1",
+          "beatmapId": 2025223,
+          "title": "#N/A",
+          "mapper": "Striderin",
+          "stars": 5.36,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B22:L22"
+        },
+        {
+          "slot": "DT2",
+          "beatmapId": 2239032,
+          "title": "#N/A",
+          "mapper": "Niva",
+          "stars": 5.63,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B23:L23"
+        },
+        {
+          "slot": "DT3",
+          "beatmapId": 2208451,
+          "title": "#N/A",
+          "mapper": "Gust",
+          "stars": 5.35,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B24:L24"
+        },
+        {
+          "slot": "DT4",
+          "beatmapId": 2048440,
+          "title": "#N/A",
+          "mapper": "Xehn",
+          "stars": 6.0,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B25:L25"
+        },
+        {
+          "slot": "DT5",
+          "beatmapId": 2365667,
+          "title": "#N/A",
+          "mapper": "rrtyui",
+          "stars": 5.86,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B26:L26"
+        },
+        {
+          "slot": "TB1",
+          "beatmapId": 2239619,
+          "title": "#N/A",
+          "mapper": "piroshki",
+          "stars": null,
+          "bpm": null,
+          "drainSeconds": null,
+          "cs": null,
+          "ar": null,
+          "od": null,
+          "source": "Final Mappool!B28:L28"
+        }
+      ]
+    }
+  ],
+  "qualifiers": [
+    {
+      "name": "教练资格赛",
+      "poolId": "coach",
+      "source": "CoachQualify",
+      "records": [
+        {
+          "username": "EbisuzawaKurumi",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 15765070
+            },
+            {
+              "slot": "NM2",
+              "score": 12705370
+            },
+            {
+              "slot": "NM3",
+              "score": 10214430
+            },
+            {
+              "slot": "HD1",
+              "score": 15011023
+            },
+            {
+              "slot": "HR1",
+              "score": 12058103
+            },
+            {
+              "slot": "DT1",
+              "score": 17987113
+            },
+            {
+              "slot": "DT2",
+              "score": 20518228
+            }
+          ],
+          "source": "CoachQualify!A2:O2"
+        },
+        {
+          "username": "Refia Vridis",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 11071620
+            },
+            {
+              "slot": "NM2",
+              "score": 4821524
+            },
+            {
+              "slot": "NM3",
+              "score": 22951180
+            },
+            {
+              "slot": "HD1",
+              "score": 10111939
+            },
+            {
+              "slot": "HR1",
+              "score": 11400096
+            },
+            {
+              "slot": "DT1",
+              "score": 14404439
+            },
+            {
+              "slot": "DT2",
+              "score": 27913391
+            }
+          ],
+          "source": "CoachQualify!A3:O3"
+        },
+        {
+          "username": "NekoKamui",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 20593500
+            },
+            {
+              "slot": "NM2",
+              "score": 5009820
+            },
+            {
+              "slot": "NM3",
+              "score": 39949650
+            },
+            {
+              "slot": "HD1",
+              "score": 9205347
+            },
+            {
+              "slot": "HR1",
+              "score": 5370867
+            },
+            {
+              "slot": "DT1",
+              "score": 34540743
+            },
+            {
+              "slot": "DT2",
+              "score": 12794892
+            }
+          ],
+          "source": "CoachQualify!A4:O4"
+        },
+        {
+          "username": "Ask to Wind",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 14496400
+            },
+            {
+              "slot": "NM2",
+              "score": 6152964
+            },
+            {
+              "slot": "NM3",
+              "score": 11706420
+            },
+            {
+              "slot": "HD1",
+              "score": 9879660
+            },
+            {
+              "slot": "HR1",
+              "score": 6066566
+            },
+            {
+              "slot": "DT1",
+              "score": 9711751
+            },
+            {
+              "slot": "DT2",
+              "score": 21792425
+            }
+          ],
+          "source": "CoachQualify!A5:O5"
+        },
+        {
+          "username": "Anya Maki",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 19326770
+            },
+            {
+              "slot": "NM2",
+              "score": 3928525
+            },
+            {
+              "slot": "NM3",
+              "score": 27438870
+            },
+            {
+              "slot": "HD1",
+              "score": 8312703
+            },
+            {
+              "slot": "HR1",
+              "score": 3905046
+            },
+            {
+              "slot": "DT1",
+              "score": 30128772
+            },
+            {
+              "slot": "DT2",
+              "score": 21623275
+            }
+          ],
+          "source": "CoachQualify!A6:O6"
+        },
+        {
+          "username": "cplayer",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 16108280
+            },
+            {
+              "slot": "NM2",
+              "score": 2926662
+            },
+            {
+              "slot": "NM3",
+              "score": 12152830
+            },
+            {
+              "slot": "HD1",
+              "score": 3117266
+            },
+            {
+              "slot": "HR1",
+              "score": 11210128
+            },
+            {
+              "slot": "DT1",
+              "score": 7641250
+            },
+            {
+              "slot": "DT2",
+              "score": 16925272
+            }
+          ],
+          "source": "CoachQualify!A7:O7"
+        },
+        {
+          "username": "Sayori_yui",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 9652670
+            },
+            {
+              "slot": "NM2",
+              "score": 2669198
+            },
+            {
+              "slot": "NM3",
+              "score": 8951490
+            },
+            {
+              "slot": "HD1",
+              "score": 3361097
+            },
+            {
+              "slot": "HR1",
+              "score": 5921955
+            },
+            {
+              "slot": "DT1",
+              "score": 9896580
+            },
+            {
+              "slot": "DT2",
+              "score": 11293022
+            }
+          ],
+          "source": "CoachQualify!A8:O8"
+        },
+        {
+          "username": "Old K",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 6889590
+            },
+            {
+              "slot": "NM2",
+              "score": 3908608
+            },
+            {
+              "slot": "NM3",
+              "score": 18648830
+            },
+            {
+              "slot": "HD1",
+              "score": 5744128
+            },
+            {
+              "slot": "HR1",
+              "score": 4956405
+            },
+            {
+              "slot": "DT1",
+              "score": 7823579
+            },
+            {
+              "slot": "DT2",
+              "score": 11976559
+            }
+          ],
+          "source": "CoachQualify!A9:O9"
+        },
+        {
+          "username": "silly me",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 23994598
+            },
+            {
+              "slot": "NM2",
+              "score": 2255709
+            },
+            {
+              "slot": "NM3",
+              "score": 7376924
+            },
+            {
+              "slot": "HD1",
+              "score": 6506304
+            },
+            {
+              "slot": "HR1",
+              "score": 4482720
+            },
+            {
+              "slot": "DT1",
+              "score": 9094525
+            },
+            {
+              "slot": "DT2",
+              "score": 9850181
+            }
+          ],
+          "source": "CoachQualify!A10:O10"
+        },
+        {
+          "username": "vrei",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 7145520
+            },
+            {
+              "slot": "NM2",
+              "score": 4493122
+            },
+            {
+              "slot": "NM3",
+              "score": 7461240
+            },
+            {
+              "slot": "HD1",
+              "score": 2147323
+            },
+            {
+              "slot": "HR1",
+              "score": 5397379
+            },
+            {
+              "slot": "DT1",
+              "score": 8280488
+            },
+            {
+              "slot": "DT2",
+              "score": 10302108
+            }
+          ],
+          "source": "CoachQualify!A11:O11"
+        },
+        {
+          "username": "Kishin Sagume",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 7318280
+            },
+            {
+              "slot": "NM2",
+              "score": 2076696
+            },
+            {
+              "slot": "NM3",
+              "score": 7540000
+            },
+            {
+              "slot": "HD1",
+              "score": 4403092
+            },
+            {
+              "slot": "HR1",
+              "score": 7134355
+            },
+            {
+              "slot": "DT1",
+              "score": 7756486
+            },
+            {
+              "slot": "DT2",
+              "score": 10022118
+            }
+          ],
+          "source": "CoachQualify!A12:O12"
+        },
+        {
+          "username": "buhei",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 6824010
+            },
+            {
+              "slot": "NM2",
+              "score": 2102642
+            },
+            {
+              "slot": "NM3",
+              "score": 8103790
+            },
+            {
+              "slot": "HD1",
+              "score": 5843936
+            },
+            {
+              "slot": "HR1",
+              "score": 3889536
+            },
+            {
+              "slot": "DT1",
+              "score": 14306003
+            },
+            {
+              "slot": "DT2",
+              "score": 8798940
+            }
+          ],
+          "source": "CoachQualify!A13:O13"
+        },
+        {
+          "username": "ClimbingCST",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 5301670
+            },
+            {
+              "slot": "NM2",
+              "score": 1163565
+            },
+            {
+              "slot": "NM3",
+              "score": 22472560
+            },
+            {
+              "slot": "HD1",
+              "score": 3032526
+            },
+            {
+              "slot": "HR1",
+              "score": 9035587
+            },
+            {
+              "slot": "DT1",
+              "score": 4481561
+            },
+            {
+              "slot": "DT2",
+              "score": 7576646
+            }
+          ],
+          "source": "CoachQualify!A14:O14"
+        },
+        {
+          "username": "110",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 4842470
+            },
+            {
+              "slot": "NM2",
+              "score": 3587178
+            },
+            {
+              "slot": "NM3",
+              "score": 6611850
+            },
+            {
+              "slot": "HD1",
+              "score": 3978984
+            },
+            {
+              "slot": "HR1",
+              "score": 4125060
+            },
+            {
+              "slot": "DT1",
+              "score": 8511126
+            },
+            {
+              "slot": "DT2",
+              "score": 6758828
+            }
+          ],
+          "source": "CoachQualify!A15:O15"
+        }
+      ]
+    },
+    {
+      "name": "队长资格赛",
+      "poolId": "captain",
+      "source": "CaptainQualify",
+      "records": [
+        {
+          "username": "Zeph2003",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 26911932
+            },
+            {
+              "slot": "NM2",
+              "score": 5856056
+            },
+            {
+              "slot": "NM3",
+              "score": 15989664
+            },
+            {
+              "slot": "HD1",
+              "score": 22321826
+            },
+            {
+              "slot": "HR1",
+              "score": 5166485
+            },
+            {
+              "slot": "DT1",
+              "score": 7215378
+            },
+            {
+              "slot": "DT2",
+              "score": 8091710
+            }
+          ],
+          "source": "CaptainQualify!A2:O2"
+        },
+        {
+          "username": "gxytcgxytc",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 22379010
+            },
+            {
+              "slot": "NM2",
+              "score": 10580036
+            },
+            {
+              "slot": "NM3",
+              "score": 13800334
+            },
+            {
+              "slot": "HD1",
+              "score": 7795791
+            },
+            {
+              "slot": "HR1",
+              "score": 8644712
+            },
+            {
+              "slot": "DT1",
+              "score": 17021905
+            },
+            {
+              "slot": "DT2",
+              "score": 5329720
+            }
+          ],
+          "source": "CaptainQualify!A3:O3"
+        },
+        {
+          "username": "Hakumo Shiro",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 17178940
+            },
+            {
+              "slot": "NM2",
+              "score": 8086562
+            },
+            {
+              "slot": "NM3",
+              "score": 8352332
+            },
+            {
+              "slot": "HD1",
+              "score": 10757862
+            },
+            {
+              "slot": "HR1",
+              "score": 7903278
+            },
+            {
+              "slot": "DT1",
+              "score": 10893103
+            },
+            {
+              "slot": "DT2",
+              "score": 6859096
+            }
+          ],
+          "source": "CaptainQualify!A4:O4"
+        },
+        {
+          "username": "502 Bad Speed",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 40966854
+            },
+            {
+              "slot": "NM2",
+              "score": 3901216
+            },
+            {
+              "slot": "NM3",
+              "score": 10312114
+            },
+            {
+              "slot": "HD1",
+              "score": 7110129
+            },
+            {
+              "slot": "HR1",
+              "score": 11317137
+            },
+            {
+              "slot": "DT1",
+              "score": 6574223
+            },
+            {
+              "slot": "DT2",
+              "score": 6507768
+            }
+          ],
+          "source": "CaptainQualify!A5:O5"
+        },
+        {
+          "username": "Another Flower",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 19098914
+            },
+            {
+              "slot": "NM2",
+              "score": 3734824
+            },
+            {
+              "slot": "NM3",
+              "score": 8762565
+            },
+            {
+              "slot": "HD1",
+              "score": 11092680
+            },
+            {
+              "slot": "HR1",
+              "score": 5228338
+            },
+            {
+              "slot": "DT1",
+              "score": 14700797
+            },
+            {
+              "slot": "DT2",
+              "score": 3303199
+            }
+          ],
+          "source": "CaptainQualify!A6:O6"
+        },
+        {
+          "username": "Chranthem Tea",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 10870212
+            },
+            {
+              "slot": "NM2",
+              "score": 2808954
+            },
+            {
+              "slot": "NM3",
+              "score": 16297198
+            },
+            {
+              "slot": "HD1",
+              "score": 9723913
+            },
+            {
+              "slot": "HR1",
+              "score": 4321228
+            },
+            {
+              "slot": "DT1",
+              "score": 7661160
+            },
+            {
+              "slot": "DT2",
+              "score": 8182027
+            }
+          ],
+          "source": "CaptainQualify!A7:O7"
+        },
+        {
+          "username": "Texas",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 24300410
+            },
+            {
+              "slot": "NM2",
+              "score": 3691618
+            },
+            {
+              "slot": "NM3",
+              "score": 7524082
+            },
+            {
+              "slot": "HD1",
+              "score": 11307895
+            },
+            {
+              "slot": "HR1",
+              "score": 7386053
+            },
+            {
+              "slot": "DT1",
+              "score": 4897969
+            },
+            {
+              "slot": "DT2",
+              "score": 3361186
+            }
+          ],
+          "source": "CaptainQualify!A8:O8"
+        },
+        {
+          "username": "AMasochism",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 17404690
+            },
+            {
+              "slot": "NM2",
+              "score": 3709370
+            },
+            {
+              "slot": "NM3",
+              "score": 6445436
+            },
+            {
+              "slot": "HD1",
+              "score": 10647294
+            },
+            {
+              "slot": "HR1",
+              "score": 4830811
+            },
+            {
+              "slot": "DT1",
+              "score": 5093852
+            },
+            {
+              "slot": "DT2",
+              "score": 3672623
+            }
+          ],
+          "source": "CaptainQualify!A9:O9"
+        },
+        {
+          "username": "MyAngelJackWang",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 14828684
+            },
+            {
+              "slot": "NM2",
+              "score": 2575468
+            },
+            {
+              "slot": "NM3",
+              "score": 4631484
+            },
+            {
+              "slot": "HD1",
+              "score": 16005584
+            },
+            {
+              "slot": "HR1",
+              "score": 4149022
+            },
+            {
+              "slot": "DT1",
+              "score": 13197191
+            },
+            {
+              "slot": "DT2",
+              "score": 2050177
+            }
+          ],
+          "source": "CaptainQualify!A10:O10"
+        },
+        {
+          "username": "inkCake",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 7133026
+            },
+            {
+              "slot": "NM2",
+              "score": 2307628
+            },
+            {
+              "slot": "NM3",
+              "score": 11580358
+            },
+            {
+              "slot": "HD1",
+              "score": 5770158
+            },
+            {
+              "slot": "HR1",
+              "score": 4396675
+            },
+            {
+              "slot": "DT1",
+              "score": 10202902
+            },
+            {
+              "slot": "DT2",
+              "score": 3715574
+            }
+          ],
+          "source": "CaptainQualify!A11:O11"
+        },
+        {
+          "username": "Carl_X",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 9243452
+            },
+            {
+              "slot": "NM2",
+              "score": 1884620
+            },
+            {
+              "slot": "NM3",
+              "score": 4786168
+            },
+            {
+              "slot": "HD1",
+              "score": 3510332
+            },
+            {
+              "slot": "HR1",
+              "score": 10480718
+            },
+            {
+              "slot": "DT1",
+              "score": 8592086
+            },
+            {
+              "slot": "DT2",
+              "score": 5395582
+            }
+          ],
+          "source": "CaptainQualify!A12:O12"
+        },
+        {
+          "username": "qi_e",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 10585184
+            },
+            {
+              "slot": "NM2",
+              "score": 4618002
+            },
+            {
+              "slot": "NM3",
+              "score": 5407504
+            },
+            {
+              "slot": "HD1",
+              "score": 8197827
+            },
+            {
+              "slot": "HR1",
+              "score": 3419572
+            },
+            {
+              "slot": "DT1",
+              "score": 5607884
+            },
+            {
+              "slot": "DT2",
+              "score": 2013300
+            }
+          ],
+          "source": "CaptainQualify!A13:O13"
+        },
+        {
+          "username": "zmyk",
+          "scores": [
+            {
+              "slot": "NM1",
+              "score": 7572400
+            },
+            {
+              "slot": "NM2",
+              "score": 3592770
+            },
+            {
+              "slot": "NM3",
+              "score": 6552528
+            },
+            {
+              "slot": "HD1",
+              "score": 9194899
+            },
+            {
+              "slot": "HR1",
+              "score": 3335328
+            },
+            {
+              "slot": "DT1",
+              "score": 4189264
+            },
+            {
+              "slot": "DT2",
+              "score": 2392035
+            }
+          ],
+          "source": "CaptainQualify!A14:O14"
+        }
+      ]
+    }
+  ],
+  "sourceFacts": [
+    {
+      "category": "provenance",
+      "label": "來源與匯入範圍",
+      "text": "MainSheet 的 Team、賽程、圖池及資格賽原始分數。roster 僅用於隊伍名單身分對照；報名意願、私人表單欄位不匯入。所有比分尚未核准，紅藍隊待 MP 核對；不以表格左右順序冒充紅藍隊。",
+      "source": "MainSheet"
+    },
+    {
+      "category": "schedule",
+      "label": "時間與待核准結果",
+      "text": "排程按歷次歷史匯入慣例以 UTC+8 整理，原表未另標時區。34 場原始比分逐場保存在管理附錄；score 保持 null，未建立正式賽果。小組賽允許平局，現有正式賽果模型不接受平局，待相容處理。",
+      "source": "Group Schedule / Knockout Schedule / S4规则说明.pdf"
+    },
+    {
+      "category": "provenance",
+      "label": "A 原表 RANK / COST",
+      "text": "RANK = 9；欄位意義未確認，不當作最終名次。Team Cost = 4.29。",
+      "source": "Team!K5:L5"
+    },
+    {
+      "category": "provenance",
+      "label": "B 原表 RANK / COST",
+      "text": "RANK = 7；欄位意義未確認，不當作最終名次。Team Cost = 4.37。",
+      "source": "Team!K9:L9"
+    },
+    {
+      "category": "provenance",
+      "label": "C 原表 RANK / COST",
+      "text": "RANK = 3；欄位意義未確認，不當作最終名次。Team Cost = 4.6。",
+      "source": "Team!K13:L13"
+    },
+    {
+      "category": "provenance",
+      "label": "D 原表 RANK / COST",
+      "text": "RANK = 2；欄位意義未確認，不當作最終名次。Team Cost = 4.73。",
+      "source": "Team!K17:L17"
+    },
+    {
+      "category": "provenance",
+      "label": "E 原表 RANK / COST",
+      "text": "RANK = 1；欄位意義未確認，不當作最終名次。Team Cost = 5.1。",
+      "source": "Team!K21:L21"
+    },
+    {
+      "category": "provenance",
+      "label": "F 原表 RANK / COST",
+      "text": "RANK = 11；欄位意義未確認，不當作最終名次。Team Cost = 4.07。",
+      "source": "Team!K25:L25"
+    },
+    {
+      "category": "provenance",
+      "label": "G 原表 RANK / COST",
+      "text": "RANK = 10；欄位意義未確認，不當作最終名次。Team Cost = 4.15。",
+      "source": "Team!K29:L29"
+    },
+    {
+      "category": "provenance",
+      "label": "H 原表 RANK / COST",
+      "text": "RANK = 4；欄位意義未確認，不當作最終名次。Team Cost = 4.56。",
+      "source": "Team!K33:L33"
+    },
+    {
+      "category": "provenance",
+      "label": "I 原表 RANK / COST",
+      "text": "RANK = 8；欄位意義未確認，不當作最終名次。Team Cost = 4.36。",
+      "source": "Team!K37:L37"
+    },
+    {
+      "category": "provenance",
+      "label": "J 原表 RANK / COST",
+      "text": "RANK = 6；欄位意義未確認，不當作最終名次。Team Cost = 4.39。",
+      "source": "Team!K41:L41"
+    },
+    {
+      "category": "provenance",
+      "label": "K 原表 RANK / COST",
+      "text": "RANK = 5；欄位意義未確認，不當作最終名次。Team Cost = 4.55。",
+      "source": "Team!K45:L45"
+    },
+    {
+      "category": "provenance",
+      "label": "L 原表 RANK / COST",
+      "text": "RANK = 12；欄位意義未確認，不當作最終名次。Team Cost = 3.94。",
+      "source": "Team!K49:L49"
+    },
+    {
+      "category": "provenance",
+      "label": "教练资格赛图池 難度名",
+      "text": "NM1 難度名：Extra\nNM2 難度名：buhei's Extra\nNM3 難度名：woof\nHD1 難度名：Final Destination\nHR1 難度名：Expert\nDT1 難度名：Insane\nDT2 難度名：Lunatic",
+      "source": "Coach Qual Mappool"
+    },
+    {
+      "category": "provenance",
+      "label": "队长资格赛图池 難度名",
+      "text": "NM1 難度名：Dream Collab\nNM2 難度名：cub's Extra\nNM3 難度名：woof\nHD1 難度名：Time is Over\nHR1 難度名：Rin\nDT1 難度名：Insane\nDT2 難度名：Qingyi Insane",
+      "source": "Captain Qual Mappool"
+    },
+    {
+      "category": "provenance",
+      "label": "小组赛图池 難度名",
+      "text": "NM1 難度名：Cyndere's Insane\nNM2 難度名：Extra\nNM3 難度名：Extra\nNM4 難度名：Real x Altai's Extra\nNM5 難度名：Taeyang's Extra\nNM6 難度名：den0saur's Extra\nHD1 難度名：Insane\nHD2 難度名：FCL's Insane\nHD3 難度名：captin's Extra\nHD4 難度名：Ambient's Expert\nHR1 難度名：Insane\nHR2 難度名：emu's Insane\nHR3 難度名：Remapper's Extra\nHR4 難度名：Another\nDT1 難度名：Hyper\nDT2 難度名：Insane\nDT3 難度名：Insane\nDT4 難度名：Remapper's Insane\nDT5 難度名：Insane",
+      "source": "GS Mappool"
+    },
+    {
+      "category": "provenance",
+      "label": "淘汰赛图池 難度名",
+      "text": "NM1 難度名：semamity's Collab Insane\nNM2 難度名：Collab Expert\nNM3 難度名：Extra\nNM4 難度名：Reform's Extra\nNM5 難度名：Extra\nNM6 難度名：den0saur's Extra\nHD1 難度名：irotuk's expert\nHD2 難度名：FCL's Insane\nHD3 難度名：captin's Extra\nHD4 難度名：wa's Maximum\nHR1 難度名：papapa's Insane\nHR2 難度名：Collab Extra\nHR3 難度名：Laurier's Extra\nDT1 難度名：Hyper\nDT2 難度名：Insane\nDT3 難度名：Gust's Hard\nDT4 難度名：Remapper's Insane\nDT5 難度名：rrtyui's Insane\nTB1 難度名：LasseMyMommy's Compassion",
+      "source": "Knockout Mappool 1"
+    },
+    {
+      "category": "provenance",
+      "label": "Final图池 難度名",
+      "text": "NM1 難度名：semamity's Collab Insane\nNM2 難度名：Collab Expert\nNM3 難度名：Mir's Extra\nNM4 難度名：Reform's Extra\nNM5 難度名：Extra\nNM6 難度名：Linada's Extra\nNM7 難度名：Strategas' Extra\nHD1 難度名：irotuk's expert\nHD2 難度名：Extra\nHD3 難度名：Expert\nHD4 難度名：wa's Maximum\nHD5 難度名：Forgotten\nHR1 難度名：papapa's Insane\nHR2 難度名：Collab Extra\nHR3 難度名：Laurier's Extra\nHR4 難度名：-GN's pentagon\nHR5 難度名：May\nDT1 難度名：Hyper\nDT2 難度名：Insane\nDT3 難度名：Gust's Hard\nDT4 難度名：Noble\nDT5 難度名：rrtyui's Insane\nTB1 難度名：Decay",
+      "source": "Final Mappool"
+    },
+    {
+      "category": "provenance",
+      "label": "CoachQualify 原始合計與排名",
+      "text": "EbisuzawaKurumi：TOTAL 23；RANK 1\nRefia Vridis：TOTAL 23；RANK 1\nNekoKamui：TOTAL 26；RANK 3\nAsk to Wind：TOTAL 33；RANK 4\nAnya Maki：TOTAL 34；RANK 5\ncplayer：TOTAL 52；RANK 6\nSayori_yui：TOTAL 59；RANK 7\nOld K：TOTAL 59；RANK 7\nsilly me：TOTAL 61；RANK 9\nvrei：TOTAL 68；RANK 10\nKishin Sagume：TOTAL 69；RANK 11\nbuhei：TOTAL 72；RANK 12\nClimbingCST：TOTAL 75；RANK 13\n110：TOTAL 81；RANK 14",
+      "source": "CoachQualify!A:R"
+    },
+    {
+      "category": "provenance",
+      "label": "CaptainQualify 原始合計與排名",
+      "text": "Zeph2003：TOTAL 25；RANK 1\ngxytcgxytc：TOTAL 28；RANK 2\nHakumo Shiro：TOTAL 32；RANK 3\n502 Bad Speed：TOTAL 36；RANK 4\nAnother Flower：TOTAL 39；RANK 5\nChranthem Tea：TOTAL 45；RANK 6\nTexas：TOTAL 48；RANK 7\nAMasochism：TOTAL 56；RANK 8\nMyAngelJackWang：TOTAL 60；RANK 9\ninkCake：TOTAL 62；RANK 10\nCarl_X：TOTAL 62；RANK 10\nqi_e：TOTAL 69；RANK 12\nzmyk：TOTAL 75；RANK 13",
+      "source": "CaptainQualify!A:R"
+    },
+    {
+      "category": "provenance",
+      "label": "Damage — ELO上升榜",
+      "text": "原表歷史統計，未重新計算或當作現行評級。\nPinkHeart：393\nmoe nyannyan：290\nna-gi：228\nDnwings：213\ngxytcgxytc：170\nTanakaTanashi：170\nAurora_fang：168\nNo rank：166\nExSPer：163\nMoneyBlue：160\nEuropix：152\nCurriescaz：133\n970：131\nMonoblos-：130\nKobeNanami：128\nNECROkuang：126\nFungus OVO：123\nFledin：120\nRairakkuhana：117\n[ Emiya ]：109\nshporu：105\nB C：99\nShiinaR：93\nCUWAN：85\nMuziyami：81\nMy Fate Arrives：69\nReecho：67\n-xxx Rumia-：56\nPhirida：56\nDDIsokaze：52\nBanana skin：33\nWatera1：18\nMangent：8\n[ Natsu ]：5\nGuozi on Osu：-8\nDuraaa：-13\nAsaotome：-16\nMichka：-18\n[1552828]：-25\nliunian1551：-41\ndjsiyfau：-45\niwajef：-45\n-Yozakura-：-46\nLifcoach：-47\nZh_Jk：-49\nCarl_X：-55\npyj123mxd：-63\nClivery_V：-64\nChina-Mitsuha：-67\nUspor Su：-72\nMmmartellz：-85\nNoirMei：-87\nqi_e：-107\nqqq xing：-116\nShiori_suki：-120\nsakiyi：-126\nMyAngelJackWang：-133\nRosaVerrine：-134\nMerry Christmas：-143\nCardigan Corgi：-144\nHakumo Shiro：-152\n924233086：-155\n[K I D]：-156\n[RyuZu]：-157\nMikako：-165\nChranthem Tea：-173\n-Artemis：-174\nApril_23：-175\nzmyk：-191\nMyAngelsakiyi：-204\nToruta：-218\nAMasochism：-239",
+      "source": "Damage!A2:J73"
+    },
+    {
+      "category": "provenance",
+      "label": "Damage — 总输出榜",
+      "text": "原表歷史統計，未重新計算或當作現行評級。\ngxytcgxytc：616316436\nmoe nyannyan：550304321\nDnwings：517920132\n970：497588173\nWatera1：454955785\nTanakaTanashi：428695531\nCurriescaz：426751428\nPinkHeart：414457018\nB C：357494127\nMoneyBlue：349868126\nMy Fate Arrives：343588749\nNo rank：322813337\n924233086：319846676\nFledin：311652633\nNECROkuang：303088462\nDDIsokaze：295501101\nCarl_X：288339328\niwajef：286057000\nMichka：278332099\nna-gi：277056717\nShiinaR：266552321\nMangent：258765183\nEuropix：246691560\nMyAngelJackWang：244346800\nRairakkuhana：242557120\nLifcoach：228605368\nCUWAN：227252439\nMonoblos-：217566401\nshporu：215540762\nKobeNanami：202715664\nzmyk：198705968\nApril_23：195247758\n[1552828]：189396190\nReecho：183671626\npyj123mxd：174317889\n[ Natsu ]：169068659\nUspor Su：164908261\nMerry Christmas：162671274\n-xxx Rumia-：162212840\nGuozi on Osu：153452785\nAMasochism：152979777\nDuraaa：151511758\nsakiyi：143919775\n-Artemis：142135833\nAsaotome：134461718\nExSPer：130194380\nHakumo Shiro：125277935\nMyAngelsakiyi：124568899\nqi_e：119341642\n[ Emiya ]：119050182\n[K I D]：116207078\nChranthem Tea：109874803\nMuziyami：107908328\nClivery_V：85978454\nMikako：82924980\nBanana skin：77802814\nToruta：77505402\nRosaVerrine：70910636\nMmmartellz：64508838\nqqq xing：62689085\ndjsiyfau：61566203\nCardigan Corgi：58566623\nChina-Mitsuha：55300701\nliunian1551：52264690\nShiori_suki：29499299\nFungus OVO：26894373\nZh_Jk：24945102\n[RyuZu]：24037397\nAurora_fang：19098236\n-Yozakura-：16967870\nNoirMei：16029327\nPhirida：5022976",
+      "source": "Damage!A2:J73"
+    },
+    {
+      "category": "provenance",
+      "label": "Damage — 平均输出榜",
+      "text": "原表歷史統計，未重新計算或當作現行評級。\n970：15078429.4848\nPinkHeart：14291621.3103\ngxytcgxytc：13695920.8\n-xxx Rumia-：12477910.7692\niwajef：12437260.8696\nDnwings：12044654.2326\nMangent：11250660.1304\n[1552828]：11140952.3529\nRairakkuhana：11025323.6364\nMy Fate Arrives：10737148.4063\n924233086：10661555.8667\nCUWAN：10329656.3182\nmoe nyannyan：10190820.7593\nNECROkuang：10102948.7333\nMoneyBlue：9996232.1714\nTanakaTanashi：9969663.5116\nCurriescaz：9698896.0909\n[K I D]：9683923.1667\nWatera1：9679910.3191\nB C：9662003.4324\nna-gi：9553679.8966\nEuropix：9488136.9231\npyj123mxd：9174625.7368\nsakiyi：8994985.9375\nNo rank：8967037.1389\nFledin：8904360.9429\nKobeNanami：8813724.5217\nCarl_X：8737555.3939\nMichka：8697878.0938\nUspor Su：8679382.1579\nGuozi on Osu：8525154.7222\nDDIsokaze：8442888.6\nMyAngelJackWang：8425751.7241\nShiinaR：8329760.0313\nMonoblos-：8058014.8519\n[ Natsu ]：8050888.5238\n-Artemis：7896435.1667\nClivery_V：7816223.0909\nMerry Christmas：7746251.1429\nMuziyami：7707737.7143\nshporu：7697884.3571\nExSPer：7658492.9412\nReecho：7652984.4167\nLifcoach：7620178.9333\nAsaotome：7470095.4444\nAMasochism：7284751.2857\nDuraaa：7214845.619\nzmyk：7096641.7143\n[ Emiya ]：7002951.8824\nqqq xing：6965453.8889\ndjsiyfau：6840689.2222\nHakumo Shiro：6593575.5263\nCardigan Corgi：6507402.5556\nChranthem Tea：6463223.7059\nBanana skin：5984831.8462\nMikako：5923212.8571\nRosaVerrine：5909219.6667\nApril_23：5578507.3714\nChina-Mitsuha：5530070.1\nMyAngelsakiyi：4982755.96\nqi_e：4972568.4167\nMmmartellz：4962218.3077\nToruta：4844087.625\n[RyuZu]：4807479.4\nliunian1551：4751335.4545\nFungus OVO：4482395.5\n-Yozakura-：4241967.5\nShiori_suki：4214185.5714\nZh_Jk：4157517\nNoirMei：4007331.75\nAurora_fang：3819647.2\nPhirida：2511488",
+      "source": "Damage!A2:J73"
+    },
+    {
+      "category": "provenance",
+      "label": "Damage — 什么斗力v2.1",
+      "text": "原表歷史統計，未重新計算或當作現行評級。\nPinkHeart：17642\n970：15610\n502 Bad Speed：15505\n[1552828]：14883\nB C：14838\ngxytcgxytc：13561\nDnwings：13488\nCurriescaz：13040\nMuziyami：12911\nhakumo shiro：12845\nAnother Flower：12695\nMoneyBlue：12542\nna-gi：12231\n[ Emiya ]：12224\nMonoblos：12084\nCUWAN：11669\nMyAngelJackWang：11166\nReecho：11126\n924233086：11050\n[ Natsu ]：10883\nCarl_X：10852\nNo rank：10813\nmoe nyannyan：10483\nEuropix：10442\nMangent：10368\nChranthem Tea：10292\nDDIsokaze：10134\nWatera1：10096\nRairakkuhana：9977\n-xxx Rumia-：9897\nFledin：9772\nMichka：9746\nuspor su：9645\nShiinar：9601\nGreySTrip_VoV：9590\nAMasochism：9213\nMerry Christmas：9159\nzmyk：9146\nKobeNanami：9082\nshporu：9053\nqi_e：8988\nCardigan Corgi：8795\nMmmushroomTz：8487\nRosaVerrine：8476\nClivery_V：8353\n-Artemis：8330\ndjsiyfau：8213\ntoruta：8170\nMyoi Mina：8095\nMikako：8081\nNECROkuang：7977\nbanana skin：7869\nGuozi on Osu：7808\nDuraaa：7793\nTexas：7492\nAsaotome：7409\nExSPer：7303\nqqq xing：7165\npyj123mxd：6963\napril_23：6875\nMyAngelsakiyi：6852\n[RyuZu]：6331\nMisshime：6122\nZh_Jk：6069\ninkCake：5931\nliunian1551：5431\nMyAngelMitsuha：5301\n[K I D]：5044\nAurora_fang：4905\n-Yozakura-：4857\nPhirida：4686\nFungus OVO：4526",
+      "source": "Damage!A2:J73"
+    },
+    {
+      "category": "review",
+      "label": "A1 B–L 原始結果",
+      "text": "6:2；錄像原欄位：1Kk4y1z7f4。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A2:K2"
+    },
+    {
+      "category": "review",
+      "label": "A2 C–A 原始結果",
+      "text": "6:2；錄像原欄位：1cv41167zQ。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A3:K3"
+    },
+    {
+      "category": "review",
+      "label": "A3 D–K 原始結果",
+      "text": "6:1；錄像原欄位：1qK4y1x759。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A4:K4"
+    },
+    {
+      "category": "review",
+      "label": "A4 E–J 原始結果",
+      "text": "6:0；錄像原欄位：1Zp4y1S7hy。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A5:K5"
+    },
+    {
+      "category": "review",
+      "label": "A5 F–I 原始結果",
+      "text": "5:5；錄像原欄位：1aQ4y1P7AD。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A6:K6"
+    },
+    {
+      "category": "review",
+      "label": "A6 G–H 原始結果",
+      "text": "4:6；錄像原欄位：1ga4y1v7Ne。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A7:K7"
+    },
+    {
+      "category": "review",
+      "label": "A7 G–I 原始結果",
+      "text": "3:6；錄像原欄位：空白。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A8:K8"
+    },
+    {
+      "category": "review",
+      "label": "A8 H–F 原始結果",
+      "text": "6:4；錄像原欄位：1va4y1Y76J。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A9:K9"
+    },
+    {
+      "category": "review",
+      "label": "A9 K–L 原始結果",
+      "text": "6:4；錄像原欄位：1Dk4y1z7db。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A10:K10"
+    },
+    {
+      "category": "review",
+      "label": "A10 J–A 原始結果",
+      "text": "5:5；錄像原欄位：1Yz4y1Q7qZ。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A11:K11"
+    },
+    {
+      "category": "review",
+      "label": "A11 C–E 原始結果",
+      "text": "5:5；錄像原欄位：1KD4y1Q777。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A12:K12"
+    },
+    {
+      "category": "review",
+      "label": "A12 B–D 原始結果",
+      "text": "6:0；錄像原欄位：1jV411k7up。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A13:K13"
+    },
+    {
+      "category": "review",
+      "label": "A13 A–K 原始結果",
+      "text": "3:6；錄像原欄位：1r54y1B73s。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A14:K14"
+    },
+    {
+      "category": "review",
+      "label": "A14 E–D 原始結果",
+      "text": "6:4；錄像原欄位：1Bk4y1z7Ku。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A15:K15"
+    },
+    {
+      "category": "review",
+      "label": "A15 F–J 原始結果",
+      "text": "6:0；錄像原欄位：爆炸哥忘录了!。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A16:K16"
+    },
+    {
+      "category": "review",
+      "label": "A16 L–G 原始結果",
+      "text": "6:0；錄像原欄位：1r5411W7D8。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A17:K17"
+    },
+    {
+      "category": "review",
+      "label": "A17 C–I 原始結果",
+      "text": "5:5；錄像原欄位：1zi4y1x73V。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A18:K18"
+    },
+    {
+      "category": "review",
+      "label": "A18 B–H 原始結果",
+      "text": "6:1；錄像原欄位：18v41167NN。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A19:K19"
+    },
+    {
+      "category": "review",
+      "label": "A19 C–F 原始結果",
+      "text": "6:2；錄像原欄位：1YT4y1776F。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A20:K20"
+    },
+    {
+      "category": "review",
+      "label": "A20 I–D 原始結果",
+      "text": "5:5；錄像原欄位：1ck4y167kF。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A21:K21"
+    },
+    {
+      "category": "review",
+      "label": "A21 A–L 原始結果",
+      "text": "1:6；錄像原欄位：av456144081。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A22:K22"
+    },
+    {
+      "category": "review",
+      "label": "A22 G–J 原始結果",
+      "text": "FF:；錄像原欄位：無。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。G 欄位為 FF，J 比分空白，不補造比分。",
+      "source": "Group Schedule!A23:K23"
+    },
+    {
+      "category": "review",
+      "label": "A23 H–K 原始結果",
+      "text": "4:6；錄像原欄位：1rt4y197sc。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A24:K24"
+    },
+    {
+      "category": "review",
+      "label": "A24 B–E 原始結果",
+      "text": "6:1；錄像原欄位：無。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Group Schedule!A25:K25"
+    },
+    {
+      "category": "review",
+      "label": "K1 B–E 原始結果",
+      "text": "5:6；錄像原欄位：1Vz4y1X7VN。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A2:K2"
+    },
+    {
+      "category": "review",
+      "label": "K2 C–K 原始結果",
+      "text": "6:2；錄像原欄位：1q5411Y7tm。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A3:K3"
+    },
+    {
+      "category": "review",
+      "label": "K3 D–I 原始結果",
+      "text": "5:6；錄像原欄位：1xT4y177e1。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A4:K4"
+    },
+    {
+      "category": "review",
+      "label": "K4 H–L 原始結果",
+      "text": "2:6；錄像原欄位：16D4y1Q78d。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A5:K5"
+    },
+    {
+      "category": "review",
+      "label": "K5 C–E 原始結果",
+      "text": "1:6；錄像原欄位：1wC4y1h7Np。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A6:K6"
+    },
+    {
+      "category": "review",
+      "label": "K6 I–K 原始結果",
+      "text": "6:4；錄像原欄位：1ip4y1S7Kb。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A7:K7"
+    },
+    {
+      "category": "review",
+      "label": "K7 B–L 原始結果",
+      "text": "6:1；錄像原欄位：1yA411e7Qv。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A8:K8"
+    },
+    {
+      "category": "review",
+      "label": "K8 I–B 原始結果",
+      "text": "5:6；錄像原欄位：1Ka4y1a7hw。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A9:K9"
+    },
+    {
+      "category": "review",
+      "label": "K9 B–C 原始結果",
+      "text": "7:4；錄像原欄位：1d5411h7sP。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A10:K10"
+    },
+    {
+      "category": "review",
+      "label": "K10 B–E 原始結果",
+      "text": "4:7；錄像原欄位：1cz4y1Q7s9。按表格保存，尚未核對 MP 紅藍隊、逐局及錄像標題。",
+      "source": "Knockout Schedule!A11:K11"
+    },
+    {
+      "category": "rules",
+      "label": "赛程规则",
+      "text": "1. 比赛采用 score v1 计分系统，fail 计算分数，但是 teamfail 判负。\n2. 比赛模式为 3v3。\n3. 比赛将分为小组赛和双败淘汰赛两个阶段。\n4. 图池规模为 6Freemod，4HD，4HR，5DT，仅淘汰赛有 TB。\n\n小组赛(瑞士轮)\n1. 第一轮按队长资格赛结果分组，之后按同分规则分组（第一轮的胜者打胜者，平局打平局…）\n2. BO10 无 TB，队伍 EXTRA 模式额度为 2。\n3. 胜者积 2 分，平局积 1 分，败者不得分。出现平分依次看胜负关系、小分。\n4. 四轮结束，总分最后 4 名将被直接淘汰，前 4 名进入胜者组，其余 4 名进入败者组。\n\n淘汰赛\n1. 非决赛为 BO11，EXTRA 模式额度为 2。\n2. 决赛 BO13，EXTRA 模式额度为 2.5。（一方用完后可以使用的公共额度，只能使用一次）\n3. 淘汰赛阶段为双败淘汰制。\n4. 总决赛无重赛阶段(bracket reset)，即该局胜者为本届比赛冠军。",
+      "source": "OCLR S4规则说明.pdf"
+    },
+    {
+      "category": "rules",
+      "label": "比赛规则",
+      "text": "图池\n1. Freemod(NM)允许单 mod 或不开启 mod，如 HD,HR,EZ，但不允许 mod 组合。\n2. HD,HR,DT 仅允许对应 mod，HR 允许非上场人员挂 NF 防止 teamfail 的行为，但需提前和裁判说明。\n3. TB 为允许任意 mod，如 HDHR。\n4. 除 TB 外，其他类别前两图均为 EX 图，选图时可消耗额度开启 EX 模式，在此模式下队长和副队长不可上场。\n5. 对手选择 EX 图但不开 EX 模式时，己方可强制开启 EX（消耗对手额度，当对手和公告额度用完时无法开启）。\n\n流程\n1. 裁判会提前 5-10 分钟建立房间并邀请双方队长进入房间，队长有责任邀请该队玩家进入房间。 a. 如遇队长不在线情况，裁判将邀请副队长或者队员进入房间，此时被邀请者拥有上述义务。\n2. 每个队将有 15 分钟邀请该队至少 4 人进入房间，如超过时间未有 4 人进入房间则判负。\n3. 热手图需在 5 分钟内。 a. 若某个队伍在 10 分钟内未能邀请至少四人进入房间则取消该队热手资格。\n4. 除了热手阶段，裁判将不会将房主给队长。ban 与 pick 队长或副队长需要给出可识别的图名或编号。 a. BAN 图建议比赛前商议，每次仅提供 60 秒进行 BAN 图。\n5. 热手图结束后，队长 roll 点，大者决定 BP 顺序（先 ban 后选，先选后 ban)\n6. 每队在第 1pick 前与第 1pick 后分别有一次 ban 图权(即 ban->pick->ban->pick->pick…)，队伍允许 ban 同 mod 图。\n7. 每个队伍进行 BAN 和 PICK 操作时限分别为 1 分钟和 2 分钟，如果超过时间，将自动放弃 BAN 图资格或者随机 PICK 一张（由裁判进行）。 a. 只有队长或者副队长才能进行 ban/pick 操作。 b. 如果有延迟情况请让队友在倒计时结束前告知裁判。 c. 每个图池前两图标记为 EX，可开启 EX 模式。EX 模式下队长与副队长不可上场，选图时务必与裁判特别说明开启此模式。\n8. 图被选定后两队有 3 分钟更换队员上场，如果 3 分钟到后有队伍未到齐，裁判需输入“!mp start 30”指令，比赛将在 30 秒后强制开始。 a. 如有延迟情况请提前告知裁判，可推迟 3 分钟。 b. 强制开始导致的某方队员未能到齐情况不予重赛。\n9. 如果出现网络问题，可以申请在比赛群内 BP。\n10. 如有掉线情况，可选择重赛，但每队每场比赛只有一次重赛机会。 a. 如果分差超过一个 SS，不予重赛",
+      "source": "OCLR S4规则说明.pdf"
+    },
+    {
+      "category": "rules",
+      "label": "赛程安排",
+      "text": "1. 小组赛：6 月 6 日-6 月 28 日 | Best of 10\n2. 1/4 决赛：7 月 4 日-7 月 5 日 | Best of 11\n3. 半决赛：7 月 11 日-7 月 12 日 | Best of 11\n4. 决赛：待定 | Best of 13",
+      "source": "OCLR S4规则说明.pdf"
+    },
+    {
+      "category": "rules",
+      "label": "STAFF",
+      "text": "Explosive，Prophet，VRainbow 还有茶水间的各位！",
+      "source": "OCLR S4规则说明.pdf"
+    },
+    {
+      "category": "review",
+      "label": "未確認 UID",
+      "text": "Pigeons、Monoblos-、Refia Vridis、NoirMei、TaneshimaPopura。僅合併大小寫及空白差異可唯一匹配的 roster 名稱；其餘不推斷改名。",
+      "source": "Team / roster"
+    },
+    {
+      "category": "review",
+      "label": "圖池對應與缺漏",
+      "text": "各圖池原樣保留。譜面標題缺失保持 null；難度名不冒充曲名。Knockout Mappool 1 的空白 HD5/HR5 不當作譜面。比賽 poolId 待 MP 使用圖核對後補入。",
+      "source": "MainSheet mappools"
+    },
+    {
+      "category": "review",
+      "label": "排名證據衝突",
+      "text": "淘汰賽結果導出 E 冠軍、B 亞軍、C 季軍、I 第四、K/L 並列第五、D/H 並列第七；Team 的 RANK 與此不符，意義未確認。尚未核准或寫入正式排名。",
+      "source": "Team / Knockout Schedule"
+    }
+  ]
+}

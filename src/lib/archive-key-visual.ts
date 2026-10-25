@@ -2,6 +2,11 @@ import type { HistoricalArchive } from "./historical-archive";
 
 const visuals: Record<string, { src: string; width: number; height: number }> =
   {
+    "1QqF8leIqov2l3loi92hFHu82HEuplb9Iau2zPNUcySk": {
+      src: "/archive/s4/key-visual.avif",
+      width: 1728,
+      height: 1080,
+    },
     "100CrQhmcX3lQ_7yn4xcP3cC316A7t35wK6kGfSW2tyM": {
       src: "/archive/s5/key-visual.png",
       width: 1920,
@@ -34,7 +39,7 @@ export function archiveKeyVisual<
   const url = new URL(archive.sourceUrl);
   const sheet =
     url.hostname === "docs.google.com"
-      ? /^\/spreadsheets\/d\/([^/]+)\/edit$/.exec(url.pathname)?.[1]
+      ? /^\/spreadsheets\/d\/([^/]+)(?:\/edit)?$/.exec(url.pathname)?.[1]
       : undefined;
   const original =
     archive.sourceUrl === "https://github.com/OCLR-dev/OCLR-website/issues/289"

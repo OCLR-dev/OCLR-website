@@ -70,6 +70,7 @@ export const editionSchema = z
             "/archive/s7/key-visual.jpg",
             "/archive/s6/key-visual.jpg",
             "/archive/s5/key-visual.png",
+            "/archive/s4/key-visual.avif",
           ])
           .nullable(),
         background: z.enum(["/oclr-s11-website-background.webp"]).nullable(),
@@ -79,6 +80,7 @@ export const editionSchema = z
             "/archive/s7/key-visual.jpg",
             "/archive/s6/key-visual.jpg",
             "/archive/s5/key-visual.png",
+            "/archive/s4/key-visual.avif",
           ])
           .nullable(),
       })
