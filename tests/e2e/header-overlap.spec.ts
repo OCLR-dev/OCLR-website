@@ -92,6 +92,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
       "manga-halftone",
       "glassmorphism",
       "esports-broadcast",
+      "retro-arcade",
     ]) {
       test(`header overlays ${locale} ${theme} ${appearance}`, async ({
         page,

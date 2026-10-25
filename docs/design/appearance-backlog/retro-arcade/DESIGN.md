@@ -1,6 +1,6 @@
 # D — 街機復古風 / Retro Arcade
 
-追蹤：[#236](https://github.com/PhoenixEmik/OCLR-website/issues/236) · **P3** · 未實作／未註冊為正式 appearance。
+追蹤：[#236](https://github.com/PhoenixEmik/OCLR-website/issues/236) · **P3** · 已註冊為正式 appearance `retro-arcade`，見文末「正式實作」。
 
 ## 視覺主張與範圍
 
@@ -123,3 +123,15 @@
 - forced colors 降級通過。
 - [Desktop Light](desktop-light.webp)／[Dark](desktop-dark.webp)；[Mobile Light](mobile-light.webp)／[Dark](mobile-dark.webp)。
 - [本款機器可讀報告](verification.json)。這些結果只涵蓋離線 CSS specimen，未驗收正式頁面、三語、DB migration 或部署。
+
+## 正式實作（#236）
+
+正式樣式位於 [src/app/arcade-theme.css](../../../../src/app/arcade-theme.css)，以 `html[data-appearance="retro-arcade"] .themed-site` 為範圍；OBS／presenter 不受影響。下列為與上方候選 CSS 的差異：
+
+- **明暗都是深色機台。**暗版為黑色（`#050508`）；亮版依貢獻者審閱改為略亮一階的深靛色（`#15122b`），而非候選的米白紙色，讓「黑底街機」在兩種模式下都成立。header 在兩種模式皆為黑色跑馬燈並帶 4px 黃線。此處與 issue「補亮色版」的字面要求不同，需主辦方確認。
+- **黃／青／洋紅三色固定分工，修正多色搶焦。**黃色：主要動作底色與跑馬燈線；青色：目前選取游標塊、連結、鍵盤焦點、主視覺 4px 外框與霓虹分段線；洋紅：只作裝飾（硬陰影、小標籤），不表示任何狀態。success／warning／danger 另用綠、橙、紅，與互動主色明確區分。所有文字 ≥4.5:1，控制邊框與焦點 ≥3:1。
+- **方角、4px 框與硬陰影，但不疊框。**全站 0px 方角（含頭像、指示點）。主要按鈕 2px 邊框 + 4px 洋紅硬陰影，按下時陷入陰影；主視覺橫幅 4px 青框 + 洋紅硬陰影；彈出選單與對話框 2px 邊框 + 硬陰影。面板與卡片 2px 邊，表格與密集資料列只保留細線。
+- **霓虹分段。**區塊標題底線、規則章節分隔、圖池發佈標題、首頁「過往賽事」與 footer 上緣改為 4px 青色分段線；進度條同樣為分段能量條。
+- **像素字（含中文）。**頁面 h1 與區塊 h2：拉丁字元用 [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P)（SIL OFL 1.1，保留字型名稱，原檔不修改打包），中文用 [Fusion Pixel Font](https://github.com/TakWolf/fusion-pixel-font) 12px（SIL OFL 1.1，無保留字型名稱，原檔不修改打包，含 Ark Pixel、Cubic 11、Galmuri 授權）。其餘所有文字（導覽、按鈕、標籤、內文、表格、表單欄位與譜面／隊伍／新聞標題）皆使用 Fusion Pixel：小字落在原生 12px，內文 16px，標題 48／36／24px。每頁只載入該語系的一個 Fusion 檔（約 0.7 MB），無遠端字體請求。全站像素字為貢獻者審閱時的要求，與 issue「不可影響內文、中文與譜面名稱可讀性」的原始限制不同，需主辦方確認。
+- **掃描線只在裝飾區。**只在空狀態與 footer 帶以靜態低對比掃描線出現；關閉後仍可辨識本風格。無閃爍、游標閃爍或循環動畫；`prefers-reduced-motion` 取消按壓位移與過渡，`forced-colors` 移除陰影、分段線與掃描線並改用系統邊線。
+- **首頁 header。**選用本外觀時，首頁 header 同樣為黑色跑馬燈；其他外觀仍保留 S11 首頁配色。

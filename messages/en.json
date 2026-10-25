@@ -2222,6 +2222,8 @@
     "md97239a628a7": "Add reaction",
     "m54bc3777749b": "Choose an emoji",
     "me7ff1ff018e4": "Information page",
+    "m3ddab86da3a0": "Read the current tournament's {informationPage} for registration dates, eligibility and the schedule.",
+    "m50d5eac6519c": ". The community shares tournament announcements, team discussions and multiplayer sessions. Open {informationPage} in the header for this season's registration and stages.",
     "mce42f2a22242": "Wiki articles",
     "mee9fb34b64dd": "Tournament organizers",
     "m3fb7b39416f1": "Developer",
@@ -2589,7 +2591,6 @@
     "m29c2670bb584": "Manga halftone",
     "m5d1490338949": "Glassmorphism",
     "m8c9d5a67a578": "Esports broadcast",
-    "m3ddab86da3a0": "Read the current tournament's {informationPage} for registration dates, eligibility and the schedule.",
-    "m50d5eac6519c": ". The community shares tournament announcements, team discussions and multiplayer sessions. Open {informationPage} in the header for this season's registration and stages."
+    "mc38ddca8c466": "Retro arcade"
   }
 }

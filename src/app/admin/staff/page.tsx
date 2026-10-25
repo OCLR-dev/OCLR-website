@@ -90,8 +90,11 @@ export default async function StaffPage({
                     )
                   }
                 >
-                  <details>
-                    <summary>{tr("Edit roles")}</summary>
+                  <section
+                    className="staff-role-editor"
+                    aria-label={`${tr("Edit roles")} · ${username} · ${first.userId}`}
+                  >
+                    <h4>{tr("Edit roles")}</h4>
                     <StaffRoleForm
                       key={rows
                         .map(({ grant }) => grant.id)
@@ -111,7 +114,7 @@ export default async function StaffPage({
                         })),
                       }}
                     />
-                  </details>
+                  </section>
                   {rows.map(({ grant: g }) => (
                     <div className="spaced" key={g.id}>
                       <p>

@@ -295,6 +295,13 @@
       "when": 1792909142511,
       "tag": "0041_esports_broadcast_appearance",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1792910157592,
+      "tag": "0042_retro_arcade_appearance",
+      "breakpoints": true
     }
   ]
 }

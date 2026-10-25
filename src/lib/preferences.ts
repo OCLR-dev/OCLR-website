@@ -11,6 +11,7 @@ export const appearances = [
   "manga-halftone",
   "glassmorphism",
   "esports-broadcast",
+  "retro-arcade",
 ] as const;
 export type Appearance = (typeof appearances)[number];
 export const appearanceCookie = "oclr-appearance";

@@ -1570,7 +1570,8 @@
               "claymorphism",
               "manga-halftone",
               "glassmorphism",
-              "esports-broadcast"
+              "esports-broadcast",
+              "retro-arcade"
             ]
           },
           "defaultLocale": { "type": "string", "const": "zh-Hans" },
@@ -1730,7 +1731,8 @@
                   "claymorphism",
                   "manga-halftone",
                   "glassmorphism",
-                  "esports-broadcast"
+                  "esports-broadcast",
+                  "retro-arcade"
                 ]
               },
               { "type": "null" }
@@ -2579,7 +2581,8 @@
                   "claymorphism",
                   "manga-halftone",
                   "glassmorphism",
-                  "esports-broadcast"
+                  "esports-broadcast",
+                  "retro-arcade"
                 ]
               },
               { "type": "null" }
@@ -2773,7 +2776,8 @@
                     "claymorphism",
                     "manga-halftone",
                     "glassmorphism",
-                    "esports-broadcast"
+                    "esports-broadcast",
+                    "retro-arcade"
                   ]
                 },
                 { "type": "null" }
@@ -2963,7 +2967,8 @@
                       "claymorphism",
                       "manga-halftone",
                       "glassmorphism",
-                      "esports-broadcast"
+                      "esports-broadcast",
+                      "retro-arcade"
                     ]
                   },
                   { "type": "null" }
@@ -3476,7 +3481,8 @@
                     "claymorphism",
                     "manga-halftone",
                     "glassmorphism",
-                    "esports-broadcast"
+                    "esports-broadcast",
+                    "retro-arcade"
                   ]
                 },
                 { "type": "null" }
