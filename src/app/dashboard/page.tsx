@@ -1,3 +1,4 @@
+import { publicPlayer } from "@/lib/players";
 import { applicationAnswers } from "@/lib/application-answers";
 import { getAppTranslations } from "@/i18n/server";
 import Link from "next/link";
@@ -27,9 +28,10 @@ export default async function Dashboard({
 
   const user = await currentUser();
   if (!user) redirect("/login");
-  const [applications, snapshot] = await Promise.all([
+  const [applications, snapshot, publishedParticipation] = await Promise.all([
     playerApplications(user.osuId),
     getOsuUserProfile(user.osuId, "osu").catch(() => null),
+    publicPlayer(user.osuId),
   ]);
   const profile = snapshot?.profile;
   const country = profile?.countryCode;
@@ -86,6 +88,23 @@ export default async function Dashboard({
               {tr("osu! ID: ")}
               {user.osuId}
             </p>
+            {publishedParticipation.length ? (
+              <p className="small">
+                <Link
+                  className="text-link"
+                  href={`/players/${user.osuId}`}
+                  prefetch={false}
+                >
+                  {tr("OCLR profile")} →
+                </Link>
+              </p>
+            ) : (
+              <p className="muted small">
+                {tr(
+                  "Your OCLR profile is available after you have public tournament participation.",
+                )}
+              </p>
+            )}
             {country && (
               <p className="small">
                 <span

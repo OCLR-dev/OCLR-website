@@ -87,10 +87,13 @@ export function EventPlayers({
                           p.name
                         )}
                       </h3>
-                      <span className="muted">
-                        {p.captain && byTeam ? "Captain" : "osu!"}{" "}
-                        {byTeam && p.team ? `· ${p.team}` : ""}
-                      </span>
+                      {byTeam && (p.captain || p.team) && (
+                        <span className="muted">
+                          {p.captain ? "Captain" : ""}
+                          {p.captain && p.team ? " · " : ""}
+                          {p.team ?? ""}
+                        </span>
+                      )}
                       {p.href && (
                         <Link
                           className="text-link small"
