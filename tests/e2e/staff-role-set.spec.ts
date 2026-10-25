@@ -27,7 +27,9 @@ test.describe("staff multi-role editing (#260)", () => {
       }),
     });
     await expect(group).toHaveCount(1);
-    await group.getByText("Edit roles", { exact: true }).click();
+    await expect(
+      group.getByRole("button", { name: "Save roles", exact: true }),
+    ).toBeVisible();
     await expect(
       group.getByRole("checkbox", { name: "Mappooler", exact: true }),
     ).toBeChecked();
@@ -45,7 +47,9 @@ test.describe("staff multi-role editing (#260)", () => {
     await expect(page.getByRole("dialog")).not.toBeVisible();
     await expect(group.locator("p").first()).toContainText("tester");
     await page.reload();
-    await group.getByText("Edit roles", { exact: true }).click();
+    await expect(
+      group.getByRole("button", { name: "Save roles", exact: true }),
+    ).toBeVisible();
     await expect(
       group.getByRole("checkbox", { name: "Mappooler", exact: true }),
     ).toBeChecked();
@@ -66,7 +70,9 @@ test.describe("staff multi-role editing (#260)", () => {
           { name: "oclr-theme", value: theme, url: "http://127.0.0.1:3100" },
         ]);
         await page.reload();
-        await group.getByText("Edit roles", { exact: true }).click();
+        await expect(
+          group.getByRole("button", { name: "Save roles", exact: true }),
+        ).toBeVisible();
         await expect(
           group.getByRole("checkbox", { name: "Tester", exact: true }),
         ).toBeChecked();

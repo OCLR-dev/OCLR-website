@@ -5240,7 +5240,19 @@ body:has([data-broadcast]) .site-shell {
   width: 1.1rem;
   height: 1.1rem;
 }
-.staff-role-group details > summary {
-  cursor: pointer;
-  padding-block: 0.75rem;
+.staff-role-editor {
+  margin-block: 1rem;
+  padding-block: 1rem;
+  border-block: 1px solid var(--site-border);
+}
+.staff-role-editor > h4 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+.staff-role-editor .staff-role-options label {
+  align-items: flex-start;
+  padding-block: 0.5rem;
+}
+.staff-role-editor .staff-role-options input {
+  margin-top: 0.2rem;
 }
