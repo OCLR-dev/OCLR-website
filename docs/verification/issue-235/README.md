@@ -113,14 +113,16 @@ scores are demo data.
 ## Local verification (2026-10-24)
 
 - `npm run lint` and `npm run typecheck`: no errors.
-- `npm test` on the isolated `oclr_esports_test` database: 949 passed, 1 skipped
-  (the same skip as on `main`), including the
-  new 0039 migration upgrade test.
+- `npm test` on the isolated `oclr_esports_test` database after merging the latest
+  `main` (5c5b3a3): 964 passed, 1 skipped (the same skip as on `main`), including
+  the new 0039 migration upgrade test.
 - `npm run build` passed; `npm audit --omit=dev` found 0 vulnerabilities.
 - `npm run i18n:extract` and `npm run test:i18n` passed.
 - Header navigation at 951px is exactly as wide as the default appearance in all
   three locales (302px zh-Hans/zh-Hant, 389px en); header menus stay inside the
-  viewport at 320/390/1440px.
+  viewport at 320/390/1440px. Every visible header control stays unobstructed and
+  on screen at the header-overlap widths, including the new 1100/1101px pair, in
+  all three locales and both themes.
 - Dev-server screenshots at 320/390/768/951/1024/1440px across the three locales
   and both themes showed no horizontal overflow and no script errors.
 - The OBS draft overlay renders pixel-identically to the default appearance in
