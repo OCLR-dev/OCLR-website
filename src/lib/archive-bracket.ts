@@ -28,7 +28,10 @@ export function archiveBracket(
     );
   if (!sorted.length) return null;
   const groupMatches = new Map<string, ResolvedMatch[]>();
-  const rounds: { label: string; matches: ResolvedMatch[] }[] = [];
+  const rounds = new Map<
+    string,
+    { column: number; label: string; matches: ResolvedMatch[] }
+  >();
   const last = new Map<string, { id: string; column: number; at: number }[]>();
   for (const m of sorted) {
     const g =
@@ -75,11 +78,17 @@ export function archiveBracket(
       groupMatches.set(g, [...(groupMatches.get(g) ?? []), resolved]);
     } else {
       // Missing dates do not create edges or chronological ordering claims.
-      const index = at === null ? rounds.length : column;
-      rounds[index] ??= { label: m.stage, matches: [] };
-      if (!rounds[index].label.split(" / ").includes(m.stage))
-        rounds[index].label += ` / ${m.stage}`;
-      rounds[index].matches.push(resolved);
+      // Do not merge unrelated upper/lower stages just because their path depth
+      // is equal. Depth is only a display order, never a named tournament round.
+      const index = column;
+      const key = `${index}:${m.stage}`;
+      const round = rounds.get(key) ?? {
+        column: index,
+        label: m.stage,
+        matches: [],
+      };
+      round.matches.push(resolved);
+      rounds.set(key, round);
       if (at !== null)
         for (const team of [m.teamA, m.teamB]) {
           last.set(team, [
@@ -96,16 +105,18 @@ export function archiveBracket(
     source: { label: "Source", url: archive.sourceUrl },
     updatedAt: `${archive.capturedOn}T00:00:00Z`,
     groups: [
-      ...(rounds.length
+      ...(rounds.size
         ? [
             {
               id: "match-path",
               label: "Match path",
-              rounds: rounds.filter(Boolean).map((r, i) => ({
-                ...r,
-                id: `round-${i}`,
-                label: `${r.label} · ${i + 1}`,
-              })),
+              rounds: [...rounds.values()]
+                .sort((a, b) => a.column - b.column)
+                .map((r, i) => ({
+                  matches: r.matches,
+                  id: `round-${i}`,
+                  label: r.label,
+                })),
             },
           ]
         : []),

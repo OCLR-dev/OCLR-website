@@ -1464,10 +1464,13 @@ body:has(.presenter-view) .site-footer,
   font-size: 0.7rem;
   margin: 0;
   letter-spacing: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .match-meta > span {
   font-size: 0.6rem;
   color: #a4aac4;
+  white-space: nowrap;
 }
 .match-slot {
   display: flex;
@@ -1520,6 +1523,107 @@ body:has(.presenter-view) .site-footer,
   stroke-width: 2;
   fill: none;
   opacity: 0.9;
+}
+.match-source {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.65rem;
+  line-height: 1.5;
+  color: var(--site-muted, #b5bad1);
+}
+.archive-bracket-evidence label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.archive-bracket-evidence input {
+  width: auto;
+}
+.bracket-library-scroll .match-card {
+  width: 224px;
+  height: 180px;
+}
+.bracket-library-scroll .match-card[data-details="false"] {
+  height: 144px;
+}
+.bracket-library-scroll .match-meta {
+  height: 46px;
+  align-items: center;
+}
+.bracket-library-scroll .match-meta h3 {
+  line-height: 13px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.bracket-library-scroll .match-slot {
+  height: 48px;
+}
+.bracket-library-scroll .match-slot-identity {
+  flex: 1;
+  min-width: 0;
+}
+.bracket-library-scroll .match-slot-identity > a {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.bracket-library-scroll .match-team-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.bracket-library-scroll .team-monogram {
+  flex-shrink: 0;
+}
+.bracket-library-scroll .match-note {
+  height: 36px;
+}
+.public-tournament
+  .bracket-scroll:not(.bracket-group-scroll)
+  .bracket-round
+  > h2 {
+  color: #d6c7e2;
+}
+.bracket-source-details {
+  font-size: 0.8rem;
+  color: var(--site-muted, #b5bad1);
+}
+.bracket-source-details summary {
+  cursor: pointer;
+}
+.bracket-library-scroll {
+  width: 100%;
+  min-width: 0;
+  overflow: auto;
+  border: 1px solid #292d43;
+  border-radius: 0.6rem;
+  background: #0d1120;
+}
+.bracket-library-scroll > div {
+  width: max-content;
+}
+.bracket-library-references svg path {
+  stroke-dasharray: 6 4;
+}
+.bracket-library-no-lines svg path {
+  visibility: hidden;
+}
+.bracket-source-details ul {
+  display: grid;
+  gap: 0.75rem;
+  padding-inline-start: 1.25rem;
+}
+.archive-bracket-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+}
+.archive-bracket-evidence p {
+  margin: 0;
 }
 @media (max-width: 760px) {
   .bracket-scroll {

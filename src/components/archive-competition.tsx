@@ -6,7 +6,7 @@ import { useAppTranslations } from "@/i18n/shared";
 import type { ResolvedBracket } from "@/lib/bracket-model";
 import type { ReactNode } from "react";
 
-/** Historical bracket connections show recorded appearances, not inferred rules. */
+/** Historical appearances are opt-in references, never confirmed advancement. */
 export function ArchiveCompetition({
   bracket,
   teamUrls,
@@ -18,6 +18,7 @@ export function ArchiveCompetition({
 }) {
   const tr = useAppTranslations();
   const [phase, setPhase] = useState<"group" | "knockout">("group");
+  const [showAppearances, setShowAppearances] = useState(true);
   const groups =
     bracket?.groups.filter((g) =>
       phase === "group" ? g.layout === "grid" : g.layout !== "grid",
@@ -41,15 +42,26 @@ export function ArchiveCompetition({
         </button>
       </div>
       {phase === "knockout" && (
-        <p className="muted small">
-          {tr(
-            "Generated from recorded matches. Lines connect each team's previous recorded appearance; they do not establish qualification rules. Unconfirmed alternatives are excluded.",
-          )}
-        </p>
+        <div className="archive-bracket-evidence">
+          <label className="small">
+            <input
+              type="checkbox"
+              checked={showAppearances}
+              onChange={(event) => setShowAppearances(event.target.checked)}
+            />
+            {tr("Show previous recorded appearances (reference only)")}
+          </label>
+          <p className="muted small">
+            {tr(
+              "Recorded appearances are reference links, not confirmed advancement.",
+            )}
+          </p>
+        </div>
       )}
       {bracket && groups.length ? (
         <BracketView
           hideGroupTabs={phase === "knockout"}
+          showAppearanceLinks={phase === "knockout" && showAppearances}
           key={phase}
           bracket={{ ...bracket, groups }}
           teamUrls={teamUrls}

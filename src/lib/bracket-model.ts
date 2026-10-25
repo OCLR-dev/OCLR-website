@@ -69,6 +69,8 @@ export type ResolvedSlot = {
   avatarKey?: string | null;
   teamId: string | null;
   label: string;
+  // Only winner/loser declare progression. For kind=team, a source is a
+  // previous recorded appearance, not a qualification rule (archive wire format).
   sourceMatchId: string | null;
   kind: "team" | "winner" | "loser" | "tba" | "bye";
 };
