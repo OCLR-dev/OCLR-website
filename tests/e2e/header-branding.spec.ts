@@ -25,6 +25,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"] as const)
     "manga-halftone",
     "glassmorphism",
     "esports-broadcast",
+    "retro-arcade",
   ])
     for (const theme of ["light", "dark"])
       test(`OCLR header: ${locale}, ${appearance}, ${theme}`, async ({

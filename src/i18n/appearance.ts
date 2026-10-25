@@ -18,6 +18,8 @@ export function appearanceLabel(
       return tr("Glassmorphism");
     case "esports-broadcast":
       return tr("Esports broadcast");
+    case "retro-arcade":
+      return tr("Retro arcade");
     default:
       return tr("Original design");
   }
