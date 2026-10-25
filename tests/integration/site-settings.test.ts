@@ -50,7 +50,7 @@ describe.skipIf(!url)("global site appearance settings", () => {
     await closeDb();
     vi.unstubAllEnvs();
   });
-  it.each(["cute-pastel", "swiss-minimal", "claymorphism"])(
+  it.each(["cute-pastel", "swiss-minimal", "claymorphism", "glassmorphism"])(
     "saves %s with an authoritative audit event",
     async (appearance) => {
       expect(await siteSettingsForAdmin(admin)).toMatchObject({

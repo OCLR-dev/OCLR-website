@@ -72,6 +72,11 @@ const optional = {
     lightBackground: "rgb(248, 235, 228)",
     darkBackground: "rgb(39, 27, 25)",
   },
+  glassmorphism: {
+    label: "Glassmorphism",
+    lightBackground: "rgb(241, 237, 248)",
+    darkBackground: "rgb(18, 16, 28)",
+  },
 } as const;
 for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
   const { label, lightBackground, darkBackground } = optional[appearance];

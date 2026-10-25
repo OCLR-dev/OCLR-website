@@ -8,12 +8,13 @@ import {
 } from "../../src/lib/preferences";
 
 describe("visitor appearance preference", () => {
-  it("supports only the whitelisted original, pastel, Swiss and clay designs", () => {
+  it("supports only the whitelisted original, pastel, Swiss, clay and glass designs", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",
       "swiss-minimal",
       "claymorphism",
+      "glassmorphism",
     ]);
     expect(appearanceCookie).toBe("oclr-appearance");
     expect(readAppearance("cute-pastel")).toBe("cute-pastel");
@@ -51,6 +52,10 @@ describe("visitor appearance preference", () => {
     );
     expect(readAppearance("claymorphism", "default")).toBe("claymorphism");
     expect(readAppearance(undefined, "claymorphism")).toBe("claymorphism");
+    expect(readAppearance("glassmorphism", "claymorphism")).toBe(
+      "glassmorphism",
+    );
+    expect(readAppearance(undefined, "glassmorphism")).toBe("glassmorphism");
     expect(isAppearance("default")).toBe(true);
     expect(isAppearance(undefined)).toBe(false);
     expect(isAppearance("site")).toBe(false);

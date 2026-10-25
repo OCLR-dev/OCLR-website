@@ -12,6 +12,8 @@ export function appearanceLabel(
       return tr("Swiss minimal");
     case "claymorphism":
       return tr("Claymorphism");
+    case "glassmorphism":
+      return tr("Glassmorphism");
     default:
       return tr("Original design");
   }
