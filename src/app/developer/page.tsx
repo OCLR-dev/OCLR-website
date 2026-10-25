@@ -1,3 +1,5 @@
+import { remoteMode } from "@/lib/data-source";
+import RemotePage from "@/app/remote/page";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireBrowserSession } from "@/lib/auth/user";
@@ -13,6 +15,7 @@ export async function generateMetadata() {
   };
 }
 export default async function DeveloperPage() {
+  if (remoteMode()) return <RemotePage />;
   return authorizedPage(async () => {
     const tr = await getAppTranslations();
     const context = await listDeveloperTokens(await requireBrowserSession());

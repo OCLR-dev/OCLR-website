@@ -1,3 +1,7 @@
+import { remoteMode } from "@/lib/data-source";
+import { frontendTournament, frontendPlayers } from "@/lib/frontend-data";
+import { RemoteArchiveCore } from "./remote-archive-core";
+import { RemoteDataError } from "@/lib/remote-errors";
 import { archiveStaff } from "@/lib/archive-staff";
 import { archiveArtworkSetIds } from "@/lib/archive-artwork";
 import { deriveS8Standings } from "@/lib/s8-standings";
@@ -53,6 +57,23 @@ export async function historicalPage(
   section: ArchiveSection,
   id?: string,
 ) {
+  if (remoteMode()) {
+    const edition = await frontendTournament(slug);
+    if (edition.overview.kind !== "historical_archive") return null;
+    if (!["overview", "rules", "players", "player"].includes(section))
+      throw new RemoteDataError("REMOTE_UNSUPPORTED", 501);
+    const players = ["players", "player"].includes(section)
+      ? (await frontendPlayers(slug)).rows
+      : [];
+    return (
+      <RemoteArchiveCore
+        edition={edition}
+        players={players}
+        section={section as "overview" | "rules" | "players" | "player"}
+        id={id}
+      />
+    );
+  }
   let edition: Edition;
   try {
     edition = (await publicEditionContext(slug)).edition;

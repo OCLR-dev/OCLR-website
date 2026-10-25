@@ -51,6 +51,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
       "cute-pastel",
       "swiss-minimal",
       "claymorphism",
+      "manga-halftone",
       "glassmorphism",
     ]) {
       test(`header overlays ${locale} ${theme} ${appearance}`, async ({
@@ -80,7 +81,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
         const appearanceTrigger = header.locator(".appearance-trigger");
         const language = header.locator(".language-control > button");
         for (const width of [
-          320, 360, 390, 412, 674, 819, 950, 951, 1024, 1440,
+          320, 360, 390, 412, 674, 819, 950, 951, 1024, 1100, 1101, 1440,
         ]) {
           await page.setViewportSize({ width, height: 900 });
           await unobstructed(header.locator("button:visible"));

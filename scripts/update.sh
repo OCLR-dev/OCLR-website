@@ -4,6 +4,7 @@ set +x
 set -Eeuo pipefail
 umask 077
 fail() { printf '%s\n' "$1" >&2; exit 1; }
+[[ ${OCLR_DATA_SOURCE-database} == database ]] || fail "Production commands require the database data source; remote development is disabled."
 usage='Usage: bash scripts/update.sh --ref FULL_REVIEWED_COMMIT_SHA --dry-run|--apply [--initial]'
 [[ ( $# == 3 || ( $# == 4 && ${4-} == --initial ) ) && ${1-} == --ref && ${2-} =~ ^[a-f0-9]{40}$ ]] || fail "$usage"
 initial=false

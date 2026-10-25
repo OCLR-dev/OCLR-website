@@ -43,14 +43,14 @@ The main sources are:
 | Appearance default                                                 | `site_settings`                                                                   |
 | Authored announcements and historical source material              | Repository JSON under `src/content`; explicit import/configuration where required |
 
-Client interactions call the corresponding `/api/...` route, which reuses the same services and server-side permission checks. Initial page rendering can query these services directly without making a browser API request. The homepage combines database events with authored announcement JSON; it does not scrape the live website. A missing `DATABASE_URL` produces an empty tournament list, while a configured but unreachable/unmigrated database can fail queries. `/api/health` returns HTTP 200 only when a database query succeeds; it does not verify schema migrations or demo content.
+Client interactions call the corresponding `/api/...` route, which reuses the same services and server-side permission checks. Initial page rendering can query these services directly without making a browser API request. The homepage combines database events with authored announcement JSON; it does not scrape the live website. In database mode, a missing `DATABASE_URL` produces an empty tournament list, while a configured but unreachable/unmigrated database can fail queries. Explicit remote mode instead uses the adapter and connection states described below; it never falls back to local database reads. `/api/health` returns HTTP 200 only when a database query succeeds; it does not verify schema migrations or demo content.
 
 ## Checks and hosting
 
 Developer API authentication and local cross-origin reads are documented in
-[Developer API access](developer-api.md). Stage 1 (#268) supplies token management
-and `/api/v1/me`; it does not yet replace local frontend database access. Remote
-frontend mode and complete page coverage are tracked in #270–#272.
+[Developer API access](developer-api.md). #268 supplies token management, #269
+supplies the saved-data contract, and #270 adds the [remote core-page frontend](remote-development.md).
+Full-site coverage and overall acceptance remain in #271–#272.
 
 `npm run check` runs ESLint, generated route types and TypeScript. `npm run build` creates the production build; `npm start` serves it on a conventional Node.js host. CI runs the same checks. No Vercel services are required.
 
@@ -60,13 +60,15 @@ The committed `docs/design/oclr-website-concept.webp` is a visual reference only
 
 Public tournament editions now follow the organizer-supplied [MainSheet Light reference](design/mainsheet-light/README.md): lavender surfaces, horizontal section navigation, artwork-led overview, match card/compact views, visual mappools with map details, team browsing and an indexed rules handbook. Admin, private Player/Captain tools and OBS retain their existing layouts. Reference sample teams, dates, scores and rules are never production tournament content. Localization is tracked separately in [#72](https://github.com/PhoenixEmik/OCLR-website/issues/72).
 
-Global Admins set the site default at `/admin/settings`. Visitors can follow that default or select the original, cute-pastel, swiss-minimal, claymorphism or glassmorphism appearance in the header, independently of light/dark. Explicit personal choices take priority; “Use site default” clears the override. Settings are stored in the singleton `site_settings` row with optimistic revisions; transactional `site_setting_events` appear in the central audit browser, visible only to global Admins. The next server request reads the saved default without redeployment; a database outage falls back to the original design for public rendering. A whitelisted `oclr-appearance` cookie restores the choice during server rendering across public and private pages; OBS remains isolated. The pastel palette, local Quicksand font and selected presentation styles are adapted from `style/cute-pastel-ui` (9d95608). Tournament defaults follow the current edition as described in docs/deployment.md; no automatic preference cookies, stage-completion inference or mappool workflow changes are introduced.
+Global Admins set the site default at `/admin/settings`. Visitors can follow that default or select the original, cute-pastel, swiss-minimal, claymorphism, manga-halftone or glassmorphism appearance in the header, independently of light/dark. Explicit personal choices take priority; “Use site default” clears the override. Settings are stored in the singleton `site_settings` row with optimistic revisions; transactional `site_setting_events` appear in the central audit browser, visible only to global Admins. The next server request reads the saved default without redeployment; a database outage falls back to the original design for public rendering. A whitelisted `oclr-appearance` cookie restores the choice during server rendering across public and private pages; OBS remains isolated. The pastel palette, local Quicksand font and selected presentation styles are adapted from `style/cute-pastel-ui` (9d95608). Tournament defaults follow the current edition as described in docs/deployment.md; no automatic preference cookies, stage-completion inference or mappool workflow changes are introduced.
 
 The optional Swiss minimal design adapts style B (Swiss / Editorial) from the organizer-provided osu! Cup preview: black/white materials, thin rules, square controls, large headings and a red accent. `src/app/swiss-theme.css` scopes the design to `.themed-site`, including both brightness modes; broadcast output is isolated. It uses the existing local sans stack without third-party font requests. Migration `0027_swiss_minimal_appearance` expands only the site setting/audit appearance check constraints; existing defaults and history remain valid. Apply migrations before selecting Swiss as a site default. An older application does not understand the new value: select a supported site/tournament default before a deliberate rollback; do not delete audit history or down-migrate a live database.
 
 The optional Claymorphism design (#237) adapts style E from the organizer's second osu! Cup preview batch: warm putty surfaces, 24px panels and 18px controls, a raised clay material on the hero, real buttons and popovers, pressed-in wells for inputs, progress and selection tracks, and a small-area mint selected state. Tables and repeated rows stay flat. Its palette is deliberately warmer than cute-pastel so the two remain distinct preferences. Borders, dashed disabled edges and focus rings carry every state without shadows; the dark variant builds depth from darker drops and a faint rim light instead of inverting the pinks. `src/app/clay-theme.css` scopes the design to `.themed-site`; real buttons pick up the material through the optional `--site-button-shadow` token, which every other appearance leaves unset. Headings reuse the bundled Quicksand; there are no remote font requests. Migration `0038_claymorphism_appearance` expands only the site setting/audit appearance check constraints, with the same rollback guidance as Swiss.
 
-The optional Glassmorphism design (#240) adapts style H from the same batch as layered glass. A fixed, vivid colour field (pink, orange, sky and violet orbs plus a few floating spheres) sits behind one frosted glass board that carries each page's content; lighter glass tiles sit on the board, and solid chips, inputs and menus sit on top. Every pane has a bevelled rim (bright top, dim bottom), a sheen and layered drop shadows, and a thinner sheet peeks out behind the board. Only the header, board and footer use `backdrop-filter`; tiles, tables and repeated rows never blur, and header menus stay solid because a blur nested inside the blurred header cannot see the page. The panes are 50–72% opaque, which deliberately departs from the 94–96% in the issue: contrast was instead checked against the field's most saturated colours, unblurred and with the saturate boost, so every text token stays ≥4.5:1 and control edges ≥3:1 with or without blur, and the sticky header was also checked over black and white content. Without `backdrop-filter` support, and under `prefers-reduced-transparency`, every pane falls back to a solid surface; forced colours hide the field and spheres and remove blur and shadows. Colours are ink text, indigo links and selection, and a glossy hot-pink primary with dark text; the dark variant is smoked glass over a deep field. `src/app/glass-theme.css` scopes the design to `.themed-site`; it uses the system sans stack at 500/600 with no remote fonts. Migration `0039_glassmorphism_appearance` expands only the site setting/audit appearance check constraints, with the same rollback guidance as Swiss.
+The optional Manga halftone design (#238) adapts style F from the same batch, using the organizer's candidate palette: white paper, ink `#171515` and a magenta accent, with a pink screentone used only as decoration. Ink lines follow a hierarchy with 2px square corners: 3px for the hero banner and large sections, 2px for controls, menus, selection tracks and repeated cards, and 1px for table rows, whose headers become a black caption band. English display titles, page eyebrows and map slot labels use the bundled Bangers font (SIL OFL 1.1, Latin `unicode-range` only, no weight synthesis); Chinese stays on the system sans at 700. The edition overview is laid out as a manga page: the title, artwork and stage wheel are separate ink panels with narrow gutters, the title panel has a cut corner and its speech bubble breaks the panel frame. Balloons follow manga conventions: speech bubbles for page eyebrows and status notices, a shout burst for the current phase, thought balloons for empty states and a narration box for the rules contents. The artist's tools appear as decoration: size-graded halftone inside the title panel's cut corner (never over the artwork), line-tone hatching as the shade of tournament cards, a speed-line strip under page titles, a tapered G-pen stroke under section headings and a pen nib with a drop of ink on the footer rule; these never sit behind text and ignore the pointer. Selected tabs, the current header section and checked menu items are inverted ink cells, disabled controls are dashed and focus is a 3px ring with a 4px offset, so no state depends on the pink print offset. The source's rotated buttons and per-value heavy frames are not carried over. The dark variant draws with warm-white ink (`#e9dccb`) instead of pure-white frames. Like Claymorphism, the homepage header follows this design only when it is selected. `src/app/manga-theme.css` scopes the design to `.themed-site`; there are no remote font requests. Migration `0039_manga_halftone_appearance` expands only the site setting/audit appearance check constraints, with the same rollback guidance as Swiss.
+
+The optional Glassmorphism design (#240) adapts style H from the same batch as layered glass. A fixed, vivid colour field (pink, orange, sky and violet orbs plus a few floating spheres) sits behind one frosted glass board that carries each page's content; lighter glass tiles sit on the board, and solid chips, inputs and menus sit on top. Every pane has a bevelled rim (bright top, dim bottom), a sheen and layered drop shadows, and a thinner sheet peeks out behind the board. Only the header, board and footer use `backdrop-filter`; tiles, tables and repeated rows never blur, and header menus stay solid because a blur nested inside the blurred header cannot see the page. The panes are 50–72% opaque, which deliberately departs from the 94–96% in the issue: contrast was instead checked against the field's most saturated colours, unblurred and with the saturate boost, so every text token stays ≥4.5:1 and control edges ≥3:1 with or without blur, and the sticky header was also checked over black and white content. Without `backdrop-filter` support, and under `prefers-reduced-transparency`, every pane falls back to a solid surface; forced colours hide the field and spheres and remove blur and shadows. Colours are ink text, indigo links and selection, and a glossy hot-pink primary with dark text; the dark variant is smoked glass over a deep field. `src/app/glass-theme.css` scopes the design to `.themed-site`; it uses the system sans stack at 500/600 with no remote fonts. Migration `0040_glassmorphism_appearance` expands only the site setting/audit appearance check constraints, with the same rollback guidance as Swiss.
 
 ## osu! authentication and PostgreSQL
 
@@ -79,5 +81,38 @@ Database-backed tests require **an isolated database whose name contains `test`*
 The versioned saved-data API is documented in [read-api.md](read-api.md), with
 [credential/origin setup](developer-api.md) and a generated
 [OpenAPI document](read-api.openapi.json). Stage #269 supplies shared backend
-read contracts; the existing frontend still requires a database until its remote
-adapter and coverage work (#270–#272) are complete.
+read contracts; #270 adds remote core-page development. Full-site coverage and
+overall DB-free acceptance remain in #271–#272.
+
+For the stage #270 core-page remote frontend mode, see
+[remote-development.md](remote-development.md). It uses `next dev`, a separate
+backend origin and an in-memory Developer connection or explicit anonymous mode;
+it needs no local database, migration, seed or OAuth secret. The coverage table
+identifies remaining #271–#272 work. Production entry points reject this mode.
+
+## CI browser isolation and execution time
+
+CI builds the production app once after lint/types and unit/integration checks,
+then restores that exact build into four Playwright shard jobs and a separate
+remote-mode browser job. Each job migrates its own PostgreSQL service; browser
+workers remain set to one because the fixtures truncate shared tables. Do not
+increase workers against a shared database. Playwright shards whole test files
+(`fullyParallel: false`), preserving file hooks and sequential test behavior.
+
+Every regular browser project, including Firefox header coverage, remains in
+the four shards. Remote-mode checks run independently so ordinary E2E failures
+do not prevent that coverage. Per-shard failure traces/screenshots retain unique
+artifact names. The aggregate `check` job requires verification, every shard and
+the remote job to succeed; it fails if a dependency fails or is skipped. New
+commits cancel superseded runs for the same branch or PR. Runner availability
+and the slowest test file still affect elapsed time; compare completed CI runs
+before claiming an actual speedup.
+
+To reproduce a shard locally after building and migrating an isolated test DB:
+
+```sh
+DATABASE_URL="$TEST_DATABASE_URL" npm run test:e2e -- --shard=1/4
+```
+
+Run shards sequentially locally, or give each concurrent run a separate database,
+server port and storage paths. The default full local command is unchanged.

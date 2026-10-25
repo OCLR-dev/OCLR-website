@@ -472,7 +472,7 @@
       "get": {
         "operationId": "getPublicTournament",
         "description": "Published configuration and SSR overview projection, with explicit database/archive/preview provenance.",
-        "x-oclr-issues": [269, 29, 265],
+        "x-oclr-issues": [269, 270, 29, 265],
         "x-oclr-scopes": ["tournaments:read"],
         "x-response-size-limit": 2097152,
         "security": [{}, { "DeveloperBearer": [] }],
@@ -582,7 +582,7 @@
       "head": {
         "operationId": "getPublicTournamentHead",
         "description": "Identical authorization, status and headers; no response body.",
-        "x-oclr-issues": [269, 29, 265],
+        "x-oclr-issues": [269, 270, 29, 265],
         "security": [{}, { "DeveloperBearer": [] }],
         "parameters": [
           {
@@ -611,7 +611,7 @@
       },
       "options": {
         "operationId": "getPublicTournamentPreflight",
-        "x-oclr-issues": [269, 29, 265],
+        "x-oclr-issues": [269, 270, 29, 265],
         "security": [],
         "responses": {
           "204": { "description": "Read-only preflight, no private data" },
@@ -1568,6 +1568,7 @@
               "cute-pastel",
               "swiss-minimal",
               "claymorphism",
+              "manga-halftone",
               "glassmorphism"
             ]
           },
@@ -1726,6 +1727,7 @@
                   "cute-pastel",
                   "swiss-minimal",
                   "claymorphism",
+                  "manga-halftone",
                   "glassmorphism"
                 ]
               },
@@ -2073,9 +2075,19 @@
                       },
                       { "type": "null" }
                     ]
+                  },
+                  "rulebookSeason": {
+                    "default": null,
+                    "type": ["string", "null"]
                   }
                 },
-                "required": ["kind", "counts", "keyVisual", "rulebook"],
+                "required": [
+                  "kind",
+                  "counts",
+                  "keyVisual",
+                  "rulebook",
+                  "rulebookSeason"
+                ],
                 "additionalProperties": false
               },
               {
@@ -2563,6 +2575,7 @@
                   "cute-pastel",
                   "swiss-minimal",
                   "claymorphism",
+                  "manga-halftone",
                   "glassmorphism"
                 ]
               },
@@ -2755,6 +2768,7 @@
                     "cute-pastel",
                     "swiss-minimal",
                     "claymorphism",
+                    "manga-halftone",
                     "glassmorphism"
                   ]
                 },
@@ -2943,6 +2957,7 @@
                       "cute-pastel",
                       "swiss-minimal",
                       "claymorphism",
+                      "manga-halftone",
                       "glassmorphism"
                     ]
                   },
@@ -3454,6 +3469,7 @@
                     "cute-pastel",
                     "swiss-minimal",
                     "claymorphism",
+                    "manga-halftone",
                     "glassmorphism"
                   ]
                 },

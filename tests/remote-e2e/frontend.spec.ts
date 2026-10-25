@@ -1,0 +1,507 @@
+import { appearances } from "../../src/lib/preferences";
+import { test, expect } from "@playwright/test";
+import { eq, sql } from "drizzle-orm";
+import { readFileSync } from "node:fs";
+import { db, closeDb } from "../../src/db";
+import {
+  staffRoles,
+  users,
+  registrations,
+  userProfileCache,
+  siteSettings,
+  editionState,
+  developerApiTokens,
+} from "../../src/db/schema";
+import { seedSession } from "../e2e/session";
+import { seedPublicDirectory } from "../fixtures/players";
+import { seedEditions } from "../fixtures/editions";
+import { edition } from "../fixtures/edition";
+import { historicalArchive } from "../fixtures/historical-archive";
+import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
+import { profileResponse } from "../fixtures/osu-profile";
+import { assertTestDatabase } from "../database";
+const backend = "http://127.0.0.1:3100",
+  local = "http://127.0.0.1:31470";
+test.afterAll(async () => {
+  if (process.env.TEST_DATABASE_URL) {
+    assertTestDatabase(process.env.TEST_DATABASE_URL);
+    process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+    await db().delete(siteSettings).where(eq(siteSettings.id, 1));
+  }
+  await closeDb();
+});
+test("uses real remote grants for core SSR/navigation without local DB or OAuth, isolates sessions and removes revoked private data", async ({
+  page,
+  context,
+  browser,
+  isMobile,
+}, info) => {
+  assertTestDatabase(process.env.TEST_DATABASE_URL);
+  process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+  await db().execute(
+    sql`TRUNCATE edition_state,users,user_profile_cache,site_settings CASCADE`,
+  );
+  const base = isMobile ? 2709000 : 2708000,
+    owner = base + 500;
+  const backendContext = await browser.newContext({ baseURL: backend });
+  await backendContext.addCookies([await seedSession(owner)]);
+  await db()
+    .insert(staffRoles)
+    .values({ userId: owner, role: "developer", grantedBy: owner });
+  const fixture = await seedPublicDirectory(base);
+  await seedEditions(
+    [
+      {
+        ...edition,
+        slug: "remote-history",
+        name: "Synthetic remote history",
+        season: "S1",
+        status: "completed",
+        registration: null,
+        archive: { ...historicalArchive, editionSlug: "remote-history" },
+      },
+    ],
+    false,
+  );
+  await db()
+    .insert(siteSettings)
+    .values({ id: 1, defaultAppearance: "cute-pastel" });
+  const row = (
+    await db()
+      .select()
+      .from(editionState)
+      .where(eq(editionState.slug, "test-cup"))
+  )[0];
+  await db()
+    .update(editionState)
+    .set({
+      configuration: {
+        ...row.configuration!,
+        defaultAppearance: "swiss-minimal",
+      },
+    })
+    .where(eq(editionState.slug, "test-cup"));
+  const privateEdition = (
+    await db()
+      .select()
+      .from(editionState)
+      .where(eq(editionState.slug, "private-test-cup"))
+  )[0];
+  await db()
+    .update(editionState)
+    .set({
+      configuration: {
+        ...privateEdition.configuration!,
+        defaultAppearance: "claymorphism",
+      },
+    })
+    .where(eq(editionState.slug, "private-test-cup"));
+  const extra = Array.from({ length: 105 }, (_, index) => ({
+    osuId: base + 100 + index,
+    username: `Synthetic Remote ${index}`,
+  }));
+  await db().insert(users).values(extra);
+  await db()
+    .insert(registrations)
+    .values(
+      extra.map((p) => ({
+        userId: p.osuId,
+        editionSlug: "test-cup",
+        status: "accepted" as const,
+        answers: { private: "SYNTHETIC_PRIVATE_CONTACT" },
+      })),
+    );
+  for (const id of [base, base + 1, base + 3, ...extra.map((p) => p.osuId)]) {
+    const profile = normalizeOsuProfile(
+      {
+        ...profileResponse,
+        id,
+        statistics: {
+          ...profileResponse.statistics,
+          global_rank: id === base + 1 ? null : 12345,
+          pp: id === base + 1 ? 0 : 1234.56,
+        },
+      },
+      id,
+      "osu",
+    );
+    await db()
+      .insert(userProfileCache)
+      .values({
+        osuId: id,
+        mode: "osu",
+        profile,
+        attemptedAt: new Date(),
+        retryAt: new Date(Date.now() + 3600000),
+      });
+  }
+  const issued = await backendContext.request.post("/api/developer/tokens", {
+    headers: { Origin: backend },
+    data: {
+      origin: local,
+      scopes: [
+        "identity:read",
+        "tournaments:read",
+        "tournaments:private:read",
+        "profiles:read",
+      ],
+    },
+  });
+  expect(issued.status()).toBe(201);
+  const credential = await issued.json();
+  const authHeaders: string[] = [];
+  page.on("request", (r) => {
+    if (r.headers().authorization) authHeaders.push(r.url());
+    expect(r.url()).not.toContain(credential.token);
+  });
+  await context.route("https://a.ppy.sh/**", (route) => route.abort());
+  await page.goto("/tournaments");
+  await expect(
+    page.getByText(
+      "Connect to the remote backend or choose anonymous public browsing.",
+    ),
+  ).toBeVisible();
+  await page.goto("/remote");
+  await page
+    .getByLabel("Developer token", { exact: true })
+    .fill(credential.token);
+  await page.getByRole("button", { name: "Connect", exact: true }).click();
+  await expect(
+    page.getByText(`Connected as Synthetic Player ${owner}`),
+  ).toBeVisible();
+  await expect(page.getByLabel("Developer token", { exact: true })).toHaveValue(
+    "",
+  );
+  expect(await page.content()).not.toContain(credential.token);
+  if (isMobile) await page.setViewportSize({ width: 320, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await page.screenshot({
+    path: info.outputPath("remote-connection-light.png"),
+    fullPage: false,
+    animations: "disabled",
+  });
+  expect(
+    await page.evaluate(() =>
+      JSON.stringify({
+        local: { ...localStorage },
+        session: { ...sessionStorage },
+      }),
+    ),
+  ).not.toContain(credential.token);
+  const me = await context.request.get("/api/me");
+  expect((await me.json()).osuId).toBe(owner);
+  const cookie = (await context.cookies()).find(
+    (c) => c.name === "oclr_remote_session",
+  );
+  expect(cookie?.httpOnly).toBe(true);
+  expect(cookie?.sameSite).toBe("Strict");
+  expect(cookie?.value).not.toBe(credential.token);
+  await page
+    .getByRole("link", { name: "Public tournaments", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-appearance",
+    "cute-pastel",
+  );
+  await page
+    .locator(".edition-card")
+    .filter({
+      has: page.getByRole("heading", {
+        name: "Synthetic test edition",
+        exact: true,
+      }),
+    })
+    .getByRole("link", { name: "View tournament", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-appearance",
+    "swiss-minimal",
+  );
+  await expect(
+    page.getByText("Synthetic rules for automated testing only.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.goto("/tournaments/test-cup/rules");
+  await expect(
+    page.getByText("Synthetic rules for automated testing only.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.goto("/tournaments/test-cup/players");
+  await page.reload();
+  await expect(page.locator(".event-player-row")).toHaveCount(108);
+  await expect(page.locator(".event-player-identity .avatar")).toHaveCount(108);
+  await expect(
+    page
+      .locator(".event-player-identity")
+      .getByText(
+        "Message boards are not supported in remote development yet.",
+        { exact: true },
+      ),
+  ).toHaveCount(0);
+  const member = page
+    .locator(".event-player-row")
+    .filter({ hasText: `Synthetic Directory ${base} Member` });
+  await expect(member.locator("dd")).toHaveText(["—", "0"]);
+  await expect(
+    page.getByRole("link", { name: "OCLR profile", exact: true }),
+  ).toHaveCount(108);
+  const legacyDirectory = await context.request.get(
+    "/api/tournaments/test-cup/players",
+  );
+  expect((await legacyDirectory.json()).rows).toHaveLength(108);
+  const legacyDetail = await context.request.get("/api/tournaments/test-cup");
+  expect((await legacyDetail.json()).rules.version).toBe("test-v1");
+
+  expect(await page.content()).not.toContain("SYNTHETIC_PRIVATE_CONTACT");
+  await member.getByRole("link", { name: "OCLR profile", exact: true }).click();
+  await expect(
+    page.getByRole("region", { name: "osu! profile snapshot" }),
+  ).toBeVisible();
+  const legacy = await context.request.get(
+    `/api/players/${fixture.memberId}?edition=test-cup`,
+  );
+  expect(legacy.status()).toBe(200);
+  expect((await legacy.json()).snapshot.profile.statistics.pp).toBe(0);
+  for (const path of [
+    "/tournaments/remote-history",
+    "/tournaments/remote-history/rules",
+    "/tournaments/remote-history/players",
+    `/tournaments/remote-history/players/${historicalArchive.players[0].osuId}`,
+  ]) {
+    await page.goto(path);
+    await expect(
+      page.getByText("Historical archive", { exact: true }),
+    ).toBeVisible();
+  }
+  await page.goto(
+    `/players/${historicalArchive.players[0].osuId}?edition=remote-history`,
+  );
+  await expect(page).toHaveURL(
+    new RegExp(
+      `/tournaments/remote-history/players/${historicalArchive.players[0].osuId}`,
+    ),
+  );
+  await page.goto("/remote");
+  await page
+    .getByRole("link", { name: "Internal tournaments", exact: true })
+    .click();
+  await page
+    .locator(".edition-card")
+    .filter({
+      has: page.locator('a[href="/admin/tournaments/private-test-cup"]'),
+    })
+    .getByRole("link", { name: "View tournament", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-appearance",
+    "claymorphism",
+  );
+  await expect(
+    page.getByText("Developer access is read-only.", { exact: true }),
+  ).toBeVisible();
+  const privateRead = await context.request.get(
+    "/api/remote/read/staff/tournaments/private-test-cup",
+  );
+  expect(privateRead.status()).toBe(200);
+  expect((await privateRead.json()).data.configuration.published).toBe(false);
+  await page.route("**/api/remote/connection", (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ code: "REMOTE_UNAVAILABLE" }),
+    }),
+  );
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(
+    page
+      .getByText(
+        "The remote backend is unavailable or returned invalid data. Try again.",
+      )
+      .first(),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Developer access is read-only.", { exact: true }),
+  ).toHaveCount(0);
+  await page.unroute("**/api/remote/connection");
+  await page.reload();
+  await expect(
+    page.getByText("Developer access is read-only.", { exact: true }),
+  ).toBeVisible();
+  const other = await browser.newContext({
+    baseURL: local,
+    storageState: {
+      cookies: [
+        {
+          name: "oclr-locale",
+          value: "en",
+          domain: "127.0.0.1",
+          path: "/",
+          expires: -1,
+          httpOnly: false,
+          secure: false,
+          sameSite: "Lax",
+        },
+      ],
+      origins: [],
+    },
+  });
+  const isolated = await other.request.get(
+    "/api/remote/read/staff/tournaments/private-test-cup",
+  );
+  expect(isolated.status()).toBe(401);
+  await other.request.post("/api/remote/connection", {
+    headers: { Origin: local },
+    data: { mode: "anonymous" },
+  });
+  expect(
+    (await other.request.get("/api/remote/read/staff/tournaments")).status(),
+  ).toBe(401);
+  await other.close();
+  for (const path of [
+    "/api/admin/tournaments/test-cup",
+    "/api/admin/profiles",
+    "/api/registrations",
+    "/auth/osu/callback",
+  ]) {
+    const response = await context.request.post(path, {
+      headers: { Origin: local },
+      data: {},
+    });
+    expect(response.status()).toBe(403);
+  }
+  expect(
+    (
+      await context.request.get("/api/remote/read/https%3A%2F%2Fevil.example")
+    ).status(),
+  ).toBe(400);
+  await page.goto("/tournaments/test-cup/mappools");
+  await expect(
+    page.getByText(
+      "This page or feature is not supported in remote development yet. See the coverage list.",
+    ),
+  ).toBeVisible();
+  // Appearance/navigation coverage is intentionally a separate workload from
+  // authorization checks; keep the backend's real per-token rate limit intact.
+  const renewed = await backendContext.request.post("/api/developer/tokens", {
+    headers: { Origin: backend },
+    data: {
+      origin: local,
+      scopes: [
+        "identity:read",
+        "tournaments:read",
+        "tournaments:private:read",
+        "profiles:read",
+      ],
+    },
+  });
+  expect(renewed.status()).toBe(201);
+  credential.token = (await renewed.json()).token;
+  await page.goto("/remote");
+  await page
+    .getByLabel("Developer token", { exact: true })
+    .fill(credential.token);
+  await Promise.all([
+    page.waitForEvent("load"),
+    page.getByRole("button", { name: "Connect", exact: true }).click(),
+  ]);
+  await expect(
+    page.getByText(`Connected as Synthetic Player ${owner}`),
+  ).toBeVisible();
+  for (const appearance of appearances) {
+    await context.addCookies([
+      { name: "oclr-appearance", value: appearance, url: local },
+    ]);
+    await page.goto("/tournaments/test-cup/players");
+    await expect(page.locator(".event-player-row")).toHaveCount(108);
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-appearance",
+      appearance,
+    );
+    if (isMobile) await page.setViewportSize({ width: 320, height: 844 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+  await context.addCookies([{ name: "oclr-theme", value: "dark", url: local }]);
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.screenshot({
+    path: info.outputPath("remote-players-dark.png"),
+    fullPage: false,
+  });
+  await context.addCookies([
+    { name: "oclr-locale", value: "zh-Hant", url: local },
+  ]);
+  await page.goto("/remote");
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh-Hant");
+  await context.addCookies([{ name: "oclr-locale", value: "en", url: local }]);
+  await page.goto("/admin/tournaments/private-test-cup");
+  await db()
+    .update(staffRoles)
+    .set({ revokedAt: new Date() })
+    .where(eq(staffRoles.userId, owner));
+  await page.reload();
+  await expect(
+    page
+      .getByText(
+        "This remote token does not permit this read. Check its scopes and Developer grant.",
+      )
+      .first(),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Developer access is read-only.", { exact: true }),
+  ).toHaveCount(0);
+  await db()
+    .update(staffRoles)
+    .set({ revokedAt: null })
+    .where(eq(staffRoles.userId, owner));
+  await page.goto("/remote");
+  await page
+    .getByLabel("Developer token", { exact: true })
+    .fill(credential.token);
+  await page.getByRole("button", { name: "Connect", exact: true }).click();
+  await expect(
+    page.getByText(`Connected as Synthetic Player ${owner}`),
+  ).toBeVisible();
+  await db()
+    .update(developerApiTokens)
+    .set({
+      createdAt: new Date(Date.now() - 7200000),
+      expiresAt: new Date(Date.now() - 3600000),
+    })
+    .where(eq(developerApiTokens.userId, owner));
+  await page.goto("/tournaments");
+  await expect(
+    page
+      .getByText("Remote access expired or was revoked. Connect again.")
+      .first(),
+  ).toBeVisible();
+  await page.goto("/remote");
+  await page
+    .getByRole("button", {
+      name: "Browse public data anonymously",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByText("Anonymous public browsing", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Disconnect", exact: true }).click();
+  await expect(
+    page.getByText(
+      "Connect to the remote backend or choose anonymous public browsing.",
+    ),
+  ).toBeVisible();
+  expect(authHeaders).toEqual([]);
+  expect(readFileSync(process.env.OCLR_TEST_NO_DB_ATTEMPTS!, "utf8")).toBe("");
+  await backendContext.close();
+});

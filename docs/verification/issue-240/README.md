@@ -70,22 +70,22 @@ scores are demo data.
 
 ## Local verification (2026-10-24)
 
+After merging the latest `main` (with #299, so this migration is now `0040`):
+
 - `npm run lint` and `npm run typecheck`: no errors.
-- `npm test` on the isolated `oclr_glass_test` database: 949 passed, 1 skipped
-  (the same skip as on `main`), including the new 0039 migration upgrade test.
+- `npm test` on the isolated `oclr_glass_test` database: 966 passed, 1 skipped
+  (the same skip as on `main`), including the new 0040 migration upgrade test.
 - `npm run build` passed; `npm audit --omit=dev` found 0 vulnerabilities.
 - `npm run i18n:extract` and `npm run test:i18n` passed.
 - Dev-server screenshots at 320/390/768/951/1024/1440px, spread across the three
-  locales and both themes, showed no horizontal overflow and no script errors. At 951px the
-  header nav wraps exactly like the original design.
+  locales and both themes, showed no horizontal overflow and no script errors.
+  English header geometry at 951/1024/1100/1101px stays within 4px of the
+  original design.
 - Computed styles in Chromium confirmed the translucent fills and blur on the
   header, board and footer only, solid fills with `backdrop-filter: none`
   under emulated `prefers-reduced-transparency: reduce`, and no blur, shadows,
   field or spheres under forced colours. Sticky sidebars still stick inside the
   board.
-- After the layered redesign (CSS and docs only), `npm run lint` and
-  `npm run build` were re-run and passed; the earlier `npm test` run covers
-  everything else, since no TypeScript changed.
 - Playwright e2e was not run locally; CI is authoritative for the complete suite.
 
 ## Not covered here

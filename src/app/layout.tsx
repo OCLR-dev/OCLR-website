@@ -1,3 +1,14 @@
+import { remoteMode } from "@/lib/data-source";
+import {
+  frontendSite,
+  frontendTournaments,
+  frontendConnection,
+  frontendPrivateTournaments,
+} from "@/lib/frontend-data";
+import { RemoteDataError } from "@/lib/remote-errors";
+import { RemoteBoundary } from "@/components/remote-development";
+import type { AppearanceScope } from "@/lib/appearance-scope";
+import type { Appearance } from "@/lib/preferences";
 import { getPublicEditions } from "@/lib/content";
 import { getAppTranslations } from "@/i18n/server";
 import type { Metadata } from "next";
@@ -12,6 +23,7 @@ import "./workspace.css";
 import "./pastel-theme.css";
 import "./swiss-theme.css";
 import "./clay-theme.css";
+import "./manga-theme.css";
 import "./glass-theme.css";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";
@@ -85,7 +97,11 @@ export default async function RootLayout({
 
   const preferences = await cookies();
   const theme = readTheme(preferences.get(themeCookie)?.value);
-  const defaultAppearance = await defaultSiteAppearance();
+  const remote = remoteMode();
+  const route = await headers();
+  let remoteFailure: string | undefined;
+  let defaultAppearance: Appearance = "default";
+  if (!remote) defaultAppearance = await defaultSiteAppearance();
   const appearanceValue = preferences.get(appearanceCookie)?.value;
   const appearancePreference = isAppearance(appearanceValue)
     ? appearanceValue
@@ -95,24 +111,62 @@ export default async function RootLayout({
   let authUnavailable = false;
   let staff = false;
   let developer = false;
-  try {
-    user = await currentUser();
-    staff = user ? await isStaff(user) : false;
-    developer = user ? await hasDeveloperAccess(user.osuId) : false;
-  } catch {
-    authUnavailable = true;
+  let scopes: AppearanceScope[] = [];
+  let editions: { slug: string; status: string }[] = [];
+  if (remote) {
+    try {
+      const connection = await frontendConnection();
+      user = connection.identity?.user ?? null;
+      const [site, summaries] = await Promise.all([
+        frontendSite(),
+        frontendTournaments(),
+      ]);
+      defaultAppearance = site.defaultAppearance;
+      editions = summaries;
+      scopes = summaries.map((e) => ({
+        slug: e.slug,
+        published: true,
+        staff: false,
+        defaultAppearance: e.defaultAppearance,
+      }));
+      if (
+        connection.identity?.access.scopes.includes("tournaments:private:read")
+      ) {
+        const internal = await frontendPrivateTournaments();
+        scopes = [
+          ...scopes.filter((e) => !internal.some((i) => i.slug === e.slug)),
+          ...internal.map((e) => ({
+            slug: e.slug,
+            published: e.published,
+            staff: true,
+            defaultAppearance: e.defaultAppearance,
+          })),
+        ];
+      }
+    } catch (error) {
+      remoteFailure =
+        error instanceof RemoteDataError ? error.code : "REMOTE_UNAVAILABLE";
+      user = null;
+    }
+  } else {
+    try {
+      user = await currentUser();
+      staff = user ? await isStaff(user) : false;
+      developer = user ? await hasDeveloperAccess(user.osuId) : false;
+    } catch {
+      authUnavailable = true;
+    }
+    [scopes, editions] = await Promise.all([
+      tournamentAppearanceScopes(user),
+      getPublicEditions().catch(() => []),
+    ]);
   }
-  const [scopes, editions] = await Promise.all([
-    tournamentAppearanceScopes(user),
-    getPublicEditions().catch(() => []),
-  ]);
   const featured =
     editions.find((edition) => edition.status === "live") ??
     editions.find((edition) => edition.status === "upcoming");
   const informationHref = featured
     ? `/tournaments/${featured.slug}`
     : "/tournaments";
-  const route = await headers();
   const inherited = inheritedAppearance(
     route.get("x-oclr-pathname") ?? "/",
     new URLSearchParams(route.get("x-oclr-search") ?? ""),
@@ -134,6 +188,7 @@ export default async function RootLayout({
                 {tr("Skip to content")}
               </a>
               <Header
+                remote={remote}
                 informationHref={informationHref}
                 theme={theme}
                 appearance={appearance}
@@ -159,7 +214,15 @@ export default async function RootLayout({
                   </p>
                 </div>
               )}
-              <main id="main">{children}</main>
+              <main id="main">
+                {remote ? (
+                  <RemoteBoundary error={remoteFailure}>
+                    {children}
+                  </RemoteBoundary>
+                ) : (
+                  children
+                )}
+              </main>
               <footer className="site-footer">
                 <p>
                   © {new Date().getUTCFullYear()}{" "}
