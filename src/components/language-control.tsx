@@ -14,6 +14,7 @@ import { useAppTranslations } from "@/i18n/shared";
 import styles from "./language-control.module.css";
 
 const names = { en: "English", "zh-Hans": "简体中文", "zh-Hant": "繁體中文" };
+const shortNames = { en: "EN", "zh-Hans": "简", "zh-Hant": "繁" };
 export function LanguageControl() {
   const locale = useLocale() as Locale;
   const tr = useAppTranslations();
@@ -84,7 +85,7 @@ export function LanguageControl() {
         ref={trigger}
         disabled={pending}
         aria-busy={pending}
-        aria-label={`${tr("Language")}: ${names[locale]}`}
+        aria-label={`${tr("Language")}: ${shortNames[locale]} / ${names[locale]}`}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={id}
@@ -100,7 +101,12 @@ export function LanguageControl() {
           setOpen(true);
         }}
       >
-        <span lang={locale}>{names[locale]}</span>
+        <span lang={locale} className={styles.fullName}>
+          {names[locale]}
+        </span>
+        <span lang={locale} className={styles.shortName} aria-hidden="true">
+          {shortNames[locale]}
+        </span>
         <svg
           aria-hidden="true"
           viewBox="0 0 16 16"

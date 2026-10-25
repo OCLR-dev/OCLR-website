@@ -1,5 +1,5 @@
 {
-  "id": "cc4bb742-a50c-490c-8194-e3e5411cda38",
+  "id": "17c74c08-4002-48fd-a455-2e7d2019f7e8",
   "prevId": "0f5d26d0-9ca4-47a4-a9be-3636b07b3144",
   "version": "7",
   "dialect": "postgresql",
@@ -3550,7 +3550,7 @@
         },
         "site_setting_events_appearances": {
           "name": "site_setting_events_appearances",
-          "value": "\"site_setting_events\".\"before_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'retro-arcade') AND \"site_setting_events\".\"after_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'retro-arcade') AND \"site_setting_events\".\"before_appearance\" <> \"site_setting_events\".\"after_appearance\""
+          "value": "\"site_setting_events\".\"before_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism') AND \"site_setting_events\".\"after_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism') AND \"site_setting_events\".\"before_appearance\" <> \"site_setting_events\".\"after_appearance\""
         }
       },
       "isRLSEnabled": false
@@ -3604,7 +3604,7 @@
         },
         "site_settings_appearance": {
           "name": "site_settings_appearance",
-          "value": "\"site_settings\".\"default_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'retro-arcade')"
+          "value": "\"site_settings\".\"default_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism')"
         }
       },
       "isRLSEnabled": false

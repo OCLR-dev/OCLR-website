@@ -58,7 +58,7 @@ function AccountControl({
   const content = (
     <>
       <Avatar osuId={user.osuId} username={user.username} />
-      <span>{tr("Dashboard")}</span>
+      <span className="account-label">{tr("Dashboard")}</span>
     </>
   );
   if (!user.staff)
@@ -66,6 +66,7 @@ function AccountControl({
       <Link
         href="/dashboard"
         className="button secondary account-control"
+        aria-label={tr("Dashboard")}
         title={user.username}
         aria-current={
           path === "/dashboard" || path.startsWith("/dashboard/")
@@ -113,6 +114,7 @@ function AccountControl({
       <button
         type="button"
         className="secondary account-control"
+        aria-label={tr("Dashboard")}
         ref={trigger}
         title={user.username}
         aria-haspopup="menu"
@@ -233,6 +235,31 @@ export function Header({
   ];
   const [open, setOpen] = useState(false);
   const path = usePathname();
+  const menuTrigger = useRef<HTMLButtonElement>(null);
+  const navigation = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    function outside(event: PointerEvent) {
+      const target = event.target as Node;
+      if (
+        !navigation.current?.contains(target) &&
+        !menuTrigger.current?.contains(target)
+      )
+        setOpen(false);
+    }
+    function escape(event: globalThis.KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setOpen(false);
+      menuTrigger.current?.focus();
+    }
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [open]);
   return (
     <header className="site-header">
       <div className="nav-wrap">
@@ -240,15 +267,32 @@ export function Header({
           <OclrLogo />
         </Link>
         <button
+          type="button"
+          ref={menuTrigger}
           className="menu-toggle secondary"
+          aria-label={open ? tr("Close") : tr("Menu")}
           aria-expanded={open}
           aria-controls="main-navigation"
           onClick={() => setOpen(!open)}
         >
-          {open ? tr("Close") : tr("Menu")}
+          <svg
+            aria-hidden="true"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+          >
+            <path
+              d={open ? "m6 6 12 12M6 18 18 6" : "M4 6h16M4 12h16M4 18h16"}
+            />
+          </svg>
         </button>
         <nav
           id="main-navigation"
+          ref={navigation}
           aria-label={tr("Main navigation")}
           className={open ? "main-nav open" : "main-nav"}
         >
@@ -282,7 +326,7 @@ export function Header({
             ),
           )}
         </nav>
-        <div className="site-preferences">
+        <div className="site-preferences" onFocusCapture={() => setOpen(false)}>
           <AppearanceControl
             key={`${defaultAppearance}:${appearancePreference ?? "site"}`}
             initialAppearance={appearance}
@@ -301,10 +345,28 @@ export function Header({
             <Link
               href="/remote"
               className="button secondary account-control"
+              aria-label={tr("Remote connection")}
               title={tr("Remote connection")}
             >
               {user && <Avatar osuId={user.osuId} username={user.username} />}
-              <span>{user?.username ?? tr("Remote connection")}</span>
+              {!user && (
+                <svg
+                  className="account-connection-icon"
+                  aria-hidden="true"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                >
+                  <path d="m10 13 4-4M8 16l-1 1a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2 1 1-1a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0" />
+                </svg>
+              )}
+              <span className="account-label">
+                {user?.username ?? tr("Remote connection")}
+              </span>
             </Link>
           ) : user ? (
             <AccountControl
@@ -317,10 +379,14 @@ export function Header({
             <Link
               href="/login"
               className="button nav-login"
+              aria-label={tr("Login with osu!")}
               aria-current={path === "/login" ? "page" : undefined}
               onClick={() => setOpen(false)}
             >
-              {tr("Login with osu!")}
+              <span className="login-label">{tr("Login with osu!")}</span>
+              <span className="login-short" aria-hidden="true">
+                osu!
+              </span>
             </Link>
           )}
         </div>

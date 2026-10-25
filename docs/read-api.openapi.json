@@ -1569,6 +1569,7 @@
               "swiss-minimal",
               "claymorphism",
               "manga-halftone",
+              "glassmorphism",
               "retro-arcade"
             ]
           },
@@ -1728,6 +1729,7 @@
                   "swiss-minimal",
                   "claymorphism",
                   "manga-halftone",
+                  "glassmorphism",
                   "retro-arcade"
                 ]
               },
@@ -2576,6 +2578,7 @@
                   "swiss-minimal",
                   "claymorphism",
                   "manga-halftone",
+                  "glassmorphism",
                   "retro-arcade"
                 ]
               },
@@ -2769,6 +2772,7 @@
                     "swiss-minimal",
                     "claymorphism",
                     "manga-halftone",
+                    "glassmorphism",
                     "retro-arcade"
                   ]
                 },
@@ -2958,6 +2962,7 @@
                       "swiss-minimal",
                       "claymorphism",
                       "manga-halftone",
+                      "glassmorphism",
                       "retro-arcade"
                     ]
                   },
@@ -3470,6 +3475,7 @@
                     "swiss-minimal",
                     "claymorphism",
                     "manga-halftone",
+                    "glassmorphism",
                     "retro-arcade"
                   ]
                 },

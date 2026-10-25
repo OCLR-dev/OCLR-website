@@ -285,8 +285,15 @@
     {
       "idx": 40,
       "version": "7",
-      "when": 1792908474625,
-      "tag": "0040_retro_arcade_appearance",
+      "when": 1792908380165,
+      "tag": "0040_glassmorphism_appearance",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1792909276603,
+      "tag": "0041_retro_arcade_appearance",
       "breakpoints": true
     }
   ]

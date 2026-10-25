@@ -9,6 +9,7 @@ export const appearances = [
   "swiss-minimal",
   "claymorphism",
   "manga-halftone",
+  "glassmorphism",
   "retro-arcade",
 ] as const;
 export type Appearance = (typeof appearances)[number];
