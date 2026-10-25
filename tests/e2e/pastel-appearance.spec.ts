@@ -72,6 +72,11 @@ const optional = {
     lightBackground: "rgb(248, 235, 228)",
     darkBackground: "rgb(39, 27, 25)",
   },
+  "manga-halftone": {
+    label: "Manga halftone",
+    lightBackground: "rgb(246, 243, 236)",
+    darkBackground: "rgb(23, 21, 18)",
+  },
 } as const;
 for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
   const { label, lightBackground, darkBackground } = optional[appearance];

@@ -51,6 +51,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
       "cute-pastel",
       "swiss-minimal",
       "claymorphism",
+      "manga-halftone",
     ]) {
       test(`header overlays ${locale} ${theme} ${appearance}`, async ({
         page,

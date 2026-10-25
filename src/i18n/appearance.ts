@@ -12,6 +12,8 @@ export function appearanceLabel(
       return tr("Swiss minimal");
     case "claymorphism":
       return tr("Claymorphism");
+    case "manga-halftone":
+      return tr("Manga halftone");
     default:
       return tr("Original design");
   }
