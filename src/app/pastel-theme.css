@@ -940,6 +940,7 @@ html[data-appearance="cute-pastel"] .themed-site .site-footer .footer-credit {
   html[data-appearance="cute-pastel"] .themed-site .nav-wrap {
     height: auto;
     min-height: 68px;
+    gap: 0.5rem;
   }
 
   html[data-appearance="cute-pastel"] .themed-site.public-site .page-heading {
