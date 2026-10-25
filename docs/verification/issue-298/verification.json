@@ -1,0 +1,1170 @@
+{
+  "fixture": "isolated synthetic HTTP backend + actual Next dev remote frontend; no database, OAuth or production service",
+  "cases": [
+    {
+      "from": "current-fixture/rules",
+      "to": "current-fixture#rules",
+      "passed": true
+    },
+    {
+      "from": "current-fixture/rules#rule-比赛规则",
+      "to": "current-fixture#rules-2",
+      "passed": true
+    },
+    {
+      "from": "current-fixture/rules#rule-比赛规则-2",
+      "to": "current-fixture#rules-3",
+      "passed": true
+    },
+    {
+      "from": "current-fixture/rules#not-a-chapter",
+      "to": "current-fixture#rules",
+      "passed": true
+    },
+    {
+      "from": "history-fixture/rules",
+      "to": "history-fixture#rules",
+      "passed": true
+    },
+    {
+      "from": "history-fixture/rules#rule-教练-coach-相关",
+      "to": "history-fixture#rule-教练-coach-相关",
+      "passed": true
+    },
+    {
+      "from": "empty-fixture/rules#not-a-chapter",
+      "to": "empty-fixture#rules",
+      "passed": true
+    },
+    {
+      "privateEdition": "not found, no rules content",
+      "passed": true
+    },
+    {
+      "javascriptDisabled": "same edition #rules",
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 128.578125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 128.578125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 129.09375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 128.96875,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 272.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 272.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 251.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 128.578125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 128.578125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 129.09375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 128.96875,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 272.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 272.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 251.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "default",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 129.234375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 129.34375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 129.234375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 129.34375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 128.625,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 128.734375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 197.65625,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 91.25,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 197.65625,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 91.25,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 175.65625,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 91.25,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 129.234375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 129.34375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 129.234375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 129.34375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 128.625,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 128.734375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 197.65625,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 91.25,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 197.65625,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 91.25,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 175.65625,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "cute-pastel",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 91.25,
+      "headerBottom": 75,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 129.03125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 129.03125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 129.421875,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 273.125,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 84.84375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 273.125,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 84.84375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 252.125,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 84.84375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 129.03125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 320,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 129.03125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 128.703125,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 129.421875,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "current-fixture",
+      "rulesY": 273.125,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hans",
+      "slug": "history-fixture",
+      "rulesY": 84.84375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "current-fixture",
+      "rulesY": 273.125,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "zh-Hant",
+      "slug": "history-fixture",
+      "rulesY": 84.84375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 252.125,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "swiss-minimal",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 84.84375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "claymorphism",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 129.09375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "claymorphism",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 128.96875,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "claymorphism",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 251.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "claymorphism",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "claymorphism",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 129.09375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "claymorphism",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 128.96875,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "claymorphism",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 251.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "claymorphism",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "manga-halftone",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 130.640625,
+      "headerBottom": 115,
+      "passed": true
+    },
+    {
+      "appearance": "manga-halftone",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 130.5625,
+      "headerBottom": 115,
+      "passed": true
+    },
+    {
+      "appearance": "manga-halftone",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 221.453125,
+      "headerBottom": 71,
+      "passed": true
+    },
+    {
+      "appearance": "manga-halftone",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 87.375,
+      "headerBottom": 71,
+      "passed": true
+    },
+    {
+      "appearance": "manga-halftone",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 130.640625,
+      "headerBottom": 115,
+      "passed": true
+    },
+    {
+      "appearance": "manga-halftone",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 130.5625,
+      "headerBottom": 115,
+      "passed": true
+    },
+    {
+      "appearance": "manga-halftone",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 221.453125,
+      "headerBottom": 71,
+      "passed": true
+    },
+    {
+      "appearance": "manga-halftone",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 87.375,
+      "headerBottom": 71,
+      "passed": true
+    },
+    {
+      "appearance": "glassmorphism",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 129.09375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "glassmorphism",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 129.359375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "glassmorphism",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 193.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "glassmorphism",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "glassmorphism",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 129.09375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "glassmorphism",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 129.359375,
+      "headerBottom": 113,
+      "passed": true
+    },
+    {
+      "appearance": "glassmorphism",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 193.71875,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "glassmorphism",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 85.4375,
+      "headerBottom": 69,
+      "passed": true
+    },
+    {
+      "appearance": "esports-broadcast",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 130.703125,
+      "headerBottom": 115,
+      "passed": true
+    },
+    {
+      "appearance": "esports-broadcast",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 131.359375,
+      "headerBottom": 115,
+      "passed": true
+    },
+    {
+      "appearance": "esports-broadcast",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 251.515625,
+      "headerBottom": 71,
+      "passed": true
+    },
+    {
+      "appearance": "esports-broadcast",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 86.828125,
+      "headerBottom": 71,
+      "passed": true
+    },
+    {
+      "appearance": "esports-broadcast",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 130.703125,
+      "headerBottom": 115,
+      "passed": true
+    },
+    {
+      "appearance": "esports-broadcast",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 131.359375,
+      "headerBottom": 115,
+      "passed": true
+    },
+    {
+      "appearance": "esports-broadcast",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 251.515625,
+      "headerBottom": 71,
+      "passed": true
+    },
+    {
+      "appearance": "esports-broadcast",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 86.828125,
+      "headerBottom": 71,
+      "passed": true
+    },
+    {
+      "appearance": "retro-arcade",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 132.171875,
+      "headerBottom": 116,
+      "passed": true
+    },
+    {
+      "appearance": "retro-arcade",
+      "theme": "light",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 131.75,
+      "headerBottom": 116,
+      "passed": true
+    },
+    {
+      "appearance": "retro-arcade",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 222.375,
+      "headerBottom": 72,
+      "passed": true
+    },
+    {
+      "appearance": "retro-arcade",
+      "theme": "light",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 87.953125,
+      "headerBottom": 72,
+      "passed": true
+    },
+    {
+      "appearance": "retro-arcade",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 132.171875,
+      "headerBottom": 116,
+      "passed": true
+    },
+    {
+      "appearance": "retro-arcade",
+      "theme": "dark",
+      "width": 320,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 131.75,
+      "headerBottom": 116,
+      "passed": true
+    },
+    {
+      "appearance": "retro-arcade",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "current-fixture",
+      "rulesY": 222.375,
+      "headerBottom": 72,
+      "passed": true
+    },
+    {
+      "appearance": "retro-arcade",
+      "theme": "dark",
+      "width": 1440,
+      "locale": "en",
+      "slug": "history-fixture",
+      "rulesY": 87.953125,
+      "headerBottom": 72,
+      "passed": true
+    }
+  ],
+  "pageErrors": [],
+  "passed": true
+}

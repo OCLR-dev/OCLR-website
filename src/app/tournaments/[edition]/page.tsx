@@ -13,6 +13,7 @@ import {
 } from "@/lib/tournament-information";
 import "./information.css";
 import { tournamentStages } from "@/lib/tournament-stages";
+import { TournamentRules } from "@/components/tournament-rules";
 
 export async function generateMetadata({
   params,
@@ -166,15 +167,7 @@ async function OverviewContent({
         }),
       ),
     })),
-    rules: [
-      ...(edition.eligibility
-        ? [{ heading: tr("Eligibility"), paragraphs: [edition.eligibility] }]
-        : []),
-      ...(edition.rules?.sections ?? []).map((rule) => ({
-        heading: rule.heading,
-        paragraphs: [rule.body],
-      })),
-    ],
+    rules: [], // Published rules render directly from this edition below.
   };
   const active =
     state === "open"
@@ -223,6 +216,7 @@ async function OverviewContent({
       )}
       <InformationDocument
         document={document}
+        rulesContent={<TournamentRules edition={edition} />}
         active={active}
         stages={tournamentStages(
           [

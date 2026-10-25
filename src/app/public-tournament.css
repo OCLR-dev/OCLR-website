@@ -313,7 +313,14 @@ html[data-theme="dark"] .themed-site {
 .public-tournament [id] {
   scroll-margin-top: 90px;
 }
+.public-tournament #rules,
+.public-tournament #rules [id] {
+  scroll-margin-top: var(--rules-scroll-offset, 90px);
+}
 @media (max-width: 760px) {
+  .public-tournament #rules {
+    --rules-scroll-offset: 160px;
+  }
   .themed-site .main-nav.open {
     background: var(--site-surface);
     border-color: var(--site-border);

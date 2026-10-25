@@ -18,6 +18,21 @@ export function rulesSectionIds(headings: string[]) {
   });
 }
 
+/** Keep old chapter links within the same edition; unknown/malformed fragments use its rules section. */
+export function rulesRedirectHref(
+  base: string,
+  hash: string,
+  anchors: Record<string, string>,
+) {
+  let anchor: string;
+  try {
+    anchor = decodeURIComponent(hash.replace(/^#/, ""));
+  } catch {
+    anchor = "";
+  }
+  return `${base}#${encodeURIComponent(Object.hasOwn(anchors, anchor) ? anchors[anchor] : "rules")}`;
+}
+
 /** Archival punctuation stays in headings and anchors; only TOC labels are cleaned. */
 export function rulesContentsLabel(heading: string, archiveSeason?: string) {
   return ["8", "9", "10"].includes(archiveSeason ?? "")

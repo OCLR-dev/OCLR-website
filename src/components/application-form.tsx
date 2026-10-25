@@ -199,7 +199,7 @@ export function ApplicationForm({
             {tr("I have read and agree to the")}{" "}
             <Link
               className="text-link"
-              href={`/tournaments/${edition.slug}/rules`}
+              href={`/tournaments/${edition.slug}#rules`}
               target="_blank"
               rel="noopener"
             >

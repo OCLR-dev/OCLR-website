@@ -31,6 +31,7 @@ import {
 } from "@/lib/historical-archive";
 import { PageHeading, Badge } from "./ui";
 import { RulesHandbook } from "./rules-handbook";
+import { RulesSection } from "./rules-section";
 import {
   historicalRulebook,
   historicalRulebookSeason,
@@ -54,13 +55,13 @@ export type ArchiveSection =
   | "awards";
 export async function historicalPage(
   slug: string,
-  section: ArchiveSection,
+  section: Exclude<ArchiveSection, "rules">,
   id?: string,
 ) {
   if (remoteMode()) {
     const edition = await frontendTournament(slug);
     if (edition.overview.kind !== "historical_archive") return null;
-    if (!["overview", "rules", "players", "player"].includes(section))
+    if (!["overview", "players", "player"].includes(section))
       throw new RemoteDataError("REMOTE_UNSUPPORTED", 501);
     const players = ["players", "player"].includes(section)
       ? (await frontendPlayers(slug)).rows
@@ -69,7 +70,7 @@ export async function historicalPage(
       <RemoteArchiveCore
         edition={edition}
         players={players}
-        section={section as "overview" | "rules" | "players" | "player"}
+        section={section as "overview" | "players" | "player"}
         id={id}
       />
     );
@@ -413,14 +414,10 @@ export async function HistoricalArchiveView({
             ))}
           </dl>
         </div>
-        <section
-          id="rules"
-          className="archive-overview-rules"
-          aria-labelledby="archive-rules-title"
-        >
+        <RulesSection titleId="archive-rules-title">
           <h2 id="archive-rules-title">{tr("Tournament rules")}</h2>
           {rulesContent()}
-        </section>
+        </RulesSection>
         {preview && (
           <nav className="actions" aria-label={tr("Archive sections")}>
             {[

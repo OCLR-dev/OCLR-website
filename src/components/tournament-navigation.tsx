@@ -30,7 +30,6 @@ function Navigation({
     ["schedule", archived ? "Matches & results" : "Schedule"],
     ["mappools", "Mappools"],
     ["teams", "Teams"],
-    ["rules", "Rules"],
     ...(!archived ? [["results", "Results"]] : []),
     ["bracket", "Bracket"],
     ["players", "Players"],
@@ -51,7 +50,6 @@ function Navigation({
         ["mappools", "Mappools"],
         ["statistics", "Statistics"],
         ...(archived ? [["staff", "Staff"]] : []),
-        ["rules", "Rules"],
       ]
     : legacyLinks;
   const section = publicTournamentSection(pathname, base);

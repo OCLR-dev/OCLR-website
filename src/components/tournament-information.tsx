@@ -5,12 +5,16 @@ import type { TournamentStage } from "@/lib/tournament-stages";
 import Image from "next/image";
 import { getAppTranslations } from "@/i18n/server";
 import type { TournamentInformation } from "@/lib/tournament-information";
+import type { ReactNode } from "react";
+import { RulesSection } from "./rules-section";
 
 export async function InformationDocument({
   document,
   active,
   stages,
+  rulesContent,
 }: {
+  rulesContent?: ReactNode;
   stages?: TournamentStage[];
   document: TournamentInformation;
   active: { label: string; detail?: string; href: string; action: string };
@@ -186,21 +190,19 @@ export async function InformationDocument({
           )}
         </article>
       </div>
-      {document.rules.length > 0 && (
-        <section
-          id="rules"
-          className="archive-overview-rules"
-          aria-labelledby="current-rules-title"
-        >
+      {(rulesContent || document.rules.length > 0) && (
+        <RulesSection titleId="current-rules-title">
           <h2 id="current-rules-title">{tr("Tournament rules")}</h2>
-          <RulesHandbook
-            sections={document.rules.map((rule, i) => ({
-              id: `rules-${i + 1}`,
-              heading: rule.heading,
-              body: rule.paragraphs.join("\n\n"),
-            }))}
-          />
-        </section>
+          {rulesContent ?? (
+            <RulesHandbook
+              sections={document.rules.map((rule, i) => ({
+                id: `rules-${i + 1}`,
+                heading: rule.heading,
+                body: rule.paragraphs.join("\n\n"),
+              }))}
+            />
+          )}
+        </RulesSection>
       )}
     </div>
   );

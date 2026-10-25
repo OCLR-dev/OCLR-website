@@ -9,7 +9,7 @@ export function publicTournamentSection(path: string, base: string) {
   if (suffix === null) return null;
   if (suffix === "participants") return "players";
   if (suffix === "matches") return "schedule";
-  if (suffix === "register") return "";
+  if (["register", "rules"].includes(suffix)) return "";
   if (suffix === "team") return "teams";
   return suffix;
 }

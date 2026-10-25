@@ -3,6 +3,7 @@ import {
   rulesBodyText,
   rulesContentsLabel,
   rulesSectionIds,
+  rulesRedirectHref,
 } from "../../src/lib/rules-navigation";
 describe("rules heading anchors", () => {
   it("retains Chinese and normalizes fullwidth characters", () => {
@@ -29,6 +30,39 @@ describe("rules heading anchors", () => {
     const ids = rulesSectionIds(["x".repeat(500), "<script>alert(1)</script>"]);
     expect(ids[0].length).toBeLessThan(90);
     expect(ids[1]).not.toContain("<");
+  });
+});
+
+describe("legacy rules links", () => {
+  it("maps decoded chapter anchors while keeping the selected edition", () => {
+    expect(
+      rulesRedirectHref(
+        "/tournaments/s11",
+        "#rule-%E6%AF%94%E8%B5%9B%E8%A7%84%E5%88%99",
+        {
+          "rule-比赛规则": "rules-2",
+        },
+      ),
+    ).toBe("/tournaments/s11#rules-2");
+    expect(
+      rulesRedirectHref("/tournaments/s8", "#rule-比赛信息", {
+        "rule-比赛信息": "rule-比赛信息",
+      }),
+    ).toBe("/tournaments/s8#rule-%E6%AF%94%E8%B5%9B%E4%BF%A1%E6%81%AF");
+  });
+  it("falls back to the same edition rules for absent, malformed or unrecognized fragments", () => {
+    for (const hash of [
+      "",
+      "#",
+      "#unknown",
+      "#%E0%A4%A",
+      "#__proto__",
+      "#https://example.com",
+    ]) {
+      expect(rulesRedirectHref("/tournaments/s7", hash, {})).toBe(
+        "/tournaments/s7#rules",
+      );
+    }
   });
 });
 

@@ -161,7 +161,7 @@ test.describe("MainSheet Light public experience", () => {
     await page.goto(base + "/rules");
     const headings = page.locator(".rules-article h2");
     const ids = await headings.evaluateAll((nodes) => nodes.map((n) => n.id));
-    expect(new Set(ids).size).toBe(3);
+    expect(new Set(ids).size).toBe(4); // Published eligibility remains part of the homepage handbook.
     await expect(page.locator(".rules-article")).toContainText(
       "<script>alert(1)</script>",
     );

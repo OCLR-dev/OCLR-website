@@ -5,6 +5,7 @@ import { getAppTranslations } from "@/i18n/server";
 import type { PublicTournament, PublicPlayer } from "@/lib/read-api-contract";
 import { PageHeading, Badge } from "./ui";
 import { RulesHandbook } from "./rules-handbook";
+import { RulesSection } from "./rules-section";
 import { Avatar } from "./avatar";
 import { ArchivePlayerSearch } from "./archive-player-search";
 export async function RemoteArchiveCore({
@@ -15,7 +16,7 @@ export async function RemoteArchiveCore({
 }: {
   edition: PublicTournament;
   players?: PublicPlayer[];
-  section: "overview" | "rules" | "players" | "player";
+  section: "overview" | "players" | "player";
   id?: string;
 }) {
   const tr = await getAppTranslations();
@@ -92,9 +93,7 @@ export async function RemoteArchiveCore({
             ? selected[0].username
             : section === "players"
               ? tr("Players")
-              : section === "rules"
-                ? tr("Rules")
-                : edition.name
+              : edition.name
         }
       >
         {section === "overview" ? edition.summary : undefined}
@@ -130,17 +129,11 @@ export async function RemoteArchiveCore({
               ))}
             </dl>
           </div>
-          <section
-            id="rules"
-            className="archive-overview-rules"
-            aria-labelledby="archive-rules-title"
-          >
+          <RulesSection titleId="archive-rules-title">
             <h2 id="archive-rules-title">{tr("Tournament rules")}</h2>
             {rules}
-          </section>
+          </RulesSection>
         </>
-      ) : section === "rules" ? (
-        rules
       ) : (
         <>
           {section === "players" ? (

@@ -118,11 +118,12 @@ test.describe("tournament overview alignment (#265)", () => {
           const links = page
             .getByRole("navigation", { name: "Tournament navigation" })
             .getByRole("link");
-          await expect(links.last()).toHaveText("Rules");
-          await expect(links.last()).toHaveAttribute(
-            "href",
-            `/tournaments/${slug}/rules`,
-          );
+          await expect(links.filter({ hasText: /^Rules$/ })).toHaveCount(0);
+          await expect(
+            page
+              .getByRole("navigation", { name: "Tournament navigation" })
+              .locator(`a[href="/tournaments/${slug}/rules"]`),
+          ).toHaveCount(0);
           if (isMobile)
             await page.getByRole("button", { name: /Tournament menu/ }).click();
           expect(
@@ -170,7 +171,22 @@ test.describe("tournament overview alignment (#265)", () => {
     }
     await page.goto("/tournaments/overview-test#rules-2");
     await expect(page.locator("#rules-2")).toBeInViewport();
+    const legacyHtml = await (
+      await context.request.get("/tournaments/overview-test/rules")
+    ).text();
+    expect(legacyHtml).toContain('name="robots" content="noindex, follow"');
+    expect(legacyHtml).not.toContain(edition.rules!.sections[0].body);
     await page.goto("/tournaments/s10/rules");
+    await expect(page).toHaveURL(/\/tournaments\/s10#rules$/);
     await expect(page.locator(".rules-handbook")).toBeVisible();
+    await page.goto("/tournaments/overview-test/rules#rule-test-rules");
+    await expect(page).toHaveURL(/\/tournaments\/overview-test#rules-2$/);
+    await expect(page.locator("#rules-2")).toBeInViewport();
+    await expect(page.locator("#rules .rules-version")).toContainText(
+      edition.rules!.version,
+    );
+    await page.goto("/tournaments/s10/rules#rule-missing-chapter");
+    await expect(page).toHaveURL(/\/tournaments\/s10#rules$/);
+    await expect(page.locator("#rules")).toBeInViewport();
   });
 });

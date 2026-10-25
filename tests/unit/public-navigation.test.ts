@@ -12,7 +12,7 @@ describe("public edition navigation", () => {
     ["/teams/team-id", "teams"],
     ["/matches/match-id", "schedule"],
     ["/register", ""],
-    ["/rules", "rules"],
+    ["/rules", ""],
     ["/bracket", "bracket"],
     ["/players", "players"],
     ["/team", "teams"],

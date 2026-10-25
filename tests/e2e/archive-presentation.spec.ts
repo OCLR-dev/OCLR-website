@@ -64,6 +64,24 @@ test.describe("archive presentation fixes", () => {
           const labels = await toc.locator("a").allTextContents();
           expect(labels.every((label) => !/[：:]\s*$/.test(label))).toBe(true);
           const ids = rulesSectionIds(rules.sections.map((s) => s.heading));
+          await page.goto(
+            `/tournaments/${slug}/rules#${encodeURIComponent(ids[1])}`,
+          );
+          await expect
+            .poll(() => decodeURIComponent(page.url()))
+            .toBe(`http://127.0.0.1:3100/tournaments/${slug}#${ids[1]}`);
+          await expect(page.locator(`[id="${ids[1]}"]`)).toBeInViewport();
+          await expect
+            .poll(
+              async () =>
+                (await page.locator(`[id="${ids[1]}"]`).boundingBox())!.y >=
+                (await page
+                  .locator(".site-header")
+                  .evaluate((node) => node.getBoundingClientRect().bottom)),
+            )
+            .toBe(true);
+          if (isMobile)
+            await page.locator(".rules-mobile-contents summary").click();
           for (let i = 0; i < ids.length; i++)
             await expect(toc.locator("a").nth(i)).toHaveAttribute(
               "href",
