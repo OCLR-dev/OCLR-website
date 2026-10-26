@@ -29,6 +29,7 @@ import {
 } from "@/lib/public-read-models";
 import type { PublicPlayer } from "@/lib/read-api-contract";
 import { deriveS8Standings } from "@/lib/s8-standings";
+import { hasS1FinalStandings } from "@/lib/s1-archive";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -343,75 +344,76 @@ export async function HistoricalArchiveView({
             )
               match.note = tr("Forfeit");
       }
+    const finalRanks = hasS1FinalStandings(a);
+    const standingsContent = standings.length ? (
+      <>
+        <h2>{finalRanks ? tr("Final standings") : tr("Group standings")}</h2>
+        {derived && (
+          <p className="muted small">
+            {tr(
+              "Calculated from recorded group results: wins, then map difference. This is a derived order, not an official archived ranking. Equal values share a rank; incomplete or ambiguous groups await review.",
+            )}
+          </p>
+        )}
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label={title}
+        >
+          <table>
+            <thead>
+              <tr>
+                {[
+                  ...(finalRanks ? [] : [tr("Group")]),
+                  tr("Rank"),
+                  tr("Team"),
+                  ...(derived ? [tr("Played")] : []),
+                  tr("Wins"),
+                  tr("Losses"),
+                  tr("Maps won"),
+                  tr("Maps lost"),
+                  ...(derived ? [tr("Map difference")] : []),
+                ].map((h) => (
+                  <th key={h}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {standings.map((s) => (
+                <tr key={s.teamId}>
+                  {!finalRanks && <td>{s.group}</td>}
+                  <td>
+                    {s.rank ??
+                      ("status" in s
+                        ? s.status === "review"
+                          ? tr("Awaiting review")
+                          : tr("Incomplete results")
+                        : tr("Not recorded"))}
+                    {"tied" in s && s.tied ? ` · ${tr("Tied")}` : ""}
+                  </td>
+                  <td>{teamLink(s.teamId)}</td>
+                  {"played" in s && <td>{s.played}</td>}
+                  <td>{s.wins}</td>
+                  <td>{s.losses}</td>
+                  <td>{s.mapsWon}</td>
+                  <td>{s.mapsLost}</td>
+                  {"mapDifference" in s && <td>{s.mapDifference}</td>}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    ) : undefined;
     return (
       <ArchiveCompetition
         bracket={bracket}
         teamUrls={Object.fromEntries(
           a.teams.map((t) => [t.id, href("teams", t.id)]),
         )}
-        standings={
-          standings.length ? (
-            <>
-              <h2>{tr("Group standings")}</h2>
-              {derived && (
-                <p className="muted small">
-                  {tr(
-                    "Calculated from recorded group results: wins, then map difference. This is a derived order, not an official archived ranking. Equal values share a rank; incomplete or ambiguous groups await review.",
-                  )}
-                </p>
-              )}
-              <div
-                className="table-scroll"
-                tabIndex={0}
-                role="region"
-                aria-label={title}
-              >
-                <table>
-                  <thead>
-                    <tr>
-                      {[
-                        tr("Group"),
-                        tr("Rank"),
-                        tr("Team"),
-                        ...(derived ? [tr("Played")] : []),
-                        tr("Wins"),
-                        tr("Losses"),
-                        tr("Maps won"),
-                        tr("Maps lost"),
-                        ...(derived ? [tr("Map difference")] : []),
-                      ].map((h) => (
-                        <th key={h}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {standings.map((s) => (
-                      <tr key={s.teamId}>
-                        <td>{s.group}</td>
-                        <td>
-                          {s.rank ??
-                            ("status" in s
-                              ? s.status === "review"
-                                ? tr("Awaiting review")
-                                : tr("Incomplete results")
-                              : tr("Not recorded"))}
-                          {"tied" in s && s.tied ? ` · ${tr("Tied")}` : ""}
-                        </td>
-                        <td>{teamLink(s.teamId)}</td>
-                        {"played" in s && <td>{s.played}</td>}
-                        <td>{s.wins}</td>
-                        <td>{s.losses}</td>
-                        <td>{s.mapsWon}</td>
-                        <td>{s.mapsLost}</td>
-                        {"mapDifference" in s && <td>{s.mapDifference}</td>}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          ) : undefined
-        }
+        standings={finalRanks ? undefined : standingsContent}
+        finalStandings={finalRanks ? standingsContent : undefined}
       />
     );
   }

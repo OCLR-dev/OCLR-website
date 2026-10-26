@@ -4,6 +4,7 @@ import {
   type HistoricalArchive,
 } from "./historical-archive";
 import type { ResolvedBracket, ResolvedMatch } from "./bracket-model";
+import { isS1Archive } from "./s1-archive";
 
 /** Edges mean a team's previous recorded appearance, never an invented qualification rule. */
 export function archiveBracket(
@@ -43,10 +44,10 @@ export function archiveBracket(
   >();
   const last = new Map<string, { id: string; column: number; at: number }[]>();
   for (const m of sorted) {
-    // S2 stores overall final ranks in standings; its original stage labels
-    // retain the two round-robin groups independently of those final ranks.
+    // S1/S2 store overall final ranks in standings; original stage labels
+    // retain their round-robin groups independently of those final ranks.
     const sourceGroup =
-      (s2Source && /^小组赛 [AB]组$/.test(m.stage)) ||
+      ((isS1Archive(archive) || s2Source) && /^小组赛 [AB]组$/.test(m.stage)) ||
       (archive.sourceUrl ===
         "https://github.com/OCLR-dev/OCLR-website/issues/289" &&
         /^瑞士輪第 \d+ 輪/.test(m.stage));
