@@ -1033,6 +1033,8 @@ html[data-appearance="frutiger-aero"] .themed-site .notice {
   html[data-appearance="frutiger-aero"] .themed-site .map-slot-badge {
     min-width: 44px;
     min-height: 44px;
+    /* Keep the short code plus padding inside the mobile circle. */
+    padding-inline: 0.3rem;
     font-size: 0.72rem;
   }
 }

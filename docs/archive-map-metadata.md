@@ -114,3 +114,12 @@ an explicit winner/loser relation. It keeps the conservative connection-free
 fallback for incomplete historical appearance data. The original connector-count
 assertion remains unchanged. After rebuilding, the desktop/mobile rehearsal and
 S9 appearance checks all passed (four tests); check/build also passed.
+
+Baseline CI also exposed stale #241 selectors and a Frutiger mobile slot-sizing
+failure. The S7–S10 presentation check now verifies the current SVG renderer,
+recorded match/source counts and the reference-only notice. Frutiger's existing
+44px mobile circle retains its size with smaller inline padding; long labels
+still grow and wrap. The geometry check now covers both brightness modes.
+Check/build passed, and both corrected tests passed on desktop/mobile (four
+checks). At the organizer's request, CI monitoring was stopped and the changes
+were submitted to PR #337 without claiming complete CI acceptance.

@@ -40,13 +40,19 @@ test("241 historical presentation", async ({ page, context }, info) => {
         await expect(page.locator(".bracket-group-grid")).toBeVisible();
         await phase.nth(1).click();
         await expect(page.locator(".bracket-group-grid")).toHaveCount(0);
-        expect(await page.locator(".bracket-round").count()).toBeGreaterThan(1);
-        await expect
-          .poll(() => page.locator(".bracket-frame svg path").count())
-          .toBeGreaterThan(0);
-        await expect(page.locator(".archive-competition")).toContainText(
-          "do not establish qualification rules",
+        const canvas = page.locator(".bracket-library-scroll");
+        await expect(canvas).toBeVisible();
+        await expect(canvas.locator(".match-card")).toHaveCount(
+          season === 8 ? 14 : 10,
         );
+        await expect(canvas.locator("svg path").first()).toBeVisible();
+        await expect(page.locator(".archive-competition")).toContainText(
+          "Recorded appearances are reference links, not confirmed advancement.",
+        );
+        await page.getByText("Connection sources", { exact: true }).click();
+        await expect(
+          page.locator(".bracket-source-details .match-source"),
+        ).toHaveCount(season === 8 ? 16 : 12);
         expect(
           await page.evaluate(
             () => document.documentElement.scrollWidth <= innerWidth,

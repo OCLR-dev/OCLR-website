@@ -63,52 +63,54 @@ test.describe("Frutiger Aero material fallbacks", () => {
     page,
     context,
   }) => {
-    await preferences(context);
-    for (const width of [390, 1440]) {
-      await page.setViewportSize({ width, height: 900 });
-      const response = await page.goto(base);
-      expect(response?.status()).toBe(200);
-      await expect(page.locator("html")).toHaveAttribute(
-        "data-appearance",
-        "frutiger-aero",
-      );
-      const sizes = await page.evaluate(() => {
-        const themed = document.querySelector<HTMLElement>(".themed-site");
-        if (!themed) throw new Error("missing .themed-site");
-        const host = document.createElement("div");
-        host.className = "map-card-cover";
-        host.style.cssText = `position:relative;width:${innerWidth < 500 ? 200 : 260}px;height:160px`;
-        const badge = document.createElement("span");
-        badge.className = "map-slot-badge";
-        badge.textContent = "HD2";
-        host.append(badge);
-        themed.append(host);
-        const short = badge.getBoundingClientRect();
-        badge.textContent = "ARCHIVE MOD SLOT 12";
-        const long = badge.getBoundingClientRect();
-        const computed = getComputedStyle(badge);
-        const result = {
-          shortWidth: short.width,
-          shortHeight: short.height,
-          longWidth: long.width,
-          longHeight: long.height,
-          scrollWidth: badge.scrollWidth,
-          clientWidth: badge.clientWidth,
-          radius: parseFloat(computed.borderRadius),
-        };
-        host.remove();
-        return result;
-      });
-      // A short code fills a 52px (44px on mobile) circle.
-      expect(
-        Math.abs(sizes.shortWidth - sizes.shortHeight),
-      ).toBeLessThanOrEqual(1.5);
-      // A long imported/archive label becomes a capsule and wraps instead of
-      // being clipped by the former fixed width.
-      expect(sizes.longWidth).toBeGreaterThan(sizes.shortWidth);
-      expect(sizes.longWidth).toBeGreaterThan(sizes.longHeight);
-      expect(sizes.scrollWidth).toBeLessThanOrEqual(sizes.clientWidth + 1);
-      expect(sizes.radius).toBeGreaterThanOrEqual(999);
+    for (const theme of ["light", "dark"]) {
+      await preferences(context, theme);
+      for (const width of [390, 1440]) {
+        await page.setViewportSize({ width, height: 900 });
+        const response = await page.goto(base);
+        expect(response?.status()).toBe(200);
+        await expect(page.locator("html")).toHaveAttribute(
+          "data-appearance",
+          "frutiger-aero",
+        );
+        const sizes = await page.evaluate(() => {
+          const themed = document.querySelector<HTMLElement>(".themed-site");
+          if (!themed) throw new Error("missing .themed-site");
+          const host = document.createElement("div");
+          host.className = "map-card-cover";
+          host.style.cssText = `position:relative;width:${innerWidth < 500 ? 200 : 260}px;height:160px`;
+          const badge = document.createElement("span");
+          badge.className = "map-slot-badge";
+          badge.textContent = "HD2";
+          host.append(badge);
+          themed.append(host);
+          const short = badge.getBoundingClientRect();
+          badge.textContent = "ARCHIVE MOD SLOT 12";
+          const long = badge.getBoundingClientRect();
+          const computed = getComputedStyle(badge);
+          const result = {
+            shortWidth: short.width,
+            shortHeight: short.height,
+            longWidth: long.width,
+            longHeight: long.height,
+            scrollWidth: badge.scrollWidth,
+            clientWidth: badge.clientWidth,
+            radius: parseFloat(computed.borderRadius),
+          };
+          host.remove();
+          return result;
+        });
+        // A short code fills a 52px (44px on mobile) circle.
+        expect(
+          Math.abs(sizes.shortWidth - sizes.shortHeight),
+        ).toBeLessThanOrEqual(1.5);
+        // A long imported/archive label becomes a capsule and wraps instead of
+        // being clipped by the former fixed width.
+        expect(sizes.longWidth).toBeGreaterThan(sizes.shortWidth);
+        expect(sizes.longWidth).toBeGreaterThan(sizes.longHeight);
+        expect(sizes.scrollWidth).toBeLessThanOrEqual(sizes.clientWidth + 1);
+        expect(sizes.radius).toBeGreaterThanOrEqual(999);
+      }
     }
   });
 
@@ -449,9 +451,7 @@ test.describe("Frutiger Aero material fallbacks", () => {
 
     // Global navigation: equal-height capsules with real side padding.
     if (isMobile) await page.locator(".menu-toggle").click();
-    const nav = page.locator(
-      isMobile ? ".main-nav.open > a" : ".main-nav > a",
-    );
+    const nav = page.locator(isMobile ? ".main-nav.open > a" : ".main-nav > a");
     await expect(nav.first()).toBeVisible();
     const navMetrics = await nav.evaluateAll((links) =>
       links.map((element) => {
@@ -611,15 +611,16 @@ test.describe("Frutiger Aero material fallbacks", () => {
     await page.emulateMedia({ forcedColors: "active" });
     const forcedSelectResponse = await page.goto("/tournaments/s7/statistics");
     expect(forcedSelectResponse?.status()).toBe(200);
-    const forcedSelect = await page.locator("select").first().evaluate(
-      (element) => {
+    const forcedSelect = await page
+      .locator("select")
+      .first()
+      .evaluate((element) => {
         const computed = getComputedStyle(element);
         return {
           appearance: computed.appearance,
           image: computed.backgroundImage,
         };
-      },
-    );
+      });
     expect(forcedSelect.appearance).toBe("auto");
     expect(forcedSelect.image).toBe("none");
   });
