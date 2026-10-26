@@ -8,7 +8,9 @@ Related issue: [#233](https://github.com/OCLR-dev/OCLR-website/issues/233).
 
 The first four proposals (`index.html`, `assets/wordmark-{a,b,c,d}.svg`) were rejected by the organizer for losing the supplied reference's composition and osu! identity. They remain as iteration history, not approved alternatives.
 
-**Current shape draft: [`revision-04/index.html`](revision-04/index.html).**
+**Current shape draft: [`revision-05/index.html`](revision-05/index.html).**
+
+R05 is a separate angular OCL / S11 study, preserving the exact R04 slider R, control points, connecting polygon and accuracy-bar/name placement. The upper-right 喝 reuses the exact R03 Noto Serif CJK Black glyph path. Main-letter interiors remain transparent. **R04 is preserved unchanged** at the organizer’s request. See [R05 sources and verification](revision-05/README.md).
 
 R04 follows the organizer's new direction: literal LaTeX `\mathcal{OCL}` in Computer Modern calligraphic capitals; an R reconstructed from the supplied osu! editor screenshot's six control points, two circular arcs and shortened final line; the existing brush S11 on the right; and a horizontal accuracy bar between OCLR and the full English name. The artwork is a single-color shape proof with a restrained colored accuracy bar. The review page includes a same-coordinate R reference comparison. [Shape sources](revision-04/sources/SHAPE-SOURCES.md) record the reproducible inputs and screenshot reconstruction limits.
 
@@ -30,7 +32,7 @@ From the worktree root:
 python -m http.server 4178 --bind 127.0.0.1 --directory design/home-visual
 ```
 
-Open `http://127.0.0.1:4178/revision-04/`. The local preview server has no database or credentials. Current outputs:
+Open `http://127.0.0.1:4178/revision-05/`. The local preview server has no database or credentials. Current outputs:
 
 - `revision-04/oclr-s11-shapes.svg`: transparent native-vector horizontal wordmark.
 - `revision-04/shape-board.png`: 1700 × 470 shape proof on white.
