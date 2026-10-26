@@ -130,6 +130,7 @@ test.describe("Admin default and visitor appearance overrides", () => {
       );
       // Repeated saves exercise the form's refreshed revision, without a redeploy.
       for (const value of [
+        "skyline-pop",
         "frutiger-aero",
         "retro-arcade",
         "manga-halftone",
@@ -206,8 +207,8 @@ test.describe("Admin default and visitor appearance overrides", () => {
     } finally {
       await guest.close();
     }
-    expect(await db().select().from(siteSettingEvents)).toHaveLength(11);
-    expect((await db().select().from(siteSettings))[0].revision).toBe(11);
+    expect(await db().select().from(siteSettingEvents)).toHaveLength(12);
+    expect((await db().select().from(siteSettings))[0].revision).toBe(12);
     expect(errors).toEqual([]);
   });
   test("enforces global Admin authorization, origin and concurrency through the API", async ({

@@ -19,6 +19,7 @@ const appearances = [
   "esports-broadcast",
   "retro-arcade",
   "frutiger-aero",
+  "skyline-pop",
 ];
 // Every appearance in the default locale, plus the other locales in the default appearance.
 const cases = [

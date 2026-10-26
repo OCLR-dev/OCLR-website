@@ -19,6 +19,7 @@ const themeFiles: Record<string, string> = {
   "esports-theme.css": "esports-broadcast",
   "arcade-theme.css": "retro-arcade",
   "frutiger-theme.css": "frutiger-aero",
+  "skyline-theme.css": "skyline-pop",
 };
 const sharedHeader = new Set([
   "src/app/layout.tsx",
@@ -101,7 +102,14 @@ export function planCi(files: string[] | undefined, forceFull = false): CiPlan {
 
 type Need = { result: string; outputs?: Record<string, string> };
 export function assertCiGate(needs: Record<string, Need>): void {
-  for (const job of ["plan", "verify", "e2e", "header-e2e", "remote-e2e"])
+  for (const job of [
+    "plan",
+    "verify",
+    "build",
+    "e2e",
+    "header-e2e",
+    "remote-e2e",
+  ])
     if (needs[job]?.result !== "success")
       throw new Error("Required job did not succeed: " + job);
   const raw = needs.plan.outputs?.json;

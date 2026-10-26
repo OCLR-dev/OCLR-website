@@ -18,6 +18,7 @@ export default defineConfig({
   testDir: "./tests/remote-e2e",
   globalSetup: "./tests/e2e/setup.ts",
   workers: 1,
+  reporter: base.reporter,
   fullyParallel: false,
   timeout: 120000,
   use: { ...base.use, baseURL: "http://127.0.0.1:31470" },

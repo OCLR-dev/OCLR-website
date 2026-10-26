@@ -42,13 +42,13 @@ test.describe("tournament appearance inheritance", () => {
         name: "Default tournament appearance",
         exact: true,
       })
-      .selectOption("swiss-minimal");
+      .selectOption("skyline-pop");
     await page
       .getByRole("button", { name: "Save general settings", exact: true })
       .click();
     await expect(page.locator("html")).toHaveAttribute(
       "data-appearance",
-      "swiss-minimal",
+      "skyline-pop",
     );
     await page.screenshot({
       path: info.outputPath("tournament-default.png"),
@@ -65,7 +65,7 @@ test.describe("tournament appearance inheritance", () => {
     ]);
     const response = await page.goto("/tournaments/test-cup");
     expect(await response!.text()).toMatch(
-      /<html[^>]*data-appearance="swiss-minimal"/,
+      /<html[^>]*data-appearance="skyline-pop"/,
     );
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await page.locator(".appearance-trigger").click();
@@ -84,7 +84,7 @@ test.describe("tournament appearance inheritance", () => {
       .click();
     await expect(page.locator("html")).toHaveAttribute(
       "data-appearance",
-      "swiss-minimal",
+      "skyline-pop",
     );
     // Next Link transitions must recalculate the current tournament instead of retaining the last one.
     if (isMobile)

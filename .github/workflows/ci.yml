@@ -87,27 +87,11 @@ jobs:
       - run: npm run db:migrate
       - run: npm run check
       - run: npm test
-      - run: npm run build
       - run: npm audit --omit=dev
-      - name: Package production build
-        run: tar --exclude='.next/cache' -czf /tmp/oclr-next-build.tgz .next
-      - uses: actions/upload-artifact@v4
-        with:
-          name: next-build
-          path: /tmp/oclr-next-build.tgz
-          retention-days: 1
-          compression-level: 0
-          if-no-files-found: error
 
-  e2e:
-    needs: [plan, verify]
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
-    # Each runner owns its PostgreSQL service; never increase workers on this DB.
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:17
@@ -122,6 +106,52 @@ jobs:
     env:
       DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
       TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev
+      - run: npm run db:migrate
+      - run: npm run build
+      - name: Package production build
+        run: tar --exclude='.next/cache' -czf /tmp/oclr-next-build.tgz .next
+      - uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: /tmp/oclr-next-build.tgz
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  e2e:
+    needs: [plan, build]
+    runs-on: ubuntu-latest
+    # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+      options: --ipc=host
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    # Each runner owns its PostgreSQL service; never increase workers on this DB.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: oclr_test
+          POSTGRES_PASSWORD: isolated_ci_fixture
+          POSTGRES_DB: oclr_test
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
       OCLR_E2E_EVIDENCE: minimal
     steps:
       - uses: actions/checkout@v4
@@ -136,8 +166,9 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: npx playwright install --with-deps chromium firefox webkit
-      - run: npm run test:e2e:core -- --shard=${{ matrix.shard }}/4
+      # The image runs as root; Firefox requires its actual root-owned home.
+      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root npm run test:e2e:core -- --shard=${{ matrix.shard }}/8
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -146,8 +177,12 @@ jobs:
           retention-days: 7
 
   header-e2e:
-    needs: [plan, verify]
+    needs: [plan, build]
     runs-on: ubuntu-latest
+    # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+      options: --ipc=host
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -161,13 +196,13 @@ jobs:
           POSTGRES_USER: oclr_test
           POSTGRES_PASSWORD: isolated_ci_fixture
           POSTGRES_DB: oclr_test
-        ports: ["5432:5432"]
         options: >-
           --health-cmd pg_isready --health-interval 5s
           --health-timeout 5s --health-retries 10
     env:
-      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
-      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
       OCLR_E2E_MATRIX: ${{ needs.plan.outputs.header_mode }}
       OCLR_HEADER_APPEARANCES: ${{ needs.plan.outputs.header_appearances }}
     steps:
@@ -183,8 +218,8 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: npx playwright install --with-deps chromium firefox
-      - run: npm run test:e2e:header -- --shard=${{ matrix.shard }}/4
+      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root npm run test:e2e:header -- --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -193,8 +228,12 @@ jobs:
           retention-days: 7
 
   remote-e2e:
-    needs: [plan, verify]
+    needs: [plan, build]
     runs-on: ubuntu-latest
+    # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+      options: --ipc=host
     timeout-minutes: 20
     # Each runner owns its PostgreSQL service; never increase workers on this DB.
     services:
@@ -204,13 +243,13 @@ jobs:
           POSTGRES_USER: oclr_test
           POSTGRES_PASSWORD: isolated_ci_fixture
           POSTGRES_DB: oclr_test
-        ports: ["5432:5432"]
         options: >-
           --health-cmd pg_isready --health-interval 5s
           --health-timeout 5s --health-retries 10
     env:
-      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
-      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -224,8 +263,8 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e:remote:core
+      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root npm run test:e2e:remote:core
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -234,9 +273,13 @@ jobs:
           retention-days: 7
 
   remote-matrix:
-    needs: [plan, verify]
+    needs: [plan, build]
     if: needs.plan.outputs.remote_matrix == 'true'
     runs-on: ubuntu-latest
+    # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+      options: --ipc=host
     timeout-minutes: 20
     # Each runner owns its PostgreSQL service; never increase workers on this DB.
     services:
@@ -246,13 +289,13 @@ jobs:
           POSTGRES_USER: oclr_test
           POSTGRES_PASSWORD: isolated_ci_fixture
           POSTGRES_DB: oclr_test
-        ports: ["5432:5432"]
         options: >-
           --health-cmd pg_isready --health-interval 5s
           --health-timeout 5s --health-retries 10
     env:
-      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
-      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -266,8 +309,8 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e:remote -- tests/remote-e2e/full-site.spec.ts
+      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root npm run test:e2e:remote -- tests/remote-e2e/full-site.spec.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -278,7 +321,7 @@ jobs:
   # Stable required context. Non-expected skips and failed/cancelled jobs fail closed.
   check:
     if: always()
-    needs: [plan, verify, e2e, header-e2e, remote-e2e, remote-matrix]
+    needs: [plan, verify, build, e2e, header-e2e, remote-e2e, remote-matrix]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

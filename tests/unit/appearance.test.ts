@@ -8,7 +8,7 @@ import {
 } from "../../src/lib/preferences";
 
 describe("visitor appearance preference", () => {
-  it("supports only the whitelisted original, pastel, Swiss, clay, manga, glass, esports, arcade and Frutiger Aero designs", () => {
+  it("supports only the registered designs, including S10 Skyline Pop", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",
@@ -19,6 +19,7 @@ describe("visitor appearance preference", () => {
       "esports-broadcast",
       "retro-arcade",
       "frutiger-aero",
+      "skyline-pop",
     ]);
     expect(appearanceCookie).toBe("oclr-appearance");
     expect(readAppearance("cute-pastel")).toBe("cute-pastel");

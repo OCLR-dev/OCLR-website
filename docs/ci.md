@@ -1,11 +1,13 @@
 # CI coverage and acceptance
 
 CI keeps functional checks strict while varying the expensive combinations that
-run for each change. The required context is still named **check**.
+run for each change. The aggregate context remains named **check**. CI reports
+results automatically, but passing CI is not required for merging.
 
 | Lane          | Always run                                                                                                              | Expanded coverage                                                                                                                |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| verify        | Locked npm install, lint/types, all unit/integration, production build and production audit                             | Unchanged                                                                                                                        |
+| verify        | Locked npm install, lint/types, all unit/integration and production audit                                               | Unchanged                                                                                                                        |
+| build         | Production build, packaged once for every browser lane                                                                  | Runs concurrently with verify                                                                                                    |
 | e2e           | Every existing desktop/mobile functional spec, excluding only header-overlap                                            | New functional specs are included automatically                                                                                  |
 | header-e2e    | Every appearance in English light/dark; all three languages on the default design; default language coverage in Firefox | Changed themes get all language/theme combinations; shared header/layout/styles, fonts and header assets get the complete matrix |
 | remote-e2e    | All remote specs except the expensive full-site page/GET matrix, including real grants, revocation and read-only checks | New remote specs are included automatically                                                                                      |
@@ -20,13 +22,17 @@ complete acceptance. Prose-only changes still run verify and all functional E2E.
 
 Header cases are sharded individually across four independent PostgreSQL runners.
 Each runner remains workers=1. No shared database is accessed concurrently by
-destructive fixtures. The functional lane continues to shard by file. Its existing
+destructive fixtures. The functional lane shards across eight independent
+runners: the previous four-shard baseline had a successful shard taking 21.6
+minutes in test execution alone. Stateful workflows remain grouped by file;
+read-only header-branding cases own their browser contexts and shard individually
+so their 60-case groups do not overload a runner. Its existing
 Firefox/WebKit asset cases still run, even though its main projects are Chromium.
 
-The representative header matrix has 50 project/case combinations instead of 162. It keeps 320px, 390px, and both sides of the 950/1100px navigation breakpoints,
+The representative header matrix has 54 project/case combinations instead of 180, including S10 Skyline Pop. It keeps 320px, 390px, and both sides of the 950/1100px navigation breakpoints,
 plus 760px and desktop widths. Targeted theme expansion also preserves the
-representative cases for all other designs. Full acceptance keeps the original
-162 combinations and all 15 widths. Counts are coverage counts, not a measured
+representative cases for all other designs. Full acceptance covers
+180 combinations and all 15 widths. Counts are coverage counts, not a measured
 promise of CI runtime.
 
 Keyboard/touch actions, focus, hit-testing, authorization, publication, revocation,
@@ -35,6 +41,36 @@ increased. Responsive measurements are always checked and attached as JSON;
 ordinary functional CI omits the helper's six full-page evidence screenshots.
 Explicit case screenshots remain, and failed tests automatically retain a
 screenshot and trace. Local/full evidence generation remains available.
+
+## Execution-time target and measurement
+
+The target for ordinary CI is under 20 minutes of execution on the critical path;
+GitHub runner queue time is reported separately. This is an optimization target,
+not an acceptance claim before a measured successful run. Full/nightly coverage
+is reported separately from the ordinary representative matrix.
+
+Build and verify start independently. Browser lanes need the build artifact and
+coverage plan, so they can start while lint/unit checks are still running. The
+required check waits for both build and verify as well as all selected browser
+lanes; an early browser pass cannot conceal a failed unit check.
+
+Browser jobs use the official Playwright Noble image pinned by version and
+manifest digest. Browsers and OS dependencies are preinstalled, replacing the
+repeated apt/browser download step. Keep its version aligned with the locked
+Playwright package; unit coverage checks the pins and each runner verifies both
+executable presence and an actual launch of Chromium, Firefox and WebKit. Browser
+steps use `HOME=/root`, the root user's actual home in the official image, because
+GitHub's mounted `/github/home` has different ownership and Firefox rejects it.
+Host verify/build jobs keep their existing environment. Image pull/setup time still counts as
+execution. Job containers reach their own isolated PostgreSQL service at
+postgres:5432; no test database is shared between runners.
+
+In CI every Playwright lane writes test-results/ci-timings.json and a job summary
+with measured elapsed time and the slowest spec/project totals. The existing
+result artifacts retain these measurements on success and failure. They contain
+paths, durations and status counts, without test titles or result bodies. Use
+them to rebalance expensive specs based on evidence; increasing workers against
+one destructive fixture database is unsafe.
 
 ## Events and full acceptance
 
@@ -60,31 +96,37 @@ GitHub workflow dispatch accepts a branch or tag ref. Point the authorized revie
 branch to the reviewed commit and verify the resulting run's head SHA. No
 deployment is performed by CI.
 
-## Maintainers and the main gate
+## Maintainers and merging
 
 The intended GitHub configuration is recorded in
 [ci-main-protection.json](ci-main-protection.json); the issue records its actual
-read-back state. Main requires the GitHub Actions check context, including for administrators.
-Direct pushes without checks are no longer the normal maintainer path. Preserve
-the existing no-PR workflow when requested by validating a feature branch first:
+read-back state. On 2026-10-27 the organizer requested that CI no longer be a
+mandatory merge condition. Main has no required status checks; CI workflows and
+their assertions continue to run. Other branch protections remain unchanged,
+including restrictions on force pushes and deletion.
+
+Follow the existing authorization and review scope:
 
 1. Fetch main and prepare a focused feature branch based on its current head.
-2. Push the authorized feature branch, then dispatch CI for that branch:
+2. Push the authorized feature branch. Manual CI remains available:
 
    ```sh
    gh workflow run ci.yml --repo OCLR-dev/OCLR-website --ref YOUR_FEATURE_BRANCH -f suite=core
    ```
 
-3. Confirm the run's head SHA equals the intended commit and its check succeeded.
-   Fetch main again. If the base changed, integrate it safely and verify the new
-   commit; never force-push or bypass branch protection.
-4. Push the already checked commit to main with a normal fast-forward push.
+3. Report the exact commit and actual CI result. A pending or failed run does not
+   itself prevent an otherwise authorized merge; it still needs investigation
+   and must not be described as passed. Merge permission, review acceptance and
+   release acceptance remain separate decisions.
+4. For an authorized main update, fetch main again and integrate any new base
+   safely, then use a normal fast-forward push. Never force-push or bypass other
+   branch protection.
    Synchronize the organizer's main checkout when safe, preserving other work.
 
 Implementation and GitHub protection state are recorded on issue #364. Repository
 access does not grant permission to change unrelated rules or deploy. If protection
 cannot be configured, the issue must record the actual API limitation rather than
-claiming this gate is active.
+claiming a setting was applied.
 
 ## Local verification
 
