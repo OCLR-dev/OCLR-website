@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { editionEvents, editionState, historicalStatistics } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
 import {
   archiveMpId,
@@ -162,6 +163,134 @@ async function stored(slug: string, reader: Reader = db()) {
     draft: snapshotSchema.parse(r.draft),
     published: r.published ? snapshotSchema.parse(r.published) : null,
   }));
+}
+
+/** Called only by explicit Admin roster confirmation under the edition lock. */
+export async function preserveStatisticsForRosterAddition(
+  tx: Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0],
+  actor: User,
+  before: HistoricalArchive,
+  after: HistoricalArchive,
+) {
+  await assertCapability(actor, "approve_results", before.editionSlug, tx);
+  // Never offer this as a general way to bless a changed archive key.
+  const { players: oldPlayers, sourceFacts: _oldFacts, ...oldRest } = before;
+  const { players: newPlayers, sourceFacts: _newFacts, ...newRest } = after;
+  void _oldFacts;
+  void _newFacts;
+  if (
+    !isDeepStrictEqual(oldRest, newRest) ||
+    newPlayers.length !== oldPlayers.length + 1 ||
+    !isDeepStrictEqual(oldPlayers, newPlayers.slice(0, oldPlayers.length))
+  )
+    throw new HttpError(409, "Archive changed. Reload before retrying.");
+  const oldKey = statisticsArchiveKey(before);
+  const newKey = statisticsArchiveKey(after);
+  const rows = await stored(before.editionSlug, tx);
+  const unchanged = (fixtureId: string, s: StatisticsSnapshot) => {
+    if (
+      s.archiveKey !== oldKey ||
+      !statisticsFixtures(after).some(
+        (f) =>
+          f.id === fixtureId &&
+          f.mpUrls.some((u) => archiveMpId(u) === s.source.match.id),
+      ) ||
+      [before, after].some((a) => !validStatisticsExclusions(s, a, fixtureId)) ||
+      (!after.pools.some((p) => p.id === s.poolId) &&
+        !(s.allowUnlistedMaps && s.poolId === "")) ||
+      new Set(s.included).size !== s.included.length ||
+      new Set(s.rosterTeamGames ?? []).size !==
+        (s.rosterTeamGames ?? []).length ||
+      (s.rosterTeamGames ?? []).some(
+        (id) => !s.source.games.some((g) => g.id === id),
+      ) ||
+      s.included.some((id) => {
+        const g = s.source.games.find((g) => g.id === id);
+        return (
+          !g ||
+          [before, after].some(
+            (a) =>
+              statisticsGameIssues(
+                a,
+                fixtureId,
+                s.poolId,
+                g,
+                s.allowUnlistedMaps,
+                s.excludedScores,
+                s.rosterTeamGames?.includes(id),
+              ).length,
+          )
+        );
+      })
+    )
+      return false;
+    return isDeepStrictEqual(
+      projectStatistics(before, fixtureId, s),
+      projectStatistics(after, fixtureId, s),
+    );
+  };
+  for (const fixture of statisticsFixtures(before)) {
+    const released = rows.filter(
+      (r) => r.fixtureId === fixture.id && r.published?.archiveKey === oldKey,
+    );
+    if (!released.length) continue;
+    const snapshots = released.map((r) => r.published!);
+    if (
+      released.some((r) => !unchanged(r.fixtureId, r.published!)) ||
+      [before, after].some(
+        (a) => fixtureStatisticsIssues(a, fixture.id, snapshots).length,
+      )
+    )
+      throw new HttpError(
+        409,
+        "Published statistics would change. Review or withdraw them before confirming this substitute.",
+      );
+  }
+  const versions = [];
+  for (const row of rows) {
+    const draft = unchanged(row.fixtureId, row.draft)
+      ? { ...row.draft, archiveKey: newKey }
+      : row.draft;
+    const published =
+      row.published?.archiveKey === oldKey
+        ? { ...row.published, archiveKey: newKey }
+        : row.published;
+    // A current published snapshot must have been fully checked above.
+    if (
+      row.published?.archiveKey === oldKey &&
+      !unchanged(row.fixtureId, row.published)
+    )
+      throw new HttpError(
+        409,
+        "Published statistics would change. Review or withdraw them before confirming this substitute.",
+      );
+    if (draft === row.draft && published === row.published) continue;
+    await tx
+      .update(historicalStatistics)
+      .set({
+        draft,
+        published,
+        version: row.version + 1,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(where(before.editionSlug), eq(historicalStatistics.mpId, row.mpId)),
+      );
+    versions.push({
+      mpId: row.mpId,
+      fromVersion: row.version,
+      toVersion: row.version + 1,
+      draft: draft !== row.draft,
+      published: published !== row.published,
+    });
+  }
+  if (versions.length)
+    await tx.insert(editionEvents).values({
+      editionSlug: before.editionSlug,
+      actorId: actor.osuId,
+      kind: "statistics_roster_revalidation",
+      detail: { oldKey, newKey, versions },
+    });
 }
 async function databaseStatisticsWorkspace(
   actor: User,
