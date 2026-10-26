@@ -162,6 +162,7 @@ export function BracketCanvas({
   }
   return (
     <>
+      <h2 className="sr-only">{group.label}</h2>
       <div
         className={`bracket-library-scroll${historical ? " bracket-library-references" : ""}${historical && !showAppearanceLinks ? " bracket-library-no-lines" : ""}`}
         role="region"

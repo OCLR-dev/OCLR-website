@@ -85,3 +85,23 @@ was used.
 
 These results do not establish deployment, current CI acceptance, or completion
 of the three unavailable source records. The issue remains open for review.
+
+## S9 regression follow-up
+
+The S9 browser checks still expected the legacy chronological-column DOM, while
+knockout now uses `BracketCanvas` and the double-elimination SVG renderer. The
+regression now verifies all ten scored knockout records, both original score
+slots, match-detail destinations, the exclusion of unscored alternatives, all
+12 recorded-appearance sources, and hiding/showing the reference connectors.
+The existing group-stage, appearance, accessibility and overflow checks remain.
+
+Once the outdated selectors were corrected, Axe exposed a missing level-two
+heading above the SVG match cards' level-three headings. A screen-reader heading
+using the existing group label restores the hierarchy without changing the
+visual layout or adding new interface wording.
+
+Local follow-up: `npm run check`, `npm run build`, and `git diff --check` passed.
+The two S9 regressions plus the two #335 map-metadata regressions passed on desktop
+and mobile (four tests); S9 covers default, cute-pastel and swiss-minimal in both
+light and dark, with Axe still enabled. This supersedes the two S9 failures above.
+Commit-specific full CI acceptance is recorded on #335 and its pull request.

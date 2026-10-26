@@ -1082,13 +1082,50 @@ test.describe("historical archive browser workflow", () => {
             await page
               .getByRole("button", { name: "Knockout", exact: true })
               .click();
-            await expect(page.locator(".bracket-round")).toHaveCount(5);
+            // Knockout now uses the SVG double-elimination renderer; the old
+            // chronological-column DOM is only used by grid/editor views.
+            const canvas = page.locator(".bracket-library-scroll");
+            await expect(canvas).toBeVisible();
+            await expect(canvas.locator(".match-card")).toHaveCount(10);
+            for (const match of archive.matches.slice(12)) {
+              const card = canvas.locator(`[data-match-id="${match.id}"]`);
+              // The source retains an unscored alternative (match-20a).
+              // It must not become a fabricated result in the bracket.
+              if (!match.score) {
+                await expect(card).toHaveCount(0);
+                continue;
+              }
+              await expect(card).toHaveCount(1);
+              await expect(card.getByRole("heading")).toHaveText(match.label);
+              await expect(
+                card.getByRole("link", { name: "Match details", exact: true }),
+              ).toHaveAttribute(
+                "href",
+                `/tournaments/${slug}/matches/${match.id}`,
+              );
+              await expect(
+                card.locator("[data-original-slot='0'] strong"),
+              ).toHaveText(String(match.score[0]));
+              await expect(
+                card.locator("[data-original-slot='1'] strong"),
+              ).toHaveText(String(match.score[1]));
+            }
+            await expect(canvas.locator("svg path").first()).toBeVisible();
+            await page.getByText("Connection sources", { exact: true }).click();
             await expect(
-              page.locator(".bracket-frame .match-card"),
-            ).toHaveCount(10);
-            await expect
-              .poll(() => page.locator(".bracket-connectors path").count())
-              .toBeGreaterThan(0);
+              page.locator(".bracket-source-details li"),
+            ).toHaveCount(12);
+            await expect(
+              page.locator(".bracket-source-details .match-source"),
+            ).toHaveCount(12);
+            const references = page.getByRole("checkbox", {
+              name: "Show previous recorded appearances (reference only)",
+            });
+            await references.uncheck();
+            await expect(canvas.locator("svg path").first()).toBeHidden();
+            await expect(canvas.locator(".match-card")).toHaveCount(10);
+            await references.check();
+            await expect(canvas.locator("svg path").first()).toBeVisible();
             await page
               .locator(".archive-competition > .event-tabs button")
               .first()
