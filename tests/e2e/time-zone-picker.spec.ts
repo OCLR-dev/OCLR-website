@@ -20,7 +20,11 @@ test.describe("shared city and IANA time zone selection", () => {
     await seedEditions([{ ...edition, slug, timeZone: "US/Eastern" }]);
     const api = `/api/admin/tournaments/${slug}`;
     const current = async () => (await context.request.get(api)).json();
+    const saveState = page.locator(".general-settings .settings-save");
     async function save() {
+      await expect(
+        saveState.getByText("Unsaved changes", { exact: true }),
+      ).toBeVisible();
       const saved = page.waitForResponse(
         (response) =>
           response.url().endsWith(api) &&
@@ -31,6 +35,10 @@ test.describe("shared city and IANA time zone selection", () => {
         .click();
       expect((await saved).status()).toBe(200);
       await expect(page.getByRole("status")).toContainText("saved");
+      // The HTTP receipt precedes router.refresh and the keyed form remount.
+      await expect(
+        saveState.getByText("Saved settings", { exact: true }),
+      ).toBeVisible();
     }
 
     await page.goto(`/admin/tournaments/${slug}/settings`);
@@ -42,6 +50,10 @@ test.describe("shared city and IANA time zone selection", () => {
       exact: true,
     });
     await expect(trigger).toContainText("US/Eastern");
+    // Saving other metadata must preserve an existing IANA alias literally.
+    await page
+      .getByLabel("Tournament name", { exact: true })
+      .fill("Synthetic time zone editor");
     await save();
     expect((await current()).edition.timeZone).toBe("US/Eastern");
     const before = await current();
