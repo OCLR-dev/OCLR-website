@@ -615,7 +615,6 @@
     "m0cc9e949f932": "Published scores, verified match sources and group standings. Referee submissions remain private until approval and publication.",
     "m4228aeb07c41": "Rules",
     "m9609495a6c2c": "Published rules and organizer updates for this edition.",
-    "m8f6e1f2b13bf": "Accepted registrations automatically appear in this tournament’s public Players directory with their osu! username, osu! ID and participation status. Application answers and review notes stay private.",
     "mf4830a1dae29": "Schedule",
     "mfa03be9a7d2d": "Match times use each fixture’s IANA time zone. Unconfirmed times remain TBA.",
     "mc33e3ff97054": "CAPTAIN WORKSPACE",
@@ -2753,6 +2752,9 @@
     "m2f685d6a8ba0": "Additional provider score values",
     "m9f06e546ee0f": "Match Rating",
     "m941a3d0eed28": "Scope: this fixture only, across its approved MP sources and retained games.",
-    "ma9c7f96424bf": "This backend does not support the full-site read contract. Update the backend to read API 1.2.0 or later within v1."
+    "ma9c7f96424bf": "This backend does not support the full-site read contract. Update the backend to read API 1.2.0 or later within v1.",
+    "mee5e46c1fe26": "{value0} seconds",
+    "m635ae219ad13": "Report an issue",
+    "m505554929de3": "GitHub repository"
   }
 }

@@ -13,7 +13,10 @@ import {
 } from "@/lib/tournament-information";
 import "./information.css";
 import { tournamentStages } from "@/lib/tournament-stages";
-import { TournamentRules } from "@/components/tournament-rules";
+import {
+  TournamentRules,
+  tournamentRuleSections,
+} from "@/components/tournament-rules";
 
 export async function generateMetadata({
   params,
@@ -80,6 +83,7 @@ async function OverviewContent({
     );
 
   if (edition.overview.kind !== "database") notFound();
+  const ruleSections = tournamentRuleSections(edition, tr("Eligibility"));
   const {
     teams,
     pools,
@@ -216,7 +220,14 @@ async function OverviewContent({
       )}
       <InformationDocument
         document={document}
-        rulesContent={<TournamentRules edition={edition} />}
+        ruleSections={ruleSections}
+        rulesContent={
+          <TournamentRules
+            edition={edition}
+            sections={ruleSections}
+            showContents={false}
+          />
+        }
         active={active}
         stages={tournamentStages(
           [

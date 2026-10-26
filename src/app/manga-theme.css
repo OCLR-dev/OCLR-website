@@ -321,13 +321,13 @@ html[data-appearance="manga-halftone"]
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  .information-page
+  .information-overview-reading
   > .information-banner {
   box-shadow: none;
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  .information-page
+  .information-overview-reading
   > .stage-scroll {
   margin: 14px 0 2.5rem;
   padding-top: 0.5rem;

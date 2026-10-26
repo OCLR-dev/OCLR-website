@@ -24,9 +24,11 @@ type Labels = {
 export function TournamentStageScroll({
   stages,
   labels,
+  id,
 }: {
   stages: TournamentStage[];
   labels: Labels;
+  id?: string;
 }) {
   const viewport = useRef<HTMLDivElement>(null);
   const drag = useRef<{
@@ -140,7 +142,12 @@ export function TournamentStageScroll({
     moveTo(Math.round(projected / rowHeight()) * rowHeight());
   }
   return (
-    <section className="stage-scroll" aria-label={labels.title}>
+    <section
+      id={id}
+      tabIndex={id ? -1 : undefined}
+      className="stage-scroll"
+      aria-label={labels.title}
+    >
       <div className="stage-scroll-heading">
         <div className="stage-scroll-controls">
           <button

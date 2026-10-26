@@ -4,14 +4,6 @@ import type { BwsSummary as BwsData } from "@/lib/bws-model";
 import Image from "next/image";
 import { Avatar } from "./avatar";
 import { modeNames, type ProfileSnapshot } from "@/lib/osu-profile-model";
-const number = (v: number | null, decimals = 0) =>
-  v === null
-    ? "Unavailable"
-    : new Intl.NumberFormat("en-GB", {
-        maximumFractionDigits: decimals,
-      }).format(v);
-const score = (v: string | null) =>
-  v === null ? "Unavailable" : BigInt(v).toLocaleString("en-GB");
 export function PlayerProfile({
   snapshot,
   bws,
@@ -20,6 +12,14 @@ export function PlayerProfile({
   bws?: BwsData | null;
 }) {
   const tr = useAppTranslations();
+  const number = (v: number | null, decimals = 0) =>
+    v === null
+      ? tr("Unavailable")
+      : new Intl.NumberFormat(tr.locale, {
+          maximumFractionDigits: decimals,
+        }).format(v);
+  const score = (v: string | null) =>
+    v === null ? tr("Unavailable") : BigInt(v).toLocaleString(tr.locale);
 
   const p = snapshot.profile;
   const s = p.statistics;
@@ -69,42 +69,44 @@ export function PlayerProfile({
           [
             "Global rank",
             s.globalRank === null
-              ? "Unranked / unavailable"
+              ? tr("Unranked / unavailable")
               : `#${number(s.globalRank)}`,
           ],
           [
             "Country rank",
             s.countryRank === null
-              ? "Unranked / unavailable"
+              ? tr("Unranked / unavailable")
               : `#${number(s.countryRank)}`,
           ],
           [
             "Performance",
-            s.pp === null ? "Unavailable" : `${number(s.pp, 2)} pp`,
+            s.pp === null ? tr("Unavailable") : `${number(s.pp, 2)} pp`,
           ],
           [
             "Accuracy",
-            s.accuracy === null ? "Unavailable" : `${number(s.accuracy, 2)}%`,
+            s.accuracy === null
+              ? tr("Unavailable")
+              : `${number(s.accuracy, 2)}%`,
           ],
           ["Play count", number(s.playCount)],
           [
             "Play time",
             s.playTimeSeconds === null
-              ? "Unavailable"
-              : `${number(s.playTimeSeconds)} seconds`,
+              ? tr("Unavailable")
+              : tr("{value0} seconds", { value0: number(s.playTimeSeconds) }),
           ],
           ["Ranked score", score(s.rankedScore)],
           ["Total score", score(s.totalScore)],
           [
             "Maximum combo",
             s.maximumCombo === null
-              ? "Unavailable"
+              ? tr("Unavailable")
               : `${number(s.maximumCombo)}×`,
           ],
           [
             "Level",
             s.level?.current === null || s.level?.current === undefined
-              ? "Unavailable"
+              ? tr("Unavailable")
               : `${number(s.level.current)}${s.level.progress !== null ? ` (${number(s.level.progress)}%)` : ""}`,
           ],
         ].map(([label, value]) => (

@@ -4,7 +4,14 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useId, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { publicTournamentSection } from "@/lib/public-navigation";
 
 function Navigation({
@@ -22,8 +29,21 @@ function Navigation({
 
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
+  useEffect(() => {
+    if (!open) return;
+    const outside = (event: Event) => {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("focusin", outside);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("focusin", outside);
+    };
+  }, [open]);
   const base = `/tournaments/${slug}`;
   const legacyLinks = [
     ["", "Overview"],
@@ -60,6 +80,7 @@ function Navigation({
     : section;
   return (
     <div
+      ref={root}
       className="tournament-navigation"
       data-open={open || undefined}
       onKeyDown={(event) => {
@@ -132,6 +153,29 @@ export function TournamentShell({
     path === `${base}/team` ||
     path.startsWith(`${base}/draft/captain`) ||
     path.includes("/draft/overlay");
+  const shell = useRef<HTMLDivElement>(null);
+  const context = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const node = shell.current;
+    const bar = context.current;
+    const header = document.querySelector<HTMLElement>(".site-header");
+    if (!node || !bar || !header) return;
+    // Header controls can wrap with locale, appearance or viewport changes.
+    // Share the measured stack with anchors, the rule index and mobile menu.
+    const update = () => {
+      const headerHeight = header.getBoundingClientRect().height;
+      node.style.setProperty("--tournament-header-height", `${headerHeight}px`);
+      node.style.setProperty(
+        "--tournament-scroll-offset",
+        `${headerHeight + bar.getBoundingClientRect().height + 16}px`,
+      );
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(header);
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, [privateView]);
   if (privateView)
     return (
       <div className="container page workspace tournament-workspace">
@@ -150,14 +194,14 @@ export function TournamentShell({
       </div>
     );
   return (
-    <div className="public-tournament">
-      <div className="event-context">
+    <div className="public-tournament" ref={shell}>
+      <div className="event-context" ref={context}>
         <div className="event-identity">
           <Link href="/tournaments" className="context-link">
             {tr("Tournaments")}
           </Link>
           <span aria-hidden="true">/</span>
-          <Link href={base} className="context-link">
+          <Link href={base} className="context-link" title={name}>
             {name}
           </Link>
         </div>
