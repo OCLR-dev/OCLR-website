@@ -52,6 +52,57 @@ def asset(filename, name, x, y, height):
     return svg, w * height / h
 
 
+def outline_asset(svg, prefix, stroke_growth, circle_growth=0):
+    """Vector silhouette difference: transparent interiors, never a white cover.
+
+    Subtract the original union from its expanded union, so overlapping R
+    track/end caps don't introduce internal seams. Re-key both copies' IDs.
+    """
+    x, y, w, h = map(float, svg.attrib['viewBox'].split())
+    pad = 12
+    original = list(svg)
+    mask = ET.Element(f'{{{NS}}}mask', {
+        'id': prefix + '-outline-mask', 'maskUnits': 'userSpaceOnUse',
+        'x': str(x-pad), 'y': str(y-pad), 'width': str(w+2*pad), 'height': str(h+2*pad),
+        'style': 'mask-type:luminance',
+    })
+    for layer, color, growth in [('outer', '#fff', stroke_growth), ('inner', '#000', 0)]:
+        group = ET.SubElement(mask, f'{{{NS}}}g', color=color, fill=color)
+        copies = [copy.deepcopy(e) for e in original]
+        mapping = {e.attrib['id']: f'{prefix}-{layer}-{e.attrib["id"]}'
+                   for child in copies for e in child.iter() if 'id' in e.attrib}
+        for child in copies:
+            for e in child.iter():
+                if 'id' in e.attrib:
+                    e.set('id', mapping[e.attrib['id']])
+                for key, value in list(e.attrib.items()):
+                    if key.endswith('href') and value.startswith('#'):
+                        e.set(key, '#' + mapping[value[1:]])
+                    elif key in ('fill', 'stroke') and value != 'none':
+                        e.set(key, color)
+                tag = e.tag.rsplit('}', 1)[-1]
+                if tag == 'path':
+                    if e.get('fill') != 'none':
+                        e.set('fill', color)
+                    width = float(e.get('stroke-width', '0'))
+                    if width or growth:
+                        e.set('stroke', color)
+                        e.set('stroke-width', str(width + growth))
+                        e.set('stroke-linejoin', 'round')
+                elif tag == 'circle' and growth:
+                    e.set('r', str(float(e.get('r')) + circle_growth))
+            group.append(child)
+    for child in original:
+        svg.remove(child)
+    defs = ET.SubElement(svg, f'{{{NS}}}defs')
+    defs.append(mask)
+    ET.SubElement(svg, f'{{{NS}}}rect', {
+        'x': str(x-pad), 'y': str(y-pad), 'width': str(w+2*pad), 'height': str(h+2*pad),
+        'fill': 'currentColor', 'mask': f'url(#{prefix}-outline-mask)',
+    })
+    svg.set('overflow', 'visible')
+
+
 def full_name(x, baseline, width):
     font = TTFont('/usr/share/fonts/noto/NotoSans-Regular.ttf')
     glyphs, cmap = font.getGlyphSet(), font.getBestCmap()
@@ -65,6 +116,7 @@ def full_name(x, baseline, width):
         glyphs[cmap[ord(c)]].draw(pen)
         if pen.getCommands():
             ET.SubElement(group, f'{{{NS}}}path', d=pen.getCommands(),
+                          fill='none', stroke='currentColor', **{'stroke-width': '22'},
                           transform=f'translate({x:.4f} {baseline}) scale({scale} {-scale})')
         x += advance + spacing
     return group
@@ -83,12 +135,24 @@ ET.SubElement(svg, f'{{{NS}}}desc', id='wordmark-desc').text = (
 
 ocl, ocl_width = asset('ocl-mathcal.svg', 'OCL-mathcal', 64, 66, 260)
 weight_mathcal(ocl)
+outline_asset(ocl, 'ocl', .1)
 svg.append(ocl)
 r_x = 64 + ocl_width + 24
 r, r_width = asset('r-shape.svg', 'R-reference-slider', r_x, 66, 260)
+controls = copy.deepcopy(next(e for e in r if e.get('id') == 'r-control-points'))
+for child in list(r):
+    if child.get('display') == 'none':
+        r.remove(child)
+outline_asset(r, 'r', 8, 4)
+controls.attrib.pop('display')
+for e in controls:
+    if e.tag.endswith('polyline'):
+        e.set('stroke-width', '3')
+r.append(controls)
 svg.append(r)
 left_width = r_x + r_width - 64
 s11, _ = asset('s11-brush.svg', 'S11-original-brush', 1030, 46, 361)
+outline_asset(s11, 's11', 43)
 svg.append(s11)
 
 # Horizontal osu! hit-error bar: symmetry, centre, and restrained hit marks.

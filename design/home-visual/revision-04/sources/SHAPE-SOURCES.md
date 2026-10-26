@@ -24,3 +24,7 @@ python design/home-visual/revision-04/compose.py
 ```
 
 R 的独立重建步骤见几何记录。组合脚本需要 Python 3、FontTools、Noto Sans Regular 与 librsvg；生成透明字标、白底 SVG / PNG，并检查矢量元素与 ID 唯一性。
+
+## 当前轮廓显示
+
+按后续要求，OCL、R、S11 与英文全名改为轮廓，内部保持透明；加粗后的 OCL 形状和既有排版保留。主字标直接显示 R 的六个原坐标控制点及控制折线。主字形通过纯矢量明度遮罩做外扩轮廓与原形状的差集，遮罩中的黑白是覆盖率数据，不是画布上的填充；导出的 `oclr-s11-shapes.svg` 没有白底或白色遮盖。`shape-board.svg/png` 仅为白底预览。
