@@ -1,7 +1,7 @@
 import type { HistoricalArchive } from "./historical-archive";
 import type { MatchGame, MatchScore, MatchSource } from "./match-model";
 
-export const statisticsSeasons = ["s7", "s8", "s9", "s10"] as const;
+export const statisticsSeasons = ["s2", "s7", "s8", "s9", "s10"] as const;
 export type StatisticsSnapshot = {
   archiveKey: string;
   source: MatchSource;
@@ -53,8 +53,18 @@ export function canExcludeNonParticipantScore(
     ![fixture.teamA, fixture.teamB].includes(player?.teamId ?? "")
   );
 }
-// A reviewed bench occupant can also be on the edition roster. Require four
-// other positive, retained same-team records; never reduce a real lineup.
+// S2's organizer-supplied rules specify 3v3. Other supported editions retain
+// the existing four-player safeguard. A slug alone cannot opt into S2's rule.
+function statisticsLineupSize(archive: HistoricalArchive) {
+  return archive.editionSlug === "s2" &&
+    /^https:\/\/docs\.google\.com\/spreadsheets\/d\/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY(?:\/|$)/.test(
+      archive.sourceUrl,
+    )
+    ? 3
+    : 4;
+}
+// A reviewed bench occupant can also be on the edition roster. Require a full
+// positive, retained same-team lineup after every exclusion.
 export function canExcludeStatisticsBenchScore(
   archive: HistoricalArchive,
   fixtureId: string,
@@ -84,7 +94,7 @@ export function canExcludeStatisticsBenchScore(
               team,
         )
         .map((other) => other.osuId),
-    ).size >= 4
+    ).size >= statisticsLineupSize(archive)
   );
 }
 export function statisticsScores(
@@ -152,7 +162,10 @@ export function archiveMpId(url: string) {
 }
 export function statisticsFixtures(archive: HistoricalArchive) {
   return archive.matches.filter(
-    (m) => m.score && m.mpUrls.length && m.forfeitWinner === undefined,
+    (m) =>
+      m.score &&
+      m.review?.status !== "pending" &&
+      m.forfeitWinner === undefined,
   );
 }
 export function statisticsGameIssues(

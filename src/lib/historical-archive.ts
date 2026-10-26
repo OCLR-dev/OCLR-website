@@ -426,6 +426,41 @@ export function approveArchiveMatches(
   });
 }
 
+/** Resolve one source-only identity without replacing competition history. */
+export function resolveArchiveIdentity(
+  archive: HistoricalArchive,
+  confirmation: { unresolvedId: string; osuId: number; source: string },
+): HistoricalArchive {
+  const person = archive.unresolvedPlayers?.find(
+    (p) => p.id === confirmation.unresolvedId,
+  );
+  if (
+    !person ||
+    archive.players.some((p) => p.osuId === confirmation.osuId) ||
+    archive.rosterReplacements?.some((r) =>
+      r.people.some((p) => p.osuId === confirmation.osuId),
+    )
+  )
+    throw new Error("Identity is missing or already recorded.");
+  const { id: unresolvedId, ...identity } = person;
+  return historicalArchiveSchema.parse({
+    ...archive,
+    players: [...archive.players, { ...identity, osuId: confirmation.osuId }],
+    unresolvedPlayers: archive.unresolvedPlayers!.filter(
+      (p) => p.id !== unresolvedId,
+    ),
+    sourceFacts: [
+      ...(archive.sourceFacts ?? []),
+      {
+        category: "review",
+        label: "Archive identity confirmation",
+        text: `${unresolvedId}: ${person.username} → osu! UID ${confirmation.osuId}. Original roster source: ${person.source}`,
+        source: confirmation.source,
+      },
+    ],
+  });
+}
+
 export function recordedArchiveMatch(m: HistoricalArchive["matches"][number]) {
   return (
     m.review?.status !== "pending" &&

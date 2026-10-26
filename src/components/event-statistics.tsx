@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
+import type { PublicArchiveStatistics } from "@/lib/archive-statistics";
 import type { EventScore } from "@/lib/event-statistics";
 import {
   eventMapKey,
@@ -15,7 +17,13 @@ const views = [
   "Team placements",
   "Solo placements",
 ];
-export function EventStatistics({ scores }: { scores: EventScore[] }) {
+export function EventStatistics({
+  scores,
+  coverage,
+}: {
+  scores: EventScore[];
+  coverage?: PublicArchiveStatistics;
+}) {
   const tr = useAppTranslations();
   const [view, setView] = useState(0),
     [round, setRound] = useState(""),
@@ -28,6 +36,9 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
     (s) => (!round || s.round === round) && (!slot || eventMapKey(s) === slot),
   );
   const plays = eligible.filter((s) => !team || s.team === team);
+  const coverageFixtures = coverage?.fixtures.filter(
+    (f) => !round || f.stage === round,
+  );
   const number = (v: number, d = 0) =>
     v.toLocaleString(tr.locale, { maximumFractionDigits: d });
   const avg = (s: EventScore[], key: "score" | "accuracy") => {
@@ -230,6 +241,17 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
   });
   function cell(key: string, value: Cell) {
     if (value === null || value === undefined) return "—";
+    if ((key === "Player" || key === "Best player") && coverage) {
+      const players = coverage.players.filter((p) => p.username === value);
+      if (players.length === 1)
+        return (
+          <Link
+            href={`/tournaments/${coverage.slug}/players/${players[0].osuId}`}
+          >
+            {value}
+          </Link>
+        );
+    }
     if ((key === "Match" || key === "Team match") && typeof value === "number")
       return (
         <a
@@ -251,6 +273,65 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
   return (
     <section className="event-statistics">
       <h1>{tr("Statistics")}</h1>
+      {coverage && (
+        <section className="stack" aria-label={tr("Statistics coverage")}>
+          <div className="statistics-summary">
+            <div>
+              <strong>
+                {coverageFixtures!.filter((f) => f.covered).length} /{" "}
+                {coverageFixtures!.length}
+              </strong>
+              <span>{tr("Reviewed matches")}</span>
+            </div>
+            <div>
+              <strong>{new Set(plays.map((p) => p.game)).size}</strong>
+              <span>{tr("Scoring games")}</span>
+            </div>
+            <div>
+              <strong>{new Set(plays.map((p) => p.player)).size}</strong>
+              <span>{tr("Players with data")}</span>
+            </div>
+          </div>
+          <p className="muted">
+            {tr(
+              "Only reviewed and published MP games are counted. Missing data is not zero.",
+            )}
+          </p>
+          <p className="muted">
+            {tr("Known accuracy")}{" "}
+            {plays.filter((p) => p.accuracy !== null).length} / {plays.length} ·{" "}
+            {tr("Known combo")} {plays.filter((p) => p.combo !== null).length} /{" "}
+            {plays.length}
+          </p>
+          <details>
+            <summary>{tr("Match coverage")}</summary>
+            <ul className="statistics-coverage">
+              {coverageFixtures!.map((f) => (
+                <li key={f.id}>
+                  <Link href={`/tournaments/${coverage.slug}/matches/${f.id}`}>
+                    {f.stage} · {f.label}
+                  </Link>
+                  <span>
+                    {f.covered ? tr("Published") : tr("Not yet covered")}
+                    {f.technicalAdjudication && (
+                      <>
+                        {" "}
+                        · {tr(
+                          "Technical adjudication; recorded series score",
+                        )}{" "}
+                        {f.score?.join(" : ")}.{" "}
+                        {tr(
+                          "Player statistics reflect recorded MP scores only.",
+                        )}
+                      </>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </section>
+      )}
       <div className="event-tabs">
         {views.map((label, i) => (
           <button
@@ -279,7 +360,9 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
             label: "Rounds",
             value: round,
             set: setRound,
-            options: [...new Set(scores.map((s) => s.round))].map((value) => ({
+            options: (
+              coverage?.stages ?? [...new Set(scores.map((s) => s.round))]
+            ).map((value) => ({
               value,
               label: value,
             })),
@@ -288,7 +371,11 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
             label: "Team",
             value: team,
             set: setTeam,
-            options: [...new Set(scores.map((s) => s.team))].map((value) => ({
+            options: (
+              coverage?.teams.map((t) => t.name) ?? [
+                ...new Set(scores.map((s) => s.team)),
+              ]
+            ).map((value) => ({
               value,
               label: value,
             })),

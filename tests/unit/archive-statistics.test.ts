@@ -14,6 +14,8 @@ import {
   suggestStatisticsPool,
   validStatisticsExclusions,
   canExcludeStatisticsScore,
+  canExcludeStatisticsBenchScore,
+  statisticsSeasons,
   type StatisticsSnapshot,
 } from "../../src/lib/archive-statistics-model";
 const snapshot = (): StatisticsSnapshot => ({
@@ -23,6 +25,82 @@ const snapshot = (): StatisticsSnapshot => ({
   included: [1, 2],
 });
 describe("historical MP statistics", () => {
+  it("includes S2 ties and missing-MP matches in coverage without counting forfeits or pending reviews", () => {
+    const archive = structuredClone(a);
+    archive.editionSlug = "s2";
+    archive.matches = [
+      { ...archive.matches[0], score: [1, 1] },
+      { ...archive.matches[0], id: "missing", mpUrls: [] },
+      { ...archive.matches[0], id: "forfeit", score: null, forfeitWinner: 0 },
+      {
+        ...archive.matches[0],
+        id: "pending",
+        review: {
+          status: "pending",
+          workingScore: [2, 0],
+          rawScore: [2, 0],
+          possibleScore: null,
+          note: "Synthetic pending",
+          startedAt: null,
+          redTeamId: "alpha",
+          blueTeamId: "beta",
+          games: [],
+        },
+      },
+    ];
+    expect(statisticsSeasons).toContain("s2");
+    expect(statisticsFixtures(archive).map((m) => m.id)).toEqual([
+      "one",
+      "missing",
+    ]);
+    const s = snapshot();
+    s.source.games[1].scores.forEach((p) => {
+      p.total = p.team === "red" ? 100 : 10;
+    });
+    expect(fixtureStatisticsIssues(archive, "one", [s])).toEqual([]);
+    expect(fixtureStatisticsIssues(archive, "missing", [])).not.toEqual([]);
+    expect(fixtureStatisticsIssues(archive, "forfeit", [])).toContain(
+      "Only played matches have player statistics.",
+    );
+  });
+  it("requires three retained positive teammates for explicitly reviewed S2 bench records, guarded by the exact source", () => {
+    const archive = structuredClone(a);
+    archive.editionSlug = "s2";
+    archive.sourceUrl =
+      "https://docs.google.com/spreadsheets/d/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY";
+    const s = snapshot(),
+      game = s.source.games[0];
+    for (const osuId of [91006, 91007]) {
+      archive.players.push({
+        ...archive.players[0],
+        osuId,
+        role: "player",
+        tier: null,
+      });
+      game.scores.push({ ...game.scores[0], osuId });
+    }
+    game.scores[0].total = 50;
+    const bench = game.scores[0];
+    expect(canExcludeStatisticsBenchScore(archive, "one", game, bench)).toBe(
+      true,
+    );
+    expect(
+      canExcludeStatisticsBenchScore(archive, "one", game, bench, [91006]),
+    ).toBe(false);
+    s.excludedScores = [
+      { gameId: 1, osuId: bench.osuId!, reason: "non-participant" },
+    ];
+    expect(validStatisticsExclusions(s, archive, "one")).toBe(true);
+    expect(
+      projectStatistics(archive, "one", s).filter(
+        (p) => p.gameId === 1 && p.teamId === "alpha",
+      ),
+    ).toHaveLength(3);
+    archive.sourceUrl += "-unrelated";
+    expect(canExcludeStatisticsBenchScore(archive, "one", game, bench)).toBe(
+      false,
+    );
+  });
   it("permits explicit review of sparse all-miss records without inventing unknown hit counts", () => {
     const s = statisticsSource().games[0].scores[0];
     Object.assign(s, {

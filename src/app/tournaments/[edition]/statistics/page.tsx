@@ -1,5 +1,8 @@
 import { EventStatistics } from "@/components/event-statistics";
-import { publicArchiveStatistics } from "@/lib/archive-statistics";
+import {
+  publicArchiveStatistics,
+  type PublicArchiveStatistics,
+} from "@/lib/archive-statistics";
 import { getPublicEdition } from "@/lib/content";
 import { previewScores, type EventScore } from "@/lib/event-statistics";
 import { HttpError } from "@/lib/http";
@@ -15,8 +18,10 @@ async function Issue271Page({
   const preview = previewScores(slug);
   if (preview) return <EventStatistics scores={preview} />;
   let scores: EventScore[] = [];
+  let coverage: PublicArchiveStatistics | undefined;
   try {
     const data = await publicArchiveStatistics(slug);
+    coverage = data;
     scores = data.plays.map((p) => ({
       player:
         data.players.find((u) => u.osuId === p.osuId)?.username ??
@@ -37,7 +42,7 @@ async function Issue271Page({
   } catch (error) {
     if (!(error instanceof HttpError && error.status === 404)) throw error;
   }
-  return <EventStatistics scores={scores} />;
+  return <EventStatistics scores={scores} coverage={coverage} />;
 }
 
 export default function Page(props: Parameters<typeof Issue271Page>[0]) {

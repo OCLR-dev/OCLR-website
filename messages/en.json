@@ -2755,6 +2755,12 @@
     "ma9c7f96424bf": "This backend does not support the full-site read contract. Update the backend to read API 1.2.0 or later within v1.",
     "mee5e46c1fe26": "{value0} seconds",
     "m635ae219ad13": "Report an issue",
-    "m505554929de3": "GitHub repository"
+    "m505554929de3": "GitHub repository",
+    "m8eb9b8a92cbf": "Resolve archive identity",
+    "m7712bffd1070": "Identity confirmation source",
+    "m674df1c5feba": "Link this saved historical identity to the confirmed osu! ID. Published archives show the link immediately; the original roster source and competition records are preserved.",
+    "mf2d625ce6239": "Select an unresolved archive identity and an unused osu! ID.",
+    "md6bb8a86772b": "Known accuracy",
+    "m729b0e0380de": "Known combo"
   }
 }

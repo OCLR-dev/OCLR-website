@@ -36,7 +36,9 @@ import { HttpError } from "./http";
 import {
   approveArchiveMatches,
   publicHistoricalArchive,
+  resolveArchiveIdentity,
 } from "./historical-archive";
+import { statisticsSeasons } from "./archive-statistics-model";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export function storedEdition(row: typeof editionState.$inferSelect) {
   if (!row.configuration) return undefined;
@@ -137,6 +139,15 @@ const commandSchema = z.discriminatedUnion("action", [
   z
     .object({
       ...version,
+      action: z.literal("resolve-archive-identity"),
+      unresolvedId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/),
+      osuId: z.number().int().positive().max(2147483647),
+      source: z.string().trim().min(1).max(160),
+    })
+    .strict(),
+  z
+    .object({
+      ...version,
       action: z.literal("approve-archive-matches"),
       matchIds: z.array(z.string().min(1).max(80)).min(1).max(500),
     })
@@ -226,7 +237,7 @@ export function tournamentLinks(
         (item) =>
           (!item.capabilities || item.capabilities.some(can)) &&
           (item.path !== "statistics" ||
-            ["s7", "s8", "s9", "s10"].includes(slug)),
+            (statisticsSeasons as readonly string[]).includes(slug)),
       )
       .map((item) => ({
         href: `/admin/tournaments/${slug}${item.path ? `/${item.path}` : ""}`,
@@ -413,6 +424,24 @@ export async function tournamentCommand(
     const e = current.edition;
     let next: Edition = e;
     let registrationPausedAt = state.registrationPausedAt;
+    if (c.action === "resolve-archive-identity") {
+      if (!e.archive || e.status !== "completed" || e.registration)
+        throw new HttpError(
+          409,
+          "Select a completed historical archive without registration.",
+        );
+      try {
+        next = {
+          ...e,
+          archive: resolveArchiveIdentity(e.archive, c),
+        };
+      } catch {
+        throw new HttpError(
+          409,
+          "Select an unresolved archive identity and an unused osu! ID.",
+        );
+      }
+    }
     if (c.action === "approve-archive-matches") {
       if (!e.archive || e.status !== "completed" || e.registration)
         throw new HttpError(

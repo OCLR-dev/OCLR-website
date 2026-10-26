@@ -5,6 +5,48 @@ import { historicalArchiveSchema } from "../../src/lib/historical-archive";
 import { historicalArchive } from "../fixtures/historical-archive";
 const href = (id: string) => `/private-preview?section=matches&id=${id}`;
 describe("historical schedule bracket", () => {
+  it("keeps an undated S2 final after earlier sheet rows without inventing predecessor edges", () => {
+    const a = structuredClone(historicalArchive);
+    a.sourceUrl =
+      "https://docs.google.com/spreadsheets/d/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY";
+    a.matches = [
+      {
+        ...a.matches[0],
+        id: "es-a10",
+        stage: "Synthetic final",
+        scheduledAt: null,
+        source: "ES Schedule!B18:M18",
+      },
+      {
+        ...a.matches[0],
+        id: "es-a3",
+        stage: "Synthetic semifinal",
+        source: "ES Schedule!B11:M11",
+      },
+      {
+        ...a.matches[0],
+        id: "es-a5",
+        stage: "Synthetic lower round",
+        scheduledAt: "2023-12-11T22:00:00+08:00",
+        source: "ES Schedule!B13:M13",
+      },
+    ];
+    const rounds = archiveBracket(a, href)!.groups[0].rounds;
+    expect(rounds.flatMap((r) => r.matches.map((m) => m.id))).toEqual([
+      "es-a3",
+      "es-a5",
+      "es-a10",
+    ]);
+    expect(
+      rounds.at(-1)!.matches[0].slots.every((s) => s.sourceMatchId === null),
+    ).toBe(true);
+    a.sourceUrl += "-other";
+    expect(
+      archiveBracket(a, href)!.groups[0].rounds.flatMap((r) =>
+        r.matches.map((m) => m.id),
+      ),
+    ).toEqual(["es-a3", "es-a10", "es-a5"]);
+  });
   it("includes forfeits and preserves the winner without invented played scores", () => {
     const a = historicalArchiveSchema.parse({
       ...historicalArchive,
