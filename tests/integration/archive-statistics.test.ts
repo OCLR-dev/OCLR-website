@@ -118,10 +118,14 @@ describe.skipIf(!url)("historical statistics transactions", () => {
     expect(workspace.reviews[0].excludedScores).toEqual([
       { gameId: 1, osuId: 999999 },
     ]);
-    expect((await publicArchiveStatistics("s7")).plays).toEqual([]);
+    expect((await publicArchiveStatistics("s7", "one")).plays).toEqual([]);
     await statisticsCommand(admin, "s7", publish);
-    const publicData = await publicArchiveStatistics("s7");
+    const publicData = await publicArchiveStatistics("s7", "one");
     expect(publicData.plays).toHaveLength(8);
+    expect(publicData.matchDetails[0].details.games).toHaveLength(4);
+    expect(publicData.matchDetails[0].details.rating?.gameCount).toBe(2);
+    expect(publicData.matchDetails[0].details.rating?.issues).toEqual([]);
+    expect(JSON.stringify(publicData.matchDetails)).not.toContain("999999");
     expect(publicData.plays.some((p) => p.osuId === 999999)).toBe(false);
   });
   it("reserves exceptional reviews for Admin and retains audited immutable source facts", async () => {
@@ -160,9 +164,9 @@ describe.skipIf(!url)("historical statistics transactions", () => {
       (await statisticsWorkspace(admin, "s7", "one")).reviews[0].games[0].game
         .scores,
     ).toHaveLength(5);
-    expect((await publicArchiveStatistics("s7")).plays).toEqual([]);
+    expect((await publicArchiveStatistics("s7", "one")).plays).toEqual([]);
     await statisticsCommand(admin, "s7", publish);
-    const publicData = await publicArchiveStatistics("s7");
+    const publicData = await publicArchiveStatistics("s7", "one");
     expect(publicData.plays).toHaveLength(8);
     expect(publicData.fixtures[0]).toMatchObject({
       technicalAdjudication: true,
@@ -180,10 +184,10 @@ describe.skipIf(!url)("historical statistics transactions", () => {
   });
   it("imports privately, publishes reviewed games atomically and preserves published data across draft edits", async () => {
     await statisticsCommand(referee, "s7", imported);
-    expect((await publicArchiveStatistics("s7")).plays).toEqual([]);
+    expect((await publicArchiveStatistics("s7", "one")).plays).toEqual([]);
     await statisticsCommand(referee, "s7", reviewed);
     await statisticsCommand(admin, "s7", publish);
-    const publicData = await publicArchiveStatistics("s7");
+    const publicData = await publicArchiveStatistics("s7", "one");
     expect(publicData.plays).toHaveLength(8);
     expect(publicData.mpCovered).toBe(1);
     expect(JSON.stringify(publicData)).not.toContain("providerFields");
@@ -192,15 +196,85 @@ describe.skipIf(!url)("historical statistics transactions", () => {
       expectedVersion: 3,
       included: [],
     });
-    expect((await publicArchiveStatistics("s7")).plays).toHaveLength(8);
+    expect((await publicArchiveStatistics("s7", "one")).plays).toHaveLength(8);
+    expect((await publicArchiveStatistics("s7", "one")).matchDetails).toEqual(
+      publicData.matchDetails,
+    );
+    expect((await publicArchiveStatistics("s7")).matchDetails).toEqual([]);
+    expect(
+      (await publicArchiveStatistics("s7", "another-fixture")).matchDetails,
+    ).toEqual([]);
     await statisticsCommand(admin, "s7", {
       action: "withdraw",
       fixtureId: "one",
       expectedVersions: { "999177": 4 },
       confirmed: true,
     });
-    expect((await publicArchiveStatistics("s7")).plays).toEqual([]);
+    expect((await publicArchiveStatistics("s7", "one")).plays).toEqual([]);
     expect(await db().select().from(editionEvents)).toHaveLength(5);
+  });
+  it("rates the same retained games across all approved rooms without counting technical points", async () => {
+    const archive = structuredClone(statisticsArchive);
+    archive.matches[0].mpUrls.push(
+      "https://osu.ppy.sh/community/matches/999178",
+    );
+    archive.matches[0].score = [2, 1];
+    await seedEditions([
+      {
+        ...edition,
+        slug: "s7",
+        name: "Synthetic multi-room",
+        status: "completed",
+        registration: null,
+        published: true,
+        archive,
+      },
+    ]);
+    for (const index of [0, 1]) {
+      const source = statisticsSource();
+      source.match.id += index;
+      source.games = source.games.filter((g) => g.id === index + 1);
+      source.fingerprint = (index ? "b" : "a").repeat(64);
+      vi.mocked(fetchMatchSource).mockResolvedValue(source);
+      await statisticsCommand(admin, "s7", {
+        ...imported,
+        mpId: source.match.id,
+      });
+      await statisticsCommand(admin, "s7", {
+        ...reviewed,
+        mpId: source.match.id,
+        included: [index + 1],
+        technicalAdjudication: true,
+      });
+    }
+    await statisticsCommand(admin, "s7", {
+      ...publish,
+      expectedVersions: { "999177": 2, "999178": 2 },
+    });
+    const events = (await db().select().from(editionEvents)).length;
+    vi.mocked(fetchMatchSource).mockClear();
+    const result = await publicArchiveStatistics("s7", "one");
+    const detail = result.matchDetails[0].details;
+    expect(detail.sources).toHaveLength(2);
+    expect(detail.technicalAdjudication).toBe(true);
+    expect(detail.rating).toMatchObject({
+      gameCount: 2,
+      scoreCount: 8,
+      issues: [],
+    });
+    expect(detail.rating!.players.every((p) => p.appearances === 2)).toBe(true);
+    expect(result.fixtures[0].score).toEqual([2, 1]);
+    expect(fetchMatchSource).not.toHaveBeenCalled();
+    expect(await db().select().from(editionEvents)).toHaveLength(events);
+    await statisticsCommand(admin, "s7", {
+      action: "withdraw",
+      fixtureId: "one",
+      expectedVersions: { "999177": 3, "999178": 3 },
+      confirmed: true,
+    });
+    expect((await publicArchiveStatistics("s7", "one")).matchDetails).toEqual(
+      [],
+    );
   });
   it("enforces edition scope, source allowlists, review permissions and versions", async () => {
     await expect(
@@ -224,17 +298,20 @@ describe.skipIf(!url)("historical statistics transactions", () => {
       statisticsCommand(admin, "s7", { ...reviewed, included: [3] }),
     ).rejects.toMatchObject({ status: 400 });
   });
-  it("refuses replay or incomplete-source publication and survives provider failure", async () => {
+  it("retains reviewed repeated maps, refuses incomplete sources and survives provider failure", async () => {
     await statisticsCommand(admin, "s7", imported);
     await statisticsCommand(admin, "s7", { ...reviewed, included: [1, 4] });
-    await expect(statisticsCommand(admin, "s7", publish)).rejects.toMatchObject(
-      { status: 400 },
-    );
+    await statisticsCommand(admin, "s7", publish);
+    expect(
+      (await publicArchiveStatistics("s7", "one")).matchDetails[0].details.games
+        .filter((g) => g.included)
+        .map((g) => g.gameId),
+    ).toEqual([1, 4]);
     vi.mocked(fetchMatchSource).mockRejectedValue(
       new Error("Provider unavailable"),
     );
     await expect(
-      statisticsCommand(admin, "s7", { ...imported, expectedVersion: 2 }),
+      statisticsCommand(admin, "s7", { ...imported, expectedVersion: 3 }),
     ).rejects.toThrow("Provider unavailable");
     expect(
       (await statisticsWorkspace(admin, "s7", "one")).reviews[0].games.filter(
@@ -245,12 +322,12 @@ describe.skipIf(!url)("historical statistics transactions", () => {
     incomplete.complete = false;
     incomplete.fingerprint = "b".repeat(64);
     vi.mocked(fetchMatchSource).mockResolvedValue(incomplete);
-    await statisticsCommand(admin, "s7", { ...imported, expectedVersion: 2 });
-    await statisticsCommand(admin, "s7", { ...reviewed, expectedVersion: 3 });
+    await statisticsCommand(admin, "s7", { ...imported, expectedVersion: 3 });
+    await statisticsCommand(admin, "s7", { ...reviewed, expectedVersion: 4 });
     await expect(
       statisticsCommand(admin, "s7", {
         ...publish,
-        expectedVersions: { "999177": 4 },
+        expectedVersions: { "999177": 5 },
       }),
     ).rejects.toMatchObject({ status: 400 });
   });
@@ -287,7 +364,10 @@ describe.skipIf(!url)("historical statistics transactions", () => {
       ],
       true,
     );
-    expect((await publicArchiveStatistics("s7")).plays).toHaveLength(0);
+    expect((await publicArchiveStatistics("s7", "one")).plays).toHaveLength(0);
+    expect(
+      (await publicArchiveStatistics("s7", "one")).matchDetails,
+    ).toHaveLength(0);
     // Re-seed the edition as private: no public projection, even with stored statistics.
     await seedEditions([
       {
@@ -299,7 +379,7 @@ describe.skipIf(!url)("historical statistics transactions", () => {
         archive: statisticsArchive,
       },
     ]);
-    await expect(publicArchiveStatistics("s7")).rejects.toMatchObject({
+    await expect(publicArchiveStatistics("s7", "one")).rejects.toMatchObject({
       status: 404,
     });
   });

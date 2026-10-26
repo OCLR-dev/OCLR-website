@@ -45,7 +45,12 @@ test.describe("scoped player evaluation", () => {
             },
           ]);
           await page.goto(`/tournaments/test-cup/matches/${s.fixtureId}`);
-          const table = page.getByRole("table").first();
+          const table = page
+            .getByRole("table")
+            .filter({
+              has: page.getByRole("columnheader", { name: "MRA", exact: true }),
+            })
+            .first();
           await expect(table.getByRole("row")).toHaveCount(5);
           const badge = table.locator("summary").first();
           await expect(badge).toBeVisible();
@@ -53,7 +58,9 @@ test.describe("scoped player evaluation", () => {
           await expect(table).toContainText("yumu-player-class-v2-oclr-v1");
           expect(
             await page.evaluate(
-              () => document.documentElement.scrollWidth <= innerWidth,
+              () =>
+                document.documentElement.scrollWidth <=
+                document.documentElement.clientWidth,
             ),
           ).toBe(true);
           if (locale === "en") {

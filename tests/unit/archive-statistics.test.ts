@@ -135,9 +135,7 @@ describe("historical MP statistics", () => {
     s.included = [];
     expect(fixtureStatisticsIssues(archive, "one", [s])).not.toEqual([]);
     s.included = [1, 4];
-    expect(fixtureStatisticsIssues(archive, "one", [s])).toContain(
-      "Exclude duplicate games and replayed beatmaps.",
-    );
+    expect(fixtureStatisticsIssues(archive, "one", [s])).toEqual([]);
     s.included = [1, 2];
     archive.matches[0].score = [1, 0];
     expect(fixtureStatisticsIssues(archive, "one", [s])).not.toEqual([]);
@@ -222,7 +220,7 @@ describe("historical MP statistics", () => {
       ).toBe(true);
     }
   });
-  it("reconciles reviewed games and rejects warmups, replays and partial MP coverage", () => {
+  it("reconciles reviewed games, retains repeated maps and rejects warmups, duplicate game IDs and partial coverage", () => {
     expect(fixtureStatisticsIssues(a, "one", [snapshot()])).toEqual([]);
     const s = snapshot();
     s.included.push(3);
@@ -230,8 +228,11 @@ describe("historical MP statistics", () => {
       "Beatmap is outside the selected mappool.",
     );
     s.included = [1, 4];
+    expect(fixtureStatisticsIssues(a, "one", [s])).toEqual([]);
+    s.source.games[3].id = 1;
+    s.included = [1];
     expect(fixtureStatisticsIssues(a, "one", [s])).toContain(
-      "Exclude duplicate games and replayed beatmaps.",
+      "Exclude duplicate games.",
     );
     expect(fixtureStatisticsIssues(a, "one", [])).toContain(
       "Import every recorded MP link before publishing this match.",

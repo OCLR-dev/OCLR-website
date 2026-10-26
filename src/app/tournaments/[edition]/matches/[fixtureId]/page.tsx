@@ -1,10 +1,9 @@
 import { historicalPage } from "@/components/historical-archive";
-import { PlayerRatings } from "@/components/player-ratings";
+import { MatchDetailsView } from "@/components/match-details";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { formatDate } from "@/lib/editions";
 import { publicFixture } from "@/lib/public-competition";
-import { publicMatchRating } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -26,7 +25,6 @@ async function Issue271Page({
   const f = await publicFixture(slug, fixtureId);
   if (!f) notFound();
   const result = f.result;
-  const rating = result ? await publicMatchRating(slug, fixtureId) : null;
   const teamName = (id: string | null) =>
     id === f.home.team?.id
       ? f.home.label
@@ -131,47 +129,12 @@ async function Issue271Page({
           </p>
         )}
       </section>
-      {rating && <PlayerRatings report={rating} slug={slug} />}
-      {result && (
-        <section className="section-space stack">
-          <h2>{tr("Played maps")}</h2>
-          {result.games.map((g, i) => (
-            <article className="panel" key={g.gameId}>
-              <p className="eyebrow">
-                {tr("MAP ")}
-                {i + 1} · {g.mods.join(" / ") || "NM"} · {g.scoringType}
-              </p>
-              <h3>
-                {g.beatmap?.artist ? `${g.beatmap.artist} — ` : ""}
-                {g.beatmap?.title ?? tr("Beatmap unavailable")}
-              </h3>
-              <p className="muted">{g.beatmap?.difficulty}</p>
-              {g.beatmapId && (
-                <a
-                  className="text-link"
-                  href={`https://osu.ppy.sh/beatmaps/${g.beatmapId}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {tr("Beatmap ")}
-                  {g.beatmapId} ↗
-                </a>
-              )}
-              <p>
-                {f.home.label}: {g.homeScore.toLocaleString("en")} ·{" "}
-                {f.away.label}: {g.awayScore.toLocaleString("en")}
-              </p>
-              <p>
-                {g.tied
-                  ? tr("Approved tied map")
-                  : tr("Map winner: {value0}", {
-                      value0: teamName(g.winnerTeamId),
-                    })}
-              </p>
-            </article>
-          ))}
-        </section>
-      )}
+      <MatchDetailsView
+        details={f.details}
+        slug={slug}
+        teams={[f.home.team, f.away.team].flatMap((t) => (t ? [t] : []))}
+        timeZone={f.timeZone}
+      />
     </>
   );
 }

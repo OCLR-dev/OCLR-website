@@ -170,9 +170,8 @@ test.describe("MainSheet Light public experience", () => {
     );
     if (isMobile) await page.locator(".rules-mobile-contents summary").click();
     await page
-      .getByRole("navigation", { name: "Rules contents" })
-      .getByRole("link")
-      .nth(1)
+      .getByRole("navigation", { name: "On this page", exact: true })
+      .locator(`a[href="#${ids[1]}"]`)
       .click();
     expect(decodeURIComponent(new URL(page.url()).hash)).toBe("#" + ids[1]);
     expect((await headings.nth(1).boundingBox())!.y).toBeGreaterThanOrEqual(65);

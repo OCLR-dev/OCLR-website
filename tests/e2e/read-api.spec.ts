@@ -356,7 +356,7 @@ test.describe("full-site direct browser transport", () => {
     expect(result.avatar.status).toBe(200);
     expect(result.avatar.type).toBe("image/webp");
     expect(result.bws.status).toBe(200);
-    expect(result.replay.version).toBe("1.1.0");
+    expect(result.replay.version).toBe("1.2.0");
     expect(result.replay.requestId).toBeTruthy();
     expect(await remoteBusinessState()).toEqual(before);
     expect(await remoteFileState()).toEqual(files);

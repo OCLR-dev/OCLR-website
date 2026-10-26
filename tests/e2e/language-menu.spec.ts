@@ -61,7 +61,7 @@ test.describe("custom language menu", () => {
       await page.keyboard.press("Tab");
       await expect(menu).toHaveCount(0);
       await trigger.click();
-      await page.getByRole("heading", { level: 1 }).click();
+      await page.locator(".information-banner").click();
       await expect(menu).toHaveCount(0);
       for (const width of isMobile ? [320, 390] : [1440]) {
         await page.setViewportSize({ width, height: 900 });

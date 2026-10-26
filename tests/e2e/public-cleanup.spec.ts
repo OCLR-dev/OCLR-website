@@ -36,25 +36,22 @@ test.describe("concise public tournament surfaces", () => {
     await page.getByRole("button", { name: "Search", exact: true }).click();
     await captureResponsiveLayout(page, info, "compact-empty-players");
     await expect(page.locator("footer")).not.toContainText("Emik");
-    const credit = page
-      .locator("footer")
-      .getByRole("link", { name: "Lapis", exact: true });
-    await expect(credit).toHaveAttribute(
-      "href",
-      "https://osu.ppy.sh/users/1176704",
-    );
-    await expect(credit).toHaveAttribute("rel", "noopener noreferrer");
-    await expect(credit).toHaveAttribute("target", "_blank");
-    const github = page
-      .locator("footer")
-      .getByRole("link", { name: "GitHub", exact: true });
-    await expect(github).toHaveAttribute(
-      "href",
-      "https://github.com/PhoenixEmik/OCLR-website",
-    );
-    await expect(github).toHaveAttribute("rel", "noopener noreferrer");
-    await expect(github).toHaveAttribute("target", "_blank");
-    await expect(page.locator("footer a")).toHaveCount(2);
+    for (const [name, href] of [
+      ["OCLR Dev Team.", "https://github.com/OCLR-dev"],
+      [
+        "Report an issue",
+        "https://github.com/OCLR-dev/OCLR-website/issues/new",
+      ],
+      ["GitHub repository", "https://github.com/OCLR-dev/OCLR-website"],
+    ]) {
+      const link = page
+        .locator("footer")
+        .getByRole("link", { name, exact: true });
+      await expect(link).toHaveAttribute("href", href);
+      await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+      await expect(link).toHaveAttribute("target", "_blank");
+    }
+    await expect(page.locator("footer a")).toHaveCount(3);
     await expect(page.locator("footer button, footer nav")).toHaveCount(0);
     await page.goto("/about");
     await page

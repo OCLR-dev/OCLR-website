@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OCLR Read API",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Versioned saved reads (#269–#272). Public projections remain public-only even with a token. Explicit invalid Authorization never falls back to anonymous/cookies. Reads never fetch providers or mutate business data. Later collection pages require version and restart on 409."
   },
   "servers": [{ "url": "/" }],
@@ -37,7 +37,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               },
               "Content-Disposition": {
                 "description": "Replay attachment filename; CORS-exposed",
@@ -212,7 +212,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               },
               "Content-Disposition": {
                 "description": "Replay attachment filename; CORS-exposed",
@@ -380,7 +380,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -540,7 +540,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -713,7 +713,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -894,7 +894,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -1075,7 +1075,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -1246,7 +1246,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -1417,7 +1417,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -1588,7 +1588,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -1761,7 +1761,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -1934,7 +1934,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -2092,6 +2092,19 @@
               "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
               "maxLength": 80
             }
+          },
+          {
+            "name": "fixtureId",
+            "in": "query",
+            "required": false,
+            "description": "Recorded historical fixture key, never a provider lookup.",
+            "schema": {
+              "default": "",
+              "anyOf": [
+                { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,79}$" },
+                { "type": "string", "const": "" }
+              ]
+            }
           }
         ],
         "responses": {
@@ -2105,7 +2118,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -2219,6 +2232,19 @@
               "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
               "maxLength": 80
             }
+          },
+          {
+            "name": "fixtureId",
+            "in": "query",
+            "required": false,
+            "description": "Recorded historical fixture key, never a provider lookup.",
+            "schema": {
+              "default": "",
+              "anyOf": [
+                { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,79}$" },
+                { "type": "string", "const": "" }
+              ]
+            }
           }
         ],
         "responses": {
@@ -2284,7 +2310,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -2467,7 +2493,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -2652,7 +2678,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -2831,7 +2857,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -3004,7 +3030,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -3175,7 +3201,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -3346,7 +3372,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -3517,7 +3543,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -3688,7 +3714,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -3859,7 +3885,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -4043,7 +4069,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -4281,7 +4307,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -4512,7 +4538,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -4697,7 +4723,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -4880,7 +4906,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -5046,7 +5072,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -5195,7 +5221,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -5344,7 +5370,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -5542,7 +5568,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -5745,7 +5771,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -6002,7 +6028,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -6250,7 +6276,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -6399,7 +6425,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -6550,7 +6576,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -6710,7 +6736,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -6881,7 +6907,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -7054,7 +7080,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -7225,7 +7251,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -7396,7 +7422,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -7569,7 +7595,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -7740,7 +7766,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -7913,7 +7939,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -8086,7 +8112,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -8257,7 +8283,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -8434,7 +8460,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -8623,7 +8649,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -8806,7 +8832,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -8968,7 +8994,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -9119,7 +9145,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -9287,7 +9313,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -9455,7 +9481,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -9604,7 +9630,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -9789,7 +9815,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -9987,7 +10013,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -10193,7 +10219,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -10415,7 +10441,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -10629,7 +10655,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -10827,7 +10853,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -11006,7 +11032,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.1.0" }
+                "schema": { "type": "string", "const": "1.2.0" }
               }
             },
             "content": {
@@ -14638,6 +14664,25 @@
           { "$ref": "#/components/schemas/Read378164167572" }
         ]
       },
+      "Read136f340208a9": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "mpId": { "type": "number" },
+            "revision": { "type": "string" },
+            "complete": { "type": "boolean" }
+          },
+          "required": ["mpId", "revision", "complete"],
+          "additionalProperties": false
+        }
+      },
+      "Read14862e7e6b76": {
+        "anyOf": [
+          { "type": "null" },
+          { "$ref": "#/components/schemas/Read4c0a952e974c" }
+        ]
+      },
       "Read1abcc66ad442": {
         "anyOf": [
           { "type": "null", "x-oclr-undefined": true },
@@ -14886,6 +14931,16 @@
           }
         },
         "required": ["teamId", "label", "sourceMatchId", "kind"],
+        "additionalProperties": false
+      },
+      "Read3c8ffb879c68": {
+        "type": "object",
+        "properties": {
+          "score": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "legacy": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "total": { "anyOf": [{ "type": "null" }, { "type": "number" }] }
+        },
+        "required": ["score", "legacy", "total"],
         "additionalProperties": false
       },
       "Read3cf3469c0231": {
@@ -15182,76 +15237,6 @@
           { "type": "string", "const": "FU" }
         ]
       },
-      "Read519857e96882": {
-        "type": "object",
-        "properties": {
-          "pool": {
-            "anyOf": [
-              { "type": "null" },
-              {
-                "type": "object",
-                "properties": {
-                  "id": { "type": "string" },
-                  "name": { "type": "string" }
-                },
-                "required": ["id", "name"],
-                "additionalProperties": false
-              }
-            ]
-          },
-          "id": { "type": "string" },
-          "label": { "type": "string" },
-          "publishedAt": { "type": "string" },
-          "roundId": { "type": "string" },
-          "roundName": { "type": "string" },
-          "roundPosition": { "type": "number" },
-          "stageId": { "type": "string" },
-          "stage": {
-            "anyOf": [
-              { "type": "string", "const": "group" },
-              { "type": "string", "const": "knockout" }
-            ]
-          },
-          "position": { "type": "number" },
-          "home": { "$ref": "#/components/schemas/Read5f294e760979" },
-          "away": { "$ref": "#/components/schemas/Read5f294e760979" },
-          "confirmed": { "type": "boolean" },
-          "scheduledAt": {
-            "anyOf": [{ "type": "null" }, { "type": "string" }]
-          },
-          "timeZone": { "type": "string" },
-          "status": {
-            "anyOf": [
-              { "type": "string", "const": "scheduled" },
-              { "type": "string", "const": "in_progress" },
-              { "type": "string", "const": "cancelled" }
-            ]
-          },
-          "result": { "$ref": "#/components/schemas/Readbcbbfd10e5db" },
-          "updatedAt": { "type": "string" }
-        },
-        "required": [
-          "pool",
-          "id",
-          "label",
-          "publishedAt",
-          "roundId",
-          "roundName",
-          "roundPosition",
-          "stageId",
-          "stage",
-          "position",
-          "home",
-          "away",
-          "confirmed",
-          "scheduledAt",
-          "timeZone",
-          "status",
-          "result",
-          "updatedAt"
-        ],
-        "additionalProperties": false
-      },
       "Read52a708f849a1": {
         "type": "array",
         "items": { "$ref": "#/components/schemas/Read850c438bb6f4" }
@@ -15267,6 +15252,10 @@
         },
         "required": ["teamId", "wins", "losses", "mapsWon", "mapsLost"],
         "additionalProperties": false
+      },
+      "Read55c1328962f0": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/Read6b1892d15a0a" }
       },
       "Read5b37d3f31d52": {
         "type": "object",
@@ -15541,6 +15530,67 @@
         ],
         "additionalProperties": false
       },
+      "Read6b1892d15a0a": {
+        "type": "object",
+        "properties": {
+          "osuId": { "type": "number" },
+          "username": { "type": "string" },
+          "teamId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "lobbyTeam": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "string", "const": "red" },
+              { "type": "string", "const": "blue" },
+              { "type": "string", "const": "none" }
+            ]
+          },
+          "slot": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "total": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "effectiveTotal": {
+            "anyOf": [{ "type": "null" }, { "type": "number" }]
+          },
+          "accuracy": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "combo": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "passed": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "boolean", "const": false },
+              { "type": "boolean", "const": true }
+            ]
+          },
+          "mods": { "type": "array", "items": { "type": "string" } },
+          "modsKnown": { "type": "boolean" },
+          "hits": { "$ref": "#/components/schemas/Read14862e7e6b76" },
+          "included": { "type": "boolean" },
+          "mapping": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "string", "const": "roster" },
+              { "type": "string", "const": "substitution" }
+            ]
+          },
+          "providerScores": { "$ref": "#/components/schemas/Read3c8ffb879c68" }
+        },
+        "required": [
+          "osuId",
+          "username",
+          "teamId",
+          "lobbyTeam",
+          "slot",
+          "total",
+          "effectiveTotal",
+          "accuracy",
+          "combo",
+          "passed",
+          "mods",
+          "modsKnown",
+          "hits",
+          "included",
+          "mapping",
+          "providerScores"
+        ],
+        "additionalProperties": false
+      },
       "Read6d17a2f1d75d": {
         "type": "object",
         "properties": {
@@ -15550,6 +15600,38 @@
           "maps": { "$ref": "#/components/schemas/Read4cf4e2f31c2f" }
         },
         "required": ["id", "name", "source", "maps"],
+        "additionalProperties": false
+      },
+      "Read6d85e14c021d": {
+        "type": "object",
+        "properties": {
+          "sources": { "$ref": "#/components/schemas/Read136f340208a9" },
+          "games": { "$ref": "#/components/schemas/Readd867e705ae4d" },
+          "teamIds": {
+            "type": "array",
+            "prefixItems": [{ "type": "string" }, { "type": "string" }],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "failedScorePolicy": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "string", "const": "include" },
+              { "type": "string", "const": "zero" }
+            ]
+          },
+          "technicalAdjudication": { "type": "boolean" },
+          "rating": { "$ref": "#/components/schemas/Read6ddaa661c1b0" }
+        },
+        "required": [
+          "sources",
+          "games",
+          "teamIds",
+          "failedScorePolicy",
+          "technicalAdjudication",
+          "rating"
+        ],
         "additionalProperties": false
       },
       "Read6dbdcea10644": {
@@ -15575,6 +15657,12 @@
         },
         "required": ["field", "limit", "value", "passed"],
         "additionalProperties": false
+      },
+      "Read6ddaa661c1b0": {
+        "anyOf": [
+          { "type": "null" },
+          { "$ref": "#/components/schemas/Readc89a5cdbe35d" }
+        ]
       },
       "Read6eda757ae46e": {
         "type": "object",
@@ -15721,6 +15809,70 @@
           "player": { "$ref": "#/components/schemas/Readd988f71c5ebc" }
         },
         "required": ["id", "turnIndex", "team", "player"],
+        "additionalProperties": false
+      },
+      "Read82e587df7c57": {
+        "type": "object",
+        "properties": {
+          "mpId": { "type": "number" },
+          "gameId": { "type": "number" },
+          "revision": { "type": "string" },
+          "beatmapId": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "beatmap": { "$ref": "#/components/schemas/Reade30a93ef38fd" },
+          "startTime": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "endTime": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "mode": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "teamType": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "scoringType": {
+            "anyOf": [{ "type": "null" }, { "type": "string" }]
+          },
+          "mods": { "type": "array", "items": { "type": "string" } },
+          "modsKnown": { "type": "boolean" },
+          "included": { "type": "boolean" },
+          "rosterMapping": { "type": "boolean" },
+          "scores": { "$ref": "#/components/schemas/Read55c1328962f0" },
+          "withheldScores": { "type": "number" },
+          "rawTotals": {
+            "type": "array",
+            "prefixItems": [
+              { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+              { "anyOf": [{ "type": "null" }, { "type": "number" }] }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "effectiveTotals": {
+            "type": "array",
+            "prefixItems": [
+              { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+              { "anyOf": [{ "type": "null" }, { "type": "number" }] }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "required": [
+          "mpId",
+          "gameId",
+          "revision",
+          "beatmapId",
+          "beatmap",
+          "startTime",
+          "endTime",
+          "mode",
+          "teamType",
+          "scoringType",
+          "mods",
+          "modsKnown",
+          "included",
+          "rosterMapping",
+          "scores",
+          "withheldScores",
+          "rawTotals",
+          "effectiveTotals"
+        ],
         "additionalProperties": false
       },
       "Read8403b8fab385": {
@@ -17057,6 +17209,10 @@
         "required": ["id", "username", "teamId", "role", "tier", "source"],
         "additionalProperties": false
       },
+      "Readd867e705ae4d": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/Read82e587df7c57" }
+      },
       "Readd988f71c5ebc": {
         "type": "object",
         "properties": {
@@ -17724,7 +17880,78 @@
             "properties": {
               "fixtures": {
                 "type": "array",
-                "items": { "$ref": "#/components/schemas/Read519857e96882" }
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "pool": {
+                      "anyOf": [
+                        { "type": "null" },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "string" },
+                            "name": { "type": "string" }
+                          },
+                          "required": ["id", "name"],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "id": { "type": "string" },
+                    "label": { "type": "string" },
+                    "publishedAt": { "type": "string" },
+                    "roundId": { "type": "string" },
+                    "roundName": { "type": "string" },
+                    "roundPosition": { "type": "number" },
+                    "stageId": { "type": "string" },
+                    "stage": {
+                      "anyOf": [
+                        { "type": "string", "const": "group" },
+                        { "type": "string", "const": "knockout" }
+                      ]
+                    },
+                    "position": { "type": "number" },
+                    "home": { "$ref": "#/components/schemas/Read5f294e760979" },
+                    "away": { "$ref": "#/components/schemas/Read5f294e760979" },
+                    "confirmed": { "type": "boolean" },
+                    "scheduledAt": {
+                      "anyOf": [{ "type": "null" }, { "type": "string" }]
+                    },
+                    "timeZone": { "type": "string" },
+                    "status": {
+                      "anyOf": [
+                        { "type": "string", "const": "scheduled" },
+                        { "type": "string", "const": "in_progress" },
+                        { "type": "string", "const": "cancelled" }
+                      ]
+                    },
+                    "result": {
+                      "$ref": "#/components/schemas/Readbcbbfd10e5db"
+                    },
+                    "updatedAt": { "type": "string" }
+                  },
+                  "required": [
+                    "pool",
+                    "id",
+                    "label",
+                    "publishedAt",
+                    "roundId",
+                    "roundName",
+                    "roundPosition",
+                    "stageId",
+                    "stage",
+                    "position",
+                    "home",
+                    "away",
+                    "confirmed",
+                    "scheduledAt",
+                    "timeZone",
+                    "status",
+                    "result",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
               },
               "groups": {
                 "type": "array",
@@ -18245,6 +18472,19 @@
         "type": "object",
         "properties": {
           "slug": { "type": "string" },
+          "archiveKey": { "type": "string" },
+          "matchDetails": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fixtureId": { "type": "string" },
+                "details": { "$ref": "#/components/schemas/Read6d85e14c021d" }
+              },
+              "required": ["fixtureId", "details"],
+              "additionalProperties": false
+            }
+          },
           "players": {
             "type": "array",
             "items": {
@@ -18385,6 +18625,8 @@
         },
         "required": [
           "slug",
+          "archiveKey",
+          "matchDetails",
           "players",
           "teams",
           "stages",
@@ -18399,15 +18641,86 @@
       "publicFixture": {
         "anyOf": [
           { "type": "null" },
-          { "$ref": "#/components/schemas/Read519857e96882" }
+          {
+            "type": "object",
+            "properties": {
+              "pool": {
+                "anyOf": [
+                  { "type": "null" },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "name": { "type": "string" }
+                    },
+                    "required": ["id", "name"],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "publishedAt": { "type": "string" },
+              "roundId": { "type": "string" },
+              "roundName": { "type": "string" },
+              "roundPosition": { "type": "number" },
+              "stageId": { "type": "string" },
+              "stage": {
+                "anyOf": [
+                  { "type": "string", "const": "group" },
+                  { "type": "string", "const": "knockout" }
+                ]
+              },
+              "position": { "type": "number" },
+              "home": { "$ref": "#/components/schemas/Read5f294e760979" },
+              "away": { "$ref": "#/components/schemas/Read5f294e760979" },
+              "confirmed": { "type": "boolean" },
+              "scheduledAt": {
+                "anyOf": [{ "type": "null" }, { "type": "string" }]
+              },
+              "timeZone": { "type": "string" },
+              "status": {
+                "anyOf": [
+                  { "type": "string", "const": "scheduled" },
+                  { "type": "string", "const": "in_progress" },
+                  { "type": "string", "const": "cancelled" }
+                ]
+              },
+              "result": { "$ref": "#/components/schemas/Readbcbbfd10e5db" },
+              "updatedAt": { "type": "string" },
+              "details": {
+                "anyOf": [
+                  { "type": "null" },
+                  { "$ref": "#/components/schemas/Read6d85e14c021d" }
+                ]
+              }
+            },
+            "required": [
+              "pool",
+              "id",
+              "label",
+              "publishedAt",
+              "roundId",
+              "roundName",
+              "roundPosition",
+              "stageId",
+              "stage",
+              "position",
+              "home",
+              "away",
+              "confirmed",
+              "scheduledAt",
+              "timeZone",
+              "status",
+              "result",
+              "updatedAt",
+              "details"
+            ],
+            "additionalProperties": false
+          }
         ]
       },
-      "publicMatchRating": {
-        "anyOf": [
-          { "type": "null" },
-          { "$ref": "#/components/schemas/Readc89a5cdbe35d" }
-        ]
-      },
+      "publicMatchRating": { "$ref": "#/components/schemas/Read6ddaa661c1b0" },
       "publicPlayerMessages": {
         "type": "array",
         "items": {

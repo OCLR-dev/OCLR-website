@@ -4,6 +4,7 @@ import {
   fixtures,
   mappools,
   matchImports,
+  matchGames,
   matchResults,
   resultRevisions,
   teams,
@@ -20,7 +21,14 @@ import {
 import { getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { frontendResource } from "./frontend-resource";
-import { reviewedResultSchema } from "./match-model";
+import {
+  matchGameSchema,
+  matchSourceSchema,
+  reviewedResultSchema,
+} from "./match-model";
+import { approvedRatingGames } from "./approved-rating-games";
+import { ratingIdentities, ratingSnapshot } from "./ratings";
+import { reviewedMatchDetails, type MatchDetails } from "./match-details-model";
 import { calculateStandings } from "./standings";
 import { readTournament } from "./tournaments";
 export type PublicTeam = {
@@ -389,9 +397,84 @@ export type PublicGroup = {
   name: string;
   version: string;
 } & ReturnType<typeof calculateStandings>;
-async function databasePublicFixture(slug: string, id: string) {
-  return (
-    (await publicCompetition(slug))?.fixtures.find((f) => f.id === id) ?? null
+async function databasePublicFixture(
+  slug: string,
+  id: string,
+): Promise<(PublicFixture & { details: MatchDetails | null }) | null> {
+  if (!process.env.DATABASE_URL) return null;
+  return db().transaction(
+    async (tx) => {
+      const fixture = (await publicCompetition(slug, tx))?.fixtures.find(
+        (f) => f.id === id,
+      );
+      if (!fixture) return null;
+      const result = { ...fixture, details: null as MatchDetails | null };
+      if (!fixture.result) return result;
+      const [row] = await tx
+        .select({
+          proposal: resultRevisions.proposal,
+          source: matchImports.source,
+          fingerprint: matchImports.fingerprint,
+          importId: matchImports.id,
+        })
+        .from(resultRevisions)
+        .innerJoin(
+          matchImports,
+          and(
+            eq(matchImports.id, resultRevisions.importId),
+            eq(matchImports.fixtureId, resultRevisions.fixtureId),
+          ),
+        )
+        .where(
+          and(
+            eq(resultRevisions.fixtureId, id),
+            eq(resultRevisions.revision, fixture.result.revision),
+            isNotNull(resultRevisions.approvedAt),
+            isNotNull(resultRevisions.approvedBy),
+          ),
+        );
+      const proposal = reviewedResultSchema.safeParse(row?.proposal);
+      const source = matchSourceSchema.safeParse(row?.source);
+      if (
+        !proposal.success ||
+        !source.success ||
+        proposal.data.sourceFingerprint !== row.fingerprint ||
+        source.data.fingerprint !== row.fingerprint
+      )
+        return result;
+      const rows = await tx
+        .select()
+        .from(matchGames)
+        .where(eq(matchGames.importId, row.importId));
+      const parsed = rows.map((r) => matchGameSchema.safeParse(r.data));
+      if (
+        parsed.some((g) => !g.success) ||
+        proposal.data.games.some(
+          (g) => !rows.some((r) => r.externalGameId === g.gameId),
+        )
+      )
+        return result;
+      const identities = await ratingIdentities(
+        slug,
+        tx,
+        proposal.data.teamIds,
+      );
+      const details = reviewedMatchDetails(
+        proposal.data,
+        parsed.flatMap((g) => (g.success ? [g.data] : [])),
+        fixture.result.mpId,
+        fixture.result.revision,
+        identities,
+      );
+      details.sources[0].complete = source.data.complete;
+      const games = (await approvedRatingGames(slug, tx)).filter(
+        (g) => g.fixtureId === id && g.revision === fixture.result!.revision,
+      );
+      if (!games.some((g) => g.scores.some((s) => !identities.has(s.userId))))
+        details.rating = ratingSnapshot(games, identities);
+      return { ...fixture, details };
+    },
+    { isolationLevel: "repeatable read", accessMode: "read only" },
   );
 }
 export async function publicFixture(

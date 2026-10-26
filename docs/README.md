@@ -27,6 +27,8 @@ The repository root README ([English](../README.md) / [简体中文](../README.z
 Local synthetic acceptance and actual CI are recorded per commit on #271/#272;
 real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
 
+- [Published match details](match-details.md) — source/review/public projection matrix, revision consistency and verification boundaries (#283).
+
 ## Historical source preparation
 
 - [OCLR β (S5) sources](s5-archive.md) — MainSheet-authoritative rosters,

@@ -33,7 +33,7 @@ npm run dev
 
 ### 无需本地数据库的前端开发
 
-使用已有的 OCLR 后端，要求 read API 为 1.1.0 或更新的 v1 版本：
+使用已有的 OCLR 后端，要求 read API 为 1.2.0 或更新的 v1 版本：
 
 ```sh
 npm ci

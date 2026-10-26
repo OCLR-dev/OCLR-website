@@ -104,7 +104,7 @@ export function readQuerySchema(id: string, keys: readonly string[]) {
   if (id === "auditLog") return auditFilters;
   if (id === "streamingWorkspace")
     return streamingFilters.extend({ fixtureId: z.uuid().optional() });
-  if (id === "statisticsWorkspace")
+  if (["statisticsWorkspace", "publicArchiveStatistics"].includes(id))
     return z
       .object({
         fixtureId: z
