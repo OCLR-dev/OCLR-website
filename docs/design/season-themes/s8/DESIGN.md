@@ -88,3 +88,23 @@ node --import tsx docs/design/season-themes/s8/capture.mjs
 - 已檢視桌面／手機、明暗、Admin、規則區與原 banner 截圖；輸出 16 張主頁／圖池／規則／Admin 設計圖、2 張手機選單、12 張原有風格對照。
 - 離線圖庫 24 種切換組合皆載入對應圖片，零 page errors；capture／prepare／gallery／共用 verifier 的 lint／語法、文件相對連結、SVG 及 `git diff --check` 通過。
 - 本次為設計參考檔與產圖工具變更，未跑完整應用回歸或重新驗證其他季；上述結果不視為三語正式整合、CI、主辦方驗收或部署證據。
+
+
+## 正式接入精修與驗證（2026-10-27）
+
+- 移除標題橙色折角、統計角標與硬直花枝；改用 [精修櫻花插畫](blossom-spray.webp) 與漸淡 1px 分隔線。角色、原 RULES banner 與完整原主視覺保留。
+- 正式名稱「S8 · 櫻花折線／樱花折线／Sakura Circuit」，`sakura-circuit`。三語 label、訪客 SSR 偏好、網站／賽事預設、讀取合約與 OpenAPI 共用既有白名單。
+- `0047_sakura_circuit_appearance` 只擴充網站設定／稽核約束，不更動預設或歷史。套用 migration 後才可保存 S8 網站預設；刻意回退舊版前先選擇該版本支持的網站／賽事預設。
+- Node.js 24 check／build、i18n extraction／4 項檢查、生成合約檢查、production audit（0 vulnerabilities）通過。161 個單元／整合測試檔，1,351 passed／1 skipped；含 0047 前拒絕、升級後保存及原 S9 預設／歷史保留。
+- 34 項桌面／手機整合檢查通過：S8 三語明暗、S9／S10 選單、網站／賽事預設、公開／Admin／Captain 角色頁與 OBS／presenter 隔離。
+- 本版 24 組／24 次 Axe AA 與 4 組 forced-colours，使用真正 `sakura-circuit` SSR cookie 和打包素材，沒有 CSS overlay。DOM／文字、原圖、選單與 sticky stack 保留；[紀錄](verification.json) 的應用基準為 `7c2b1a5`。
+
+正式模式重現：先 checkout 本輪已提交應用，依前述步驟啟動獨立 test DB／loopback 應用，然後執行：
+
+```sh
+S8_REGISTERED_PREVIEW=1 S8_UI_BASELINE=7c2b1a576d6d7983d63e230befaae849e2857c76 node --import tsx docs/design/season-themes/s8/capture.mjs
+```
+
+工具保留同一應用來源核對；未來來源更新時須先核對新 SHA，不能將歷史證據當作新版本驗證。完整 CI 與主辦方審閱狀態另見 #197；本次沒有部署。
+
+WebKit 桌面／手機兩項 S8 整合重驗通過；新增導航請求完成等待，避免測試在舊 RSC 預取尚未結束時改寫 cookie／重載，所有 pageerror 與畫面斷言保留。相同 S8 測試亦重驗 Chromium 桌面／手機兩項通過。

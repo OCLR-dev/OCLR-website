@@ -74,6 +74,9 @@ test.describe("S8 Sakura Circuit appearance", () => {
           ].map(([name, value]) => ({ name, value, url: origin })),
         );
         expect((await page.goto("/tournaments/s8"))?.status()).toBe(200);
+        // Finish navigation prefetches before deliberately changing cookies or
+        // reloading; WebKit reports interrupted in-flight RSC requests as errors.
+        await page.waitForLoadState("networkidle");
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
         const menu = page.getByRole("menu").filter({
@@ -100,6 +103,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
           "sakura-circuit",
         );
         const response = await page.reload();
+        await page.waitForLoadState("networkidle");
         expect((await response!.text()).match(/<html[^>]+>/)?.[0]).toContain(
           'data-appearance="sakura-circuit"',
         );
@@ -149,6 +153,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
           animations: "disabled",
         });
         await page.goto("/privacy");
+        await page.waitForLoadState("networkidle");
         await expect(page.locator("html")).toHaveAttribute(
           "data-appearance",
           "sakura-circuit",
@@ -157,6 +162,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
       }
     }
     await page.goto("/tournaments/s8");
+    await page.waitForLoadState("networkidle");
     await page.emulateMedia({
       forcedColors: "active",
       reducedMotion: "reduce",

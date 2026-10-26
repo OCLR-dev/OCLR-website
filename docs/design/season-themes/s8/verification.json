@@ -1,14 +1,14 @@
 {
   "date": "2026-10-27",
-  "uiBaseline": "a50e03d2ad155f3518d6757455bfd2e73f86adb5",
-  "scope": "Actual current application routes with browser-only S8 CSS overlay; public committed S8 archive and one synthetic local test account; no business commands",
+  "uiBaseline": "7c2b1a576d6d7983d63e230befaae849e2857c76",
+  "scope": "Actual registered S8 appearance with SSR cookie and shipped assets; public committed S8 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
-  "material": "Reference-matched blonde half portrait, supplied original RULES banner, sakura sprig illustration and orange folded-line accents on paper surfaces; full unframed S8 key visual",
+  "material": "Reference-matched blonde half portrait, supplied original RULES banner, refined watercolor sakura illustration and fading hairline on paper surfaces; full unframed S8 key visual",
   "decorativeAssets": [
     "heroine-half.webp",
     "source-rules-banner.png",
-    "sakura-sprig.svg"
+    "blossom-spray.webp"
   ],
   "materialChecks": [
     {
