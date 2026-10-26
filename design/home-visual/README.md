@@ -8,7 +8,11 @@ Related issue: [#233](https://github.com/OCLR-dev/OCLR-website/issues/233).
 
 The first four proposals (`index.html`, `assets/wordmark-{a,b,c,d}.svg`) were rejected by the organizer for losing the supplied reference's composition and osu! identity. They remain as iteration history, not approved alternatives.
 
-**Current draft: [`revision-02/index.html`](revision-02/index.html).** This revision rebuilds the tall/short letter structure, segmented hit-circle O, curved-slider C, tall split L, circular-bowl/diagonal-leg R, judgement badges 激/喝, and suspended S11 plate. The cursor trail follows the follow-point sequence to a distinct cursor head. The restrained regular dots and hatch bands are deterministic vector patterns.
+**Current draft: [`revision-03/index.html`](revision-03/index.html).**
+
+R03 follows the organizer’s five-point revision: remove O’s disconnected left stub and all dot textures; use the actual classic osu! Legacy 激 contours (credited separately under CC BY-NC 4.0); make C taller with a repeat arrow; fill L with a ten-note numbered stream; draw R as one continuous slider from bottom-left to top to bowl to lower-right; replace the S11 separator with a symmetric yellow/green/blue hit-error bar. The review page includes an opt-in direction animation for C (out-and-back) and R (one traversal). The downloaded SVG stays static.
+
+Previous R02: This revision rebuilds the tall/short letter structure, segmented hit-circle O, curved-slider C, tall split L, circular-bowl/diagonal-leg R, judgement badges 激/喝, and suspended S11 plate. The cursor trail follows the follow-point sequence to a distinct cursor head. The restrained regular dots and hatch bands are deterministic vector patterns.
 
 `revision-02/oclr-s11-rhythm.svg` is the standalone native SVG wordmark: no `<image>`, `<text>`, external fonts, filters, scripts, or bitmap tracing. All lettering is outlined. The **homepage composition** SVG additionally embeds the raster mascot and background for portability; it is not an all-vector illustration.
 
@@ -22,12 +26,13 @@ From the worktree root:
 python -m http.server 4178 --bind 127.0.0.1 --directory design/home-visual
 ```
 
-Open `http://127.0.0.1:4178/revision-02/`. The local preview server has no database or credentials. Current outputs:
+Open `http://127.0.0.1:4178/revision-03/`. The local preview server has no database or credentials. Current outputs:
 
-- `revision-02/oclr-s11-rhythm.svg`: editable transparent wordmark.
-- `revision-02/wordmark-board.png`: 1600 × 850 wordmark review image.
-- `revision-02/homepage.png`: 1600 × 900 compositional preview.
-- `revision-02/reference.png`: organizer-supplied reference, retained for this local review.
+- `revision-03/oclr-s11-rhythm.svg`: editable transparent wordmark.
+- `revision-03/wordmark-board.png`: 1600 × 850 wordmark review image.
+- `revision-03/homepage.png`: 1600 × 900 compositional preview.
+- `revision-02/reference.png`: organizer-supplied original reference, retained for local review.
+- `revision-03/sources/`: pinned classic skin source, tracing script and attribution/license.
 
 ## Sources and attribution
 
@@ -48,3 +53,11 @@ Open `http://127.0.0.1:4178/revision-02/`. The local preview server has no datab
 - Read-only peer review compared R02 to the reference. The disconnected cursor trail it identified was corrected to follow the point sequence.
 - `node --check design/home-visual/review.js` and `git diff --check` passed.
 - Application code, routes, catalogs and runtime configuration are unchanged. No application/DB suite or production build was run for these standalone visual prototypes. R02 responsive integration and organizer visual approval remain outstanding.
+
+## R03 verification
+
+`python design/home-visual/revision-03/draw-wordmark.py` regenerates the wordmark, 1600×850 board and homepage context. XML, unique IDs and no embedded raster/text/filter/script assertions pass. `node --check design/home-visual/revision-03/review.js` passes. Native SVG and PNG were inspected at full size; C/R endpoints are clear of the hit-error bar. No application code or configuration changes.
+
+The Geki source is pinned to official ppy/osu-resources commit `b86b30a9c1109f612fead25c269f8ad6cae4a1c1`; its separate [provenance and license](revision-03/sources/GEKI-SOURCE.md) are retained.
+
+R03 browser verification: Chrome loaded the native SVG and 1600×900 homepage composition; mode switching and opt-in C/R motion start/stop were exercised. Markers changed position along the paths; the C animation uses `0;1;0` key points and the R marker inherits the same translation as the letter. Peer review identified slight separator/endpoint overlap, corrected by lifting C’s tail and the complete R group.
