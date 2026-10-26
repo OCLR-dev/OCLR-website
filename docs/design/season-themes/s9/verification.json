@@ -1,13 +1,14 @@
 {
   "date": "2026-10-26",
-  "uiBaseline": "f96e327101144405d3843d7c69b937a7ab2adeed",
+  "uiBaseline": "0d3e203d22c33fb61e988f80f2a7ab561c1a8563",
   "scope": "Actual current application routes with browser-only S9 CSS overlay; public committed S9 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
-  "material": "Ice-crystal etching, frost rim, faceted ice slabs and refractive controls",
+  "material": "Fine crystalline veins, sparse hoarfrost, prismatic edge caustics and unified top-lit bevels",
   "decorativeAssets": [
     "crystal-etching.svg",
-    "frost-rim.svg"
+    "frost-rim.svg",
+    "ice-facets.svg"
   ],
   "materialChecks": [
     {

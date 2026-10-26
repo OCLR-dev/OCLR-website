@@ -17,7 +17,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S9_UI_BASELINE ?? "f96e327101144405d3843d7c69b937a7ab2adeed";
+  process.env.S9_UI_BASELINE ?? "0d3e203d22c33fb61e988f80f2a7ab561c1a8563";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -30,7 +30,7 @@ execFileSync("git", [
 let overlay = await readFile(new URL("../s9.css", import.meta.url), "utf8");
 // Keep vector sources reviewable; embed only these local decorative SVGs so
 // the browser overlay requires no extra application route or public asset.
-for (const asset of ["crystal-etching.svg", "frost-rim.svg"]) {
+for (const asset of ["crystal-etching.svg", "frost-rim.svg", "ice-facets.svg"]) {
   const source = await readFile(new URL(asset, import.meta.url), "utf8");
   overlay = overlay.replaceAll(
     `url("./s9/${asset}")`,
@@ -290,6 +290,10 @@ try {
         return {
           image: getComputedStyle(document.querySelector(".archive-key-visual"))
             .backgroundImage,
+          frost: getComputedStyle(
+            document.querySelector(".archive-key-visual"),
+            "::before",
+          ).display,
           heading: getComputedStyle(
             document.querySelector(".page-heading"),
             "::after",
@@ -305,6 +309,7 @@ try {
       });
       if (
         state.image !== "none" ||
+        state.frost !== "none" ||
         state.heading !== "none" ||
         state.navigation !== "none" ||
         state.selection === "none" ||
@@ -345,8 +350,8 @@ try {
         locale: "zh-Hans",
         browser: "Google Chrome",
         material:
-          "Ice-crystal etching, frost rim, faceted ice slabs and refractive controls",
-        decorativeAssets: ["crystal-etching.svg", "frost-rim.svg"],
+          "Fine crystalline veins, sparse hoarfrost, prismatic edge caustics and unified top-lit bevels",
+        decorativeAssets: ["crystal-etching.svg", "frost-rim.svg", "ice-facets.svg"],
         materialChecks,
         screenshots: shots,
         cases,
