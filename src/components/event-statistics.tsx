@@ -2,7 +2,11 @@
 import { useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { EventScore } from "@/lib/event-statistics";
-import { eventMapKey, groupEventMaps } from "@/lib/event-statistics-model";
+import {
+  eventMapKey,
+  eventPlacementRows,
+  groupEventMaps,
+} from "@/lib/event-statistics-model";
 const views = [
   "Performance scores",
   "Mappool statistics",
@@ -41,7 +45,7 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
       plays.map((s) => (view === 3 || view === 4 ? s.team : s.player)),
     ),
   ];
-  const maps = groupEventMaps(plays);
+  const maps = groupEventMaps(view >= 4 ? eligible : plays);
   const placementLabels = new Map<string, string>(
     maps.flatMap((map): [string, string][] => [
       [`${map.key}:rank`, `${map.label} #`],
@@ -204,55 +208,7 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
       "Average score",
       ...maps.flatMap((map) => [`${map.key}:rank`, `${map.key}:score`]),
     ];
-    rows = keys.map((name) => {
-      const p = plays.filter((s) => (view === 4 ? s.team : s.player) === name);
-      const row: Row = {
-        [columns[0]]: name,
-        "Average placement": null,
-        "Average score": avg(p, "score"),
-      };
-      if (view === 4) {
-        const games = [...new Set(p.map((s) => s.game))];
-        row["Average score"] = games.length
-          ? p.reduce((n, s) => n + s.score, 0) / games.length
-          : null;
-      }
-      const ranks: number[] = [];
-      maps.forEach((map) => {
-        const matching = map.plays;
-        const values = keys
-          .map((k) => {
-            const a = matching.filter(
-              (s) => (view === 4 ? s.team : s.player) === k,
-            );
-            if (!a.length) return { name: k, value: null };
-            const games = [...new Set(a.map((s) => s.game))];
-            return {
-              name: k,
-              value:
-                view === 4
-                  ? Math.max(
-                      ...games.map((g) =>
-                        a
-                          .filter((s) => s.game === g)
-                          .reduce((n, s) => n + s.score, 0),
-                      ),
-                    )
-                  : Math.max(...a.map((s) => s.score)),
-            };
-          })
-          .filter((s) => s.value !== null)
-          .sort((a, b) => b.value! - a.value!);
-        const index = values.findIndex((s) => s.name === name);
-        row[`${map.key}:rank`] = index < 0 ? null : index + 1;
-        row[`${map.key}:score`] = index < 0 ? null : values[index].value;
-        if (index >= 0) ranks.push(index + 1);
-      });
-      row["Average placement"] = ranks.length
-        ? ranks.reduce((a, b) => a + b, 0) / ranks.length
-        : null;
-      return row;
-    });
+    rows = eventPlacementRows(eligible, view === 4 ? "team" : "player", team);
   }
   rows = rows.filter((row) =>
     Object.values(row).some((value) =>
