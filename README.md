@@ -33,7 +33,7 @@ Open [http://localhost:3000](http://localhost:3000). Configure `APP_URL`, `DATAB
 
 ### Frontend development without a local database
 
-Use an existing OCLR backend with read API 1.1.0+ within v1:
+Use an existing OCLR backend with read API 1.2.0+ within v1:
 
 ```sh
 npm ci

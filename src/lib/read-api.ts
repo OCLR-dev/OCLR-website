@@ -204,7 +204,10 @@ export function readApiRoute(request: Request) {
         for (const key of ["poolId", "fixtureId"]) {
           const value = query.get(key);
           const valid =
-            key === "fixtureId" && operation.id === "statisticsWorkspace"
+            key === "fixtureId" &&
+            ["statisticsWorkspace", "publicArchiveStatistics"].includes(
+              operation.id,
+            )
               ? /^[a-z0-9][a-z0-9-]{0,79}$/.test(value ?? "")
               : z.uuid().safeParse(value).success;
           if (value && !valid)

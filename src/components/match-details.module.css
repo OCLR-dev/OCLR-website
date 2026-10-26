@@ -1,0 +1,52 @@
+.scores {
+  min-width: 68rem;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.scores th,
+.scores td {
+  padding: 0.75rem;
+  vertical-align: top;
+}
+
+.scores tbody th {
+  width: 12rem;
+  min-width: 10rem;
+  max-width: 14rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: inherit;
+  background: transparent;
+}
+
+.scores td:nth-child(2) {
+  min-width: 8rem;
+  max-width: 12rem;
+  overflow-wrap: anywhere;
+}
+
+.scores td:nth-child(3) {
+  white-space: nowrap;
+}
+
+.scores th:nth-child(n + 4):nth-child(-n + 8),
+.scores td:nth-child(n + 4):nth-child(-n + 8) {
+  text-align: right;
+}
+
+.scores td:nth-child(n + 4):nth-child(-n + 7) {
+  white-space: nowrap;
+}
+
+.details,
+.details > article {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.details details {
+  min-width: 0;
+}

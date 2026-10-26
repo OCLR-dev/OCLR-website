@@ -114,6 +114,22 @@
     "Read12ed879e5cdc": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read378164167572" }]
     },
+    "Read136f340208a9": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "mpId": { "type": "number" },
+          "revision": { "type": "string" },
+          "complete": { "type": "boolean" }
+        },
+        "required": ["mpId", "revision", "complete"],
+        "additionalProperties": false
+      }
+    },
+    "Read14862e7e6b76": {
+      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read4c0a952e974c" }]
+    },
     "Read1abcc66ad442": {
       "anyOf": [
         { "type": "null", "x-oclr-undefined": true },
@@ -176,6 +192,10 @@
         "additionalProperties": false
       }
     },
+    "Read2770cc35bd34": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Read42b20a5cb69a" }
+    },
     "Read288a83d2fe1b": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read6d17a2f1d75d" }
@@ -224,6 +244,10 @@
     },
     "Read3335ccc07221": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read5c8b6e1d6293" }]
+    },
+    "Read335435c8e4e9": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Read44f264c72505" }
     },
     "Read378164167572": {
       "type": "object",
@@ -355,6 +379,16 @@
       "required": ["teamId", "label", "sourceMatchId", "kind"],
       "additionalProperties": false
     },
+    "Read3c8ffb879c68": {
+      "type": "object",
+      "properties": {
+        "score": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "legacy": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "total": { "anyOf": [{ "type": "null" }, { "type": "number" }] }
+      },
+      "required": ["score", "legacy", "total"],
+      "additionalProperties": false
+    },
     "Read3cf3469c0231": {
       "anyOf": [
         { "type": "null", "x-oclr-undefined": true },
@@ -419,6 +453,65 @@
     "Read40392e30233b": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read05677f56a448" }]
     },
+    "Read42b20a5cb69a": {
+      "type": "object",
+      "properties": {
+        "osuId": { "type": "number" },
+        "username": { "type": "string" },
+        "teamId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "lobbyTeam": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "const": "red" },
+            { "type": "string", "const": "blue" },
+            { "type": "string", "const": "none" }
+          ]
+        },
+        "slot": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "total": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "effectiveTotal": {
+          "anyOf": [{ "type": "null" }, { "type": "number" }]
+        },
+        "accuracy": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "combo": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "passed": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "boolean", "const": false },
+            { "type": "boolean", "const": true }
+          ]
+        },
+        "mods": { "type": "array", "items": { "type": "string" } },
+        "hits": { "$ref": "#/$defs/Read14862e7e6b76" },
+        "included": { "type": "boolean" },
+        "mapping": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "const": "roster" },
+            { "type": "string", "const": "substitution" }
+          ]
+        },
+        "providerScores": { "$ref": "#/$defs/Read3c8ffb879c68" }
+      },
+      "required": [
+        "osuId",
+        "username",
+        "teamId",
+        "lobbyTeam",
+        "slot",
+        "total",
+        "effectiveTotal",
+        "accuracy",
+        "combo",
+        "passed",
+        "mods",
+        "hits",
+        "included",
+        "mapping",
+        "providerScores"
+      ],
+      "additionalProperties": false
+    },
     "Read42d9ee71e9ce": {
       "type": "object",
       "properties": {
@@ -482,6 +575,66 @@
         { "type": "null", "x-oclr-undefined": true },
         { "$ref": "#/$defs/Read8ed146c0ed8f" }
       ]
+    },
+    "Read44f264c72505": {
+      "type": "object",
+      "properties": {
+        "mpId": { "type": "number" },
+        "gameId": { "type": "number" },
+        "revision": { "type": "string" },
+        "beatmapId": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "beatmap": { "$ref": "#/$defs/Reade30a93ef38fd" },
+        "startTime": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "endTime": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "mode": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "teamType": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "scoringType": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "mods": { "type": "array", "items": { "type": "string" } },
+        "included": { "type": "boolean" },
+        "rosterMapping": { "type": "boolean" },
+        "scores": { "$ref": "#/$defs/Read2770cc35bd34" },
+        "withheldScores": { "type": "number" },
+        "rawTotals": {
+          "type": "array",
+          "prefixItems": [
+            { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+            { "anyOf": [{ "type": "null" }, { "type": "number" }] }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "effectiveTotals": {
+          "type": "array",
+          "prefixItems": [
+            { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+            { "anyOf": [{ "type": "null" }, { "type": "number" }] }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "required": [
+        "mpId",
+        "gameId",
+        "revision",
+        "beatmapId",
+        "beatmap",
+        "startTime",
+        "endTime",
+        "mode",
+        "teamType",
+        "scoringType",
+        "mods",
+        "included",
+        "rosterMapping",
+        "scores",
+        "withheldScores",
+        "rawTotals",
+        "effectiveTotals"
+      ],
+      "additionalProperties": false
     },
     "Read45608b45bc27": {
       "anyOf": [
@@ -639,74 +792,6 @@
         { "type": "string", "const": "NO" },
         { "type": "string", "const": "FU" }
       ]
-    },
-    "Read519857e96882": {
-      "type": "object",
-      "properties": {
-        "pool": {
-          "anyOf": [
-            { "type": "null" },
-            {
-              "type": "object",
-              "properties": {
-                "id": { "type": "string" },
-                "name": { "type": "string" }
-              },
-              "required": ["id", "name"],
-              "additionalProperties": false
-            }
-          ]
-        },
-        "id": { "type": "string" },
-        "label": { "type": "string" },
-        "publishedAt": { "type": "string" },
-        "roundId": { "type": "string" },
-        "roundName": { "type": "string" },
-        "roundPosition": { "type": "number" },
-        "stageId": { "type": "string" },
-        "stage": {
-          "anyOf": [
-            { "type": "string", "const": "group" },
-            { "type": "string", "const": "knockout" }
-          ]
-        },
-        "position": { "type": "number" },
-        "home": { "$ref": "#/$defs/Read5f294e760979" },
-        "away": { "$ref": "#/$defs/Read5f294e760979" },
-        "confirmed": { "type": "boolean" },
-        "scheduledAt": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "timeZone": { "type": "string" },
-        "status": {
-          "anyOf": [
-            { "type": "string", "const": "scheduled" },
-            { "type": "string", "const": "in_progress" },
-            { "type": "string", "const": "cancelled" }
-          ]
-        },
-        "result": { "$ref": "#/$defs/Readbcbbfd10e5db" },
-        "updatedAt": { "type": "string" }
-      },
-      "required": [
-        "pool",
-        "id",
-        "label",
-        "publishedAt",
-        "roundId",
-        "roundName",
-        "roundPosition",
-        "stageId",
-        "stage",
-        "position",
-        "home",
-        "away",
-        "confirmed",
-        "scheduledAt",
-        "timeZone",
-        "status",
-        "result",
-        "updatedAt"
-      ],
-      "additionalProperties": false
     },
     "Read52a708f849a1": {
       "type": "array",
@@ -1018,6 +1103,9 @@
       "required": ["field", "limit", "value", "passed"],
       "additionalProperties": false
     },
+    "Read6ddaa661c1b0": {
+      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readc89a5cdbe35d" }]
+    },
     "Read6eda757ae46e": {
       "type": "object",
       "properties": {
@@ -1053,6 +1141,38 @@
         "checkedAt",
         "limits",
         "comparisons"
+      ],
+      "additionalProperties": false
+    },
+    "Read6f4887a28172": {
+      "type": "object",
+      "properties": {
+        "sources": { "$ref": "#/$defs/Read136f340208a9" },
+        "games": { "$ref": "#/$defs/Read335435c8e4e9" },
+        "teamIds": {
+          "type": "array",
+          "prefixItems": [{ "type": "string" }, { "type": "string" }],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "failedScorePolicy": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "const": "include" },
+            { "type": "string", "const": "zero" }
+          ]
+        },
+        "technicalAdjudication": { "type": "boolean" },
+        "rating": { "$ref": "#/$defs/Read6ddaa661c1b0" }
+      },
+      "required": [
+        "sources",
+        "games",
+        "teamIds",
+        "failedScorePolicy",
+        "technicalAdjudication",
+        "rating"
       ],
       "additionalProperties": false
     },
@@ -3073,7 +3193,76 @@
           "properties": {
             "fixtures": {
               "type": "array",
-              "items": { "$ref": "#/$defs/Read519857e96882" }
+              "items": {
+                "type": "object",
+                "properties": {
+                  "pool": {
+                    "anyOf": [
+                      { "type": "null" },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" }
+                        },
+                        "required": ["id", "name"],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "id": { "type": "string" },
+                  "label": { "type": "string" },
+                  "publishedAt": { "type": "string" },
+                  "roundId": { "type": "string" },
+                  "roundName": { "type": "string" },
+                  "roundPosition": { "type": "number" },
+                  "stageId": { "type": "string" },
+                  "stage": {
+                    "anyOf": [
+                      { "type": "string", "const": "group" },
+                      { "type": "string", "const": "knockout" }
+                    ]
+                  },
+                  "position": { "type": "number" },
+                  "home": { "$ref": "#/$defs/Read5f294e760979" },
+                  "away": { "$ref": "#/$defs/Read5f294e760979" },
+                  "confirmed": { "type": "boolean" },
+                  "scheduledAt": {
+                    "anyOf": [{ "type": "null" }, { "type": "string" }]
+                  },
+                  "timeZone": { "type": "string" },
+                  "status": {
+                    "anyOf": [
+                      { "type": "string", "const": "scheduled" },
+                      { "type": "string", "const": "in_progress" },
+                      { "type": "string", "const": "cancelled" }
+                    ]
+                  },
+                  "result": { "$ref": "#/$defs/Readbcbbfd10e5db" },
+                  "updatedAt": { "type": "string" }
+                },
+                "required": [
+                  "pool",
+                  "id",
+                  "label",
+                  "publishedAt",
+                  "roundId",
+                  "roundName",
+                  "roundPosition",
+                  "stageId",
+                  "stage",
+                  "position",
+                  "home",
+                  "away",
+                  "confirmed",
+                  "scheduledAt",
+                  "timeZone",
+                  "status",
+                  "result",
+                  "updatedAt"
+                ],
+                "additionalProperties": false
+              }
             },
             "groups": {
               "type": "array",
@@ -3575,6 +3764,19 @@
       "type": "object",
       "properties": {
         "slug": { "type": "string" },
+        "archiveKey": { "type": "string" },
+        "matchDetails": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fixtureId": { "type": "string" },
+              "details": { "$ref": "#/$defs/Read6f4887a28172" }
+            },
+            "required": ["fixtureId", "details"],
+            "additionalProperties": false
+          }
+        },
         "players": {
           "type": "array",
           "items": {
@@ -3706,6 +3908,8 @@
       },
       "required": [
         "slug",
+        "archiveKey",
+        "matchDetails",
         "players",
         "teams",
         "stages",
@@ -3718,11 +3922,88 @@
       "additionalProperties": false
     },
     "publicFixture": {
-      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read519857e96882" }]
+      "anyOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "properties": {
+            "pool": {
+              "anyOf": [
+                { "type": "null" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" }
+                  },
+                  "required": ["id", "name"],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "id": { "type": "string" },
+            "label": { "type": "string" },
+            "publishedAt": { "type": "string" },
+            "roundId": { "type": "string" },
+            "roundName": { "type": "string" },
+            "roundPosition": { "type": "number" },
+            "stageId": { "type": "string" },
+            "stage": {
+              "anyOf": [
+                { "type": "string", "const": "group" },
+                { "type": "string", "const": "knockout" }
+              ]
+            },
+            "position": { "type": "number" },
+            "home": { "$ref": "#/$defs/Read5f294e760979" },
+            "away": { "$ref": "#/$defs/Read5f294e760979" },
+            "confirmed": { "type": "boolean" },
+            "scheduledAt": {
+              "anyOf": [{ "type": "null" }, { "type": "string" }]
+            },
+            "timeZone": { "type": "string" },
+            "status": {
+              "anyOf": [
+                { "type": "string", "const": "scheduled" },
+                { "type": "string", "const": "in_progress" },
+                { "type": "string", "const": "cancelled" }
+              ]
+            },
+            "result": { "$ref": "#/$defs/Readbcbbfd10e5db" },
+            "updatedAt": { "type": "string" },
+            "details": {
+              "anyOf": [
+                { "type": "null" },
+                { "$ref": "#/$defs/Read6f4887a28172" }
+              ]
+            }
+          },
+          "required": [
+            "pool",
+            "id",
+            "label",
+            "publishedAt",
+            "roundId",
+            "roundName",
+            "roundPosition",
+            "stageId",
+            "stage",
+            "position",
+            "home",
+            "away",
+            "confirmed",
+            "scheduledAt",
+            "timeZone",
+            "status",
+            "result",
+            "updatedAt",
+            "details"
+          ],
+          "additionalProperties": false
+        }
+      ]
     },
-    "publicMatchRating": {
-      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readc89a5cdbe35d" }]
-    },
+    "publicMatchRating": { "$ref": "#/$defs/Read6ddaa661c1b0" },
     "publicPlayerMessages": {
       "type": "array",
       "items": {

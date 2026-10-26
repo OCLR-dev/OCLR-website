@@ -1,3 +1,6 @@
+import { archiveMatchDetails } from "./match-details-model";
+import { ratingSnapshot } from "./ratings";
+import type { RatingGame } from "./yumu-rating";
 import { db } from "@/db";
 import { editionEvents, editionState, historicalStatistics } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -506,70 +509,129 @@ export async function statisticsCommand(
   });
   return statisticsWorkspace(actor, slug, fixture.id);
 }
-async function databasePublicArchiveStatistics(slug: string) {
-  const archive = await archiveFor(slug, db(), true);
-  const key = statisticsArchiveKey(archive);
-  const rows = await stored(slug);
-  const fixtures = statisticsFixtures(archive);
-  const published = fixtures.flatMap((fixture) => {
-    const sources = rows.filter(
-      (r) =>
-        r.fixtureId === fixture.id &&
-        fixture.mpUrls.some((u) => archiveMpId(u) === r.mpId),
-    );
-    if (
-      !sources.length ||
-      sources.some((r) => !r.published || r.published.archiveKey !== key)
-    )
-      return [];
-    const snapshots = sources.map((r) => r.published!);
-    if (fixtureStatisticsIssues(archive, fixture.id, snapshots).length)
-      return [];
-    return sources;
-  });
-  const plays = published.flatMap((r) =>
-    projectStatistics(archive, r.fixtureId, r.published!),
+async function databasePublicArchiveStatistics(
+  slug: string,
+  fixtureId?: string,
+) {
+  return db().transaction(
+    async (tx) => {
+      const archive = await archiveFor(slug, tx, true);
+      const key = statisticsArchiveKey(archive);
+      const rows = await stored(slug, tx);
+      const fixtures = statisticsFixtures(archive).filter(
+        (f) => !fixtureId || f.id === fixtureId,
+      );
+      const published = fixtures.flatMap((fixture) => {
+        const sources = rows.filter(
+          (r) =>
+            r.fixtureId === fixture.id &&
+            fixture.mpUrls.some((u) => archiveMpId(u) === r.mpId),
+        );
+        if (
+          !sources.length ||
+          sources.some((r) => !r.published || r.published.archiveKey !== key)
+        )
+          return [];
+        const snapshots = sources.map((r) => r.published!);
+        if (fixtureStatisticsIssues(archive, fixture.id, snapshots).length)
+          return [];
+        return sources;
+      });
+      const plays = published.flatMap((r) =>
+        projectStatistics(archive, r.fixtureId, r.published!),
+      );
+      return {
+        slug,
+        archiveKey: key,
+        matchDetails: (fixtureId ? fixtures : []).flatMap((f) => {
+          const sources = published.filter((r) => r.fixtureId === f.id);
+          if (!sources.length) return [];
+          // Published snapshot identity, not the mutable draft version, anchors the report.
+          const details = archiveMatchDetails(
+            archive,
+            f.id,
+            sources.map((r) => ({
+              snapshot: r.published!,
+              revision: createHash("sha256")
+                .update(JSON.stringify(r.published))
+                .digest("hex"),
+            })),
+          );
+          const games: RatingGame[] = details.games
+            .filter((g) => g.included)
+            .map((g) => ({
+              fixtureId: f.id,
+              gameId: g.gameId,
+              // Historical snapshots have no numeric result revision; fingerprint is authoritative.
+              revision: 0,
+              fingerprint: g.revision,
+              approvalFingerprint: g.revision,
+              at: g.startTime,
+              teamIds: details.teamIds,
+              winnerTeamId:
+                g.effectiveTotals[0] === g.effectiveTotals[1]
+                  ? null
+                  : details.teamIds[
+                      g.effectiveTotals[0]! > g.effectiveTotals[1]! ? 0 : 1
+                    ],
+              scores: g.scores
+                .filter((s) => s.included)
+                .map((s) => ({
+                  userId: s.osuId,
+                  teamId: s.teamId!,
+                  total: s.effectiveTotal!,
+                })),
+            }));
+          details.rating = ratingSnapshot(
+            games,
+            new Map(archive.players.map((p) => [p.osuId, p.username])),
+          );
+          return [{ fixtureId: f.id, details }];
+        }),
+        players: archive.players.map(
+          ({ osuId, username, teamId, role, tier }) => ({
+            osuId,
+            username,
+            teamId,
+            role,
+            tier,
+          }),
+        ),
+        teams: archive.teams.map(({ id, name }) => ({ id, name })),
+        stages: [...new Set(fixtures.map((m) => m.stage))],
+        fixtures: fixtures.map((m) => ({
+          id: m.id,
+          label: m.label,
+          stage: m.stage,
+          covered: published.some((r) => r.fixtureId === m.id),
+          technicalAdjudication: published.some(
+            (r) => r.fixtureId === m.id && r.published?.technicalAdjudication,
+          ),
+          score: m.score,
+        })),
+        plays,
+        publishedAt:
+          published
+            .map((r) => r.publishedAt!.toISOString())
+            .sort()
+            .at(-1) ?? null,
+        mpTotal: fixtures.reduce((n, m) => n + m.mpUrls.length, 0),
+        mpCovered: published.length,
+      };
+    },
+    { isolationLevel: "repeatable read", accessMode: "read only" },
   );
-  return {
-    slug,
-    players: archive.players.map(({ osuId, username, teamId, role, tier }) => ({
-      osuId,
-      username,
-      teamId,
-      role,
-      tier,
-    })),
-    teams: archive.teams.map(({ id, name }) => ({ id, name })),
-    stages: [...new Set(fixtures.map((m) => m.stage))],
-    fixtures: fixtures.map((m) => ({
-      id: m.id,
-      label: m.label,
-      stage: m.stage,
-      covered: published.some((r) => r.fixtureId === m.id),
-      technicalAdjudication: published.some(
-        (r) => r.fixtureId === m.id && r.published?.technicalAdjudication,
-      ),
-      score: m.score,
-    })),
-    plays,
-    publishedAt:
-      published
-        .map((r) => r.publishedAt!.toISOString())
-        .sort()
-        .at(-1) ?? null,
-    mpTotal: fixtures.reduce((n, m) => n + m.mpUrls.length, 0),
-    mpCovered: published.length,
-  };
 }
 export async function publicArchiveStatistics(
   slug: string,
+  fixtureId?: string,
 ): Promise<Awaited<ReturnType<typeof databasePublicArchiveStatistics>>> {
   if (remoteMode()) {
     return frontendResource<
       Awaited<ReturnType<typeof databasePublicArchiveStatistics>>
-    >("publicArchiveStatistics", { slug });
+    >("publicArchiveStatistics", { slug, fixtureId });
   }
-  return databasePublicArchiveStatistics(slug);
+  return databasePublicArchiveStatistics(slug, fixtureId);
 }
 
 export type PublicArchiveStatistics = Awaited<

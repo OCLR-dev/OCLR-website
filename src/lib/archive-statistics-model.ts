@@ -250,8 +250,7 @@ export function fixtureStatisticsIssues(
     ids.some((id) => !fixture.mpUrls.some((url) => archiveMpId(url) === id))
   )
     return ["Import every recorded MP link before publishing this match."];
-  const seen = new Set<number>(),
-    maps = new Set<number>();
+  const seen = new Set<number>();
   const wins = [0, 0];
   const issues: string[] = [];
   for (const s of snapshots) {
@@ -286,10 +285,10 @@ export function fixtureStatisticsIssues(
           s.rosterTeamGames?.includes(g.id),
         ),
       );
-      if (seen.has(g.id) || (g.beatmapId !== null && maps.has(g.beatmapId)))
-        issues.push("Exclude duplicate games and replayed beatmaps.");
+      // Review selects game identities, not unique beatmaps: a map may be played
+      // again legitimately. Excluded replays remain in the published source.
+      if (seen.has(g.id)) issues.push("Exclude duplicate games.");
       seen.add(g.id);
-      if (g.beatmapId) maps.add(g.beatmapId);
       const totals = [fixture.teamA, fixture.teamB].map((id) =>
         statisticsScores(g, s.excludedScores).reduce(
           (sum, score) =>

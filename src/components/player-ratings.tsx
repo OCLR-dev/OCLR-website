@@ -6,9 +6,11 @@ import type { ratingSnapshot } from "@/lib/ratings";
 export function PlayerRatings({
   report,
   slug,
+  historical = false,
 }: {
   report: ReturnType<typeof ratingSnapshot>;
   slug: string;
+  historical?: boolean;
 }) {
   const tr = useAppTranslations();
   return (
@@ -73,7 +75,11 @@ export function PlayerRatings({
                     <th scope="row">
                       <Link
                         className="text-link"
-                        href={`/players/${p.userId}?edition=${slug}`}
+                        href={
+                          historical
+                            ? `/tournaments/${slug}/players/${p.userId}`
+                            : `/players/${p.userId}?edition=${slug}`
+                        }
                       >
                         {p.username}
                       </Link>
@@ -102,7 +108,9 @@ export function PlayerRatings({
               {report.evidence.map((g) => (
                 <li key={g.gameId}>
                   {tr("Game {value0}", { value0: g.gameId })} ·{" "}
-                  {tr("Revision {value0}", { value0: g.revision })}
+                  {historical
+                    ? g.fingerprint.slice(0, 12)
+                    : tr("Revision {value0}", { value0: g.revision })}
                 </li>
               ))}
             </ul>

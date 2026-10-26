@@ -3,7 +3,7 @@
 The saved-read API serves the existing OCLR frontend through one versioned
 resource contract. The [full-site remote adapter](remote-development.md) needs no
 local database, migrations, seed or OAuth secret. Its minimum compatible contract
-is 1.1.0 within v1, returned in `X-OCLR-Read-Contract` and the OpenAPI version.
+is 1.2.0 within v1, returned in `X-OCLR-Read-Contract` and the OpenAPI version.
 
 The machine-readable OpenAPI 3.1 document is served, without authentication or a
 DB connection, at `/api/v1/openapi.json`. It is a raw OpenAPI document; all business

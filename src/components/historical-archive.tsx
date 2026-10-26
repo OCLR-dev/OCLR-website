@@ -1,3 +1,9 @@
+import { MatchDetailsView } from "./match-details";
+import {
+  publicArchiveStatistics,
+  statisticsArchiveKey,
+} from "@/lib/archive-statistics";
+import { statisticsSeasons } from "@/lib/archive-statistics-model";
 import { getAppTranslations } from "@/i18n/server";
 import { archivePoolMetadata } from "@/lib/archive-map-metadata";
 import { archiveArtworkSetIds } from "@/lib/archive-artwork";
@@ -606,9 +612,32 @@ export async function HistoricalArchiveView({
       });
     if (section === "match" && !matches.length) notFound();
     title = section === "match" ? matches[0].label : tr("Matches & results");
+    const statistics =
+      section === "match" &&
+      !preview &&
+      (statisticsSeasons as readonly string[]).includes(edition.slug) &&
+      (process.env.DATABASE_URL || remoteMode())
+        ? await publicArchiveStatistics(edition.slug, id)
+        : null;
+    const details =
+      statistics?.archiveKey === statisticsArchiveKey(a)
+        ? (statistics.matchDetails.find((m) => m.fixtureId === id)?.details ??
+          null)
+        : null;
     content =
       section === "match" ? (
-        match(matches[0])
+        <>
+          {match(matches[0])}
+          {!preview && (
+            <MatchDetailsView
+              details={details}
+              slug={edition.slug}
+              teams={a.teams}
+              timeZone={edition.timeZone}
+              historical
+            />
+          )}
+        </>
       ) : (
         <EventSchedule
           key={statusFilter}

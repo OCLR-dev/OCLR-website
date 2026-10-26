@@ -58,10 +58,20 @@ describe("read API DX contract", () => {
     );
   });
   it("documents and validates exact filter types and the minimum compatible additive v1 version", () => {
-    for (const value of [null, "1.0.0", "2.0.0", "1.1", "unavailable"])
+    for (const value of [null, "1.0.0", "1.1.0", "2.0.0", "1.1", "unavailable"])
       expect(supportsFullSiteRead(value)).toBe(false);
-    for (const value of ["1.1.0", "1.2.3"])
+    for (const value of ["1.2.0", "1.2.3"])
       expect(supportsFullSiteRead(value)).toBe(true);
+    expect(
+      readQuerySchema("publicArchiveStatistics", ["fixtureId"]).safeParse({
+        fixtureId: "match-2",
+      }).success,
+    ).toBe(true);
+    expect(
+      readQuerySchema("publicArchiveStatistics", ["fixtureId"]).safeParse({
+        fixtureId: "../private",
+      }).success,
+    ).toBe(false);
     expect(
       readQuerySchema("statisticsWorkspace", ["fixtureId"]).safeParse({
         fixtureId: "recorded-final",

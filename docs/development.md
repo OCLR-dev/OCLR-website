@@ -98,7 +98,7 @@ npm run dev -- --hostname 127.0.0.1
 
 A fresh frontend checkout needs no environment file, PostgreSQL, migration, seed,
 local OAuth secret or upload directory. An operator separately supplies a backend
-with read contract 1.1.0+ within v1, saved data, allowed exact local origin and an
+with read contract 1.2.0+ within v1, saved data, allowed exact local origin and an
 explicit Developer grant when private reads are needed. Connect at `/remote` with
 short-lived access, or explicitly select anonymous public reads. Preserve an
 existing checkout's local environment files and services.

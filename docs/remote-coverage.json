@@ -1624,13 +1624,12 @@
       "file": "src/app/tournaments/[edition]/matches/[fixtureId]/page.tsx",
       "kind": "page",
       "authority": "saved-read",
-      "operations": ["publicEnrollment", "publicFixture", "publicMatchRating"],
+      "operations": ["publicEnrollment", "publicFixture"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/frontend-read-models.ts#publicEnrollment",
-        "src/lib/public-competition.ts#publicFixture",
-        "src/lib/ratings.ts#publicMatchRating"
+        "src/lib/public-competition.ts#publicFixture"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
