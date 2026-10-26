@@ -64,11 +64,6 @@ export async function TournamentRules({
           </div>
         </>
       )}
-      <p className="small muted spaced">
-        {tr(
-          "Accepted registrations automatically appear in this tournament’s public Players directory with their osu! username, osu! ID and participation status. Application answers and review notes stay private.",
-        )}
-      </p>
     </>
   );
 }
