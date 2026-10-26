@@ -615,7 +615,6 @@
     "m0cc9e949f932": "Published scores, verified match sources and group standings. Referee submissions remain private until approval and publication.",
     "m4228aeb07c41": "Rules",
     "m9609495a6c2c": "Published rules and organizer updates for this edition.",
-    "m8f6e1f2b13bf": "Accepted registrations automatically appear in this tournament’s public Players directory with their osu! username, osu! ID and participation status. Application answers and review notes stay private.",
     "mf4830a1dae29": "Schedule",
     "mfa03be9a7d2d": "Match times use each fixture’s IANA time zone. Unconfirmed times remain TBA.",
     "mc33e3ff97054": "CAPTAIN WORKSPACE",
@@ -2718,6 +2717,8 @@
     "mcfd0ba428051": "Liru (LR-chan): the OCLR mascot",
     "meba0930f7cf4": "Liru (LR-chan) is the official mascot of osu! Chinese League Rookie (OCLR), in the spirit of pippi and the other osu! mode mascots. Her design began as a community proposal by {designer}.",
     "m602fcf2ad901": "Designed by community member {designer} as a community proposal and later adopted as the official mascot. The artwork was made with AI assistance (Animagine XL 4.0, CreativeML Open RAIL++-M) and retouched afterwards.",
-    "mee5e46c1fe26": "{value0} seconds"
+    "mee5e46c1fe26": "{value0} seconds",
+    "m635ae219ad13": "Report an issue",
+    "m505554929de3": "GitHub repository"
   }
 }

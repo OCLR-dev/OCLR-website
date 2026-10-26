@@ -269,6 +269,30 @@ button:hover {
 }
 .site-footer p {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+.footer-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding-inline: 0.25rem;
+  border-radius: var(--button-radius);
+}
+.footer-action:hover {
+  background: var(--site-tint);
+}
+.footer-github svg {
+  flex: none;
 }
 .site-footer .footer-credit {
   color: inherit;
