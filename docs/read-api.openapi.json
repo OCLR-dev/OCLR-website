@@ -14745,10 +14745,6 @@
           "additionalProperties": false
         }
       },
-      "Read2770cc35bd34": {
-        "type": "array",
-        "items": { "$ref": "#/components/schemas/Read42b20a5cb69a" }
-      },
       "Read288a83d2fe1b": {
         "type": "array",
         "items": { "$ref": "#/components/schemas/Read6d17a2f1d75d" }
@@ -14803,10 +14799,6 @@
           { "type": "null" },
           { "$ref": "#/components/schemas/Read5c8b6e1d6293" }
         ]
-      },
-      "Read335435c8e4e9": {
-        "type": "array",
-        "items": { "$ref": "#/components/schemas/Read44f264c72505" }
       },
       "Read378164167572": {
         "type": "object",
@@ -15018,65 +15010,6 @@
           { "$ref": "#/components/schemas/Read05677f56a448" }
         ]
       },
-      "Read42b20a5cb69a": {
-        "type": "object",
-        "properties": {
-          "osuId": { "type": "number" },
-          "username": { "type": "string" },
-          "teamId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-          "lobbyTeam": {
-            "anyOf": [
-              { "type": "null" },
-              { "type": "string", "const": "red" },
-              { "type": "string", "const": "blue" },
-              { "type": "string", "const": "none" }
-            ]
-          },
-          "slot": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-          "total": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-          "effectiveTotal": {
-            "anyOf": [{ "type": "null" }, { "type": "number" }]
-          },
-          "accuracy": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-          "combo": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-          "passed": {
-            "anyOf": [
-              { "type": "null" },
-              { "type": "boolean", "const": false },
-              { "type": "boolean", "const": true }
-            ]
-          },
-          "mods": { "type": "array", "items": { "type": "string" } },
-          "hits": { "$ref": "#/components/schemas/Read14862e7e6b76" },
-          "included": { "type": "boolean" },
-          "mapping": {
-            "anyOf": [
-              { "type": "null" },
-              { "type": "string", "const": "roster" },
-              { "type": "string", "const": "substitution" }
-            ]
-          },
-          "providerScores": { "$ref": "#/components/schemas/Read3c8ffb879c68" }
-        },
-        "required": [
-          "osuId",
-          "username",
-          "teamId",
-          "lobbyTeam",
-          "slot",
-          "total",
-          "effectiveTotal",
-          "accuracy",
-          "combo",
-          "passed",
-          "mods",
-          "hits",
-          "included",
-          "mapping",
-          "providerScores"
-        ],
-        "additionalProperties": false
-      },
       "Read42d9ee71e9ce": {
         "type": "object",
         "properties": {
@@ -15140,68 +15073,6 @@
           { "type": "null", "x-oclr-undefined": true },
           { "$ref": "#/components/schemas/Read8ed146c0ed8f" }
         ]
-      },
-      "Read44f264c72505": {
-        "type": "object",
-        "properties": {
-          "mpId": { "type": "number" },
-          "gameId": { "type": "number" },
-          "revision": { "type": "string" },
-          "beatmapId": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-          "beatmap": { "$ref": "#/components/schemas/Reade30a93ef38fd" },
-          "startTime": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-          "endTime": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-          "mode": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-          "teamType": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-          "scoringType": {
-            "anyOf": [{ "type": "null" }, { "type": "string" }]
-          },
-          "mods": { "type": "array", "items": { "type": "string" } },
-          "included": { "type": "boolean" },
-          "rosterMapping": { "type": "boolean" },
-          "scores": { "$ref": "#/components/schemas/Read2770cc35bd34" },
-          "withheldScores": { "type": "number" },
-          "rawTotals": {
-            "type": "array",
-            "prefixItems": [
-              { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-              { "anyOf": [{ "type": "null" }, { "type": "number" }] }
-            ],
-            "items": false,
-            "minItems": 2,
-            "maxItems": 2
-          },
-          "effectiveTotals": {
-            "type": "array",
-            "prefixItems": [
-              { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-              { "anyOf": [{ "type": "null" }, { "type": "number" }] }
-            ],
-            "items": false,
-            "minItems": 2,
-            "maxItems": 2
-          }
-        },
-        "required": [
-          "mpId",
-          "gameId",
-          "revision",
-          "beatmapId",
-          "beatmap",
-          "startTime",
-          "endTime",
-          "mode",
-          "teamType",
-          "scoringType",
-          "mods",
-          "included",
-          "rosterMapping",
-          "scores",
-          "withheldScores",
-          "rawTotals",
-          "effectiveTotals"
-        ],
-        "additionalProperties": false
       },
       "Read45608b45bc27": {
         "anyOf": [
@@ -15381,6 +15252,10 @@
         },
         "required": ["teamId", "wins", "losses", "mapsWon", "mapsLost"],
         "additionalProperties": false
+      },
+      "Read55c1328962f0": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/Read6b1892d15a0a" }
       },
       "Read5b37d3f31d52": {
         "type": "object",
@@ -15655,6 +15530,67 @@
         ],
         "additionalProperties": false
       },
+      "Read6b1892d15a0a": {
+        "type": "object",
+        "properties": {
+          "osuId": { "type": "number" },
+          "username": { "type": "string" },
+          "teamId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "lobbyTeam": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "string", "const": "red" },
+              { "type": "string", "const": "blue" },
+              { "type": "string", "const": "none" }
+            ]
+          },
+          "slot": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "total": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "effectiveTotal": {
+            "anyOf": [{ "type": "null" }, { "type": "number" }]
+          },
+          "accuracy": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "combo": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "passed": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "boolean", "const": false },
+              { "type": "boolean", "const": true }
+            ]
+          },
+          "mods": { "type": "array", "items": { "type": "string" } },
+          "modsKnown": { "type": "boolean" },
+          "hits": { "$ref": "#/components/schemas/Read14862e7e6b76" },
+          "included": { "type": "boolean" },
+          "mapping": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "string", "const": "roster" },
+              { "type": "string", "const": "substitution" }
+            ]
+          },
+          "providerScores": { "$ref": "#/components/schemas/Read3c8ffb879c68" }
+        },
+        "required": [
+          "osuId",
+          "username",
+          "teamId",
+          "lobbyTeam",
+          "slot",
+          "total",
+          "effectiveTotal",
+          "accuracy",
+          "combo",
+          "passed",
+          "mods",
+          "modsKnown",
+          "hits",
+          "included",
+          "mapping",
+          "providerScores"
+        ],
+        "additionalProperties": false
+      },
       "Read6d17a2f1d75d": {
         "type": "object",
         "properties": {
@@ -15664,6 +15600,38 @@
           "maps": { "$ref": "#/components/schemas/Read4cf4e2f31c2f" }
         },
         "required": ["id", "name", "source", "maps"],
+        "additionalProperties": false
+      },
+      "Read6d85e14c021d": {
+        "type": "object",
+        "properties": {
+          "sources": { "$ref": "#/components/schemas/Read136f340208a9" },
+          "games": { "$ref": "#/components/schemas/Readd867e705ae4d" },
+          "teamIds": {
+            "type": "array",
+            "prefixItems": [{ "type": "string" }, { "type": "string" }],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "failedScorePolicy": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "string", "const": "include" },
+              { "type": "string", "const": "zero" }
+            ]
+          },
+          "technicalAdjudication": { "type": "boolean" },
+          "rating": { "$ref": "#/components/schemas/Read6ddaa661c1b0" }
+        },
+        "required": [
+          "sources",
+          "games",
+          "teamIds",
+          "failedScorePolicy",
+          "technicalAdjudication",
+          "rating"
+        ],
         "additionalProperties": false
       },
       "Read6dbdcea10644": {
@@ -15731,38 +15699,6 @@
           "checkedAt",
           "limits",
           "comparisons"
-        ],
-        "additionalProperties": false
-      },
-      "Read6f4887a28172": {
-        "type": "object",
-        "properties": {
-          "sources": { "$ref": "#/components/schemas/Read136f340208a9" },
-          "games": { "$ref": "#/components/schemas/Read335435c8e4e9" },
-          "teamIds": {
-            "type": "array",
-            "prefixItems": [{ "type": "string" }, { "type": "string" }],
-            "items": false,
-            "minItems": 2,
-            "maxItems": 2
-          },
-          "failedScorePolicy": {
-            "anyOf": [
-              { "type": "null" },
-              { "type": "string", "const": "include" },
-              { "type": "string", "const": "zero" }
-            ]
-          },
-          "technicalAdjudication": { "type": "boolean" },
-          "rating": { "$ref": "#/components/schemas/Read6ddaa661c1b0" }
-        },
-        "required": [
-          "sources",
-          "games",
-          "teamIds",
-          "failedScorePolicy",
-          "technicalAdjudication",
-          "rating"
         ],
         "additionalProperties": false
       },
@@ -15873,6 +15809,70 @@
           "player": { "$ref": "#/components/schemas/Readd988f71c5ebc" }
         },
         "required": ["id", "turnIndex", "team", "player"],
+        "additionalProperties": false
+      },
+      "Read82e587df7c57": {
+        "type": "object",
+        "properties": {
+          "mpId": { "type": "number" },
+          "gameId": { "type": "number" },
+          "revision": { "type": "string" },
+          "beatmapId": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+          "beatmap": { "$ref": "#/components/schemas/Reade30a93ef38fd" },
+          "startTime": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "endTime": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "mode": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "teamType": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "scoringType": {
+            "anyOf": [{ "type": "null" }, { "type": "string" }]
+          },
+          "mods": { "type": "array", "items": { "type": "string" } },
+          "modsKnown": { "type": "boolean" },
+          "included": { "type": "boolean" },
+          "rosterMapping": { "type": "boolean" },
+          "scores": { "$ref": "#/components/schemas/Read55c1328962f0" },
+          "withheldScores": { "type": "number" },
+          "rawTotals": {
+            "type": "array",
+            "prefixItems": [
+              { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+              { "anyOf": [{ "type": "null" }, { "type": "number" }] }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "effectiveTotals": {
+            "type": "array",
+            "prefixItems": [
+              { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+              { "anyOf": [{ "type": "null" }, { "type": "number" }] }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "required": [
+          "mpId",
+          "gameId",
+          "revision",
+          "beatmapId",
+          "beatmap",
+          "startTime",
+          "endTime",
+          "mode",
+          "teamType",
+          "scoringType",
+          "mods",
+          "modsKnown",
+          "included",
+          "rosterMapping",
+          "scores",
+          "withheldScores",
+          "rawTotals",
+          "effectiveTotals"
+        ],
         "additionalProperties": false
       },
       "Read8403b8fab385": {
@@ -17209,6 +17209,10 @@
         "required": ["id", "username", "teamId", "role", "tier", "source"],
         "additionalProperties": false
       },
+      "Readd867e705ae4d": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/Read82e587df7c57" }
+      },
       "Readd988f71c5ebc": {
         "type": "object",
         "properties": {
@@ -18475,7 +18479,7 @@
               "type": "object",
               "properties": {
                 "fixtureId": { "type": "string" },
-                "details": { "$ref": "#/components/schemas/Read6f4887a28172" }
+                "details": { "$ref": "#/components/schemas/Read6d85e14c021d" }
               },
               "required": ["fixtureId", "details"],
               "additionalProperties": false
@@ -18687,7 +18691,7 @@
               "details": {
                 "anyOf": [
                   { "type": "null" },
-                  { "$ref": "#/components/schemas/Read6f4887a28172" }
+                  { "$ref": "#/components/schemas/Read6d85e14c021d" }
                 ]
               }
             },

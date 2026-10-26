@@ -4,6 +4,8 @@ Both ordinary fixture pages and historical match pages render saved records only
 The shared projection is `src/lib/match-details-model.ts`; it never fetches osu!
 or writes business data. No migration or automatic production backfill is needed.
 Missing provider fields remain missing until a separately authorized import/review.
+Saved missing-mod validation flags project to `modsKnown: false`, rather than
+mislabeling unavailable game/player mods as NM.
 
 ## Source → review → public display
 
@@ -85,10 +87,11 @@ environment files.
 The full unit/integration run initially reported 1,161 passing tests and three
 failures (the previous blanket replay rule, literal provider labels, and generated
 coverage drift). These were corrected; the affected seven files subsequently
-passed 37 tests, with the five projection tests also passing after the timestamp
-ordering check was added.
+passed 37 tests, with all six projection tests and four i18n tests passing after the timestamp
+ordering and missing-Mods checks were added.
 
-The final six desktop/mobile detail and player-evaluation browser tests pass.
+The six desktop/mobile detail and player-evaluation browser tests pass. The four
+detail cases also pass again after the final missing-Mods correction.
 Historical screenshots cover all 36 locale × appearance × brightness × viewport
 combinations, plus ordinary fixture screenshots. Axe, keyboard focus, retained
 scores, withdrawal, literal names, team-column width, real `clientWidth` overflow

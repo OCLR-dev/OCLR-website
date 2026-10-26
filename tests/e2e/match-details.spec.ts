@@ -48,6 +48,11 @@ test.describe("published match details", () => {
       source.games = source.games.filter((g) =>
         index === 0 ? g.id === 1 || g.id === 3 : g.id === 2 || g.id === 4,
       );
+      const missingMods = source.games.find((g) => g.id === 3);
+      if (missingMods) {
+        missingMods.problems.push("Game mod data is unavailable.");
+        missingMods.scores[0].problems.push("Player mod data is unavailable.");
+      }
       const snapshot = {
         archiveKey: statisticsArchiveKey(archive),
         source,
@@ -103,6 +108,15 @@ test.describe("published match details", () => {
           await expect(
             page.getByRole("columnheader", { name: "MRA", exact: true }),
           ).toBeVisible();
+          if (locale === "en") {
+            await expect(page.locator("#game-1")).toContainText("NM");
+            await expect(page.locator("#game-3")).toContainText("Not recorded");
+            await page.locator("#game-3 > details > summary").click();
+            await expect(
+              page.locator("#game-3 tbody tr").first().locator("td").nth(7),
+            ).toHaveText("Not recorded");
+            await page.locator("#game-3 > details > summary").click();
+          }
           expect(
             await page.evaluate(
               () =>

@@ -138,7 +138,8 @@ export function MatchDetailsView({
                   ? tr("Included in official result")
                   : tr("Excluded from official result")}
               </strong>{" "}
-              · {g.mods.join(" / ") || "NM"} · {g.mode ?? tr("Not recorded")} ·{" "}
+              · {g.modsKnown ? g.mods.join(" / ") || "NM" : tr("Not recorded")}{" "}
+              · {g.mode ?? tr("Not recorded")} ·{" "}
               {g.teamType ?? tr("Not recorded")} ·{" "}
               {g.scoringType ?? tr("Not recorded")}
             </p>
@@ -288,7 +289,11 @@ export function MatchDetailsView({
                               .map(number)
                               .join(" / ")}
                           </td>
-                          <td>{s.mods.join(" / ") || "NM"}</td>
+                          <td>
+                            {s.modsKnown
+                              ? s.mods.join(" / ") || "NM"
+                              : tr("Not recorded")}
+                          </td>
                           <td>
                             {s.passed === null
                               ? tr("Not recorded")

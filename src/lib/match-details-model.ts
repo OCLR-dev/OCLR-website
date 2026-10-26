@@ -18,6 +18,7 @@ export type MatchDetailScore = {
   combo: number | null;
   passed: boolean | null;
   mods: string[];
+  modsKnown: boolean;
   hits: NonNullable<MatchScore["hitCounts"]> | null;
   included: boolean;
   mapping: "roster" | "substitution" | null;
@@ -39,6 +40,7 @@ export type MatchDetailGame = {
   teamType: string | null;
   scoringType: string | null;
   mods: string[];
+  modsKnown: boolean;
   included: boolean;
   rosterMapping: boolean;
   scores: MatchDetailScore[];
@@ -82,6 +84,7 @@ export function detailScore(
     combo: s.combo,
     passed: s.passed,
     mods: [...s.mods],
+    modsKnown: !s.problems.includes("Player mod data is unavailable."),
     hits: s.hitCounts ? { ...s.hitCounts } : null,
     included,
     mapping,
@@ -131,6 +134,7 @@ export function detailGame(
     teamType: g.teamType,
     scoringType: g.scoringType,
     mods: [...g.mods],
+    modsKnown: !g.problems.includes("Game mod data is unavailable."),
     included,
     rosterMapping,
     scores,

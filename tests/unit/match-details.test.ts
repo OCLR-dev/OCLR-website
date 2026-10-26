@@ -101,6 +101,23 @@ describe("public match detail projection", () => {
       ]).map((g) => g.gameId),
     ).toEqual([1, 2, 3]);
   });
+  it("distinguishes absent provider mods from recorded no-mod plays", () => {
+    const g = statisticsSource().games[0];
+    const score = g.scores[0];
+    expect(
+      detailScore(score, "Known", "a", true, false, "roster").modsKnown,
+    ).toBe(true);
+    score.problems.push("Player mod data is unavailable.");
+    expect(detailScore(score, "Known", "a", false, false, null)).toMatchObject({
+      mods: [],
+      modsKnown: false,
+    });
+    g.problems.push("Game mod data is unavailable.");
+    expect(detailGame(g, 1, "v", false, [], ["a", "b"])).toMatchObject({
+      mods: [],
+      modsKnown: false,
+    });
+  });
   it("retains real tied zero totals and leaves missing teams unknown", () => {
     const g = statisticsSource().games[0];
     const scores = g.scores.map((s, i) =>
