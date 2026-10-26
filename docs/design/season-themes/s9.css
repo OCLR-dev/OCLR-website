@@ -62,32 +62,10 @@ html[data-s9-preview][data-theme="dark"] .themed-site {
   --site-dialog-shadow: #0009;
   --site-backdrop: #0009;
 }
-/* Short registration marks echo the original frozen border. Only backgrounds
- * are decorative; the 16:9 artwork, its lettering and focus rings are untouched. */
-html[data-s9-preview] .themed-site .archive-key-visual {
-  background:
-    linear-gradient(var(--site-accent), var(--site-accent)) left top / 32px 2px
-      no-repeat,
-    linear-gradient(var(--site-accent), var(--site-accent)) left top / 2px 32px
-      no-repeat,
-    linear-gradient(var(--site-accent), var(--site-accent)) right bottom / 32px
-      2px no-repeat,
-    linear-gradient(var(--site-accent), var(--site-accent)) right bottom / 2px
-      32px no-repeat;
-}
 html[data-s9-preview] .themed-site .page-heading {
   position: relative;
   border-bottom: 1px solid var(--site-border);
   padding-bottom: 1.25rem;
-}
-html[data-s9-preview] .themed-site .page-heading::after {
-  content: "";
-  position: absolute;
-  inset: auto auto -1px 0;
-  width: 64px;
-  height: 3px;
-  background: var(--site-accent);
-  pointer-events: none;
 }
 html[data-s9-preview] .themed-site .archive-counts dd {
   color: var(--site-accent-strong);
@@ -155,5 +133,269 @@ html[data-s9-preview]
     :is(.main-nav > a[aria-current], .tournament-navigation a[aria-current]) {
     outline: 2px solid Highlight;
     outline-offset: -3px;
+  }
+}
+
+/* Crystal material: branched etching, frost accretion and refractive bevels.
+ * Text always sits on an opaque slab. No filter, clipped content or new DOM. */
+html[data-s9-preview] .themed-site {
+  --ice-crystal: url("./s9/crystal-etching.svg");
+  --ice-frost: url("./s9/frost-rim.svg");
+  --ice-rim: #b4dce9;
+  --ice-rim-bright: #ffffff;
+  --ice-rim-shade: #8bbbd4;
+  --ice-facet: #d5f2ff;
+  --ice-cut: #aad8eb;
+  --ice-etch: #c8eaf6;
+  --ice-well: #e9f4fc;
+  --ice-shadow: #184d7524;
+  --ice-slab:
+    linear-gradient(135deg, var(--ice-facet) 0 16px, transparent 16.5px) top
+      left / 32px 32px no-repeat,
+    linear-gradient(315deg, var(--ice-facet) 0 16px, transparent 16.5px) bottom
+      right / 32px 32px no-repeat,
+    linear-gradient(180deg, var(--ice-etch), transparent 16px),
+    var(--site-surface);
+}
+html[data-s9-preview][data-theme="dark"] .themed-site {
+  --ice-rim: #477b9e;
+  --ice-rim-bright: #a2e7ff;
+  --ice-rim-shade: #1b4265;
+  --ice-facet: #2c5c7b;
+  --ice-cut: #5caccb;
+  --ice-etch: #224560;
+  --ice-well: #0d1b31;
+  --ice-shadow: #0006;
+}
+html[data-s9-preview] .themed-site .site-header {
+  border-bottom: 2px solid var(--ice-cut);
+  box-shadow:
+    inset 0 -5px 0 var(--ice-etch),
+    0 2px 0 var(--ice-rim-bright);
+  background:
+    linear-gradient(
+      120deg,
+      transparent 68%,
+      var(--ice-facet) 68% 70%,
+      transparent 70% 85%,
+      var(--ice-etch) 85%
+    ),
+    var(--site-header);
+}
+html[data-s9-preview] .themed-site .page-heading {
+  background: var(--ice-crystal) right 24px center / 144px 144px no-repeat;
+  border-bottom: 1px solid var(--ice-rim-shade);
+  padding-bottom: 2rem;
+}
+html[data-s9-preview] .themed-site .page-heading::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 20px;
+  background:
+    var(--ice-frost) center bottom / 100% 20px no-repeat,
+    linear-gradient(
+      168deg,
+      var(--ice-cut) 0 5%,
+      transparent 5% 94%,
+      var(--ice-rim-bright) 94%
+    );
+  border-bottom: 2px solid var(--ice-cut);
+  transform: scaleY(-1);
+  pointer-events: none;
+}
+html[data-s9-preview] .themed-site .archive-key-visual {
+  position: relative;
+  padding: 16px;
+  border: 1px solid var(--ice-rim-shade);
+  border-top: 4px solid var(--ice-cut);
+  background:
+    var(--ice-frost) left top / 100% 36px no-repeat,
+    var(--ice-crystal) left -24px top -64px / 200px 200px no-repeat,
+    var(--ice-crystal) right -40px bottom -72px / 180px 180px no-repeat,
+    linear-gradient(
+      145deg,
+      var(--ice-facet),
+      var(--site-surface) 35% 62%,
+      var(--ice-etch)
+    );
+  box-shadow:
+    inset 0 1px 0 var(--ice-rim-bright),
+    inset 4px 0 0 var(--ice-etch),
+    inset -5px -5px 0 var(--ice-rim-shade),
+    0 12px 24px -18px var(--ice-shadow);
+}
+html[data-s9-preview] .themed-site .archive-key-visual::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--ice-rim-bright);
+  pointer-events: none;
+}
+html[data-s9-preview] .themed-site .archive-counts {
+  background: var(--ice-slab);
+  padding: 12px 24px;
+  border: 1px solid var(--ice-rim);
+  border-top: 3px solid var(--ice-cut);
+  box-shadow:
+    inset 0 1px 0 var(--ice-rim-bright),
+    inset 0 -4px 0 var(--ice-rim-shade);
+}
+html[data-s9-preview] .themed-site .archive-counts > div:first-child {
+  border-top: 0;
+}
+html[data-s9-preview] .themed-site .archive-counts > div:last-child {
+  border-bottom: 0;
+}
+html[data-s9-preview]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  nav {
+  border: 1px solid var(--ice-rim-shade);
+  background:
+    linear-gradient(135deg, var(--ice-facet), transparent 32px),
+    linear-gradient(0deg, var(--ice-etch), transparent 8px), var(--site-tint);
+  box-shadow:
+    inset 0 1px 0 var(--ice-rim-bright),
+    inset 0 -3px 0 var(--ice-rim-shade);
+}
+html[data-s9-preview]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  a[aria-current] {
+  background:
+    linear-gradient(135deg, var(--ice-facet), transparent 18px),
+    var(--site-surface);
+  box-shadow:
+    inset 0 1px 0 var(--ice-rim-bright),
+    inset 0 -2px 0 var(--site-accent);
+}
+html[data-s9-preview]
+  .themed-site
+  :is(
+    .rules-article,
+    .settings-card,
+    .map-browse-card,
+    .rules-desktop-contents,
+    .rules-mobile-contents
+  ) {
+  background: var(--ice-slab);
+  border-color: var(--ice-rim);
+  box-shadow:
+    inset 0 1px 0 var(--ice-rim-bright),
+    inset 1px 0 0 var(--ice-rim-bright),
+    inset 0 -3px 0 var(--ice-rim-shade),
+    0 8px 20px -18px var(--ice-shadow);
+}
+html[data-s9-preview]
+  .themed-site
+  :is(.rules-desktop-contents, .rules-mobile-contents) {
+  border-left: 4px solid var(--ice-cut);
+}
+html[data-s9-preview] .themed-site .rules-article h2 {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ice-etch);
+}
+html[data-s9-preview] .themed-site :is(input, select, textarea) {
+  background: var(--ice-well);
+  box-shadow:
+    inset 0 2px 3px var(--ice-shadow),
+    inset 0 -1px 0 var(--ice-rim-bright);
+}
+html[data-s9-preview]
+  .themed-site
+  :is(
+    .nav-login,
+    .settings-card button[type="submit"],
+    .map-view-control button[aria-pressed="true"]
+  ) {
+  background-image: linear-gradient(
+    135deg,
+    #ffffff45 0 12px,
+    #ffffff00 12px 50%,
+    #ffffff18 50% 60%,
+    #ffffff00 60%
+  );
+  box-shadow:
+    inset 0 1px 0 #ffffffb3,
+    inset 0 -3px 0 #08295645,
+    0 2px 0 var(--ice-rim-shade);
+}
+html[data-s9-preview] .themed-site .map-card-cover {
+  background:
+    var(--ice-crystal) right -40px top -20px / 180px 180px no-repeat,
+    var(--site-tint);
+  border: 1px solid var(--ice-rim);
+  box-shadow: inset 0 1px 0 var(--ice-rim-bright);
+}
+html[data-s9-preview] .themed-site .map-slot-badge {
+  border: 1px solid var(--ice-cut);
+  border-radius: 2px;
+  box-shadow: 2px 2px 0 var(--ice-rim-shade);
+}
+@media (max-width: 760px) {
+  html[data-s9-preview] .themed-site .page-heading {
+    background-image: none;
+  }
+  html[data-s9-preview] .themed-site .archive-key-visual {
+    padding: 12px;
+  }
+  html[data-s9-preview] .themed-site .archive-counts {
+    padding-inline: 16px;
+  }
+}
+@media (forced-colors: active) {
+  html[data-s9-preview]
+    .themed-site
+    :is(
+      .site-header,
+      .page-heading,
+      .archive-key-visual,
+      .archive-counts,
+      .rules-article,
+      .rules-desktop-contents,
+      .rules-mobile-contents,
+      .settings-card,
+      .map-browse-card,
+      .map-card-cover,
+      .tournament-navigation nav,
+      .tournament-navigation a,
+      .nav-login,
+      input,
+      select,
+      textarea
+    ) {
+    background: Canvas;
+    box-shadow: none;
+    border-color: CanvasText;
+  }
+  html[data-s9-preview]
+    .themed-site
+    :is(.page-heading, .archive-key-visual)::after {
+    display: none;
+  }
+}
+@media (forced-colors: active) {
+  html[data-s9-preview]
+    .themed-site
+    .public-tournament
+    .tournament-navigation
+    :is(nav, a) {
+    background: Canvas;
+    box-shadow: none;
+    border-color: CanvasText;
+  }
+  html[data-s9-preview]
+    .themed-site
+    .public-tournament
+    .tournament-navigation
+    a[aria-current] {
+    background: Highlight;
+    color: HighlightText;
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+    box-shadow: none;
   }
 }
