@@ -1,9 +1,51 @@
 {
   "date": "2026-10-26",
-  "uiBaseline": "0131d4dae41e8db6aed5675f5410aadcc95c53c4",
+  "uiBaseline": "0d3e203d22c33fb61e988f80f2a7ab561c1a8563",
   "scope": "Actual current application routes with browser-only S10 CSS overlay; public committed S10 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
+  "design": "Vivid hand-drawn city-pop panorama in the original S10 sky-blue, cyan, peach-pink and cream palette",
+  "decorativeAssets": [
+    "city-pop-coast.webp"
+  ],
+  "materialChecks": [
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    }
+  ],
   "screenshots": [
     {
       "file": "mobile-light.webp",

@@ -2,7 +2,7 @@
 
 主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。四季仍是待審閱設計，尚未接入正式外觀。
 
-**2026-10-26 S10 修訂：以最新應用 UI 為準。** 基於 canonical main `0131d4dae41e8db6aed5675f5410aadcc95c53c4`，直接在實際 S10 主頁／圖池及 Admin 設定套用候選 CSS 產圖。保留現有 Header、賽季導覽、五列歸檔統計、完整規則手冊、圖池卡片／篩選和 Admin 側欄，不再使用獨立頁面 renderer。
+**2026-10-26 S10 city pop 精修**：[#195](https://github.com/OCLR-dev/OCLR-website/issues/195) 以最新 main `0d3e203` 實際 UI 產圖。呼應原 S10 圖的晴空藍、亮青、桃粉與奶油白，加入明確手繪感的海岸城市插畫；桌面／手機、明暗與 Admin 都保留現有元件。完整角色原圖無框呈現；`s10.html` 為實際截圖對照圖庫，素材與完整 prompt set 見 [ARTWORK](s10/ARTWORK.md)。本輪不修改 S9／S8／S7 設計。
 
 S10 的 `s10.html` 現為**實際截圖對照圖庫**，可切換頁面、尺寸、明暗及最新原有風格／S10 候選。它只在本機展示圖片，不連接 API、DB 或儲存偏好。重新產生 S10 圖片需獨立應用與可丟棄 test DB；見 [S10 設計與重現步驟](s10/DESIGN.md)。S9／S8／S7 的既有靜態樣本保持原樣。
 
@@ -36,7 +36,7 @@ S10 候選 CSS 限定在 review 用 `data-s10-preview` 與現有 `.themed-site`�
 
 ## 驗證與歷史紀錄
 
-- **S10 最新 UI 版**：依 [重現步驟](s10/DESIGN.md) 執行 `node --import tsx docs/design/season-themes/s10/capture.mjs`。三個實際路由 × 四個尺寸 × 明暗共 24 組，24 次 Axe AA 無違規；驗證 DOM／文字不變、五列統計、規則、手機選單和實際 sticky stack。新圖／報告見 [s10/verification.json](s10/verification.json)。應用 production build、產圖／圖庫工具 lint／語法／文件連結／diff 通過。
+- **S10 最新 UI 版**：依 [重現步驟](s10/DESIGN.md) 執行 `node --import tsx docs/design/season-themes/s10/capture.mjs`。三個實際路由 × 四個尺寸 × 明暗共 24 組，24 次 Axe AA 無違規；驗證 DOM／文字不變、五列統計、規則、手機選單和實際 sticky stack。另有 4 組 forced-colours 檢查。新圖／報告見 [s10/verification.json](s10/verification.json)。應用 production build、產圖／圖庫工具 lint／語法／文件連結／diff 通過。
 - **S9／S8／S7**：`node docs/design/season-themes/verify.mjs [s9 s8 s7]` 驗證這三季的原靜態樣本，輸出 `verification-static.json`。本次未重驗或重製這三季。
 - **歷史證據**：根目錄 `verification.json` 保留 2026-10-24 原四季 32 組／64 次 Axe 結果。S10 `f2d4d7e` 的獨立樣本與檢查已被本版取代，不將那些結果套用到最新 UI。
 
