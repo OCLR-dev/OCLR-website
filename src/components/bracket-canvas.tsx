@@ -42,6 +42,33 @@ export function BracketCanvas({
       m.slots.some((s) => s.kind === "team" && s.sourceMatchId),
     ),
   );
+  const sources = group.rounds.flatMap((round) =>
+    round.matches.flatMap((match) =>
+      match.slots.filter((slot) => slot.sourceMatchId),
+    ),
+  );
+  // A valid bracket need not fit the double-elimination library. Keep explicit
+  // winner/loser routes in the existing column renderer; historical appearance
+  // references still use the conservative, connection-free fallback below.
+  if (
+    !data &&
+    sources.length > 0 &&
+    sources.every((slot) => slot.kind === "winner" || slot.kind === "loser")
+  )
+    return (
+      <BracketColumns
+        bracket={{
+          editionSlug,
+          published: true,
+          formatLabel: "",
+          updatedAt: "2026-01-01T00:00:00Z",
+          source: { label: "Source", url: null },
+          groups: [group],
+        }}
+        teamUrls={teamUrls}
+        hideGroupTabs
+      />
+    );
   if (!data)
     return (
       <>

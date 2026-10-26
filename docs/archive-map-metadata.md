@@ -105,3 +105,12 @@ The two S9 regressions plus the two #335 map-metadata regressions passed on desk
 and mobile (four tests); S9 covers default, cute-pastel and swiss-minimal in both
 light and dark, with Axe still enabled. This supersedes the two S9 failures above.
 Commit-specific full CI acceptance is recorded on #335 and its pull request.
+
+The same follow-up also reproduced a separate public bracket regression in the
+existing captain/staff rehearsal: a bracket outside the double-elimination
+library's shape lost its two explicitly configured winner/loser connectors.
+The fallback now uses the existing column renderer when every saved source is
+an explicit winner/loser relation. It keeps the conservative connection-free
+fallback for incomplete historical appearance data. The original connector-count
+assertion remains unchanged. After rebuilding, the desktop/mobile rehearsal and
+S9 appearance checks all passed (four tests); check/build also passed.
