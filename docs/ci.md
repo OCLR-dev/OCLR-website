@@ -21,7 +21,11 @@ complete acceptance. Prose-only changes still run verify and all functional E2E.
 
 Header cases are sharded individually across four independent PostgreSQL runners.
 Each runner remains workers=1. No shared database is accessed concurrently by
-destructive fixtures. The functional lane continues to shard by file. Its existing
+destructive fixtures. The functional lane shards across eight independent
+runners: the previous four-shard baseline had a successful shard taking 21.6
+minutes in test execution alone. Stateful workflows remain grouped by file;
+read-only header-branding cases own their browser contexts and shard individually
+so their 54-case groups do not overload a runner. Its existing
 Firefox/WebKit asset cases still run, even though its main projects are Chromium.
 
 The representative header matrix has 50 project/case combinations instead of 162. It keeps 320px, 390px, and both sides of the 950/1100px navigation breakpoints,
