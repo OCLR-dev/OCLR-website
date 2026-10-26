@@ -39,6 +39,9 @@
   width: max-content;
   min-width: 9rem;
   max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 9rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0.25rem;
   border: 1px solid var(--site-border, #685175);
   border-radius: 0.75rem;

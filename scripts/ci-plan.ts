@@ -19,6 +19,7 @@ const themeFiles: Record<string, string> = {
   "esports-theme.css": "esports-broadcast",
   "arcade-theme.css": "retro-arcade",
   "frutiger-theme.css": "frutiger-aero",
+  "skyline-theme.css": "skyline-pop",
 };
 const sharedHeader = new Set([
   "src/app/layout.tsx",

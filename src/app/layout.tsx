@@ -28,6 +28,7 @@ import "./glass-theme.css";
 import "./esports-theme.css";
 import "./arcade-theme.css";
 import "./frutiger-theme.css";
+import "./skyline-theme.css";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";
 import { tournamentAppearanceScopes } from "@/lib/tournaments";

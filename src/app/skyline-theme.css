@@ -1,0 +1,266 @@
+/* S10 Skyline Pop. Shared MainSheet tokens; broadcast output stays isolated. */
+html[data-appearance="skyline-pop"] .themed-site {
+  --site-background: #fffaf0;
+  --site-surface: #ffffff;
+  --site-raised: #eef7ff;
+  --site-tint: #ddf5ff;
+  --site-foreground: #173759;
+  --site-muted: #4c6280;
+  --site-secondary-text: #355778;
+  --site-accent: #006395;
+  --site-accent-strong: #004c7a;
+  --site-border: #cbdced;
+  --site-control-border: #607fa3;
+  --site-header: #fffaf0;
+  --site-primary: #36c5ef;
+  --site-primary-hover: #7fdef8;
+  --site-on-primary: #123657;
+  --site-focus: #006395;
+  --site-selection: #bdeeff;
+  --site-success: #17644b;
+  --site-warning: #875505;
+  --site-danger: #a4254a;
+  --site-highlight: #006395;
+  --site-connector: #607fa3;
+  --site-shadow: #17375918;
+  --site-soft-shadow: #1737590a;
+  --site-panel-shadow: #17375930;
+  --site-dialog-shadow: #17375933;
+  --site-backdrop: #17375966;
+  --skyline-sky: #55d1ed;
+  --skyline-peach: #ff91bd;
+  --pop-city: url("/themes/skyline-pop/coast.webp");
+  --pop-rule: #79b9da;
+  --pop-paper-shadow: #17375912;
+  --pop-number: #ae3566;
+  --button-radius: 4px;
+  --radius-panel: 10px;
+  background: var(--site-background);
+}
+html[data-appearance="skyline-pop"][data-theme="dark"] .themed-site {
+  --site-background: #111d38;
+  --site-surface: #1b2e50;
+  --site-raised: #263f65;
+  --site-tint: #244969;
+  --site-foreground: #f0f6ff;
+  --site-muted: #b5cae5;
+  --site-secondary-text: #d4e5f7;
+  --site-accent: #83e7ff;
+  --site-accent-strong: #b3f0ff;
+  --site-border: #405d83;
+  --site-control-border: #85a7c9;
+  --site-header: #111d38;
+  --site-primary: #83e7ff;
+  --site-primary-hover: #b3f0ff;
+  --site-on-primary: #123657;
+  --site-focus: #83e7ff;
+  --site-selection: #2f547d;
+  --site-success: #72e3bc;
+  --site-warning: #f0cb83;
+  --site-danger: #ff9eaf;
+  --site-highlight: #83e7ff;
+  --site-connector: #85a7c9;
+  --site-shadow: #0004;
+  --site-soft-shadow: #0002;
+  --site-panel-shadow: #0006;
+  --site-dialog-shadow: #0009;
+  --site-backdrop: #0009;
+  --skyline-sky: #3296c4;
+  --skyline-peach: #ff9dcd;
+  --pop-city: url("/themes/skyline-pop/coast.webp");
+  --pop-rule: #6da7d1;
+  --pop-paper-shadow: #0003;
+  --pop-number: #ffb3d9;
+}
+/* A vivid hand-drawn coastal panorama carries the season palette.
+ * Original tournament art stays unframed. Reading and working surfaces are opaque. */
+html[data-appearance="skyline-pop"] .themed-site .site-header {
+  border-bottom: 1px solid var(--site-border);
+  box-shadow:
+    inset 0 -2px 0 var(--skyline-sky),
+    0 3px 12px -10px var(--pop-paper-shadow);
+}
+html[data-appearance="skyline-pop"] .themed-site .page-heading {
+  position: relative;
+  isolation: isolate;
+  border-bottom: 1px solid var(--pop-rule);
+  min-height: 176px;
+  padding-bottom: 1.5rem;
+}
+html[data-appearance="skyline-pop"] .themed-site .page-heading::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 62%;
+  height: 100%;
+  max-height: 100%;
+  background: var(--pop-city) center / cover no-repeat;
+  mask-image: linear-gradient(90deg, transparent, #000 34%);
+  pointer-events: none;
+  z-index: -1;
+}
+html[data-appearance="skyline-pop"] .themed-site .page-heading::after {
+  content: "";
+  position: absolute;
+  inset: auto auto -1px 0;
+  width: 96px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--site-accent) 0 50%,
+    var(--skyline-peach) 50% 75%,
+    var(--pop-rule) 75%
+  );
+  pointer-events: none;
+}
+html[data-appearance="skyline-pop"] .themed-site .page-heading h1 {
+  letter-spacing: -0.035em;
+}
+html[data-appearance="skyline-pop"] .themed-site .archive-counts {
+  position: relative;
+  padding-block: 8px;
+  border-block: 1px solid var(--pop-rule);
+}
+html[data-appearance="skyline-pop"] .themed-site .archive-counts::before {
+  content: "";
+  position: absolute;
+  inset: -1px auto auto 0;
+  width: 72px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--skyline-peach) 0 50%,
+    var(--pop-rule) 50%
+  );
+  pointer-events: none;
+}
+html[data-appearance="skyline-pop"] .themed-site .archive-counts dd {
+  color: var(--pop-number);
+  letter-spacing: -0.035em;
+}
+html[data-appearance="skyline-pop"]
+  .themed-site
+  .archive-counts
+  > div:last-child {
+  border-bottom: 0;
+}
+html[data-appearance="skyline-pop"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  :is(nav, a) {
+  border-radius: 4px;
+}
+html[data-appearance="skyline-pop"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  nav {
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  box-shadow: 0 2px 0 var(--skyline-sky);
+}
+html[data-appearance="skyline-pop"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  a[aria-current] {
+  background: var(--site-tint);
+  box-shadow: inset 0 -2px 0 var(--site-accent);
+}
+html[data-appearance="skyline-pop"]
+  .themed-site
+  :is(.main-nav > a[aria-current], .tournament-navigation a[aria-current]) {
+  box-shadow: inset 0 -2px 0 var(--site-accent);
+}
+html[data-appearance="skyline-pop"]
+  .themed-site
+  :is(.rules-article, .settings-card, .map-browse-card) {
+  border-radius: var(--radius-panel);
+  background: var(--site-surface);
+  border-color: var(--site-border);
+  box-shadow: 0 2px 0 var(--pop-paper-shadow);
+}
+html[data-appearance="skyline-pop"]
+  .themed-site
+  :is(.rules-desktop-contents, .rules-mobile-contents) {
+  border-radius: 4px;
+  border-top: 2px solid var(--pop-rule);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="skyline-pop"] .themed-site .rules-article h2 {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--site-border);
+}
+html[data-appearance="skyline-pop"] .themed-site :is(input, select, textarea) {
+  border-color: var(--site-control-border);
+  border-radius: var(--button-radius);
+  background: var(--site-surface);
+}
+html[data-appearance="skyline-pop"] .themed-site :is(button, .button) {
+  border-radius: var(--button-radius);
+}
+html[data-appearance="skyline-pop"]
+  .themed-site
+  :is(.nav-login, .settings-card button[type="submit"]) {
+  box-shadow:
+    inset 0 1px 0 #ffffff55,
+    0 2px 0 var(--pop-rule);
+}
+html[data-appearance="skyline-pop"] .themed-site .map-slot-badge {
+  border: 1px solid var(--pop-rule);
+  border-radius: 2px;
+}
+html[data-appearance="skyline-pop"] .themed-site .sidebar {
+  border-color: var(--site-border);
+  background: var(--site-header);
+}
+html[data-appearance="skyline-pop"]
+  .themed-site
+  :is(.table-scroll, .map-card-grid, .archive-map-list) {
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 760px) {
+  html[data-appearance="skyline-pop"] .themed-site .page-heading {
+    padding-bottom: 112px;
+    min-height: 0;
+  }
+  html[data-appearance="skyline-pop"] .themed-site .page-heading::before {
+    width: 100%;
+    height: 96px;
+    mask-image: none;
+    background-position: center 58%;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="skyline-pop"]
+    .themed-site
+    :is(.page-heading, .archive-counts)::before,
+  html[data-appearance="skyline-pop"] .themed-site .page-heading::after {
+    display: none;
+  }
+  html[data-appearance="skyline-pop"]
+    .themed-site
+    .public-tournament
+    .tournament-navigation
+    :is(nav, a) {
+    background: Canvas;
+    box-shadow: none;
+    border-color: CanvasText;
+  }
+  html[data-appearance="skyline-pop"]
+    .themed-site
+    .public-tournament
+    .tournament-navigation
+    a[aria-current] {
+    background: Highlight;
+    color: HighlightText;
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+  html[data-appearance="skyline-pop"] .themed-site .main-nav > a[aria-current] {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+}

@@ -2,7 +2,15 @@
 
 追蹤：[#195](https://github.com/OCLR-dev/OCLR-website/issues/195)。
 
-2026-10-26 主辦方重開 #195，要求更精緻的 city pop、更加鮮豔、明確插畫風格，且色彩貼近原 S10 主視覺。本版沿用最新實際 UI 產圖流程；正式接入仍待指定，S9 設計維持其原有分支版本。
+2026-10-26 主辦方重開 #195，要求更精緻的 city pop、更加鮮豔、明確插畫風格，且色彩貼近原 S10 主視覺。本版沿用最新實際 UI 產圖流程；以下保留當時的設計審閱與截圖證據；同日主辦方明確要求補齊正式接入，見下節。S9 設計維持其獨立版本。
+
+## 正式接入（2026-10-26）
+
+主辦方部署後找不到 S10 選項：先前 PR 只包含 review CSS、圖庫和截圖，沒有 appearance 白名單或應用樣式 import。本次將既有設計接入 `skyline-pop`，三語選單為 **S10 · Skyline Pop／晴空未来城／晴空未來城**，同時支援訪客、全站 Admin 與賽事預設。
+
+正式 [樣式](../../../../src/app/skyline-theme.css) 僅作用於 `html[data-appearance="skyline-pop"] .themed-site`，沿用下述配色與完整原圖；[公開插畫](../../../../public/themes/skyline-pop/coast.webp) 為既有 review WebP 的相同副本，來源與 prompt 見 [ARTWORK](ARTWORK.md)。新增 `0045_skyline_pop_appearance` 擴充設定與 audit 約束，保留現有預設、歷史資料與訪客 → 當前賽事 → 全站的繼承順序。小螢幕選單可捲動至最後一項。未自動設定歷史賽事預設，OBS／presenter 保持隔離。
+
+下面的產圖基準、瀏覽器 overlay 和「九款選項」描述均為前次 review 的歷史重現方式；正式應用已有十款 appearance，不再需要 overlay。正式驗證與 commit-specific CI 另記錄於 #195，不以歷史截圖結果代替。
 
 ## UI 基準與設計方式
 
@@ -103,6 +111,6 @@ node --import tsx docs/design/season-themes/s10/capture.mjs
 - `npm audit --omit=dev`：0 vulnerabilities。
 - 本版檢查不是完整應用回歸、三語或部署驗收；CI 按本次提交另行查證。未對其他三季重新產圖。
 
-## 後續接入
+## 原設計審閱的接入要求（歷史）
 
-主辦方審閱本版範例圖與命名後，才安排正式接入。必須重用當前元件，保留九款 appearance、SSR 首屏、獨立明暗、訪客 → 當前授權／已發佈賽事 → 全站預設與清除繼承；不自動修改歷史賽事預設。正式接入另驗證三語、公開／登入／Admin／Player／Captain、完整回歸與實際 CI。中文措辭仍需主辦方審閱。
+該要求已由上節正式接入實作。原審閱要求：必須重用當前元件，保留九款 appearance、SSR 首屏、獨立明暗、訪客 → 當前授權／已發佈賽事 → 全站預設與清除繼承；不自動修改歷史賽事預設。正式接入另驗證三語、公開／登入／Admin／Player／Captain、完整回歸與實際 CI。中文措辭仍需主辦方審閱。
