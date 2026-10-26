@@ -4,7 +4,7 @@
 
 - OCL 与 S11：直接以 SVG 直线闭合路径绘制，统一斜切笔画与切角；内部透明，不使用替代字体或位图描摹。OCL 字高仍为 260；S11 独立横排于右侧。
 - R：从 R04 最终 SVG 逐节点复制完整 `R-reference-slider`，包括轮廓、原坐标控制点和连线；位置、大小、遮罩与所有几何属性不变。沿用 [R 的截图重建记录](../revision-04/sources/R-GEOMETRY.md)。
-- 喝：直接复用 R03 `judgement-katu` 中的原字形路径，只改变位置、字号及旋转，放在右上角。该字形为 Noto Serif CJK Black，沿用 [SIL OFL 授权](../revision-02/FONT-LICENSE.txt)。没有更换为另一个汉字字体。「喝」保持实心以保留小字号笔画识别；主字标内部仍透明。
+- 喝：直接复用 R03 `judgement-katu` 中的原字形路径，只改变位置、字号及旋转，放在 R 的右上角。该字形为 Noto Serif CJK Black，沿用 [SIL OFL 授权](../revision-02/FONT-LICENSE.txt)。没有更换为另一个汉字字体。「喝」保持实心以保留小字号笔画识别；主字标内部仍透明。
 - 准度条与英文全名：逐节点复用 R04，位置不变。英文全名的 Noto Sans 授权见 [R04 字体来源](../revision-04/sources/SHAPE-SOURCES.md)。
 
 ## 文件与验证

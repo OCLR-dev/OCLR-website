@@ -16,7 +16,7 @@ svg = ET.Element(f'{{{NS}}}svg', {
 ET.SubElement(svg, f'{{{NS}}}title', id='title').text = 'OCLR S11 · R05 棱角形状稿'
 ET.SubElement(svg, f'{{{NS}}}desc', id='desc').text = (
     'OCL 与 S11 采用切角、斜切笔画构成，内部透明。'
-    'R 沿用上一稿的轮廓、六个控制点与连线。右上角喝沿用 R03 字形。'
+    'R 沿用上一稿的轮廓、六个控制点与连线。R 的右上角喝沿用 R03 字形。'
 )
 
 
@@ -51,10 +51,10 @@ letter('season-one-b', 1470, 66, one)
 old = ET.parse(ROOT.parent / 'revision-03/oclr-s11-rhythm.svg').getroot()
 katu = next(e for e in old.iter() if e.get('id') == 'judgement-katu')
 glyph = copy.deepcopy(katu.find(f'{{{NS}}}g/{{{NS}}}path'))
-glyph.set('transform', 'translate(1610 92) scale(.064 -.064)')
+glyph.set('transform', 'translate(986 83) scale(.064 -.064)')
 badge = ET.SubElement(svg, f'{{{NS}}}g', {
     'id': 'judgement-katu', 'fill': 'currentColor',
-    'transform': 'rotate(-12 1640 64)',
+    'transform': 'rotate(-12 1016 55)',
 })
 badge.append(glyph)
 
