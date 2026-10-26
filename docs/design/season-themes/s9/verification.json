@@ -1,13 +1,13 @@
 {
   "date": "2026-10-26",
-  "uiBaseline": "e40db52569804cfde0db885e8028650e96f8ae69",
+  "uiBaseline": "cc366f2e80563b3effff6bf25ef8074c6a95258f",
   "scope": "Actual current application routes with browser-only S9 CSS overlay; public committed S9 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
-  "material": "Cirno fan illustration, six ice-crystal wings, blue-white costume and small red-ribbon accents; unframed original S9 artwork",
+  "material": "Cirno portrait with a soft lower edge, fine snow-crystal etching, compact heading rhythm, blue-white surfaces and restrained ribbon detail; unframed original S9 artwork",
   "decorativeAssets": [
     "cirno-ice-fairy.webp",
-    "fairy-wings.svg",
+    "crystal-etching.svg",
     "frost-rim.svg",
     "ice-facets.svg"
   ],

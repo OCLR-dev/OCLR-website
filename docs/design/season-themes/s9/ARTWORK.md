@@ -5,7 +5,7 @@
 - 成品：[cirno-ice-fairy.webp](cirno-ice-fairy.webp)，1536×1024、361,402 bytes，保留透明 alpha。內建 image_gen 生成，再以 WebP 編碼；沒有裁切、縮放或改字。
 - 表現：藍髮、藍色頭蝴蝶結、白色短袖與藍裙、紅色領結、六片折光冰翼與手上的雪晶。全新生成的同人插畫，不是官方角色素材。
 - 原 S9 主視覺：[thumbnail.png](../../../../public/archive/s9/thumbnail.png) 保留完整 1920×1080，仍為無框 contain；角色插畫只在頁面標題區。
-- 其他裝飾：[fairy-wings.svg](fairy-wings.svg) 為自行繪製的六片冰翼幾何，配合既有霜邊與折光 SVG。
+- 呈現精修：角色檔案保持不變；CSS 僅柔化下緣，與標題霧光融合。配合 [細雪晶](crystal-etching.svg)、既有霜邊與折光 SVG，保留角色自身的六片冰翼。
 - 檢視圖庫、Issue 與本文均標示同人來源。正式接入時，實際三語介面也須保留同人標註。
 - 生成具有隨機性，以下保存本次實際提示詞，不能保證重生逐像素相同。
 

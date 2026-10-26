@@ -17,7 +17,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S9_UI_BASELINE ?? "e40db52569804cfde0db885e8028650e96f8ae69";
+  process.env.S9_UI_BASELINE ?? "cc366f2e80563b3effff6bf25ef8074c6a95258f";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -30,7 +30,7 @@ execFileSync("git", [
 let overlay = await readFile(new URL("../s9.css", import.meta.url), "utf8");
 // Keep vector sources reviewable; embed only these local decorative SVGs so
 // the browser overlay requires no extra application route or public asset.
-for (const asset of ["fairy-wings.svg", "frost-rim.svg", "ice-facets.svg"]) {
+for (const asset of ["crystal-etching.svg", "frost-rim.svg", "ice-facets.svg"]) {
   const source = await readFile(new URL(asset, import.meta.url), "utf8");
   overlay = overlay.replaceAll(
     `url("./s9/${asset}")`,
@@ -354,8 +354,8 @@ try {
         locale: "zh-Hans",
         browser: "Google Chrome",
         material:
-          "Cirno fan illustration, six ice-crystal wings, blue-white costume and small red-ribbon accents; unframed original S9 artwork",
-        decorativeAssets: ["cirno-ice-fairy.webp", "fairy-wings.svg", "frost-rim.svg", "ice-facets.svg"],
+          "Cirno portrait with a soft lower edge, fine snow-crystal etching, compact heading rhythm, blue-white surfaces and restrained ribbon detail; unframed original S9 artwork",
+        decorativeAssets: ["cirno-ice-fairy.webp", "crystal-etching.svg", "frost-rim.svg", "ice-facets.svg"],
         materialChecks,
         screenshots: shots,
         cases,

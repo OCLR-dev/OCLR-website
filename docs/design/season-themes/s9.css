@@ -136,7 +136,7 @@ html[data-s9-preview]
 /* Crystal material uses one top-left light source. Fine veins and caustics
  * stay at the perimeter; text retains an opaque, quiet reading surface. */
 html[data-s9-preview] .themed-site {
-  --fairy-wings: url("./s9/fairy-wings.svg");
+  --ice-crystal: url("./s9/crystal-etching.svg");
   --cirno-portrait: url("./s9/cirno-ice-fairy.webp");
   --fairy-ribbon: #b23b55;
   --ice-frost: url("./s9/frost-rim.svg");
@@ -155,7 +155,7 @@ html[data-s9-preview] .themed-site {
       top left / 24px 24px no-repeat,
     linear-gradient(315deg, var(--ice-etch) 0 12px, transparent 12.5px)
       bottom right / 24px 24px no-repeat,
-    linear-gradient(180deg, var(--ice-etch), transparent 12px),
+    linear-gradient(180deg, var(--ice-etch), transparent 24px),
     var(--site-surface);
   --ice-panel-depth:
     inset 0 1px 0 var(--ice-rim-bright),
@@ -184,31 +184,39 @@ html[data-s9-preview] .themed-site .site-header {
   box-shadow: inset 0 -1px 0 var(--ice-rim-bright), 0 2px 8px -6px var(--ice-shadow);
 }
 html[data-s9-preview] .themed-site .page-heading {
-  min-height: 192px;
+  min-height: 176px;
   padding-bottom: 2rem;
   border-bottom: 1px solid var(--ice-rim);
   background:
-    var(--fairy-wings) right center / 480px 200px no-repeat,
-    radial-gradient(ellipse at 100% 100%, var(--ice-etch), transparent 40%);
+    var(--ice-crystal) right 320px center / 72px 72px no-repeat,
+    radial-gradient(ellipse at 90% 65%, var(--ice-etch), transparent 48%);
 }
 html[data-s9-preview] .themed-site .page-heading::before {
   content: "";
   position: absolute;
-  inset: 0 20px 0 auto;
-  width: min(42%, 340px);
+  inset: 4px 24px 4px auto;
+  width: min(42%, 320px);
   background: var(--cirno-portrait) right center / contain no-repeat;
+  mask-image: linear-gradient(180deg, #000 0 80%, transparent 100%);
   pointer-events: none;
+}
+html[data-s9-preview] .themed-site .page-heading > :is(h1, p) {
+  max-width: calc(100% - 352px);
+}
+html[data-s9-preview] .themed-site .page-heading h1 {
+  letter-spacing: -.035em;
+  line-height: 1.2;
 }
 html[data-s9-preview] .themed-site .page-heading::after {
   content: "";
   position: absolute;
   inset: auto 0 -1px;
-  height: 8px;
+  height: 4px;
   background: var(--ice-frost) right top / 480px 32px no-repeat;
   mask-image: linear-gradient(90deg, transparent 55%, #000 85%);
   border-bottom: 1px solid var(--ice-rim-bright);
   transform: scaleY(-1);
-  opacity: .7;
+  opacity: .45;
   pointer-events: none;
 }
 html[data-s9-preview] .themed-site .archive-counts {
@@ -223,14 +231,16 @@ html[data-s9-preview] .themed-site .archive-counts {
 html[data-s9-preview] .themed-site .archive-counts::before {
   content: "";
   position: absolute;
-  inset: -4px 24px auto auto;
-  width: 20px;
-  height: 9px;
+  inset: 0 24px auto auto;
+  width: 16px;
+  height: 7px;
   background: var(--fairy-ribbon);
   clip-path: polygon(0 0, 45% 35%, 55% 35%, 100% 0, 100% 100%, 55% 65%, 45% 65%, 0 100%);
   pointer-events: none;
 }
 html[data-s9-preview] .themed-site .archive-counts > div {
+  align-items: center;
+  padding-block: 14px;
   border-bottom-color: var(--ice-rim);
 }
 html[data-s9-preview] .themed-site .archive-counts > div:first-child {
@@ -239,7 +249,15 @@ html[data-s9-preview] .themed-site .archive-counts > div:first-child {
 html[data-s9-preview] .themed-site .archive-counts > div:last-child {
   border-bottom: 0;
 }
+html[data-s9-preview] .themed-site .archive-counts dt {
+  color: var(--site-muted);
+  font-size: .9rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
 html[data-s9-preview] .themed-site .archive-counts dd {
+  font-size: 2.25rem;
+  line-height: 1.1;
   letter-spacing: -.035em;
 }
 html[data-s9-preview] .themed-site .public-tournament .tournament-navigation nav {
@@ -253,7 +271,7 @@ html[data-s9-preview] .themed-site .public-tournament .tournament-navigation nav
 html[data-s9-preview] .themed-site .public-tournament .tournament-navigation a[aria-current] {
   background:
     linear-gradient(135deg, var(--ice-facet), transparent 20px),
-    var(--site-surface);
+    var(--site-tint);
   box-shadow:
     inset 0 1px 0 var(--ice-rim-bright),
     inset 0 -2px 0 var(--site-accent),
@@ -271,8 +289,8 @@ html[data-s9-preview] .themed-site :is(.rules-desktop-contents, .rules-mobile-co
   box-shadow: inset 0 1px 0 var(--ice-rim-bright);
 }
 html[data-s9-preview] .themed-site .rules-article h2 {
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--ice-rim);
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 html[data-s9-preview] .themed-site :is(input, select, textarea) {
   background: var(--ice-well);
@@ -297,20 +315,23 @@ html[data-s9-preview] .themed-site .map-slot-badge {
   border-radius: 2px;
   box-shadow: 0 1px 2px var(--ice-contact);
 }
-@media (max-width: 760px) {
+@media (max-width: 1100px) {
   html[data-s9-preview] .themed-site .page-heading {
     min-height: 0;
-    padding-bottom: 144px;
-    background-size: 260px 128px, auto;
-    background-position: left bottom, center;
+    padding-bottom: 128px;
+    background-size: 48px 48px, auto;
+    background-position: right 200px bottom 40px, center;
   }
   html[data-s9-preview] .themed-site .page-heading::before {
     inset: auto 8px 8px auto;
-    width: 200px;
-    height: 128px;
+    width: 176px;
+    height: 112px;
+  }
+  html[data-s9-preview] .themed-site .page-heading > :is(h1, p) {
+    max-width: none;
   }
   html[data-s9-preview] .themed-site .page-heading::after {
-    opacity: .5;
+    opacity: .35;
   }
   html[data-s9-preview] .themed-site .archive-counts {
     padding-inline: 16px;
