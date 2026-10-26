@@ -97,12 +97,12 @@ node --import tsx docs/design/season-themes/s8/capture.mjs
 - `0047_sakura_circuit_appearance` 只擴充網站設定／稽核約束，不更動預設或歷史。套用 migration 後才可保存 S8 網站預設；刻意回退舊版前先選擇該版本支持的網站／賽事預設。
 - Node.js 24 check／build、i18n extraction／4 項檢查、生成合約檢查、production audit（0 vulnerabilities）通過。161 個單元／整合測試檔，1,351 passed／1 skipped；含 0047 前拒絕、升級後保存及原 S9 預設／歷史保留。
 - 34 項桌面／手機整合檢查通過：S8 三語明暗、S9／S10 選單、網站／賽事預設、公開／Admin／Captain 角色頁與 OBS／presenter 隔離。
-- 本版 24 組／24 次 Axe AA 與 4 組 forced-colours，使用真正 `sakura-circuit` SSR cookie 和打包素材，沒有 CSS overlay。DOM／文字、原圖、選單與 sticky stack 保留；[紀錄](verification.json) 的應用基準為 `ff33f94`。
+- 本版 24 組／24 次 Axe AA 與 4 組 forced-colours，使用真正 `sakura-circuit` SSR cookie 和打包素材，沒有 CSS overlay。DOM／文字、原圖、選單與 sticky stack 保留；[紀錄](verification.json) 的應用基準為 `316c0eb`。
 
 正式模式重現：先 checkout 本輪已提交應用，依前述步驟啟動獨立 test DB／loopback 應用，然後執行：
 
 ```sh
-S8_REGISTERED_PREVIEW=1 S8_UI_BASELINE=ff33f94f7e2c531a87f4ecc41cbc0615b867b486 node --import tsx docs/design/season-themes/s8/capture.mjs
+S8_REGISTERED_PREVIEW=1 S8_UI_BASELINE=316c0eb6f41bbae68071b0808b1f9c7982d835c5 node --import tsx docs/design/season-themes/s8/capture.mjs
 ```
 
 工具保留同一應用來源核對；未來來源更新時須先核對新 SHA，不能將歷史證據當作新版本驗證。完整 CI 與主辦方審閱狀態另見 #197；本次沒有部署。
@@ -120,3 +120,5 @@ WebKit 桌面／手機兩項 S8 整合重驗通過；新增導航請求完成等
 ## 頁首導覽顯示修正（2026-10-27）
 
 依主辦方截圖移除主導覽選取背景；原本 68px 高選取區的 2px border-bottom 與 3px inset shadow 疊加，造成粉色長條與過粗底線。現在主導覽使用透明背景、莓粉選取文字與單條 1px 底線，清除選取陰影。側欄與賽事導覽的選取樣式各自保留。S8 整合檢查加上目前頁面連結不填底色、沒有重複陰影且只有細底線的回歸斷言。
+
+本輪 build、S8 桌面／手機兩項回歸及四項頁首斷點／選單檢查通過；24 組／24 次 Axe AA 與 4 組 forced-colours 通過。回歸測試依主導覽實際 href 進入目前賽事後驗證選取，不假設歷史 S8 是全站目前賽事。一般／hover 的實際量測皆為透明背景、無 box-shadow、1px border-bottom；未重跑無關單元／整合檢查。

@@ -109,14 +109,6 @@ test.describe("S8 Sakura Circuit appearance", () => {
         );
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-        const currentNavigation = page.locator(".main-nav > a[aria-current]");
-        await expect(currentNavigation).toHaveCount(1);
-        await expect(currentNavigation).toHaveCSS(
-          "background-color",
-          "rgba(0, 0, 0, 0)",
-        );
-        await expect(currentNavigation).toHaveCSS("box-shadow", "none");
-        await expect(currentNavigation).toHaveCSS("border-bottom-width", "1px");
         await expect(page.locator(".themed-site")).toHaveCSS(
           "background-color",
           theme === "light" ? "rgb(255, 248, 250)" : "rgb(36, 26, 34)",
@@ -167,6 +159,24 @@ test.describe("S8 Sakura Circuit appearance", () => {
           "sakura-circuit",
         );
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        // The global information link may target a featured edition rather
+        // than this historical archive. Follow its real href to test selection.
+        const informationHref = await page
+          .locator('.main-nav > a[href^="/tournaments"]')
+          .getAttribute("href");
+        expect(informationHref).toBeTruthy();
+        await page.goto(informationHref!);
+        await page.waitForLoadState("networkidle");
+        if (isMobile) await page.locator(".menu-toggle").click();
+        const currentNavigation = page.locator(".main-nav > a[aria-current]");
+        await expect(currentNavigation).toHaveCount(1);
+        await expect(currentNavigation).toHaveCSS(
+          "background-color",
+          "rgba(0, 0, 0, 0)",
+        );
+        await expect(currentNavigation).toHaveCSS("box-shadow", "none");
+        await expect(currentNavigation).toHaveCSS("border-bottom-width", "1px");
+        await expect(currentNavigation).toBeVisible();
       }
     }
     await page.goto("/tournaments/s8");
