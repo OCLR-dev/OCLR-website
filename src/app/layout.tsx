@@ -29,6 +29,7 @@ import "./esports-theme.css";
 import "./arcade-theme.css";
 import "./frutiger-theme.css";
 import "./skyline-theme.css";
+import "./glacier-theme.css";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";
 import { tournamentAppearanceScopes } from "@/lib/tournaments";
@@ -239,6 +240,11 @@ export default async function RootLayout({
                     {"OCLR Dev Team."}
                   </a>{" "}
                   {"· OCLR — osu! Chinese League Rookie"}
+                </p>
+                <p className="glacier-attribution">
+                  {tr(
+                    "Touhou Project fan art · Cirno © Team Shanghai Alice / ZUN",
+                  )}
                 </p>
                 <div className="footer-actions">
                   <a

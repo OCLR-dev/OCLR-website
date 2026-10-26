@@ -57,6 +57,11 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "glacier-blue": {
+    label: "S9 · Glacier Blue",
+    lightBackground: "rgb(244, 249, 254)",
+    darkBackground: "rgb(13, 24, 44)",
+  },
   "cute-pastel": {
     label: "Cute pastel",
     lightBackground: "rgb(255, 244, 248)",

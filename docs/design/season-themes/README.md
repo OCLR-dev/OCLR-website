@@ -1,6 +1,6 @@
 # S10 / S9 / S8 / S7 theme samples
 
-主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10 已依主辦方要求接入正式外觀 `skyline-pop`；S9／S8／S7 仍為待審閱設計。
+主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10／S9 已依主辦方要求接入正式外觀 `skyline-pop`／`glacier-blue`；S8／S7 仍為待審閱設計。
 
 **2026-10-26 S10 city pop 精修**：[#195](https://github.com/OCLR-dev/OCLR-website/issues/195) 以最新 main `0d3e203` 實際 UI 產圖。呼應原 S10 圖的晴空藍、亮青、桃粉與奶油白，加入明確手繪感的海岸城市插畫；桌面／手機、明暗與 Admin 都保留現有元件。完整角色原圖無框呈現；`s10.html` 為實際截圖對照圖庫，素材與完整 prompt set 見 [ARTWORK](s10/ARTWORK.md)。本輪不修改 S9／S8／S7 設計。
 
@@ -30,7 +30,7 @@ S10／S9 直接使用各季已提交的完整歸檔與既有讀模型；公開�
 
 ## 接入邊界
 
-S10 圖庫的候選 CSS 保留為歷史 review 用 `data-s10-preview`；正式應用使用 [skyline-theme.css](../../../src/app/skyline-theme.css)、`data-appearance="skyline-pop"` 與 `.themed-site`，選單名稱為 S10 · 晴空未來城／晴空未来城／Skyline Pop。S9 候選 CSS 仍限定在 review 用 `data-s9-preview`；S8／S7 的 `sample.css`／`sample.js` 仍是 review-only 組合。
+S10 圖庫的候選 CSS 保留為歷史 review 用 `data-s10-preview`；正式應用使用 [skyline-theme.css](../../../src/app/skyline-theme.css)、`data-appearance="skyline-pop"` 與 `.themed-site`，選單名稱為 S10 · 晴空未來城／晴空未来城／Skyline Pop。S9 的 `data-s9-preview` CSS 保留為歷史 review 用；正式應用使用 [glacier-theme.css](../../../src/app/glacier-theme.css)、`data-appearance="glacier-blue"`，選單名稱為 S9 · 冰晶鈷藍／冰晶钴蓝／Glacier Blue，頁尾保留三語同人標註；S8／S7 的 `sample.css`／`sample.js` 仍是 review-only 組合。
 
 S10 正式接入重用現有元件和 next-intl（zh-Hans／zh-Hant／en），保留全部原有九款 appearance、SSR、獨立明暗、訪客 cookie → 當前授權／已發佈賽事預設 → 全站預設及清除繼承。非賽事頁不繼承上一季，歷史賽事預設不自動修改；OBS／presenter、授權、發佈、OAuth／deep links 保持既有邊界。
 

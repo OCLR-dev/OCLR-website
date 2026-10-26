@@ -20,6 +20,7 @@ const themeFiles: Record<string, string> = {
   "arcade-theme.css": "retro-arcade",
   "frutiger-theme.css": "frutiger-aero",
   "skyline-theme.css": "skyline-pop",
+  "glacier-theme.css": "glacier-blue",
 };
 const sharedHeader = new Set([
   "src/app/layout.tsx",

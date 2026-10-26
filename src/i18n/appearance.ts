@@ -24,6 +24,8 @@ export function appearanceLabel(
       return tr("Frutiger Aero");
     case "skyline-pop":
       return tr("S10 · Skyline Pop");
+    case "glacier-blue":
+      return tr("S9 · Glacier Blue");
     default:
       return tr("Original design");
   }

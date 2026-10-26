@@ -20,6 +20,7 @@ const appearances = [
   "retro-arcade",
   "frutiger-aero",
   "skyline-pop",
+  "glacier-blue",
 ];
 // Every appearance in the default locale, plus the other locales in the default appearance.
 const cases = [
