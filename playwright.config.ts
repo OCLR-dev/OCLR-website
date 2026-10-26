@@ -31,6 +31,9 @@ export default defineConfig({
   globalSetup: "./tests/e2e/setup.ts",
   fullyParallel: false,
   workers: 1,
+  reporter: process.env.CI
+    ? [["dot"], ["./tests/fixtures/ci-timing-reporter.ts"]]
+    : undefined,
   use: {
     storageState: englishStorage,
     baseURL: "http://127.0.0.1:3100",

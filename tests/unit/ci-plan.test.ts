@@ -5,6 +5,7 @@ function needs(plan: CiPlan) {
   return {
     plan: { result: "success", outputs: { json: JSON.stringify(plan) } },
     verify: { result: "success" },
+    build: { result: "success" },
     e2e: { result: "success" },
     "header-e2e": { result: "success" },
     "remote-e2e": { result: "success" },
@@ -96,7 +97,14 @@ describe("required CI gate", () => {
     it("accepts precisely the jobs required by " + plan.reason, () => {
       expect(() => assertCiGate(needs(plan))).not.toThrow();
     });
-    for (const job of ["plan", "verify", "e2e", "header-e2e", "remote-e2e"])
+    for (const job of [
+      "plan",
+      "verify",
+      "build",
+      "e2e",
+      "header-e2e",
+      "remote-e2e",
+    ])
       for (const result of ["failure", "cancelled", "skipped", ""])
         it("rejects " + job + " " + result + " for " + plan.reason, () => {
           const input = needs(plan);

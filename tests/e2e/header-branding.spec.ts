@@ -2,6 +2,10 @@ import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import AxeBuilder from "@axe-core/playwright";
 
+// Read-only cases own their browser context and have no shared fixture state.
+// Allow individual sharding; each CI runner still uses only one DB worker.
+test.describe.configure({ mode: "parallel" });
+
 const labels = {
   "zh-Hans": { home: "OCLR 首页", wiki: "OCLR 维基" },
   "zh-Hant": { home: "OCLR 首頁", wiki: "OCLR 維基" },
