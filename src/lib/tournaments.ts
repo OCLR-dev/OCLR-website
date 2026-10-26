@@ -37,6 +37,8 @@ import {
   approveArchiveMatches,
   publicHistoricalArchive,
   resolveArchiveIdentity,
+  addArchiveSubstitute,
+  archiveSubstituteConfirmation,
 } from "./historical-archive";
 import { statisticsSeasons } from "./archive-statistics-model";
 type Reader = Pick<ReturnType<typeof db>, "select">;
@@ -136,6 +138,13 @@ const createSchema = z
   })
   .strict();
 const commandSchema = z.discriminatedUnion("action", [
+  archiveSubstituteConfirmation
+    .extend({
+      ...version,
+      action: z.literal("add-archive-substitute"),
+      preserveStatistics: z.literal(true),
+    })
+    .strict(),
   z
     .object({
       ...version,
@@ -424,6 +433,40 @@ export async function tournamentCommand(
     const e = current.edition;
     let next: Edition = e;
     let registrationPausedAt = state.registrationPausedAt;
+    if (c.action === "add-archive-substitute") {
+      if (!e.archive || e.status !== "completed" || e.registration)
+        throw new HttpError(
+          409,
+          "Select a completed historical archive without registration.",
+        );
+      await assertCapability(actor, "approve_results", slug, tx);
+      try {
+        next = {
+          ...e,
+          archive: addArchiveSubstitute(e.archive, {
+            osuId: c.osuId,
+            username: c.username,
+            teamId: c.teamId,
+            source: c.source,
+            confirmationSource: c.confirmationSource,
+          }),
+        };
+      } catch {
+        throw new HttpError(
+          409,
+          "Select an unused substitute identity and a recorded team in a final-Tier archive.",
+        );
+      }
+      // The edition row is already locked, as for every statistics command.
+      const { preserveStatisticsForRosterAddition } =
+        await import("./archive-statistics");
+      await preserveStatisticsForRosterAddition(
+        tx,
+        actor,
+        e.archive,
+        next.archive!,
+      );
+    }
     if (c.action === "resolve-archive-identity") {
       if (!e.archive || e.status !== "completed" || e.registration)
         throw new HttpError(

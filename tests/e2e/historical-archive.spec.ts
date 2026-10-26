@@ -14,6 +14,115 @@ test.describe("historical archive browser workflow", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.setTimeout(120000);
   test.afterAll(async () => closeDb());
+  test("confirms a historical substitute with unknown Tier and literal source", async ({
+    page,
+    context,
+    isMobile,
+  }, info) => {
+    const slug = `substitute-test-${isMobile ? "mobile" : "desktop"}-${Date.now()}`;
+    await seedEditions([
+      {
+        ...edition,
+        slug,
+        name: "Synthetic substitute archive",
+        published: true,
+        status: "completed",
+        registration: null,
+        archive: {
+          ...historicalArchive,
+          editionSlug: slug,
+          formatVersion: 2,
+          draftMode: "final-tiers",
+          picks: [],
+        },
+      },
+    ]);
+    await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
+    await page.goto(`/admin/tournaments/${slug}/archive`);
+    await page
+      .locator("summary")
+      .filter({ hasText: /^Confirm historical substitute$/ })
+      .click();
+    const form = page
+      .locator("details")
+      .filter({ has: page.getByLabel("Historical username", { exact: true }) });
+    await expect(
+      form.getByRole("button", {
+        name: "Confirm historical substitute",
+        exact: true,
+      }),
+    ).toBeDisabled();
+    await form
+      .getByLabel("Historical username", { exact: true })
+      .fill("Synthetic substitute");
+    await form.getByLabel("osu! ID", { exact: true }).fill("91991");
+    await form.getByLabel("Team", { exact: true }).selectOption("alpha");
+    await form.getByLabel("Roster source", { exact: true }).fill("TEAM!L42");
+    await form
+      .getByLabel("Identity confirmation source", { exact: true })
+      .fill("Synthetic organizer approval");
+    for (const theme of ["light", "dark"]) {
+      await context.addCookies([
+        { name: "oclr-theme", value: theme, domain: "127.0.0.1", path: "/" },
+      ]);
+      // Reopen the form after each independently rendered theme.
+      await page.reload();
+      await page
+        .locator("summary")
+        .filter({ hasText: /^Confirm historical substitute$/ })
+        .click();
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(page.viewportSize()!.width);
+      await page.screenshot({
+        path: info.outputPath(`substitute-${theme}.png`),
+        fullPage: true,
+      });
+    }
+    await form
+      .getByLabel("Historical username", { exact: true })
+      .fill("Synthetic substitute");
+    await form.getByLabel("osu! ID", { exact: true }).fill("91991");
+    await form.getByLabel("Team", { exact: true }).selectOption("alpha");
+    await form.getByLabel("Roster source", { exact: true }).fill("TEAM!L42");
+    await form
+      .getByLabel("Identity confirmation source", { exact: true })
+      .fill("Synthetic organizer approval");
+    await form
+      .getByRole("button", {
+        name: "Confirm historical substitute",
+        exact: true,
+      })
+      .click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText("91991");
+    await expect(dialog).toContainText("revalidated unchanged");
+    await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
+    await expect(dialog).not.toBeVisible();
+    await page.reload();
+    const saved = (
+      await (await context.request.get(`/api/admin/tournaments/${slug}`)).json()
+    ).edition;
+    expect(saved.archive.players.at(-1)).toEqual({
+      osuId: 91991,
+      username: "Synthetic substitute",
+      teamId: "alpha",
+      role: "player",
+      tier: null,
+      source: "TEAM!L42",
+    });
+    expect(saved.archive.rosterReplacements).toBeUndefined();
+    expect(saved.archive.matches).toEqual(historicalArchive.matches);
+    await context.clearCookies();
+    await page.goto(`/tournaments/${slug}/players/91991`);
+    await expect(
+      page.getByRole("heading", { name: "Synthetic substitute", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.locator('a[href="https://osu.ppy.sh/users/91991"]'),
+    ).toBeVisible();
+  });
   test("resolves a published unknown identity without reimporting competition history", async ({
     page,
     context,
@@ -40,25 +149,38 @@ test.describe("historical archive browser workflow", () => {
         exact: true,
       }),
     ).toBeDisabled();
-    await page.getByLabel("osu! ID", { exact: true }).fill("91991");
     await page
-      .getByLabel("Identity confirmation source", { exact: true })
+      .getByRole("textbox", { name: "osu! ID", exact: true })
+      .fill("91991");
+    await page
+      .getByRole("textbox", {
+        name: "Identity confirmation source",
+        exact: true,
+      })
       .fill("Synthetic organizer confirmation");
     for (const theme of ["light", "dark"]) {
       await context.addCookies([
         { name: "oclr-theme", value: theme, domain: "127.0.0.1", path: "/" },
       ]);
       await page.reload();
-      await page.getByLabel("osu! ID", { exact: true }).fill("91991");
       await page
-        .getByLabel("Identity confirmation source", { exact: true })
+        .getByRole("textbox", { name: "osu! ID", exact: true })
+        .fill("91991");
+      await page
+        .getByRole("textbox", {
+          name: "Identity confirmation source",
+          exact: true,
+        })
         .fill("Synthetic organizer confirmation");
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth),
       ).toBeLessThanOrEqual(page.viewportSize()!.width);
       await page
-        .getByLabel("Identity confirmation source", { exact: true })
+        .getByRole("textbox", {
+          name: "Identity confirmation source",
+          exact: true,
+        })
         .blur();
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({
@@ -225,7 +347,7 @@ test.describe("historical archive browser workflow", () => {
       ]);
       for (const theme of ["light", "dark"]) {
         await context.addCookies([
-          { name: "oclr-theme", value: theme, url: "http://127.0.0.1:3100" },
+          { name: "oclr-theme", value: theme, url: new URL(page.url()).origin },
         ]);
         await page.goto("/tournaments");
         const card = page
@@ -440,7 +562,9 @@ test.describe("historical archive browser workflow", () => {
     ).toHaveCount(0);
     const guest = await context.browser()!.newContext();
     const guestPage = await guest.newPage();
-    await guestPage.goto(`http://127.0.0.1:3100/tournaments/${slug}/schedule`);
+    await guestPage.goto(
+      `${new URL(page.url()).origin}/tournaments/${slug}/schedule`,
+    );
     await expect(guestPage.locator(".event-matches tbody tr")).toHaveCount(33);
     await guest.close();
     await page.goto(`/admin/tournaments/${slug}/settings`);
@@ -542,7 +666,9 @@ test.describe("historical archive browser workflow", () => {
     const guest = await context.browser()!.newContext();
     expect(
       (
-        await guest.request.get(`http://127.0.0.1:3100/tournaments/${slug}`)
+        await guest.request.get(
+          `${new URL(page.url()).origin}/tournaments/${slug}`,
+        )
       ).status(),
     ).toBe(404);
     await guest.close();
@@ -647,13 +773,15 @@ test.describe("historical archive browser workflow", () => {
     const guest = await context.browser()!.newContext();
     expect(
       (
-        await guest.request.get(`http://127.0.0.1:3100/tournaments/${slug}`)
+        await guest.request.get(
+          `${new URL(page.url()).origin}/tournaments/${slug}`,
+        )
       ).status(),
     ).toBe(404);
     expect(
       (
         await guest.request.get(
-          `http://127.0.0.1:3100/admin/tournaments/${slug}/archive/preview`,
+          `${new URL(page.url()).origin}/admin/tournaments/${slug}/archive/preview`,
           { maxRedirects: 0 },
         )
       ).status(),
@@ -785,19 +913,21 @@ test.describe("historical archive browser workflow", () => {
     expect(
       (
         await guest.request.get(
-          `http://127.0.0.1:3100/tournaments/${slug}/staff`,
+          `${new URL(page.url()).origin}/tournaments/${slug}/staff`,
         )
       ).status(),
     ).toBe(404);
     expect(
       (
-        await guest.request.get(`http://127.0.0.1:3100/tournaments/${slug}`)
+        await guest.request.get(
+          `${new URL(page.url()).origin}/tournaments/${slug}`,
+        )
       ).status(),
     ).toBe(404);
     expect(
       (
         await guest.request.get(
-          `http://127.0.0.1:3100/api/admin/tournaments/${slug}`,
+          `${new URL(page.url()).origin}/api/admin/tournaments/${slug}`,
         )
       ).ok(),
     ).toBe(false);

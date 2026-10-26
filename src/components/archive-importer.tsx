@@ -10,6 +10,7 @@ import {
 } from "@/lib/historical-archive";
 import { ConfirmMutation } from "./confirm-mutation";
 import { useRouter } from "next/navigation";
+import { ArchiveSubstitute } from "./archive-substitute";
 
 function ArchiveIdentityResolver({
   person,
@@ -132,6 +133,11 @@ export function ArchiveImporter({
   return (
     <ReadOnlyFields>
       <div className="stack">
+        {eligible &&
+          archive?.formatVersion === 2 &&
+          archive.draftMode === "final-tiers" && (
+            <ArchiveSubstitute archive={archive} revision={revision} />
+          )}
         {eligible &&
           archive?.unresolvedPlayers?.map((person) => (
             <ArchiveIdentityResolver
