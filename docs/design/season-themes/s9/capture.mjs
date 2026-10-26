@@ -290,10 +290,6 @@ try {
         return {
           image: getComputedStyle(document.querySelector(".archive-key-visual"))
             .backgroundImage,
-          frost: getComputedStyle(
-            document.querySelector(".archive-key-visual"),
-            "::before",
-          ).display,
           heading: getComputedStyle(
             document.querySelector(".page-heading"),
             "::after",
@@ -309,7 +305,6 @@ try {
       });
       if (
         state.image !== "none" ||
-        state.frost !== "none" ||
         state.heading !== "none" ||
         state.navigation !== "none" ||
         state.selection === "none" ||
@@ -350,7 +345,7 @@ try {
         locale: "zh-Hans",
         browser: "Google Chrome",
         material:
-          "Fine crystalline veins, sparse hoarfrost, prismatic edge caustics and unified top-lit bevels",
+          "Unframed original artwork, fine crystalline veins, sparse heading frost and unified top-lit panels",
         decorativeAssets: ["crystal-etching.svg", "frost-rim.svg", "ice-facets.svg"],
         materialChecks,
         screenshots: shots,

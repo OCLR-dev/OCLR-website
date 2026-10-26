@@ -2,7 +2,7 @@
 
 追蹤：[#196](https://github.com/OCLR-dev/OCLR-website/issues/196)。2026-10-26 依主辦方要求，沿用已合併 #195／PR #362 的方法更新；候選設計待審閱，正式接入另行指定。
 
-本輪依主辦方「更加精緻」的回饋，在既有冰晶方向上精修晶枝線寬、霜邊密度、折光切面與陰影；同步最新 main，重新建置與重產實際 UI 範例圖。
+本輪依主辦方回饋移除左側主視覺冰框；原圖回到現有頁面的無框呈現，桌面／手機與明暗範例同步重產。冰晶細節保留在標題、導覽和資料面。
 
 ## 最新 UI 基準
 
@@ -18,7 +18,7 @@
 
 ## 設計主張
 
-**以細晶脈、稀疏霜枝和薄切面呈現冰晶，讓原圖與資料成為視覺重心。** 冰晶識別保留在桌面標題的單一晶核、主視覺外框和操作邊緣；統計、規則與表單降低裝飾密度。明暗版共用左上方光源、薄亮邊、接觸陰影與柔和環境陰影，暗版另外降低霜邊反光。
+**以細晶脈、稀疏霜枝和薄切面呈現冰晶，讓原圖與資料成為視覺重心。** 冰晶識別保留在桌面標題的單一晶核與操作邊緣；統計、規則與表單降低裝飾密度。明暗版共用左上方光源、薄亮邊、接觸陰影與柔和環境陰影。
 
 內容順序沿用目前頁面：主頁標題 → 原圖／五列統計 → 完整規則；圖池與 Admin 直接保留現有工作內容。沒有新增行銷 hero、假 tabs、假表單或另編的賽果摘錄。
 
@@ -27,8 +27,8 @@
 冰晶語彙分工：
 
 - **細晶脈**：重繪 [晶枝 SVG](crystal-etching.svg)，採 0.45–0.9 單位的分級線寬、漸層枝脈、透亮晶核與少量微光。桌面標題右側只放一組 144px 晶體；移除原圖框和圖池封面的重複大型雪花。手機標題不放大型刻紋。
-- **稀疏霜枝**：[霜邊 SVG](frost-rim.svg) 使用不等距、不同生長角度與尺度的晶枝。保持固定素材尺度，以 repeat-x 排列，不把整張圖橫向拉長。標題底部右端僅留薄霜，原圖框獨立材質層在暗版降低不透明度，不鋪在段落背後。
-- **薄切面原圖框**：新增 [折光 SVG](ice-facets.svg)，只在左上／右下形成稜線和淡切面。移除 4–5px 粗深邊，改成 1px 亮邊／2px 下沿、細內框與兩段陰影；16px 桌面／12px 手機內距保留完整原圖與文字。
+- **稀疏霜枝**：[霜邊 SVG](frost-rim.svg) 使用不等距、不同生長角度與尺度的晶枝。標題底部右端僅留薄霜，不鋪在段落或主視覺背後。
+- **無框原圖**：主視覺沿用現有 `.archive-key-visual` 版面與 contain，不加冰框、內框、霜邊、切面背景、額外內距或陰影。完整構圖與原圖本身的邊緣保持原樣。[折光 SVG](ice-facets.svg) 僅用於圖池封面區。
 - **低裝飾資料面**：統計、規則、圖池與 Admin 表單保留實色核心；角落切面縮至 10–12px，底沿收為 1px。目錄僅留 2px 冷色邊，讓主要閱讀區優先。
 - **折光控制項**：導覽與主操作改為細亮邊與窄折光面，移除粗位移陰影。輸入欄位保留輕微凹面。原有選取底線、4px 幾何、狀態語意與可見焦點維持不變。
 
@@ -77,7 +77,7 @@ S9 的晶枝、霜邊、折光面與冰層厚度共同呼應原圖；主要資�
 | `--site-selection`                  | `#c5ddff` | `#2a4c7b` |
 | `--button-radius`／`--radius-panel` | `4px`     | `4px`     |
 
-文字、動作、欄位邊界和資料細線各自定義；success／warning／danger 與 mod 狀態保持既有語意，不一律改成藍色。材質另外定義 `--ice-rim`／`--ice-rim-bright`／`--ice-rim-shade`、`--ice-facet`、`--ice-cut`、`--ice-etch`、`--ice-well`、`--ice-frost-opacity`、`--ice-contact`、`--ice-panel-depth` 與 `--ice-slab`；文字和狀態 tokens 保持獨立。完整定義見 [s9.css](../s9.css)。樣式只作用於 `html[data-s9-preview] .themed-site`，沒有應用 import、正式 appearance 註冊或 cookie 寫入，OBS／presenter 維持隔離。
+文字、動作、欄位邊界和資料細線各自定義；success／warning／danger 與 mod 狀態保持既有語意，不一律改成藍色。材質另外定義 `--ice-rim`／`--ice-rim-bright`／`--ice-rim-shade`、`--ice-facet`、`--ice-cut`、`--ice-etch`、`--ice-well`、`--ice-contact`、`--ice-panel-depth` 與 `--ice-slab`；文字和狀態 tokens 保持獨立。完整定義見 [s9.css](../s9.css)。樣式只作用於 `html[data-s9-preview] .themed-site`，沒有應用 import、正式 appearance 註冊或 cookie 寫入，OBS／presenter 維持隔離。
 
 ## 可審閱成果
 
@@ -118,7 +118,7 @@ node --import tsx docs/design/season-themes/s9/capture.mjs
 
 ## 本版檢查與接入邊界
 
-- 已合併最新 main `0d3e203`，應用來源與其一致，本輪重新通過 Node.js 24 production build。設計差異僅在候選 CSS／裝飾 SVG／review 產圖工具與文件。
+- 應用來源與最新 main `0d3e203` 一致；沿用上一輪已通過的 Node.js 24 production build。本輪只移除候選冰框並更新 review 產圖工具與文件，未重新執行完整應用回歸。
 - 三個實際路由 × 320／390／768／1440px × 明暗，共 **24 組、24 次 Axe AA 無違規**，無水平溢出或頁面錯誤。[本版報告](verification.json)。
 - 套色前後 DOM／文字保留、五列統計／完整規則、原始 1920×1080 圖片與 contain、手機選單／Escape 焦點、既有 sticky stack 通過。
 - 冰晶材質額外通過明暗 × 320／1440px 的 4 組 forced-colours 檢查：刻紋／霜邊移除、系統色選取可見，320×568px 的選單完整留在視窗內並可由 Escape 回復焦點。

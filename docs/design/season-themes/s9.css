@@ -122,9 +122,6 @@ html[data-s9-preview]
   font-variant-numeric: tabular-nums;
 }
 @media (forced-colors: active) {
-  html[data-s9-preview] .themed-site .archive-key-visual {
-    background: none;
-  }
   html[data-s9-preview] .themed-site .page-heading::after {
     background: CanvasText;
   }
@@ -151,7 +148,6 @@ html[data-s9-preview] .themed-site {
   --ice-well: #f6fafd;
   --ice-shadow: #23527314;
   --ice-contact: #1e56751a;
-  --ice-frost-opacity: .6;
   --ice-slab:
     linear-gradient(135deg, var(--ice-facet) 0 10px, transparent 10.5px)
       top left / 24px 24px no-repeat,
@@ -176,7 +172,6 @@ html[data-s9-preview][data-theme="dark"] .themed-site {
   --ice-well: #101e32;
   --ice-shadow: #0005;
   --ice-contact: #0006;
-  --ice-frost-opacity: .3;
 }
 html[data-s9-preview] .themed-site .site-header {
   border-bottom: 1px solid var(--ice-rim);
@@ -202,40 +197,6 @@ html[data-s9-preview] .themed-site .page-heading::after {
   border-bottom: 1px solid var(--ice-rim-bright);
   transform: scaleY(-1);
   opacity: .7;
-  pointer-events: none;
-}
-html[data-s9-preview] .themed-site .archive-key-visual {
-  position: relative;
-  padding: 16px;
-  border: 1px solid var(--ice-rim);
-  border-radius: 4px;
-  background:
-    var(--ice-facets) center / 100% 100% no-repeat,
-    linear-gradient(145deg, var(--ice-etch), var(--site-surface) 32% 72%, var(--ice-facet));
-  box-shadow:
-    inset 0 1px 0 var(--ice-rim-bright),
-    inset 1px 0 0 var(--ice-rim-bright),
-    inset -1px -2px 0 var(--ice-rim-shade),
-    0 3px 5px -3px var(--ice-contact),
-    0 16px 40px -24px var(--ice-shadow);
-}
-html[data-s9-preview] .themed-site .archive-key-visual::before {
-  content: "";
-  position: absolute;
-  inset: 1px 1px auto;
-  height: 40px;
-  background: var(--ice-frost) center top / 1000px 64px repeat-x;
-  opacity: var(--ice-frost-opacity);
-  pointer-events: none;
-}
-html[data-s9-preview] .themed-site .archive-key-visual::after {
-  content: "";
-  position: absolute;
-  inset: 5px;
-  border: 1px solid var(--ice-rim-bright);
-  border-right-color: var(--ice-rim);
-  border-bottom-color: var(--ice-rim);
-  border-radius: 2px;
   pointer-events: none;
 }
 html[data-s9-preview] .themed-site .archive-counts {
@@ -319,25 +280,17 @@ html[data-s9-preview] .themed-site .map-slot-badge {
   html[data-s9-preview] .themed-site .page-heading::after {
     opacity: .5;
   }
-  html[data-s9-preview] .themed-site .archive-key-visual {
-    padding: 12px;
-    background-size: 100% 100%, auto;
-  }
-  html[data-s9-preview] .themed-site .archive-key-visual::before {
-    background-size: 800px 51px;
-  }
   html[data-s9-preview] .themed-site .archive-counts {
     padding-inline: 16px;
   }
 }
 @media (forced-colors: active) {
-  html[data-s9-preview] .themed-site :is(.site-header, .page-heading, .archive-key-visual, .archive-counts, .rules-article, .rules-desktop-contents, .rules-mobile-contents, .settings-card, .map-browse-card, .map-card-cover, .nav-login, input, select, textarea) {
+  html[data-s9-preview] .themed-site :is(.site-header, .page-heading, .archive-counts, .rules-article, .rules-desktop-contents, .rules-mobile-contents, .settings-card, .map-browse-card, .map-card-cover, .nav-login, input, select, textarea) {
     background: Canvas;
     box-shadow: none;
     border-color: CanvasText;
   }
-  html[data-s9-preview] .themed-site .archive-key-visual::before,
-  html[data-s9-preview] .themed-site :is(.page-heading, .archive-key-visual)::after {
+  html[data-s9-preview] .themed-site .page-heading::after {
     display: none;
   }
   html[data-s9-preview] .themed-site .public-tournament .tournament-navigation :is(nav, a) {
