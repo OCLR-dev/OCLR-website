@@ -77,6 +77,8 @@ R03 browser verification: Chrome loaded the native SVG and 1600×900 homepage co
 
 The final OCL source is literal `\mathcal{OCL}`, generated with LaTeX and dvisvgm as Computer Modern mathematical calligraphic capitals. The organizer's latest font clarification is reflected in the SVG and source. The earlier R03 files are unchanged.
 
+The follow-up weight adjustment thickens only OCL inside each original glyph bounding box. The cap height, glyph widths, TeX spacing and placement stay fixed; comparison with the preceding PNG confirms no changed pixels outside OCL.
+
 `python design/home-visual/revision-04/compose.py` renders the final 1700×470 shape board and checks unique IDs and the absence of raster, text, filter or script nodes. The R screenshot geometry has measured-point, circular-arc and selected-outline checks recorded in its source document; the S11 tracing has an original-size contour comparison. Chrome loaded the composition and R comparison and exercised both view controls; the preview had no horizontal overflow at an observed 390 CSS-pixel viewport. The temporary viewport override was reset. The final calligraphic version was rendered and visually checked again. `node --check` and `git diff --check` pass.
 
 These are standalone design artifacts. No application code, catalogs, configuration or R03 assets changed; application/DB tests and production builds were not run. Visual acceptance and homepage integration remain separate.

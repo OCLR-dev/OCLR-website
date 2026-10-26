@@ -2,7 +2,7 @@
 
 本轮按用户要求建立新稿，R03 保留。字形、滑条和英文全名均输出为 SVG 路径，不含图片、外部字体或滤镜。主体不加入纹理、阴影或角色背景。
 
-- **OCL**：`ocl-mathcal.tex` 中的原文 `\mathcal{OCL}`，经本机 LaTeX 与 dvisvgm `--no-fonts --exact-bbox` 转为路径。实际字体为 Computer Modern Symbols / CMSY10 的数学花体大写；未用替代手写字体或人为加粗。保留 TeX 字距，组合时统一等比放大。
+- **OCL**：`ocl-mathcal.tex` 中的原文 `\mathcal{OCL}`，经本机 LaTeX 与 dvisvgm `--no-fonts --exact-bbox` 转为路径。实际字体为 Computer Modern Symbols / CMSY10 的数学花体大写。按用户后续要求加粗笔画：组合脚本为原轮廓添加 0.18 字形单位的圆角描边，并先在每个字原有外接框内补偿，使最终外接框、260 单位字高、字宽、基线和 TeX 字距保持不变。没有放大字体或更换字体；原始未加粗 LaTeX 路径保留在 `ocl-mathcal.svg` 供重建。
 - **R**：见 [R-GEOMETRY.md](R-GEOMETRY.md)。控制点与可见轮廓取自用户提供的 [R 截图](r-reference.png)。截图读数的像素精度与缺失原始谱面文件的限制在几何记录中说明。
 - **S11**：见 [S11-SOURCE.md](S11-SOURCE.md)。沿用仓库中与用户第二张图一致的笔刷字芯，确定性矢量描摹，保留原始比例与笔刷切口。
 - **英文全名**：`OSU! CHINESE LEAGUE ROOKIE`，Noto Sans Regular 转路径；使用字距展开至 OCLR 宽度。此为全名的大写排印，没有新增比赛信息。

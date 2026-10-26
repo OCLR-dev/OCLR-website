@@ -1,7 +1,7 @@
 """Compose the R04 shape proof from the three independently verifiable sources.
 
 OCL: literal LaTeX \\mathcal{OCL}; R: screenshot slider geometry; S11: existing brush art.
-All three are positioned with uniform scaling, without reshaping the supplied contours.
+R and S11 keep their supplied proportions. OCL gains weight inside its original glyph bounds.
 """
 from pathlib import Path
 import copy
@@ -9,11 +9,34 @@ import subprocess
 from xml.etree import ElementTree as ET
 from fontTools.ttLib import TTFont
 from fontTools.pens.svgPathPen import SVGPathPen
+from fontTools.pens.boundsPen import BoundsPen
+from fontTools.svgLib.path import parse_path
 
 ROOT = Path(__file__).resolve().parent
 NS = 'http://www.w3.org/2000/svg'
 ET.register_namespace('', NS)
 ET.register_namespace('xlink', 'http://www.w3.org/1999/xlink')
+
+
+def weight_mathcal(svg):
+    """Thicken by about 6.4 display units, preserving every glyph's outer bounds.
+
+    Insetting the source before stroking keeps the cap height, widths, baseline
+    and original TeX placements unchanged. No stroke is clipped by the viewBox.
+    """
+    stroke = .18
+    for path in svg.iter(f'{{{NS}}}path'):
+        bounds = BoundsPen(None)
+        parse_path(path.attrib['d'], bounds)
+        x0, y0, x1, y1 = bounds.bounds
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        sx, sy = (x1 - x0) / (x1 - x0 + stroke), (y1 - y0) / (y1 - y0 + stroke)
+        path.attrib.update({
+            'stroke': 'currentColor', 'stroke-width': str(stroke), 'stroke-linejoin': 'round',
+            'transform': f'translate({cx} {cy}) scale({sx} {sy}) translate({-cx} {-cy})',
+        })
+        assert abs((x1 - x0 + stroke) * sx - (x1 - x0)) < 1e-9
+        assert abs((y1 - y0 + stroke) * sy - (y1 - y0)) < 1e-9
 
 
 def asset(filename, name, x, y, height):
@@ -59,6 +82,7 @@ ET.SubElement(svg, f'{{{NS}}}desc', id='wordmark-desc').text = (
 )
 
 ocl, ocl_width = asset('ocl-mathcal.svg', 'OCL-mathcal', 64, 66, 260)
+weight_mathcal(ocl)
 svg.append(ocl)
 r_x = 64 + ocl_width + 24
 r, r_width = asset('r-shape.svg', 'R-reference-slider', r_x, 66, 260)
