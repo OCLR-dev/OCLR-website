@@ -16,7 +16,9 @@ const origin = new URL(base);
 if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
-const uiBaseline = execFileSync("git", ["rev-parse", "origin/main"], {
+const uiBaseline =
+  process.env.S10_UI_BASELINE ?? "0d3e203d22c33fb61e988f80f2a7ab561c1a8563";
+execFileSync("git", ["rev-parse", "origin/main"], {
   encoding: "utf8",
 }).trim();
 execFileSync("git", [
@@ -28,11 +30,18 @@ execFileSync("git", [
   "messages",
   "public/branding",
 ]);
-const overlay = await readFile(new URL("../s10.css", import.meta.url), "utf8");
+let overlay = await readFile(new URL("../s10.css", import.meta.url), "utf8");
+// Embed the reviewed local illustration; no application route or external request.
+const panorama = await readFile(new URL("city-pop-coast.webp", import.meta.url));
+overlay = overlay.replaceAll(
+  'url("./s10/city-pop-coast.webp")',
+  `url("data:image/webp;base64,${panorama.toString("base64")}")`,
+);
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const cases = [],
   errors = [],
-  shots = [];
+  shots = [],
+  materialChecks = [];
 const context = await browser.newContext({
   reducedMotion: "reduce",
   viewport: { width: 1440, height: 1000 },
@@ -159,6 +168,12 @@ try {
             );
           if (!(await page.locator("#rules .rules-article").isVisible()))
             throw new Error("Latest historical handbook missing.");
+          const original = await page.locator(".archive-key-visual img").evaluate(image => ({
+            src: image.getAttribute("src"), width: image.naturalWidth,
+            height: image.naturalHeight, fit: getComputedStyle(image).objectFit,
+          }));
+          if (original.src !== "/archive/s10/thumbnail.png" || original.width !== 1024 || original.height !== 1024 || original.fit !== "contain")
+            throw new Error("Preserve the complete original 1024x1024 S10 artwork.");
         }
         if (width === 390 || width === 1440) {
           const name = `${surface.prefix}${width === 1440 ? "desktop" : "mobile"}-${theme}.webp`;
@@ -229,6 +244,72 @@ try {
       }
     }
   }
+  // City illustration must disappear cleanly in system high-contrast mode.
+  for (const theme of ["light", "dark"]) {
+    for (const width of [320, 1440]) {
+      await context.clearCookies();
+      await context.addCookies([
+        { name: "oclr-locale", value: "zh-Hans", url: base },
+        { name: "oclr-theme", value: theme, url: base },
+      ]);
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 1000 });
+      await page.goto(base + "/tournaments/s10");
+      await page.locator(".archive-key-visual img").waitFor();
+      await page.addStyleTag({ content: overlay });
+      await page.evaluate(() =>
+        document.documentElement.setAttribute("data-s10-preview", ""),
+      );
+      await page.emulateMedia({ forcedColors: "active" });
+      if (width === 320) await page.locator(".tournament-menu").click();
+      const state = await page.evaluate(() => {
+        const nav = document.querySelector(".tournament-navigation nav");
+        const box = nav.getBoundingClientRect();
+        return {
+          image: getComputedStyle(document.querySelector(".page-heading"), "::before").display,
+          heading: getComputedStyle(
+            document.querySelector(".page-heading"),
+            "::after",
+          ).display,
+          navigation: getComputedStyle(nav).backgroundImage,
+          selection: getComputedStyle(nav.querySelector("a[aria-current]"))
+            .outlineStyle,
+          inViewport:
+            box.left >= 0 &&
+            box.right <= innerWidth &&
+            box.bottom <= innerHeight,
+        };
+      });
+      if (
+        state.image !== "none" ||
+        state.heading !== "none" ||
+        state.navigation !== "none" ||
+        state.selection === "none" ||
+        !state.inViewport
+      )
+        throw new Error(
+          `Forced-colors material fallback: ${JSON.stringify(state)}`,
+        );
+      if (width === 320) {
+        await page.keyboard.press("Escape");
+        if (
+          !(await page
+            .locator(".tournament-menu")
+            .evaluate((node) => node === document.activeElement))
+        )
+          throw new Error("Forced-colors menu focus was not restored.");
+      }
+      materialChecks.push({
+        theme,
+        width,
+        height: width === 320 ? 568 : 1000,
+        forcedColors: "passed",
+        decorationRemoved: true,
+        selectionVisible: true,
+        menuInViewport: true,
+      });
+      await page.emulateMedia({ forcedColors: "none" });
+    }
+  }
   await writeFile(
     out + "verification.json",
     JSON.stringify(
@@ -239,6 +320,9 @@ try {
           "Actual current application routes with browser-only S10 CSS overlay; public committed S10 archive and one synthetic local test account; no business commands",
         locale: "zh-Hans",
         browser: "Google Chrome",
+        design: "Vivid hand-drawn city-pop panorama in the original S10 sky-blue, cyan, peach-pink and cream palette",
+        decorativeAssets: ["city-pop-coast.webp"],
+        materialChecks,
         screenshots: shots,
         cases,
         errors,
@@ -253,6 +337,7 @@ try {
         cases: cases.length,
         axeScans: cases.length,
         screenshots: shots.length,
+        materialChecks: materialChecks.length,
         errors,
       },
       null,

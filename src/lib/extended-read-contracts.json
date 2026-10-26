@@ -64,18 +64,6 @@
         { "type": "string", "const": "replayer" }
       ]
     },
-    "Read07d61287dc0a": {
-      "anyOf": [
-        { "type": "null" },
-        { "type": "string", "const": "/archive/s7/key-visual.jpg" },
-        { "type": "string", "const": "/archive/s6/key-visual.jpg" },
-        { "type": "string", "const": "/archive/s5/key-visual.png" },
-        { "type": "string", "const": "/archive/s4/key-visual.avif" },
-        { "type": "string", "const": "/archive/s3/key-visual.avif" },
-        { "type": "string", "const": "/archive/s2/key-visual.avif" },
-        { "type": "string", "const": "/oclr-s11-key-visual.webp" }
-      ]
-    },
     "Read0a60fec28bec": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Reade07d01b5820b" }]
     },
@@ -166,20 +154,21 @@
       "type": "array",
       "items": { "$ref": "#/$defs/Read82bf7dd414f3" }
     },
-    "Read208ec0388636": {
-      "type": "object",
-      "properties": {
-        "logo": { "$ref": "#/$defs/Readdfb599b2bb78" },
-        "background": {
-          "anyOf": [
-            { "type": "null" },
-            { "type": "string", "const": "/oclr-s11-website-background.webp" }
-          ]
-        },
-        "keyVisual": { "$ref": "#/$defs/Read07d61287dc0a" }
-      },
-      "required": ["logo", "background", "keyVisual"],
-      "additionalProperties": false
+    "Read215ee4851411": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "string", "const": "/oclr-s11-square-logo.webp" },
+        { "type": "string", "const": "/archive/s10/thumbnail.png" },
+        { "type": "string", "const": "/archive/s9/thumbnail.png" },
+        { "type": "string", "const": "/archive/s8/thumbnail.jpg" },
+        { "type": "string", "const": "/archive/s7/key-visual.jpg" },
+        { "type": "string", "const": "/archive/s6/key-visual.jpg" },
+        { "type": "string", "const": "/archive/s5/key-visual.png" },
+        { "type": "string", "const": "/archive/s4/key-visual.avif" },
+        { "type": "string", "const": "/archive/s3/key-visual.avif" },
+        { "type": "string", "const": "/archive/s2/key-visual.avif" },
+        { "type": "string", "const": "/archive/s1/key-visual.webp" }
+      ]
     },
     "Read22a097ac65c0": {
       "type": "array",
@@ -190,57 +179,6 @@
       "items": false,
       "minItems": 2,
       "maxItems": 2
-    },
-    "Read242d21e4e8b4": {
-      "type": "object",
-      "properties": {
-        "slug": { "type": "string" },
-        "name": { "type": "string" },
-        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "branding": { "$ref": "#/$defs/Read208ec0388636" },
-        "defaultAppearance": { "$ref": "#/$defs/Read3a3ae6609a46" },
-        "published": { "type": "boolean" },
-        "status": {
-          "anyOf": [
-            { "type": "string", "const": "upcoming" },
-            { "type": "string", "const": "live" },
-            { "type": "string", "const": "completed" }
-          ]
-        },
-        "summary": { "type": "string" },
-        "timeZone": { "type": "string" },
-        "archive": { "$ref": "#/$defs/Readd4ab674ceee0" },
-        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
-        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "schedule": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
-            },
-            "required": ["label", "at"],
-            "additionalProperties": false
-          }
-        },
-        "registration": { "$ref": "#/$defs/Read38af2e1030f3" }
-      },
-      "required": [
-        "slug",
-        "name",
-        "season",
-        "branding",
-        "published",
-        "status",
-        "summary",
-        "timeZone",
-        "rules",
-        "eligibility",
-        "schedule",
-        "registration"
-      ],
-      "additionalProperties": false
     },
     "Read2686b7facc7f": {
       "type": "array",
@@ -578,6 +516,57 @@
     "Read458bd05e64ec": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readf5e22c16e295" }]
     },
+    "Read4609023b3fa5": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "timeZone": { "type": "string" },
+        "status": {
+          "anyOf": [
+            { "type": "string", "const": "upcoming" },
+            { "type": "string", "const": "live" },
+            { "type": "string", "const": "completed" }
+          ]
+        },
+        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "branding": { "$ref": "#/$defs/Reade875388690bf" },
+        "defaultAppearance": { "$ref": "#/$defs/Read3a3ae6609a46" },
+        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
+        "schedule": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+            },
+            "required": ["label", "at"],
+            "additionalProperties": false
+          }
+        },
+        "archive": { "$ref": "#/$defs/Readd4ab674ceee0" },
+        "published": { "type": "boolean" },
+        "summary": { "type": "string" },
+        "automaticEligibility": { "$ref": "#/$defs/Read9d043f4f751e" },
+        "rankGraceRange": { "$ref": "#/$defs/Readc78fa88a9778" },
+        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "registration": { "$ref": "#/$defs/Reade8693424c8e5" }
+      },
+      "required": [
+        "name",
+        "timeZone",
+        "status",
+        "season",
+        "branding",
+        "rules",
+        "schedule",
+        "published",
+        "summary",
+        "eligibility",
+        "registration"
+      ],
+      "additionalProperties": false
+    },
     "Read4697a90c29d0": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read6958f2767dac" }
@@ -641,6 +630,32 @@
       ],
       "additionalProperties": false
     },
+    "Read49bf18ab58b8": {
+      "type": "object",
+      "properties": {
+        "edition": { "$ref": "#/$defs/Readf9da68dcc5cb" },
+        "revision": { "type": "number" },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "registrationPaused": { "type": "boolean" }
+      },
+      "required": [
+        "edition",
+        "revision",
+        "createdAt",
+        "updatedAt",
+        "registrationPaused"
+      ],
+      "additionalProperties": false
+    },
     "Read4b800f0e51ad": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read431c8753d122" }
@@ -662,59 +677,6 @@
     },
     "Read4e7529ac2a29": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read05e4e86503c3" }]
-    },
-    "Read4e92d1b45a67": {
-      "type": "object",
-      "properties": {
-        "slug": { "type": "string" },
-        "name": { "type": "string" },
-        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "branding": { "$ref": "#/$defs/Read208ec0388636" },
-        "published": { "type": "boolean" },
-        "status": {
-          "anyOf": [
-            { "type": "string", "const": "upcoming" },
-            { "type": "string", "const": "live" },
-            { "type": "string", "const": "completed" }
-          ]
-        },
-        "summary": { "type": "string" },
-        "timeZone": { "type": "string" },
-        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
-        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "registration": { "$ref": "#/$defs/Reade8693424c8e5" },
-        "schedule": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
-            },
-            "required": ["label", "at"],
-            "additionalProperties": false
-          }
-        },
-        "defaultAppearance": { "$ref": "#/$defs/Read3a3ae6609a46" },
-        "archive": { "$ref": "#/$defs/Readd4ab674ceee0" },
-        "automaticEligibility": { "$ref": "#/$defs/Read9d043f4f751e" },
-        "rankGraceRange": { "$ref": "#/$defs/Readc78fa88a9778" }
-      },
-      "required": [
-        "slug",
-        "name",
-        "season",
-        "branding",
-        "published",
-        "status",
-        "summary",
-        "timeZone",
-        "rules",
-        "eligibility",
-        "registration",
-        "schedule"
-      ],
-      "additionalProperties": false
     },
     "Read517da9f95b7a": {
       "anyOf": [
@@ -820,32 +782,6 @@
     },
     "Read5cc2238e8dfa": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read8d3308e7952f" }]
-    },
-    "Read5cdd6cec29bd": {
-      "type": "object",
-      "properties": {
-        "edition": { "$ref": "#/$defs/Read4e92d1b45a67" },
-        "revision": { "type": "number" },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "registrationPaused": { "type": "boolean" }
-      },
-      "required": [
-        "edition",
-        "revision",
-        "createdAt",
-        "updatedAt",
-        "registrationPaused"
-      ],
-      "additionalProperties": false
     },
     "Read5ec85bc6b25c": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readaa1ac81e796b" }]
@@ -1573,6 +1509,9 @@
       "type": "array",
       "items": { "$ref": "#/$defs/Read0ffbed7abc76" }
     },
+    "Read9a2cf8c2372c": {
+      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read4609023b3fa5" }]
+    },
     "Read9b210264ffce": {
       "type": "object",
       "properties": {
@@ -1674,57 +1613,6 @@
         "notice": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
       },
       "required": ["profile", "stale", "notice"],
-      "additionalProperties": false
-    },
-    "Read9e638b016f9d": {
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "timeZone": { "type": "string" },
-        "status": {
-          "anyOf": [
-            { "type": "string", "const": "upcoming" },
-            { "type": "string", "const": "live" },
-            { "type": "string", "const": "completed" }
-          ]
-        },
-        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "branding": { "$ref": "#/$defs/Read208ec0388636" },
-        "defaultAppearance": { "$ref": "#/$defs/Read3a3ae6609a46" },
-        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
-        "schedule": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
-            },
-            "required": ["label", "at"],
-            "additionalProperties": false
-          }
-        },
-        "archive": { "$ref": "#/$defs/Readd4ab674ceee0" },
-        "published": { "type": "boolean" },
-        "summary": { "type": "string" },
-        "automaticEligibility": { "$ref": "#/$defs/Read9d043f4f751e" },
-        "rankGraceRange": { "$ref": "#/$defs/Readc78fa88a9778" },
-        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "registration": { "$ref": "#/$defs/Reade8693424c8e5" }
-      },
-      "required": [
-        "name",
-        "timeZone",
-        "status",
-        "season",
-        "branding",
-        "rules",
-        "schedule",
-        "published",
-        "summary",
-        "eligibility",
-        "registration"
-      ],
       "additionalProperties": false
     },
     "Reada3168d882b46": {
@@ -2066,6 +1954,59 @@
       ],
       "additionalProperties": false
     },
+    "Readb2c49bf22f1a": {
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string" },
+        "name": { "type": "string" },
+        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "branding": { "$ref": "#/$defs/Reade875388690bf" },
+        "published": { "type": "boolean" },
+        "status": {
+          "anyOf": [
+            { "type": "string", "const": "upcoming" },
+            { "type": "string", "const": "live" },
+            { "type": "string", "const": "completed" }
+          ]
+        },
+        "summary": { "type": "string" },
+        "timeZone": { "type": "string" },
+        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
+        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "registration": { "$ref": "#/$defs/Reade8693424c8e5" },
+        "schedule": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+            },
+            "required": ["label", "at"],
+            "additionalProperties": false
+          }
+        },
+        "defaultAppearance": { "$ref": "#/$defs/Read3a3ae6609a46" },
+        "archive": { "$ref": "#/$defs/Readd4ab674ceee0" },
+        "automaticEligibility": { "$ref": "#/$defs/Read9d043f4f751e" },
+        "rankGraceRange": { "$ref": "#/$defs/Readc78fa88a9778" }
+      },
+      "required": [
+        "slug",
+        "name",
+        "season",
+        "branding",
+        "published",
+        "status",
+        "summary",
+        "timeZone",
+        "rules",
+        "eligibility",
+        "registration",
+        "schedule"
+      ],
+      "additionalProperties": false
+    },
     "Readb601a645d9a3": {
       "type": "object",
       "properties": {
@@ -2108,32 +2049,6 @@
         "allowDraw": { "type": "boolean" }
       },
       "required": ["type", "count", "allowDraw"],
-      "additionalProperties": false
-    },
-    "Readb9272dae0781": {
-      "type": "object",
-      "properties": {
-        "edition": { "$ref": "#/$defs/Read242d21e4e8b4" },
-        "revision": { "type": "number" },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "registrationPaused": { "type": "boolean" }
-      },
-      "required": [
-        "edition",
-        "revision",
-        "createdAt",
-        "updatedAt",
-        "registrationPaused"
-      ],
       "additionalProperties": false
     },
     "Readbaa78f3deb59": {
@@ -2374,9 +2289,6 @@
     "Readcc90ca124d66": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read2dfae71947e0" }
-    },
-    "Readcfaf3f6b99c2": {
-      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read9e638b016f9d" }]
     },
     "Readd04c0ef00d54": {
       "type": "object",
@@ -2700,21 +2612,6 @@
       ],
       "additionalProperties": false
     },
-    "Readdfb599b2bb78": {
-      "anyOf": [
-        { "type": "null" },
-        { "type": "string", "const": "/oclr-s11-square-logo.webp" },
-        { "type": "string", "const": "/archive/s10/thumbnail.png" },
-        { "type": "string", "const": "/archive/s9/thumbnail.png" },
-        { "type": "string", "const": "/archive/s8/thumbnail.jpg" },
-        { "type": "string", "const": "/archive/s7/key-visual.jpg" },
-        { "type": "string", "const": "/archive/s6/key-visual.jpg" },
-        { "type": "string", "const": "/archive/s5/key-visual.png" },
-        { "type": "string", "const": "/archive/s4/key-visual.avif" },
-        { "type": "string", "const": "/archive/s3/key-visual.avif" },
-        { "type": "string", "const": "/archive/s2/key-visual.avif" }
-      ]
-    },
     "Reade049eaf550b3": {
       "type": "object",
       "properties": {
@@ -2786,6 +2683,34 @@
     },
     "Reade8693424c8e5": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read38888921c9c6" }]
+    },
+    "Reade874748a8127": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "string", "const": "/archive/s7/key-visual.jpg" },
+        { "type": "string", "const": "/archive/s6/key-visual.jpg" },
+        { "type": "string", "const": "/archive/s5/key-visual.png" },
+        { "type": "string", "const": "/archive/s4/key-visual.avif" },
+        { "type": "string", "const": "/archive/s3/key-visual.avif" },
+        { "type": "string", "const": "/archive/s2/key-visual.avif" },
+        { "type": "string", "const": "/archive/s1/key-visual.webp" },
+        { "type": "string", "const": "/oclr-s11-key-visual.webp" }
+      ]
+    },
+    "Reade875388690bf": {
+      "type": "object",
+      "properties": {
+        "logo": { "$ref": "#/$defs/Read215ee4851411" },
+        "background": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "const": "/oclr-s11-website-background.webp" }
+          ]
+        },
+        "keyVisual": { "$ref": "#/$defs/Reade874748a8127" }
+      },
+      "required": ["logo", "background", "keyVisual"],
+      "additionalProperties": false
     },
     "Reade8b478d4f135": {
       "type": "array",
@@ -3063,6 +2988,32 @@
       ],
       "additionalProperties": false
     },
+    "Readf83b6339b9d5": {
+      "type": "object",
+      "properties": {
+        "edition": { "$ref": "#/$defs/Readb2c49bf22f1a" },
+        "revision": { "type": "number" },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "registrationPaused": { "type": "boolean" }
+      },
+      "required": [
+        "edition",
+        "revision",
+        "createdAt",
+        "updatedAt",
+        "registrationPaused"
+      ],
+      "additionalProperties": false
+    },
     "Readf94df1533cb3": {
       "type": "object",
       "properties": {
@@ -3114,6 +3065,57 @@
         { "type": "string", "const": "LSP" },
         { "type": "string", "const": "BDT" }
       ]
+    },
+    "Readf9da68dcc5cb": {
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string" },
+        "name": { "type": "string" },
+        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "branding": { "$ref": "#/$defs/Reade875388690bf" },
+        "defaultAppearance": { "$ref": "#/$defs/Read3a3ae6609a46" },
+        "published": { "type": "boolean" },
+        "status": {
+          "anyOf": [
+            { "type": "string", "const": "upcoming" },
+            { "type": "string", "const": "live" },
+            { "type": "string", "const": "completed" }
+          ]
+        },
+        "summary": { "type": "string" },
+        "timeZone": { "type": "string" },
+        "archive": { "$ref": "#/$defs/Readd4ab674ceee0" },
+        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
+        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "schedule": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+            },
+            "required": ["label", "at"],
+            "additionalProperties": false
+          }
+        },
+        "registration": { "$ref": "#/$defs/Read38af2e1030f3" }
+      },
+      "required": [
+        "slug",
+        "name",
+        "season",
+        "branding",
+        "published",
+        "status",
+        "summary",
+        "timeZone",
+        "rules",
+        "eligibility",
+        "schedule",
+        "registration"
+      ],
+      "additionalProperties": false
     },
     "Readfa2d0b13a228": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read42d9ee71e9ce" }]
@@ -4050,7 +4052,7 @@
           }
         },
         "links": { "$ref": "#/$defs/Readab8799e08222" },
-        "edition": { "$ref": "#/$defs/Read4e92d1b45a67" },
+        "edition": { "$ref": "#/$defs/Readb2c49bf22f1a" },
         "revision": { "type": "number" },
         "createdAt": {
           "type": "string",
@@ -4277,7 +4279,7 @@
               "type": "object",
               "properties": {
                 "slug": { "type": "string" },
-                "configuration": { "$ref": "#/$defs/Readcfaf3f6b99c2" },
+                "configuration": { "$ref": "#/$defs/Read9a2cf8c2372c" },
                 "configurationVersion": { "type": "number" },
                 "createdAt": {
                   "type": "string",
@@ -6198,7 +6200,7 @@
                 ],
                 "additionalProperties": false
               },
-              "configuration": { "$ref": "#/$defs/Readcfaf3f6b99c2" }
+              "configuration": { "$ref": "#/$defs/Read9a2cf8c2372c" }
             },
             "required": ["attempt", "snapshot", "configuration"],
             "additionalProperties": false
@@ -6215,7 +6217,7 @@
           ]
         },
         "username": { "type": "string" },
-        "acknowledgedConfiguration": { "$ref": "#/$defs/Readcfaf3f6b99c2" }
+        "acknowledgedConfiguration": { "$ref": "#/$defs/Read9a2cf8c2372c" }
       },
       "required": [
         "attempts",
@@ -6340,11 +6342,11 @@
               { "type": "string", "const": "player_reapply" }
             ]
           },
-          "acknowledgedConfiguration": { "$ref": "#/$defs/Readcfaf3f6b99c2" },
+          "acknowledgedConfiguration": { "$ref": "#/$defs/Read9a2cf8c2372c" },
           "edition": {
             "anyOf": [
               { "type": "null", "x-oclr-undefined": true },
-              { "$ref": "#/$defs/Read4e92d1b45a67" }
+              { "$ref": "#/$defs/Readb2c49bf22f1a" }
             ]
           },
           "withdrawable": { "type": "boolean" },
@@ -6521,14 +6523,14 @@
       ]
     },
     "captainDraft": { "$ref": "#/$defs/Read3335ccc07221" },
-    "publicEnrollment": { "$ref": "#/$defs/Readb9272dae0781" },
-    "privateSavedTournament": { "$ref": "#/$defs/Read5cdd6cec29bd" },
+    "publicEnrollment": { "$ref": "#/$defs/Read49bf18ab58b8" },
+    "privateSavedTournament": { "$ref": "#/$defs/Readf83b6339b9d5" },
     "publicNewsModel": {
       "type": "object",
       "properties": {
         "editions": {
           "type": "array",
-          "items": { "$ref": "#/$defs/Read4e92d1b45a67" }
+          "items": { "$ref": "#/$defs/Readb2c49bf22f1a" }
         },
         "items": {
           "type": "array",
@@ -6715,8 +6717,8 @@
     },
     "ownRegistrationForm": {
       "anyOf": [
-        { "$ref": "#/$defs/Read5cdd6cec29bd" },
-        { "$ref": "#/$defs/Readb9272dae0781" }
+        { "$ref": "#/$defs/Readf83b6339b9d5" },
+        { "$ref": "#/$defs/Read49bf18ab58b8" }
       ]
     },
     "publicContributors": {

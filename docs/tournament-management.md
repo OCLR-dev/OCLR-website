@@ -27,6 +27,14 @@ historical and used tournaments remain available through the normal private
 archive/unpublish controls. Deployment is required before using this new action;
 implementation and local tests do not establish that a production draft was removed.
 
+S1's organizer-provided WebP is available as both logo and key visual at its
+original 1728×1080 dimensions. The exact S1 workbook enables its seven saved
+native rule sections after private source facts are removed. The original PDF
+is served at `/archive/s1/rules.pdf`, with the literal section transcript in
+[`imports/s1-rules.json`](imports/s1-rules.json). The PDF's date and EX wording
+anomalies remain literal; importing presentation support does not approve
+match scores, finalize standings or publish the edition.
+
 S2's organizer-provided AVIF is
 available as both logo and key visual, with its original 1379×862 dimensions.
 The exact S2 workbook enables the current saved native rule sections, including

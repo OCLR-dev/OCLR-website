@@ -13,6 +13,7 @@ export function EditionArtwork({
   const image =
     logo === undefined && slug === "s11" ? "/oclr-s11-square-logo.webp" : logo;
   const landscape =
+    image === "/archive/s1/key-visual.webp" ||
     image === "/archive/s2/key-visual.avif" ||
     image === "/archive/s3/key-visual.avif" ||
     image === "/archive/s4/key-visual.avif" ||
@@ -36,7 +37,8 @@ export function EditionArtwork({
               ? 1379
               : image === "/archive/s3/key-visual.avif"
                 ? 995
-                : image === "/archive/s4/key-visual.avif"
+                : image === "/archive/s4/key-visual.avif" ||
+                    image === "/archive/s1/key-visual.webp"
                   ? 1728
                   : landscape
                     ? 1920
