@@ -1,6 +1,12 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { closeDb } from "../../src/db";
 import { seedSession } from "./session";
+import {
+  headerMatrix,
+  headerWidths,
+  compactHeaderWidths,
+} from "../fixtures/header-matrix";
+const matrixMode = process.env.OCLR_E2E_MATRIX ?? "full";
 
 test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
 let staffCookie: Awaited<ReturnType<typeof seedSession>>;
@@ -48,7 +54,7 @@ async function withinViewport(page: Page, menu: Locator, width: number) {
   ).toBe(true);
 }
 
-const mobileWidths = [320, 360, 375, 390, 412, 430];
+const mobileWidths = compactHeaderWidths(matrixMode);
 
 async function compactHeader(page: Page, width: number, locale: string) {
   const header = page.locator(".site-header");
@@ -82,189 +88,154 @@ async function compactHeader(page: Page, width: number, locale: string) {
   await withinViewport(page, header, width);
 }
 
-for (const locale of ["zh-Hans", "zh-Hant", "en"])
-  for (const theme of ["light", "dark"])
-    for (const appearance of [
-      "default",
-      "cute-pastel",
-      "swiss-minimal",
-      "claymorphism",
-      "manga-halftone",
-      "glassmorphism",
-      "esports-broadcast",
-      "retro-arcade",
-      "frutiger-aero",
-    ]) {
-      test(`header overlays ${locale} ${theme} ${appearance}`, async ({
-        page,
-        context,
-      }, info) => {
-        test.setTimeout(60000);
-        const activate = (target: Locator) =>
-          info.project.use.hasTouch ? target.tap() : target.click();
-        await context.addCookies([
-          staffCookie,
-          ...[
-            ["oclr-locale", locale],
-            ["oclr-theme", theme],
-            ["oclr-appearance", appearance],
-          ].map(([name, value]) => ({
-            name,
-            value,
-            url: "http://127.0.0.1:3100",
-          })),
-        ]);
-        await page.route("https://a.ppy.sh/**", (route) => route.abort());
-        await page.emulateMedia({ reducedMotion: "reduce" });
-        await page.goto("/");
-        const header = page.locator(".site-header");
-        const account = header.locator("button.account-control");
-        const appearanceTrigger = header.locator(".appearance-trigger");
-        const language = header.locator(".language-control > button");
-        for (const width of [
-          ...mobileWidths,
-          674,
-          760,
-          819,
-          950,
-          951,
-          1024,
-          1100,
-          1101,
-          1440,
-        ]) {
-          await page.setViewportSize({ width, height: 900 });
-          if (width <= 760) {
-            await compactHeader(page, width, locale);
-            expect((await account.boundingBox())!.width).toBeLessThan(76);
-            await expect(account.locator(".avatar")).toBeVisible();
-          }
-          await unobstructed(header.locator("button:visible"));
-          if (width <= 950) {
-            const toggle = await header.locator(".menu-toggle").boundingBox();
-            const actions = await header.locator(".nav-actions").boundingBox();
-            const rightEdge = await header
-              .locator(".nav-wrap")
-              .evaluate((node) => {
-                const box = node.getBoundingClientRect();
-                return (
-                  box.right - parseFloat(getComputedStyle(node).paddingRight)
-                );
-              });
-            expect(toggle!.x).toBeGreaterThanOrEqual(
-              actions!.x + actions!.width,
-            );
-            expect(
-              Math.abs(
-                toggle!.y +
-                  toggle!.height / 2 -
-                  actions!.y -
-                  actions!.height / 2,
-              ),
-            ).toBeLessThan(2);
-            expect(toggle!.x + toggle!.width).toBeCloseTo(rightEdge, 0);
-          }
+for (const { locale, theme, appearance } of headerMatrix(
+  matrixMode,
+  process.env.OCLR_HEADER_APPEARANCES,
+)) {
+  test(`header overlays ${locale} ${theme} ${appearance}`, async ({
+    page,
+    context,
+  }, info) => {
+    test.setTimeout(60000);
+    const activate = (target: Locator) =>
+      info.project.use.hasTouch ? target.tap() : target.click();
+    await context.addCookies([
+      staffCookie,
+      ...[
+        ["oclr-locale", locale],
+        ["oclr-theme", theme],
+        ["oclr-appearance", appearance],
+      ].map(([name, value]) => ({
+        name,
+        value,
+        url: "http://127.0.0.1:3100",
+      })),
+    ]);
+    await page.route("https://a.ppy.sh/**", (route) => route.abort());
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    const header = page.locator(".site-header");
+    const account = header.locator("button.account-control");
+    const appearanceTrigger = header.locator(".appearance-trigger");
+    const language = header.locator(".language-control > button");
+    for (const width of headerWidths(matrixMode)) {
+      await page.setViewportSize({ width, height: 900 });
+      if (width <= 760) {
+        await compactHeader(page, width, locale);
+        expect((await account.boundingBox())!.width).toBeLessThan(76);
+        await expect(account.locator(".avatar")).toBeVisible();
+      }
+      await unobstructed(header.locator("button:visible"));
+      if (width <= 950) {
+        const toggle = await header.locator(".menu-toggle").boundingBox();
+        const actions = await header.locator(".nav-actions").boundingBox();
+        const rightEdge = await header.locator(".nav-wrap").evaluate((node) => {
+          const box = node.getBoundingClientRect();
+          return box.right - parseFloat(getComputedStyle(node).paddingRight);
+        });
+        expect(toggle!.x).toBeGreaterThanOrEqual(actions!.x + actions!.width);
+        expect(
+          Math.abs(
+            toggle!.y + toggle!.height / 2 - actions!.y - actions!.height / 2,
+          ),
+        ).toBeLessThan(2);
+        expect(toggle!.x + toggle!.width).toBeCloseTo(rightEdge, 0);
+      }
 
-          await activate(account);
-          const menu = header.locator(".account-dropdown");
-          await expect(menu).toBeVisible();
-          await withinViewport(page, menu, width);
-          await unobstructed(menu.getByRole("menuitem"));
-          await expect(menu.getByRole("menuitem").first()).toBeFocused();
-          await expect(menu.getByRole("menuitem").first()).toHaveAttribute(
-            "href",
-            "/dashboard",
-          );
-          await expect(menu.getByRole("menuitem").last()).toHaveAttribute(
-            "href",
-            "/admin",
-          );
-          if ((width === 360 || width === 674) && locale === "zh-Hans")
-            await page.screenshot({
-              path: info.outputPath(`${width}-${theme}-${appearance}.png`),
-            });
-          await page.keyboard.press("End");
-          await expect(menu.getByRole("menuitem").last()).toBeFocused();
-          await page.keyboard.press("Escape");
-          await expect(menu).toHaveCount(0);
-          await expect(account).toBeFocused();
+      await activate(account);
+      const menu = header.locator(".account-dropdown");
+      await expect(menu).toBeVisible();
+      await withinViewport(page, menu, width);
+      await unobstructed(menu.getByRole("menuitem"));
+      await expect(menu.getByRole("menuitem").first()).toBeFocused();
+      await expect(menu.getByRole("menuitem").first()).toHaveAttribute(
+        "href",
+        "/dashboard",
+      );
+      await expect(menu.getByRole("menuitem").last()).toHaveAttribute(
+        "href",
+        "/admin",
+      );
+      if ((width === 360 || width === 674) && locale === "zh-Hans")
+        await page.screenshot({
+          path: info.outputPath(`${width}-${theme}-${appearance}.png`),
+        });
+      await page.keyboard.press("End");
+      await expect(menu.getByRole("menuitem").last()).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(menu).toHaveCount(0);
+      await expect(account).toBeFocused();
 
-          // Opening another control dismisses the previous menu through the
-          // existing outside-pointer/focus handlers, including keyboard use.
-          await activate(appearanceTrigger);
-          const appearanceMenu = header.locator(
-            '.appearance-control [role="menu"]',
-          );
-          await withinViewport(page, appearanceMenu, width);
-          await unobstructed(appearanceMenu.getByRole("menuitemradio"));
-          await activate(language);
-          await expect(appearanceMenu).toHaveCount(0);
-          const languageMenu = header.locator(
-            '.language-control [role="menu"]',
-          );
-          await withinViewport(page, languageMenu, width);
-          await unobstructed(languageMenu.getByRole("menuitemradio"));
-          await activate(account);
-          await expect(languageMenu).toHaveCount(0);
-          await unobstructed(menu.getByRole("menuitem"));
-          await page.keyboard.press("Escape");
-          await language.focus();
-          await language.press("ArrowDown");
-          await expect(
-            languageMenu.getByRole("menuitemradio").first(),
-          ).toBeFocused();
-          await page.keyboard.press("Escape");
-          await expect(language).toBeFocused();
-          await appearanceTrigger.focus();
-          await appearanceTrigger.press("ArrowUp");
-          await expect(
-            appearanceMenu.getByRole("menuitemradio").last(),
-          ).toBeFocused();
-          await page.keyboard.press("Escape");
-          await expect(appearanceTrigger).toBeFocused();
-          await activate(header.locator(".theme-control"));
-          await expect(page.locator("html")).toHaveAttribute(
-            "data-theme",
-            theme === "light" ? "dark" : "light",
-          );
-          await activate(header.locator(".theme-control"));
-        }
-        await context.addCookies([playerCookie]);
-        await page.reload();
-        await expect(header.locator("a.account-control")).toHaveAttribute(
-          "href",
-          "/dashboard",
-        );
-        await expect(header.locator(".account-control .avatar")).toBeVisible();
-        for (const width of mobileWidths) {
-          await page.setViewportSize({ width, height: 900 });
-          await compactHeader(page, width, locale);
-        }
-        await context.clearCookies({ name: "oclr_session" });
-        await page.reload();
-        await expect(header.locator(".nav-login")).toBeVisible();
-        await expect(account).toHaveCount(0);
-        for (const width of mobileWidths) {
-          await page.setViewportSize({ width, height: 900 });
-          await compactHeader(page, width, locale);
-        }
-        await unobstructed(header.locator("button:visible, .nav-login"));
-        const signedOutToggle = await header
-          .locator(".menu-toggle")
-          .boundingBox();
-        const login = await header.locator(".nav-login").boundingBox();
-        expect(signedOutToggle!.x).toBeGreaterThanOrEqual(
-          login!.x + login!.width,
-        );
-
-        await activate(header.locator(".menu-toggle"));
-        await expect(header.locator(".main-nav")).toBeVisible();
-        await unobstructed(header.locator(".main-nav > a"));
-        await page.keyboard.press("Escape");
-        await expect(header.locator(".main-nav")).toBeHidden();
-        await expect(header.locator(".menu-toggle")).toBeFocused();
-        await activate(header.locator(".menu-toggle"));
-        await language.focus();
-        await expect(header.locator(".main-nav")).toBeHidden();
-      });
+      // Opening another control dismisses the previous menu through the
+      // existing outside-pointer/focus handlers, including keyboard use.
+      await activate(appearanceTrigger);
+      const appearanceMenu = header.locator(
+        '.appearance-control [role="menu"]',
+      );
+      await withinViewport(page, appearanceMenu, width);
+      await unobstructed(appearanceMenu.getByRole("menuitemradio"));
+      await activate(language);
+      await expect(appearanceMenu).toHaveCount(0);
+      const languageMenu = header.locator('.language-control [role="menu"]');
+      await withinViewport(page, languageMenu, width);
+      await unobstructed(languageMenu.getByRole("menuitemradio"));
+      await activate(account);
+      await expect(languageMenu).toHaveCount(0);
+      await unobstructed(menu.getByRole("menuitem"));
+      await page.keyboard.press("Escape");
+      await language.focus();
+      await language.press("ArrowDown");
+      await expect(
+        languageMenu.getByRole("menuitemradio").first(),
+      ).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(language).toBeFocused();
+      await appearanceTrigger.focus();
+      await appearanceTrigger.press("ArrowUp");
+      await expect(
+        appearanceMenu.getByRole("menuitemradio").last(),
+      ).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(appearanceTrigger).toBeFocused();
+      await activate(header.locator(".theme-control"));
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-theme",
+        theme === "light" ? "dark" : "light",
+      );
+      await activate(header.locator(".theme-control"));
     }
+    await context.addCookies([playerCookie]);
+    await page.reload();
+    await expect(header.locator("a.account-control")).toHaveAttribute(
+      "href",
+      "/dashboard",
+    );
+    await expect(header.locator(".account-control .avatar")).toBeVisible();
+    for (const width of mobileWidths) {
+      await page.setViewportSize({ width, height: 900 });
+      await compactHeader(page, width, locale);
+    }
+    await context.clearCookies({ name: "oclr_session" });
+    await page.reload();
+    await expect(header.locator(".nav-login")).toBeVisible();
+    await expect(account).toHaveCount(0);
+    for (const width of mobileWidths) {
+      await page.setViewportSize({ width, height: 900 });
+      await compactHeader(page, width, locale);
+    }
+    await unobstructed(header.locator("button:visible, .nav-login"));
+    const signedOutToggle = await header.locator(".menu-toggle").boundingBox();
+    const login = await header.locator(".nav-login").boundingBox();
+    expect(signedOutToggle!.x).toBeGreaterThanOrEqual(login!.x + login!.width);
+
+    await activate(header.locator(".menu-toggle"));
+    await expect(header.locator(".main-nav")).toBeVisible();
+    await unobstructed(header.locator(".main-nav > a"));
+    await page.keyboard.press("Escape");
+    await expect(header.locator(".main-nav")).toBeHidden();
+    await expect(header.locator(".menu-toggle")).toBeFocused();
+    await activate(header.locator(".menu-toggle"));
+    await language.focus();
+    await expect(header.locator(".main-nav")).toBeHidden();
+  });
+}

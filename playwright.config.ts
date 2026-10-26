@@ -35,6 +35,7 @@ export default defineConfig({
     storageState: englishStorage,
     baseURL: "http://127.0.0.1:3100",
     trace: "retain-on-failure",
+    screenshot: "only-on-failure",
     actionTimeout: 10000,
   },
   projects: [

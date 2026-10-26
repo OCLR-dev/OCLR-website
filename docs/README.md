@@ -17,6 +17,8 @@ The repository root README ([English](../README.md) / [简体中文](../README.z
 
 **Where to start:** use [Development](development.md) to work locally, [Tournament administration](tournament-management.md) to understand enrollment and permissions, and [Deployment](deployment.md) for running or updating production. Never use production credentials or personal registration records in tests.
 
+- [CI coverage and acceptance](ci.md) — core/full lanes, scope selection, main checks and maintainer workflow.
+
 ## Developer read API and remote frontend
 
 - [Remote setup and troubleshooting](remote-development.md) — fresh frontend without a local DB/OAuth secret.

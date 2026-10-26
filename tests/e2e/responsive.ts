@@ -72,13 +72,14 @@ export async function captureResponsiveLayout(
       }
       measurements.push(measured);
       await page.evaluate(() => window.scrollTo(0, 0));
-      await page.screenshot({
-        path: info.outputPath(
-          `${process.env.OCLR_DESIGN_CAPTURE ?? "responsive"}-${name}-${width}.png`,
-        ),
-        fullPage: true,
-        animations: "disabled",
-      });
+      if (process.env.OCLR_E2E_EVIDENCE !== "minimal")
+        await page.screenshot({
+          path: info.outputPath(
+            `${process.env.OCLR_DESIGN_CAPTURE ?? "responsive"}-${name}-${width}.png`,
+          ),
+          fullPage: true,
+          animations: "disabled",
+        });
     }
     const path = info.outputPath(`${name}-responsive-measurements.json`);
     await writeFile(path, JSON.stringify(measurements, null, 2));

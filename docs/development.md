@@ -2,6 +2,9 @@
 
 Local setup, developer checks, design references, authentication, and database development. For live hosting, production migrations and rollback, use the [deployment runbook](deployment.md).
 
+See [CI coverage and acceptance](ci.md) for required checks, full regression,
+main protection and the feature-branch workflow.
+
 ## Local development
 
 Use Node.js 24 LTS (minimum 22.13) and npm. Run `npm ci`. For database-backed features, copy `.env.example` to `.env.local`, configure `DATABASE_URL`, and run `npm run db:migrate` before starting the app. Run `npm run dev` and open http://localhost:3000. Never commit secrets.

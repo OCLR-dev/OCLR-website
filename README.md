@@ -68,6 +68,9 @@ Team images and private Replays require durable storage configured through `OCLR
 
 ## Checks
 
+See [CI coverage and acceptance](docs/ci.md) for the required core checks,
+full regression and checked feature-branch workflow for main.
+
 ```sh
 npm run check        # ESLint and TypeScript
 npm run test:i18n    # Localization checks
