@@ -132,6 +132,7 @@ test.describe("Admin default and visitor appearance overrides", () => {
       for (const value of [
         "skyline-pop",
         "glacier-blue",
+        "sakura-circuit",
         "frutiger-aero",
         "retro-arcade",
         "manga-halftone",
@@ -208,8 +209,8 @@ test.describe("Admin default and visitor appearance overrides", () => {
     } finally {
       await guest.close();
     }
-    expect(await db().select().from(siteSettingEvents)).toHaveLength(13);
-    expect((await db().select().from(siteSettings))[0].revision).toBe(13);
+    expect(await db().select().from(siteSettingEvents)).toHaveLength(14);
+    expect((await db().select().from(siteSettings))[0].revision).toBe(14);
     expect(errors).toEqual([]);
   });
   test("enforces global Admin authorization, origin and concurrency through the API", async ({

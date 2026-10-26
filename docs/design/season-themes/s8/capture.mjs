@@ -15,6 +15,7 @@ const base = process.env.S8_PREVIEW_ORIGIN ?? "http://127.0.0.1:3197";
 const origin = new URL(base);
 if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
+const registered = process.env.S8_REGISTERED_PREVIEW === "1";
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
   process.env.S8_UI_BASELINE ?? "a50e03d2ad155f3518d6757455bfd2e73f86adb5";
@@ -29,7 +30,7 @@ execFileSync("git", [
 ]);
 let overlay = await readFile(new URL("../s8.css", import.meta.url), "utf8");
 // Inline only committed local decorative assets; the actual app tree stays unchanged.
-for (const asset of ["sakura-sprig.svg", "heroine-half.webp", "source-rules-banner.png"]) {
+for (const asset of ["blossom-spray.webp", "heroine-half.webp", "source-rules-banner.png"]) {
   const bytes = await readFile(new URL(asset, import.meta.url));
   const mime = asset.endsWith("svg") ? "image/svg+xml" : asset.endsWith("webp") ? "image/webp" : "image/png";
   overlay = overlay.replaceAll(`url("./s8/${asset}")`, `url("data:${mime};base64,${bytes.toString("base64")}")`);
@@ -127,10 +128,16 @@ try {
               `${out}current-${surface.prefix}${width === 1440 ? "desktop" : "mobile"}-${theme}.webp`,
             );
         }
-        await page.addStyleTag({ content: overlay });
-        await page.evaluate(() =>
-          document.documentElement.setAttribute("data-s8-preview", ""),
-        );
+        if (registered) {
+          await context.addCookies([{ name: "oclr-appearance", value: "sakura-circuit", url: base }]);
+          await page.reload();
+          await page.locator(surface.selector).waitFor();
+          await page.evaluate(() => document.fonts.ready);
+          await page.locator(".archive-key-visual img").evaluateAll(imgs => Promise.all(imgs.map(img => img.decode())));
+        } else {
+          await page.addStyleTag({ content: overlay });
+          await page.evaluate(() => document.documentElement.setAttribute("data-s8-preview", ""));
+        }
         const after = await page.locator("body").evaluate((node) => ({
           elements: node.querySelectorAll("*").length,
           text: node.innerText,
@@ -138,7 +145,7 @@ try {
         }));
         if (before.text !== after.text || before.elements !== after.elements)
           throw new Error(
-            "Overlay altered the rendered UI content or component tree.",
+            "Appearance changed the rendered UI content or component tree.",
           );
         if (after.overflow)
           throw new Error(
@@ -270,14 +277,15 @@ try {
       await context.addCookies([
         { name: "oclr-locale", value: "zh-Hans", url: base },
         { name: "oclr-theme", value: theme, url: base },
+        ...(registered ? [{ name: "oclr-appearance", value: "sakura-circuit", url: base }] : []),
       ]);
       await page.setViewportSize({ width, height: width === 320 ? 568 : 1000 });
       await page.goto(base + "/tournaments/s8");
       await page.locator(".archive-key-visual img").waitFor();
-      await page.addStyleTag({ content: overlay });
-      await page.evaluate(() =>
-        document.documentElement.setAttribute("data-s8-preview", ""),
-      );
+      if (!registered) {
+        await page.addStyleTag({ content: overlay });
+        await page.evaluate(() => document.documentElement.setAttribute("data-s8-preview", ""));
+      }
       await page.emulateMedia({ forcedColors: "active" });
       if (width === 320) await page.locator(".tournament-menu").click();
       const state = await page.evaluate(() => {
@@ -341,12 +349,12 @@ try {
         date: "2026-10-27",
         uiBaseline,
         scope:
-          "Actual current application routes with browser-only S8 CSS overlay; public committed S8 archive and one synthetic local test account; no business commands",
+          registered ? "Actual registered S8 appearance with SSR cookie and shipped assets; public committed S8 archive and one synthetic local test account; no business commands" : "Actual current application routes with browser-only S8 CSS overlay; public committed S8 archive and one synthetic local test account; no business commands",
         locale: "zh-Hans",
         browser: "Google Chrome",
         material:
-          "Reference-matched blonde half portrait, supplied original RULES banner, sakura sprig illustration and orange folded-line accents on paper surfaces; full unframed S8 key visual",
-        decorativeAssets: ["heroine-half.webp", "source-rules-banner.png", "sakura-sprig.svg"],
+          "Reference-matched blonde half portrait, supplied original RULES banner, refined watercolor sakura illustration and fading hairline on paper surfaces; full unframed S8 key visual",
+        decorativeAssets: ["heroine-half.webp", "source-rules-banner.png", "blossom-spray.webp"],
         materialChecks,
         screenshots: shots,
         cases,

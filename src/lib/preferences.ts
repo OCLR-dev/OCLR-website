@@ -15,6 +15,7 @@ export const appearances = [
   "frutiger-aero",
   "skyline-pop",
   "glacier-blue",
+  "sakura-circuit",
 ] as const;
 export type Appearance = (typeof appearances)[number];
 export const appearanceCookie = "oclr-appearance";

@@ -33,3 +33,18 @@ Style: same fine Japanese anime linework and soft watercolor cel shading as the 
 Constraints: one character only, fully clothed, gentle neutral expression, no text, no logo, no RULES lettering, no watermark, no UI or frame. Preserve recognizable identity and visible outfit; only reframe and make a clean half-body asset.
 ```
 
+
+## 精修提示詞：櫻花插畫（2026-10-27）
+
+依主辦方回饋移除強制折角；正式主題選用 [blossom-spray.webp](blossom-spray.webp)／[PNG](blossom-spray.png)，內建 image_gen 生成，透明 alpha。保留五瓣缺口、細花脈與淡金花蕊，自然彎枝；原 `sakura-sprig.svg` 留作初稿歷史，不再用於正式主題。WebP 僅編碼轉換。
+
+```text
+Use case: stylized-concept.
+Asset type: refined transparent botanical accent for the OCLR S8 website heading.
+Input image 1 is the supplied S8 banner, a palette and spring mood reference only. Input image 2 is the established heroine portrait, a fine-line anime watercolor rendering reference only. Do not include the character or any lettering.
+Primary request: a small, airy, asymmetrical spray of Japanese cherry blossoms with two open five-petaled sakura flowers, one smaller side-facing blossom and one tiny bud on a very slender naturally curved twig. The spray must feel hand-painted and delicate, with generous empty transparent space. Suitable as a subtle companion beside the heroine, never the dominant image.
+Style: exquisite fine botanical anime illustration, translucent watercolor pink petals with pale almost-white tips, very fine petal veins, softly layered petal edges with the characteristic small notches, tiny cream-gold stamens, quiet warm rosy-brown twig. Match the heroine's nuanced linework and soft shading; avoid flat vector shapes.
+Composition: loose diagonal flow on a landscape 3:2 canvas, complete flowers comfortably within the canvas, fine curved stems, generous transparent margin all sides. No rigid straight branches or geometric connector nodes. No orange folded lines, corner marks, frames, badges or circuits.
+Background: genuinely transparent alpha, clean cutout, no surrounding glow, gray halo, white paper, rectangular panel, painted sky or opaque backdrop.
+Constraints: no text, no logo, no UI, no character, no dense bouquet, no oversized leaves, no extra ornaments. Restrained blush pink, ivory and tiny champagne centers; natural, refined, quiet spring detail.
+```

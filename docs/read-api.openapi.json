@@ -11205,7 +11205,8 @@
               "retro-arcade",
               "frutiger-aero",
               "skyline-pop",
-              "glacier-blue"
+              "glacier-blue",
+              "sakura-circuit"
             ]
           },
           "defaultLocale": { "type": "string", "const": "zh-Hans" },
@@ -11381,7 +11382,8 @@
                   "retro-arcade",
                   "frutiger-aero",
                   "skyline-pop",
-                  "glacier-blue"
+                  "glacier-blue",
+                  "sakura-circuit"
                 ]
               },
               { "type": "null" }
@@ -12246,7 +12248,8 @@
                   "retro-arcade",
                   "frutiger-aero",
                   "skyline-pop",
-                  "glacier-blue"
+                  "glacier-blue",
+                  "sakura-circuit"
                 ]
               },
               { "type": "null" }
@@ -12456,7 +12459,8 @@
                     "retro-arcade",
                     "frutiger-aero",
                     "skyline-pop",
-                    "glacier-blue"
+                    "glacier-blue",
+                    "sakura-circuit"
                   ]
                 },
                 { "type": "null" }
@@ -12662,7 +12666,8 @@
                       "retro-arcade",
                       "frutiger-aero",
                       "skyline-pop",
-                      "glacier-blue"
+                      "glacier-blue",
+                      "sakura-circuit"
                     ]
                   },
                   { "type": "null" }
@@ -13191,7 +13196,8 @@
                     "retro-arcade",
                     "frutiger-aero",
                     "skyline-pop",
-                    "glacier-blue"
+                    "glacier-blue",
+                    "sakura-circuit"
                   ]
                 },
                 { "type": "null" }
@@ -14626,63 +14632,6 @@
         "required": ["poolId", "fmMode", "fmRestrictions", "entries"],
         "additionalProperties": false
       },
-      "Read077a9b366eeb": {
-        "type": "object",
-        "properties": {
-          "name": { "type": "string" },
-          "timeZone": { "type": "string" },
-          "status": {
-            "anyOf": [
-              { "type": "string", "const": "upcoming" },
-              { "type": "string", "const": "live" },
-              { "type": "string", "const": "completed" }
-            ]
-          },
-          "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-          "branding": { "$ref": "#/components/schemas/Reade875388690bf" },
-          "defaultAppearance": {
-            "$ref": "#/components/schemas/Readf60eb7d17697"
-          },
-          "rules": { "$ref": "#/components/schemas/Readcb41459d5612" },
-          "schedule": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": { "type": "string" },
-                "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
-              },
-              "required": ["label", "at"],
-              "additionalProperties": false
-            }
-          },
-          "archive": { "$ref": "#/components/schemas/Readd4ab674ceee0" },
-          "published": { "type": "boolean" },
-          "summary": { "type": "string" },
-          "automaticEligibility": {
-            "$ref": "#/components/schemas/Read9d043f4f751e"
-          },
-          "rankGraceRange": { "$ref": "#/components/schemas/Readc78fa88a9778" },
-          "eligibility": {
-            "anyOf": [{ "type": "null" }, { "type": "string" }]
-          },
-          "registration": { "$ref": "#/components/schemas/Reade8693424c8e5" }
-        },
-        "required": [
-          "name",
-          "timeZone",
-          "status",
-          "season",
-          "branding",
-          "rules",
-          "schedule",
-          "published",
-          "summary",
-          "eligibility",
-          "registration"
-        ],
-        "additionalProperties": false
-      },
       "Read07a83bd4629a": {
         "anyOf": [
           { "type": "string", "const": "referee" },
@@ -14796,11 +14745,60 @@
         "type": "array",
         "items": { "$ref": "#/components/schemas/Read82bf7dd414f3" }
       },
-      "Read213fc2f03d2f": {
-        "anyOf": [
-          { "type": "null" },
-          { "$ref": "#/components/schemas/Read077a9b366eeb" }
-        ]
+      "Read2095fa6701ab": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "name": { "type": "string" },
+          "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "branding": { "$ref": "#/components/schemas/Reade875388690bf" },
+          "defaultAppearance": {
+            "$ref": "#/components/schemas/Read5156de5d094a"
+          },
+          "published": { "type": "boolean" },
+          "status": {
+            "anyOf": [
+              { "type": "string", "const": "upcoming" },
+              { "type": "string", "const": "live" },
+              { "type": "string", "const": "completed" }
+            ]
+          },
+          "summary": { "type": "string" },
+          "timeZone": { "type": "string" },
+          "archive": { "$ref": "#/components/schemas/Readd4ab674ceee0" },
+          "rules": { "$ref": "#/components/schemas/Readcb41459d5612" },
+          "eligibility": {
+            "anyOf": [{ "type": "null" }, { "type": "string" }]
+          },
+          "schedule": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+              },
+              "required": ["label", "at"],
+              "additionalProperties": false
+            }
+          },
+          "registration": { "$ref": "#/components/schemas/Read38af2e1030f3" }
+        },
+        "required": [
+          "slug",
+          "name",
+          "season",
+          "branding",
+          "published",
+          "status",
+          "summary",
+          "timeZone",
+          "rules",
+          "eligibility",
+          "schedule",
+          "registration"
+        ],
+        "additionalProperties": false
       },
       "Read215ee4851411": {
         "anyOf": [
@@ -15168,6 +15166,65 @@
         "type": "array",
         "items": { "$ref": "#/components/schemas/Read6958f2767dac" }
       },
+      "Read46a52765af39": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "name": { "type": "string" },
+          "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "branding": { "$ref": "#/components/schemas/Reade875388690bf" },
+          "published": { "type": "boolean" },
+          "status": {
+            "anyOf": [
+              { "type": "string", "const": "upcoming" },
+              { "type": "string", "const": "live" },
+              { "type": "string", "const": "completed" }
+            ]
+          },
+          "summary": { "type": "string" },
+          "timeZone": { "type": "string" },
+          "rules": { "$ref": "#/components/schemas/Readcb41459d5612" },
+          "eligibility": {
+            "anyOf": [{ "type": "null" }, { "type": "string" }]
+          },
+          "registration": { "$ref": "#/components/schemas/Reade8693424c8e5" },
+          "schedule": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+              },
+              "required": ["label", "at"],
+              "additionalProperties": false
+            }
+          },
+          "defaultAppearance": {
+            "$ref": "#/components/schemas/Read5156de5d094a"
+          },
+          "archive": { "$ref": "#/components/schemas/Readd4ab674ceee0" },
+          "automaticEligibility": {
+            "$ref": "#/components/schemas/Read9d043f4f751e"
+          },
+          "rankGraceRange": { "$ref": "#/components/schemas/Readc78fa88a9778" }
+        },
+        "required": [
+          "slug",
+          "name",
+          "season",
+          "branding",
+          "published",
+          "status",
+          "summary",
+          "timeZone",
+          "rules",
+          "eligibility",
+          "registration",
+          "schedule"
+        ],
+        "additionalProperties": false
+      },
       "Read46c7787f31bd": {
         "anyOf": [
           { "type": "null", "x-oclr-undefined": true },
@@ -15250,6 +15307,24 @@
         "anyOf": [
           { "type": "null" },
           { "$ref": "#/components/schemas/Read05e4e86503c3" }
+        ]
+      },
+      "Read5156de5d094a": {
+        "anyOf": [
+          { "type": "null", "x-oclr-undefined": true },
+          { "type": "null" },
+          { "type": "string", "const": "default" },
+          { "type": "string", "const": "cute-pastel" },
+          { "type": "string", "const": "swiss-minimal" },
+          { "type": "string", "const": "claymorphism" },
+          { "type": "string", "const": "manga-halftone" },
+          { "type": "string", "const": "glassmorphism" },
+          { "type": "string", "const": "esports-broadcast" },
+          { "type": "string", "const": "retro-arcade" },
+          { "type": "string", "const": "frutiger-aero" },
+          { "type": "string", "const": "skyline-pop" },
+          { "type": "string", "const": "glacier-blue" },
+          { "type": "string", "const": "sakura-circuit" }
         ]
       },
       "Read517da9f95b7a": {
@@ -15381,6 +15456,32 @@
           }
         },
         "required": ["team", "label", "sourceId", "outcome"],
+        "additionalProperties": false
+      },
+      "Read6014b9ba66b7": {
+        "type": "object",
+        "properties": {
+          "edition": { "$ref": "#/components/schemas/Read2095fa6701ab" },
+          "revision": { "type": "number" },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "x-oclr-date": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "x-oclr-date": true
+          },
+          "registrationPaused": { "type": "boolean" }
+        },
+        "required": [
+          "edition",
+          "revision",
+          "createdAt",
+          "updatedAt",
+          "registrationPaused"
+        ],
         "additionalProperties": false
       },
       "Read60518843022d": {
@@ -16105,29 +16206,60 @@
         ],
         "additionalProperties": false
       },
-      "Read96b1c26efb88": {
+      "Read95dcf2c156ff": {
         "type": "object",
         "properties": {
-          "edition": { "$ref": "#/components/schemas/Readfb2e3e9cf3ec" },
-          "revision": { "type": "number" },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "x-oclr-date": true
+          "name": { "type": "string" },
+          "timeZone": { "type": "string" },
+          "status": {
+            "anyOf": [
+              { "type": "string", "const": "upcoming" },
+              { "type": "string", "const": "live" },
+              { "type": "string", "const": "completed" }
+            ]
           },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "x-oclr-date": true
+          "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "branding": { "$ref": "#/components/schemas/Reade875388690bf" },
+          "defaultAppearance": {
+            "$ref": "#/components/schemas/Read5156de5d094a"
           },
-          "registrationPaused": { "type": "boolean" }
+          "rules": { "$ref": "#/components/schemas/Readcb41459d5612" },
+          "schedule": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+              },
+              "required": ["label", "at"],
+              "additionalProperties": false
+            }
+          },
+          "archive": { "$ref": "#/components/schemas/Readd4ab674ceee0" },
+          "published": { "type": "boolean" },
+          "summary": { "type": "string" },
+          "automaticEligibility": {
+            "$ref": "#/components/schemas/Read9d043f4f751e"
+          },
+          "rankGraceRange": { "$ref": "#/components/schemas/Readc78fa88a9778" },
+          "eligibility": {
+            "anyOf": [{ "type": "null" }, { "type": "string" }]
+          },
+          "registration": { "$ref": "#/components/schemas/Reade8693424c8e5" }
         },
         "required": [
-          "edition",
-          "revision",
-          "createdAt",
-          "updatedAt",
-          "registrationPaused"
+          "name",
+          "timeZone",
+          "status",
+          "season",
+          "branding",
+          "rules",
+          "schedule",
+          "published",
+          "summary",
+          "eligibility",
+          "registration"
         ],
         "additionalProperties": false
       },
@@ -16163,6 +16295,32 @@
           "ratedFixtures",
           "complete",
           "report"
+        ],
+        "additionalProperties": false
+      },
+      "Read9b88f6a4d0f5": {
+        "type": "object",
+        "properties": {
+          "edition": { "$ref": "#/components/schemas/Read46a52765af39" },
+          "revision": { "type": "number" },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "x-oclr-date": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "x-oclr-date": true
+          },
+          "registrationPaused": { "type": "boolean" }
+        },
+        "required": [
+          "edition",
+          "revision",
+          "createdAt",
+          "updatedAt",
+          "registrationPaused"
         ],
         "additionalProperties": false
       },
@@ -17127,65 +17285,6 @@
         "type": "array",
         "items": { "$ref": "#/components/schemas/Read82e587df7c57" }
       },
-      "Readd8e06d1ad951": {
-        "type": "object",
-        "properties": {
-          "slug": { "type": "string" },
-          "name": { "type": "string" },
-          "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-          "branding": { "$ref": "#/components/schemas/Reade875388690bf" },
-          "published": { "type": "boolean" },
-          "status": {
-            "anyOf": [
-              { "type": "string", "const": "upcoming" },
-              { "type": "string", "const": "live" },
-              { "type": "string", "const": "completed" }
-            ]
-          },
-          "summary": { "type": "string" },
-          "timeZone": { "type": "string" },
-          "rules": { "$ref": "#/components/schemas/Readcb41459d5612" },
-          "eligibility": {
-            "anyOf": [{ "type": "null" }, { "type": "string" }]
-          },
-          "registration": { "$ref": "#/components/schemas/Reade8693424c8e5" },
-          "schedule": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": { "type": "string" },
-                "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
-              },
-              "required": ["label", "at"],
-              "additionalProperties": false
-            }
-          },
-          "defaultAppearance": {
-            "$ref": "#/components/schemas/Readf60eb7d17697"
-          },
-          "archive": { "$ref": "#/components/schemas/Readd4ab674ceee0" },
-          "automaticEligibility": {
-            "$ref": "#/components/schemas/Read9d043f4f751e"
-          },
-          "rankGraceRange": { "$ref": "#/components/schemas/Readc78fa88a9778" }
-        },
-        "required": [
-          "slug",
-          "name",
-          "season",
-          "branding",
-          "published",
-          "status",
-          "summary",
-          "timeZone",
-          "rules",
-          "eligibility",
-          "registration",
-          "schedule"
-        ],
-        "additionalProperties": false
-      },
       "Readd988f71c5ebc": {
         "type": "object",
         "properties": {
@@ -17396,32 +17495,6 @@
         "required": ["logo", "background", "keyVisual"],
         "additionalProperties": false
       },
-      "Reade87de01c9a10": {
-        "type": "object",
-        "properties": {
-          "edition": { "$ref": "#/components/schemas/Readd8e06d1ad951" },
-          "revision": { "type": "number" },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "x-oclr-date": true
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "x-oclr-date": true
-          },
-          "registrationPaused": { "type": "boolean" }
-        },
-        "required": [
-          "edition",
-          "revision",
-          "createdAt",
-          "updatedAt",
-          "registrationPaused"
-        ],
-        "additionalProperties": false
-      },
       "Reade8b478d4f135": {
         "type": "array",
         "items": { "$ref": "#/components/schemas/Read78574e137c82" }
@@ -17429,6 +17502,12 @@
       "Reade8cf348ea76c": {
         "type": "array",
         "items": { "$ref": "#/components/schemas/Readf94df1533cb3" }
+      },
+      "Readeb73b680654c": {
+        "anyOf": [
+          { "type": "null" },
+          { "$ref": "#/components/schemas/Read95dcf2c156ff" }
+        ]
       },
       "Readed79fffe39ce": {
         "type": "object",
@@ -17664,23 +17743,6 @@
         ],
         "additionalProperties": false
       },
-      "Readf60eb7d17697": {
-        "anyOf": [
-          { "type": "null", "x-oclr-undefined": true },
-          { "type": "null" },
-          { "type": "string", "const": "default" },
-          { "type": "string", "const": "cute-pastel" },
-          { "type": "string", "const": "swiss-minimal" },
-          { "type": "string", "const": "claymorphism" },
-          { "type": "string", "const": "manga-halftone" },
-          { "type": "string", "const": "glassmorphism" },
-          { "type": "string", "const": "esports-broadcast" },
-          { "type": "string", "const": "retro-arcade" },
-          { "type": "string", "const": "frutiger-aero" },
-          { "type": "string", "const": "skyline-pop" },
-          { "type": "string", "const": "glacier-blue" }
-        ]
-      },
       "Readf6e920ee30a0": {
         "type": "object",
         "properties": {
@@ -17783,61 +17845,6 @@
           { "type": "null" },
           { "$ref": "#/components/schemas/Read42d9ee71e9ce" }
         ]
-      },
-      "Readfb2e3e9cf3ec": {
-        "type": "object",
-        "properties": {
-          "slug": { "type": "string" },
-          "name": { "type": "string" },
-          "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-          "branding": { "$ref": "#/components/schemas/Reade875388690bf" },
-          "defaultAppearance": {
-            "$ref": "#/components/schemas/Readf60eb7d17697"
-          },
-          "published": { "type": "boolean" },
-          "status": {
-            "anyOf": [
-              { "type": "string", "const": "upcoming" },
-              { "type": "string", "const": "live" },
-              { "type": "string", "const": "completed" }
-            ]
-          },
-          "summary": { "type": "string" },
-          "timeZone": { "type": "string" },
-          "archive": { "$ref": "#/components/schemas/Readd4ab674ceee0" },
-          "rules": { "$ref": "#/components/schemas/Readcb41459d5612" },
-          "eligibility": {
-            "anyOf": [{ "type": "null" }, { "type": "string" }]
-          },
-          "schedule": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": { "type": "string" },
-                "at": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
-              },
-              "required": ["label", "at"],
-              "additionalProperties": false
-            }
-          },
-          "registration": { "$ref": "#/components/schemas/Read38af2e1030f3" }
-        },
-        "required": [
-          "slug",
-          "name",
-          "season",
-          "branding",
-          "published",
-          "status",
-          "summary",
-          "timeZone",
-          "rules",
-          "eligibility",
-          "schedule",
-          "registration"
-        ],
-        "additionalProperties": false
       },
       "Readfe644c36bd10": {
         "type": "object",
@@ -18799,7 +18806,7 @@
             }
           },
           "links": { "$ref": "#/components/schemas/Readab8799e08222" },
-          "edition": { "$ref": "#/components/schemas/Readd8e06d1ad951" },
+          "edition": { "$ref": "#/components/schemas/Read46a52765af39" },
           "revision": { "type": "number" },
           "createdAt": {
             "type": "string",
@@ -19033,7 +19040,7 @@
                 "properties": {
                   "slug": { "type": "string" },
                   "configuration": {
-                    "$ref": "#/components/schemas/Read213fc2f03d2f"
+                    "$ref": "#/components/schemas/Readeb73b680654c"
                   },
                   "configurationVersion": { "type": "number" },
                   "createdAt": {
@@ -20817,7 +20824,8 @@
                   { "type": "string", "const": "retro-arcade" },
                   { "type": "string", "const": "frutiger-aero" },
                   { "type": "string", "const": "skyline-pop" },
-                  { "type": "string", "const": "glacier-blue" }
+                  { "type": "string", "const": "glacier-blue" },
+                  { "type": "string", "const": "sakura-circuit" }
                 ]
               },
               "revision": { "type": "number" },
@@ -20995,7 +21003,7 @@
                   "additionalProperties": false
                 },
                 "configuration": {
-                  "$ref": "#/components/schemas/Read213fc2f03d2f"
+                  "$ref": "#/components/schemas/Readeb73b680654c"
                 }
               },
               "required": ["attempt", "snapshot", "configuration"],
@@ -21014,7 +21022,7 @@
           },
           "username": { "type": "string" },
           "acknowledgedConfiguration": {
-            "$ref": "#/components/schemas/Read213fc2f03d2f"
+            "$ref": "#/components/schemas/Readeb73b680654c"
           }
         },
         "required": [
@@ -21143,12 +21151,12 @@
               ]
             },
             "acknowledgedConfiguration": {
-              "$ref": "#/components/schemas/Read213fc2f03d2f"
+              "$ref": "#/components/schemas/Readeb73b680654c"
             },
             "edition": {
               "anyOf": [
                 { "type": "null", "x-oclr-undefined": true },
-                { "$ref": "#/components/schemas/Readd8e06d1ad951" }
+                { "$ref": "#/components/schemas/Read46a52765af39" }
               ]
             },
             "withdrawable": { "type": "boolean" },
@@ -21335,16 +21343,16 @@
         ]
       },
       "captainDraft": { "$ref": "#/components/schemas/Read3335ccc07221" },
-      "publicEnrollment": { "$ref": "#/components/schemas/Read96b1c26efb88" },
+      "publicEnrollment": { "$ref": "#/components/schemas/Read6014b9ba66b7" },
       "privateSavedTournament": {
-        "$ref": "#/components/schemas/Reade87de01c9a10"
+        "$ref": "#/components/schemas/Read9b88f6a4d0f5"
       },
       "publicNewsModel": {
         "type": "object",
         "properties": {
           "editions": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/Readd8e06d1ad951" }
+            "items": { "$ref": "#/components/schemas/Read46a52765af39" }
           },
           "items": {
             "type": "array",
@@ -21538,8 +21546,8 @@
       },
       "ownRegistrationForm": {
         "anyOf": [
-          { "$ref": "#/components/schemas/Reade87de01c9a10" },
-          { "$ref": "#/components/schemas/Read96b1c26efb88" }
+          { "$ref": "#/components/schemas/Read9b88f6a4d0f5" },
+          { "$ref": "#/components/schemas/Read6014b9ba66b7" }
         ]
       },
       "publicContributors": {

@@ -31,10 +31,9 @@ html[data-s8-preview] .themed-site {
   --button-radius: 8px;
   --radius-panel: 8px;
   --sakura-pink: #f175af;
-  --sakura-orange: #ff762e;
   --sakura-ink: #ab5b7c;
   --sakura-heroine: url("./s8/heroine-half.webp");
-  --sakura-sprig: url("./s8/sakura-sprig.svg");
+  --sakura-sprig: url("./s8/blossom-spray.webp");
   --sakura-banner: url("./s8/source-rules-banner.png");
   background: var(--site-background);
 }
@@ -70,13 +69,13 @@ html[data-s8-preview][data-theme="dark"] .themed-site {
 }
 html[data-s8-preview] .themed-site .site-header {
   border-bottom: 1px solid var(--site-border);
-  box-shadow: 0 3px 0 -2px var(--sakura-orange);
+  box-shadow: none;
 }
 html[data-s8-preview] .themed-site .page-heading {
   position: relative;
   min-height: 218px;
   padding: 24px 370px 36px 0;
-  border-bottom: 1px solid var(--site-border);
+  border-bottom: 0;
   background: var(--sakura-sprig) right 300px bottom 18px / 190px 130px no-repeat;
 }
 html[data-s8-preview] .themed-site .page-heading > :is(h1,p) {
@@ -99,32 +98,18 @@ html[data-s8-preview] .themed-site .page-heading::before {
 html[data-s8-preview] .themed-site .page-heading::after {
   content: "";
   position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 116px;
-  height: 12px;
-  border-left: 2px solid var(--sakura-orange);
-  border-bottom: 2px solid var(--sakura-orange);
-  transform: skewX(-45deg);
-  transform-origin: bottom left;
+  inset: auto 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--site-border) 16% 84%, transparent);
   pointer-events: none;
 }
-/* Data surfaces remain quiet; the folded-line motif lives at their edge. */
+/* Quiet paper surfaces and an airy floral illustration keep the hierarchy light. */
 html[data-s8-preview] .themed-site .archive-counts {
   position: relative;
   border: 1px solid var(--site-border);
   border-radius: 8px;
   background: var(--site-surface);
   box-shadow: 0 12px 28px -24px var(--site-panel-shadow);
-}
-html[data-s8-preview] .themed-site .archive-counts::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  right: 18px;
-  width: 48px;
-  border-top: 2px solid var(--sakura-orange);
-  pointer-events: none;
 }
 html[data-s8-preview] .themed-site .archive-counts > div {
   padding: 16px 24px;

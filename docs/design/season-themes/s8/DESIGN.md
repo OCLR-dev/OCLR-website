@@ -1,5 +1,7 @@
 # S8 — Sakura Circuit / 櫻花折線 · 初步設計
 
+**2026-10-27 正式接入**：初稿已由主辦方確認，本輪註冊 `sakura-circuit`，選單顯示「S8 · 櫻花折線／樱花折线／Sakura Circuit」。本輪依回饋精修花枝：移除標題橙色折角與統計角標，改為細緻櫻花插畫與漸淡分隔線；名稱沿用原 issue，視覺不強求折線元素。正式 CSS 與素材位於 `src/app/sakura-theme.css`／`public/themes/sakura-circuit/`；migration `0047_sakura_circuit_appearance` 僅擴充設定／稽核約束。下文保留初稿產圖時的歷史流程與證據，正式接入驗證另記於 #197。
+
 追蹤：[#197](https://github.com/OCLR-dev/OCLR-website/issues/197)。2026-10-27 依主辦方要求啟動，先交付最新實際 UI 的初稿；本輪另依回饋納入使用者提供的 RULES banner，並選用補全女主角的半身像。尚未註冊正式 appearance。
 
 ## 設計主張

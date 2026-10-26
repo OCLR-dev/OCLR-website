@@ -330,6 +330,13 @@
       "when": 1793034351333,
       "tag": "0046_glacier_blue_appearance",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1793054534237,
+      "tag": "0047_sakura_circuit_appearance",
+      "breakpoints": true
     }
   ]
 }

@@ -61,6 +61,7 @@ describe.skipIf(!url)("global site appearance settings", () => {
     "frutiger-aero",
     "skyline-pop",
     "glacier-blue",
+    "sakura-circuit",
   ])("saves %s with an authoritative audit event", async (appearance) => {
     expect(await siteSettingsForAdmin(admin)).toMatchObject({
       defaultAppearance: "default",

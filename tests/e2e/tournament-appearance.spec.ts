@@ -9,7 +9,7 @@ const origin = "http://127.0.0.1:3100";
 test.describe("tournament appearance inheritance", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.afterAll(closeDb);
-  for (const appearance of ["skyline-pop", "glacier-blue"])
+  for (const appearance of ["skyline-pop", "glacier-blue", "sakura-circuit"])
     test(`saves ${appearance} as a scoped default, SSR renders it and visitor choice survives cross-edition navigation`, async ({
       page,
       context,
