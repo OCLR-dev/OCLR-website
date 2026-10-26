@@ -130,3 +130,83 @@ it("sorts S8 group tabs by label without changing match-path order or group iden
   a.matches.reverse();
   expect(archiveBracket(a, href)).toEqual(b);
 });
+
+it("keeps the two S2 groups separate from overall final ranks and knockout paths", () => {
+  for (const suffix of ["", "/edit"]) {
+    const teamIds = ["alpha", "beta", "gamma", "delta"];
+    const a = historicalArchiveSchema.parse({
+      ...historicalArchive,
+      editionSlug: "synthetic-renamed",
+      sourceUrl:
+        "https://docs.google.com/spreadsheets/d/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY" +
+        suffix,
+      teams: teamIds.map((id) => ({ id, name: id, source: "Synthetic" })),
+      players: teamIds.map((teamId, i) => ({
+        osuId: i + 1,
+        username: "Synthetic captain " + teamId,
+        teamId,
+        role: "captain",
+        tier: 0,
+        source: "Synthetic",
+      })),
+      picks: [],
+      standings: teamIds.map((teamId, i) => ({
+        group: "Overall final ranks",
+        teamId,
+        rank: i + 1,
+        wins: 1,
+        losses: 1,
+        mapsWon: 5,
+        mapsLost: 5,
+        source: "Synthetic",
+      })),
+      matches: [
+        {
+          ...historicalArchive.matches[0],
+          id: "gs-a",
+          stage: "小组赛 A组",
+          scheduledAt: "2019-06-15T20:00:00+08:00",
+        },
+        {
+          ...historicalArchive.matches[0],
+          id: "gs-b",
+          stage: "小组赛 B组",
+          teamA: "gamma",
+          teamB: "delta",
+          mpUrls: [],
+          scheduledAt: "2019-06-16T20:00:00+08:00",
+        },
+        {
+          ...historicalArchive.matches[0],
+          id: "knockout",
+          stage: "胜者组半决赛",
+          teamB: "gamma",
+          mpUrls: [],
+          scheduledAt: "2019-07-07T20:00:00+08:00",
+        },
+      ],
+    });
+    const bracket = archiveBracket(a, href)!;
+    expect(bracket.groups.map((g) => g.label)).toEqual([
+      "Match path",
+      "小组赛 A组",
+      "小组赛 B组",
+    ]);
+    expect(bracket.groups.map((g) => g.rounds[0].matches[0].id)).toEqual([
+      "knockout",
+      "gs-a",
+      "gs-b",
+    ]);
+    expect(
+      bracket.groups[0].rounds[0].matches[0].slots.every(
+        (s) => s.sourceMatchId === null,
+      ),
+    ).toBe(true);
+    expect(
+      archiveBracket(
+        { ...a, sourceUrl: "https://example.com/unknown" },
+        href,
+      )!.groups.every((g) => g.layout !== "grid"),
+    ).toBe(true);
+  }
+});

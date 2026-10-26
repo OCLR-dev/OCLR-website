@@ -27,6 +27,14 @@ historical and used tournaments remain available through the normal private
 archive/unpublish controls. Deployment is required before using this new action;
 implementation and local tests do not establish that a production draft was removed.
 
+S2's organizer-provided AVIF is
+available as both logo and key visual, with its original 1379×862 dimensions.
+The exact S2 workbook enables the current saved native rule sections, including
+after public projections remove private source facts. Its five original sections
+are preserved in [`imports/s2-rules.json`](imports/s2-rules.json); the original
+PDF is served at `/archive/s2/rules.pdf`. This presentation support does not
+approve scores, enter final rankings or publish an edition.
+
 Historical directory cards inherit their approved source artwork when no explicit
 logo is set; an explicit logo takes priority. S6's original image is available in
 the logo and key-visual selectors. Its organizer-supplied rules are maintained as

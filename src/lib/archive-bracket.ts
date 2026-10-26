@@ -34,15 +34,20 @@ export function archiveBracket(
   >();
   const last = new Map<string, { id: string; column: number; at: number }[]>();
   for (const m of sorted) {
-    const g =
-      archive.sourceUrl ===
+    // S2 stores overall final ranks in standings; its original stage labels
+    // retain the two round-robin groups independently of those final ranks.
+    const sourceGroup =
+      (/^https:\/\/docs\.google\.com\/spreadsheets\/d\/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY(?:\/edit)?$/.test(
+        archive.sourceUrl,
+      ) &&
+        /^小组赛 [AB]组$/.test(m.stage)) ||
+      (archive.sourceUrl ===
         "https://github.com/OCLR-dev/OCLR-website/issues/289" &&
-      /^瑞士輪第 \d+ 輪/.test(m.stage)
-        ? m.stage
-        : groups.get(m.teamA);
+        /^瑞士輪第 \d+ 輪/.test(m.stage));
+    const g = sourceGroup ? m.stage : groups.get(m.teamA);
     const isGroup =
       g &&
-      ((g === m.stage && /^瑞士輪第 \d+ 輪/.test(m.stage)) ||
+      (sourceGroup ||
         (g === groups.get(m.teamB) && /^(?:group(?:\s|$)|GS$)/i.test(m.stage)));
     const startedAt = m.roomOpenedAt ?? m.review?.startedAt ?? m.scheduledAt;
     const at = startedAt ? Date.parse(startedAt) : null;
