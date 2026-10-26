@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="46.250000000 -17.903110124 449.125713310 580.911648326" role="img" aria-labelledby="r-title r-desc">
+<title id="r-title">R — two circular slider arcs and a linear ending</title>
+<desc id="r-desc">Reconstructed in original 497×559 screenshot coordinates. Six measured control points, two perfect-circle arcs, then a line shortened to the visible slider tail. The cropped top and bottom are completed analytically. No editor handles are visible by default.</desc>
+<g id="r-slider-shape">
+  <path id="r-track" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="currentColor" stroke-width="151.0" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle id="r-head-cap" cx="122.5" cy="482.5" r="76.25" fill="currentColor"/>
+  <circle id="r-tail-cap" cx="388.562171280" cy="486.758538202" r="76.25" fill="currentColor"/>
+</g>
+<g id="r-visible-centerline" display="none"><path d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="#ea4a89" stroke-width="2"/></g>
+<g id="r-full-control-path" display="none"><path d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L425.5 522.5" fill="none" stroke="#ec4899" stroke-width="1.5" stroke-dasharray="5 4"/></g>
+<g id="r-control-points" display="none"><polyline points="122.5,482.5 153.5,279.5 205.5,81.5 419.5,184.5 178.5,283.5 425.5,522.5" fill="none" stroke="#64748b" stroke-width="1.5"/>
+<circle id="r-control-0" cx="122.5" cy="482.5" r="11.5" fill="#6644cc"/>
+<circle id="r-control-1" cx="153.5" cy="279.5" r="11.5" fill="#ffcc22"/>
+<circle id="r-control-2" cx="205.5" cy="81.5" r="11.5" fill="#6644cc"/>
+<circle id="r-control-3" cx="419.5" cy="184.5" r="11.5" fill="#ffcc22"/>
+<circle id="r-control-4" cx="178.5" cy="283.5" r="11.5" fill="#ed1121"/>
+<circle id="r-control-5" cx="425.5" cy="522.5" r="11.5" fill="#ffcc22"/></g>
+</svg>

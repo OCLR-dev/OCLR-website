@@ -8,7 +8,11 @@ Related issue: [#233](https://github.com/OCLR-dev/OCLR-website/issues/233).
 
 The first four proposals (`index.html`, `assets/wordmark-{a,b,c,d}.svg`) were rejected by the organizer for losing the supplied reference's composition and osu! identity. They remain as iteration history, not approved alternatives.
 
-**Current draft: [`revision-03/index.html`](revision-03/index.html).**
+**Current shape draft: [`revision-04/index.html`](revision-04/index.html).**
+
+R04 follows the organizer's new direction: literal LaTeX `\mathcal{OCL}` in Computer Modern calligraphic capitals; an R reconstructed from the supplied osu! editor screenshot's six control points, two circular arcs and shortened final line; the existing brush S11 on the right; and a horizontal accuracy bar between OCLR and the full English name. The artwork is a single-color shape proof with a restrained colored accuracy bar. The review page includes a same-coordinate R reference comparison. [Shape sources](revision-04/sources/SHAPE-SOURCES.md) record the reproducible inputs and screenshot reconstruction limits.
+
+**R03 is preserved unchanged at the organizer's request: [`revision-03/index.html`](revision-03/index.html).**
 
 R03 follows the organizer’s five-point revision: remove O’s disconnected left stub and all dot textures; use the actual classic osu! Legacy 激 contours (credited separately under CC BY-NC 4.0); make C taller with a repeat arrow; fill L with a ten-note numbered stream; draw R as one continuous slider from bottom-left to top to bowl to lower-right; replace the S11 separator with a symmetric yellow/green/blue hit-error bar. The review page includes an opt-in direction animation for C (out-and-back) and R (one traversal). The downloaded SVG stays static.
 
@@ -26,7 +30,14 @@ From the worktree root:
 python -m http.server 4178 --bind 127.0.0.1 --directory design/home-visual
 ```
 
-Open `http://127.0.0.1:4178/revision-03/`. The local preview server has no database or credentials. Current outputs:
+Open `http://127.0.0.1:4178/revision-04/`. The local preview server has no database or credentials. Current outputs:
+
+- `revision-04/oclr-s11-shapes.svg`: transparent native-vector horizontal wordmark.
+- `revision-04/shape-board.png`: 1700 × 470 shape proof on white.
+- `revision-04/r-geometry-review.svg`: same-coordinate R control-point comparison.
+- `revision-04/sources/`: supplied references, font source, geometry and tracing provenance.
+
+Preserved R03 outputs:
 
 - `revision-03/oclr-s11-rhythm.svg`: editable transparent wordmark.
 - `revision-03/wordmark-board.png`: 1600 × 850 wordmark review image.
@@ -61,3 +72,11 @@ Open `http://127.0.0.1:4178/revision-03/`. The local preview server has no datab
 The Geki source is pinned to official ppy/osu-resources commit `b86b30a9c1109f612fead25c269f8ad6cae4a1c1`; its separate [provenance and license](revision-03/sources/GEKI-SOURCE.md) are retained.
 
 R03 browser verification: Chrome loaded the native SVG and 1600×900 homepage composition; mode switching and opt-in C/R motion start/stop were exercised. Markers changed position along the paths; the C animation uses `0;1;0` key points and the R marker inherits the same translation as the letter. Peer review identified slight separator/endpoint overlap, corrected by lifting C’s tail and the complete R group.
+
+## R04 verification
+
+The final OCL source is literal `\mathcal{OCL}`, generated with LaTeX and dvisvgm as Computer Modern mathematical calligraphic capitals. The organizer's latest font clarification is reflected in the SVG and source. The earlier R03 files are unchanged.
+
+`python design/home-visual/revision-04/compose.py` renders the final 1700×470 shape board and checks unique IDs and the absence of raster, text, filter or script nodes. The R screenshot geometry has measured-point, circular-arc and selected-outline checks recorded in its source document; the S11 tracing has an original-size contour comparison. Chrome loaded the composition and R comparison and exercised both view controls; the preview had no horizontal overflow at an observed 390 CSS-pixel viewport. The temporary viewport override was reset. The final calligraphic version was rendered and visually checked again. `node --check` and `git diff --check` pass.
+
+These are standalone design artifacts. No application code, catalogs, configuration or R03 assets changed; application/DB tests and production builds were not run. Visual acceptance and homepage integration remain separate.
