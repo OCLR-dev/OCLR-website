@@ -87,6 +87,8 @@ deployment or change any saved archive data.
 Validation for #338: Node 24.22.1, `npm ci`, `npm run check`, production
 `npm run build`, `npm audit --omit=dev` (zero vulnerabilities), and
 `git diff --check` completed. The organizer requested skipping regression tests
-while the full suite and desktop/mobile browser checks were running; those
-runs were stopped and are not reported as passing. Regression coverage remains
-in the patch for later CI execution. No production deployment was performed.
+while the full suite and desktop/mobile browser checks were running. The full
+suite was stopped and is not reported as passing; the two S7 desktop/mobile
+checks had already completed successfully before the stop signal arrived. No
+additional regression run was started. Coverage remains for later CI execution.
+No production deployment was performed.
