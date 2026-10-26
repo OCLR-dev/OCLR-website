@@ -166,8 +166,9 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: node scripts/check-ci-browser.ts
-      - run: npm run test:e2e:core -- --shard=${{ matrix.shard }}/8
+      # The image runs as root; Firefox requires its actual root-owned home.
+      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root npm run test:e2e:core -- --shard=${{ matrix.shard }}/8
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -217,8 +218,8 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: node scripts/check-ci-browser.ts
-      - run: npm run test:e2e:header -- --shard=${{ matrix.shard }}/4
+      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root npm run test:e2e:header -- --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -262,8 +263,8 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: node scripts/check-ci-browser.ts
-      - run: npm run test:e2e:remote:core
+      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root npm run test:e2e:remote:core
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -308,8 +309,8 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: node scripts/check-ci-browser.ts
-      - run: npm run test:e2e:remote -- tests/remote-e2e/full-site.spec.ts
+      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root npm run test:e2e:remote -- tests/remote-e2e/full-site.spec.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:

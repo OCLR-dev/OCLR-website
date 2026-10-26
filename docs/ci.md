@@ -56,8 +56,11 @@ lanes; an early browser pass cannot conceal a failed unit check.
 Browser jobs use the official Playwright Noble image pinned by version and
 manifest digest. Browsers and OS dependencies are preinstalled, replacing the
 repeated apt/browser download step. Keep its version aligned with the locked
-Playwright package; unit coverage checks the pins and each runner fails early if
-any browser executable is missing. Image pull/setup time still counts as
+Playwright package; unit coverage checks the pins and each runner verifies both
+executable presence and an actual launch of Chromium, Firefox and WebKit. Browser
+steps use `HOME=/root`, the root user's actual home in the official image, because
+GitHub's mounted `/github/home` has different ownership and Firefox rejects it.
+Host verify/build jobs keep their existing environment. Image pull/setup time still counts as
 execution. Job containers reach their own isolated PostgreSQL service at
 postgres:5432; no test database is shared between runners.
 
