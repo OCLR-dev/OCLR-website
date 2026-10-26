@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 240" fill="none">
+  <defs>
+    <linearGradient id="ice" x1="240" y1="90" x2="430" y2="190" gradientUnits="userSpaceOnUse"><stop stop-color="#e9fbff" stop-opacity=".6"/><stop offset=".5" stop-color="#a4dff3" stop-opacity=".2"/><stop offset="1" stop-color="#7bbbdc" stop-opacity=".4"/></linearGradient>
+    <g id="wing" stroke="#9acbe1" stroke-width=".8" stroke-linejoin="miter">
+      <path d="m265 110 91-89-27 92-47 20zM281 130l153-48-91 70-52-3zM283 153l122 25-75 8-50-17z" fill="url(#ice)"/>
+      <path d="m265 110 91-89-74 112m-1-3 153-48-143 67m-8 4 122 25-125-9" stroke="#eefcff" stroke-width=".8"/>
+      <path d="m282 133 47-20m-38 36 52 3m-63 17 50 17" stroke="#72b8dc" stroke-opacity=".5"/>
+    </g>
+  </defs>
+  <g opacity=".6"><use href="#wing"/><use href="#wing" transform="translate(480) scale(-1 1)"/></g>
+</svg>

@@ -17,7 +17,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S9_UI_BASELINE ?? "0d3e203d22c33fb61e988f80f2a7ab561c1a8563";
+  process.env.S9_UI_BASELINE ?? "e40db52569804cfde0db885e8028650e96f8ae69";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -30,13 +30,18 @@ execFileSync("git", [
 let overlay = await readFile(new URL("../s9.css", import.meta.url), "utf8");
 // Keep vector sources reviewable; embed only these local decorative SVGs so
 // the browser overlay requires no extra application route or public asset.
-for (const asset of ["crystal-etching.svg", "frost-rim.svg", "ice-facets.svg"]) {
+for (const asset of ["fairy-wings.svg", "frost-rim.svg", "ice-facets.svg"]) {
   const source = await readFile(new URL(asset, import.meta.url), "utf8");
   overlay = overlay.replaceAll(
     `url("./s9/${asset}")`,
     `url("data:image/svg+xml,${encodeURIComponent(source)}")`,
   );
 }
+const portrait = await readFile(new URL("cirno-ice-fairy.webp", import.meta.url));
+overlay = overlay.replaceAll(
+  'url("./s9/cirno-ice-fairy.webp")',
+  `url("data:image/webp;base64,${portrait.toString("base64")}")`,
+);
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const cases = [],
   errors = [],
@@ -290,6 +295,9 @@ try {
         return {
           image: getComputedStyle(document.querySelector(".archive-key-visual"))
             .backgroundImage,
+          character: getComputedStyle(
+            document.querySelector(".page-heading"), "::before",
+          ).display,
           heading: getComputedStyle(
             document.querySelector(".page-heading"),
             "::after",
@@ -305,6 +313,7 @@ try {
       });
       if (
         state.image !== "none" ||
+        state.character !== "none" ||
         state.heading !== "none" ||
         state.navigation !== "none" ||
         state.selection === "none" ||
@@ -345,8 +354,8 @@ try {
         locale: "zh-Hans",
         browser: "Google Chrome",
         material:
-          "Unframed original artwork, fine crystalline veins, sparse heading frost and unified top-lit panels",
-        decorativeAssets: ["crystal-etching.svg", "frost-rim.svg", "ice-facets.svg"],
+          "Cirno fan illustration, six ice-crystal wings, blue-white costume and small red-ribbon accents; unframed original S9 artwork",
+        decorativeAssets: ["cirno-ice-fairy.webp", "fairy-wings.svg", "frost-rim.svg", "ice-facets.svg"],
         materialChecks,
         screenshots: shots,
         cases,

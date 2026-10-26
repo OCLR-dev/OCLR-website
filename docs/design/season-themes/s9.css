@@ -136,7 +136,9 @@ html[data-s9-preview]
 /* Crystal material uses one top-left light source. Fine veins and caustics
  * stay at the perimeter; text retains an opaque, quiet reading surface. */
 html[data-s9-preview] .themed-site {
-  --ice-crystal: url("./s9/crystal-etching.svg");
+  --fairy-wings: url("./s9/fairy-wings.svg");
+  --cirno-portrait: url("./s9/cirno-ice-fairy.webp");
+  --fairy-ribbon: #b23b55;
   --ice-frost: url("./s9/frost-rim.svg");
   --ice-facets: url("./s9/ice-facets.svg");
   --ice-rim: #c4dfeb;
@@ -163,6 +165,7 @@ html[data-s9-preview] .themed-site {
     0 12px 28px -20px var(--ice-shadow);
 }
 html[data-s9-preview][data-theme="dark"] .themed-site {
+  --fairy-ribbon: #ff9eb6;
   --ice-rim: #345872;
   --ice-rim-bright: #79aac6;
   --ice-rim-shade: #112d49;
@@ -181,11 +184,20 @@ html[data-s9-preview] .themed-site .site-header {
   box-shadow: inset 0 -1px 0 var(--ice-rim-bright), 0 2px 8px -6px var(--ice-shadow);
 }
 html[data-s9-preview] .themed-site .page-heading {
+  min-height: 192px;
   padding-bottom: 2rem;
   border-bottom: 1px solid var(--ice-rim);
   background:
-    var(--ice-crystal) right 32px center / 144px 144px no-repeat,
+    var(--fairy-wings) right center / 480px 200px no-repeat,
     radial-gradient(ellipse at 100% 100%, var(--ice-etch), transparent 40%);
+}
+html[data-s9-preview] .themed-site .page-heading::before {
+  content: "";
+  position: absolute;
+  inset: 0 20px 0 auto;
+  width: min(42%, 340px);
+  background: var(--cirno-portrait) right center / contain no-repeat;
+  pointer-events: none;
 }
 html[data-s9-preview] .themed-site .page-heading::after {
   content: "";
@@ -200,11 +212,23 @@ html[data-s9-preview] .themed-site .page-heading::after {
   pointer-events: none;
 }
 html[data-s9-preview] .themed-site .archive-counts {
+  position: relative;
   padding: 12px 24px;
   background: var(--ice-slab);
   border: 1px solid var(--ice-rim);
   border-radius: 4px;
   box-shadow: var(--ice-panel-depth);
+}
+/* A small decorative neck-ribbon echo; status and action colors stay blue. */
+html[data-s9-preview] .themed-site .archive-counts::before {
+  content: "";
+  position: absolute;
+  inset: -4px 24px auto auto;
+  width: 20px;
+  height: 9px;
+  background: var(--fairy-ribbon);
+  clip-path: polygon(0 0, 45% 35%, 55% 35%, 100% 0, 100% 100%, 55% 65%, 45% 65%, 0 100%);
+  pointer-events: none;
 }
 html[data-s9-preview] .themed-site .archive-counts > div {
   border-bottom-color: var(--ice-rim);
@@ -275,7 +299,15 @@ html[data-s9-preview] .themed-site .map-slot-badge {
 }
 @media (max-width: 760px) {
   html[data-s9-preview] .themed-site .page-heading {
-    background: none;
+    min-height: 0;
+    padding-bottom: 144px;
+    background-size: 260px 128px, auto;
+    background-position: left bottom, center;
+  }
+  html[data-s9-preview] .themed-site .page-heading::before {
+    inset: auto 8px 8px auto;
+    width: 200px;
+    height: 128px;
   }
   html[data-s9-preview] .themed-site .page-heading::after {
     opacity: .5;
@@ -290,6 +322,7 @@ html[data-s9-preview] .themed-site .map-slot-badge {
     box-shadow: none;
     border-color: CanvasText;
   }
+  html[data-s9-preview] .themed-site :is(.page-heading, .archive-counts)::before,
   html[data-s9-preview] .themed-site .page-heading::after {
     display: none;
   }

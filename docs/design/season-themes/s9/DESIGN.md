@@ -2,11 +2,11 @@
 
 追蹤：[#196](https://github.com/OCLR-dev/OCLR-website/issues/196)。2026-10-26 依主辦方要求，沿用已合併 #195／PR #362 的方法更新；候選設計待審閱，正式接入另行指定。
 
-本輪依主辦方回饋移除左側主視覺冰框；原圖回到現有頁面的無框呈現，桌面／手機與明暗範例同步重產。冰晶細節保留在標題、導覽和資料面。
+本輪依主辦方要求引入東方Project 琪露諾（冰妖精）元素，在已確認的無冰框設計上加入角色同人插畫、六片冰翼、藍白服飾與小幅紅色領結點綴。原 S9 主視覺保持完整，實際 UI 範例同步重產。
 
 ## 最新 UI 基準
 
-本版基於 canonical main **`0d3e203d22c33fb61e988f80f2a7ab561c1a8563`**，直接建置並開啟現有應用，在瀏覽器加入 [S9 候選 CSS](../s9.css) 產圖，不建立另一套頁面 renderer。
+本版基於 canonical main **`e40db52569804cfde0db885e8028650e96f8ae69`**，直接建置並開啟現有應用，在瀏覽器加入 [S9 候選 CSS](../s9.css) 產圖，不建立另一套頁面 renderer。
 
 | 真實路由                   | 保留的實際元件與內容                                                                                                    |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -18,23 +18,21 @@
 
 ## 設計主張
 
-**以細晶脈、稀疏霜枝和薄切面呈現冰晶，讓原圖與資料成為視覺重心。** 冰晶識別保留在桌面標題的單一晶核與操作邊緣；統計、規則與表單降低裝飾密度。明暗版共用左上方光源、薄亮邊、接觸陰影與柔和環境陰影。
+**以琪露諾的冰妖精形象延伸 S9 冰晶材質：角色、六片冰翼、藍白服飾與紅色領結。** 霜白／鈷藍與薄切面保留，角色只出現在頁面標題區，原主視覺維持無框。資料區與表單延續實色閱讀核心與清楚操作層級。
 
-內容順序沿用目前頁面：主頁標題 → 原圖／五列統計 → 完整規則；圖池與 Admin 直接保留現有工作內容。沒有新增行銷 hero、假 tabs、假表單或另編的賽果摘錄。
+內容順序沿用目前頁面：主頁標題 → 原圖／五列統計 → 完整規則；圖池與 Admin 保留現有工作內容。手機角色移到標題文字下方的 128px 區域，桌面置於右側；沒有新增 DOM、假 tabs 或操作控制。
 
-互動延續目前元件：清楚的 hover／press、選取底線、鍵盤焦點、手機選單與實際 sticky 導覽；不新增動畫，沿用 reduced motion。
+冰妖精語彙分工：
 
-冰晶語彙分工：
+- **琪露諾同人插畫**：[透明 WebP](cirno-ice-fairy.webp) 由內建 image_gen 新生成，藍髮、藍色頭蝴蝶結、白色短袖／藍裙、紅色領結、六片冰翼與手上雪晶形成明確識別。[素材、來源與完整提示詞](ARTWORK.md)。
+- **六片冰翼**：自行繪製 [fairy-wings.svg](fairy-wings.svg)，以六個長菱形折光面作標題背景，延續角色身後的冰翼形狀；輪廓只在非閱讀區。
+- **領結點綴**：角色領口的紅色在統計上沿回應為 20×9px 小蝴蝶結。另定義 `--fairy-ribbon`，不修改成功／警告／錯誤或主操作色。
+- **霜邊與薄切面**：保留 [霜邊 SVG](frost-rim.svg) 於標題右端；資料面的角落切面為 10–12px、底沿 1px。目錄保留 2px 冷色邊，控制項維持 4px 幾何與清楚選取底線。
+- **無框原圖**：沿用 `.archive-key-visual` 與 contain，不加冰框、內框、霜層、切面背景、額外內距或陰影。[折光 SVG](ice-facets.svg) 僅用於圖池封面區。
 
-- **細晶脈**：重繪 [晶枝 SVG](crystal-etching.svg)，採 0.45–0.9 單位的分級線寬、漸層枝脈、透亮晶核與少量微光。桌面標題右側只放一組 144px 晶體；移除原圖框和圖池封面的重複大型雪花。手機標題不放大型刻紋。
-- **稀疏霜枝**：[霜邊 SVG](frost-rim.svg) 使用不等距、不同生長角度與尺度的晶枝。標題底部右端僅留薄霜，不鋪在段落或主視覺背後。
-- **無框原圖**：主視覺沿用現有 `.archive-key-visual` 版面與 contain，不加冰框、內框、霜邊、切面背景、額外內距或陰影。完整構圖與原圖本身的邊緣保持原樣。[折光 SVG](ice-facets.svg) 僅用於圖池封面區。
-- **低裝飾資料面**：統計、規則、圖池與 Admin 表單保留實色核心；角落切面縮至 10–12px，底沿收為 1px。目錄僅留 2px 冷色邊，讓主要閱讀區優先。
-- **折光控制項**：導覽與主操作改為細亮邊與窄折光面，移除粗位移陰影。輸入欄位保留輕微凹面。原有選取底線、4px 幾何、狀態語意與可見焦點維持不變。
+角色素材為 **東方Project 二次創作 · 琪露諾 / Cirno ©上海アリス幻樂団 / ZUN**，圖庫、Issue 與素材文件均保留標註；正式接入時也須在實際三語介面保留同人說明。形象參考與官方指南見 ARTWORK，並未將同人素材表述為官方聯名。
 
-三個 SVG 都是本專案自繪裝飾向量，不是角色圖或新標誌。capture 工具把這三個已知本機 SVG 內嵌為 data URL，無額外應用路由或對外資產請求。它們只用作背景或空內容 pseudo-element；不增加 DOM 元件，不接受指標事件，不遮蓋焦點。
-
-forced colours 移除材質／刻紋與陰影，改用系統色邊界和 Highlight 選取。底圖與閱讀核心維持實色，不依賴 backdrop-filter 或透明度。
+capture 將透明 WebP 與三個已知本機 SVG 內嵌為 data URL，不增加應用路由、DOM 或對外資產請求。背景與空內容 pseudo-element 不接受指標事件，不遮蓋焦點。forced colours 移除角色／冰翼／領結與陰影，改用系統色邊界和 Highlight 選取。互動與 reduced motion 延續既有元件，沒有新增持續動畫或背景模糊。
 
 ### 與既有 theme 的關係
 
@@ -77,7 +75,7 @@ S9 的晶枝、霜邊、折光面與冰層厚度共同呼應原圖；主要資�
 | `--site-selection`                  | `#c5ddff` | `#2a4c7b` |
 | `--button-radius`／`--radius-panel` | `4px`     | `4px`     |
 
-文字、動作、欄位邊界和資料細線各自定義；success／warning／danger 與 mod 狀態保持既有語意，不一律改成藍色。材質另外定義 `--ice-rim`／`--ice-rim-bright`／`--ice-rim-shade`、`--ice-facet`、`--ice-cut`、`--ice-etch`、`--ice-well`、`--ice-contact`、`--ice-panel-depth` 與 `--ice-slab`；文字和狀態 tokens 保持獨立。完整定義見 [s9.css](../s9.css)。樣式只作用於 `html[data-s9-preview] .themed-site`，沒有應用 import、正式 appearance 註冊或 cookie 寫入，OBS／presenter 維持隔離。
+文字、動作、欄位邊界和資料細線各自定義；success／warning／danger 與 mod 狀態保持既有語意，不一律改成藍色。材質另外定義 `--ice-rim`／`--ice-rim-bright`／`--ice-rim-shade`、`--ice-facet`、`--ice-cut`、`--ice-etch`、`--ice-well`、`--fairy-ribbon`、`--ice-contact`、`--ice-panel-depth` 與 `--ice-slab`；文字和狀態 tokens 保持獨立。完整定義見 [s9.css](../s9.css)。樣式只作用於 `html[data-s9-preview] .themed-site`，沒有應用 import、正式 appearance 註冊或 cookie 寫入，OBS／presenter 維持隔離。
 
 ## 可審閱成果
 
@@ -96,7 +94,7 @@ S9 的晶枝、霜邊、折光面與冰層厚度共同呼應原圖；主要資�
 
 完整 S9 資料直接來自已提交的 `docs/imports/s9-archive.json` 與現有規則書／讀模型。實際顯示：8 隊、76 名選手／教練、22 筆已記錄賽果、4 組圖池、76 個譜面位置。名字、規則、賽果、原表時間與譜面文字不改；不補造賽果、封面或即時譜面資料。Fixture summary 明確標示 `Design preview using the committed S9 archive.`，不是正式賽事文案。
 
-只使用新建的隔離 `oclr_196_design_test`。公開頁匿名；Admin 使用正常通過現有 server 授權的 `Synthetic UI Preview` 測試帳號，session 僅在記憶體中。沒有真實角色授予、OAuth secrets、驗證繞過或 production／demo 存取。產圖封鎖瀏覽器對外請求及非 GET／HEAD，不點儲存。未配置 provider，圖池保留實際封面暫不可用狀態。
+只使用本任務專用的隔離 `oclr_196_design_test`。公開頁匿名；Admin 使用正常通過現有 server 授權的 `Synthetic UI Preview` 測試帳號，session 僅在記憶體中。沒有真實角色授予、OAuth secrets、驗證繞過或 production／demo 存取。產圖封鎖瀏覽器對外請求及非 GET／HEAD，不點儲存。未配置 provider，圖池保留實際封面暫不可用狀態。
 
 用 Node.js 24，在全新可丟棄 test DB 明確設定 `TEST_DATABASE_URL`，不讀 `.env.local`；同一值供遷移、fixture、應用與產圖使用：
 
@@ -114,14 +112,14 @@ APP_URL=http://127.0.0.1:3196 DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60
 node --import tsx docs/design/season-themes/s9/capture.mjs
 ```
 
-本次使用獨立 loopback PostgreSQL 55496／應用 3196。工具預設核對本版 UI 基準 `0d3e203`；未來重產可用 `S9_UI_BASELINE` 指向已核對的完整 commit SHA，仍要求應用來源一致。以上為隔離測試參數，只看圖庫不需要 DB、帳號或伺服器。
+本次使用獨立 loopback PostgreSQL 55496／應用 3196。工具預設核對本版 UI 基準 `e40db52`；未來重產可用 `S9_UI_BASELINE` 指向已核對的完整 commit SHA，仍要求應用來源一致。以上為隔離測試參數，只看圖庫不需要 DB、帳號或伺服器。
 
 ## 本版檢查與接入邊界
 
-- 應用來源與最新 main `0d3e203` 一致；沿用上一輪已通過的 Node.js 24 production build。本輪只移除候選冰框並更新 review 產圖工具與文件，未重新執行完整應用回歸。
+- 已同步最新 main `e40db52`（包含 S10 city pop PR #367），本輪重新通過 Node.js 24 production build。設計差異僅在 S9 候選 CSS／素材／review 產圖工具與文件；S10 成果維持最新 main。
 - 三個實際路由 × 320／390／768／1440px × 明暗，共 **24 組、24 次 Axe AA 無違規**，無水平溢出或頁面錯誤。[本版報告](verification.json)。
 - 套色前後 DOM／文字保留、五列統計／完整規則、原始 1920×1080 圖片與 contain、手機選單／Escape 焦點、既有 sticky stack 通過。
-- 冰晶材質額外通過明暗 × 320／1440px 的 4 組 forced-colours 檢查：刻紋／霜邊移除、系統色選取可見，320×568px 的選單完整留在視窗內並可由 Escape 回復焦點。
+- 冰晶材質額外通過明暗 × 320／1440px 的 4 組 forced-colours 檢查：角色／冰翼／霜邊移除、系統色選取可見，320×568px 的選單完整留在視窗內並可由 Escape 回復焦點。
 - S9 gallery、prepare／capture 工具和共用 verifier 的 lint／語法、文件連結、24 種圖庫組合與 diff 檢查通過。其他三季未重產或重驗；2026-10-24 的舊樣本結果保留為歷史證據，不套用到本版。
 
 設計方法延續專案指定的 [Refactoring UI skill](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 與前述層級／間距／字體／色彩／深度參考，落在目前 MainSheet 元件上。本版不等同完整應用回歸、三語、CI 或部署驗收。
