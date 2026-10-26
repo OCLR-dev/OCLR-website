@@ -1,10 +1,10 @@
 # S10 / S9 / S8 / S7 theme samples
 
-2026-10-24 主辦方要求：根據四季原始主視覺設計對應風格，分別提交 issue：[S10 #195](https://github.com/PhoenixEmik/OCLR-website/issues/195)、[S9 #196](https://github.com/PhoenixEmik/OCLR-website/issues/196)、[S8 #197](https://github.com/PhoenixEmik/OCLR-website/issues/197)、[S7 #198](https://github.com/PhoenixEmik/OCLR-website/issues/198)。
+主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。四季仍是待審閱設計，尚未接入正式外觀。
 
-這是一組**待審閱的離線設計樣本**，不會出現在正式路由、外觀選單或 Admin 設定。沒有資料庫、API、cookie、localStorage、外部字體或新套件。介面標籤以英文展示，中文為設計註記；正式接入須沿用 next-intl 的 `zh-Hans`、`zh-Hant`、`en`，不將此原型的文字直接搬入產品。
+**2026-10-26 S10 修訂：以最新應用 UI 為準。** 基於 canonical main `0131d4dae41e8db6aed5675f5410aadcc95c53c4`，直接在實際 S10 主頁／圖池及 Admin 設定套用候選 CSS 產圖。保留現有 Header、賽季導覽、五列歸檔統計、完整規則手冊、圖池卡片／篩選和 Admin 側欄，不再使用獨立頁面 renderer。
 
-2026-10-26：依主辦方新要求更新 [S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)，對照目前九款已註冊 appearance，採用奶油紙面、晴空藍導視、正式 OCLR Logo、置頂賽季導覽及獨立工作分頁。詳見 [S10 設計與 theme 對照](s10/DESIGN.md)。其他三季保留原樣；四季仍待設計審閱。
+S10 的 `s10.html` 現為**實際截圖對照圖庫**，可切換頁面、尺寸、明暗及最新原有風格／S10 候選。它只在本機展示圖片，不連接 API、DB 或儲存偏好。重新產生 S10 圖片需獨立應用與可丟棄 test DB；見 [S10 設計與重現步驟](s10/DESIGN.md)。S9／S8／S7 的既有靜態樣本保持原樣。
 
 | Season | 提案                        | 可操作樣本           | 設計規格                | 預覽                                                                                              |
 | ------ | --------------------------- | -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
@@ -15,35 +15,29 @@
 
 ## 開啟樣本
 
-從完整 checkout 直接用瀏覽器開啟任一 `.html`；所有資產皆為相對路徑。若瀏覽器限制 `file:`，可從 repo 根目錄執行 `python3 -m http.server 3199 --bind 127.0.0.1`，再進入 `/docs/design/season-themes/s10.html`。這是獨立靜態預覽，與 demo / production 程序無關。
+完整 checkout 可直接在瀏覽器開啟 HTML；若瀏覽器限制 `file:`，從 repo 根目錄啟動 `python3 -m http.server 3199 --bind 127.0.0.1`。這是獨立 review 預覽，與 demo／production 程序無關。
 
-- 頂端 S10 / S9 / S8 / S7 切換提案；Light / Dark 即時切換，`?theme=dark` 可直接檢視深色。
-- Overview / Schedule / Mappools / Admin sample 是可操作分頁，支援方向鍵、Home、End。
-- Admin sample 提供輸入、選擇、預覽、重設和停用狀態。預覽只顯示本機提示，沒有儲存或請求。
-- MP 與譜面連結指向既有公開 osu! 網址。
+- **S10**：圖庫控制只切換真實截圖，不假裝提供正式管理功能；`current-*.webp` 為同頁同尺寸同明暗的原有風格對照。
+- **S9／S8／S7**：維持 Light／Dark、Overview／Schedule／Mappools／Admin sample 分頁、鍵盤切換、表單預覽／重設；只在記憶體操作。
 
 ## 圖片與資料
 
-四張圖均使用 repository 的既有原始檔，不裁切、不重繪、不調色。S10 保留透明背景與 1:1，S9 / S8 / S7 保留完整 16:9。原圖的歷史英文副標保持原樣；介面名稱使用官方 **osu! Chinese League Rookie (OCLR)**。
+原始主視覺不裁切、不重繪、不調色。S10 保留透明 1:1 原圖，其他三季保留完整 16:9。介面使用官方名稱 **osu! Chinese League Rookie (OCLR)**。
 
-對局、隊名、比分與三張譜面摘自各季已提交的 `docs/imports/s*-archive.json`，只內嵌顯示必要欄位；沒有報名、聯絡資料、逐圖成績或猜測的賽果。S7 的 2021–2022 來自歸檔賽程；S9 / S8 的季節字樣沿用原圖。這些資料是離線快照，**不證明正式站發佈或授權狀態**。不得用原型資料 seed 正式環境。
+S10 直接使用已提交的完整 S10 歸檔與既有讀模型；公開頁為匿名、Admin 為隔離 test DB 的 `Synthetic UI Preview` 合成帳號。沒有實際網站角色授予、真實 OAuth／私密資料或業務寫入。其他三季仍使用已提交歸檔的必要摘錄。所有預覽都不能當作正式站發佈／授權證據，不作 production seed。
 
-## 共用設計與接入邊界
+## 接入邊界
 
-先以相同比賽、圖池及表單層級確立結構，再分季調整語意色、角度、線條與圓角。`sample.css` / `sample.js` 是 review-only 組合；更新後的 S10 使用共用基礎 CSS 與獨立 `s10.js`，不改其他季樣本。所有樣本用現有 MainSheet `--site-*` token 命名對照，並非正式 React 元件實作。各季 CSS 的明暗 token 表是候選值，**尚未加入正式白名單**。
+S10 候選 CSS 限定在 review 用 `data-s10-preview` 與現有 `.themed-site`；沒有應用 import 或 appearance 註冊。其他三季的 `sample.css`／`sample.js` 仍是 review-only 組合。
 
-正式接入若獲後續授權，應擴充既有外觀系統與元件，不建立另一套前端；保留目前九款外觀（default / cute-pastel / swiss-minimal / claymorphism / manga-halftone / glassmorphism / esports-broadcast / retro-arcade / frutiger-aero）、SSR 首屏、獨立 light/dark，以及「訪客 cookie → 當前有權限／已發佈賽事 defaultAppearance → 全站預設」優先序。清除訪客偏好跟隨當前路由的預設；非賽事路由不繼承上一季。外觀不能改變資料授權、發佈、OAuth/deep link 或 OBS / presenter。
+正式接入另行指定，必須重用現有元件和 next-intl（zh-Hans／zh-Hant／en），保留全部九款已註冊 appearance、SSR、獨立明暗、訪客 cookie → 當前授權／已發佈賽事預設 → 全站預設及清除繼承。非賽事頁不繼承上一季，歷史賽事預設不自動修改；OBS／presenter、授權、發佈、OAuth／deep links 保持既有邊界。
 
-設計依據：[Refactoring UI skill](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 與 hierarchy / layout-spacing / typography / color / depth-and-polish 參考；套用於原有 MainSheet 層級、系統字體、16px 內文、44px 控制項與有限間距尺度。動效僅為進場與 hover / press 回饋；reduced motion 關閉。
+設計方法沿用專案指定的 [Refactoring UI skill](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md)，以目前 MainSheet／元件為基準。
 
-## 樣本驗證
+## 驗證與歷史紀錄
 
-執行 `node docs/design/season-themes/verify.mjs`（既有 Playwright、Axe、Sharp 與本機 Chrome）。輸出 `verification.json` 及每季八張 WebP：桌面／手機 overview 與 Admin，各自明暗。驗證包括 320 / 390 / 768 / 1440px × 四季 × 明暗、圖片載入、頁面溢出、分頁鍵盤、表單預覽與重設、overview / Admin Axe AA 掃描。
+- **S10 最新 UI 版**：依 [重現步驟](s10/DESIGN.md) 執行 `node --import tsx docs/design/season-themes/s10/capture.mjs`。三個實際路由 × 四個尺寸 × 明暗共 24 組，24 次 Axe AA 無違規；驗證 DOM／文字不變、五列統計、規則、手機選單和實際 sticky stack。新圖／報告見 [s10/verification.json](s10/verification.json)。應用 production build、產圖／圖庫工具 lint／語法／文件連結／diff 通過。
+- **S9／S8／S7**：`node docs/design/season-themes/verify.mjs [s9 s8 s7]` 驗證這三季的原靜態樣本，輸出 `verification-static.json`。本次未重驗或重製這三季。
+- **歷史證據**：根目錄 `verification.json` 保留 2026-10-24 原四季 32 組／64 次 Axe 結果。S10 `f2d4d7e` 的獨立樣本與檢查已被本版取代，不將那些結果套用到最新 UI。
 
-使用 Node.js 24；可指定 `node docs/design/season-themes/verify.mjs s10` 只重驗 S10，寫入該季報告與八張預覽，不覆蓋歷史全批次報告或其他季預覽。S10 額外檢查完整 1:1 主視覺、sticky 導覽、44px 控制項與工作分頁收起 hero；Admin 預覽為完整頁面。
-
-這是設計樣本的視覺與互動檢查，**不是正式應用的回歸、資料庫／整合測試、production build 或部署驗收**。正式接入時必須另外執行專案完整批次驗證，並審閱三語、長名稱、公開／登入／Admin／Player／Captain、外觀選單及所有繼承／清除狀態。
-
-2026-10-24 原批次結果：**32 組 viewport／明暗組合與 64 次 Axe AA 掃描通過，零違規／零頁面錯誤／零資產請求失敗**。四季共 32 張 WebP 預覽圖；共用 `verification.json` 保留該次歷史結果。
-
-2026-10-26 S10 更新結果：**8 組 viewport／明暗組合、16 次 Axe AA 掃描通過，零違規／零頁面錯誤／零資產請求失敗**；八張 S10 預覽與 [本季報告](s10/verification.json) 已更新。S10 renderer 與驗證腳本 ESLint 為 0 errors、0 warnings；其他三季只做圖片／Admin 分頁 smoke，未重跑完整驗證矩陣。
+這些檢查不等同完整應用回歸、三語整合、CI 或部署驗收；正式接入另跑專案要求的完整驗證。

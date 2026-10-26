@@ -2,110 +2,89 @@
 
 追蹤：[#195](https://github.com/OCLR-dev/OCLR-website/issues/195)。
 
-2026-10-26 更新：依主辦方要求，以目前已實作的九款 appearance 重新整理 S10 設計。參考基準為 canonical main `3a75c5beca7b3d7e8d3b073802d7cc82f3a472d9`。本季仍是**待審閱的離線樣本**，不代表正式接入或賽事預設外觀已核准。
+2026-10-26 主辦方補充：**新的設計實踐以最新 UI 為準，並更新 issue 中實際顯示的設計範例圖。** 本版取代 `f2d4d7e` 的獨立樣本版面；正式接入仍待指定。
 
-## 設計主張
+## UI 基準與設計方式
 
-**視覺：奶油紙面、晴空藍導視與完整 S10 插畫，組成一本明亮、俐落的城市賽事手冊。** 蜜桃色只出現在插畫後的斜角色帶。夜間版使用深藍實色資料面與亮青互動色，保留同一套層級。
+本版基準為 canonical main **`0131d4dae41e8db6aed5675f5410aadcc95c53c4`**。直接建置該版本的應用，開啟實際路由，向瀏覽器加入 [S10 候選 CSS](../s10.css)；不重畫 HTML、不複製元件、不改頁面內容。
 
-內容順序：S10 主視覺與賽季定位 → 比分與圖池摘錄 → 來源註記；賽程、圖池與 Admin 分頁直接呈現工作內容。設計說明與色票放在最後，不混入比賽資料。Admin 使用一個有限寬度的表單，輔助說明放在旁邊。
+| 實際路由                    | 保留的現有 UI                                                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `/tournaments/s10`          | `Header`、`TournamentShell`、`HistoricalArchiveView` 的頁面標題、完整主視覺、五列統計、`RulesSection`／`RulesHandbook` |
+| `/tournaments/s10/mappools` | 真正的五階段、搜尋／排序／模組篩選、卡片／緊湊表格切換、譜面抽屜入口                                                   |
+| `/admin/settings`           | 真正的 `StaffNavigation` 側欄／手機管理選單、`SiteAppearanceForm`、獨立偏好控制與原有儲存狀態                          |
 
-互動主張：主視覺一次性淡入；賽季導覽隨捲動置頂；操作有輕量 hover／press 回饋。方向鍵、Home／End 切換分頁；主視覺按鈕直接打開目標分頁並將焦點移到相應 tab。`prefers-reduced-motion` 停用進場、平滑捲動與轉場，沒有持續動畫。
+頁首 Logo、主導覽、外觀／明暗／語言控制、登入入口與賽季導覽皆來自最新應用；不是前版四個示範 tabs。手機保留現有選單，sticky bar 和規則錨點沿用元件的實際量測。主頁不加入新的行銷 hero、比賽摘錄、假按鈕或額外統計區塊。
 
-## 如何參考現有 theme
+[產圖工具](capture.mjs) 會檢查 `src`、`messages`、`public/branding` 與 UI 基準一致；每頁在同一個 DOM 上拍攝「目前原有風格」及「S10 候選套色」，並確認套色前後的元素數量和顯示文字一致。前版獨立樣本的 16 次 Axe／74 組色彩結果不當作本版證據。
 
-以下對照的是 `src/lib/preferences.ts` 已註冊的外觀和 `src/app/*-theme.css` 的實作，不把 backlog 或其他季樣本當作已上線功能。
+## 視覺主張與參考
 
-| 現有 appearance     | S10 採用的原則與自己的處理                                                                                                 |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `default`           | 延續 MainSheet 的文字／surface／raised／tint 層級、實色表單、tabular 數字及開放式頁面標題。沿用正式 OCLR Logo 的明暗資產。 |
-| `cute-pastel`       | 延續溫和色面和完整原圖；S10 用奶油與晴空藍，系統字體、6px 控制項及較緊湊的資料列，狀態標籤才用膠囊。                       |
-| `swiss-minimal`     | 採用細分隔線、明確對齊、主次操作及留白；以藍色導視和 16px 表單面板保留 S10 的親和感。                                      |
-| `claymorphism`      | 沿用工作區與資料列的層級分工；S10 用平整紙面，沒有黏土浮雕或 inset 陰影。                                                  |
-| `manga-halftone`    | 借鑑裝飾與資料分層；斜角色帶限於 hero 的背景層，文字、焦點與原圖不裁切、不旋轉，不加入網點或漫畫字。                       |
-| `glassmorphism`     | 保留「閱讀不依賴特效」的原則；S10 所有資料、導覽與輸入面都為實色，不使用 blur 或透明玻璃。                                 |
-| `esports-broadcast` | 延續動作、選取、狀態色分工；S10 藍色負責操作與選取，蜜桃色負責裝飾。歷史賽季不顯示 live 狀態，不挪用 OBS 樣式。            |
-| `retro-arcade`      | 參考數字對齊及不靠顏色單獨表達狀態；保留勝方底線、選取底線及狀態文字，使用系統字而非像素字。                               |
-| `frutiger-aero`     | 延續晴空色與可閱讀實色資料列；S10 使用平面斜角色帶、方圓控制項，沒有亮面膠囊、球體或整頁天空漸層。                         |
+**在目前 MainSheet 結構上，以奶油紙面、晴空藍導視及蜜桃色裝飾呼應 S10 插畫。** 深藍文字、白色資料面；暗版採深藍實色面與亮青互動色。內容先後順序完全沿用當前頁面，裝飾只在原圖後，動效沿用現有控制項並尊重 reduced motion。
 
-本次調整的重點不只是換色：舊版統一樣本的 `OCLR.` 文字標改為既有官方 Logo；Overview 使用全幅主視覺與清楚的資料紙面；導覽移到主視覺之前並置頂；進入其他分頁時收起 hero；Admin 額外展示成功、警告與錯誤的獨立語意。
+- `default`：保留既有字體、文字層級、頁首／導覽／工作區和響應式幾何。
+- `swiss-minimal`：清楚對齊、細分隔線、數字閱讀，避免每列加陰影。
+- `cute-pastel`：柔和色面；S10 改採奶油／晴空藍及 6px 方圓控制項。
+- `claymorphism`／`glassmorphism`：延續實色資料層級，本版使用平面紙面，不加入浮雕或模糊。
+- `manga-halftone`：裝飾與內容分層；藍／桃斜帶只在 `.archive-key-visual` 背後，不延伸到手機統計文字。
+- `esports-broadcast`／`retro-arcade`：操作、選取與狀態分工，保留非純顏色提示；不加入 live 標記或像素字。
+- `frutiger-aero`：呼應晴空色和原圖；採平面斜帶，不加亮面球體或膠囊化整個工作區。
 
-## 原圖與內容
+主色為 `#26b6e8`，主按鈕搭配深藍字；連結／焦點 `#006c98`。暗版動作色 `#79d9ff`。蜜桃色只做裝飾，success／warning／danger 和 mod 語意仍分開。資料面板採 16px、控制項 6px，原有導覽與表格布局不變；沒有新字體或新套件。
 
-[原始 S10 主視覺](../../../../public/archive/s10/thumbnail.png) 為 1024×1024。保持透明背景、完整 1:1 和所有原圖文字；不重繪、不裁切、不調色、不合成角色或背景。斜角色帶是原圖後的 CSS 裝飾，`pointer-events: none`。
+候選完整 token 定義以 [s10.css](../s10.css) 為準，使用現有 `--site-*` 命名。樣式限定於 `html[data-s10-preview] .themed-site`，不作用於 OBS／presenter；沒有加入正式 appearance 白名單、cookie 或實際網站設定。
 
-兩場對局、三張譜面、隊數、圖池數與年份沿用原樣本及 `docs/imports/s10-archive.json` 的離線摘錄。名稱、比分、原表 UTC+8 時間、譜面文字與歷史星數保持原值；沒有補造賽果、選手資料或新規則。歸檔快照不能作為正式站發佈或資料授權的證據，不作 production seed。
+## 最新 UI 的範例圖
 
-## 元件與響應式規格
+[離線對照圖庫](../s10.html) 可切換頁面、桌面／手機、明暗與套色前後。圖庫只顯示實際應用截圖，不是第二套應用 UI。
 
-- 間距：4 / 8 / 12 / 16 / 24 / 32 / 48 / 64px。內容最大 1280px；窄版邊距 16px。不新增字體或套件。
-- 系統無襯線；內文 16px / 1.65，輔助資料 12–14px。窄版賽程日期 11px、單行顯示；不縮小隊名或表單文字。比分與星數使用 tabular figures。
-- 面板 16px，按鈕與欄位 6px，短 slot 4px；膠囊限於狀態標籤。選取有底線／內框，焦點為 3px 外框加 4px offset；勝方比分有底線，不只改顏色。
-- 1000px 以下導覽分兩列、移除次要歸檔側欄；600px 以下 hero 上下排列、完整插畫最大 300px，表單與狀態 specimen 單欄。四個 tabs 均維持至少 44px 高。
-- 比分與圖池使用實色 `data-sheet` 及 1px 細線；不為每一列加陰影。表單單獨成面板，輸入框邊界和焦點不靠陰影。
-- forced colours 移除裝飾，保留系統色邊界與 Highlight 選取外框；亮／暗都不用 blur，也不依賴透明度。成功、警告、錯誤各帶明確文字與邊線。
+| 實際頁面       | 桌面 Light                           | 桌面 Dark                          | 手機 Light                          | 手機 Dark                         |
+| -------------- | ------------------------------------ | ---------------------------------- | ----------------------------------- | --------------------------------- |
+| S10 主頁       | [Light](desktop-light.webp)          | [Dark](desktop-dark.webp)          | [Light](mobile-light.webp)          | [Dark](mobile-dark.webp)          |
+| S10 圖池       | [Light](mappools-desktop-light.webp) | [Dark](mappools-desktop-dark.webp) | [Light](mappools-mobile-light.webp) | [Dark](mappools-mobile-dark.webp) |
+| Admin 網站設定 | [Light](admin-desktop-light.webp)    | [Dark](admin-desktop-dark.webp)    | [Light](admin-mobile-light.webp)    | [Dark](admin-mobile-dark.webp)    |
+| S10 規則手冊   | [Light](rules-desktop-light.webp)    | [Dark](rules-desktop-dark.webp)    | [Light](rules-mobile-light.webp)    | [Dark](rules-mobile-dark.webp)    |
 
-樣本的 sticky bar 是獨立 review 導覽，不模擬登入／全站選單。未來接入須沿用目前正式 `.event-context`、`--tournament-header-height`、`--tournament-scroll-offset` 與實際量測，不以原型的 `top: 0` 覆蓋全站 header 和章節錨點。
+另附 [手機賽季選單 Light](menu-mobile-light.webp)／[Dark](menu-mobile-dark.webp)。`current-*.webp` 是相同路由／尺寸／明暗的最新原有風格對照，共 12 張。
 
-## 候選 MainSheet tokens
+圖片為真實 viewport 截圖：桌面 1440×1000、手機 390×844，沒有拼貼、後製改字或補造元件。手機圖不強行把整份統計壓入首屏；維持當前頁面正常捲動。
 
-明亮的插畫色不直接用作內文字色。藍色主按鈕使用深藍字；hover 變亮，兩個模式共用同一動作語彙。蜜桃色完全獨立於 success／warning／danger。
+## 資料與權限邊界
 
-| Token                     | Light     | Dark      |
-| ------------------------- | --------- | --------- |
-| `--site-background`       | `#fffcf4` | `#102536` |
-| `--site-surface`          | `#ffffff` | `#173044` |
-| `--site-raised`           | `#f0f6f8` | `#203e53` |
-| `--site-tint`             | `#dcf2fc` | `#20465c` |
-| `--site-header`           | `#fffcf4` | `#102536` |
-| `--site-foreground`       | `#173c59` | `#e7f5ff` |
-| `--site-muted`            | `#496276` | `#adc5d7` |
-| `--site-secondary-text`   | `#355772` | `#cae2f2` |
-| `--site-accent`           | `#006c98` | `#79d9ff` |
-| `--site-accent-strong`    | `#005477` | `#a0e5ff` |
-| `--site-border`           | `#ccdae0` | `#3d596d` |
-| `--site-control-border`   | `#66889d` | `#7596ac` |
-| `--site-primary`          | `#26b6e8` | `#79d9ff` |
-| `--site-primary-hover`    | `#71d4f4` | `#a0e5ff` |
-| `--site-on-primary`       | `#10344b` | `#10344b` |
-| `--site-focus`            | `#006c98` | `#79d9ff` |
-| `--site-selection`        | `#b9e6fa` | `#355b72` |
-| `--site-success`          | `#17644b` | `#72e3bc` |
-| `--site-warning`          | `#875505` | `#f0cb83` |
-| `--site-danger`           | `#a4254a` | `#ff9eaf` |
-| `--hero-background`       | `#eaf7ff` | `#142c40` |
-| `--skyline-sky`（裝飾）   | `#bce9fa` | `#204c65` |
-| `--skyline-peach`（裝飾） | `#ffd3d9` | `#563b51` |
-| `--button-radius`         | `6px`     | `6px`     |
-| `--radius-panel`          | `16px`    | `16px`    |
+S10 內容直接使用已提交的 `docs/imports/s10-archive.json`、原始主視覺和現有規則書；10 隊、80 名選手／教練、30 筆已記錄賽果、5 組圖池、97 個譜面位置由真實讀模型計算。沒有修改原圖、名稱、規則、賽果或譜面文字。預覽 fixture 的 summary 明確標示 `Design preview using the committed S10 archive.`，不是新增正式賽事文案。
 
-`--site-border` 只用於資料分隔，不替代控制框；`--site-control-border` 才承擔可操作欄位邊界。後續接入仍繼承現有 mod、賽果與權限語意，不能將所有狀態染成藍色。
+產圖只使用新建的隔離 `oclr_195_design_test` 資料庫。公開頁為匿名訪客；Admin 只使用 `Synthetic UI Preview` 合成測試帳號和記憶體內的測試 session，正常通過既有 server 授權。沒有 production／demo 存取、真實角色授予、OAuth secrets、驗證繞過或資料寫入操作。圖池未配置 osu! provider，保留實際「封面暫不可用」狀態，沒有補造封面或新譜面資料。
 
-## 可審閱成果
+`capture.mjs` 封鎖瀏覽器對外請求和所有非 GET／HEAD；不點擊儲存、不更改設定。既有外觀選單仍只列出九款已註冊值；S10 是瀏覽器端 review overlay，不偽造已正式註冊的狀態。
 
-- [可操作樣本](../s10.html)、[S10 CSS](../s10.css)、[S10 review renderer](../s10.js)
-- [桌面 Light](desktop-light.webp) / [Dark](desktop-dark.webp)
-- [手機 Light](mobile-light.webp) / [Dark](mobile-dark.webp)
-- [Admin 桌面 Light](admin-desktop-light.webp) / [Dark](admin-desktop-dark.webp)
-- [Admin 手機 Light](admin-mobile-light.webp) / [Dark](admin-mobile-dark.webp)
-- [本季驗證報告](verification.json)
-- [對比度與輔助操作補充報告](accessibility.json)
+## 重現
 
-完整 checkout 可直接開啟 HTML；或依 [共用說明](../README.md) 啟動獨立 loopback 靜態伺服器。`?theme=dark` 可直接檢視暗版。所有互動只在記憶體，不寫 API、DB、cookie 或 localStorage。
+用 Node.js 24，先依專案指南建立**全新可丟棄的 test DB**，不讀 `.env.local`。設定 `TEST_DATABASE_URL`，明確將同一值作為遷移／應用的 `DATABASE_URL`。本機實際使用獨立 loopback PostgreSQL 55495 和應用 3195。
 
-## 樣本驗證與接入邊界
+```sh
+npm ci
+DATABASE_URL="$TEST_DATABASE_URL" npm run db:migrate
+node --import tsx docs/design/season-themes/s10/prepare.ts
+APP_URL=http://127.0.0.1:3195 DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 PRIVACY_CONTACT_OSU_ID=60001 npm run build
+APP_URL=http://127.0.0.1:3195 DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 PRIVACY_CONTACT_OSU_ID=60001 npm start -- --hostname 127.0.0.1 --port 3195
+```
 
-2026-10-26：Node.js 24 執行 `node docs/design/season-themes/verify.mjs s10`，320 / 390 / 768 / 1440px × 明暗共 8 組，16 次 Overview／Admin Axe AA 掃描無違規。完整原圖、圖片載入、頁面溢出、明暗切換、sticky 導覽、44px 控制項、鍵盤分頁、表單預覽與重設通過。重新產生八張預覽；本季 JSON 記錄本次結果，2026-10-24 的全四季報告仍為歷史證據。
+另一終端在相同 checkout、相同 `TEST_DATABASE_URL` 執行：
 
-另以本機 Chrome 檢查 320 / 390 / 768 / 1024 / 1440px × 明暗共 10 組：hero 目標分頁／焦點、Home 回到 overview、必填欄位、reduced motion、forced colours 均通過；320／390px 的完整 hero 可在 844px 高視窗內呈現。依 computed tokens 計算 74 組實色對比：一般文字與按鈕文字 ≥4.5:1，欄位邊界與焦點 ≥3:1，包含圖說在藍／桃色裝飾底上的最差情況。這是固定 token 的數值檢查，不涵蓋原圖內嵌文字或正式應用的所有狀態。S9／S8／S7 只補做圖片載入與 Admin 分頁 smoke，沒有重跑它們的完整 Axe 矩陣。
+```sh
+node --import tsx docs/design/season-themes/s10/capture.mjs
+```
 
-設計方法依專案指定的 [Refactoring UI skill](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md)，並參考其 hierarchy、layout-spacing、typography、color、depth-and-polish；使用本專案既有 MainSheet 與 appearance 實作限制。這些檢查只涵蓋離線設計樣本，不證明正式應用回歸、三語、CI 或部署驗收。
+這些是隔離測試帳號／本機產圖參數，不適用於正式啟動。只看圖庫不需要應用、DB、帳號或伺服器。
 
-後續正式接入仍需另行指定：
+## 本版驗證
 
-- [ ] 主辦方確認明暗、手機與 Admin 方向；中文名稱與未來正式文案另經三語 catalog／中文措辭審閱。
-- [ ] 重用既有 React 元件、MainSheet tokens、appearance 白名單、schema、header 選單、Global Admin 預設及 edition `defaultAppearance`；未知值安全回退。
-- [ ] 保留訪客 cookie → 當前授權／已發佈賽事預設 → 全站預設、清除繼承、SSR 首屏與獨立 light/dark。非賽事頁不繼承上次賽季；不自動修改歷史賽事設定。
-- [ ] 驗證全部九款既有 appearance，公開／登入／Admin／Player／Captain、三語、長名稱、320 / 390 / 768 / 1024 / 1440px、選單、錨點、空／錯誤／焦點狀態及 reduced motion；OBS／presenter 保持隔離。
-- [ ] 實際應用文字 ≥4.5:1、控制邊界／焦點 ≥3:1，附真實截圖；不能以靜態樣本取代。
-- [ ] 正式接入批次執行專案完整檢查及 i18n extract/test；DB 測試僅使用隔離 test DB。授權、資料發佈、OAuth／deep links、CI 和部署各自驗證。
+- 最新應用 production build（Node.js 24）通過。
+- 真實三個路由 × 320／390／768／1440px × 明暗共 **24 組**；**24 次 Axe AA 無違規**，無水平溢出、無頁面錯誤。
+- 元件樹／顯示文字不變、五列統計／歷史手冊存在、手機賽季選單與 Escape 焦點回復、既有 header stack 量測通過。[本版紀錄](verification.json)。
+- S10 gallery、prepare／capture 工具與共用 verifier 的 ESLint、JS 語法、文件相對連結及 diff 檢查通過。
+- 本版檢查不是完整應用回歸、三語或部署驗收；CI 按本次提交另行查證。未對其他三季重新產圖。
+
+## 後續接入
+
+主辦方審閱本版範例圖與命名後，才安排正式接入。必須重用當前元件，保留九款 appearance、SSR 首屏、獨立明暗、訪客 → 當前授權／已發佈賽事 → 全站預設與清除繼承；不自動修改歷史賽事預設。正式接入另驗證三語、公開／登入／Admin／Player／Captain、完整回歸與實際 CI。中文措辭仍需主辦方審閱。

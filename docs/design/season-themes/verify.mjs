@@ -9,26 +9,15 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 const root = fileURLToPath(new URL(".", import.meta.url));
 const repo = resolve(root, "../../..");
-const allSeasons = ["s10", "s9", "s8", "s7"];
-const seasons = process.argv.slice(2).length
-  ? process.argv.slice(2)
-  : allSeasons;
-if (seasons.some((season) => !allSeasons.includes(season)))
-  throw new Error("Usage: node verify.mjs [s10 s9 s8 s7]");
-const date = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Taipei",
-}).format(new Date());
 const server = createServer(async (request, response) => {
   try {
     const path = decodeURIComponent(
       new URL(request.url, "http://localhost").pathname,
     );
     const file = resolve(repo, "." + path);
-    const allowed = [
-      root,
-      join(repo, "public/archive"),
-      join(repo, "public/branding"),
-    ].some((dir) => file.startsWith(dir.replace(/\/$/, "") + "/"));
+    const allowed = [root, join(repo, "public/archive")].some((dir) =>
+      file.startsWith(dir.replace(/\/$/, "") + "/"),
+    );
     if (!allowed) {
       response.writeHead(404).end();
       return;
@@ -41,7 +30,6 @@ const server = createServer(async (request, response) => {
         ".png": "image/png",
         ".jpg": "image/jpeg",
         ".webp": "image/webp",
-        ".svg": "image/svg+xml",
       }[extname(file)] || "application/octet-stream";
     response.writeHead(200, { "Content-Type": type });
     response.end(await readFile(file));
@@ -52,6 +40,13 @@ const server = createServer(async (request, response) => {
 await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 const base = `http://127.0.0.1:${server.address().port}/docs/design/season-themes/`;
 const browser = await chromium.launch({ channel: "chrome", headless: true });
+const seasons = process.argv.slice(2).length
+  ? process.argv.slice(2)
+  : ["s9", "s8", "s7"];
+if (seasons.some((season) => !["s9", "s8", "s7"].includes(season)))
+  throw new Error(
+    "S10 now uses actual application routes: node --import tsx docs/design/season-themes/s10/capture.mjs. This static verifier accepts s9 s8 s7 only.",
+  );
 const results = [];
 const errors = [];
 try {
@@ -96,23 +91,6 @@ try {
           throw new Error(
             `${season}/${mode}/${width}: ${JSON.stringify(layout)}`,
           );
-        if (season === "s10") {
-          const image = await page.locator(".artwork img").boundingBox();
-          if (Math.abs(image.width - image.height) > 1)
-            throw new Error("S10 artwork must retain its full square ratio");
-          await page.evaluate(() => window.scrollTo(0, 600));
-          const contextBar = await page.locator(".event-context").boundingBox();
-          if (Math.abs(contextBar.y) > 1)
-            throw new Error("S10 context navigation must stay pinned");
-          await page.evaluate(() => window.scrollTo(0, 0));
-          const controls = await page
-            .locator("button:visible")
-            .evaluateAll((nodes) =>
-              nodes.every((node) => node.getBoundingClientRect().height >= 44),
-            );
-          if (!controls)
-            throw new Error("S10 controls must be at least 44px high");
-        }
         const axe = await new AxeBuilder({ page })
           .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
           .analyze();
@@ -143,10 +121,6 @@ try {
         await page.keyboard.press("End");
         if (!(await page.locator("#panel-settings").isVisible()))
           throw new Error("End-key navigation failed");
-        if (season === "s10" && (await page.locator(".hero").isVisible()))
-          throw new Error(
-            "S10 workspaces must give priority to working content",
-          );
         await page
           .getByRole("textbox", { name: "Tournament name" })
           .fill("OCLR sample");
@@ -176,10 +150,8 @@ try {
         )
           throw new Error("Admin overflow");
         if (width === 390 || width === 1440) {
-          if (season === "s10")
-            await page.evaluate(() => window.scrollTo(0, 0));
-          else await page.locator("#competition").scrollIntoViewIfNeeded();
-          const shot = await page.screenshot({ fullPage: season === "s10" });
+          await page.locator("#competition").scrollIntoViewIfNeeded();
+          const shot = await page.screenshot();
           await sharp(shot)
             .webp({ quality: 88 })
             .toFile(
@@ -204,45 +176,28 @@ try {
     if (failed.length)
       errors.push(`${season}: failed requests ${JSON.stringify(failed)}`);
     await context.close();
-    writeFileSync(
-      join(root, season, "verification.json"),
-      JSON.stringify(
-        {
-          date,
-          browser: "Headless Google Chrome",
-          scope:
-            "Static design sample; not application regression or production verification",
-          cases: results.filter((result) => result.season === season),
-          errors: errors.filter(
-            (error) =>
-              error.startsWith(season + ":") || error.startsWith(season + "/"),
-          ),
-        },
-        null,
-        2,
-      ) + "\n",
-    );
   }
 } finally {
   await browser.close();
   await new Promise((resolve) => server.close(resolve));
 }
-if (allSeasons.every((season) => seasons.includes(season)))
-  writeFileSync(
-    join(root, "verification.json"),
-    JSON.stringify(
-      {
-        date,
-        browser: "Headless Google Chrome",
-        scope:
-          "Static design samples; not application regression or production verification",
-        cases: results,
-        errors,
-      },
-      null,
-      2,
-    ) + "\n",
-  );
+writeFileSync(
+  join(root, "verification-static.json"),
+  JSON.stringify(
+    {
+      date: new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Taipei",
+      }).format(new Date()),
+      browser: "Headless Google Chrome",
+      scope:
+        "Static design samples; not application regression or production verification",
+      cases: results,
+      errors,
+    },
+    null,
+    2,
+  ) + "\n",
+);
 console.log(
   JSON.stringify(
     { cases: results.length, axeScans: results.length * 2, errors },
