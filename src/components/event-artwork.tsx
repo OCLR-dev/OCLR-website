@@ -14,7 +14,7 @@ export function EventArtwork({ src, name }: { src: string; name: string }) {
       src={enhanced ? "/oclr-s11-key-visual-enhanced-3840.webp" : src}
       alt={tr("{value0} key visual", { value0: name })}
       width={enhanced ? 3840 : 1672}
-      height={enhanced ? 2161 : 941}
+      height={enhanced ? 2160 : 941}
       unoptimized
       onError={() => setFailed(true)}
     />

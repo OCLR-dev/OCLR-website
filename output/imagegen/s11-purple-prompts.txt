@@ -1,0 +1,16 @@
+Built-in image_gen; 2026-10-26. Input: organizer supplied oclr-s11-purple-c-outfit-1920x1080.png.
+
+Promotional banner
+Use case: compositing. Edit target supplied poster. Produce wide promotional banner 3840x1280, 3:1 aspect. Retain recognizable cream italic OCLR and hot pink brush S11 at left, exact small subtitle OSU! CHINESE LEAGUE ROOKIE. Preserve same character face hair green leaf clip and purple Chinese button jacket on right, her face fully visible. Original purple-pink sky city mountains river lights petals. Recompose into horizontal banner without stretching or clipping any lettering. Keep all text at least 5% away from edges. No new text or objects.
+
+poster
+Use case: identity-preserve. Edit target: supplied OCLR S11 poster. Produce high resolution 3840x2160 16:9 master of this EXACT artwork. Preserve composition, purple Chinese outfit, face, hairstyle green leaf clip, seated pose, city bridges mountains sky petals, cream OCLR and pink S11 lettering and exact subtitle OSU! CHINESE LEAGUE ROOKIE. Faithful detail refinement only; no redesign, no extra objects, no altered text. Output a single full poster.
+
+banner
+Use case: precise-object-edit. Input poster is edit target. Create a matching TEXT-FREE website panoramic banner background, 3840x1800 aspect ratio 32:15. Remove all OCLR S11 and subtitle lettering and reconstruct sky behind. Preserve purple-pink sunset city rivers bridges mountains petals and the SAME anime character, face, green leaf clip, purple Chinese button jacket, white skirt. Character on right, head and seated pose visible, left half atmospheric clear sky and city suitable for separate overlaid logo. Match original exactly in illustration style and palette, do not add objects or text. Full-bleed panoramic single artwork.
+
+logo
+Use case: background-extraction. Input is edit target. Extract ONLY the large OCLR S11 logo plus exact subtitle OSU! CHINESE LEAGUE ROOKIE from supplied poster. Cream italic OCLR, hot pink brush S11, dark purple outline. Faithfully preserve letter shapes and relative placement. Remove ALL scenery and character. True transparent background, no checkerboard, no rectangle or scenery. Wide tightly framed horizontal transparent logo with modest padding. Output 2400x650 if possible.
+
+square
+Use case: logo-brand. Reference: supplied S11 poster. Create square S11 tournament emblem 1200x1200. Match exact cream italic OCLR and pink brush S11 dark purple outline, stacked OCLR above S11, large legible text centered; small four point stars and original purple sunset sky background, full bleed no border. No character, no subtitle, no extra text. This is a square companion logo to same art.

@@ -1,5 +1,25 @@
 # S11 artwork resolution investigation (#173)
 
+## Current purple-outfit artwork — 2026-10-26
+
+The organizer supplied `oclr-s11-purple-c-outfit-1920x1080.png` and requested replacing the current S11 artwork plus high-resolution, banner and logo versions. This supersedes the previous artwork selection described in the historical investigation below.
+
+The source and deliverables are preserved in `output/imagegen/s11-purple/`:
+
+- `source-1920x1080.png`: unchanged organizer source.
+- `key-visual-3840x2160.png`: 16:9 master; the built-in image editor returned 1672×941, then Sharp Lanczos3 enlarged it to the exact UHD canvas. This is AI interpretation followed by interpolation, **not native 4K or recovered original detail**.
+- `banner-3840x1280.png`: branded 3:1 promotional banner (generated at 2172×724, enlarged).
+- `background-3840x1800.png`: text-free homepage background (generated at 1831×859, resized/cropped by less than one source pixel in height).
+- `logo-transparent.png`: 2086×754 transparent cream/pink S11 wordmark with the English subtitle; verified alpha range 0–255.
+- `square-generated.png`: 1254×1254 square emblem; website export is 1200×1200 WebP.
+- The `*-generated.png` files retain the unresized built-in image-generation outputs. Exact prompts are recorded in `output/imagegen/s11-purple-prompts.txt`.
+
+Existing S11 public paths are updated in place to preserve stored branding allowlists. The overview retains its six responsive widths (640–3840); its intrinsic height is now 2160. The original key-visual path uses the supplied source; responsive enhanced paths use the AI-refined master. The homepage keeps its existing separate background and transparent wordmark layers. `public/oclr-s11-banner.webp` supplies the standalone promotional banner. The global OCLR header and favicon are unchanged. Historical exports outside this new directory remain historical, not current masters.
+
+All generated designs were visually inspected for lettering, palette, character and framing. Generated derivatives can vary from the supplied illustration. No tournament data, locale wording or deployment was changed.
+
+Verification for this replacement: `npm ci`, `npm run check`, `npm run build`, `npm audit --omit=dev` (zero production vulnerabilities), Prettier checks and `git diff --check` passed. All website image dimensions were decoded with Sharp; the six overview exports are exactly 16:9. The 4K overview WebP is 1,509,056 bytes, homepage background 1,301,474 bytes, promotional banner 1,010,644 bytes, transparent wordmark 826,447 bytes and square emblem 399,980 bytes. The initial full test attempt encountered sandbox-sensitive deployment/listener failures; the unsandboxed retry completed successfully: 97 files passed, 52 skipped; 669 tests passed, 424 skipped (138.76 seconds). Targeted desktop/mobile Playwright initially failed with loopback `EPERM`; its retry stalled awaiting server readiness and was interrupted. No isolated test database was configured, so DB-backed S11 browser checks and real-page crop acceptance are not established. Local tooling was Node 26.12.0 (Node 24 LTS was unavailable); a supported-runtime CI run remains outstanding. No new commit-specific CI pass or production deployment is claimed.
+
 Checked on 2026-10-24. The initial source investigation is retained below. The organizer subsequently authorized AI enhancement and applying the selected poster; see the application record at the end.
 
 | Surface                        | Approved source                           | Pixels    | File bytes | Delivery                                                              |
