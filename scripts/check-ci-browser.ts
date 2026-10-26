@@ -18,13 +18,19 @@ if (
   process.argv[1] &&
   pathToFileURL(process.argv[1]).href === import.meta.url
 ) {
+  const engines = [chromium, firefox, webkit];
   assertBrowserExecutables(
-    [chromium, firefox, webkit].map((browser) => ({
+    engines.map((browser) => ({
       name: browser.name(),
       path: browser.executablePath(),
     })),
   );
+  // Presence alone cannot detect an incompatible container user/profile setup.
+  for (const engine of engines) {
+    const browser = await engine.launch();
+    await browser.close();
+  }
   console.log(
-    "Pinned CI browser executables are available; no download required.",
+    "Pinned CI browsers are available and launch successfully; no download required.",
   );
 }

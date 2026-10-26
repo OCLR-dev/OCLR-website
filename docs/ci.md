@@ -25,13 +25,13 @@ destructive fixtures. The functional lane shards across eight independent
 runners: the previous four-shard baseline had a successful shard taking 21.6
 minutes in test execution alone. Stateful workflows remain grouped by file;
 read-only header-branding cases own their browser contexts and shard individually
-so their 54-case groups do not overload a runner. Its existing
+so their 60-case groups do not overload a runner. Its existing
 Firefox/WebKit asset cases still run, even though its main projects are Chromium.
 
-The representative header matrix has 50 project/case combinations instead of 162. It keeps 320px, 390px, and both sides of the 950/1100px navigation breakpoints,
+The representative header matrix has 54 project/case combinations instead of 180, including S10 Skyline Pop. It keeps 320px, 390px, and both sides of the 950/1100px navigation breakpoints,
 plus 760px and desktop widths. Targeted theme expansion also preserves the
-representative cases for all other designs. Full acceptance keeps the original
-162 combinations and all 15 widths. Counts are coverage counts, not a measured
+representative cases for all other designs. Full acceptance covers
+180 combinations and all 15 widths. Counts are coverage counts, not a measured
 promise of CI runtime.
 
 Keyboard/touch actions, focus, hit-testing, authorization, publication, revocation,
@@ -56,8 +56,11 @@ lanes; an early browser pass cannot conceal a failed unit check.
 Browser jobs use the official Playwright Noble image pinned by version and
 manifest digest. Browsers and OS dependencies are preinstalled, replacing the
 repeated apt/browser download step. Keep its version aligned with the locked
-Playwright package; unit coverage checks the pins and each runner fails early if
-any browser executable is missing. Image pull/setup time still counts as
+Playwright package; unit coverage checks the pins and each runner verifies both
+executable presence and an actual launch of Chromium, Firefox and WebKit. Browser
+steps use `HOME=/root`, the root user's actual home in the official image, because
+GitHub's mounted `/github/home` has different ownership and Firefox rejects it.
+Host verify/build jobs keep their existing environment. Image pull/setup time still counts as
 execution. Job containers reach their own isolated PostgreSQL service at
 postgres:5432; no test database is shared between runners.
 
