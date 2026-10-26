@@ -58,6 +58,7 @@ describe.skipIf(!url)("global site appearance settings", () => {
     "glassmorphism",
     "esports-broadcast",
     "retro-arcade",
+    "frutiger-aero",
   ])("saves %s with an authoritative audit event", async (appearance) => {
     expect(await siteSettingsForAdmin(admin)).toMatchObject({
       defaultAppearance: "default",

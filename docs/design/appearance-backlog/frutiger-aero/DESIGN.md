@@ -1,6 +1,6 @@
 # G — Y2K 水晶風 / Frutiger Aero
 
-追蹤：[#239](https://github.com/PhoenixEmik/OCLR-website/issues/239) · **P3** · 未實作／未註冊為正式 appearance。
+追蹤：[#239](https://github.com/PhoenixEmik/OCLR-website/issues/239) · **P3** · 已註冊為正式 appearance `frutiger-aero`，見文末「正式實作」。
 
 ## 視覺主張與範圍
 
@@ -35,7 +35,7 @@
 
 來源白框落在淺色漸層上太淡、部分 metadata 藍字對比弱、泡泡可能遮字。應改用明確控制邊界，限制光澤只在 CTA／進度與 hero 裝飾，不把每列資料變成玻璃。
 
-[mainsheet.example.css](mainsheet.example.css) 是**重新整理的候選 CSS**，不是忠實抽取檔，也不是已完成的整站 skin。範圍限定於 `html[data-appearance="frutiger-aero"] .themed-site`。候選 key `frutiger-aero` 只在離線範例出現，未加入 `src/lib/preferences.ts` 或 schema／DB 白名單。
+[mainsheet.example.css](mainsheet.example.css) 是**重新整理的候選 CSS**，不是忠實抽取檔，也不是已完成的整站 skin。範圍限定於 `html[data-appearance="frutiger-aero"] .themed-site`。候選 key `frutiger-aero` 其後已正式加入 `src/lib/preferences.ts`、三語名稱與 schema／DB 白名單；正式樣式見 [src/app/frutiger-theme.css](../../../../src/app/frutiger-theme.css)。
 
 - 原始色、框線、漸層與裝飾可在 `source.css` 查回；候選版另外定義可讀的 light／dark 語意色。
 - 文字與互動在減少裝飾、關閉陰影／模糊／字型後仍須可辨；顏色不能是唯一的狀態提示。
@@ -60,7 +60,7 @@
 | `--site-primary-hover`  | `#ffafd2`       | `#ffdae9`      |
 | `--site-on-primary`     | `#4a0d28`       | `#4a0d28`      |
 | `--site-header`         | `#ffffff`       | `#203646`      |
-| `--site-accent-strong`  | `#106284`       | `#90deff`      |
+| `--site-accent-strong`  | `#0b4f6b`       | `#b6ecff`      |
 | `--site-focus`          | `#106284`       | `#90deff`      |
 | `--site-selection`      | `#d9eff9`       | `#244c62`      |
 | `--site-highlight`      | `#106284`       | `#90deff`      |
@@ -123,3 +123,17 @@
 - forced colors 降級通過。
 - [Desktop Light](desktop-light.webp)／[Dark](desktop-dark.webp)；[Mobile Light](mobile-light.webp)／[Dark](mobile-dark.webp)。
 - [本款機器可讀報告](verification.json)。這些結果只涵蓋離線 CSS specimen，未驗收正式頁面、三語、DB migration 或部署。
+
+## 正式實作（#239）
+
+正式樣式位於 [src/app/frutiger-theme.css](../../../../src/app/frutiger-theme.css)，以 `html[data-appearance="frutiger-aero"] .themed-site` 為範圍；OBS／presenter 使用 `.broadcast-site`，不受影響。下列為與上方候選 CSS 的差異：
+
+- **天空與光澤。**整頁背後是一層固定、`pointer-events: none` 的天空藍到薄荷綠漸層；header 另加上亮下暗的光澤與藍／薄荷細線。edition 概覽標題是一張 20px 的天空卡片，右上角以背景漸層做出水晶高光，不是覆蓋在文字上的泡泡或圓形圖層，因此不會遮字、蓋住主視覺或焦點框。來源中「泡泡可能遮字」的限制因此不存在。
+- **只在高光處用材質。**header、面板、edition 標題、主要 CTA 與進度條有光澤；重複的比賽／譜面／選手卡片只有 1px 邊框與圓角，表格與規則頁維持平面白面、tabular-nums 與單一表頭底色。沒有任何 `backdrop-filter`，也不依賴模糊。
+- **幾何。**面板 20px、控制項 999px 膠囊且至少 44px；短碼 `.map-slot-badge` 為 52px（手機 44px）藍色圓形，較長的 archive／imported slot 標籤會長成膠囊並換行，不會被固定寬度裁切；長標籤的 `.badge` 亦保持膠囊。textarea 使用 20px 圓角以免長文難以閱讀。
+- **配色。**文字與次要文字用深墨藍／深海藍；連結、選取與焦點為藍 `#106284`（暗版 `#90deff`）。主要 CTA 是粉紅光澤膠囊配 `#4a0d28` 深色字；選取中的 tab 是藍色光澤晶片配 `#04334d` 深色字。進度條使用薄荷綠 `#2f7d22`（暗版 `#a7e86a`），只作進度呈現，不覆蓋 success／warning／danger 或 NM／HD／HR／DT／FM 語意。
+- **對比。**正常文字與輔助文字 ≥4.5:1；控制邊界、焦點與進度填色 ≥3:1。已量測 background、surface、raised、tint 與 selected 狀態，而非只量主色按鈕；藍色選取晶片與粉紅 CTA 都以深色字維持對比。
+- **狀態與降級。**selected 為藍色實心晶片加粗體，hover 只換底色，pressed 改用內陰影，disabled 為虛線邊框加既有透明度，focus 為 3px 實線、4px offset。`forced-colors` 隱藏天空並把表面、卡片、按鈕與輸入框退回 Canvas／CanvasText，移除陰影與漸層，focus 改用 Highlight；`prefers-reduced-motion` 關閉過場。
+- **導覽與動作層級。**全域 `.main-nav` 的選取項是 44px 高、左右 18.4px（手機與 1101–1360px 為 16px）留白的水平膠囊；透明邊框常駐，避免選取時尺寸跳動。為容納英文與登入後的帳號按鈕，951–1100px 提前使用手機選單（`menu-toggle` 與全寬下拉），1101–1360px 只收窄 header 間距並把膠囊留白維持在 16px 下限，1361px 以上才回到 18.4px，因此不靠壓縮文字或讓元件互相覆蓋。粉紅光澤保留給實際操作按鈕，`.secondary` 維持中性；表格排序表頭、`.map-open-button`、`.statistics-player` 等文字觸發器則改為透明背景、無邊框，仍有 44px 點擊區，選取狀態以粗體、藍色與底線表示，按下時不會閃回粉色 CTA。footer 改為全寬透明帶，左右內距對齊 1240px 內容，消除兩側露出頁面背景的色塊。`select` 以單一自繪 12×8 chevron 靠右內側 1rem、右側保留 2.75rem 內距，不疊加原生箭頭；`forced-colors` 回退原生控制項。
+- **字體。**沿用既有系統 sans 與 `--font-sans`，不新增字型檔、不連 Google Fonts。來源 Varela Round 的授權與中文字形覆蓋未經核實，因此不以它承擔正式介面；圓潤感改由幾何與光澤表現。中文措辭 `Y2K 水晶风`／`Y2K 水晶風` 仍待主辦方審閱。
+- **範圍。**首頁 header 在本主題被選取時跟隨同一組 token；首頁主視覺原圖不重繪。非賽事頁不繼承任何季別預設，授權、發佈、歷史資料與 OAuth／deep-link 行為未改變。

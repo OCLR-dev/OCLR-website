@@ -1,0 +1,1117 @@
+/* Frutiger Aero (#239), based on the organizer's osu! Cup batch-2 style G.
+ * Sky blue and mint ground the page, with controlled crystal highlights: a soft
+ * gloss on the header, hero heading and primary action, and a mint progress
+ * bar. Panels keep 20px corners, controls stay capsules at >=44px, and short
+ * map slot codes sit in blue circles. Longer labels, badges, headings, tables
+ * and every data row stay plain and flat.
+ *
+ * Deliberately no blur and no floating bubbles: the only decoration behind the
+ * page is a fixed, pointer-events:none sky gradient, and the hero gloss is a
+ * background gradient rather than an overlay, so it never covers text or the
+ * focus ring. Text, muted text and control edges were checked against the
+ * values used here: normal text >=4.5:1 and control/focus edges >=3:1 in both
+ * modes. The mint progress fill and the blue selected-chip gradient are the
+ * only saturated fills, and each carries dark text or a dark rim.
+ *
+ * Typography reuses the existing system stack (--font-sans). The source's
+ * Varela Round is not bundled because its licence and Chinese coverage were not
+ * verified for this repository; no Google Fonts request is made. Rounded
+ * geometry rather than a new typeface carries the reference style.
+ *
+ * Scoped to ordinary pages. OBS/presenter output uses .broadcast-site instead
+ * of .themed-site, so it keeps its isolated broadcast styling.
+ */
+html[data-appearance="frutiger-aero"]:not(:has(.broadcast-site)),
+html[data-appearance="frutiger-aero"]:not(:has(.broadcast-site)) body {
+  background: #eef8ff;
+}
+html[data-appearance="frutiger-aero"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  ),
+html[data-appearance="frutiger-aero"][data-theme="dark"]:not(
+    :has(.broadcast-site)
+  )
+  body {
+  background: #112331;
+}
+
+html[data-appearance="frutiger-aero"] .themed-site {
+  --site-background: #eef8ff;
+  --site-surface: #ffffff;
+  --site-raised: #e1f1fb;
+  --site-tint: #d9eff9;
+  --site-foreground: #0b3a57;
+  --site-muted: #46677a;
+  --site-secondary-text: #2c5269;
+  --site-accent: #106284;
+  --site-accent-strong: #0b4f6b;
+  --site-border: #b5d3e2;
+  --site-control-border: #577c90;
+  --site-header: #ffffff;
+  --site-primary: #ffc3dc;
+  --site-primary-hover: #ffafd2;
+  --site-on-primary: #4a0d28;
+  --site-success: #21664c;
+  --site-warning: #805500;
+  --site-danger: #b32343;
+  --site-focus: #106284;
+  --site-selection: #d9eff9;
+  --site-highlight: #106284;
+  --site-connector: #577c90;
+  --site-shadow: #17213725;
+  --site-soft-shadow: #17213714;
+  --site-panel-shadow: #17213720;
+  --site-dialog-shadow: #17213745;
+  --site-backdrop: #10131d80;
+  /* Decorative only. Never reused as success/warning/danger or mod semantics. */
+  --frutiger-mint: #2f7d22;
+  --frutiger-mint-light: #4f9f33;
+  --frutiger-mint-edge: #1f5c14;
+  --frutiger-blue: #4ab8f4;
+  --frutiger-blue-light: #9fe3ff;
+  --frutiger-on-blue: #04334d;
+  --frutiger-blue-edge: #1c7ba8;
+  --frutiger-sky:
+    radial-gradient(58% 42% at 86% -6%, #ffffffd9, transparent 62%),
+    radial-gradient(46% 34% at 4% 102%, #d5f6c7bd, transparent 66%),
+    linear-gradient(180deg, #def3ff, #eef8ff 46%, #f6fcf1);
+  --frutiger-gloss: linear-gradient(168deg, #ffffffb8, #ffffff00 58%);
+  --frutiger-cta: linear-gradient(
+    180deg,
+    #ffd9e9 0%,
+    #ff9fc4 48%,
+    #ff7fb2 52%,
+    #ffaed0 100%
+  );
+  --frutiger-cta-hover: linear-gradient(
+    180deg,
+    #ffe2ee 0%,
+    #ffb3d0 48%,
+    #ff92bd 52%,
+    #ffbcd8 100%
+  );
+  --frutiger-progress: linear-gradient(
+    180deg,
+    var(--frutiger-mint-light),
+    var(--frutiger-mint) 60%,
+    #27661c
+  );
+  --frutiger-well: inset 0 1px 2px #0b3a5721;
+  --frutiger-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 1.75 6 6.25l4.5-4.5' stroke='%23577c90' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --site-button-shadow:
+    inset 0 1px 0 #ffffffc4, inset 0 -2px 5px #c22a6b2e,
+    0 6px 14px -6px #ff5f9b73;
+  --button-radius: 999px;
+  --radius-panel: 20px;
+  color-scheme: light;
+  isolation: isolate;
+  background: var(--site-background);
+  color: var(--site-foreground);
+  line-height: 1.65;
+}
+html[data-appearance="frutiger-aero"][data-theme="dark"] .themed-site {
+  --site-background: #112331;
+  --site-surface: #203646;
+  --site-raised: #2a4759;
+  --site-tint: #244c62;
+  --site-foreground: #e6f7ff;
+  --site-muted: #b4d2e0;
+  --site-secondary-text: #d0e7f1;
+  --site-accent: #90deff;
+  --site-accent-strong: #b6ecff;
+  --site-border: #49687d;
+  --site-control-border: #80a8bf;
+  --site-header: #203646;
+  --site-primary: #ffc3dc;
+  --site-primary-hover: #ffdae9;
+  --site-on-primary: #4a0d28;
+  --site-success: #91e0bd;
+  --site-warning: #f0ce85;
+  --site-danger: #ffa0b4;
+  --site-focus: #90deff;
+  --site-selection: #244c62;
+  --site-highlight: #90deff;
+  --site-connector: #80a8bf;
+  --site-shadow: #0006;
+  --site-soft-shadow: #0003;
+  --site-panel-shadow: #0005;
+  --site-dialog-shadow: #0009;
+  --site-backdrop: #050810b3;
+  --frutiger-mint: #a7e86a;
+  --frutiger-mint-light: #c4f294;
+  --frutiger-mint-edge: #6fae3a;
+  --frutiger-blue: #4ab8f4;
+  --frutiger-blue-light: #9fe3ff;
+  --frutiger-on-blue: #04334d;
+  --frutiger-blue-edge: #8fd8f7;
+  --frutiger-sky:
+    radial-gradient(58% 42% at 86% -6%, #2f6b8a70, transparent 62%),
+    radial-gradient(46% 34% at 4% 102%, #1f5a4366, transparent 66%),
+    linear-gradient(180deg, #0d1f2c, #112331 46%, #132b27);
+  --frutiger-gloss: linear-gradient(168deg, #ffffff24, #ffffff00 58%);
+  --frutiger-progress: linear-gradient(
+    180deg,
+    var(--frutiger-mint-light),
+    var(--frutiger-mint) 60%,
+    #8bd451
+  );
+  --frutiger-well: inset 0 1px 2px #00000059;
+  --frutiger-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 1.75 6 6.25l4.5-4.5' stroke='%2380a8bf' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --site-button-shadow:
+    inset 0 1px 0 #ffffff9e, inset 0 -2px 6px #8f1f4d47,
+    0 8px 18px -8px #00000099;
+  color-scheme: dark;
+}
+/* Fixed sky behind the whole page; decoration only, never a click target. */
+html[data-appearance="frutiger-aero"] .themed-site::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background: var(--frutiger-sky);
+  pointer-events: none;
+}
+
+/* Type: system stack, tight headings, tabular numbers in data. */
+html[data-appearance="frutiger-aero"] .themed-site :is(h1, h2, h3, .brand) {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+html[data-appearance="frutiger-aero"] .themed-site .eyebrow {
+  color: var(--site-accent);
+  letter-spacing: 0.12em;
+}
+html[data-appearance="frutiger-aero"] .themed-site :focus-visible {
+  outline: 3px solid var(--site-focus);
+  outline-offset: 4px;
+}
+html[data-appearance="frutiger-aero"] .themed-site ::selection {
+  background: var(--site-selection);
+  color: var(--site-foreground);
+}
+
+/* Header: a bright glossy bar, opened by a mint/blue hairline. */
+html[data-appearance="frutiger-aero"] .themed-site .site-header {
+  border-bottom: 1px solid var(--site-border);
+  background: var(--frutiger-gloss), linear-gradient(180deg, #ffffff, #f1faff);
+  box-shadow:
+    inset 0 -1px 0 #ffffff,
+    0 10px 24px -20px var(--site-panel-shadow);
+}
+html[data-appearance="frutiger-aero"][data-theme="dark"]
+  .themed-site
+  .site-header {
+  background: var(--frutiger-gloss), linear-gradient(180deg, #244050, #1a2d3b);
+  box-shadow:
+    inset 0 -1px 0 #ffffff14,
+    0 10px 24px -20px #00000099;
+}
+html[data-appearance="frutiger-aero"] .themed-site .main-nav {
+  align-items: center;
+  gap: 0.35rem;
+}
+/* Comfortable horizontal capsules: equal height, real side padding and no
+ * layout jump when the selected state adds its border/background. */
+html[data-appearance="frutiger-aero"] .themed-site .main-nav > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding-inline: 1.15rem;
+  border: 1px solid transparent;
+  border-radius: var(--button-radius);
+  color: var(--site-secondary-text);
+  line-height: 1.2;
+}
+html[data-appearance="frutiger-aero"] .themed-site .main-nav > a:hover {
+  border-color: var(--site-control-border);
+  background: var(--site-surface);
+  color: var(--site-accent-strong);
+}
+html[data-appearance="frutiger-aero"] .themed-site .main-nav > a[aria-current] {
+  border-color: var(--site-accent);
+  background: var(--site-selection);
+  color: var(--site-accent-strong);
+  font-weight: 700;
+}
+/* Wide-but-not-desktop: the padded capsules need more room than the base
+ * 950px breakpoint allows, so collapse to the real mobile menu earlier. */
+@media (min-width: 951px) and (max-width: 1100px) {
+  html[data-appearance="frutiger-aero"] .themed-site .nav-wrap {
+    height: 72px;
+    padding-inline: 1.25rem;
+    gap: 0.75rem;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .menu-toggle {
+    display: inline-flex;
+    order: 2;
+    margin-left: 0;
+    width: 44px;
+    min-width: 44px;
+    padding: 0;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .site-preferences {
+    margin-left: auto;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .nav-actions {
+    order: 1;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .main-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    margin: 0;
+    padding: 1.2rem;
+    border-bottom: 1px solid var(--site-border);
+    background: var(--site-surface);
+    box-shadow: 0 24px 40px -28px var(--site-dialog-shadow);
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .main-nav.open {
+    display: grid;
+    gap: 0.25rem;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .main-nav > a {
+    justify-content: flex-start;
+    padding-inline: 1rem;
+  }
+}
+/* 1101-1360px keeps the horizontal navigation but tightens only the gaps and
+ * the padding back to the 16px lower bound; text is never squeezed. */
+@media (min-width: 1101px) and (max-width: 1360px) {
+  html[data-appearance="frutiger-aero"] .themed-site .nav-wrap {
+    gap: 0.5rem;
+    padding-inline: 1rem;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .main-nav {
+    gap: 0.1rem;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .main-nav > a {
+    padding-inline: 1rem;
+  }
+}
+
+/* Full-bleed footer: no bounded painted rectangle, no exposed side gaps. */
+html[data-appearance="frutiger-aero"] .themed-site .site-footer {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 1.25rem max(3rem, calc((100% - 1240px) / 2));
+  border-top: 1px solid var(--site-border);
+  background: transparent;
+  box-shadow: none;
+  color: var(--site-secondary-text);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .site-footer
+  .footer-credit {
+  color: var(--site-accent);
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--site-accent) 45%,
+    transparent
+  );
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .site-footer
+  .footer-credit:is(:hover, :focus-visible) {
+  color: var(--site-accent-strong);
+  text-decoration-color: currentColor;
+}
+
+/* The homepage header normally switches to its own lavender palette; the
+ * appearance restores this theme's tokens there. Duplicating .site-header wins
+ * over home.css's more specific dark rule regardless of bundle order. */
+html[data-appearance="frutiger-aero"]
+  .themed-site:has(.home-redesign)
+  .site-header.site-header,
+html[data-appearance="frutiger-aero"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header.site-header {
+  --site-header: inherit;
+  --site-surface: inherit;
+  --site-raised: inherit;
+  --site-tint: inherit;
+  --site-foreground: inherit;
+  --site-muted: inherit;
+  --site-secondary-text: inherit;
+  --site-accent: inherit;
+  --site-accent-strong: inherit;
+  --site-control-border: inherit;
+  --site-border: inherit;
+  --site-primary: inherit;
+  --site-primary-hover: inherit;
+  --site-on-primary: inherit;
+  --site-focus: inherit;
+  --site-selection: inherit;
+  --color-muted: var(--site-muted);
+  --color-foreground: var(--site-foreground);
+  --color-border: var(--site-border);
+  background: var(--frutiger-gloss), linear-gradient(180deg, #ffffff, #f1faff);
+  color: var(--site-foreground);
+  color-scheme: light;
+}
+html[data-appearance="frutiger-aero"][data-theme="dark"]
+  .themed-site:has(.home-redesign)
+  .site-header.site-header {
+  background: var(--frutiger-gloss), linear-gradient(180deg, #244050, #1a2d3b);
+  color-scheme: dark;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login {
+  border: 1px solid var(--site-control-border);
+  border-radius: var(--button-radius);
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  box-shadow: var(--site-button-shadow);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site:has(.home-redesign)
+  .site-header
+  .nav-login:hover {
+  background: var(--site-primary-hover);
+}
+
+/* Menus stay solid and legible over the glossy header. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(.appearance-control, .language-control, .account-menu)
+  :is([role="menu"], .account-dropdown) {
+  border: 1px solid var(--site-control-border);
+  border-radius: 18px;
+  background: var(--site-surface);
+  box-shadow:
+    inset 0 1px 0 #ffffff80,
+    0 26px 50px -26px var(--site-dialog-shadow);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[role] {
+  border-color: transparent;
+  border-radius: var(--button-radius);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(.appearance-control, .language-control)
+  [role="menu"]
+  button[aria-checked="true"] {
+  border-color: var(--site-accent);
+  background: var(--site-selection);
+  color: var(--site-accent-strong);
+  font-weight: 700;
+}
+html[data-appearance="frutiger-aero"] .themed-site .account-dropdown {
+  border-radius: 18px;
+  background: var(--site-surface);
+}
+@media (max-width: 950px) {
+  html[data-appearance="frutiger-aero"] .themed-site .main-nav.open {
+    border: 1px solid var(--site-control-border);
+    background: var(--site-surface);
+    box-shadow: 0 28px 44px -28px var(--site-dialog-shadow);
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .main-nav > a {
+    justify-content: flex-start;
+    padding-inline: 1rem;
+    border: 1px solid transparent;
+    border-radius: var(--button-radius);
+  }
+  html[data-appearance="frutiger-aero"]
+    .themed-site
+    .main-nav
+    > a[aria-current] {
+    border-color: var(--site-accent);
+    background: var(--site-selection);
+  }
+}
+
+/* Primary action: a glossy pink capsule with a dark sugar-mouse label.
+ * Secondary actions are solid white capsules with a blue edge. */
+html[data-appearance="frutiger-aero"] .themed-site :is(button, .button) {
+  border: 1px solid var(--site-control-border);
+  background: var(--frutiger-cta);
+  color: var(--site-on-primary);
+  font-weight: 700;
+  /* No background-colour transition: an intermediate frame can lose contrast. */
+  transition:
+    border-color 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+html[data-appearance="frutiger-aero"] .themed-site :is(button, .button):hover {
+  transform: none;
+  background: var(--frutiger-cta-hover);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(button, .button).secondary {
+  border-color: var(--site-control-border);
+  background: var(--site-surface);
+  color: var(--site-accent-strong);
+  box-shadow:
+    inset 0 1px 0 #ffffffcc,
+    0 3px 8px -6px var(--site-soft-shadow);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(button, .button).secondary:hover {
+  background: var(--site-tint);
+  color: var(--site-accent-strong);
+}
+/* Tertiary text triggers: table sort headers and row/title buttons are not
+ * CTAs. They stay flat, keep a 44px hit area and show selection in text. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .event-table
+  thead
+  th
+  > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  margin: 0;
+  padding: 0.35rem 0.15rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .event-table
+  thead
+  th:has(> button) {
+  padding-block: 0.35rem;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .event-table
+  thead
+  th
+  > button:is(:hover, :focus-visible, :active) {
+  background: transparent;
+  color: var(--site-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .event-table
+  thead
+  th
+  > button:active:not(:disabled) {
+  background: transparent;
+  color: var(--site-accent-strong);
+  text-decoration: underline;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .event-table
+  thead
+  th[aria-sort]
+  > button {
+  color: var(--site-accent-strong);
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  button.map-open-button {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.15rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--site-foreground);
+  font-weight: 600;
+  text-align: left;
+  transform: none;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  button.map-open-button:active:not(:disabled) {
+  background: transparent;
+  color: var(--site-accent-strong);
+  box-shadow: none;
+  text-decoration: underline;
+  transform: none;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  button.map-open-button:is(:hover, :focus-visible, :active) {
+  background: transparent;
+  color: var(--site-accent-strong);
+  box-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  transform: none;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  button.statistics-player {
+  min-height: 44px;
+  padding: 0.25rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font-weight: 600;
+  text-align: left;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  button.statistics-player:active:not(:disabled) {
+  background: transparent;
+  color: var(--site-accent-strong);
+  text-decoration: underline;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  button.statistics-player:is(:hover, :focus-visible) {
+  background: transparent;
+  color: var(--site-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(button, .button):active:not(:disabled) {
+  background: var(--site-primary-hover);
+  box-shadow: inset 0 2px 5px #8f1f4d3d;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(button, .button).secondary:active:not(:disabled) {
+  background: var(--site-selection);
+  box-shadow: var(--frutiger-well);
+}
+/* Destructive and role-revocation actions keep their danger semantics; the
+ * generic glossy primary and secondary rules above must not repaint them. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(button, .button):is(.destructive-action, .role-revoke) {
+  border-color: var(--site-danger);
+  background: var(--site-surface);
+  color: var(--site-danger);
+  box-shadow: none;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(button, .button):is(.destructive-action, .role-revoke):hover {
+  border-color: var(--site-danger);
+  background: color-mix(in srgb, var(--site-danger) 12%, var(--site-surface));
+  color: var(--site-danger);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(button, .button):is(.destructive-action, .role-revoke):active:not(
+    :disabled
+  ) {
+  border-color: var(--site-danger);
+  background: color-mix(in srgb, var(--site-danger) 20%, var(--site-surface));
+  color: var(--site-danger);
+  box-shadow: var(--frutiger-well);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(button, .button):disabled,
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .button[aria-disabled="true"] {
+  border-style: dashed;
+  border-color: var(--site-control-border);
+  box-shadow: none;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(.site-preferences .secondary, .menu-toggle) {
+  border-color: var(--site-control-border);
+  background: var(--site-surface);
+  color: var(--site-accent-strong);
+}
+
+/* Inputs: solid capsules for single-line controls, a 20px well for text. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select
+  ) {
+  border-color: var(--site-control-border);
+  border-radius: var(--button-radius);
+  background-color: var(--site-surface);
+  box-shadow: var(--frutiger-well);
+}
+/* Native chrome draws its arrow at the border; a single custom chevron sits
+ * comfortably inside the capsule while the native popup stays functional. */
+html[data-appearance="frutiger-aero"] .themed-site select:not([multiple]) {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 44px;
+  padding-inline: 1.1rem 2.75rem;
+  background-image: var(--frutiger-chevron);
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px 8px;
+}
+html[data-appearance="frutiger-aero"] .themed-site textarea {
+  border-color: var(--site-control-border);
+  border-radius: var(--radius-panel);
+  background-color: var(--site-surface);
+  box-shadow: var(--frutiger-well);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(input, select, textarea):disabled {
+  border-style: dashed;
+  background-color: var(--site-raised);
+  box-shadow: none;
+  color: var(--site-muted);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(.check-field, .check-label)
+  input {
+  accent-color: var(--site-accent);
+}
+
+/* Selection rail: a tinted groove whose current chip is blue glass. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(
+    .tournament-navigation nav,
+    .workspace-tabs,
+    .mappool-mods,
+    .event-pills,
+    .bracket-tabs,
+    .event-tabs
+  ) {
+  border: 1px solid var(--site-border);
+  border-radius: var(--button-radius);
+  background: var(--site-tint);
+  box-shadow: var(--frutiger-well);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs :is(button, .button),
+    .mappool-mods :is(button, .button),
+    .event-pills :is(button, .button),
+    .bracket-tabs :is(button, .button),
+    .event-tabs :is(button, .button)
+  ) {
+  --site-button-shadow: none;
+  border: 1px solid transparent;
+  border-radius: var(--button-radius);
+  background: transparent;
+  color: var(--site-secondary-text);
+  box-shadow: none;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a,
+    .workspace-tabs :is(button, .button),
+    .mappool-mods :is(button, .button),
+    .event-pills :is(button, .button),
+    .bracket-tabs :is(button, .button),
+    .event-tabs :is(button, .button)
+  ):hover {
+  background: var(--site-surface);
+  color: var(--site-accent-strong);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(
+    .tournament-navigation nav a[aria-current],
+    .workspace-tabs :is(button, .button)[aria-selected="true"],
+    .mappool-mods :is(button, .button)[aria-pressed="true"],
+    .event-pills :is(button, .button)[aria-pressed="true"],
+    .bracket-tabs :is(button, .button)[aria-pressed="true"],
+    .event-tabs :is(button, .button)[aria-pressed="true"]
+  ) {
+  border-color: var(--frutiger-blue-edge);
+  background: linear-gradient(
+    180deg,
+    var(--frutiger-blue-light),
+    var(--frutiger-blue)
+  );
+  color: var(--frutiger-on-blue);
+  font-weight: 700;
+  box-shadow:
+    inset 0 1px 0 #ffffffa6,
+    0 3px 8px -5px #0a5c84a6;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .tournament-navigation
+  nav
+  a[aria-current]::before {
+  background: #ffffff;
+}
+html[data-appearance="frutiger-aero"] .themed-site .event-tabs {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.25rem;
+}
+html[data-appearance="frutiger-aero"] .themed-site .tournament-menu {
+  border-radius: 18px;
+}
+
+/* Panels and cards: a thin sky card with a controlled top highlight. Nested
+ * panels fall back to a flat surface so materials never stack. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(
+    .panel,
+    .edition-card,
+    .directory-details,
+    .about-aside,
+    .settings-card,
+    .identity-panel,
+    .registration-card,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .mappool-context,
+    .mappool-setup,
+    .information-active,
+    .information-contents
+  ) {
+  border: 1px solid var(--site-border);
+  border-radius: var(--radius-panel);
+  background:
+    linear-gradient(180deg, #ffffff66, #ffffff00 42%), var(--site-surface);
+  box-shadow:
+    inset 0 1px 0 #ffffffb8,
+    0 10px 26px -22px var(--site-panel-shadow);
+}
+html[data-appearance="frutiger-aero"][data-theme="dark"]
+  .themed-site
+  :is(
+    .panel,
+    .edition-card,
+    .directory-details,
+    .about-aside,
+    .settings-card,
+    .identity-panel,
+    .registration-card,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .mappool-context,
+    .mappool-setup,
+    .information-active,
+    .information-contents
+  ) {
+  background:
+    linear-gradient(180deg, #ffffff0a, #ffffff00 42%), var(--site-surface);
+  box-shadow:
+    inset 0 1px 0 #ffffff1f,
+    0 10px 26px -22px #00000080;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(.panel, .settings-card, .registration-card, .identity-panel)
+  :is(
+    .panel,
+    .edition-card,
+    .settings-card,
+    .identity-panel,
+    .registration-card
+  ) {
+  border-color: var(--site-border);
+  background: var(--site-raised);
+  box-shadow: none;
+}
+/* Repeated data cards stay flat: border, radius and no gloss. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(.match-card, .public-match-card, .map-browse-card, .player-card) {
+  border: 1px solid var(--site-border);
+  border-radius: 18px;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(.mappool-public-round, .captain-player-card, .captain-order > li) {
+  border-color: var(--site-border);
+  border-radius: 14px;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+
+/* Tables and rules read as documents, not glass. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(table, .information-teams, .event-table) {
+  border-collapse: collapse;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="frutiger-aero"] .themed-site :is(th, td) {
+  border-color: var(--site-border);
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="frutiger-aero"] .themed-site th {
+  background: var(--site-tint);
+  color: var(--site-secondary-text);
+  letter-spacing: 0;
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  :is(.information-document, .document-typeset) {
+  color: var(--site-secondary-text);
+}
+html[data-appearance="frutiger-aero"] .themed-site .information-document h2 {
+  border-bottom-color: var(--site-border);
+  color: var(--site-foreground);
+}
+html[data-appearance="frutiger-aero"] .themed-site .information-table-scroll,
+html[data-appearance="frutiger-aero"] .themed-site .table-scroll {
+  border-color: var(--site-border);
+  border-radius: 16px;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+
+/* Semantic badges keep their own colours; only the shared capsule shape and
+ * weight come from this appearance. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .badge:is(
+    .status-accepted,
+    .status-pending,
+    .status-rejected,
+    .status-withdrawn,
+    .registration-state
+  ) {
+  border-radius: var(--button-radius);
+  font-weight: 700;
+}
+
+/* Short codes (HD2, TB) stay 52px circles; imported/archive labels that are
+ * longer grow into a capsule and wrap instead of clipping the text. */
+html[data-appearance="frutiger-aero"] .themed-site .map-slot-badge {
+  display: grid;
+  place-items: center;
+  width: auto;
+  min-width: 52px;
+  min-height: 52px;
+  max-width: calc(100% - 1rem);
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #ffffff;
+  border-radius: var(--button-radius);
+  background: linear-gradient(
+    180deg,
+    var(--frutiger-blue-light),
+    var(--frutiger-blue)
+  );
+  color: var(--frutiger-on-blue);
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+  text-align: center;
+  box-shadow:
+    inset 0 2px 0 #ffffffb8,
+    0 4px 10px -4px #0a5c84a6;
+}
+/* Neutral badges only: status-* and registration-state keep their semantic
+ * success/warning/danger colours from workspace.css and globals.css. */
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  .badge:not(.status-accepted):not(.status-pending):not(.status-rejected):not(
+    .status-withdrawn
+  ):not(.registration-state) {
+  border: 1px solid var(--site-control-border);
+  border-radius: var(--button-radius);
+  background: var(--site-surface);
+  color: var(--site-accent-strong);
+  font-weight: 700;
+}
+
+/* The overview heading is the page hero: a sky card with a crystal corner. */
+html[data-appearance="frutiger-aero"] .themed-site .information-heading {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--site-border);
+  border-radius: var(--radius-panel);
+  background:
+    radial-gradient(120% 130% at 88% -24%, #ffffffd9, transparent 58%),
+    linear-gradient(160deg, var(--site-surface), var(--site-tint));
+  box-shadow:
+    inset 0 1px 0 #ffffffcc,
+    0 16px 34px -30px var(--site-panel-shadow);
+}
+html[data-appearance="frutiger-aero"][data-theme="dark"]
+  .themed-site
+  .information-heading {
+  background:
+    radial-gradient(120% 130% at 88% -24%, #ffffff1f, transparent 58%),
+    linear-gradient(160deg, var(--site-raised), var(--site-surface));
+  box-shadow:
+    inset 0 1px 0 #ffffff1f,
+    0 16px 34px -30px #00000080;
+}
+html[data-appearance="frutiger-aero"] .themed-site .information-banner {
+  border: 1px solid var(--site-control-border);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 22px 44px -34px var(--site-panel-shadow);
+}
+html[data-appearance="frutiger-aero"] .themed-site .information-active {
+  border-left: 3px solid var(--frutiger-blue);
+  background: linear-gradient(100deg, var(--site-tint), var(--site-surface));
+}
+
+/* Progress: explicit mint rendering; the text value remains authoritative. */
+html[data-appearance="frutiger-aero"] .themed-site progress {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 14px;
+  border: 1px solid var(--site-control-border);
+  border-radius: var(--button-radius);
+  overflow: hidden;
+  background: var(--site-raised);
+  color: var(--frutiger-mint);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  progress::-webkit-progress-bar {
+  border-radius: inherit;
+  background: var(--site-raised);
+}
+html[data-appearance="frutiger-aero"]
+  .themed-site
+  progress::-webkit-progress-value {
+  border-radius: inherit;
+  background: var(--frutiger-progress);
+}
+html[data-appearance="frutiger-aero"] .themed-site progress::-moz-progress-bar {
+  border-radius: inherit;
+  background: var(--frutiger-progress);
+}
+
+html[data-appearance="frutiger-aero"] .themed-site dialog {
+  border: 1px solid var(--site-control-border);
+  border-radius: 24px;
+  background: var(--site-surface);
+  box-shadow:
+    inset 0 1px 0 #ffffffa6,
+    0 36px 72px -32px var(--site-dialog-shadow);
+}
+html[data-appearance="frutiger-aero"] .themed-site .empty-state {
+  border-color: var(--site-control-border);
+  border-radius: var(--radius-panel);
+}
+html[data-appearance="frutiger-aero"] .themed-site .notice {
+  border-radius: 16px;
+}
+
+@media (max-width: 640px) {
+  html[data-appearance="frutiger-aero"] .themed-site {
+    --radius-panel: 18px;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site .map-slot-badge {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 0.72rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-appearance="frutiger-aero"]
+    .themed-site
+    :is(button, .button, a, input, select, textarea) {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="frutiger-aero"] .themed-site::before {
+    display: none;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site {
+    --site-surface: Canvas;
+    --site-raised: Canvas;
+    --site-tint: Canvas;
+    --frutiger-gloss: none;
+    --site-button-shadow: none;
+    background: Canvas;
+    color: CanvasText;
+  }
+  /* Remove the decorative gradients and depth; colours are re-mapped below. */
+  html[data-appearance="frutiger-aero"]
+    .themed-site
+    :is(
+      .site-header,
+      .site-footer,
+      .panel,
+      .edition-card,
+      .settings-card,
+      .registration-card,
+      .identity-panel,
+      .information-heading,
+      .information-banner,
+      .information-active,
+      .information-contents,
+      .map-browse-card,
+      .public-match-card,
+      .match-card,
+      .player-card,
+      .badge,
+      .map-slot-badge,
+      .event-pills,
+      .workspace-tabs,
+      .tournament-navigation nav,
+      dialog
+    ) {
+    border-color: CanvasText;
+    background-image: none;
+    background-color: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+  }
+  html[data-appearance="frutiger-aero"]
+    .themed-site
+    :is(.main-nav > a[aria-current], .event-pills [aria-pressed="true"]) {
+    background: Highlight;
+    color: HighlightText;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site :is(button, .button) {
+    border-color: ButtonText;
+    background-image: none;
+    background-color: ButtonFace;
+    color: ButtonText;
+    box-shadow: none;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site select:not([multiple]) {
+    appearance: auto;
+    -webkit-appearance: auto;
+    background-image: none;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site progress {
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
+  html[data-appearance="frutiger-aero"] .themed-site :focus-visible {
+    outline-color: Highlight;
+  }
+}

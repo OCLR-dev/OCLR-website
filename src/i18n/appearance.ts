@@ -20,6 +20,8 @@ export function appearanceLabel(
       return tr("Esports broadcast");
     case "retro-arcade":
       return tr("Retro arcade");
+    case "frutiger-aero":
+      return tr("Frutiger Aero");
     default:
       return tr("Original design");
   }

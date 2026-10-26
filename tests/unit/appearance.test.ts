@@ -8,7 +8,7 @@ import {
 } from "../../src/lib/preferences";
 
 describe("visitor appearance preference", () => {
-  it("supports only the whitelisted original, pastel, Swiss, clay, manga, glass, esports and arcade designs", () => {
+  it("supports only the whitelisted original, pastel, Swiss, clay, manga, glass, esports, arcade and Frutiger Aero designs", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",
@@ -18,6 +18,7 @@ describe("visitor appearance preference", () => {
       "glassmorphism",
       "esports-broadcast",
       "retro-arcade",
+      "frutiger-aero",
     ]);
     expect(appearanceCookie).toBe("oclr-appearance");
     expect(readAppearance("cute-pastel")).toBe("cute-pastel");
@@ -71,6 +72,10 @@ describe("visitor appearance preference", () => {
     );
     expect(readAppearance("retro-arcade", "claymorphism")).toBe("retro-arcade");
     expect(readAppearance(undefined, "retro-arcade")).toBe("retro-arcade");
+    expect(readAppearance("frutiger-aero", "claymorphism")).toBe(
+      "frutiger-aero",
+    );
+    expect(readAppearance(undefined, "frutiger-aero")).toBe("frutiger-aero");
     expect(isAppearance("default")).toBe(true);
     expect(isAppearance(undefined)).toBe(false);
     expect(isAppearance("site")).toBe(false);

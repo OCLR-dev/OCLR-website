@@ -12,6 +12,7 @@ export const appearances = [
   "glassmorphism",
   "esports-broadcast",
   "retro-arcade",
+  "frutiger-aero",
 ] as const;
 export type Appearance = (typeof appearances)[number];
 export const appearanceCookie = "oclr-appearance";

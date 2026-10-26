@@ -93,6 +93,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"])
       "glassmorphism",
       "esports-broadcast",
       "retro-arcade",
+      "frutiger-aero",
     ]) {
       test(`header overlays ${locale} ${theme} ${appearance}`, async ({
         page,
