@@ -109,6 +109,14 @@ test.describe("S8 Sakura Circuit appearance", () => {
         );
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        const currentNavigation = page.locator(".main-nav > a[aria-current]");
+        await expect(currentNavigation).toHaveCount(1);
+        await expect(currentNavigation).toHaveCSS(
+          "background-color",
+          "rgba(0, 0, 0, 0)",
+        );
+        await expect(currentNavigation).toHaveCSS("box-shadow", "none");
+        await expect(currentNavigation).toHaveCSS("border-bottom-width", "1px");
         await expect(page.locator(".themed-site")).toHaveCSS(
           "background-color",
           theme === "light" ? "rgb(255, 248, 250)" : "rgb(36, 26, 34)",
