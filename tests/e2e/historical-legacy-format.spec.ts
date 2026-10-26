@@ -29,6 +29,15 @@ test.describe("legacy historical evidence", () => {
         name: "S7 archive verification",
         status: "completed",
         registration: null,
+        rules: {
+          version: "synthetic-s7-reconstruction-v1",
+          sections: [
+            {
+              heading: "Synthetic S7 rules",
+              body: "Eight teams.\nFour players per side.",
+            },
+          ],
+        },
         published: false,
       },
     ]);
@@ -84,6 +93,20 @@ test.describe("legacy historical evidence", () => {
       { name: "oclr-locale", value: "en", domain: "127.0.0.1", path: "/" },
     ]);
     await page.setViewportSize({ width: isMobile ? 390 : 1440, height: 1000 });
+    await page.goto(`/tournaments/${slug}`);
+    await expect(
+      page.getByText("synthetic-s7-reconstruction-v1", { exact: false }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Synthetic S7 rules", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Eight teams.\nFour players per side.", { exact: true }),
+    ).toBeVisible();
+    await page.reload();
+    await expect(
+      page.getByRole("heading", { name: "Synthetic S7 rules", exact: true }),
+    ).toBeVisible();
     for (const theme of ["light", "dark"]) {
       await context.addCookies([
         { name: "oclr-theme", value: theme, domain: "127.0.0.1", path: "/" },

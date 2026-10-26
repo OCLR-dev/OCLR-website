@@ -153,3 +153,43 @@ describe("S4 saved original sections", () => {
     ).toBeNull();
   });
 });
+
+describe("S7 saved reconstructed rules", () => {
+  const source = historicalArchiveSchema.parse(
+    JSON.parse(readFileSync("docs/imports/s7-archive.json", "utf8")),
+  );
+  const configured = {
+    version: "synthetic-s7-v1",
+    sections: [
+      {
+        heading: "Synthetic group rules",
+        body: "Four teams per group.\nFirst to six wins.",
+      },
+    ],
+  };
+  it("uses saved versions and literal sections independently of the edition slug", () => {
+    const rules = historicalRulebook(
+      { ...source, editionSlug: "renamed" },
+      configured,
+    )!;
+    expect(rules).toMatchObject(configured);
+    expect(rules.sections).toBe(configured.sections);
+    expect(historicalRulebookSeason(rules)).toBe("7");
+    const updated = {
+      version: "synthetic-s7-v2",
+      sections: [{ heading: "Revised", body: "Updated saved text" }],
+    };
+    expect(historicalRulebook(source, updated)).toMatchObject(updated);
+  });
+  it("keeps missing rules empty and does not identify other workbooks as S7", () => {
+    expect(historicalRulebook(source)).toBeNull();
+    expect(historicalRulebook(source, null)).toBeNull();
+    expect(
+      historicalRulebook(
+        { ...source, sourceUrl: "https://example.com/unknown" },
+        configured,
+      ),
+    ).toBeNull();
+    expect(historicalRulebook(archive, configured)).toBe(s9);
+  });
+});

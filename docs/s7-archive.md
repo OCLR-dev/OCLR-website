@@ -70,3 +70,23 @@ After the organizer confirms deployment, use computer use at https://oclr.org/:
 Initial #175 validation: `npm run check`, production build and 45 targeted unit/integration tests passed. S7 was subsequently imported and published through computer use after explicit organizer approval, with anonymous desktop/mobile verification; the organizer performed deployment.
 
 The #176 identity follow-up passes `npm run check`, production build, 25 archive unit tests and five transaction integration tests. Integration tests use only `TEST_DATABASE_URL=postgresql://emik@127.0.0.1:5432/oclr_archive_test`. Production dependency audit reports zero vulnerabilities. The legacy-format browser test passes on desktop and mobile using installed Chrome (`PLAYWRIGHT_CHANNEL=chrome`): full S7 private file import, separate publication, all 18 staff links including the corrected name and numeric username `110`, final Tier cards, ACE filtering and forfeit schedule/bracket rendering in light/dark, including accessibility and overflow checks. Package regeneration is semantically identical; comparison against the previous package confirms no changes to teams, roster, dates, results, Tiers or maps. Formal production update evidence is recorded on #176 after the organizer authorizes the importer-required temporary unpublication.
+
+## Saved reconstructed rules (#338, 2026-10-26)
+
+The organizer supplied a draft rulebook and confirmed a reconstructed version,
+now saved through the native rules editor. Earlier statements above that no
+rulebook was supplied describe the initial import checkpoint, not current content.
+S7's public historical page now reads the edition's saved rules version and
+sections when the archive matches the evidenced S7 workbook. No rule text is
+bundled or substituted, and missing saved rules still display as unrecorded.
+Other seasons retain their existing source matching. No migration or re-import
+is needed; the compatible application release must be deployed before this
+change is visible on the live site. This implementation does not establish live
+deployment or change any saved archive data.
+
+Validation for #338: Node 24.22.1, `npm ci`, `npm run check`, production
+`npm run build`, `npm audit --omit=dev` (zero vulnerabilities), and
+`git diff --check` completed. The organizer requested skipping regression tests
+while the full suite and desktop/mobile browser checks were running; those
+runs were stopped and are not reported as passing. Regression coverage remains
+in the patch for later CI execution. No production deployment was performed.

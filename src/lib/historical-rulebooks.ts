@@ -15,6 +15,9 @@ type HistoricalRulebook = {
   }[];
 };
 
+const s7SourceUrl =
+  "https://docs.google.com/spreadsheets/d/1vZ7JN6ePxDqjdVZ1527fvyeoV1m5rbHzSvXObDUuf7I/edit";
+
 const supplements: {
   sheetId: string;
   season: string;
@@ -93,6 +96,16 @@ export function historicalRulebook(
       sections: configured.sections,
     };
   }
+  // S7 reconstruction is maintained in the native versioned editor.
+  // Bind to its source workbook, not the editable slug or a frozen rules copy.
+  if (configured && archive.sourceUrl === s7SourceUrl) {
+    return {
+      title: "OCLR S7 重建版规则",
+      version: configured.version,
+      documentUrl: s7SourceUrl,
+      sections: configured.sections,
+    };
+  }
   const sheet = new URL(archive.sourceUrl);
   return (
     supplements.find(
@@ -128,5 +141,7 @@ export function historicalRulebookSeason(rules: HistoricalRulebook) {
     rules.documentUrl === "https://docs.qq.com/doc/DUHFuRFBER1NKS3Bw"
   )
     return "6";
+  if (rules.title === "OCLR S7 重建版规则" && rules.documentUrl === s7SourceUrl)
+    return "7";
   return supplements.find((entry) => entry.rules === rules)?.season;
 }
