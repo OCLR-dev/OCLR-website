@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 64" fill="none">
+  <defs>
+    <linearGradient id="frost" x1="0" y1="0" x2="0" y2="48" gradientUnits="userSpaceOnUse"><stop stop-color="#f4fdff" stop-opacity=".85"/><stop offset=".38" stop-color="#c8ebf6" stop-opacity=".4"/><stop offset="1" stop-color="#a4d5e8" stop-opacity="0"/></linearGradient>
+    <g id="sprig" stroke="#97cce0" stroke-width=".65" stroke-linejoin="miter"><path d="M0 0v30m0-18-7-5m7 5 8-5m-8 14-11-7m11 7 12-7m-12 16-5-3m5 3 5-3m-16-13v-5m23 5v-5"/><path d="m0 4-3 14 3 12 3-12z" fill="#dff6fc" fill-opacity=".35" stroke-width=".4"/></g>
+  </defs>
+  <path d="M0 0h1000v5l-23 2-9-3-13 10-16-8-21 3-19-4-14 12-13-9-24 3-17-5-16 9-25-10-18 7-22-4-17 10-14-12-24 6-19-5-15 12-20-9-29 3-13-7-17 14-22-7-17 3-19-7-24 11-15-10-21 4-17-8-18 16-20-12-21 5-16-9-20 13-19-8-24 4-15-8-18 12-25-9-17 4-19-7-16 14-22-12-19 7-18-10-20 15-24-9-17 4-21-8-18 13-20-11-17 6-23-10-18 14-19-9-18 5L0 5Z" fill="url(#frost)"/>
+  <g opacity=".65">
+    <use href="#sprig" transform="translate(26) rotate(-18)"/><use href="#sprig" transform="translate(67) scale(.6) rotate(12)"/><use href="#sprig" transform="translate(116) scale(.8) rotate(-8)"/><use href="#sprig" transform="translate(181) scale(.55) rotate(23)"/>
+    <use href="#sprig" transform="translate(262) scale(1.05) rotate(12)"/><use href="#sprig" transform="translate(297) scale(.5) rotate(-16)"/><use href="#sprig" transform="translate(418) scale(.7) rotate(-14)"/><use href="#sprig" transform="translate(456) scale(.5) rotate(17)"/>
+    <use href="#sprig" transform="translate(571) scale(.9) rotate(19)"/><use href="#sprig" transform="translate(626) scale(.55) rotate(-22)"/><use href="#sprig" transform="translate(734) scale(.7) rotate(-7)"/><use href="#sprig" transform="translate(782) scale(.5) rotate(21)"/>
+    <use href="#sprig" transform="translate(882) scale(1.1) rotate(-17)"/><use href="#sprig" transform="translate(943) scale(.6) rotate(8)"/>
+  </g>
+  <path d="M0 .6h1000" stroke="#fff" stroke-opacity=".9"/>
+</svg>

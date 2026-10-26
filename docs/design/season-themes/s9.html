@@ -1,86 +1,132 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="zh-Hant">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>OCLR s9 — Theme sample</title>
-    <link rel="stylesheet" href="sample.css" />
-    <link rel="stylesheet" href="s9.css" />
-    <script src="sample.js" defer></script>
+    <title>S9 · 最新應用 UI 設計對照</title>
+    <script src="s9.js" defer></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f0f3f5;
+        color: #173c59;
+        font:
+          16px/1.6 system-ui,
+          sans-serif;
+      }
+      header {
+        padding: 24px;
+        background: #fff;
+        border-bottom: 1px solid #ccdae0;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 0;
+      }
+      a {
+        color: #006c98;
+      }
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px 24px;
+        background: #fff;
+      }
+      label {
+        display: grid;
+        gap: 4px;
+        font-size: 14px;
+      }
+      select {
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid #66889d;
+        border-radius: 6px;
+        font: inherit;
+        color: inherit;
+        background: #fff;
+      }
+      figure {
+        margin: 24px;
+      }
+      figcaption {
+        margin-bottom: 12px;
+      }
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border: 1px solid #ccdae0;
+        background: #fff;
+      }
+      :focus-visible {
+        outline: 3px solid #006c98;
+        outline-offset: 3px;
+      }
+    </style>
   </head>
   <body>
-    <div id="sample-root"></div>
-    <noscript
-      >This local design sample needs JavaScript for its preview
-      controls.</noscript
-    >
-    <script id="sample-data" type="application/json">
-      {
-        "number": 9,
-        "art": "s9/thumbnail.png",
-        "width": 1920,
-        "height": 1080,
-        "period": "2023 Winter",
-        "direction": "Glacier Blue",
-        "chineseName": "冰晶鈷藍",
-        "thesis": "以冬季主視覺的冰藍與鈷藍建立冷冽、清楚的閱讀介面。白色冰層般的留白、細邊框與短藍線回應冰晶；高飽和紋理留在原圖，資料區不疊加紋理。",
-        "geometry": "4px 面板與 4px 控制項圓角，細線分隔、緊實的水平節奏。深色使用午夜海軍藍與亮冰藍，不將整頁染成高亮純藍。",
-        "swatches": [
-          ["Cobalt", "#1748D5"],
-          ["Ice", "#79DCFF"],
-          ["Frost", "#EAF6FF"],
-          ["Navy", "#102C50"],
-          ["Paper", "#F4F9FE"]
-        ],
-        "season": "s9",
-        "teams": 8,
-        "pools": 4,
-        "poolName": "GROUP STAGE",
-        "maps": [
-          {
-            "slot": "NM1",
-            "beatmapId": 3774074,
-            "title": "Toyama Nao - Gunjou Infinity [dahkjdas' Extra]",
-            "mapper": "_kotachi_",
-            "stars": 5.9165
-          },
-          {
-            "slot": "NM2",
-            "beatmapId": 3645174,
-            "title": "SHIKI - Pure Ruby [owo (DAHT 3rd Edition)]",
-            "mapper": "MetaBee",
-            "stars": 5.83893
-          },
-          {
-            "slot": "NM3",
-            "beatmapId": 3970481,
-            "title": "Islet feat. isui - Hakujitsumu [Kanui's Expert]",
-            "mapper": "Flame Haze",
-            "stars": 5.30871
-          }
-        ],
-        "matches": [
-          {
-            "label": "1",
-            "stage": "Group A",
-            "date": "2023-11-04",
-            "time": "22:00",
-            "teams": ["彼瘾犯了", "不可选取"],
-            "score": [6, 3],
-            "url": "https://osu.ppy.sh/community/matches/111168428"
-          },
-          {
-            "label": "2",
-            "stage": "Group A",
-            "date": "2023-11-05",
-            "time": "21:00",
-            "teams": ["對手太強怎麼贏", "土地瓜队"],
-            "score": [6, 4],
-            "url": "https://osu.ppy.sh/community/matches/111183176"
-          }
-        ]
-      }
-    </script>
+    <header>
+      <h1>S9 · 最新應用 UI 設計對照</h1>
+      <p>
+        圖片直接來自 main <code>cc366f2</code> 的實際頁面。S9 僅套用候選
+        CSS；頁面元件、內容與導覽結構保持一致。
+      </p>
+      <p>
+        <a href="s9/DESIGN.md">設計規格與重現步驟</a> ·
+        <a href="s9/verification.json">截圖與檢查紀錄</a> ·
+        <a href="https://github.com/OCLR-dev/OCLR-website/issues/196"
+          >Issue #196</a
+        >
+      </p>
+    </header>
+    <p style="margin: 16px 24px">角色插畫：東方Project 二次創作 · 琪露諾 / Cirno ©上海アリス幻樂団。<a href="s9/ARTWORK.md">素材與生成記錄</a></p>
+    <form aria-label="預覽控制">
+      <label
+        >實際頁面<select name="surface">
+          <option value="">S9 主頁</option>
+          <option value="mappools-">S9 圖池</option>
+          <option value="admin-">Admin 網站設定</option>
+        </select></label
+      >
+      <label
+        >尺寸<select name="size">
+          <option value="desktop">桌面 1440px</option>
+          <option value="mobile">手機 390px</option>
+        </select></label
+      >
+      <label
+        >明暗<select name="theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select></label
+      >
+      <label
+        >設計<select name="version">
+          <option value="">S9 候選設計</option>
+          <option value="current-">最新 UI 原有風格</option>
+        </select></label
+      >
+    </form>
+    <figure>
+      <figcaption aria-live="polite" id="caption">
+        S9 候選設計 · S9 主頁 · 桌面 · Light
+      </figcaption>
+      <img
+        id="preview"
+        src="s9/desktop-light.webp"
+        width="1440"
+        height="1000"
+        alt="最新 S9 實際主頁，套用候選 S9 設計"
+      />
+    </figure>
   </body>
 </html>
