@@ -1,7 +1,7 @@
 {
-  "date": "2026-10-24",
+  "date": "2026-10-26",
   "browser": "Headless Google Chrome",
-  "scope": "Static design samples; not application regression or production verification",
+  "scope": "Static design sample; not application regression or production verification",
   "cases": [
     {
       "season": "s10",

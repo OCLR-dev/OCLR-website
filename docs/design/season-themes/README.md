@@ -4,6 +4,8 @@
 
 這是一組**待審閱的離線設計樣本**，不會出現在正式路由、外觀選單或 Admin 設定。沒有資料庫、API、cookie、localStorage、外部字體或新套件。介面標籤以英文展示，中文為設計註記；正式接入須沿用 next-intl 的 `zh-Hans`、`zh-Hant`、`en`，不將此原型的文字直接搬入產品。
 
+2026-10-26：依主辦方新要求更新 [S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)，對照目前九款已註冊 appearance，採用奶油紙面、晴空藍導視、正式 OCLR Logo、置頂賽季導覽及獨立工作分頁。詳見 [S10 設計與 theme 對照](s10/DESIGN.md)。其他三季保留原樣；四季仍待設計審閱。
+
 | Season | 提案                        | 可操作樣本           | 設計規格                | 預覽                                                                                              |
 | ------ | --------------------------- | -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
 | S10    | Skyline Pop · 晴空未來城    | [s10.html](s10.html) | [Design](s10/DESIGN.md) | [Light](s10/desktop-light.webp) / [Dark](s10/desktop-dark.webp) / [Mobile](s10/mobile-light.webp) |
@@ -28,9 +30,9 @@
 
 ## 共用設計與接入邊界
 
-先以相同比賽、圖池及表單層級確立結構，再分季調整語意色、角度、線條與圓角。`sample.css` / `sample.js` 是 review-only 組合，用現有 MainSheet `--site-*` token 命名對照；並非正式 React 元件實作。各季 CSS 的明暗 token 表是候選值，**尚未加入正式白名單**。
+先以相同比賽、圖池及表單層級確立結構，再分季調整語意色、角度、線條與圓角。`sample.css` / `sample.js` 是 review-only 組合；更新後的 S10 使用共用基礎 CSS 與獨立 `s10.js`，不改其他季樣本。所有樣本用現有 MainSheet `--site-*` token 命名對照，並非正式 React 元件實作。各季 CSS 的明暗 token 表是候選值，**尚未加入正式白名單**。
 
-正式接入若獲後續授權，應擴充既有外觀系統與元件，不建立另一套前端；保留 default / cute-pastel / swiss-minimal、SSR 首屏、獨立 light/dark，以及「訪客 cookie → 當前有權限／已發佈賽事 defaultAppearance → 全站預設」優先序。清除訪客偏好跟隨當前路由的預設；非賽事路由不繼承上一季。外觀不能改變資料授權、發佈、OAuth/deep link 或 OBS / presenter。
+正式接入若獲後續授權，應擴充既有外觀系統與元件，不建立另一套前端；保留目前九款外觀（default / cute-pastel / swiss-minimal / claymorphism / manga-halftone / glassmorphism / esports-broadcast / retro-arcade / frutiger-aero）、SSR 首屏、獨立 light/dark，以及「訪客 cookie → 當前有權限／已發佈賽事 defaultAppearance → 全站預設」優先序。清除訪客偏好跟隨當前路由的預設；非賽事路由不繼承上一季。外觀不能改變資料授權、發佈、OAuth/deep link 或 OBS / presenter。
 
 設計依據：[Refactoring UI skill](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 與 hierarchy / layout-spacing / typography / color / depth-and-polish 參考；套用於原有 MainSheet 層級、系統字體、16px 內文、44px 控制項與有限間距尺度。動效僅為進場與 hover / press 回饋；reduced motion 關閉。
 
@@ -38,6 +40,10 @@
 
 執行 `node docs/design/season-themes/verify.mjs`（既有 Playwright、Axe、Sharp 與本機 Chrome）。輸出 `verification.json` 及每季八張 WebP：桌面／手機 overview 與 Admin，各自明暗。驗證包括 320 / 390 / 768 / 1440px × 四季 × 明暗、圖片載入、頁面溢出、分頁鍵盤、表單預覽與重設、overview / Admin Axe AA 掃描。
 
+使用 Node.js 24；可指定 `node docs/design/season-themes/verify.mjs s10` 只重驗 S10，寫入該季報告與八張預覽，不覆蓋歷史全批次報告或其他季預覽。S10 額外檢查完整 1:1 主視覺、sticky 導覽、44px 控制項與工作分頁收起 hero；Admin 預覽為完整頁面。
+
 這是設計樣本的視覺與互動檢查，**不是正式應用的回歸、資料庫／整合測試、production build 或部署驗收**。正式接入時必須另外執行專案完整批次驗證，並審閱三語、長名稱、公開／登入／Admin／Player／Captain、外觀選單及所有繼承／清除狀態。
 
-本次實際結果：**32 組 viewport／明暗組合與 64 次 Axe AA 掃描通過，零違規／零頁面錯誤／零資產請求失敗**。樣本與驗證腳本 ESLint：0 errors、0 warnings。四季共 32 張 WebP 預覽圖。各季 `verification.json` 為該季子集，共用報告為完整批次結果。
+2026-10-24 原批次結果：**32 組 viewport／明暗組合與 64 次 Axe AA 掃描通過，零違規／零頁面錯誤／零資產請求失敗**。四季共 32 張 WebP 預覽圖；共用 `verification.json` 保留該次歷史結果。
+
+2026-10-26 S10 更新結果：**8 組 viewport／明暗組合、16 次 Axe AA 掃描通過，零違規／零頁面錯誤／零資產請求失敗**；八張 S10 預覽與 [本季報告](s10/verification.json) 已更新。S10 renderer 與驗證腳本 ESLint 為 0 errors、0 warnings；其他三季只做圖片／Admin 分頁 smoke，未重跑完整驗證矩陣。
