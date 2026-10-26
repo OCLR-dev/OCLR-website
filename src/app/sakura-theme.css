@@ -1,4 +1,4 @@
-/* S8 Sakura Circuit: approved banner, half portrait and refined sakura illustration. */
+/* S8 Sakura Circuit: approved banner, half portrait, refined blossoms and warm hairlines. */
 html[data-appearance="sakura-circuit"] .themed-site {
   --site-background: #fff8fa;
   --site-surface: #ffffff;
@@ -30,6 +30,8 @@ html[data-appearance="sakura-circuit"] .themed-site {
   --button-radius: 8px;
   --radius-panel: 8px;
   --sakura-pink: #f175af;
+  --sakura-orange: #e7834b;
+  --sakura-orange-soft: #edb59a;
   --sakura-ink: #ab5b7c;
   --sakura-heroine: url("/themes/sakura-circuit/heroine-half.webp");
   --sakura-sprig: url("/themes/sakura-circuit/blossom-spray.webp");
@@ -65,9 +67,11 @@ html[data-appearance="sakura-circuit"][data-theme="dark"] .themed-site {
   --site-dialog-shadow: #0009;
   --site-backdrop: #0009;
   --sakura-ink: #d58ba9;
+  --sakura-orange: #edaa7a;
+  --sakura-orange-soft: #896048;
 }
 html[data-appearance="sakura-circuit"] .themed-site .site-header {
-  border-bottom: 1px solid var(--site-border);
+  border-bottom: 1px solid var(--sakura-orange-soft);
   box-shadow: none;
 }
 html[data-appearance="sakura-circuit"] .themed-site .page-heading {
@@ -103,7 +107,9 @@ html[data-appearance="sakura-circuit"] .themed-site .page-heading::after {
   background: linear-gradient(
     90deg,
     transparent,
-    var(--site-border) 16% 84%,
+    var(--sakura-orange) 12%,
+    var(--sakura-orange-soft) 28%,
+    var(--site-border) 48% 84%,
     transparent
   );
   pointer-events: none;
@@ -115,6 +121,22 @@ html[data-appearance="sakura-circuit"] .themed-site .archive-counts {
   border-radius: 8px;
   background: var(--site-surface);
   box-shadow: 0 12px 28px -24px var(--site-panel-shadow);
+}
+/* A single warm hairline echoes the original artwork without framing the data. */
+html[data-appearance="sakura-circuit"] .themed-site .archive-counts::before {
+  content: "";
+  position: absolute;
+  inset: -1px 24px auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--sakura-orange-soft) 18%,
+    var(--sakura-orange) 50%,
+    var(--sakura-orange-soft) 82%,
+    transparent
+  );
+  pointer-events: none;
 }
 html[data-appearance="sakura-circuit"] .themed-site .archive-counts > div {
   padding: 16px 24px;
