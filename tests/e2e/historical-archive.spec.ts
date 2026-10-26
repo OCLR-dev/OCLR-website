@@ -304,6 +304,7 @@ test.describe("historical archive browser workflow", () => {
       page,
       context,
       isMobile,
+      baseURL,
     }, info) => {
       const slug = `s${season}-content-${isMobile ? "mobile" : "desktop"}-test`;
       const sections = JSON.parse(
@@ -347,7 +348,7 @@ test.describe("historical archive browser workflow", () => {
       ]);
       for (const theme of ["light", "dark"]) {
         await context.addCookies([
-          { name: "oclr-theme", value: theme, url: new URL(page.url()).origin },
+          { name: "oclr-theme", value: theme, url: baseURL! },
         ]);
         await page.goto("/tournaments");
         const card = page
