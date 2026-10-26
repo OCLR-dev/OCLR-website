@@ -5,22 +5,32 @@ import { EligibilityLimitsSummary } from "./eligibility-summary";
 import { RulesHandbook } from "./rules-handbook";
 import { Action, EmptyState } from "./ui";
 
+export function tournamentRuleSections(
+  edition: Pick<PublicTournament, "rules" | "eligibility">,
+  eligibilityHeading: string,
+) {
+  return [
+    ...(edition.eligibility
+      ? [{ heading: eligibilityHeading, body: edition.eligibility }]
+      : []),
+    ...(edition.rules?.sections ?? []),
+  ].map((section, index) => ({ ...section, id: `rules-${index + 1}` }));
+}
+
 /** The public homepage owns the published rules and their publication state. */
 export async function TournamentRules({
   edition,
+  sections,
+  showContents = true,
 }: {
   edition: Pick<
     PublicTournament,
     "slug" | "rules" | "eligibility" | "automaticEligibility"
   >;
+  sections: ReturnType<typeof tournamentRuleSections>;
+  showContents?: boolean;
 }) {
   const tr = await getAppTranslations();
-  const sections = [
-    ...(edition.eligibility
-      ? [{ heading: tr("Eligibility"), body: edition.eligibility }]
-      : []),
-    ...(edition.rules?.sections ?? []),
-  ].map((section, index) => ({ ...section, id: `rules-${index + 1}` }));
   return (
     <>
       {hasEligibilityLimits(edition.automaticEligibility) && (
@@ -37,7 +47,9 @@ export async function TournamentRules({
           {edition.rules.version} · {sections.length} {tr("sections")}
         </p>
       )}
-      {sections.length > 0 && <RulesHandbook sections={sections} />}
+      {sections.length > 0 && (
+        <RulesHandbook sections={sections} showContents={showContents} />
+      )}
       {!edition.rules && (
         <>
           <EmptyState title={tr("Rules to be announced")}>

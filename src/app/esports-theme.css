@@ -681,7 +681,11 @@ html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
     .event-content > :first-child:is(.information-heading, .page-heading),
     .event-content
       > :first-child:not(.information-heading, .page-heading)
-      > :first-child:is(.information-heading, .event-section-heading, h1),
+      > :first-child:is(
+        .information-heading,
+        .event-section-heading,
+        h1:not(.sr-only)
+      ),
     .container.page > .page-heading:first-child
   ) {
   --site-background: #0b0e14;
@@ -717,13 +721,13 @@ html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
   color-scheme: dark;
   color: var(--site-foreground);
 }
-/* The breadcrumb band carries the stage wash and reaches under the bar. */
+/* Keep the sticky tournament band within its measured vertical bounds. */
 html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
   .themed-site:is(.public-site, :has(.auth-page))
   .public-tournament
   > .event-context {
   margin-bottom: 1rem;
-  border-image: linear-gradient(#2a1020, #0b0e14 9rem) fill 0 / /4rem 100vw 1rem;
+  border-image: linear-gradient(#2a1020, #0b0e14 9rem) fill 0 / /0 100vw;
 }
 /* Titles close the stage with a magenta rule below some breathing room. */
 html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
@@ -732,7 +736,11 @@ html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
     .event-content > :first-child:is(.information-heading, .page-heading),
     .event-content
       > :first-child:not(.information-heading, .page-heading)
-      > :first-child:is(.information-heading, .event-section-heading, h1)
+      > :first-child:is(
+        .information-heading,
+        .event-section-heading,
+        h1:not(.sr-only)
+      )
   ) {
   margin-top: 0;
   padding-top: 0.5rem;
