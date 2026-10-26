@@ -22,6 +22,8 @@ export function appearanceLabel(
       return tr("Retro arcade");
     case "frutiger-aero":
       return tr("Frutiger Aero");
+    case "skyline-pop":
+      return tr("S10 · Skyline Pop");
     default:
       return tr("Original design");
   }

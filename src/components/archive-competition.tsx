@@ -11,10 +11,12 @@ export function ArchiveCompetition({
   bracket,
   teamUrls,
   standings,
+  finalStandings,
 }: {
   bracket: ResolvedBracket | null;
   teamUrls: Record<string, string>;
   standings?: ReactNode;
+  finalStandings?: ReactNode;
 }) {
   const tr = useAppTranslations();
   const [phase, setPhase] = useState<"group" | "knockout">("group");
@@ -70,6 +72,7 @@ export function ArchiveCompetition({
         <p className="muted">{tr("No recorded matches.")}</p>
       )}
       {phase === "group" && standings}
+      {finalStandings}
     </section>
   );
 }

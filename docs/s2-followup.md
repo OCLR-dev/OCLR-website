@@ -67,6 +67,48 @@ unpublish/reimport the entire accepted season to resolve one UID.
 
 ## Statistics integration
 
+### Confirm additional historical substitutes
+
+Format 2 archives using final Tier evidence now offer **Confirm historical
+substitute** on the archive management page, including published editions.
+Supply the literal source username, UID, recorded team, roster cell/range and
+organizer confirmation source. The command appends one `player` with unknown
+Tier. It does not infer a replaced player, draft pick or replacement date.
+Confirmation evidence stays in the private management appendix; the roster
+identity and original roster source follow the existing public archive model.
+
+The command requires both `configure_tournament` and `approve_results`, locks
+the edition, checks its revision and rejects existing UIDs/identities. Roster
+and statistics updates share one transaction and automatic audit trail.
+Existing current published snapshots are fully revalidated against both roster
+versions, including exclusions, source completeness, every MP and series score.
+Only identical projected plays retain publication with a new archive key;
+their source, selections, review exceptions and publication time stay intact.
+Any affected release that fails revalidation aborts the entire confirmation.
+Valid unchanged drafts are carried forward; stale or invalid drafts stay stale.
+Statistics versions increment so an open reviewer cannot overwrite the change.
+Newly attributable games are never automatically selected or published.
+
+Apply the organizer-confirmed additional S2 identities only after this follow-up
+PR is reviewed, merged and deployed. Reload the saved roster and existing
+statistics coverage, then review the four remaining imported fixtures through
+the normal review and explicit publication flow. No migration is required.
+
+### Organizer-authorized live follow-up (2026-10-26)
+
+After PR #368 was merged and the organizer deployed it, the live UI saved the
+confirmed UID and imported 18 of 23 recorded MP links. The organizer later
+approved all publishable fixtures and explicitly confirmed the substitutes,
+replay selection, technical scoring and documented slot interpretation.
+Fourteen fixtures are now published: 105 actual games, 626 retained scores and
+58 players. All 58 public performance rows were independently recalculated
+from the selected saved official MP sources. One technical point in GS B7 has
+no invented player score. Four imported fixtures still need the substitute
+confirmation UI above; eleven played fixtures have missing/unavailable sources.
+The forfeit remains excluded from the 29 played-fixture denominator. Detailed
+source/review evidence stays in the private review artifact, not this repository.
+These observations do not establish CI success or official bracket progression.
+
 S2 uses the existing importer/reviewer and six statistics tabs, with shared
 season support in public/Admin navigation and saved-data services. Whole-series
 ties reconcile normally; forfeits without plays remain excluded. Accepted played
@@ -120,3 +162,28 @@ recorded separately from local synthetic verification.
   released on the live site, and no deployment was performed. New Chinese labels,
   candidate advancement relations and the eventual deployed UI still require
   organizer review. Commit-specific CI is recorded on #365 after pushing.
+
+## Substitute follow-up verification (2026-10-27)
+
+- Based on main `cc366f2e80563b3effff6bf25ef8074c6a95258f`, Node.js
+  24.22.1 and locked `npm ci`. Check/types, production build, i18n and production
+  dependency audit passed (zero vulnerabilities).
+- Full unit/integration suite: 1,328 passed, one existing skipped. Final affected
+  archive/statistics/identity/i18n rerun: 41 passed. Tests cover edition scope,
+  duplicate and stale commands, concurrent confirmations, unknown Tier,
+  unchanged releases/publication timestamps, stale drafts and complete rollback
+  when an existing published exclusion would become invalid.
+- Desktop/mobile historical archive and statistics files: the initial run had
+  18 passes and eight failures from ambiguous new-form selectors and existing
+  hardcoded test origins. After fixing those, six affected flows passed; the
+  remaining two exposed the new team selector's accessible label. Its explicit
+  label was fixed and both substitute workflows passed, including light/dark,
+  Axe, mobile width, confirmation, saved readback and anonymous profile links.
+  This records the initial result and affected reruns, not another full E2E run.
+- The existing port 3100 service was left intact. Browser verification used a
+  temporary loopback 31469 configuration and a copy of the test-only provider
+  with the same test-database/synthetic-secret guards and exact alternate origin.
+  Neither temporary file is part of the patch. CI uses the normal configuration.
+- No real substitute has been appended by this code change, and it has not been
+  deployed. Organizer review of the new Chinese labels, PR/CI and deployment
+  remain required before the four held live fixtures can be completed.

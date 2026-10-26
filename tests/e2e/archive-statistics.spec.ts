@@ -69,12 +69,14 @@ test.describe("historical statistics review and public exploration", () => {
       { name: "oclr-locale", value: "en", domain: "127.0.0.1", path: "/" },
     ]);
     const guestPage = await guest.newPage();
-    await guestPage.goto("http://127.0.0.1:3100/tournaments/s7/statistics");
+    await guestPage.goto(
+      new URL("/tournaments/s7/statistics", page.url()).href,
+    );
     await expect(guestPage.locator(".event-table tbody tr")).toHaveCount(0);
     expect(
       (
         await guest.request.get(
-          "http://127.0.0.1:3100/api/admin/tournaments/s7/statistics",
+          new URL("/api/admin/tournaments/s7/statistics", page.url()).href,
         )
       ).status(),
     ).toBe(401);
@@ -160,7 +162,7 @@ test.describe("historical statistics review and public exploration", () => {
     // Publish the same synthetic evidence through the authenticated, origin-protected API for each remaining edition.
     for (const slug of seasons.slice(1)) {
       const api = "/api/admin/tournaments/" + slug + "/statistics";
-      const headers = { Origin: "http://127.0.0.1:3100" };
+      const headers = { Origin: new URL(page.url()).origin };
       expect(
         (
           await context.request.post(api, {

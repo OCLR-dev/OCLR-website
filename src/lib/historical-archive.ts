@@ -426,6 +426,61 @@ export function approveArchiveMatches(
   });
 }
 
+/** Organizer evidence for one additional historical substitute. */
+export const archiveSubstituteConfirmation = z
+  .object({
+    osuId: id,
+    username: text,
+    teamId: key,
+    source,
+    confirmationSource: source,
+  })
+  .strict();
+
+/** Append confirmed participation, without guessing draft Tier or replacement. */
+export function addArchiveSubstitute(
+  archive: HistoricalArchive,
+  input: z.infer<typeof archiveSubstituteConfirmation>,
+): HistoricalArchive {
+  const c = archiveSubstituteConfirmation.parse(input);
+  if (
+    archive.formatVersion !== 2 ||
+    archive.draftMode !== "final-tiers" ||
+    !archive.teams.some((t) => t.id === c.teamId) ||
+    archive.players.some(
+      (p) => p.osuId === c.osuId || p.username === c.username,
+    ) ||
+    archive.unresolvedPlayers?.some((p) => p.username === c.username) ||
+    archive.rosterReplacements?.some((r) =>
+      r.people.some((p) => p.osuId === c.osuId),
+    )
+  )
+    throw new Error("Substitute identity is missing or already recorded.");
+  return historicalArchiveSchema.parse({
+    ...archive,
+    players: [
+      ...archive.players,
+      {
+        osuId: c.osuId,
+        username: c.username,
+        teamId: c.teamId,
+        role: "player",
+        tier: null,
+        source: c.source,
+      },
+    ],
+    sourceFacts: [
+      ...(archive.sourceFacts ?? []),
+      {
+        category: "review",
+        label: "Archive substitute confirmation",
+        text: `${c.username} (osu! UID ${c.osuId}) confirmed as a legal substitute for ${c.teamId}. Tier and replaced player remain unknown. Original roster source: ${c.source}`,
+        source: c.confirmationSource,
+      },
+    ],
+  });
+}
+
 /** Resolve one source-only identity without replacing competition history. */
 export function resolveArchiveIdentity(
   archive: HistoricalArchive,

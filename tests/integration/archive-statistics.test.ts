@@ -9,7 +9,13 @@ import {
 } from "vitest";
 import { sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
-import { users, staffRoles, editionEvents } from "../../src/db/schema";
+import {
+  users,
+  staffRoles,
+  editionEvents,
+  historicalStatistics,
+} from "../../src/db/schema";
+import { tournamentCommand, readTournament } from "../../src/lib/tournaments";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
@@ -43,6 +49,34 @@ const publish = {
   confirmed: true,
 };
 describe.skipIf(!url)("historical statistics transactions", () => {
+  const substitute = {
+    action: "add-archive-substitute",
+    expectedRevision: 0,
+    confirmed: true,
+    preserveStatistics: true,
+    osuId: 91991,
+    username: "Synthetic substitute",
+    teamId: "alpha",
+    source: "TEAM!L42",
+    confirmationSource: "Synthetic organizer confirmation",
+  };
+  async function finalTierArchive() {
+    await seedEditions([
+      {
+        ...edition,
+        slug: "s7",
+        status: "completed",
+        registration: null,
+        published: true,
+        archive: {
+          ...structuredClone(statisticsArchive),
+          formatVersion: 2,
+          draftMode: "final-tiers",
+          picks: [],
+        },
+      },
+    ]);
+  }
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
@@ -86,6 +120,123 @@ describe.skipIf(!url)("historical statistics transactions", () => {
   afterAll(async () => {
     await closeDb();
     vi.unstubAllEnvs();
+  });
+  it("adds a confirmed substitute atomically while preserving reviewed releases and stale drafts", async () => {
+    await finalTierArchive();
+    await statisticsCommand(referee, "s7", imported);
+    await statisticsCommand(referee, "s7", reviewed);
+    await statisticsCommand(admin, "s7", publish);
+    const before = await publicArchiveStatistics("s7", "one");
+    const [row] = await db().select().from(historicalStatistics);
+    // An unrelated stale draft must not be blessed by the roster confirmation.
+    await db()
+      .update(historicalStatistics)
+      .set({ draft: { ...row.draft, archiveKey: "b".repeat(64) } });
+    await expect(
+      tournamentCommand(other, "s7", substitute),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      tournamentCommand(referee, "s7", substitute),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      tournamentCommand(admin, "s7", { ...substitute, osuId: 91001 }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      tournamentCommand(admin, "s7", { ...substitute, tier: 4 }),
+    ).rejects.toMatchObject({ status: 400 });
+    await tournamentCommand(admin, "s7", substitute);
+    const after = await publicArchiveStatistics("s7", "one");
+    expect(after.plays).toEqual(before.plays);
+    expect(after.fixtures).toEqual(before.fixtures);
+    const [saved] = await db().select().from(historicalStatistics);
+    expect(saved.publishedAt).toEqual(row.publishedAt);
+    expect(saved.published).toEqual({
+      ...row.published!,
+      archiveKey: after.archiveKey,
+    });
+    expect(saved.draft).toEqual({
+      ...row.draft,
+      archiveKey: "b".repeat(64),
+    });
+    expect(saved.version).toBe(row.version + 1);
+    expect((await statisticsWorkspace(admin, "s7")).summaries[0].stale).toBe(
+      true,
+    );
+    const archive = (await readTournament("s7"))!.edition.archive!;
+    expect(archive.players.at(-1)).toEqual({
+      osuId: 91991,
+      username: substitute.username,
+      teamId: "alpha",
+      role: "player",
+      tier: null,
+      source: substitute.source,
+    });
+    expect(archive.matches).toEqual(statisticsArchive.matches);
+    expect(archive.sourceFacts!.at(-1)?.source).toBe(
+      substitute.confirmationSource,
+    );
+    expect(await db().select().from(users)).toHaveLength(3);
+    const events = await db().select().from(editionEvents);
+    expect(
+      events.some((e) => e.kind === "statistics_roster_revalidation"),
+    ).toBe(true);
+    expect(
+      events.some((e) => e.kind === "tournament_add-archive-substitute"),
+    ).toBe(true);
+    await expect(
+      tournamentCommand(admin, "s7", substitute),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      statisticsCommand(admin, "s7", { ...publish }),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+  it("rolls back roster, statistics, revision and audit when confirmation invalidates a published exclusion", async () => {
+    await finalTierArchive();
+    const source = statisticsSource();
+    source.games[0].scores.push({
+      ...structuredClone(source.games[0].scores[0]),
+      osuId: 91991,
+      total: 10,
+    });
+    vi.mocked(fetchMatchSource).mockResolvedValue(source);
+    await statisticsCommand(admin, "s7", imported);
+    await statisticsCommand(admin, "s7", {
+      ...reviewed,
+      excludedScores: [{ gameId: 1, osuId: 91991, reason: "non-participant" }],
+    });
+    await statisticsCommand(admin, "s7", publish);
+    const before = await readTournament("s7");
+    const rows = await db().select().from(historicalStatistics);
+    const events = await db().select().from(editionEvents);
+    await expect(
+      tournamentCommand(admin, "s7", substitute),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(await readTournament("s7")).toEqual(before);
+    expect(await db().select().from(historicalStatistics)).toEqual(rows);
+    expect(await db().select().from(editionEvents)).toEqual(events);
+    expect((await publicArchiveStatistics("s7", "one")).plays).toHaveLength(8);
+  });
+  it("serializes substitute confirmations and does not approve newly attributable games", async () => {
+    await finalTierArchive();
+    const source = statisticsSource();
+    source.games[1].scores[0].osuId = 91991;
+    vi.mocked(fetchMatchSource).mockResolvedValue(source);
+    await statisticsCommand(admin, "s7", imported);
+    await statisticsCommand(admin, "s7", { ...reviewed, included: [1] });
+    const results = await Promise.allSettled([
+      tournamentCommand(admin, "s7", substitute),
+      tournamentCommand(admin, "s7", {
+        ...substitute,
+        osuId: 91992,
+        username: "Other synthetic substitute",
+      }),
+    ]);
+    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    const [row] = await db().select().from(historicalStatistics);
+    expect(row.draft).toMatchObject({ included: [1] });
+    expect(row.published).toBeNull();
+    expect((await publicArchiveStatistics("s7", "one")).plays).toEqual([]);
+    expect((await readTournament("s7"))!.revision).toBe(1);
   });
   it("requires a versioned review to exclude a zero-score occupant and publishes only retained scores", async () => {
     const source = statisticsSource();

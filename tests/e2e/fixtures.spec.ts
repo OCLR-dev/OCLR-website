@@ -356,6 +356,8 @@ test.describe("staff fixtures and referee assignments over HTTP", () => {
         series: { type: "first_to", wins: 2 },
         playersPerTeam: 2,
       });
+      // Route content can arrive before Next.js finishes streaming metadata.
+      await expect(page).toHaveTitle("Competition fixtures");
       expect(
         (
           await new AxeBuilder({ page })
@@ -457,6 +459,9 @@ test.describe("staff fixtures and referee assignments over HTTP", () => {
       await page.reload();
       await page.getByRole("tab", { name: "Bracket", exact: true }).click();
       await expect(
+        page.getByRole("tab", { name: "Bracket", exact: true }),
+      ).toHaveAttribute("aria-selected", "true");
+      await expect(
         page.getByRole("heading", { name: "QF1", exact: true }),
       ).toBeVisible();
       await expect(page.locator("[data-match-id]")).toHaveCount(2);
@@ -477,6 +482,8 @@ test.describe("staff fixtures and referee assignments over HTTP", () => {
           () => document.documentElement.scrollWidth <= innerWidth,
         ),
       ).toBe(true);
+      // Route content can arrive before Next.js finishes streaming metadata.
+      await expect(page).toHaveTitle("Competition fixtures");
       expect(
         (
           await new AxeBuilder({ page })
@@ -744,6 +751,11 @@ test.describe("staff fixtures and referee assignments over HTTP", () => {
       expect(workspace.fixtures[0].version).toBe(1); // Only fixture publication changed this version.
       expect(workspace.fixtures[0].assignmentRevision).toBe(4);
       await page.getByRole("tab", { name: "Bracket", exact: true }).click();
+      await expect(
+        page.getByRole("tab", { name: "Bracket", exact: true }),
+      ).toHaveAttribute("aria-selected", "true");
+      // Route content can arrive before Next.js finishes streaming metadata.
+      await expect(page).toHaveTitle("Competition fixtures");
       expect(
         (
           await new AxeBuilder({ page })

@@ -13,6 +13,7 @@ export const appearances = [
   "esports-broadcast",
   "retro-arcade",
   "frutiger-aero",
+  "skyline-pop",
 ] as const;
 export type Appearance = (typeof appearances)[number];
 export const appearanceCookie = "oclr-appearance";

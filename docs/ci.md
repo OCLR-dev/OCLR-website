@@ -1,7 +1,8 @@
 # CI coverage and acceptance
 
 CI keeps functional checks strict while varying the expensive combinations that
-run for each change. The required context is still named **check**.
+run for each change. The aggregate context remains named **check**. CI reports
+results automatically, but passing CI is not required for merging.
 
 | Lane          | Always run                                                                                                              | Expanded coverage                                                                                                                |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -25,13 +26,13 @@ destructive fixtures. The functional lane shards across eight independent
 runners: the previous four-shard baseline had a successful shard taking 21.6
 minutes in test execution alone. Stateful workflows remain grouped by file;
 read-only header-branding cases own their browser contexts and shard individually
-so their 54-case groups do not overload a runner. Its existing
+so their 60-case groups do not overload a runner. Its existing
 Firefox/WebKit asset cases still run, even though its main projects are Chromium.
 
-The representative header matrix has 50 project/case combinations instead of 162. It keeps 320px, 390px, and both sides of the 950/1100px navigation breakpoints,
+The representative header matrix has 54 project/case combinations instead of 180, including S10 Skyline Pop. It keeps 320px, 390px, and both sides of the 950/1100px navigation breakpoints,
 plus 760px and desktop widths. Targeted theme expansion also preserves the
-representative cases for all other designs. Full acceptance keeps the original
-162 combinations and all 15 widths. Counts are coverage counts, not a measured
+representative cases for all other designs. Full acceptance covers
+180 combinations and all 15 widths. Counts are coverage counts, not a measured
 promise of CI runtime.
 
 Keyboard/touch actions, focus, hit-testing, authorization, publication, revocation,
@@ -95,31 +96,37 @@ GitHub workflow dispatch accepts a branch or tag ref. Point the authorized revie
 branch to the reviewed commit and verify the resulting run's head SHA. No
 deployment is performed by CI.
 
-## Maintainers and the main gate
+## Maintainers and merging
 
 The intended GitHub configuration is recorded in
 [ci-main-protection.json](ci-main-protection.json); the issue records its actual
-read-back state. Main requires the GitHub Actions check context, including for administrators.
-Direct pushes without checks are no longer the normal maintainer path. Preserve
-the existing no-PR workflow when requested by validating a feature branch first:
+read-back state. On 2026-10-27 the organizer requested that CI no longer be a
+mandatory merge condition. Main has no required status checks; CI workflows and
+their assertions continue to run. Other branch protections remain unchanged,
+including restrictions on force pushes and deletion.
+
+Follow the existing authorization and review scope:
 
 1. Fetch main and prepare a focused feature branch based on its current head.
-2. Push the authorized feature branch, then dispatch CI for that branch:
+2. Push the authorized feature branch. Manual CI remains available:
 
    ```sh
    gh workflow run ci.yml --repo OCLR-dev/OCLR-website --ref YOUR_FEATURE_BRANCH -f suite=core
    ```
 
-3. Confirm the run's head SHA equals the intended commit and its check succeeded.
-   Fetch main again. If the base changed, integrate it safely and verify the new
-   commit; never force-push or bypass branch protection.
-4. Push the already checked commit to main with a normal fast-forward push.
+3. Report the exact commit and actual CI result. A pending or failed run does not
+   itself prevent an otherwise authorized merge; it still needs investigation
+   and must not be described as passed. Merge permission, review acceptance and
+   release acceptance remain separate decisions.
+4. For an authorized main update, fetch main again and integrate any new base
+   safely, then use a normal fast-forward push. Never force-push or bypass other
+   branch protection.
    Synchronize the organizer's main checkout when safe, preserving other work.
 
 Implementation and GitHub protection state are recorded on issue #364. Repository
 access does not grant permission to change unrelated rules or deploy. If protection
 cannot be configured, the issue must record the actual API limitation rather than
-claiming this gate is active.
+claiming a setting was applied.
 
 ## Local verification
 
