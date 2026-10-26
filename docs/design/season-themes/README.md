@@ -15,7 +15,7 @@ S10 的 `s10.html` 現為**實際截圖對照圖庫**，可切換頁面、尺寸
 | S8     | Sakura Circuit · 櫻花折線   | [s8.html](s8.html)   | [Design](s8/DESIGN.md)  | [Light](s8/desktop-light.webp) / [Dark](s8/desktop-dark.webp) / [Mobile](s8/mobile-light.webp)    |
 | S7     | Graphite Arena · 石墨競技場 | [s7.html](s7.html)   | [Design](s7/DESIGN.md)  | [Light](s7/desktop-light.webp) / [Dark](s7/desktop-dark.webp) / [Mobile](s7/mobile-light.webp)    |
 
-**2026-10-27 S8 初稿**：[#197](https://github.com/OCLR-dev/OCLR-website/issues/197) 以 main `a50e03d` 的實際 UI 產圖。沿用櫻花粉／柑橘橙／暖白與原圖折角，加入使用者提供的 RULES banner、依該 banner 補全的半身女主角，以及自繪櫻花枝紋。保留完整無框原主視覺；[S8 DESIGN](s8/DESIGN.md)／[素材與提示詞](s8/ARTWORK.md)。初稿已由主辦方確認；正式接入精修時移除強制折角，採細花脈櫻花插畫與漸淡分隔線；本輪再以少量 1px 橙色細線呼應原圖，正式外觀使用 `sakura-circuit`，不自動更動任何既有預設。圖庫已更新為實作 `7c2b1a5` 的實際 SSR 外觀截圖；正式接入證據見 #197。
+**2026-10-27 S8 初稿**：[#197](https://github.com/OCLR-dev/OCLR-website/issues/197) 以 main `a50e03d` 的實際 UI 產圖。沿用櫻花粉／柑橘橙／暖白與原圖折角，加入使用者提供的 RULES banner、依該 banner 補全的半身女主角，以及自繪櫻花枝紋。保留完整無框原主視覺；[S8 DESIGN](s8/DESIGN.md)／[素材與提示詞](s8/ARTWORK.md)。初稿已由主辦方確認；正式接入精修時移除強制折角，採細花脈櫻花插畫與漸淡分隔線；本輪再以少量 1px 橙色細線呼應原圖，正式外觀使用 `sakura-circuit`，不自動更動任何既有預設。圖庫已更新為實作 `ff33f94` 的實際 SSR 外觀截圖；正式接入證據見 #197。
 
 ## 開啟樣本
 
