@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" role="img" aria-labelledby="title"><title id="title">OCLR S11 — 留白海报</title>
+<g transform="translate(35 75)" fill="#29213d" fill-rule="evenodd">
+<path d="M200 100A100 100 0 1 1 0 100A100 100 0 1 1 200 100ZM148 100A48 48 0 1 0 52 100A48 48 0 1 0 148 100Z" transform="translate(0 0)" /><path d="M182 32A100 100 0 1 0 182 168L144 132A48 48 0 1 1 144 68Z" transform="translate(218 0)" /><path d="M0 0H52V148H170V200H0Z" transform="translate(424 0)" /><path d="M0 0H94C154 0 186 30 186 77C186 111 168 134 138 145L198 200H127L54 128V200H0ZM54 46V104H88C118 104 132 95 132 75C132 55 118 46 88 46Z" transform="translate(617 0)" />
+</g>
+<path d="M35 54H209" stroke="#9364ed" stroke-width="8"/>
+<circle cx="840" cy="50" r="9" fill="#eb6baf"/>
+<path d="M35 301H850" stroke="#29213d" stroke-width="2"/>
+<g transform="translate(35 324) scale(0.69)" fill="#29213d"><path d="M0 0H92V24H28V42H68L92 64V100H0V76H64V58H24L0 36Z" transform="translate(0 0)" /><path d="M0 20L28 0H52V100H24V30L0 44Z" transform="translate(112 0)" /><path d="M0 20L28 0H52V100H24V30L0 44Z" transform="translate(184 0)" /></g>
+<path d="M272 324V394" stroke="#9364ed" stroke-width="2"/>
+<path d="M310 345H570M310 373H428" stroke="#9364ed" stroke-width="7"/>
+<path d="M746 324H780V394H746ZM800 324H834V394H800Z" fill="#eb6baf"/>
+</svg>
