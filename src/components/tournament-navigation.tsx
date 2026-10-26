@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 import { publicTournamentSection } from "@/lib/public-navigation";
+import { statisticsSeasons } from "@/lib/archive-statistics-model";
 
 function Navigation({
   slug,
@@ -56,7 +57,7 @@ function Navigation({
     ...(liveDraft ? [["draft", "Live draft"]] : []),
     ...(archived ? [["draft", "Draft results"]] : []),
     ...(archived ? [["staff", "Staff"]] : []),
-    ...(archived && ["s7", "s8", "s9", "s10"].includes(slug)
+    ...(archived && (statisticsSeasons as readonly string[]).includes(slug)
       ? [["statistics", "Player statistics"]]
       : []),
   ];

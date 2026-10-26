@@ -14,6 +14,94 @@ test.describe("historical archive browser workflow", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.setTimeout(120000);
   test.afterAll(async () => closeDb());
+  test("resolves a published unknown identity without reimporting competition history", async ({
+    page,
+    context,
+    isMobile,
+  }, info) => {
+    const slug = `identity-test-${isMobile ? "mobile" : "desktop"}-${Date.now()}`;
+    const archive = historicalSourceDetails(slug);
+    await seedEditions([
+      {
+        ...edition,
+        slug,
+        name: "Synthetic identity archive",
+        published: true,
+        status: "completed",
+        registration: null,
+        archive,
+      },
+    ]);
+    await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
+    await page.goto(`/admin/tournaments/${slug}/archive`);
+    await expect(
+      page.getByRole("button", {
+        name: "Resolve archive identity",
+        exact: true,
+      }),
+    ).toBeDisabled();
+    await page.getByLabel("osu! ID", { exact: true }).fill("91991");
+    await page
+      .getByLabel("Identity confirmation source", { exact: true })
+      .fill("Synthetic organizer confirmation");
+    for (const theme of ["light", "dark"]) {
+      await context.addCookies([
+        { name: "oclr-theme", value: theme, domain: "127.0.0.1", path: "/" },
+      ]);
+      await page.reload();
+      await page.getByLabel("osu! ID", { exact: true }).fill("91991");
+      await page
+        .getByLabel("Identity confirmation source", { exact: true })
+        .fill("Synthetic organizer confirmation");
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(page.viewportSize()!.width);
+      await page
+        .getByLabel("Identity confirmation source", { exact: true })
+        .blur();
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({
+        path: info.outputPath(`identity-${theme}.png`),
+        fullPage: true,
+      });
+    }
+    await page
+      .getByRole("button", { name: "Resolve archive identity", exact: true })
+      .click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText("Synthetic unknown captain → 91991");
+    await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
+    await expect(dialog).not.toBeVisible();
+    await page.reload();
+    await expect(
+      page.getByRole("heading", {
+        name: "Resolve archive identity",
+        exact: true,
+      }),
+    ).toHaveCount(0);
+    const saved = (
+      await (await context.request.get(`/api/admin/tournaments/${slug}`)).json()
+    ).edition;
+    expect(saved.published).toBe(true);
+    expect(saved.archive.matches).toEqual(archive.matches);
+    expect(
+      saved.archive.players.find((p: { osuId: number }) => p.osuId === 91991),
+    ).toMatchObject({
+      username: "Synthetic unknown captain",
+      teamId: "beta",
+      role: "captain",
+      tier: 0,
+    });
+    await context.clearCookies();
+    await page.goto(`/tournaments/${slug}/players`);
+    await expect(
+      page.locator(`a[href="/tournaments/${slug}/players/91991"]`).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Synthetic organizer confirmation", { exact: true }),
+    ).toHaveCount(0);
+  });
   test("approves a historical draw without selecting a winning team", async ({
     page,
     context,

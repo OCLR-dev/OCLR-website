@@ -12,12 +12,12 @@ test.describe("historical statistics review and public exploration", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.setTimeout(120000);
   test.afterAll(async () => closeDb());
-  test("imports MP, reviews warmups/replays, publishes and explores S7–S10", async ({
+  test("imports MP, reviews warmups/replays, publishes and explores S2 and S7–S10", async ({
     page,
     context,
     isMobile,
   }, info) => {
-    const seasons = ["s7", "s8", "s9", "s10"];
+    const seasons = ["s7", "s2", "s8", "s9", "s10"];
     await seedEditions(
       seasons.map((slug) => ({
         ...edition,
@@ -26,7 +26,23 @@ test.describe("historical statistics review and public exploration", () => {
         status: "completed",
         registration: null,
         published: true,
-        archive: { ...statisticsArchive, editionSlug: slug },
+        archive: {
+          ...statisticsArchive,
+          editionSlug: slug,
+          matches: [
+            ...statisticsArchive.matches,
+            ...(slug === "s2"
+              ? [
+                  {
+                    ...statisticsArchive.matches[0],
+                    id: "missing-mp",
+                    label: "Missing MP",
+                    mpUrls: [],
+                  },
+                ]
+              : []),
+          ],
+        },
       })),
     );
     await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
@@ -214,19 +230,69 @@ test.describe("historical statistics review and public exploration", () => {
           ]);
           await page.goto("/tournaments/" + slug + "/statistics");
           await expect(page.locator(".event-table tbody tr")).toHaveCount(4);
+          if (slug === "s2") {
+            await expect(
+              page.getByRole("region", { name: "Statistics coverage" }),
+            ).toContainText("1 / 2");
+            await page.getByText("Match coverage", { exact: true }).click();
+            await expect(
+              page
+                .locator(".statistics-coverage li")
+                .filter({ hasText: "Missing MP" }),
+            ).toContainText("Not yet covered");
+          }
           expect(
             await page.evaluate(() => document.documentElement.scrollWidth),
           ).toBeLessThanOrEqual(isMobile ? 390 : 1440);
           expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
             [],
           );
-          if (slug === "s7")
+          if (slug === "s7" || slug === "s2")
             await page.screenshot({
-              path: info.outputPath(appearance + "-" + theme + ".png"),
+              path: info.outputPath(
+                slug + "-" + appearance + "-" + theme + ".png",
+              ),
               fullPage: true,
             });
         }
     }
+    await page.goto("/tournaments/s2/statistics");
+    for (const view of [
+      "Performance scores",
+      "Mappool statistics",
+      "Individual leaderboard",
+      "Team leaderboard",
+      "Team placements",
+      "Solo placements",
+    ]) {
+      await page.getByRole("button", { name: view, exact: true }).click();
+      await expect(
+        page.getByRole("heading", { name: view, exact: true }),
+      ).toBeVisible();
+      await expect(page.locator(".event-table tbody tr")).not.toHaveCount(0);
+    }
+    await page
+      .getByRole("button", { name: "Performance scores", exact: true })
+      .click();
+    await expect(
+      page.locator('a[href="/tournaments/s2/players/91001"]').first(),
+    ).toBeVisible();
+    await page
+      .getByRole("combobox", { name: "Team", exact: true })
+      .selectOption("Synthetic Alpha");
+    await expect(page.locator(".event-table tbody tr")).toHaveCount(2);
+    await page
+      .getByRole("combobox", { name: "Rounds", exact: true })
+      .selectOption("Final");
+    const map = page.getByRole("combobox", { name: "Map", exact: true });
+    await map.selectOption(
+      (await map.locator("option").nth(1).getAttribute("value"))!,
+    );
+    await expect(page.locator(".event-table tbody tr")).toHaveCount(2);
+    await map.selectOption("");
+    await page
+      .getByRole("combobox", { name: "Team", exact: true })
+      .selectOption("");
     const search = page.getByRole("textbox", { name: "Search", exact: true });
     await search.fill("NO_MATCHING_PLAYER");
     await expect(page.locator(".event-table tbody tr")).toHaveCount(0);

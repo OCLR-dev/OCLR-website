@@ -11,6 +11,71 @@ import {
 import { ConfirmMutation } from "./confirm-mutation";
 import { useRouter } from "next/navigation";
 
+function ArchiveIdentityResolver({
+  person,
+  slug,
+  revision,
+}: {
+  person: NonNullable<HistoricalArchive["unresolvedPlayers"]>[number];
+  slug: string;
+  revision: number;
+}) {
+  const tr = useAppTranslations();
+  const router = useRouter();
+  const [osuId, setOsuId] = useState("");
+  const [source, setSource] = useState("");
+  const validId =
+    /^\d+$/.test(osuId) && Number(osuId) > 0 && Number(osuId) <= 2147483647;
+  return (
+    <section className="panel form-stack">
+      <h2>{tr("Resolve archive identity")}</h2>
+      <p>
+        {person.username} · {person.teamId} · {person.source}
+      </p>
+      <label className="field">
+        <span>{tr("osu! ID")}</span>
+        <input
+          inputMode="numeric"
+          value={osuId}
+          onChange={(e) => setOsuId(e.target.value)}
+        />
+      </label>
+      <label className="field">
+        <span>{tr("Identity confirmation source")}</span>
+        <input
+          maxLength={160}
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+        />
+      </label>
+      <ConfirmMutation
+        label={tr("Resolve archive identity")}
+        title={tr("Resolve archive identity")}
+        description={tr(
+          "Link this saved historical identity to the confirmed osu! ID. Published archives show the link immediately; the original roster source and competition records are preserved.",
+        )}
+        url={`/api/admin/tournaments/${slug}`}
+        payload={{
+          action: "resolve-archive-identity",
+          unresolvedId: person.id,
+          osuId: Number(osuId),
+          source: source.trim(),
+          expectedRevision: revision,
+          confirmed: true,
+        }}
+        canConfirm={validId && source.trim().length > 0}
+        disabled={!validId || !source.trim()}
+        onSuccess={() => router.refresh()}
+      >
+        <p>
+          {person.username} → {osuId}
+        </p>
+        <p>{source}</p>
+      </ConfirmMutation>
+    </section>
+  );
+}
+
 export function ArchiveImporter({
   slug,
   revision,
@@ -67,6 +132,15 @@ export function ArchiveImporter({
   return (
     <ReadOnlyFields>
       <div className="stack">
+        {eligible &&
+          archive?.unresolvedPlayers?.map((person) => (
+            <ArchiveIdentityResolver
+              key={person.id}
+              person={person}
+              slug={slug}
+              revision={revision}
+            />
+          ))}
         {pendingMatches.length > 0 && (
           <section className="panel form-stack">
             <h2>{tr("Approve reviewed matches")}</h2>
