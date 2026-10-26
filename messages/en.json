@@ -2660,6 +2660,7 @@
     "mcd087f018b4a": "Recorded appearances are reference links, not confirmed advancement.",
     "m78199f8b17fa": "Connection sources",
     "mc7856658e579": "Some bracket sources are missing. Recorded matches are shown without invented advancement links.",
-    "ma67fac0d62a9": "Frutiger Aero"
+    "ma67fac0d62a9": "Frutiger Aero",
+    "m2b5043ec93f9": "Missing archive fields supplemented with current osu! base metadata (no mods): {fields}."
   }
 }

@@ -31,3 +31,9 @@ Supported files are **stable `.osr` containers from version 20140721 up to (excl
 Official beatmap responses now retain the optional MD5 checksum. A known checksum/ruleset mismatch blocks attachment. Missing official checksums (including older saved metadata) are explicitly **unverified**, never labelled matched; refresh metadata **before locking selection** when verification is required. No arbitrary URL is fetched. Attachments reference stable entry IDs, so any legacy/imported attachment follows the same entry during an allowed slot move. An attached entry cannot be removed or replaced without explicit attachment cleanup; a metadata refresh cannot introduce a known checksum conflict. New locked selections cannot be moved/replaced in the first place.
 
 Files stay private even when the pool is published. There is no public replay API or public download URL. The protected endpoints are `/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays` (GET list / POST bounded multipart upload) and its `/[replayId]` resource (GET attachment / DELETE confirmed versioned removal). Reads validate current read grants; writes also enforce same-origin, current write grants and version/window/archive checks. A retry of already committed content is idempotent; a different concurrent write with a stale version returns 409. See [deployment and recovery](deployment.md#private-mappool-replay-storage-185) for persistent storage, quotas, Python LZMA, backup and offline cleanup.
+
+## Historical S4–S6 metadata
+
+See [historical metadata supplements](archive-map-metadata.md) for the #335 root
+cause, official snapshot provenance, field precedence and current/base-value
+disclosure. This read-only display enrichment does not rewrite archive imports.

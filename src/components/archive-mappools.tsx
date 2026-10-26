@@ -5,11 +5,14 @@ import { BeatmapCover } from "./beatmap-cover";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import type { HistoricalArchive } from "@/lib/historical-archive";
+import type {
+  ArchiveDisplayMap,
+  ArchiveDisplayPool,
+} from "@/lib/archive-map-metadata";
 import { formatBeatmapDuration } from "@/lib/mappool-model";
 import { WorkspaceTabs } from "./workspace-tabs";
 
-type MapEntry = HistoricalArchive["pools"][number]["maps"][number];
+type MapEntry = ArchiveDisplayMap;
 function ArchiveMapDetails({
   map,
   stats,
@@ -97,7 +100,7 @@ function ArchiveMapDetails({
     </dialog>
   );
 }
-type Pool = HistoricalArchive["pools"][number];
+type Pool = ArchiveDisplayPool;
 export function ArchiveMappools({
   pool,
   stages,
@@ -145,33 +148,65 @@ export function ArchiveMappools({
     maps.sort((a, b) => (b.stars ?? -Infinity) - (a.stars ?? -Infinity));
   const activeIndex = maps.findIndex((m) => m.slot === selected);
   const stats = (m: MapEntry) => (
-    <dl className="archive-map-stats">
-      {[
-        [
-          tr("SR"),
-          m.stars,
-          m.stars === null ? null : `${number.format(m.stars)} ★`,
-        ],
-        [tr("BPM"), m.bpm, m.bpm === null ? null : number.format(m.bpm)],
-        [
-          tr("Length"),
-          m.drainSeconds,
-          m.drainSeconds === null
-            ? null
-            : formatBeatmapDuration(m.drainSeconds),
-        ],
-        [tr("CS"), m.cs, m.cs === null ? null : number.format(m.cs)],
-        [tr("AR"), m.ar, m.ar === null ? null : number.format(m.ar)],
-        [tr("OD"), m.od, m.od === null ? null : number.format(m.od)],
-      ].map(([label, raw, value]) => (
-        <div key={String(label)}>
-          <dt>{label}</dt>
-          <dd title={raw === null ? tr("Not recorded") : String(raw)}>
-            {value ?? <span aria-label={tr("Not recorded")}>—</span>}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <>
+      <dl className="archive-map-stats">
+        {[
+          [
+            tr("SR"),
+            m.stars,
+            m.stars === null ? null : `${number.format(m.stars)} ★`,
+          ],
+          [tr("BPM"), m.bpm, m.bpm === null ? null : number.format(m.bpm)],
+          [
+            tr("Length"),
+            m.drainSeconds,
+            m.drainSeconds === null
+              ? null
+              : formatBeatmapDuration(m.drainSeconds),
+          ],
+          [tr("CS"), m.cs, m.cs === null ? null : number.format(m.cs)],
+          [tr("AR"), m.ar, m.ar === null ? null : number.format(m.ar)],
+          [tr("OD"), m.od, m.od === null ? null : number.format(m.od)],
+        ].map(([label, raw, value]) => (
+          <div key={String(label)}>
+            <dt>{label}</dt>
+            <dd title={raw === null ? tr("Not recorded") : String(raw)}>
+              {value ?? <span aria-label={tr("Not recorded")}>—</span>}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {!!m.supplemented?.length && (
+        <p className="muted small">
+          {tr(
+            "Missing archive fields supplemented with current osu! base metadata (no mods): {fields}.",
+            {
+              fields: m.supplemented
+                .map(
+                  (field) =>
+                    ({
+                      title: tr("Song title"),
+                      mapper: tr("Mapper"),
+                      stars: tr("SR"),
+                      bpm: tr("BPM"),
+                      drainSeconds: tr("Length"),
+                      cs: tr("CS"),
+                      ar: tr("AR"),
+                      od: tr("OD"),
+                    })[field],
+                )
+                .join(", "),
+            },
+          )}{" "}
+          <a href={m.metadataSource} target="_blank" rel="noreferrer">
+            {tr("Source")}
+          </a>{" "}
+          <time dateTime={m.metadataFetchedAt}>
+            {m.metadataFetchedAt?.slice(0, 10)}
+          </time>
+        </p>
+      )}
+    </>
   );
   return (
     <div className="archive-pools mappool-browse">

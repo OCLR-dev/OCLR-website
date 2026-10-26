@@ -1,4 +1,5 @@
 import { getAppTranslations } from "@/i18n/server";
+import { archivePoolMetadata } from "@/lib/archive-map-metadata";
 import { archiveArtworkSetIds } from "@/lib/archive-artwork";
 import { archiveBracket } from "@/lib/archive-bracket";
 import { archiveEventMatches } from "@/lib/archive-event-matches";
@@ -634,24 +635,31 @@ export async function HistoricalArchiveView({
     const pool =
       section === "pool" ? a.pools.find((p) => p.id === id) : a.pools[0];
     if (section === "pool" && !pool) notFound();
+    const display = pool ? archivePoolMetadata(pool, a.editionSlug) : null;
     title = tr("Mappools");
-    content = pool ? (
-      <ArchiveMappools
-        key={pool.id}
-        pool={pool}
-        artworkSetIds={await archiveArtworkSetIds(
-          pool.maps.map((m) => m.beatmapId),
-        )}
-        stages={a.pools.map((p) => ({
-          id: p.id,
-          name: p.name,
-          count: p.maps.length,
-          href: href("mappools", p.id),
-        }))}
-      />
-    ) : (
-      <p className="notice">{tr("No mappools recorded.")}</p>
-    );
+    content =
+      pool && display ? (
+        <ArchiveMappools
+          key={pool.id}
+          pool={display.pool}
+          artworkSetIds={{
+            ...(await archiveArtworkSetIds(
+              pool.maps
+                .map((m) => m.beatmapId)
+                .filter((id) => id !== null && !display.setIds[id]),
+            )),
+            ...display.setIds,
+          }}
+          stages={a.pools.map((p) => ({
+            id: p.id,
+            name: p.name,
+            count: p.maps.length,
+            href: href("mappools", p.id),
+          }))}
+        />
+      ) : (
+        <p className="notice">{tr("No mappools recorded.")}</p>
+      );
   } else if (section === "bracket") {
     title = tr("Bracket");
     content = competition();
