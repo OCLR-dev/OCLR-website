@@ -139,8 +139,9 @@ export function LanguageControl() {
                 if (pending) return;
                 setOpen(false);
                 trigger.current?.focus();
-                if (value === locale) return;
+                // Clicking the detected language still makes it a manual preference.
                 document.cookie = `${localeCookie}=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+                if (value === locale) return;
                 start(() => router.refresh());
               }}
             >

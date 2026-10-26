@@ -107,7 +107,10 @@ export function proxy(request: NextRequest) {
   if (!request.nextUrl.pathname.startsWith("/api/")) {
     response.headers.set(
       "Content-Language",
-      readLocale(request.cookies.get(localeCookie)?.value),
+      readLocale(
+        request.cookies.get(localeCookie)?.value,
+        request.headers.get("accept-language"),
+      ),
     );
   }
   response.headers.set("Content-Security-Policy", policy);

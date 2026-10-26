@@ -5,6 +5,9 @@ import { seedEditions } from "../fixtures/editions";
 import prepared from "../../drizzle/legacy-editions.json" with { type: "json" };
 
 test.describe("custom language menu", () => {
+  // Start without cookies in an explicit browser language, rather than relying
+  // on the former unconditional Simplified Chinese default.
+  test.use({ locale: "zh-CN" });
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.afterAll(closeDb);
   test("supports keyboard, touch, persistence and bounded theme-aware presentation", async ({
