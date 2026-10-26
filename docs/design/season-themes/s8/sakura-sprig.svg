@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="190" viewBox="0 0 300 190" fill="none">
+  <defs>
+    <g id="petal"><path d="M0 0C-8-6-19-18-17-28-16-37-8-38-3-33L0-30 3-33C8-38 16-37 17-28 19-18 8-6 0 0Z" fill="#f8b9d2" fill-opacity=".65" stroke="#eaa4bf" stroke-width=".65"/></g>
+    <g id="blossom"><use href="#petal"/><use href="#petal" transform="rotate(72)"/><use href="#petal" transform="rotate(144)"/><use href="#petal" transform="rotate(216)"/><use href="#petal" transform="rotate(288)"/><circle r="3" fill="#fca274"/><path d="M0 0 0-10M0 0 9-3M0 0 6 8M0 0-6 8M0 0-9-3" stroke="#dc8faa" stroke-width=".8"/></g>
+  </defs>
+  <path d="M20 168 90 138 139 96 195 70 264 19M91 138 86 93 62 72M141 96 168 128 211 137M195 70 193 35" stroke="#e5a589" stroke-width="1.5" stroke-linecap="round"/>
+  <use href="#blossom" transform="translate(134 98) rotate(-8) scale(.88)"/>
+  <use href="#blossom" transform="translate(204 65) rotate(17) scale(.7)"/>
+  <use href="#blossom" transform="translate(70 77) rotate(-22) scale(.5)"/>
+  <use href="#blossom" transform="translate(211 138) rotate(12) scale(.48)"/>
+  <path d="M244 130C231 129 227 116 230 109 243 110 249 119 244 130ZM36 118C24 112 23 101 28 96 40 100 44 111 36 118Z" fill="#f3b3cf" fill-opacity=".6"/>
+  <path d="M253 159h20l12-12v-18" stroke="#ff762e" stroke-width="1.5"/>
+</svg>
