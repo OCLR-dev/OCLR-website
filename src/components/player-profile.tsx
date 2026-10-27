@@ -77,7 +77,7 @@ export function PlayerProfile({
             <p className="muted">
               {p.countryName ?? p.countryCode ?? tr("Country unavailable")}
               {p.countryName && p.countryCode ? ` (${p.countryCode})` : ""}{" "}
-              {tr(" · osu! ID ")}
+              {" · ID: "}
               {p.osuId}
             </p>
             <a href={p.canonicalUrl} className="text-link">
@@ -173,11 +173,8 @@ export function PlayerProfile({
         </div>
       </dl>
       <footer className="profile-summary-footer">
-        {tr("Source: ")}
-        {p.source} {tr(" · Last updated")}{" "}
+        {tr("Last updated")}{" "}
         <time dateTime={p.fetchedAt}>{p.fetchedAt}</time>
-        {tr(". Statistics are a saved ")}
-        osu! {tr(" snapshot.")}
       </footer>
     </section>
   );
