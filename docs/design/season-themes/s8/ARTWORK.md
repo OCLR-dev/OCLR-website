@@ -1,5 +1,24 @@
 # S8 banner 與角色素材
 
+
+## 女主角樣貌修整（2026-10-27）
+
+主辦方標註實際 S8 頁面人物，依原 banner 重新修整臉部、雙眼比例、頭部傾斜及髮絲交界。正式引用改為 [heroine-half-refined.webp](heroine-half-refined.webp)，來源為 [內建 image_gen 的 PNG](heroine-half-refined.png)，1536×1024，保留透明 alpha。WebP 使用 quality 92 編碼並逐像素核對 alpha 完全相同，不裁切、調色或後製人物；公開素材與設計資料夾版本逐位元組一致。舊半身素材保留作歷史，原 banner／主視覺原檔不變。仍為原 banner 的候選補全，未宣稱未顯示的衣飾是官方原稿。
+
+先嘗試保留舊構圖的臉部局部修整，視覺變化不足，未採用。下列為最終選用的重建提示詞；image 1 是原 banner、image 2 是舊半身像，僅取服裝／構圖參考。
+
+```text
+Use case: identity-preserve.
+Asset type: replacement transparent half-body anime heroine illustration for an existing website, landscape 3:2 canvas.
+Image 1 is the original S8 RULES banner. The cropped blonde heroine at its right is the PRIMARY authority for the face, eyes, expression, head angle, bangs and delicate drawing style. Image 2 is the previous half-body website asset; use it ONLY for the fully clothed costume, hand-at-cheek pose, lavender ribbons, sakura ornaments and waist-up framing. Do not copy the previous asset's exaggerated head tilt or mismatched eye proportions. Do not reproduce the banner or its lettering.
+Reconstruct a refined, coherent half-body portrait of the original banner heroine. Her head should be nearly upright with only the subtle gentle tilt in the original banner, an elegant natural oval face, two balanced amber-orange eyes on one coherent perspective axis, matching pupils directed at the viewer, delicate crisp lashes and eyelids, small subtle nose without a white dot or glare, a gentle tiny closed mouth, clean natural jaw and neck anatomy. Facial proportions should match the original banner, not the enlarged doll eyes or pointed chin of the previous completion. Preserve her recognizable pale golden-blonde hair, straight wispy bangs with fine strands and cool lavender-gray hair shadows. The face must be clean and readable when the entire asset is displayed 340 CSS pixels wide.
+Keep the existing modest ivory and pale lavender spring blouse/dress upper body with pink chest bow, frilled sleeves, lavender waist bow, small sakura flowers and trailing pale lavender ribbons. Keep the raised hand gently beside her cheek, draw coherent relaxed fingers and natural wrist. Single character only, fully clothed, gentle non-sexual spring portrait. Preserve the soft refined Japanese anime illustration with fine clean linework and delicate watercolor cel shading. Avoid glossy plastic skin, photorealism, chibi, overly large eyes, rigid symmetry or messy hair intersections.
+Composition: crown to just beneath the waist bow. Both shoulders and raised hand visible. Complete flowing hair/ribbon silhouette contained within the canvas, with 5 percent clear margin above the crown and at both sides. Hair should frame the face gracefully rather than overwhelm it; do not shrink the face into an excessively wide hair spread. No legs, no lower skirt. Do not crop the hair, ornaments or ribbon ends at side edges.
+Background must be truly transparent alpha everywhere outside the character and in gaps between ribbons and hair; no gray, lavender, black or white backdrop, gradient, ambient haze, halo, drop shadow, matte, painted sky or checkerboard. Fine clean antialiased cutout edges. No bottom fade baked into the image; the site handles its bottom fade.
+No text, lettering, logos, RULES, watermark, UI, border, floating floral background or extra people. This must be a visibly corrected facial reconstruction matching image 1, not a near-identical copy of image 2.
+```
+
+
 - 原始 banner：[source-rules-banner.png](source-rules-banner.png)，使用者於本 chat 提供，750×110，原檔逐位元組保留。圖內文字為 `RULES`，用於現有 RulesHandbook 封面位置，完整 contain，不重繪／改字。
 - 原始主視覺：[thumbnail.jpg](../../../../public/archive/s8/thumbnail.jpg)，1920×1080，仍完整無框呈現，不改字／裁切／調色。
 - 選用角色：[heroine-half.webp](heroine-half.webp)／[生成 PNG](heroine-half.png)，1536×1024、透明 alpha。依使用者「補全女主角」與後續「僅取半身像」要求，以原 banner 為參考，先補全再製成半身構圖。保持金髮、琥珀眼、淡藍紫髮帶及手靠臉的姿態；未顯示衣飾為候選延伸，非原圖還原保證。WebP 僅編碼轉換，無裁切／重繪。

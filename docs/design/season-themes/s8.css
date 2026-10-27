@@ -34,7 +34,7 @@ html[data-s8-preview] .themed-site {
   --sakura-orange: #e7834b;
   --sakura-orange-soft: #edb59a;
   --sakura-ink: #ab5b7c;
-  --sakura-heroine: url("./s8/heroine-half.webp");
+  --sakura-heroine: url("./s8/heroine-half-refined.webp");
   --sakura-sprig: url("./s8/blossom-spray.webp");
   --sakura-banner: url("./s8/source-rules-banner.png");
   background: var(--site-background);
