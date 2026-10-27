@@ -138,43 +138,36 @@ export function PlayerProfile({
             .join(" · ")}
         </p>
       )}
-      <details className="spaced">
-        <summary>{tr("Public profile details")}</summary>
-        <dl className="directory-details">
-          <div>
-            <dt>{tr("Joined")}</dt>
-            <dd>{p.joinedAt ?? tr("Unavailable")}</dd>
-          </div>
-          <div>
-            <dt>{tr("Last seen")}</dt>
-            <dd>{p.lastSeenAt ?? tr("Not public / unavailable")}</dd>
-          </div>
-          <div>
-            <dt>{tr("Previous usernames")}</dt>
-            <dd>{p.previousUsernames.join(", ") || tr("None returned")}</dd>
-          </div>
-          <div>
-            <dt>{tr("Active account")}</dt>
-            <dd>
-              {p.active === null
-                ? tr("Unavailable")
-                : p.active
-                  ? tr("Yes")
-                  : tr("No")}
-            </dd>
-          </div>
-          <div>
-            <dt>{tr("Bot account")}</dt>
-            <dd>
-              {p.bot === null
-                ? tr("Unavailable")
-                : p.bot
-                  ? tr("Yes")
-                  : tr("No")}
-            </dd>
-          </div>
-        </dl>
-      </details>
+      <dl className="profile-details muted small">
+        <div>
+          <dt>{tr("Joined")}</dt>
+          <dd>{p.joinedAt ?? tr("Unavailable")}</dd>
+        </div>
+        <div>
+          <dt>{tr("Last seen")}</dt>
+          <dd>{p.lastSeenAt ?? tr("Not public / unavailable")}</dd>
+        </div>
+        <div>
+          <dt>{tr("Previous usernames")}</dt>
+          <dd>{p.previousUsernames.join(", ") || tr("None returned")}</dd>
+        </div>
+        <div>
+          <dt>{tr("Active account")}</dt>
+          <dd>
+            {p.active === null
+              ? tr("Unavailable")
+              : p.active
+                ? tr("Yes")
+                : tr("No")}
+          </dd>
+        </div>
+        <div>
+          <dt>{tr("Bot account")}</dt>
+          <dd>
+            {p.bot === null ? tr("Unavailable") : p.bot ? tr("Yes") : tr("No")}
+          </dd>
+        </div>
+      </dl>
       <footer className="profile-summary-footer">
         {tr("Source: ")}
         {p.source} {tr(" · Last updated")}{" "}
