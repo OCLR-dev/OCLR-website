@@ -1,28 +1,33 @@
 # S7 — Graphite Arena / 石墨競技場
 
-追蹤：[#198](https://github.com/PhoenixEmik/OCLR-website/issues/198)。
+追蹤：[#198](https://github.com/OCLR-dev/OCLR-website/issues/198)。本輪依主辦方要求，以最新 main `be94ce1` 的實際 UI 精修並正式接入 `graphite-arena`，等待主辦方視覺審閱；未合併或部署。
 
-狀態：設計樣本完成，待主辦方審閱；尚未接入正式 appearance。
+## 設計方向
 
-## 主視覺與視覺主張
+視覺主張：以銀白工作面與石墨板材承接原主視覺，競技黃細線與小面積蜂巢線稿提供工業感，資料區保持平整清楚。
 
-來源：[原圖](../../../../public/archive/s7/key-visual.jpg)，1920×1080。使用完整原圖；不改字、不裁切、不合成新角色／背景。
+內容順序沿用實際頁面：賽季標題 → 完整主視覺與五列統計 → 既有規則區；圖池保留原槽位、譜面、mod 語意；Admin 保留工作表單。沒有插入行銷文案、樣本賽程或虛構規則。
 
-從金屬主視覺保留石墨灰、銀色與競技黃，轉成乾淨的工業感介面。金屬刮痕只留在原圖，資料區使用平整表面；黃色配深色文字，避免白字落在亮黃上。
+互動沿用現有導覽與偏好控制。標題 180ms 輕入場、導覽 140ms 色彩回饋與按壓 1px 位移只在允許動態時啟用；沒有循環動畫。所有裝飾忽略指標，高對比模式移除線稿並顯示系統選取外框。
 
-內容順序：完整主視覺與賽季定位 → 賽程／比分 → 圖池明細 → 獨立表單 specimen → 色票與字體註記。每個區塊只處理一項工作。2px 面板與 2px 控制項圓角，端正的粗細線與等寬比分。亮色為銀白工作面，深色為石墨工作面；兩者都以單一金黃聚焦互動。
+- 保留 [1920×1080 原圖](../../../../public/archive/s7/key-visual.jpg)，完整 contain，不裁切、重繪、調色或改字。
+- 桌面標題右側採自繪細線蜂巢，下方 64px 黃色短線呼應金屬原圖；1100px 以下移除右側裝飾，不壓縮長標題。
+- 面板／控制項採 2px 圓角。統計為一塊平整資料面，不為每個數值加框；比分採系統等寬數字。
+- 導覽選取透明底色、單一細底線；賽事頁籤用黃色底線，側欄用細側線。焦點、狀態與 mod 色保持獨立語意。
+- 明版銀白、暗版石墨；主按鈕亮黃搭深色文字，明版連結採深金色。無遠端字型或新依賴。
 
-互動：hero 輕量淡入、控制項 hover／press 回饋、可鍵盤切換的分頁與明暗控制；不做視差或捲動綁定，避免影響資料閱讀。尊重 `prefers-reduced-motion`。
+## 可審閱實際 UI
 
-## Review artifacts
+[離線截圖圖庫](../s7.html) 可切換頁面、尺寸、明暗與 default 對照。圖庫只切換截圖，不模擬應用業務功能。
 
-- [可操作樣本](../s7.html)；從完整 checkout 開啟。
-- [桌面 Light](desktop-light.webp) / [桌面 Dark](desktop-dark.webp)
-- [手機 Light](mobile-light.webp) / [手機 Dark](mobile-dark.webp)
-- [Admin 桌面 Light](admin-desktop-light.webp) / [Dark](admin-desktop-dark.webp)
-- [Admin 手機 Light](admin-mobile-light.webp) / [Dark](admin-mobile-dark.webp)
+- [桌面 Light](desktop-light.webp) / [Dark](desktop-dark.webp)
+- [手機 Light](mobile-light.webp) / [Dark](mobile-dark.webp)
+- [圖池 Light](mappools-desktop-light.webp) / [Dark](mappools-desktop-dark.webp)
+- [Admin Light](admin-desktop-light.webp) / [Dark](admin-desktop-dark.webp)
+- [手機選單 Light](menu-mobile-light.webp) / [Dark](menu-mobile-dark.webp)
+- [本輪實測報告](verification.json) / [原靜態樣本歷史證據](verification-static-2026-10-24.json)
 
-## 候選 MainSheet tokens
+## MainSheet tokens
 
 主視覺中的明亮裝飾色不直接作內文色；互動、文字、控制框與焦點分別定義。錯誤、成功、警告與 mod 顏色仍需繼承既有語意，不能全改為主色。
 
@@ -30,7 +35,7 @@
 | ----------------------- | --------- | --------- |
 | `--site-background`     | `#f3f4f2` | `#171c20` |
 | `--site-surface`        | `#ffffff` | `#22292f` |
-| `--site-raised`         | `#e9ece9` | `#303940` |
+| `--site-raised`         | `#e9eceb` | `#303940` |
 | `--site-tint`           | `#f6edc6` | `#443f27` |
 | `--site-foreground`     | `#171c20` | `#f3f4f2` |
 | `--site-muted`          | `#596164` | `#b6bfc4` |
@@ -43,23 +48,53 @@
 | `--site-on-primary`     | `#171c20` | `#171c20` |
 | `--site-focus`          | `#796000` | `#eacb49` |
 | `--site-selection`      | `#e9d988` | `#5b5128` |
-| `--hero-background`     | `#e5e8e5` | `#20272c` |
-| `--art-background`      | `#252b30` | `#252b30` |
 | `--button-radius`       | `2px`     | `2px`     |
 | `--radius-panel`        | `2px`     | `2px`     |
 
-## 後續正式接入驗收（本次未執行）
+## 正式接入
 
-- [ ] 主辦方審閱本季明暗版與手機樣本，確認方向；正式顯示名稱另經三語 catalog 與中文措辭審閱。
-- [ ] 重用現有 MainSheet React 元件及 token，擴充 appearance 白名單、schema、header 選單、Global Admin 全站預設及 edition `defaultAppearance`；未知值安全回退。
-- [ ] 保留訪客 → 當前授權／已發佈賽事 → 全站優先序、清除繼承行為、SSR 首屏及獨立 light/dark；不自動把歷史賽事設為此樣式。
-- [ ] 公開／登入／Admin／Player／Captain 以及既有三款 appearance 不退化；OBS／presenter 隔離不變；授權、發佈與歷史文字資料不變。
-- [ ] 320 / 390 / 768 / 1024 / 1440px，三語、長名稱、明暗、開啟選單、表單、表格、空狀態、焦點及錯誤狀態；無頁面溢出或重疊。
-- [ ] 正常文字 ≥ 4.5:1，關鍵控制邊界與焦點 ≥ 3:1，44px 觸控區，鍵盤與 reduced motion；附真實應用截圖。
-- [ ] 正式接入批次執行 lint/types、unit/integration、production build、桌面／手機 Playwright、production dependency audit；介面訊息變更執行 i18n extract/test。整合測試只用明確命名的隔離測試 DB，CI 狀態如實回報。
+- CSS：[graphite-theme.css](../../../../src/app/graphite-theme.css)，範圍為 `html[data-appearance="graphite-arena"] .themed-site`。
+- 三語名稱：S7 · Graphite Arena／S7 · 石墨竞技场／S7 · 石墨競技場。
+- 重用既有選單、訪客 cookie → 當前授權／已發佈賽事預設 → 全站預設、清除繼承、SSR 與獨立明暗。非賽事頁不繼承上一季，OBS／presenter 保持隔離。
+- Migration `0048_graphite_arena_appearance` 只擴充全站預設與 audit 的 CHECK 值；不修改任何既有預設、賽事、資料或歷史。透過正常 reviewed update 套用後才儲存為 site default；刻意回退舊版前選回支援值，不刪歷史或對 live DB 降版。
+- API 契約及 OpenAPI 由既有產生器同步，沒有新增 API 或權限。
+- 素材：[自繪蜂巢線稿](../../../../public/themes/graphite-arena/honeycomb.svg)，SVG 原生幾何，不使用生成圖。沒有變更原主視覺檔。
 
-完整來源、預覽操作與設計／正式資料邊界見 [共用說明](../README.md)。
+## 重現截圖
 
-## 本機樣本驗證結果（2026-10-24）
+使用 Node 24、`npm ci`，明確隔離且名稱含 `test` 的 PostgreSQL。以下只用本輪合成預覽 DB；不得改成 demo／production。`prepare.ts` 重設該 test DB 的賽事 fixture，不能當應用 seed。公開頁使用已提交的 S7 歸檔；Admin 為 `Synthetic UI Preview` 合成帳號，沒有真實角色授予或 OAuth。S7 已儲存規則屬網站資料，本輪未讀取私有 DB 或補造規則，預覽保留缺少 saved rules 時的既有狀態。
 
-8 組 viewport／明暗組合通過，16 次 overview／Admin Axe AA 掃描無違規；圖片載入、頁面溢出、明暗控制、方向鍵／End 分頁切換、表單預覽及重設皆通過。詳見 [本季報告](verification.json)。樣本 JavaScript 與驗證工具 ESLint 均為 0 errors／0 warnings。這些結果只涵蓋靜態樣本，不證明正式應用程式、部署或三語整合已驗證。
+```sh
+export TEST_DATABASE_URL=postgresql://emik@127.0.0.1:55497/oclr_198_design_test
+DATABASE_URL="$TEST_DATABASE_URL" npm run db:migrate
+node --import tsx docs/design/season-themes/s7/prepare.ts
+DATABASE_URL="$TEST_DATABASE_URL" npm run build
+DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 APP_URL=http://127.0.0.1:3197 npm start -- --hostname 127.0.0.1 --port 3197
+```
+
+在另一個 terminal 對同一 DB，設定 `S7_UI_BASELINE` 為本輪 runtime 提交，執行：
+
+```sh
+S7_UI_BASELINE=a69cc7f42744aaf17b4c387f89a10f90640f4669 node --import tsx docs/design/season-themes/s7/capture.mjs
+```
+
+截圖程式核對 runtime／messages／public 與指定 SHA 完全一致，從實際 SSR 外觀偏好與已打包 CSS 產圖；不注入候選 CSS、不更換元件。檢查三個路由 × 四個寬度（320／390／768／1440）× 明暗、Axe AA、DOM／文字不變、五列統計、完整原圖、手機選單／焦點與 sticky stack，另檢查四組 forced colours。合成 session 只在記憶體，不進截圖或原始碼。
+
+## 驗證紀錄
+
+2026-10-24 的八組靜態樣本／16 次 Axe AA 結果保留於歷史報告；不套用到本輪正式實作。最新結果與 runtime SHA 以 `verification.json` 及 #198 的本輪紀錄為準；CI、視覺接受與部署各自如實記錄。
+
+### 本輪本機結果（2026-10-27）
+
+- Runtime：`a69cc7f42744aaf17b4c387f89a10f90640f4669`；UI 基於 main `be94ce1`。截圖前已核對 source／messages／public 與 runtime SHA 一致。
+- `npm ci`、`npm run check`、`npm run build` 通過。
+- Runtime `128ee43` 上隔離 PostgreSQL 的完整 `npm test`：161 檔，1353 passed／1 skipped；包含 0048 升級前拒絕、升級後可儲存，並保留既有 S8 預設與 audit。之後僅補比分 CSS 與對應瀏覽器斷言，最終 production build／截圖及受影響 browser checks 另行重跑。
+- `npm run i18n:extract`、`npm run test:i18n`（4 passed）、51 份 read contracts 檢查及 OpenAPI 同步通過；production dependency audit 為 0 vulnerabilities。
+- 真實主頁／圖池／Admin：24 組 viewport／明暗、24 次 Axe AA、4 組 forced colours 通過；DOM／文字、五列統計、完整 1920×1080 原圖、手機 Escape 焦點與 sticky stack 保持正確。16 張頁面截圖、2 張手機選單圖、12 張 default 對照已更新。
+- 離線圖庫 24 組控制組合圖片全部載入，沒有頁面錯誤或手機溢出；設計文件本地連結、JS 語法、圖庫工具 lint 與 diff 格式檢查通過。
+
+- Chromium 桌面／手機 32 項回歸通過，涵蓋 S7–S10 三語選單、公開／Admin／Captain、site／edition 預設繼承與 OBS／presenter 隔離。最終 `a69cc7f` 再跑 S7 桌面／手機 2 項（含真實賽程比分）通過。
+- Header 明暗 × 桌面／手機 4 項通過，涵蓋 320／390／760／950／951／1100／1101／1440px 的選單 hit-testing、偏好／帳戶控制與焦點。該檢查在 `9051bb0`，其後只擴充比分選擇器，header 不變。
+- 最終 `a69cc7f` 的 WebKit／Safari 桌面／手機 2 項通過，包含三語明暗與選單、完整原圖、SSR／跨頁、真實比分及高對比。
+
+完整 GitHub CI 的 exact head／狀態見 #198；本機針對本輪風格與整合的 browser checks 不替代全部既有 E2E。未將執行中的 CI 視為通過，沒有部署或修改正式資料。

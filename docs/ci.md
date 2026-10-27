@@ -26,13 +26,13 @@ destructive fixtures. The functional lane shards across eight independent
 runners: the previous four-shard baseline had a successful shard taking 21.6
 minutes in test execution alone. Stateful workflows remain grouped by file;
 read-only header-branding cases own their browser contexts and shard individually
-so their 60-case groups do not overload a runner. Its existing
+so their 78-case groups do not overload a runner. Its existing
 Firefox/WebKit asset cases still run, even though its main projects are Chromium.
 
-The representative header matrix has 62 project/case combinations instead of 216, including the S8–S10 season themes. It keeps 320px, 390px, and both sides of the 950/1100px navigation breakpoints,
+The representative header matrix has 66 project/case combinations instead of 234, including the S7–S10 season themes. It keeps 320px, 390px, and both sides of the 950/1100px navigation breakpoints,
 plus 760px and desktop widths. Targeted theme expansion also preserves the
 representative cases for all other designs. Full acceptance covers
-216 combinations and all 15 widths. Counts are coverage counts, not a measured
+234 combinations and all 15 widths. Counts are coverage counts, not a measured
 promise of CI runtime.
 
 Keyboard/touch actions, focus, hit-testing, authorization, publication, revocation,

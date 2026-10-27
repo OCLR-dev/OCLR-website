@@ -538,3 +538,7 @@ The registered `glacier-blue` option requires migration `0046_glacier_blue_appea
 ### S8 Sakura Circuit appearance (#197)
 
 The registered `sakura-circuit` option requires migration `0047_sakura_circuit_appearance` for site-default saves. Apply it through the normal reviewed update workflow before activation. Only site-setting/audit constraints expand; existing defaults, tournament settings and history remain unchanged. Before deliberately rolling back to an older application, select a supported site/tournament default; never delete audit history or down-migrate a live database.
+
+### S7 Graphite Arena appearance (#198)
+
+S7 Graphite Arena (`graphite-arena`, #198) extends the season design with silver/graphite surfaces, fine hexagonal linework and competition-yellow accents. `src/app/graphite-theme.css` is scoped to ordinary `.themed-site` pages; complete original artwork and OBS/presenter isolation are preserved. Migration `0048_graphite_arena_appearance` expands only site-setting/audit appearance constraints. Apply it before saving S7 as a site default through the normal reviewed update workflow. Existing defaults, tournament configuration and audit history are unchanged. Before an intentional older-version rollback, choose a supported site/tournament default; never delete history or down-migrate a live database.
