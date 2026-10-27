@@ -14,13 +14,13 @@ async function ContributorsPage() {
     const tr = await getAppTranslations();
     const directory = await contributorsForAdmin(await requireUser());
     return (
-      <>
+      <div className="contributors-workspace">
         <PageHeading
           eyebrow={tr("ADMINISTRATION")}
           title={tr("Contributor management")}
         />
         <ContributorManager initial={directory} />
-      </>
+      </div>
     );
   });
 }

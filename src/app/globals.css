@@ -5426,39 +5426,102 @@ body:has([data-broadcast]) .site-shell {
   margin-top: 0.2rem;
 }
 
-.contributor-manager > fieldset {
+.contributors-workspace {
+  container-type: inline-size;
+}
+.themed-site.private-site .contributors-workspace .page-heading {
+  margin-bottom: 0.75rem;
+}
+.contributors-workspace .page-heading h1 {
+  margin-bottom: 0;
+}
+.contributor-manager {
+  margin-top: 0;
+  gap: 1rem;
+}
+.contributor-intro {
+  max-width: 72ch;
+  margin: 0;
+}
+.contributor-manager > .contributor-list {
+  display: grid;
+  gap: 0.75rem;
   border: 0;
   padding: 0;
   margin: 0;
   min-width: 0;
 }
-.contributor-manager .settings-card {
+.contributor-manager .contributor-row {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
   min-width: 0;
   margin: 0;
+  padding: 0.75rem;
 }
-.contributor-identity {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  overflow-wrap: anywhere;
+.contributor-avatar {
+  padding-top: 1.5rem;
 }
-.contributor-identity strong {
-  min-width: 0;
+.contributor-avatar .avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
 }
 .contributor-fields {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: 1rem;
+  min-width: 0;
+  gap: 0.75rem;
+}
+.contributor-fields .field {
+  min-width: 0;
+  gap: 0.25rem;
+}
+.contributor-fields input {
+  min-height: 44px;
+}
+.contributor-row-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  min-width: 0;
+}
+.contributor-row-actions {
+  gap: 0.5rem;
+}
+.contributor-row-actions button {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
 }
 .contributor-public {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   min-height: 44px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.contributor-public span {
+  color: var(--site-muted);
 }
 .contributor-public input {
   width: 1.1rem;
   height: 1.1rem;
   flex: none;
+  accent-color: var(--site-accent);
+}
+.contributor-toolbar {
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--site-border);
+}
+@container (min-width: 30rem) {
+  .contributor-fields {
+    grid-template-columns: minmax(0, 1fr) 11rem;
+  }
 }
