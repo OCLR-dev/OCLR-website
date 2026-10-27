@@ -70,7 +70,6 @@ for (const [locale, messages, unavailable, unranked, seconds] of [
         const rows = [...html.matchAll(/<dt>(.*?)<\/dt><dd>(.*?)<\/dd>/g)];
         const value = (label: string) =>
           rows.find((row) => row[1] === tr(label))?.[2];
-        expect(html).toContain(profileResponse.username);
         if (kind === "null") {
           for (const label of ["Global rank", "Country rank"])
             expect(value(label)).toBe(unranked);

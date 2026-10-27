@@ -1,4 +1,5 @@
 import { PlayerProfile } from "@/components/player-profile";
+import { Avatar } from "@/components/avatar";
 import { RoundRatings } from "@/components/round-ratings";
 import { getAppTranslations } from "@/i18n/server";
 import { frontendProfile } from "@/lib/frontend-data";
@@ -39,6 +40,8 @@ async function ProfileContent({
     if (e instanceof HttpError && [400, 404].includes(e.status)) notFound();
     throw e;
   }
+  const profile = data.snapshot?.profile;
+  const country = profile?.countryName ?? profile?.countryCode;
   const ratingHistory =
     typeof query.edition === "string"
       ? (await publicRoundRatings(query.edition))
@@ -73,6 +76,36 @@ async function ProfileContent({
       >
         {query.edition ? tr("← Tournament players") : tr("← Tournaments")}
       </Link>
+      <header className={styles.heading}>
+        <Avatar
+          osuId={data.identity.osuId}
+          username={data.identity.username}
+          avatarUrl={profile?.avatarUrl ?? undefined}
+        />
+        <div className={styles.headingText}>
+          <div className={styles.titleLine}>
+            <h1>{data.identity.username}</h1>
+            <a
+              href={data.identity.canonicalUrl}
+              className={`text-link ${styles.titleLink}`}
+            >
+              {tr("View on osu! ↗")}
+            </a>
+          </div>
+          <p className="muted">
+            {country && (
+              <>
+                {country}
+                {profile?.countryName && profile.countryCode
+                  ? ` (${profile.countryCode})`
+                  : ""}
+                {" · "}
+              </>
+            )}
+            ID: {data.identity.osuId}
+          </p>
+        </div>
+      </header>
       {data.snapshot ? (
         <PlayerProfile
           snapshot={{
@@ -92,12 +125,9 @@ async function ProfileContent({
           bws={data.bws}
         />
       ) : (
-        <>
-          <h1>{data.identity.username}</h1>
-          <p className="notice" role="status">
-            {tr("osu! statistics are temporarily unavailable.")}
-          </p>
-        </>
+        <p className="notice" role="status">
+          {tr("osu! statistics are temporarily unavailable.")}
+        </p>
       )}
       {typeof query.edition === "string" && (
         <RoundRatings data={ratingHistory} slug={query.edition} />

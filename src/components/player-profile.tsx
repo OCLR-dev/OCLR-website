@@ -2,7 +2,6 @@ import { useAppTranslations } from "@/i18n/shared";
 import { BwsSummary } from "./bws-summary";
 import type { BwsSummary as BwsData } from "@/lib/bws-model";
 import Image from "next/image";
-import { Avatar } from "./avatar";
 import type { ProfileSnapshot } from "@/lib/osu-profile-model";
 export function PlayerProfile({
   snapshot,
@@ -52,40 +51,17 @@ export function PlayerProfile({
         value0: "osu!",
       })}
     >
-      <div
-        className={`profile-header${p.coverUrl ? " profile-header-with-cover" : ""}`}
-      >
-        {p.coverUrl && (
-          <div className="profile-cover">
-            <Image
-              src={p.coverUrl}
-              alt=""
-              width={1200}
-              height={300}
-              unoptimized
-            />
-          </div>
-        )}
-        <div className="directory-identity profile-identity-chip">
-          <Avatar
-            osuId={p.osuId}
-            username={p.username}
-            avatarUrl={p.avatarUrl ?? undefined}
+      {p.coverUrl && (
+        <div className="profile-cover">
+          <Image
+            src={p.coverUrl}
+            alt=""
+            width={1200}
+            height={300}
+            unoptimized
           />
-          <div>
-            <h1>{p.username}</h1>
-            <p className="muted">
-              {p.countryName ?? p.countryCode ?? tr("Country unavailable")}
-              {p.countryName && p.countryCode ? ` (${p.countryCode})` : ""}{" "}
-              {" · ID: "}
-              {p.osuId}
-            </p>
-            <a href={p.canonicalUrl} className="text-link">
-              {tr("View on osu! ↗")}
-            </a>
-          </div>
         </div>
-      </div>
+      )}
       {bws && <BwsSummary value={bws} />}
       <dl className="profile-statistics">
         {[
@@ -173,8 +149,7 @@ export function PlayerProfile({
         </div>
       </dl>
       <footer className="profile-summary-footer">
-        {tr("Last updated")}{" "}
-        <time dateTime={p.fetchedAt}>{p.fetchedAt}</time>
+        {tr("Last updated")} <time dateTime={p.fetchedAt}>{p.fetchedAt}</time>
       </footer>
     </section>
   );
