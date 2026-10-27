@@ -87,22 +87,6 @@
   outline-offset: 4px;
 }
 
-.edition h3 :global(.context-link)::after {
-  content: "→";
-  margin-left: 0.5rem;
-  opacity: 0;
-  transform: translateX(-0.25rem);
-  transition:
-    opacity 160ms ease,
-    transform 160ms ease;
-}
-
-.edition h3 :global(.context-link):hover::after,
-.edition h3 :global(.context-link):focus-visible::after {
-  opacity: 1;
-  transform: translateX(0);
-}
-
 .record + .record {
   border-top: 1px solid var(--site-border, var(--color-border));
 }
@@ -137,8 +121,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .record,
-  .record :global(.context-link),
-  .edition h3 :global(.context-link)::after {
+  .record :global(.context-link) {
     transition: none;
   }
 }
