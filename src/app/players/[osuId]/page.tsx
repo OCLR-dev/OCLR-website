@@ -77,21 +77,30 @@ async function ProfileContent({
         {query.edition ? tr("← Tournament players") : tr("← Tournaments")}
       </Link>
       <header className={styles.heading}>
-        <Avatar
-          osuId={data.identity.osuId}
-          username={data.identity.username}
-          avatarUrl={profile?.avatarUrl ?? undefined}
-        />
+        <a
+          href={data.identity.canonicalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${styles.identityLink} ${styles.avatarLink}`}
+          aria-label={tr("View on osu! ↗")}
+        >
+          <Avatar
+            osuId={data.identity.osuId}
+            username={data.identity.username}
+            avatarUrl={profile?.avatarUrl ?? undefined}
+          />
+        </a>
         <div className={styles.headingText}>
-          <div className={styles.titleLine}>
-            <h1>{data.identity.username}</h1>
+          <h1>
             <a
               href={data.identity.canonicalUrl}
-              className={`text-link ${styles.titleLink}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.identityLink}
             >
-              {tr("View on osu! ↗")}
+              {data.identity.username}
             </a>
-          </div>
+          </h1>
           <p className="muted">
             {country && (
               <>
