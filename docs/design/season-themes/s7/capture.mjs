@@ -17,7 +17,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S7_UI_BASELINE ?? "cf7cc08aa828509840be3beac3e8f6426d607a3b";
+  process.env.S7_UI_BASELINE ?? "348bd7955f3900e0a0f066934a8816879fc4e302";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -348,6 +348,58 @@ try {
       await page.emulateMedia({ forcedColors: "none" });
     }
   }
+  // Native 2x detail captures of the shipped insert, with its actual heading behind it.
+  const detailContext = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+    deviceScaleFactor: 2,
+    reducedMotion: "reduce",
+  });
+  try {
+    const detailPage = await detailContext.newPage();
+    detailPage.on("pageerror", (error) => errors.push(error.message));
+    await detailPage.route("**/*", (route) => {
+      const request = route.request();
+      if (
+        new URL(request.url()).origin !== origin.origin ||
+        !["GET", "HEAD"].includes(request.method())
+      )
+        return route.abort();
+      return route.continue();
+    });
+    for (const theme of ["light", "dark"]) {
+      await detailContext.addCookies([
+        { name: "oclr-locale", value: "zh-Hans", url: base },
+        { name: "oclr-appearance", value: "graphite-arena", url: base },
+        { name: "oclr-theme", value: theme, url: base },
+      ]);
+      await detailPage.goto(base + "/tournaments/s7");
+      await detailPage.waitForLoadState("networkidle");
+      await detailPage.evaluate(() => document.fonts.ready);
+      const heading = await detailPage.locator(".page-heading").boundingBox();
+      const clip = {
+        x: Math.floor(heading.x + heading.width - 320),
+        y: Math.floor(heading.y),
+        width: 320,
+        height: Math.ceil(heading.height),
+      };
+      const file = `detail-desktop-${theme}.png`;
+      await detailPage.screenshot({
+        path: out + file,
+        clip,
+        animations: "disabled",
+      });
+      shots.push({
+        file,
+        path: "/tournaments/s7",
+        theme,
+        width: 1440,
+        height: 1000,
+        detail: { ...clip, deviceScaleFactor: 2 },
+      });
+    }
+  } finally {
+    await detailContext.close();
+  }
   await writeFile(
     out + "verification.json",
     JSON.stringify(
@@ -359,7 +411,7 @@ try {
         locale: "zh-Hans",
         browser: "Google Chrome",
         material:
-          "Brushed silver and gunmetal plates with broad directional reflections, fine grain and machined bevels; static satin header and controls; full original S7 key visual",
+          "Brushed silver and gunmetal plates; machined three-socket hexagonal insert with silver bevels, recessed inner walls, countersunk fasteners and a gold edge; full original S7 key visual",
         decorativeAssets: ["/themes/graphite-arena/honeycomb.svg"],
         materialChecks,
         screenshots: shots,

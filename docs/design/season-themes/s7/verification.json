@@ -1,10 +1,10 @@
 {
   "date": "2026-10-27",
-  "uiBaseline": "cf7cc08aa828509840be3beac3e8f6426d607a3b",
+  "uiBaseline": "348bd7955f3900e0a0f066934a8816879fc4e302",
   "scope": "Actual registered S7 appearance with SSR cookie and shipped assets; public committed S7 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
-  "material": "Brushed silver and gunmetal plates with broad directional reflections, fine grain and machined bevels; static satin header and controls; full original S7 key visual",
+  "material": "Brushed silver and gunmetal plates; machined three-socket hexagonal insert with silver bevels, recessed inner walls, countersunk fasteners and a gold edge; full original S7 key visual",
   "decorativeAssets": [
     "/themes/graphite-arena/honeycomb.svg"
   ],
@@ -162,6 +162,34 @@
       "theme": "dark",
       "width": 1440,
       "height": 1000
+    },
+    {
+      "file": "detail-desktop-light.png",
+      "path": "/tournaments/s7",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "detail": {
+        "x": 1072,
+        "y": 189,
+        "width": 320,
+        "height": 157,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "detail-desktop-dark.png",
+      "path": "/tournaments/s7",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "detail": {
+        "x": 1072,
+        "y": 189,
+        "width": 320,
+        "height": 157,
+        "deviceScaleFactor": 2
+      }
     }
   ],
   "cases": [

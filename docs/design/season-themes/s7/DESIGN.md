@@ -4,14 +4,14 @@
 
 ## 設計方向
 
-視覺主張：以有方向反射的拉絲銀色金屬與深色鋼材承接原主視覺；標題、統計與頁首有清楚光澤，競技黃細線與蜂巢線稿延續工業感，表格與重複列保持平整清楚。
+視覺主張：以有方向反射的拉絲銀色金屬與深色鋼材承接原主視覺；標題、統計與頁首有清楚光澤，競技黃細線與六角金屬嵌件延續工業感，表格與重複列保持平整清楚。
 
 內容順序沿用實際頁面：賽季標題 → 完整主視覺與五列統計 → 既有規則區；圖池保留原槽位、譜面、mod 語意；Admin 保留工作表單。沒有插入行銷文案、樣本賽程或虛構規則。
 
 互動沿用現有導覽與偏好控制。標題 180ms 輕入場、導覽 140ms 色彩回饋與按壓 1px 位移只在允許動態時啟用；沒有循環動畫。所有裝飾忽略指標，高對比模式移除線稿並顯示系統選取外框。
 
 - 保留 [1920×1080 原圖](../../../../public/archive/s7/key-visual.jpg)，完整 contain，不裁切、重繪、調色或改字。
-- 桌面標題右側採自繪細線蜂巢，下方 64px 黃色短線呼應金屬原圖；1100px 以下移除右側裝飾，不壓縮長標題。
+- 桌面標題右側採自繪具厚度的六角金屬嵌件，下方 64px 黃色短線呼應金屬原圖；1100px 以下移除右側裝飾，不壓縮長標題。
 - 面板／控制項採 2px 圓角。統計是一整塊金屬板，寬幅反射跨越五列，不為每個數值加框；比分採系統等寬數字。
 - 導覽選取透明底色、單一細底線；賽事頁籤用黃色底線，側欄用細側線。焦點、狀態與 mod 色保持獨立語意。
 - 明版拉絲銀鋁、暗版深色鋼材。反射帶、3px 細刷紋、上緣亮邊與下緣暗邊由靜態 CSS 背景製作；頁首與 Admin 大板採較平緩緞面，按鈕保留小面積頂光。主按鈕亮黃搭深色文字，明版連結採深金色。無遠端字型或新依賴。
@@ -58,7 +58,7 @@
 - 重用既有選單、訪客 cookie → 當前授權／已發佈賽事預設 → 全站預設、清除繼承、SSR 與獨立明暗。非賽事頁不繼承上一季，OBS／presenter 保持隔離。
 - Migration `0048_graphite_arena_appearance` 只擴充全站預設與 audit 的 CHECK 值；不修改任何既有預設、賽事、資料或歷史。透過正常 reviewed update 套用後才儲存為 site default；刻意回退舊版前選回支援值，不刪歷史或對 live DB 降版。
 - API 契約及 OpenAPI 由既有產生器同步，沒有新增 API 或權限。
-- 素材：[自繪蜂巢線稿](../../../../public/themes/graphite-arena/honeycomb.svg)，SVG 原生幾何，不使用生成圖。沒有變更原主視覺檔。
+- 素材：[自繪六角金屬嵌件](../../../../public/themes/graphite-arena/honeycomb.svg)，SVG 原生幾何，不使用生成圖。沒有變更原主視覺檔。
 
 ## 重現截圖
 
@@ -75,7 +75,7 @@ DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 APP_URL=http://127.0.0.1:3
 在另一個 terminal 對同一 DB，設定 `S7_UI_BASELINE` 為本輪 runtime 提交，執行：
 
 ```sh
-S7_UI_BASELINE=cf7cc08aa828509840be3beac3e8f6426d607a3b node --import tsx docs/design/season-themes/s7/capture.mjs
+S7_UI_BASELINE=348bd7955f3900e0a0f066934a8816879fc4e302 node --import tsx docs/design/season-themes/s7/capture.mjs
 ```
 
 截圖程式核對 runtime／messages／public 與指定 SHA 完全一致，從實際 SSR 外觀偏好與已打包 CSS 產圖；不注入候選 CSS、不更換元件。檢查三個路由 × 四個寬度（320／390／768／1440）× 明暗、Axe AA、DOM／文字不變、五列統計、完整原圖、手機選單／焦點與 sticky stack，另檢查四組 forced colours。合成 session 只在記憶體，不進截圖或原始碼。
@@ -119,3 +119,17 @@ S7_UI_BASELINE=cf7cc08aa828509840be3beac3e8f6426d607a3b node --import tsx docs/d
 - 最終 24 組實際 UI／24 次 Axe AA 零違規；4 組 forced colours 通過，金屬背景與陰影明確移除。16 張頁面圖、2 張手機選單及12張 default 對照已更新。
 - 人工核對明暗與手機材質、原圖完整性及最不利反射對比；設計連結、圖庫工具 ESLint／語法及 `git diff --check` 通過。
 - CSS 精修未重跑未受影響的完整 unit/integration、i18n 或依賴稽核；首版結果另列，未當成本輪新跑的結果。交付 head 的 CI／狀態另記於 #198，不將 pending CI 稱作通過。沒有合併或部署。
+
+### 六角金屬嵌件精修（2026-10-27）
+
+依主辦方提供的標題局部與原圖金屬蜂巢參考，將右側線稿改為有實體厚度的切角嵌件：三個六角凹槽、銀色倒角、內壁與底層、兩枚沉頭固定件、低對比細拉絲及單段金黃反光。移除左側漸隱遮罩，保留完整加工邊緣。沒有增加產品文案、圖示操作或互動；1100px 以下與 forced colours 仍收起該裝飾，不覆蓋標題或原主視覺。
+
+素材沿用原生 `honeycomb.svg`，純本地向量／漸層／圖樣，沒有生成圖、外部字型或依賴。標題其餘材質、三語名稱與資料／外觀繼承保持現狀。
+
+本輪 runtime：`348bd7955f3900e0a0f066934a8816879fc4e302`。新增實際頁面 2× 裝置像素的 [Light 局部](detail-desktop-light.png)／[Dark 局部](detail-desktop-dark.png)；直接截取標題右側，沒有後製或候選 CSS overlay。最新全頁圖與實測以 `verification.json` 為準。
+
+- `npm run check`、production build、圖庫工具 ESLint／語法及 `git diff --check` 通過。
+- Runtime `348bd79` 的 Chrome 桌面／手機 2 項與 Safari 桌面／手機 2 項通過，包含三語明暗、SSR／跨頁、原圖、實際比分與高對比退場。
+- 24 組實際頁面／24 次 Axe AA 零違規、4 組 forced colours 通過；DOM／文字、五列統計、手機焦點與 sticky stack 保持不變。
+- 圖庫更新16張頁面圖、2張原生2×局部、2張手機選單與12張 default 對照。人工核對原生 SVG 的厚度、明暗比例及原圖未變；本地文件連結通過。
+- 本輪只改裝飾 SVG／定位與設計證據，沒有重跑未受影響的完整 unit/integration、i18n 或依賴稽核。首版 full CI 與前輪 core CI 已各自 success；exact SHA／連結與本輪 CI 狀態分別記錄於 #198，不將舊結果當成本輪結果。沒有建立 PR、合併或部署。
