@@ -20,6 +20,26 @@ export function PlayerProfile({
         }).format(v);
   const score = (v: string | null) =>
     v === null ? tr("Unavailable") : BigInt(v).toLocaleString(tr.locale);
+  const playTime = (seconds: number | null) => {
+    if (seconds === null) return tr("Unavailable");
+    const total = Math.floor(seconds);
+    const parts: [number, string][] = [
+      [Math.floor(total / 86400), "day"],
+      [Math.floor(total / 3600) % 24, "hour"],
+      [Math.floor(total / 60) % 60, "minute"],
+      [total % 60, "second"],
+    ];
+    return parts
+      .filter(([value, unit]) => value > 0 || (total === 0 && unit === "second"))
+      .map(([value, unit]) =>
+        new Intl.NumberFormat(tr.locale, {
+          style: "unit",
+          unit,
+          unitDisplay: "long",
+        }).format(value),
+      )
+      .join(" ");
+  };
 
   const p = snapshot.profile;
   const s = p.statistics;
@@ -89,12 +109,7 @@ export function PlayerProfile({
               : `${number(s.accuracy, 2)}%`,
           ],
           ["Play count", number(s.playCount)],
-          [
-            "Play time",
-            s.playTimeSeconds === null
-              ? tr("Unavailable")
-              : tr("{value0} seconds", { value0: number(s.playTimeSeconds) }),
-          ],
+          ["Play time", playTime(s.playTimeSeconds)],
           ["Ranked score", score(s.rankedScore)],
           ["Total score", score(s.totalScore)],
           [
