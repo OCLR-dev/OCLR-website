@@ -140,6 +140,16 @@ html[data-appearance="graphite-arena"] .themed-site .page-heading {
 html[data-appearance="graphite-arena"] .themed-site .page-heading .eyebrow {
   color: var(--site-accent-strong);
 }
+/* Long subtitles and links can cross the darkest part of the silver reflection. */
+html[data-appearance="graphite-arena"] .themed-site .page-heading .muted {
+  color: var(--site-secondary-text);
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .page-heading
+  a:not(.button) {
+  color: var(--site-accent-strong);
+}
 html[data-appearance="graphite-arena"] .themed-site .page-heading h1 {
   font-weight: 800;
   letter-spacing: -0.035em;
