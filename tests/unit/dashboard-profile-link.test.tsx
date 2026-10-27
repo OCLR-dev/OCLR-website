@@ -3,6 +3,16 @@ import { renderToStaticMarkup } from "react-dom/server";
 import Dashboard from "../../src/app/dashboard/page";
 import { currentUser } from "../../src/lib/auth/user";
 import { publicPlayer } from "../../src/lib/players";
+import { playerParticipationHistory } from "../../src/lib/player-history";
+import { RemoteDataError } from "../../src/lib/remote-errors";
+vi.mock("../../src/lib/player-history", () => ({
+  playerParticipationHistory: vi.fn(async () => []),
+}));
+vi.mock("../../src/components/player-history", () => ({
+  PlayerHistory: ({ history }: { history: unknown }) => (
+    <div data-history={JSON.stringify(history)} />
+  ),
+}));
 vi.mock("../../src/i18n/server", () => ({
   getAppTranslations: async () =>
     Object.assign((message: string) => message, { locale: "en" }),
@@ -18,7 +28,10 @@ vi.mock("../../src/lib/osu-profiles", () => ({
 }));
 vi.mock("../../src/components/avatar", () => ({ Avatar: () => null }));
 describe("dashboard OCLR profile navigation", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(playerParticipationHistory).mockResolvedValue([]);
+  });
   it.each([277001, 277002])(
     "uses authenticated ID %s even without provider statistics",
     async (osuId) => {
@@ -41,6 +54,7 @@ describe("dashboard OCLR profile navigation", () => {
         await Dashboard({ searchParams: Promise.resolve({}) }),
       );
       expect(publicPlayer).not.toHaveBeenCalled();
+      expect(playerParticipationHistory).toHaveBeenCalledWith(osuId);
       expect(html).toContain(`href="/players/${osuId}"`);
       expect(html).toContain(`href="https://osu.ppy.sh/users/${osuId}"`);
       expect(html).not.toContain(`href="/players/${osuId}?edition=`);
@@ -61,6 +75,32 @@ describe("dashboard OCLR profile navigation", () => {
       "Your OCLR profile is available after you have public tournament participation.",
     );
     expect(html).toContain('href="https://osu.ppy.sh/users/277003"');
+  });
+  it("keeps registration/account controls available when history fails, without claiming it is empty", async () => {
+    vi.mocked(currentUser).mockResolvedValue({
+      osuId: 277003,
+      username: "Synthetic account",
+    });
+    vi.mocked(playerParticipationHistory).mockRejectedValue(
+      new Error("Synthetic DB interruption"),
+    );
+    const html = renderToStaticMarkup(
+      await Dashboard({ searchParams: Promise.resolve({}) }),
+    );
+    expect(html).toContain('data-history="null"');
+    expect(html).toContain("My registrations");
+    expect(html).toContain('action="/auth/logout"');
+  });
+  it("does not turn remote authorization failures into an empty history", async () => {
+    vi.mocked(currentUser).mockResolvedValue({
+      osuId: 277003,
+      username: "Synthetic account",
+    });
+    vi.mocked(playerParticipationHistory).mockRejectedValue(
+      new RemoteDataError("REMOTE_FORBIDDEN", 403),
+    );
+    const content = await Dashboard({ searchParams: Promise.resolve({}) });
+    expect(content).toMatchObject({ props: { code: "REMOTE_FORBIDDEN" } });
   });
 });
 
