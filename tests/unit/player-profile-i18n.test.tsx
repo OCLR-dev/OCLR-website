@@ -21,7 +21,7 @@ for (const [locale, messages, unavailable, unranked, seconds] of [
     "Unranked / unavailable",
     "4 hours 46 minutes 56 seconds",
   ],
-  ["zh-Hans", hans, "暂不可用", "无排名 / 暂不可用", "4小时 46分钟 56秒"],
+  ["zh-Hans", hans, "暂不可用", "无排名 / 暂不可用", "4小时 46分钟 56秒钟"],
   ["zh-Hant", hant, "暫不可用", "無排名 / 暫不可用", "4 小時 46 分鐘 56 秒"],
 ] as const) {
   describe(`profile statistics in ${locale}`, () => {
@@ -94,7 +94,7 @@ for (const [locale, messages, unavailable, unranked, seconds] of [
             locale === "en"
               ? "0 seconds"
               : locale === "zh-Hans"
-                ? "0秒"
+                ? "0秒钟"
                 : "0 秒",
           );
           expect(value("Ranked score")).toBe("0");

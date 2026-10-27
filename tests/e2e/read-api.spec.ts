@@ -232,7 +232,7 @@ test.describe("versioned read API and existing SSR", () => {
         page.getByRole("link", { name: "View API specification", exact: true }),
       ).toHaveAttribute("href", "/api/v1/openapi.json");
       const response = await context.request.get(
-        `/api/players/${seeded.memberId}?edition=test-cup&mode=osu`,
+        `/api/players/${seeded.memberId}?edition=test-cup`,
       );
       expect(response.status()).toBe(200);
       const legacy = await response.json();
