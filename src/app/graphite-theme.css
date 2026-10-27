@@ -155,14 +155,13 @@ html[data-appearance="graphite-arena"] .themed-site .page-heading h1 {
   letter-spacing: -0.035em;
   line-height: 1.15;
 }
-/* Small engineering linework echoes the original hexagons without a texture wall. */
+/* A machined insert echoes the original plate's bevelled hexagonal recesses. */
 html[data-appearance="graphite-arena"] .themed-site .page-heading::before {
   content: "";
   position: absolute;
-  inset: 0 0 12px auto;
+  inset: 8px 20px 8px auto;
   width: 264px;
   background: var(--graphite-pattern) right center / contain no-repeat;
-  mask-image: linear-gradient(90deg, transparent, #000 35%);
   pointer-events: none;
 }
 html[data-appearance="graphite-arena"] .themed-site .page-heading::after {
