@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "uiBaseline": "5ebd16294a21f581d37d9dd70236b1cd11255a18",
+  "uiBaseline": "5c9f0834548ebe4c0ce91ca5bc24efa94138fb32",
   "scope": "Actual registered S7 appearance with SSR cookie and shipped assets; public committed S7 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
@@ -211,6 +211,32 @@
       }
     },
     {
+      "file": "admin-sidebar-light.png",
+      "path": "/admin/tournaments/s7",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": "#admin-menu .admin-nav-group:first-child",
+        "deviceScaleFactor": 2
+      },
+      "axeViolations": 0
+    },
+    {
+      "file": "admin-sidebar-mobile-light.png",
+      "path": "/admin/tournaments/s7",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": "#admin-menu .admin-nav-group:first-child",
+        "deviceScaleFactor": 2
+      },
+      "axeViolations": 0
+    },
+    {
       "file": "detail-desktop-dark.png",
       "path": "/tournaments/s7",
       "theme": "dark",
@@ -256,6 +282,32 @@
         "selector": "#map-ACE1",
         "deviceScaleFactor": 2
       }
+    },
+    {
+      "file": "admin-sidebar-dark.png",
+      "path": "/admin/tournaments/s7",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": "#admin-menu .admin-nav-group:first-child",
+        "deviceScaleFactor": 2
+      },
+      "axeViolations": 0
+    },
+    {
+      "file": "admin-sidebar-mobile-dark.png",
+      "path": "/admin/tournaments/s7",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": "#admin-menu .admin-nav-group:first-child",
+        "deviceScaleFactor": 2
+      },
+      "axeViolations": 0
     }
   ],
   "cases": [

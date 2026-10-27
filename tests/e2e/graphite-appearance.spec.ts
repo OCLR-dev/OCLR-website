@@ -120,6 +120,8 @@ test.describe("S7 Graphite Arena appearance", () => {
                   .analyze()
               ).violations,
             ).toEqual([]);
+            // Switch from the touch-opened menu to keyboard focus modality.
+            await page.keyboard.press("Tab");
             await links.last().focus();
             await expect(links.last()).toHaveCSS("outline-style", /solid|auto/);
             await page.keyboard.press("Enter");

@@ -1,6 +1,6 @@
 # S7 — Graphite Arena / 石墨競技場
 
-追蹤：[#198](https://github.com/OCLR-dev/OCLR-website/issues/198)。本輪依主辦方要求，以 main `d34378e` 的實際 UI 精修並正式接入 `graphite-arena`，等待主辦方視覺審閱；未合併或部署。
+追蹤：[#198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S7 正式主題已由 PR #384 合併至 main `d34378e`。本輪以該實際 UI 修復圖池與管理側欄，功能分支待審閱，尚未合併或部署修復。
 
 ## 設計方向
 
@@ -13,7 +13,7 @@
 - 保留 [1920×1080 原圖](../../../../public/archive/s7/key-visual.jpg)，完整 contain，不裁切、重繪、調色或改字。
 - 桌面標題右側採自繪具厚度的六角金屬嵌件，下方 64px 黃色短線呼應金屬原圖；1100px 以下移除右側裝飾，不壓縮長標題。
 - 面板／控制項採 2px 圓角。統計是一整塊金屬板，寬幅反射跨越五列，不為每個數值加框；比分採系統等寬數字。
-- 導覽選取透明底色、單一細底線；賽事頁籤用黃色底線，側欄用細側線。焦點、狀態與 mod 色保持獨立語意。
+- 主導覽選取透明底色、單一細底線；賽事頁籤用黃色底線，工作側欄採緞面金屬列與金色側線。焦點、狀態與 mod 色保持獨立語意。
 - 明版拉絲銀鋁、暗版深色鋼材。反射帶、3px 細刷紋、上緣亮邊與下緣暗邊由靜態 CSS 背景製作；頁首與 Admin 大板採較平緩緞面，按鈕保留小面積頂光。主按鈕亮黃搭深色文字，明版連結採深金色。無遠端字型或新依賴。
 
 ## 可審閱實際 UI
@@ -75,10 +75,10 @@ DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 APP_URL=http://127.0.0.1:3
 在另一個 terminal 對同一 DB，設定 `S7_UI_BASELINE` 為本輪 runtime 提交，執行：
 
 ```sh
-S7_UI_BASELINE=5ebd16294a21f581d37d9dd70236b1cd11255a18 node --import tsx docs/design/season-themes/s7/capture.mjs
+S7_UI_BASELINE=5c9f0834548ebe4c0ce91ca5bc24efa94138fb32 node --import tsx docs/design/season-themes/s7/capture.mjs
 ```
 
-截圖程式核對 runtime／messages／public 與指定 SHA 完全一致，從實際 SSR 外觀偏好與已打包 CSS 產圖；不注入候選 CSS、不更換元件。檢查三個路由 × 四個寬度（320／390／768／1440）× 明暗、Axe AA、DOM／文字不變、五列統計、完整原圖、手機選單／焦點與 sticky stack，另檢查四組 forced colours。合成 session 只在記憶體，不進截圖或原始碼。
+截圖程式核對 runtime／messages／public 與指定 SHA 完全一致，從實際 SSR 外觀偏好與已打包 CSS 產圖；不注入候選 CSS、不更換元件。檢查三個路由 × 四個寬度（320／390／768／1440）× 明暗、Axe AA、DOM／文字不變、五列統計、完整原圖、手機選單／焦點與 sticky stack，另檢查四組 forced colours。另以繁中、937px／390px 擷取管理側欄明暗共四張原生2×局部並進行四次側欄 Axe AA。合成 session 只在記憶體，不進截圖或原始碼。
 
 ## 驗證紀錄
 
@@ -152,3 +152,18 @@ S7_UI_BASELINE=5ebd16294a21f581d37d9dd70236b1cd11255a18 node --import tsx docs/d
 [檢視控制 Light](map-controls-light.png)／[Dark](map-controls-dark.png) · [NM2 Light](map-nm2-light.png)／[Dark](map-nm2-dark.png) · [ACE1 Light](map-ace1-light.png)／[Dark](map-ace1-dark.png)。來自699px實際頁面、原生2×局部，沒有後製。隔離預覽阻擋外部封面服務，因此局部圖使用既有缺圖狀態；修復未更改封面來源。
 
 本輪 check／production build／tsc／lint 通過。更新24組實際UI／24次Axe AA及4組forced colours，零錯誤。新增回歸以每個案例獨立頁面避免 WebKit 快速切換尺寸／cookie 時中斷前頁預取，保留全部pageerror與版面／操作斷言。最終 Chrome 桌面／手機2項與 Safari桌面／手機2項通過，涵蓋三語×明暗、320／390／655／699／1440px，完整文字、44px點選區、卡片／緊湊表格、Space開啟詳情、Escape焦點還原及高對比選取。沒有忽略或移除pageerror斷言。CI於交付另記；未重跑未受影響的完整unit/integration、i18n或依賴稽核。
+
+
+### 管理側欄修復（2026-10-27）
+
+依主辦方標註 `/admin/tournaments/s7` 第一組導覽，修正共用 private workspace 的999px圓角遺留。Runtime：`5c9f0834548ebe4c0ce91ca5bc24efa94138fb32`，保留此前圖池修復。
+
+- S7 工作側欄連結統一2px圓角、至少44px高度、內距與換行；目前頁採緞面鋼材／銀鋁薄板、3px金色左緣及輕微倒角，移除棕色膠囊底色。
+- 管理群組以細分隔線和穩定間距區隔，群組標題使用次要文字。未更改路由、文字、ARIA、角色或資料；手機仍沿用原本展開／切頁收起行為。
+- 高對比模式移除金屬材質與陰影，使用系統 Highlight 外框標示目前頁。
+
+[937px Light](admin-sidebar-light.png)／[Dark](admin-sidebar-dark.png) · [390px 展開 Light](admin-sidebar-mobile-light.png)／[Dark](admin-sidebar-mobile-dark.png)。使用隔離測試 DB 的合成 Admin，直接截取實際導覽群組，原生2×，無後製。
+
+本輪 `npm run check`、production build、最終 tsc／ESLint、文件連結與 diff 檢查通過。新增 Chrome 桌面／手機2項與 Safari桌面／手機2項全部通過。原有24組UI／24次Axe AA與4組forced colours重新通過，另四組側欄Axe AA零違規。新增桌面／手機回歸涵蓋三語×明暗、320／390／760／768／937／1440px、44px點選區、無水平溢出、唯一目前頁、鍵盤焦點／Enter導覽、手機切頁收起與高對比。手機焦點驗證先由觸控切換到鍵盤模式，不移除焦點斷言。
+
+前一輪 `a901d8a` 的 core CI（40450166113）已完成但失敗：verify／build／header與remote檢查成功；五個一般E2E shard的匿名無cookie斷言遇到 main #383 新增的 `oclr-system-theme=light`。此處據實保留該未解決的跨功能驗證限制，不將舊版pending狀態或本機S7回歸稱作完整CI通過。本輪未更改該跨功能cookie邏輯／斷言；新head的CI另記於#198。未重跑未受影響的完整unit/integration、i18n或依賴稽核，沒有合併或部署。
