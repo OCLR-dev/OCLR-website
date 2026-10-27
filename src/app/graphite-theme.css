@@ -269,7 +269,7 @@ html[data-appearance="graphite-arena"]
 }
 html[data-appearance="graphite-arena"]
   .themed-site
-  :is(button, .button):not([role="menuitemradio"]) {
+  :is(button, .button):not([role="menuitemradio"], .map-open-button) {
   background-image: linear-gradient(
     180deg,
     #ffffff38,
@@ -279,6 +279,46 @@ html[data-appearance="graphite-arena"]
   box-shadow:
     inset 0 1px var(--graphite-edge-light),
     inset 0 -1px var(--graphite-edge-dark);
+}
+/* View buttons stand on their own, without a second capsule around them. */
+html[data-appearance="graphite-arena"] .themed-site .map-view-control {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+html[data-appearance="graphite-arena"] .themed-site .map-view-control button {
+  border-color: var(--site-control-border);
+}
+/* Map titles are text actions. Keep a consistent hit area and literal wrapping. */
+html[data-appearance="graphite-arena"] .themed-site button.map-open-button {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.15rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--site-foreground);
+  font: inherit;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  transform: none;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  button.map-open-button:is(:hover, :focus-visible, :active) {
+  background: transparent;
+  box-shadow: none;
+  color: var(--site-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  transform: none;
 }
 html[data-appearance="graphite-arena"]
   .themed-site
@@ -406,7 +446,8 @@ html[data-appearance="graphite-arena"]
     :is(
       .main-nav > a[aria-current],
       .sidebar a[aria-current],
-      .tournament-navigation a[aria-current]
+      .tournament-navigation a[aria-current],
+      .map-view-control button[aria-pressed="true"]
     ) {
     outline: 2px solid Highlight;
     outline-offset: -3px;
