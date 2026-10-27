@@ -15,13 +15,16 @@ import {
 import { TeamAvatar } from "./team-avatar";
 import { BracketColumns } from "./bracket-columns";
 
+// The canvas background and connectors follow the active MainSheet tokens in
+// globals.css, which matches these exact stroke values; keep them in sync.
+const connectorColor = "#b5a0c9",
+  connectorColorHighlight = "#edc4ff";
 const theme = createTheme({
   textColor: { main: "#4b315b", highlighted: "#754099", dark: "#222" },
   matchBackground: { wonColor: "#ede5f4", lostColor: "#ffffff" },
   border: { color: "#d9cce5", highlightedColor: "#b785d2" },
-  connectorColor: "#b5a0c9",
-  connectorColorHighlight: "#edc4ff",
-  svgBackground: "#0d1120",
+  connectorColor,
+  connectorColorHighlight,
 });
 
 export function BracketCanvas({
@@ -209,8 +212,8 @@ export function BracketCanvas({
               canvasPadding: 16,
               spaceBetweenColumns: 40,
               spaceBetweenRows: 24,
-              connectorColor: "#b5a0c9",
-              connectorColorHighlight: "#edc4ff",
+              connectorColor,
+              connectorColorHighlight,
               roundHeader: { isShown: false, height: 0, marginBottom: 0 },
             },
           }}

@@ -1436,9 +1436,9 @@ body:has(.presenter-view) .site-footer,
 .bracket-scroll {
   overflow: auto;
   position: relative;
-  border: 1px solid #292d43;
+  border: 1px solid var(--site-border, #292d43);
   border-radius: 0.6rem;
-  background: #0d1120;
+  background: var(--site-raised, #0d1120);
   padding: 1rem;
 }
 .bracket-frame {
@@ -1609,7 +1609,7 @@ body:has(.presenter-view) .site-footer,
   .bracket-scroll:not(.bracket-group-scroll)
   .bracket-round
   > h2 {
-  color: #d6c7e2;
+  color: var(--site-secondary-text, #d6c7e2);
 }
 .bracket-source-details {
   font-size: 0.8rem;
@@ -1622,12 +1622,20 @@ body:has(.presenter-view) .site-footer,
   width: 100%;
   min-width: 0;
   overflow: auto;
-  border: 1px solid #292d43;
+  border: 1px solid var(--site-border, #292d43);
   border-radius: 0.6rem;
-  background: #0d1120;
+  background: var(--site-raised, #0d1120);
 }
 .bracket-library-scroll > div {
   width: max-content;
+}
+/* The library writes connector colors as SVG stroke attributes; CSS wins over
+ * them, so map its normal/highlight values (bracket-canvas.tsx) to tokens. */
+.bracket-library-scroll svg path {
+  stroke: var(--site-connector, #b5a0c9);
+}
+.bracket-library-scroll svg path[stroke="#edc4ff"] {
+  stroke: var(--site-accent, #edc4ff);
 }
 .bracket-library-references svg path {
   stroke-dasharray: 6 4;
