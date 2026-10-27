@@ -362,6 +362,12 @@ html[data-appearance="glacier-blue"] .themed-site .map-slot-badge {
   border-radius: 2px;
   box-shadow: 0 1px 2px var(--ice-contact);
 }
+html[data-appearance="glacier-blue"]
+  .themed-site
+  .public-tournament
+  .event-content {
+  container: glacier-content / inline-size;
+}
 @media (max-width: 1100px) {
   html[data-appearance="glacier-blue"] .themed-site .page-heading {
     min-height: 0;
@@ -386,6 +392,40 @@ html[data-appearance="glacier-blue"] .themed-site .map-slot-badge {
   }
   html[data-appearance="glacier-blue"] .themed-site .archive-counts {
     padding-inline: 16px;
+  }
+}
+/* Keep the portrait beside the title whenever the content has room for both.
+ * The viewport alone cannot distinguish a public page from a narrow workspace. */
+@container glacier-content (min-width: 680px) {
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    .public-tournament
+    .page-heading {
+    --glacier-portrait-width: clamp(280px, 32%, 320px);
+    min-height: 176px;
+    padding-bottom: 24px;
+    background-size:
+      48px 48px,
+      auto;
+    background-position:
+      right 248px center,
+      center;
+  }
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    .public-tournament
+    .page-heading::before {
+    inset: 4px 8px 4px auto;
+    width: var(--glacier-portrait-width);
+    height: auto;
+  }
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    .public-tournament
+    .page-heading
+    > :is(h1, p) {
+    max-width: calc(100% - var(--glacier-portrait-width) - 32px);
+    overflow-wrap: anywhere;
   }
 }
 @media (forced-colors: active) {

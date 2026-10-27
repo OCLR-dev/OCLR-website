@@ -337,6 +337,46 @@ html[data-s9-preview] .themed-site .map-slot-badge {
     padding-inline: 16px;
   }
 }
+html[data-s9-preview]
+  .themed-site
+  .public-tournament
+  .event-content {
+  container: glacier-content / inline-size;
+}
+/* Keep the portrait beside the title whenever the content has room for both.
+ * The viewport alone cannot distinguish a public page from a narrow workspace. */
+@container glacier-content (min-width: 680px) {
+  html[data-s9-preview]
+    .themed-site
+    .public-tournament
+    .page-heading {
+    --glacier-portrait-width: clamp(280px, 32%, 320px);
+    min-height: 176px;
+    padding-bottom: 24px;
+    background-size:
+      48px 48px,
+      auto;
+    background-position:
+      right 248px center,
+      center;
+  }
+  html[data-s9-preview]
+    .themed-site
+    .public-tournament
+    .page-heading::before {
+    inset: 4px 8px 4px auto;
+    width: var(--glacier-portrait-width);
+    height: auto;
+  }
+  html[data-s9-preview]
+    .themed-site
+    .public-tournament
+    .page-heading
+    > :is(h1, p) {
+    max-width: calc(100% - var(--glacier-portrait-width) - 32px);
+    overflow-wrap: anywhere;
+  }
+}
 @media (forced-colors: active) {
   html[data-s9-preview] .themed-site :is(.site-header, .page-heading, .archive-counts, .rules-article, .rules-desktop-contents, .rules-mobile-contents, .settings-card, .map-browse-card, .map-card-cover, .nav-login, input, select, textarea) {
     background: Canvas;

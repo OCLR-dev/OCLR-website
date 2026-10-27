@@ -26,7 +26,7 @@ test.describe("S9 Glacier Blue appearance", () => {
         season: "9",
         name: "OCLR Season 9",
         status: "completed",
-        summary: "Design preview using the committed S9 archive.",
+        summary: "osu! Chinese League Rookie — Season 9. 2023 年歷史賽事歸檔。",
         registration: null,
         rules: null,
         eligibility: null,
@@ -40,6 +40,92 @@ test.describe("S9 Glacier Blue appearance", () => {
     await seedBrowserEditions();
   });
   test.afterAll(closeDb);
+
+  test("keeps the heading compact without overlapping its portrait or text", async ({
+    context,
+    isMobile,
+  }) => {
+    test.setTimeout(180000);
+    const errors: string[] = [];
+    for (const locale of ["en", "zh-Hans", "zh-Hant"])
+      for (const theme of ["light", "dark"])
+        for (const width of isMobile
+          ? [320, 390, 699, 744, 745]
+          : [768, 937, 1100, 1101, 1440]) {
+          const page = await context.newPage();
+          page.on("pageerror", (error) => errors.push(error.message));
+          await page.setViewportSize({ width, height: 815 });
+          await context.addCookies(
+            [
+              ["oclr-locale", locale],
+              ["oclr-theme", theme],
+              ["oclr-appearance", "glacier-blue"],
+            ].map(([name, value]) => ({ name, value, url: origin })),
+          );
+          expect((await page.goto("/tournaments/s9"))?.status()).toBe(200);
+          await page.waitForLoadState("networkidle");
+          const heading = page.locator(".historical-archive > .page-heading");
+          const geometry = await heading.evaluate((node) => {
+            const box = node.getBoundingClientRect();
+            const style = getComputedStyle(node, "::before");
+            const portrait = {
+              left:
+                box.right - parseFloat(style.right) - parseFloat(style.width),
+              top:
+                box.bottom -
+                parseFloat(style.bottom) -
+                parseFloat(style.height),
+              height: parseFloat(style.height),
+            };
+            const text = [...node.querySelectorAll("h1, p")].map((n) => {
+              const rect = n.getBoundingClientRect();
+              return {
+                right: rect.right,
+                bottom: rect.bottom,
+                fits: n.scrollWidth <= n.clientWidth,
+              };
+            });
+            return {
+              width: box.width,
+              height: box.height,
+              portrait,
+              text,
+              fits: document.documentElement.scrollWidth <= innerWidth,
+            };
+          });
+          expect(geometry.fits).toBe(true);
+          expect(geometry.text.every((text) => text.fits)).toBe(true);
+          if (geometry.width >= 680) {
+            expect(
+              Math.max(...geometry.text.map((text) => text.right)),
+            ).toBeLessThanOrEqual(geometry.portrait.left - 16);
+            expect(geometry.portrait.height).toBeGreaterThanOrEqual(150);
+            if (width === 937) expect(geometry.height).toBeLessThanOrEqual(200);
+          } else {
+            expect(
+              Math.max(...geometry.text.map((text) => text.bottom)),
+            ).toBeLessThanOrEqual(geometry.portrait.top);
+          }
+          if (width === (isMobile ? 390 : 937)) {
+            expect(
+              (
+                await new AxeBuilder({ page })
+                  .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+                  .analyze()
+              ).violations,
+            ).toEqual([]);
+            await page.emulateMedia({ forcedColors: "active" });
+            expect(
+              await heading.evaluate(
+                (node) => getComputedStyle(node, "::before").display,
+              ),
+            ).toBe("none");
+          }
+          await page.waitForLoadState("networkidle");
+          await page.close();
+        }
+    expect(errors).toEqual([]);
+  });
 
   test("selects S9 from the real menu in all locales and persists the shipped light/dark design", async ({
     page,
