@@ -113,11 +113,11 @@ test.describe("approved public About roster", () => {
               exact: true,
             }),
           })
-          .locator(":scope > div.spaced")
+          .locator(".staff-role-row")
           .filter({
-            has: operator
-              .locator("p")
-              .filter({ hasText: new RegExp(`^${role} · About:`) }),
+            has: operator.locator("strong").filter({
+              hasText: role === "developer" ? /^Developer$/ : /^Mappooler$/,
+            }),
           });
         await row
           .getByRole("button", { name: "Show on About", exact: true })

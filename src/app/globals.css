@@ -5386,44 +5386,188 @@ body:has([data-broadcast]) .site-shell {
   }
 }
 
-.staff-role-options {
+.staff-role-form,
+.staff-assignments {
+  max-width: 56rem;
+  min-width: 0;
+}
+.staff-role-fields {
+  container-type: inline-size;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: 0.5rem 1.5rem;
+  gap: 1rem;
+  min-width: 0;
+}
+.staff-role-fields :is(h2, p),
+.staff-role-identity :is(h3, p),
+.staff-role-row p,
+.staff-role-publication > h4 {
+  margin: 0;
+}
+.staff-role-help {
+  max-width: 65ch;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.staff-role-targets {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 1rem;
+  align-items: end;
+}
+.staff-saved-roles,
+.staff-role-scope {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+.staff-role-options {
+  min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
 }
 .staff-role-options legend {
   margin-bottom: 0.5rem;
+  padding: 0;
+  font-size: 0.875rem;
   font-weight: 600;
 }
-.staff-role-options label {
+.staff-role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.staff-role-option {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  min-width: 0;
   min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control, 0.5rem);
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.staff-role-option:hover {
+  background: var(--site-tint);
+}
+.staff-role-option:has(:checked) {
+  background: var(--site-tint);
+  border-color: var(--site-control-border);
+}
+.staff-role-option:has(:focus-visible) {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
+.staff-role-option:has(:disabled) {
+  cursor: default;
+}
+.staff-role-option-detailed {
+  grid-column: 1 / -1;
+  align-items: flex-start;
+}
+.staff-role-option-name {
+  display: block;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.staff-role-option-description {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 .staff-role-options input {
   flex: 0 0 auto;
   width: 1.1rem;
   height: 1.1rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--site-primary);
+}
+.staff-role-submit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+.staff-role-status {
+  flex: 1 1 16rem;
+  font-size: 0.875rem;
+}
+.staff-role-success {
+  color: var(--site-success);
+}
+button.staff-role-save {
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+  width: auto;
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+}
+.staff-role-group {
+  container-type: inline-size;
+  margin-top: 1rem;
+  overflow-wrap: anywhere;
+}
+.staff-role-identity {
+  display: grid;
+  gap: 0.25rem;
 }
 .staff-role-editor {
-  margin-block: 1rem;
-  padding-block: 1rem;
-  border-block: 1px solid var(--site-border);
+  margin-block: 1.5rem;
 }
-.staff-role-editor > h4 {
-  margin: 0 0 0.75rem;
+.staff-role-editor > h4,
+.staff-role-publication > h4 {
+  margin: 0 0 0.5rem;
   font-size: 1rem;
 }
-.staff-role-editor .staff-role-options label {
-  align-items: flex-start;
-  padding-block: 0.5rem;
+.staff-role-publication {
+  padding-top: 1rem;
+  border-top: 1px solid var(--site-border);
 }
-.staff-role-editor .staff-role-options input {
-  margin-top: 0.2rem;
+.staff-role-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding-block: 0.75rem;
+}
+.staff-role-row + .staff-role-row {
+  border-top: 1px solid var(--site-border);
+}
+.staff-role-row-info {
+  min-width: 0;
+  font-size: 0.875rem;
+}
+.staff-role-row .staff-role-actions {
+  margin: 0;
+  gap: 0.5rem;
+}
+@container (max-width: 32rem) {
+  .staff-role-targets,
+  .staff-role-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .staff-role-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container (max-width: 17rem) {
+  .staff-role-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (forced-colors: active) {
+  .staff-role-option:has(:checked) {
+    border-color: Highlight;
+  }
+  .staff-role-option:has(:focus-visible) {
+    outline-color: Highlight;
+  }
 }
 
 .contributor-manager > fieldset {

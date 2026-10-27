@@ -70,7 +70,7 @@ test.describe("Developer private read workspace", () => {
         .uncheck();
       await roles
         .getByRole("checkbox", {
-          name: "Developer — global read-only access",
+          name: "Developer",
           exact: true,
         })
         .check();

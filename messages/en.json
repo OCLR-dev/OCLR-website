@@ -2787,6 +2787,16 @@
     "mffc75c16bb4e": "Second player",
     "ma9a95e3e7586": "Save this confirmed exchange. Published statistics are retained only when every published play is revalidated unchanged. Other games still require review.",
     "m9c54425e97db": "Published statistics would change. Review or withdraw them before changing this roster.",
-    "m299ec68dd174": "Select two recorded players from different teams in a final-Tier archive. Refresh if their teams changed."
+    "m299ec68dd174": "Select two recorded players from different teams in a final-Tier archive. Refresh if their teams changed.",
+    "mb38c32008625": "Saved roles",
+    "m8c350bc27f17": "Global read-only access. Requires an explicit Developer grant.",
+    "m2ae956ef6c88": "Full access within the selected scope.",
+    "m9d4bcc54aaf6": "Roles saved.",
+    "m75d79f0a2f2e": "No unsaved changes.",
+    "mb4653c5b51a9": "Unsaved changes. Review and confirm to apply.",
+    "m986816f6d074": "Review and confirm to apply.",
+    "m1665c02c878e": "About visibility and revocation",
+    "m09f0ff8358d6": "These actions apply to saved roles independently of the role selection above.",
+    "mc1c224b03cd9": "Admin"
   }
 }
