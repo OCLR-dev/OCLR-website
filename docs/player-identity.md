@@ -98,11 +98,10 @@ Use an isolated database with a separate `test` segment. Tests cover account-onl
 and private applicants, history-only UIDs, cross-season deduplication, name reuse,
 unresolved people, accumulating/empty snapshots, repeatable backfill, public/self/
 staff authorization, saved-only APIs, old/new remote contracts and navigation.
-Browser tests cover desktop/mobile, missing statistics, three locales and the
-Ruleset menu using the site's existing preference-menu styles and keyboard pattern.
+The existing profile browser regression covers saved statistics and ruleset
+switching on desktop and mobile. The ruleset menu uses the site's existing
+preference-menu styles and keyboard pattern.
 Choosing a mode updates the route immediately, preserves the selected edition and
 scroll position, and shows a themed spinner overlay while the saved data loads.
 The overlay is currently enabled only for this ruleset control; other navigation
 and background reads keep their existing behavior.
-See [issue verification](verification/issue-360/README.md) for the recorded results
-and remaining environment/CI limitations.
