@@ -57,6 +57,50 @@
   gap: 1.5rem;
   padding: 1rem 1.25rem;
   overflow-wrap: anywhere;
+  transition: background-color 160ms ease;
+}
+
+.record:hover,
+.record:focus-within {
+  background-color: color-mix(
+    in srgb,
+    var(--site-accent, var(--color-accent)) 4%,
+    transparent
+  );
+}
+
+.record :global(.context-link),
+.record :global(.context-link):hover,
+.record :global(.context-link):focus-visible {
+  padding-inline: 0;
+  background: transparent;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.record :global(.context-link):hover {
+  color: var(--site-accent-strong, var(--site-accent, var(--color-accent)));
+}
+
+.record :global(.context-link):focus-visible {
+  outline: 2px solid var(--site-accent, var(--color-accent));
+  outline-offset: 4px;
+}
+
+.edition h3 :global(.context-link)::after {
+  content: "→";
+  margin-left: 0.5rem;
+  opacity: 0;
+  transform: translateX(-0.25rem);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.edition h3 :global(.context-link):hover::after,
+.edition h3 :global(.context-link):focus-visible::after {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .record + .record {
@@ -89,6 +133,14 @@
 
 .team {
   font-size: 0.875rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .record,
+  .record :global(.context-link),
+  .edition h3 :global(.context-link)::after {
+    transition: none;
+  }
 }
 
 @media (max-width: 640px) {
