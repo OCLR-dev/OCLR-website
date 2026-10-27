@@ -327,9 +327,8 @@ html[data-theme="dark"] .themed-site:has(.home-redesign) .site-header {
   --color-muted: #b5a1c9;
   --color-foreground: #f0dcff;
   --color-border: #795394;
-  background:
-    linear-gradient(100deg, #101124ed, #171332e8),
-    url("/oclr-s11-website-background.webp") center 12% / cover;
+  /* The light rule's `background: var(--site-header)` paints this token;
+   * no banner artwork here, so appearance header styles layer the same in both themes. */
   color-scheme: dark;
 }
 html[data-theme="dark"]
