@@ -2779,6 +2779,14 @@
     "m18227265b260": "S7 · Graphite Arena",
     "mcebb295c5462": "Known player not found.",
     "m297bcbc700b1": "No published tournament participation is available.",
-    "m3925d437ec9d": "Recorded placing"
+    "m3925d437ec9d": "Recorded placing",
+    "m29bf3b512348": "Exchange historical players",
+    "mcd69611087d4": "Exchange only organizer-confirmed players from different teams. Original roles, Tiers and roster sources are retained; the exchange date remains unknown.",
+    "m95c8fc966986": "First player",
+    "m13d6dd5038ce": "Select player",
+    "mffc75c16bb4e": "Second player",
+    "ma9a95e3e7586": "Save this confirmed exchange. Published statistics are retained only when every published play is revalidated unchanged. Other games still require review.",
+    "m9c54425e97db": "Published statistics would change. Review or withdraw them before changing this roster.",
+    "m299ec68dd174": "Select two recorded players from different teams in a final-Tier archive. Refresh if their teams changed."
   }
 }

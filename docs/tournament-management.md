@@ -70,6 +70,30 @@ Historical source-inspection data is stored in an Admin-only appendix on the
 archive screen. Public pages, public saved-read resources and tournament previews
 omit the appendix; recorded match totals and MP room-open times remain public. Existing archive replacement still requires an unpublished edition.
 
+**Exchange historical players** saves an organizer-confirmed two-player exchange
+in a completed format-2, final-Tier archive without registration. Select two
+recorded players from different teams and provide the identity confirmation
+source. The confirmation shows both UID/team movements. Captains, coaches,
+unresolved identities and chronological draft logs cannot be rewritten through
+this operation. Player order, usernames, roles, Tiers, original roster sources,
+match results, rankings and missing dates remain unchanged. The original teams
+and confirmation evidence are appended to the Admin-only source appendix; public
+rosters show the confirmed teams.
+
+The server requires edition-scoped Admin configuration/result-approval authority,
+the current configuration revision, both original team IDs and explicit statistics
+preservation. It serializes with statistics writes under the edition lock. Every
+current published snapshot is checked against both rosters: exclusions, selected
+games, team attribution, per-player projections and the complete fixture score
+must remain valid and identical. A changed published play rejects the entire
+exchange; review or withdraw affected statistics first. Unchanged releases keep
+their original publication time, raw MP source and selections, with a versioned
+archive-key revalidation recorded in the audit transaction. Valid unchanged drafts
+are revalidated without selecting or publishing newly attributable games. Already
+stale or changed drafts stay stale and require fresh import/review. Neither an
+old request nor a repeated payload can swap the players back. This is not a bulk
+archive replacement, a result correction or an automatic production-data change.
+
 Publishing never enables registration. Rules, eligibility and milestones are optional, independent content. Registration requires publication, privacy configuration, explicit enablement and a valid unlocked window. Advance enabling is supported; submissions are accepted from opening (inclusive) until closing (exclusive). Only configured Rules/Eligibility are acknowledged. Missing rules use a null version and absent eligibility uses a null acknowledgment; no synthetic consent is generated. Existing draft/team locks still protect competition setup. Changed rules cannot reuse a version for different text. Configuration snapshots preserve earlier rules, questions and answers without requiring a retention-approval checkbox or coupling question edits to rules versions.
 
 Registration dates, withdrawal deadlines, milestones and fixture times use separate Date and 24-hour `HH:mm` fields with the configured IANA zone immediately after the time (and a date-specific offset when available). Partial edits and daylight-saving gaps block saving; duplicated hours require an explicit UTC offset. Optional dates can be cleared to TBA. Unchanged timestamps retain their original seconds and offset; editing the date/time sets seconds to zero. Changing a fixture’s time zone keeps its scheduled instant and updates the local display. General settings and Fixtures share a searchable city/IANA selector; UTC is the default, valid saved aliases are retained, and supported zones have a bundled fallback list.

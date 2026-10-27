@@ -11,6 +11,7 @@ import {
 import { ConfirmMutation } from "./confirm-mutation";
 import { useRouter } from "next/navigation";
 import { ArchiveSubstitute } from "./archive-substitute";
+import { ArchivePlayerExchange } from "./archive-player-exchange";
 
 function ArchiveIdentityResolver({
   person,
@@ -136,7 +137,14 @@ export function ArchiveImporter({
         {eligible &&
           archive?.formatVersion === 2 &&
           archive.draftMode === "final-tiers" && (
-            <ArchiveSubstitute archive={archive} revision={revision} />
+            <>
+              <ArchiveSubstitute archive={archive} revision={revision} />
+              <ArchivePlayerExchange
+                key={revision}
+                archive={archive}
+                revision={revision}
+              />
+            </>
           )}
         {eligible &&
           archive?.unresolvedPlayers?.map((person) => (

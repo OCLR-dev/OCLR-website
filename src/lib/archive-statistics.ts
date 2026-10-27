@@ -28,7 +28,11 @@ import {
 } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import type { HistoricalArchive } from "./historical-archive";
+import {
+  exchangeArchivePlayers,
+  type archivePlayerExchangeConfirmation,
+  type HistoricalArchive,
+} from "./historical-archive";
 import { HttpError } from "./http";
 import { matchSourceSchema } from "./match-model";
 import { fetchMatchSource } from "./osu-matches";
@@ -181,6 +185,29 @@ export async function preserveStatisticsForRosterAddition(
     !isDeepStrictEqual(oldPlayers, newPlayers.slice(0, oldPlayers.length))
   )
     throw new HttpError(409, "Archive changed. Reload before retrying.");
+  await preserveStatisticsForRosterChange(tx, actor, before, after);
+}
+
+/** A narrowly validated exchange is not permission to revalidate arbitrary edits. */
+export async function preserveStatisticsForRosterExchange(
+  tx: Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0],
+  actor: User,
+  before: HistoricalArchive,
+  after: HistoricalArchive,
+  confirmation: z.infer<typeof archivePlayerExchangeConfirmation>,
+) {
+  await assertCapability(actor, "approve_results", before.editionSlug, tx);
+  if (!isDeepStrictEqual(after, exchangeArchivePlayers(before, confirmation)))
+    throw new HttpError(409, "Archive changed. Reload before retrying.");
+  await preserveStatisticsForRosterChange(tx, actor, before, after);
+}
+
+async function preserveStatisticsForRosterChange(
+  tx: Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0],
+  actor: User,
+  before: HistoricalArchive,
+  after: HistoricalArchive,
+) {
   const oldKey = statisticsArchiveKey(before);
   const newKey = statisticsArchiveKey(after);
   const rows = await stored(before.editionSlug, tx);
@@ -192,7 +219,9 @@ export async function preserveStatisticsForRosterAddition(
           f.id === fixtureId &&
           f.mpUrls.some((u) => archiveMpId(u) === s.source.match.id),
       ) ||
-      [before, after].some((a) => !validStatisticsExclusions(s, a, fixtureId)) ||
+      [before, after].some(
+        (a) => !validStatisticsExclusions(s, a, fixtureId),
+      ) ||
       (!after.pools.some((p) => p.id === s.poolId) &&
         !(s.allowUnlistedMaps && s.poolId === "")) ||
       new Set(s.included).size !== s.included.length ||
@@ -240,7 +269,7 @@ export async function preserveStatisticsForRosterAddition(
     )
       throw new HttpError(
         409,
-        "Published statistics would change. Review or withdraw them before confirming this substitute.",
+        "Published statistics would change. Review or withdraw them before changing this roster.",
       );
   }
   const versions = [];
@@ -259,7 +288,7 @@ export async function preserveStatisticsForRosterAddition(
     )
       throw new HttpError(
         409,
-        "Published statistics would change. Review or withdraw them before confirming this substitute.",
+        "Published statistics would change. Review or withdraw them before changing this roster.",
       );
     if (draft === row.draft && published === row.published) continue;
     await tx

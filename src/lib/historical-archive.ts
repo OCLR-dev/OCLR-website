@@ -481,6 +481,58 @@ export function addArchiveSubstitute(
   });
 }
 
+/** Both saved teams are preconditions, so a repeated request cannot swap back. */
+export const archivePlayerExchangeConfirmation = z
+  .object({
+    firstOsuId: id,
+    firstTeamId: key,
+    secondOsuId: id,
+    secondTeamId: key,
+    confirmationSource: source,
+  })
+  .strict();
+
+export function exchangeArchivePlayers(
+  archive: HistoricalArchive,
+  input: z.infer<typeof archivePlayerExchangeConfirmation>,
+): HistoricalArchive {
+  const c = archivePlayerExchangeConfirmation.parse(input);
+  const first = archive.players.find((p) => p.osuId === c.firstOsuId);
+  const second = archive.players.find((p) => p.osuId === c.secondOsuId);
+  if (
+    archive.formatVersion !== 2 ||
+    archive.draftMode !== "final-tiers" ||
+    !first ||
+    !second ||
+    first.osuId === second.osuId ||
+    first.role !== "player" ||
+    second.role !== "player" ||
+    first.teamId !== c.firstTeamId ||
+    second.teamId !== c.secondTeamId ||
+    first.teamId === second.teamId
+  )
+    throw new Error("Select two recorded players from different teams.");
+  return historicalArchiveSchema.parse({
+    ...archive,
+    players: archive.players.map((p) =>
+      p.osuId === first.osuId
+        ? { ...p, teamId: second.teamId }
+        : p.osuId === second.osuId
+          ? { ...p, teamId: first.teamId }
+          : p,
+    ),
+    sourceFacts: [
+      ...(archive.sourceFacts ?? []),
+      {
+        category: "review",
+        label: "Archive player exchange confirmation",
+        text: `${first.username} (osu! UID ${first.osuId}): ${first.teamId} → ${second.teamId}; ${second.username} (osu! UID ${second.osuId}): ${second.teamId} → ${first.teamId}. Original roster sources: ${first.source}; ${second.source}. Roles and Tiers retained; exchange date unknown.`,
+        source: c.confirmationSource,
+      },
+    ],
+  });
+}
+
 /** Resolve one source-only identity without replacing competition history. */
 export function resolveArchiveIdentity(
   archive: HistoricalArchive,
