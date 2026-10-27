@@ -2393,6 +2393,15 @@ body:has(.presenter-view) .site-footer,
 .profile-summary time {
   overflow-wrap: anywhere;
 }
+.profile-summary-footer {
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--site-border, var(--color-border));
+  color: var(--muted, var(--color-muted));
+  font-size: 0.75rem;
+  line-height: 1.6;
+  text-align: left;
+}
 
 .edition-art-branded {
   background: transparent;

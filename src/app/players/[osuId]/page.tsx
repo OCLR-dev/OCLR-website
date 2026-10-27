@@ -8,6 +8,7 @@ import { publicRoundRatings } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import styles from "./profile.module.css";
 
 import { HttpError } from "@/lib/http";
 export async function generateMetadata() {
@@ -126,70 +127,82 @@ async function ProfileContent({
             {tr("No published tournament participation is available.")}
           </p>
         )}
-        <ul className="player-directory">
+        <ul
+          className={
+            data.participation.length ? `panel ${styles.history}` : undefined
+          }
+        >
           {data.participation.map((p) => (
-            <li className="panel" key={p.editionSlug}>
-              <h3>
-                <Link
-                  href={`/tournaments/${p.editionSlug}`}
-                  className="context-link"
-                >
-                  {p.editionName}
-                </Link>
-              </h3>
-              <p>{p.username}</p>
-              <p>
-                {p.participation === "historical"
-                  ? tr("Historical archive")
-                  : p.participation === "coach"
-                    ? tr("Coach")
-                    : p.captain
+            <li className={styles.record} key={p.editionSlug}>
+              <div className={styles.edition}>
+                <h3>
+                  <Link
+                    href={`/tournaments/${p.editionSlug}`}
+                    className="context-link"
+                  >
+                    {p.editionName}
+                  </Link>
+                </h3>
+                {p.participation === "historical" && (
+                  <span className="muted small">
+                    {tr("Historical archive")}
+                  </span>
+                )}
+              </div>
+              <div className={styles.identity}>
+                <span>{p.username}</span>
+                <span className="badge">
+                  {p.participation === "historical"
+                    ? p.role === "captain"
                       ? tr("Captain")
-                      : p.participation === "finalized_roster"
-                        ? tr("Finalized roster player")
-                        : tr("Accepted player")}
-              </p>
-              {p.participation === "historical" && (
-                <p>
-                  {p.role === "captain"
-                    ? tr("Captain")
-                    : p.role === "coach"
+                      : p.role === "coach"
+                        ? tr("Coach")
+                        : p.role === "free_agent"
+                          ? tr("Free agent")
+                          : tr("Player")
+                    : p.participation === "coach"
                       ? tr("Coach")
-                      : p.role === "free_agent"
-                        ? tr("Free agent")
-                        : tr("Player")}
-                </p>
-              )}
-              {p.placing != null && (
-                <p>
-                  {tr("Recorded placing")}: {p.placing}
-                </p>
-              )}
-              {p.sourceReference && (
-                <p className="muted small">{p.sourceReference}</p>
-              )}
-              {p.coachedTeams?.map((t) => (
-                <p key={t.id}>
-                  <span className="badge">{tr("Coach")}</span>{" "}
-                  <Link
-                    className="context-link"
-                    href={`/tournaments/${p.editionSlug}/teams/${t.id}`}
-                  >
-                    {t.name}
-                  </Link>
-                </p>
-              ))}
-              {p.participation !== "coach" &&
-                (p.team ? (
-                  <Link
-                    href={`/tournaments/${p.editionSlug}/teams/${p.team.id}`}
-                    className="context-link"
-                  >
-                    {p.team.name}
-                  </Link>
-                ) : (
-                  <p className="muted">{tr("Team awaiting publication")}</p>
+                      : p.captain
+                        ? tr("Captain")
+                        : p.participation === "finalized_roster"
+                          ? tr("Finalized roster player")
+                          : tr("Accepted player")}
+                </span>
+              </div>
+              <div className={styles.team}>
+                {p.coachedTeams?.map((t) => (
+                  <div key={t.id}>
+                    <span className="badge">{tr("Coach")}</span>{" "}
+                    <Link
+                      className="context-link"
+                      href={`/tournaments/${p.editionSlug}/teams/${t.id}`}
+                    >
+                      {t.name}
+                    </Link>
+                  </div>
                 ))}
+                {p.participation !== "coach" &&
+                  (p.team ? (
+                    <Link
+                      href={`/tournaments/${p.editionSlug}/teams/${p.team.id}`}
+                      className="context-link"
+                    >
+                      {p.team.name}
+                    </Link>
+                  ) : (
+                    <span className="muted small">
+                      {tr("Team awaiting publication")}
+                    </span>
+                  ))}
+                {p.placing != null && (
+                  <span className="muted small">
+                    {tr("Recorded placing")}: {p.placing}
+                  </span>
+                )}
+                {p.sourceReference && (
+                  <span className="muted small">{p.sourceReference}</span>
+                )}
+              </div>
             </li>
           ))}
         </ul>

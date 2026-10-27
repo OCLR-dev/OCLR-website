@@ -30,7 +30,9 @@ export function PlayerProfile({
       [total % 60, "second"],
     ];
     return parts
-      .filter(([value, unit]) => value > 0 || (total === 0 && unit === "second"))
+      .filter(
+        ([value, unit]) => value > 0 || (total === 0 && unit === "second"),
+      )
       .map(([value, unit]) =>
         new Intl.NumberFormat(tr.locale, {
           style: "unit",
@@ -184,19 +186,13 @@ export function PlayerProfile({
           </div>
         </dl>
       </details>
-      <p className="small muted spaced">
+      <footer className="profile-summary-footer">
         {tr("Source: ")}
         {p.source} {tr(" · Last updated")}{" "}
         <time dateTime={p.fetchedAt}>{p.fetchedAt}</time>
         {tr(". Statistics are a saved ")}
         {modeNames[p.ruleset]} {tr(" snapshot.")}
-      </p>
-      {(snapshot.stale || snapshot.notice) && (
-        <p className="notice" role="status">
-          {snapshot.stale ? tr("Stale snapshot. ") : ""}
-          {snapshot.notice ?? tr("A new snapshot is not available yet.")}
-        </p>
-      )}
+      </footer>
     </section>
   );
 }
