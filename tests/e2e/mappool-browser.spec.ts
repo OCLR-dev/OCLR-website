@@ -1,3 +1,4 @@
+import { isAutomaticPreferenceCookie } from "../fixtures/preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";
@@ -95,7 +96,9 @@ test.describe("anonymous inline mappool browser", () => {
     const firstRound = await round("group", "Group Round 1", 1);
     const first = await pool(firstRound, "Opening pool", 6);
     expect(
-      (await context.cookies()).filter((c) => c.name !== "oclr-locale"),
+      (await context.cookies()).filter(
+        (cookie) => !isAutomaticPreferenceCookie(cookie),
+      ),
     ).toEqual([]);
     await page.goto(index);
     await expect(

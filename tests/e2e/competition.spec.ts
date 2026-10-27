@@ -1,3 +1,4 @@
+import { isAutomaticPreferenceCookie } from "../fixtures/preferences";
 import { englishStorage } from "../fixtures/preferences";
 import { randomUUID } from "node:crypto";
 import { test, expect } from "@playwright/test";
@@ -52,7 +53,9 @@ test.describe("anonymous tournament competition center", () => {
     }
     try {
       expect(
-        (await context.cookies()).filter((c) => c.name !== "oclr-locale"),
+        (await context.cookies()).filter(
+          (cookie) => !isAutomaticPreferenceCookie(cookie),
+        ),
       ).toEqual([]);
       const initial = await (await context.request.get(publicEndpoint)).json();
       expect(initial.pool).toMatchObject({
@@ -232,7 +235,9 @@ test.describe("anonymous tournament competition center", () => {
         ).status(),
       ).toBe(404);
       expect(
-        (await context.cookies()).filter((c) => c.name !== "oclr-locale"),
+        (await context.cookies()).filter(
+          (cookie) => !isAutomaticPreferenceCookie(cookie),
+        ),
       ).toEqual([]);
     } finally {
       await admin.close();

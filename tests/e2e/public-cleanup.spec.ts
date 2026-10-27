@@ -1,3 +1,4 @@
+import { isAutomaticPreferenceCookie } from "../fixtures/preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { eq, sql } from "drizzle-orm";
@@ -63,7 +64,9 @@ test.describe("concise public tournament surfaces", () => {
       page.getByRole("link", { name: "privacy notice", exact: true }),
     ).toHaveAttribute("href", "/privacy");
     expect(
-      (await context.cookies()).filter((c) => c.name !== "oclr-locale"),
+      (await context.cookies()).filter(
+        (cookie) => !isAutomaticPreferenceCookie(cookie),
+      ),
     ).toEqual([]);
     expect(
       (

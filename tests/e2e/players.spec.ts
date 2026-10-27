@@ -1,3 +1,4 @@
+import { isAutomaticPreferenceCookie } from "../fixtures/preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { eq } from "drizzle-orm";
@@ -15,7 +16,9 @@ test.describe("anonymous published player directory", () => {
     const base = isMobile ? 240101 : 240001;
     const fixture = await seedPublicDirectory(base);
     expect(
-      (await context.cookies()).filter((c) => c.name !== "oclr-locale"),
+      (await context.cookies()).filter(
+        (cookie) => !isAutomaticPreferenceCookie(cookie),
+      ),
     ).toEqual([]);
     const query = new URLSearchParams({
       q: `Synthetic Directory ${base}`,

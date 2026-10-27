@@ -1,3 +1,4 @@
+import { isAutomaticPreferenceCookie } from "../fixtures/preferences";
 import { englishStorage } from "../fixtures/preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -51,7 +52,9 @@ test.describe("published osu! profiles", () => {
         });
     }
     expect(
-      (await context.cookies()).filter((c) => c.name !== "oclr-locale"),
+      (await context.cookies()).filter(
+        (cookie) => !isAutomaticPreferenceCookie(cookie),
+      ),
     ).toEqual([]);
     const response = await context.request.get(`/api/players/${base}`);
     expect(response.status()).toBe(200);

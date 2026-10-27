@@ -1,3 +1,4 @@
+import { isAutomaticPreferenceCookie } from "../fixtures/preferences";
 import { englishStorage } from "../fixtures/preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -103,7 +104,9 @@ test.describe("MainSheet Light public experience", () => {
     await context.route("https://a.ppy.sh/**", (route) => route.abort());
     const base = "/tournaments/test-cup";
     expect(
-      (await context.cookies()).filter((c) => c.name !== "oclr-locale"),
+      (await context.cookies()).filter(
+        (cookie) => !isAutomaticPreferenceCookie(cookie),
+      ),
     ).toEqual([]);
     const poolUrl = `/api/tournaments/test-cup/mappools/${seed.poolId}`;
     const before = await (await context.request.get(poolUrl)).json();

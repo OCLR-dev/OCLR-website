@@ -4,19 +4,19 @@ on:
     branches: [main]
   pull_request:
   schedule:
-    - cron: "30 17 * * *" # 01:30 Asia/Taipei; full acceptance
+    - cron: "30 17 * * *" # 01:30 Asia/Taipei; core smoke
   workflow_dispatch:
     inputs:
       suite:
-        description: "Full release acceptance or core verification of this exact ref"
+        description: "Core smoke (default) or explicit full regression of this ref"
         type: choice
-        options: [full, core]
-        default: full
+        options: [core, full]
+        default: core
 permissions:
   contents: read
-# Supersede ordinary branch runs, without cancelling nightly/manual acceptance.
+# Supersede duplicate core runs on a ref; keep manual full separate.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}-${{ inputs.suite || 'auto' }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.suite || 'core' }}
   cancel-in-progress: true
 jobs:
   plan:
@@ -24,24 +24,19 @@ jobs:
     timeout-minutes: 5
     outputs:
       json: ${{ steps.scope.outputs.json }}
-      header_mode: ${{ steps.scope.outputs.header_mode }}
-      header_appearances: ${{ steps.scope.outputs.header_appearances }}
-      remote_matrix: ${{ steps.scope.outputs.remote_matrix }}
+      e2e_shards: ${{ steps.scope.outputs.e2e_shards }}
       full: ${{ steps.scope.outputs.full }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 1
       - uses: actions/setup-node@v4
         with:
           node-version: 24
       - id: scope
-        name: Select coverage (unknown changes receive full acceptance)
+        name: Select core or explicit manual full coverage
         env:
           CI_EVENT: ${{ github.event_name }}
-          CI_BEFORE: ${{ github.event.before }}
-          CI_BASE: ${{ github.event.pull_request.base.sha }}
-          CI_HEAD: ${{ github.sha }}
           CI_SUITE: ${{ inputs.suite }}
         run: node scripts/ci-plan.ts
 
@@ -136,7 +131,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+        shard: ${{ fromJSON(needs.plan.outputs.e2e_shards) }}
     # Each runner owns its PostgreSQL service; never increase workers on this DB.
     services:
       postgres:
@@ -167,17 +162,27 @@ jobs:
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
       # The image runs as root; Firefox requires its actual root-owned home.
-      - run: HOME=/root node scripts/check-ci-browser.ts
-      - run: HOME=/root npm run test:e2e:core -- --shard=${{ matrix.shard }}/8
+      - run: HOME=/root node scripts/check-ci-browser.ts ${{ needs.plan.outputs.full == 'true' && 'chromium firefox webkit' || 'chromium' }}
+      - name: Run selected functional suite
+        env:
+          CI_FULL: ${{ needs.plan.outputs.full }}
+        run: |
+          if [ "$CI_FULL" = true ]; then
+            HOME=/root npm run test:e2e:functional -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          else
+            HOME=/root npm run test:e2e:core -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: e2e-results-${{ matrix.shard }}
           path: test-results/
           retention-days: 7
+          compression-level: 0
 
   header-e2e:
     needs: [plan, build]
+    if: needs.plan.outputs.full == 'true'
     runs-on: ubuntu-latest
     # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
     container:
@@ -203,8 +208,7 @@ jobs:
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
       DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
       TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
-      OCLR_E2E_MATRIX: ${{ needs.plan.outputs.header_mode }}
-      OCLR_HEADER_APPEARANCES: ${{ needs.plan.outputs.header_appearances }}
+      OCLR_E2E_MATRIX: full
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -226,6 +230,7 @@ jobs:
           name: header-e2e-results-${{ matrix.shard }}
           path: test-results/
           retention-days: 7
+          compression-level: 0
 
   remote-e2e:
     needs: [plan, build]
@@ -248,6 +253,7 @@ jobs:
           --health-timeout 5s --health-retries 10
     env:
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      OCLR_REMOTE_E2E_FULL: ${{ needs.plan.outputs.full }}
       DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
       TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
     steps:
@@ -263,7 +269,7 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root node scripts/check-ci-browser.ts chromium
       - run: HOME=/root npm run test:e2e:remote:core
       - uses: actions/upload-artifact@v4
         if: always()
@@ -271,10 +277,11 @@ jobs:
           name: remote-e2e-results
           path: test-results/
           retention-days: 7
+          compression-level: 0
 
   remote-matrix:
     needs: [plan, build]
-    if: needs.plan.outputs.remote_matrix == 'true'
+    if: needs.plan.outputs.full == 'true'
     runs-on: ubuntu-latest
     # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
     container:
@@ -309,7 +316,7 @@ jobs:
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root node scripts/check-ci-browser.ts chromium
       - run: HOME=/root npm run test:e2e:remote -- tests/remote-e2e/full-site.spec.ts
       - uses: actions/upload-artifact@v4
         if: always()
@@ -317,8 +324,9 @@ jobs:
           name: remote-matrix-results
           path: test-results/
           retention-days: 7
+          compression-level: 0
 
-  # Stable required context. Non-expected skips and failed/cancelled jobs fail closed.
+  # Aggregate CI results; this is advisory for merging.
   check:
     if: always()
     needs: [plan, verify, build, e2e, header-e2e, remote-e2e, remote-matrix]

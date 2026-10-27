@@ -31,6 +31,7 @@
     "production:cleanup": "bash scripts/cleanup-releases.sh",
     "media:cleanup": "tsx scripts/cleanup-media.ts",
     "test:e2e:remote": "playwright test --config playwright.remote.config.ts",
+    "test:e2e:functional": "playwright test --config playwright.functional.config.ts",
     "test:e2e:core": "playwright test --config playwright.core.config.ts",
     "test:e2e:header": "playwright test --config playwright.header.config.ts",
     "test:e2e:remote:core": "playwright test --config playwright.remote-core.config.ts"

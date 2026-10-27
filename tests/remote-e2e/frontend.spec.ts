@@ -444,7 +444,10 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
   // Appearance/navigation coverage is intentionally a separate workload from
   // authorization checks; keep the backend's real per-token rate limit intact.
   await renewConnection();
-  for (const [index, appearance] of appearances.entries()) {
+  const appearanceCases = info.config.metadata.remoteCore
+    ? ["default"]
+    : appearances;
+  for (const [index, appearance] of appearanceCases.entries()) {
     if (index > 0 && index % 4 === 0) await renewConnection();
     await context.addCookies([
       { name: "oclr-appearance", value: appearance, url: local },

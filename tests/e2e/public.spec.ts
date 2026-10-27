@@ -1,4 +1,13 @@
+import { isAutomaticPreferenceCookie } from "../fixtures/preferences";
 import { expect, test } from "@playwright/test";
+import { seedEditions } from "../fixtures/editions";
+import { closeDb } from "../../src/db";
+// The core subset has a different preceding spec order. Own the published
+// edition fixture instead of inheriting whatever another workflow left behind.
+test.beforeEach(async () => {
+  if (process.env.TEST_DATABASE_URL) await seedEditions();
+});
+test.afterAll(closeDb);
 test("shared navigation works at desktop and mobile widths", async ({
   page,
   isMobile,
@@ -117,7 +126,9 @@ test("Privacy and About share one explicit osu! contact without publishing the a
   ])
     expect(html).not.toContain(hidden);
   expect(
-    (await context.cookies()).filter((c) => c.name !== "oclr-locale"),
+    (await context.cookies()).filter(
+      (cookie) => !isAutomaticPreferenceCookie(cookie),
+    ),
   ).toEqual([]);
   await page.screenshot({
     path: info.outputPath("privacy-osu-contact.png"),

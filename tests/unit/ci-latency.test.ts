@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { assertBrowserExecutables } from "../../scripts/check-ci-browser";
+import {
+  assertBrowserExecutables,
+  selectBrowsers,
+} from "../../scripts/check-ci-browser";
 import { addTiming, type FileTiming } from "../fixtures/ci-timing-reporter";
 
 describe("preinstalled CI browsers", () => {
@@ -67,5 +70,19 @@ describe("CI timing evidence", () => {
         skipped: 1,
       },
     ]);
+  });
+});
+
+describe("CI engine selection", () => {
+  it("smoke-checks only Chromium for core and all engines for full", () => {
+    expect(selectBrowsers(["chromium"]).map((engine) => engine.name())).toEqual(
+      ["chromium"],
+    );
+    expect(selectBrowsers([]).map((engine) => engine.name())).toEqual([
+      "chromium",
+      "firefox",
+      "webkit",
+    ]);
+    expect(() => selectBrowsers(["unknown"])).toThrow();
   });
 });

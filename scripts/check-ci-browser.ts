@@ -14,11 +14,19 @@ export function assertBrowserExecutables(
         ". Update the pinned image together with package-lock.json.",
     );
 }
+export function selectBrowsers(names: string[]) {
+  const engines = [chromium, firefox, webkit];
+  if (names.some((name) => !engines.some((engine) => engine.name() === name)))
+    throw new Error("Unknown CI browser engine");
+  return names.length
+    ? engines.filter((engine) => names.includes(engine.name()))
+    : engines;
+}
 if (
   process.argv[1] &&
   pathToFileURL(process.argv[1]).href === import.meta.url
 ) {
-  const engines = [chromium, firefox, webkit];
+  const engines = selectBrowsers(process.argv.slice(2));
   assertBrowserExecutables(
     engines.map((browser) => ({
       name: browser.name(),
