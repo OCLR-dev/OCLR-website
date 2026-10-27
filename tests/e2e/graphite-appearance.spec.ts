@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { assertTestDatabase } from "../database";
 import { seedBrowserEditions } from "./setup";
+import { seedSession } from "./session";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { chooseTheme } from "./theme";
@@ -41,6 +42,109 @@ test.describe("S7 Graphite Arena appearance", () => {
     await seedBrowserEditions();
   });
   test.afterAll(closeDb);
+
+  test("keeps the admin sidebar rectangular and follows the current route", async ({
+    context,
+    isMobile,
+  }) => {
+    test.setTimeout(180000);
+    await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
+    await context.route("https://a.ppy.sh/**", (route) =>
+      route.fulfill({ status: 404, body: "" }),
+    );
+    const errors: string[] = [];
+    for (const locale of ["en", "zh-Hans", "zh-Hant"])
+      for (const theme of ["light", "dark"])
+        for (const width of isMobile ? [320, 390, 760] : [768, 937, 1440]) {
+          const page = await context.newPage();
+          page.on("pageerror", (error) => errors.push(error.message));
+          await page.setViewportSize({ width, height: 815 });
+          await context.addCookies(
+            [
+              ["oclr-locale", locale],
+              ["oclr-theme", theme],
+              ["oclr-appearance", "graphite-arena"],
+            ].map(([name, value]) => ({ name, value, url: origin })),
+          );
+          expect((await page.goto("/admin/tournaments/s7"))?.status()).toBe(
+            200,
+          );
+          await page.waitForLoadState("networkidle");
+          const toggle = page.locator(".admin-menu-toggle");
+          if (width <= 760) {
+            await expect(page.locator("#admin-menu")).toBeHidden();
+            await toggle.click();
+            await expect(toggle).toHaveAttribute("aria-expanded", "true");
+          }
+          const group = page.locator("#admin-menu .admin-nav-group").first();
+          const links = group.locator("a");
+          await expect(links).toHaveCount(4);
+          const expected = ["", "/archive", "/statistics", "/settings"];
+          for (let i = 0; i < expected.length; i++)
+            await expect(links.nth(i)).toHaveAttribute(
+              "href",
+              `/admin/tournaments/s7${expected[i]}`,
+            );
+          for (const link of await links.all()) {
+            await expect(link).toBeVisible();
+            await expect(link).toHaveCSS("border-radius", "2px");
+            expect(
+              await link.evaluate(
+                (n) =>
+                  n.getBoundingClientRect().height >= 44 &&
+                  n.scrollWidth <= n.clientWidth,
+              ),
+            ).toBe(true);
+          }
+          const current = group.locator('a[aria-current="page"]');
+          await expect(current).toHaveCount(1);
+          await expect(current).toHaveAttribute(
+            "href",
+            "/admin/tournaments/s7",
+          );
+          await expect(current).toHaveCSS("border-inline-start-width", "3px");
+          expect(
+            await current.evaluate((n) => getComputedStyle(n).backgroundImage),
+          ).toContain("linear-gradient");
+          expect(
+            await page.evaluate(
+              () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+          ).toBe(true);
+          if (width === (isMobile ? 390 : 937)) {
+            expect(
+              (
+                await new AxeBuilder({ page })
+                  .include(".sidebar")
+                  .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+                  .analyze()
+              ).violations,
+            ).toEqual([]);
+            await links.last().focus();
+            await expect(links.last()).toHaveCSS("outline-style", /solid|auto/);
+            await page.keyboard.press("Enter");
+            await expect(page).toHaveURL(/\/admin\/tournaments\/s7\/settings$/);
+            await page.waitForLoadState("networkidle");
+            if (width <= 760) {
+              await expect(toggle).toHaveAttribute("aria-expanded", "false");
+              await toggle.click();
+            }
+            const selected = page.locator('#admin-menu a[aria-current="page"]');
+            await expect(selected).toHaveCount(1);
+            await expect(selected).toHaveAttribute(
+              "href",
+              "/admin/tournaments/s7/settings",
+            );
+            await page.emulateMedia({ forcedColors: "active" });
+            await expect(selected).toHaveCSS("background-image", "none");
+            await expect(selected).toHaveCSS("box-shadow", "none");
+            await expect(selected).toHaveCSS("outline-style", "solid");
+          }
+          await page.waitForLoadState("networkidle");
+          await page.close();
+        }
+    expect(errors).toEqual([]);
+  });
 
   test("keeps mappool text actions clear and long titles readable", async ({
     context,
