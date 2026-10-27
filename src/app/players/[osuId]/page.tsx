@@ -1,6 +1,5 @@
 import { PlayerProfile } from "@/components/player-profile";
 import { RoundRatings } from "@/components/round-ratings";
-import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { frontendProfile } from "@/lib/frontend-data";
 import { publicRoundRatings } from "@/lib/ratings";
@@ -74,15 +73,13 @@ async function ProfileContent({
       >
         {query.edition ? tr("← Tournament players") : tr("← Tournaments")}
       </Link>
-      <PageHeading eyebrow={tr("OCLR PLAYER")} title={data.identity.username}>
-        {tr("Public osu! statistics and published OCLR participation.")}
-      </PageHeading>
       {data.snapshot ? (
         <PlayerProfile
           snapshot={{
             ...data.snapshot,
             profile: {
               ...data.snapshot.profile,
+              username: data.identity.username,
               previousUsernames: data.identity.names
                 .map((n) => n.username)
                 .filter(
@@ -95,9 +92,12 @@ async function ProfileContent({
           bws={data.bws}
         />
       ) : (
-        <p className="notice" role="status">
-          {tr("osu! statistics are temporarily unavailable.")}
-        </p>
+        <>
+          <h1>{data.identity.username}</h1>
+          <p className="notice" role="status">
+            {tr("osu! statistics are temporarily unavailable.")}
+          </p>
+        </>
       )}
       {typeof query.edition === "string" && (
         <RoundRatings data={ratingHistory} slug={query.edition} />

@@ -52,34 +52,38 @@ export function PlayerProfile({
         value0: "osu!",
       })}
     >
-      {p.coverUrl && (
-        <div className="profile-cover">
-          <Image
-            src={p.coverUrl}
-            alt=""
-            width={1200}
-            height={300}
-            unoptimized
+      <div
+        className={`profile-header${p.coverUrl ? " profile-header-with-cover" : ""}`}
+      >
+        {p.coverUrl && (
+          <div className="profile-cover">
+            <Image
+              src={p.coverUrl}
+              alt=""
+              width={1200}
+              height={300}
+              unoptimized
+            />
+          </div>
+        )}
+        <div className="directory-identity profile-identity-chip">
+          <Avatar
+            osuId={p.osuId}
+            username={p.username}
+            avatarUrl={p.avatarUrl ?? undefined}
           />
-        </div>
-      )}
-      <div className="directory-identity">
-        <Avatar
-          osuId={p.osuId}
-          username={p.username}
-          avatarUrl={p.avatarUrl ?? undefined}
-        />
-        <div>
-          <h2>{p.username}</h2>
-          <p className="muted">
-            {p.countryName ?? p.countryCode ?? tr("Country unavailable")}
-            {p.countryName && p.countryCode ? ` (${p.countryCode})` : ""}{" "}
-            {tr(" · osu! ID ")}
-            {p.osuId}
-          </p>
-          <a href={p.canonicalUrl} className="text-link">
-            {tr("View on osu! ↗")}
-          </a>
+          <div>
+            <h1>{p.username}</h1>
+            <p className="muted">
+              {p.countryName ?? p.countryCode ?? tr("Country unavailable")}
+              {p.countryName && p.countryCode ? ` (${p.countryCode})` : ""}{" "}
+              {tr(" · osu! ID ")}
+              {p.osuId}
+            </p>
+            <a href={p.canonicalUrl} className="text-link">
+              {tr("View on osu! ↗")}
+            </a>
+          </div>
         </div>
       </div>
       {bws && <BwsSummary value={bws} />}
