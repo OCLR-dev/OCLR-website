@@ -43,13 +43,11 @@ test.describe("S7 Graphite Arena appearance", () => {
   test.afterAll(closeDb);
 
   test("keeps mappool text actions clear and long titles readable", async ({
-    page,
     context,
     isMobile,
-  }, info) => {
+  }) => {
     test.setTimeout(180000);
     const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
     // Cover-provider failures must not affect title layout or the real controls.
     await context.route("https://assets.ppy.sh/**", (route) =>
       route.fulfill({ status: 404, body: "" }),
@@ -57,6 +55,11 @@ test.describe("S7 Graphite Arena appearance", () => {
     for (const locale of ["en", "zh-Hans", "zh-Hant"])
       for (const theme of ["light", "dark"])
         for (const width of isMobile ? [320, 390, 699] : [655, 699, 1440]) {
+          // Keep matrix cases on independent pages so a deliberate preference or
+          // viewport change never interrupts the previous page's RSC prefetches.
+          const page = await context.newPage();
+          page.on("pageerror", (error) => errors.push(error.message));
+          await page.setViewportSize({ width, height: 815 });
           await context.addCookies(
             [
               ["oclr-locale", locale],
@@ -64,7 +67,6 @@ test.describe("S7 Graphite Arena appearance", () => {
               ["oclr-appearance", "graphite-arena"],
             ].map(([name, value]) => ({ name, value, url: origin })),
           );
-          await page.setViewportSize({ width, height: 815 });
           expect((await page.goto("/tournaments/s7/mappools"))?.status()).toBe(
             200,
           );
@@ -125,52 +127,49 @@ test.describe("S7 Graphite Arena appearance", () => {
                   .analyze()
               ).violations,
             ).toEqual([]);
-            await page
-              .locator("#map-NM2")
-              .evaluate((node) => node.scrollIntoView({ block: "center" }));
-            await page.screenshot({
-              path: info.outputPath(`mappools-${locale}-${theme}.png`),
-              animations: "disabled",
-            });
           }
+          if (locale === "zh-Hant" && theme === "dark" && width === 699) {
+            // Keyboard activation still opens the full title and restores focus on close.
+            const title = page.locator("#map-ACE1 .map-open-button");
+            await title.focus();
+            await expect(title).toHaveCSS("outline-style", /solid|auto/);
+            await page.keyboard.down("Space");
+            await expect(title).toHaveCSS("background-image", "none");
+            await expect(title).toHaveCSS("box-shadow", "none");
+            await expect(title).toHaveCSS("transform", "none");
+            await page.keyboard.up("Space");
+            const dialog = page.getByRole("dialog");
+            await expect(dialog.getByRole("heading").first()).toHaveText(
+              "Shimotsuki Haruka - Secret Liqueur [Last Order]",
+            );
+            await page.keyboard.press("Escape");
+            await expect(title).toBeFocused();
+            await page.locator(".map-view-control button").last().click();
+            await expect(page.locator(".archive-map-list")).toBeVisible();
+            await expect(
+              page.locator(".map-view-control button").last(),
+            ).toHaveAttribute("aria-pressed", "true");
+            await expect(page.locator("#map-NM2 .map-open-button")).toHaveCSS(
+              "background-image",
+              "none",
+            );
+            await page.locator("#map-NM2 .map-open-button").click();
+            await expect(dialog.getByRole("heading").first()).toHaveText(
+              "DragonForce - My Heart Will Go On [Expert]",
+            );
+            await page.keyboard.press("Escape");
+            await page.emulateMedia({ forcedColors: "active" });
+            await expect(page.locator(".map-view-control")).toHaveCSS(
+              "border-top-width",
+              "0px",
+            );
+            await expect(
+              page.locator('.map-view-control button[aria-pressed="true"]'),
+            ).toHaveCSS("outline-style", "solid");
+          }
+          await page.waitForLoadState("networkidle");
+          await page.close();
         }
-    // Keyboard activation still opens the full title and restores focus on close.
-    const title = page.locator("#map-ACE1 .map-open-button");
-    await title.focus();
-    await expect(title).toHaveCSS("outline-style", /solid|auto/);
-    await page.keyboard.down("Space");
-    await expect(title).toHaveCSS("background-image", "none");
-    await expect(title).toHaveCSS("box-shadow", "none");
-    await expect(title).toHaveCSS("transform", "none");
-    await page.keyboard.up("Space");
-    const dialog = page.getByRole("dialog");
-    await expect(dialog.getByRole("heading").first()).toHaveText(
-      "Shimotsuki Haruka - Secret Liqueur [Last Order]",
-    );
-    await page.keyboard.press("Escape");
-    await expect(title).toBeFocused();
-    await page.locator(".map-view-control button").last().click();
-    await expect(page.locator(".archive-map-list")).toBeVisible();
-    await expect(
-      page.locator(".map-view-control button").last(),
-    ).toHaveAttribute("aria-pressed", "true");
-    await expect(page.locator("#map-NM2 .map-open-button")).toHaveCSS(
-      "background-image",
-      "none",
-    );
-    await page.locator("#map-NM2 .map-open-button").click();
-    await expect(dialog.getByRole("heading").first()).toHaveText(
-      "DragonForce - My Heart Will Go On [Expert]",
-    );
-    await page.keyboard.press("Escape");
-    await page.emulateMedia({ forcedColors: "active" });
-    await expect(page.locator(".map-view-control")).toHaveCSS(
-      "border-top-width",
-      "0px",
-    );
-    await expect(
-      page.locator('.map-view-control button[aria-pressed="true"]'),
-    ).toHaveCSS("outline-style", "solid");
     expect(errors).toEqual([]);
   });
 

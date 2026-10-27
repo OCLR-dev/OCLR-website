@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "uiBaseline": "182075a9021b27ab470a6872b18bd8f73da41e8a",
+  "uiBaseline": "5ebd16294a21f581d37d9dd70236b1cd11255a18",
   "scope": "Actual registered S7 appearance with SSR cookie and shipped assets; public committed S7 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
@@ -178,6 +178,39 @@
       }
     },
     {
+      "file": "map-controls-light.png",
+      "path": "/tournaments/s7/mappools",
+      "theme": "light",
+      "width": 699,
+      "height": 815,
+      "detail": {
+        "selector": ".map-browse-toolbar",
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "map-nm2-light.png",
+      "path": "/tournaments/s7/mappools",
+      "theme": "light",
+      "width": 699,
+      "height": 815,
+      "detail": {
+        "selector": "#map-NM2",
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "map-ace1-light.png",
+      "path": "/tournaments/s7/mappools",
+      "theme": "light",
+      "width": 699,
+      "height": 815,
+      "detail": {
+        "selector": "#map-ACE1",
+        "deviceScaleFactor": 2
+      }
+    },
+    {
       "file": "detail-desktop-dark.png",
       "path": "/tournaments/s7",
       "theme": "dark",
@@ -188,6 +221,39 @@
         "y": 189,
         "width": 320,
         "height": 157,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "map-controls-dark.png",
+      "path": "/tournaments/s7/mappools",
+      "theme": "dark",
+      "width": 699,
+      "height": 815,
+      "detail": {
+        "selector": ".map-browse-toolbar",
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "map-nm2-dark.png",
+      "path": "/tournaments/s7/mappools",
+      "theme": "dark",
+      "width": 699,
+      "height": 815,
+      "detail": {
+        "selector": "#map-NM2",
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "map-ace1-dark.png",
+      "path": "/tournaments/s7/mappools",
+      "theme": "dark",
+      "width": 699,
+      "height": 815,
+      "detail": {
+        "selector": "#map-ACE1",
         "deviceScaleFactor": 2
       }
     }

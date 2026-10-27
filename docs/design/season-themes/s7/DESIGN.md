@@ -1,6 +1,6 @@
 # S7 — Graphite Arena / 石墨競技場
 
-追蹤：[#198](https://github.com/OCLR-dev/OCLR-website/issues/198)。本輪依主辦方要求，以 main `515be9c` 的實際 UI 精修並正式接入 `graphite-arena`，等待主辦方視覺審閱；未合併或部署。
+追蹤：[#198](https://github.com/OCLR-dev/OCLR-website/issues/198)。本輪依主辦方要求，以 main `d34378e` 的實際 UI 精修並正式接入 `graphite-arena`，等待主辦方視覺審閱；未合併或部署。
 
 ## 設計方向
 
@@ -75,7 +75,7 @@ DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 APP_URL=http://127.0.0.1:3
 在另一個 terminal 對同一 DB，設定 `S7_UI_BASELINE` 為本輪 runtime 提交，執行：
 
 ```sh
-S7_UI_BASELINE=182075a9021b27ab470a6872b18bd8f73da41e8a node --import tsx docs/design/season-themes/s7/capture.mjs
+S7_UI_BASELINE=5ebd16294a21f581d37d9dd70236b1cd11255a18 node --import tsx docs/design/season-themes/s7/capture.mjs
 ```
 
 截圖程式核對 runtime／messages／public 與指定 SHA 完全一致，從實際 SSR 外觀偏好與已打包 CSS 產圖；不注入候選 CSS、不更換元件。檢查三個路由 × 四個寬度（320／390／768／1440）× 明暗、Axe AA、DOM／文字不變、五列統計、完整原圖、手機選單／焦點與 sticky stack，另檢查四組 forced colours。合成 session 只在記憶體，不進截圖或原始碼。
@@ -139,3 +139,16 @@ S7_UI_BASELINE=182075a9021b27ab470a6872b18bd8f73da41e8a node --import tsx docs/d
 建立 PR 時 main 已合併 #383 的系統明暗偏好。正常合併 main `515be9c`，三語 catalog 同時保留系統明暗訊息與 S7 名稱，未覆蓋任一方功能；S7 視覺素材與金屬樣式不變。合併後 runtime 為 `182075a9021b27ab470a6872b18bd8f73da41e8a`，最新圖庫依該實際 UI 重製。
 
 新增 S7 跟隨系統 → 手動覆蓋 → 恢復跟隨 → 跨頁的明暗回歸。相關 141 項單元測試、i18n extraction、check、最終 tsc 與 production build 通過。Chrome 桌面／手機 22 項通過，包含 S7／系統明暗、三語選單、Header 幾何、全站／賽事預設及公開／Admin／Captain／OBS；Safari 桌面／手機 4 項通過。最新 24 組 UI／24 次 Axe AA 零違規，4 組 forced colours 通過；16 張頁面圖、2 張局部、2 張選單與12張 default 對照已更新。沒有重跑未受影響的完整 unit/integration 或依賴稽核，CI 以 PR #384 的 exact head 為準。
+
+### 圖池控制與長標題修復（2026-10-27，PR #384 合併後）
+
+主辦方在 655／699px 圖池頁標註三處：檢視切換外層圓框、NM2 及 ACE1 標題誤套金屬按鈕底板／底板跟隨文字長度。修復分支基於 main `d34378e`，runtime 為 `5ebd16294a21f581d37d9dd70236b1cd11255a18`。
+
+- 圖池檢視切換外層移除 border／radius／padding／底色；保留兩顆獨立控制、選取狀態、鍵盤焦點與高對比標記。
+- 通用金屬材質排除 `.map-open-button`；譜面標題在一般、hover、focus、active 都是透明文字操作，沒有金屬漸層、陰影或按壓位移。
+- 標題點選區使用整欄寬、至少44px高，沿用所在標題的字體與1.5行高；完整 literal 曲名與難度可換行，不裁切或縮成固定字數。卡片／緊湊表格均可開啟原詳情與還原焦點。
+- 699px 實測：修復前 NM2／ACE1 點選區分別338.22／374.30px，所在標題欄為404.89px，且帶有漸層／inset陰影；修復後兩者均為404.89px，背景與陰影為none。外層24px圓角／1px框改為0。
+
+[檢視控制 Light](map-controls-light.png)／[Dark](map-controls-dark.png) · [NM2 Light](map-nm2-light.png)／[Dark](map-nm2-dark.png) · [ACE1 Light](map-ace1-light.png)／[Dark](map-ace1-dark.png)。來自699px實際頁面、原生2×局部，沒有後製。隔離預覽阻擋外部封面服務，因此局部圖使用既有缺圖狀態；修復未更改封面來源。
+
+本輪 check／production build／tsc／lint 通過。更新24組實際UI／24次Axe AA及4組forced colours，零錯誤。新增回歸以每個案例獨立頁面避免 WebKit 快速切換尺寸／cookie 時中斷前頁預取，保留全部pageerror與版面／操作斷言。最終 Chrome 桌面／手機2項與 Safari桌面／手機2項通過，涵蓋三語×明暗、320／390／655／699／1440px，完整文字、44px點選區、卡片／緊湊表格、Space開啟詳情、Escape焦點還原及高對比選取。沒有忽略或移除pageerror斷言。CI於交付另記；未重跑未受影響的完整unit/integration、i18n或依賴稽核。

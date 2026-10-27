@@ -43,7 +43,7 @@ S10 正式接入重用現有元件和 next-intl（zh-Hans／zh-Hant／en），�
 - **S10 最新 UI 版**：依 [重現步驟](s10/DESIGN.md) 執行 `node --import tsx docs/design/season-themes/s10/capture.mjs`。三個實際路由 × 四個尺寸 × 明暗共 24 組，24 次 Axe AA 無違規；驗證 DOM／文字不變、五列統計、規則、手機選單和實際 sticky stack。另有 4 組 forced-colours 檢查。新圖／報告見 [s10/verification.json](s10/verification.json)。應用 production build、產圖／圖庫工具 lint／語法／文件連結／diff 通過。
 - **S9 最新 UI 版**：`node --import tsx docs/design/season-themes/s9/capture.mjs`，三個實際路由 × 四個尺寸 × 明暗共 24 組／24 次 Axe AA 無違規；額外核對原圖 1920×1080 與 contain。[本版報告](s9/verification.json)。本次只重製 S9；S10 保留原有版本與證據。
 - **S8 最新 UI 初稿**：`node --import tsx docs/design/season-themes/s8/capture.mjs`，明暗 × 四個尺寸 × 三個真實路由；檢查 DOM／文字、原圖、Axe AA、手機選單／焦點／sticky stack、forced colours，見 [S8 報告](s8/verification.json)。2026-10-24 靜態證據另存 [歷史紀錄](s8/verification-static-2026-10-24.json)。
-- **S7 最新 UI 版**：`node --import tsx docs/design/season-themes/s7/capture.mjs`，三個真實路由 × 四個尺寸 × 明暗，另檢查高對比、手機選單與完整原圖；見 [S7 DESIGN](s7/DESIGN.md) 與 [報告](s7/verification.json)。以 main `515be9c` 為 UI 基準，正式 appearance 為 `graphite-arena`。
+- **S7 最新 UI 版**：`node --import tsx docs/design/season-themes/s7/capture.mjs`，三個真實路由 × 四個尺寸 × 明暗，另檢查高對比、手機選單與完整原圖；見 [S7 DESIGN](s7/DESIGN.md) 與 [報告](s7/verification.json)。以 main `d34378e` 為 UI 基準，正式 appearance 為 `graphite-arena`。
 - **歷史證據**：根目錄 `verification.json` 保留 2026-10-24 原四季 32 組／64 次 Axe 結果。S10 `f2d4d7e` 的獨立樣本與檢查已被本版取代，不將那些結果套用到最新 UI。
 
 這些檢查不等同完整應用回歸、三語整合、CI 或部署驗收；正式接入另跑專案要求的完整驗證。

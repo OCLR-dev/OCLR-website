@@ -17,7 +17,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S7_UI_BASELINE ?? "182075a9021b27ab470a6872b18bd8f73da41e8a";
+  process.env.S7_UI_BASELINE ?? "5ebd16294a21f581d37d9dd70236b1cd11255a18";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -367,6 +367,7 @@ try {
       return route.continue();
     });
     for (const theme of ["light", "dark"]) {
+      await detailPage.setViewportSize({ width: 1440, height: 1000 });
       await detailContext.addCookies([
         { name: "oclr-locale", value: "zh-Hans", url: base },
         { name: "oclr-appearance", value: "graphite-arena", url: base },
@@ -396,6 +397,30 @@ try {
         height: 1000,
         detail: { ...clip, deviceScaleFactor: 2 },
       });
+      // Match the reported narrow-desktop mappool controls and literal long titles.
+      await detailPage.setViewportSize({ width: 699, height: 815 });
+      await detailPage.goto(base + "/tournaments/s7/mappools");
+      await detailPage.waitForLoadState("networkidle");
+      for (const [name, selector] of [
+        ["map-controls", ".map-browse-toolbar"],
+        ["map-nm2", "#map-NM2"],
+        ["map-ace1", "#map-ACE1"],
+      ]) {
+        const target = detailPage.locator(selector);
+        await target.evaluate((node) =>
+          node.scrollIntoView({ block: "center" }),
+        );
+        const file = `${name}-${theme}.png`;
+        await target.screenshot({ path: out + file, animations: "disabled" });
+        shots.push({
+          file,
+          path: "/tournaments/s7/mappools",
+          theme,
+          width: 699,
+          height: 815,
+          detail: { selector, deviceScaleFactor: 2 },
+        });
+      }
     }
   } finally {
     await detailContext.close();
