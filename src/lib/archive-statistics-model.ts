@@ -1,7 +1,22 @@
 import type { HistoricalArchive } from "./historical-archive";
 import type { MatchGame, MatchScore, MatchSource } from "./match-model";
 
-export const statisticsSeasons = ["s2", "s7", "s8", "s9", "s10"] as const;
+export const statisticsSeasons = [
+  "s1",
+  "s2",
+  "s3",
+  "s4",
+  "s5",
+  "s6",
+  "s7",
+  "s8",
+  "s9",
+  "s10",
+] as const;
+/** Shared by navigation and saved-statistics reads; availability is not publication. */
+export function supportsArchiveStatistics(slug: string) {
+  return (statisticsSeasons as readonly string[]).includes(slug);
+}
 export type StatisticsSnapshot = {
   archiveKey: string;
   source: MatchSource;

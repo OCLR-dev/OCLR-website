@@ -40,7 +40,7 @@ import {
   addArchiveSubstitute,
   archiveSubstituteConfirmation,
 } from "./historical-archive";
-import { statisticsSeasons } from "./archive-statistics-model";
+import { supportsArchiveStatistics } from "./archive-statistics-model";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export function storedEdition(row: typeof editionState.$inferSelect) {
   if (!row.configuration) return undefined;
@@ -245,8 +245,7 @@ export function tournamentLinks(
       .filter(
         (item) =>
           (!item.capabilities || item.capabilities.some(can)) &&
-          (item.path !== "statistics" ||
-            (statisticsSeasons as readonly string[]).includes(slug)),
+          (item.path !== "statistics" || supportsArchiveStatistics(slug)),
       )
       .map((item) => ({
         href: `/admin/tournaments/${slug}${item.path ? `/${item.path}` : ""}`,

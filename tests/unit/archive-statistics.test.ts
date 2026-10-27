@@ -16,6 +16,7 @@ import {
   canExcludeStatisticsScore,
   canExcludeStatisticsBenchScore,
   statisticsSeasons,
+  supportsArchiveStatistics,
   type StatisticsSnapshot,
 } from "../../src/lib/archive-statistics-model";
 const snapshot = (): StatisticsSnapshot => ({
@@ -25,6 +26,16 @@ const snapshot = (): StatisticsSnapshot => ({
   included: [1, 2],
 });
 describe("historical MP statistics", () => {
+  it("shares exact S1–S10 support across public and staff entry points", () => {
+    expect(statisticsSeasons).toEqual(
+      Array.from({ length: 10 }, (_, i) => `s${i + 1}`),
+    );
+    for (const slug of statisticsSeasons)
+      expect(supportsArchiveStatistics(slug)).toBe(true);
+    for (const slug of ["s0", "s11", "s5-beta", "S1", "s10-other", ""]) {
+      expect(supportsArchiveStatistics(slug)).toBe(false);
+    }
+  });
   it("includes S2 ties and missing-MP matches in coverage without counting forfeits or pending reviews", () => {
     const archive = structuredClone(a);
     archive.editionSlug = "s2";

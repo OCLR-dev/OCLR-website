@@ -12,12 +12,142 @@ test.describe("historical statistics review and public exploration", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.setTimeout(120000);
   test.afterAll(async () => closeDb());
-  test("imports MP, reviews warmups/replays, publishes and explores S2 and S7–S10", async ({
+  test("opens S1–S6 scoped navigation and truthful empty coverage in every locale and theme", async ({
     page,
     context,
     isMobile,
   }, info) => {
-    const seasons = ["s7", "s2", "s8", "s9", "s10"];
+    const seasons = ["s1", "s2", "s3", "s4", "s5", "s6"];
+    const rows = seasons.map((slug) => ({
+      ...edition,
+      slug,
+      name: `Synthetic ${slug} statistics`,
+      status: "completed",
+      registration: null,
+      published: true,
+      archive: { ...statisticsArchive, editionSlug: slug },
+    }));
+    await seedEditions(rows);
+    const { db } = await import("../../src/db");
+    const { historicalStatistics } = await import("../../src/db/schema");
+    const { inArray } = await import("drizzle-orm");
+    await db()
+      .delete(historicalStatistics)
+      .where(inArray(historicalStatistics.editionSlug, seasons));
+    await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
+    for (const slug of seasons) {
+      await page.goto(`/admin/tournaments/${slug}/statistics`);
+      await expect(
+        page.getByRole("heading", {
+          name: "Historical statistics",
+          exact: true,
+        }),
+      ).toBeVisible();
+      if (isMobile)
+        await page
+          .getByRole("button", {
+            name: "Open administration menu",
+            exact: true,
+          })
+          .click();
+      await expect(
+        page.locator(`nav a[href="/admin/tournaments/${slug}/statistics"]`),
+      ).toHaveAttribute("aria-current", "page");
+      await expect(page.getByLabel("Selected tournament")).toHaveValue(slug);
+    }
+    await context.clearCookies();
+    for (const slug of seasons) {
+      for (const locale of ["en", "zh-Hans", "zh-Hant"]) {
+        for (const theme of ["light", "dark"]) {
+          await context.addCookies([
+            {
+              name: "oclr-locale",
+              value: locale,
+              domain: "127.0.0.1",
+              path: "/",
+            },
+            {
+              name: "oclr-theme",
+              value: theme,
+              domain: "127.0.0.1",
+              path: "/",
+            },
+          ]);
+          await page.goto(`/tournaments/${slug}`);
+          if (isMobile) await page.locator(".tournament-menu").click();
+          const entry = page.locator(
+            `.tournament-navigation a[href="/tournaments/${slug}/statistics"]`,
+          );
+          await expect(entry).toBeVisible();
+          await entry.click();
+          await expect(page).toHaveURL(
+            new RegExp(`/tournaments/${slug}/statistics$`),
+          );
+          await expect(
+            page.locator(".statistics-summary strong").first(),
+          ).toHaveText("0 / 1");
+          await expect(page.locator(".event-table tbody tr")).toHaveCount(0);
+          if (isMobile) await page.locator(".tournament-menu").click();
+          await expect(
+            page.locator('.tournament-navigation [aria-current="page"]'),
+          ).toHaveAttribute("href", `/tournaments/${slug}/statistics`);
+          if (isMobile) await page.locator(".tournament-menu").click();
+          expect(
+            await page.evaluate(() => document.documentElement.scrollWidth),
+          ).toBeLessThanOrEqual(isMobile ? 390 : 1440);
+          if (slug === "s1" && locale === "en") {
+            expect(
+              (await new AxeBuilder({ page }).analyze()).violations,
+            ).toEqual([]);
+            await page.evaluate(() => {
+              if (document.activeElement instanceof HTMLElement)
+                document.activeElement.blur();
+              window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            });
+            await expect
+              .poll(() => page.evaluate(() => window.scrollY))
+              .toBe(0);
+            await page.screenshot({
+              path: info.outputPath(`s1-empty-${theme}.png`),
+              fullPage: true,
+            });
+          }
+        }
+      }
+    }
+    await seedEditions([{ ...rows[5], published: false }]);
+    expect(
+      (await context.request.get("/tournaments/s6/statistics")).status(),
+    ).toBe(404);
+    expect(
+      (
+        await context.request.get("/api/admin/tournaments/s1/statistics")
+      ).status(),
+    ).toBe(401);
+    expect(
+      await db()
+        .select()
+        .from(historicalStatistics)
+        .where(inArray(historicalStatistics.editionSlug, seasons)),
+    ).toEqual([]);
+  });
+  test("imports MP, reviews warmups/replays, publishes and explores S1–S10", async ({
+    page,
+    context,
+    isMobile,
+  }, info) => {
+    const seasons = [
+      "s7",
+      "s1",
+      "s2",
+      "s3",
+      "s4",
+      "s5",
+      "s6",
+      "s8",
+      "s9",
+      "s10",
+    ];
     await seedEditions(
       seasons.map((slug) => ({
         ...edition,

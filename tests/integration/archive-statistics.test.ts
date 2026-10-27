@@ -15,7 +15,11 @@ import {
   editionEvents,
   historicalStatistics,
 } from "../../src/db/schema";
-import { tournamentCommand, readTournament } from "../../src/lib/tournaments";
+import {
+  tournamentCommand,
+  readTournament,
+  tournamentLinks,
+} from "../../src/lib/tournaments";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
@@ -23,6 +27,7 @@ import {
   statisticsArchive,
   statisticsSource,
 } from "../fixtures/archive-statistics";
+import { extendedRead } from "../../src/lib/extended-read";
 import { fetchMatchSource } from "../../src/lib/osu-matches";
 import {
   statisticsCommand,
@@ -121,6 +126,109 @@ describe.skipIf(!url)("historical statistics transactions", () => {
     await closeDb();
     vi.unstubAllEnvs();
   });
+  it.each(["s1", "s2", "s3", "s4", "s5", "s6"])(
+    "%s keeps review, release, scope and saved remote reads consistent",
+    async (slug) => {
+      const archive = structuredClone(statisticsArchive);
+      archive.editionSlug = slug;
+      archive.matches.push({
+        ...archive.matches[0],
+        id: "missing",
+        mpUrls: [],
+      });
+      const configuration = {
+        ...edition,
+        slug,
+        status: "completed",
+        registration: null,
+        published: true,
+        archive,
+      };
+      await seedEditions([configuration]);
+      await db()
+        .insert(staffRoles)
+        .values({
+          userId: referee.osuId,
+          role: "referee",
+          editionSlug: slug,
+          grantedBy: admin.osuId,
+        });
+      expect(
+        tournamentLinks([{ role: "referee", editionSlug: slug }], slug),
+      ).toContainEqual(
+        expect.objectContaining({
+          href: `/admin/tournaments/${slug}/statistics`,
+        }),
+      );
+      expect(
+        tournamentLinks([{ role: "referee", editionSlug: "s8" }], slug).some(
+          (link) => link.href.endsWith("/statistics"),
+        ),
+      ).toBe(false);
+      await expect(statisticsWorkspace(other, slug)).rejects.toMatchObject({
+        status: 403,
+      });
+      await expect(
+        statisticsCommand(other, slug, imported),
+      ).rejects.toMatchObject({ status: 403 });
+      expect((await publicArchiveStatistics(slug)).fixtures).toHaveLength(2);
+      expect(fetchMatchSource).not.toHaveBeenCalled();
+      await statisticsCommand(referee, slug, imported);
+      await statisticsCommand(referee, slug, reviewed);
+      expect((await publicArchiveStatistics(slug)).plays).toEqual([]);
+      await expect(
+        statisticsCommand(referee, slug, publish),
+      ).rejects.toMatchObject({ status: 403 });
+      await expect(
+        statisticsCommand(admin, slug, { ...reviewed, expectedVersion: 0 }),
+      ).rejects.toMatchObject({ status: 409 });
+      await statisticsCommand(admin, slug, publish);
+      const released = await publicArchiveStatistics(slug, "one");
+      expect(released.plays).toHaveLength(8);
+      expect(released.matchDetails).toHaveLength(1);
+      const coverage = await publicArchiveStatistics(slug);
+      expect(coverage.fixtures.map((f) => f.covered)).toEqual([true, false]);
+      const calls = vi.mocked(fetchMatchSource).mock.calls.length;
+      expect(
+        await extendedRead(
+          "publicArchiveStatistics",
+          { edition: slug },
+          new URLSearchParams({ fixtureId: "one" }),
+          null,
+        ),
+      ).toEqual(released);
+      expect(
+        await extendedRead(
+          "statisticsWorkspace",
+          { edition: slug },
+          new URLSearchParams({ fixtureId: "one" }),
+          {
+            kind: "developer-read",
+            subject: referee,
+            scopes: ["tournaments:read"],
+            expiresAt: new Date(Date.now() + 60000).toISOString(),
+          },
+        ),
+      ).toEqual(await statisticsWorkspace(referee, slug, "one"));
+      expect(fetchMatchSource).toHaveBeenCalledTimes(calls);
+      expect((await readTournament(slug))!.edition.archive).toEqual(archive);
+      const events = await db().select().from(editionEvents);
+      expect(events.map((e) => e.kind)).toEqual(
+        expect.arrayContaining([
+          "statistics_import",
+          "statistics_review",
+          "statistics_publish",
+        ]),
+      );
+      await seedEditions([{ ...configuration, published: false }]);
+      await expect(publicArchiveStatistics(slug)).rejects.toMatchObject({
+        status: 404,
+      });
+      expect((await statisticsWorkspace(referee, slug)).summaries).toHaveLength(
+        1,
+      );
+    },
+  );
   it("adds a confirmed substitute atomically while preserving reviewed releases and stale drafts", async () => {
     await finalTierArchive();
     await statisticsCommand(referee, "s7", imported);

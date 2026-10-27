@@ -3,7 +3,7 @@ import {
   publicArchiveStatistics,
   statisticsArchiveKey,
 } from "@/lib/archive-statistics";
-import { statisticsSeasons } from "@/lib/archive-statistics-model";
+import { supportsArchiveStatistics } from "@/lib/archive-statistics-model";
 import { getAppTranslations } from "@/i18n/server";
 import { archivePoolMetadata } from "@/lib/archive-map-metadata";
 import { archiveArtworkSetIds } from "@/lib/archive-artwork";
@@ -617,7 +617,7 @@ export async function HistoricalArchiveView({
     const statistics =
       section === "match" &&
       !preview &&
-      (statisticsSeasons as readonly string[]).includes(edition.slug) &&
+      supportsArchiveStatistics(edition.slug) &&
       (process.env.DATABASE_URL || remoteMode())
         ? await publicArchiveStatistics(edition.slug, id)
         : null;

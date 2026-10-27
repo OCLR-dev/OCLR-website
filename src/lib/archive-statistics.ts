@@ -15,7 +15,7 @@ import {
   projectStatistics,
   statisticsFixtures,
   statisticsGameIssues,
-  statisticsSeasons,
+  supportsArchiveStatistics,
   suggestStatisticsPool,
   validStatisticsExclusions,
   type StatisticsSnapshot,
@@ -137,16 +137,13 @@ export function statisticsArchiveKey(a: HistoricalArchive) {
     )
     .digest("hex");
 }
-function supported(slug: string) {
-  return (statisticsSeasons as readonly string[]).includes(slug);
-}
 async function archiveFor(
   slug: string,
   reader: Reader = db(),
   publicOnly = false,
 ) {
   const t = await readTournament(slug, reader, publicOnly);
-  if (!supported(slug) || !t?.edition.archive)
+  if (!supportsArchiveStatistics(slug) || !t?.edition.archive)
     throw new HttpError(404, "Historical statistics are unavailable.");
   return t.edition.archive;
 }
