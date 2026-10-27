@@ -37,8 +37,8 @@ archive JSON, answers, memberships or account permissions.
 dates. A valid provider cache `fetchedAt` is preserved as available observation
 evidence. Account/archive backfills have null times when the original observation
 cannot be established. A later observation can add known times. A competition or
-archive capture date is never substituted for a rename date. A history-only player
-without a known current name is explicitly labelled as showing a historical name.
+archive capture date is never substituted for a rename date. The read model keeps
+current-name availability separate from a verified historical display name.
 Unobserved/provider-omitted names remain an acknowledged data limitation.
 
 | Reader           | Identity and name evidence                                                                                                                                                             | Participation                                                                       |
