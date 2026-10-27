@@ -232,7 +232,7 @@ html[data-appearance="graphite-arena"] .themed-site th {
 }
 html[data-appearance="graphite-arena"]
   .themed-site
-  :is(.score, .match-score, .fixture-score) {
+  :is(.score, .event-score, .archive-score-team > strong) {
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-variant-numeric: tabular-nums;
 }
