@@ -77,8 +77,9 @@
     <header>
       <h1>S9 · 最新應用 UI 設計對照</h1>
       <p>
-        圖片直接來自 main <code>cc366f2</code> 的實際頁面。S9 僅套用候選
-        CSS；頁面元件、內容與導覽結構保持一致。
+        圖片來自 main <code>d34378e</code> 上的標題修復
+        <code>f981bb0</code>，使用正式 S9 SSR 外觀偏好與打包 CSS。
+        標題依內容寬度安排文字與琪露諾插畫；原圖、元件與導覽結構保留。
       </p>
       <p>
         <a href="s9/DESIGN.md">設計規格與重現步驟</a> ·
@@ -89,6 +90,11 @@
       </p>
     </header>
     <p style="margin: 16px 24px">角色插畫：東方Project 二次創作 · 琪露諾 / Cirno ©上海アリス幻樂団。<a href="s9/ARTWORK.md">素材與生成記錄</a></p>
+    <p style="margin: 16px 24px">
+      標題比例修復：<a href="s9/heading-937-light.png">937px Light</a> ·
+      <a href="s9/heading-937-dark.png">Dark</a> ·
+      <a href="s9/heading-390-light.png">手機</a>（實際頁面原生 2× 截圖）
+    </p>
     <form aria-label="預覽控制">
       <label
         >實際頁面<select name="surface">
@@ -111,21 +117,21 @@
       >
       <label
         >設計<select name="version">
-          <option value="">S9 候選設計</option>
+          <option value="">S9 正式主題</option>
           <option value="current-">最新 UI 原有風格</option>
         </select></label
       >
     </form>
     <figure>
       <figcaption aria-live="polite" id="caption">
-        S9 候選設計 · S9 主頁 · 桌面 · Light
+        S9 正式主題 · S9 主頁 · 桌面 · Light
       </figcaption>
       <img
         id="preview"
         src="s9/desktop-light.webp"
         width="1440"
         height="1000"
-        alt="最新 S9 實際主頁，套用候選 S9 設計"
+        alt="最新 S9 實際主頁，使用正式 S9 主題"
       />
     </figure>
   </body>

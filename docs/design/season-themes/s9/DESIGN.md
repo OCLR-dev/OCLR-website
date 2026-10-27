@@ -2,6 +2,8 @@
 
 **2026-10-27 正式接入**：依主辦方要求將本精修稿註冊為 `glacier-blue`，選單顯示「S9 · 冰晶鈷藍／冰晶钴蓝／Glacier Blue」。正式 CSS 與素材位於 `src/app/glacier-theme.css`／`public/themes/glacier-blue/`；頁尾依主題即時顯示三語同人標註。以下保留設計產圖時的歷史流程與證據，並不代表正式接入的驗證結果。
 
+**目前狀態（2026-10-27）**：正式選項 PR #374 已合併至 main `a50e03d`。本輪依937px實際頁面標註修復標題比例，基於 main `d34378e`，runtime `f981bb0ce81772fcaf7d199470cf6f67b75bd3ac`，功能分支 `codex/fix-s9-heading-size`。下方候選設計與舊驗證保留為歷史，最新實作／重現見文末；修復尚未合併或部署。
+
 追蹤：[#196](https://github.com/OCLR-dev/OCLR-website/issues/196)。2026-10-26 依主辦方要求，沿用已合併 #195／PR #362 的方法更新；候選設計待審閱，正式接入另行指定。
 
 本輪延續琪露諾冰妖精方向，精修角色下緣融合、標題留白、雪晶細節、導覽選取與統計層級。角色素材與完整無框原圖維持原樣，實際 UI 範例同步重產。
@@ -127,3 +129,23 @@ node --import tsx docs/design/season-themes/s9/capture.mjs
 設計方法延續專案指定的 [Refactoring UI skill](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 與前述層級／間距／字體／色彩／深度參考，落在目前 MainSheet 元件上。本版不等同完整應用回歸、三語、CI 或部署驗收。
 
 正式接入另行指定：主辦方確認明暗／手機／Admin 方向與中文名稱後，重用現有元件及 next-intl，保留全部九款 appearance、SSR、獨立明暗、訪客 → 當前授權／已發佈賽事 → 全站預設與清除繼承；不自動改歷史賽事預設。正式接入再驗證三語、全部角色頁面、所有可操作狀態、文字 ≥4.5:1／控制邊界與焦點 ≥3:1、完整回歸與實際 CI，授權／發佈／OAuth／deep links 及 OBS 邊界不變。
+
+
+## 標題比例修復（2026-10-27）
+
+主辦方在937px頁面指出標題區比例問題。原先1100px以下統一使用上下版型：標題下方保留128px，人物僅112px高，即使公開頁尚有足夠橫向空間仍切為兩排。
+
+本輪把公開賽事 `.event-content` 設為具名稱的 inline-size container。內容寬度達680px（人物280px、間距32px、文字368px）時採左右配置，標題最小高度176px；人物寬度在280至320px間收斂，下緣淡出與完整冰翼保持。窄內容沿用上下排列，私有側欄工作區維持原版型。文字可自然換行，不用固定高度裁切長內容；不修改插畫、原圖、字體、三語文字、導覽、資料或授權。
+
+實際937px測得標題871.41×176px、人物區280×167px；390px保持358px寬、人物176×112px的上下配置。明暗版幾何相同。[937px Light](heading-937-light.png)／[Dark](heading-937-dark.png) · [390px Light](heading-390-light.png)／[Dark](heading-390-dark.png)，直接擷取實際標題、繁中與原生2×像素，沒有CSS overlay或後製。原人物同人來源與頁尾標註保留。
+
+本輪截圖使用已提交公開S9歸檔與隔離test DB的合成Admin；summary直接採主辦方標註的公開原文 `osu! Chinese League Rookie — Season 9. 2023 年歷史賽事歸檔。`，不寫回正式賽事。以前的英文fixture summary僅屬舊預覽紀錄。正式SSR樣式重現：
+
+```sh
+# 獨立 test DB migrate／prepare／build／start 後：
+S9_REGISTERED_PREVIEW=1 S9_UI_BASELINE=f981bb0ce81772fcaf7d199470cf6f67b75bd3ac node --import tsx docs/design/season-themes/s9/capture.mjs
+```
+
+工具核對完整 `src`／`messages`／`public` 與runtime SHA相同；正式SSR模式不插入候選CSS。比較default時，保留DOM數量與內容一致檢查，僅從不變文字比較中排除主題刻意顯示的既有 `.glacier-attribution`，另確認正式S9模式顯示該標註。輸出24組UI／Axe AA、4組forced colours與四張標題局部。此輪只修CSS尺寸，不重跑未受影響的完整unit/integration、i18n或依賴稽核；舊正式接入結果不當成本輪結果。CI與合併／部署另記於#196。
+
+本輪 Node.js24 `npm ci`、check／production build／最終tsc、工具ESLint／語法、文件連結及diff檢查通過。新增Chrome桌面／手機2項與Safari桌面／手機2項通過，各涵蓋三語×明暗×十個尺寸（320／390／699／744／745／768／937／1100／1101／1440px）共60組幾何檢查，驗證文字／人物分隔、正常文字換行、無水平溢出、937px緊湊高度、Axe AA與高對比退場。24組實際UI／24次Axe AA零違規、4組forced colours通過，原圖、五列統計、規則、手機選單焦點及sticky stack保留；16張頁面圖、四張人物標題2×局部、兩張手機選單與12張default對照已更新。沒有合併或部署修復。

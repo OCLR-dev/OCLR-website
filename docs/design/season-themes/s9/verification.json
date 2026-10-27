@@ -1,7 +1,7 @@
 {
-  "date": "2026-10-26",
-  "uiBaseline": "cc366f2e80563b3effff6bf25ef8074c6a95258f",
-  "scope": "Actual current application routes with browser-only S9 CSS overlay; public committed S9 archive and one synthetic local test account; no business commands",
+  "date": "2026-10-27",
+  "uiBaseline": "f981bb0ce81772fcaf7d199470cf6f67b75bd3ac",
+  "scope": "Actual registered S9 appearance with SSR cookie and shipped CSS/assets; public committed S9 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
   "material": "Cirno portrait with a soft lower edge, fine snow-crystal etching, compact heading rhythm, blue-white surfaces and restrained ribbon detail; unframed original S9 artwork",
@@ -161,6 +161,70 @@
       "theme": "dark",
       "width": 1440,
       "height": 1000
+    },
+    {
+      "file": "heading-937-light.png",
+      "path": "/tournaments/s9",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 871.40625,
+        "height": 176,
+        "portraitWidth": 280,
+        "portraitHeight": 167
+      }
+    },
+    {
+      "file": "heading-390-light.png",
+      "path": "/tournaments/s9",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 358,
+        "height": 264.28125,
+        "portraitWidth": 176,
+        "portraitHeight": 112
+      }
+    },
+    {
+      "file": "heading-937-dark.png",
+      "path": "/tournaments/s9",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 871.40625,
+        "height": 176,
+        "portraitWidth": 280,
+        "portraitHeight": 167
+      }
+    },
+    {
+      "file": "heading-390-dark.png",
+      "path": "/tournaments/s9",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 358,
+        "height": 264.28125,
+        "portraitWidth": 176,
+        "portraitHeight": 112
+      }
     }
   ],
   "cases": [

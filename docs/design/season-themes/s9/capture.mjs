@@ -16,8 +16,9 @@ const origin = new URL(base);
 if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
+const registered = process.env.S9_REGISTERED_PREVIEW === "1";
 const uiBaseline =
-  process.env.S9_UI_BASELINE ?? "cc366f2e80563b3effff6bf25ef8074c6a95258f";
+  process.env.S9_UI_BASELINE ?? "f981bb0ce81772fcaf7d199470cf6f67b75bd3ac";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -25,7 +26,7 @@ execFileSync("git", [
   "--",
   "src",
   "messages",
-  "public/branding",
+  "public",
 ]);
 let overlay = await readFile(new URL("../s9.css", import.meta.url), "utf8");
 // Keep vector sources reviewable; embed only these local decorative SVGs so
@@ -119,6 +120,7 @@ try {
         if (response.status() !== 200)
           throw new Error(`${surface.name}: HTTP ${response.status()}`);
         await page.locator(surface.selector).waitFor();
+        await page.waitForLoadState("networkidle");
         await page.evaluate(() => document.fonts.ready);
         await page
           .locator(".archive-key-visual img")
@@ -126,7 +128,8 @@ try {
         // Save before/after from the exact same DOM; the overlay never inserts UI.
         const before = await page.locator("body").evaluate((node) => ({
           elements: node.querySelectorAll("*").length,
-          text: node.innerText,
+          // The registered design intentionally reveals its existing legal credit.
+          text: node.innerText.replace(node.querySelector(".glacier-attribution")?.textContent ?? "", "").replace(/\s+/g, " ").trim(),
         }));
         if (width === 390 || width === 1440) {
           await sharp(await page.screenshot())
@@ -135,18 +138,24 @@ try {
               `${out}current-${surface.prefix}${width === 1440 ? "desktop" : "mobile"}-${theme}.webp`,
             );
         }
-        await page.addStyleTag({ content: overlay });
-        await page.evaluate(() =>
-          document.documentElement.setAttribute("data-s9-preview", ""),
-        );
+        if (registered) {
+          await context.addCookies([{ name: "oclr-appearance", value: "glacier-blue", url: base }]);
+          await page.reload();
+          await page.locator(surface.selector).waitFor();
+          await page.waitForLoadState("networkidle");
+          if (!(await page.locator(".glacier-attribution").isVisible())) throw new Error("S9 fan-art credit missing.");
+        } else {
+          await page.addStyleTag({ content: overlay });
+          await page.evaluate(() => document.documentElement.setAttribute("data-s9-preview", ""));
+        }
         const after = await page.locator("body").evaluate((node) => ({
           elements: node.querySelectorAll("*").length,
-          text: node.innerText,
+          text: node.innerText.replace(node.querySelector(".glacier-attribution")?.textContent ?? "", "").replace(/\s+/g, " ").trim(),
           overflow: document.documentElement.scrollWidth > innerWidth,
         }));
         if (before.text !== after.text || before.elements !== after.elements)
           throw new Error(
-            "Overlay altered the rendered UI content or component tree.",
+            "Appearance changed the rendered UI content or component tree.",
           );
         if (after.overflow)
           throw new Error(
@@ -279,14 +288,15 @@ try {
       await context.addCookies([
         { name: "oclr-locale", value: "zh-Hans", url: base },
         { name: "oclr-theme", value: theme, url: base },
+          ...(registered ? [{ name: "oclr-appearance", value: "glacier-blue", url: base }] : []),
       ]);
       await page.setViewportSize({ width, height: width === 320 ? 568 : 1000 });
       await page.goto(base + "/tournaments/s9");
       await page.locator(".archive-key-visual img").waitFor();
-      await page.addStyleTag({ content: overlay });
-      await page.evaluate(() =>
-        document.documentElement.setAttribute("data-s9-preview", ""),
-      );
+      if (!registered) {
+        await page.addStyleTag({ content: overlay });
+        await page.evaluate(() => document.documentElement.setAttribute("data-s9-preview", ""));
+      }
       await page.emulateMedia({ forcedColors: "active" });
       if (width === 320) await page.locator(".tournament-menu").click();
       const state = await page.evaluate(() => {
@@ -343,14 +353,49 @@ try {
       await page.emulateMedia({ forcedColors: "none" });
     }
   }
+  if (registered) {
+    const detailContext = await browser.newContext({ deviceScaleFactor: 2, reducedMotion: "reduce" });
+    try {
+      const detailPage = await detailContext.newPage();
+      detailPage.on("pageerror", (error) => errors.push(error.message));
+      await detailPage.route("**/*", (route) => {
+        const request = route.request();
+        if (new URL(request.url()).origin !== origin.origin || !["GET", "HEAD"].includes(request.method())) return route.abort();
+        return route.continue();
+      });
+      for (const theme of ["light", "dark"]) {
+        await detailContext.addCookies([
+          { name: "oclr-locale", value: "zh-Hant", url: base },
+          { name: "oclr-theme", value: theme, url: base },
+          { name: "oclr-appearance", value: "glacier-blue", url: base },
+        ]);
+        for (const width of [937, 390]) {
+          await detailPage.setViewportSize({ width, height: 815 });
+          if ((await detailPage.goto(base + "/tournaments/s9")).status() !== 200) throw new Error("S9 heading preview unavailable.");
+          await detailPage.waitForLoadState("networkidle");
+          const heading = detailPage.locator(".historical-archive > .page-heading");
+          const metrics = await heading.evaluate((node) => {
+            const box = node.getBoundingClientRect();
+            const portrait = getComputedStyle(node, "::before");
+            return { width: box.width, height: box.height, portraitWidth: parseFloat(portrait.width), portraitHeight: parseFloat(portrait.height) };
+          });
+          const file = `heading-${width}-${theme}.png`;
+          await heading.screenshot({ path: out + file, animations: "disabled" });
+          shots.push({ file, path: "/tournaments/s9", theme, locale: "zh-Hant", width, height: 815, detail: { selector: ".historical-archive > .page-heading", deviceScaleFactor: 2, ...metrics } });
+        }
+      }
+    } finally {
+      await detailContext.close();
+    }
+  }
   await writeFile(
     out + "verification.json",
     JSON.stringify(
       {
-        date: "2026-10-26",
+        date: "2026-10-27",
         uiBaseline,
         scope:
-          "Actual current application routes with browser-only S9 CSS overlay; public committed S9 archive and one synthetic local test account; no business commands",
+          registered ? "Actual registered S9 appearance with SSR cookie and shipped CSS/assets; public committed S9 archive and one synthetic local test account; no business commands" : "Actual current application routes with browser-only S9 CSS overlay; public committed S9 archive and one synthetic local test account; no business commands",
         locale: "zh-Hans",
         browser: "Google Chrome",
         material:
