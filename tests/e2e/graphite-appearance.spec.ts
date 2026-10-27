@@ -169,9 +169,10 @@ test.describe("S7 Graphite Arena appearance", () => {
     }
     await page.goto("/tournaments/s7/schedule");
     await page.waitForLoadState("networkidle");
-    await expect(
-      page.locator(".archive-score-team > strong").first(),
-    ).toHaveCSS("font-family", /ui-monospace/);
+    await expect(page.locator(".match-slot > strong").first()).toHaveCSS(
+      "font-family",
+      /ui-monospace/,
+    );
     await page.goto("/tournaments/s7");
     await page.waitForLoadState("networkidle");
     await page.emulateMedia({
