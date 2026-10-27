@@ -17,7 +17,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S7_UI_BASELINE ?? "348bd7955f3900e0a0f066934a8816879fc4e302";
+  process.env.S7_UI_BASELINE ?? "182075a9021b27ab470a6872b18bd8f73da41e8a";
 execFileSync("git", [
   "diff",
   "--exit-code",

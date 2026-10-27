@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "uiBaseline": "348bd7955f3900e0a0f066934a8816879fc4e302",
+  "uiBaseline": "182075a9021b27ab470a6872b18bd8f73da41e8a",
   "scope": "Actual registered S7 appearance with SSR cookie and shipped assets; public committed S7 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
