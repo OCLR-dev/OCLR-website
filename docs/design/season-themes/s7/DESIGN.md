@@ -4,7 +4,7 @@
 
 ## 設計方向
 
-視覺主張：以銀白工作面與石墨板材承接原主視覺，競技黃細線與小面積蜂巢線稿提供工業感，資料區保持平整清楚。
+視覺主張：以有方向反射的拉絲銀色金屬與深色鋼材承接原主視覺；標題、統計與頁首有清楚光澤，競技黃細線與蜂巢線稿延續工業感，表格與重複列保持平整清楚。
 
 內容順序沿用實際頁面：賽季標題 → 完整主視覺與五列統計 → 既有規則區；圖池保留原槽位、譜面、mod 語意；Admin 保留工作表單。沒有插入行銷文案、樣本賽程或虛構規則。
 
@@ -12,9 +12,9 @@
 
 - 保留 [1920×1080 原圖](../../../../public/archive/s7/key-visual.jpg)，完整 contain，不裁切、重繪、調色或改字。
 - 桌面標題右側採自繪細線蜂巢，下方 64px 黃色短線呼應金屬原圖；1100px 以下移除右側裝飾，不壓縮長標題。
-- 面板／控制項採 2px 圓角。統計為一塊平整資料面，不為每個數值加框；比分採系統等寬數字。
+- 面板／控制項採 2px 圓角。統計是一整塊金屬板，寬幅反射跨越五列，不為每個數值加框；比分採系統等寬數字。
 - 導覽選取透明底色、單一細底線；賽事頁籤用黃色底線，側欄用細側線。焦點、狀態與 mod 色保持獨立語意。
-- 明版銀白、暗版石墨；主按鈕亮黃搭深色文字，明版連結採深金色。無遠端字型或新依賴。
+- 明版拉絲銀鋁、暗版深色鋼材。反射帶、3px 細刷紋、上緣亮邊與下緣暗邊由靜態 CSS 背景製作；頁首與 Admin 大板採較平緩緞面，按鈕保留小面積頂光。主按鈕亮黃搭深色文字，明版連結採深金色。無遠端字型或新依賴。
 
 ## 可審閱實際 UI
 
@@ -75,7 +75,7 @@ DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 APP_URL=http://127.0.0.1:3
 在另一個 terminal 對同一 DB，設定 `S7_UI_BASELINE` 為本輪 runtime 提交，執行：
 
 ```sh
-S7_UI_BASELINE=a69cc7f42744aaf17b4c387f89a10f90640f4669 node --import tsx docs/design/season-themes/s7/capture.mjs
+S7_UI_BASELINE=cf7cc08aa828509840be3beac3e8f6426d607a3b node --import tsx docs/design/season-themes/s7/capture.mjs
 ```
 
 截圖程式核對 runtime／messages／public 與指定 SHA 完全一致，從實際 SSR 外觀偏好與已打包 CSS 產圖；不注入候選 CSS、不更換元件。檢查三個路由 × 四個寬度（320／390／768／1440）× 明暗、Axe AA、DOM／文字不變、五列統計、完整原圖、手機選單／焦點與 sticky stack，另檢查四組 forced colours。合成 session 只在記憶體，不進截圖或原始碼。
@@ -84,7 +84,7 @@ S7_UI_BASELINE=a69cc7f42744aaf17b4c387f89a10f90640f4669 node --import tsx docs/d
 
 2026-10-24 的八組靜態樣本／16 次 Axe AA 結果保留於歷史報告；不套用到本輪正式實作。最新結果與 runtime SHA 以 `verification.json` 及 #198 的本輪紀錄為準；CI、視覺接受與部署各自如實記錄。
 
-### 本輪本機結果（2026-10-27）
+### 首版本機結果（2026-10-27，金屬精修前）
 
 - Runtime：`a69cc7f42744aaf17b4c387f89a10f90640f4669`；UI 基於 main `be94ce1`。截圖前已核對 source／messages／public 與 runtime SHA 一致。
 - `npm ci`、`npm run check`、`npm run build` 通過。
@@ -98,3 +98,24 @@ S7_UI_BASELINE=a69cc7f42744aaf17b4c387f89a10f90640f4669 node --import tsx docs/d
 - 最終 `a69cc7f` 的 WebKit／Safari 桌面／手機 2 項通過，包含三語明暗與選單、完整原圖、SSR／跨頁、真實比分及高對比。
 
 完整 GitHub CI 的 exact head／狀態見 #198；本機針對本輪風格與整合的 browser checks 不替代全部既有 E2E。未將執行中的 CI 視為通過，沒有部署或修改正式資料。
+
+### 金屬光澤精修（2026-10-27）
+
+主辦方指出原圖是銀色金屬而非單純石墨灰。本輪保留 `graphite-arena` code、三語名稱及原配色 tokens，重新製作材質；沒有改動註冊、資料庫、依賴或介面文案。
+
+- 標題與統計板：112° 寬幅明暗反射、細緻水平拉絲、倒角亮暗邊；暗版亦有獨立深色鋼材反射。
+- 頁首、賽事導覽與 Admin 大板：較克制的緞面反光。選取中的主導覽仍透明、無陰影，只有單條底線。
+- 控制項：細頂光與壓邊，保留 44px 目標及所有語意狀態。表格、重複卡片與原主視覺不疊刷紋。
+- 全部反光靜態、不掃光、不跟隨指標。高對比模式移除金屬背景及陰影，保留系統外框與鍵盤焦點。
+- 最不利反射色與刷紋疊色的手算文字對比：light metal label／長字幕 5.86:1、heading eyebrow／連結 5.43:1、satin accent 5.05:1；dark muted 4.62:1、satin muted 4.99:1、accent 5.40:1。Axe 結果另列，避免僅依梯度背景的自動掃描判斷對比。
+
+本輪 runtime：`cf7cc08aa828509840be3beac3e8f6426d607a3b`。最新截圖與材質退場報告以 `verification.json` 為準。
+
+本輪驗證：
+
+- `npm run check` 與 production build 通過；最後僅補高對比 selector 與標題文字對比，已重建最終 bundle。
+- `ef415a7` 的 Chrome 桌面／手機 12 項通過，含三語明暗、Header 斷點、公開／Admin／Captain、OBS／presenter 隔離。其後只補高對比退場及長字幕／連結顏色，未改動幾何或業務邏輯。
+- 最終 `cf7cc08` 的 Chrome 2 項與 Safari 2 項通過，包含三語明暗、SSR／跨頁、完整原圖、實際比分與所有金屬板高對比退場。
+- 最終 24 組實際 UI／24 次 Axe AA 零違規；4 組 forced colours 通過，金屬背景與陰影明確移除。16 張頁面圖、2 張手機選單及12張 default 對照已更新。
+- 人工核對明暗與手機材質、原圖完整性及最不利反射對比；設計連結、圖庫工具 ESLint／語法及 `git diff --check` 通過。
+- CSS 精修未重跑未受影響的完整 unit/integration、i18n 或依賴稽核；首版結果另列，未當成本輪新跑的結果。交付 head 的 CI／狀態另記於 #198，不將 pending CI 稱作通過。沒有合併或部署。

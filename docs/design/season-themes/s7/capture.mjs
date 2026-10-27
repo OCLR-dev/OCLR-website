@@ -17,7 +17,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S7_UI_BASELINE ?? "a69cc7f42744aaf17b4c387f89a10f90640f4669";
+  process.env.S7_UI_BASELINE ?? "cf7cc08aa828509840be3beac3e8f6426d607a3b";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -296,6 +296,16 @@ try {
             "::after",
           ).display,
           navigation: getComputedStyle(nav).backgroundImage,
+          metalRemoved: [
+            ".site-header",
+            ".page-heading",
+            ".archive-counts",
+          ].every((selector) => {
+            const style = getComputedStyle(document.querySelector(selector));
+            return (
+              style.backgroundImage === "none" && style.boxShadow === "none"
+            );
+          }),
           selection: getComputedStyle(nav.querySelector("a[aria-current]"))
             .outlineStyle,
           inViewport:
@@ -309,6 +319,7 @@ try {
         state.linework !== "none" ||
         state.heading !== "none" ||
         state.navigation !== "none" ||
+        !state.metalRemoved ||
         state.selection === "none" ||
         !state.inViewport
       )
@@ -330,6 +341,7 @@ try {
         height: width === 320 ? 568 : 1000,
         forcedColors: "passed",
         decorationRemoved: true,
+        metalRemoved: true,
         selectionVisible: true,
         menuInViewport: true,
       });
@@ -347,7 +359,7 @@ try {
         locale: "zh-Hans",
         browser: "Google Chrome",
         material:
-          "Silver/graphite work surfaces, fine hexagonal linework, competition-yellow hairlines and tabular scores; full unframed original S7 key visual",
+          "Brushed silver and gunmetal plates with broad directional reflections, fine grain and machined bevels; static satin header and controls; full original S7 key visual",
         decorativeAssets: ["/themes/graphite-arena/honeycomb.svg"],
         materialChecks,
         screenshots: shots,
