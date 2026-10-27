@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "uiBaseline": "08851a183a94252bb831988f49d311b2849f5ba3",
+  "uiBaseline": "ce92b4db2bd5e3397117ee009e9dc872ad36563b",
   "scope": "Actual registered S8 appearance with SSR cookie and shipped assets; public committed S8 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
@@ -169,11 +169,27 @@
       "width": 937,
       "height": 815,
       "detail": {
-        "x": 624,
-        "y": 364,
-        "width": 280,
-        "height": 164,
+        "x": 572,
+        "y": 241,
+        "width": 332,
+        "height": 217,
         "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-937-light.png",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 871.40625,
+        "height": 218,
+        "portraitWidth": 331.125,
+        "portraitHeight": 217
       }
     },
     {
@@ -185,10 +201,26 @@
       "height": 815,
       "detail": {
         "x": 123,
-        "y": 335,
+        "y": 362,
         "width": 251,
         "height": 164,
         "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-390-light.png",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 358,
+        "height": 313.28125,
+        "portraitWidth": 250.594,
+        "portraitHeight": 164
       }
     },
     {
@@ -199,11 +231,27 @@
       "width": 937,
       "height": 815,
       "detail": {
-        "x": 624,
-        "y": 364,
-        "width": 280,
-        "height": 164,
+        "x": 572,
+        "y": 241,
+        "width": 332,
+        "height": 217,
         "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-937-dark.png",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 871.40625,
+        "height": 218,
+        "portraitWidth": 331.125,
+        "portraitHeight": 217
       }
     },
     {
@@ -215,10 +263,26 @@
       "height": 815,
       "detail": {
         "x": 123,
-        "y": 335,
+        "y": 362,
         "width": 251,
         "height": 164,
         "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-390-dark.png",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 358,
+        "height": 313.28125,
+        "portraitWidth": 250.594,
+        "portraitHeight": 164
       }
     }
   ],

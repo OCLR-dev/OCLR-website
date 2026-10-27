@@ -18,7 +18,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
 const registered = process.env.S8_REGISTERED_PREVIEW === "1";
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S8_UI_BASELINE ?? "08851a183a94252bb831988f49d311b2849f5ba3";
+  process.env.S8_UI_BASELINE ?? "ce92b4db2bd5e3397117ee009e9dc872ad36563b";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -374,6 +374,14 @@ try {
         const file = `heroine-${width}-${theme}.png`;
         await detailPage.screenshot({ path: out + file, clip, animations: "disabled" });
         shots.push({ file, path: "/tournaments/s8", theme, locale: "zh-Hant", width, height: 815, detail: { ...clip, deviceScaleFactor: 2 } });
+        const headingFile = `heading-${width}-${theme}.png`;
+        const metrics = await heading.evaluate((node) => {
+          const box = node.getBoundingClientRect();
+          const portrait = getComputedStyle(node, "::before");
+          return { width: box.width, height: box.height, portraitWidth: parseFloat(portrait.width), portraitHeight: parseFloat(portrait.height) };
+        });
+        await heading.screenshot({ path: out + headingFile, animations: "disabled" });
+        shots.push({ file: headingFile, path: "/tournaments/s8", theme, locale: "zh-Hant", width, height: 815, detail: { selector: ".historical-archive > .page-heading", deviceScaleFactor: 2, ...metrics } });
       }
     }
   } finally {
