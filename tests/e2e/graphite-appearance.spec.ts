@@ -184,6 +184,14 @@ test.describe("S7 Graphite Arena appearance", () => {
         .locator(".page-heading")
         .evaluate((node) => getComputedStyle(node, "::before").display),
     ).toBe("none");
+    for (const surface of [
+      ".site-header",
+      ".page-heading",
+      ".archive-counts",
+    ]) {
+      await expect(page.locator(surface)).toHaveCSS("background-image", "none");
+      await expect(page.locator(surface)).toHaveCSS("box-shadow", "none");
+    }
     await page.emulateMedia({ forcedColors: "none" });
     expect(errors).toEqual([]);
   });

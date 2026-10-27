@@ -1,5 +1,5 @@
-/* S7 Graphite Arena: silver work surfaces, graphite plates and competition yellow.
- * Decoration is confined to the heading; all artwork and business UI stay literal. */
+/* S7 Graphite Arena: brushed silver, machined edges and competition yellow.
+ * Reflections are static background layers; original artwork stays literal. */
 html[data-appearance="graphite-arena"] .themed-site {
   --site-background: #f3f4f2;
   --site-surface: #ffffff;
@@ -32,6 +32,33 @@ html[data-appearance="graphite-arena"] .themed-site {
   --radius-panel: 2px;
   --graphite-yellow: #eacb49;
   --graphite-pattern: url("/themes/graphite-arena/honeycomb.svg");
+  --graphite-grain: repeating-linear-gradient(
+    0deg,
+    #ffffff00 0 1px,
+    #ffffff18 1px 2px,
+    #00000005 2px 3px
+  );
+  --graphite-metal:
+    var(--graphite-grain),
+    linear-gradient(
+      112deg,
+      #d2d9df 0%,
+      #f8fafb 18%,
+      #e1e6ea 29%,
+      #c9d1d8 42%,
+      #f9fbfc 54%,
+      #e4e9ed 72%,
+      #cdd5dc 100%
+    );
+  --graphite-satin:
+    var(--graphite-grain),
+    linear-gradient(112deg, #e8edf0, #ffffff 30%, #e6ecef 62%, #f7f9fa);
+  --graphite-rim: #a9b5bf;
+  --graphite-edge-light: #ffffffcc;
+  --graphite-edge-dark: #33445226;
+  --graphite-relief:
+    inset 0 1px var(--graphite-edge-light),
+    inset 0 -1px var(--graphite-edge-dark), 0 8px 16px -16px #17212b80;
   background: var(--site-background);
 }
 html[data-appearance="graphite-arena"][data-theme="dark"] .themed-site {
@@ -59,10 +86,37 @@ html[data-appearance="graphite-arena"][data-theme="dark"] .themed-site {
   --site-panel-shadow: #0006;
   --site-dialog-shadow: #0009;
   --site-backdrop: #000a;
+  --graphite-grain: repeating-linear-gradient(
+    0deg,
+    #ffffff00 0 1px,
+    #ffffff07 1px 2px,
+    #0000000a 2px 3px
+  );
+  --graphite-metal:
+    var(--graphite-grain),
+    linear-gradient(
+      112deg,
+      #262e35 0%,
+      #3d4852 18%,
+      #2e373f 29%,
+      #20282e 42%,
+      #3c4852 54%,
+      #303a43 72%,
+      #232c33 100%
+    );
+  --graphite-satin:
+    var(--graphite-grain),
+    linear-gradient(112deg, #262e35, #38434c 30%, #252d34 62%, #303a43);
+  --graphite-rim: #62717e;
+  --graphite-edge-light: #e0efff40;
+  --graphite-edge-dark: #00000080;
 }
 html[data-appearance="graphite-arena"] .themed-site .site-header {
-  border-bottom: 1px solid var(--site-border);
-  box-shadow: none;
+  border-bottom: 1px solid var(--graphite-rim);
+  background-image: var(--graphite-satin);
+  box-shadow:
+    inset 0 1px var(--graphite-edge-light),
+    0 1px var(--graphite-edge-dark);
 }
 /* Keep the top navigation unfilled, with a single fine selection rule. */
 html[data-appearance="graphite-arena"] .themed-site .main-nav > a {
@@ -78,8 +132,13 @@ html[data-appearance="graphite-arena"]
 }
 html[data-appearance="graphite-arena"] .themed-site .page-heading {
   position: relative;
-  padding-block: 16px 24px;
-  border-bottom: 1px solid var(--site-border);
+  padding: 20px 24px 24px;
+  border-block: 1px solid var(--graphite-rim);
+  background-image: var(--graphite-metal);
+  box-shadow: var(--graphite-relief);
+}
+html[data-appearance="graphite-arena"] .themed-site .page-heading .eyebrow {
+  color: var(--site-accent-strong);
 }
 html[data-appearance="graphite-arena"] .themed-site .page-heading h1 {
   font-weight: 800;
@@ -120,11 +179,12 @@ html[data-appearance="graphite-arena"] .themed-site .archive-key-visual img {
   height: auto;
   object-fit: contain;
 }
-/* One flat data plate. Five real archive rows retain their full labels. */
+/* One brushed data plate; the reflection crosses all five real archive rows. */
 html[data-appearance="graphite-arena"] .themed-site .archive-counts {
   border-top: 2px solid var(--graphite-yellow);
-  border-bottom: 1px solid var(--site-border);
-  background: var(--site-surface);
+  border-bottom: 1px solid var(--graphite-rim);
+  background-image: var(--graphite-metal);
+  box-shadow: var(--graphite-relief);
 }
 html[data-appearance="graphite-arena"] .themed-site .archive-counts > div {
   padding: 16px 24px;
@@ -185,6 +245,32 @@ html[data-appearance="graphite-arena"]
   background: var(--site-surface);
   box-shadow: none;
 }
+/* Broad boards receive a satin finish; repeated rows and cards stay quiet. */
+html[data-appearance="graphite-arena"]
+  .themed-site
+  :is(
+    .settings-card,
+    .rules-article,
+    .rules-desktop-contents,
+    .rules-mobile-contents
+  ) {
+  border-color: var(--graphite-rim);
+  background-image: var(--graphite-satin);
+  box-shadow: var(--graphite-relief);
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  :is(button, .button):not([role="menuitemradio"]) {
+  background-image: linear-gradient(
+    180deg,
+    #ffffff38,
+    #ffffff00 50%,
+    #0000000a
+  );
+  box-shadow:
+    inset 0 1px var(--graphite-edge-light),
+    inset 0 -1px var(--graphite-edge-dark);
+}
 html[data-appearance="graphite-arena"]
   .themed-site
   :is(input, select, textarea) {
@@ -196,8 +282,9 @@ html[data-appearance="graphite-arena"]
   .tournament-navigation
   nav {
   border: 1px solid var(--site-border);
-  background: var(--site-surface);
-  box-shadow: none;
+  background-color: var(--site-surface);
+  background-image: var(--graphite-satin);
+  box-shadow: var(--graphite-relief);
 }
 html[data-appearance="graphite-arena"]
   .themed-site
@@ -278,7 +365,29 @@ html[data-appearance="graphite-arena"]
     max-width: 100%;
   }
 }
+@media (max-width: 760px) {
+  html[data-appearance="graphite-arena"] .themed-site .page-heading {
+    padding-inline: 16px;
+  }
+}
 @media (forced-colors: active) {
+  html[data-appearance="graphite-arena"]
+    .themed-site
+    :is(
+      .site-header,
+      .page-heading,
+      .archive-counts,
+      .settings-card,
+      .rules-article,
+      .rules-desktop-contents,
+      .rules-mobile-contents,
+      .tournament-navigation nav,
+      button,
+      .button
+    ) {
+    background-image: none;
+    box-shadow: none;
+  }
   html[data-appearance="graphite-arena"] .themed-site .page-heading::before,
   html[data-appearance="graphite-arena"] .themed-site .page-heading::after {
     display: none;
