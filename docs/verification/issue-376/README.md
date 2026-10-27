@@ -13,7 +13,7 @@ hero. Hero artwork, header tokens and other appearances' rules are unchanged.
 
 The removed declaration had specificity (0,4,1), which beat appearance header
 rules at (0,3,1). The banner therefore also showed in dark mode for
-cute-pastel, swiss-minimal, skyline-pop and glacier-blue. Dark now layers
+cute-pastel, swiss-minimal, skyline-pop, glacier-blue and sakura-circuit. Dark now layers
 appearance header styles the same way light does; glacier-blue regains its own
 ice gradient in dark.
 
@@ -22,8 +22,9 @@ ice gradient in dark.
 Logged out on the synthetic preview database, `/` at 1280×800, 390×844 and
 320×700. Logged-in states were not checked (no local OAuth).
 
-- Computed header background for all 11 registered appearances in light and
-  dark: no S11 image anywhere; light values identical before and after.
+- Computed header background for all 12 registered appearances (including
+  sakura-circuit from #378, re-checked after merging main) in light and dark:
+  no S11 image anywhere; light values identical before and after.
 - Sticky header after scrolling; appearance and language menus and the mobile
   navigation drawer open with readable panels.
 - `npm run check`, `npm test` (isolated `oclr_376_test`: 1349 passed,
