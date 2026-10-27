@@ -1,0 +1,135 @@
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.heading :global(.avatar) {
+  width: 4.5rem;
+  height: 4.5rem;
+  flex-shrink: 0;
+  border-radius: 33.333%;
+}
+
+.headingText {
+  min-width: 0;
+}
+
+.headingText h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.headingText p {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.heading .identityLink,
+.heading .identityLink:hover,
+.heading .identityLink:focus-visible {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.avatarLink {
+  display: block;
+  flex-shrink: 0;
+  border-radius: 33.333%;
+}
+
+.history:global(.panel) {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.record {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 1.25rem;
+  overflow-wrap: anywhere;
+  transition: background-color 160ms ease;
+}
+
+.record:hover,
+.record:focus-within {
+  background-color: color-mix(
+    in srgb,
+    var(--site-accent, var(--color-accent)) 4%,
+    transparent
+  );
+}
+
+.record :global(.context-link),
+.record :global(.context-link):hover,
+.record :global(.context-link):focus-visible {
+  padding-inline: 0;
+  background: transparent;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.record :global(.context-link):hover {
+  color: var(--site-accent-strong, var(--site-accent, var(--color-accent)));
+}
+
+.record :global(.context-link):focus-visible {
+  outline: 2px solid var(--site-accent, var(--color-accent));
+  outline-offset: 4px;
+}
+
+.record + .record {
+  border-top: 1px solid var(--site-border, var(--color-border));
+}
+
+.edition,
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.edition h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+.team {
+  font-size: 0.875rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .record,
+  .record :global(.context-link) {
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .record {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+}

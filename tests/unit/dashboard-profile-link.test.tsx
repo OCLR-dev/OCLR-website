@@ -40,13 +40,13 @@ describe("dashboard OCLR profile navigation", () => {
       const html = renderToStaticMarkup(
         await Dashboard({ searchParams: Promise.resolve({}) }),
       );
-      expect(publicPlayer).toHaveBeenCalledWith(osuId);
+      expect(publicPlayer).not.toHaveBeenCalled();
       expect(html).toContain(`href="/players/${osuId}"`);
       expect(html).toContain(`href="https://osu.ppy.sh/users/${osuId}"`);
       expect(html).not.toContain(`href="/players/${osuId}?edition=`);
     },
   );
-  it("shows an unavailable state when no participation is public instead of linking to a 404", async () => {
+  it("links a login-only account without requiring public participation", async () => {
     vi.mocked(currentUser).mockResolvedValue({
       osuId: 277003,
       username: "Synthetic private applicant",
@@ -55,8 +55,9 @@ describe("dashboard OCLR profile navigation", () => {
     const html = renderToStaticMarkup(
       await Dashboard({ searchParams: Promise.resolve({}) }),
     );
-    expect(html).not.toContain('href="/players/277003"');
-    expect(html).toContain(
+    expect(html).toContain('href="/players/277003"');
+    expect(publicPlayer).not.toHaveBeenCalled();
+    expect(html).not.toContain(
       "Your OCLR profile is available after you have public tournament participation.",
     );
     expect(html).toContain('href="https://osu.ppy.sh/users/277003"');

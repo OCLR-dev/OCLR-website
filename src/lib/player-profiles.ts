@@ -6,12 +6,14 @@ import {
   isDeveloper,
   staffAccess,
   permits,
+  assertReadCapability,
 } from "./auth/staff";
 import { publicPlayer } from "./players";
 import { cachedOsuUserProfile, getOsuUserProfile } from "./osu-profiles";
 import { parseOsuProfile } from "./osu-profile-model";
 import { HttpError } from "./http";
 import { safeSavedOsuProfile } from "./read-api-contract";
+import { knownPlayerIdentity } from "./player-identity";
 import type { ProfileSnapshot, ProfileMode } from "./osu-profile-model";
 /** Shared whitelist for saved diagnostics and legacy provider-backed consumers. */
 export function projectSavedPlayerProfile(
@@ -33,16 +35,32 @@ export async function publishedPlayerProfile(
   input: string,
   mode?: string,
   edition?: string,
+  selfId?: number,
+  savedOnly = false,
+  authorizedEdition?: string,
 ) {
   const identity = parseOsuProfile(input, mode);
+  if (
+    edition &&
+    !authorizedEdition &&
+    !(await (await import("./content")).getPublicEdition(edition))
+  )
+    throw new HttpError(404, "Known player not found.");
   const participation = await publicPlayer(identity.osuId, edition);
-  if (!participation.length)
-    throw new HttpError(404, "Published player not found.");
+  const player = await knownPlayerIdentity(
+    identity.osuId,
+    participation,
+    selfId,
+    authorizedEdition,
+  );
   let snapshot = null;
   let error = null;
   try {
     snapshot = projectSavedPlayerProfile(
-      await getOsuUserProfile(identity.osuId, identity.mode),
+      await (savedOnly ? cachedOsuUserProfile : getOsuUserProfile)(
+        identity.osuId,
+        identity.mode,
+      ),
       identity.osuId,
       identity.mode,
     );
@@ -51,13 +69,67 @@ export async function publishedPlayerProfile(
     error = { status: e.status, message: e.message };
   }
   // Check again after provider I/O: publication may have been withdrawn meanwhile.
+  const current = await publicPlayer(identity.osuId, edition);
+  const currentPlayer = await knownPlayerIdentity(
+    identity.osuId,
+    current,
+    selfId,
+    authorizedEdition,
+  );
+  if (
+    edition &&
+    !authorizedEdition &&
+    !(await (await import("./content")).getPublicEdition(edition))
+  )
+    throw new HttpError(404, "Known player not found.");
   const bws =
-    snapshot && identity.mode === "osu"
+    snapshot &&
+    identity.mode === "osu" &&
+    (!edition || current.length > 0 || authorizedEdition)
       ? await profileBws(snapshot, edition)
       : null;
-  const current = await publicPlayer(identity.osuId, edition);
-  if (!current.length) throw new HttpError(404, "Published player not found.");
-  return { identity, participation: current, snapshot, error, bws };
+  return {
+    identity: { ...identity, ...player, ...currentPlayer },
+    participation: current,
+    snapshot,
+    error,
+    bws,
+  };
+}
+/** Edition-scoped staff evidence, never a grant to inspect another private season. */
+export async function staffOclrPlayerProfile(
+  user: User,
+  input: string,
+  mode: string | undefined,
+  edition: string,
+) {
+  await assertReadCapability(user, "manage_registrations", edition);
+  const { db } = await import("@/db");
+  const { registrations } = await import("@/db/schema");
+  const { and, eq } = await import("drizzle-orm");
+  const { readTournament } = await import("./tournaments");
+  const identity = parseOsuProfile(input, mode);
+  const row = await readTournament(edition);
+  const [application] = await db()
+    .select({ id: registrations.id })
+    .from(registrations)
+    .where(
+      and(
+        eq(registrations.editionSlug, edition),
+        eq(registrations.userId, identity.osuId),
+      ),
+    );
+  const archive = row?.edition.archive;
+  if (
+    !application &&
+    !archive?.players.some((p) => p.osuId === identity.osuId) &&
+    !archive?.staff.some((p) => p.osuId === identity.osuId) &&
+    !archive?.rosterReplacements?.some((r) =>
+      r.people.some((p) => p.osuId === identity.osuId),
+    )
+  )
+    throw new HttpError(404, "Known player not found.");
+  return publishedPlayerProfile(input, mode, edition, undefined, true, edition);
 }
 const lookup = z
   .object({

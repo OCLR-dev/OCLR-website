@@ -1,16 +1,15 @@
 import { PlayerProfile } from "@/components/player-profile";
+import { Avatar } from "@/components/avatar";
 import { RoundRatings } from "@/components/round-ratings";
-import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { remoteMode } from "@/lib/data-source";
 import { frontendProfile } from "@/lib/frontend-data";
 import { publicRoundRatings } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import styles from "./profile.module.css";
 
 import { HttpError } from "@/lib/http";
-import { modeNames, profileModes } from "@/lib/osu-profile-model";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Player profile") };
@@ -28,8 +27,7 @@ async function ProfileContent({
   const { osuId } = await params;
   const query = await searchParams;
   if (
-    Object.keys(query).some((key) => !["mode", "edition"].includes(key)) ||
-    (query.mode !== undefined && typeof query.mode !== "string") ||
+    Object.keys(query).some((key) => key !== "edition") ||
     (query.edition !== undefined &&
       (typeof query.edition !== "string" ||
         !/^[a-z0-9-]+$/.test(query.edition)))
@@ -37,22 +35,13 @@ async function ProfileContent({
     notFound();
   let data;
   try {
-    data = await frontendProfile(
-      osuId,
-      query.mode as string | undefined,
-      query.edition as string | undefined,
-    );
+    data = await frontendProfile(osuId, query.edition as string | undefined);
   } catch (e) {
     if (e instanceof HttpError && [400, 404].includes(e.status)) notFound();
     throw e;
   }
-  const first = data.participation[0];
-  if (
-    remoteMode() &&
-    "source" in first &&
-    first.source.kind === "historical_archive"
-  )
-    redirect(`/tournaments/${first.editionSlug}/players/${first.osuId}`);
+  const profile = data.snapshot?.profile;
+  const country = profile?.countryName ?? profile?.countryCode;
   const ratingHistory =
     typeof query.edition === "string"
       ? (await publicRoundRatings(query.edition))
@@ -87,47 +76,66 @@ async function ProfileContent({
       >
         {query.edition ? tr("← Tournament players") : tr("← Tournaments")}
       </Link>
-      <PageHeading
-        eyebrow={tr("OCLR PLAYER")}
-        title={
-          data.snapshot?.profile.username ?? data.participation[0].username
-        }
-      >
-        {tr("Public osu! statistics and published OCLR participation.")}
-      </PageHeading>
-      <form method="get" className="filters">
-        {query.edition && (
-          <input type="hidden" name="edition" value={query.edition as string} />
-        )}
-        <div className="field">
-          <label htmlFor="profile-ruleset">{tr("Ruleset")}</label>
-          <select
-            id="profile-ruleset"
-            name="mode"
-            defaultValue={data.identity.mode}
-          >
-            {profileModes.map((mode) => (
-              <option key={mode} value={mode}>
-                {modeNames[mode]}
-              </option>
-            ))}
-          </select>
+      <header className={styles.heading}>
+        <a
+          href={data.identity.canonicalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${styles.identityLink} ${styles.avatarLink}`}
+          aria-label={tr("View on osu! ↗")}
+        >
+          <Avatar
+            osuId={data.identity.osuId}
+            username={data.identity.username}
+            avatarUrl={profile?.avatarUrl ?? undefined}
+          />
+        </a>
+        <div className={styles.headingText}>
+          <h1>
+            <a
+              href={data.identity.canonicalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.identityLink}
+            >
+              {data.identity.username}
+            </a>
+          </h1>
+          <p className="muted">
+            {country && (
+              <>
+                {country}
+                {profile?.countryName && profile.countryCode
+                  ? ` (${profile.countryCode})`
+                  : ""}
+                {" · "}
+              </>
+            )}
+            ID: {data.identity.osuId}
+          </p>
         </div>
-        <button>{tr("View ruleset")}</button>
-      </form>
-      {!query.mode && (
-        <p className="muted small">
-          {tr(
-            "Select a ruleset to view its BWS estimate. No tournament mode is inferred.",
-          )}
-        </p>
-      )}
+      </header>
       {data.snapshot ? (
-        <PlayerProfile snapshot={data.snapshot} bws={data.bws} />
+        <PlayerProfile
+          snapshot={{
+            ...data.snapshot,
+            profile: {
+              ...data.snapshot.profile,
+              username: data.identity.username,
+              previousUsernames: data.identity.names
+                .map((n) => n.username)
+                .filter(
+                  (name) =>
+                    name.toLowerCase() !==
+                    data.identity.currentUsername?.toLowerCase(),
+                ),
+            },
+          }}
+          bws={data.bws}
+        />
       ) : (
         <p className="notice" role="status">
-          {data.error?.message ? tr(data.error.message) : ""}{" "}
-          {tr(" Published OCLR participation is shown below.")}
+          {tr("osu! statistics are temporarily unavailable.")}
         </p>
       )}
       {typeof query.edition === "string" && (
@@ -135,48 +143,87 @@ async function ProfileContent({
       )}
       <section className="spaced" aria-labelledby="participation">
         <h2 id="participation">{tr("Published participation")}</h2>
-        <ul className="player-directory">
+        {!data.participation.length && (
+          <p className="notice">
+            {tr("No published tournament participation is available.")}
+          </p>
+        )}
+        <ul
+          className={
+            data.participation.length ? `panel ${styles.history}` : undefined
+          }
+        >
           {data.participation.map((p) => (
-            <li className="panel" key={p.editionSlug}>
-              <h3>
-                <Link
-                  href={`/tournaments/${p.editionSlug}`}
-                  className="context-link"
-                >
-                  {p.editionName}
-                </Link>
-              </h3>
-              <p>
-                {p.participation === "coach"
-                  ? tr("Coach")
-                  : p.captain
-                    ? tr("Captain")
-                    : p.participation === "finalized_roster"
-                      ? tr("Finalized roster player")
-                      : tr("Accepted player")}
-              </p>
-              {p.coachedTeams?.map((t) => (
-                <p key={t.id}>
-                  <span className="badge">{tr("Coach")}</span>{" "}
+            <li className={styles.record} key={p.editionSlug}>
+              <div className={styles.edition}>
+                <h3>
                   <Link
-                    className="context-link"
-                    href={`/tournaments/${p.editionSlug}/teams/${t.id}`}
-                  >
-                    {t.name}
-                  </Link>
-                </p>
-              ))}
-              {p.participation !== "coach" &&
-                (p.team ? (
-                  <Link
-                    href={`/tournaments/${p.editionSlug}/teams/${p.team.id}`}
+                    href={`/tournaments/${p.editionSlug}`}
                     className="context-link"
                   >
-                    {p.team.name}
+                    {p.editionName}
                   </Link>
-                ) : (
-                  <p className="muted">{tr("Team awaiting publication")}</p>
+                </h3>
+                {p.participation === "historical" && (
+                  <span className="muted small">
+                    {tr("Historical archive")}
+                  </span>
+                )}
+              </div>
+              <div className={styles.identity}>
+                <span>{p.username}</span>
+                <span className="badge">
+                  {p.participation === "historical"
+                    ? p.role === "captain"
+                      ? tr("Captain")
+                      : p.role === "coach"
+                        ? tr("Coach")
+                        : p.role === "free_agent"
+                          ? tr("Free agent")
+                          : tr("Player")
+                    : p.participation === "coach"
+                      ? tr("Coach")
+                      : p.captain
+                        ? tr("Captain")
+                        : p.participation === "finalized_roster"
+                          ? tr("Finalized roster player")
+                          : tr("Accepted player")}
+                </span>
+              </div>
+              <div className={styles.team}>
+                {p.coachedTeams?.map((t) => (
+                  <div key={t.id}>
+                    <span className="badge">{tr("Coach")}</span>{" "}
+                    <Link
+                      className="context-link"
+                      href={`/tournaments/${p.editionSlug}/teams/${t.id}`}
+                    >
+                      {t.name}
+                    </Link>
+                  </div>
                 ))}
+                {p.participation !== "coach" &&
+                  (p.team ? (
+                    <Link
+                      href={`/tournaments/${p.editionSlug}/teams/${p.team.id}`}
+                      className="context-link"
+                    >
+                      {p.team.name}
+                    </Link>
+                  ) : (
+                    <span className="muted small">
+                      {tr("Team awaiting publication")}
+                    </span>
+                  ))}
+                {p.placing != null && (
+                  <span className="muted small">
+                    {tr("Recorded placing")}: {p.placing}
+                  </span>
+                )}
+                {p.sourceReference && (
+                  <span className="muted small">{p.sourceReference}</span>
+                )}
+              </div>
             </li>
           ))}
         </ul>

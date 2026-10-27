@@ -221,22 +221,23 @@ describe.skipIf(!url)(
       let checked = 0;
       try {
         for (const file of files) {
+          const normalizedFile = file.replaceAll("\\", "/");
           const route = await import(
             /* @vite-ignore */ `../../src/app/api/admin/${file}`
           );
           for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
             if (!route[method]) continue;
             let body: unknown = { confirmed: true };
-            if (file.endsWith("awards/route.ts"))
+            if (normalizedFile.endsWith("awards/route.ts"))
               body = {
                 action: "configure",
                 expectedVersion: 0,
                 confirmed: true,
                 weeks: [],
               };
-            if (file.endsWith("statistics/route.ts"))
+            if (normalizedFile.endsWith("statistics/route.ts"))
               body = { action: "import", mpId: 999177, expectedVersion: 0 };
-            if (file.endsWith("imports/route.ts"))
+            if (normalizedFile.endsWith("imports/route.ts"))
               body = {
                 match: "999001",
                 expectedVersion: 1,
@@ -244,10 +245,11 @@ describe.skipIf(!url)(
                 requestKey: randomUUID(),
                 confirmed: true,
               };
-            if (file === "profiles/route.ts")
+            if (normalizedFile === "profiles/route.ts")
               body = { input: "1860100", mode: "osu", refresh: true };
+            const routePath = normalizedFile.replace(/\/route.ts$/, "");
             const request = new Request(
-              `http://localhost:3000/api/admin/${file.replace(/\/route.ts$/, "")}`,
+              `http://localhost:3000/api/admin/${routePath}`,
               {
                 method,
                 headers: {

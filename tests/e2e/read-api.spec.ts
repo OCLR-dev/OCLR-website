@@ -10,6 +10,7 @@ import {
   staffRoles,
 } from "../../src/db/schema";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
+import { readContractVersion } from "../../src/lib/read-api-version";
 import { profileResponse } from "../fixtures/osu-profile";
 import { seedPublicDirectory } from "../fixtures/players";
 import { seedSession } from "./session";
@@ -232,7 +233,7 @@ test.describe("versioned read API and existing SSR", () => {
         page.getByRole("link", { name: "View API specification", exact: true }),
       ).toHaveAttribute("href", "/api/v1/openapi.json");
       const response = await context.request.get(
-        `/api/players/${seeded.memberId}?edition=test-cup&mode=osu`,
+        `/api/players/${seeded.memberId}?edition=test-cup`,
       );
       expect(response.status()).toBe(200);
       const legacy = await response.json();
@@ -356,7 +357,7 @@ test.describe("full-site direct browser transport", () => {
     expect(result.avatar.status).toBe(200);
     expect(result.avatar.type).toBe("image/webp");
     expect(result.bws.status).toBe(200);
-    expect(result.replay.version).toBe("1.2.0");
+    expect(result.replay.version).toBe(readContractVersion);
     expect(result.replay.requestId).toBeTruthy();
     expect(await remoteBusinessState()).toEqual(before);
     expect(await remoteFileState()).toEqual(files);

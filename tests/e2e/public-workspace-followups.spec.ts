@@ -117,7 +117,7 @@ test.describe("public and operational follow-ups", () => {
       "/tournaments/test-cup/teams",
       "/tournaments/test-cup/players",
       `/tournaments/test-cup/mappools/${seed.poolId}`,
-      `/players/${captain.userId}?edition=test-cup&mode=osu`,
+      `/players/${captain.userId}?edition=test-cup`,
       "/news",
       "/about",
       "/privacy",
@@ -458,7 +458,7 @@ test.describe("public and operational follow-ups", () => {
               },
             ]);
             await publicPage.goto(
-              `/players/${seed.captainId}?edition=test-cup&mode=osu`,
+              `/players/${seed.captainId}?edition=test-cup`,
             );
             await expect(
               publicPage.locator(".bws-value").first(),
@@ -468,7 +468,7 @@ test.describe("public and operational follow-ups", () => {
             );
             const data = await (
               await guest.request.get(
-                `/api/players/${seed.captainId}?edition=test-cup&mode=osu`,
+                `/api/players/${seed.captainId}?edition=test-cup`,
               )
             ).json();
             expect(data.bws).toMatchObject({
@@ -490,7 +490,7 @@ test.describe("public and operational follow-ups", () => {
           }
       await preferences(guest, "en");
       await publicPage.goto(
-        `/players/${seed.memberId}?edition=test-cup&mode=osu`,
+        `/players/${seed.memberId}?edition=test-cup`,
       );
       await expect(publicPage.locator(".bws-value").first()).toHaveText(
         "10,000",

@@ -21,6 +21,9 @@ The repository root README ([English](../README.md) / [简体中文](../README.z
 
 ## Developer read API and remote frontend
 
+- [Known player identities and name evidence](player-identity.md) — UID aggregation,
+  publication boundaries, migration/backfill and the additive v1.3 profile resources (#360).
+
 - [Remote setup and troubleshooting](remote-development.md) — fresh frontend without a local DB/OAuth secret.
 - [Full coverage and service boundaries](remote-coverage.md), [generated page/module inventory](remote-coverage.json).
 - [Read API contract and browser/SSR examples](read-api.md), [OpenAPI](read-api.openapi.json).

@@ -73,6 +73,7 @@ const players = Array.from({ length: 137 }, (_, index) =>
     source,
     osuId: 2700000 + index,
     username: `Synthetic ${index}`,
+    previousUsernames: [],
     editionSlug: edition.slug,
     editionName: edition.name,
     team: null,
@@ -214,6 +215,23 @@ const server = createServer((request, response) => {
         requestedMode: "osu",
         snapshot: null,
         bws: null,
+      },
+    };
+  else if (url.pathname.endsWith("/players/2700000/oclr-profile"))
+    payload = {
+      data: {
+        identity: {
+          osuId: 2700000,
+          username: players[0].username,
+          currentUsername: players[0].username,
+          mode: "osu",
+          canonicalUrl: "https://osu.ppy.sh/users/2700000/osu",
+          names: [{ username: players[0].username, evidence: [] }],
+        },
+        participation: [players[0]],
+        snapshot: null,
+        bws: null,
+        error: null,
       },
     };
   else if (
@@ -373,7 +391,7 @@ describe("remote frontend transport with no local DB", () => {
       (await withFrontendReadRequest(() => frontendPlayers(edition.slug))).rows,
     ).toEqual(players);
     expect(changed).toBe(true);
-    const profile = await frontendProfile("2700000", "osu", edition.slug);
+    const profile = await frontendProfile("2700000", edition.slug);
     expect(profile.participation[0]).toEqual(players[0]);
     expect(profile.snapshot).toBeNull();
     expect(seen.filter((r) => r.path.endsWith("/players")).length).toBe(6);

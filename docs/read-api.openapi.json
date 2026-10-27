@@ -2,11 +2,548 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OCLR Read API",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "description": "Versioned saved reads (#269–#272). Public projections remain public-only even with a token. Explicit invalid Authorization never falls back to anonymous/cookies. Reads never fetch providers or mutate business data. Later collection pages require version and restart on 409."
   },
   "servers": [{ "url": "/" }],
   "paths": {
+    "/api/v1/staff/tournaments/{edition}/players/{osuId}/oclr-profile": {
+      "get": {
+        "operationId": "getStaffOclrProfile",
+        "description": "Existing registration-management read appointment plus a confirmed UID in the selected edition. Names from other private editions are excluded; no provider I/O or application contents.",
+        "x-oclr-issues": [269, 271, 360],
+        "x-oclr-scopes": ["tournaments:private:read", "profiles:read"],
+        "x-oclr-query-model": "OclrProfile",
+        "x-oclr-coverage": "docs/remote-coverage.json",
+        "x-oclr-read-only": true,
+        "x-response-size-limit": 2097152,
+        "security": [{ "DeveloperBearer": [] }],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "maxLength": 80
+            }
+          },
+          {
+            "name": "osuId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^[1-9][0-9]*$" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved read projection; no provider work or business writes",
+            "headers": {
+              "Cache-Control": {
+                "schema": { "type": "string", "const": "no-store" }
+              },
+              "X-Request-Id": {
+                "schema": { "type": "string", "format": "uuid" }
+              },
+              "X-OCLR-Read-Contract": {
+                "schema": { "type": "string", "const": "1.3.0" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/OclrProfile" },
+                    "meta": { "$ref": "#/components/schemas/ReadMeta" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "401": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "403": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "404": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "409": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "413": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "429": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "headers": {
+              "Retry-After": {
+                "description": "Wait this many seconds before a new request; no automatic replay",
+                "schema": { "type": "integer", "minimum": 1 }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "503": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "getStaffOclrProfileHead",
+        "description": "Identical authorization, status and headers; no response body.",
+        "x-oclr-issues": [269, 271, 360],
+        "security": [{ "DeveloperBearer": [] }],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "maxLength": 80
+            }
+          },
+          {
+            "name": "osuId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^[1-9][0-9]*$" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Identical GET status and headers; no body" },
+          "400": { "description": "Identical GET status and headers; no body" },
+          "401": { "description": "Identical GET status and headers; no body" },
+          "403": { "description": "Identical GET status and headers; no body" },
+          "404": { "description": "Identical GET status and headers; no body" },
+          "409": { "description": "Identical GET status and headers; no body" },
+          "413": { "description": "Identical GET status and headers; no body" },
+          "429": { "description": "Identical GET status and headers; no body" },
+          "500": { "description": "Identical GET status and headers; no body" },
+          "503": { "description": "Identical GET status and headers; no body" }
+        }
+      },
+      "options": {
+        "operationId": "getStaffOclrProfilePreflight",
+        "x-oclr-issues": [269, 271, 360],
+        "security": [],
+        "responses": {
+          "204": { "description": "Read-only preflight, no private data" },
+          "403": { "description": "Origin, method or headers denied" }
+        }
+      }
+    },
+    "/api/v1/players/{osuId}/oclr-profile": {
+      "get": {
+        "operationId": "getOclrProfile",
+        "description": "Confirmed UID, public name evidence and all published native/archive participation. Saved-only; unknown or private-only identities are not exposed.",
+        "x-oclr-issues": [269, 271, 360],
+        "x-oclr-scopes": ["tournaments:read"],
+        "x-oclr-query-model": "OclrProfile",
+        "x-oclr-coverage": "docs/remote-coverage.json",
+        "x-oclr-read-only": true,
+        "x-response-size-limit": 2097152,
+        "security": [{}, { "DeveloperBearer": [] }],
+        "parameters": [
+          {
+            "name": "osuId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^[1-9][0-9]*$" }
+          },
+          {
+            "name": "edition",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 80,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved read projection; no provider work or business writes",
+            "headers": {
+              "Cache-Control": {
+                "schema": { "type": "string", "const": "no-store" }
+              },
+              "X-Request-Id": {
+                "schema": { "type": "string", "format": "uuid" }
+              },
+              "X-OCLR-Read-Contract": {
+                "schema": { "type": "string", "const": "1.3.0" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/OclrProfile" },
+                    "meta": { "$ref": "#/components/schemas/ReadMeta" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "401": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "403": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "404": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "409": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "413": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "429": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "headers": {
+              "Retry-After": {
+                "description": "Wait this many seconds before a new request; no automatic replay",
+                "schema": { "type": "integer", "minimum": 1 }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "503": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "getOclrProfileHead",
+        "description": "Identical authorization, status and headers; no response body.",
+        "x-oclr-issues": [269, 271, 360],
+        "security": [{}, { "DeveloperBearer": [] }],
+        "parameters": [
+          {
+            "name": "osuId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^[1-9][0-9]*$" }
+          },
+          {
+            "name": "edition",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 80,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Identical GET status and headers; no body" },
+          "400": { "description": "Identical GET status and headers; no body" },
+          "401": { "description": "Identical GET status and headers; no body" },
+          "403": { "description": "Identical GET status and headers; no body" },
+          "404": { "description": "Identical GET status and headers; no body" },
+          "409": { "description": "Identical GET status and headers; no body" },
+          "413": { "description": "Identical GET status and headers; no body" },
+          "429": { "description": "Identical GET status and headers; no body" },
+          "500": { "description": "Identical GET status and headers; no body" },
+          "503": { "description": "Identical GET status and headers; no body" }
+        }
+      },
+      "options": {
+        "operationId": "getOclrProfilePreflight",
+        "x-oclr-issues": [269, 271, 360],
+        "security": [],
+        "responses": {
+          "204": { "description": "Read-only preflight, no private data" },
+          "403": { "description": "Origin, method or headers denied" }
+        }
+      }
+    },
+    "/api/v1/me/oclr-profile": {
+      "get": {
+        "operationId": "getMyOclrProfile",
+        "description": "Actual token subject's known identity and private name evidence, including zero participation. Participation stays publication-filtered; no applications or provider I/O.",
+        "x-oclr-issues": [269, 271, 360],
+        "x-oclr-scopes": ["identity:read"],
+        "x-oclr-query-model": "OclrProfile",
+        "x-oclr-coverage": "docs/remote-coverage.json",
+        "x-oclr-read-only": true,
+        "x-response-size-limit": 2097152,
+        "security": [{ "DeveloperBearer": [] }],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 80,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved read projection; no provider work or business writes",
+            "headers": {
+              "Cache-Control": {
+                "schema": { "type": "string", "const": "no-store" }
+              },
+              "X-Request-Id": {
+                "schema": { "type": "string", "format": "uuid" }
+              },
+              "X-OCLR-Read-Contract": {
+                "schema": { "type": "string", "const": "1.3.0" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/OclrProfile" },
+                    "meta": { "$ref": "#/components/schemas/ReadMeta" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "401": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "403": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "404": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "409": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "413": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "429": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "headers": {
+              "Retry-After": {
+                "description": "Wait this many seconds before a new request; no automatic replay",
+                "schema": { "type": "integer", "minimum": 1 }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "503": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "getMyOclrProfileHead",
+        "description": "Identical authorization, status and headers; no response body.",
+        "x-oclr-issues": [269, 271, 360],
+        "security": [{ "DeveloperBearer": [] }],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 80,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Identical GET status and headers; no body" },
+          "400": { "description": "Identical GET status and headers; no body" },
+          "401": { "description": "Identical GET status and headers; no body" },
+          "403": { "description": "Identical GET status and headers; no body" },
+          "404": { "description": "Identical GET status and headers; no body" },
+          "409": { "description": "Identical GET status and headers; no body" },
+          "413": { "description": "Identical GET status and headers; no body" },
+          "429": { "description": "Identical GET status and headers; no body" },
+          "500": { "description": "Identical GET status and headers; no body" },
+          "503": { "description": "Identical GET status and headers; no body" }
+        }
+      },
+      "options": {
+        "operationId": "getMyOclrProfilePreflight",
+        "x-oclr-issues": [269, 271, 360],
+        "security": [],
+        "responses": {
+          "204": { "description": "Read-only preflight, no private data" },
+          "403": { "description": "Origin, method or headers denied" }
+        }
+      }
+    },
     "/api/v1/media/teams/{id}/avatar": {
       "get": {
         "operationId": "getTeamAvatar",
@@ -37,7 +574,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               },
               "Content-Disposition": {
                 "description": "Replay attachment filename; CORS-exposed",
@@ -212,7 +749,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               },
               "Content-Disposition": {
                 "description": "Replay attachment filename; CORS-exposed",
@@ -380,7 +917,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -540,7 +1077,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -713,7 +1250,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -894,7 +1431,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -1075,7 +1612,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -1246,7 +1783,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -1417,7 +1954,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -1588,7 +2125,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -1761,7 +2298,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -1934,7 +2471,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -2118,7 +2655,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -2310,7 +2847,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -2493,7 +3030,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -2678,7 +3215,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -2857,7 +3394,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -3030,7 +3567,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -3201,7 +3738,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -3372,7 +3909,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -3543,7 +4080,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -3714,7 +4251,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -3885,7 +4422,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -4069,7 +4606,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -4307,7 +4844,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -4538,7 +5075,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -4723,7 +5260,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -4906,7 +5443,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -5072,7 +5609,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -5221,7 +5758,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -5370,7 +5907,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -5568,7 +6105,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -5771,7 +6308,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -6028,7 +6565,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -6276,7 +6813,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -6425,7 +6962,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -6576,7 +7113,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -6736,7 +7273,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -6907,7 +7444,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -7080,7 +7617,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -7251,7 +7788,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -7422,7 +7959,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -7595,7 +8132,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -7766,7 +8303,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -7939,7 +8476,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -8112,7 +8649,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -8283,7 +8820,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -8460,7 +8997,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -8649,7 +9186,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -8832,7 +9369,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -8994,7 +9531,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -9145,7 +9682,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -9313,7 +9850,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -9481,7 +10018,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -9630,7 +10167,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -9815,7 +10352,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -10013,7 +10550,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -10219,7 +10756,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -10441,7 +10978,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -10655,7 +11192,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -10853,7 +11390,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -11032,7 +11569,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.2.0" }
+                "schema": { "type": "string", "const": "1.3.0" }
               }
             },
             "content": {
@@ -13328,6 +13865,10 @@
             "maximum": 9007199254740991
           },
           "username": { "type": "string" },
+          "previousUsernames": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
           "editionSlug": {
             "type": "string",
             "maxLength": 80,
@@ -13503,6 +14044,10 @@
               "maximum": 9007199254740991
             },
             "username": { "type": "string" },
+            "previousUsernames": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
             "editionSlug": {
               "type": "string",
               "maxLength": 80,
@@ -13680,6 +14225,10 @@
                 "maximum": 9007199254740991
               },
               "username": { "type": "string" },
+              "previousUsernames": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
               "editionSlug": {
                 "type": "string",
                 "maxLength": 80,
@@ -14583,6 +15132,648 @@
           }
         },
         "required": ["user", "access"],
+        "additionalProperties": false
+      },
+      "OclrProfile": {
+        "type": "object",
+        "properties": {
+          "identity": {
+            "type": "object",
+            "properties": {
+              "osuId": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "username": { "type": "string" },
+              "currentUsername": { "type": ["string", "null"] },
+              "mode": {
+                "type": "string",
+                "enum": ["osu", "taiko", "fruits", "mania"]
+              },
+              "canonicalUrl": { "type": "string" },
+              "names": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "username": { "type": "string" },
+                    "evidence": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "source": { "type": "string" },
+                          "editionSlug": { "type": ["string", "null"] },
+                          "reference": { "type": ["string", "null"] },
+                          "firstObservedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "lastObservedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              { "type": "null" }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "source",
+                          "editionSlug",
+                          "reference",
+                          "firstObservedAt",
+                          "lastObservedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["username", "evidence"],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "osuId",
+              "username",
+              "currentUsername",
+              "mode",
+              "canonicalUrl",
+              "names"
+            ],
+            "additionalProperties": false
+          },
+          "participation": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "database",
+                        "historical_archive",
+                        "preview",
+                        "saved_profile"
+                      ]
+                    },
+                    "revision": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        { "type": "null" }
+                      ]
+                    },
+                    "updatedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        { "type": "null" }
+                      ]
+                    },
+                    "capturedOn": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                        },
+                        { "type": "null" }
+                      ]
+                    }
+                  },
+                  "required": ["kind", "revision", "updatedAt", "capturedOn"],
+                  "additionalProperties": false
+                },
+                "statistics": {
+                  "type": "object",
+                  "properties": {
+                    "globalRank": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        { "type": "null" }
+                      ]
+                    },
+                    "pp": {
+                      "anyOf": [
+                        { "type": "number", "minimum": 0 },
+                        { "type": "null" }
+                      ]
+                    },
+                    "fetchedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        { "type": "null" }
+                      ]
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "fresh",
+                        "stale",
+                        "missing",
+                        "not_recorded",
+                        "preview",
+                        "unavailable"
+                      ]
+                    }
+                  },
+                  "required": ["globalRank", "pp", "fetchedAt", "state"],
+                  "additionalProperties": false
+                },
+                "tier": {
+                  "anyOf": [
+                    { "type": "integer", "minimum": 0, "maximum": 32 },
+                    { "type": "null" }
+                  ]
+                },
+                "tierLabel": { "type": ["string", "null"] },
+                "bio": { "type": ["string", "null"] },
+                "previousUsernames": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "osuId": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "username": { "type": "string" },
+                "editionSlug": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                },
+                "editionName": { "type": "string" },
+                "team": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" }
+                      },
+                      "required": ["id", "name"],
+                      "additionalProperties": false
+                    },
+                    { "type": "null" }
+                  ]
+                },
+                "captain": { "type": "boolean" },
+                "participation": {
+                  "type": "string",
+                  "enum": [
+                    "accepted",
+                    "captain",
+                    "finalized_roster",
+                    "coach",
+                    "historical"
+                  ]
+                },
+                "coachedTeams": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "name": { "type": "string" }
+                    },
+                    "required": ["id", "name"],
+                    "additionalProperties": false
+                  }
+                },
+                "role": {
+                  "type": "string",
+                  "enum": ["captain", "player", "coach", "free_agent"]
+                },
+                "sourceReference": { "type": "string" },
+                "placing": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    { "type": "null" }
+                  ]
+                }
+              },
+              "required": [
+                "osuId",
+                "username",
+                "editionSlug",
+                "editionName",
+                "team",
+                "captain",
+                "participation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "snapshot": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "profile": {
+                    "type": "object",
+                    "properties": {
+                      "osuId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "username": { "type": "string" },
+                      "canonicalUrl": { "type": "string" },
+                      "ruleset": {
+                        "type": "string",
+                        "enum": ["osu", "taiko", "fruits", "mania"]
+                      },
+                      "fetchedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                      },
+                      "source": { "type": "string", "const": "osu! API v2" },
+                      "avatarUrl": {
+                        "default": null,
+                        "type": ["string", "null"]
+                      },
+                      "coverUrl": {
+                        "default": null,
+                        "type": ["string", "null"]
+                      },
+                      "countryCode": {
+                        "default": null,
+                        "type": ["string", "null"]
+                      },
+                      "countryName": {
+                        "default": null,
+                        "type": ["string", "null"]
+                      },
+                      "defaultRuleset": {
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": ["osu", "taiko", "fruits", "mania"]
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "joinedAt": {
+                        "default": null,
+                        "type": ["string", "null"]
+                      },
+                      "lastSeenAt": {
+                        "default": null,
+                        "type": ["string", "null"]
+                      },
+                      "previousUsernames": {
+                        "default": [],
+                        "type": "array",
+                        "items": { "type": "string" }
+                      },
+                      "active": {
+                        "default": null,
+                        "type": ["boolean", "null"]
+                      },
+                      "bot": { "default": null, "type": ["boolean", "null"] },
+                      "badges": {
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "description": { "type": "string" },
+                                "awardedAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                },
+                                "url": { "type": ["string", "null"] }
+                              },
+                              "required": ["description", "awardedAt", "url"],
+                              "additionalProperties": false
+                            }
+                          },
+                          { "type": "null" }
+                        ]
+                      },
+                      "statistics": {
+                        "type": "object",
+                        "properties": {
+                          "globalRank": {
+                            "default": null,
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "countryRank": {
+                            "default": null,
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "pp": {
+                            "default": null,
+                            "anyOf": [
+                              { "type": "number", "minimum": 0 },
+                              { "type": "null" }
+                            ]
+                          },
+                          "accuracy": {
+                            "default": null,
+                            "anyOf": [
+                              { "type": "number", "minimum": 0 },
+                              { "type": "null" }
+                            ]
+                          },
+                          "playCount": {
+                            "default": null,
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "playTimeSeconds": {
+                            "default": null,
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "rankedScore": {
+                            "default": null,
+                            "type": ["string", "null"]
+                          },
+                          "totalScore": {
+                            "default": null,
+                            "type": ["string", "null"]
+                          },
+                          "maximumCombo": {
+                            "default": null,
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "level": {
+                            "default": null,
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "current": {
+                                    "default": null,
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 9007199254740991
+                                      },
+                                      { "type": "null" }
+                                    ]
+                                  },
+                                  "progress": {
+                                    "default": null,
+                                    "anyOf": [
+                                      { "type": "number", "minimum": 0 },
+                                      { "type": "null" }
+                                    ]
+                                  }
+                                },
+                                "required": ["current", "progress"],
+                                "additionalProperties": false
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "grades": {
+                            "default": null,
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "propertyNames": { "type": "string" },
+                                "additionalProperties": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                }
+                              },
+                              { "type": "null" }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "globalRank",
+                          "countryRank",
+                          "pp",
+                          "accuracy",
+                          "playCount",
+                          "playTimeSeconds",
+                          "rankedScore",
+                          "totalScore",
+                          "maximumCombo",
+                          "level",
+                          "grades"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "osuId",
+                      "username",
+                      "canonicalUrl",
+                      "ruleset",
+                      "fetchedAt",
+                      "source",
+                      "avatarUrl",
+                      "coverUrl",
+                      "countryCode",
+                      "countryName",
+                      "defaultRuleset",
+                      "joinedAt",
+                      "lastSeenAt",
+                      "previousUsernames",
+                      "active",
+                      "bot",
+                      "badges",
+                      "statistics"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "stale": { "type": "boolean" },
+                  "notice": { "type": ["string", "null"] }
+                },
+                "required": ["profile", "stale", "notice"],
+                "additionalProperties": false
+              },
+              { "type": "null" }
+            ]
+          },
+          "bws": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": ["osu", "taiko", "fruits", "mania"]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["ready", "stale", "pending", "unranked"]
+                  },
+                  "value": {
+                    "anyOf": [
+                      { "type": "number", "minimum": 0 },
+                      { "type": "null" }
+                    ]
+                  },
+                  "rawPp": {
+                    "anyOf": [
+                      { "type": "number", "minimum": 0 },
+                      { "type": "null" }
+                    ]
+                  },
+                  "adjustedPp": {
+                    "anyOf": [
+                      { "type": "number", "minimum": 0 },
+                      { "type": "null" }
+                    ]
+                  },
+                  "ppStatus": {
+                    "type": "string",
+                    "enum": ["ready", "stale", "pending", "unavailable"]
+                  },
+                  "stale": { "type": "boolean" },
+                  "badgeCount": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "globalRank": {
+                    "anyOf": [
+                      { "type": "number", "minimum": 0 },
+                      { "type": "null" }
+                    ]
+                  },
+                  "reviewedAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                      },
+                      { "type": "null" }
+                    ]
+                  },
+                  "fetchedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  }
+                },
+                "required": [
+                  "mode",
+                  "status",
+                  "value",
+                  "rawPp",
+                  "adjustedPp",
+                  "ppStatus",
+                  "stale",
+                  "badgeCount",
+                  "globalRank",
+                  "reviewedAt",
+                  "fetchedAt"
+                ],
+                "additionalProperties": false
+              },
+              { "type": "null" }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "message": { "type": "string" }
+                },
+                "required": ["status", "message"],
+                "additionalProperties": false
+              },
+              { "type": "null" }
+            ]
+          }
+        },
+        "required": ["identity", "participation", "snapshot", "bws", "error"],
         "additionalProperties": false
       },
       "Read02651fcde76e": {
@@ -21622,7 +22813,8 @@
                 { "type": "string", "const": "captain" },
                 { "type": "string", "const": "coach" },
                 { "type": "string", "const": "accepted" },
-                { "type": "string", "const": "finalized_roster" }
+                { "type": "string", "const": "finalized_roster" },
+                { "type": "string", "const": "historical" }
               ]
             },
             "coachedTeams": {
@@ -21640,6 +22832,115 @@
                     "additionalProperties": false
                   }
                 }
+              ]
+            },
+            "role": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "string", "const": "captain" },
+                { "type": "string", "const": "player" },
+                { "type": "string", "const": "coach" },
+                { "type": "string", "const": "free_agent" }
+              ]
+            },
+            "sourceReference": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "string" }
+              ]
+            },
+            "placing": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "null" },
+                { "type": "number" }
+              ]
+            },
+            "source": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "anyOf": [
+                        { "type": "string", "const": "preview" },
+                        { "type": "string", "const": "database" },
+                        { "type": "string", "const": "historical_archive" },
+                        { "type": "string", "const": "saved_profile" }
+                      ]
+                    },
+                    "revision": {
+                      "anyOf": [{ "type": "null" }, { "type": "number" }]
+                    },
+                    "updatedAt": {
+                      "anyOf": [{ "type": "null" }, { "type": "string" }]
+                    },
+                    "capturedOn": {
+                      "anyOf": [{ "type": "null" }, { "type": "string" }]
+                    }
+                  },
+                  "required": ["kind", "revision", "updatedAt", "capturedOn"],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "tier": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "null" },
+                { "type": "number" }
+              ]
+            },
+            "statistics": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                {
+                  "type": "object",
+                  "properties": {
+                    "globalRank": {
+                      "anyOf": [{ "type": "null" }, { "type": "number" }]
+                    },
+                    "pp": {
+                      "anyOf": [{ "type": "null" }, { "type": "number" }]
+                    },
+                    "fetchedAt": {
+                      "anyOf": [{ "type": "null" }, { "type": "string" }]
+                    },
+                    "state": {
+                      "anyOf": [
+                        { "type": "string", "const": "fresh" },
+                        { "type": "string", "const": "unavailable" },
+                        { "type": "string", "const": "preview" },
+                        { "type": "string", "const": "stale" },
+                        { "type": "string", "const": "missing" },
+                        { "type": "string", "const": "not_recorded" }
+                      ]
+                    }
+                  },
+                  "required": ["globalRank", "pp", "fetchedAt", "state"],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "previousUsernames": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            },
+            "tierLabel": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "null" },
+                { "type": "string" }
+              ]
+            },
+            "bio": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "null" },
+                { "type": "string" }
               ]
             }
           },

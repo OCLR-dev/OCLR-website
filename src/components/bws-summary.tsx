@@ -1,14 +1,10 @@
 import { useAppTranslations } from "@/i18n/shared";
 import type { BwsSummary as Summary } from "@/lib/bws-model";
-import { modeNames } from "@/lib/osu-profile-model";
 export function BwsSummary({ value }: { value: Summary }) {
   const tr = useAppTranslations();
   return (
     <section className="bws-summary" aria-label={tr("Badge-weighted seeding")}>
-      <h3>
-        {tr("Rank-based BWS")}{" "}
-        <span className="muted small">· {modeNames[value.mode]}</span>
-      </h3>
+      <h3>{tr("Rank-based BWS")}</h3>
       {value.value !== null ? (
         <p>
           <strong className="bws-value">

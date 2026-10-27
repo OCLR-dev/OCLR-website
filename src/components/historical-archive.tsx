@@ -567,6 +567,22 @@ export async function HistoricalArchiveView({
         ? allPlayers.filter((p) => String(p.osuId) === id)
         : allPlayers;
     if (!players.length) notFound();
+    const aliases = preview
+      ? []
+      : remoteMode()
+        ? (
+            await (
+              await import("@/lib/frontend-data")
+            ).frontendPlayers(edition.slug)
+          ).rows.flatMap((p) =>
+            (p.previousUsernames ?? []).map((username) => ({
+              osuId: p.osuId,
+              username,
+            })),
+          )
+        : await (
+            await import("@/lib/player-identity")
+          ).visiblePlayerNames(players.map((p) => p.osuId));
     title = section === "player" ? players[0].username : tr("Players");
     content = (
       <>
@@ -574,7 +590,14 @@ export async function HistoricalArchiveView({
           <ArchivePlayerSearch
             players={players.map((p) => ({
               id: p.osuId,
-              searchText: [p.username, p.osuId, p.team?.name ?? ""].join(" "),
+              searchText: [
+                p.username,
+                p.osuId,
+                p.team?.name ?? "",
+                ...aliases
+                  .filter((n) => n.osuId === p.osuId)
+                  .map((n) => n.username),
+              ].join(" "),
               card: rosterCard(p),
             }))}
           />
@@ -583,6 +606,13 @@ export async function HistoricalArchiveView({
         )}
         {section === "player" && (
           <>
+            <Link
+              className="context-link"
+              href={`/players/${players[0].osuId}?edition=${edition.slug}`}
+            >
+              {tr("OCLR profile")} →
+            </Link>
+            {" · "}
             <a
               href={`https://osu.ppy.sh/users/${players[0].osuId}`}
               rel="noreferrer"

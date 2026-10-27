@@ -23,6 +23,38 @@ export const users = pgTable("users", {
     .notNull()
     .defaultNow(),
 });
+// Evidence belongs to a confirmed osu! UID, independently of an OAuth account.
+export const playerNames = pgTable(
+  "player_names",
+  {
+    osuId: bigint("osu_id", { mode: "number" }).notNull(),
+    username: text("username").notNull(),
+    source: text("source").notNull(),
+    editionSlug: text("edition_slug").notNull().default(""),
+    reference: text("reference").notNull().default(""),
+    published: boolean("published").notNull().default(false),
+    firstObservedAt: timestamp("first_observed_at", { withTimezone: true }),
+    lastObservedAt: timestamp("last_observed_at", { withTimezone: true }),
+  },
+  (t) => [
+    primaryKey({
+      columns: [t.osuId, t.username, t.source, t.editionSlug, t.reference],
+    }),
+    check(
+      "player_names_uid",
+      sql`${t.osuId} > 0 AND ${t.osuId} <= 9007199254740991`,
+    ),
+    check(
+      "player_names_username",
+      sql`length(${t.username}) BETWEEN 1 AND 300`,
+    ),
+    check(
+      "player_names_source",
+      sql`${t.source} IN ('account', 'osu_current', 'osu_previous', 'archive_player', 'archive_staff', 'archive_replacement')`,
+    ),
+    index("player_names_search_idx").on(sql`lower(${t.username})`),
+  ],
+);
 // One site-wide default; visitor cookies remain independent overrides.
 export const siteSettings = pgTable(
   "site_settings",

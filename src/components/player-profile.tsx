@@ -2,8 +2,7 @@ import { useAppTranslations } from "@/i18n/shared";
 import { BwsSummary } from "./bws-summary";
 import type { BwsSummary as BwsData } from "@/lib/bws-model";
 import Image from "next/image";
-import { Avatar } from "./avatar";
-import { modeNames, type ProfileSnapshot } from "@/lib/osu-profile-model";
+import type { ProfileSnapshot } from "@/lib/osu-profile-model";
 export function PlayerProfile({
   snapshot,
   bws,
@@ -20,6 +19,28 @@ export function PlayerProfile({
         }).format(v);
   const score = (v: string | null) =>
     v === null ? tr("Unavailable") : BigInt(v).toLocaleString(tr.locale);
+  const playTime = (seconds: number | null) => {
+    if (seconds === null) return tr("Unavailable");
+    const total = Math.floor(seconds);
+    const parts: [number, string][] = [
+      [Math.floor(total / 86400), "day"],
+      [Math.floor(total / 3600) % 24, "hour"],
+      [Math.floor(total / 60) % 60, "minute"],
+      [total % 60, "second"],
+    ];
+    return parts
+      .filter(
+        ([value, unit]) => value > 0 || (total === 0 && unit === "second"),
+      )
+      .map(([value, unit]) =>
+        new Intl.NumberFormat(tr.locale, {
+          style: "unit",
+          unit,
+          unitDisplay: "long",
+        }).format(value),
+      )
+      .join(" ");
+  };
 
   const p = snapshot.profile;
   const s = p.statistics;
@@ -27,7 +48,7 @@ export function PlayerProfile({
     <section
       className="panel profile-summary"
       aria-label={tr("{value0} profile snapshot", {
-        value0: modeNames[p.ruleset],
+        value0: "osu!",
       })}
     >
       {p.coverUrl && (
@@ -41,28 +62,6 @@ export function PlayerProfile({
           />
         </div>
       )}
-      <div className="directory-identity">
-        <Avatar
-          osuId={p.osuId}
-          username={p.username}
-          avatarUrl={p.avatarUrl ?? undefined}
-        />
-        <div>
-          <p className="eyebrow">
-            {modeNames[p.ruleset]} {tr(" · PUBLIC PROFILE")}
-          </p>
-          <h2>{p.username}</h2>
-          <p className="muted">
-            {p.countryName ?? p.countryCode ?? tr("Country unavailable")}
-            {p.countryName && p.countryCode ? ` (${p.countryCode})` : ""}{" "}
-            {tr(" · osu! ID ")}
-            {p.osuId}
-          </p>
-          <a href={p.canonicalUrl} className="text-link">
-            {tr("View on osu! ↗")}
-          </a>
-        </div>
-      </div>
       {bws && <BwsSummary value={bws} />}
       <dl className="profile-statistics">
         {[
@@ -89,12 +88,7 @@ export function PlayerProfile({
               : `${number(s.accuracy, 2)}%`,
           ],
           ["Play count", number(s.playCount)],
-          [
-            "Play time",
-            s.playTimeSeconds === null
-              ? tr("Unavailable")
-              : tr("{value0} seconds", { value0: number(s.playTimeSeconds) }),
-          ],
+          ["Play time", playTime(s.playTimeSeconds)],
           ["Ranked score", score(s.rankedScore)],
           ["Total score", score(s.totalScore)],
           [
@@ -124,64 +118,41 @@ export function PlayerProfile({
             .join(" · ")}
         </p>
       )}
-      <details className="spaced">
-        <summary>{tr("Public profile details")}</summary>
-        <dl className="directory-details">
-          <div>
-            <dt>{tr("Default ruleset")}</dt>
-            <dd>
-              {p.defaultRuleset
-                ? modeNames[p.defaultRuleset]
-                : tr("Unavailable")}
-            </dd>
-          </div>
-          <div>
-            <dt>{tr("Joined")}</dt>
-            <dd>{p.joinedAt ?? tr("Unavailable")}</dd>
-          </div>
-          <div>
-            <dt>{tr("Last seen")}</dt>
-            <dd>{p.lastSeenAt ?? tr("Not public / unavailable")}</dd>
-          </div>
-          <div>
+      <dl className="profile-details muted small">
+        <div>
+          <dt>{tr("Joined")}</dt>
+          <dd>{p.joinedAt ?? tr("Unavailable")}</dd>
+        </div>
+        <div>
+          <dt>{tr("Last seen")}</dt>
+          <dd>{p.lastSeenAt ?? tr("Not public / unavailable")}</dd>
+        </div>
+        <div>
+          <dt>{tr("Active account")}</dt>
+          <dd>
+            {p.active === null
+              ? tr("Unavailable")
+              : p.active
+                ? tr("Yes")
+                : tr("No")}
+          </dd>
+        </div>
+        <div>
+          <dt>{tr("Bot account")}</dt>
+          <dd>
+            {p.bot === null ? tr("Unavailable") : p.bot ? tr("Yes") : tr("No")}
+          </dd>
+        </div>
+        {p.previousUsernames.length > 0 && (
+          <div className="profile-previous-names">
             <dt>{tr("Previous usernames")}</dt>
-            <dd>{p.previousUsernames.join(", ") || tr("None returned")}</dd>
+            <dd>{p.previousUsernames.join(", ")}</dd>
           </div>
-          <div>
-            <dt>{tr("Active account")}</dt>
-            <dd>
-              {p.active === null
-                ? tr("Unavailable")
-                : p.active
-                  ? tr("Yes")
-                  : tr("No")}
-            </dd>
-          </div>
-          <div>
-            <dt>{tr("Bot account")}</dt>
-            <dd>
-              {p.bot === null
-                ? tr("Unavailable")
-                : p.bot
-                  ? tr("Yes")
-                  : tr("No")}
-            </dd>
-          </div>
-        </dl>
-      </details>
-      <p className="small muted spaced">
-        {tr("Source: ")}
-        {p.source} {tr(" · Last updated")}{" "}
-        <time dateTime={p.fetchedAt}>{p.fetchedAt}</time>
-        {tr(". Statistics are a saved ")}
-        {modeNames[p.ruleset]} {tr(" snapshot.")}
-      </p>
-      {(snapshot.stale || snapshot.notice) && (
-        <p className="notice" role="status">
-          {snapshot.stale ? tr("Stale snapshot. ") : ""}
-          {snapshot.notice ?? tr("A new snapshot is not available yet.")}
-        </p>
-      )}
+        )}
+      </dl>
+      <footer className="profile-summary-footer">
+        {tr("Last updated")} <time dateTime={p.fetchedAt}>{p.fetchedAt}</time>
+      </footer>
     </section>
   );
 }

@@ -127,7 +127,13 @@ describe("S6 surviving source evidence", () => {
     });
     expect(source.supplementalPoolSource.snapshotSha256).toBe(
       createHash("sha256")
-        .update(readFileSync("docs/imports/s6-pool-source-snapshot.json"))
+        .update(
+          // Verify Git's canonical LF bytes even in an autocrlf checkout.
+          readFileSync(
+            "docs/imports/s6-pool-source-snapshot.json",
+            "utf8",
+          ).replaceAll("\r\n", "\n"),
+        )
         .digest("hex"),
     );
     expect(snapshot.sheets[1].maps[0].observedMetadata.title).toMatchObject({

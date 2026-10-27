@@ -88,6 +88,12 @@ export const collectionQuery = z
 
 /** Same request schemas drive service validation, the v1 boundary and OpenAPI parameters. */
 export function readQuerySchema(id: string, keys: readonly string[]) {
+  if (["getOclrProfile", "getMyOclrProfile"].includes(id))
+    return z
+      .object({
+        edition: editionSchema.shape.slug.optional(),
+      })
+      .strict();
   if (id === "publicPlayerParticipation")
     return z.object({ edition: editionSchema.shape.slug.optional() }).strict();
   if (

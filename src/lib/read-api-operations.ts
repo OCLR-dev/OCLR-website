@@ -14,6 +14,7 @@ import {
   publicTournamentSummarySchema,
   savedProfileSchema,
   siteSchema,
+  oclrProfileSchema,
 } from "./read-api-contract";
 export const apiIdentitySchema = z
   .object({
@@ -43,6 +44,7 @@ export const readSchemas: Record<string, z.ZodType> = {
   SavedProfile: savedProfileSchema,
   Pagination: paginationSchema,
   ApiIdentity: apiIdentitySchema,
+  OclrProfile: oclrProfileSchema,
 };
 export type ReadOperation = {
   id: string;
@@ -58,6 +60,40 @@ export type ReadOperation = {
 };
 const collection = ["q", "page", "pageSize", "version"] as const;
 export const readOperations: readonly ReadOperation[] = [
+  {
+    id: "getStaffOclrProfile",
+    path: "/staff/tournaments/{edition}/players/{osuId}/oclr-profile",
+    schema: "OclrProfile",
+    public: false,
+    scope: "tournaments:private:read",
+    additionalScopes: ["profiles:read"],
+    query: [],
+    issues: [269, 271, 360],
+    description:
+      "Existing registration-management read appointment plus a confirmed UID in the selected edition. Names from other private editions are excluded; no provider I/O or application contents.",
+  },
+  {
+    id: "getOclrProfile",
+    path: "/players/{osuId}/oclr-profile",
+    schema: "OclrProfile",
+    public: true,
+    scope: "tournaments:read",
+    query: ["edition"],
+    issues: [269, 271, 360],
+    description:
+      "Confirmed UID, public name evidence and all published native/archive participation. Saved-only; unknown or private-only identities are not exposed.",
+  },
+  {
+    id: "getMyOclrProfile",
+    path: "/me/oclr-profile",
+    schema: "OclrProfile",
+    public: false,
+    scope: "identity:read",
+    query: ["edition"],
+    issues: [269, 271, 360],
+    description:
+      "Actual token subject's known identity and private name evidence, including zero participation. Participation stays publication-filtered; no applications or provider I/O.",
+  },
   {
     id: "getTeamAvatar",
     path: "/media/teams/{id}/avatar",

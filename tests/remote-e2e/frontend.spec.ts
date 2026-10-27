@@ -315,9 +315,19 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
   );
   await expect(page).toHaveURL(
     new RegExp(
-      `/tournaments/remote-history/players/${historicalArchive.players[0].osuId}`,
+      `/players/${historicalArchive.players[0].osuId}\\?edition=remote-history$`,
     ),
   );
+  await expect(
+    page.getByRole("heading", {
+      name: historicalArchive.players[0].username,
+      level: 1,
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Published participation", exact: true }),
+  ).toContainText("Historical archive");
   await page.goto("/remote");
   await page
     .getByRole("link", { name: "Internal tournaments", exact: true })
