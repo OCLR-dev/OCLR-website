@@ -188,6 +188,7 @@ test.describe("S7 Graphite Arena appearance", () => {
       ".site-header",
       ".page-heading",
       ".archive-counts",
+      ".tournament-navigation nav",
     ]) {
       await expect(page.locator(surface)).toHaveCSS("background-image", "none");
       await expect(page.locator(surface)).toHaveCSS("box-shadow", "none");

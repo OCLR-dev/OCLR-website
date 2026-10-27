@@ -381,7 +381,7 @@ html[data-appearance="graphite-arena"]
       .rules-article,
       .rules-desktop-contents,
       .rules-mobile-contents,
-      .tournament-navigation nav,
+      .public-tournament .tournament-navigation nav,
       button,
       .button
     ) {
