@@ -57,6 +57,11 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "sakura-circuit": {
+    label: "S8 · Sakura Circuit",
+    lightBackground: "rgb(255, 248, 250)",
+    darkBackground: "rgb(36, 26, 34)",
+  },
   "glacier-blue": {
     label: "S9 · Glacier Blue",
     lightBackground: "rgb(244, 249, 254)",

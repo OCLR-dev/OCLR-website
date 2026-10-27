@@ -534,3 +534,7 @@ Agent verification uses synthetic replay/provider fixtures and an isolated test 
 ### S9 Glacier Blue appearance (#196)
 
 The registered `glacier-blue` option requires migration `0046_glacier_blue_appearance` for site-default saves. The normal reviewed update workflow applies it before activation. It expands only the site-setting and audit constraints; no existing defaults, tournament configurations or history are changed. Before an intentional rollback to an older application, select a supported site/tournament default; do not delete audit history or down-migrate a live database.
+
+### S8 Sakura Circuit appearance (#197)
+
+The registered `sakura-circuit` option requires migration `0047_sakura_circuit_appearance` for site-default saves. Apply it through the normal reviewed update workflow before activation. Only site-setting/audit constraints expand; existing defaults, tournament settings and history remain unchanged. Before deliberately rolling back to an older application, select a supported site/tournament default; never delete audit history or down-migrate a live database.

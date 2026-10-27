@@ -42,10 +42,10 @@ const base = `http://127.0.0.1:${server.address().port}/docs/design/season-theme
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const seasons = process.argv.slice(2).length
   ? process.argv.slice(2)
-  : ["s8", "s7"];
-if (seasons.some((season) => !["s8", "s7"].includes(season)))
+  : ["s7"];
+if (seasons.some((season) => !["s7"].includes(season)))
   throw new Error(
-    "S10 and S9 now use actual application routes: node --import tsx docs/design/season-themes/<season>/capture.mjs. This static verifier accepts s8 s7 only.",
+    "S10, S9 and S8 now use actual application routes: node --import tsx docs/design/season-themes/<season>/capture.mjs. This static verifier accepts s7 only.",
   );
 const results = [];
 const errors = [];

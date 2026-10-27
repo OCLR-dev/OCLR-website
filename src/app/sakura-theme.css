@@ -1,0 +1,316 @@
+/* S8 Sakura Circuit: approved banner, half portrait, refined blossoms and warm hairlines. */
+html[data-appearance="sakura-circuit"] .themed-site {
+  --site-background: #fff8fa;
+  --site-surface: #ffffff;
+  --site-raised: #fff0f5;
+  --site-tint: #fce8f0;
+  --site-foreground: #492738;
+  --site-muted: #805c6d;
+  --site-secondary-text: #704357;
+  --site-accent: #a92e62;
+  --site-accent-strong: #8d2452;
+  --site-border: #ecd0db;
+  --site-control-border: #986778;
+  --site-header: #ffffff;
+  --site-primary: #a92e62;
+  --site-primary-hover: #8d2452;
+  --site-on-primary: #ffffff;
+  --site-focus: #a92e62;
+  --site-selection: #f7ccdf;
+  --site-success: #17644b;
+  --site-warning: #875505;
+  --site-danger: #a4254a;
+  --site-highlight: #a92e62;
+  --site-connector: #986778;
+  --site-shadow: #49273814;
+  --site-soft-shadow: #49273808;
+  --site-panel-shadow: #49273824;
+  --site-dialog-shadow: #49273833;
+  --site-backdrop: #49273866;
+  --button-radius: 8px;
+  --radius-panel: 8px;
+  --sakura-pink: #f175af;
+  --sakura-orange: #e7834b;
+  --sakura-orange-soft: #edb59a;
+  --sakura-ink: #ab5b7c;
+  --sakura-heroine: url("/themes/sakura-circuit/heroine-half.webp");
+  --sakura-sprig: url("/themes/sakura-circuit/blossom-spray.webp");
+  --sakura-banner: url("/themes/sakura-circuit/source-rules-banner.png");
+  background: var(--site-background);
+}
+html[data-appearance="sakura-circuit"][data-theme="dark"] .themed-site {
+  --site-background: #241a22;
+  --site-surface: #30212b;
+  --site-raised: #3c2a36;
+  --site-tint: #492d3e;
+  --site-foreground: #ffeef5;
+  --site-muted: #d6b3c5;
+  --site-secondary-text: #f0cede;
+  --site-accent: #ffa6cf;
+  --site-accent-strong: #ffc4df;
+  --site-border: #634352;
+  --site-control-border: #bd8fa5;
+  --site-header: #241a22;
+  --site-primary: #ffa6cf;
+  --site-primary-hover: #ffc4df;
+  --site-on-primary: #422337;
+  --site-focus: #ffa6cf;
+  --site-selection: #623e54;
+  --site-success: #72e3bc;
+  --site-warning: #f0cb83;
+  --site-danger: #ff9eaf;
+  --site-highlight: #ffa6cf;
+  --site-connector: #bd8fa5;
+  --site-shadow: #0004;
+  --site-soft-shadow: #0002;
+  --site-panel-shadow: #0006;
+  --site-dialog-shadow: #0009;
+  --site-backdrop: #0009;
+  --sakura-ink: #d58ba9;
+  --sakura-orange: #edaa7a;
+  --sakura-orange-soft: #896048;
+}
+html[data-appearance="sakura-circuit"] .themed-site .site-header {
+  border-bottom: 1px solid var(--sakura-orange-soft);
+  box-shadow: none;
+}
+html[data-appearance="sakura-circuit"] .themed-site .page-heading {
+  position: relative;
+  min-height: 218px;
+  padding: 24px 370px 36px 0;
+  border-bottom: 0;
+  background: var(--sakura-sprig) right 300px bottom 18px / 190px 130px
+    no-repeat;
+}
+html[data-appearance="sakura-circuit"] .themed-site .page-heading > :is(h1, p) {
+  position: relative;
+  z-index: 1;
+}
+html[data-appearance="sakura-circuit"] .themed-site .page-heading h1 {
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+html[data-appearance="sakura-circuit"] .themed-site .page-heading::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 1px auto;
+  width: 340px;
+  background: var(--sakura-heroine) center bottom / contain no-repeat;
+  mask-image: linear-gradient(#000 0 86%, transparent 100%);
+  pointer-events: none;
+}
+html[data-appearance="sakura-circuit"] .themed-site .page-heading::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--sakura-orange) 12%,
+    var(--sakura-orange-soft) 28%,
+    var(--site-border) 48% 84%,
+    transparent
+  );
+  pointer-events: none;
+}
+/* Quiet paper surfaces and an airy floral illustration keep the hierarchy light. */
+html[data-appearance="sakura-circuit"] .themed-site .archive-counts {
+  position: relative;
+  border: 1px solid var(--site-border);
+  border-radius: 8px;
+  background: var(--site-surface);
+  box-shadow: 0 12px 28px -24px var(--site-panel-shadow);
+}
+/* A single warm hairline echoes the original artwork without framing the data. */
+html[data-appearance="sakura-circuit"] .themed-site .archive-counts::before {
+  content: "";
+  position: absolute;
+  inset: -1px 24px auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--sakura-orange-soft) 18%,
+    var(--sakura-orange) 50%,
+    var(--sakura-orange-soft) 82%,
+    transparent
+  );
+  pointer-events: none;
+}
+html[data-appearance="sakura-circuit"] .themed-site .archive-counts > div {
+  padding: 16px 24px;
+}
+html[data-appearance="sakura-circuit"] .themed-site .archive-counts dt {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+html[data-appearance="sakura-circuit"] .themed-site .archive-counts dd {
+  color: var(--site-accent);
+  font-size: 2.25rem;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="sakura-circuit"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  nav {
+  border-radius: 4px;
+  border-color: var(--site-border);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="sakura-circuit"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  a[aria-current] {
+  background: var(--site-tint);
+  color: var(--site-accent);
+  box-shadow: inset 0 -3px var(--site-accent);
+}
+html[data-appearance="sakura-circuit"]
+  .themed-site
+  :is(input, select, textarea) {
+  border-color: var(--site-control-border);
+  border-radius: 8px;
+  background: var(--site-surface);
+}
+html[data-appearance="sakura-circuit"] .themed-site :is(button, .button) {
+  border-radius: 8px;
+}
+html[data-appearance="sakura-circuit"]
+  .themed-site
+  :is(.settings-card, .map-browse-card) {
+  border-color: var(--site-border);
+  border-radius: 8px;
+  background: var(--site-surface);
+  box-shadow: 0 12px 28px -24px var(--site-panel-shadow);
+}
+html[data-appearance="sakura-circuit"]
+  .themed-site
+  :is(.rules-desktop-contents, .rules-mobile-contents) {
+  border-color: var(--site-border);
+  border-radius: 8px;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+/* Reuse the actual RulesHandbook cover slot for the supplied 750x110 banner. */
+html[data-appearance="sakura-circuit"]
+  .themed-site
+  .rules-illustration
+  img[src="/archive/s8/rules-1.png"] {
+  content: var(--sakura-banner);
+  object-fit: contain;
+  max-width: min(100%, 750px);
+  height: auto;
+}
+html[data-appearance="sakura-circuit"] .themed-site .archive-key-visual {
+  display: block;
+  height: auto;
+}
+html[data-appearance="sakura-circuit"] .themed-site .archive-key-visual img {
+  width: 100%;
+  height: auto;
+}
+html[data-appearance="sakura-circuit"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  a {
+  border-radius: 4px;
+}
+html[data-appearance="sakura-circuit"] .themed-site .rules-article {
+  border-color: var(--site-border);
+  border-radius: 8px;
+  background: var(--site-surface);
+}
+html[data-appearance="sakura-circuit"] .themed-site .rules-article h2 {
+  border-bottom: 0;
+}
+html[data-appearance="sakura-circuit"] .themed-site .map-slot-badge {
+  border-radius: 4px;
+}
+html[data-appearance="sakura-circuit"] .themed-site .sidebar {
+  background: var(--site-surface);
+  border-color: var(--site-border);
+}
+html[data-appearance="sakura-circuit"] .themed-site .sidebar a[aria-current] {
+  background: var(--site-tint);
+  box-shadow: inset 0 -3px var(--site-accent);
+}
+/* Main navigation stays unfilled; one fine rule identifies the current page. */
+html[data-appearance="sakura-circuit"] .themed-site .main-nav > a {
+  border-bottom-width: 1px;
+}
+html[data-appearance="sakura-circuit"]
+  .themed-site
+  .main-nav
+  > a[aria-current] {
+  color: var(--site-accent);
+  border-bottom-color: var(--site-accent);
+  background: transparent;
+  box-shadow: none;
+}
+@media (max-width: 1100px) {
+  html[data-appearance="sakura-circuit"] .themed-site .page-heading {
+    min-height: 0;
+    padding: 8px 0 178px;
+    background-position: left bottom 24px;
+    background-size: 160px 112px;
+  }
+  html[data-appearance="sakura-circuit"] .themed-site .page-heading::before {
+    inset: auto 0 1px auto;
+    width: min(70%, 280px);
+    height: 164px;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="sakura-circuit"]
+    .themed-site
+    .rules-illustration
+    img[src="/archive/s8/rules-1.png"] {
+    content: normal;
+  }
+  html[data-appearance="sakura-circuit"]
+    .themed-site
+    :is(
+      .site-header,
+      .page-heading,
+      .archive-counts,
+      .settings-card,
+      .rules-article,
+      .rules-desktop-contents,
+      .rules-mobile-contents,
+      .sidebar
+    ) {
+    background-image: none;
+    box-shadow: none;
+  }
+  html[data-appearance="sakura-circuit"]
+    .themed-site
+    :is(.page-heading, .archive-counts)::before,
+  html[data-appearance="sakura-circuit"] .themed-site .page-heading::after {
+    display: none;
+  }
+  html[data-appearance="sakura-circuit"]
+    .themed-site
+    .public-tournament
+    .tournament-navigation
+    :is(nav, a) {
+    background-image: none;
+    box-shadow: none;
+  }
+  html[data-appearance="sakura-circuit"]
+    .themed-site
+    :is(
+      .main-nav > a[aria-current],
+      .sidebar a[aria-current],
+      .tournament-navigation a[aria-current]
+    ) {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+}

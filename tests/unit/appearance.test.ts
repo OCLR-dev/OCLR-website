@@ -8,7 +8,7 @@ import {
 } from "../../src/lib/preferences";
 
 describe("visitor appearance preference", () => {
-  it("supports only the registered designs, including S9 Glacier Blue and S10 Skyline Pop", () => {
+  it("supports only the registered designs, including the S8–S10 season themes", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",
@@ -21,6 +21,7 @@ describe("visitor appearance preference", () => {
       "frutiger-aero",
       "skyline-pop",
       "glacier-blue",
+      "sakura-circuit",
     ]);
     expect(appearanceCookie).toBe("oclr-appearance");
     expect(readAppearance("cute-pastel")).toBe("cute-pastel");
