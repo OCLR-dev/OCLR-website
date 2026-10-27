@@ -15,7 +15,8 @@ try {
       name: "OCLR Season 8",
       published: true,
       status: "completed",
-      summary: "Design preview using the committed S8 archive.",
+      // Literal public caption from the organizer's annotated page.
+      summary: "osu! Chinese League Rookie — Season 8. 2023 年歷史賽事歸檔。",
       registration: null,
       rules: null,
       eligibility: null,

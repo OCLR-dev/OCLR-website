@@ -243,6 +243,28 @@ html[data-s8-preview] .themed-site .main-nav > a[aria-current] {
     height: 164px;
   }
 }
+html[data-s8-preview] .themed-site .public-tournament .event-content {
+  container: sakura-content / inline-size;
+}
+/* Keep the half portrait beside the copy when the actual content has room.
+ * Reserve a small clear area below the text for the blossom spray. */
+@container sakura-content (min-width: 680px) {
+  html[data-s8-preview] .themed-site .public-tournament .page-heading {
+    --sakura-portrait-width: clamp(304px, 38%, 340px);
+    min-height: 218px;
+    padding: 16px calc(var(--sakura-portrait-width) + 24px) 88px 0;
+    background-position: left bottom 12px;
+    background-size: 96px 64px;
+  }
+  html[data-s8-preview] .themed-site .public-tournament .page-heading::before {
+    inset: 0 0 1px auto;
+    width: var(--sakura-portrait-width);
+    height: auto;
+  }
+  html[data-s8-preview] .themed-site .public-tournament .page-heading > :is(h1, p) {
+    overflow-wrap: anywhere;
+  }
+}
 @media (forced-colors: active) {
   html[data-s8-preview] .themed-site .rules-illustration img[src="/archive/s8/rules-1.png"] {
     content: normal;
