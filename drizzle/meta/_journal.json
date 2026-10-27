@@ -337,6 +337,13 @@
       "when": 1793054534237,
       "tag": "0047_sakura_circuit_appearance",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1793064850555,
+      "tag": "0048_graphite_arena_appearance",
+      "breakpoints": true
     }
   ]
 }

@@ -57,6 +57,11 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "graphite-arena": {
+    label: "S7 · Graphite Arena",
+    lightBackground: "rgb(243, 244, 242)",
+    darkBackground: "rgb(23, 28, 32)",
+  },
   "sakura-circuit": {
     label: "S8 · Sakura Circuit",
     lightBackground: "rgb(255, 248, 250)",

@@ -377,6 +377,7 @@ test.describe("tournament overview alignment (#265, #323)", () => {
       "skyline-pop",
       "glacier-blue",
       "sakura-circuit",
+      "graphite-arena",
     ]) {
       for (const theme of ["light", "dark"]) {
         await context.addCookies([

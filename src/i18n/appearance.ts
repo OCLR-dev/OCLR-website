@@ -28,6 +28,8 @@ export function appearanceLabel(
       return tr("S9 · Glacier Blue");
     case "sakura-circuit":
       return tr("S8 · Sakura Circuit");
+    case "graphite-arena":
+      return tr("S7 · Graphite Arena");
     default:
       return tr("Original design");
   }

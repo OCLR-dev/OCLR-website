@@ -22,6 +22,7 @@ const themeFiles: Record<string, string> = {
   "skyline-theme.css": "skyline-pop",
   "glacier-theme.css": "glacier-blue",
   "sakura-theme.css": "sakura-circuit",
+  "graphite-theme.css": "graphite-arena",
 };
 const sharedHeader = new Set([
   "src/app/layout.tsx",
