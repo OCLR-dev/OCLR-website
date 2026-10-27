@@ -6,6 +6,7 @@ import { assertTestDatabase } from "../database";
 import { seedBrowserEditions } from "./setup";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
+import { chooseTheme } from "./theme";
 import s7Archive from "../../docs/imports/s7-archive.json" with { type: "json" };
 
 const origin = "http://127.0.0.1:3100";
@@ -40,6 +41,50 @@ test.describe("S7 Graphite Arena appearance", () => {
     await seedBrowserEditions();
   });
   test.afterAll(closeDb);
+
+  test("follows system brightness and retains S7 through manual overrides and navigation", async ({
+    page,
+    context,
+    isMobile,
+  }) => {
+    await context.clearCookies();
+    await context.addCookies([
+      { name: "oclr-locale", value: "en", url: origin },
+      { name: "oclr-appearance", value: "graphite-arena", url: origin },
+    ]);
+    await page.emulateMedia({ colorScheme: "dark" });
+    await page.goto("/tournaments/s7");
+    await page.waitForLoadState("networkidle");
+    const html = page.locator("html");
+    await expect(html).toHaveAttribute("data-theme-preference", "system");
+    await expect(html).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator(".themed-site")).toHaveCSS(
+      "background-color",
+      "rgb(23, 28, 32)",
+    );
+    await page.emulateMedia({ colorScheme: "light" });
+    await expect(html).toHaveAttribute("data-theme", "light");
+    await expect(page.locator(".themed-site")).toHaveCSS(
+      "background-color",
+      "rgb(243, 244, 242)",
+    );
+    await chooseTheme(page, "dark", isMobile);
+    await page.reload();
+    await page.waitForLoadState("networkidle");
+    await expect(html).toHaveAttribute("data-theme", "dark");
+    await expect(html).toHaveAttribute("data-appearance", "graphite-arena");
+    await chooseTheme(page, "system", isMobile);
+    await expect(html).toHaveAttribute("data-theme", "light");
+    expect(
+      (await context.cookies()).find((c) => c.name === "oclr-theme"),
+    ).toBeUndefined();
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(html).toHaveAttribute("data-theme", "dark");
+    await page.goto("/privacy");
+    await expect(html).toHaveAttribute("data-theme-preference", "system");
+    await expect(html).toHaveAttribute("data-theme", "dark");
+    await expect(html).toHaveAttribute("data-appearance", "graphite-arena");
+  });
 
   test("selects S7 from the real menu in all locales and persists the shipped light/dark design", async ({
     page,
