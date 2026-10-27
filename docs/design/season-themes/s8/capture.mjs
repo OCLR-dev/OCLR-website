@@ -18,7 +18,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
 const registered = process.env.S8_REGISTERED_PREVIEW === "1";
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S8_UI_BASELINE ?? "a50e03d2ad155f3518d6757455bfd2e73f86adb5";
+  process.env.S8_UI_BASELINE ?? "08851a183a94252bb831988f49d311b2849f5ba3";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -26,11 +26,11 @@ execFileSync("git", [
   "--",
   "src",
   "messages",
-  "public/branding",
+  "public",
 ]);
 let overlay = await readFile(new URL("../s8.css", import.meta.url), "utf8");
 // Inline only committed local decorative assets; the actual app tree stays unchanged.
-for (const asset of ["blossom-spray.webp", "heroine-half.webp", "source-rules-banner.png"]) {
+for (const asset of ["blossom-spray.webp", "heroine-half-refined.webp", "source-rules-banner.png"]) {
   const bytes = await readFile(new URL(asset, import.meta.url));
   const mime = asset.endsWith("svg") ? "image/svg+xml" : asset.endsWith("webp") ? "image/webp" : "image/png";
   overlay = overlay.replaceAll(`url("./s8/${asset}")`, `url("data:${mime};base64,${bytes.toString("base64")}")`);
@@ -342,6 +342,43 @@ try {
       await page.emulateMedia({ forcedColors: "none" });
     }
   }
+  // Native 2x captures of the actual decorative portrait at the reported width.
+  const detailContext = await browser.newContext({ deviceScaleFactor: 2, reducedMotion: "reduce" });
+  try {
+    const detailPage = await detailContext.newPage();
+    detailPage.on("pageerror", (error) => errors.push(error.message));
+    await detailPage.route("**/*", (route) => {
+      const request = route.request();
+      if (new URL(request.url()).origin !== origin.origin || !["GET", "HEAD"].includes(request.method())) return route.abort();
+      return route.continue();
+    });
+    for (const theme of ["light", "dark"]) {
+      await detailContext.addCookies([
+        { name: "oclr-locale", value: "zh-Hant", url: base },
+        { name: "oclr-appearance", value: "sakura-circuit", url: base },
+        { name: "oclr-theme", value: theme, url: base },
+      ]);
+      for (const width of [937, 390]) {
+        await detailPage.setViewportSize({ width, height: 815 });
+        if ((await detailPage.goto(base + "/tournaments/s8")).status() !== 200) throw new Error("S8 portrait preview unavailable.");
+        await detailPage.waitForLoadState("networkidle");
+        const heading = detailPage.locator(".page-heading");
+        await heading.scrollIntoViewIfNeeded();
+        const clip = await heading.evaluate((node) => {
+          const box = node.getBoundingClientRect();
+          const style = getComputedStyle(node, "::before");
+          const width = Math.ceil(parseFloat(style.width));
+          const height = Math.ceil(parseFloat(style.height));
+          return { x: Math.floor(box.right - width), y: Math.floor(box.bottom - height - 1), width, height };
+        });
+        const file = `heroine-${width}-${theme}.png`;
+        await detailPage.screenshot({ path: out + file, clip, animations: "disabled" });
+        shots.push({ file, path: "/tournaments/s8", theme, locale: "zh-Hant", width, height: 815, detail: { ...clip, deviceScaleFactor: 2 } });
+      }
+    }
+  } finally {
+    await detailContext.close();
+  }
   await writeFile(
     out + "verification.json",
     JSON.stringify(
@@ -354,7 +391,7 @@ try {
         browser: "Google Chrome",
         material:
           "Reference-matched blonde half portrait, supplied original RULES banner, refined watercolor sakura illustration and fading hairline on paper surfaces; full unframed S8 key visual",
-        decorativeAssets: ["heroine-half.webp", "source-rules-banner.png", "blossom-spray.webp"],
+        decorativeAssets: ["heroine-half-refined.webp", "source-rules-banner.png", "blossom-spray.webp"],
         materialChecks,
         screenshots: shots,
         cases,

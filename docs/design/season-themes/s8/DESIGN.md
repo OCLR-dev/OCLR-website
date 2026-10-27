@@ -1,6 +1,8 @@
-# S8 — Sakura Circuit / 櫻花折線 · 初步設計
+# S8 — Sakura Circuit / 櫻花折線
 
 **2026-10-27 正式接入**：初稿已由主辦方確認，本輪註冊 `sakura-circuit`，選單顯示「S8 · 櫻花折線／樱花折线／Sakura Circuit」。本輪依回饋精修花枝：移除標題橙色折角與統計角標，改為細緻櫻花插畫與漸淡分隔線；名稱沿用原 issue，視覺不強求折線元素。正式 CSS 與素材位於 `src/app/sakura-theme.css`／`public/themes/sakura-circuit/`；migration `0047_sakura_circuit_appearance` 僅擴充設定／稽核約束。下文保留初稿產圖時的歷史流程與證據，正式接入驗證另記於 #197。
+
+**目前狀態（2026-10-27）**：PR #378 已合併；本輪女主角修復基於 main `d34378e`，runtime `08851a183a94252bb831988f49d311b2849f5ba3`。下方初稿流程與舊驗證保留為歷史，最新人物與驗證見文末；修復尚未合併或部署。
 
 追蹤：[#197](https://github.com/OCLR-dev/OCLR-website/issues/197)。2026-10-27 依主辦方要求啟動，先交付最新實際 UI 的初稿；本輪另依回饋納入使用者提供的 RULES banner，並選用補全女主角的半身像。尚未註冊正式 appearance。
 
@@ -122,3 +124,22 @@ WebKit 桌面／手機兩項 S8 整合重驗通過；新增導航請求完成等
 依主辦方截圖移除主導覽選取背景；原本 68px 高選取區的 2px border-bottom 與 3px inset shadow 疊加，造成粉色長條與過粗底線。現在主導覽使用透明背景、莓粉選取文字與單條 1px 底線，清除選取陰影。側欄與賽事導覽的選取樣式各自保留。S8 整合檢查加上目前頁面連結不填底色、沒有重複陰影且只有細底線的回歸斷言。
 
 本輪 build、S8 桌面／手機兩項回歸及四項頁首斷點／選單檢查通過；24 組／24 次 Axe AA 與 4 組 forced-colours 通過。回歸測試依主導覽實際 href 進入目前賽事後驗證選取，不假設歷史 S8 是全站目前賽事。一般／hover 的實際量測皆為透明背景、無 box-shadow、1px border-bottom；未重跑無關單元／整合檢查。
+
+
+## 女主角樣貌修復（2026-10-27）
+
+依主辦方對 `/tournaments/s8` 的人物標註，以原 RULES banner 為臉部／眼神／髮型參考，修整雙眼比例、頭部傾斜、臉型及髮絲線稿。保留既有半身姿勢、金髮、琥珀眼、淡藍紫髮帶、櫻花髮飾與衣飾延伸；仍是原圖角色的候選補全，不宣稱未顯示服裝是官方原稿。
+
+正式引用 [heroine-half-refined.webp](heroine-half-refined.webp)，[生成 PNG](heroine-half-refined.png) 與完整內建 image_gen 提示詞保留於 [ARTWORK](ARTWORK.md)。1536×1024 的 PNG 轉為 quality 92 WebP，alpha 逐像素相同，約423KiB，較舊素材451KiB小。使用新檔名避免舊快取，舊素材保留作歷史。只更換人物素材引用，沿用既有340px／手機背景圖、底端淡出、高對比退場與 reduced motion，沒有新增產品文字、依賴、資料、權限或 migration。
+
+[937px Light](heroine-937-light.png)／[Dark](heroine-937-dark.png) · [390px Light](heroine-390-light.png)／[Dark](heroine-390-dark.png)。直接取自實際頁面、繁中與原生2×像素，沒有候選CSS overlay、後製或拼貼；原 banner、主視覺、花枝及版面保持原有設計。圖庫更新到 runtime `08851a1`。
+
+重現時使用獨立 test DB，依上方流程 migrate／prepare／build／start，並執行：
+
+```sh
+S8_REGISTERED_PREVIEW=1 S8_UI_BASELINE=08851a183a94252bb831988f49d311b2849f5ba3 node --import tsx docs/design/season-themes/s8/capture.mjs
+```
+
+工具核對完整 `src`／`messages`／`public` 與 runtime SHA 一致，以正式SSR偏好和素材擷取24組UI／24次Axe AA、4組高對比與四張人物局部。最新實際結果以 [verification.json](verification.json) 與 #197 為準。此輪為插畫素材修復，不重跑未受影響的完整unit/integration、i18n或依賴稽核；既有正式接入證據不是本輪新跑結果，CI與合併／部署各自記錄。
+
+本輪 Node.js24 `npm ci`、check／production build／最終tsc、工具ESLint／語法、文件連結與diff檢查通過。Chrome桌面／手機2項及Safari桌面／手機2項通過，涵蓋三語明暗、正式選單、SSR／跨頁、原圖／原banner、焦點與高對比。24組實際UI／24次Axe AA零違規，4組forced colours通過；16張頁面圖、四張人物2×局部、兩張手機選單與12張default對照已更新。新head的CI狀態另記於#197，未將本機結果稱為完整CI／部署通過。

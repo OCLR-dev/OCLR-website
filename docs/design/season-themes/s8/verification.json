@@ -1,12 +1,12 @@
 {
   "date": "2026-10-27",
-  "uiBaseline": "316c0eb6f41bbae68071b0808b1f9c7982d835c5",
+  "uiBaseline": "08851a183a94252bb831988f49d311b2849f5ba3",
   "scope": "Actual registered S8 appearance with SSR cookie and shipped assets; public committed S8 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
   "material": "Reference-matched blonde half portrait, supplied original RULES banner, refined watercolor sakura illustration and fading hairline on paper surfaces; full unframed S8 key visual",
   "decorativeAssets": [
-    "heroine-half.webp",
+    "heroine-half-refined.webp",
     "source-rules-banner.png",
     "blossom-spray.webp"
   ],
@@ -160,6 +160,66 @@
       "theme": "dark",
       "width": 1440,
       "height": 1000
+    },
+    {
+      "file": "heroine-937-light.png",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "x": 624,
+        "y": 364,
+        "width": 280,
+        "height": 164,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heroine-390-light.png",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "x": 123,
+        "y": 335,
+        "width": 251,
+        "height": 164,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heroine-937-dark.png",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "x": 624,
+        "y": 364,
+        "width": 280,
+        "height": 164,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heroine-390-dark.png",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "x": 123,
+        "y": 335,
+        "width": 251,
+        "height": 164,
+        "deviceScaleFactor": 2
+      }
     }
   ],
   "cases": [

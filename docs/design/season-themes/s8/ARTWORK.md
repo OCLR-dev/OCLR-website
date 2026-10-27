@@ -1,6 +1,5 @@
 # S8 banner 與角色素材
 
-
 ## 女主角樣貌修整（2026-10-27）
 
 主辦方標註實際 S8 頁面人物，依原 banner 重新修整臉部、雙眼比例、頭部傾斜及髮絲交界。正式引用改為 [heroine-half-refined.webp](heroine-half-refined.webp)，來源為 [內建 image_gen 的 PNG](heroine-half-refined.png)，1536×1024，保留透明 alpha。WebP 使用 quality 92 編碼並逐像素核對 alpha 完全相同，不裁切、調色或後製人物；公開素材與設計資料夾版本逐位元組一致。舊半身素材保留作歷史，原 banner／主視覺原檔不變。仍為原 banner 的候選補全，未宣稱未顯示的衣飾是官方原稿。
@@ -18,10 +17,11 @@ Background must be truly transparent alpha everywhere outside the character and 
 No text, lettering, logos, RULES, watermark, UI, border, floating floral background or extra people. This must be a visibly corrected facial reconstruction matching image 1, not a near-identical copy of image 2.
 ```
 
+## 原始來源與舊版生成紀錄
 
 - 原始 banner：[source-rules-banner.png](source-rules-banner.png)，使用者於本 chat 提供，750×110，原檔逐位元組保留。圖內文字為 `RULES`，用於現有 RulesHandbook 封面位置，完整 contain，不重繪／改字。
 - 原始主視覺：[thumbnail.jpg](../../../../public/archive/s8/thumbnail.jpg)，1920×1080，仍完整無框呈現，不改字／裁切／調色。
-- 選用角色：[heroine-half.webp](heroine-half.webp)／[生成 PNG](heroine-half.png)，1536×1024、透明 alpha。依使用者「補全女主角」與後續「僅取半身像」要求，以原 banner 為參考，先補全再製成半身構圖。保持金髮、琥珀眼、淡藍紫髮帶及手靠臉的姿態；未顯示衣飾為候選延伸，非原圖還原保證。WebP 僅編碼轉換，無裁切／重繪。
+- 舊版角色（歷史）：[heroine-half.webp](heroine-half.webp)／[生成 PNG](heroine-half.png)，1536×1024、透明 alpha。依使用者「補全女主角」與後續「僅取半身像」要求，以原 banner 為參考，先補全再製成半身構圖。保持金髮、琥珀眼、淡藍紫髮帶及手靠臉的姿態；未顯示衣飾為候選延伸，非原圖還原保證。WebP 僅編碼轉換，無裁切／重繪。
 - [sakura-sprig.svg](sakura-sprig.svg)：本次以 SVG 自繪的五瓣缺口櫻花、細枝與橙色折角，用於標題留白。
 
 工具：內建 `image_gen`（imagegen skill），未使用 CLI 或 API key。原角色未提供作者／角色名，本次不推測來源或官方合作；素材 provenance 保留使用者原圖與完整提示詞，待主辦方確認。
