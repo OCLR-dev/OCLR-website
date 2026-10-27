@@ -110,9 +110,12 @@ test.describe("current edition coaches", () => {
           level: 1,
         }),
       ).toBeVisible();
-      await expect(publicPage.locator(".player-directory")).toContainText(
-        "Coach",
-      );
+      await expect(
+        publicPage.getByRole("region", {
+          name: "Published participation",
+          exact: true,
+        }),
+      ).toContainText("Coach");
       for (const [locale, label] of [
         ["en", "Coach osu! ID"],
         ["zh-Hans", "教练 osu! ID"],
