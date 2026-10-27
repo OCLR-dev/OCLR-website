@@ -146,7 +146,7 @@ it("opens the actual legacy subject with no participation and no saved statistic
     code: "NOT_FOUND",
   });
 });
-it("keeps osu! aliases for self when the selected legacy ruleset has no saved snapshot", async () => {
+it("keeps standard snapshot aliases for the legacy subject without participation", async () => {
   state.viewer = { osuId: 360001, username: "Login only" };
   vi.mocked(remoteRead).mockImplementation(async (path) => {
     if (path === "/tournaments") return response(summaries, true);
@@ -165,13 +165,11 @@ it("keeps osu! aliases for self when the selected legacy ruleset has no saved sn
       : null,
   );
 
-  const data = await frontendProfile("360001", "mania");
-  expect(data.identity.mode).toBe("mania");
+  const data = await frontendProfile("360001");
+  expect(data.identity.mode).toBe("osu");
   expect(data.identity.names.map((name) => name.username)).toContain(
     "Verified osu! alias",
   );
-  expect(data.snapshot).toBeNull();
-  expect(cachedOsuUserProfile).toHaveBeenCalledWith(360001, "mania");
   expect(cachedOsuUserProfile).toHaveBeenCalledWith(360001, "osu");
 });
 it("uses the negotiated v1.3 subject resource and never downgrades auth failures", async () => {

@@ -34,16 +34,6 @@
             "in": "path",
             "required": true,
             "schema": { "type": "string", "pattern": "^[1-9][0-9]*$" }
-          },
-          {
-            "name": "mode",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "default": "osu",
-              "type": "string",
-              "enum": ["osu", "taiko", "fruits", "mania"]
-            }
           }
         ],
         "responses": {
@@ -175,16 +165,6 @@
             "in": "path",
             "required": true,
             "schema": { "type": "string", "pattern": "^[1-9][0-9]*$" }
-          },
-          {
-            "name": "mode",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "default": "osu",
-              "type": "string",
-              "enum": ["osu", "taiko", "fruits", "mania"]
-            }
           }
         ],
         "responses": {
@@ -227,16 +207,6 @@
             "in": "path",
             "required": true,
             "schema": { "type": "string", "pattern": "^[1-9][0-9]*$" }
-          },
-          {
-            "name": "mode",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "default": "osu",
-              "type": "string",
-              "enum": ["osu", "taiko", "fruits", "mania"]
-            }
           },
           {
             "name": "edition",
@@ -370,16 +340,6 @@
             "schema": { "type": "string", "pattern": "^[1-9][0-9]*$" }
           },
           {
-            "name": "mode",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "default": "osu",
-              "type": "string",
-              "enum": ["osu", "taiko", "fruits", "mania"]
-            }
-          },
-          {
             "name": "edition",
             "in": "query",
             "required": false,
@@ -425,16 +385,6 @@
         "x-response-size-limit": 2097152,
         "security": [{ "DeveloperBearer": [] }],
         "parameters": [
-          {
-            "name": "mode",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "default": "osu",
-              "type": "string",
-              "enum": ["osu", "taiko", "fruits", "mania"]
-            }
-          },
           {
             "name": "edition",
             "in": "query",
@@ -560,16 +510,6 @@
         "x-oclr-issues": [269, 271, 360],
         "security": [{ "DeveloperBearer": [] }],
         "parameters": [
-          {
-            "name": "mode",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "default": "osu",
-              "type": "string",
-              "enum": ["osu", "taiko", "fruits", "mania"]
-            }
-          },
           {
             "name": "edition",
             "in": "query",

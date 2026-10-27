@@ -228,7 +228,7 @@ export function readApiRoute(request: Request) {
             ).staffOclrPlayerProfile(
               principal!.subject,
               String(osuId(params.osuId)),
-              mode(query),
+              "osu",
               edition(params.edition),
             ),
           };
@@ -240,7 +240,7 @@ export function readApiRoute(request: Request) {
               await import("./player-profiles")
             ).publishedPlayerProfile(
               String(own ? principal!.subject.osuId : osuId(params.osuId)),
-              mode(query),
+              "osu",
               query.get("edition") ?? undefined,
               own ? principal!.subject.osuId : undefined,
               true,

@@ -1,5 +1,4 @@
 import { PlayerProfile } from "@/components/player-profile";
-import { ProfileRulesetFilter } from "@/components/profile-ruleset-filter";
 import { RoundRatings } from "@/components/round-ratings";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
@@ -28,8 +27,7 @@ async function ProfileContent({
   const { osuId } = await params;
   const query = await searchParams;
   if (
-    Object.keys(query).some((key) => !["mode", "edition"].includes(key)) ||
-    (query.mode !== undefined && typeof query.mode !== "string") ||
+    Object.keys(query).some((key) => key !== "edition") ||
     (query.edition !== undefined &&
       (typeof query.edition !== "string" ||
         !/^[a-z0-9-]+$/.test(query.edition)))
@@ -37,11 +35,7 @@ async function ProfileContent({
     notFound();
   let data;
   try {
-    data = await frontendProfile(
-      osuId,
-      query.mode as string | undefined,
-      query.edition as string | undefined,
-    );
+    data = await frontendProfile(osuId, query.edition as string | undefined);
   } catch (e) {
     if (e instanceof HttpError && [400, 404].includes(e.status)) notFound();
     throw e;
@@ -83,18 +77,6 @@ async function ProfileContent({
       <PageHeading eyebrow={tr("OCLR PLAYER")} title={data.identity.username}>
         {tr("Public osu! statistics and published OCLR participation.")}
       </PageHeading>
-      <ProfileRulesetFilter
-        key={data.identity.mode}
-        mode={data.identity.mode}
-        edition={query.edition as string | undefined}
-      />
-      {!query.mode && (
-        <p className="muted small">
-          {tr(
-            "Select a ruleset to view its BWS estimate. No tournament mode is inferred.",
-          )}
-        </p>
-      )}
       {data.snapshot ? (
         <PlayerProfile
           snapshot={{

@@ -3,7 +3,7 @@ import { BwsSummary } from "./bws-summary";
 import type { BwsSummary as BwsData } from "@/lib/bws-model";
 import Image from "next/image";
 import { Avatar } from "./avatar";
-import { modeNames, type ProfileSnapshot } from "@/lib/osu-profile-model";
+import type { ProfileSnapshot } from "@/lib/osu-profile-model";
 export function PlayerProfile({
   snapshot,
   bws,
@@ -49,7 +49,7 @@ export function PlayerProfile({
     <section
       className="panel profile-summary"
       aria-label={tr("{value0} profile snapshot", {
-        value0: modeNames[p.ruleset],
+        value0: "osu!",
       })}
     >
       {p.coverUrl && (
@@ -70,9 +70,6 @@ export function PlayerProfile({
           avatarUrl={p.avatarUrl ?? undefined}
         />
         <div>
-          <p className="eyebrow">
-            {modeNames[p.ruleset]} {tr(" · PUBLIC PROFILE")}
-          </p>
           <h2>{p.username}</h2>
           <p className="muted">
             {p.countryName ?? p.countryCode ?? tr("Country unavailable")}
@@ -145,14 +142,6 @@ export function PlayerProfile({
         <summary>{tr("Public profile details")}</summary>
         <dl className="directory-details">
           <div>
-            <dt>{tr("Default ruleset")}</dt>
-            <dd>
-              {p.defaultRuleset
-                ? modeNames[p.defaultRuleset]
-                : tr("Unavailable")}
-            </dd>
-          </div>
-          <div>
             <dt>{tr("Joined")}</dt>
             <dd>{p.joinedAt ?? tr("Unavailable")}</dd>
           </div>
@@ -191,7 +180,7 @@ export function PlayerProfile({
         {p.source} {tr(" · Last updated")}{" "}
         <time dateTime={p.fetchedAt}>{p.fetchedAt}</time>
         {tr(". Statistics are a saved ")}
-        {modeNames[p.ruleset]} {tr(" snapshot.")}
+        osu! {tr(" snapshot.")}
       </footer>
     </section>
   );

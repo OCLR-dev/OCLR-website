@@ -194,21 +194,20 @@ export async function frontendViewer() {
 }
 export async function frontendProfile(
   input: string,
-  mode?: string,
   edition?: string,
 ): Promise<OclrProfile> {
   const viewer = await frontendViewer();
   if (!remoteMode())
     return (await import("./player-profiles")).publishedPlayerProfile(
       input,
-      mode,
+      "osu",
       edition,
       viewer?.osuId,
     );
   const { parseOsuProfile } = await import("./osu-profile-model");
-  const identity = parseOsuProfile(input, mode);
+  const identity = parseOsuProfile(input, "osu");
   const own = viewer?.osuId === identity.osuId;
-  const query = new URLSearchParams({ mode: identity.mode });
+  const query = new URLSearchParams();
   if (edition) query.set("edition", edition);
   // Negotiate using the freshly verified header. Old v1 backends reject unknown
   // paths/queries with 400; never probe and silently downgrade authorization.
@@ -235,7 +234,7 @@ export async function frontendProfile(
         (
           await frontendRemoteRead(
             `/tournaments/${slug}/players/${identity.osuId}`,
-            new URLSearchParams({ mode: identity.mode }),
+            new URLSearchParams(),
           )
         ).data,
       );
@@ -269,20 +268,11 @@ export async function frontendProfile(
     (own ? viewer.username : saved?.profile.username) ??
     participation[0]?.username;
   if (!username) throw new RemoteDataError("NOT_FOUND", 404);
-  // Names identify the account across rulesets. Older backends may only have
-  // its osu! snapshot; changing to an uncached mode must not hide those aliases.
-  const nameSnapshot =
-    own && identity.mode !== "osu"
-      ? await (
-          await import("./osu-profiles")
-        ).cachedOsuUserProfile(identity.osuId, "osu")
-      : saved;
   // Old servers cannot provide persistent provenance. These names have no
   // invented observation dates; v1.3 supplies the durable evidence instead.
   const aliases = [
     ...new Set([
       ...(saved?.profile.previousUsernames ?? []),
-      ...(nameSnapshot?.profile.previousUsernames ?? []),
       ...participation.map((p) => p.username),
     ]),
   ];

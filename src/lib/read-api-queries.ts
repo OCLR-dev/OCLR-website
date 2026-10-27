@@ -91,7 +91,6 @@ export function readQuerySchema(id: string, keys: readonly string[]) {
   if (["getOclrProfile", "getMyOclrProfile"].includes(id))
     return z
       .object({
-        mode: z.enum(["osu", "taiko", "fruits", "mania"]).default("osu"),
         edition: editionSchema.shape.slug.optional(),
       })
       .strict();

@@ -67,7 +67,7 @@ export const readOperations: readonly ReadOperation[] = [
     public: false,
     scope: "tournaments:private:read",
     additionalScopes: ["profiles:read"],
-    query: ["mode"],
+    query: [],
     issues: [269, 271, 360],
     description:
       "Existing registration-management read appointment plus a confirmed UID in the selected edition. Names from other private editions are excluded; no provider I/O or application contents.",
@@ -78,7 +78,7 @@ export const readOperations: readonly ReadOperation[] = [
     schema: "OclrProfile",
     public: true,
     scope: "tournaments:read",
-    query: ["mode", "edition"],
+    query: ["edition"],
     issues: [269, 271, 360],
     description:
       "Confirmed UID, public name evidence and all published native/archive participation. Saved-only; unknown or private-only identities are not exposed.",
@@ -89,7 +89,7 @@ export const readOperations: readonly ReadOperation[] = [
     schema: "OclrProfile",
     public: false,
     scope: "identity:read",
-    query: ["mode", "edition"],
+    query: ["edition"],
     issues: [269, 271, 360],
     description:
       "Actual token subject's known identity and private name evidence, including zero participation. Participation stays publication-filtered; no applications or provider I/O.",

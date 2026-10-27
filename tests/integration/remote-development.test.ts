@@ -319,7 +319,7 @@ describe("remote frontend transport with no local DB", () => {
       (await withFrontendReadRequest(() => frontendPlayers(edition.slug))).rows,
     ).toEqual(players);
     expect(changed).toBe(true);
-    const profile = await frontendProfile("2700000", "osu", edition.slug);
+    const profile = await frontendProfile("2700000", edition.slug);
     expect(profile.participation[0]).toEqual(players[0]);
     expect(profile.snapshot).toBeNull();
     expect(seen.filter((r) => r.path.endsWith("/players")).length).toBe(6);

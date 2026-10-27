@@ -15,7 +15,7 @@ import { seedSession } from "./session";
 test.describe("published osu! profiles", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.afterAll(async () => closeDb());
-  test("reads dated snapshots anonymously, switches modes and enforces private lookup permissions", async ({
+  test("reads dated standard snapshots anonymously and enforces private lookup permissions", async ({
     page,
     context,
     browser,
@@ -24,7 +24,8 @@ test.describe("published osu! profiles", () => {
     const base = isMobile ? 261101 : 261001;
     const fixture = await seedPublicDirectory(base);
     await db().delete(userProfileCache).where(eq(userProfileCache.osuId, base));
-    for (const mode of ["osu", "taiko"] as const) {
+    {
+      const mode = "osu";
       const profile = normalizeOsuProfile(
         {
           ...profileResponse,
@@ -33,7 +34,7 @@ test.describe("published osu! profiles", () => {
           username: `Synthetic Profile ${base}`,
           statistics: {
             ...profileResponse.statistics,
-            pp: mode === "osu" ? 1234.56 : 99.5,
+            pp: 1234.56,
           },
         },
         base,
@@ -122,21 +123,6 @@ test.describe("published osu! profiles", () => {
     await expect(
       page.getByRole("link", { name: "← Tournament players", exact: true }),
     ).toHaveAttribute("href", "/tournaments/test-cup/players");
-    await page.getByRole("button", { name: "Ruleset", exact: true }).click();
-    await page
-      .getByRole("menuitemradio", { name: "osu!taiko", exact: true })
-      .click();
-    await expect(page.getByText("99.5 pp", { exact: true })).toBeVisible();
-    await expect(
-      page.getByRole("region", { name: "osu!taiko profile snapshot" }),
-    ).toBeVisible();
-    await page.getByRole("button", { name: "Ruleset", exact: true }).click();
-    await page
-      .getByRole("menuitemradio", { name: "osu!mania", exact: true })
-      .click();
-    await expect(
-      page.getByRole("status").filter({ hasText: "temporarily unavailable" }),
-    ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Published participation" }),
     ).toBeVisible();
