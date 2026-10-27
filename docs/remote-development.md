@@ -65,6 +65,12 @@ and CORS headers. See [Developer access](developer-api.md).
 
 ## Read coverage and authority
 
+Read API 1.3 adds [known UID profiles and persistent name evidence](player-identity.md).
+The frontend negotiates that capability from the current verification response.
+Compatible 1.2 backends retain complete cross-edition public aggregation and the
+subject's zero-participation identity; persistent provenance needs backend 1.3 and
+migration 0049. Failed authorization or transport never selects a fallback.
+
 [The coverage inventory](remote-coverage.json) enumerates all current pages,
 layouts/metadata, GET routes and client fetch/poll modules. Its
 `requiredVerification` entries state required checks, not test results. See

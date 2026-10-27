@@ -6793,7 +6793,8 @@
               { "type": "string", "const": "captain" },
               { "type": "string", "const": "coach" },
               { "type": "string", "const": "accepted" },
-              { "type": "string", "const": "finalized_roster" }
+              { "type": "string", "const": "finalized_roster" },
+              { "type": "string", "const": "historical" }
             ]
           },
           "coachedTeams": {
@@ -6811,6 +6812,113 @@
                   "additionalProperties": false
                 }
               }
+            ]
+          },
+          "role": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              { "type": "string", "const": "captain" },
+              { "type": "string", "const": "player" },
+              { "type": "string", "const": "coach" },
+              { "type": "string", "const": "free_agent" }
+            ]
+          },
+          "sourceReference": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              { "type": "string" }
+            ]
+          },
+          "placing": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              { "type": "null" },
+              { "type": "number" }
+            ]
+          },
+          "source": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "anyOf": [
+                      { "type": "string", "const": "preview" },
+                      { "type": "string", "const": "database" },
+                      { "type": "string", "const": "historical_archive" },
+                      { "type": "string", "const": "saved_profile" }
+                    ]
+                  },
+                  "revision": {
+                    "anyOf": [{ "type": "null" }, { "type": "number" }]
+                  },
+                  "updatedAt": {
+                    "anyOf": [{ "type": "null" }, { "type": "string" }]
+                  },
+                  "capturedOn": {
+                    "anyOf": [{ "type": "null" }, { "type": "string" }]
+                  }
+                },
+                "required": ["kind", "revision", "updatedAt", "capturedOn"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "tier": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              { "type": "null" },
+              { "type": "number" }
+            ]
+          },
+          "statistics": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              {
+                "type": "object",
+                "properties": {
+                  "globalRank": {
+                    "anyOf": [{ "type": "null" }, { "type": "number" }]
+                  },
+                  "pp": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+                  "fetchedAt": {
+                    "anyOf": [{ "type": "null" }, { "type": "string" }]
+                  },
+                  "state": {
+                    "anyOf": [
+                      { "type": "string", "const": "fresh" },
+                      { "type": "string", "const": "unavailable" },
+                      { "type": "string", "const": "preview" },
+                      { "type": "string", "const": "stale" },
+                      { "type": "string", "const": "missing" },
+                      { "type": "string", "const": "not_recorded" }
+                    ]
+                  }
+                },
+                "required": ["globalRank", "pp", "fetchedAt", "state"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "previousUsernames": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "tierLabel": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              { "type": "null" },
+              { "type": "string" }
+            ]
+          },
+          "bio": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              { "type": "null" },
+              { "type": "string" }
             ]
           }
         },

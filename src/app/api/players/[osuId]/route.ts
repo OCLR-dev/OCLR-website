@@ -1,7 +1,6 @@
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { frontendProfile } from "@/lib/frontend-data";
-import { remoteMode } from "@/lib/data-source";
 import { apiError, HttpError } from "@/lib/http";
 async function readGET(
   request: Request,
@@ -23,9 +22,9 @@ async function readGET(
       query.get("mode") ?? undefined,
       query.get("edition") ?? undefined,
     );
-    // Preserve explicit upstream errors for clients when no saved profile exists.
+    // A known identity remains a valid resource when provider statistics fail.
     return NextResponse.json(result, {
-      status: remoteMode() ? 200 : (result.error?.status ?? 200),
+      status: 200,
       headers: { "Cache-Control": "no-store" },
     });
   } catch (e) {

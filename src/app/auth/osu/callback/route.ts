@@ -7,6 +7,7 @@ import { exchangeIdentity } from "@/lib/auth/osu";
 import { createSession, revokeSession } from "@/lib/auth/sessions";
 import { cookieOptions, sessionCookie, stateCookie } from "@/lib/auth/config";
 import { appUrl } from "@/lib/http";
+import { observeLoginNames } from "@/lib/player-identity";
 export async function GET(request: NextRequest) {
   const origin = appUrl();
   let response: NextResponse;
@@ -37,6 +38,7 @@ export async function GET(request: NextRequest) {
           target: users.osuId,
           set: { username: identity.username, updatedAt: new Date() },
         });
+      await observeLoginNames(identity.id, identity.previous_usernames ?? []);
       const session = await createSession(identity.id);
       await revokeSession(request.cookies.get(sessionCookie())?.value);
       response = NextResponse.redirect(`${origin}/dashboard`, 303);

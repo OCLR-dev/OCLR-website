@@ -339,13 +339,33 @@ export async function publicPlayerDirectoryModel(slug: string, q = "") {
       row.edition.archive,
       row.source,
     );
+    const aliases = await (
+      await import("./player-identity")
+    ).visiblePlayerNames(all.map((p) => p.osuId));
     return {
       source: row.source,
-      rows: all.filter((player) =>
-        `${player.username} ${player.osuId} ${player.team?.name ?? ""}`
-          .toLowerCase()
-          .includes(q.trim().toLowerCase()),
-      ),
+      rows: all
+        .map((player) => ({
+          ...player,
+          previousUsernames: [
+            ...new Set(
+              aliases
+                .filter((n) => n.osuId === player.osuId)
+                .map((n) => n.username),
+            ),
+          ],
+        }))
+        .filter(
+          (player) =>
+            `${player.username} ${player.osuId} ${player.team?.name ?? ""}`
+              .toLowerCase()
+              .includes(q.trim().toLowerCase()) ||
+            aliases.some(
+              (n) =>
+                n.osuId === player.osuId &&
+                n.username.toLowerCase().includes(q.trim().toLowerCase()),
+            ),
+        ),
       refreshIds: [] as number[],
       order: "archive-source" as const,
     };

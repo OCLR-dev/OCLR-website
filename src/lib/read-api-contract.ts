@@ -340,6 +340,7 @@ export const publicPlayerSchema = z
     source: dataSourceSchema,
     osuId: id,
     username: text,
+    previousUsernames: z.array(text).optional(),
     editionSlug: editionSchema.shape.slug,
     editionName: text,
     team: z.object({ id: text, name: text }).strict().nullable(),
@@ -414,6 +415,82 @@ export type ReadPayload<T> = {
 };
 
 export type PublicPlayerProfile = z.infer<typeof publicPlayerProfileSchema>;
+export const oclrParticipationSchema = z
+  .object({
+    source: dataSourceSchema.optional(),
+    statistics: publicPlayerSchema.shape.statistics.optional(),
+    tier: publicPlayerSchema.shape.tier.optional(),
+    tierLabel: publicPlayerSchema.shape.tierLabel.optional(),
+    bio: publicPlayerSchema.shape.bio.optional(),
+    previousUsernames: publicPlayerSchema.shape.previousUsernames,
+    osuId: id,
+    username: text,
+    editionSlug: editionSchema.shape.slug,
+    editionName: text,
+    team: z.object({ id: text, name: text }).strict().nullable(),
+    captain: z.boolean(),
+    participation: z.enum([
+      "accepted",
+      "captain",
+      "finalized_roster",
+      "coach",
+      "historical",
+    ]),
+    coachedTeams: z
+      .array(z.object({ id: text, name: text }).strict())
+      .optional(),
+    role: z.enum(["captain", "player", "coach", "free_agent"]).optional(),
+    sourceReference: text.optional(),
+    placing: z.number().int().positive().nullable().optional(),
+  })
+  .strict();
+export const oclrIdentitySchema = z
+  .object({
+    osuId: id,
+    username: text,
+    currentUsername: text.nullable(),
+    mode: profileMode,
+    canonicalUrl: text,
+    names: z.array(
+      z
+        .object({
+          username: text,
+          evidence: z.array(
+            z
+              .object({
+                source: text,
+                editionSlug: text.nullable(),
+                reference: text.nullable(),
+                firstObservedAt: timestamp.nullable(),
+                lastObservedAt: timestamp.nullable(),
+              })
+              .strict(),
+          ),
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+export const oclrProfileSchema = z
+  .object({
+    identity: oclrIdentitySchema,
+    participation: z.array(oclrParticipationSchema),
+    snapshot: z
+      .object({
+        profile: savedOsuProfileSchema,
+        stale: z.boolean(),
+        notice: text.nullable(),
+      })
+      .strict()
+      .nullable(),
+    bws: bwsSchema.nullable(),
+    error: z
+      .object({ status: z.number().int(), message: text })
+      .strict()
+      .nullable(),
+  })
+  .strict();
+export type OclrProfile = z.infer<typeof oclrProfileSchema>;
 export type PrivateTournament = z.infer<typeof privateTournamentSchema>;
 export type PrivateTournamentSummary = z.infer<
   typeof privateTournamentSummarySchema

@@ -344,6 +344,13 @@
       "when": 1793064850555,
       "tag": "0048_graphite_arena_appearance",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1793073686880,
+      "tag": "0049_player_name_history",
+      "breakpoints": true
     }
   ]
 }

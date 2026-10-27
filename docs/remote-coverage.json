@@ -953,11 +953,11 @@
       "file": "src/app/api/players/[osuId]/route.ts",
       "kind": "read-route",
       "authority": "saved-read",
-      "operations": ["getPublicPlayer"],
+      "operations": ["getOclrProfile"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
       "services": [
-        "src/lib/public-read-models.ts / frontend-data.ts (getPublicPlayer)"
+        "src/lib/public-read-models.ts / frontend-data.ts (getOclrProfile)"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -1291,16 +1291,10 @@
       "file": "src/app/dashboard/page.tsx",
       "kind": "page",
       "authority": "saved-read",
-      "operations": [
-        "getApiIdentity",
-        "ownSavedProfile",
-        "playerApplications",
-        "publicPlayerParticipation"
-      ],
+      "operations": ["getApiIdentity", "ownSavedProfile", "playerApplications"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
-        "src/lib/players.ts#publicPlayer",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
         "src/lib/dashboard.ts#playerApplications",
         "src/lib/frontend-read-models.ts#ownSavedProfile"
@@ -1413,11 +1407,11 @@
       "file": "src/app/players/[osuId]/page.tsx",
       "kind": "page",
       "authority": "saved-read",
-      "operations": ["getPublicPlayer", "publicRoundRatings"],
+      "operations": ["getOclrProfile", "publicRoundRatings"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
-        "src/lib/public-read-models.ts / frontend-data.ts (getPublicPlayer)",
+        "src/lib/public-read-models.ts / frontend-data.ts (getOclrProfile)",
         "src/lib/ratings.ts#publicRoundRatings"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",

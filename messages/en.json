@@ -2776,6 +2776,19 @@
     "m0366c793447f": "Follow system ({value0})",
     "mbd399d292766": "Color mode: {value0}",
     "m9f1e7d7d98b2": "Color mode",
-    "m18227265b260": "S7 · Graphite Arena"
+    "m18227265b260": "S7 · Graphite Arena",
+    "mcebb295c5462": "Known player not found.",
+    "m0df950dfe52d": "Current username",
+    "m388278a09ff1": "Verified names observed by OCLR. Observation dates are not rename dates; unobserved names may be missing.",
+    "m7bdbc2988167": "Name evidence",
+    "mf3f37ccb0f76": "Account observation",
+    "m47467935bace": "osu! profile observation",
+    "m47eddd4c8640": "First observed",
+    "m0eb3a6e17240": "Observation date unknown",
+    "mff41889613bc": "Last observed",
+    "m60e595cd4bdd": "No verified previous usernames are available.",
+    "m297bcbc700b1": "No published tournament participation is available.",
+    "m3925d437ec9d": "Recorded placing",
+    "mf12b6266659f": "Current username unavailable; showing a verified historical name."
   }
 }
