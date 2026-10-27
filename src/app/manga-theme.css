@@ -564,7 +564,7 @@ html[data-appearance="manga-halftone"][data-theme="dark"]
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  :is(.appearance-control, .language-control, .account-menu)
+  :is(.appearance-control, .theme-menu, .language-control, .account-menu)
   :is([role="menu"], .account-dropdown) {
   border: 2px solid var(--manga-ink);
   border-radius: var(--radius-panel);
@@ -573,14 +573,14 @@ html[data-appearance="manga-halftone"]
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[role] {
   border-radius: var(--button-radius);
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[aria-checked="true"],
 html[data-appearance="manga-halftone"]

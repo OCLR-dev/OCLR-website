@@ -20,6 +20,7 @@ import { profileResponse } from "../fixtures/osu-profile";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { openTournamentTool } from "./navigation";
+import { toggleTheme } from "./theme";
 const origin = { origin: "http://127.0.0.1:3100" };
 const locales = ["en", "zh-Hans", "zh-Hant"];
 async function preferences(
@@ -191,7 +192,7 @@ test.describe("public and operational follow-ups", () => {
             fullPage: true,
           });
         }
-        await page.locator(".theme-control").click();
+        await toggleTheme(page);
         await expect(page.locator("html")).toHaveAttribute(
           "data-theme",
           theme === "light" ? "dark" : "light",

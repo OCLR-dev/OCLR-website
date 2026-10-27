@@ -8,7 +8,7 @@ import hans from "../../messages/zh-Hans.json";
 import hant from "../../messages/zh-Hant.json";
 import { defaultLocale, locales, readLocale } from "../../src/i18n/config";
 import { appTranslator } from "../../src/i18n/translate";
-import { readTheme } from "../../src/lib/preferences";
+import { readThemePreference } from "../../src/lib/preferences";
 import { formatDate } from "../../src/lib/editions";
 
 describe("localized interface catalogs", () => {
@@ -17,9 +17,9 @@ describe("localized interface catalogs", () => {
     for (const locale of locales) expect(readLocale(locale)).toBe(locale);
     for (const invalid of [undefined, "../../private", "zh", "<script>"])
       expect(readLocale(invalid)).toBe("zh-Hans");
-    expect(readTheme(undefined)).toBe("light");
-    expect(readTheme("dark")).toBe("dark");
-    expect(readTheme("invalid")).toBe("light");
+    expect(readThemePreference(undefined)).toBe("system");
+    expect(readThemePreference("dark")).toBe("dark");
+    expect(readThemePreference("invalid")).toBe("system");
   });
   it("has identical keys and valid ICU parameters in every language", () => {
     const parameters = (text: string) =>

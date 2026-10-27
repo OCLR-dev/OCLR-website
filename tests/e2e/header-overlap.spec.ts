@@ -6,6 +6,7 @@ import {
   headerWidths,
   compactHeaderWidths,
 } from "../fixtures/header-matrix";
+import { chooseTheme, toggleTheme } from "./theme";
 const matrixMode = process.env.OCLR_E2E_MATRIX ?? "full";
 
 test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
@@ -197,12 +198,8 @@ for (const { locale, theme, appearance } of headerMatrix(
       ).toBeFocused();
       await page.keyboard.press("Escape");
       await expect(appearanceTrigger).toBeFocused();
-      await activate(header.locator(".theme-control"));
-      await expect(page.locator("html")).toHaveAttribute(
-        "data-theme",
-        theme === "light" ? "dark" : "light",
-      );
-      await activate(header.locator(".theme-control"));
+      await toggleTheme(page, info.project.use.hasTouch);
+      await chooseTheme(page, theme, info.project.use.hasTouch);
     }
     await context.addCookies([playerCookie]);
     await page.reload();

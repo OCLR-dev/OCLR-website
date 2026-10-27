@@ -416,7 +416,7 @@ html[data-appearance="glassmorphism"]
 }
 html[data-appearance="glassmorphism"]
   .themed-site
-  :is(.appearance-control, .language-control, .account-menu)
+  :is(.appearance-control, .theme-menu, .language-control, .account-menu)
   :is([role="menu"], .account-dropdown) {
   border: 1px solid;
   border-color: var(--glass-rim-top) var(--site-border) var(--site-border);
@@ -428,7 +428,7 @@ html[data-appearance="glassmorphism"]
 }
 html[data-appearance="glassmorphism"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[role] {
   border-color: transparent;
@@ -436,7 +436,7 @@ html[data-appearance="glassmorphism"]
 }
 html[data-appearance="glassmorphism"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[aria-checked="true"] {
   border-color: var(--site-accent);

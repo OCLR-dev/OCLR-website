@@ -11,6 +11,7 @@ import { seedBrowserEditions } from "./setup";
 import { readTournament } from "../../src/lib/tournaments";
 import { seedEditions } from "../fixtures/editions";
 import { appearances } from "../../src/lib/preferences";
+import { chooseTheme } from "./theme";
 const origin = "http://127.0.0.1:3100",
   base = "/tournaments/test-cup";
 async function preferences(
@@ -204,11 +205,7 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
           "light",
         );
         await expect(trigger).toBeFocused();
-        await page.locator(".theme-control").click();
-        await expect(page.locator("html")).toHaveAttribute(
-          "data-theme",
-          "dark",
-        );
+        await chooseTheme(page, "dark");
         await expect(page.locator("html")).toHaveAttribute(
           "data-appearance",
           appearance,
@@ -236,7 +233,7 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
           "data-theme",
           "dark",
         );
-        await page.locator(".theme-control").click();
+        await chooseTheme(page, "light");
         await noOverflow(page);
       }
       const cookie = (await context.cookies()).find(

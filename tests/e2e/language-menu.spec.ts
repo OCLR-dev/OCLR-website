@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { closeDb } from "../../src/db";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
+import { chooseTheme } from "./theme";
 
 test.describe("custom language menu", () => {
   // Start without cookies in an explicit browser language, rather than relying
@@ -84,8 +85,7 @@ test.describe("custom language menu", () => {
     for (const width of isMobile ? [320, 390] : [1440]) {
       await page.setViewportSize({ width, height: 900 });
       for (const theme of ["light", "dark"]) {
-        if ((await page.locator("html").getAttribute("data-theme")) !== theme)
-          await page.locator(".theme-control").click();
+        await chooseTheme(page, theme);
         if (isMobile) await trigger.tap();
         else await trigger.click();
         await expect(menu).toBeVisible();

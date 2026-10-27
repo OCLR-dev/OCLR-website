@@ -8,7 +8,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { Avatar } from "./avatar";
 import { OclrLogo } from "./oclr-logo";
 import { ThemeControl } from "./theme-control";
-import type { Theme, Appearance } from "@/lib/preferences";
+import type { Theme, ThemePreference, Appearance } from "@/lib/preferences";
 import { AppearanceControl } from "./appearance-control";
 import { LanguageControl } from "./language-control";
 type Account = {
@@ -209,7 +209,8 @@ export function Header({
   remote = false,
   informationHref = "/tournaments",
   user,
-  theme,
+  themePreference,
+  systemTheme,
   appearance = "default",
   defaultAppearance = "default",
   appearancePreference,
@@ -217,7 +218,8 @@ export function Header({
   remote?: boolean;
   informationHref?: string;
   user: Account | null;
-  theme: Theme;
+  themePreference: ThemePreference;
+  systemTheme: Theme;
   appearance?: Appearance;
   defaultAppearance?: Appearance;
   appearancePreference?: Appearance;
@@ -331,7 +333,10 @@ export function Header({
             defaultAppearance={defaultAppearance}
             initialPreference={appearancePreference}
           />
-          <ThemeControl initialTheme={theme} />
+          <ThemeControl
+            initialPreference={themePreference}
+            initialSystemTheme={systemTheme}
+          />
           <LanguageControl />
         </div>
         <div

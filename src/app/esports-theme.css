@@ -460,7 +460,7 @@ html[data-appearance="esports-broadcast"]
 }
 html[data-appearance="esports-broadcast"]
   .themed-site
-  :is(.appearance-control, .language-control, .account-menu)
+  :is(.appearance-control, .theme-menu, .language-control, .account-menu)
   :is([role="menu"], .account-dropdown) {
   border-color: var(--site-border);
   border-top: 3px solid var(--esports-rule);
@@ -469,14 +469,14 @@ html[data-appearance="esports-broadcast"]
 }
 html[data-appearance="esports-broadcast"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[role] {
   border-radius: var(--button-radius);
 }
 html[data-appearance="esports-broadcast"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[aria-checked="true"] {
   background: var(--esports-cyan);

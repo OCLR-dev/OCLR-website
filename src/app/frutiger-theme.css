@@ -380,7 +380,7 @@ html[data-appearance="frutiger-aero"]
 /* Menus stay solid and legible over the glossy header. */
 html[data-appearance="frutiger-aero"]
   .themed-site
-  :is(.appearance-control, .language-control, .account-menu)
+  :is(.appearance-control, .theme-menu, .language-control, .account-menu)
   :is([role="menu"], .account-dropdown) {
   border: 1px solid var(--site-control-border);
   border-radius: 18px;
@@ -391,7 +391,7 @@ html[data-appearance="frutiger-aero"]
 }
 html[data-appearance="frutiger-aero"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[role] {
   border-color: transparent;
@@ -399,7 +399,7 @@ html[data-appearance="frutiger-aero"]
 }
 html[data-appearance="frutiger-aero"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[aria-checked="true"] {
   border-color: var(--site-accent);

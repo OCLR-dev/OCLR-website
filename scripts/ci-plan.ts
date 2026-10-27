@@ -37,6 +37,7 @@ const sharedHeader = new Set([
   "src/components/language-control.tsx",
   "src/components/language-control.module.css",
   "tests/e2e/header-overlap.spec.ts",
+  "tests/e2e/theme.ts",
   "tests/fixtures/header-matrix.ts",
 ]);
 

@@ -492,7 +492,7 @@ html[data-appearance="retro-arcade"] .themed-site .main-nav > a[aria-current] {
 }
 html[data-appearance="retro-arcade"]
   .themed-site
-  :is(.appearance-control, .language-control, .account-menu)
+  :is(.appearance-control, .theme-menu, .language-control, .account-menu)
   :is([role="menu"], .account-dropdown) {
   border: 2px solid var(--site-control-border);
   background: var(--site-surface);
@@ -500,7 +500,7 @@ html[data-appearance="retro-arcade"]
 }
 html[data-appearance="retro-arcade"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[aria-checked="true"],
 html[data-appearance="retro-arcade"]

@@ -264,7 +264,7 @@ html[data-appearance="swiss-minimal"]
 }
 html[data-appearance="swiss-minimal"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"] {
   border-radius: 0;
   box-shadow: 0 8px 0 -7px var(--site-foreground);
