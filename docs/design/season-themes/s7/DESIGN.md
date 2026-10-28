@@ -23,7 +23,7 @@
 - 人工核對銀鋁／深鋼的反光端點：字幕、強調文字與統計標籤的參考對比為 6.21:1–7.79:1；另目視確認低透明度刷紋與實際明暗頁面。最終圖池六顆線型篩選分頁均為無背景圖／無陰影。
 - `npm audit --omit=dev` 為 0 vulnerabilities；格式、工具 ESLint／語法、文件連結與 `git diff --check` 通過。未執行完整全站／跨瀏覽器功能矩陣，未更動 CI 範圍。
 
-基準 main `efaba82` 的 [CI](https://github.com/OCLR-dev/OCLR-website/actions/runs/40623885255) 已成功；此結果不代表本輪功能分支。交付位於本機 `codex/s7-theme-refinement`，尚未推送，因此沒有本輪新 head 的遠端 CI、PR、合併或部署；等待主辦方視覺審閱。
+基準 main `efaba82` 的 [CI](https://github.com/OCLR-dev/OCLR-website/actions/runs/40623885255) 已成功；此結果不代表本輪功能分支。交付分支為 `codex/s7-theme-refinement`，依主辦方後續授權推送並提交 PR 審閱；遠端 head、PR 與實際 CI 狀態另記於 #198 最新留言。沒有合併或部署。
 
 追蹤：[#198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S7 正式主題已由 PR #384 合併至 main `d34378e`。本輪以該實際 UI 修復圖池與管理側欄，功能分支待審閱，尚未合併或部署修復。
 
