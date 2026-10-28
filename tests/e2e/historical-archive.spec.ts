@@ -1105,19 +1105,30 @@ test.describe("historical archive browser workflow", () => {
     ).toHaveCount(0);
     await captureResponsiveLayout(page, info, "archive-bracket");
     await page.goto(`/tournaments/${slug}/mappools/final`);
-    await expect(
-      page.getByText("Beatmap ID unresolved", { exact: false }),
-    ).toBeVisible();
-    await expect(page.locator(".archive-map-stats").first()).toContainText(
+    await expect(page.locator(".map-card-values").first()).toContainText(
       "2:03",
     );
     await page.getByRole("tab", { name: "TB", exact: true }).click();
-    await expect(page.locator(".archive-map-item")).toHaveCount(1);
+    const unresolved = page.locator(".archive-map-item");
+    await expect(unresolved).toHaveCount(1);
     await expect(
-      page
+      unresolved.locator(".map-card-id, .beatmap-actions a"),
+    ).toHaveCount(0);
+    await expect(unresolved.locator(".map-card-star")).toHaveText("— ★");
+    await expect(unresolved.locator(".map-card-values")).toContainText("— BPM");
+    for (const label of ["CS", "AR", "OD"])
+      await expect(unresolved.locator(".map-card-values")).toContainText(
+        `${label} —`,
+      );
+    await unresolved.locator(".map-open-button").click();
+    const details = page.getByRole("dialog");
+    await expect(details).toContainText("Beatmap ID unresolved");
+    await expect(
+      details
         .locator(".archive-map-stats")
         .getByLabel("Not recorded", { exact: true }),
     ).toHaveCount(6);
+    await page.keyboard.press("Escape");
     await page.getByRole("tab", { name: "All mods", exact: true }).click();
     await captureResponsiveLayout(page, info, "archive-pool");
     for (const path of ["bracket", "draft", "rules", "results/awards"]) {

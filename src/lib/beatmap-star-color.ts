@@ -5,6 +5,8 @@
  * star ratings are bucketed to one decimal, then the colour is interpolated
  * between fixed stops in gamma space.
  */
+import { contrastInk } from "./color-contrast";
+
 const GAMMA = 2.2;
 
 const STOPS: readonly (readonly [number, number, number, number])[] = [
@@ -22,8 +24,6 @@ const STOPS: readonly (readonly [number, number, number, number])[] = [
 ];
 
 const UNKNOWN = "#aaaaaa";
-const DARK_INK = "#1c1719";
-const LIGHT_INK = "#ffffff";
 
 function channel(value: number) {
   return Math.round(value).toString(16).padStart(2, "0");
@@ -61,6 +61,5 @@ export function starColor(value: number | null | undefined) {
 
 /** Text colour that stays readable on top of {@link starColor}. */
 export function starInk(value: number | null | undefined) {
-  if (value == null || !Number.isFinite(value) || value < 4) return DARK_INK;
-  return LIGHT_INK;
+  return contrastInk(starColor(value));
 }

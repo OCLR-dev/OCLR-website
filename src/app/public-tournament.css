@@ -964,6 +964,12 @@ html[data-theme="dark"] .themed-site {
   cursor: pointer;
   transition: filter 0.15s ease;
 }
+/* Let the localized clipboard error wrap inside narrow cover artwork. */
+.map-card-cover button.map-card-id:has(.map-card-id-error) {
+  max-width: calc(100% - 20px);
+  white-space: normal;
+  text-align: start;
+}
 .map-card-id:is(:hover, :focus-visible) {
   filter: brightness(1.12);
   transform: none;

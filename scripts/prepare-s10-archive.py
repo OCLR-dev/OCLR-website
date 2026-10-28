@@ -13,6 +13,9 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
+# Reviewed edit-to-original provenance; retained across worksheet regeneration.
+ORIGINAL_BEATMAP_IDS = {5015295: 4000824, 5036455: 4934310, 4052151: 3678140, 5033877: 1571394, 3668376: 3668377, 3500303: 1509453}
+
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("source")
 parser.add_argument("output")
@@ -137,6 +140,8 @@ for pool_id, heading, first, last in [("gs1",113,117,135),("gs2",87,91,109),("sf
                 if v is not None and m[key] is not None and not math.isclose(v,m[key],abs_tol=1e-6,rel_tol=1e-8):
                     conflicts.append({"slot":m["slot"],"field":key,"stage":v,"combined":m[key]})
                 m[key] = v
+        if m["beatmapId"] in ORIGINAL_BEATMAP_IDS:
+            m["originalId"] = ORIGINAL_BEATMAP_IDS[m["beatmapId"]]
         maps.append(m)
     # Organizer-approved #261: the pool name excludes the Bo/Ban heading suffix.
     name = value("Mappools",f"D{heading}").split("//", 1)[0].strip()

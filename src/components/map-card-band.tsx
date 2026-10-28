@@ -32,6 +32,7 @@ export function MapCardBand({
   setId,
   originalBeatmapId,
   originalSetId,
+  beatmapMissing,
   stars,
   bpm,
   durationSeconds,
@@ -58,6 +59,7 @@ export function MapCardBand({
   setId?: number | null;
   originalBeatmapId?: number | null;
   originalSetId?: number | null;
+  beatmapMissing?: boolean;
   stars?: number | null;
   bpm?: number | null;
   durationSeconds?: number | null;
@@ -131,7 +133,11 @@ export function MapCardBand({
             ]
               .filter(Boolean)
               .join(" ")}
-            title={tr("Copy beatmap ID")}
+            title={
+              copyState === "failed"
+                ? tr("Could not copy the beatmap ID.")
+                : tr("Copy beatmap ID")
+            }
             aria-label={`${tr("Copy beatmap ID")}: ${beatmapId}`}
             onClick={(event) => {
               event.stopPropagation();
@@ -155,6 +161,10 @@ export function MapCardBand({
               >
                 <path d="M4 12.5 9.5 18 20 6.5" />
               </svg>
+            ) : copyState === "failed" ? (
+              <span className="map-card-id-error">
+                {tr("Could not copy the beatmap ID.")}
+              </span>
             ) : (
               <svg
                 className="map-card-id-icon"
@@ -234,6 +244,7 @@ export function MapCardBand({
           setId={setId}
           originalBeatmapId={originalBeatmapId}
           originalSetId={originalSetId}
+          beatmapMissing={beatmapMissing}
           name={slot}
         />
       </div>

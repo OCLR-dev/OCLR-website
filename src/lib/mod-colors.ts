@@ -5,6 +5,8 @@
  * (`newbie-doc/.vuepress/constants/mod.js`). Only active rows are copied here;
  * mods that are commented out in that source stay out of this table.
  */
+import { contrastInk } from "./color-contrast";
+
 export type ModColor = {
   readonly name: string;
   /** Badge background. */
@@ -104,8 +106,10 @@ const byKey = modColors as Record<string, ModColor>;
  */
 export function getModInfo(modKey: string | null | undefined): ModColor {
   const key = modKey?.toString().toUpperCase().trim();
-  if (!key) return modColors.DEFAULT;
-  return byKey[key] ?? { ...modColors.DEFAULT, name: key };
+  const mod = key
+    ? (byKey[key] ?? { ...modColors.DEFAULT, name: key })
+    : modColors.DEFAULT;
+  return { ...mod, color: contrastInk(mod.bg) };
 }
 
 /**

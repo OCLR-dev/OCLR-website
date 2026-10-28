@@ -20,6 +20,7 @@ function ArchiveMapDetails({
   stats,
   setId,
   originalSetId,
+  beatmapMissing,
   previous,
   next,
   onMove,
@@ -29,6 +30,7 @@ function ArchiveMapDetails({
   stats: React.ReactNode;
   setId: number | null | undefined;
   originalSetId: number | null | undefined;
+  beatmapMissing?: boolean;
   previous?: MapEntry;
   next?: MapEntry;
   onMove: (slot: string) => void;
@@ -86,6 +88,7 @@ function ArchiveMapDetails({
           setId={setId}
           originalBeatmapId={map.originalId}
           originalSetId={originalSetId}
+          beatmapMissing={beatmapMissing}
         />
         <div className="map-dialog-navigation">
           <button
@@ -114,9 +117,11 @@ export function ArchiveMappools({
   pool,
   stages,
   artworkSetIds,
+  missingBeatmapIds = [],
 }: {
   pool: Pool;
   artworkSetIds: Record<number, number | null>;
+  missingBeatmapIds?: number[];
   stages: { id: string; name: string; count: number; href: string }[];
 }) {
   const tr = useAppTranslations(),
@@ -157,6 +162,7 @@ export function ArchiveMappools({
     maps.sort((a, b) => (b.stars ?? -Infinity) - (a.stars ?? -Infinity));
   const activeIndex = maps.findIndex((m) => m.slot === selected);
   const artwork = (m: MapEntry) => ({
+    beatmapMissing: !!m.beatmapId && missingBeatmapIds.includes(m.beatmapId),
     setId: m.beatmapId ? (artworkSetIds[m.beatmapId] ?? null) : null,
     originalSetId: m.originalId ? (artworkSetIds[m.originalId] ?? null) : null,
   });
@@ -327,7 +333,7 @@ export function ArchiveMappools({
             }
           >
             {maps.map((m) => {
-              const { setId, originalSetId } = artwork(m);
+              const { setId, originalSetId, beatmapMissing } = artwork(m);
               if (view === "cards") {
                 const parsed = parseArchiveTitle(m.title);
                 return (
@@ -346,6 +352,7 @@ export function ArchiveMappools({
                     setId={setId}
                     originalBeatmapId={m.originalId}
                     originalSetId={originalSetId}
+                    beatmapMissing={beatmapMissing}
                     stars={m.stars}
                     bpm={m.bpm}
                     durationSeconds={m.drainSeconds}
@@ -411,6 +418,7 @@ export function ArchiveMappools({
                       setId={setId}
                       originalBeatmapId={m.originalId}
                       originalSetId={originalSetId}
+                      beatmapMissing={beatmapMissing}
                       name={m.slot}
                     />
                   </div>
@@ -427,6 +435,7 @@ export function ArchiveMappools({
           map={active}
           setId={activeArtwork.setId}
           originalSetId={activeArtwork.originalSetId}
+          beatmapMissing={activeArtwork.beatmapMissing}
           stats={stats(active)}
           previous={maps[activeIndex - 1]}
           next={maps[activeIndex + 1]}

@@ -6,7 +6,7 @@ import {
 import { supportsArchiveStatistics } from "@/lib/archive-statistics-model";
 import { getAppTranslations } from "@/i18n/server";
 import { archivePoolMetadata } from "@/lib/archive-map-metadata";
-import { archiveArtworkSetIds } from "@/lib/archive-artwork";
+import { archiveArtworkLookup } from "@/lib/archive-artwork";
 import { archiveBracket } from "@/lib/archive-bracket";
 import { archiveEventMatches } from "@/lib/archive-event-matches";
 import { archiveStaff } from "@/lib/archive-staff";
@@ -691,20 +691,22 @@ export async function HistoricalArchiveView({
       section === "pool" ? a.pools.find((p) => p.id === id) : a.pools[0];
     if (section === "pool" && !pool) notFound();
     const display = pool ? archivePoolMetadata(pool, a.editionSlug) : null;
+    const artwork =
+      pool && display
+        ? await archiveArtworkLookup(
+            pool.maps
+              .flatMap((m) => [m.beatmapId, m.originalId ?? null])
+              .filter((id) => id !== null && !display.setIds[id]),
+          )
+        : null;
     title = tr("Mappools");
     content =
       pool && display ? (
         <ArchiveMappools
           key={pool.id}
           pool={display.pool}
-          artworkSetIds={{
-            ...(await archiveArtworkSetIds(
-              pool.maps
-                .flatMap((m) => [m.beatmapId, m.originalId ?? null])
-                .filter((id) => id !== null && !display.setIds[id]),
-            )),
-            ...display.setIds,
-          }}
+          artworkSetIds={{ ...artwork?.setIds, ...display.setIds }}
+          missingBeatmapIds={artwork?.missingBeatmapIds}
           stages={a.pools.map((p) => ({
             id: p.id,
             name: p.name,

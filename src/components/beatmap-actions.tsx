@@ -40,6 +40,7 @@ export function BeatmapActions({
   setId,
   originalBeatmapId,
   originalSetId,
+  beatmapMissing = false,
   compact = false,
   name,
 }: {
@@ -47,6 +48,7 @@ export function BeatmapActions({
   setId: number | null | undefined;
   originalBeatmapId?: number | null;
   originalSetId?: number | null;
+  beatmapMissing?: boolean;
   compact?: boolean;
   name?: string;
 }) {
@@ -54,7 +56,8 @@ export function BeatmapActions({
   const originalLinks = beatmapLinks(originalBeatmapId, originalSetId);
   // A saved edit whose verified set is gone falls back to the original map it
   // was based on; keep the difficulty and set destinations distinct.
-  const useOriginal = !setId && !!(originalLinks.web || originalLinks.direct);
+  const useOriginal =
+    beatmapMissing && !setId && !!(originalLinks.web || originalLinks.direct);
   const links = useOriginal ? originalLinks : beatmapLinks(beatmapId, setId);
   const labels = useOriginal
     ? {
