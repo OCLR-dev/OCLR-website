@@ -31,7 +31,7 @@ execFileSync("git", [
 const out = fileURLToPath(new URL(".", import.meta.url));
 const sourceCss = await readFile(new URL("../s5.css", import.meta.url), "utf8");
 const assets = await Promise.all(
-  ["prism-mark-light.svg", "prism-mark-dark.svg"].map(async (file) => ({
+  ["prism-field-light.svg", "prism-field-dark.svg"].map(async (file) => ({
     file,
     bytes: await readFile(new URL(file, import.meta.url)),
   })),
@@ -298,29 +298,18 @@ try {
       await ready(detailPage);
       await applyPreview(detailPage);
       const heading = detailPage.locator(".historical-archive > .page-heading");
-      const geometry = await heading.evaluate((n) => {
-        const box = n.getBoundingClientRect(),
-          style = getComputedStyle(n, "::before");
-        const left =
-          box.right - parseFloat(style.right) - parseFloat(style.width);
-        return {
-          width: box.width,
-          insert: style.display,
-          left,
-          text: [...n.querySelectorAll("h1,p")].map((el) => ({
-            right: el.getBoundingClientRect().right,
-            fits: el.scrollWidth <= el.clientWidth,
-          })),
-        };
-      });
-      if (
-        geometry.text.some(
-          (t) =>
-            !t.fits ||
-            (geometry.insert !== "none" && t.right > geometry.left - 16),
-        )
-      )
-        throw new Error("Heading text overlaps the decorative prism");
+      const geometry = await heading.evaluate((n) => ({
+        width: n.getBoundingClientRect().width,
+        height: n.getBoundingClientRect().height,
+        hasTexture:
+          getComputedStyle(n).backgroundImage.includes("data:image/svg+xml"),
+        text: [...n.querySelectorAll("h1,p")].map((el) => ({
+          width: el.getBoundingClientRect().width,
+          fits: el.scrollWidth <= el.clientWidth,
+        })),
+      }));
+      if (!geometry.hasTexture || geometry.text.some((t) => !t.fits))
+        throw new Error("Banner texture is missing or heading text overflows");
       const file = `heading-${width}-${theme}.png`;
       await heading.screenshot({ path: out + file, animations: "disabled" });
       screenshots.push({

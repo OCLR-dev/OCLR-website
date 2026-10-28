@@ -5,12 +5,12 @@
   "locale": "zh-Hant",
   "decorativeAssets": [
     {
-      "file": "prism-mark-light.svg",
-      "sha256": "d32943f210278ed6491e4047659af37df88991e6381154d50f7915262f7afe04"
+      "file": "prism-field-light.svg",
+      "sha256": "efc9f8c9f0071620d1b9405481999a00e1774a2f5c8aa4a2ee25e8a5037f1f2e"
     },
     {
-      "file": "prism-mark-dark.svg",
-      "sha256": "51d42a1d601850e34f29fb0016396cfbe821c2332adac2e1880c7ba48fb996f5"
+      "file": "prism-field-dark.svg",
+      "sha256": "b72addee66f2a18946361a9ef1283b841dff758cc63b6cf82729f084cbe547eb"
     }
   ],
   "browser": "Google Chrome",
@@ -135,19 +135,19 @@
       "deviceScaleFactor": 2,
       "geometry": {
         "width": 871.40625,
-        "insert": "block",
-        "left": 616.203125,
+        "height": 159.21875,
+        "hasTexture": true,
         "text": [
           {
-            "right": 583.203125,
+            "width": 805.40625,
             "fits": true
           },
           {
-            "right": 583.203125,
+            "width": 805.40625,
             "fits": true
           },
           {
-            "right": 583.203125,
+            "width": 544.21875,
             "fits": true
           }
         ]
@@ -161,19 +161,19 @@
       "deviceScaleFactor": 2,
       "geometry": {
         "width": 358,
-        "insert": "none",
-        "left": 86,
+        "height": 177.484375,
+        "hasTexture": true,
         "text": [
           {
-            "right": 353,
+            "width": 308,
             "fits": true
           },
           {
-            "right": 353,
+            "width": 308,
             "fits": true
           },
           {
-            "right": 353,
+            "width": 308,
             "fits": true
           }
         ]
@@ -187,19 +187,19 @@
       "deviceScaleFactor": 2,
       "geometry": {
         "width": 871.40625,
-        "insert": "block",
-        "left": 616.203125,
+        "height": 159.21875,
+        "hasTexture": true,
         "text": [
           {
-            "right": 583.203125,
+            "width": 805.40625,
             "fits": true
           },
           {
-            "right": 583.203125,
+            "width": 805.40625,
             "fits": true
           },
           {
-            "right": 583.203125,
+            "width": 544.21875,
             "fits": true
           }
         ]
@@ -213,19 +213,19 @@
       "deviceScaleFactor": 2,
       "geometry": {
         "width": 358,
-        "insert": "none",
-        "left": 86,
+        "height": 177.484375,
+        "hasTexture": true,
         "text": [
           {
-            "right": 353,
+            "width": 308,
             "fits": true
           },
           {
-            "right": 353,
+            "width": 308,
             "fits": true
           },
           {
-            "right": 353,
+            "width": 308,
             "fits": true
           }
         ]
@@ -554,6 +554,6 @@
   ],
   "errors": [],
   "artworkSha256": "26fb173d1641df56a81fa7e9d7a2948b5280927d3c93fbd2324b7f169a9c80e4",
-  "candidateCssSha256": "24b89c297f831a13174715834d11044683ee6bcabb641a0d3a11bd4c12be3ad3",
+  "candidateCssSha256": "11614d1e635a513d5107ceb0a805ff93bc9b1c972b12f829842f2d55e5c24d25",
   "fixture": "Committed S5 reviewed-import and rulebook; all 34 pending source results remain unapproved, and the ordinary public projection hides their scores in the isolated test DB"
 }

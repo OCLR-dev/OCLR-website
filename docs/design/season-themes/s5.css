@@ -34,7 +34,9 @@ html[data-s5-preview] .themed-site {
   --prism-peach: #df8ca4;
   --prism-cyan: #70bdce;
   --prism-heading: linear-gradient(115deg, #fffcff, #f5f0fc 55%, #eef8fa);
-  --prism-diagram: url("./s5/prism-mark-light.svg");
+  --prism-facet-field: url("./s5/prism-field-light.svg");
+  --prism-reading-wash: #fcf9ffde;
+  --prism-edge-light: #ffffffa6;
   background: var(--site-background);
 }
 html[data-s5-preview][data-theme="dark"] .themed-site {
@@ -70,7 +72,9 @@ html[data-s5-preview][data-theme="dark"] .themed-site {
   --prism-peach: #f1b4bc;
   --prism-cyan: #87c9da;
   --prism-heading: linear-gradient(115deg, #2d2343, #302747 55%, #25384a);
-  --prism-diagram: url("./s5/prism-mark-dark.svg");
+  --prism-facet-field: url("./s5/prism-field-dark.svg");
+  --prism-reading-wash: #211a32e6;
+  --prism-edge-light: #ffffff12;
 }
 html[data-s5-preview] .themed-site .site-header {
   border-bottom: 1px solid var(--site-border);
@@ -87,11 +91,17 @@ html[data-s5-preview] .themed-site .main-nav > a[aria-current] {
 }
 html[data-s5-preview] .themed-site .page-heading {
   position: relative;
-  padding: 24px 32px;
+  padding: 28px 32px;
   border: 1px solid var(--site-border);
   border-radius: 12px;
-  background: var(--prism-heading);
-  box-shadow: 0 8px 24px -22px var(--site-panel-shadow);
+  background:
+    linear-gradient(90deg, var(--prism-reading-wash) 0 20%, transparent 76%),
+    var(--prism-facet-field) center / cover no-repeat,
+    var(--prism-heading);
+  box-shadow:
+    inset 0 1px 0 var(--prism-edge-light),
+    0 1px 2px var(--site-soft-shadow),
+    0 16px 28px -28px var(--site-panel-shadow);
 }
 html[data-s5-preview] .themed-site .page-heading .eyebrow {
   color: var(--site-accent-strong);
@@ -100,7 +110,7 @@ html[data-s5-preview] .themed-site .page-heading .eyebrow {
 }
 html[data-s5-preview] .themed-site .page-heading h1 {
   margin-bottom: 12px;
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: clamp(1.75rem, 3vw, 2.4rem);
   font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 1.15;
@@ -116,39 +126,13 @@ html[data-s5-preview] .themed-site .page-heading > :last-child {
 html[data-s5-preview] .themed-site .page-heading .muted {
   color: var(--site-secondary-text);
 }
-html[data-s5-preview] .themed-site .page-heading::before {
-  content: "";
-  display: none;
-  position: absolute;
-  inset: 8px 24px 8px auto;
-  width: 264px;
-  background: var(--prism-diagram) center / contain no-repeat;
-  pointer-events: none;
+html[data-s5-preview] .themed-site .page-heading > p:not(.eyebrow) {
+  max-width: 54ch;
 }
+html[data-s5-preview] .themed-site .page-heading::before,
 html[data-s5-preview] .themed-site .page-heading::after {
-  content: "";
-  position: absolute;
-  inset: auto auto -1px 24px;
-  width: 96px;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--prism-cyan),
-    var(--prism-violet) 55%,
-    var(--prism-peach)
-  );
-  pointer-events: none;
-}
-html[data-s5-preview] .themed-site :is(.page, .event-content, .workspace-main) {
-  container: prism-content / inline-size;
-}
-@container prism-content (min-width: 720px) {
-  html[data-s5-preview] .themed-site .page-heading {
-    padding-inline-end: 320px;
-  }
-  html[data-s5-preview] .themed-site .page-heading::before {
-    display: block;
-  }
+  content: none;
+  display: none;
 }
 html[data-s5-preview] .themed-site .archive-overview-summary.has-visual {
   align-items: stretch;
@@ -380,7 +364,11 @@ html[data-s5-preview]
 }
 @media (max-width: 760px) {
   html[data-s5-preview] .themed-site .page-heading {
-    padding: 20px;
+    padding: 24px;
+    background-position:
+      center,
+      62% center,
+      center;
   }
   html[data-s5-preview] .themed-site .archive-counts > div {
     padding: 12px 20px;

@@ -2,7 +2,7 @@
 
 主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10／S9／S8／S7 已依主辦方要求接入正式外觀 `skyline-pop`／`glacier-blue`／`sakura-circuit`／`graphite-arena`，各自的視覺審閱／合併證據以對應 issue 為準。
 
-**2026-10-29 S5首版候選**：[#345](https://github.com/OCLR-dev/OCLR-website/issues/345) 的 Prism Overture／稜光序曲，以青紫稜面、粉桃暖光與有限環弧呈現 OCLR β (S5)，保留完整原圖與歷史β識別。沿用最新main `9e10f72` 的實際元件，先提供候選CSS圖庫，尚未註冊正式外觀。[圖庫](s5.html)／[Design](s5/DESIGN.md)／[檢查](s5/verification.json)。
+**2026-10-29 S5稜面紋理候選**：[#345](https://github.com/OCLR-dev/OCLR-website/issues/345) 的 Prism Overture／稜光序曲，以全幅青紫稜面紋理、細反射稜線與粉桃暖光呈現 OCLR β (S5)，保留完整原圖與歷史β識別。沿用最新main `9e10f72` 的實際元件，先提供候選CSS圖庫，尚未註冊正式外觀。[圖庫](s5.html)／[Design](s5/DESIGN.md)／[檢查](s5/verification.json)。
 
 **2026-10-29 S6 banner 精修**：[#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 的 Orbital Pulse／星環脈衝已由 [#419](https://github.com/OCLR-dev/OCLR-website/pull/419) 正式接入。本輪在紅藍水平頻譜周圍加入細電路、接點與訊號路徑，配合漸淡遮罩與細亮邊精修層次；新PR供審閱。圖庫為正式SSR外觀的實際頁面。[圖庫](s6.html)／[Design](s6/DESIGN.md)／[頁面檢查](s6/verification.json)。
 

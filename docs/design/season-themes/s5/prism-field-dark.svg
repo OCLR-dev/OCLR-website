@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 240" fill="none">
+<defs>
+  <linearGradient id="wash" x1="0" y1="190" x2="1600" y2="54" gradientUnits="userSpaceOnUse"><stop stop-color="#273846"/><stop offset=".36" stop-color="#2b2b45"/><stop offset=".72" stop-color="#393251"/><stop offset="1" stop-color="#49416e"/></linearGradient>
+  <linearGradient id="refraction" x1="780" y1="80" x2="1480" y2="70" gradientUnits="userSpaceOnUse"><stop stop-color="#92cede" stop-opacity=".35"/><stop offset=".46" stop-color="#e7b9d9" stop-opacity=".5"/><stop offset=".7" stop-color="#ffcfb0" stop-opacity=".8"/><stop offset="1" stop-color="#ffcfb0" stop-opacity="0"/></linearGradient>
+</defs>
+<rect width="1600" height="240" fill="url(#wash)"/>
+<polygon points="0,0 320,0 246,112" fill="#73b7c2" opacity="0.32"/>
+<polygon points="0,0 246,112 0,142" fill="#adc9dd" opacity="0.24"/>
+<polygon points="320,0 670,0 570,152" fill="#9d86c5" opacity="0.21"/>
+<polygon points="320,0 570,152 246,112" fill="#73b7c2" opacity="0.19"/>
+<polygon points="670,0 1020,0 870,80" fill="#655793" opacity="0.18"/>
+<polygon points="670,0 870,80 570,152" fill="#73b7c2" opacity=".34"/>
+<polygon points="1020,0 1320,0 1170,138" fill="#9d86c5" opacity="0.28"/>
+<polygon points="1020,0 1170,138 870,80" fill="#e9b6bf" opacity="0.16"/>
+<polygon points="1320,0 1600,0 1460,66" fill="#e9b6bf" opacity="0.32"/>
+<polygon points="1320,0 1460,66 1170,138" fill="#655793" opacity="0.27"/>
+<polygon points="1600,0 1600,126 1460,66" fill="#9d86c5" opacity="0.19"/>
+<polygon points="0,142 246,112 0,240" fill="#73b7c2" opacity="0.3"/>
+<polygon points="246,112 386,240 0,240" fill="#adc9dd" opacity="0.2"/>
+<polygon points="246,112 570,152 386,240" fill="#9d86c5" opacity="0.16"/>
+<polygon points="570,152 740,240 386,240" fill="#adc9dd" opacity="0.24"/>
+<polygon points="570,152 870,80 740,240" fill="#73b7c2" opacity=".32"/>
+<polygon points="870,80 1080,240 740,240" fill="#9d86c5" opacity="0.26"/>
+<polygon points="870,80 1170,138 1080,240" fill="#e9b6bf" opacity=".14"/>
+<polygon points="1170,138 1340,240 1080,240" fill="#9d86c5" opacity="0.32"/>
+<polygon points="1170,138 1460,66 1340,240" fill="#adc9dd" opacity="0.2"/>
+<polygon points="1460,66 1600,240 1340,240" fill="#655793" opacity="0.3"/>
+<polygon points="1460,66 1600,126 1600,240" fill="#9d86c5" opacity="0.25"/>
+<path d="m246 112 324 40 300-72 300 58 290-72" stroke="#fff" stroke-opacity=".17" stroke-width=".8" vector-effect="non-scaling-stroke"/>
+<path d="m670 0-100 152 170 88m280-240 150 138 170 102" stroke="#30203f" stroke-opacity=".08" stroke-width=".8" vector-effect="non-scaling-stroke"/>
+<path d="m570 152 300-72 300 58 290-72" stroke="url(#refraction)" stroke-width="1.25" vector-effect="non-scaling-stroke"/>
+<path d="m870 80 300 58 13 7-313-62z" fill="url(#refraction)" opacity=".24"/>
+<path d="m1170 138 290-72-9 5-278 71z" fill="#fff" opacity=".06"/>
+</svg>
