@@ -141,7 +141,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     const asset = await context.request.get(
-      "/themes/sakura-circuit/heroine-half-refined.webp",
+      "/themes/sakura-circuit/heroine-half-20261028.webp",
     );
     expect(asset.status()).toBe(200);
     expect(asset.headers()["content-type"]).toContain("image/webp");
@@ -210,7 +210,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
             .evaluate(
               (node) => getComputedStyle(node, "::before").backgroundImage,
             ),
-        ).toContain("/themes/sakura-circuit/heroine-half-refined.webp");
+        ).toContain("/themes/sakura-circuit/heroine-half-20261028.webp");
         const banner = page.locator(
           '.rules-illustration img[src="/archive/s8/rules-1.png"]',
         );
