@@ -718,8 +718,8 @@ html[data-theme="dark"] .themed-site {
   color: var(--site-secondary-text);
 }
 .public-tournament
-  .mappool-sheet
-  :is(.mappool-map-title, .mappool-base-sr, .mappool-slot) {
+.mappool-sheet
+:is(.mappool-map-title, .mappool-base-sr, .mappool-slot) {
   color: var(--site-accent);
 }
 .public-tournament
@@ -827,7 +827,7 @@ html[data-theme="dark"] .themed-site {
   padding: 0.1rem 0.5rem;
   background: var(--map-star, var(--site-muted));
   color: var(--map-star-ink, #ffffff);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   line-height: 1.35;
@@ -954,6 +954,30 @@ html[data-theme="dark"] .themed-site {
 .map-card-id {
   left: 10px;
   bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 0;
+  border: 0;
+  box-shadow: none;
+  font-family: inherit;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.map-card-id:is(:hover, :focus-visible) {
+  filter: brightness(1.12);
+  transform: none;
+}
+.map-card-id:focus-visible {
+  outline: 2px solid var(--map-star-ink, #ffffff);
+  outline-offset: 2px;
+}
+.map-card-id-icon {
+  flex: none;
+  opacity: 0.7;
+}
+.map-card-id--copied .map-card-id-icon {
+  opacity: 1;
 }
 .map-browse-card--band .map-card-copy {
   position: relative;
@@ -986,7 +1010,7 @@ html[data-appearance]
   background: var(--map-star, var(--site-muted));
   box-shadow: none;
   color: var(--map-star-ink, #ffffff);
-  font-size: 0.7rem;
+  font-size: 1rem;
   font-weight: 800;
   line-height: 1.35;
   text-shadow: none;
@@ -997,6 +1021,54 @@ html[data-appearance]
   .map-card-cover
   .map-slot-badge::after {
   content: none;
+}
+/* The beatmap id is a copy button but must keep the same pill as the slot
+   badge, so neutralise the themed button material and hover lift. */
+html[data-appearance]
+  .themed-site
+  .map-browse-card--band
+  .map-card-cover
+  button.map-card-id {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  min-height: 0;
+  max-width: calc(100% - 1.25rem);
+  padding: 0.1rem 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--map-star, var(--site-muted));
+  box-shadow: none;
+  color: var(--map-star-ink, #ffffff);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: normal;
+  line-height: 1.35;
+  text-shadow: none;
+  text-transform: none;
+  transform: none;
+}
+html[data-appearance]
+  .themed-site
+  .map-browse-card--band
+  .map-card-cover
+  button.map-card-id:is(:hover, :focus-visible, :active) {
+  border: 0;
+  background: var(--map-star, var(--site-muted));
+  color: var(--map-star-ink, #ffffff);
+  box-shadow: none;
+  transform: none;
+}
+html[data-appearance]
+  .themed-site
+  .map-browse-card--band
+  .map-card-cover
+  button.map-card-id:focus-visible {
+  outline: 2px solid var(--map-star-ink, #ffffff);
+  outline-offset: 2px;
 }
 .map-card-title-row {
   display: flex;
@@ -1067,7 +1139,7 @@ html[data-appearance] .themed-site .map-browse-card--band .map-open-button {
   right: 1.1rem;
   bottom: 0.85rem;
   color: var(--site-muted);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   line-height: 1.2;
 }
 .map-card-star {
@@ -1076,7 +1148,7 @@ html[data-appearance] .themed-site .map-browse-card--band .map-open-button {
   padding: 0.05rem 0.45rem;
   background: var(--map-star, var(--site-muted));
   color: var(--map-star-ink, #ffffff);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
@@ -1108,7 +1180,7 @@ html[data-appearance] .themed-site .map-browse-card--band .map-open-button {
 }
 .map-mod-note {
   color: var(--site-muted);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
 }
 .map-browse-card--band .map-mod-rating {
   margin: 0;
@@ -1116,7 +1188,7 @@ html[data-appearance] .themed-site .map-browse-card--band .map-open-button {
   padding: 0.05rem 0.5rem;
   background: var(--site-tint);
   color: var(--site-muted);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
 }
 .map-browse-card--band .map-card-copy > .beatmap-actions {
   position: absolute;
@@ -1519,7 +1591,7 @@ body:has(dialog[open].map-dialog) {
 .rules-handbook nav a span {
   flex-shrink: 0;
   white-space: nowrap;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: var(--site-accent);
 }
 .rules-handbook nav a:hover,

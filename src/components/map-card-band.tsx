@@ -1,9 +1,10 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { beatmapCoverUrl } from "@/lib/beatmap-artwork";
 import { starColor, starInk } from "@/lib/beatmap-star-color";
+import { slotModInfo } from "@/lib/mod-colors";
 import {
   beatmapModeNames,
   formatBeatmapDuration,
@@ -73,6 +74,27 @@ export function MapCardBand({
   const tr = useAppTranslations();
   const Heading = `h${headingLevel}` as "h3";
   const art = beatmapCoverUrl(setId ?? originalSetId);
+  const slotMod = slotModInfo(slot);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
+    "idle",
+  );
+
+  useEffect(() => {
+    if (copyState !== "copied") return;
+    const timer = window.setTimeout(() => setCopyState("idle"), 1600);
+    return () => window.clearTimeout(timer);
+  }, [copyState]);
+
+  async function copyBeatmapId() {
+    if (!beatmapId) return;
+    try {
+      await navigator.clipboard.writeText(String(beatmapId));
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+  }
+
   return (
     <Tag
       className={["map-browse-card", "map-browse-card--band", className]
@@ -94,8 +116,72 @@ export function MapCardBand({
       />
       <div className="map-card-cover">
         <BeatmapCover setId={setId} fallbackSetId={originalSetId} />
-        <span className="map-slot-badge">{slot}</span>
-        {beatmapId ? <span className="map-card-id">{beatmapId}</span> : null}
+        <span
+          className="map-slot-badge"
+          style={{ background: slotMod.bg, color: slotMod.color }}
+        >
+          {slot}
+        </span>
+        {beatmapId ? (
+          <button
+            type="button"
+            className={[
+              "map-card-id",
+              copyState === "copied" ? "map-card-id--copied" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            title={tr("Copy beatmap ID")}
+            aria-label={`${tr("Copy beatmap ID")}: ${beatmapId}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              void copyBeatmapId();
+            }}
+          >
+            <span className="map-card-id-value">{beatmapId}</span>
+            {copyState === "copied" ? (
+              <svg
+                className="map-card-id-icon"
+                viewBox="0 0 24 24"
+                width="12"
+                height="12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M4 12.5 9.5 18 20 6.5" />
+              </svg>
+            ) : (
+              <svg
+                className="map-card-id-icon"
+                viewBox="0 0 24 24"
+                width="12"
+                height="12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <rect x="9" y="9" width="12" height="12" rx="2.5" />
+                <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
+              </svg>
+            )}
+          </button>
+        ) : null}
+        <span className="sr-only" role="status">
+          {copyState === "copied"
+            ? tr("Beatmap ID copied.")
+            : copyState === "failed"
+              ? tr("Could not copy the beatmap ID.")
+              : ""}
+        </span>
       </div>
       <div className="map-card-copy">
         <div className="map-card-title-row">
