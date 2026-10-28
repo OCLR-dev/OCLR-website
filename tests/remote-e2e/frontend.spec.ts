@@ -21,6 +21,7 @@ import { historicalArchive } from "../fixtures/historical-archive";
 import { profileResponse } from "../fixtures/osu-profile";
 import { seedPublicDirectory } from "../fixtures/players";
 import { waitForRemoteRateWindow } from "../fixtures/remote-rate-window";
+import { bundledSeasonThemes } from "../fixtures/theme-assets";
 const backend = "http://127.0.0.1:3100",
   local = "http://127.0.0.1:31470";
 test.afterAll(async () => {
@@ -39,6 +40,22 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
 }, info) => {
   assertTestDatabase(process.env.TEST_DATABASE_URL);
   process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+  // Always exercise the shipped asset inventory, including the core smoke lane.
+  for (const { assets } of bundledSeasonThemes)
+    for (const asset of assets)
+      for (const method of ["GET", "HEAD"]) {
+        const response = await context.request.fetch(asset, {
+          method,
+          maxRedirects: 0,
+        });
+        expect(response.status(), `${method} ${asset}`).toBe(200);
+        expect(response.headers()["content-type"], asset).toMatch(/^image\//);
+        expect(await response.body(), `${method} ${asset}`).toEqual(
+          method === "HEAD"
+            ? Buffer.alloc(0)
+            : readFileSync(new URL(`../../public${asset}`, import.meta.url)),
+        );
+      }
   await db().execute(
     sql`TRUNCATE edition_state,users,user_profile_cache,site_settings CASCADE`,
   );
@@ -151,18 +168,26 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
   expect(issued.status()).toBe(201);
   const credential = await issued.json();
   async function renewConnection(returnTo?: string) {
-    const renewed = await backendContext.request.post("/api/developer/tokens", {
-      headers: { Origin: backend },
-      data: {
-        origin: local,
-        scopes: [
-          "identity:read",
-          "tournaments:read",
-          "tournaments:private:read",
-          "profiles:read",
-        ],
-      },
-    });
+    const issue = () =>
+      backendContext.request.post("/api/developer/tokens", {
+        headers: { Origin: backend },
+        data: {
+          origin: local,
+          scopes: [
+            "identity:read",
+            "tournaments:read",
+            "tournaments:private:read",
+            "profiles:read",
+          ],
+        },
+      });
+    let renewed = await issue();
+    if (renewed.status() === 429) {
+      // The full appearance workload can reach the real issuance quota.
+      const retryAfter = Number(renewed.headers()["retry-after"] ?? "60");
+      await page.waitForTimeout(retryAfter * 1000);
+      renewed = await issue();
+    }
     expect(renewed.status()).toBe(201);
     credential.token = (await renewed.json()).token;
     await page.goto("/remote");
@@ -458,6 +483,41 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
       "data-appearance",
       appearance,
     );
+    const theme = bundledSeasonThemes.find(
+      (theme) => theme.appearance === appearance,
+    );
+    if (theme) {
+      const decoded = await page.evaluate(async (assets) => {
+        return Promise.all(
+          assets.map(async (src) => {
+            const image = new Image();
+            image.src = src;
+            await image.decode();
+            return {
+              src,
+              width: image.naturalWidth,
+              height: image.naturalHeight,
+            };
+          }),
+        );
+      }, theme.assets);
+      for (const image of decoded) {
+        expect(image.width, image.src).toBeGreaterThan(0);
+        expect(image.height, image.src).toBeGreaterThan(0);
+      }
+      const background = await page
+        .locator(".page-heading")
+        .evaluate(
+          (heading) => getComputedStyle(heading, "::before").backgroundImage,
+        );
+      expect(theme.assets.some((asset) => background.includes(asset))).toBe(
+        true,
+      );
+      await page.screenshot({
+        path: info.outputPath(`remote-${appearance}.png`),
+        animations: "disabled",
+      });
+    }
     if (isMobile) await page.setViewportSize({ width: 320, height: 844 });
     expect(
       await page.evaluate(

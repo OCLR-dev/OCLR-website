@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getPool } from "../../src/db";
 import {
@@ -10,6 +11,7 @@ import {
 } from "../../src/lib/data-source";
 import { remoteOperation } from "../../src/lib/remote-transport";
 import { proxy } from "../../src/proxy";
+import { bundledSeasonThemes } from "../fixtures/theme-assets";
 beforeEach(() => {
   vi.stubEnv("NODE_ENV", "development");
   vi.stubEnv("OCLR_DATA_SOURCE", "remote");
@@ -139,8 +141,33 @@ describe("explicit remote frontend boundaries", () => {
           expect(response.headers.get("location"), path).toBeNull();
         }
       });
-  it("keeps remote security checks on bundled illustrations and rejects lookalike directories", () => {
-    const path = "/mascot/liru/sheet-main.webp";
+  for (const mode of ["remote", "database"])
+    for (const method of ["GET", "HEAD"])
+      it(`allows every CSS-referenced season image via ${method} in ${mode} mode`, () => {
+        vi.stubEnv("OCLR_DATA_SOURCE", mode);
+        for (const { appearance, assets } of bundledSeasonThemes) {
+          expect(assets.length, appearance).toBeGreaterThan(0);
+          for (const path of assets) {
+            expect(
+              existsSync(new URL(`../../public${path}`, import.meta.url)),
+              path,
+            ).toBe(true);
+            const response = proxy(
+              new NextRequest(`http://localhost:3000${path}`, {
+                method,
+                headers: { host: "localhost:3000" },
+              }),
+            );
+            expect(response.status, path).toBe(200);
+            expect(response.headers.get("x-middleware-next"), path).toBe("1");
+            expect(response.headers.get("location"), path).toBeNull();
+          }
+        }
+      });
+  it.each([
+    "/mascot/liru/sheet-main.webp",
+    ...bundledSeasonThemes.flatMap((theme) => theme.assets),
+  ])("keeps remote security checks on bundled asset %s", (path) => {
     for (const method of ["POST", "PUT", "DELETE"])
       expect(
         proxy(
@@ -160,10 +187,15 @@ describe("explicit remote frontend boundaries", () => {
         proxy(new NextRequest(`http://localhost:3000${path}`, { headers }))
           .status,
       ).toBe(403);
+  });
+  it("rejects lookalike asset directories and unsupported routes", () => {
     for (const other of [
       "/mascot-private/image.webp",
       "/private/image.webp",
       "/mascot-admin",
+      "/themes-private/image.webp",
+      "/themes-admin",
+      "/themes",
     ])
       expect(
         proxy(

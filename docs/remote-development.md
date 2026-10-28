@@ -97,6 +97,14 @@ POST/DELETE is local credential management, not a business write. Use the backen
 site for real login/logout and credential management. None of these mechanisms
 bypass edition appointments or publication boundaries.
 
+Bundled public assets under `/branding/`, `/archive/`, `/fonts/`, `/mascot/` and
+`/themes/` are served by the local frontend in remote mode. The four registered
+season designs use their shipped `/themes/` images without a backend read or a
+Developer connection. Asset requests still pass the exact-host, cross-site,
+read-only method and credential checks; unknown page/API routes retain their
+existing restrictions. Regression tests derive the season image inventory from
+the four production stylesheets and check GET/HEAD against the actual files.
+
 ## Request and credential lifecycle
 
 The BFF stores the credential only in a bounded process-memory map behind a random
