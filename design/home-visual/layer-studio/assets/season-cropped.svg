@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1036 292 184 100" width="184" height="100" color="#fff5ee" role="img" aria-labelledby="title desc">
+  <title id="title">S11</title>
+  <desc id="desc">Original transparent vector outlines, separate editable layer.</desc>
+  <g id="season-label" transform="translate(1040 296) scale(.30) translate(-1030 -66)">
+    <path id="S-angular" d="M73 0H250L240 59H98L88 70L79 111H189L217 141L191 270L159 300H0L11 241H137L148 230L155 185H45L17 155L40 31Z" transform="translate(1030 66)" fill="none" stroke="currentColor" stroke-width="10" stroke-linejoin="miter" stroke-miterlimit="4" />
+    <path id="season-one-a" d="M20 45L79 0H140L83 300H23L65 81L6 118Z" transform="translate(1300 66)" fill="none" stroke="currentColor" stroke-width="10" stroke-linejoin="miter" stroke-miterlimit="4" />
+    <path id="season-one-b" d="M20 45L79 0H140L83 300H23L65 81L6 118Z" transform="translate(1470 66)" fill="none" stroke="currentColor" stroke-width="10" stroke-linejoin="miter" stroke-miterlimit="4" />
+  </g>
+</svg>

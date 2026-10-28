@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OCLR · 居中 Banner 工作台</title><link rel="stylesheet" href="../studio.css"></head>
+<body data-variant="centered">
+<header class="topbar"><a class="brand" href="#">OCLR <span>STUDIO / 07</span></a><div class="top-actions"><a class="page-switch" href="../">← 首页 Banner</a><span class="draft">本地视觉草稿</span><button id="export">导出参数 ↓</button><button id="preview" class="primary">纯预览 ↗</button></div></header>
+<main class="workspace">
+<section class="canvas-column">
+<div class="heading"><div><p class="eyebrow">S11 · CENTERED BANNER</p><h1>让 OCLR 成为中心。</h1><p class="intro">紫色星空与城市轻描。OCLR 和 S11 分别调节，本页参数独立保存。</p></div><span class="ratio">2:1 / 自适应画布</span></div>
+<div class="preview-tools"><div><button id="desktop" aria-pressed="true">桌面</button><button id="mobile" aria-pressed="false">窄屏</button></div><div><label><input id="guides" type="checkbox"> 构图辅助线</label><button id="compare" aria-pressed="false">原图对照</button></div></div>
+<div class="zoom-toolbar" aria-label="缩放控制">
+<div class="zoom-group"><span id="zoomLayerName">人物 · Liru</span><button id="layerSmaller" aria-label="缩小当前图层">− 缩小</button><output id="layerSize">31%</output><button id="layerLarger" aria-label="放大当前图层">＋ 放大</button></div>
+<div class="zoom-group"><span>画布</span><button id="canvasSmaller" aria-label="缩小画布预览">−</button><output id="canvasZoomValue">100%</output><button id="canvasLarger" aria-label="放大画布预览">＋</button><button id="canvasFit">适应窗口</button></div>
+</div>
+<div class="canvas-scroll" id="canvasScroll"><div class="frame" id="frame">
+<div class="site-header"><img src="../assets/logo.svg" alt="OCLR"><nav aria-label="首页构图示意"><span class="active">首页</span><span>比赛主页</span><span>赛事动态</span><span>OCLR 维基</span></nav><span class="site-tag">S11</span></div>
+<div class="stage" id="stage" tabindex="0" aria-label="Banner 图层画布，拖动调整所选图层；方向键微调，Shift 加速">
+<img class="layer" data-layer="city" src="../assets/centered-skyline.png" alt="紫色星空与淡化城市轮廓" draggable="false">
+<div class="gradient" id="gradient"></div>
+<img class="layer" data-layer="logo" src="../assets/oclr-cropped.svg" alt="OCLR 独立透明轮廓主标" draggable="false">
+<img class="layer" data-layer="season" src="../assets/season-cropped.svg" alt="S11 独立赛季标" draggable="false">
+
+<div class="guide-lines" id="guideLines" hidden></div><img id="original" src="../assets/centered-reference.png" alt="用户提供的 S9 中心构图参考" hidden draggable="false">
+<span class="canvas-note" id="canvasNote">正在调整 · 人物</span>
+</div>
+</div>
+</div>
+<div class="below"><span><i></i> 图片独立 · Logo 内部透明</span><span id="saveStatus" role="status">调整自动保存在此浏览器</span></div>
+<div class="asset-strip"><article><span class="asset-no">01</span><div><h2>星空与城市轮廓</h2><p>低对比背景，中心留白</p></div><a href="../assets/centered-skyline.png" download>PNG ↗</a></article><article><span class="asset-no">02</span><div><h2>OCLR 主标</h2><p>保留细线、透明内部与准度条</p></div><a href="../assets/oclr-cropped.svg" download>SVG ↗</a></article><article><span class="asset-no">03</span><div><h2>S11 赛季标</h2><p>独立位置、尺寸与透视</p></div><a href="../assets/season-cropped.svg" download>SVG ↗</a></article></div><p class="source-note">本页只使用星空、淡化城市轮廓、OCLR 和 S11。参考 S9 的中心主标构图，不沿用人物或赛季文字。与首页 Banner 分开保存参数。<a href="../README.md">素材与操作说明 ↗</a></p>
+</section>
+<aside class="inspector" aria-label="图层调整面板">
+<div class="panel-title"><h2>图层与透视</h2><span>LIVE</span></div>
+<div class="layers" id="layers" role="group" aria-label="选择图层">
+<button data-select="season"><span class="layer-icon">◇</span><span>S11 赛季标<small>SVG / 独立缩放</small></span><span>03</span></button>
+<button data-select="logo" aria-pressed="true"><span class="layer-icon">◈</span><span>OCLR 主标<small>SVG / 透明内部</small></span><span>02</span></button>
+<button data-select="city"><span class="layer-icon">▥</span><span>星空与城市轮廓<small>PNG / 低对比背景</small></span><span>01</span></button>
+</div>
+<div class="selection-title"><h3 id="selectedName">人物 · Liru</h3><label><input id="visible" type="checkbox" checked> 显示</label></div>
+<div id="controls"></div>
+<div class="control"><label for="perspective">画布透视距离 <output id="perspectiveValue">1200</output></label><input id="perspective" type="range" min="400" max="2400" step="10" value="1200"></div>
+<details open><summary>背景渐变</summary><p class="hint">从右侧透明过渡至左侧深紫，独立于图片。</p><div class="control"><label for="shade">左侧浓度 <output id="shadeValue">72%</output></label><input id="shade" type="range" min="0" max="100" value="72"></div><div class="control"><label for="reach">渐变范围 <output id="reachValue">78%</output></label><input id="reach" type="range" min="20" max="100" value="78"></div></details>
+<div class="panel-actions"><button id="resetLayer">重置当前层</button><button id="resetAll">恢复初始构图</button><label class="button import">导入参数<input id="import" type="file" accept="application/json,.json" hidden></label></div>
+<p class="hint">拖动移动当前层。方向键微调，Shift ×10。OCLR 与 S11 的位置、大小和透视分别保存。</p>
+</aside>
+</main><script src="../studio.js"></script>
+</body></html>

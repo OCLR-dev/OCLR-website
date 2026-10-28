@@ -1,0 +1,9 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Use case: style-transfer. Image 1 is the STRICT edit target and architectural geometry source: user-provided Beijing skyline photograph. Image 2 is ONLY the lighting and rendering style reference; do NOT copy its city, bridges, water or mountains. Restyle Image 1 into the refined semi-realistic cinematic lavender/indigo and peach twilight painting of Image 2 so it fits the existing OCLR banner. Preserve Image 1's camera, framing, aspect ratio approximately 1700x1128, ALL major building positions, vertical lines, silhouettes, scale relationships, horizon and perspective. Keep the very tall gently waisted central skyscraper exactly in its source location, the distinctive angular CCTV loop building to its lower-left, and the cluster of adjacent towers exactly recognizable. Keep the dense urban foreground and green park belt. No river or bridge or mountain added. Change materials/light/color/sky atmosphere only: lavender-purple shadow planes, restrained peach-gold illuminated facades and windows, purple dusk haze receding over the city, soft textured violet sky with sparse peach clouds. Detailed believable architecture with slight painterly stylization matching Image 2, not flat cartoon and not fantasy city. No characters, no logos, no letters, no extra decorative objects, no foreground terrace, no gradient overlay. This is a separate opaque city background plate; preserve the complete photograph geometry rather than inventing a new composition.",
+  "inputs": [
+    "assets/city-reference.png",
+    "assets/city.png"
+  ],
+  "output": "assets/city-beijing-v2.png"
+}

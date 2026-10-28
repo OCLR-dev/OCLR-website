@@ -1,6 +1,8 @@
 'use strict';
-const KEY = 'oclr-banner-layer-studio-v1';
-const names = {city:'城市背景', foreground:'石阶前景', liru:'人物 · Liru', logo:'线框 Logo'};
+const CENTER = document.body.dataset.variant === 'centered';
+const MODE = CENTER ? 'centered' : 'homepage';
+const KEY = CENTER ? 'oclr-centered-banner-studio-v1' : 'oclr-banner-layer-studio-v1';
+const names = CENTER ? {city:'星空与城市轮廓',logo:'OCLR 主标',season:'S11 赛季标'} : {city:'城市背景', foreground:'石阶前景', liru:'人物 · Liru', logo:'OCLR 主标',season:'S11 赛季标'};
 const specs = [
   ['x','水平位置',-100,150,.1,'%'], ['y','垂直位置',-100,150,.1,'%'],
   ['width','图层宽度',5,200,.1,'%'], ['rotate','平面旋转',-45,45,.1,'°'],
@@ -8,27 +10,31 @@ const specs = [
   ['skew','水平斜切',-35,35,.1,'°'], ['opacity','不透明度',0,100,1,'%']
 ];
 const layer = (x,y,width) => ({x,y,width,rotate:0,rx:0,ry:0,skew:0,opacity:100,visible:true});
-const initial = {version:1, perspective:1200, shade:72, reach:78, layers:{city:layer(0,0,100),foreground:layer(0,9,100),liru:layer(66,4,31),logo:layer(6,24,52)}};
-let state = structuredClone(initial), selected='liru', comparison=false, pure=false;
+const initial = CENTER ? {version:1,layout:MODE,perspective:1200,shade:0,reach:78,layers:{city:layer(0,0,100),logo:layer(13,22,59),season:layer(74,44,14)}} : {version:1,layout:MODE,perspective:1200,shade:72,reach:78,layers:{city:layer(0,0,100),foreground:layer(0,9,100),liru:layer(66,4,31),logo:layer(6,24,52),season:layer(6,24,52)}};
+let state = structuredClone(initial), selected=CENTER?'logo':'liru', comparison=false, pure=false;
 const $=id=>document.getElementById(id);
 const status=text=>{$('saveStatus').textContent=text;};
 function clamp(value,min,max){return Math.min(max,Math.max(min,value));}
 function validate(raw){
   if(!raw || raw.version!==1 || !raw.layers) throw Error('不是此工作台的参数文件');
+  if(raw.layout && raw.layout!==MODE)throw Error('请选择对应 Banner 页的参数文件');
+  const rawLayers={...raw.layers};
+  // Full-size transparent split SVGs keep every previous combined-logo transform intact.
+  if(!CENTER && !rawLayers.season && rawLayers.logo)rawLayers.season=rawLayers.logo;
   const clean=structuredClone(initial);
   for(const [k,min,max] of [['perspective',400,2400],['shade',0,100],['reach',20,100]]){
     if(typeof raw[k]!=='number' || !Number.isFinite(raw[k])) throw Error('全局参数无效');
     clean[k]=clamp(raw[k],min,max);
   }
   for(const name of Object.keys(names)){
-    if(!raw.layers[name]) throw Error('缺少图层参数');
+    if(!rawLayers[name]) throw Error('缺少图层参数');
     for(const [key,,min,max] of specs){
-      const value=raw.layers[name][key];
+      const value=rawLayers[name][key];
       if(typeof value!=='number' || !Number.isFinite(value)) throw Error('图层参数无效');
       clean.layers[name][key]=clamp(value,min,max);
     }
-    if(typeof raw.layers[name].visible!=='boolean') throw Error('图层显示参数无效');
-    clean.layers[name].visible=raw.layers[name].visible;
+    if(typeof rawLayers[name].visible!=='boolean') throw Error('图层显示参数无效');
+    clean.layers[name].visible=rawLayers[name].visible;
   }
   return clean;
 }
@@ -44,7 +50,7 @@ function apply(){
   $('visible').checked=state.layers[selected].visible;
   $('zoomLayerName').textContent=names[selected];
   $('layerSize').value=Number(state.layers[selected].width.toFixed(1))+'%';
-  $('canvasNote').textContent=comparison?'原首页参考':`正在调整 · ${names[selected]}`;
+  $('canvasNote').textContent=comparison?'构图参考':`正在调整 · ${names[selected]}`;
   for(const [key,,,,,unit] of specs){
     const v=state.layers[selected][key];
     const range=$('range-'+key),number=$('number-'+key);
@@ -83,8 +89,8 @@ $('preview').addEventListener('click',()=>{pure=!pure;document.body.classList.to
 $('resetLayer').addEventListener('click',()=>{state.layers[selected]=structuredClone(initial.layers[selected]);select(selected);save();});
 $('resetAll').addEventListener('click',()=>{state=structuredClone(initial);select(selected);save();});
 $('export').addEventListener('click',()=>{
-  const blob=new Blob([JSON.stringify({...state,assets:{city:'assets/city.png',foreground:'assets/foreground.png',liru:'assets/liru.png',logo:'assets/logo.svg'}},null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='oclr-banner-composition.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('参数已导出');
+  const blob=new Blob([JSON.stringify({...state,assets:Object.fromEntries([...document.querySelectorAll('[data-layer]')].map(el=>[el.dataset.layer,el.getAttribute('src')]))},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`oclr-${MODE}-composition.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('参数已导出');
 });
 $('import').addEventListener('change',async e=>{
   const file=e.target.files?.[0];if(!file)return;
@@ -114,8 +120,10 @@ function resizeLayer(factor){
   const image=document.querySelector(`[data-layer="${selected}"]`);
   const aspect=image.naturalWidth/image.naturalHeight || 2;
   // Keep the visual center stationary while scaling the source rectangle.
-  p.x=clamp(p.x+(p.width-next)/2,-100,150);
-  p.y=clamp(p.y+(p.width-next)/aspect,-100,150);
+  const centerX=!CENTER && selected==='season'? .907 : .5;
+  const centerY=!CENTER && selected==='season'? .696 : .5;
+  p.x=clamp(p.x+(p.width-next)*centerX,-100,150);
+  p.y=clamp(p.y+2*(p.width-next)/aspect*centerY,-100,150);
   p.width=next;apply();save();
 }
 $('layerSmaller').addEventListener('click',()=>resizeLayer(1/1.1));

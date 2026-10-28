@@ -5,3 +5,5 @@
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
 .zoom-toolbar{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:0 0 12px;padding:10px;background:#1a1924;border:1px solid var(--line);border-radius:7px}.zoom-group{display:flex;align-items:center;gap:8px}.zoom-group>span{font-size:11px;color:var(--muted);min-width:38px}.zoom-group output{font:11px monospace;min-width:40px;text-align:center;color:var(--accent)}.zoom-group button{min-height:34px;min-width:34px}.canvas-scroll{overflow:auto;max-width:100%;padding-bottom:4px}.frame{flex-shrink:0}.preview-only .zoom-toolbar{display:none}.preview-only .canvas-scroll{padding:0}button:disabled{opacity:.4;cursor:default}
+
+.layer[data-layer=season]{z-index:5}.page-switch{font-size:12px;margin-right:12px}.page-switch:hover{text-decoration:underline}body[data-variant=centered] .site-header{display:none}body[data-variant=centered] .stage{outline:1px solid #b9a0da22;outline-offset:-12px}body[data-variant=centered] .layer[data-layer=city]{z-index:0}@media(max-width:760px){.page-switch{font-size:10px;margin-right:0}.top-actions{gap:5px}}
