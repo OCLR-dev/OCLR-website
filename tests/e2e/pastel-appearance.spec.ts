@@ -348,6 +348,9 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
               ].includes(path)
             )
               await accessible(page);
+            // Let RSC prefetches finish before navigation or cookie changes;
+            // WebKit reports cancelled in-flight reads as access-control errors.
+            await page.waitForLoadState("networkidle");
           }
           await page.locator(".appearance-trigger").click();
           await expect(
@@ -355,6 +358,7 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
           ).toHaveAttribute("data-appearance-option", appearance);
           await accessible(page);
           await page.keyboard.press("Escape");
+          await page.waitForLoadState("networkidle");
         }
       await setPreferences(context, "en", "light");
       for (const width of isMobile ? [320, 390] : [768, 1024, 1600]) {
@@ -367,6 +371,7 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
         await expect(
           page.locator(".appearance-control [role=menu]"),
         ).toHaveCount(0);
+        await page.waitForLoadState("networkidle");
       }
       expect(errors).toEqual([]);
     });

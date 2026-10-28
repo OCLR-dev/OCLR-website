@@ -2,7 +2,7 @@
 
 主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10／S9／S8／S7 已依主辦方要求接入正式外觀 `skyline-pop`／`glacier-blue`／`sakura-circuit`／`graphite-arena`，各自的視覺審閱／合併證據以對應 issue 為準。
 
-**2026-10-28 S6 候選預覽**：[#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 的 Orbital Pulse／星環脈衝以最新 main `0c93609`（包含 S7 精修）為基準，使用原有 MainSheet 元件製作紅藍雙主色、冷白／深靛藍與水平音樂頻譜設計。以候選 CSS 套在實際主頁、賽程、圖池、Admin 產圖；尚未註冊正式外觀或更改任何預設。[圖庫](s6.html)／[Design](s6/DESIGN.md)／[32 組頁面檢查](s6/verification.json)。
+**2026-10-28 S6 正式接入**：依主辦方 [#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 最新要求，將 Orbital Pulse／星環脈衝註冊為 `orbital-pulse`，紅藍雙主色與水平分段音樂頻譜沿用已迭代預覽。實作包含三語外觀選單、SSR 偏好、全站／賽事設定與 migration 0050；既有預設不變。圖庫更新為實際註冊外觀的應用截圖，等待 PR 審閱，尚未合併或部署。[圖庫](s6.html)／[Design](s6/DESIGN.md)／[頁面檢查](s6/verification.json)。
 
 **2026-10-26 S10 city pop 精修**：[#195](https://github.com/OCLR-dev/OCLR-website/issues/195) 以最新 main `0d3e203` 實際 UI 產圖。呼應原 S10 圖的晴空藍、亮青、桃粉與奶油白，加入明確手繪感的海岸城市插畫；桌面／手機、明暗與 Admin 都保留現有元件。完整角色原圖無框呈現；`s10.html` 為實際截圖對照圖庫，素材與完整 prompt set 見 [ARTWORK](s10/ARTWORK.md)。本輪不修改 S9／S8／S7 設計。
 
@@ -16,7 +16,7 @@ S10 的 `s10.html` 現為**實際截圖對照圖庫**，可切換頁面、尺寸
 | S9     | Glacier Blue · 冰晶鈷藍     | [s9.html](s9.html)   | [Design](s9/DESIGN.md)  | [Light](s9/desktop-light.webp) / [Dark](s9/desktop-dark.webp) / [Mobile](s9/mobile-light.webp)    |
 | S8     | Sakura Circuit · 櫻花折線   | [s8.html](s8.html)   | [Design](s8/DESIGN.md)  | [Light](s8/desktop-light.webp) / [Dark](s8/desktop-dark.webp) / [Mobile](s8/mobile-light.webp)    |
 | S7     | Graphite Arena · 石墨競技場 | [s7.html](s7.html)   | [Design](s7/DESIGN.md)  | [Light](s7/desktop-light.webp) / [Dark](s7/desktop-dark.webp) / [Mobile](s7/mobile-light.webp)    |
-| S6     | Orbital Pulse · 星環脈衝（候選） | [s6.html](s6.html) | [Design](s6/DESIGN.md) | [Light](s6/desktop-light.webp) / [Dark](s6/desktop-dark.webp) / [Mobile](s6/mobile-dark.webp) |
+| S6     | Orbital Pulse · 星環脈衝    | [s6.html](s6.html)   | [Design](s6/DESIGN.md)  | [Light](s6/desktop-light.webp) / [Dark](s6/desktop-dark.webp) / [Mobile](s6/mobile-dark.webp)     |
 
 **2026-10-27 S8 初稿**：[#197](https://github.com/OCLR-dev/OCLR-website/issues/197) 以 main `a50e03d` 的實際 UI 產圖。沿用櫻花粉／柑橘橙／暖白與原圖折角，加入使用者提供的 RULES banner、依該 banner 補全的半身女主角，以及自繪櫻花枝紋。保留完整無框原主視覺；[S8 DESIGN](s8/DESIGN.md)／[素材與提示詞](s8/ARTWORK.md)。初稿已由主辦方確認；正式接入精修時移除強制折角，採細花脈櫻花插畫與漸淡分隔線；本輪再以少量 1px 橙色細線呼應原圖，正式外觀使用 `sakura-circuit`，不自動更動任何既有預設。圖庫已更新為實作 `316c0eb` 的實際 SSR 外觀截圖；正式接入證據見 #197。
 
@@ -25,8 +25,8 @@ S10 的 `s10.html` 現為**實際截圖對照圖庫**，可切換頁面、尺寸
 完整 checkout 可直接在瀏覽器開啟 HTML；若瀏覽器限制 `file:`，從 repo 根目錄啟動 `python3 -m http.server 3199 --bind 127.0.0.1`。這是獨立 review 預覽，與 demo／production 程序無關。
 
 - **S10／S9／S8／S7**：圖庫控制只切換真實截圖，不假裝提供正式管理功能；`current-*.webp` 為同頁同尺寸同明暗的原有風格對照。
-- **S6**：候選 CSS 套用於相同實際元件後直接截圖；圖庫同樣只切換保存圖片，尚無正式 S6 SSR 外觀或選單項目。
-- 四季皆使用真實應用截圖圖庫；舊靜態樣本結果只作歷史紀錄。
+- **S6**：正式 `orbital-pulse` SSR 外觀的實際頁面截圖，圖庫只切換保存圖片；`s6.css` 保留為候選階段歷史參考。
+- 五季皆使用真實應用截圖圖庫；舊靜態樣本結果只作歷史紀錄。
 
 ## 圖片與資料
 
@@ -43,6 +43,8 @@ S10 正式接入重用現有元件和 next-intl（zh-Hans／zh-Hant／en），�
 設計方法沿用專案指定的 [Refactoring UI skill](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md)，以目前 MainSheet／元件為基準。
 
 ## 驗證與歷史紀錄
+
+- **S6 正式整合版**：`node --import tsx docs/design/season-themes/s6/capture.mjs`，四個真實路由 × 四個尺寸 × 明暗，共32組／32次Axe AA零違規，另4組forced colours、手機選單／焦點與原圖完整性檢查。[報告](s6/verification.json) 綁定正式來源提交 `66026d1`；應用整合驗證見 [S6 DESIGN](s6/DESIGN.md)。
 
 - **S10 最新 UI 版**：依 [重現步驟](s10/DESIGN.md) 執行 `node --import tsx docs/design/season-themes/s10/capture.mjs`。三個實際路由 × 四個尺寸 × 明暗共 24 組，24 次 Axe AA 無違規；驗證 DOM／文字不變、五列統計、規則、手機選單和實際 sticky stack。另有 4 組 forced-colours 檢查。新圖／報告見 [s10/verification.json](s10/verification.json)。應用 production build、產圖／圖庫工具 lint／語法／文件連結／diff 通過。
 - **S9 最新 UI 版**：`node --import tsx docs/design/season-themes/s9/capture.mjs`，三個實際路由 × 四個尺寸 × 明暗共 24 組／24 次 Axe AA 無違規；額外核對原圖 1920×1080 與 contain。[本版報告](s9/verification.json)。本次只重製 S9；S10 保留原有版本與證據。

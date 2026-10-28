@@ -1,7 +1,7 @@
 {
   "date": "2026-10-28",
-  "uiBaseline": "0c93609b3a7f267dce3dd4545384b4d4f0ff8d91",
-  "scope": "Candidate S6 CSS injected into unchanged real application pages; not a registered or SSR-selected S6 appearance",
+  "uiBaseline": "66026d17cd6e4cc9f33829e5cc62627bc09954e3",
+  "scope": "Registered S6 orbital-pulse, selected through SSR cookie and bundled CSS; original default appearance captured for comparison",
   "locale": "zh-Hant",
   "decorativeAsset": {
     "file": "music-spectrum.svg",
@@ -548,6 +548,6 @@
   ],
   "errors": [],
   "artworkSha256": "3f40ae9a494ef7b349229e45c016c0e8fb82719b125bd4c407cd121099e720b7",
-  "candidateCssSha256": "adcc78053d107ea947c13c376eb89f3c4af601b69774867ffb76ecb16bb7c586",
+  "registeredCssSha256": "c2a20b534203a16871cbdd0c3e58581d8cdc3daeb2e852d7d508c22fcb0eb5c3",
   "fixture": "Committed S6 archive and rules; existing pure approval fixture mirrors dated organizer evidence only in an isolated test DB"
 }

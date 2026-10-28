@@ -1,4 +1,4 @@
-// Candidate CSS over real application routes. No alternate UI or live data writes.
+// Registered SSR appearance over real application routes; isolated fixtures only.
 import { chromium } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import sharp from "sharp";
@@ -17,8 +17,7 @@ const base = process.env.S6_PREVIEW_ORIGIN ?? "http://127.0.0.1:3196";
 const origin = new URL(base);
 if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
-const uiBaseline =
-  process.env.S6_UI_BASELINE ?? "0c93609b3a7f267dce3dd4545384b4d4f0ff8d91";
+const uiBaseline = process.env.S6_UI_BASELINE ?? "HEAD";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -29,11 +28,15 @@ execFileSync("git", [
   "public",
 ]);
 const out = fileURLToPath(new URL(".", import.meta.url));
-const svg = await readFile(new URL("music-spectrum.svg", import.meta.url));
-const sourceCss = await readFile(new URL("../s6.css", import.meta.url), "utf8");
-const overlay = sourceCss.replace(
-  'url("./s6/music-spectrum.svg")',
-  `url("data:image/svg+xml;base64,${svg.toString("base64")}")`,
+const svg = await readFile(
+  new URL(
+    "../../../../public/themes/orbital-pulse/music-spectrum.svg",
+    import.meta.url,
+  ),
+);
+const sourceCss = await readFile(
+  new URL("../../../../src/app/orbital-theme.css", import.meta.url),
+  "utf8",
 );
 const sourceArtwork = await readFile(
   new URL("../../../../public/archive/s6/key-visual.jpg", import.meta.url),
@@ -46,13 +49,19 @@ const browser = await chromium.launch({ channel: "chrome", headless: true });
 const context = await browser.newContext({ reducedMotion: "reduce" });
 
 async function applyPreview(page) {
-  await page.evaluate(() =>
-    document.documentElement.setAttribute("data-s6-preview", ""),
-  );
-  await page.addStyleTag({ content: overlay });
-  await page.evaluate(
-    () => new Promise((resolve) => requestAnimationFrame(() => resolve())),
-  );
+  await page
+    .context()
+    .addCookies([
+      { name: "oclr-appearance", value: "orbital-pulse", url: base },
+    ]);
+  const response = await page.reload();
+  if (
+    !(await response.text())
+      .match(/<html[^>]+>/)?.[0]
+      .includes('data-appearance="orbital-pulse"')
+  )
+    throw new Error("Registered appearance missing from SSR response");
+  await ready(page);
 }
 async function guard(page) {
   page.on("pageerror", (error) => errors.push(error.message));
@@ -153,7 +162,7 @@ try {
         }));
         if (before.text !== after.text || before.elements !== after.elements)
           throw new Error(
-            `${surface.name}: candidate changed application content`,
+            `${surface.name}: appearance changed application content`,
           );
         if (after.overflow)
           throw new Error(
@@ -331,9 +340,11 @@ try {
     JSON.stringify(
       {
         date: "2026-10-28",
-        uiBaseline,
+        uiBaseline: execFileSync("git", ["rev-parse", uiBaseline], {
+          encoding: "utf8",
+        }).trim(),
         scope:
-          "Candidate S6 CSS injected into unchanged real application pages; not a registered or SSR-selected S6 appearance",
+          "Registered S6 orbital-pulse, selected through SSR cookie and bundled CSS; original default appearance captured for comparison",
         locale: "zh-Hant",
         decorativeAsset: {
           file: "music-spectrum.svg",
@@ -345,7 +356,7 @@ try {
         forcedColours,
         errors,
         artworkSha256: createHash("sha256").update(sourceArtwork).digest("hex"),
-        candidateCssSha256: createHash("sha256")
+        registeredCssSha256: createHash("sha256")
           .update(sourceCss)
           .digest("hex"),
         fixture:
