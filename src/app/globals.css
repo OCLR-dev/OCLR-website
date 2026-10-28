@@ -73,6 +73,11 @@ button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
 }
+/* Foreground work uses the shared spinner, while disabled still prevents repeats. */
+button[aria-busy="true"]:disabled {
+  cursor: progress;
+  opacity: 1;
+}
 :focus-visible {
   outline: 3px solid #e1a6ff;
   outline-offset: 5px;

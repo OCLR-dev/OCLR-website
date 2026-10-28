@@ -3,6 +3,7 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { LoadingRegion } from "./loading-region";
 import { WorkspaceTabs } from "./workspace-tabs";
 
 export function AuditModuleTabs({
@@ -20,6 +21,7 @@ export function AuditModuleTabs({
   const [pending, startTransition] = useTransition();
   return (
     <div className="audit-module-tabs" aria-busy={pending}>
+      {pending && <LoadingRegion scope=".audit-workspace" />}
       <WorkspaceTabs
         id="audit-modules"
         label={tr("Audit modules")}
@@ -34,9 +36,6 @@ export function AuditModuleTabs({
           );
         }}
       />
-      <span className="sr-only" role="status">
-        {pending ? tr("Loading audit events…") : ""}
-      </span>
     </div>
   );
 }

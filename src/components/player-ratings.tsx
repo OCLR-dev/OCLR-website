@@ -1,6 +1,6 @@
 "use client";
 import { PlayerClassBadge } from "./player-class-badge";
-import Link from "next/link";
+import Link from "./pending-link";
 import { useAppTranslations } from "@/i18n/shared";
 import type { ratingSnapshot } from "@/lib/ratings";
 export function PlayerRatings({

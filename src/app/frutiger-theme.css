@@ -632,7 +632,7 @@ html[data-appearance="frutiger-aero"]
 }
 html[data-appearance="frutiger-aero"]
   .themed-site
-  :is(button, .button):disabled,
+  :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="frutiger-aero"]
   .themed-site
   .button[aria-disabled="true"] {

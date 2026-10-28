@@ -1,37 +1,33 @@
-.overlay {
+/* Outrank ordinary themed dialogs: this modal always covers the viewport. */
+dialog.overlay.overlay[data-loading-overlay][open] {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
   display: grid;
   place-items: center;
   background: var(--site-backdrop, #0009);
   cursor: progress;
+  outline: none;
 }
-.spinner {
-  width: 3rem;
-  height: 3rem;
-  flex: 0 0 auto;
-  border: 4px solid var(--site-control-border, #685475);
-  border-top-color: var(--site-accent, #c566ed);
-  border-radius: 50%;
-  animation: loading-spin 800ms linear infinite;
+dialog.overlay.overlay[data-loading-overlay]::backdrop {
+  background: transparent;
+  backdrop-filter: none;
 }
-@keyframes loading-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .spinner {
-    animation: none;
-  }
+dialog.overlay.overlay[data-loading-overlay] > div {
+  display: grid;
+  place-items: center;
 }
 @media (forced-colors: active) {
-  .overlay {
+  dialog.overlay.overlay[data-loading-overlay][open] {
     background: Canvas;
-  }
-  .spinner {
-    border-color: GrayText;
-    border-top-color: Highlight;
   }
 }

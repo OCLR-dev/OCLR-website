@@ -3917,6 +3917,71 @@
             "additionalProperties": false
           }
         },
+        "poolFixtures": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "round": { "type": "string" },
+                  "teams": { "type": "array", "items": { "type": "string" } },
+                  "maps": {
+                    "anyOf": [
+                      { "type": "null" },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "slot": { "type": "string" },
+                            "round": { "type": "string" },
+                            "title": { "type": "string" },
+                            "mapId": {
+                              "anyOf": [
+                                { "type": "null" },
+                                { "type": "number" }
+                              ]
+                            }
+                          },
+                          "required": ["slot", "round", "title", "mapId"],
+                          "additionalProperties": false
+                        }
+                      }
+                    ]
+                  },
+                  "picks": {
+                    "anyOf": [
+                      { "type": "null" },
+                      { "type": "array", "items": { "type": "string" } }
+                    ]
+                  },
+                  "bans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "team": { "type": "string" },
+                        "maps": {
+                          "anyOf": [
+                            { "type": "null" },
+                            { "type": "array", "items": { "type": "string" } }
+                          ]
+                        }
+                      },
+                      "required": ["team", "maps"],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": ["id", "round", "teams", "maps", "picks", "bans"],
+                "additionalProperties": false
+              }
+            }
+          ]
+        },
         "publishedAt": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
         "mpTotal": { "type": "number" },
         "mpCovered": { "type": "number" }

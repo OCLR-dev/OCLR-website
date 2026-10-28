@@ -1,7 +1,7 @@
 "use client";
 import { useAppTranslations } from "@/i18n/shared";
 import type { EventPlayer } from "@/lib/event-preview";
-import Link from "next/link";
+import Link from "./pending-link";
 import { useState } from "react";
 import { Avatar } from "./avatar";
 import { PlayerMessageBoard } from "./player-message-board";

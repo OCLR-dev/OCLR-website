@@ -1,4 +1,5 @@
 "use client";
+import { LoadingRegion } from "./loading-region";
 import { useStaffReadOnly } from "./staff-read-only";
 import { useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
@@ -17,9 +18,13 @@ export function BwsReview({ slug, id }: { slug: string; id: string }) {
     [],
   );
   const [error, setError] = useState("");
-  const [pending, setPending] = useState(false);
+  const [activeRequest, setActiveRequest] = useState<"load" | "save" | null>(
+    null,
+  );
+  const pending = activeRequest !== null;
   async function request(save = false) {
-    setPending(true);
+    if (pending) return;
+    setActiveRequest(save ? "save" : "load");
     setError("");
     try {
       const response = await fetch(
@@ -48,11 +53,12 @@ export function BwsReview({ slug, id }: { slug: string; id: string }) {
     } catch {
       setError("The action could not be completed.");
     } finally {
-      setPending(false);
+      setActiveRequest(null);
     }
   }
   return (
     <section className="panel form-stack bws-review">
+      {pending && <LoadingRegion />}
       <h2>{tr("Badge-weighted seeding")}</h2>
       <p className="small muted">{"osu!standard"}</p>
       <div className="actions">
@@ -60,6 +66,7 @@ export function BwsReview({ slug, id }: { slug: string; id: string }) {
           type="button"
           className="secondary"
           disabled={pending}
+          aria-busy={activeRequest === "load"}
           onClick={() => request()}
         >
           {tr("Load BWS profile")}
@@ -133,6 +140,7 @@ export function BwsReview({ slug, id }: { slug: string; id: string }) {
                   data.snapshot.stale ||
                   !!data.snapshot.notice
                 }
+                aria-busy={activeRequest === "save"}
                 onClick={() => request(true)}
               >
                 {tr("Save badge review")}

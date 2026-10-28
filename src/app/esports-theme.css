@@ -334,7 +334,7 @@ html[data-appearance="esports-broadcast"]
 /* Disabled is flat and dashed, so it never reads as a selected slot. */
 html[data-appearance="esports-broadcast"]
   .themed-site
-  :is(button, .button):disabled,
+  :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="esports-broadcast"]
   .themed-site
   .button[aria-disabled="true"] {

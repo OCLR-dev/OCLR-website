@@ -1,6 +1,6 @@
 "use client";
 import { useMemo } from "react";
-import Link from "next/link";
+import Link from "./pending-link";
 import {
   DoubleEliminationBracket,
   createTheme,

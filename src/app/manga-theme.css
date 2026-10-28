@@ -455,7 +455,7 @@ html[data-appearance="manga-halftone"]
 /* Disabled reads as an unfinished pencil line: dashed, flat, base opacity. */
 html[data-appearance="manga-halftone"]
   .themed-site
-  :is(button, .button):disabled,
+  :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="manga-halftone"]
   .themed-site
   .button[aria-disabled="true"] {

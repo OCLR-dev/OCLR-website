@@ -414,7 +414,7 @@ html[data-appearance="retro-arcade"]
   background: var(--site-tint);
 }
 /* Disabled: flat, dashed edge, plus the base opacity. */
-html[data-appearance="retro-arcade"] .themed-site :is(button, .button):disabled,
+html[data-appearance="retro-arcade"] .themed-site :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="retro-arcade"]
   .themed-site
   .button[aria-disabled="true"] {

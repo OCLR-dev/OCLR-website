@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "./pending-link";
 import { useAppTranslations } from "@/i18n/shared";
 import { formatDate } from "@/lib/editions";
 import type { MatchDetails } from "@/lib/match-details-model";

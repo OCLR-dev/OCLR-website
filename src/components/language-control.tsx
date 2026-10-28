@@ -1,4 +1,5 @@
 "use client";
+import { LoadingOverlay } from "./loading-overlay";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
@@ -79,6 +80,7 @@ export function LanguageControl() {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
+      {pending && <LoadingOverlay />}
       <button
         type="button"
         className={`secondary ${styles.trigger}`}

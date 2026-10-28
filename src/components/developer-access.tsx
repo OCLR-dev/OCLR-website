@@ -1,4 +1,5 @@
 "use client";
+import { LoadingRegion } from "./loading-region";
 
 import { useState, type FormEvent } from "react";
 import { useAppTranslations } from "@/i18n/shared";
@@ -27,6 +28,7 @@ export function DeveloperAccess({
     null,
   );
   const [pending, setPending] = useState(false);
+  const [activeAction, setActiveAction] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [openedAt] = useState(Date.now);
   const labels: Record<DeveloperApiScope, string> = {
@@ -43,6 +45,8 @@ export function DeveloperAccess({
     }).format(new Date(value));
   async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pending) return;
+    setActiveAction("create");
     setPending(true);
     setError("");
     setIssued(null);
@@ -69,6 +73,8 @@ export function DeveloperAccess({
     }
   }
   async function revoke(id: string) {
+    if (pending) return;
+    setActiveAction(id);
     setPending(true);
     setError("");
     try {
@@ -95,6 +101,7 @@ export function DeveloperAccess({
   }
   return (
     <div className="stack developer-access">
+      {pending && <LoadingRegion />}
       <section aria-labelledby="developer-create">
         <h2 id="developer-create">{tr("Create read-only access")}</h2>
         <p className="muted">
@@ -161,8 +168,11 @@ export function DeveloperAccess({
             )}
           </p>
           <div className="actions">
-            <button disabled={pending || !origin || !scopes.length}>
-              {pending ? tr("Saving…") : tr("Create token")}
+            <button
+              disabled={pending || !origin || !scopes.length}
+              aria-busy={pending && activeAction === "create"}
+            >
+              {tr("Create token")}
             </button>
           </div>
         </form>
@@ -232,6 +242,7 @@ export function DeveloperAccess({
                     className="secondary"
                     type="button"
                     disabled={pending}
+                    aria-busy={pending && activeAction === entry.id}
                     onClick={() => void revoke(entry.id)}
                   >
                     {tr("Revoke token")}

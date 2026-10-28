@@ -1,4 +1,5 @@
 "use client";
+import { LoadingRegion } from "./loading-region";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
@@ -285,9 +286,15 @@ export function PlayerMessageBoard({
           role="group"
           aria-label={tr("Delete this message?")}
         >
+          {busy && <LoadingRegion />}
           <p>{tr("Delete this message?")}</p>
           <div className="player-message-controls">
-            <button type="button" disabled={busy} onClick={remove}>
+            <button
+              type="button"
+              disabled={busy}
+              aria-busy={busy}
+              onClick={remove}
+            >
               {tr("Confirm delete")}
             </button>
             <button

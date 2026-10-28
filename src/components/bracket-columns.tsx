@@ -4,7 +4,7 @@ import { TeamAvatar } from "./team-avatar";
 import { useAppTranslations } from "@/i18n/shared";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import Link from "next/link";
+import Link from "./pending-link";
 import type { ResolvedBracket, ResolvedMatch } from "@/lib/bracket-model";
 export function BracketColumns({
   bracket,

@@ -70,18 +70,18 @@ export function EventSchedule({
     : Math.max(240, ...selected.map((m) => positions[m.id][1] + 110));
   const structured = phase === "knockout" && selected.length > 0;
   const columns = [
-    "Mappool",
-    "Match number & time",
-    "Red team",
-    "Score",
-    "Blue team",
-    "First pick",
-    "Red bans",
-    "Blue bans",
-    "MPLink",
-    "Recording",
-    "Referee",
-    "Streamer",
+    tr("Mappool"),
+    tr("Match number & time"),
+    tr("Red team"),
+    tr("Score"),
+    tr("Blue team"),
+    tr("First pick"),
+    tr("Red bans"),
+    tr("Blue bans"),
+    tr("MPLink"),
+    tr("Recording"),
+    tr("Referee"),
+    tr("Streamer"),
   ];
   function card(m: EventMatch) {
     return (
@@ -318,7 +318,7 @@ export function EventSchedule({
               <tr>
                 {columns.map((c) => (
                   <th scope="col" key={c}>
-                    {tr(c)}
+                    {c}
                   </th>
                 ))}
               </tr>
@@ -383,7 +383,9 @@ export function EventSchedule({
                     </td>
                     <td>
                       {m.first
-                        ? tr(m.first === "red" ? "Red team" : "Blue team")
+                        ? m.first === "red"
+                          ? tr("Red team")
+                          : tr("Blue team")
                         : "—"}
                     </td>
                     <td>{m.redBan ?? "—"}</td>

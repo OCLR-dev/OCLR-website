@@ -1,9 +1,17 @@
 "use client";
+import { LoadingOverlay } from "./loading-overlay";
+import { LoadingRegion } from "./loading-region";
 import { useAppTranslations } from "@/i18n/shared";
 import { remoteErrorMessage } from "@/lib/remote-errors";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useState,
+  useTransition,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { RemoteReadOnlyContext } from "./staff-read-only";
 import { remoteHealthMonitor } from "@/lib/remote-health";
 export function RemoteNotice({
@@ -13,8 +21,10 @@ export function RemoteNotice({
 }) {
   const tr = useAppTranslations();
   const router = useRouter();
+  const [pending, startTransition] = useTransition();
   return (
     <section className="container page" role="status">
+      {pending && <LoadingOverlay />}
       <h1>{tr("Remote frontend development")}</h1>
       <p className="notice">{remoteErrorMessage(code, tr)}</p>
       {["REMOTE_UNAVAILABLE", "RATE_LIMITED", "COLLECTION_CHANGED"].includes(
@@ -23,7 +33,9 @@ export function RemoteNotice({
         <button
           type="button"
           className="secondary"
-          onClick={() => router.refresh()}
+          disabled={pending}
+          aria-busy={pending}
+          onClick={() => startTransition(() => router.refresh())}
         >
           {tr("Try again")}
         </button>
@@ -101,15 +113,18 @@ export function RemoteConnectionForm({ connected }: { connected: boolean }) {
   const tr = useAppTranslations();
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [activeAction, setActiveAction] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const values = new FormData(form);
     const token = String(values.get("token") ?? "");
     form.reset(); // Clear the input before the request; never keep the token in React state.
-    await change("POST", { mode: "developer", token });
+    await change("connect", "POST", { mode: "developer", token });
   }
-  async function change(method: string, body?: unknown) {
+  async function change(action: string, method: string, body?: unknown) {
+    if (busy) return;
+    setActiveAction(action);
     setBusy(true);
     setError(undefined);
     try {
@@ -122,15 +137,16 @@ export function RemoteConnectionForm({ connected }: { connected: boolean }) {
       if (!response.ok) setError(result.code ?? "REMOTE_UNAVAILABLE");
       else {
         window.location.reload();
+        return;
       }
     } catch {
       setError("REMOTE_UNAVAILABLE");
-    } finally {
-      setBusy(false);
     }
+    setBusy(false);
   }
   return (
     <section className="panel stack">
+      {busy && <LoadingRegion />}
       <h2>{tr("Connect with Developer access")}</h2>
       <p className="muted">
         {tr(
@@ -155,12 +171,18 @@ export function RemoteConnectionForm({ connected }: { connected: boolean }) {
           />
         </label>
         <div className="actions">
-          <button disabled={busy}>{tr("Connect")}</button>
+          <button
+            disabled={busy}
+            aria-busy={busy && activeAction === "connect"}
+          >
+            {tr("Connect")}
+          </button>
           <button
             type="button"
             className="secondary"
             disabled={busy}
-            onClick={() => change("POST", { mode: "anonymous" })}
+            aria-busy={busy && activeAction === "anonymous"}
+            onClick={() => change("anonymous", "POST", { mode: "anonymous" })}
           >
             {tr("Browse public data anonymously")}
           </button>
@@ -169,7 +191,8 @@ export function RemoteConnectionForm({ connected }: { connected: boolean }) {
               type="button"
               className="secondary"
               disabled={busy}
-              onClick={() => change("POST", { mode: "refresh" })}
+              aria-busy={busy && activeAction === "refresh"}
+              onClick={() => change("refresh", "POST", { mode: "refresh" })}
             >
               {tr("Refresh")}
             </button>
@@ -179,7 +202,8 @@ export function RemoteConnectionForm({ connected }: { connected: boolean }) {
               type="button"
               className="secondary"
               disabled={busy}
-              onClick={() => change("DELETE")}
+              aria-busy={busy && activeAction === "disconnect"}
+              onClick={() => change("disconnect", "DELETE")}
             >
               {tr("Disconnect")}
             </button>

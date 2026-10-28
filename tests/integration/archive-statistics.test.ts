@@ -176,6 +176,11 @@ describe.skipIf(!url)("historical statistics transactions", () => {
       await statisticsCommand(referee, slug, imported);
       await statisticsCommand(referee, slug, reviewed);
       expect((await publicArchiveStatistics(slug)).plays).toEqual([]);
+      expect(
+        (await publicArchiveStatistics(slug)).poolFixtures?.every(
+          (f) => f.maps === null && f.picks === null,
+        ),
+      ).toBe(true);
       await expect(
         statisticsCommand(referee, slug, publish),
       ).rejects.toMatchObject({ status: 403 });
@@ -185,6 +190,9 @@ describe.skipIf(!url)("historical statistics transactions", () => {
       await statisticsCommand(admin, slug, publish);
       const released = await publicArchiveStatistics(slug, "one");
       expect(released.plays).toHaveLength(8);
+      expect(released.poolFixtures).toHaveLength(1);
+      expect(released.poolFixtures![0].maps).toHaveLength(2);
+      expect(released.poolFixtures![0].picks).toHaveLength(2);
       expect(released.matchDetails).toHaveLength(1);
       const coverage = await publicArchiveStatistics(slug);
       expect(coverage.fixtures.map((f) => f.covered)).toEqual([true, false]);

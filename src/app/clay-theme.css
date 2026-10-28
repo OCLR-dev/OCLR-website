@@ -170,7 +170,7 @@ html[data-appearance="claymorphism"]
   transform: translateY(1px);
 }
 /* Disabled reads as unbaked: flat with a dashed edge, plus the base opacity. */
-html[data-appearance="claymorphism"] .themed-site :is(button, .button):disabled,
+html[data-appearance="claymorphism"] .themed-site :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="claymorphism"]
   .themed-site
   .button[aria-disabled="true"] {

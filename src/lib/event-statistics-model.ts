@@ -2,7 +2,11 @@ import type { EventScore } from "./event-statistics";
 
 // A slot is only meaningful within its round and beatmap identity. Preview
 // maps without numeric IDs retain their literal title as the identity fallback.
-export function eventMapKey(score: EventScore) {
+export type EventMapIdentity = Pick<
+  EventScore,
+  "round" | "slot" | "mapId" | "title"
+>;
+export function eventMapKey(score: EventMapIdentity) {
   return JSON.stringify([score.round, score.slot, score.mapId ?? score.title]);
 }
 

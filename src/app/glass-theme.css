@@ -320,7 +320,7 @@ html[data-appearance="glassmorphism"]
 /* Disabled reads as clouded glass: flat, dashed edge, plus the base opacity. */
 html[data-appearance="glassmorphism"]
   .themed-site
-  :is(button, .button):disabled,
+  :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="glassmorphism"]
   .themed-site
   .button[aria-disabled="true"] {
