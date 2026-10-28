@@ -1,38 +1,49 @@
 "use client";
 import { PlayerClassBadge } from "./player-class-badge";
-import Link from "next/link";
+import Link from "./pending-link";
 import { useAppTranslations } from "@/i18n/shared";
 import type { ratingSnapshot } from "@/lib/ratings";
 export function PlayerRatings({
   report,
   slug,
   historical = false,
+  compact = false,
 }: {
   report: ReturnType<typeof ratingSnapshot>;
   slug: string;
   historical?: boolean;
+  compact?: boolean;
 }) {
   const tr = useAppTranslations();
   return (
-    <section className="section-space stack" aria-label={tr("YumuRating")}>
-      <h2>{tr("YumuRating")}</h2>
+    <section
+      className={compact ? "stack" : "section-space stack"}
+      aria-label={tr("YumuRating")}
+    >
+      {!compact && (
+        <>
+          <h2>{tr("YumuRating")}</h2>
+          <p className="muted small">
+            {tr(
+              "MRA combines 70% ERA and 30% DRA. Higher is better. No star weighting is applied.",
+            )}
+          </p>
+        </>
+      )}
       <p className="muted small">
-        {tr(
-          "MRA combines 70% ERA and 30% DRA. Higher is better. No star weighting is applied.",
-        )}
-      </p>
-      <p className="muted small">
-        {report.policy} ·{" "}
+        {!compact && <>{report.policy} · </>}
         {tr("{value0} scored games · {value1} players", {
           value0: report.gameCount,
           value1: report.playerCount,
         })}
       </p>
-      <p className="muted small">
-        {tr(
-          "Player evaluations describe this comparison group only; they do not change draft Tiers or award eligibility.",
-        )}
-      </p>
+      {!compact && (
+        <p className="muted small">
+          {tr(
+            "Player evaluations describe this comparison group only; they do not change draft Tiers or award eligibility.",
+          )}
+        </p>
+      )}
       {report.issues.length ? (
         <p role="status" className="notice">
           {tr("Rating unavailable; approved score data needs review.")}
@@ -102,19 +113,21 @@ export function PlayerRatings({
               </tbody>
             </table>
           </div>
-          <details>
-            <summary>{tr("Calculation sources")}</summary>
-            <ul>
-              {report.evidence.map((g) => (
-                <li key={g.gameId}>
-                  {tr("Game {value0}", { value0: g.gameId })} ·{" "}
-                  {historical
-                    ? g.fingerprint.slice(0, 12)
-                    : tr("Revision {value0}", { value0: g.revision })}
-                </li>
-              ))}
-            </ul>
-          </details>
+          {!compact && (
+            <details>
+              <summary>{tr("Calculation sources")}</summary>
+              <ul>
+                {report.evidence.map((g) => (
+                  <li key={g.gameId}>
+                    {tr("Game {value0}", { value0: g.gameId })} ·{" "}
+                    {historical
+                      ? g.fingerprint.slice(0, 12)
+                      : tr("Revision {value0}", { value0: g.revision })}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
         </>
       )}
     </section>

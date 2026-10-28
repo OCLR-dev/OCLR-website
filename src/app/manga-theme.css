@@ -455,7 +455,7 @@ html[data-appearance="manga-halftone"]
 /* Disabled reads as an unfinished pencil line: dashed, flat, base opacity. */
 html[data-appearance="manga-halftone"]
   .themed-site
-  :is(button, .button):disabled,
+  :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="manga-halftone"]
   .themed-site
   .button[aria-disabled="true"] {
@@ -879,6 +879,10 @@ html[data-appearance="manga-halftone"]
   background: var(--site-primary);
   color: var(--site-on-primary);
   font-weight: 700;
+}
+/* Player row links sit on the same ink band as their row heading. */
+html[data-appearance="manga-halftone"] .themed-site th[scope="row"] .text-link {
+  color: inherit;
 }
 html[data-appearance="manga-halftone"] .themed-site .badge {
   border: 2px solid var(--manga-ink);

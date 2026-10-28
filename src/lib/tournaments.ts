@@ -34,6 +34,10 @@ import { compareTournamentSeasons } from "./tournament-order";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 import {
+  archiveStaffConfirmation,
+  confirmArchiveStaffIdentity,
+} from "./archive-staff-identity-model";
+import {
   approveArchiveMatches,
   publicHistoricalArchive,
   resolveArchiveIdentity,
@@ -140,6 +144,12 @@ const createSchema = z
   })
   .strict();
 const commandSchema = z.discriminatedUnion("action", [
+  archiveStaffConfirmation
+    .extend({
+      confirmed: z.literal(true),
+      action: z.literal("resolve-archive-staff"),
+    })
+    .strict(),
   archivePlayerExchangeConfirmation
     .extend({
       ...version,
@@ -422,6 +432,20 @@ export async function tournamentCommand(
   invalid(parsed);
   if (!parsed.success) throw new HttpError(400, "Invalid settings.");
   const c = parsed.data;
+  if (c.action === "resolve-archive-staff") {
+    const { lookupArchiveStaffIdentity } =
+      await import("./archive-staff-identity");
+    const candidate = await lookupArchiveStaffIdentity(actor, slug, {
+      staffIndex: c.staffIndex,
+      username: c.username,
+      expectedRevision: c.expectedRevision,
+    });
+    if (candidate.osuId !== c.osuId)
+      throw new HttpError(
+        409,
+        "The verified osu! ID changed. Look up the username again.",
+      );
+  }
   await db().transaction(async (tx) => {
     const [state] = await tx
       .select()
@@ -441,6 +465,31 @@ export async function tournamentCommand(
     const e = current.edition;
     let next: Edition = e;
     let registrationPausedAt = state.registrationPausedAt;
+    if (c.action === "resolve-archive-staff") {
+      if (!e.archive || e.status !== "completed" || e.registration)
+        throw new HttpError(
+          409,
+          "Select a completed historical archive without registration.",
+        );
+      try {
+        next = {
+          ...e,
+          archive: confirmArchiveStaffIdentity(e.archive, {
+            staffIndex: c.staffIndex,
+            username: c.username,
+            osuId: c.osuId,
+            expectedRevision: c.expectedRevision,
+            source: c.source,
+            identityConfirmed: c.identityConfirmed,
+          }),
+        };
+      } catch {
+        throw new HttpError(
+          409,
+          "Select an unresolved historical staff member without conflicting identity evidence.",
+        );
+      }
+    }
     if (c.action === "add-archive-substitute") {
       if (!e.archive || e.status !== "completed" || e.registration)
         throw new HttpError(
@@ -687,6 +736,17 @@ export async function tournamentCommand(
       kind: `tournament_${c.action}`,
       detail: {
         entity: { type: "tournament", id: slug },
+        ...(c.action === "resolve-archive-staff"
+          ? {
+              identityConfirmation: {
+                staffIndex: c.staffIndex,
+                historicalName: e.archive!.staff[c.staffIndex].username,
+                currentUsername: c.username,
+                osuId: c.osuId,
+                source: c.source,
+              },
+            }
+          : {}),
         before: {
           configuration: state.configuration,
           revision: current.revision,

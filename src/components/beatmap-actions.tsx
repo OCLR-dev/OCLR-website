@@ -38,20 +38,36 @@ function ActionIcon({ kind }: { kind: "web" | "direct" }) {
 export function BeatmapActions({
   beatmapId,
   setId,
+  originalBeatmapId,
+  originalSetId,
+  beatmapMissing = false,
   compact = false,
   name,
 }: {
   beatmapId: number | null | undefined;
   setId: number | null | undefined;
+  originalBeatmapId?: number | null;
+  originalSetId?: number | null;
+  beatmapMissing?: boolean;
   compact?: boolean;
   name?: string;
 }) {
   const tr = useAppTranslations();
-  const links = beatmapLinks(beatmapId, setId);
-  const labels = {
-    web: tr("Open on osu!"),
-    direct: tr("osu!direct"),
-  };
+  const originalLinks = beatmapLinks(originalBeatmapId, originalSetId);
+  // A saved edit whose verified set is gone falls back to the original map it
+  // was based on; keep the difficulty and set destinations distinct.
+  const useOriginal =
+    beatmapMissing && !setId && !!(originalLinks.web || originalLinks.direct);
+  const links = useOriginal ? originalLinks : beatmapLinks(beatmapId, setId);
+  const labels = useOriginal
+    ? {
+        web: tr("Open original map on osu!"),
+        direct: tr("osu!direct (original map)"),
+      }
+    : {
+        web: tr("Open on osu!"),
+        direct: tr("osu!direct"),
+      };
   if (!links.web && !links.direct)
     return compact ? null : (
       <p className="muted small">{tr("Beatmap ID unresolved")}</p>

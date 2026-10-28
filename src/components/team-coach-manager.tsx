@@ -1,7 +1,8 @@
 "use client";
 import { ReadOnlyFields } from "./staff-read-only";
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { usePendingRefresh } from "./use-pending-refresh";
+import { LoadingRegion } from "./loading-region";
 import { useAppTranslations } from "@/i18n/shared";
 import { PublicPlayerIdentity } from "./public-player-identity";
 
@@ -17,11 +18,15 @@ export function TeamCoachManager({
   coaches: { osuId: number; username: string }[];
 }) {
   const tr = useAppTranslations(),
-    router = useRouter();
+    { refreshing, refresh } = usePendingRefresh();
   const [id, setId] = useState(""),
-    [pending, setPending] = useState(false),
+    [requestPending, setPending] = useState(false),
     [error, setError] = useState("");
+  const pending = requestPending || refreshing;
+  const [activeCoach, setActiveCoach] = useState<number | "add" | null>(null);
   async function save(action: "add_coach" | "remove_coach", userId: number) {
+    if (pending) return;
+    setActiveCoach(action === "add_coach" ? "add" : userId);
     setPending(true);
     setError("");
     try {
@@ -37,11 +42,11 @@ export function TeamCoachManager({
       const result = await response.json();
       if (!response.ok) {
         // Load the current version so a retry is not rejected as stale again.
-        router.refresh();
+        refresh();
         throw new Error(result.error);
       }
       setId("");
-      router.refresh();
+      refresh();
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "The action could not be completed.",
@@ -57,6 +62,7 @@ export function TeamCoachManager({
   return (
     <ReadOnlyFields>
       <section className="form-stack spaced" aria-label={tr("Coaches")}>
+        {pending && <LoadingRegion />}
         <h3>{tr("Coaches")}</h3>
         <p className="small muted">
           {tr(
@@ -72,6 +78,7 @@ export function TeamCoachManager({
                 type="button"
                 className="secondary"
                 disabled={pending}
+                aria-busy={pending && activeCoach === c.osuId}
                 aria-label={tr("Remove coach {name}", { name: c.username })}
                 onClick={() => void save("remove_coach", c.osuId)}
               >
@@ -96,7 +103,11 @@ export function TeamCoachManager({
             />
           </label>
           <div className="actions">
-            <button disabled={pending} type="submit">
+            <button
+              disabled={pending}
+              aria-busy={pending && activeCoach === "add"}
+              type="submit"
+            >
               {tr("Add coach")}
             </button>
           </div>

@@ -44,4 +44,26 @@ describe("official archive artwork", () => {
       50, 26,
     ]);
   });
+  it("distinguishes confirmed 404 from missing rows and transient failures, including cached results", async () => {
+    const { HttpError } = await import("../../src/lib/http");
+    fetchBeatmaps.mockResolvedValue(
+      new Map([
+        [11, new HttpError(404, "Missing")],
+        [12, new HttpError(502, "Offline")],
+        [13, new HttpError(429, "Busy")],
+      ]),
+    );
+    const { archiveArtworkLookup } =
+      await import("../../src/lib/archive-artwork");
+    const first = await archiveArtworkLookup([11, 12, 13, 14]);
+    expect(first.missingBeatmapIds).toEqual([11]);
+    expect(await archiveArtworkLookup([11, 12, 13, 14])).toEqual(first);
+    expect(fetchBeatmaps).toHaveBeenCalledTimes(1);
+  });
+  it("does not declare any edits missing during a provider outage", async () => {
+    fetchBeatmaps.mockRejectedValue(new Error("Offline"));
+    const { archiveArtworkLookup } =
+      await import("../../src/lib/archive-artwork");
+    expect((await archiveArtworkLookup([11])).missingBeatmapIds).toEqual([]);
+  });
 });

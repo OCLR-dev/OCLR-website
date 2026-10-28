@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" role="img" aria-labelledby="title"><title id="title">OCLR S11 — 夜景视窗</title>
+<g transform="translate(35 82)" fill-rule="evenodd">
+<path d="M200 100A100 100 0 1 1 0 100A100 100 0 1 1 200 100ZM148 100A48 48 0 1 0 52 100A48 48 0 1 0 148 100Z" transform="translate(0 0)" fill="none" stroke="#f6eee2" stroke-width="7"/><path d="M182 32A100 100 0 1 0 182 168L144 132A48 48 0 1 1 144 68Z" transform="translate(218 0)" fill="none" stroke="#f6eee2" stroke-width="7"/><path d="M0 0H52V148H170V200H0Z" transform="translate(424 0)" fill="#f6eee2"/><path d="M0 0H94C154 0 186 30 186 77C186 111 168 134 138 145L198 200H127L54 128V200H0ZM54 46V104H88C118 104 132 95 132 75C132 55 118 46 88 46Z" transform="translate(617 0)" fill="#f6eee2"/>
+<path d="M52 100A48 48 0 0 0 148 100" fill="none" stroke="#a98ae9" stroke-width="7"/>
+<path d="M425 148H595V200H425Z" fill="#a98ae9"/>
+</g>
+<path d="M35 45H850M35 312H850" stroke="#a98ae9" stroke-width="2"/>
+<path d="M35 344H360" stroke="#f6eee2" stroke-width="2"/>
+<circle cx="35" cy="344" r="6" fill="#eb6baf"/>
+<circle cx="360" cy="344" r="6" fill="#f6eee2"/>
+<g transform="translate(624 333) scale(0.82)" fill="#f6eee2"><path d="M0 0H92V24H28V42H68L92 64V100H0V76H64V58H24L0 36Z" transform="translate(0 0)" /><path d="M0 20L28 0H52V100H24V30L0 44Z" transform="translate(112 0)" /><path d="M0 20L28 0H52V100H24V30L0 44Z" transform="translate(184 0)" /></g>
+<path d="M411 328V395M430 328V395" stroke="#a98ae9" stroke-width="2"/>
+</svg>

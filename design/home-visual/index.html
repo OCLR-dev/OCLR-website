@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>OCLR S11 · 首页视觉方向</title>
+  <link rel="stylesheet" href="review.css">
+</head>
+<body>
+  <header class="review-header">
+    <div><p class="eyebrow">OCLR / ART DIRECTION STUDY 01</p><h1>首页，重新留出呼吸。</h1><p class="intro">同一位 LR 娘，四种构图。先看整体，再拆开人物、背景与字标。</p></div>
+    <a class="download" href="previews/overview.png" download>下载四案总览 ↗</a>
+  </header>
+  <main><p style="padding:20px;background:#e5d7ef;border:1px solid #b79aca">此页为第一轮旧稿。<a href="revision-05/">查看棱角形状稿 R05 →</a> · <a href="revision-03/">保留稿 R03 →</a></p>
+    <section class="toolbar" aria-label="预览选项">
+      <div class="tabs" role="group" aria-label="视觉方案">
+        <button type="button" data-view="all" aria-pressed="true">四案对比</button>
+        <button type="button" data-view="a" aria-pressed="false">A 斜轴构成</button>
+        <button type="button" data-view="b" aria-pressed="false">B 留白海报</button>
+        <button type="button" data-view="c" aria-pressed="false">C 夜景视窗</button>
+        <button type="button" data-view="d" aria-pressed="false">D 节奏网格</button>
+      </div>
+      <div class="options">
+        <label class="select-label">画幅 <select id="format"><option value="desktop">桌面</option><option value="mobile">手机</option></select></label>
+        <fieldset><legend>显示图层</legend><label><input type="checkbox" data-layer="background" checked> 背景</label><label><input type="checkbox" data-layer="mascot" checked> 人物</label><label><input type="checkbox" data-layer="wordmark" checked> 字标</label></fieldset>
+      </div>
+    </section>
+    <p class="review-note">视觉方向稿 · 页面入口为布局示意 · 选择方案可放大查看</p>
+    <div id="gallery" class="gallery" aria-live="polite"></div>
+    <section class="notes">
+      <div><p class="eyebrow">DESIGN DECISION</p><h2>让三层各做一件事。</h2></div>
+      <div><h3>人物负责识别</h3><p>采用 Wiki 的运动外套、侧马尾、嫩芽与红蓝鞋设定，统一清晰的线条和色块。四案使用同一张透明人物，方便比较构图。</p></div>
+      <div><h3>背景负责气氛</h3><p>A / C 延续夕景城市，降低细节的存在感；B / D 用几何远山和浅色块测试更清爽的方向。人物与背景可分别替换。</p></div>
+      <div><h3>艺术字负责力度</h3><p>OCLR S11 由圆弧和几何路径组成。保留构成主义的切割、方向和节奏，去掉破损纹理。四款均可下载为纯矢量 SVG。</p></div>
+    </section>
+  </main>
+  <footer><p>Liru by JerrYamada · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · 此人物稿由原设定经 AI 辅助改编，待审阅。</p><p><a href="https://oclr.org/wiki/liru">角色参考</a> · <a href="https://oclr.org/">当前首页</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorials/SVG_from_scratch/Paths">SVG 路径技术参考</a></p></footer>
+  <script src="review.js"></script>
+</body>
+</html>

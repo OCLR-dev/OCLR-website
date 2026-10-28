@@ -9,19 +9,19 @@ mislabeling unavailable game/player mods as NM.
 
 ## Source → review → public display
 
-| Saved source                                                            | Approved selection / transformation                                                                 | Public display                                                                                                   |
-| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Ordinary `match_imports` + `match_games`                                | Exact `publishedRevision`, approved revision/import fingerprint; published fixture and team lineage | Source MP, completeness, numeric revision; game ID preserves repeated maps                                       |
-| Historical `historical_statistics.published`                            | All fixture MP sources, matching archive key, whole-fixture reconciliation                          | All approved rooms; fingerprint of the immutable published snapshot (draft version is not a publication version) |
-| Game beatmap ID, artist/title/difficulty                                | Literal saved metadata                                                                              | Beatmap link and identity; no slot-derived mods                                                                  |
-| Game start/end, mode, team type, scoring type, mods                     | No inferred times or rules                                                                          | Recorded timestamps in edition timezone; absent values labelled                                                  |
-| Score osu ID, total, accuracy, combo, hits, mods, pass, lobby team/slot | Public identities only; reviewed roster/substitution mapping                                        | Player/team links, 300/100/50/miss, actual score and reviewed contribution                                       |
-| `providerFields.score`, `legacy_total_score`, `total_score`             | Explicit numeric allowlist                                                                          | Expandable additional score values; no generic provider payload                                                  |
-| Included game decisions / historical included IDs                       | Excluded games retained as source evidence                                                          | Included/excluded labels; no internal reason or substitution note                                                |
-| Failed score policy                                                     | Ordinary approved policy; historical retained raw scores                                            | Separate original and effective values, never overwrite the actual score                                         |
-| Historical score exclusions / roster-team override                      | Published review snapshot                                                                           | Excluded public player scores do not contribute; private/non-roster identities withheld                          |
-| Official series score / technical adjudication                          | Existing official result remains authoritative                                                      | Official scoreboard separate from retained-game wins; administrative points create no scores                     |
-| Effective approved games                                                | Existing `calculateRating` via `ratingSnapshot`; no SR                                              | MRA/ERA/DRA/RWS/appearances, algorithm and source evidence; invalid data has no substituted zero rating          |
+| Saved source                                                            | Approved selection / transformation                                                                 | Public display                                                                                     |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Ordinary `match_imports` + `match_games`                                | Exact `publishedRevision`, approved revision/import fingerprint; published fixture and team lineage | Source MP link, partial-source warning when needed; game ID preserves repeated maps                |
+| Historical `historical_statistics.published`                            | All fixture MP sources, matching archive key, whole-fixture reconciliation                          | All approved rooms; immutable snapshot fingerprints remain in saved evidence, outside the match UI |
+| Game beatmap ID, artist/title/difficulty                                | Literal saved metadata                                                                              | Beatmap link and identity; no slot-derived mods                                                    |
+| Game start/end, mode, team type, scoring type, mods                     | No inferred times or rules                                                                          | Recorded timestamps in edition timezone; absent values labelled                                    |
+| Score osu ID, total, accuracy, combo, hits, mods, pass, lobby team/slot | Public identities only; reviewed roster/substitution mapping                                        | Player/team links, 300/100/50/miss, actual score and reviewed contribution                         |
+| `providerFields.score`, `legacy_total_score`, `total_score`             | Explicit numeric allowlist                                                                          | Expandable additional score values; no generic provider payload                                    |
+| Included game decisions / historical included IDs                       | Excluded games retained as source evidence                                                          | Included/excluded labels; no internal reason or substitution note                                  |
+| Failed score policy                                                     | Ordinary approved policy; historical retained raw scores                                            | Separate original and effective values, never overwrite the actual score                           |
+| Historical score exclusions / roster-team override                      | Published review snapshot                                                                           | Excluded public player scores do not contribute; private/non-roster identities withheld            |
+| Official series score / technical adjudication                          | Existing official result remains authoritative                                                      | Official scoreboard separate from retained-game wins; administrative points create no scores       |
+| Effective approved games                                                | Existing `calculateRating` via `ratingSnapshot`; no SR                                              | MRA/ERA/DRA/RWS/appearances; invalid data has no substituted zero rating                           |
 
 Raw events, provider warnings, reviewer reasons, private evidence and unapproved
 revisions are not public DTO fields. A null score is not zero. Excluded effective
@@ -36,6 +36,30 @@ Ordinary result revisions currently approve one import/MP. The details follow th
 exact import; unrelated or newer imports are not treated as additional approved
 rooms. Historical fixtures support all recorded MP rooms atomically. This change
 does not invent a new multi-import ordinary-result approval workflow.
+
+## Match-page presentation (#377)
+
+The shared ordinary/historical match view leads with played maps and Match Rating.
+It removes the fixed series-result explanation, failed-score policy paragraphs,
+missing-value glossary, source revision/fingerprint text, rating formula, policy
+code, comparison-group disclaimer and calculation-source disclosure. The nested
+YumuRating heading and its extra section spacing are also removed on match pages.
+The [rating reference](yumu-rating.md) retains the methodology. Round reports and
+the Admin rating workspace retain the full `PlayerRatings` presentation.
+
+Actual and reviewed scores/totals keep their separate labels. Only relevant
+conditions add short local notices: technical adjudication, partial MP sources,
+reviewed team mapping, incomplete public player data and failed scores actually
+changed to zero. Excluded maps and scores keep their status and recorded values;
+missing values remain unknown and a recorded zero remains zero. No new generic
+explanation panel replaces the removed text. Additional provider score values
+and user-opened player evaluations remain available as actual data/detail views.
+
+This is a rendering change only. Saved snapshots, source evidence, API fields,
+rating/scoring calculations and publication/authorization checks are unchanged.
+New Chinese status wording requires organizer review before acceptance.
+Same-viewport synthetic screenshots and the review wording are recorded in
+[the #377 verification notes](verification/issue-377/README.md).
 
 ## Consistency and delivery
 

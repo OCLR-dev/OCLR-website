@@ -49,7 +49,7 @@ test.describe("staff multi-role editing (#260)", () => {
       .click();
     await page.getByRole("button", { name: "Confirm", exact: true }).click();
     await expect(page.getByRole("dialog")).not.toBeVisible();
-    await expect(group.locator("p").first()).toContainText("tester");
+    await expect(group.locator(".staff-saved-roles")).toContainText("Tester");
     await page.reload();
     await expect(
       group.getByRole("button", { name: "Save roles", exact: true }),

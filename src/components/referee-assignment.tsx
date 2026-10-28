@@ -4,7 +4,8 @@ import { useStaffReadOnly } from "./staff-read-only";
 import { useAppTranslations } from "@/i18n/shared";
 
 import { useId, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePendingRefresh } from "./use-pending-refresh";
+import { LoadingRegion } from "./loading-region";
 import type { FixtureWorkspace } from "@/lib/fixtures";
 import { formatDate } from "@/lib/editions";
 export function RefereeAssignment({
@@ -21,18 +22,22 @@ export function RefereeAssignment({
 
   const id = useId(),
     dialog = useRef<HTMLDialogElement>(null),
-    router = useRouter();
+    { refreshing, refresh } = usePendingRefresh();
   const [selected, setSelected] = useState(fixture.refereeIds);
   const [revision, setRevision] = useState(fixture.assignmentRevision);
   const [query, setQuery] = useState("");
-  const [pending, setPending] = useState(false),
+  const [requestPending, setPending] = useState(false),
     [error, setError] = useState("");
+  const pending = requestPending || refreshing;
+  const [activeAction, setActiveAction] = useState<"save" | "reload">("save");
   function reset() {
     setSelected(fixture.refereeIds);
     setRevision(fixture.assignmentRevision);
     setError("");
   }
   async function reload() {
+    if (pending) return;
+    setActiveAction("reload");
     setPending(true);
     setError("");
     try {
@@ -53,7 +58,7 @@ export function RefereeAssignment({
       if (!current) throw new Error("This fixture is no longer available.");
       setSelected(current.refereeIds);
       setRevision(current.assignmentRevision);
-      router.refresh();
+      refresh();
     } catch (error) {
       setError(
         error instanceof Error
@@ -65,7 +70,8 @@ export function RefereeAssignment({
     }
   }
   async function save() {
-    if (readOnly) return;
+    if (readOnly || pending) return;
+    setActiveAction("save");
     setPending(true);
     setError("");
     try {
@@ -83,11 +89,11 @@ export function RefereeAssignment({
       if (!response.ok) {
         const result = await response.json();
         setError(result.error ?? "Assignments could not be saved.");
-        router.refresh();
+        refresh();
         return;
       }
       dialog.current?.close();
-      router.refresh();
+      refresh();
     } catch {
       setError("Connection interrupted. Reload assignments before retrying.");
     } finally {
@@ -111,8 +117,11 @@ export function RefereeAssignment({
     : [];
   return (
     <>
+      {refreshing && activeAction === "save" && !error && <LoadingRegion />}
       <button
         type="button"
+        disabled={pending}
+        aria-busy={pending}
         className="secondary"
         onClick={() => {
           reset();
@@ -129,6 +138,10 @@ export function RefereeAssignment({
           if (pending) e.preventDefault();
         }}
       >
+        {(requestPending ||
+          (refreshing && (activeAction === "reload" || !!error))) && (
+          <LoadingRegion />
+        )}
         <h2 id={`${id}-title`}>
           {tr("Referees · ")}
           {fixture.label}
@@ -223,8 +236,12 @@ export function RefereeAssignment({
           </p>
         )}
         <div className="actions">
-          <button disabled={readOnly || pending} onClick={save}>
-            {pending ? tr("Saving…") : tr("Save assignments")}
+          <button
+            disabled={readOnly || pending}
+            aria-busy={pending && activeAction === "save"}
+            onClick={save}
+          >
+            {tr("Save assignments")}
           </button>
           <button
             className="secondary"
@@ -233,8 +250,13 @@ export function RefereeAssignment({
           >
             {tr("Cancel")}
           </button>
-          {error && (
-            <button className="secondary" disabled={pending} onClick={reload}>
+          {(error || (pending && activeAction === "reload")) && (
+            <button
+              className="secondary"
+              aria-busy={pending && activeAction === "reload"}
+              disabled={pending}
+              onClick={reload}
+            >
               {tr("Reload assignments")}
             </button>
           )}

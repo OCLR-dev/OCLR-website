@@ -51,6 +51,15 @@ rules editor; see [the import checkpoint](s6-archive.md) for the confirmed versi
 and pending display deployment. The S6 archive's exact source pair enables the same saved sections in
 historical public/private views and saved reads.
 
+Both artwork selectors use localized season labels, including **Season 5 (β)**.
+The existing S8/S9 1920×1080 images and S10 1024×1024 image are available as both
+logo and key visual (#356). Select and preview the desired image in General
+settings, then explicitly save; deployment does not select it automatically.
+Saved reads and public historical views retain the selected image's dimensions.
+**No edition artwork** clears the explicit configuration; existing historical
+source-artwork fallback rules remain in effect. No migration or image replacement
+is required.
+
 S5 likewise uses its native versioned editor, bound to the exact S5 MainSheet and
 QQ rulebook source URLs. The organizer-provided `OCLR β 规则表` is saved in its
 original order as `重点规则:`, `BP流程`, and `时限`; source subheadings, wording,
@@ -114,6 +123,38 @@ After saving typed questions, roll back only to a build that understands `type`/
 
 `pending` means awaiting staff review; staff may change it to `accepted` or `rejected`. A player may withdraw a `pending` or `accepted` application only before the explicitly configured `withdrawUntil` and while the edition is unlocked. `withdrawn` retains its history and may reapply during open registration; rejection cannot be changed by a player. No withdrawal deadline means no self-service withdrawal. Captain appointment/locked draft state prevents self-service withdrawal and requires staff review. Every transition is recorded with actor and time; review is separate from captain/team assignment. Edition-scoped transaction locks serialize eligibility-affecting changes and draft lock against withdrawals/submissions.
 
+## Historical staff identities (#375)
+
+The edition's **Historical archive** screen provides **Historical staff identities**
+for saved staff rows without a confirmed UID. A writable edition Admin selects a
+row and looks up its current osu! username. Numeric names remain usernames;
+spaces and special characters use the existing official username resolver.
+The candidate includes its verified UID, current name, avatar and osu! profile.
+A current-name match alone does not establish historical identity: check
+independent evidence, enter its identity confirmation source, explicitly confirm
+the match, then save. Failed, ambiguous or conflicting lookups leave the original
+name-only record intact. An existing confirmed UID cannot be overwritten here.
+
+`POST /api/admin/tournaments/{edition}/archive-staff` accepts `staffIndex`,
+`username` and `expectedRevision` for lookup. Saving uses the existing tournament
+command `resolve-archive-staff`, with the candidate UID, confirmation source and
+explicit `identityConfirmed: true`. Both operations require same-origin session
+authentication and writable `configure_tournament` access for that edition;
+Developer-only, remote development and read-channel access cannot invoke them.
+The server verifies the candidate again before saving and rechecks permission,
+the archive revision and the selected unresolved row. Provider calls reuse the
+bounded cache, concurrency controls and rate/backoff policy; public Staff reads
+never resolve names or call the provider.
+
+Only the selected saved staff row's UID changes. Historical names, duties and
+source text remain literal. Confirmation evidence is recorded privately in the
+transactional audit event alongside the new revision, not in public archive
+content. Archive format, public notes and source appendix remain unchanged.
+No account, registration, staff grant, competition result or publication flag is
+created or changed. Competition-statistics keys are unchanged by this operation.
+Other unresolved rows, including other duties with the same name, require their
+own evidence rather than being linked automatically.
+
 ## Staff provisioning and reviews
 
 There are no seeded administrators. Verify the first administrator's numeric osu! profile ID out of band, explicitly place that ID in the server-only `ADMIN_OSU_IDS` comma-separated bootstrap allowlist, deploy/restart, and authenticate normally. Legacy `STAFF_OSU_IDS` is ignored: review each old operator's responsibilities before explicitly granting a role. Never copy the old list automatically.
@@ -123,6 +164,31 @@ Administrators manage persistent Admin, Mappooler and Referee assignments at `/a
 Keep bootstrap access restricted for recovery. An environment bootstrap administrator cannot be revoked through the website: remove the ID from `ADMIN_OSU_IDS` and restart. Before removing the final bootstrap ID, verify a persistent global Admin can sign in. A scoped Admin cannot recover global access. Never grant roles from usernames, client cookies or request-supplied actor identities.
 
 Staff enter `/admin` for a role-aware overview, then select a tournament at `/admin/tournaments`. The selected workspace has grouped operational navigation, a tournament switcher and breadcrumbs. General/rules/registration/milestone/publication settings live under `/admin/tournaments/[edition]/settings`; registration review lives under `/admin/tournaments/[edition]/registrations`, with `/admin/registrations` for authorized cross-edition search. Legacy filtered `/admin` bookmarks and registration detail URLs redirect safely. Global Staff Management and Audit stay outside tournament navigation; personal accounts remain on the public website. All page queries, APIs, reviews and exports also enforce authorization on the server. Pending applications may be accepted/rejected with explicit confirmation; rejection requires a player-visible explanation. Reviews use transaction locks and a version check, so stale or concurrent decisions are rejected. Locked editions cannot be reviewed. Audit events include actor, before/after status, timestamp and reason. CSV exports contain ID, username, edition, status, submitted time and private application answers, with original question/option labels and stable IDs. Formulas/control-prefixed cells are neutralized and quotes escaped. Internal audit data and staff notes are excluded. Exports are limited to 10,000 filtered rows and should be handled as private staff data.
+
+### Overview tournament list (#397)
+
+The `/admin` overview uses the complete authorized `tournamentList` collection.
+Name search is case-insensitive, trims surrounding whitespace and accepts up to
+100 characters. Tournament status uses the existing upcoming/live/completed
+values. Both conditions apply before the existing stored-season/slug ordering
+and pagination, with 12 tournaments per page. Published/draft and historical
+records remain included when authorized; counts cover only filtered authorized
+records. Global Admin/Developer reads and edition-scoped staff grants keep their
+existing meaning, and list visibility adds no write capability.
+
+URL state uses `tournamentQuery`, `tournamentStatus` and `tournamentPage`.
+Pagination preserves the filters; submitting or clearing filters starts at page
+one. Invalid pages resolve to page one, and valid out-of-range pages resolve to
+the last available page after filtering or access changes. Empty collections and
+no matching results have separate messages. Legacy `q`, `edition`, `status` and
+`page` requests still redirect to registration review, including mixed legacy
+and new parameters. Database and remote pages share this selection/rendering
+logic after their existing authorized reads; no new API contract or migration is
+needed. Search and pagination remain usable in read-only views.
+
+Desktop uses compact multi-column cards and mobile uses one column, retaining
+names, seasons, status, publication and the edition workspace link. See the
+[same-viewport comparison and verification notes](verification/issue-397/README.md).
 
 ## Automatic staff audits
 

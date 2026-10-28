@@ -125,17 +125,11 @@ test.describe("operational UI follow-ups", () => {
           }
           await noOverflow(page);
         }
-        for (const name of [
-          "No Mod",
-          "Hidden",
-          "Double Time",
-          "Hard Rock",
-          "Tie Breaker",
-        ])
+        for (const slot of ["NM", "HD", "DT", "HR", "TB"])
           await expect(
             page
-              .locator(".map-card-copy .eyebrow")
-              .filter({ hasText: new RegExp(name, "i") })
+              .locator(".map-slot-badge")
+              .filter({ hasText: new RegExp(`^${slot}\\d*$`) })
               .first(),
           ).toBeVisible();
         expect(await page.locator("main").innerText()).not.toMatch(

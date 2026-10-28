@@ -17,7 +17,7 @@ if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
 const out = fileURLToPath(new URL(".", import.meta.url));
 const uiBaseline =
-  process.env.S7_UI_BASELINE ?? "5c9f0834548ebe4c0ce91ca5bc24efa94138fb32";
+  process.env.S7_UI_BASELINE ?? "0a7e0c21c783ff3b9094caa3a6e55b1abdd8d7f7";
 execFileSync("git", [
   "diff",
   "--exit-code",
@@ -398,6 +398,24 @@ try {
         height: 1000,
         detail: { ...clip, deviceScaleFactor: 2 },
       });
+      for (const width of [937, 390]) {
+        await detailPage.setViewportSize({ width, height: 815 });
+        await detailPage.goto(base + "/tournaments/s7");
+        await detailPage.waitForLoadState("networkidle");
+        const file = `heading-${width}-${theme}.png`;
+        await detailPage.locator(".page-heading").screenshot({
+          path: out + file,
+          animations: "disabled",
+        });
+        shots.push({
+          file,
+          path: "/tournaments/s7",
+          theme,
+          width,
+          height: 815,
+          detail: { selector: ".page-heading", deviceScaleFactor: 2 },
+        });
+      }
       // Match the reported narrow-desktop mappool controls and literal long titles.
       await detailPage.setViewportSize({ width: 699, height: 815 });
       await detailPage.goto(base + "/tournaments/s7/mappools");
@@ -470,14 +488,14 @@ try {
     out + "verification.json",
     JSON.stringify(
       {
-        date: "2026-10-27",
+        date: "2026-10-28",
         uiBaseline,
         scope:
           "Actual registered S7 appearance with SSR cookie and shipped assets; public committed S7 archive and one synthetic local test account; no business commands",
         locale: "zh-Hans",
         browser: "Google Chrome",
         material:
-          "Brushed silver and gunmetal plates; machined three-socket hexagonal insert with silver bevels, recessed inner walls, countersunk fasteners and a gold edge; full original S7 key visual",
+          "Restrained brushed silver and gunmetal heading; satin navigation and archive data plate; container-sized machined insert; aligned unframed season artwork and five metric rows",
         decorativeAssets: ["/themes/graphite-arena/honeycomb.svg"],
         materialChecks,
         screenshots: shots,

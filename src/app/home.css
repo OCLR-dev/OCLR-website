@@ -80,6 +80,22 @@
   margin-block: -0.12em;
   margin-left: -0.25em;
 }
+.home-wordmark-layout-b {
+  display: block;
+  width: min(50vw, 48rem);
+  transform: translateY(clamp(-2rem, -2vw, -1rem));
+  line-height: 0;
+}
+.home-vector-wordmark {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+@media (max-width: 760px) {
+  .home-wordmark-layout-b {
+    width: 90%;
+  }
+}
 .home-contact-bar {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -443,5 +459,86 @@ html[data-theme="dark"]
     .home-entry-links
     :is(.home-contact, .home-registration-link)::before {
     transform: skewX(-18deg);
+  }
+}
+
+/* Homepage uses the approved character composition, independent of the edition banner. */
+.home-person-feature::after {
+  display: none;
+}
+.home-composition {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.home-composition .home-layer {
+  position: absolute;
+  height: auto;
+  max-width: none;
+}
+.home-layer-sky {
+  left: -0.701879%;
+  top: -1.89539%;
+  width: 102.632%;
+  filter: saturate(0.78) brightness(1.8);
+}
+.home-layer-ground {
+  left: -29.1%;
+  top: 89.2%;
+  width: 94.4%;
+}
+.home-composition-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #0c0a1b 0%,
+    #0c0a1b99 43%,
+    transparent 100%
+  );
+}
+.home-layer-person {
+  left: 63%;
+  top: 28%;
+  width: 53.97609%;
+  transform: perspective(1200px) rotateY(12deg);
+}
+.home-layer-logo {
+  left: 4.3788%;
+  top: 14.4727%;
+  width: 46.4545%;
+}
+.home-layer-season {
+  left: -32.0428%;
+  top: -7.97239%;
+  width: 90.5268%;
+}
+.home-layer-katu {
+  left: 41.4881%;
+  top: 22.0044%;
+  width: 4.68417%;
+}
+.home-person-feature .home-feature-inner {
+  position: relative;
+  min-height: 50vw;
+  align-items: end;
+  padding-block: 0 4vw;
+}
+.home-person-feature .home-feature-left {
+  width: 40%;
+  padding: 0;
+}
+@media (max-width: 1000px) {
+  .home-person-feature .home-composition {
+    position: relative;
+    aspect-ratio: 2 / 1;
+  }
+  .home-person-feature .home-feature-inner {
+    min-height: 0;
+    padding-block: 1.25rem 1.75rem;
+  }
+  .home-person-feature .home-feature-left {
+    width: 100%;
   }
 }

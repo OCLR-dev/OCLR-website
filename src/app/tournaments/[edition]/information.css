@@ -587,3 +587,14 @@ html[data-appearance="cute-pastel"] .public-tournament .information-layout {
 .public-tournament .information-overview-details table {
   font-size: 0.875rem;
 }
+
+.information-banner.information-winter-banner {
+  aspect-ratio: 2 / 1;
+}
+.information-banner.information-winter-banner img {
+  object-fit: contain;
+  object-position: center;
+}
+.information-banner.information-winter-banner::after {
+  display: none;
+}

@@ -19,6 +19,15 @@ async function Issue271Page({
   searchParams: Promise<{ edition?: string }>;
 }) {
   const tr = await getAppTranslations();
+  const roleLabels = {
+    admin: tr("Admin"),
+    mappooler: tr("Mappooler"),
+    tester: tr("Tester"),
+    replayer: tr("Replayer"),
+    referee: tr("Referee"),
+    streamer: tr("Streamer"),
+    developer: tr("Developer"),
+  };
 
   return authorizedPage(async () => {
     const actor = await requireUser();
@@ -62,7 +71,7 @@ async function Issue271Page({
             .map((e) => ({ slug: e.slug, name: e.name }))}
           scopes={writeScopes}
         />
-        <section className="spaced">
+        <section className="spaced staff-assignments">
           <h2>{tr("Role assignments")}</h2>
           {!grants.length && (
             <EmptyState title={tr("No persistent assignments")}>
@@ -74,14 +83,21 @@ async function Issue271Page({
           {[...groups].map(([key, rows]) => {
             const { grant: first, username } = rows[0];
             return (
-              <article className="panel spaced staff-role-group" key={key}>
-                <h3>
-                  {username} · {first.userId}
-                </h3>
-                <p>
-                  {first.editionSlug ?? tr("Global")} ·{" "}
-                  {rows.map(({ grant }) => grant.role).join(" / ")}
-                </p>
+              <article className="panel staff-role-group" key={key}>
+                <header className="staff-role-identity">
+                  <h3>
+                    {username} · {first.userId}
+                  </h3>
+                  <p className="staff-role-scope">
+                    <span className="muted">{tr("Scope")}</span>{" "}
+                    <strong>
+                      {first.editionSlug
+                        ? (editions.find((e) => e.slug === first.editionSlug)
+                            ?.name ?? first.editionSlug)
+                        : tr("Global — all editions")}
+                    </strong>
+                  </p>
+                </header>
                 <StaffReadOnlyContext
                   value={
                     !permits(
@@ -97,10 +113,6 @@ async function Issue271Page({
                   >
                     <h4>{tr("Edit roles")}</h4>
                     <StaffRoleForm
-                      key={rows
-                        .map(({ grant }) => grant.id)
-                        .sort()
-                        .join(",")}
                       scopes={writeScopes}
                       editions={editions.map((e) => ({
                         slug: e.slug,
@@ -116,36 +128,51 @@ async function Issue271Page({
                       }}
                     />
                   </section>
-                  {rows.map(({ grant: g }) => (
-                    <div className="spaced" key={g.id}>
-                      <p>
-                        {g.role} · {tr("About:")}{" "}
-                        {g.aboutPublished
-                          ? !g.editionSlug ||
-                            editions.some(
-                              (e) => e.slug === g.editionSlug && e.published,
-                            )
-                            ? tr("Public")
-                            : tr("Hidden until tournament publication")
-                          : tr("Private")}
-                      </p>
-                      <div className="staff-role-actions">
-                        <StaffPublicVisibility
-                          id={g.id}
-                          username={username}
-                          role={g.role}
-                          scope={g.editionSlug}
-                          published={g.aboutPublished}
-                        />
-                        <RevokeRole
-                          id={g.id}
-                          username={username}
-                          role={g.role}
-                          scope={g.editionSlug}
-                        />
+                  <section
+                    className="staff-role-publication"
+                    aria-label={tr("About visibility and revocation")}
+                  >
+                    <h4>{tr("About visibility and revocation")}</h4>
+                    <p className="muted staff-role-help">
+                      {tr(
+                        "These actions apply to saved roles independently of the role selection above.",
+                      )}
+                    </p>
+                    {rows.map(({ grant: g }) => (
+                      <div className="staff-role-row" key={g.id}>
+                        <div className="staff-role-row-info">
+                          <strong>{roleLabels[g.role]}</strong>
+                          <p className="muted">
+                            {tr("About:")}{" "}
+                            {g.aboutPublished
+                              ? !g.editionSlug ||
+                                editions.some(
+                                  (e) =>
+                                    e.slug === g.editionSlug && e.published,
+                                )
+                                ? tr("Public")
+                                : tr("Hidden until tournament publication")
+                              : tr("Private")}
+                          </p>
+                        </div>
+                        <div className="staff-role-actions">
+                          <StaffPublicVisibility
+                            id={g.id}
+                            username={username}
+                            role={g.role}
+                            scope={g.editionSlug}
+                            published={g.aboutPublished}
+                          />
+                          <RevokeRole
+                            id={g.id}
+                            username={username}
+                            role={g.role}
+                            scope={g.editionSlug}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </section>
                 </StaffReadOnlyContext>
               </article>
             );

@@ -62,12 +62,17 @@ export function archiveKeyVisual<
       : sheet
         ? visuals[sheet]
         : undefined;
+  // Resolve selected workbook artwork independently of the edition's source,
+  // including the square S10 image.
+  const selected = configured
+    ? Object.values(visuals).find((visual) => visual.src === configured)
+    : undefined;
   // Explicit edition branding still takes priority over the source supplement.
   return configured
-    ? {
+    ? (selected ?? {
         src: configured,
         width: original?.src === configured ? original.width : 1672,
         height: original?.src === configured ? original.height : 941,
-      }
+      })
     : original;
 }

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OCLR S11 · R04 形状稿</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f5f4f1;color:#202027;font-family:"Noto Sans CJK SC",sans-serif}header,main,footer{max-width:1800px;margin:auto;padding:32px 40px}header{display:flex;align-items:end;justify-content:space-between;gap:24px}h1{font-size:24px;font-weight:500;margin:8px 0 0}.eyebrow{font-size:11px;letter-spacing:.18em;color:#77747d;margin:0}.links{display:flex;gap:24px;flex-wrap:wrap}a{color:inherit;text-underline-offset:5px;font-size:13px}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}button{min-height:44px;padding:10px 18px;font:inherit;font-size:13px;background:transparent;border:1px solid #bab7bd;border-radius:4px;color:inherit;cursor:pointer}button[aria-pressed=true]{background:#24232b;color:#fff;border-color:#24232b}button:focus-visible,a:focus-visible{outline:2px solid #7042b7;outline-offset:5px}.stage{margin:0;background:#fff;border:1px solid #e1dfe3}.stage img{width:100%;height:auto;display:block}.hidden{display:none!important}.notes{display:flex;flex-wrap:wrap;gap:24px 48px;font-size:13px;line-height:1.8;color:#65616c;padding:24px 0}.notes p{margin:0}.notes strong{font-weight:500;color:#25222c}.geometry-grid{display:grid;grid-template-columns:1fr 1fr;align-items:center;background:#fff;border:1px solid #e1dfe3;gap:24px;padding:28px}.geometry-grid figure{margin:0;min-width:0}.geometry-grid img{display:block;max-height:650px;max-width:100%;margin:auto}.geometry-grid figcaption{font-size:12px;color:#68616f;text-align:center;margin-top:16px}.geometry-note{font-size:13px;color:#65616c;line-height:1.9;max-width:900px}footer{font-size:12px;color:#77747d;border-top:1px solid #ddd9df;line-height:1.8;padding-top:20px}footer a{font-size:12px}@media(max-width:700px){header,main,footer{padding:24px 18px}header{flex-direction:column;align-items:start}h1{font-size:21px}.links{gap:18px}.notes{display:block}.notes p+p{margin-top:10px}.geometry-grid{gap:14px;padding:12px}.geometry-grid figcaption{font-size:11px}.geometry-note{font-size:12px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div><p class="eyebrow">OCLR / SHAPE STUDY · REVISION 04</p><h1>先确认形状与横向布局</h1></div>
+    <nav class="links" aria-label="稿件"><a href="oclr-s11-shapes.svg" download>下载透明 SVG ↗</a><a href="shape-board.png" download>下载形状稿 PNG ↗</a><a href="../revision-03/">保留稿 R03 ↗</a></nav>
+  </header>
+  <main>
+    <div class="controls" role="group" aria-label="预览内容"><button type="button" data-view="composition" aria-pressed="true">整体形状</button><button type="button" data-view="geometry" aria-pressed="false">R 控制点对照</button></div>
+    <section id="composition" aria-label="整体形状">
+      <figure class="stage"><img src="oclr-s11-shapes.svg" width="1700" height="470" alt="透明内部的 OCL、R 与 S11 轮廓，R 显示六个控制点和连接线"></figure>
+      <div class="notes"><p><strong>OCL</strong> · <code>\mathcal{OCL}</code> 保留加粗字形，内部透明</p><p><strong>R</strong> · 轮廓、控制点与连线</p><p><strong>S11</strong> · 笔刷轮廓，内部透明</p></div>
+    </section>
+    <section id="geometry" class="hidden" aria-label="R 控制点对照">
+      <div class="geometry-grid"><figure><img src="sources/r-reference.png" width="497" height="559" alt="用户提供的 R 滑条编辑器截图"><figcaption>参考截图</figcaption></figure><figure><img src="r-geometry-review.svg" width="497" height="559" alt="使用相同坐标重建的 R 滑条与六个控制点"><figcaption>同一坐标系的矢量重建</figcaption></figure></div>
+      <p class="geometry-note">保留参考图中六个控制点的位置与顺序：左下起点 → 左侧中间点 → 上方 → 右侧 → 中部 → 右下。两段圆弧接一段直线，末段按截图中的实际滑条端点收短。整体排版只做等比缩放。截图之外的轮廓依照圆弧连续补全。</p>
+    </section>
+  </main>
+  <footer>R04 为独立形状讨论稿；R03 原稿保留。<a href="sources/SHAPE-SOURCES.md">字形与素材来源</a> · <a href="sources/R-GEOMETRY.md">R 几何记录</a> · <a href="sources/S11-SOURCE.md">S11 轮廓记录</a></footer>
+  <script src="review.js"></script>
+</body>
+</html>

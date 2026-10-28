@@ -5,11 +5,13 @@ import { BeatmapCover } from "./beatmap-cover";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import type {
-  ArchiveDisplayMap,
-  ArchiveDisplayPool,
+import {
+  parseArchiveTitle,
+  type ArchiveDisplayMap,
+  type ArchiveDisplayPool,
 } from "@/lib/archive-map-metadata";
 import { formatBeatmapDuration } from "@/lib/mappool-model";
+import { MapCardBand } from "./map-card-band";
 import { WorkspaceTabs } from "./workspace-tabs";
 
 type MapEntry = ArchiveDisplayMap;
@@ -17,6 +19,8 @@ function ArchiveMapDetails({
   map,
   stats,
   setId,
+  originalSetId,
+  beatmapMissing,
   previous,
   next,
   onMove,
@@ -25,6 +29,8 @@ function ArchiveMapDetails({
   map: MapEntry;
   stats: React.ReactNode;
   setId: number | null | undefined;
+  originalSetId: number | null | undefined;
+  beatmapMissing?: boolean;
   previous?: MapEntry;
   next?: MapEntry;
   onMove: (slot: string) => void;
@@ -66,7 +72,7 @@ function ArchiveMapDetails({
       </header>
       <div className="map-dialog-body">
         <div className="map-detail-identity">
-          <BeatmapCover setId={setId} />
+          <BeatmapCover setId={setId} fallbackSetId={originalSetId} />
           <div>
             <h2 id={title}>{map.title ?? tr("Not recorded")}</h2>
             {map.mapper && !map.title?.includes(map.mapper) && (
@@ -77,7 +83,13 @@ function ArchiveMapDetails({
           </div>
         </div>
         {stats}
-        <BeatmapActions beatmapId={map.beatmapId} setId={setId} />
+        <BeatmapActions
+          beatmapId={map.beatmapId}
+          setId={setId}
+          originalBeatmapId={map.originalId}
+          originalSetId={originalSetId}
+          beatmapMissing={beatmapMissing}
+        />
         <div className="map-dialog-navigation">
           <button
             type="button"
@@ -105,9 +117,11 @@ export function ArchiveMappools({
   pool,
   stages,
   artworkSetIds,
+  missingBeatmapIds = [],
 }: {
   pool: Pool;
   artworkSetIds: Record<number, number | null>;
+  missingBeatmapIds?: number[];
   stages: { id: string; name: string; count: number; href: string }[];
 }) {
   const tr = useAppTranslations(),
@@ -135,7 +149,7 @@ export function ArchiveMappools({
     (m) =>
       (mod === "all" || m.slot.replace(/\d+$/, "") === mod) &&
       (!query ||
-        [m.slot, m.title, m.mapper, m.beatmapId]
+        [m.slot, m.title, m.mapper, m.beatmapId, m.originalId]
           .filter((v) => v !== null)
           .join(" ")
           .toLocaleLowerCase()
@@ -147,6 +161,44 @@ export function ArchiveMappools({
   if (sort === "stars")
     maps.sort((a, b) => (b.stars ?? -Infinity) - (a.stars ?? -Infinity));
   const activeIndex = maps.findIndex((m) => m.slot === selected);
+  const artwork = (m: MapEntry) => ({
+    beatmapMissing: !!m.beatmapId && missingBeatmapIds.includes(m.beatmapId),
+    setId: m.beatmapId ? (artworkSetIds[m.beatmapId] ?? null) : null,
+    originalSetId: m.originalId ? (artworkSetIds[m.originalId] ?? null) : null,
+  });
+  const active = maps[activeIndex];
+  const activeArtwork = active ? artwork(active) : null;
+  const supplemented = (m: MapEntry) =>
+    !!m.supplemented?.length && (
+      <p className="muted small">
+        {tr(
+          "Missing archive fields supplemented with current osu! base metadata (no mods): {fields}.",
+          {
+            fields: m.supplemented
+              .map(
+                (field) =>
+                  ({
+                    title: tr("Song title"),
+                    mapper: tr("Mapper"),
+                    stars: tr("SR"),
+                    bpm: tr("BPM"),
+                    drainSeconds: tr("Length"),
+                    cs: tr("CS"),
+                    ar: tr("AR"),
+                    od: tr("OD"),
+                  })[field],
+              )
+              .join(", "),
+          },
+        )}{" "}
+        <a href={m.metadataSource} target="_blank" rel="noreferrer">
+          {tr("Source")}
+        </a>{" "}
+        <time dateTime={m.metadataFetchedAt}>
+          {m.metadataFetchedAt?.slice(0, 10)}
+        </time>
+      </p>
+    );
   const stats = (m: MapEntry) => (
     <>
       <dl className="archive-map-stats">
@@ -176,36 +228,7 @@ export function ArchiveMappools({
           </div>
         ))}
       </dl>
-      {!!m.supplemented?.length && (
-        <p className="muted small">
-          {tr(
-            "Missing archive fields supplemented with current osu! base metadata (no mods): {fields}.",
-            {
-              fields: m.supplemented
-                .map(
-                  (field) =>
-                    ({
-                      title: tr("Song title"),
-                      mapper: tr("Mapper"),
-                      stars: tr("SR"),
-                      bpm: tr("BPM"),
-                      drainSeconds: tr("Length"),
-                      cs: tr("CS"),
-                      ar: tr("AR"),
-                      od: tr("OD"),
-                    })[field],
-                )
-                .join(", "),
-            },
-          )}{" "}
-          <a href={m.metadataSource} target="_blank" rel="noreferrer">
-            {tr("Source")}
-          </a>{" "}
-          <time dateTime={m.metadataFetchedAt}>
-            {m.metadataFetchedAt?.slice(0, 10)}
-          </time>
-        </p>
-      )}
+      {supplemented(m)}
     </>
   );
   return (
@@ -309,90 +332,111 @@ export function ArchiveMappools({
                 : "archive-map-list"
             }
           >
-            {maps.map((m) => (
-              <li
-                className={
-                  view === "cards"
-                    ? "archive-map-item map-browse-card"
-                    : "archive-map-item"
-                }
-                key={m.slot}
-                id={`map-${m.slot}`}
-                data-category={m.slot.replace(/\d+$/, "")}
-              >
-                {view === "cards" ? (
-                  <div className="map-card-cover">
-                    <BeatmapCover
-                      setId={m.beatmapId ? artworkSetIds[m.beatmapId] : null}
-                    />
-                    <span className="map-slot-badge">{m.slot}</span>
-                  </div>
-                ) : (
+            {maps.map((m) => {
+              const { setId, originalSetId, beatmapMissing } = artwork(m);
+              if (view === "cards") {
+                const parsed = parseArchiveTitle(m.title);
+                return (
+                  <MapCardBand
+                    as="li"
+                    className="archive-map-item"
+                    key={m.slot}
+                    id={`map-${m.slot}`}
+                    dataCategory={m.slot.replace(/\d+$/, "")}
+                    slot={m.slot}
+                    title={parsed?.title ?? m.title ?? tr("Not recorded")}
+                    artist={parsed?.artist}
+                    difficulty={parsed?.difficulty}
+                    mapper={parsed?.mapper ?? m.mapper}
+                    beatmapId={m.beatmapId}
+                    setId={setId}
+                    originalBeatmapId={m.originalId}
+                    originalSetId={originalSetId}
+                    beatmapMissing={beatmapMissing}
+                    stars={m.stars}
+                    bpm={m.bpm}
+                    durationSeconds={m.drainSeconds}
+                    cs={m.cs}
+                    ar={m.ar}
+                    od={m.od}
+                    headingLevel={3}
+                    openLabel={tr("View {value0}: {value1}", {
+                      value0: m.slot,
+                      value1: m.title ?? tr("Not recorded"),
+                    })}
+                    onOpen={() => setSelected(m.slot)}
+                    note={supplemented(m)}
+                  />
+                );
+              }
+              return (
+                <li
+                  className="archive-map-item"
+                  key={m.slot}
+                  id={`map-${m.slot}`}
+                  data-category={m.slot.replace(/\d+$/, "")}
+                >
                   <div className="archive-map-thumbnail">
                     <BeatmapCover
-                      setId={m.beatmapId ? artworkSetIds[m.beatmapId] : null}
+                      setId={setId}
+                      fallbackSetId={originalSetId}
                       compact
                     />
                     <span className="archive-map-slot">{m.slot}</span>
                   </div>
-                )}
-                <div
-                  className={
-                    view === "cards"
-                      ? "map-card-copy"
-                      : "archive-map-compact-copy"
-                  }
-                >
-                  <div className="archive-map-identity">
-                    <h3>
-                      <button
-                        type="button"
-                        className="map-open-button"
-                        aria-label={tr("View {value0}: {value1}", {
-                          value0: m.slot,
-                          value1: m.title ?? tr("Not recorded"),
-                        })}
-                        onClick={() => setSelected(m.slot)}
-                      >
-                        {m.title ?? tr("Not recorded")}
-                      </button>
-                    </h3>
-                    <p className="muted small">
-                      {tr("Mapper")}: {m.mapper ?? tr("Not recorded")}
-                      {m.beatmapId ? (
-                        <>
-                          {" "}
-                          · <span>#{m.beatmapId}</span>
-                        </>
-                      ) : (
-                        <> · {tr("Beatmap ID unresolved")}</>
-                      )}
-                    </p>
+                  <div className="archive-map-compact-copy">
+                    <div className="archive-map-identity">
+                      <h3>
+                        <button
+                          type="button"
+                          className="map-open-button"
+                          aria-label={tr("View {value0}: {value1}", {
+                            value0: m.slot,
+                            value1: m.title ?? tr("Not recorded"),
+                          })}
+                          onClick={() => setSelected(m.slot)}
+                        >
+                          {m.title ?? tr("Not recorded")}
+                        </button>
+                      </h3>
+                      <p className="muted small">
+                        {tr("Mapper")}: {m.mapper ?? tr("Not recorded")}
+                        {m.beatmapId ? (
+                          <>
+                            {" "}
+                            · <span>#{m.beatmapId}</span>
+                          </>
+                        ) : (
+                          <> · {tr("Beatmap ID unresolved")}</>
+                        )}
+                      </p>
+                    </div>
+                    {stats(m)}
+                    <BeatmapActions
+                      compact
+                      beatmapId={m.beatmapId}
+                      setId={setId}
+                      originalBeatmapId={m.originalId}
+                      originalSetId={originalSetId}
+                      beatmapMissing={beatmapMissing}
+                      name={m.slot}
+                    />
                   </div>
-                  {stats(m)}
-                  <BeatmapActions
-                    compact
-                    beatmapId={m.beatmapId}
-                    setId={m.beatmapId ? artworkSetIds[m.beatmapId] : null}
-                    name={m.slot}
-                  />
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ol>
         ) : (
           <p className="notice">{tr("No maps match these filters.")}</p>
         )}
       </div>
-      {maps[activeIndex] && (
+      {active && activeArtwork && (
         <ArchiveMapDetails
-          map={maps[activeIndex]}
-          setId={
-            maps[activeIndex].beatmapId
-              ? artworkSetIds[maps[activeIndex].beatmapId!]
-              : null
-          }
-          stats={stats(maps[activeIndex])}
+          map={active}
+          setId={activeArtwork.setId}
+          originalSetId={activeArtwork.originalSetId}
+          beatmapMissing={activeArtwork.beatmapMissing}
+          stats={stats(active)}
           previous={maps[activeIndex - 1]}
           next={maps[activeIndex + 1]}
           onMove={setSelected}

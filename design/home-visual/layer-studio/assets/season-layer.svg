@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 0 1200 490" width="1200" height="490" color="#fff5ee" role="img" aria-labelledby="title desc">
+  <title id="title">S11</title>
+  <desc id="desc">Original transparent SVG paths, independently selectable.</desc>
+  <defs><linearGradient id="ocl-fill" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#b8efff" /><stop offset="50%" stop-color="#c4b4ff" /><stop offset="100%" stop-color="#f1b7e8" /></linearGradient><linearGradient id="acc-fill" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#efb3df" /><stop offset="50%" stop-color="#ae9bff" /><stop offset="100%" stop-color="#8de6ef" /></linearGradient><filter id="star-glow" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="9" result="halo" /><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="near" /><feMerge><feMergeNode in="halo" /><feMergeNode in="halo" /><feMergeNode in="near" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs><g id="season-label" transform="translate(1040 296) scale(.30) translate(-1030 -66)">
+    <path id="S-angular" d="M73 0H250L240 59H98L88 70L79 111H189L217 141L191 270L159 300H0L11 241H137L148 230L155 185H45L17 155L40 31Z" transform="translate(1030 66)" fill="#c9c9c9" stroke="#c9c9c9" stroke-width="3" stroke-linejoin="miter" stroke-miterlimit="4" />
+    <path id="season-one-a" d="M20 45L79 0H140L83 300H23L65 81L6 118Z" transform="translate(1300 66)" fill="#c9c9c9" stroke="#c9c9c9" stroke-width="3" stroke-linejoin="miter" stroke-miterlimit="4" />
+    <path id="season-one-b" d="M20 45L79 0H140L83 300H23L65 81L6 118Z" transform="translate(1470 66)" fill="#c9c9c9" stroke="#c9c9c9" stroke-width="3" stroke-linejoin="miter" stroke-miterlimit="4" />
+  </g>
+</svg>

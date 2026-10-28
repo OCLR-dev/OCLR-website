@@ -144,7 +144,7 @@ test.describe("#106–#115 shared presentation", () => {
               .first()
               .evaluate((el) => getComputedStyle(el).backgroundColor),
           ).toBe("rgba(0, 0, 0, 0)");
-          await fm.getByRole("button").click();
+          await fm.locator(".map-open-button").click();
           await expect(page.getByRole("dialog")).toBeVisible();
           if (fmMode)
             await expect(page.getByRole("dialog")).toContainText(

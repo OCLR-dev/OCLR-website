@@ -1,6 +1,7 @@
 "use client";
+import { LoadingRegion } from "./loading-region";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { usePendingRefresh } from "./use-pending-refresh";
 import { useAppTranslations } from "@/i18n/shared";
 import type { MappoolWorkspace } from "@/lib/mappools";
 import type { ReplayItem } from "@/lib/mappool-replays";
@@ -110,7 +111,7 @@ export function MappoolReplays({
   canManage: boolean;
 }) {
   const tr = useAppTranslations(),
-    router = useRouter(),
+    { refreshing, refresh } = usePendingRefresh(),
     id = useId();
   const url = `/api/admin/tournaments/${slug}/mappools/entries/${entry.id}/replays`;
   const [expanded, setExpanded] = useState(false),
@@ -119,8 +120,11 @@ export function MappoolReplays({
     [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null),
     [description, setDescription] = useState("");
-  const [pending, setPending] = useState(false),
+  const [requestPending, setPending] = useState(false),
     [progress, setProgress] = useState(0);
+  const [operation, setOperation] = useState<"upload" | "delete" | null>(null);
+  const pending = requestPending || refreshing;
+  const uploading = requestPending && operation === "upload";
   const [error, setError] = useState(""),
     [status, setStatus] = useState("");
   const [deleting, setDeleting] = useState<ReplayItem | null>(null);
@@ -173,6 +177,7 @@ export function MappoolReplays({
     setPending(true);
     setError("");
     setStatus("");
+    setOperation("upload");
     setProgress(0);
     const form = new FormData();
     form.set("file", file);
@@ -235,13 +240,14 @@ export function MappoolReplays({
       );
     } finally {
       request.current = null;
-      setPending(false);
       await load();
-      router.refresh();
+      refresh();
+      setPending(false);
     }
   }
   async function remove() {
     if (!deleting || pending || !writable) return;
+    setOperation("delete");
     setPending(true);
     setError("");
     try {
@@ -270,9 +276,9 @@ export function MappoolReplays({
       setDeleting(null);
       summary.current?.focus();
     } finally {
-      setPending(false);
       await load();
-      router.refresh();
+      refresh();
+      setPending(false);
     }
   }
   return (
@@ -282,6 +288,7 @@ export function MappoolReplays({
         value0: slotLabel(entry.category, entry.position),
       })}
     >
+      {pending && !deleting && operation === "delete" && <LoadingRegion />}
       <button
         type="button"
         ref={summary}
@@ -418,17 +425,14 @@ export function MappoolReplays({
               />
             </label>
             <div className="actions">
-              <button
-                type="submit"
-                disabled={!writable || !file || pending}
-              >
-                {pending
+              <button type="submit" disabled={!writable || !file || pending}>
+                {uploading
                   ? progress === 100
                     ? tr("Validating and saving…")
                     : tr("Uploading…")
                   : tr("Upload replay")}
               </button>
-              {pending && !deleting && (
+              {uploading && (
                 <button
                   type="button"
                   className="secondary"
@@ -438,7 +442,7 @@ export function MappoolReplays({
                 </button>
               )}
             </div>
-            {pending && (
+            {uploading && (
               <progress
                 aria-label={tr("Replay upload progress")}
                 max={100}
@@ -458,9 +462,13 @@ export function MappoolReplays({
         <dialog
           ref={dialog}
           aria-labelledby={`${id}-delete-title`}
-          onCancel={() => setDeleting(null)}
+          onCancel={(event) => {
+            if (pending) event.preventDefault();
+            else setDeleting(null);
+          }}
           onClose={() => summary.current?.focus()}
         >
+          {pending && deleting && operation === "delete" && <LoadingRegion />}
           <h3 id={`${id}-delete-title`}>{tr("Delete replay?")}</h3>
           <p className="replay-filename">{deleting?.filename}</p>
           <p>
@@ -488,6 +496,7 @@ export function MappoolReplays({
             <button
               type="button"
               disabled={pending || !writable}
+              aria-busy={pending && operation === "delete"}
               onClick={() => void remove()}
             >
               {tr("Delete replay")}

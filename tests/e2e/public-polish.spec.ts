@@ -160,8 +160,12 @@ test.describe("public presentation follow-ups", () => {
           .locator(".map-card-cover .beatmap-cover")
           .all()) {
           const b = (await cover.boundingBox())!;
-          expect(b.width / b.height).toBeCloseTo(16 / 9, 1);
+          // The cover fills its column in the wide band row and becomes a
+          // 16:9 banner once the card stacks on narrow screens.
           expect(b.width).toBeGreaterThanOrEqual(200);
+          if (width <= 640) expect(b.width / b.height).toBeCloseTo(16 / 9, 1);
+          else expect(b.height).toBeGreaterThanOrEqual(150);
+          expect(b.width / b.height).toBeGreaterThan(1.2);
         }
         await noOverflow(page);
         await page.screenshot({
@@ -178,6 +182,25 @@ test.describe("public presentation follow-ups", () => {
       .filter({ has: page.getByText("NM6", { exact: true }) })
       .scrollIntoViewIfNeeded();
     await expect(page.getByText("Cover unavailable")).toBeVisible();
+    // Clipboard rejection must be visible as well as announced.
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async () => {
+            throw new Error("Denied");
+          },
+        },
+      });
+    });
+    const copy = page.locator(".map-card-id").first();
+    await copy.click();
+    await expect(copy).toContainText("Could not copy the beatmap ID.");
+    await expect(
+      page
+        .locator('[role="status"]')
+        .filter({ hasText: "Could not copy the beatmap ID." }),
+    ).toHaveCount(1);
     const first = page.locator(".map-open-button").first();
     await first.focus();
     await page.keyboard.press("Enter");

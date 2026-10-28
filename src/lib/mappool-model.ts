@@ -9,6 +9,13 @@ export const categoryNames = {
   FM: "FM",
   TB: "Tie Breaker",
 } as const;
+// Ruleset labels are interface text, not authored tournament content.
+export const beatmapModeNames = {
+  osu: "osu!standard",
+  taiko: "osu!taiko",
+  fruits: "osu!catch",
+  mania: "osu!mania",
+} as const;
 export const fmModeNames = {
   free_mod: "Free Mod",
   force_mod: "Force Mod",

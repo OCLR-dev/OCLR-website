@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "./pending-link";
 import type { ReactNode } from "react";
 export function Action({
   href,

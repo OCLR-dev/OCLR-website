@@ -9,7 +9,7 @@ import Link from "next/link";
 export default async function RemotePage() {
   if (!remoteMode()) notFound();
   const tr = await getAppTranslations();
-  const { upstream } = remoteConfiguration();
+  const { upstream, local } = remoteConfiguration();
   let state, failure;
   try {
     state = await frontendConnection();
@@ -30,6 +30,9 @@ export default async function RemotePage() {
         >
           {upstream}
         </a>
+      </p>
+      <p>
+        {tr("Local origin")}: <code>{local}</code>
       </p>
       <p className="notice" role="status">
         {state?.identity

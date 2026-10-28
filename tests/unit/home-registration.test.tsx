@@ -47,6 +47,17 @@ describe("homepage registration banner", () => {
     vi.mocked(frontendTournaments).mockResolvedValue([summary("open")]);
   });
   afterEach(() => vi.unstubAllGlobals());
+  it("offers responsive PNG sources without preloading full-size fallbacks", async () => {
+    const html = await render();
+    const pictures = html.match(/<picture>.*?<\/picture>/g) ?? [];
+    expect(pictures).toHaveLength(3);
+    for (const picture of pictures) {
+      expect(picture).toContain('type="image/png"');
+      expect(picture).toMatch(/srcSet="[^"]+ \d+w, [^"]+ \d+w/);
+      expect(picture).toMatch(/sizes="(?:103|95|54)vw"/);
+    }
+    expect(html).not.toMatch(/<link[^>]+as="image"[^>]+home-s11/);
+  });
   it("uses the featured edition's configured closing time and registration URL when open", async () => {
     vi.mocked(frontendTournaments).mockResolvedValue([summary("open")]);
     const html = await render();

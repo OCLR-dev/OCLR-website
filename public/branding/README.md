@@ -13,3 +13,28 @@ Selected official **OCLR** wordmark for **osu! Chinese League Rookie**, replacin
 - This is independent community tournament branding, not osu!'s official logo. Do not add unlicensed osu! brand marks.
 
 Previous wordmark versions are superseded by this design. No database or application behavior changes are needed.
+
+
+## S11 local visual integration
+
+`home-s11/` contains the approved homepage character composition: generated Liru/foreground/nebula layers and split colored vector logo. Source and attribution: `design/home-visual/layer-studio/README.md`.
+
+`oclr-s11-winter-banner.svg` is the independent centered winter design for the S11 tournament information banner, exported by `design/home-visual/layer-studio/export-home-banner.py`. Its embedded Orion photograph credit is NASA, ESA, M. Robberto (STScI/ESA), and the Hubble Space Telescope Orion Treasury Project Team; source https://science.nasa.gov/asset/hubble/hubbles-sharpest-view-of-the-orion-nebula/ . Other seasons retain their existing artwork.
+
+Local development preview: http://localhost:3000/ and http://localhost:3000/tournaments/s11 .
+
+
+### Liru refinement
+
+Homepage now uses `home-s11/liru-refined-v2.png`, preserving the seated pose while fixing the oversized looping hair and long neck. The built-in generation returned 1024×1536 despite requesting larger dimensions. `liru-refined-v2.svg` is a real traced vector (12,831 paths, no embedded raster); the corresponding `liru-refined-v2-vector-2048.png` is a 2048×3072 render, not additional native detail. SVG can scale its contours without raster interpolation, but automatic tracing visibly quantizes shading, so the corrected PNG remains the homepage default. Both are selectable in the layer studio. See `design/home-visual/layer-studio/liru-refinement-notes.md` and the adjacent prompt / tracing script.
+
+The follow-up wallpaper-method pass switches the homepage to `home-s11/liru-smooth-final.svg`: color-layer Potrace with continuous Bezier outlines, cumulative masks to avoid seams, and SVGO optimization. The PNG and first tracing remain as comparisons; see the studio's `liru-refinement-notes.md` for reproduction and exact size report.
+
+User review reverted the homepage and studio default to `liru-refined-v2.png` (corrected hair and neck). Vector variants remain backups, not the selected display asset.
+
+
+PR #421 runtime-size follow-up: the homepage remains PNG-based, with palette-
+compressed, alpha-preserving variants selected by native `picture` / `srcset`.
+Full-resolution editing sources stay in `design/home-visual/layer-studio/assets/`.
+The runtime banner embeds only a 2000×1000 crop of the original NASA photo.
+See the studio README's runtime export commands for reproducible regeneration.

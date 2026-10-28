@@ -80,6 +80,9 @@ export const editionSchema = z
         keyVisual: z
           .enum([
             "/oclr-s11-key-visual.webp",
+            "/archive/s10/thumbnail.png",
+            "/archive/s9/thumbnail.png",
+            "/archive/s8/thumbnail.jpg",
             "/archive/s7/key-visual.jpg",
             "/archive/s6/key-visual.jpg",
             "/archive/s5/key-visual.png",

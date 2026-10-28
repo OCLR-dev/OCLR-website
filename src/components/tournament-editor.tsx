@@ -129,7 +129,7 @@ function IdentityFields({
                   }
                 >
                   <option value="">{tr("No edition artwork")}</option>
-                  {asset.key === "logo" && (
+                  {(asset.key === "logo" || asset.key === "keyVisual") && (
                     <>
                       <option value="/archive/s10/thumbnail.png">
                         {tr("OCLR Season 10 — ")}
@@ -148,23 +148,23 @@ function IdentityFields({
                   {(asset.key === "logo" || asset.key === "keyVisual") && (
                     <>
                       <option value="/archive/s1/key-visual.webp">
-                        {"OCLR Season 1 — "}
+                        {tr("OCLR Season 1 — ")}
                         {asset.label}
                       </option>
                       <option value="/archive/s2/key-visual.avif">
-                        {"OCLR Season 2 — "}
+                        {tr("OCLR Season 2 — ")}
                         {asset.label}
                       </option>
                       <option value="/archive/s3/key-visual.avif">
-                        {"OCLR Season 3 — "}
+                        {tr("OCLR Season 3 — ")}
                         {asset.label}
                       </option>
                       <option value="/archive/s4/key-visual.avif">
-                        {"OCLR Season 4 — "}
+                        {tr("OCLR Season 4 — ")}
                         {asset.label}
                       </option>
                       <option value="/archive/s5/key-visual.png">
-                        {"OCLR β (S5) — "}
+                        {tr("OCLR Season 5 (β) — ")}
                         {asset.label}
                       </option>
                       <option value="/archive/s6/key-visual.jpg">

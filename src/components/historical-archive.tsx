@@ -6,10 +6,11 @@ import {
 import { supportsArchiveStatistics } from "@/lib/archive-statistics-model";
 import { getAppTranslations } from "@/i18n/server";
 import { archivePoolMetadata } from "@/lib/archive-map-metadata";
-import { archiveArtworkSetIds } from "@/lib/archive-artwork";
+import { archiveArtworkLookup } from "@/lib/archive-artwork";
 import { archiveBracket } from "@/lib/archive-bracket";
 import { archiveEventMatches } from "@/lib/archive-event-matches";
 import { archiveStaff } from "@/lib/archive-staff";
+import { groupArchiveStaff } from "@/lib/archive-staff-groups";
 import { remoteMode } from "@/lib/data-source";
 import { formatDate, type Edition } from "@/lib/editions";
 import {
@@ -479,33 +480,26 @@ export async function HistoricalArchiveView({
     );
   } else if (section === "staff") {
     title = tr("Staff");
-    const groups = new Map<string, HistoricalArchive["staff"]>();
-    for (const person of archiveStaff(a)) {
-      const members = groups.get(person.position) ?? [];
-      members.push(person);
-      groups.set(person.position, members);
-    }
-    content = groups.size ? (
+    const groups = groupArchiveStaff(archiveStaff(a));
+    const roleTitles: Record<string, string> = {
+      referee: tr("Referee"),
+      streamer: tr("Streamer"),
+      commentator: tr("Commentator"),
+      unspecified: tr("Staff (unspecified)"),
+    };
+    content = groups.length ? (
       <div className="archive-staff stack">
-        {Array.from(groups, ([position, members]) => (
-          <section key={position}>
-            <h2>
-              {position === "Referee"
-                ? tr("Referee")
-                : position === "Streamer"
-                  ? tr("Streamer")
-                  : position === "Commentators"
-                    ? tr("Commentators")
-                    : position}
-            </h2>
+        {groups.map(({ key, members }) => (
+          <section key={key}>
+            <h2>{Object.hasOwn(roleTitles, key) ? roleTitles[key] : key}</h2>
             <ul className="public-staff-list">
               {members.map((person, index) => (
                 <li key={`${person.osuId}-${index}`}>
                   {person.osuId ? (
-                    <Avatar osuId={person.osuId} username={person.username} />
+                    <Avatar osuId={person.osuId} username={person.names[0]} />
                   ) : (
                     <div className="avatar" aria-hidden="true">
-                      <span>{person.username.slice(0, 2)}</span>
+                      <span>{person.names[0].slice(0, 2)}</span>
                     </div>
                   )}
                   <div>
@@ -516,10 +510,10 @@ export async function HistoricalArchiveView({
                           href={`https://osu.ppy.sh/users/${person.osuId}`}
                           rel="noreferrer"
                         >
-                          {person.username}
+                          {person.names.join(" · ")}
                         </a>
                       ) : (
-                        person.username
+                        person.names.join(" · ")
                       )}
                     </h3>
                   </div>
@@ -697,20 +691,22 @@ export async function HistoricalArchiveView({
       section === "pool" ? a.pools.find((p) => p.id === id) : a.pools[0];
     if (section === "pool" && !pool) notFound();
     const display = pool ? archivePoolMetadata(pool, a.editionSlug) : null;
+    const artwork =
+      pool && display
+        ? await archiveArtworkLookup(
+            pool.maps
+              .flatMap((m) => [m.beatmapId, m.originalId ?? null])
+              .filter((id) => id !== null && !display.setIds[id]),
+          )
+        : null;
     title = tr("Mappools");
     content =
       pool && display ? (
         <ArchiveMappools
           key={pool.id}
           pool={display.pool}
-          artworkSetIds={{
-            ...(await archiveArtworkSetIds(
-              pool.maps
-                .map((m) => m.beatmapId)
-                .filter((id) => id !== null && !display.setIds[id]),
-            )),
-            ...display.setIds,
-          }}
+          artworkSetIds={{ ...artwork?.setIds, ...display.setIds }}
+          missingBeatmapIds={artwork?.missingBeatmapIds}
           stages={a.pools.map((p) => ({
             id: p.id,
             name: p.name,

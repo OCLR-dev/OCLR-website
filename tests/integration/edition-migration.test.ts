@@ -1523,3 +1523,59 @@ describe.skipIf(!base)(
       }));
   },
 );
+
+describe.skipIf(!base)("S6 Orbital Pulse appearance constraint upgrade", () => {
+  it("rejects the design before 0050 and accepts it afterwards without touching history", async () =>
+    isolated(async (pool) => {
+      const folder = mkdtempSync(
+        join(tmpdir(), "oclr-orbital-migration-test-"),
+      );
+      try {
+        cpSync("drizzle", folder, { recursive: true });
+        const file = join(folder, "meta/_journal.json");
+        const journal = JSON.parse(readFileSync(file, "utf8"));
+        journal.entries = journal.entries.filter(
+          (entry: { idx: number }) => entry.idx < 50,
+        );
+        writeFileSync(file, JSON.stringify(journal));
+        await migrate(drizzle(pool), { migrationsFolder: folder });
+        await pool.query(
+          "UPDATE site_settings SET default_appearance='graphite-arena', revision=1 WHERE id=1",
+        );
+        const history = (
+          await pool.query(
+            "INSERT INTO site_setting_events (before_appearance,after_appearance,revision) VALUES ('default','graphite-arena',1) RETURNING *",
+          )
+        ).rows[0];
+        await expect(
+          pool.query(
+            "UPDATE site_settings SET default_appearance='orbital-pulse' WHERE id=1",
+          ),
+        ).rejects.toThrow();
+        await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
+        expect(
+          (
+            await pool.query(
+              "SELECT default_appearance,revision FROM site_settings",
+            )
+          ).rows,
+        ).toEqual([{ default_appearance: "graphite-arena", revision: 1 }]);
+        expect(
+          (await pool.query("SELECT * FROM site_setting_events")).rows,
+        ).toEqual([history]);
+        await pool.query(
+          "UPDATE site_settings SET default_appearance='orbital-pulse', revision=2 WHERE id=1",
+        );
+        await pool.query(
+          "INSERT INTO site_setting_events (before_appearance,after_appearance,revision) VALUES ('graphite-arena','orbital-pulse',2)",
+        );
+        await expect(
+          pool.query(
+            "INSERT INTO site_setting_events (before_appearance,after_appearance,revision) VALUES ('orbital-pulse','unknown',3)",
+          ),
+        ).rejects.toThrow();
+      } finally {
+        rmSync(folder, { recursive: true, force: true });
+      }
+    }));
+});

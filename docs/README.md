@@ -34,6 +34,10 @@ real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
 
 - [Published match details](match-details.md) — source/review/public projection matrix, revision consistency and verification boundaries (#283).
 
+## Referee desktop integration design
+
+- [Referee panel and OCLR-ref-tools integration](referee-panel-integration.md) — shared panel data, desktop Bearer scopes, proposed read/write APIs, revision/idempotency, IRC execution boundaries and phased delivery (#312–#317). Design draft only; not a deployed endpoint or permission expansion. The same document is maintained in OCLR-ref-tools.
+
 ## Historical source preparation
 
 - [OCLR β (S5) sources](s5-archive.md) — MainSheet-authoritative rosters,

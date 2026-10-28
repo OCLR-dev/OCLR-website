@@ -1,5 +1,7 @@
 # S8 — Sakura Circuit / 櫻花折線
 
+**2026-10-28 主題圖更新**：依主辦方新提供的 PNG，正式人物圖改為 `heroine-half-20261028.webp`，維持既有排版與透明度；來源見 [ARTWORK](ARTWORK.md)，本輪實際桌面／手機明暗截圖見 [驗證紀錄](../../../verification/issue-197-artwork/README.md)。以下舊圖庫與結果保留作各輪歷史證據。
+
 **2026-10-27 正式接入**：初稿已由主辦方確認，本輪註冊 `sakura-circuit`，選單顯示「S8 · 櫻花折線／樱花折线／Sakura Circuit」。本輪依回饋精修花枝：移除標題橙色折角與統計角標，改為細緻櫻花插畫與漸淡分隔線；名稱沿用原 issue，視覺不強求折線元素。正式 CSS 與素材位於 `src/app/sakura-theme.css`／`public/themes/sakura-circuit/`；migration `0047_sakura_circuit_appearance` 僅擴充設定／稽核約束。下文保留初稿產圖時的歷史流程與證據，正式接入驗證另記於 #197。
 
 **目前狀態（2026-10-27）**：PR #378 已合併；本輪人物及標題比例修復基於 main `d34378e`，最新runtime `ce92b4db2bd5e3397117ee009e9dc872ad36563b`。下方初稿流程與舊驗證保留為歷史，最新人物與驗證見文末；修復尚未合併或部署。

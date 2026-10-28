@@ -1,5 +1,11 @@
 # S8 banner 與角色素材
 
+## 2026-10-28：使用者指定的新主題圖
+
+本輪直接使用主辦方提供的 `ChatGPT 圖像 2026年10月28日 上午09_14_40.png`，不再生成或重繪。原始附件保存為 [heroine-half-20261028.png](heroine-half-20261028.png)；正式引用 `public/themes/sakura-circuit/heroine-half-20261028.webp`。
+
+尺寸維持 1536×1024，以 quality 92、alphaQuality 100 轉為 WebP（423,550 bytes）；透明 alpha 逐像素核對一致，保留原圖構圖與透明邊緣。採新檔名更新快取，沿用既有桌面／手機尺寸、底部淡出與高對比退場。先前素材與以下提示詞保留作歷史紀錄。
+
 ## 女主角樣貌修整（2026-10-27）
 
 主辦方標註實際 S8 頁面人物，依原 banner 重新修整臉部、雙眼比例、頭部傾斜及髮絲交界。正式引用改為 [heroine-half-refined.webp](heroine-half-refined.webp)，來源為 [內建 image_gen 的 PNG](heroine-half-refined.png)，1536×1024，保留透明 alpha。WebP 使用 quality 92 編碼並逐像素核對 alpha 完全相同，不裁切、調色或後製人物；公開素材與設計資料夾版本逐位元組一致。舊半身素材保留作歷史，原 banner／主視覺原檔不變。仍為原 banner 的候選補全，未宣稱未顯示的衣飾是官方原稿。

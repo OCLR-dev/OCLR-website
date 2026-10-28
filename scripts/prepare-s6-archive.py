@@ -10,6 +10,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 IMPORTS = ROOT / "docs/imports"
 
+# Provenance for archived edits whose original beatmap is known. The edit stays
+# in beatmapId; originalId points at the map players can open separately.
+ORIGINAL_BEATMAP_IDS = {1933040: 1863199}
+
+
+def archived_map(m):
+    entry = {}
+    for key in ["slot", "beatmapId", "title", "mapper", "stars", "bpm", "drainSeconds", "cs", "ar", "od", "source"]:
+        entry[key] = m[key]
+        if key == "beatmapId" and m[key] in ORIGINAL_BEATMAP_IDS:
+            entry["originalId"] = ORIGINAL_BEATMAP_IDS[m[key]]
+    return entry
+
 
 def load(name):
     return json.loads((IMPORTS / name).read_text())
@@ -65,7 +78,7 @@ def build():
                 a["players"].append(dict(osuId=p["osuId"], **member))
     for p in s["pools"]:
         a["pools"].append(dict(id=p["id"], name=p["name"], source=p["maps"][0]["source"],
-                               maps=[{k: m[k] for k in ["slot", "beatmapId", "title", "mapper", "stars", "bpm", "drainSeconds", "cs", "ar", "od", "source"]} for m in p["maps"]]))
+                               maps=[archived_map(m) for m in p["maps"]]))
     for q in s["qualifiers"]:
         a["qualifiers"].append(dict(
             name=q["name"], poolId="coach-qualifier" if q["name"] == "教练资格赛" else "captain-qualifier",

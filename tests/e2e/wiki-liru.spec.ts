@@ -23,6 +23,7 @@ const appearances = [
   "glacier-blue",
   "sakura-circuit",
   "graphite-arena",
+  "orbital-pulse",
 ];
 // Every appearance in the default locale, plus the other locales in the default appearance.
 const cases = [

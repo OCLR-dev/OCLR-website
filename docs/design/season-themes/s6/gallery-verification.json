@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-29",
+  "choices": 32,
+  "scans": [
+    {
+      "width": 320,
+      "theme": "light",
+      "axeViolations": 0
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "axeViolations": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "axeViolations": 0
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "axeViolations": 0
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "axeViolations": 0
+    }
+  ],
+  "errors": []
+}

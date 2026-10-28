@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" role="img" aria-labelledby="title"><title id="title">OCLR S11 — 斜轴构成</title>
+<defs>
+<clipPath id="a-slice"><path d="M0 94H820V200H0Z"/></clipPath>
+<g id="a-letters" fill-rule="evenodd"><path d="M200 100A100 100 0 1 1 0 100A100 100 0 1 1 200 100ZM148 100A48 48 0 1 0 52 100A48 48 0 1 0 148 100Z" transform="translate(0 0)" /><path d="M182 32A100 100 0 1 0 182 168L144 132A48 48 0 1 1 144 68Z" transform="translate(220 0)" /><path d="M0 0H52V148H170V200H0Z" transform="translate(425 0)" /><path d="M0 0H94C154 0 186 30 186 77C186 111 168 134 138 145L198 200H127L54 128V200H0ZM54 46V104H88C118 104 132 95 132 75C132 55 118 46 88 46Z" transform="translate(617 0)" /></g>
+</defs>
+<g transform="translate(46 90) rotate(-9 400 100)">
+<circle cx="100" cy="100" r="119" fill="none" stroke="#9364ed" stroke-width="3"/>
+<path d="M-25 100H218M100 -24V224" fill="none" stroke="#f6eee2" stroke-width="2" opacity=".5"/>
+<use href="#a-letters" fill="#f6eee2"/>
+<g clip-path="url(#a-slice)"><use href="#a-letters" fill="#9364ed"/></g>
+<path d="M27 170A100 100 0 0 0 171 170L135 133A48 48 0 0 1 64 133Z" fill="#eb6baf"/>
+<path d="M673 128L744 200H815L727 114Z" fill="#eb6baf"/>
+<path d="M-26 214H816" stroke="#f6eee2" stroke-width="4"/>
+<path d="M240 -17H814" stroke="#eb6baf" stroke-width="3"/>
+<circle cx="237" cy="94" r="7" fill="#f6eee2"/>
+<circle cx="397" cy="94" r="7" fill="#eb6baf"/>
+<path d="M565 231H814V350H565Z" fill="#f6eee2"/>
+<g transform="translate(579 243) scale(0.95)" fill="#29213d"><path d="M0 0H92V24H28V42H68L92 64V100H0V76H64V58H24L0 36Z" transform="translate(0 0)" /><path d="M0 20L28 0H52V100H24V30L0 44Z" transform="translate(112 0)" /><path d="M0 20L28 0H52V100H24V30L0 44Z" transform="translate(184 0)" /></g>
+<path d="M0 241H246" stroke="#9364ed" stroke-width="3"/>
+<path d="M0 260H90M114 260H154M178 260H218" stroke="#eb6baf" stroke-width="8"/>
+</g>
+</svg>

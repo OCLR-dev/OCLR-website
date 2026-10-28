@@ -1,0 +1,128 @@
+{
+  "source": {
+    "file": "sources/r-reference.png",
+    "width": 497,
+    "height": 559,
+    "coordinates": "Original screenshot pixels; flat-color marker centers are half-pixel aligned.",
+    "status": "Screenshot reconstruction; not recovered original .osu data."
+  },
+  "controlPoints": [
+    {
+      "index": 0,
+      "x": 122.5,
+      "y": 482.5,
+      "markerColor": "#6644cc",
+      "segmentType": "PerfectCurve"
+    },
+    {
+      "index": 1,
+      "x": 153.5,
+      "y": 279.5,
+      "markerColor": "#ffcc22",
+      "segmentType": null
+    },
+    {
+      "index": 2,
+      "x": 205.5,
+      "y": 81.5,
+      "markerColor": "#6644cc",
+      "segmentType": "PerfectCurve"
+    },
+    {
+      "index": 3,
+      "x": 419.5,
+      "y": 184.5,
+      "markerColor": "#ffcc22",
+      "segmentType": null
+    },
+    {
+      "index": 4,
+      "x": 178.5,
+      "y": 283.5,
+      "markerColor": "#ed1121",
+      "segmentType": "Linear"
+    },
+    {
+      "index": 5,
+      "x": 425.5,
+      "y": 522.5,
+      "markerColor": "#ffcc22",
+      "segmentType": null
+    }
+  ],
+  "segments": [
+    {
+      "type": "PerfectCurve",
+      "controlPointIndices": [
+        0,
+        1,
+        2
+      ],
+      "center": [
+        2061.2618832050703,
+        674.7000905387052
+      ],
+      "radius": 1948.265514392727,
+      "startAngle": -3.04278003423102,
+      "sweepAngle": 0.21057564171727972,
+      "length": 410.25726092889454
+    },
+    {
+      "type": "PerfectCurve",
+      "controlPointIndices": [
+        2,
+        3,
+        4
+      ],
+      "center": [
+        282.8317285748441,
+        194.64087461148907
+      ],
+      "radius": 137.04398473565357,
+      "startAngle": -2.170362060895909,
+      "sweepAngle": 4.606475694793048,
+      "length": 631.2897848023775
+    },
+    {
+      "type": "Linear",
+      "controlPointIndices": [
+        4,
+        5
+      ],
+      "untrimmedLength": 343.70045097439134,
+      "visibleFraction": 0.850454134735,
+      "visibleTail": [
+        388.562171279545,
+        486.75853820166503
+      ],
+      "visibleLength": 292.3014696414553
+    }
+  ],
+  "stroke": {
+    "trackRadius": 75.5,
+    "endpointCapRadius": 76.25,
+    "note": "Widths are measured from the selected golden silhouette, not gameplay hitbox claims."
+  },
+  "visiblePath": "M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202",
+  "untrimmedControlPath": "M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L425.5 522.5",
+  "inferredExpectedDistance": 1333.8485153727274,
+  "visibleBounds": {
+    "xMin": 46.25,
+    "yMin": -17.9031101241645,
+    "xMax": 495.37571331049764,
+    "yMax": 563.008538201665
+  },
+  "viewBox": [
+    46.25,
+    -17.9031101241645,
+    449.12571331049764,
+    580.9116483258296
+  ],
+  "limitations": [
+    "Original .osu data is unavailable.",
+    "Subpixel control-point positions are measured from marker pixels, approximately ±0.5 px.",
+    "ExpectedDistance-like shortening is inferred from the visible round tail.",
+    "Outline extends beyond the screenshot crop; those small missing portions follow the reconstructed arcs and caps.",
+    "The external partial approach ring and editor overlays are omitted from the letter silhouette."
+  ]
+}

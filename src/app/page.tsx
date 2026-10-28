@@ -128,27 +128,88 @@ async function HomeContent() {
                 : tr("The next edition has not been announced yet.");
   return (
     <div className="home-redesign">
-      <section className="home-feature" aria-labelledby="hero-title">
-        <div
-          className="home-feature-art hero-art"
-          style={{
-            backgroundImage: `url("${featured?.branding.background ?? "/rookie-stage.svg"}")`,
-          }}
-          aria-hidden="true"
-        />
+      <section
+        className="home-feature home-person-feature"
+        aria-labelledby="hero-title"
+      >
+        <div className="home-composition" aria-hidden="true">
+          <picture>
+            <source
+              type="image/png"
+              srcSet="/branding/home-s11/nebula-only-480.png 480w, /branding/home-s11/nebula-only-960.png 960w, /branding/home-s11/nebula-only-1600.png 1600w, /branding/home-s11/nebula-only.png 2048w"
+              sizes="103vw"
+            />
+            <Image
+              src="/branding/home-s11/nebula-only.png"
+              unoptimized
+              alt=""
+              width={2048}
+              height={1024}
+              loading="eager"
+              className="home-layer home-layer-sky"
+            />
+          </picture>
+          <picture>
+            <source
+              type="image/png"
+              srcSet="/branding/home-s11/foreground-480.png 480w, /branding/home-s11/foreground-960.png 960w, /branding/home-s11/foreground-1600.png 1600w, /branding/home-s11/foreground.png 1774w"
+              sizes="95vw"
+            />
+            <Image
+              src="/branding/home-s11/foreground.png"
+              unoptimized
+              alt=""
+              width={1774}
+              height={887}
+              className="home-layer home-layer-ground"
+            />
+          </picture>
+          <div className="home-composition-shade" />
+          <picture>
+            <source
+              type="image/png"
+              srcSet="/branding/home-s11/liru-refined-v2-320.png 320w, /branding/home-s11/liru-refined-v2-640.png 640w, /branding/home-s11/liru-refined-v2.png 1024w"
+              sizes="54vw"
+            />
+            <Image
+              src="/branding/home-s11/liru-refined-v2.png"
+              unoptimized
+              alt=""
+              width={1024}
+              height={1536}
+              loading="eager"
+              className="home-layer home-layer-person"
+            />
+          </picture>
+          <Image
+            src="/branding/home-s11/oclr-layer.svg"
+            alt=""
+            width={1200}
+            height={490}
+            unoptimized
+            className="home-layer home-layer-logo"
+          />
+          <Image
+            src="/branding/home-s11/season-layer.svg"
+            alt=""
+            width={1200}
+            height={490}
+            unoptimized
+            className="home-layer home-layer-season"
+          />
+          <Image
+            src="/branding/home-s11/katu-cropped.svg"
+            alt=""
+            width={100}
+            height={100}
+            unoptimized
+            className="home-layer home-layer-katu"
+          />
+        </div>
         <div className="container home-feature-inner">
           <div className="home-feature-left">
-            <p className="home-full-name">{"osu! Chinese League Rookie"}</p>
-            <h1 id="hero-title" className="home-wordmark">
-              <Image
-                src="/oclr-s11-classic-wordmark-soft.png"
-                alt="OCLR S11"
-                width={2086}
-                height={754}
-                unoptimized
-                preload
-                className="home-painted-wordmark"
-              />
+            <h1 id="hero-title" className="sr-only">
+              <span>osu! Chinese League Rookie</span> — S11
             </h1>
             <div className="home-entry-links">
               <div className="home-contact-bar" aria-label={tr("Contact")}>

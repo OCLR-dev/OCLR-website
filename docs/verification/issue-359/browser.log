@@ -1,0 +1,19 @@
+
+> oclr-website@0.1.0 test:e2e
+> playwright test contributors.spec.ts
+
+[WebServer] (node:25500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:41916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [desktop] › tests\e2e\contributors.spec.ts:39:3 › compact contributor management (#359) › adds, edits, reorders and explicitly saves, retaining validation and failure feedback (2.1s)
+  ok 2 [desktop] › tests\e2e\contributors.spec.ts:178:3 › compact contributor management (#359) › keeps long-name rows readable in three locales, both themes and every registered appearance (37.6s)
+(node:56316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 3 [mobile] › tests\e2e\contributors.spec.ts:39:3 › compact contributor management (#359) › adds, edits, reorders and explicitly saves, retaining validation and failure feedback (2.1s)
+  ok 4 [mobile] › tests\e2e\contributors.spec.ts:178:3 › compact contributor management (#359) › keeps long-name rows readable in three locales, both themes and every registered appearance (36.8s)
+
+  4 passed (1.4m)

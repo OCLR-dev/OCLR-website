@@ -718,8 +718,8 @@ html[data-theme="dark"] .themed-site {
   color: var(--site-secondary-text);
 }
 .public-tournament
-  .mappool-sheet
-  :is(.mappool-map-title, .mappool-base-sr, .mappool-slot) {
+.mappool-sheet
+:is(.mappool-map-title, .mappool-base-sr, .mappool-slot) {
   color: var(--site-accent);
 }
 .public-tournament
@@ -819,16 +819,22 @@ html[data-theme="dark"] .themed-site {
   width: 100%;
   object-fit: cover;
 }
-.map-slot-badge {
+.map-slot-badge,
+.map-card-id {
   position: absolute;
+  z-index: 2;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  background: var(--map-star, var(--site-muted));
+  color: var(--map-star-ink, #ffffff);
+  font-size: 0.8rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+.map-slot-badge {
   top: 0.5rem;
   left: 0.5rem;
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-  background: var(--site-surface);
-  color: var(--site-accent);
-  font-weight: 800;
-  font-size: 0.8rem;
 }
 .map-card-copy {
   padding: 0.2rem 0.4rem 0.2rem 0;
@@ -840,13 +846,14 @@ html[data-theme="dark"] .themed-site {
   letter-spacing: 0.06em;
   margin-bottom: 0.25rem;
 }
-.map-card-copy :is(h2, h5) {
+.map-card-copy :is(h2, h3, h4, h5) {
   margin: 0 0 0.25rem;
   font-size: 1rem;
 }
 .themed-site button.map-open-button {
   display: block;
   text-align: left;
+  vertical-align: top;
   color: var(--site-foreground);
   border: 0;
   border-radius: 0.25rem;
@@ -856,7 +863,7 @@ html[data-theme="dark"] .themed-site {
   white-space: normal;
   overflow-wrap: anywhere;
   padding: 0;
-  font-size: 1rem;
+  font-size: 1.5rem;
   min-height: 44px;
 }
 .themed-site button.map-open-button:is(:hover, :focus-visible, :active) {
@@ -880,30 +887,322 @@ html[data-theme="dark"] .themed-site {
 .map-mod-rating {
   margin: 0.35rem 0 0;
 }
-@media (min-width: 1100px) {
-  .map-card-copy {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: 1.5rem;
-  }
-  .map-card-copy > :is(p, h2, h5) {
-    grid-column: 1;
-  }
-  .map-card-copy .map-card-values {
-    grid-column: 2;
-    grid-row: 2;
-    align-self: center;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin: 0;
-    font-size: 0.85rem;
-    font-weight: 600;
-  }
-  .map-card-copy .map-mod-rating {
-    grid-column: 2;
-    grid-row: 3 / span 2;
-    text-align: right;
-  }
+/* Wide information band modelled on the reference beatmap card: a star-coloured
+   rail, a flush cover and a compact text block over a dimmed artwork wash. */
+.map-browse-card--band {
+  position: relative;
+  isolation: isolate;
+  grid-template-columns: clamp(200px, 19.55%, 300px) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+  min-height: 9.75rem;
+  /* Reserve a full-height star rail before the artwork and the text block. */
+  padding: 0 0 0 20px;
+  overflow: clip;
+}
+.map-browse-card--band::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 3;
+  width: 20px;
+  background: var(--map-star, var(--site-accent));
+}
+.map-card-art {
+  position: absolute;
+  /* Start after the 20px star rail: the artwork is 20px narrower than the card,
+     with both right edges aligned. */
+  inset: 0 0 0 20px;
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.14;
+  -webkit-mask-image: linear-gradient(100deg, transparent 26%, #000 78%);
+  mask-image: linear-gradient(100deg, transparent 26%, #000 78%);
+  pointer-events: none;
+}
+.map-browse-card--band .map-card-cover {
+  z-index: 1;
+  align-self: stretch;
+  overflow: visible;
+  /* Take the radius from the outer card so themed radii stay in sync. */
+  border-radius: inherit;
+}
+/* Independent star-coloured plate behind the artwork: the rail underlays the
+   cover, so the image's rounded left corners reveal colour instead of the
+   card surface. */
+.map-browse-card--band .map-card-cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Square against the rail, rounded on the copy side with the outer card. */
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
+  background: var(--map-star, var(--site-accent));
+}
+.map-browse-card--band .map-card-cover .beatmap-cover {
+  position: relative;
+  height: 100%;
+  aspect-ratio: auto;
+  overflow: hidden;
+  /* Left corners stay rounded so the star plate shows through them. */
+  border-radius: inherit;
+}
+.map-card-id {
+  left: 10px;
+  bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 0;
+  border: 0;
+  box-shadow: none;
+  font-family: inherit;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+/* Let the localized clipboard error wrap inside narrow cover artwork. */
+.map-card-cover button.map-card-id:has(.map-card-id-error) {
+  max-width: calc(100% - 20px);
+  white-space: normal;
+  text-align: start;
+}
+.map-card-id:is(:hover, :focus-visible) {
+  filter: brightness(1.12);
+  transform: none;
+}
+.map-card-id:focus-visible {
+  outline: 2px solid var(--map-star-ink, #ffffff);
+  outline-offset: 2px;
+}
+.map-card-id-icon {
+  flex: none;
+  opacity: 0.7;
+}
+.map-card-id--copied .map-card-id-icon {
+  opacity: 1;
+}
+.map-browse-card--band .map-card-copy {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.85rem 1.1rem;
+}
+.map-browse-card--band .map-slot-badge {
+  left: 10px;
+}
+/* Slot and beatmap ids are the same pill in every appearance; some themes
+   draw extra borders, tails or square corners on the slot badge only. */
+html[data-appearance]
+  .themed-site
+  .map-browse-card--band
+  .map-card-cover
+  .map-slot-badge {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  min-width: 0;
+  min-height: 0;
+  max-width: calc(100% - 1.25rem);
+  padding: 0.1rem 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--map-star, var(--site-muted));
+  box-shadow: none;
+  color: var(--map-star-ink, #ffffff);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-shadow: none;
+}
+html[data-appearance]
+  .themed-site
+  .map-browse-card--band
+  .map-card-cover
+  .map-slot-badge::after {
+  content: none;
+}
+/* The beatmap id is a copy button but must keep the same pill as the slot
+   badge, so neutralise the themed button material and hover lift. */
+html[data-appearance]
+  .themed-site
+  .map-browse-card--band
+  .map-card-cover
+  button.map-card-id {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  min-height: 0;
+  max-width: calc(100% - 1.25rem);
+  padding: 0.1rem 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--map-star, var(--site-muted));
+  box-shadow: none;
+  color: var(--map-star-ink, #ffffff);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: normal;
+  line-height: 1.35;
+  text-shadow: none;
+  text-transform: none;
+  transform: none;
+}
+html[data-appearance]
+  .themed-site
+  .map-browse-card--band
+  .map-card-cover
+  button.map-card-id:is(:hover, :focus-visible, :active) {
+  border: 0;
+  background: var(--map-star, var(--site-muted));
+  color: var(--map-star-ink, #ffffff);
+  box-shadow: none;
+  transform: none;
+}
+html[data-appearance]
+  .themed-site
+  .map-browse-card--band
+  .map-card-cover
+  button.map-card-id:focus-visible {
+  outline: 2px solid var(--map-star-ink, #ffffff);
+  outline-offset: 2px;
+}
+.map-card-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  min-width: 0;
+  /* Leave the top-right corner to the download and link buttons. */
+  padding-right: 7rem;
+}
+.map-card-title-row :is(h2, h3, h4, h5) {
+  margin: 0;
+  min-width: 0;
+}
+.map-browse-card--band .map-open-button {
+  display: flex;
+  align-items: flex-start;
+  /* Buttons shrink-wrap by default, which would let a long title run under the
+     action buttons instead of ellipsizing. */
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  padding-block: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+/* Keep the title pinned to the copy block's top-left corner and sized to its
+   own line box; the base/themed button rules outrank the band selector above
+   and would otherwise leave a 44px hit area pushing the artist down. */
+html[data-appearance] .themed-site .map-browse-card--band .map-open-button {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-height: 0;
+  padding: 0;
+  line-height: 1.3;
+  text-align: left;
+}
+.map-browse-card--band .map-card-title {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.map-browse-card--band .map-card-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  min-width: 0;
+  color: var(--site-muted);
+  font-size: 0.8rem;
+}
+.map-card-artist,
+.map-card-mapper,
+.map-card-difficulty {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.map-card-mode {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 0.85rem;
+  color: var(--site-muted);
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+.map-card-star {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
+  background: var(--map-star, var(--site-muted));
+  color: var(--map-star-ink, #ffffff);
+  font-size: 0.8rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.map-card-difficulty {
+  flex-shrink: 1;
+  color: var(--site-foreground);
+  font-weight: 600;
+}
+.map-card-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+  /* Anchor the credits and stats to the copy block's bottom-left corner. */
+  margin-top: auto;
+}
+.map-browse-card--band .map-card-note {
+  padding-right: 6rem;
+}
+.map-browse-card--band .map-card-values {
+  gap: 0.35rem 0.9rem;
+  margin-top: 0;
+  padding-top: 0;
+  /* Keep the bottom-right corner free for the ruleset label. */
+  padding-right: 6rem;
+  font-variant-numeric: tabular-nums;
+}
+.map-mod-note {
+  color: var(--site-muted);
+  font-size: 0.8rem;
+}
+.map-browse-card--band .map-mod-rating {
+  margin: 0;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  background: var(--site-tint);
+  color: var(--site-muted);
+  font-size: 0.8rem;
+}
+.map-browse-card--band .map-card-copy > .beatmap-actions {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  z-index: 4;
+  gap: 0.65rem;
+  margin: 0;
 }
 .map-dialog {
   width: min(620px, calc(100% - 2rem));
@@ -1004,9 +1303,6 @@ html[data-theme="dark"] .themed-site {
   width: 44px;
   padding: 0.5rem;
 }
-.map-card-copy > .beatmap-actions {
-  grid-column: 1 / -1;
-}
 .archive-map-thumbnail {
   align-self: center;
 }
@@ -1094,6 +1390,45 @@ body:has(dialog[open].map-dialog) {
   }
   .map-card-copy {
     padding: 0 0.25rem 0.25rem;
+  }
+  .map-browse-card--band {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    min-height: 0;
+  }
+  .map-browse-card--band .map-card-cover {
+    min-height: 0;
+  }
+  .map-browse-card--band .map-card-cover .beatmap-cover {
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .map-browse-card--band .map-card-copy {
+    padding: 0.85rem 0.9rem 1rem;
+  }
+  .map-card-title-row {
+    padding-right: 0;
+  }
+  .map-browse-card--band .map-card-values {
+    padding-right: 0;
+  }
+  .map-browse-card--band .map-card-note {
+    padding-right: 0;
+  }
+  .map-card-mode {
+    right: 0.9rem;
+    bottom: 1rem;
+  }
+  .map-browse-card--band .map-open-button {
+    font-size: 1.05rem;
+  }
+  .map-browse-card--band .map-card-copy > .beatmap-actions {
+    position: static;
+    margin-top: 0.6rem;
+  }
+  .map-card-art {
+    -webkit-mask-image: linear-gradient(180deg, transparent 20%, #000 100%);
+    mask-image: linear-gradient(180deg, transparent 20%, #000 100%);
   }
 }
 @media (max-width: 480px) {
@@ -1262,7 +1597,7 @@ body:has(dialog[open].map-dialog) {
 .rules-handbook nav a span {
   flex-shrink: 0;
   white-space: nowrap;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: var(--site-accent);
 }
 .rules-handbook nav a:hover,
