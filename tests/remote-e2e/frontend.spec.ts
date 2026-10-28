@@ -543,17 +543,25 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
     .update(staffRoles)
     .set({ revokedAt: new Date() })
     .where(eq(staffRoles.userId, owner));
+  const deniedBackend = await backendContext.request.get("/api/v1/me", {
+    headers: { Origin: local, Authorization: `Bearer ${credential.token}` },
+  });
+  expect(deniedBackend.status()).toBe(403);
+  expect(await deniedBackend.json()).toMatchObject({
+    error: { code: "DEVELOPER_REQUIRED" },
+  });
   await page.reload();
+  // SSR observes the backend denial and invalidates the local connection.
   const denied = await context.request.get("/api/remote/connection");
-  expect(denied.status()).toBe(403);
+  expect(denied.status()).toBe(401);
   expect(await denied.json()).toMatchObject({
     state: "unavailable",
-    code: "DEVELOPER_REQUIRED",
+    code: "REMOTE_EXPIRED",
   });
   const deniedPrivateRead = await context.request.get(
     "/api/remote/read/staff/tournaments/private-test-cup",
   );
-  expect(deniedPrivateRead.status()).toBe(403);
+  expect(deniedPrivateRead.status()).toBe(401);
   expect(await deniedPrivateRead.json()).not.toHaveProperty("data");
   await expect(
     page
