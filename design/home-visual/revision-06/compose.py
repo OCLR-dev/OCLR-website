@@ -12,7 +12,7 @@ svg = ET.Element(f'{{{NS}}}svg', {
     'color': '#fff5ee', 'role': 'img', 'aria-labelledby': 'title desc',
 })
 ET.SubElement(svg, f'{{{NS}}}title', id='title').text = 'osu! Chinese League Rookie — S11'
-ET.SubElement(svg, f'{{{NS}}}desc', id='desc').text = 'Horizontal outline OCLR, small S11 to the right of OCLR aligned to its baseline, Katu above the R, and an outline timing bar with one marker in the early 100 region.'
+ET.SubElement(svg, f'{{{NS}}}desc', id='desc').text = 'Horizontal outline OCLR, small S11 to the right of OCLR aligned to its baseline, Katu above the R, and an outline timing bar divided into five judgement regions with one marker in the early 100 region.'
 main = ET.SubElement(svg, f'{{{NS}}}g', transform='translate(0 60)')
 for name in ['O-angular', 'C-angular', 'L-angular', 'R-reference-slider', 'judgement-katu', 'english-name']:
     node = copy.deepcopy(next(e for e in source if e.get('id') == name))
@@ -41,14 +41,20 @@ old_bar = next(e for e in source if e.get('id') == 'accuracy-bar')
 width = sum(float(e.get('width')) for e in old_bar if e.tag.endswith('rect'))
 bar = ET.SubElement(main, f'{{{NS}}}g', id='accuracy-bar', fill='none', stroke='currentColor')
 ET.SubElement(bar, f'{{{NS}}}rect', x='64', y='358', width=str(width), height='7', **{'stroke-width':'1.8'})
+# Reuse the original five region boundaries without restoring their fills.
+regions = [e for e in old_bar if e.tag.endswith('rect')]
+for index, region in enumerate(regions[1:], start=1):
+    boundary = region.get('x')
+    ET.SubElement(bar, f'{{{NS}}}path', id=f'accuracy-boundary-{index}',
+                  d=f'M{boundary} 358V365', **{'stroke-width': '1.8'})
 x = 64 + width * .25
 ET.SubElement(bar, f'{{{NS}}}path', id='accuracy-100-marker', d=f'M{x} 351V372', **{'stroke-width':'2.6'})
-assert len(list(bar)) == 2
-assert len([e for e in bar if e.tag.endswith('path')]) == 1
+assert len(list(bar)) == 6
+assert len([e for e in bar if e.get('id', '').startswith('accuracy-boundary-')]) == 4
 ids = [e.get('id') for e in svg.iter() if e.get('id')]
 assert len(ids) == len(set(ids))
 assert not any(e.tag.rsplit('}',1)[-1] in ('image','text','script','filter') for e in svg.iter())
 ET.indent(svg, space='  ')
 output = ROOT.parents[2] / 'public/branding/oclr-s11-layout-b.svg'
 ET.ElementTree(svg).write(output, encoding='utf-8', xml_declaration=True)
-print(f'Wrote {output}; one 100 marker, transparent bar and native vectors verified.')
+print(f'Wrote {output}; five outlined regions, one 100 marker and native vectors verified.')

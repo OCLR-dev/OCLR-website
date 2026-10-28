@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="40 0 1200 490" width="1200" height="490" color="#fff5ee" role="img" aria-labelledby="title desc">
   <title id="title">osu! Chinese League Rookie — S11</title>
-  <desc id="desc">Horizontal outline OCLR, small S11 to the right of OCLR aligned to its baseline, Katu above the R, and an outline timing bar with one marker in the early 100 region.</desc>
+  <desc id="desc">Horizontal outline OCLR, small S11 to the right of OCLR aligned to its baseline, Katu above the R, and an outline timing bar divided into five judgement regions with one marker in the early 100 region.</desc>
   <g transform="translate(0 60)">
     <path id="O-angular" d="M62 0H212L238 28L196 232L163 260H14L0 232L38 28Z M86 52H174L179 59L151 204L145 210H59L56 204L83 59Z" transform="translate(64 66)" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="miter" stroke-miterlimit="4" />
     <path id="C-angular" d="M64 0H229L221 52H96L85 63L58 197L66 208H195L185 260H22L0 235L39 29Z" transform="translate(326 66)" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="miter" stroke-miterlimit="4" />
@@ -66,6 +66,10 @@
     </g>
     <g id="accuracy-bar" fill="none" stroke="currentColor">
       <rect x="64" y="358" width="940.7323" height="7" stroke-width="1.8" />
+      <path id="accuracy-boundary-1" d="M205.1098 358V365" stroke-width="1.8" />
+      <path id="accuracy-boundary-2" d="M393.2563 358V365" stroke-width="1.8" />
+      <path id="accuracy-boundary-3" d="M675.4760 358V365" stroke-width="1.8" />
+      <path id="accuracy-boundary-4" d="M863.6225 358V365" stroke-width="1.8" />
       <path id="accuracy-100-marker" d="M299.18307500000003 351V372" stroke-width="2.6" />
     </g>
   </g>
