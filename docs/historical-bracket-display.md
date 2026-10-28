@@ -13,3 +13,10 @@ uses the existing translated **Final standings** heading and remains visible
 beneath either phase, without a redundant Group column. Genuine group standings and other editions retain their
 existing presentation. These are read-only presentation choices: no source
 stage, approved score, rank, private appendix or publication setting is changed.
+
+S4's exact source workbook records `小组赛第1轮` through `小组赛第4轮`
+without reliable group standings. These four source rounds are secondary choices
+under Group Stage, each containing six recorded matches; the ten knockout matches
+remain under Knockout. No groups, rankings or qualification links are inferred.
+The A22 forfeit and five approved 5:5 draws keep their recorded results. This
+presentation fix requires no reimport or change to saved tournament data (#408).

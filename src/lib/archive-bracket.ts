@@ -15,6 +15,10 @@ export function archiveBracket(
     /^https:\/\/docs\.google\.com\/spreadsheets\/d\/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY(?:\/edit)?$/.test(
       archive.sourceUrl,
     );
+  const s4Source =
+    /^https:\/\/docs\.google\.com\/spreadsheets\/d\/1QqF8leIqov2l3loi92hFHu82HEuplb9Iau2zPNUcySk(?:\/edit)?$/.test(
+      archive.sourceUrl,
+    );
   const s2Row = (m: ResolvedMatch) => {
     const source = archive.matches.find((saved) => saved.id === m.id)?.source;
     const row = source?.match(/^ES Schedule!B(\d+):M\1$/);
@@ -48,6 +52,9 @@ export function archiveBracket(
     // retain their round-robin groups independently of those final ranks.
     const sourceGroup =
       ((isS1Archive(archive) || s2Source) && /^小组赛 [AB]组$/.test(m.stage)) ||
+      // S4 records four group-stage rounds without reliable group standings.
+      // Keep those source rounds, without inventing groups or advancement.
+      (s4Source && /^小组赛第[1-4]轮$/.test(m.stage)) ||
       (archive.sourceUrl ===
         "https://github.com/OCLR-dev/OCLR-website/issues/289" &&
         /^瑞士輪第 \d+ 輪/.test(m.stage));
