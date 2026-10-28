@@ -2,7 +2,7 @@
 
 主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10／S9／S8／S7 已依主辦方要求接入正式外觀 `skyline-pop`／`glacier-blue`／`sakura-circuit`／`graphite-arena`，各自的視覺審閱／合併證據以對應 issue 為準。
 
-**2026-10-28 S6 正式接入**：依主辦方 [#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 最新要求，將 Orbital Pulse／星環脈衝註冊為 `orbital-pulse`，紅藍雙主色與水平分段音樂頻譜沿用已迭代預覽。實作包含三語外觀選單、SSR 偏好、全站／賽事設定與 migration 0050；既有預設不變。圖庫更新為實際註冊外觀的應用截圖，等待 PR 審閱，尚未合併或部署。[圖庫](s6.html)／[Design](s6/DESIGN.md)／[頁面檢查](s6/verification.json)。
+**2026-10-29 S6 banner 精修**：[#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 的 Orbital Pulse／星環脈衝已由 [#419](https://github.com/OCLR-dev/OCLR-website/pull/419) 正式接入。本輪在紅藍水平頻譜周圍加入細電路、接點與訊號路徑，配合漸淡遮罩與細亮邊精修層次；新PR供審閱。圖庫為正式SSR外觀的實際頁面。[圖庫](s6.html)／[Design](s6/DESIGN.md)／[頁面檢查](s6/verification.json)。
 
 **2026-10-26 S10 city pop 精修**：[#195](https://github.com/OCLR-dev/OCLR-website/issues/195) 以最新 main `0d3e203` 實際 UI 產圖。呼應原 S10 圖的晴空藍、亮青、桃粉與奶油白，加入明確手繪感的海岸城市插畫；桌面／手機、明暗與 Admin 都保留現有元件。完整角色原圖無框呈現；`s10.html` 為實際截圖對照圖庫，素材與完整 prompt set 見 [ARTWORK](s10/ARTWORK.md)。本輪不修改 S9／S8／S7 設計。
 
@@ -44,7 +44,7 @@ S10 正式接入重用現有元件和 next-intl（zh-Hans／zh-Hant／en），�
 
 ## 驗證與歷史紀錄
 
-- **S6 正式整合版**：`node --import tsx docs/design/season-themes/s6/capture.mjs`，四個真實路由 × 四個尺寸 × 明暗，共32組／32次Axe AA零違規，另4組forced colours、手機選單／焦點與原圖完整性檢查。[報告](s6/verification.json) 綁定正式來源提交 `66026d1`；應用整合驗證見 [S6 DESIGN](s6/DESIGN.md)。
+- **S6 正式整合版**：`node --import tsx docs/design/season-themes/s6/capture.mjs`，四個真實路由 × 四個尺寸 × 明暗，共32組／32次Axe AA零違規，另4組forced colours、手機選單／焦點與原圖完整性檢查。[報告](s6/verification.json) 綁定本輪正式來源提交 `bcad37e`；應用整合驗證見 [S6 DESIGN](s6/DESIGN.md)。
 
 - **S10 最新 UI 版**：依 [重現步驟](s10/DESIGN.md) 執行 `node --import tsx docs/design/season-themes/s10/capture.mjs`。三個實際路由 × 四個尺寸 × 明暗共 24 組，24 次 Axe AA 無違規；驗證 DOM／文字不變、五列統計、規則、手機選單和實際 sticky stack。另有 4 組 forced-colours 檢查。新圖／報告見 [s10/verification.json](s10/verification.json)。應用 production build、產圖／圖庫工具 lint／語法／文件連結／diff 通過。
 - **S9 最新 UI 版**：`node --import tsx docs/design/season-themes/s9/capture.mjs`，三個實際路由 × 四個尺寸 × 明暗共 24 組／24 次 Axe AA 無違規；額外核對原圖 1920×1080 與 contain。[本版報告](s9/verification.json)。本次只重製 S9；S10 保留原有版本與證據。

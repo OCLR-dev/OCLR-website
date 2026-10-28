@@ -38,6 +38,21 @@ const sourceCss = await readFile(
   new URL("../../../../src/app/orbital-theme.css", import.meta.url),
   "utf8",
 );
+const textureAssets = await Promise.all(
+  ["circuit-light.svg", "circuit-dark.svg"].map(async (file) => ({
+    file,
+    sha256: createHash("sha256")
+      .update(
+        await readFile(
+          new URL(
+            `../../../../public/themes/orbital-pulse/${file}`,
+            import.meta.url,
+          ),
+        ),
+      )
+      .digest("hex"),
+  })),
+);
 const sourceArtwork = await readFile(
   new URL("../../../../public/archive/s6/key-visual.jpg", import.meta.url),
 );
@@ -339,7 +354,12 @@ try {
     out + "verification.json",
     JSON.stringify(
       {
-        date: "2026-10-28",
+        date: new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Taipei",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date()),
         uiBaseline: execFileSync("git", ["rev-parse", uiBaseline], {
           encoding: "utf8",
         }).trim(),
@@ -350,6 +370,7 @@ try {
           file: "music-spectrum.svg",
           sha256: createHash("sha256").update(svg).digest("hex"),
         },
+        textureAssets,
         browser: "Google Chrome",
         screenshots,
         cases,

@@ -1,6 +1,6 @@
 # S6 — Orbital Pulse / 星環脈衝
 
-2026-10-28，依 [#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 與主辦方最新「開發完整的 s6 theme 並 PR」要求正式接入。從 `6321f201c2ec2d3675837a34a3c72e1dfa128fd1` 的 MainSheet 延伸已迭代預覽，註冊 `orbital-pulse`，等待 PR 審閱；尚未合併或部署，也不自動更改任何預設。
+2026-10-29，依主辦方對 [#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 的「banner增加電路信號紋理並更精緻，提交新PR」要求，從已合併 [#419](https://github.com/OCLR-dev/OCLR-website/pull/419) 的 main `9ca1e182d1f585d340a69849c6a6d57ee2e2a71b` 精修既有 `orbital-pulse`。本輪新PR供審閱，尚未合併或部署。
 
 ## 方向與畫面
 
@@ -12,7 +12,7 @@
 - [桌面 Dark](desktop-dark.webp)／[Light](desktop-light.webp) · [手機 Dark](mobile-dark.webp)／[Light](mobile-light.webp)。
 - [賽程](schedule-desktop-dark.webp) · [圖池](mappools-desktop-dark.webp) · [Admin](admin-desktop-dark.webp)。
 - [937px 標題](heading-937-dark.png)／[390px 標題](heading-390-dark.png)，原生 2×。
-- 音訊分析版頻譜局部：[Dark](spectrum-audio-dark.png)／[Light](spectrum-audio-light.png)。
+- 2026-10-28音訊分析初版局部（歷史）：[Dark](spectrum-audio-dark.png)／[Light](spectrum-audio-light.png)。
 
 ## 語意 tokens
 
@@ -83,7 +83,27 @@ node docs/design/season-themes/s6/analyse-spectrum.mjs /private/tmp/oclr-s6-spec
 
 `S6_UI_BASELINE` 指定應用基準 SHA（預設 HEAD，報告記錄解析後的完整 SHA），`S6_PREVIEW_ORIGIN` 可指定另一 loopback 專用預覽。工具會先核對 `src`／`messages`／`public` 與基準相同。圖庫可直接開啟 `s6.html`，不依賴上述服務。
 
-## 本輪驗證
+## 2026-10-29 Banner 精修
+
+- 紋理為自繪原生SVG：[Light](../../../../public/themes/orbital-pulse/circuit-light.svg)／[Dark](../../../../public/themes/orbital-pulse/circuit-dark.svg)，各約3.2KB。以平行走線、45度轉折、過孔接點、短紅藍訊號段與點狀接觸網格構成；沒有文字、腳本、外部請求或循環動效。
+- 細節集中於右側頻譜周圍與下緣，向標題左側漸淡；以表面遮罩控制對比。手機版收斂到下緣，標題區上方74%保留安靜面積，仍使用既有內容寬度門檻收起頻譜。
+- 增加細亮頂邊、底部內陰影與雙層柔和投影，形成輕微的面板層次。紅藍配色、原本音訊分析頻譜的所有柱高、完整原圖、內容、偏好與授權流程沿用正式版本。
+- 所有新增繪製為banner背景，沿用`.themed-site`與`orbital-pulse`範圍。Forced colours移除紋理／漸層／陰影；reduced motion沿用靜態版面。
+- 正式來源提交：`bcad37e15845b1bfa3676f98a2cf3641d9a65b8d`。更新圖庫與[本輪擷取報告](verification.json)使用真正SSR外觀、建置後CSS與本機素材，不注入樣式；報告新增兩份電路SVG的SHA-256。
+
+本輪驗證（Node.js 24.22.1，隔離test DB）：
+
+- `npm ci`、`npm run check`、production build通過。完整單元／整合175檔，1426項通過、1項略過；`npm audit --omit=dev`為0項漏洞。
+- Chrome桌面／手機選定10項：初次8項通過，2項素材測試將SVG畫布尺寸誤當原始圖片尺寸；修正為實際載入、解碼與有效尺寸檢查後，相關2項重跑通過。版面、三語、偏好、公共／Admin／Captain與OBS／presenter隔離均取得本輪通過結果。
+- [verification.json](verification.json)：4路由 × 320／390／768／1440px × 明暗，32組UI與32次Axe AA零違規；4組forced colours、原圖／DOM／五列統計／規則、手機選單與焦點、937／390px標題幾何檢查通過。
+- [gallery-verification.json](gallery-verification.json)：32種圖片切換與8次Axe AA零違規，無溢出或pageerror，焦點通過。
+- WebKit桌面／手機4項通過，包含三語／明暗紋理解碼、SSR、窄螢幕、reduced motion與forced colours。
+- 遠端核心模式`frontend.spec.ts`桌面／手機2項通過，含所有賽季素材GET／HEAD與byte比對，涵蓋兩份新電路SVG；前端無本機DB／OAuth配置，隔離測試授權與撤銷檢查通過。
+- 修改檔的ESLint、格式、文件連結、`git diff --check`與正式CSS／素材hash核對通過；專用預覽及test PostgreSQL於完成後停止。完整full矩陣不在本輪本機範圍，日常CI範圍維持既有政策。
+
+本輪未更動產品文案、外觀註冊、資料庫或預設；PR供審閱，未合併或部署。
+
+## 2026-10-28 正式接入驗證（PR #419）
 
 來源實作提交 `66026d17cd6e4cc9f33829e5cc62627bc09954e3`；本節記錄本機結果，CI 與主辦方審閱分開確認。所有資料檢查均限隔離 test DB。
 
@@ -91,8 +111,8 @@ node docs/design/season-themes/s6/analyse-spectrum.mjs /private/tmp/oclr-s6-spec
 - `npm test`：175個檔案通過，1424項通過、1項略過。包含 migration0050前後驗證、既有設定與歷史保留，以及各種外觀的共用授權檢查。
 - `npm run i18n:extract`、填入新增兩份中文標籤、`npm run test:i18n`（4項）通過；51份延伸契約再生成及`--check`通過，OpenAPI同步。
 - `npm audit --omit=dev`：0項漏洞。
-- [verification.json](verification.json)：正式 SSR `orbital-pulse`，四路由 × 320／390／768／1440px × 明暗，共32組／32次Axe AA，零違規、無溢出或pageerror。DOM／文字、完整1920×1080原圖、五列統計、四章規則、手機選單／Escape焦點與Admin鍵盤焦點通過；另4組forced colours及937／390px標題不遮字檢查通過。CSS、正式SVG與原圖hash綁定擷取來源。
-- [gallery-verification.json](gallery-verification.json)：32種圖片切換及8組尺寸／明暗Axe AA零違規，無溢出或pageerror，鍵盤焦點通過。
+- [當時 verification.json](https://github.com/OCLR-dev/OCLR-website/blob/9ca1e182d1f585d340a69849c6a6d57ee2e2a71b/docs/design/season-themes/s6/verification.json)：正式 SSR `orbital-pulse`，四路由 × 320／390／768／1440px × 明暗，共32組／32次Axe AA，零違規、無溢出或pageerror。DOM／文字、完整1920×1080原圖、五列統計、四章規則、手機選單／Escape焦點與Admin鍵盤焦點通過；另4組forced colours及937／390px標題不遮字檢查通過。CSS、正式SVG與原圖hash綁定擷取來源。
+- [當時 gallery-verification.json](https://github.com/OCLR-dev/OCLR-website/blob/9ca1e182d1f585d340a69849c6a6d57ee2e2a71b/docs/design/season-themes/s6/gallery-verification.json)：32種圖片切換及8組尺寸／明暗Axe AA零違規，無溢出或pageerror，鍵盤焦點通過。
 - Chrome選定40個桌面／手機案例：涵蓋S6三語、SSR、明暗、完整原圖、長資料、公共／Admin／Captain頁、OBS／presenter隔離、site／tournament設定與S7–S10選單回歸。初次36項通過、4項失敗；補齊導覽載入遮罩等待並將設定audit筆數按註冊外觀計算後，相關12項header及4項設定檢查均取得通過結果，其餘未更動案例沿用本輪結果。後續配色測試等待背景預載入完成，Chrome桌面／手機2項重跑通過。
 - `npm run test:e2e:core`：固定核心範圍桌面／手機28項通過。
 - Safari／WebKit桌面與手機選定24項：初次23項通過，1項快速跳頁造成背景RSC預載入中斷；保留錯誤斷言、等待讀取完成後，相關桌面／手機2項重跑通過。最終24個選定案例均取得通過結果。

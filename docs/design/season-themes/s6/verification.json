@@ -1,12 +1,22 @@
 {
-  "date": "2026-10-28",
-  "uiBaseline": "66026d17cd6e4cc9f33829e5cc62627bc09954e3",
+  "date": "2026-10-29",
+  "uiBaseline": "bcad37e15845b1bfa3676f98a2cf3641d9a65b8d",
   "scope": "Registered S6 orbital-pulse, selected through SSR cookie and bundled CSS; original default appearance captured for comparison",
   "locale": "zh-Hant",
   "decorativeAsset": {
     "file": "music-spectrum.svg",
     "sha256": "5c96eea4a9d202d6ee238179caedac130d2475367ddf3218c817c562207b7fd1"
   },
+  "textureAssets": [
+    {
+      "file": "circuit-light.svg",
+      "sha256": "53d77357fc2f45cd62fd218c493c90b6a84511880c1584cdcbf9a0e4bf4c7246"
+    },
+    {
+      "file": "circuit-dark.svg",
+      "sha256": "a28402025ef48e49920df1d982438ff759a0bcfe1d1d9fb38967095e654a7854"
+    }
+  ],
   "browser": "Google Chrome",
   "screenshots": [
     {
@@ -548,6 +558,6 @@
   ],
   "errors": [],
   "artworkSha256": "3f40ae9a494ef7b349229e45c016c0e8fb82719b125bd4c407cd121099e720b7",
-  "registeredCssSha256": "c2a20b534203a16871cbdd0c3e58581d8cdc3daeb2e852d7d508c22fcb0eb5c3",
+  "registeredCssSha256": "6e59729c9d31762372723e3a9c6ce2196b1bb5bf3bad400fd95a1d5a1cc504ab",
   "fixture": "Committed S6 archive and rules; existing pure approval fixture mirrors dated organizer evidence only in an isolated test DB"
 }
