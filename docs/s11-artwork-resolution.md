@@ -1,6 +1,16 @@
 # S11 artwork resolution investigation (#173)
 
-## Current purple-outfit artwork — 2026-10-26
+## Current winter artwork — 2026-10-29
+
+The organizer requested updating the S11 Logo, visual and banner assets based on
+PR #421, without changing the interface. The current exports, unchanged public
+paths, source credits and rendering limits are documented in
+[the S11 asset export guide](../design/home-visual/s11-assets/README.md).
+The purple-outfit files described below are retained as historical sources; they
+are superseded for current S11 delivery. No components, CSS, stored configuration,
+publication state or tournament content are changed by this asset replacement.
+
+## Historical purple-outfit artwork — 2026-10-26
 
 The organizer supplied `oclr-s11-purple-c-outfit-1920x1080.png` and requested replacing the current S11 artwork plus high-resolution, banner and logo versions. This supersedes the previous artwork selection described in the historical investigation below.
 
