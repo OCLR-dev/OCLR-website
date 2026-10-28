@@ -3,6 +3,10 @@
   "uiBaseline": "0c93609b3a7f267dce3dd4545384b4d4f0ff8d91",
   "scope": "Candidate S6 CSS injected into unchanged real application pages; not a registered or SSR-selected S6 appearance",
   "locale": "zh-Hant",
+  "decorativeAsset": {
+    "file": "music-spectrum.svg",
+    "sha256": "9e477abce0cddf74ea073617c4dbfda91bae5c6e62f166ec5afaa0c1f2d81590"
+  },
   "browser": "Google Chrome",
   "screenshots": [
     {
@@ -544,6 +548,6 @@
   ],
   "errors": [],
   "artworkSha256": "3f40ae9a494ef7b349229e45c016c0e8fb82719b125bd4c407cd121099e720b7",
-  "candidateCssSha256": "59418fe24582bbaeb340a30cd1e12e6f48c04dc99fea698f6a71d2244ebf48cb",
+  "candidateCssSha256": "adcc78053d107ea947c13c376eb89f3c4af601b69774867ffb76ecb16bb7c586",
   "fixture": "Committed S6 archive and rules; existing pure approval fixture mirrors dated organizer evidence only in an isolated test DB"
 }

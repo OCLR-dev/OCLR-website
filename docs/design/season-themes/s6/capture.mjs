@@ -29,10 +29,10 @@ execFileSync("git", [
   "public",
 ]);
 const out = fileURLToPath(new URL(".", import.meta.url));
-const svg = await readFile(new URL("orbital-dial.svg", import.meta.url));
+const svg = await readFile(new URL("music-spectrum.svg", import.meta.url));
 const sourceCss = await readFile(new URL("../s6.css", import.meta.url), "utf8");
 const overlay = sourceCss.replace(
-  'url("./s6/orbital-dial.svg")',
+  'url("./s6/music-spectrum.svg")',
   `url("data:image/svg+xml;base64,${svg.toString("base64")}")`,
 );
 const sourceArtwork = await readFile(
@@ -313,7 +313,7 @@ try {
             (geometry.insert !== "none" && t.right > geometry.left - 16),
         )
       )
-        throw new Error("Heading text overlaps the orbital illustration");
+        throw new Error("Heading text overlaps the music spectrum");
       const file = `heading-${width}-${theme}.png`;
       await heading.screenshot({ path: out + file, animations: "disabled" });
       screenshots.push({
@@ -335,6 +335,10 @@ try {
         scope:
           "Candidate S6 CSS injected into unchanged real application pages; not a registered or SSR-selected S6 appearance",
         locale: "zh-Hant",
+        decorativeAsset: {
+          file: "music-spectrum.svg",
+          sha256: createHash("sha256").update(svg).digest("hex"),
+        },
         browser: "Google Chrome",
         screenshots,
         cases,

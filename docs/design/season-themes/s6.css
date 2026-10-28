@@ -1,70 +1,74 @@
 /* S6 Orbital Pulse: review-only treatment of the current MainSheet UI.
  * This file is not imported by the application or registered as an appearance. */
 html[data-s6-preview] .themed-site {
-  --site-background: #f2f7fc;
+  --site-background: #f4f6fc;
   --site-surface: #ffffff;
-  --site-raised: #e7f0f8;
-  --site-tint: #dceffa;
-  --site-foreground: #102b46;
-  --site-muted: #526b83;
-  --site-secondary-text: #3d5871;
-  --site-accent: #005f82;
-  --site-accent-strong: #064a73;
-  --site-border: #cbdce9;
-  --site-control-border: #66829c;
+  --site-raised: #e9eef9;
+  --site-tint: #fce6eb;
+  --site-foreground: #152746;
+  --site-muted: #596b88;
+  --site-secondary-text: #405570;
+  --site-accent: #b4324c;
+  --site-accent-strong: #96263d;
+  --site-border: #ccd6e8;
+  --site-control-border: #7183a4;
   --site-header: #ffffff;
-  --site-primary: #1454ac;
-  --site-primary-hover: #0b438f;
+  --site-primary: #2455d6;
+  --site-primary-hover: #1743b0;
   --site-on-primary: #ffffff;
-  --site-focus: #1454ac;
-  --site-selection: #c5e5f5;
+  --site-focus: #2455d6;
+  --site-selection: #cbd9ff;
   --site-success: #17634c;
   --site-warning: #835600;
-  --site-danger: #b52d46;
-  --site-highlight: #005f82;
-  --site-connector: #66829c;
+  --site-danger: #b12b1c;
+  --site-highlight: #b4324c;
+  --site-connector: #7183a4;
   --site-shadow: #102b4612;
   --site-soft-shadow: #102b4608;
   --site-panel-shadow: #102b461c;
   --site-dialog-shadow: #102b4633;
-  --site-backdrop: #081a3277;
+  --site-backdrop: #0c142877;
   --button-radius: 6px;
   --radius-panel: 8px;
-  --orbital-cyan: #24bce8;
-  --orbital-coral: #ff807a;
-  --orbital-heading: linear-gradient(110deg, #ffffff, #f5faff 65%, #e5f2fa);
-  --orbital-diagram: url("./s6/orbital-dial.svg");
+  --orbital-blue: #2455d6;
+  --orbital-blue-ink: #214ba9;
+  --orbital-red: #de3e59;
+  --orbital-heading: linear-gradient(110deg, #fffafb, #f8f7fc 45%, #edf2ff);
+  --orbital-diagram: url("./s6/music-spectrum.svg");
   background: var(--site-background);
 }
 html[data-s6-preview][data-theme="dark"] .themed-site {
-  --site-background: #081523;
-  --site-surface: #102439;
-  --site-raised: #18324b;
-  --site-tint: #173d53;
-  --site-foreground: #eff7ff;
-  --site-muted: #afc5d8;
-  --site-secondary-text: #ccdeed;
-  --site-accent: #5cd7f6;
-  --site-accent-strong: #9beafc;
-  --site-border: #2c4b64;
-  --site-control-border: #7396b1;
-  --site-header: #0c1c2e;
-  --site-primary: #50d1ee;
-  --site-primary-hover: #8de5f8;
-  --site-on-primary: #062033;
-  --site-focus: #5cd7f6;
-  --site-selection: #23546c;
+  --site-background: #0c1428;
+  --site-surface: #14213b;
+  --site-raised: #1d2e4b;
+  --site-tint: #35243a;
+  --site-foreground: #f1f5ff;
+  --site-muted: #b8c4de;
+  --site-secondary-text: #d4def0;
+  --site-accent: #ff8d9a;
+  --site-accent-strong: #ffb5be;
+  --site-border: #344462;
+  --site-control-border: #8193b3;
+  --site-header: #101b32;
+  --site-primary: #648cff;
+  --site-primary-hover: #8fabff;
+  --site-on-primary: #09162f;
+  --site-focus: #92b0ff;
+  --site-selection: #344c79;
   --site-success: #8de0c4;
   --site-warning: #f2cd84;
-  --site-danger: #ff9aa8;
-  --site-highlight: #5cd7f6;
-  --site-connector: #7396b1;
+  --site-danger: #ffb5a4;
+  --site-highlight: #ff8d9a;
+  --site-connector: #8193b3;
   --site-shadow: #0004;
   --site-soft-shadow: #0002;
   --site-panel-shadow: #0006;
   --site-dialog-shadow: #0009;
   --site-backdrop: #000a;
-  --orbital-heading: linear-gradient(110deg, #102439, #112b43 65%, #12374d);
+  --orbital-blue: #6792ff;
+  --orbital-blue-ink: #a8bfff;
+  --orbital-red: #ff657b;
+  --orbital-heading: linear-gradient(110deg, #201e36, #19243f 45%, #182d4b);
 }
 html[data-s6-preview] .themed-site .site-header {
   border-bottom: 1px solid var(--site-border);
@@ -127,9 +131,9 @@ html[data-s6-preview] .themed-site .page-heading::after {
   height: 2px;
   background: linear-gradient(
     90deg,
-    var(--site-primary) 0 64%,
-    var(--orbital-cyan) 64% 90%,
-    var(--orbital-coral) 90%
+    var(--orbital-red) 0 48%,
+    transparent 48% 52%,
+    var(--orbital-blue) 52%
   );
   pointer-events: none;
 }
@@ -159,11 +163,27 @@ html[data-s6-preview] .themed-site .archive-key-visual img {
   object-fit: contain;
 }
 html[data-s6-preview] .themed-site .archive-overview-summary .archive-counts {
+  position: relative;
   max-width: none;
   border: 1px solid var(--site-border);
-  border-top-color: var(--orbital-cyan);
+  border-top-color: var(--orbital-blue);
   border-radius: 8px;
   background: var(--site-surface);
+}
+html[data-s6-preview]
+  .themed-site
+  .archive-overview-summary
+  .archive-counts::before {
+  content: "";
+  position: absolute;
+  inset: -1px -1px auto;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--orbital-red) 0 50%,
+    var(--orbital-blue) 50%
+  );
+  pointer-events: none;
 }
 html[data-s6-preview] .themed-site .archive-counts > div {
   min-width: 0;
@@ -180,7 +200,7 @@ html[data-s6-preview] .themed-site .archive-counts dt {
 }
 html[data-s6-preview] .themed-site .archive-counts dd {
   flex: none;
-  color: var(--site-accent-strong);
+  color: var(--orbital-blue-ink);
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 2rem;
   font-variant-numeric: tabular-nums;
@@ -240,7 +260,7 @@ html[data-s6-preview]
   a[aria-current] {
   color: var(--site-accent-strong);
   background: transparent;
-  box-shadow: inset 0 -2px var(--orbital-cyan);
+  box-shadow: inset 0 -2px var(--orbital-blue);
 }
 html[data-s6-preview]
   .themed-site
@@ -300,7 +320,7 @@ html[data-s6-preview] .themed-site .sidebar nav a {
   overflow-wrap: anywhere;
 }
 html[data-s6-preview] .themed-site .sidebar nav a[aria-current] {
-  border-inline-start-color: var(--orbital-cyan);
+  border-inline-start-color: var(--orbital-red);
   background: var(--site-tint);
   color: var(--site-accent-strong);
   box-shadow: none;
@@ -385,7 +405,8 @@ html[data-s6-preview]
     box-shadow: none;
   }
   html[data-s6-preview] .themed-site .page-heading::before,
-  html[data-s6-preview] .themed-site .page-heading::after {
+  html[data-s6-preview] .themed-site .page-heading::after,
+  html[data-s6-preview] .themed-site .archive-counts::before {
     display: none;
   }
   html[data-s6-preview]

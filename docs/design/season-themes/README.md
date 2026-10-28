@@ -2,7 +2,7 @@
 
 主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10／S9／S8／S7 已依主辦方要求接入正式外觀 `skyline-pop`／`glacier-blue`／`sakura-circuit`／`graphite-arena`，各自的視覺審閱／合併證據以對應 issue 為準。
 
-**2026-10-28 S6 候選預覽**：[#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 的 Orbital Pulse／星環脈衝以最新 main `0c93609`（包含 S7 精修）為基準，使用原有 MainSheet 元件製作深空藍／冷白、電光青與同心環刻度設計。以候選 CSS 套在實際主頁、賽程、圖池、Admin 產圖；尚未註冊正式外觀或更改任何預設。[圖庫](s6.html)／[Design](s6/DESIGN.md)／[32 組頁面檢查](s6/verification.json)。
+**2026-10-28 S6 候選預覽**：[#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 的 Orbital Pulse／星環脈衝以最新 main `0c93609`（包含 S7 精修）為基準，使用原有 MainSheet 元件製作紅藍雙主色、冷白／深靛藍與水平音樂頻譜設計。以候選 CSS 套在實際主頁、賽程、圖池、Admin 產圖；尚未註冊正式外觀或更改任何預設。[圖庫](s6.html)／[Design](s6/DESIGN.md)／[32 組頁面檢查](s6/verification.json)。
 
 **2026-10-26 S10 city pop 精修**：[#195](https://github.com/OCLR-dev/OCLR-website/issues/195) 以最新 main `0d3e203` 實際 UI 產圖。呼應原 S10 圖的晴空藍、亮青、桃粉與奶油白，加入明確手繪感的海岸城市插畫；桌面／手機、明暗與 Admin 都保留現有元件。完整角色原圖無框呈現；`s10.html` 為實際截圖對照圖庫，素材與完整 prompt set 見 [ARTWORK](s10/ARTWORK.md)。本輪不修改 S9／S8／S7 設計。
 
