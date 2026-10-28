@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
+import Link from "./pending-link";
 import { useAppTranslations } from "@/i18n/shared";
 import type { PublicArchiveStatistics } from "@/lib/archive-statistics";
 import type { EventScore } from "@/lib/event-statistics";

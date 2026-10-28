@@ -1,0 +1,27 @@
+.mask[data-loading-region-overlay] {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  margin: 0;
+  border-radius: inherit;
+  background: var(--site-backdrop, #0009);
+  cursor: progress;
+  outline: none;
+}
+.indicator {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+}
+/* A page transition takes visual priority over any still-pending local region. */
+:global(body:has(dialog[data-loading-overlay][open])) .mask[data-loading-region-overlay] {
+  visibility: hidden;
+}
+@media (forced-colors: active) {
+  .mask[data-loading-region-overlay] {
+    background: Canvas;
+  }
+}

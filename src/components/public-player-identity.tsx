@@ -1,5 +1,5 @@
 import { useAppTranslations } from "@/i18n/shared";
-import Link from "next/link";
+import Link from "./pending-link";
 import { CountryFlag } from "./country-flag";
 import { countryFlagData } from "@/lib/country-flag";
 import { Avatar } from "./avatar";

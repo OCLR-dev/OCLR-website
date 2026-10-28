@@ -2,7 +2,7 @@
 
 import { useAppTranslations } from "@/i18n/shared";
 
-import Link from "next/link";
+import Link from "./pending-link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
   useEffect,

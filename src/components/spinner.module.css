@@ -1,0 +1,78 @@
+.spinner {
+  display: inline-block;
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 auto;
+  border: 4px solid var(--site-control-border, #685475);
+  border-top-color: var(--site-accent, #c566ed);
+  border-radius: 50%;
+  opacity: 0;
+  animation:
+    loading-spin 800ms linear infinite,
+    loading-reveal 0s 150ms forwards;
+}
+.artwork {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  opacity: 0;
+  animation: loading-reveal 0s 150ms forwards;
+}
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.picture {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.artwork[data-ready] .picture {
+  opacity: 1;
+}
+.artwork[data-ready] .fallback {
+  display: none;
+}
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes loading-reveal {
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .artwork {
+    opacity: 1;
+    animation: none;
+  }
+  .artwork[data-reduced-fallback] .picture {
+    display: none;
+  }
+  .artwork[data-reduced-fallback] .fallback {
+    display: grid;
+  }
+}
+@media (forced-colors: active) {
+  .artwork .picture {
+    display: none;
+  }
+  .artwork[data-spinner] .fallback {
+    display: grid;
+  }
+  .spinner {
+    border-color: GrayText;
+    border-top-color: Highlight;
+  }
+}

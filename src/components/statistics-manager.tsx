@@ -1,4 +1,5 @@
 "use client";
+import { LoadingRegion } from "./loading-region";
 import { ReadOnlyFields, MutationButton } from "./staff-read-only";
 import { useRef, useState } from "react";
 import Link from "next/link";
@@ -11,12 +12,14 @@ function SourceReview({
   review,
   pools,
   busy,
+  saving,
   canReviewExceptions,
   save,
 }: {
   review: Review;
   pools: StatisticsWorkspace["pools"];
   busy: boolean;
+  saving: boolean;
   canReviewExceptions: boolean;
   save: (body: Record<string, unknown>) => Promise<void>;
 }) {
@@ -309,6 +312,7 @@ function SourceReview({
         </div>
         <MutationButton
           type="button"
+          aria-busy={saving}
           disabled={busy}
           onClick={() =>
             void save({
@@ -341,6 +345,7 @@ export function StatisticsManager({
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [errors, setErrors] = useState<string[]>([]);
+  const [activeAction, setActiveAction] = useState<string | null>(null);
   const stop = useRef(false);
   const url = "/api/admin/tournaments/" + data.slug + "/statistics";
   async function load(id: string) {
@@ -362,6 +367,8 @@ export function StatisticsManager({
     return result as StatisticsWorkspace;
   }
   async function save(body: Record<string, unknown>) {
+    if (busy) return;
+    setActiveAction("review:" + body.mpId);
     setBusy(true);
     setErrors([]);
     setMessage("");
@@ -375,6 +382,8 @@ export function StatisticsManager({
     }
   }
   async function importSources(ids: number[]) {
+    if (busy) return;
+    setActiveAction("import");
     setBusy(true);
     setErrors([]);
     stop.current = false;
@@ -427,6 +436,9 @@ export function StatisticsManager({
     .filter((id) => !data.summaries.some((s) => s.mpId === id && !s.stale));
   return (
     <div className="stack statistics-workspace">
+      {busy &&
+        activeAction !== "import" &&
+        activeAction !== "publication-load" && <LoadingRegion />}
       <p className="muted">
         {tr(
           "Import MP history into a private statistics draft, review scoring games, then approve and publish. Existing match results stay unchanged.",
@@ -473,6 +485,8 @@ export function StatisticsManager({
             const id = e.target.value;
             setFixture(id);
             setErrors([]);
+            setMessage("");
+            setActiveAction("load");
             setBusy(true);
             void load(id)
               .catch((error) => setErrors([error.message]))
@@ -560,6 +574,7 @@ export function StatisticsManager({
               review={review}
               pools={data.pools}
               busy={busy}
+              saving={busy && activeAction === "review:" + review.mpId}
               canReviewExceptions={data.canPublish}
               save={save}
             />
@@ -587,8 +602,17 @@ export function StatisticsManager({
                   confirmed: true,
                 }}
                 disabled={busy || data.blockers.length > 0}
-                onSuccess={() => {
-                  void load(fixtureId);
+                onSuccess={async () => {
+                  setBusy(true);
+                  setActiveAction("publication-load");
+                  setMessage("");
+                  try {
+                    await load(fixtureId);
+                  } catch (error) {
+                    setErrors([(error as Error).message]);
+                  } finally {
+                    setBusy(false);
+                  }
                 }}
               />
               <ConfirmMutation
@@ -610,8 +634,17 @@ export function StatisticsManager({
                     (s) => s.fixtureId === fixtureId && s.publishedAt,
                   )
                 }
-                onSuccess={() => {
-                  void load(fixtureId);
+                onSuccess={async () => {
+                  setBusy(true);
+                  setActiveAction("publication-load");
+                  setMessage("");
+                  try {
+                    await load(fixtureId);
+                  } catch (error) {
+                    setErrors([(error as Error).message]);
+                  } finally {
+                    setBusy(false);
+                  }
                 }}
               />
             </div>
