@@ -80,6 +80,21 @@
   margin-block: -0.12em;
   margin-left: -0.25em;
 }
+.home-wordmark-layout-b {
+  display: block;
+  width: min(58vw, 56rem);
+  line-height: 0;
+}
+.home-vector-wordmark {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+@media (max-width: 760px) {
+  .home-wordmark-layout-b {
+    width: 100%;
+  }
+}
 .home-contact-bar {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

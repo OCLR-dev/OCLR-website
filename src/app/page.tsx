@@ -138,16 +138,15 @@ async function HomeContent() {
         />
         <div className="container home-feature-inner">
           <div className="home-feature-left">
-            <p className="home-full-name">{"osu! Chinese League Rookie"}</p>
-            <h1 id="hero-title" className="home-wordmark">
+            <h1 id="hero-title" className="home-wordmark home-wordmark-layout-b">
               <Image
-                src="/oclr-s11-classic-wordmark-soft.png"
-                alt="OCLR S11"
-                width={2086}
-                height={754}
+                src="/branding/oclr-s11-layout-b.svg"
+                alt="osu! Chinese League Rookie — S11"
+                width={1030}
+                height={490}
                 unoptimized
                 preload
-                className="home-painted-wordmark"
+                className="home-vector-wordmark"
               />
             </h1>
             <div className="home-entry-links">

@@ -86,3 +86,7 @@ The follow-up weight adjustment thickens only OCL inside each original glyph bou
 These are standalone design artifacts. No application code, catalogs, configuration or R03 assets changed; application/DB tests and production builds were not run. Visual acceptance and homepage integration remain separate.
 
 R04 display update: the current wordmark uses transparent outline interiors, including the existing weighted OCL silhouette and brush S11. The R control points and connecting polygon are visible directly in the composition. Vector luminance masks preserve the slider silhouette union without white cover shapes; the transparent SVG and white review board are separate exports.
+
+## Layout B homepage integration
+
+The organizer selected cover study B, clarified that existing homepage character/background must stay unchanged, and requested one marker in the 100 region of an outline-only timing bar. `revision-06/compose.py` builds `public/branding/oclr-s11-layout-b.svg` from preserved R05 geometry: horizontal OCLR, small S11 above O, Katu above R, transparent bar with one early-100 marker at 25% of its width. The homepage references that SVG and adds responsive sizing only; its background expression, artwork, entry links and data logic are unchanged. `npm run check` passed. Browser integration preview on the shared port 3000 requires coordination with the original checkout owner; its branch and files have not been changed.
