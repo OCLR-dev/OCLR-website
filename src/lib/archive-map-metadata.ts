@@ -34,6 +34,60 @@ export function missingArchiveText(value: string | null) {
   );
 }
 
+/** Read a trailing `(...)` or `[...]` group, matching nested pairs so that a
+ * difficulty such as `[oatm [AR9.4 Edit]]` is taken as a whole. */
+function trailingGroup(value: string, open: string, close: string) {
+  if (!value.endsWith(close)) return null;
+  let depth = 0;
+  for (let index = value.length - 1; index >= 0; index -= 1) {
+    const char = value[index];
+    if (char === close) depth += 1;
+    else if (char === open) {
+      depth -= 1;
+      if (depth === 0)
+        return {
+          inner: value.slice(index + 1, -1).trim(),
+          rest: value.slice(0, index).trim(),
+        };
+    }
+  }
+  return null;
+}
+
+/** Historical imports record one composite title per map:
+ * `artist - song title [difficulty] (mapper)`. Difficulty names may contain
+ * their own brackets and song names their own parentheses, so the groups are
+ * read from the end instead of with a single flat pattern. Anything that still
+ * does not match is left untouched for the caller to display verbatim. */
+export function parseArchiveTitle(title: string | null) {
+  if (!title) return null;
+  let rest = title.trim();
+  if (!rest) return null;
+  let mapper: string | null = null;
+  let difficulty: string | null = null;
+  // The mapper only belongs to the record when it follows the difficulty.
+  const credits = trailingGroup(rest, "(", ")");
+  if (credits && credits.rest.endsWith("]")) {
+    mapper = credits.inner || null;
+    rest = credits.rest;
+  }
+  const bracket = trailingGroup(rest, "[", "]");
+  if (bracket) {
+    difficulty = bracket.inner || null;
+    rest = bracket.rest;
+  }
+  const split = /^(.*?)\s+-\s+(.+)$/.exec(rest);
+  if (split)
+    return {
+      artist: split[1].trim() || null,
+      title: split[2].trim(),
+      difficulty,
+      mapper,
+    };
+  if (!difficulty && !mapper) return null;
+  return { artist: null, title: rest, difficulty, mapper };
+}
+
 /** Read-only display enrichment. Never changes imported historical records or
  * treats current base attributes as historical/mod-adjusted measurements. */
 export function archivePoolMetadata(

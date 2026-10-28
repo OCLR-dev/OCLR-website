@@ -706,7 +706,7 @@ export async function HistoricalArchiveView({
           artworkSetIds={{
             ...(await archiveArtworkSetIds(
               pool.maps
-                .map((m) => m.beatmapId)
+                .flatMap((m) => [m.beatmapId, m.originalId ?? null])
                 .filter((id) => id !== null && !display.setIds[id]),
             )),
             ...display.setIds,

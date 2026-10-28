@@ -2817,6 +2817,8 @@
     "m639bd5a1b055": "Blue team",
     "m384f67964b50": "{count, plural, one {# tournament} other {# tournaments}}",
     "ma26fd9587aee": "Tournament pages",
-    "m240ab6d8dc2c": "Page {page} of {pages}"
+    "m240ab6d8dc2c": "Page {page} of {pages}",
+    "m2cb4b217a9d7": "Open original map on osu!",
+    "m52aed7a53987": "osu!direct (original map)"
   }
 }

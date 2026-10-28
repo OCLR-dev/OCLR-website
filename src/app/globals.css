@@ -5012,9 +5012,6 @@ body:has([data-broadcast]) .site-shell {
 .archive-map-compact-copy {
   display: contents;
 }
-.archive-map-cards .map-card-copy {
-  display: block;
-}
 .archive-map-cards .archive-map-stats {
   margin-top: 0.75rem;
 }
@@ -5022,12 +5019,6 @@ body:has([data-broadcast]) .site-shell {
   margin: 0;
 }
 @media (min-width: 1100px) {
-  .archive-map-cards .map-card-copy {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 24rem;
-    gap: 1rem;
-    align-items: center;
-  }
   .archive-map-cards .archive-map-stats {
     margin: 0;
   }

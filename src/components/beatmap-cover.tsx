@@ -6,18 +6,24 @@ import Image from "next/image";
 import { useState } from "react";
 export function BeatmapCover({
   setId,
+  fallbackSetId,
   compact = false,
 }: {
   setId: number | null | undefined;
+  fallbackSetId?: number | null;
   compact?: boolean;
 }) {
   const tr = useAppTranslations();
 
-  const src = beatmapCoverUrl(setId);
-  const [failedSource, setFailedSource] = useState<string | null>(null);
+  const sources = [
+    beatmapCoverUrl(setId),
+    beatmapCoverUrl(fallbackSetId),
+  ].filter((value): value is string => value !== null);
+  const [failedSources, setFailedSources] = useState<string[]>([]);
+  const src = sources.find((value) => !failedSources.includes(value));
   return (
     <div className="beatmap-cover">
-      {!src || failedSource === src ? (
+      {!src ? (
         <span
           className="muted small"
           aria-label={compact ? tr("Cover unavailable") : undefined}
@@ -32,7 +38,11 @@ export function BeatmapCover({
           width={180}
           height={100}
           unoptimized
-          onError={() => setFailedSource(src)}
+          onError={() =>
+            setFailedSources((value) =>
+              value.includes(src) ? value : [...value, src],
+            )
+          }
         />
       )}
     </div>

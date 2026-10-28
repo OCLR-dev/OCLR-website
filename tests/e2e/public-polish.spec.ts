@@ -160,8 +160,11 @@ test.describe("public presentation follow-ups", () => {
           .locator(".map-card-cover .beatmap-cover")
           .all()) {
           const b = (await cover.boundingBox())!;
-          expect(b.width / b.height).toBeCloseTo(16 / 9, 1);
+          // The cover fills its column in the wide band row and becomes a
+          // 16:9 banner once the card stacks on narrow screens.
           expect(b.width).toBeGreaterThanOrEqual(200);
+          expect(b.height).toBeGreaterThanOrEqual(150);
+          expect(b.width / b.height).toBeGreaterThan(1.2);
         }
         await noOverflow(page);
         await page.screenshot({

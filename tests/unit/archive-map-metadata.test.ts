@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   archivePoolMetadata,
   missingArchiveText,
+  parseArchiveTitle,
 } from "../../src/lib/archive-map-metadata";
 import { historicalArchiveSchema } from "../../src/lib/historical-archive";
 import snapshot from "../../src/data/archive-beatmaps.json";
@@ -13,7 +14,78 @@ function archive(season: string) {
   );
 }
 
+describe("historical composite titles", () => {
+  it("splits artist, song, difficulty and an inline mapper", () => {
+    expect(
+      parseArchiveTitle(
+        "Nijigasaki High School Idol Club - Colorful Dreams! Colorful Smiles! [Beloved] (Ninjaking311)",
+      ),
+    ).toEqual({
+      artist: "Nijigasaki High School Idol Club",
+      title: "Colorful Dreams! Colorful Smiles!",
+      difficulty: "Beloved",
+      mapper: "Ninjaking311",
+    });
+  });
+  it("keeps titles that only carry artist, song and difficulty", () => {
+    expect(parseArchiveTitle("Sasaki Rico - Recollections [Resolve]")).toEqual({
+      artist: "Sasaki Rico",
+      title: "Recollections",
+      difficulty: "Resolve",
+      mapper: null,
+    });
+  });
+  it("keeps parentheses that belong to the song name", () => {
+    expect(parseArchiveTitle("Artist - Song (Remix) [Hard] (Mapper)")).toEqual({
+      artist: "Artist",
+      title: "Song (Remix)",
+      difficulty: "Hard",
+      mapper: "Mapper",
+    });
+  });
+  it("keeps difficulty brackets that are themselves nested", () => {
+    expect(
+      parseArchiveTitle(
+        "Miyolophone - Shinigami Line (feat. eris elysia) [oatm [AR9.4 Edit]] (Prophet)",
+      ),
+    ).toEqual({
+      artist: "Miyolophone",
+      title: "Shinigami Line (feat. eris elysia)",
+      difficulty: "oatm [AR9.4 Edit]",
+      mapper: "Prophet",
+    });
+    expect(
+      parseArchiveTitle("Designant - Designant. [Drop's Beyond. [OCLR edit.]]"),
+    ).toEqual({
+      artist: "Designant",
+      title: "Designant.",
+      difficulty: "Drop's Beyond. [OCLR edit.]",
+      mapper: null,
+    });
+  });
+  it("still splits records that omit the difficulty", () => {
+    expect(
+      parseArchiveTitle("Nekomata Master+ - chaos eater -IIDX edition-"),
+    ).toEqual({
+      artist: "Nekomata Master+",
+      title: "chaos eater -IIDX edition-",
+      difficulty: null,
+      mapper: null,
+    });
+  });
+  it("leaves titles that do not follow the pattern untouched", () => {
+    for (const value of [null, "", "Plain song name", "#N/A"])
+      expect(parseArchiveTitle(value)).toBeNull();
+  });
+});
+
 describe("historical map metadata supplementation", () => {
+  it("keeps the archived edit and records the original map separately", () => {
+    const pool = archive("s10").pools.find((value) => value.id === "gs1");
+    const map = pool?.maps.find((value) => value.slot === "NM6");
+    expect(map?.beatmapId).toBe(5015295);
+    expect(map?.originalId).toBe(4000824);
+  });
   it("recognizes spreadsheet errors without treating literal titles as errors", () => {
     for (const value of [null, "#N/A", " N/A ", "#REF!", "#VALUE!"])
       expect(missingArchiveText(value)).toBe(true);

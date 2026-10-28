@@ -7,7 +7,6 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { publicMappools } from "@/lib/mappools";
 import {
   categories,
-  categoryNames,
   fmPolicyName,
   slotLabel,
   formatBeatmapNumber as number,
@@ -15,6 +14,7 @@ import {
 } from "@/lib/mappool-model";
 import { BeatmapActions } from "./beatmap-actions";
 import { BeatmapCover } from "./beatmap-cover";
+import { MapCardBand } from "./map-card-band";
 import { MappoolView } from "./mappool-view";
 type Pool = Awaited<ReturnType<typeof publicMappools>>[number];
 type Entry = Pool["entries"][number];
@@ -175,9 +175,6 @@ export function MappoolBrowser({
   headingLevel?: 2 | 4 | 5;
 }) {
   const tr = useAppTranslations();
-
-  const CardHeading =
-    headingLevel === 5 ? "h5" : headingLevel === 4 ? "h4" : "h2";
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("slot");
@@ -339,70 +336,53 @@ export function MappoolBrowser({
             </p>
           )}
           <div className="map-card-grid">
-            {entries.map((e) => (
-              <article
-                className="map-browse-card"
-                id={`map-${e.id}`}
-                key={e.id}
-                data-category={e.category}
-              >
-                <div className="map-card-cover">
-                  <BeatmapCover setId={e.metadata.setId} />
-                  <span className="map-slot-badge">
-                    {slotLabel(e.category, e.position)}
-                  </span>
-                </div>
-                <div className="map-card-copy">
-                  <p className="eyebrow">
-                    {categoryNames[e.category]} · {e.metadata.artist}
-                  </p>
-                  <CardHeading>
-                    <button
-                      className="map-open-button"
-                      type="button"
-                      aria-label={tr("View {value0}: {value1}", {
-                        value0: slotLabel(e.category, e.position),
-                        value1: e.metadata.title,
-                      })}
-                      onClick={() => setSelected(e.id)}
-                    >
-                      {e.metadata.title}
-                    </button>
-                  </CardHeading>
-                  <p className="muted small">[{e.metadata.difficulty}]</p>
-                  <p className="muted small">
-                    {e.metadata.mapper} {tr(" · BID ")}
-                    {e.beatmapId}
-                  </p>
-                  <div className="map-card-values">
-                    <span>
-                      {number(e.metadata.stars, 2)} {tr(" ★ base")}
-                    </span>
-                    <span>
-                      {number(e.metadata.bpm)} {tr(" BPM")}
-                    </span>
-                    <span>{duration(e.metadata.duration)}</span>
-                  </div>
-                  {e.category === "FM" && (
-                    <p className="map-fm-policy muted small">
-                      {fmPolicyName(pool.fmMode) ??
-                        tr("FM policy not configured")}
-                    </p>
-                  )}
-                  {(e.category !== "FM" || e.metadata.attributes) && (
-                    <p className="map-mod-rating muted small">
-                      {tr(modRating(e))}
-                    </p>
-                  )}
-                  <BeatmapActions
-                    compact
-                    beatmapId={e.beatmapId}
-                    setId={e.metadata.setId}
-                    name={slotLabel(e.category, e.position)}
-                  />
-                </div>
-              </article>
-            ))}
+            {entries.map((e) => {
+              const slot = slotLabel(e.category, e.position);
+              return (
+                <MapCardBand
+                  key={e.id}
+                  id={`map-${e.id}`}
+                  dataCategory={e.category}
+                  slot={slot}
+                  title={e.metadata.title}
+                  artist={e.metadata.artist}
+                  difficulty={e.metadata.difficulty}
+                  mapper={e.metadata.mapper}
+                  beatmapId={e.beatmapId}
+                  setId={e.metadata.setId}
+                  stars={e.metadata.stars}
+                  bpm={e.metadata.bpm}
+                  durationSeconds={e.metadata.duration}
+                  cs={e.metadata.cs}
+                  ar={e.metadata.ar}
+                  od={e.metadata.od}
+                  mode={e.metadata.mode}
+                  headingLevel={headingLevel}
+                  openLabel={tr("View {value0}: {value1}", {
+                    value0: slot,
+                    value1: e.metadata.title,
+                  })}
+                  onOpen={() => setSelected(e.id)}
+                  chips={
+                    e.metadata.attributes ? (
+                      <span className="map-mod-rating">
+                        {tr(modRating(e))}
+                      </span>
+                    ) : e.category === "FM" ? undefined : (
+                      <span className="map-mod-note">{tr(modRating(e))}</span>
+                    )
+                  }
+                  note={
+                    e.category === "FM" && (
+                      <p className="map-fm-policy muted small">
+                        {fmPolicyName(pool.fmMode) ??
+                          tr("FM policy not configured")}
+                      </p>
+                    )
+                  }
+                />
+              );
+            })}
           </div>
         </>
       )}
