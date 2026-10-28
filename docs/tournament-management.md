@@ -123,6 +123,38 @@ After saving typed questions, roll back only to a build that understands `type`/
 
 `pending` means awaiting staff review; staff may change it to `accepted` or `rejected`. A player may withdraw a `pending` or `accepted` application only before the explicitly configured `withdrawUntil` and while the edition is unlocked. `withdrawn` retains its history and may reapply during open registration; rejection cannot be changed by a player. No withdrawal deadline means no self-service withdrawal. Captain appointment/locked draft state prevents self-service withdrawal and requires staff review. Every transition is recorded with actor and time; review is separate from captain/team assignment. Edition-scoped transaction locks serialize eligibility-affecting changes and draft lock against withdrawals/submissions.
 
+## Historical staff identities (#375)
+
+The edition's **Historical archive** screen provides **Historical staff identities**
+for saved staff rows without a confirmed UID. A writable edition Admin selects a
+row and looks up its current osu! username. Numeric names remain usernames;
+spaces and special characters use the existing official username resolver.
+The candidate includes its verified UID, current name, avatar and osu! profile.
+A current-name match alone does not establish historical identity: check
+independent evidence, enter its identity confirmation source, explicitly confirm
+the match, then save. Failed, ambiguous or conflicting lookups leave the original
+name-only record intact. An existing confirmed UID cannot be overwritten here.
+
+`POST /api/admin/tournaments/{edition}/archive-staff` accepts `staffIndex`,
+`username` and `expectedRevision` for lookup. Saving uses the existing tournament
+command `resolve-archive-staff`, with the candidate UID, confirmation source and
+explicit `identityConfirmed: true`. Both operations require same-origin session
+authentication and writable `configure_tournament` access for that edition;
+Developer-only, remote development and read-channel access cannot invoke them.
+The server verifies the candidate again before saving and rechecks permission,
+the archive revision and the selected unresolved row. Provider calls reuse the
+bounded cache, concurrency controls and rate/backoff policy; public Staff reads
+never resolve names or call the provider.
+
+Only the selected saved staff row's UID changes. Historical names, duties and
+source text remain literal. Confirmation evidence is recorded privately in the
+transactional audit event alongside the new revision, not in public archive
+content. Archive format, public notes and source appendix remain unchanged.
+No account, registration, staff grant, competition result or publication flag is
+created or changed. Competition-statistics keys are unchanged by this operation.
+Other unresolved rows, including other duties with the same name, require their
+own evidence rather than being linked automatically.
+
 ## Staff provisioning and reviews
 
 There are no seeded administrators. Verify the first administrator's numeric osu! profile ID out of band, explicitly place that ID in the server-only `ADMIN_OSU_IDS` comma-separated bootstrap allowlist, deploy/restart, and authenticate normally. Legacy `STAFF_OSU_IDS` is ignored: review each old operator's responsibilities before explicitly granting a role. Never copy the old list automatically.

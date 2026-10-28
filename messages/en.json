@@ -2817,6 +2817,20 @@
     "m639bd5a1b055": "Blue team",
     "m384f67964b50": "{count, plural, one {# tournament} other {# tournaments}}",
     "ma26fd9587aee": "Tournament pages",
-    "m240ab6d8dc2c": "Page {page} of {pages}"
+    "m240ab6d8dc2c": "Page {page} of {pages}",
+    "m8302f8272d51": "Historical staff identities",
+    "maf651a89df5b": "Historical staff member",
+    "m947abd9a0de6": "Look up osu! username",
+    "m6d455fb26284": "A current username match does not prove historical identity. Check independent evidence before linking; keep uncertain names unresolved.",
+    "m5e982cecf466": "I verified this account matches the historical staff member.",
+    "m1b9d309d1339": "Link historical staff identity",
+    "m553b6eab2b6d": "Save the confirmed UID while preserving the historical name and role. This does not grant staff access.",
+    "m13b11f0e43e1": "Commentator",
+    "me70aba88dfd3": "Staff (unspecified)",
+    "m8fe686007331": "Select a historical staff member and enter a current osu! username.",
+    "mc8b857cec4c4": "Select an unresolved historical staff member.",
+    "m3d49996608d3": "This historical name has conflicting confirmed IDs. Keep it unresolved.",
+    "mc85f646eb175": "The verified osu! ID changed. Look up the username again.",
+    "m8696b935422a": "Select an unresolved historical staff member without conflicting identity evidence."
   }
 }
