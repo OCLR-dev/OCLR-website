@@ -34,31 +34,27 @@ html[data-appearance="graphite-arena"] .themed-site {
   --graphite-pattern: url("/themes/graphite-arena/honeycomb.svg");
   --graphite-grain: repeating-linear-gradient(
     0deg,
-    #ffffff00 0 1px,
-    #ffffff18 1px 2px,
-    #00000005 2px 3px
+    #ffffff00 0 2px,
+    #ffffff0a 2px 3px,
+    #00000003 3px 4px
   );
   --graphite-metal:
     var(--graphite-grain),
     linear-gradient(
-      112deg,
-      #d2d9df 0%,
-      #f8fafb 18%,
-      #e1e6ea 29%,
-      #c9d1d8 42%,
-      #f9fbfc 54%,
-      #e4e9ed 72%,
-      #cdd5dc 100%
+      118deg,
+      #d8dfe4 0%,
+      #f5f7f8 22%,
+      #e6ebee 46%,
+      #f8fafb 72%,
+      #dce3e8 100%
     );
-  --graphite-satin:
-    var(--graphite-grain),
-    linear-gradient(112deg, #e8edf0, #ffffff 30%, #e6ecef 62%, #f7f9fa);
-  --graphite-rim: #a9b5bf;
+  --graphite-satin: linear-gradient(118deg, #edf1f3, #fcfdfe 38%, #e8edf0 100%);
+  --graphite-rim: #b5c0c8;
   --graphite-edge-light: #ffffffcc;
   --graphite-edge-dark: #33445226;
   --graphite-relief:
     inset 0 1px var(--graphite-edge-light),
-    inset 0 -1px var(--graphite-edge-dark), 0 8px 16px -16px #17212b80;
+    inset 0 -1px var(--graphite-edge-dark), 0 6px 12px -12px #17212b66;
   background: var(--site-background);
 }
 html[data-appearance="graphite-arena"][data-theme="dark"] .themed-site {
@@ -88,26 +84,22 @@ html[data-appearance="graphite-arena"][data-theme="dark"] .themed-site {
   --site-backdrop: #000a;
   --graphite-grain: repeating-linear-gradient(
     0deg,
-    #ffffff00 0 1px,
-    #ffffff07 1px 2px,
-    #0000000a 2px 3px
+    #ffffff00 0 2px,
+    #ffffff04 2px 3px,
+    #00000006 3px 4px
   );
   --graphite-metal:
     var(--graphite-grain),
     linear-gradient(
-      112deg,
-      #262e35 0%,
-      #3d4852 18%,
-      #2e373f 29%,
-      #20282e 42%,
-      #3c4852 54%,
-      #303a43 72%,
-      #232c33 100%
+      118deg,
+      #252d34 0%,
+      #343f48 22%,
+      #29323a 46%,
+      #333e47 72%,
+      #242c33 100%
     );
-  --graphite-satin:
-    var(--graphite-grain),
-    linear-gradient(112deg, #262e35, #38434c 30%, #252d34 62%, #303a43);
-  --graphite-rim: #62717e;
+  --graphite-satin: linear-gradient(118deg, #262e35, #303a42 38%, #252d34 100%);
+  --graphite-rim: #53626e;
   --graphite-edge-light: #e0efff40;
   --graphite-edge-dark: #00000080;
 }
@@ -132,13 +124,15 @@ html[data-appearance="graphite-arena"]
 }
 html[data-appearance="graphite-arena"] .themed-site .page-heading {
   position: relative;
-  padding: 20px 24px 24px;
+  padding: 24px 32px;
   border-block: 1px solid var(--graphite-rim);
   background-image: var(--graphite-metal);
   box-shadow: var(--graphite-relief);
 }
 html[data-appearance="graphite-arena"] .themed-site .page-heading .eyebrow {
   color: var(--site-accent-strong);
+  font-weight: 700;
+  letter-spacing: 0.06em;
 }
 /* Long subtitles and links can cross the darkest part of the silver reflection. */
 html[data-appearance="graphite-arena"] .themed-site .page-heading .muted {
@@ -151,6 +145,8 @@ html[data-appearance="graphite-arena"]
   color: var(--site-accent-strong);
 }
 html[data-appearance="graphite-arena"] .themed-site .page-heading h1 {
+  margin-bottom: 12px;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 1.15;
@@ -158,8 +154,9 @@ html[data-appearance="graphite-arena"] .themed-site .page-heading h1 {
 /* A machined insert echoes the original plate's bevelled hexagonal recesses. */
 html[data-appearance="graphite-arena"] .themed-site .page-heading::before {
   content: "";
+  display: none;
   position: absolute;
-  inset: 8px 20px 8px auto;
+  inset: 12px 24px 12px auto;
   width: 264px;
   background: var(--graphite-pattern) right center / contain no-repeat;
   pointer-events: none;
@@ -177,10 +174,44 @@ html[data-appearance="graphite-arena"] .themed-site .page-heading > * {
   position: relative;
 }
 html[data-appearance="graphite-arena"] .themed-site .page-heading > :is(h1, p) {
-  max-width: calc(100% - 280px);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .page-heading
+  > :last-child {
+  margin-bottom: 0;
+}
+/* Fit the insert to the actual reading column, including sidebar layouts. */
+html[data-appearance="graphite-arena"]
+  .themed-site
+  :is(.page, .event-content, .workspace-main) {
+  container: graphite-content / inline-size;
+}
+@container graphite-content (min-width: 720px) {
+  html[data-appearance="graphite-arena"] .themed-site .page-heading {
+    padding-inline-end: 320px;
+  }
+  html[data-appearance="graphite-arena"] .themed-site .page-heading::before {
+    display: block;
+  }
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .archive-overview-summary.has-visual {
+  align-items: stretch;
+  gap: 24px;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .archive-overview-summary
+  .archive-counts {
+  max-width: none;
 }
 html[data-appearance="graphite-arena"] .themed-site .archive-key-visual {
   display: block;
+  align-self: center;
   height: auto;
 }
 html[data-appearance="graphite-arena"] .themed-site .archive-key-visual img {
@@ -188,15 +219,17 @@ html[data-appearance="graphite-arena"] .themed-site .archive-key-visual img {
   height: auto;
   object-fit: contain;
 }
-/* One brushed data plate; the reflection crosses all five real archive rows. */
+/* A quieter data plate sits flush with the full, unframed season artwork. */
 html[data-appearance="graphite-arena"] .themed-site .archive-counts {
-  border-top: 2px solid var(--graphite-yellow);
+  border-top: 1px solid var(--graphite-yellow);
   border-bottom: 1px solid var(--graphite-rim);
-  background-image: var(--graphite-metal);
+  background-image: var(--graphite-satin);
   box-shadow: var(--graphite-relief);
 }
 html[data-appearance="graphite-arena"] .themed-site .archive-counts > div {
-  padding: 16px 24px;
+  min-width: 0;
+  gap: 24px;
+  padding: 12px 24px;
 }
 html[data-appearance="graphite-arena"]
   .themed-site
@@ -205,10 +238,12 @@ html[data-appearance="graphite-arena"]
   border-bottom: 0;
 }
 html[data-appearance="graphite-arena"] .themed-site .archive-counts dt {
+  min-width: 0;
   font-weight: 600;
   font-size: 0.9rem;
 }
 html[data-appearance="graphite-arena"] .themed-site .archive-counts dd {
+  flex: none;
   color: var(--site-foreground);
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 2rem;
@@ -269,7 +304,11 @@ html[data-appearance="graphite-arena"]
 }
 html[data-appearance="graphite-arena"]
   .themed-site
-  :is(button, .button):not([role="menuitemradio"], .map-open-button) {
+  :is(button, .button):not(
+    [role="menuitemradio"],
+    [role="tab"],
+    .map-open-button
+  ) {
   background-image: linear-gradient(
     180deg,
     #ffffff38,
@@ -290,6 +329,15 @@ html[data-appearance="graphite-arena"] .themed-site .map-view-control {
 }
 html[data-appearance="graphite-arena"] .themed-site .map-view-control button {
   border-color: var(--site-control-border);
+}
+/* Read-only pool metadata and mod filters do not need another metal enclosure. */
+html[data-appearance="graphite-arena"] .themed-site .pool-summary {
+  padding: 0 0 12px;
+  margin-bottom: 16px;
+  border: 0;
+  border-bottom: 1px solid var(--site-border);
+  border-radius: 0;
+  background: transparent;
 }
 /* Map titles are text actions. Keep a consistent hit area and literal wrapping. */
 html[data-appearance="graphite-arena"] .themed-site button.map-open-button {
@@ -434,7 +482,12 @@ html[data-appearance="graphite-arena"]
   }
   html[data-appearance="graphite-arena"]
     .themed-site
-    :is(button, .button):active {
+    :is(button, .button):not(
+      [disabled],
+      [role="menuitemradio"],
+      [role="tab"],
+      .map-open-button
+    ):active {
     transform: translateY(1px);
   }
 }
@@ -448,20 +501,16 @@ html[data-appearance="graphite-arena"]
     transform: translateY(0);
   }
 }
-@media (max-width: 1100px) {
-  html[data-appearance="graphite-arena"] .themed-site .page-heading::before {
-    display: none;
-  }
-  html[data-appearance="graphite-arena"]
-    .themed-site
-    .page-heading
-    > :is(h1, p) {
-    max-width: 100%;
-  }
-}
 @media (max-width: 760px) {
   html[data-appearance="graphite-arena"] .themed-site .page-heading {
-    padding-inline: 16px;
+    padding: 20px;
+  }
+  html[data-appearance="graphite-arena"] .themed-site .archive-counts > div {
+    gap: 16px;
+    padding: 12px 20px;
+  }
+  html[data-appearance="graphite-arena"] .themed-site .archive-counts dd {
+    font-size: 1.75rem;
   }
 }
 @media (forced-colors: active) {
@@ -493,7 +542,7 @@ html[data-appearance="graphite-arena"]
       .main-nav > a[aria-current],
       .sidebar nav a[aria-current],
       .tournament-navigation a[aria-current],
-      .map-view-control button[aria-pressed="true"]
+      .map-browse-toolbar button[aria-pressed="true"]
     ) {
     outline: 2px solid Highlight;
     outline-offset: -3px;

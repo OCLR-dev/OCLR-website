@@ -5,6 +5,7 @@ import { requireStaff, staffAccess } from "@/lib/auth/staff";
 import { remotePage } from "@/lib/remote-page";
 import { listApplications, parseFilters } from "@/lib/staff";
 import { tournamentList } from "@/lib/tournaments";
+import { AdminOverviewTournaments } from "@/components/admin-overview-tournaments";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 export async function generateMetadata() {
@@ -23,7 +24,14 @@ async function Issue271Page({
     const actor = await requireStaff();
     const params = await searchParams;
     if (["q", "edition", "status", "page"].some((key) => key in params)) {
-      const filters = parseFilters(params);
+      const registrationParams = { ...params };
+      for (const key of [
+        "tournamentQuery",
+        "tournamentStatus",
+        "tournamentPage",
+      ])
+        delete registrationParams[key];
+      const filters = parseFilters(registrationParams);
       redirect(
         `/admin/registrations?${new URLSearchParams({ q: filters.q, edition: filters.edition, status: filters.status, page: String(filters.page) })}`,
       );
@@ -93,42 +101,11 @@ async function Issue271Page({
             </Link>
           </section>
         )}
-        <section className="section-space">
-          <h2>
-            {isAdmin ? tr("Accessible tournaments") : tr("Your tournaments")}
-          </h2>
-          {data.rows.length ? (
-            <div className="stack spaced">
-              {data.rows.slice(0, 6).map((row) => (
-                <article className="panel admin-task" key={row.slug}>
-                  <div>
-                    <h3>{row.name}</h3>
-                    <p className="muted small">
-                      {row.season
-                        ? tr("Season {value0} · ", { value0: row.season })
-                        : ""}
-                      {tr(row.status)} ·{" "}
-                      {row.published ? tr("Published") : tr("Draft")}
-                    </p>
-                  </div>
-                  <Link
-                    className="button secondary"
-                    href={`/admin/tournaments/${row.slug}`}
-                  >
-                    {tr("Open tournament")}
-                    <span className="sr-only"> {row.name}</span>
-                  </Link>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="notice small">
-              {isAdmin
-                ? tr("No tournaments yet. Create a private edition to begin.")
-                : tr("No tournaments have been assigned to you yet.")}
-            </p>
-          )}
-        </section>
+        <AdminOverviewTournaments
+          rows={data.rows}
+          params={params}
+          isAdmin={isAdmin}
+        />
       </>
     );
   });

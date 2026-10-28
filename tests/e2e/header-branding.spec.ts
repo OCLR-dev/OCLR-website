@@ -35,6 +35,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"] as const)
     "glacier-blue",
     "sakura-circuit",
     "graphite-arena",
+    "orbital-pulse",
   ])
     for (const theme of ["light", "dark"])
       test(`OCLR header: ${locale}, ${appearance}, ${theme}`, async ({
@@ -174,8 +175,11 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"] as const)
               "aria-expanded",
               "false",
             );
-          await home.focus();
-          await page.keyboard.press("Enter");
+          // The same-route link can show a modal loading overlay. Wait until
+          // it releases keyboard focus before activating the brand link.
+          await page.waitForLoadState("networkidle");
+          await expect(page.locator("[data-loading-overlay]")).toHaveCount(0);
+          await home.press("Enter");
           await expect(page).toHaveURL("http://127.0.0.1:3100/");
         }
         expect(errors).toEqual([]);

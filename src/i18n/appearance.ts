@@ -30,6 +30,8 @@ export function appearanceLabel(
       return tr("S8 · Sakura Circuit");
     case "graphite-arena":
       return tr("S7 · Graphite Arena");
+    case "orbital-pulse":
+      return tr("S6 · Orbital Pulse");
     default:
       return tr("Original design");
   }

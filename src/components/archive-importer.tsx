@@ -12,6 +12,7 @@ import { ConfirmMutation } from "./confirm-mutation";
 import { useRouter } from "next/navigation";
 import { ArchiveSubstitute } from "./archive-substitute";
 import { ArchivePlayerExchange } from "./archive-player-exchange";
+import { ArchiveStaffResolver } from "./archive-staff-resolver";
 
 function ArchiveIdentityResolver({
   person,
@@ -134,6 +135,13 @@ export function ArchiveImporter({
   return (
     <ReadOnlyFields>
       <div className="stack">
+        {eligible && archive && (
+          <ArchiveStaffResolver
+            key={revision}
+            archive={archive}
+            revision={revision}
+          />
+        )}
         {eligible &&
           archive?.formatVersion === 2 &&
           archive.draftMode === "final-tiers" && (

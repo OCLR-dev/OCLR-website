@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-Hant" data-preview-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>OCLR S6 · Orbital Pulse 主題預覽</title>
+    <script src="s6.js" defer></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        color-scheme: dark;
+        --preview-bg: #0c1428;
+        --preview-surface: #14213b;
+        --preview-ink: #f1f5ff;
+        --preview-muted: #b8c4de;
+        --preview-border: #344462;
+        --preview-control: #8193b3;
+        --preview-accent: #ff8d9a;
+      }
+      :root[data-preview-theme="light"] {
+        color-scheme: light;
+        --preview-bg: #f4f6fc;
+        --preview-surface: #ffffff;
+        --preview-ink: #152746;
+        --preview-muted: #596b88;
+        --preview-border: #ccd6e8;
+        --preview-control: #7183a4;
+        --preview-accent: #b4324c;
+      }
+      body {
+        margin: 0;
+        background: var(--preview-bg);
+        color: var(--preview-ink);
+        font:
+          15px/1.65 system-ui,
+          sans-serif;
+      }
+      header {
+        padding: 28px 32px 24px;
+        border-bottom: 1px solid var(--preview-border);
+      }
+      .eyebrow {
+        color: var(--preview-accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
+      h1 {
+        margin: 8px 0;
+        font-size: clamp(24px, 3vw, 32px);
+        line-height: 1.2;
+      }
+      p {
+        margin: 8px 0 0;
+        color: var(--preview-muted);
+      }
+      a {
+        color: var(--preview-accent);
+        text-underline-offset: 3px;
+      }
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 20px 32px;
+        background: var(--preview-surface);
+        border-bottom: 1px solid var(--preview-border);
+      }
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--preview-muted);
+      }
+      select {
+        min-height: 44px;
+        padding: 8px 32px 8px 12px;
+        border: 1px solid var(--preview-control);
+        border-radius: 6px;
+        color: var(--preview-ink);
+        background: var(--preview-bg);
+        font: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--preview-accent);
+        outline-offset: 3px;
+      }
+      figure {
+        margin: 24px 32px 40px;
+      }
+      figcaption {
+        margin-bottom: 12px;
+        color: var(--preview-muted);
+      }
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border: 1px solid var(--preview-border);
+      }
+      @media (max-width: 600px) {
+        header,
+        form {
+          padding: 20px;
+        }
+        figure {
+          margin: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">OCLR · SEASON 6 · DESIGN PREVIEW</div>
+      <h1>星環脈衝 · Orbital Pulse</h1>
+      <p>
+        正式外觀整合預覽，等待 PR
+        審閱。以最新應用頁面呈現紅藍雙色與紅到藍漸變的水平音樂頻譜；完整保留 S6
+        原始主視覺。
+      </p>
+      <p>
+        <a href="s6/DESIGN.md">設計與重現步驟</a> ·
+        <a href="s6/verification.json">驗證紀錄</a> ·
+        <a href="s6/heading-937-dark.png">937px 標題局部</a> ·
+        <a href="https://github.com/OCLR-dev/OCLR-website/issues/346"
+          >Issue #346</a
+        >
+      </p>
+    </header>
+    <form aria-label="主題預覽控制">
+      <label
+        >頁面<select name="surface">
+          <option value="">S6 主頁</option>
+          <option value="schedule-">S6 賽程</option>
+          <option value="mappools-">S6 圖池</option>
+          <option value="admin-">管理設定</option>
+        </select></label
+      >
+      <label
+        >尺寸<select name="size">
+          <option value="desktop">桌面 1440px</option>
+          <option value="mobile">手機 390px</option>
+        </select></label
+      >
+      <label
+        >明暗<select name="theme">
+          <option value="dark">深色</option>
+          <option value="light">淺色</option>
+        </select></label
+      >
+      <label
+        >樣式<select name="version">
+          <option value="">S6 Orbital Pulse</option>
+          <option value="current-">目前原有風格</option>
+        </select></label
+      >
+    </form>
+    <figure>
+      <figcaption id="caption" aria-live="polite">
+        S6 主頁 · 桌面 1440px · 深色 · S6 Orbital Pulse
+      </figcaption>
+      <img
+        id="preview"
+        src="s6/desktop-dark.webp"
+        width="1440"
+        height="1000"
+        alt="S6 主頁 · 桌面 1440px · 深色 · S6 Orbital Pulse"
+      />
+    </figure>
+  </body>
+</html>

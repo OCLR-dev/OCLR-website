@@ -104,7 +104,7 @@ export function proxy(request: NextRequest) {
     remote &&
     !path.startsWith("/api/") &&
     !path.startsWith("/_next/") &&
-    !/^\/(?:branding\/|archive\/|fonts\/|mascot\/|[^/]+\.(?:svg|png|jpg|jpeg|webp|ico)$)/.test(
+    !/^\/(?:branding\/|archive\/|fonts\/|mascot\/|themes\/|[^/]+\.(?:svg|png|jpg|jpeg|webp|ico)$)/.test(
       path,
     ) &&
     !remotePageSupported(path)

@@ -1,5 +1,30 @@
 # S7 — Graphite Arena / 石墨競技場
 
+## 整體質感與版面精修（2026-10-28）
+
+依主辦方本輪選擇，以 main `efaba82` 為基準精修正式 `graphite-arena`；程式版本 `0a7e0c21c783ff3b9094caa3a6e55b1abdd8d7f7`。保留前輪圖池文字操作與管理側欄修復，下方舊輪次的 CI／部署敘述只屬歷史紀錄。
+
+- 標題保留銀鋁／深鋼拉絲與寬幅反光，降低刷紋密度與明暗起伏；頁首、導覽、管理板和統計板改用較平靜的緞面，讓原主視覺成為主要焦點。
+- 統一標題字級、12px 標題／字幕間距與 24／32px 留白。六角嵌件依實際內容區寬度顯示：達 720px 才保留右側空間，窄欄收起；不再僅依 1100px 視窗斷點判斷。937px 頁面可完整顯示嵌件與標題。
+- 原圖與五列統計維持等寬雙欄，縮小多餘間隔並對齊資料板；手機仍為上下排列，統計數字與列高更緊湊。
+- 圖池摘要改為文字與細分隔，模組篩選改為平整文字控制與金色選取底線；卡片／表格切換仍是獨立金屬按鈕。保留長標題、44px 點選區、焦點與高對比選取。
+- 保留既有入場、導覽顏色過渡與實體控制按壓；文字篩選不位移，反光仍為靜態，遵循 reduced motion。沒有新增動態材質、介面文案、依賴或 migration。
+
+本輪圖片： [桌面 Light](desktop-light.webp)／[Dark](desktop-dark.webp) · [手機 Light](mobile-light.webp)／[Dark](mobile-dark.webp) · [937px 標題 Light](heading-937-light.png)／[Dark](heading-937-dark.png) · [390px 標題 Light](heading-390-light.png)／[Dark](heading-390-dark.png)。均由正式 SSR 偏好與 production build 直接擷取，不使用候選 CSS overlay。
+
+本輪驗證：
+
+- Node.js 24.22.1 `npm ci`／`npm run check` 通過；最終 `0a7e0c2` 的 production build／TypeScript 通過。素材與產品修改限於 `graphite-theme.css`，沒有改動原 SVG 或賽事主視覺。
+- 批次初版 `5d71ab7` 的完整單元／整合：169 個檔案、1,352 項通過／1 項略過。其後僅調整圖池 CSS，未重跑未受影響的單元測試；改以最終建置及受影響瀏覽器檢查驗證。
+- `1c1a704` 的 Chrome 桌面／手機 8 項通過。最終 `0a7e0c2` 的 Chrome 圖池／外觀桌面與手機 4 項重驗全部通過；僅重跑最後 CSS 修正影響的案例。
+- 最終 `0a7e0c2` 的 Safari／WebKit 桌面與 iPhone 13 共 8 項全部通過：三語明暗、圖池文字／44px 點選區、卡片／表格、管理側欄與焦點、跟隨系統／手動明暗、SSR／跨頁及高對比。臨時設定沿用專案共用 server／fixture，只切換 WebKit 裝置與測試輸出位置。
+- 最終 [verification.json](verification.json)：24 組實際 UI／24 次 Axe AA 零違規，另 4 次管理側欄 Axe AA 零違規與 4 組 forced colours 通過；保留 DOM／文字、五列統計、1920×1080 原圖、手機選單焦點與 sticky stack。圖庫更新全頁、局部、手機選單及 default 對照圖。
+- [標題幾何](heading-geometry.json)：三語×明暗×320／768／774／775／937／1440px 共 36 組通過，涵蓋 720px 內容斷點兩側；文字無重疊／溢出。於 `5d71ab7` 實測，該段標題樣式與最終 `0a7e0c2` 逐字一致。
+- 人工核對銀鋁／深鋼的反光端點：字幕、強調文字與統計標籤的參考對比為 6.21:1–7.79:1；另目視確認低透明度刷紋與實際明暗頁面。最終圖池六顆線型篩選分頁均為無背景圖／無陰影。
+- `npm audit --omit=dev` 為 0 vulnerabilities；格式、工具 ESLint／語法、文件連結與 `git diff --check` 通過。未執行完整全站／跨瀏覽器功能矩陣，未更動 CI 範圍。
+
+基準 main `efaba82` 的 [CI](https://github.com/OCLR-dev/OCLR-website/actions/runs/40623885255) 已成功；此結果不代表本輪功能分支。交付分支為 `codex/s7-theme-refinement`，依主辦方後續授權推送並提交 PR 審閱；遠端 head、PR 與實際 CI 狀態另記於 #198 最新留言。沒有合併或部署。
+
 追蹤：[#198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S7 正式主題已由 PR #384 合併至 main `d34378e`。本輪以該實際 UI 修復圖池與管理側欄，功能分支待審閱，尚未合併或部署修復。
 
 ## 設計方向
@@ -75,7 +100,7 @@ DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 APP_URL=http://127.0.0.1:3
 在另一個 terminal 對同一 DB，設定 `S7_UI_BASELINE` 為本輪 runtime 提交，執行：
 
 ```sh
-S7_UI_BASELINE=5c9f0834548ebe4c0ce91ca5bc24efa94138fb32 node --import tsx docs/design/season-themes/s7/capture.mjs
+S7_UI_BASELINE=0a7e0c21c783ff3b9094caa3a6e55b1abdd8d7f7 node --import tsx docs/design/season-themes/s7/capture.mjs
 ```
 
 截圖程式核對 runtime／messages／public 與指定 SHA 完全一致，從實際 SSR 外觀偏好與已打包 CSS 產圖；不注入候選 CSS、不更換元件。檢查三個路由 × 四個寬度（320／390／768／1440）× 明暗、Axe AA、DOM／文字不變、五列統計、完整原圖、手機選單／焦點與 sticky stack，另檢查四組 forced colours。另以繁中、937px／390px 擷取管理側欄明暗共四張原生2×局部並進行四次側欄 Axe AA。合成 session 只在記憶體，不進截圖或原始碼。

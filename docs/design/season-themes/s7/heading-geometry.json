@@ -1,0 +1,369 @@
+{
+  "date": "2026-10-28",
+  "testedSource": "5d71ab78f6423607209b08e34ee682032e4ffa65",
+  "finalSource": "0a7e0c21c783ff3b9094caa3a6e55b1abdd8d7f7",
+  "headingStylesUnchanged": true,
+  "scope": "Three locales, light/dark, 320/768/774/775/937/1440px; no heading text overlap or horizontal overflow",
+  "cases": [
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewportWidth": 320,
+      "contentWidth": 288,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewportWidth": 768,
+      "contentWidth": 714.234375,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewportWidth": 774,
+      "contentWidth": 719.8125,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewportWidth": 775,
+      "contentWidth": 720.75,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewportWidth": 937,
+      "contentWidth": 871.40625,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewportWidth": 1440,
+      "contentWidth": 1344,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewportWidth": 320,
+      "contentWidth": 288,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewportWidth": 768,
+      "contentWidth": 714.234375,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewportWidth": 774,
+      "contentWidth": 719.8125,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewportWidth": 775,
+      "contentWidth": 720.75,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewportWidth": 937,
+      "contentWidth": 871.40625,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewportWidth": 1440,
+      "contentWidth": 1344,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "viewportWidth": 320,
+      "contentWidth": 288,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "viewportWidth": 768,
+      "contentWidth": 714.234375,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "viewportWidth": 774,
+      "contentWidth": 719.8125,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "viewportWidth": 775,
+      "contentWidth": 720.75,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "viewportWidth": 937,
+      "contentWidth": 871.40625,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "viewportWidth": 1440,
+      "contentWidth": 1344,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "viewportWidth": 320,
+      "contentWidth": 288,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "viewportWidth": 768,
+      "contentWidth": 714.234375,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "viewportWidth": 774,
+      "contentWidth": 719.8125,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "viewportWidth": 775,
+      "contentWidth": 720.75,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "viewportWidth": 937,
+      "contentWidth": 871.40625,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "viewportWidth": 1440,
+      "contentWidth": 1344,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "viewportWidth": 320,
+      "contentWidth": 288,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "viewportWidth": 768,
+      "contentWidth": 714.234375,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "viewportWidth": 774,
+      "contentWidth": 719.8125,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "viewportWidth": 775,
+      "contentWidth": 720.75,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "viewportWidth": 937,
+      "contentWidth": 871.40625,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "viewportWidth": 1440,
+      "contentWidth": 1344,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "viewportWidth": 320,
+      "contentWidth": 288,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "viewportWidth": 768,
+      "contentWidth": 714.234375,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "viewportWidth": 774,
+      "contentWidth": 719.8125,
+      "insertVisible": false,
+      "textFits": true,
+      "clearance": null,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "viewportWidth": 775,
+      "contentWidth": 720.75,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "viewportWidth": 937,
+      "contentWidth": 871.40625,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "viewportWidth": 1440,
+      "contentWidth": 1344,
+      "insertVisible": true,
+      "textFits": true,
+      "clearance": 32,
+      "overflow": false
+    }
+  ]
+}

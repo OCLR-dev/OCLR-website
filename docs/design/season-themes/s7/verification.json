@@ -1,10 +1,10 @@
 {
-  "date": "2026-10-27",
-  "uiBaseline": "5c9f0834548ebe4c0ce91ca5bc24efa94138fb32",
+  "date": "2026-10-28",
+  "uiBaseline": "0a7e0c21c783ff3b9094caa3a6e55b1abdd8d7f7",
   "scope": "Actual registered S7 appearance with SSR cookie and shipped assets; public committed S7 archive and one synthetic local test account; no business commands",
   "locale": "zh-Hans",
   "browser": "Google Chrome",
-  "material": "Brushed silver and gunmetal plates; machined three-socket hexagonal insert with silver bevels, recessed inner walls, countersunk fasteners and a gold edge; full original S7 key visual",
+  "material": "Restrained brushed silver and gunmetal heading; satin navigation and archive data plate; container-sized machined insert; aligned unframed season artwork and five metric rows",
   "decorativeAssets": [
     "/themes/graphite-arena/honeycomb.svg"
   ],
@@ -173,7 +173,29 @@
         "x": 1072,
         "y": 189,
         "width": 320,
-        "height": 157,
+        "height": 165,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-937-light.png",
+      "path": "/tournaments/s7",
+      "theme": "light",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": ".page-heading",
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-390-light.png",
+      "path": "/tournaments/s7",
+      "theme": "light",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": ".page-heading",
         "deviceScaleFactor": 2
       }
     },
@@ -246,7 +268,29 @@
         "x": 1072,
         "y": 189,
         "width": 320,
-        "height": 157,
+        "height": 165,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-937-dark.png",
+      "path": "/tournaments/s7",
+      "theme": "dark",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": ".page-heading",
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-390-dark.png",
+      "path": "/tournaments/s7",
+      "theme": "dark",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": ".page-heading",
         "deviceScaleFactor": 2
       }
     },
