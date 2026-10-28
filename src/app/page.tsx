@@ -128,26 +128,67 @@ async function HomeContent() {
                 : tr("The next edition has not been announced yet.");
   return (
     <div className="home-redesign">
-      <section className="home-feature" aria-labelledby="hero-title">
-        <div
-          className="home-feature-art hero-art"
-          style={{
-            backgroundImage: `url("${featured?.branding.background ?? "/rookie-stage.svg"}")`,
-          }}
-          aria-hidden="true"
-        />
+      <section
+        className="home-feature home-person-feature"
+        aria-labelledby="hero-title"
+      >
+        <div className="home-composition" aria-hidden="true">
+          <Image
+            src="/branding/home-s11/nebula-only.png"
+            unoptimized
+            alt=""
+            width={2048}
+            height={1024}
+            preload
+            className="home-layer home-layer-sky"
+          />
+          <Image
+            src="/branding/home-s11/foreground.png"
+            unoptimized
+            alt=""
+            width={1774}
+            height={887}
+            className="home-layer home-layer-ground"
+          />
+          <div className="home-composition-shade" />
+          <Image
+            src="/branding/home-s11/liru-refined-v2.png"
+            unoptimized
+            alt=""
+            width={1024}
+            height={1536}
+            preload
+            className="home-layer home-layer-person"
+          />
+          <Image
+            src="/branding/home-s11/oclr-layer.svg"
+            alt=""
+            width={1200}
+            height={490}
+            unoptimized
+            className="home-layer home-layer-logo"
+          />
+          <Image
+            src="/branding/home-s11/season-layer.svg"
+            alt=""
+            width={1200}
+            height={490}
+            unoptimized
+            className="home-layer home-layer-season"
+          />
+          <Image
+            src="/branding/home-s11/katu-cropped.svg"
+            alt=""
+            width={100}
+            height={100}
+            unoptimized
+            className="home-layer home-layer-katu"
+          />
+        </div>
         <div className="container home-feature-inner">
           <div className="home-feature-left">
-            <h1 id="hero-title" className="home-wordmark home-wordmark-layout-b">
-              <Image
-                src="/branding/oclr-s11-layout-b.svg"
-                alt="osu! Chinese League Rookie — S11"
-                width={1200}
-                height={490}
-                unoptimized
-                preload
-                className="home-vector-wordmark"
-              />
+            <h1 id="hero-title" className="sr-only">
+              <span>osu! Chinese League Rookie</span> — S11
             </h1>
             <div className="home-entry-links">
               <div className="home-contact-bar" aria-label={tr("Contact")}>

@@ -47,12 +47,16 @@ async function OverviewContent({
   if (archivePage) return archivePage;
   const edition = await frontendTournament(slug);
   const base = `/tournaments/${slug}`;
+  const winterBanner =
+    ["s11", "dev-s11"].includes(slug) || edition.season === "11"
+      ? "/branding/oclr-s11-winter-banner.svg"
+      : null;
   const preview =
     edition.overview.kind === "preview" ? edition.overview.document : null;
   if (preview)
     return (
       <InformationDocument
-        document={preview}
+        document={winterBanner ? { ...preview, banner: winterBanner } : preview}
         stages={preview.schedule
           .filter((_, index) => index !== 1)
           .map((row, index) => ({
@@ -99,7 +103,7 @@ async function OverviewContent({
   const document: TournamentInformation = {
     name: edition.name,
     intro: publicEditionSummary(edition.summary) ?? "",
-    banner: edition.branding.background,
+    banner: winterBanner ?? edition.branding.background,
     timeZone: edition.timeZone,
     schedule: [
       ...(edition.registration

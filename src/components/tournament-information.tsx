@@ -77,7 +77,9 @@ export async function InformationDocument({
         <TournamentOverviewContents entries={contents} />
         <div className="information-overview-reading">
           {document.banner && (
-            <div className="information-banner">
+            <div
+              className={`information-banner${document.banner === "/branding/oclr-s11-winter-banner.svg" ? " information-winter-banner" : ""}`}
+            >
               <Image
                 src={document.banner}
                 alt=""
@@ -86,7 +88,9 @@ export async function InformationDocument({
                 sizes="(max-width: 900px) 100vw, 1000px"
                 unoptimized
               />
-              <span>{document.name}</span>
+              {document.banner !== "/branding/oclr-s11-winter-banner.svg" && (
+                <span>{document.name}</span>
+              )}
             </div>
           )}
           <TournamentStageScroll
