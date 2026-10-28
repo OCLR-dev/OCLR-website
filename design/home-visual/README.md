@@ -94,3 +94,5 @@ The organizer selected cover study B, clarified that existing homepage character
 ### Right-aligned S11 refinement
 
 At the organizer’s request, the R06 composition now places the small S11 to the right of OCLR on the same baseline (y=386), preserving its scale and existing paths. The SVG canvas widens to 1160 × 490; the homepage uses matching intrinsic dimensions and a smaller display width (50vw, capped at 48rem; 90% of the content column on mobile). `npm run check`, native SVG validation and `git diff --check` passed; librsvg rendering was inspected. The browser preview returned `REMOTE_FORBIDDEN`, so full-page desktop/mobile visual verification remains pending. No server configuration, data, deployment or remote publication changed.
+
+Follow-up: enlarged S11 from 0.23 to 0.30 source scale (about 30%, baseline still y=386); widened the canvas to 1200 × 490 to avoid clipping. The homepage wordmark moves upward by 16–32 CSS pixels responsively, with entry links retaining their positions. SVG rendering, `npm run check` and `git diff --check` passed. Full-page browser verification remains limited by the previously observed remote preview rejection.

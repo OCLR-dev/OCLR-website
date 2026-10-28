@@ -142,7 +142,7 @@ async function HomeContent() {
               <Image
                 src="/branding/oclr-s11-layout-b.svg"
                 alt="osu! Chinese League Rookie — S11"
-                width={1160}
+                width={1200}
                 height={490}
                 unoptimized
                 preload

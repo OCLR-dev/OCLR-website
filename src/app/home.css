@@ -83,6 +83,7 @@
 .home-wordmark-layout-b {
   display: block;
   width: min(50vw, 48rem);
+  transform: translateY(clamp(-2rem, -2vw, -1rem));
   line-height: 0;
 }
 .home-vector-wordmark {
