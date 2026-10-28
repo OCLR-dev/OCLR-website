@@ -6,11 +6,11 @@
   "decorativeAssets": [
     {
       "file": "prism-field-light.svg",
-      "sha256": "efc9f8c9f0071620d1b9405481999a00e1774a2f5c8aa4a2ee25e8a5037f1f2e"
+      "sha256": "3541687124a5651c2d2e26a6d5503aa3f0bb3de45852cec219002a06c08e2f08"
     },
     {
       "file": "prism-field-dark.svg",
-      "sha256": "b72addee66f2a18946361a9ef1283b841dff758cc63b6cf82729f084cbe547eb"
+      "sha256": "67a7672ce9dfd8067b7941796395bdea6f2ba44e0b6db9d80ef9d12f95f62ff8"
     }
   ],
   "browser": "Google Chrome",
@@ -554,6 +554,6 @@
   ],
   "errors": [],
   "artworkSha256": "26fb173d1641df56a81fa7e9d7a2948b5280927d3c93fbd2324b7f169a9c80e4",
-  "candidateCssSha256": "11614d1e635a513d5107ceb0a805ff93bc9b1c972b12f829842f2d55e5c24d25",
+  "candidateCssSha256": "2fb3539eedab0250ef1f77c037561ea0c1cecb88eb47f360ffa9b9ecaeb9db30",
   "fixture": "Committed S5 reviewed-import and rulebook; all 34 pending source results remain unapproved, and the ordinary public projection hides their scores in the isolated test DB"
 }

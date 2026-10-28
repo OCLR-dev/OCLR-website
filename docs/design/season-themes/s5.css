@@ -36,6 +36,7 @@ html[data-s5-preview] .themed-site {
   --prism-heading: linear-gradient(115deg, #fffcff, #f5f0fc 55%, #eef8fa);
   --prism-facet-field: url("./s5/prism-field-light.svg");
   --prism-reading-wash: #fcf9ffde;
+  --prism-mobile-wash: #fcf9ff6b;
   --prism-edge-light: #ffffffa6;
   background: var(--site-background);
 }
@@ -74,6 +75,7 @@ html[data-s5-preview][data-theme="dark"] .themed-site {
   --prism-heading: linear-gradient(115deg, #2d2343, #302747 55%, #25384a);
   --prism-facet-field: url("./s5/prism-field-dark.svg");
   --prism-reading-wash: #211a32e6;
+  --prism-mobile-wash: #211a3299;
   --prism-edge-light: #ffffff12;
 }
 html[data-s5-preview] .themed-site .site-header {
@@ -365,9 +367,16 @@ html[data-s5-preview]
 @media (max-width: 760px) {
   html[data-s5-preview] .themed-site .page-heading {
     padding: 24px;
+    background-image:
+      linear-gradient(
+        90deg,
+        var(--prism-reading-wash) 0 12%,
+        var(--prism-mobile-wash)
+      ),
+      var(--prism-facet-field), var(--prism-heading);
     background-position:
       center,
-      62% center,
+      84% center,
       center;
   }
   html[data-s5-preview] .themed-site .archive-counts > div {

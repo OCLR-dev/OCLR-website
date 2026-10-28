@@ -1,10 +1,10 @@
 # S5 — Prism Overture / 稜光序曲
 
-2026-10-29，依 [#345](https://github.com/OCLR-dev/OCLR-website/issues/345) 與主辦方「開始設計S5主題theme」製作候選，並依後續「稜鏡應成為banner紋理、構圖需要更精緻平衡」回饋更新。基於 main `9e10f727c733ca517d183204c5c3ed97e127ed56` 的實際 MainSheet 元件，先交付視覺預覽供審閱；尚未註冊 `prism-overture`、更改任何預設或加入正式外觀選單。
+2026-10-29，依 [#345](https://github.com/OCLR-dev/OCLR-website/issues/345) 與主辦方「開始設計S5主題theme」製作候選，並依後續「稜鏡應成為banner紋理、需要更精緻且更多折面，加入beta元素」回饋更新。基於 main `9e10f727c733ca517d183204c5c3ed97e127ed56` 的實際 MainSheet 元件，先交付視覺預覽供審閱；尚未註冊 `prism-overture`、更改任何預設或加入正式外觀選單。
 
 ## 視覺與層級
 
-視覺主張是「青紫稜面中的一束暖光」：淡紫白／紫墨工作面、紫色主要操作、低彩度資料區，以青光、淡紫折面與一束粉桃暖光構成整片banner紋理；色面向文字區漸淡，避免裝飾與標題分離。完整原圖是主要視覺，保留 OCLR β 的歷史識別；介面使用 OCLR β (S5) 說明對應，不改寫原圖的β或歷史英文。
+視覺主張是「青紫稜面中的一束暖光」：淡紫白／紫墨工作面、紫色主要操作、低彩度資料區，以110片大小交錯的青紫折面、局部粉桃暖光與淡色β壓印構成整片banner紋理；色面向文字區漸淡，避免裝飾與標題分離。完整原圖是主要視覺，保留 OCLR β 的歷史識別；介面使用 OCLR β (S5) 說明對應，不改寫原圖的β或歷史英文。
 
 主頁保留既有導覽、完整16:9原圖、五列統計與三章規則；賽程、圖池與管理設定皆來自實際 React 元件，使用既有資料與權限流程。面板12px、控制項8px圓角，16px內文與既有44px觸控區；比分與統計數值沿用等寬數字。選取狀態使用淡紫面與深紫文字；成功、警告、錯誤保留獨立語意色。
 
@@ -16,7 +16,7 @@
 
 ## Tokens
 
-完整候選值見 [s5.css](../s5.css)。連續三角折面鋪滿banner，取消獨立圖示與右側保留欄；內文限制在54ch以維持閱讀節奏，搭配細反射稜線、低對比暖光與輕微頂邊反光。手機同樣呈現紋理，依容器比例調整裁切；文字區由漸淡罩層維持對比。字體與主要資訊架構沿用MainSheet。
+完整候選值見 [s5.css](../s5.css)。110片不規則三角折面鋪滿banner，密度為前一版22片的5倍；各面帶有漸層深淺與局部細稜線，保留青紫基調與少量粉桃反光。β採EB Garamond Italic的古典書寫斜體字形，轉為向量壓印融入材質，保留粗細筆畫與Greek beta的下伸筆畫。內文限制在54ch以維持閱讀節奏；手機調整背景取景與閱讀罩層，使β可見並維持文字對比。字體與主要資訊架構沿用MainSheet。
 
 | Token                   | Light     | Dark      |
 | ----------------------- | --------- | --------- |
@@ -39,7 +39,8 @@
 ## 素材與資料
 
 - [完整原圖](../../../../public/archive/s5/key-visual.png)：原有1920×1080 PNG，SHA-256 `26fb173d1641df56a81fa7e9d7a2948b5280927d3c93fbd2324b7f169a9c80e4`，不裁切、重繪、調色或改字，保留原檔與既有透明資訊。
-- [Light紋理](prism-field-light.svg)／[Dark紋理](prism-field-dark.svg)：原生SVG自繪，連續、不規則三角折面形成青紫材質，局部稜線以暖色折射光連接；沒有獨立稜鏡圖示、文字、腳本、外部素材或循環動效。兩份紋理為banner背景，依明暗分別控制色面與反光強度。
+- [Light紋理](prism-field-light.svg)／[Dark紋理](prism-field-dark.svg)：原生SVG自繪，每份含110片不規則折面、6組色面漸層、選擇性的細反射稜線與藝術斜體β壓印。β字形已轉成向量，執行時不載入字型或外部資源；不是新增賽事logo。兩份紋理合計約34KB，依明暗分別控制色面與反光強度，沒有腳本或循環動效。
+- [β字形來源與轉製說明](fonts/BETA.md)：EB Garamond Italic 400的Greek U+03B2，採SIL OFL 1.1授權，來源及完整版權／授權文字隨文件保存。只嵌入字形輪廓，不加入整套字型或改變MainSheet文字字體。
 - 使用已提交的 `s5-reviewed-import.json` 與 `s5-rulebook.json`，沿用既有歷史資料schema及公開投影；來源與限制見 [S5來源整理](../../../s5-archive.md)。
 - `reviewed-import` 的34場來源結果仍全部為pending；此fixture沒有呼叫核准函式或改變審批狀態。公開頁沿用正常投影隱藏其比分，因此顯示0個已記錄賽果，不把34個待審來源當作已核准結果。
 - 實際主頁顯示12隊、85位選手與教練、5個圖池、77個譜面位置（包含教練資格賽），三章原文規則。沒有補造日期、名次、比分或缺漏身分。
@@ -47,7 +48,7 @@
 
 ## 方法與邊界
 
-目前未修改`src`、`messages`、`public`、正式路由、外觀白名單或migration。以已建置的最新main應用作基準，加入 `data-s5-preview` 與候選CSS後直接擷取真實頁面；這是設計候選，尚非正式S5 SSR外觀。SVG由工具內嵌為本機data URI。
+目前未修改`src`、`messages`、`public`、正式路由、外觀白名單或migration。以同一已建置的main應用基準作比較，加入 `data-s5-preview` 與候選CSS後直接擷取真實頁面；這是設計候選，尚非正式S5 SSR外觀。SVG由工具內嵌為本機data URI。
 
 圖庫只切換保存的圖片，不連接API／DB或儲存偏好。擷取過程封鎖外部流量及非GET／HEAD請求，並核對套用樣式前後的body文字與元素數量不變。
 
@@ -73,7 +74,7 @@ node --import tsx docs/design/season-themes/s5/capture.mjs
 
 ## 本輪驗證
 
-- 沿用首版Node.js24.22.1已完成的`npm ci`、production build與TypeScript檢查，應用基準與資料相同。本輪只改候選CSS／SVG與擷取工具，未重建未更動的應用。
+- 沿用首版Node.js24.22.1已完成的`npm ci`、production build與TypeScript檢查，應用基準與資料相同。本輪只改候選CSS／SVG、文件與圖庫，未重建未更動的應用。
 - [verification.json](verification.json)：主頁／賽程／圖池／Admin × 320／390／768／1440px × 明暗，共32組、32次Axe AA，零違規、無水平溢出或pageerror。
 - 樣式前後body文字／元素數量不變；完整1920×1080 PNG、五列統計與三章規則保留。手機選單／Escape焦點、Admin鍵盤焦點、4組forced colours及937／390px紋理載入與標題幾何檢查通過。
 - [gallery-verification.json](gallery-verification.json)：圖庫32種切換正確載入，四種寬度×明暗共8次Axe AA零違規，無溢出或pageerror，鍵盤焦點通過。
