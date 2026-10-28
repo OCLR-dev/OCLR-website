@@ -2434,6 +2434,7 @@
         {
           "slot": "DT2",
           "beatmapId": 2567502,
+          "originalId": 2933979,
           "title": "Annabel - syncretism [Insane]",
           "mapper": null,
           "stars": null,
@@ -2460,14 +2461,15 @@
         {
           "slot": "DT4",
           "beatmapId": 2720295,
+          "originalId": 2678913,
           "title": "Maeda Jun x yanaginagi - Before I Rise [Welcome to OCLR]",
-          "mapper": null,
-          "stars": null,
-          "bpm": null,
-          "drainSeconds": null,
-          "cs": null,
-          "ar": null,
-          "od": null,
+          "mapper": "Gaia",
+          "stars": 6.27,
+          "bpm": 210,
+          "drainSeconds": 111,
+          "cs": 4,
+          "ar": 8.5,
+          "od": 8,
           "source": "二轮赛图数据!B19:P19"
         },
         {
@@ -2786,14 +2788,15 @@
         {
           "slot": "NM4",
           "beatmapId": 2756449,
+          "originalId": 2755377,
           "title": "fripSide - Hesitation Snow [Extra (OCLR ver.)]",
           "mapper": "Fushimi Rio",
           "stars": 5.65,
           "bpm": 135.0,
           "drainSeconds": 125,
-          "cs": null,
-          "ar": null,
-          "od": null,
+          "cs": 4,
+          "ar": 9.4,
+          "od": 8,
           "source": "Final 图池!B5:P5"
         },
         {
@@ -4308,7 +4311,8 @@
   "notes": [
     "S5 私人草稿；名單以 MainSheet 為準。",
     "34 場比分依 MainSheet 待管理介面核准；紅藍隊已由原始 MP 已知 UID 核對。原表時間的時區仍未知，scheduledAt 留空；MP 開房 UTC 時間另存。",
-    "規則原文、最終名次、晉級連線及未知 UID 尚待核實。"
+    "規則原文、最終名次、晉級連線及未知 UID 尚待核實。",
+    "DT2、DT4、NM4 的 originalId 指向仍可開啟的原始圖；DT4 是 2678913 的 1.5× 版本（AR 9→8.5、OD 8.5→8，故 stars 6.27、bpm 210），DT4、NM4 的 mapper、stars、bpm、drainSeconds、cs、ar、od 為該 edit 的上傳值，不是本次重新裁定或量測的比賽結果。"
   ],
   "links": [
     {

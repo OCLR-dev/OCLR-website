@@ -23,6 +23,12 @@ About lists only active persistent staff grants explicitly marked **Show on Abou
 
 `/tournaments/[edition]/players` and `/api/tournaments/[edition]/players` list every accepted registration in that published edition, with search and bounded pagination. Username, osu! ID and accepted participation are automatically public, as explained before submission and in Privacy. Application answers, contact fields and staff notes are never queried. Captain/team/roster details retain separate publication checks. Pending/rejected/withdrawn registrations and unpublished editions stay private. Legacy `/players?edition=...` redirects into the edition; `/players` redirects to Tournaments. The legacy directory API requires one edition and cannot return a cross-edition list. `/dashboard` remains private.
 
+## Dashboard participation history (#361)
+
+The private `/dashboard` shows the signed-in UID's saved participation in published historical archives and completed native tournaments, newest numeric season first (unknown seasons last). It includes history-only players without a native registration, preserves historical names and distinct roles/teams, and keeps registration actions in their existing section. Missing fields remain unrecorded; a failed history read offers a retry instead of an empty-history message.
+
+The list reuses `publicPlayer`, public tournament summaries and their existing remote resources. Archive facts take precedence over duplicate native/imported registrations; multiple confirmed roster/replacement facts in one edition remain separate. Names never match identities. Unpublished editions, unresolved UIDs, application answers and source appendices do not appear. The updated backend supplies all same-edition facts using the existing response shape; an older backend can only supply the facts its saved-read implementation already exposes. No migration or new Developer scope is required.
+
 ## osu! player profile snapshots
 
 Published directory and team entries link to `/players/[osuId]`; `?edition=<slug>` preserves tournament context and `mode=osu|taiko|fruits|mania` selects an explicitly labeled ruleset. Directory reads and Next.js link prefetching never fetch provider profiles. Profile pages and `/api/players/[osuId]` check published participation before looking up metadata and again after provider I/O. A cached profile does not make a private applicant public. Anonymous refresh parameters are rejected.

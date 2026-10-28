@@ -1,0 +1,62 @@
+.history:global(.panel) {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.record {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  align-items: start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.record + .record {
+  border-top: 1px solid var(--site-border, var(--color-border));
+}
+
+.record h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.experiences {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.experience {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+.experience > * {
+  max-width: 100%;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.record :global(.context-link) {
+  padding-inline: 0;
+}
+
+@media (max-width: 640px) {
+  .record {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+}

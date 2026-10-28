@@ -1,5 +1,6 @@
 import { Avatar } from "@/components/avatar";
 import { ConfirmMutation } from "@/components/confirm-mutation";
+import { PlayerHistory } from "@/components/player-history";
 import { Action, EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { applicationAnswers } from "@/lib/application-answers";
@@ -9,9 +10,11 @@ import { remoteMode } from "@/lib/data-source";
 import { formatDate } from "@/lib/editions";
 import { getOsuUserProfile } from "@/lib/osu-profiles";
 import { remotePage } from "@/lib/remote-page";
+import { playerParticipationHistory } from "@/lib/player-history";
+import { RemoteDataError } from "@/lib/remote-errors";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return {
@@ -29,9 +32,18 @@ async function Issue271Page({
 
   const user = await currentUser();
   if (!user) redirect("/login");
-  const [applications, snapshot] = await Promise.all([
+  const [applications, snapshot, history] = await Promise.all([
     playerApplications(user.osuId),
     getOsuUserProfile(user.osuId, "osu").catch(() => null),
+    playerParticipationHistory(user.osuId).catch((error) => {
+      unstable_rethrow(error);
+      if (
+        error instanceof RemoteDataError &&
+        !["REMOTE_UNAVAILABLE", "REMOTE_TIMEOUT"].includes(error.code)
+      )
+        throw error;
+      return null;
+    }),
   ]);
   const profile = snapshot?.profile;
   const country = profile?.countryCode;
@@ -158,6 +170,7 @@ async function Issue271Page({
             </p>
           </div>
         </section>
+        <PlayerHistory history={history} />
         <section className="section-space" id="registrations">
           <div className="section-title">
             <h2>{tr("My registrations")}</h2>

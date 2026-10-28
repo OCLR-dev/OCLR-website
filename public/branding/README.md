@@ -38,3 +38,15 @@ compressed, alpha-preserving variants selected by native `picture` / `srcset`.
 Full-resolution editing sources stay in `design/home-visual/layer-studio/assets/`.
 The runtime banner embeds only a 2000×1000 crop of the original NASA photo.
 See the studio README's runtime export commands for reproducible regeneration.
+
+
+## Current S11 asset family — 2026-10-29
+
+The follow-up to PR #421 replaces the existing S11 public image files with the
+winter nebula / corrected Liru / constellation-R design. See
+[`design/home-visual/s11-assets/README.md`](../../design/home-visual/s11-assets/README.md)
+for the complete path list, source credits and reproducible export command.
+`oclr-s11-logo.svg` is the complete transparent season wordmark; the global
+OCLR identity above remains separate. Existing S11 square, key-visual, responsive,
+background, promotional-banner and classic transparent-wordmark URLs remain valid.
+The older swirl wordmark and the source studies remain historical alternatives.

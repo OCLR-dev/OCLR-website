@@ -44,9 +44,12 @@ New Chinese source-disclosure wording still requires organizer review.
 ## Capture coverage — 2026-10-26
 The official snapshot resolves 199 of 202 distinct BIDs (221 of 224 pool slots).
 S4: 76/76 slots; S5: 75/77; S6: 70/71. All other pending lookups are complete.
+`unavailable` lists the captured BIDs whose page returns HTTP 404, so the two S5
+rows below stay listed even though their archive records are now complete.
 
-Three official beatmap pages returned HTTP 404; their surviving source values
-remain visible, and missing fields remain unknown:
+Three official beatmap pages returned HTTP 404. Their surviving source values
+remain visible, and missing fields stay unknown unless the import package records
+a surviving original map:
 
 | Season / pool / slot | BID | Missing fields |
 | --- | --- | --- |
@@ -54,8 +57,26 @@ remain visible, and missing fields remain unknown:
 | s5 / Final 图池 / NM4 | [2756449](https://osu.ppy.sh/beatmaps/2756449) | cs, ar, od |
 | s6 / 队长资格赛赛图 / NM3 | [2314568](https://osu.ppy.sh/beatmaps/2314568) | cs, ar, od |
 
-Completing these three records requires a surviving original map file or
+Both S5 rows already carry that provenance in the S5 import package:
+`docs/imports/s5-archive.json` records `originalId` 2678913 for DT4 2720295 and
+2755377 for NM4 2756449. The package fills their unpublished cells with the
+edits' own upload values (mapper, stars, bpm, drainSeconds, cs, ar, od for DT4;
+cs, ar, od for NM4), not with re-measured results; the package's `notes` state
+so. NM4's cs/ar/od match the original map 2755377 (4 / 9.4 / 8). DT4 is the
+1.5x version of 2678913 with AR 9 -> 8.5 and OD 8.5 -> 8, so its stars 6.27,
+bpm 210 and drainSeconds 111 (167 s / 1.5, rounded down) are the edit's values
+rather than the original page's base attributes (2678913 shows 4.46 stars at
+140 BPM). DT2 2567502 likewise keeps `originalId`
+2933979 for the same fallback, but needs no value fill because its own page is
+still available. `python3 scripts/prepare-s5-archive.py` and
+`python3 scripts/prepare-s5-reviewed-import.py` reproduce both packages.
+
+Completing the remaining S6 record requires a surviving original map file or
 other authoritative source; do not substitute another difficulty of the song.
+
+Unlike snapshot enrichment, which ships with the application, the S5 supplement
+lives in the import package: it appears on published pages only after that
+package is imported again, not by deploying the snapshot.
 
 ## Local verification — 2026-10-26
 

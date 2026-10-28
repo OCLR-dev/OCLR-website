@@ -258,41 +258,55 @@ export async function publicPlayers(input: unknown, exactOsuId?: number) {
 }
 async function databasePublicPlayer(osuId: number, edition?: string) {
   const rows = (await publicPlayers(edition ? { edition } : {}, osuId)).rows;
-  const byEdition = new Map(rows.map((p) => [p.editionSlug, p]));
+  const byEdition = new Map(rows.map((p) => [p.editionSlug, [p]]));
   for (const e of await getPublicEditions()) {
     if ((edition && e.slug !== edition) || !e.archive) continue;
-    const p = e.archive.players.find((p) => p.osuId === osuId);
-    const replacement = e.archive.rosterReplacements?.find((r) =>
-      r.people.some((p) => p.osuId === osuId),
-    );
-    const person = p ?? replacement?.people.find((p) => p.osuId === osuId);
-    if (!person) continue;
-    const teamId = p?.teamId ?? replacement?.teamId;
-    const team = e.archive.teams.find((t) => t.id === teamId);
+    const people = [
+      ...e.archive.players.filter((p) => p.osuId === osuId),
+      ...(e.archive.rosterReplacements ?? []).flatMap((r) =>
+        r.people
+          .filter((p) => p.osuId === osuId)
+          .map((p) => ({
+            ...p,
+            teamId: r.teamId,
+            role: "player" as const,
+            tier: r.tier,
+          })),
+      ),
+    ];
+    if (!people.length) continue;
     // Archives are authoritative for their editions. Never double-count a UID
     // that also occurs in imported/native tables, and retain the literal name.
-    byEdition.set(e.slug, {
-      osuId,
-      username: person.username,
-      editionSlug: e.slug,
-      editionName: e.name,
-      team: team ? { id: team.id, name: team.name } : null,
-      captain: p?.role === "captain",
-      participation: "historical",
-      role: p?.role ?? "player",
-      source: {
-        kind: "historical_archive",
-        revision: null,
-        updatedAt: null,
-        capturedOn: e.archive.capturedOn,
-      },
-      tier: p?.tier ?? replacement?.tier ?? null,
-      sourceReference: person.source,
-      placing:
-        e.archive.standings.find((s) => s.teamId === teamId)?.rank ?? null,
-    });
+    const facts = new Map<string, PublishedPlayer>();
+    for (const person of people) {
+      const team = e.archive.teams.find((t) => t.id === person.teamId);
+      const key = JSON.stringify([person.username, person.role, person.teamId]);
+      if (facts.has(key)) continue;
+      facts.set(key, {
+        osuId,
+        username: person.username,
+        editionSlug: e.slug,
+        editionName: e.name,
+        team: team ? { id: team.id, name: team.name } : null,
+        captain: person.role === "captain",
+        participation: "historical",
+        role: person.role,
+        source: {
+          kind: "historical_archive",
+          revision: null,
+          updatedAt: null,
+          capturedOn: e.archive.capturedOn,
+        },
+        tier: person.tier,
+        sourceReference: person.source,
+        placing:
+          e.archive.standings.find((s) => s.teamId === person.teamId)?.rank ??
+          null,
+      });
+    }
+    byEdition.set(e.slug, [...facts.values()]);
   }
-  return [...byEdition.values()];
+  return [...byEdition.values()].flat();
 }
 export async function publicPlayer(
   osuId: number,
