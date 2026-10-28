@@ -172,8 +172,9 @@ test.describe("S8 Sakura Circuit appearance", () => {
         const menu = page.getByRole("menu").filter({
           has: page.locator('[data-appearance-option="sakura-circuit"]'),
         });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(14);
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(15);
         await page.keyboard.press("End");
+        await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");
         const option = menu.getByRole("menuitemradio", {
           name: label,

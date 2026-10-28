@@ -1,0 +1,553 @@
+{
+  "date": "2026-10-28",
+  "uiBaseline": "66026d17cd6e4cc9f33829e5cc62627bc09954e3",
+  "scope": "Registered S6 orbital-pulse, selected through SSR cookie and bundled CSS; original default appearance captured for comparison",
+  "locale": "zh-Hant",
+  "decorativeAsset": {
+    "file": "music-spectrum.svg",
+    "sha256": "5c96eea4a9d202d6ee238179caedac130d2475367ddf3218c817c562207b7fd1"
+  },
+  "browser": "Google Chrome",
+  "screenshots": [
+    {
+      "file": "mobile-light.webp",
+      "path": "/tournaments/s6",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "schedule-mobile-light.webp",
+      "path": "/tournaments/s6/schedule",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "mappools-mobile-light.webp",
+      "path": "/tournaments/s6/mappools",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "admin-mobile-light.webp",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "desktop-light.webp",
+      "path": "/tournaments/s6",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "schedule-desktop-light.webp",
+      "path": "/tournaments/s6/schedule",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "mappools-desktop-light.webp",
+      "path": "/tournaments/s6/mappools",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "admin-desktop-light.webp",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "mobile-dark.webp",
+      "path": "/tournaments/s6",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "schedule-mobile-dark.webp",
+      "path": "/tournaments/s6/schedule",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "mappools-mobile-dark.webp",
+      "path": "/tournaments/s6/mappools",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "admin-mobile-dark.webp",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "desktop-dark.webp",
+      "path": "/tournaments/s6",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "schedule-desktop-dark.webp",
+      "path": "/tournaments/s6/schedule",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "mappools-desktop-dark.webp",
+      "path": "/tournaments/s6/mappools",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "admin-desktop-dark.webp",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "heading-937-light.png",
+      "path": "/tournaments/s6",
+      "theme": "light",
+      "width": 937,
+      "deviceScaleFactor": 2,
+      "geometry": {
+        "width": 871.40625,
+        "insert": "block",
+        "left": 632.203125,
+        "text": [
+          {
+            "right": 599.203125,
+            "fits": true
+          },
+          {
+            "right": 599.203125,
+            "fits": true
+          },
+          {
+            "right": 599.203125,
+            "fits": true
+          }
+        ]
+      }
+    },
+    {
+      "file": "heading-390-light.png",
+      "path": "/tournaments/s6",
+      "theme": "light",
+      "width": 390,
+      "deviceScaleFactor": 2,
+      "geometry": {
+        "width": 358,
+        "insert": "none",
+        "left": 102,
+        "text": [
+          {
+            "right": 353,
+            "fits": true
+          },
+          {
+            "right": 353,
+            "fits": true
+          },
+          {
+            "right": 353,
+            "fits": true
+          }
+        ]
+      }
+    },
+    {
+      "file": "heading-937-dark.png",
+      "path": "/tournaments/s6",
+      "theme": "dark",
+      "width": 937,
+      "deviceScaleFactor": 2,
+      "geometry": {
+        "width": 871.40625,
+        "insert": "block",
+        "left": 632.203125,
+        "text": [
+          {
+            "right": 599.203125,
+            "fits": true
+          },
+          {
+            "right": 599.203125,
+            "fits": true
+          },
+          {
+            "right": 599.203125,
+            "fits": true
+          }
+        ]
+      }
+    },
+    {
+      "file": "heading-390-dark.png",
+      "path": "/tournaments/s6",
+      "theme": "dark",
+      "width": 390,
+      "deviceScaleFactor": 2,
+      "geometry": {
+        "width": 358,
+        "insert": "none",
+        "left": 102,
+        "text": [
+          {
+            "right": 353,
+            "fits": true
+          },
+          {
+            "right": 353,
+            "fits": true
+          },
+          {
+            "right": 353,
+            "fits": true
+          }
+        ]
+      }
+    }
+  ],
+  "cases": [
+    {
+      "surface": "overview",
+      "path": "/tournaments/s6",
+      "theme": "light",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "schedule",
+      "path": "/tournaments/s6/schedule",
+      "theme": "light",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s6/mappools",
+      "theme": "light",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s6",
+      "theme": "light",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "schedule",
+      "path": "/tournaments/s6/schedule",
+      "theme": "light",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s6/mappools",
+      "theme": "light",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s6",
+      "theme": "light",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "schedule",
+      "path": "/tournaments/s6/schedule",
+      "theme": "light",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s6/mappools",
+      "theme": "light",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s6",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "schedule",
+      "path": "/tournaments/s6/schedule",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s6/mappools",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s6",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "schedule",
+      "path": "/tournaments/s6/schedule",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s6/mappools",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s6",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "schedule",
+      "path": "/tournaments/s6/schedule",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s6/mappools",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s6",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "schedule",
+      "path": "/tournaments/s6/schedule",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s6/mappools",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s6",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "schedule",
+      "path": "/tournaments/s6/schedule",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s6/mappools",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    }
+  ],
+  "forcedColours": [
+    {
+      "theme": "light",
+      "width": 320,
+      "decoration": "none",
+      "background": "none",
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "decoration": "none",
+      "background": "none",
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "decoration": "none",
+      "background": "none",
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "decoration": "none",
+      "background": "none",
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "artworkSha256": "3f40ae9a494ef7b349229e45c016c0e8fb82719b125bd4c407cd121099e720b7",
+  "registeredCssSha256": "c2a20b534203a16871cbdd0c3e58581d8cdc3daeb2e852d7d508c22fcb0eb5c3",
+  "fixture": "Committed S6 archive and rules; existing pure approval fixture mirrors dated organizer evidence only in an isolated test DB"
+}

@@ -1,5 +1,14 @@
 # Public pages and player profiles
 
+Historical Staff presentation groups the explicit equivalents 裁判 / Referee,
+直播 / Streamer and 解说 / 解說 / Commentator. Explicit combinations appear in
+each applicable group. The source umbrella “裁判 / 直播 / 解说（Staff原文统称）”
+does not imply three duties: it is shown as unspecified Staff when there is no
+explicit duty. Unknown role names retain their literal text. Within a group,
+confirmed UIDs are deduplicated while retaining all historical name variants;
+unresolved identities are not merged merely because their names match. Original
+role/source evidence remains saved and is not turned into live role grants.
+
 Published news, tournament participant information, edition-scoped player listings, osu! profile snapshots, the public competition center and standings. Refer to [tournament administration](tournament-management.md) for registration and publication policies.
 
 ## News, About and public participants

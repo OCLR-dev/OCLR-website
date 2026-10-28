@@ -8,7 +8,7 @@ import {
 } from "../../src/lib/preferences";
 
 describe("visitor appearance preference", () => {
-  it("supports only the registered designs, including the S7–S10 season themes", () => {
+  it("supports only the registered designs, including the S6–S10 season themes", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",
@@ -23,6 +23,7 @@ describe("visitor appearance preference", () => {
       "glacier-blue",
       "sakura-circuit",
       "graphite-arena",
+      "orbital-pulse",
     ]);
     expect(appearanceCookie).toBe("oclr-appearance");
     expect(readAppearance("cute-pastel")).toBe("cute-pastel");

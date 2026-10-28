@@ -3575,6 +3575,20 @@ body:has(.presenter-view) .site-footer,
   margin: 0;
   padding: 0;
 }
+.archive-staff-resolver {
+  max-width: 48rem;
+}
+.archive-staff-resolver .check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.archive-staff-resolver .check-label input {
+  flex: 0 0 auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+}
 .public-staff-list > li {
   display: flex;
   min-width: 0;
