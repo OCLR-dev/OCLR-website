@@ -31,3 +31,10 @@ Homepage now uses `home-s11/liru-refined-v2.png`, preserving the seated pose whi
 The follow-up wallpaper-method pass switches the homepage to `home-s11/liru-smooth-final.svg`: color-layer Potrace with continuous Bezier outlines, cumulative masks to avoid seams, and SVGO optimization. The PNG and first tracing remain as comparisons; see the studio's `liru-refinement-notes.md` for reproduction and exact size report.
 
 User review reverted the homepage and studio default to `liru-refined-v2.png` (corrected hair and neck). Vector variants remain backups, not the selected display asset.
+
+
+PR #421 runtime-size follow-up: the homepage remains PNG-based, with palette-
+compressed, alpha-preserving variants selected by native `picture` / `srcset`.
+Full-resolution editing sources stay in `design/home-visual/layer-studio/assets/`.
+The runtime banner embeds only a 2000×1000 crop of the original NASA photo.
+See the studio README's runtime export commands for reproducible regeneration.

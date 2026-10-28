@@ -1,6 +1,6 @@
 """Export the approved layered winter composition as a self-contained SVG."""
 from pathlib import Path
-import re,base64,xml.etree.ElementTree as E
+import re,base64,subprocess,xml.etree.ElementTree as E
 from copy import deepcopy
 root=Path(__file__).resolve().parent
 ns='http://www.w3.org/2000/svg';E.register_namespace('',ns)
@@ -19,7 +19,9 @@ E.SubElement(svg,'{'+ns+'}title',{'id':'banner-title'}).text='osu! Chinese Leagu
 E.SubElement(svg,'{'+ns+'}desc',{'id':'banner-description'}).text='Winter Orion nebula, pastel OCLR, glowing constellation R and white S11. Image credit: NASA, ESA, M. Robberto (STScI/ESA), Hubble Space Telescope Orion Treasury Project Team.'
 grade=svg_at(html,html.index('<svg'));svg.append(deepcopy(grade.find('{'+ns+'}defs')))
 E.SubElement(svg,'{'+ns+'}rect',{'width':'1000','height':'500','fill':'#07091f'})
-data=base64.b64encode((root/'assets/nasa-orion-6000.jpg').read_bytes()).decode()
+# Crop and resize only the embedded runtime photo; keep the 6000px studio original.
+photo=subprocess.check_output(['node',str(root/'export-runtime-images.mjs'),'--banner-photo'])
+data=base64.b64encode(photo).decode()
 E.SubElement(svg,'{'+ns+'}image',{'href':'data:image/jpeg;base64,'+data,'width':'1000','height':'500','preserveAspectRatio':'xMidYMin slice','filter':'url(#nebula-clear-grade)'})
 defs=E.SubElement(svg,'{'+ns+'}defs');g=E.SubElement(defs,'{'+ns+'}radialGradient',{'id':'quiet-center','cx':'51%','cy':'43%','r':'64%','gradientTransform':'translate(0 .19) scale(1 .55)'})
 for offset,opacity in [('0','.58'),('.44','.36'),('1','0')]:E.SubElement(g,'{'+ns+'}stop',{'offset':offset,'stop-color':'#07091f','stop-opacity':opacity})

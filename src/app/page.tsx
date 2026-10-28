@@ -133,33 +133,54 @@ async function HomeContent() {
         aria-labelledby="hero-title"
       >
         <div className="home-composition" aria-hidden="true">
-          <Image
-            src="/branding/home-s11/nebula-only.png"
-            unoptimized
-            alt=""
-            width={2048}
-            height={1024}
-            preload
-            className="home-layer home-layer-sky"
-          />
-          <Image
-            src="/branding/home-s11/foreground.png"
-            unoptimized
-            alt=""
-            width={1774}
-            height={887}
-            className="home-layer home-layer-ground"
-          />
+          <picture>
+            <source
+              type="image/png"
+              srcSet="/branding/home-s11/nebula-only-480.png 480w, /branding/home-s11/nebula-only-960.png 960w, /branding/home-s11/nebula-only-1600.png 1600w, /branding/home-s11/nebula-only.png 2048w"
+              sizes="103vw"
+            />
+            <Image
+              src="/branding/home-s11/nebula-only.png"
+              unoptimized
+              alt=""
+              width={2048}
+              height={1024}
+              loading="eager"
+              className="home-layer home-layer-sky"
+            />
+          </picture>
+          <picture>
+            <source
+              type="image/png"
+              srcSet="/branding/home-s11/foreground-480.png 480w, /branding/home-s11/foreground-960.png 960w, /branding/home-s11/foreground-1600.png 1600w, /branding/home-s11/foreground.png 1774w"
+              sizes="95vw"
+            />
+            <Image
+              src="/branding/home-s11/foreground.png"
+              unoptimized
+              alt=""
+              width={1774}
+              height={887}
+              className="home-layer home-layer-ground"
+            />
+          </picture>
           <div className="home-composition-shade" />
-          <Image
-            src="/branding/home-s11/liru-refined-v2.png"
-            unoptimized
-            alt=""
-            width={1024}
-            height={1536}
-            preload
-            className="home-layer home-layer-person"
-          />
+          <picture>
+            <source
+              type="image/png"
+              srcSet="/branding/home-s11/liru-refined-v2-320.png 320w, /branding/home-s11/liru-refined-v2-640.png 640w, /branding/home-s11/liru-refined-v2.png 1024w"
+              sizes="54vw"
+            />
+            <Image
+              src="/branding/home-s11/liru-refined-v2.png"
+              unoptimized
+              alt=""
+              width={1024}
+              height={1536}
+              loading="eager"
+              className="home-layer home-layer-person"
+            />
+          </picture>
           <Image
             src="/branding/home-s11/oclr-layer.svg"
             alt=""

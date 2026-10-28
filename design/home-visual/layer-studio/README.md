@@ -100,3 +100,21 @@ OCLR、S11、喝通过 `split-logo.py` 从原 SVG 分组提取，原路径数据
 The homepage uses the corrected transparent `liru-refined-v2.png` (native 1024×1536), reduced by 30% from 77.1087% to 53.97609% canvas width, positioned at x=63%, y=28% with 12° horizontal perspective. PNG is the approved display format; SVG tracing experiments remain comparison assets and do not increase source detail. A fresh studio starts with the same homepage composition. Existing saved browser compositions remain intact; use reset or import/export to switch deliberately.
 
 The character composition is applied to `/`; the separate centered octagonal winter banner is applied inside the S11 tournament overview. Run the static studio with the command above; open `/` for the character composition and `/centered/` for the independent banner. No backend or credentials are required by either editor. The `public/branding/home-s11/` copies are runtime assets. Scripts, source artwork, generation prompts and alternative assets in this directory are retained for editing and provenance.
+
+
+## Runtime image exports (PR #421 review)
+
+Keep editing the full-resolution files under `assets/`. After `npm ci`, run
+`node design/home-visual/layer-studio/export-runtime-images.mjs` from the repo root
+to regenerate the palette-compressed runtime PNGs (including alpha) and their
+480/960/1600px scene and 320/640px character derivatives. The largest variants
+retain the source dimensions; they do not invent additional detail. The homepage
+uses native `picture` / width-based `srcset` selection with sizes matching the
+existing layer geometry (103vw sky, 95vw foreground, 54vw character). Eager sky
+and character loading uses the selected source, without a fallback-image preload.
+
+Run `python3 design/home-visual/layer-studio/export-home-banner.py` to regenerate
+the centered SVG. It invokes the same Sharp exporter to crop the top 6000×3000
+region and embed a 2000×1000 JPEG at quality 85, matching the former `xMidYMin
+slice` composition at 2x canvas density. Node, npm dependencies and Python 3 are
+required; the original 6000×6000 NASA photograph stays untouched in the studio.
