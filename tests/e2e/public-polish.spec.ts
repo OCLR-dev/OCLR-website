@@ -163,7 +163,9 @@ test.describe("public presentation follow-ups", () => {
           // The cover fills its column in the wide band row and becomes a
           // 16:9 banner once the card stacks on narrow screens.
           expect(b.width).toBeGreaterThanOrEqual(200);
-          expect(b.height).toBeGreaterThanOrEqual(150);
+          if (width <= 640)
+            expect(b.width / b.height).toBeCloseTo(16 / 9, 1);
+          else expect(b.height).toBeGreaterThanOrEqual(150);
           expect(b.width / b.height).toBeGreaterThan(1.2);
         }
         await noOverflow(page);
