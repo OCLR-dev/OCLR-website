@@ -29,11 +29,9 @@ export function MatchDetailsView({
   if (!details)
     return (
       <section className="section-space stack">
-        <h2>{tr("MP records & adjudication")}</h2>
+        <h2>{tr("Played maps")}</h2>
         <p role="status" className="notice">
-          {tr(
-            "Approved match details are unavailable or need review. No player scores or rating are inferred from the series score.",
-          )}
+          {tr("Match details unavailable.")}
         </p>
       </section>
     );
@@ -46,33 +44,17 @@ export function MatchDetailsView({
     <>
       <section
         className={`section-space stack ${styles.details}`}
-        aria-label={tr("MP records & adjudication")}
+        aria-label={tr("Played maps")}
       >
-        <h2>{tr("MP records & adjudication")}</h2>
-        <p className="muted">
-          {tr(
-            "The series score above is the official result. MP records below retain the actual played scores; excluded games and scores do not contribute to Match Rating.",
-          )}
-        </p>
+        <h2>{tr("Played maps")}</h2>
         {details.technicalAdjudication && (
           <p className="notice">
-            {tr(
-              "Technical adjudication: the official series result is retained separately. No player scores or appearances are created for administrative points.",
-            )}
+            {tr("Technical adjudication; recorded series score")}
           </p>
         )}
         <p>
           {tr("Reviewed played-map wins")}: {team(details.teamIds[0])} {wins[0]}{" "}
           : {wins[1]} {team(details.teamIds[1])}
-        </p>
-        <p className="small muted">
-          {details.failedScorePolicy === "zero"
-            ? tr(
-                "Failed-score policy: recorded scores are retained; failed scores count as zero in the official result and rating.",
-              )
-            : tr(
-                "Failed-score policy: recorded scores, including failed plays, are included when the play is retained.",
-              )}
         </p>
         <ul>
           {details.sources.map((s) => (
@@ -83,22 +65,11 @@ export function MatchDetailsView({
                 rel="noreferrer"
               >
                 MP #{s.mpId}
-              </a>{" "}
-              · {s.complete ? tr("Complete source") : tr("Partial source")}
-              <span className="muted small">
-                {" "}
-                · {tr("Published source version")}{" "}
-                {s.revision.length > 12 ? s.revision.slice(0, 12) : s.revision}
-              </span>
+              </a>
+              {!s.complete && <> · {tr("Partial source")}</>}
             </li>
           ))}
         </ul>
-        <p className="small muted">
-          {tr(
-            "Not recorded means the saved source has no value. Not applicable means the play is excluded. A recorded zero remains 0.",
-          )}
-        </p>
-        <h2>{tr("Played maps")}</h2>
         {!details.games.length && (
           <p>{tr("No approved scored games available for rating.")}</p>
         )}
@@ -147,12 +118,17 @@ export function MatchDetailsView({
               {date(g.startTime)} → {date(g.endTime)}
             </p>
             {g.rosterMapping && (
-              <p className="notice">
-                {tr(
-                  "Reviewed roster mapping overrides lobby team colors for this game.",
-                )}
-              </p>
+              <p className="notice">{tr("Team mapping adjusted")}</p>
             )}
+            {details.failedScorePolicy === "zero" &&
+              g.scores.some(
+                (s) =>
+                  s.included &&
+                  s.passed === false &&
+                  s.total !== null &&
+                  s.total !== 0 &&
+                  s.effectiveTotal === 0,
+              ) && <p className="notice">{tr("Failed scores counted as 0")}</p>}
             <dl className="detail-list">
               <div>
                 <dt>{tr("Actual MP totals")}</dt>
@@ -189,11 +165,7 @@ export function MatchDetailsView({
               )}
             </dl>
             {!!g.withheldScores && (
-              <p className="notice">
-                {tr(
-                  "Some source scores cannot be shown under the public identity rules. Incomplete totals are not inferred.",
-                )}
-              </p>
+              <p className="notice">{tr("Player data incomplete")}</p>
             )}
             {!g.scores.length ? (
               <p>{tr("No public player scores available.")}</p>
@@ -331,18 +303,14 @@ export function MatchDetailsView({
           </article>
         ))}
       </section>
-      <section className="section-space">
+      <section className="section-space stack">
         <h2>{tr("Match Rating")}</h2>
-        <p className="muted small">
-          {tr(
-            "Scope: this fixture only, across its approved MP sources and retained games.",
-          )}
-        </p>
         {details.rating ? (
           <PlayerRatings
             report={details.rating}
             slug={slug}
             historical={historical}
+            compact
           />
         ) : (
           <p role="status" className="notice">

@@ -11,6 +11,31 @@ import {
   statisticsSource,
 } from "../fixtures/archive-statistics";
 import { seedAwardReview } from "../fixtures/awards";
+import { appearances } from "../../src/lib/preferences";
+import type { Page } from "@playwright/test";
+
+async function expectConciseMatch(page: Page) {
+  for (const text of [
+    "Failed-score policy:",
+    "The series score above is the official result.",
+    "Not recorded means the saved source has no value.",
+    "Published source version",
+    "MRA combines 70% ERA",
+    "yumu-mra-v1",
+    "Calculation sources",
+    "Scope: this fixture only",
+  ])
+    await expect(page.getByText(text, { exact: false })).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "YumuRating", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Played maps", exact: true }),
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("heading", { name: "Match Rating", exact: true }),
+  ).toHaveCount(1);
+}
 
 test.describe("published match details", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
@@ -19,7 +44,7 @@ test.describe("published match details", () => {
     page,
     context,
   }, info) => {
-    test.setTimeout(180000);
+    test.setTimeout(300000);
     const archive = structuredClone(statisticsArchive);
     archive.editionSlug = "s10";
     const fixture = archive.matches[0];
@@ -70,8 +95,9 @@ test.describe("published match details", () => {
         publishedAt: new Date(),
       });
     }
+    const dataByLocale = new Map<string, string[]>();
     for (const locale of ["en", "zh-Hans", "zh-Hant"])
-      for (const appearance of ["default", "cute-pastel", "swiss-minimal"])
+      for (const appearance of appearances)
         for (const theme of ["light", "dark"]) {
           await context.addCookies(
             [
@@ -108,7 +134,19 @@ test.describe("published match details", () => {
           await expect(
             page.getByRole("columnheader", { name: "MRA", exact: true }),
           ).toBeVisible();
+          const data = await page.locator("main tbody tr").allTextContents();
+          if (!dataByLocale.has(locale)) dataByLocale.set(locale, data);
+          expect(data).toEqual(dataByLocale.get(locale));
           if (locale === "en") {
+            await expectConciseMatch(page);
+            await expect(
+              page.getByText("Technical adjudication; recorded series score", {
+                exact: true,
+              }),
+            ).toBeVisible();
+            await expect(
+              page.getByText("Excluded from official result", { exact: true }),
+            ).toHaveCount(2);
             await expect(page.locator("#game-1")).toContainText("NM");
             await expect(page.locator("#game-3")).toContainText("Not recorded");
             await page.locator("#game-3 > details > summary").click();
@@ -124,15 +162,19 @@ test.describe("published match details", () => {
                 document.documentElement.clientWidth,
             ),
           ).toBe(true);
-          expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
-            [],
-          );
-          await page.screenshot({
-            path: info.outputPath(
-              `match-details-${locale}-${appearance}-${theme}.png`,
-            ),
-            fullPage: true,
-          });
+          expect
+            .soft(
+              (await new AxeBuilder({ page }).analyze()).violations,
+              `${locale}/${appearance}/${theme}`,
+            )
+            .toEqual([]);
+          if (locale === "en" || appearance === "default")
+            await page.screenshot({
+              path: info.outputPath(
+                `match-details-${locale}-${appearance}-${theme}.png`,
+              ),
+              fullPage: true,
+            });
         }
     await page.locator("#game-1 .table-scroll").first().focus();
     await expect(page.locator("#game-1 .table-scroll").first()).toBeFocused();
@@ -140,11 +182,21 @@ test.describe("published match details", () => {
       .update(historicalStatistics)
       .set({ published: null, publishedAt: null })
       .where(eq(historicalStatistics.editionSlug, "s10"));
+    await context.addCookies([
+      { name: "oclr-locale", value: "en", url: "http://127.0.0.1:3100" },
+    ]);
     await page.reload();
     await expect(page.locator("article[id^='game-']")).toHaveCount(0);
     await expect(
       page.getByRole("columnheader", { name: "MRA", exact: true }),
     ).toHaveCount(0);
+    await expect(
+      page.getByText("Match details unavailable.", { exact: true }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: info.outputPath("match-details-unavailable.png"),
+      fullPage: true,
+    });
   });
   test("ordinary result exposes saved player data with the same published rating", async ({
     page,
@@ -167,21 +219,59 @@ test.describe("published match details", () => {
       if (before === undefined) delete process.env.ADMIN_OSU_IDS;
       else process.env.ADMIN_OSU_IDS = before;
     }
-    await context.addCookies([
-      { name: "oclr-locale", value: "en", url: "http://127.0.0.1:3100" },
-    ]);
-    await page.goto(`/tournaments/test-cup/matches/${seeded.fixtureId}`);
-    await expect(page.locator("article[id^='game-']")).toHaveCount(6);
-    await expect(
-      page.locator("article[id^='game-']").first().locator("tbody tr"),
-    ).toHaveCount(4);
-    await expect(
-      page.getByRole("columnheader", { name: "MRA", exact: true }),
-    ).toBeVisible();
-    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.screenshot({
-      path: info.outputPath("ordinary-match-details.png"),
-      fullPage: true,
-    });
+    test.setTimeout(300000);
+    const dataByLocale = new Map<string, string[]>();
+    for (const locale of ["en", "zh-Hans", "zh-Hant"])
+      for (const appearance of appearances)
+        for (const theme of ["light", "dark"]) {
+          await context.addCookies(
+            [
+              ["oclr-locale", locale],
+              ["oclr-appearance", appearance],
+              ["oclr-theme", theme],
+            ].map(([name, value]) => ({
+              name,
+              value,
+              url: "http://127.0.0.1:3100",
+            })),
+          );
+          await page.goto(`/tournaments/test-cup/matches/${seeded.fixtureId}`);
+          await expect(page.locator("article[id^='game-']")).toHaveCount(6);
+          await expect(
+            page.locator("article[id^='game-']").first().locator("tbody tr"),
+          ).toHaveCount(4);
+          await expect(
+            page.getByRole("columnheader", { name: "MRA", exact: true }),
+          ).toBeVisible();
+          const data = await page.locator("main tbody tr").allTextContents();
+          if (!dataByLocale.has(locale)) dataByLocale.set(locale, data);
+          expect(data).toEqual(dataByLocale.get(locale));
+          if (locale === "en") {
+            await expectConciseMatch(page);
+            await expect(
+              page.getByText("Technical adjudication; recorded series score", {
+                exact: true,
+              }),
+            ).toHaveCount(0);
+          }
+          expect(
+            await page.evaluate(
+              () =>
+                document.documentElement.scrollWidth <=
+                document.documentElement.clientWidth,
+            ),
+          ).toBe(true);
+          expect
+            .soft(
+              (await new AxeBuilder({ page }).analyze()).violations,
+              `${locale}/${appearance}/${theme}`,
+            )
+            .toEqual([]);
+          if (locale === "en" && appearance === "default" && theme === "light")
+            await page.screenshot({
+              path: info.outputPath("ordinary-match-details.png"),
+              fullPage: true,
+            });
+        }
   });
 });

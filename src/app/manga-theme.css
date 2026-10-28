@@ -880,6 +880,10 @@ html[data-appearance="manga-halftone"]
   color: var(--site-on-primary);
   font-weight: 700;
 }
+/* Player row links sit on the same ink band as their row heading. */
+html[data-appearance="manga-halftone"] .themed-site th[scope="row"] .text-link {
+  color: inherit;
+}
 html[data-appearance="manga-halftone"] .themed-site .badge {
   border: 2px solid var(--manga-ink);
   border-radius: 999px;

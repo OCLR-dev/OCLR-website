@@ -33,7 +33,8 @@ test.describe("YumuRating publication", () => {
     });
     await expect(ratings.getByRole("table")).toBeVisible();
     await expect(ratings.getByRole("row")).toHaveCount(5);
-    await expect(ratings).toContainText("No star weighting is applied.");
+    await expect(ratings).not.toContainText("No star weighting is applied.");
+    await expect(ratings.getByRole("heading")).toHaveCount(0);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
@@ -44,6 +45,18 @@ test.describe("YumuRating publication", () => {
       page
         .getByRole("region", { name: "YumuRating", exact: true })
         .getByRole("table"),
+    ).toBeVisible();
+    const adminRatings = page.getByRole("region", {
+      name: "YumuRating",
+      exact: true,
+    });
+    await expect(
+      adminRatings.getByRole("heading", { name: "YumuRating", exact: true }),
+    ).toBeVisible();
+    await expect(adminRatings).toContainText("No star weighting is applied.");
+    await expect(adminRatings).toContainText("yumu-mra-v1");
+    await expect(
+      adminRatings.getByText("Calculation sources", { exact: true }),
     ).toBeVisible();
   });
 });
