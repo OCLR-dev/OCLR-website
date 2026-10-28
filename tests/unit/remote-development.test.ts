@@ -108,6 +108,37 @@ describe("explicit remote frontend boundaries", () => {
     expect(unsupported.headers.get("location")).toBeNull();
     expect(unsupported.headers.get("cache-control")).toBe("no-store");
   });
+  it("allows cross-site top-level page navigation while rejecting cross-site data access and writes", () => {
+    const request = (path = "/", overrides = {}, method = "GET") =>
+      new NextRequest(`http://localhost:3000${path}`, {
+        method,
+        headers: {
+          host: "localhost:3000",
+          "sec-fetch-site": "cross-site",
+          "sec-fetch-mode": "navigate",
+          "sec-fetch-dest": "document",
+          ...overrides,
+        },
+      });
+    for (const path of ["/", "/remote", "/tournaments/s11"])
+      expect(proxy(request(path)).status).toBe(200);
+    for (const path of [
+      "/api/remote/read/me",
+      "/api/remote/connection",
+      "/auth/osu",
+    ])
+      expect(proxy(request(path)).status).toBe(403);
+    for (const method of ["POST", "PUT", "DELETE"])
+      expect(proxy(request("/", {}, method)).status).toBe(403);
+    for (const headers of [
+      { "sec-fetch-mode": "cors", "sec-fetch-dest": "empty" },
+      { "sec-fetch-dest": "iframe" },
+      { "sec-fetch-mode": "no-cors", "sec-fetch-dest": "image" },
+      { host: "evil.example" },
+      { authorization: "Bearer synthetic" },
+    ])
+      expect(proxy(request("/", headers)).status).toBe(403);
+  });
   it("refuses any local database pool even with a configured URL", () => {
     vi.stubEnv(
       "DATABASE_URL",

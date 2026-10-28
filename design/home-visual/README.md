@@ -98,3 +98,7 @@ At the organizer’s request, the R06 composition now places the small S11 to th
 Follow-up: enlarged S11 from 0.23 to 0.30 source scale (about 30%, baseline still y=386); widened the canvas to 1200 × 490 to avoid clipping. The homepage wordmark moves upward by 16–32 CSS pixels responsively, with entry links retaining their positions. SVG rendering, `npm run check` and `git diff --check` passed. Full-page browser verification remains limited by the previously observed remote preview rejection.
 
 Acc-bar refinement: restored four internal boundary lines at the original R05 region positions (15%, 35%, 65%, 85%), giving five transparent outlined regions. The separate early-100 marker stays at 25% and extends beyond the bar; region dividers stay inside it. SVG structural assertions, librsvg visual inspection and `git diff --check` passed. Only the SVG asset and its generator/documentation changed; application tests were not rerun.
+
+### Local preview navigation fix
+
+The browser sent `Sec-Fetch-Site: cross-site` for a top-level document navigation to the correct loopback host. The blanket remote transport check rejected it before rendering. The proxy now accepts GET document navigations outside API/auth routes, while preserving exact-host validation and rejection of cross-site fetches, frames and writes. After reconnecting anonymous public reads (the first backend attempt timed out), Chrome loaded the homepage and latest SVG. Fourteen focused proxy/remote tests and `npm run check` passed; full DB/E2E suites were not run for this focused fix.

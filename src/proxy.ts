@@ -23,9 +23,18 @@ export function proxy(request: NextRequest) {
     remote = remoteMode();
     if (remote) {
       const { local } = remoteConfiguration();
+      // External links may navigate to the frontend, but cannot fetch its
+      // data, embed it, or submit commands across origins.
+      const pageNavigation =
+        request.method === "GET" &&
+        request.headers.get("sec-fetch-mode") === "navigate" &&
+        request.headers.get("sec-fetch-dest") === "document" &&
+        !request.nextUrl.pathname.startsWith("/api/") &&
+        !request.nextUrl.pathname.startsWith("/auth/");
       if (
         request.headers.get("host") !== new URL(local).host ||
-        request.headers.get("sec-fetch-site") === "cross-site"
+        (request.headers.get("sec-fetch-site") === "cross-site" &&
+          !pageNavigation)
       )
         return NextResponse.json(
           { error: { code: "REMOTE_FORBIDDEN" } },
