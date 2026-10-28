@@ -5496,6 +5496,22 @@ body:has([data-broadcast]) .site-shell {
   min-height: 44px;
   padding: 0.5rem 0.75rem;
 }
+.themed-site .contributor-manager .contributor-row-actions .contributor-move {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--button-radius);
+  background: transparent;
+  box-shadow: none;
+}
+.themed-site
+  .contributor-manager
+  .contributor-row-actions
+  .contributor-move:hover:not(:disabled) {
+  background: var(--site-tint);
+}
 .contributor-public {
   display: flex;
   align-items: center;

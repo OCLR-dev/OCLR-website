@@ -139,26 +139,54 @@ export function ContributorManager({
                 </label>
                 <div className="actions contributor-row-actions">
                   <button
-                    className="secondary"
+                    className="secondary contributor-move"
                     type="button"
                     disabled={index === 0}
                     aria-label={tr("Move contributor {number} up", {
                       number: index + 1,
                     })}
+                    title={tr("Move up")}
                     onClick={() => move(index, -1)}
                   >
-                    {tr("Move up")}
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="m6 12 6-6 6 6M12 6v12" />
+                    </svg>
                   </button>
                   <button
-                    className="secondary"
+                    className="secondary contributor-move"
                     type="button"
                     disabled={index === entries.length - 1}
                     aria-label={tr("Move contributor {number} down", {
                       number: index + 1,
                     })}
+                    title={tr("Move down")}
                     onClick={() => move(index, 1)}
                   >
-                    {tr("Move down")}
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="m6 12 6 6 6-6M12 6v12" />
+                    </svg>
                   </button>
                   <button
                     className="secondary"

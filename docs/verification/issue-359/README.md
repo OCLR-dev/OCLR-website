@@ -7,6 +7,10 @@ viewport. The page heading, explanatory text and list gaps also take less space.
 The footer separates Add from the primary Save action and reuses the existing
 translated “Unsaved changes” message. No new interface wording or API changes.
 
+The organizer's follow-up replaces the Move up / Move down text controls with
+borderless SVG arrows. Each arrow retains a 44px hit area, a translated hover
+title, its numbered accessible name, keyboard activation and disabled endpoints.
+
 The original save/revision contract, validation, public visibility, automatic
 audit, authorization and read-only wrapper are retained. New entries, edits,
 reordering, visibility changes and removals still require an explicit save.
@@ -65,6 +69,12 @@ The editable input retains its complete value even when its visible text scrolls
   so it does not depend on an ambient `ADMIN_OSU_IDS` shell setting.
 - Before/after capture tests also passed against the same isolated browser DB,
   using the repository's guarded Playwright server configuration.
+- The arrow follow-up passed lint/types, production build and all four contributor
+  browser tests again, including the full locale/theme/appearance matrix. The
+  current after images and geometry were recaptured from that production build.
+  This ran in a separate verification checkout while the requested live dev
+  preview continued to use its own database. The earlier full-suite, integration,
+  i18n and dependency-audit results above were not rerun for this visual change.
 
 ### Full-suite limitations
 
@@ -77,9 +87,14 @@ Windows symlink permissions and POSIX assumptions in durable media paths.
 check against the unchanged `7b402d6` baseline reproduced that failure. This change
 does not modify those implementations or claim a complete Linux CI pass.
 
-The full browser/remote matrix and CI were not run. Only clearly named local
+The full-site functional/remote browser matrices were not rerun; current CI is
+tracked on [Draft PR #394](https://github.com/OCLR-dev/OCLR-website/pull/394).
+Only clearly named local
 `oclr_issue359_test` and `oclr_issue359_browser_test` databases were migrated and
-used; the dedicated loopback PostgreSQL instance is stopped after verification.
+used. The initial verification stopped its loopback PostgreSQL instance; it was
+restarted for the organizer-requested interactive preview at
+`http://localhost:31359/admin/contributors`, using synthetic fixture data and the
+ordinary session checks. That preview remains running for review.
 No production operations, issue closure, main merge or deployment are performed.
 
 The layout follows the repository-required
