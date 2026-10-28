@@ -58,6 +58,11 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "orbital-pulse": {
+    label: "S6 · Orbital Pulse",
+    lightBackground: "rgb(244, 246, 252)",
+    darkBackground: "rgb(12, 20, 40)",
+  },
   "graphite-arena": {
     label: "S7 · Graphite Arena",
     lightBackground: "rgb(243, 244, 242)",

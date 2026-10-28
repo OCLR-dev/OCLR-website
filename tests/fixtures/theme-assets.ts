@@ -6,6 +6,7 @@ export const bundledSeasonThemes = [
   { appearance: "glacier-blue", stylesheet: "glacier-theme.css" },
   { appearance: "sakura-circuit", stylesheet: "sakura-theme.css" },
   { appearance: "graphite-arena", stylesheet: "graphite-theme.css" },
+  { appearance: "orbital-pulse", stylesheet: "orbital-theme.css" },
 ].map(({ appearance, stylesheet }) => ({
   appearance,
   assets: [

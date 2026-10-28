@@ -351,6 +351,13 @@
       "when": 1793073686880,
       "tag": "0049_player_name_history",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1793186757909,
+      "tag": "0050_orbital_pulse_appearance",
+      "breakpoints": true
     }
   ]
 }
