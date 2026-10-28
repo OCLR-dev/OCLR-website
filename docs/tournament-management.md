@@ -133,6 +133,31 @@ Keep bootstrap access restricted for recovery. An environment bootstrap administ
 
 Staff enter `/admin` for a role-aware overview, then select a tournament at `/admin/tournaments`. The selected workspace has grouped operational navigation, a tournament switcher and breadcrumbs. General/rules/registration/milestone/publication settings live under `/admin/tournaments/[edition]/settings`; registration review lives under `/admin/tournaments/[edition]/registrations`, with `/admin/registrations` for authorized cross-edition search. Legacy filtered `/admin` bookmarks and registration detail URLs redirect safely. Global Staff Management and Audit stay outside tournament navigation; personal accounts remain on the public website. All page queries, APIs, reviews and exports also enforce authorization on the server. Pending applications may be accepted/rejected with explicit confirmation; rejection requires a player-visible explanation. Reviews use transaction locks and a version check, so stale or concurrent decisions are rejected. Locked editions cannot be reviewed. Audit events include actor, before/after status, timestamp and reason. CSV exports contain ID, username, edition, status, submitted time and private application answers, with original question/option labels and stable IDs. Formulas/control-prefixed cells are neutralized and quotes escaped. Internal audit data and staff notes are excluded. Exports are limited to 10,000 filtered rows and should be handled as private staff data.
 
+### Overview tournament list (#397)
+
+The `/admin` overview uses the complete authorized `tournamentList` collection.
+Name search is case-insensitive, trims surrounding whitespace and accepts up to
+100 characters. Tournament status uses the existing upcoming/live/completed
+values. Both conditions apply before the existing stored-season/slug ordering
+and pagination, with 12 tournaments per page. Published/draft and historical
+records remain included when authorized; counts cover only filtered authorized
+records. Global Admin/Developer reads and edition-scoped staff grants keep their
+existing meaning, and list visibility adds no write capability.
+
+URL state uses `tournamentQuery`, `tournamentStatus` and `tournamentPage`.
+Pagination preserves the filters; submitting or clearing filters starts at page
+one. Invalid pages resolve to page one, and valid out-of-range pages resolve to
+the last available page after filtering or access changes. Empty collections and
+no matching results have separate messages. Legacy `q`, `edition`, `status` and
+`page` requests still redirect to registration review, including mixed legacy
+and new parameters. Database and remote pages share this selection/rendering
+logic after their existing authorized reads; no new API contract or migration is
+needed. Search and pagination remain usable in read-only views.
+
+Desktop uses compact multi-column cards and mobile uses one column, retaining
+names, seasons, status, publication and the edition workspace link. See the
+[same-viewport comparison and verification notes](verification/issue-397/README.md).
+
 ## Automatic staff audits
 
 Routine commands accept no generic audit-reason field. Existing event tables share an automatic contract: authenticated actor, action, edition/entity ID, database timestamp, authoritative before/after changes and applicable revisions/request keys. Edition/result event details include an explicit entity type/ID; mappool and role tables retain their existing typed pool/grant context. Writes happen in the mutation transaction; rejected or rolled-back changes cannot leave a successful-update event. Migration `0012` makes historical reason columns nullable and adds before/after role assignments without rewriting old records or inventing explanations. Historical notes remain readable through the Admin-only `/admin/audit` browser. It queries existing audit tables without a second store, with edition, actor, action, module, UTC date filters and server pagination. Edition-scoped Admins see only their editions; Mappoolers and Referees cannot access generic audit records. Private answers and credential fields are redacted from this bounded read projection. Match review retains its necessary source evidence and immutable result revisions. Public DTOs never include audits.

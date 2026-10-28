@@ -2814,6 +2814,9 @@
     "me9eb3944ee1a": "Failed scores counted as 0",
     "m1e906be5a151": "Player data incomplete",
     "m3e84d806a3b1": "Red team",
-    "m639bd5a1b055": "Blue team"
+    "m639bd5a1b055": "Blue team",
+    "m384f67964b50": "{count, plural, one {# tournament} other {# tournaments}}",
+    "ma26fd9587aee": "Tournament pages",
+    "m240ab6d8dc2c": "Page {page} of {pages}"
   }
 }
