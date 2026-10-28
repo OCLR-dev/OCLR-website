@@ -53,7 +53,10 @@ export function readApiSpecification() {
         description:
           key === "version"
             ? "Pass collectionVersion from page 1 on subsequent pages; restart the entire collection after 409."
-            : key === "fixtureId" && operation.id === "statisticsWorkspace"
+            : key === "fixtureId" &&
+                ["statisticsWorkspace", "publicArchiveStatistics"].includes(
+                  operation.id,
+                )
               ? "Recorded historical fixture key, never a provider lookup."
               : undefined,
         schema: querySchema.properties?.[key],

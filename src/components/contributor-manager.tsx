@@ -79,30 +79,26 @@ export function ContributorManager({
         onSubmit={save}
         aria-busy={busy}
       >
-        <p className="muted">
+        <p className="muted contributor-intro">
           {tr(
             "Changes take effect only when you save. Public entries appear on About. Contributor entries do not grant staff access.",
           )}
         </p>
-        <fieldset className="form-stack" disabled={busy}>
+        <fieldset className="contributor-list" disabled={busy}>
           <legend className="sr-only">{tr("Contributors")}</legend>
           {entries.length === 0 && (
             <p className="muted">{tr("No contributors")}</p>
           )}
           {entries.map((entry, index) => (
-            <fieldset className="settings-card form-stack" key={entry.id}>
-              <legend>
+            <fieldset className="settings-card contributor-row" key={entry.id}>
+              <legend className="sr-only">
                 {tr("Contributor {number}", { number: index + 1 })}
               </legend>
-              <div className="contributor-identity">
+              <div className="contributor-avatar" aria-hidden="true">
                 {/^[1-9]\d*$/.test(entry.osuId) &&
                   Number.isSafeInteger(Number(entry.osuId)) && (
                     <Avatar osuId={Number(entry.osuId)} username={entry.name} />
                   )}
-                <strong>{entry.name || tr("New contributor")}</strong>
-                <span className="badge">
-                  {entry.published ? tr("Public") : tr("Hidden from About")}
-                </span>
               </div>
               <div className="contributor-fields">
                 <label className="field">
@@ -130,55 +126,85 @@ export function ContributorManager({
                   />
                 </label>
               </div>
-              <label className="contributor-public">
-                <input
-                  type="checkbox"
-                  checked={entry.published}
-                  onChange={(event) =>
-                    edit(entry.id, { published: event.target.checked })
-                  }
-                />
-                <span>{tr("Show on About")}</span>
-              </label>
-              <div className="actions">
-                <button
-                  className="secondary"
-                  type="button"
-                  disabled={index === 0}
-                  aria-label={tr("Move contributor {number} up", {
-                    number: index + 1,
-                  })}
-                  onClick={() => move(index, -1)}
-                >
-                  {tr("Move up")}
-                </button>
-                <button
-                  className="secondary"
-                  type="button"
-                  disabled={index === entries.length - 1}
-                  aria-label={tr("Move contributor {number} down", {
-                    number: index + 1,
-                  })}
-                  onClick={() => move(index, 1)}
-                >
-                  {tr("Move down")}
-                </button>
-                <button
-                  className="secondary"
-                  type="button"
-                  onClick={() => {
-                    setEntries((rows) =>
-                      rows.filter((row) => row.id !== entry.id),
-                    );
-                    setFeedback("");
-                  }}
-                >
-                  {tr("Remove")}
-                </button>
+              <div className="contributor-row-footer">
+                <label className="contributor-public">
+                  <input
+                    type="checkbox"
+                    checked={entry.published}
+                    onChange={(event) =>
+                      edit(entry.id, { published: event.target.checked })
+                    }
+                  />
+                  <span>{tr("Show on About")}</span>
+                </label>
+                <div className="actions contributor-row-actions">
+                  <button
+                    className="secondary contributor-move"
+                    type="button"
+                    disabled={index === 0}
+                    aria-label={tr("Move contributor {number} up", {
+                      number: index + 1,
+                    })}
+                    title={tr("Move up")}
+                    onClick={() => move(index, -1)}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="m6 12 6-6 6 6M12 6v12" />
+                    </svg>
+                  </button>
+                  <button
+                    className="secondary contributor-move"
+                    type="button"
+                    disabled={index === entries.length - 1}
+                    aria-label={tr("Move contributor {number} down", {
+                      number: index + 1,
+                    })}
+                    title={tr("Move down")}
+                    onClick={() => move(index, 1)}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="m6 12 6 6 6-6M12 6v12" />
+                    </svg>
+                  </button>
+                  <button
+                    className="secondary"
+                    type="button"
+                    onClick={() => {
+                      setEntries((rows) =>
+                        rows.filter((row) => row.id !== entry.id),
+                      );
+                      setFeedback("");
+                    }}
+                  >
+                    {tr("Remove")}
+                  </button>
+                </div>
               </div>
             </fieldset>
           ))}
-          <div className="actions">
+          <div className="actions contributor-toolbar">
             <button
               type="button"
               className="secondary"
@@ -201,6 +227,11 @@ export function ContributorManager({
             <button type="submit" disabled={!changed || busy}>
               {busy ? tr("Saving…") : tr("Save contributors")}
             </button>
+            {changed && !busy && (
+              <span className="muted" role="status">
+                {tr("Unsaved changes")}
+              </span>
+            )}
           </div>
         </fieldset>
         {feedback && (

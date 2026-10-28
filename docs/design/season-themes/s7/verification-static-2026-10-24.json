@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-24",
+  "browser": "Headless Google Chrome",
+  "scope": "Static design samples; not application regression or production verification",
+  "cases": [
+    {
+      "season": "s7",
+      "mode": "light",
+      "width": 320,
+      "overflow": false,
+      "brokenImages": false,
+      "axes": 2,
+      "keyboardAndForm": "passed"
+    },
+    {
+      "season": "s7",
+      "mode": "light",
+      "width": 390,
+      "overflow": false,
+      "brokenImages": false,
+      "axes": 2,
+      "keyboardAndForm": "passed"
+    },
+    {
+      "season": "s7",
+      "mode": "light",
+      "width": 768,
+      "overflow": false,
+      "brokenImages": false,
+      "axes": 2,
+      "keyboardAndForm": "passed"
+    },
+    {
+      "season": "s7",
+      "mode": "light",
+      "width": 1440,
+      "overflow": false,
+      "brokenImages": false,
+      "axes": 2,
+      "keyboardAndForm": "passed"
+    },
+    {
+      "season": "s7",
+      "mode": "dark",
+      "width": 320,
+      "overflow": false,
+      "brokenImages": false,
+      "axes": 2,
+      "keyboardAndForm": "passed"
+    },
+    {
+      "season": "s7",
+      "mode": "dark",
+      "width": 390,
+      "overflow": false,
+      "brokenImages": false,
+      "axes": 2,
+      "keyboardAndForm": "passed"
+    },
+    {
+      "season": "s7",
+      "mode": "dark",
+      "width": 768,
+      "overflow": false,
+      "brokenImages": false,
+      "axes": 2,
+      "keyboardAndForm": "passed"
+    },
+    {
+      "season": "s7",
+      "mode": "dark",
+      "width": 1440,
+      "overflow": false,
+      "brokenImages": false,
+      "axes": 2,
+      "keyboardAndForm": "passed"
+    }
+  ],
+  "errors": []
+}

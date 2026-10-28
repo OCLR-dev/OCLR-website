@@ -334,7 +334,7 @@ html[data-appearance="esports-broadcast"]
 /* Disabled is flat and dashed, so it never reads as a selected slot. */
 html[data-appearance="esports-broadcast"]
   .themed-site
-  :is(button, .button):disabled,
+  :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="esports-broadcast"]
   .themed-site
   .button[aria-disabled="true"] {
@@ -460,7 +460,7 @@ html[data-appearance="esports-broadcast"]
 }
 html[data-appearance="esports-broadcast"]
   .themed-site
-  :is(.appearance-control, .language-control, .account-menu)
+  :is(.appearance-control, .theme-menu, .language-control, .account-menu)
   :is([role="menu"], .account-dropdown) {
   border-color: var(--site-border);
   border-top: 3px solid var(--esports-rule);
@@ -469,14 +469,14 @@ html[data-appearance="esports-broadcast"]
 }
 html[data-appearance="esports-broadcast"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[role] {
   border-radius: var(--button-radius);
 }
 html[data-appearance="esports-broadcast"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[aria-checked="true"] {
   background: var(--esports-cyan);
@@ -681,7 +681,11 @@ html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
     .event-content > :first-child:is(.information-heading, .page-heading),
     .event-content
       > :first-child:not(.information-heading, .page-heading)
-      > :first-child:is(.information-heading, .event-section-heading, h1),
+      > :first-child:is(
+        .information-heading,
+        .event-section-heading,
+        h1:not(.sr-only)
+      ),
     .container.page > .page-heading:first-child
   ) {
   --site-background: #0b0e14;
@@ -717,13 +721,13 @@ html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
   color-scheme: dark;
   color: var(--site-foreground);
 }
-/* The breadcrumb band carries the stage wash and reaches under the bar. */
+/* Keep the sticky tournament band within its measured vertical bounds. */
 html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
   .themed-site:is(.public-site, :has(.auth-page))
   .public-tournament
   > .event-context {
   margin-bottom: 1rem;
-  border-image: linear-gradient(#2a1020, #0b0e14 9rem) fill 0 / /4rem 100vw 1rem;
+  border-image: linear-gradient(#2a1020, #0b0e14 9rem) fill 0 / /0 100vw;
 }
 /* Titles close the stage with a magenta rule below some breathing room. */
 html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
@@ -732,7 +736,11 @@ html[data-appearance="esports-broadcast"]:not([data-theme="dark"])
     .event-content > :first-child:is(.information-heading, .page-heading),
     .event-content
       > :first-child:not(.information-heading, .page-heading)
-      > :first-child:is(.information-heading, .event-section-heading, h1)
+      > :first-child:is(
+        .information-heading,
+        .event-section-heading,
+        h1:not(.sr-only)
+      )
   ) {
   margin-top: 0;
   padding-top: 0.5rem;

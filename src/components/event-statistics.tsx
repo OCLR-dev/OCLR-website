@@ -1,8 +1,15 @@
 "use client";
 import { useState } from "react";
+import Link from "./pending-link";
 import { useAppTranslations } from "@/i18n/shared";
+import type { PublicArchiveStatistics } from "@/lib/archive-statistics";
+import { eventMappoolRows } from "@/lib/archive-mappool-statistics";
 import type { EventScore } from "@/lib/event-statistics";
-import { eventMapKey, groupEventMaps } from "@/lib/event-statistics-model";
+import {
+  eventMapKey,
+  eventPlacementRows,
+  groupEventMaps,
+} from "@/lib/event-statistics-model";
 const views = [
   "Performance scores",
   "Mappool statistics",
@@ -11,7 +18,13 @@ const views = [
   "Team placements",
   "Solo placements",
 ];
-export function EventStatistics({ scores }: { scores: EventScore[] }) {
+export function EventStatistics({
+  scores,
+  coverage,
+}: {
+  scores: EventScore[];
+  coverage?: PublicArchiveStatistics;
+}) {
   const tr = useAppTranslations();
   const [view, setView] = useState(0),
     [round, setRound] = useState(""),
@@ -24,6 +37,9 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
     (s) => (!round || s.round === round) && (!slot || eventMapKey(s) === slot),
   );
   const plays = eligible.filter((s) => !team || s.team === team);
+  const coverageFixtures = coverage?.fixtures.filter(
+    (f) => !round || f.stage === round,
+  );
   const number = (v: number, d = 0) =>
     v.toLocaleString(tr.locale, { maximumFractionDigits: d });
   const avg = (s: EventScore[], key: "score" | "accuracy") => {
@@ -41,13 +57,20 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
       plays.map((s) => (view === 3 || view === 4 ? s.team : s.player)),
     ),
   ];
-  const maps = groupEventMaps(plays);
+  const poolFixtures = coverage?.poolFixtures;
+  const maps = groupEventMaps(view >= 4 ? eligible : plays);
   const placementLabels = new Map<string, string>(
     maps.flatMap((map): [string, string][] => [
       [`${map.key}:rank`, `${map.label} #`],
       [`${map.key}:score`, `${map.label} ${tr("Score")}`],
     ]),
   );
+  const poolLabels: Record<string, string> = {
+    "Applicable matches": tr("Applicable matches"),
+    "Unknown mappool matches": tr("Unknown mappool matches"),
+    "Pick coverage": tr("Pick coverage"),
+    "Ban coverage": tr("Ban coverage"),
+  };
   if (view === 0) {
     columns = [
       "Player",
@@ -112,53 +135,52 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
       "Pick rate",
       "Bans",
       "Ban rate",
+      "Applicable matches",
+      "Unknown mappool matches",
+      "Pick coverage",
+      "Ban coverage",
     ];
-    rows = maps.map(({ plays: p }) => {
-      const best = [...p].sort((a, b) => b.score - a.score)[0];
-      const teams = [...new Set(p.map((s) => s.game + ":" + s.team))]
-        .map((g) => {
-          const a = p.filter((s) => s.game + ":" + s.team === g);
-          return {
-            name: a[0].team,
-            total: a.reduce((n, s) => n + s.score, 0),
-            mp: a[0].mp,
-          };
-        })
-        .sort((a, b) => b.total - a.total);
-      const games = new Set(p.map((s) => s.game)).size;
-      return {
-        Map: `${best.round} · ${best.slot}`,
-        Beatmap: best.title,
-        "Map ID": best.mapId,
-        "Best player": best.player,
-        Score: best.score,
-        Accuracy: best.accuracy,
-        Mods: best.mods,
-        Match: best.mp,
-        "Best team": teams[0]?.name ?? null,
-        "Team score": teams[0]?.total ?? null,
-        "Team match": teams[0]?.mp ?? null,
-        "Average score": avg(p, "score"),
-        "Average accuracy": avg(p, "accuracy"),
-        "Average team score": teams.length
-          ? teams.reduce((n, s) => n + s.total, 0) / teams.length
-          : null,
-        Picks: games,
-        "Pick rate":
-          new Set(p.map((s) => s.fixture)).size /
-          (best.poolMatches ??
-            new Set(
-              scores
-                .filter((s) => s.round === best.round)
-                .map((s) => s.fixture),
-            ).size),
-        Bans: best.bans ?? null,
-        "Ban rate":
-          best.bans !== undefined && best.poolMatches
-            ? best.bans / best.poolMatches
+    rows = eventMappoolRows(scores, poolFixtures, round, team, slot).map(
+      ({ map, plays: p, ...stats }) => {
+        const best = [...p].sort((a, b) => b.score - a.score)[0];
+        const teams = [...new Set(p.map((s) => s.game + ":" + s.team))]
+          .map((g) => {
+            const a = p.filter((s) => s.game + ":" + s.team === g);
+            return {
+              name: a[0].team,
+              total: a.reduce((n, s) => n + s.score, 0),
+              mp: a[0].mp,
+            };
+          })
+          .sort((a, b) => b.total - a.total);
+        return {
+          Map: `${map.round} · ${map.slot}`,
+          Beatmap: map.title,
+          "Map ID": map.mapId,
+          "Best player": best?.player ?? null,
+          Score: best?.score ?? null,
+          Accuracy: best?.accuracy ?? null,
+          Mods: best?.mods ?? null,
+          Match: best?.mp ?? null,
+          "Best team": teams[0]?.name ?? null,
+          "Team score": teams[0]?.total ?? null,
+          "Team match": teams[0]?.mp ?? null,
+          "Average score": avg(p, "score"),
+          "Average accuracy": avg(p, "accuracy"),
+          "Average team score": teams.length
+            ? teams.reduce((n, s) => n + s.total, 0) / teams.length
             : null,
-      };
-    });
+          Picks: stats.picks,
+          "Pick rate": stats.pickRate,
+          Bans: stats.bans,
+          "Ban rate": stats.banRate,
+          "Applicable matches": stats.applicable,
+          "Unknown mappool matches": stats.unknown,
+          "Pick coverage": stats.pickCoverage,
+          "Ban coverage": stats.banCoverage,
+        };
+      },
+    );
   } else if (view === 2 || view === 3) {
     columns =
       view === 2
@@ -204,55 +226,7 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
       "Average score",
       ...maps.flatMap((map) => [`${map.key}:rank`, `${map.key}:score`]),
     ];
-    rows = keys.map((name) => {
-      const p = plays.filter((s) => (view === 4 ? s.team : s.player) === name);
-      const row: Row = {
-        [columns[0]]: name,
-        "Average placement": null,
-        "Average score": avg(p, "score"),
-      };
-      if (view === 4) {
-        const games = [...new Set(p.map((s) => s.game))];
-        row["Average score"] = games.length
-          ? p.reduce((n, s) => n + s.score, 0) / games.length
-          : null;
-      }
-      const ranks: number[] = [];
-      maps.forEach((map) => {
-        const matching = map.plays;
-        const values = keys
-          .map((k) => {
-            const a = matching.filter(
-              (s) => (view === 4 ? s.team : s.player) === k,
-            );
-            if (!a.length) return { name: k, value: null };
-            const games = [...new Set(a.map((s) => s.game))];
-            return {
-              name: k,
-              value:
-                view === 4
-                  ? Math.max(
-                      ...games.map((g) =>
-                        a
-                          .filter((s) => s.game === g)
-                          .reduce((n, s) => n + s.score, 0),
-                      ),
-                    )
-                  : Math.max(...a.map((s) => s.score)),
-            };
-          })
-          .filter((s) => s.value !== null)
-          .sort((a, b) => b.value! - a.value!);
-        const index = values.findIndex((s) => s.name === name);
-        row[`${map.key}:rank`] = index < 0 ? null : index + 1;
-        row[`${map.key}:score`] = index < 0 ? null : values[index].value;
-        if (index >= 0) ranks.push(index + 1);
-      });
-      row["Average placement"] = ranks.length
-        ? ranks.reduce((a, b) => a + b, 0) / ranks.length
-        : null;
-      return row;
-    });
+    rows = eventPlacementRows(eligible, view === 4 ? "team" : "player", team);
   }
   rows = rows.filter((row) =>
     Object.values(row).some((value) =>
@@ -264,6 +238,7 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
   rows.sort((a, b) => {
     const x = a[sort],
       y = b[sort];
+    if (x == null && y == null) return 0;
     if (x == null) return 1;
     if (y == null) return -1;
     return (
@@ -274,6 +249,17 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
   });
   function cell(key: string, value: Cell) {
     if (value === null || value === undefined) return "—";
+    if ((key === "Player" || key === "Best player") && coverage) {
+      const players = coverage.players.filter((p) => p.username === value);
+      if (players.length === 1)
+        return (
+          <Link
+            href={`/tournaments/${coverage.slug}/players/${players[0].osuId}`}
+          >
+            {value}
+          </Link>
+        );
+    }
     if ((key === "Match" || key === "Team match") && typeof value === "number")
       return (
         <a
@@ -295,6 +281,69 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
   return (
     <section className="event-statistics">
       <h1>{tr("Statistics")}</h1>
+      {coverage && (
+        <section className="stack" aria-label={tr("Statistics coverage")}>
+          <div className="statistics-summary">
+            <div>
+              <strong>
+                {coverageFixtures!.filter((f) => f.covered).length} /{" "}
+                {coverageFixtures!.length}
+              </strong>
+              <span>{tr("Reviewed matches")}</span>
+            </div>
+            <div>
+              <strong>{new Set(plays.map((p) => p.game)).size}</strong>
+              <span>{tr("Scoring games")}</span>
+            </div>
+            <div>
+              <strong>{new Set(plays.map((p) => p.player)).size}</strong>
+              <span>{tr("Players with data")}</span>
+            </div>
+          </div>
+          <p className="muted">
+            {view === 1
+              ? tr(
+                  "Scores and picks use reviewed and published MP games. Bans use published schedule records. Missing data is not zero.",
+                )
+              : tr(
+                  "Only reviewed and published MP games are counted. Missing data is not zero.",
+                )}
+          </p>
+          <p className="muted">
+            {tr("Known accuracy")}{" "}
+            {plays.filter((p) => p.accuracy !== null).length} / {plays.length} ·{" "}
+            {tr("Known combo")} {plays.filter((p) => p.combo !== null).length} /{" "}
+            {plays.length}
+          </p>
+          <details>
+            <summary>{tr("Match coverage")}</summary>
+            <ul className="statistics-coverage">
+              {coverageFixtures!.map((f) => (
+                <li key={f.id}>
+                  <Link href={`/tournaments/${coverage.slug}/matches/${f.id}`}>
+                    {f.stage} · {f.label}
+                  </Link>
+                  <span>
+                    {f.covered ? tr("Published") : tr("Not yet covered")}
+                    {f.technicalAdjudication && (
+                      <>
+                        {" "}
+                        · {tr(
+                          "Technical adjudication; recorded series score",
+                        )}{" "}
+                        {f.score?.join(" : ")}.{" "}
+                        {tr(
+                          "Player statistics reflect recorded MP scores only.",
+                        )}
+                      </>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </section>
+      )}
       <div className="event-tabs">
         {views.map((label, i) => (
           <button
@@ -323,7 +372,9 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
             label: "Rounds",
             value: round,
             set: setRound,
-            options: [...new Set(scores.map((s) => s.round))].map((value) => ({
+            options: (
+              coverage?.stages ?? [...new Set(scores.map((s) => s.round))]
+            ).map((value) => ({
               value,
               label: value,
             })),
@@ -332,7 +383,11 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
             label: "Team",
             value: team,
             set: setTeam,
-            options: [...new Set(scores.map((s) => s.team))].map((value) => ({
+            options: (
+              coverage?.teams.map((t) => t.name) ?? [
+                ...new Set(scores.map((s) => s.team)),
+              ]
+            ).map((value) => ({
               value,
               label: value,
             })),
@@ -341,7 +396,13 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
             label: "Map",
             value: slot,
             set: setSlot,
-            options: groupEventMaps(scores).map((map) => ({
+            options: (view === 1
+              ? eventMappoolRows(scores, poolFixtures).map(({ key, map }) => ({
+                  key,
+                  label: `${map.round} · ${map.slot} · ${map.mapId ?? map.title}`,
+                }))
+              : groupEventMaps(scores)
+            ).map((map) => ({
               value: map.key,
               label: map.label,
             })),
@@ -365,6 +426,13 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
         </label>
       </div>
       <h2>{tr(views[view])}</h2>
+      {view === 1 && coverage && (
+        <p className="muted">
+          {tr(
+            "Rates require known mappools and complete coverage. Coverage shows recorded / applicable matches. Unknown mappool matches are listed separately.",
+          )}
+        </p>
+      )}
       <div
         className="event-table-scroll"
         tabIndex={0}
@@ -393,7 +461,7 @@ export function EventStatistics({ scores }: { scores: EventScore[] }) {
                       setDescending(sort === c ? !descending : true);
                     }}
                   >
-                    {placementLabels.get(c) ?? tr(c)}{" "}
+                    {placementLabels.get(c) ?? poolLabels[c] ?? tr(c)}{" "}
                     {sort === c ? (descending ? "↓" : "↑") : ""}
                   </button>
                 </th>

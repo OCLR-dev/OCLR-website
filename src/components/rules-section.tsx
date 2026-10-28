@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 
-/** Rule anchors clear the shared header even when mobile preferences wrap. */
+/** Align direct rule links after the tournament shell measures its sticky bars. */
 export function RulesSection({
   children,
   titleId,
@@ -13,16 +13,7 @@ export function RulesSection({
   const section = useRef<HTMLElement>(null);
   useEffect(() => {
     const node = section.current;
-    const header = document.querySelector<HTMLElement>(".site-header");
-    if (!node || !header) return;
-    const update = () =>
-      node.style.setProperty(
-        "--rules-scroll-offset",
-        `${header.getBoundingClientRect().height + 16}px`,
-      );
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(header);
+    if (!node) return;
     let target: HTMLElement | null = null;
     try {
       target = document.getElementById(
@@ -33,12 +24,12 @@ export function RulesSection({
     }
     if (target && node.contains(target))
       target.scrollIntoView({ block: "start" });
-    return () => observer.disconnect();
   }, []);
   return (
     <section
       ref={section}
       id="rules"
+      tabIndex={-1}
       className="archive-overview-rules"
       aria-labelledby={titleId}
     >

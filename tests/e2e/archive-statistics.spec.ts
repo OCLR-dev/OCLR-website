@@ -12,12 +12,142 @@ test.describe("historical statistics review and public exploration", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.setTimeout(120000);
   test.afterAll(async () => closeDb());
-  test("imports MP, reviews warmups/replays, publishes and explores S7–S10", async ({
+  test("opens S1–S6 scoped navigation and truthful empty coverage in every locale and theme", async ({
     page,
     context,
     isMobile,
   }, info) => {
-    const seasons = ["s7", "s8", "s9", "s10"];
+    const seasons = ["s1", "s2", "s3", "s4", "s5", "s6"];
+    const rows = seasons.map((slug) => ({
+      ...edition,
+      slug,
+      name: `Synthetic ${slug} statistics`,
+      status: "completed",
+      registration: null,
+      published: true,
+      archive: { ...statisticsArchive, editionSlug: slug },
+    }));
+    await seedEditions(rows);
+    const { db } = await import("../../src/db");
+    const { historicalStatistics } = await import("../../src/db/schema");
+    const { inArray } = await import("drizzle-orm");
+    await db()
+      .delete(historicalStatistics)
+      .where(inArray(historicalStatistics.editionSlug, seasons));
+    await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
+    for (const slug of seasons) {
+      await page.goto(`/admin/tournaments/${slug}/statistics`);
+      await expect(
+        page.getByRole("heading", {
+          name: "Historical statistics",
+          exact: true,
+        }),
+      ).toBeVisible();
+      if (isMobile)
+        await page
+          .getByRole("button", {
+            name: "Open administration menu",
+            exact: true,
+          })
+          .click();
+      await expect(
+        page.locator(`nav a[href="/admin/tournaments/${slug}/statistics"]`),
+      ).toHaveAttribute("aria-current", "page");
+      await expect(page.getByLabel("Selected tournament")).toHaveValue(slug);
+    }
+    await context.clearCookies();
+    for (const slug of seasons) {
+      for (const locale of ["en", "zh-Hans", "zh-Hant"]) {
+        for (const theme of ["light", "dark"]) {
+          await context.addCookies([
+            {
+              name: "oclr-locale",
+              value: locale,
+              domain: "127.0.0.1",
+              path: "/",
+            },
+            {
+              name: "oclr-theme",
+              value: theme,
+              domain: "127.0.0.1",
+              path: "/",
+            },
+          ]);
+          await page.goto(`/tournaments/${slug}`);
+          if (isMobile) await page.locator(".tournament-menu").click();
+          const entry = page.locator(
+            `.tournament-navigation a[href="/tournaments/${slug}/statistics"]`,
+          );
+          await expect(entry).toBeVisible();
+          await entry.click();
+          await expect(page).toHaveURL(
+            new RegExp(`/tournaments/${slug}/statistics$`),
+          );
+          await expect(
+            page.locator(".statistics-summary strong").first(),
+          ).toHaveText("0 / 1");
+          await expect(page.locator(".event-table tbody tr")).toHaveCount(0);
+          if (isMobile) await page.locator(".tournament-menu").click();
+          await expect(
+            page.locator('.tournament-navigation [aria-current="page"]'),
+          ).toHaveAttribute("href", `/tournaments/${slug}/statistics`);
+          if (isMobile) await page.locator(".tournament-menu").click();
+          expect(
+            await page.evaluate(() => document.documentElement.scrollWidth),
+          ).toBeLessThanOrEqual(isMobile ? 390 : 1440);
+          if (slug === "s1" && locale === "en") {
+            expect(
+              (await new AxeBuilder({ page }).analyze()).violations,
+            ).toEqual([]);
+            await page.evaluate(() => {
+              if (document.activeElement instanceof HTMLElement)
+                document.activeElement.blur();
+              window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            });
+            await expect
+              .poll(() => page.evaluate(() => window.scrollY))
+              .toBe(0);
+            await page.screenshot({
+              path: info.outputPath(`s1-empty-${theme}.png`),
+              fullPage: true,
+            });
+          }
+        }
+      }
+    }
+    await seedEditions([{ ...rows[5], published: false }]);
+    expect(
+      (await context.request.get("/tournaments/s6/statistics")).status(),
+    ).toBe(404);
+    expect(
+      (
+        await context.request.get("/api/admin/tournaments/s1/statistics")
+      ).status(),
+    ).toBe(401);
+    expect(
+      await db()
+        .select()
+        .from(historicalStatistics)
+        .where(inArray(historicalStatistics.editionSlug, seasons)),
+    ).toEqual([]);
+  });
+  test("imports MP, reviews warmups/replays, publishes and explores S1–S10", async ({
+    page,
+    context,
+    isMobile,
+  }, info) => {
+    const seasons = [
+      "s7",
+      "s1",
+      "s2",
+      "s3",
+      "s4",
+      "s5",
+      "s6",
+      "s8",
+      "s9",
+      "s10",
+    ];
     await seedEditions(
       seasons.map((slug) => ({
         ...edition,
@@ -26,7 +156,23 @@ test.describe("historical statistics review and public exploration", () => {
         status: "completed",
         registration: null,
         published: true,
-        archive: { ...statisticsArchive, editionSlug: slug },
+        archive: {
+          ...statisticsArchive,
+          editionSlug: slug,
+          matches: [
+            ...statisticsArchive.matches,
+            ...(slug === "s2"
+              ? [
+                  {
+                    ...statisticsArchive.matches[0],
+                    id: "missing-mp",
+                    label: "Missing MP",
+                    mpUrls: [],
+                  },
+                ]
+              : []),
+          ],
+        },
       })),
     );
     await context.addCookies([await seedSession(isMobile ? 70001 : 60001)]);
@@ -53,12 +199,14 @@ test.describe("historical statistics review and public exploration", () => {
       { name: "oclr-locale", value: "en", domain: "127.0.0.1", path: "/" },
     ]);
     const guestPage = await guest.newPage();
-    await guestPage.goto("http://127.0.0.1:3100/tournaments/s7/statistics");
+    await guestPage.goto(
+      new URL("/tournaments/s7/statistics", page.url()).href,
+    );
     await expect(guestPage.locator(".event-table tbody tr")).toHaveCount(0);
     expect(
       (
         await guest.request.get(
-          "http://127.0.0.1:3100/api/admin/tournaments/s7/statistics",
+          new URL("/api/admin/tournaments/s7/statistics", page.url()).href,
         )
       ).status(),
     ).toBe(401);
@@ -144,7 +292,7 @@ test.describe("historical statistics review and public exploration", () => {
     // Publish the same synthetic evidence through the authenticated, origin-protected API for each remaining edition.
     for (const slug of seasons.slice(1)) {
       const api = "/api/admin/tournaments/" + slug + "/statistics";
-      const headers = { Origin: "http://127.0.0.1:3100" };
+      const headers = { Origin: new URL(page.url()).origin };
       expect(
         (
           await context.request.post(api, {
@@ -214,19 +362,69 @@ test.describe("historical statistics review and public exploration", () => {
           ]);
           await page.goto("/tournaments/" + slug + "/statistics");
           await expect(page.locator(".event-table tbody tr")).toHaveCount(4);
+          if (slug === "s2") {
+            await expect(
+              page.getByRole("region", { name: "Statistics coverage" }),
+            ).toContainText("1 / 2");
+            await page.getByText("Match coverage", { exact: true }).click();
+            await expect(
+              page
+                .locator(".statistics-coverage li")
+                .filter({ hasText: "Missing MP" }),
+            ).toContainText("Not yet covered");
+          }
           expect(
             await page.evaluate(() => document.documentElement.scrollWidth),
           ).toBeLessThanOrEqual(isMobile ? 390 : 1440);
           expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
             [],
           );
-          if (slug === "s7")
+          if (slug === "s7" || slug === "s2")
             await page.screenshot({
-              path: info.outputPath(appearance + "-" + theme + ".png"),
+              path: info.outputPath(
+                slug + "-" + appearance + "-" + theme + ".png",
+              ),
               fullPage: true,
             });
         }
     }
+    await page.goto("/tournaments/s2/statistics");
+    for (const view of [
+      "Performance scores",
+      "Mappool statistics",
+      "Individual leaderboard",
+      "Team leaderboard",
+      "Team placements",
+      "Solo placements",
+    ]) {
+      await page.getByRole("button", { name: view, exact: true }).click();
+      await expect(
+        page.getByRole("heading", { name: view, exact: true }),
+      ).toBeVisible();
+      await expect(page.locator(".event-table tbody tr")).not.toHaveCount(0);
+    }
+    await page
+      .getByRole("button", { name: "Performance scores", exact: true })
+      .click();
+    await expect(
+      page.locator('a[href="/tournaments/s2/players/91001"]').first(),
+    ).toBeVisible();
+    await page
+      .getByRole("combobox", { name: "Team", exact: true })
+      .selectOption("Synthetic Alpha");
+    await expect(page.locator(".event-table tbody tr")).toHaveCount(2);
+    await page
+      .getByRole("combobox", { name: "Rounds", exact: true })
+      .selectOption("Final");
+    const map = page.getByRole("combobox", { name: "Map", exact: true });
+    await map.selectOption(
+      (await map.locator("option").nth(1).getAttribute("value"))!,
+    );
+    await expect(page.locator(".event-table tbody tr")).toHaveCount(2);
+    await map.selectOption("");
+    await page
+      .getByRole("combobox", { name: "Team", exact: true })
+      .selectOption("");
     const search = page.getByRole("textbox", { name: "Search", exact: true });
     await search.fill("NO_MATCHING_PLAYER");
     await expect(page.locator(".event-table tbody tr")).toHaveCount(0);

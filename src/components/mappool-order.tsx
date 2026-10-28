@@ -10,7 +10,8 @@ import {
   type PointerEvent,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
+import { usePendingRefresh } from "./use-pending-refresh";
+import { LoadingRegion } from "./loading-region";
 import type { MappoolWorkspace } from "@/lib/mappools";
 import { slotLabel, type MappoolCategory } from "@/lib/mappool-model";
 import { BeatmapDetails } from "./beatmap-details";
@@ -38,12 +39,12 @@ export function MappoolOrder({
 }) {
   const tr = useAppTranslations();
 
-  const router = useRouter();
+  const { refreshing, refresh } = usePendingRefresh();
   const helpId = useId();
   const list = useRef<HTMLOListElement>(null);
   const [order, setOrder] = useState(entries.map((e) => e.id));
   const [version, setVersion] = useState(pool.version);
-  const [busy, setBusy] = useState(false);
+  const [requestPending, setBusy] = useState(false);
   const saving = useRef(false);
   const [dragging, setDragging] = useState<string | null>(null);
   const [target, setTarget] = useState<Target | null>(null);
@@ -54,6 +55,7 @@ export function MappoolOrder({
     version: number;
   } | null>(null);
   const frame = useRef(0);
+  const busy = requestPending || refreshing;
   if (version !== pool.version) {
     setVersion(pool.version);
     setOrder(entries.map((e) => e.id));
@@ -178,14 +180,14 @@ export function MappoolOrder({
         throw new Error(data.error ?? "The order could not be saved.");
       }
       onFeedback(`${category} order saved.`);
-      router.refresh();
+      refresh();
     } catch (error) {
       setOrder(entries.map((e) => e.id));
       onFeedback(
         `Order could not be confirmed. Refreshing the saved order. ${error instanceof Error ? error.message : "Check your connection before retrying."}`,
         true,
       );
-      router.refresh();
+      refresh();
     } finally {
       saving.current = false;
       setBusy(false);
@@ -193,6 +195,7 @@ export function MappoolOrder({
   }
   return (
     <>
+      {busy && <LoadingRegion />}
       {editable && (
         <div className="mappool-order-toolbar">
           <p id={helpId} className="sr-only">
@@ -209,9 +212,10 @@ export function MappoolOrder({
             <button
               type="button"
               disabled={!changed || busy || !!dragging}
+              aria-busy={busy}
               onClick={save}
             >
-              {busy ? tr("Saving order…") : tr("Save order")}
+              {tr("Save order")}
             </button>
             <button
               type="button"

@@ -3,10 +3,14 @@ import { captureResponsiveLayout } from "./responsive";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { seedSession } from "./session";
+import { seedEditions } from "../fixtures/editions";
 import { closeDb } from "../../src/db";
 test.describe("scoped staff roles through real HTTP sessions", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.afterAll(async () => closeDb());
+  test.beforeEach(async () => {
+    await seedEditions();
+  });
   test("grants and revokes limited access without refreshing the operator session", async ({
     page,
     context,

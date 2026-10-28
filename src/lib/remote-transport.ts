@@ -128,7 +128,11 @@ export async function remoteRead(
     }
     const meta = metaSchema.parse(input.meta);
     const data = readSchemas[operation.schema].parse(input.data);
-    return { data, meta };
+    return {
+      data,
+      meta,
+      contractVersion: response.headers.get(readContractHeader),
+    };
   } catch (error) {
     if (error instanceof RemoteDataError) throw error;
     throw new RemoteDataError("REMOTE_UNAVAILABLE");

@@ -170,7 +170,7 @@ html[data-appearance="claymorphism"]
   transform: translateY(1px);
 }
 /* Disabled reads as unbaked: flat with a dashed edge, plus the base opacity. */
-html[data-appearance="claymorphism"] .themed-site :is(button, .button):disabled,
+html[data-appearance="claymorphism"] .themed-site :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="claymorphism"]
   .themed-site
   .button[aria-disabled="true"] {
@@ -286,7 +286,7 @@ html[data-appearance="claymorphism"] .themed-site .brand {
 }
 html[data-appearance="claymorphism"]
   .themed-site
-  :is(.appearance-control, .language-control, .account-menu)
+  :is(.appearance-control, .theme-menu, .language-control, .account-menu)
   :is([role="menu"], .account-dropdown) {
   border-color: var(--site-border);
   border-radius: 18px;
@@ -297,14 +297,14 @@ html[data-appearance="claymorphism"]
 }
 html[data-appearance="claymorphism"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[role] {
   border-radius: 12px;
 }
 html[data-appearance="claymorphism"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[aria-checked="true"] {
   background: var(--clay-mint);

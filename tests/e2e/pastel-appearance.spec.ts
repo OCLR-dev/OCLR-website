@@ -11,6 +11,7 @@ import { seedBrowserEditions } from "./setup";
 import { readTournament } from "../../src/lib/tournaments";
 import { seedEditions } from "../fixtures/editions";
 import { appearances } from "../../src/lib/preferences";
+import { chooseTheme } from "./theme";
 const origin = "http://127.0.0.1:3100",
   base = "/tournaments/test-cup";
 async function preferences(
@@ -57,6 +58,21 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "graphite-arena": {
+    label: "S7 · Graphite Arena",
+    lightBackground: "rgb(243, 244, 242)",
+    darkBackground: "rgb(23, 28, 32)",
+  },
+  "sakura-circuit": {
+    label: "S8 · Sakura Circuit",
+    lightBackground: "rgb(255, 248, 250)",
+    darkBackground: "rgb(36, 26, 34)",
+  },
+  "glacier-blue": {
+    label: "S9 · Glacier Blue",
+    lightBackground: "rgb(244, 249, 254)",
+    darkBackground: "rgb(13, 24, 44)",
+  },
   "cute-pastel": {
     label: "Cute pastel",
     lightBackground: "rgb(255, 244, 248)",
@@ -96,6 +112,11 @@ const optional = {
     label: "Frutiger Aero",
     lightBackground: "rgb(238, 248, 255)",
     darkBackground: "rgb(17, 35, 49)",
+  },
+  "skyline-pop": {
+    label: "S10 · Skyline Pop",
+    lightBackground: "rgb(255, 250, 240)",
+    darkBackground: "rgb(17, 29, 56)",
   },
 } as const;
 for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
@@ -184,11 +205,7 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
           "light",
         );
         await expect(trigger).toBeFocused();
-        await page.locator(".theme-control").click();
-        await expect(page.locator("html")).toHaveAttribute(
-          "data-theme",
-          "dark",
-        );
+        await chooseTheme(page, "dark");
         await expect(page.locator("html")).toHaveAttribute(
           "data-appearance",
           appearance,
@@ -216,7 +233,7 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
           "data-theme",
           "dark",
         );
-        await page.locator(".theme-control").click();
+        await chooseTheme(page, "light");
         await noOverflow(page);
       }
       const cookie = (await context.cookies()).find(

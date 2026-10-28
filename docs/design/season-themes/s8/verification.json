@@ -1,79 +1,683 @@
 {
-  "date": "2026-10-24",
-  "browser": "Headless Google Chrome",
-  "scope": "Static design samples; not application regression or production verification",
+  "date": "2026-10-27",
+  "uiBaseline": "ce92b4db2bd5e3397117ee009e9dc872ad36563b",
+  "scope": "Actual registered S8 appearance with SSR cookie and shipped assets; public committed S8 archive and one synthetic local test account; no business commands",
+  "locale": "zh-Hans",
+  "browser": "Google Chrome",
+  "material": "Reference-matched blonde half portrait, supplied original RULES banner, refined watercolor sakura illustration and fading hairline on paper surfaces; full unframed S8 key visual",
+  "decorativeAssets": [
+    "heroine-half-refined.webp",
+    "source-rules-banner.png",
+    "blossom-spray.webp"
+  ],
+  "materialChecks": [
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "mobile-light.webp",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "rules-mobile-light.webp",
+      "path": "/tournaments/s8#rules",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "mappools-mobile-light.webp",
+      "path": "/tournaments/s8/mappools",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "admin-mobile-light.webp",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "desktop-light.webp",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "rules-desktop-light.webp",
+      "path": "/tournaments/s8#rules",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "mappools-desktop-light.webp",
+      "path": "/tournaments/s8/mappools",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "admin-desktop-light.webp",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "mobile-dark.webp",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "rules-mobile-dark.webp",
+      "path": "/tournaments/s8#rules",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "mappools-mobile-dark.webp",
+      "path": "/tournaments/s8/mappools",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "admin-mobile-dark.webp",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "desktop-dark.webp",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "rules-desktop-dark.webp",
+      "path": "/tournaments/s8#rules",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "mappools-desktop-dark.webp",
+      "path": "/tournaments/s8/mappools",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "admin-desktop-dark.webp",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "heroine-937-light.png",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "x": 572,
+        "y": 241,
+        "width": 332,
+        "height": 217,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-937-light.png",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 871.40625,
+        "height": 218,
+        "portraitWidth": 331.125,
+        "portraitHeight": 217
+      }
+    },
+    {
+      "file": "heroine-390-light.png",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "x": 123,
+        "y": 362,
+        "width": 251,
+        "height": 164,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-390-light.png",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 358,
+        "height": 313.28125,
+        "portraitWidth": 250.594,
+        "portraitHeight": 164
+      }
+    },
+    {
+      "file": "heroine-937-dark.png",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "x": 572,
+        "y": 241,
+        "width": 332,
+        "height": 217,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-937-dark.png",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 937,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 871.40625,
+        "height": 218,
+        "portraitWidth": 331.125,
+        "portraitHeight": 217
+      }
+    },
+    {
+      "file": "heroine-390-dark.png",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "x": 123,
+        "y": 362,
+        "width": 251,
+        "height": 164,
+        "deviceScaleFactor": 2
+      }
+    },
+    {
+      "file": "heading-390-dark.png",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "locale": "zh-Hant",
+      "width": 390,
+      "height": 815,
+      "detail": {
+        "selector": ".historical-archive > .page-heading",
+        "deviceScaleFactor": 2,
+        "width": 358,
+        "height": 313.28125,
+        "portraitWidth": 250.594,
+        "portraitHeight": 164
+      }
+    }
+  ],
   "cases": [
     {
-      "season": "s8",
-      "mode": "light",
+      "surface": "overview",
+      "path": "/tournaments/s8",
+      "theme": "light",
       "width": 320,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0,
+      "metrics": [
+        {
+          "label": "队伍",
+          "value": "16"
+        },
+        {
+          "label": "选手与教练",
+          "value": "128"
+        },
+        {
+          "label": "已记录赛果",
+          "value": "38"
+        },
+        {
+          "label": "图池",
+          "value": "4"
+        },
+        {
+          "label": "谱面",
+          "value": "76"
+        }
+      ]
     },
     {
-      "season": "s8",
-      "mode": "light",
-      "width": 390,
-      "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
-    },
-    {
-      "season": "s8",
-      "mode": "light",
-      "width": 768,
-      "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
-    },
-    {
-      "season": "s8",
-      "mode": "light",
-      "width": 1440,
-      "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
-    },
-    {
-      "season": "s8",
-      "mode": "dark",
+      "surface": "mappools",
+      "path": "/tournaments/s8/mappools",
+      "theme": "light",
       "width": 320,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0
     },
     {
-      "season": "s8",
-      "mode": "dark",
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s8",
+      "theme": "light",
       "width": 390,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0,
+      "metrics": [
+        {
+          "label": "队伍",
+          "value": "16"
+        },
+        {
+          "label": "选手与教练",
+          "value": "128"
+        },
+        {
+          "label": "已记录赛果",
+          "value": "38"
+        },
+        {
+          "label": "图池",
+          "value": "4"
+        },
+        {
+          "label": "谱面",
+          "value": "76"
+        }
+      ]
     },
     {
-      "season": "s8",
-      "mode": "dark",
+      "surface": "mappools",
+      "path": "/tournaments/s8/mappools",
+      "theme": "light",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s8",
+      "theme": "light",
       "width": 768,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0,
+      "metrics": [
+        {
+          "label": "队伍",
+          "value": "16"
+        },
+        {
+          "label": "选手与教练",
+          "value": "128"
+        },
+        {
+          "label": "已记录赛果",
+          "value": "38"
+        },
+        {
+          "label": "图池",
+          "value": "4"
+        },
+        {
+          "label": "谱面",
+          "value": "76"
+        }
+      ]
     },
     {
-      "season": "s8",
-      "mode": "dark",
-      "width": 1440,
+      "surface": "mappools",
+      "path": "/tournaments/s8/mappools",
+      "theme": "light",
+      "width": 768,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s8",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0,
+      "metrics": [
+        {
+          "label": "队伍",
+          "value": "16"
+        },
+        {
+          "label": "选手与教练",
+          "value": "128"
+        },
+        {
+          "label": "已记录赛果",
+          "value": "38"
+        },
+        {
+          "label": "图池",
+          "value": "4"
+        },
+        {
+          "label": "谱面",
+          "value": "76"
+        }
+      ]
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s8/mappools",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0,
+      "metrics": [
+        {
+          "label": "队伍",
+          "value": "16"
+        },
+        {
+          "label": "选手与教练",
+          "value": "128"
+        },
+        {
+          "label": "已记录赛果",
+          "value": "38"
+        },
+        {
+          "label": "图池",
+          "value": "4"
+        },
+        {
+          "label": "谱面",
+          "value": "76"
+        }
+      ]
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s8/mappools",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0,
+      "metrics": [
+        {
+          "label": "队伍",
+          "value": "16"
+        },
+        {
+          "label": "选手与教练",
+          "value": "128"
+        },
+        {
+          "label": "已记录赛果",
+          "value": "38"
+        },
+        {
+          "label": "图池",
+          "value": "4"
+        },
+        {
+          "label": "谱面",
+          "value": "76"
+        }
+      ]
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s8/mappools",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0,
+      "metrics": [
+        {
+          "label": "队伍",
+          "value": "16"
+        },
+        {
+          "label": "选手与教练",
+          "value": "128"
+        },
+        {
+          "label": "已记录赛果",
+          "value": "38"
+        },
+        {
+          "label": "图池",
+          "value": "4"
+        },
+        {
+          "label": "谱面",
+          "value": "76"
+        }
+      ]
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s8/mappools",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s8",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0,
+      "metrics": [
+        {
+          "label": "队伍",
+          "value": "16"
+        },
+        {
+          "label": "选手与教练",
+          "value": "128"
+        },
+        {
+          "label": "已记录赛果",
+          "value": "38"
+        },
+        {
+          "label": "图池",
+          "value": "4"
+        },
+        {
+          "label": "谱面",
+          "value": "76"
+        }
+      ]
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s8/mappools",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
     }
   ],
   "errors": []

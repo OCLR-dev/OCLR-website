@@ -27,6 +27,22 @@ historical and used tournaments remain available through the normal private
 archive/unpublish controls. Deployment is required before using this new action;
 implementation and local tests do not establish that a production draft was removed.
 
+S1's organizer-provided WebP is available as both logo and key visual at its
+original 1728×1080 dimensions. The exact S1 workbook enables its seven saved
+native rule sections after private source facts are removed. The original PDF
+is served at `/archive/s1/rules.pdf`, with the literal section transcript in
+[`imports/s1-rules.json`](imports/s1-rules.json). The PDF's date and EX wording
+anomalies remain literal; importing presentation support does not approve
+match scores, finalize standings or publish the edition.
+
+S2's organizer-provided AVIF is
+available as both logo and key visual, with its original 1379×862 dimensions.
+The exact S2 workbook enables the current saved native rule sections, including
+after public projections remove private source facts. Its five original sections
+are preserved in [`imports/s2-rules.json`](imports/s2-rules.json); the original
+PDF is served at `/archive/s2/rules.pdf`. This presentation support does not
+approve scores, enter final rankings or publish an edition.
+
 Historical directory cards inherit their approved source artwork when no explicit
 logo is set; an explicit logo takes priority. S6's original image is available in
 the logo and key-visual selectors. Its organizer-supplied rules are maintained as
@@ -34,6 +50,15 @@ four original chapters (`重点规则`, `比赛流程`, `BP流程`, `时限`) in
 rules editor; see [the import checkpoint](s6-archive.md) for the confirmed version
 and pending display deployment. The S6 archive's exact source pair enables the same saved sections in
 historical public/private views and saved reads.
+
+Both artwork selectors use localized season labels, including **Season 5 (β)**.
+The existing S8/S9 1920×1080 images and S10 1024×1024 image are available as both
+logo and key visual (#356). Select and preview the desired image in General
+settings, then explicitly save; deployment does not select it automatically.
+Saved reads and public historical views retain the selected image's dimensions.
+**No edition artwork** clears the explicit configuration; existing historical
+source-artwork fallback rules remain in effect. No migration or image replacement
+is required.
 
 S5 likewise uses its native versioned editor, bound to the exact S5 MainSheet and
 QQ rulebook source URLs. The organizer-provided `OCLR β 规则表` is saved in its
@@ -53,6 +78,30 @@ raw score and missing value. It does not create unrecorded matches or final rank
 Historical source-inspection data is stored in an Admin-only appendix on the
 archive screen. Public pages, public saved-read resources and tournament previews
 omit the appendix; recorded match totals and MP room-open times remain public. Existing archive replacement still requires an unpublished edition.
+
+**Exchange historical players** saves an organizer-confirmed two-player exchange
+in a completed format-2, final-Tier archive without registration. Select two
+recorded players from different teams and provide the identity confirmation
+source. The confirmation shows both UID/team movements. Captains, coaches,
+unresolved identities and chronological draft logs cannot be rewritten through
+this operation. Player order, usernames, roles, Tiers, original roster sources,
+match results, rankings and missing dates remain unchanged. The original teams
+and confirmation evidence are appended to the Admin-only source appendix; public
+rosters show the confirmed teams.
+
+The server requires edition-scoped Admin configuration/result-approval authority,
+the current configuration revision, both original team IDs and explicit statistics
+preservation. It serializes with statistics writes under the edition lock. Every
+current published snapshot is checked against both rosters: exclusions, selected
+games, team attribution, per-player projections and the complete fixture score
+must remain valid and identical. A changed published play rejects the entire
+exchange; review or withdraw affected statistics first. Unchanged releases keep
+their original publication time, raw MP source and selections, with a versioned
+archive-key revalidation recorded in the audit transaction. Valid unchanged drafts
+are revalidated without selecting or publishing newly attributable games. Already
+stale or changed drafts stay stale and require fresh import/review. Neither an
+old request nor a repeated payload can swap the players back. This is not a bulk
+archive replacement, a result correction or an automatic production-data change.
 
 Publishing never enables registration. Rules, eligibility and milestones are optional, independent content. Registration requires publication, privacy configuration, explicit enablement and a valid unlocked window. Advance enabling is supported; submissions are accepted from opening (inclusive) until closing (exclusive). Only configured Rules/Eligibility are acknowledged. Missing rules use a null version and absent eligibility uses a null acknowledgment; no synthetic consent is generated. Existing draft/team locks still protect competition setup. Changed rules cannot reuse a version for different text. Configuration snapshots preserve earlier rules, questions and answers without requiring a retention-approval checkbox or coupling question edits to rules versions.
 

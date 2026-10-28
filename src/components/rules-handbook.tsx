@@ -71,10 +71,12 @@ export function RulesHandbook({
   sections,
   cover,
   archiveSeason,
+  showContents = true,
 }: {
   sections: RuleSection[];
   archiveSeason?: string;
   cover?: Omit<RuleFigure, "after">;
+  showContents?: boolean;
 }) {
   const tr = useAppTranslations();
 
@@ -84,6 +86,7 @@ export function RulesHandbook({
   }, [sections]);
   const [active, setActive] = useState(ids[0]);
   useEffect(() => {
+    if (!showContents) return;
     const visible = new Set<string>();
     const observer = new IntersectionObserver(
       (entries) => {
@@ -101,7 +104,7 @@ export function RulesHandbook({
       if (node) observer.observe(node);
     }
     return () => observer.disconnect();
-  }, [ids]);
+  }, [ids, showContents]);
   function contents() {
     return (
       <nav aria-label={tr("Rules contents")}>
@@ -123,16 +126,22 @@ export function RulesHandbook({
     );
   }
   return (
-    <div className="rules-handbook">
-      <aside className="rules-desktop-contents">
-        <p className="eyebrow">{tr("Contents")}</p>
-        {contents()}
-      </aside>
-      <div className="rules-reading">
-        <details className="rules-mobile-contents">
-          <summary>{tr("On this page")}</summary>
+    <div
+      className={showContents ? "rules-handbook" : "rules-handbook-document"}
+    >
+      {showContents && (
+        <aside className="rules-desktop-contents">
+          <p className="eyebrow">{tr("Contents")}</p>
           {contents()}
-        </details>
+        </aside>
+      )}
+      <div className="rules-reading">
+        {showContents && (
+          <details className="rules-mobile-contents">
+            <summary>{tr("On this page")}</summary>
+            {contents()}
+          </details>
+        )}
         <article className="rules-article">
           {cover && <RuleIllustration figure={cover} />}
           {sections.map((s, i) => (

@@ -8,8 +8,9 @@ import {
 import { useAppTranslations } from "@/i18n/shared";
 
 import Link from "next/link";
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { LoadingRegion } from "./loading-region";
 import { WorkspaceTabs } from "./workspace-tabs";
 import { BracketView } from "./bracket-view";
 import {
@@ -769,6 +770,7 @@ export function FixtureManager({
   const viewManagement = data.canManage || data.canViewAll;
   const tr = useAppTranslations();
 
+  const [navigating, startNavigation] = useTransition();
   const router = useRouter(),
     query = useSearchParams();
   const requested = query.get("view");
@@ -909,12 +911,13 @@ export function FixtureManager({
   }
   return (
     <div className="fixture-workspace stack">
+      {navigating && <LoadingRegion />}
       {notice && (
         <p role="status" className="notice small">
           {tr(notice)}
         </p>
       )}
-      <div className="fixture-toolbar">
+      <div className="fixture-toolbar" aria-busy={navigating}>
         <WorkspaceTabs
           appearance="line"
           id="fixture-views"
@@ -931,7 +934,9 @@ export function FixtureManager({
           onChange={(value) => {
             const next = new URLSearchParams(query.toString());
             next.set("view", value);
-            router.replace(`?${next}`, { scroll: false });
+            startNavigation(() =>
+              router.replace(`?${next}`, { scroll: false }),
+            );
           }}
         />
         {viewManagement && (
@@ -1057,7 +1062,7 @@ export function FixtureManager({
             ref={editor}
             aria-labelledby={`${id}-editor`}
           >
-            <div className="fixture-toolbar">
+            <div className="fixture-toolbar" aria-busy={navigating}>
               <h2 id={`${id}-editor`}>
                 {editing === "new" ? tr("Create a fixture") : editing?.label}
               </h2>

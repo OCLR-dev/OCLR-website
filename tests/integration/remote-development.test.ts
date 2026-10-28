@@ -16,6 +16,10 @@ import {
   vi,
 } from "vitest";
 import { remoteRead, remoteMedia } from "../../src/lib/remote-transport";
+import {
+  publicArchiveStatistics,
+  statisticsWorkspace,
+} from "../../src/lib/archive-statistics";
 import { publicPlayer } from "../../src/lib/players";
 import {
   connectRemote,
@@ -69,6 +73,7 @@ const players = Array.from({ length: 137 }, (_, index) =>
     source,
     osuId: 2700000 + index,
     username: `Synthetic ${index}`,
+    previousUsernames: [],
     editionSlug: edition.slug,
     editionName: edition.name,
     team: null,
@@ -173,7 +178,14 @@ const server = createServer((request, response) => {
           scopes:
             mode === "limited"
               ? ["identity:read"]
-              : ["identity:read", "tournaments:read", "profiles:read"],
+              : [
+                  "identity:read",
+                  "tournaments:read",
+                  "profiles:read",
+                  ...(mode === "statistics"
+                    ? ["tournaments:private:read"]
+                    : []),
+                ],
           expiresAt: new Date(Date.now() + 3600000).toISOString(),
         },
       },
@@ -205,7 +217,55 @@ const server = createServer((request, response) => {
         bws: null,
       },
     };
-  else if (url.pathname === "/api/v1/site")
+  else if (url.pathname.endsWith("/players/2700000/oclr-profile"))
+    payload = {
+      data: {
+        identity: {
+          osuId: 2700000,
+          username: players[0].username,
+          currentUsername: players[0].username,
+          mode: "osu",
+          canonicalUrl: "https://osu.ppy.sh/users/2700000/osu",
+          names: [{ username: players[0].username, evidence: [] }],
+        },
+        participation: [players[0]],
+        snapshot: null,
+        bws: null,
+        error: null,
+      },
+    };
+  else if (
+    /^\/api\/v1\/(?:staff\/)?tournaments\/s[1-6]\/statistics$/.test(
+      url.pathname,
+    )
+  ) {
+    const slug = url.pathname.split("/").at(-2)!;
+    payload = {
+      data: url.pathname.includes("/staff/")
+        ? {
+            slug,
+            fixtures: [],
+            summaries: [],
+            canPublish: false,
+            pools: [],
+            reviews: [],
+            blockers: [],
+          }
+        : {
+            slug,
+            archiveKey: "a".repeat(64),
+            matchDetails: [],
+            players: [],
+            teams: [],
+            stages: [],
+            fixtures: [],
+            plays: [],
+            publishedAt: null,
+            mpTotal: 0,
+            mpCovered: 0,
+          },
+    };
+  } else if (url.pathname === "/api/v1/site")
     payload = {
       data: {
         name: "osu! Chinese League Rookie (OCLR)",
@@ -256,6 +316,36 @@ afterEach(() => {
   vi.useRealTimers();
 });
 describe("remote frontend transport with no local DB", () => {
+  it("reads S1–S6 statistics and scoped workspaces remotely without a local DB or provider fetch", async () => {
+    mode = "statistics";
+    const session = await connectRemote({ mode: "developer", token: tokenA });
+    jar.set("oclr_remote_session", session.id);
+    for (const slug of ["s1", "s2", "s3", "s4", "s5", "s6"]) {
+      expect(await publicArchiveStatistics(slug, "one")).toMatchObject({
+        slug,
+        plays: [],
+        mpCovered: 0,
+      });
+      expect(
+        await statisticsWorkspace(
+          { osuId: 27001, username: "Synthetic A" },
+          slug,
+          "one",
+        ),
+      ).toMatchObject({ slug, canPublish: false, reviews: [] });
+      expect(
+        seen.some((r) => r.path === `/api/v1/tournaments/${slug}/statistics`),
+      ).toBe(true);
+      expect(
+        seen.some(
+          (r) => r.path === `/api/v1/staff/tournaments/${slug}/statistics`,
+        ),
+      ).toBe(true);
+    }
+    await expect(
+      statisticsWorkspace({ osuId: 27002, username: "Other subject" }, "s1"),
+    ).rejects.toMatchObject({ status: 403 });
+  });
   it("maps the public participation service's osuId and optional edition to its registered resource", async () => {
     const session = await connectRemote({ mode: "developer", token: tokenA });
     jar.set("oclr_remote_session", session.id);
@@ -301,7 +391,7 @@ describe("remote frontend transport with no local DB", () => {
       (await withFrontendReadRequest(() => frontendPlayers(edition.slug))).rows,
     ).toEqual(players);
     expect(changed).toBe(true);
-    const profile = await frontendProfile("2700000", "osu", edition.slug);
+    const profile = await frontendProfile("2700000", edition.slug);
     expect(profile.participation[0]).toEqual(players[0]);
     expect(profile.snapshot).toBeNull();
     expect(seen.filter((r) => r.path.endsWith("/players")).length).toBe(6);

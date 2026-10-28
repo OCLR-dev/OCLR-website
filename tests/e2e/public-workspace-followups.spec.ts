@@ -20,6 +20,7 @@ import { profileResponse } from "../fixtures/osu-profile";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { openTournamentTool } from "./navigation";
+import { toggleTheme } from "./theme";
 const origin = { origin: "http://127.0.0.1:3100" };
 const locales = ["en", "zh-Hans", "zh-Hant"];
 async function preferences(
@@ -116,7 +117,7 @@ test.describe("public and operational follow-ups", () => {
       "/tournaments/test-cup/teams",
       "/tournaments/test-cup/players",
       `/tournaments/test-cup/mappools/${seed.poolId}`,
-      `/players/${captain.userId}?edition=test-cup&mode=osu`,
+      `/players/${captain.userId}?edition=test-cup`,
       "/news",
       "/about",
       "/privacy",
@@ -191,7 +192,7 @@ test.describe("public and operational follow-ups", () => {
             fullPage: true,
           });
         }
-        await page.locator(".theme-control").click();
+        await toggleTheme(page);
         await expect(page.locator("html")).toHaveAttribute(
           "data-theme",
           theme === "light" ? "dark" : "light",
@@ -457,7 +458,7 @@ test.describe("public and operational follow-ups", () => {
               },
             ]);
             await publicPage.goto(
-              `/players/${seed.captainId}?edition=test-cup&mode=osu`,
+              `/players/${seed.captainId}?edition=test-cup`,
             );
             await expect(
               publicPage.locator(".bws-value").first(),
@@ -467,7 +468,7 @@ test.describe("public and operational follow-ups", () => {
             );
             const data = await (
               await guest.request.get(
-                `/api/players/${seed.captainId}?edition=test-cup&mode=osu`,
+                `/api/players/${seed.captainId}?edition=test-cup`,
               )
             ).json();
             expect(data.bws).toMatchObject({
@@ -489,7 +490,7 @@ test.describe("public and operational follow-ups", () => {
           }
       await preferences(guest, "en");
       await publicPage.goto(
-        `/players/${seed.memberId}?edition=test-cup&mode=osu`,
+        `/players/${seed.memberId}?edition=test-cup`,
       );
       await expect(publicPage.locator(".bws-value").first()).toHaveText(
         "10,000",

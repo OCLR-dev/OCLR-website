@@ -1,0 +1,73 @@
+ FAIL  tests/integration/extended-read.test.ts > full-site saved-only read services
+ FAIL  tests/unit/cleanup-releases.test.ts [ tests/unit/cleanup-releases.test.ts ]
+ FAIL  tests/integration/deployment.test.ts > deployment migrations and verified backups > installs and upgrades one persistent isolated DB, preserves data, rejects drift/incorrect targets, and rolls back failed SQL
+ FAIL  tests/integration/mappool-replays.test.ts > private replay attachment lifecycle > opens only after selection lock, freezes maps/deadline, keeps publication independent, closes exactly at Showcase
+ FAIL  tests/integration/mappool-replays.test.ts > private replay attachment lifecycle > separates scoped Tester writes from Developer reads, rejects cross-edition IDs and applies revocation
+ FAIL  tests/integration/mappool-replays.test.ts > private replay attachment lifecycle > deduplicates concurrent retries and audits every actual change once
+ FAIL  tests/integration/mappool-replays.test.ts > private replay attachment lifecycle > rejects mismatches, stale concurrent edits, excess count and bad filenames without writes
+ FAIL  tests/integration/mappool-replays.test.ts > private replay attachment lifecycle > labels absent official checksums unverified, never treats replay name as account data
+ FAIL  tests/integration/mappool-replays.test.ts > private replay attachment lifecycle > rolls back metadata/audit failures, detects missing files, retains files across releases and restores backups
+ FAIL  tests/integration/mappool-replays.test.ts > private replay attachment lifecycle > blocks silent reassociation after slot moves, replacement or removal and protects archived writes
+ FAIL  tests/integration/team-upload.test.ts > team multipart API transaction and file consistency > rolls back both the record and uploaded asset when audit insertion fails
+ FAIL  tests/integration/team-upload.test.ts > team multipart API transaction and file consistency > commits only one concurrent upload, removes loser files and rejects malformed/oversized/cross-scope requests
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > previews deploy without dependencies, privileges or configuration reads
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > previews update without dependencies, privileges or configuration reads
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > previews install-command without dependencies, privileges or configuration reads
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > loads settings, derives the target, and passes a pinned deploy with privately encoded password to the existing engine
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > loads settings, derives the target, and passes a pinned update with privately encoded password to the existing engine
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > accepts the actual migration username instead of requiring a URL
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > retains explicitly configured expected targets for independent verification
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > queries the existing DB version using a password environment, without migration credentials
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > rejects invalid settings and migration secrets in the runtime service file
+ FAIL  tests/unit/oclr-script.test.ts > simple deploy/update shell entry point > stops on missing migration credentials before invoking deployment
+ FAIL  tests/unit/oclr-script.test.ts > privileged service provisioning > installs a usable command that survives subsequent deployment failure
+ FAIL  tests/unit/oclr-script.test.ts > privileged service provisioning > refreshes a previously managed legacy command from the trusted invocation
+ FAIL  tests/unit/oclr-script.test.ts > privileged service provisioning > preserves a conflicting unrelated local command before installing either shortcut
+ FAIL  tests/unit/oclr-script.test.ts > privileged service provisioning > preserves a conflicting linked before installing either shortcut
+ FAIL  tests/unit/oclr-script.test.ts > privileged service provisioning > isolates the app terminal, normalizes captured output and propagates worker failure
+ FAIL  tests/unit/oclr-script.test.ts > privileged service provisioning > installs the fixed unprivileged unit, matching the documented service, and only stop/start sudo rights
+ FAIL  tests/unit/oclr-script.test.ts > privileged service provisioning > refuses an invalid sudo policy without installing it
+ FAIL  tests/unit/oclr-script.test.ts > privileged service provisioning > preserves existing service files and refuses to overwrite a different sudo policy
+ FAIL  tests/unit/production-script.test.ts > production operator commands > uses migration credentials only for migrations, without exporting or logging the secret
+ FAIL  tests/unit/production-script.test.ts > production operator commands > prepares a candidate without exposing migration credentials or changing the database
+ FAIL  tests/unit/production-script.test.ts > production operator commands > stops on failed migration and never reaches release checking or build
+ FAIL  tests/unit/production-script.test.ts > production operator commands > gives preparation checks and builds a heap budget without changing install or migration settings
+ FAIL  tests/unit/production-script.test.ts > production operator commands > preserves explicit Node heap flags unless a preparation override is supplied
+ FAIL  tests/unit/production-script.test.ts > production operator commands > fails before installation for an invalid preparation heap budget
+ FAIL  tests/unit/production-script.test.ts > production operator commands > keeps check failures fatal and never starts the build
+ FAIL  tests/unit/production-script.test.ts > production operator commands > rejects missing migration credentials before installing anything
+ FAIL  tests/unit/production-script.test.ts > production operator commands > previews setup without reading environment files, connecting to PostgreSQL or starting npm
+ FAIL  tests/unit/production-script.test.ts > production operator commands > starts the existing build behind loopback without running migrations
+ FAIL  tests/unit/production-script.test.ts > production operator commands > requires explicit opt-in before setup can install dependencies or migrate
+ FAIL  tests/unit/production-script.test.ts > production operator commands > rejects unexpected arguments and invalid ports before starting anything
+ FAIL  tests/unit/read-api-dx.test.ts > read API DX contract > keeps generated DTOs and the complete route/client inventory synchronized with source
+ FAIL  tests/unit/replay-parser.test.ts > bounded stable replay validation > extracts literal identities, checksum, ruleset and mods for supported stable containers
+ FAIL  tests/unit/replay-parser.test.ts > bounded stable replay validation > rejects unsupported lazer/old versions and disguised, truncated or trailing content
+ FAIL  tests/unit/replay-parser.test.ts > bounded stable replay validation > rejects damaged LZMA, excessive expansion and dictionary allocation
+ FAIL  tests/unit/replay-storage.test.ts > durable private replay storage > allows an upload when a committed deletion removes a file during quota accounting
+ FAIL  tests/unit/replay-storage.test.ts > durable private replay storage > still rejects storage errors other than a concurrently removed file
+ FAIL  tests/unit/replay-storage.test.ts > durable private replay storage > uses generated paths and private permissions, detects changed content and refuses symlink reads
+ FAIL  tests/unit/replay-storage.test.ts > durable private replay storage > counts physical orphans against total capacity before writing a file
+ FAIL  tests/unit/replay-storage.test.ts > durable private replay storage > refuses public/release/symlink roots and keeps referenced/fresh/unknown files during cleanup
+ FAIL  tests/unit/s6-archive.test.ts > reproduces the import package without network or private workbook reads
+ FAIL  tests/unit/s6-confirmed-import.test.ts > reproduces the exact confirmed private import while retaining every source game
+ FAIL  tests/unit/s6-match-reconstruction.test.ts > verifies S6 match reconstruction, exclusions and pagination offline
+ FAIL  tests/unit/team-media.test.ts > bounded persistent team image storage > retains the same opaque reference across release changes and safely removes replaced files
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > previews a pinned update without commands, dependencies or credentials
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > builds separately, stops writes before backup/migration, activates and checks health
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > installs a first release through the same backup/migration/health pipeline
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > converts a manually installed same-SHA release into a verified release without mutating its files
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > retries an already active SHA by checking health without migration or service changes
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > leaves the existing release online when build fails before maintenance
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > leaves the existing release online when inspect fails before maintenance
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > leaves the existing release online when lock fails before maintenance
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > leaves the existing release online when dirty fails before maintenance
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > restarts the unchanged release if backup fails before any migration
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > keeps service stopped and preserves the previous release after uncertain migration failure
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > keeps service stopped and preserves the previous release after uncertain preflight failure
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > keeps service stopped and preserves the previous release after uncertain start failure
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > keeps service stopped and preserves the previous release after uncertain health failure
+ FAIL  tests/unit/update-script.test.ts > Bash site updates > keeps service stopped and preserves the previous release after uncertain interrupt failure
+ Test Files  15 failed | 153 passed (168)
+      Tests  68 failed | 1254 passed | 3 skipped (1325)
+   Duration  295.93s (tests 84%, import 15%, transform 1%)

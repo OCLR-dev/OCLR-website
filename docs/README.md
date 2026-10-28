@@ -17,7 +17,12 @@ The repository root README ([English](../README.md) / [简体中文](../README.z
 
 **Where to start:** use [Development](development.md) to work locally, [Tournament administration](tournament-management.md) to understand enrollment and permissions, and [Deployment](deployment.md) for running or updating production. Never use production credentials or personal registration records in tests.
 
+- [CI coverage and acceptance](ci.md) — core/full lanes, scope selection, main checks and maintainer workflow.
+
 ## Developer read API and remote frontend
+
+- [Known player identities and name evidence](player-identity.md) — UID aggregation,
+  publication boundaries, migration/backfill and the additive v1.3 profile resources (#360).
 
 - [Remote setup and troubleshooting](remote-development.md) — fresh frontend without a local DB/OAuth secret.
 - [Full coverage and service boundaries](remote-coverage.md), [generated page/module inventory](remote-coverage.json).
@@ -26,6 +31,12 @@ The repository root README ([English](../README.md) / [简体中文](../README.z
 
 Local synthetic acceptance and actual CI are recorded per commit on #271/#272;
 real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
+
+- [Published match details](match-details.md) — source/review/public projection matrix, revision consistency and verification boundaries (#283).
+
+## Referee desktop integration design
+
+- [Referee panel and OCLR-ref-tools integration](referee-panel-integration.md) — shared panel data, desktop Bearer scopes, proposed read/write APIs, revision/idempotency, IRC execution boundaries and phased delivery (#312–#317). Design draft only; not a deployed endpoint or permission expansion. The same document is maintained in OCLR-ref-tools.
 
 ## Historical source preparation
 

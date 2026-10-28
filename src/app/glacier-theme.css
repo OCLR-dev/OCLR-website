@@ -1,0 +1,486 @@
+/* S9 Glacier Blue: approved Cirno ice-fairy design, scoped to ordinary pages. */
+html[data-appearance="glacier-blue"] .themed-site {
+  --site-background: #f4f9fe;
+  --site-surface: #ffffff;
+  --site-raised: #edf5ff;
+  --site-tint: #e4efff;
+  --site-foreground: #102c50;
+  --site-muted: #506781;
+  --site-secondary-text: #304e75;
+  --site-accent: #1748d5;
+  --site-accent-strong: #1038b2;
+  --site-border: #ccdced;
+  --site-control-border: #607c9e;
+  --site-header: #ffffff;
+  --site-primary: #1748d5;
+  --site-primary-hover: #1038b2;
+  --site-on-primary: #ffffff;
+  --site-focus: #1748d5;
+  --site-selection: #c5ddff;
+  --site-success: #17644b;
+  --site-warning: #875505;
+  --site-danger: #a4254a;
+  --site-highlight: #1748d5;
+  --site-connector: #607c9e;
+  --site-shadow: #102c5018;
+  --site-soft-shadow: #102c500a;
+  --site-panel-shadow: #102c5030;
+  --site-dialog-shadow: #102c5033;
+  --site-backdrop: #102c5066;
+  --button-radius: 4px;
+  --radius-panel: 4px;
+  background: var(--site-background);
+}
+html[data-appearance="glacier-blue"][data-theme="dark"] .themed-site {
+  --site-background: #0d182c;
+  --site-surface: #14223b;
+  --site-raised: #1d3151;
+  --site-tint: #203c64;
+  --site-foreground: #eaf6ff;
+  --site-muted: #abc3de;
+  --site-secondary-text: #cfdef1;
+  --site-accent: #88dfff;
+  --site-accent-strong: #afeaff;
+  --site-border: #304869;
+  --site-control-border: #7b9bc3;
+  --site-header: #0d182c;
+  --site-primary: #88dfff;
+  --site-primary-hover: #afeaff;
+  --site-on-primary: #102c50;
+  --site-focus: #88dfff;
+  --site-selection: #2a4c7b;
+  --site-success: #72e3bc;
+  --site-warning: #f0cb83;
+  --site-danger: #ff9eaf;
+  --site-highlight: #88dfff;
+  --site-connector: #7b9bc3;
+  --site-shadow: #0004;
+  --site-soft-shadow: #0002;
+  --site-panel-shadow: #0006;
+  --site-dialog-shadow: #0009;
+  --site-backdrop: #0009;
+}
+html[data-appearance="glacier-blue"] .themed-site .page-heading {
+  position: relative;
+  border-bottom: 1px solid var(--site-border);
+  padding-bottom: 1.25rem;
+}
+html[data-appearance="glacier-blue"] .themed-site .archive-counts dd {
+  color: var(--site-accent-strong);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  .archive-counts
+  > div:first-child {
+  border-top: 2px solid var(--site-accent);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  :is(
+    .rules-article,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .settings-card,
+    .map-browse-card
+  ) {
+  border-radius: var(--radius-panel);
+  box-shadow: none;
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  :is(.rules-desktop-contents, .rules-mobile-contents) {
+  border-left: 3px solid var(--site-accent);
+}
+html[data-appearance="glacier-blue"] .themed-site .settings-card {
+  background: var(--site-surface);
+}
+html[data-appearance="glacier-blue"] .themed-site :is(input, select, textarea) {
+  border-color: var(--site-control-border);
+  border-radius: var(--button-radius);
+}
+html[data-appearance="glacier-blue"] .themed-site :is(button, .button) {
+  border-radius: var(--button-radius);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  :is(nav, a) {
+  border-radius: 4px;
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  :is(.main-nav > a[aria-current], .tournament-navigation a[aria-current]) {
+  box-shadow: inset 0 -2px 0 var(--site-accent);
+}
+html[data-appearance="glacier-blue"] .themed-site .sidebar {
+  border-color: var(--site-border);
+  background: var(--site-header);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  :is(.table-scroll, .map-card-grid, .archive-map-list) {
+  font-variant-numeric: tabular-nums;
+}
+@media (forced-colors: active) {
+  html[data-appearance="glacier-blue"] .themed-site .page-heading::after {
+    background: CanvasText;
+  }
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    :is(.main-nav > a[aria-current], .tournament-navigation a[aria-current]) {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+}
+
+/* Crystal material uses one top-left light source. Fine veins and caustics
+ * stay at the perimeter; text retains an opaque, quiet reading surface. */
+html[data-appearance="glacier-blue"] .themed-site {
+  --ice-crystal: url("/themes/glacier-blue/crystal-etching.svg");
+  --cirno-portrait: url("/themes/glacier-blue/cirno-ice-fairy.webp");
+  --fairy-ribbon: #b23b55;
+  --ice-frost: url("/themes/glacier-blue/frost-rim.svg");
+  --ice-facets: url("/themes/glacier-blue/ice-facets.svg");
+  --ice-rim: #c4dfeb;
+  --ice-rim-bright: #ffffff;
+  --ice-rim-shade: #a5c8d9;
+  --ice-facet: #e2f3fa;
+  --ice-cut: #93c8de;
+  --ice-etch: #e9f5fb;
+  --ice-well: #f6fafd;
+  --ice-shadow: #23527314;
+  --ice-contact: #1e56751a;
+  --ice-slab:
+    linear-gradient(135deg, var(--ice-facet) 0 10px, transparent 10.5px) top
+      left / 24px 24px no-repeat,
+    linear-gradient(315deg, var(--ice-etch) 0 12px, transparent 12.5px) bottom
+      right / 24px 24px no-repeat,
+    linear-gradient(180deg, var(--ice-etch), transparent 24px),
+    var(--site-surface);
+  --ice-panel-depth:
+    inset 0 1px 0 var(--ice-rim-bright), inset 1px 0 0 var(--ice-rim-bright),
+    inset 0 -1px 0 var(--ice-rim-shade), 0 2px 3px -2px var(--ice-contact),
+    0 12px 28px -20px var(--ice-shadow);
+}
+html[data-appearance="glacier-blue"][data-theme="dark"] .themed-site {
+  --fairy-ribbon: #ff9eb6;
+  --ice-rim: #345872;
+  --ice-rim-bright: #79aac6;
+  --ice-rim-shade: #112d49;
+  --ice-facet: #24445e;
+  --ice-cut: #5f9ab8;
+  --ice-etch: #1b354e;
+  --ice-well: #101e32;
+  --ice-shadow: #0005;
+  --ice-contact: #0006;
+}
+html[data-appearance="glacier-blue"] .themed-site .site-header {
+  border-bottom: 1px solid var(--ice-rim);
+  background:
+    linear-gradient(
+      110deg,
+      transparent 76%,
+      var(--ice-etch) 76.1%,
+      transparent 86%
+    ),
+    var(--site-header);
+  box-shadow:
+    inset 0 -1px 0 var(--ice-rim-bright),
+    0 2px 8px -6px var(--ice-shadow);
+}
+html[data-appearance="glacier-blue"] .themed-site .page-heading {
+  min-height: 176px;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--ice-rim);
+  background:
+    var(--ice-crystal) right 320px center / 72px 72px no-repeat,
+    radial-gradient(ellipse at 90% 65%, var(--ice-etch), transparent 48%);
+}
+html[data-appearance="glacier-blue"] .themed-site .page-heading::before {
+  content: "";
+  position: absolute;
+  inset: 4px 24px 4px auto;
+  width: min(42%, 320px);
+  background: var(--cirno-portrait) right center / contain no-repeat;
+  mask-image: linear-gradient(180deg, #000 0 80%, transparent 100%);
+  pointer-events: none;
+}
+html[data-appearance="glacier-blue"] .themed-site .page-heading > :is(h1, p) {
+  max-width: calc(100% - 352px);
+}
+html[data-appearance="glacier-blue"] .themed-site .page-heading h1 {
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+html[data-appearance="glacier-blue"] .themed-site .page-heading::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 4px;
+  background: var(--ice-frost) right top / 480px 32px no-repeat;
+  mask-image: linear-gradient(90deg, transparent 55%, #000 85%);
+  border-bottom: 1px solid var(--ice-rim-bright);
+  transform: scaleY(-1);
+  opacity: 0.45;
+  pointer-events: none;
+}
+html[data-appearance="glacier-blue"] .themed-site .archive-counts {
+  position: relative;
+  padding: 12px 24px;
+  background: var(--ice-slab);
+  border: 1px solid var(--ice-rim);
+  border-radius: 4px;
+  box-shadow: var(--ice-panel-depth);
+}
+/* A small decorative neck-ribbon echo; status and action colors stay blue. */
+html[data-appearance="glacier-blue"] .themed-site .archive-counts::before {
+  content: "";
+  position: absolute;
+  inset: 0 24px auto auto;
+  width: 16px;
+  height: 7px;
+  background: var(--fairy-ribbon);
+  clip-path: polygon(
+    0 0,
+    45% 35%,
+    55% 35%,
+    100% 0,
+    100% 100%,
+    55% 65%,
+    45% 65%,
+    0 100%
+  );
+  pointer-events: none;
+}
+html[data-appearance="glacier-blue"] .themed-site .archive-counts > div {
+  align-items: center;
+  padding-block: 14px;
+  border-bottom-color: var(--ice-rim);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  .archive-counts
+  > div:first-child {
+  border-top: 0;
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  .archive-counts
+  > div:last-child {
+  border-bottom: 0;
+}
+html[data-appearance="glacier-blue"] .themed-site .archive-counts dt {
+  color: var(--site-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+html[data-appearance="glacier-blue"] .themed-site .archive-counts dd {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  nav {
+  border: 1px solid var(--ice-rim);
+  background: linear-gradient(180deg, var(--site-surface), var(--ice-etch));
+  box-shadow:
+    inset 0 1px 0 var(--ice-rim-bright),
+    inset 0 -1px 0 var(--ice-rim-shade),
+    0 2px 4px -3px var(--ice-contact);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  a[aria-current] {
+  background:
+    linear-gradient(135deg, var(--ice-facet), transparent 20px),
+    var(--site-tint);
+  box-shadow:
+    inset 0 1px 0 var(--ice-rim-bright),
+    inset 0 -2px 0 var(--site-accent),
+    0 1px 3px -2px var(--ice-contact);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  :is(.rules-article, .settings-card, .map-browse-card) {
+  background: var(--ice-slab);
+  border-color: var(--ice-rim);
+  box-shadow: var(--ice-panel-depth);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  :is(.rules-desktop-contents, .rules-mobile-contents) {
+  background: var(--site-surface);
+  border-color: var(--ice-rim);
+  border-left: 2px solid var(--ice-cut);
+  box-shadow: inset 0 1px 0 var(--ice-rim-bright);
+}
+html[data-appearance="glacier-blue"] .themed-site .rules-article h2 {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+html[data-appearance="glacier-blue"] .themed-site :is(input, select, textarea) {
+  background: var(--ice-well);
+  box-shadow:
+    inset 0 1px 2px var(--ice-contact),
+    0 1px 0 var(--ice-rim-bright);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  :is(
+    .nav-login,
+    .settings-card button[type="submit"],
+    .map-view-control button[aria-pressed="true"]
+  ) {
+  background-image: linear-gradient(
+    115deg,
+    #ffffff1f,
+    #ffffff00 35% 72%,
+    #ffffff12 72.2%,
+    #ffffff00 85%
+  );
+  box-shadow:
+    inset 0 1px 0 #ffffff80,
+    inset 0 -1px 0 #08295645,
+    0 1px 2px var(--ice-contact);
+}
+html[data-appearance="glacier-blue"] .themed-site .map-card-cover {
+  background:
+    var(--ice-facets) center / 100% 100% no-repeat,
+    linear-gradient(145deg, var(--ice-etch), var(--site-tint));
+  border: 1px solid var(--ice-rim);
+  box-shadow: inset 0 1px 0 var(--ice-rim-bright);
+}
+html[data-appearance="glacier-blue"] .themed-site .map-slot-badge {
+  border: 1px solid var(--ice-cut);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px var(--ice-contact);
+}
+html[data-appearance="glacier-blue"]
+  .themed-site
+  .public-tournament
+  .event-content {
+  container: glacier-content / inline-size;
+}
+@media (max-width: 1100px) {
+  html[data-appearance="glacier-blue"] .themed-site .page-heading {
+    min-height: 0;
+    padding-bottom: 128px;
+    background-size:
+      48px 48px,
+      auto;
+    background-position:
+      right 200px bottom 40px,
+      center;
+  }
+  html[data-appearance="glacier-blue"] .themed-site .page-heading::before {
+    inset: auto 8px 8px auto;
+    width: 176px;
+    height: 112px;
+  }
+  html[data-appearance="glacier-blue"] .themed-site .page-heading > :is(h1, p) {
+    max-width: none;
+  }
+  html[data-appearance="glacier-blue"] .themed-site .page-heading::after {
+    opacity: 0.35;
+  }
+  html[data-appearance="glacier-blue"] .themed-site .archive-counts {
+    padding-inline: 16px;
+  }
+}
+/* Keep the portrait beside the title whenever the content has room for both.
+ * The viewport alone cannot distinguish a public page from a narrow workspace. */
+@container glacier-content (min-width: 680px) {
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    .public-tournament
+    .page-heading {
+    --glacier-portrait-width: clamp(280px, 32%, 320px);
+    min-height: 176px;
+    padding-bottom: 24px;
+    background-size:
+      48px 48px,
+      auto;
+    background-position:
+      right 248px center,
+      center;
+  }
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    .public-tournament
+    .page-heading::before {
+    inset: 4px 8px 4px auto;
+    width: var(--glacier-portrait-width);
+    height: auto;
+  }
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    .public-tournament
+    .page-heading
+    > :is(h1, p) {
+    max-width: calc(100% - var(--glacier-portrait-width) - 32px);
+    overflow-wrap: anywhere;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    :is(
+      .site-header,
+      .page-heading,
+      .archive-counts,
+      .rules-article,
+      .rules-desktop-contents,
+      .rules-mobile-contents,
+      .settings-card,
+      .map-browse-card,
+      .map-card-cover,
+      .nav-login,
+      input,
+      select,
+      textarea
+    ) {
+    background: Canvas;
+    box-shadow: none;
+    border-color: CanvasText;
+  }
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    :is(.page-heading, .archive-counts)::before,
+  html[data-appearance="glacier-blue"] .themed-site .page-heading::after {
+    display: none;
+  }
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    .public-tournament
+    .tournament-navigation
+    :is(nav, a) {
+    background: Canvas;
+    box-shadow: none;
+    border-color: CanvasText;
+  }
+  html[data-appearance="glacier-blue"]
+    .themed-site
+    .public-tournament
+    .tournament-navigation
+    a[aria-current] {
+    background: Highlight;
+    color: HighlightText;
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+    box-shadow: none;
+  }
+}
+
+.glacier-attribution {
+  display: none;
+}
+html[data-appearance="glacier-blue"] .themed-site .glacier-attribution {
+  display: block;
+}

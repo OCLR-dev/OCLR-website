@@ -116,6 +116,12 @@ test.describe("public tournament teams navigation", () => {
             ),
             fullPage: true,
           });
+          // The mobile menu now floats over the page; dismiss it before
+          // choosing a team card underneath it.
+          if (await menu.isVisible()) {
+            await menu.press("Escape");
+            await expect(menu).toHaveAttribute("aria-expanded", "false");
+          }
           await page
             .locator(`a[href="/tournaments/${slug}/teams/${teamId}"]`)
             .first()

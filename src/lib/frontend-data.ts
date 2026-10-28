@@ -14,6 +14,8 @@ import {
   publicTournamentSummarySchema,
   publicPlayerSchema,
   publicPlayerProfileSchema,
+  oclrProfileSchema,
+  type OclrProfile,
   privateTournamentSchema,
   privateTournamentSummarySchema,
 } from "./read-api-contract";
@@ -192,56 +194,100 @@ export async function frontendViewer() {
 }
 export async function frontendProfile(
   input: string,
-  mode?: string,
   edition?: string,
-) {
+): Promise<OclrProfile> {
+  const viewer = await frontendViewer();
   if (!remoteMode())
     return (await import("./player-profiles")).publishedPlayerProfile(
       input,
-      mode,
+      "osu",
       edition,
+      viewer?.osuId,
     );
   const { parseOsuProfile } = await import("./osu-profile-model");
-  const identity = parseOsuProfile(input, mode);
+  const identity = parseOsuProfile(input, "osu");
+  const own = viewer?.osuId === identity.osuId;
+  const query = new URLSearchParams();
+  if (edition) query.set("edition", edition);
+  // Negotiate using the freshly verified header. Old v1 backends reject unknown
+  // paths/queries with 400; never probe and silently downgrade authorization.
+  const version = (await frontendConnection()).contractVersion;
+  if (Number(/^1\.(\d+)\./.exec(version ?? "")?.[1] ?? 0) >= 3) {
+    return oclrProfileSchema.parse(
+      (
+        await frontendRemoteRead(
+          own ? "/me/oclr-profile" : `/players/${identity.osuId}/oclr-profile`,
+          query,
+        )
+      ).data,
+    );
+  }
   const slugs = edition
     ? [edition]
     : (await frontendTournaments()).map((e) => e.slug);
+  const participation: OclrProfile["participation"] = [];
+  let saved: OclrProfile["snapshot"] = null;
+  let bws: OclrProfile["bws"] = null;
   for (const slug of slugs) {
     try {
       const data = publicPlayerProfileSchema.parse(
         (
           await frontendRemoteRead(
             `/tournaments/${slug}/players/${identity.osuId}`,
-            new URLSearchParams({ mode: identity.mode }),
+            new URLSearchParams(),
           )
         ).data,
       );
-      return {
-        identity,
-        participation: [data.player],
-        snapshot: data.snapshot
-          ? {
-              profile: data.snapshot.profile,
-              stale: data.snapshot.state === "stale",
-              notice: null,
-            }
-          : null,
-        bws: data.bws,
-        error: data.snapshot
-          ? null
-          : {
-              status: 404,
-              message:
-                data.player.source.kind === "historical_archive"
-                  ? "Not recorded"
-                  : "No saved profile is available.",
-            },
-      };
+      const p = data.player;
+      if (!participation.some((row) => row.editionSlug === p.editionSlug))
+        participation.push(p);
+      if (
+        data.snapshot &&
+        (!saved || data.snapshot.profile.fetchedAt > saved.profile.fetchedAt)
+      ) {
+        saved = {
+          profile: data.snapshot.profile,
+          stale: data.snapshot.state === "stale",
+          notice: null,
+        };
+        bws = data.bws;
+      }
     } catch (error) {
       if (error instanceof RemoteDataError && error.code === "NOT_FOUND")
         continue;
       throw error;
     }
   }
-  throw new RemoteDataError("NOT_FOUND", 404);
+  if (!participation.length && !own)
+    throw new RemoteDataError("NOT_FOUND", 404);
+  if (own && !saved)
+    saved = await (
+      await import("./osu-profiles")
+    ).cachedOsuUserProfile(identity.osuId, identity.mode);
+  const username =
+    (own ? viewer.username : saved?.profile.username) ??
+    participation[0]?.username;
+  if (!username) throw new RemoteDataError("NOT_FOUND", 404);
+  // Old servers cannot provide persistent provenance. These names have no
+  // invented observation dates; v1.3 supplies the durable evidence instead.
+  const aliases = [
+    ...new Set([
+      ...(saved?.profile.previousUsernames ?? []),
+      ...participation.map((p) => p.username),
+    ]),
+  ];
+  return {
+    identity: {
+      ...identity,
+      username,
+      currentUsername: own
+        ? viewer.username
+        : (saved?.profile.username ?? null),
+      names: aliases.map((username) => ({ username, evidence: [] })),
+    },
+    participation,
+    snapshot: saved,
+    bws,
+    error: null,
+  };
 }

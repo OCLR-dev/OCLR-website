@@ -4,12 +4,22 @@ import {
   type HistoricalArchive,
 } from "./historical-archive";
 import type { ResolvedBracket, ResolvedMatch } from "./bracket-model";
+import { isS1Archive } from "./s1-archive";
 
 /** Edges mean a team's previous recorded appearance, never an invented qualification rule. */
 export function archiveBracket(
   archive: HistoricalArchive,
   detailsHref: (id: string) => string,
 ): ResolvedBracket | null {
+  const s2Source =
+    /^https:\/\/docs\.google\.com\/spreadsheets\/d\/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY(?:\/edit)?$/.test(
+      archive.sourceUrl,
+    );
+  const s2Row = (m: ResolvedMatch) => {
+    const source = archive.matches.find((saved) => saved.id === m.id)?.source;
+    const row = source?.match(/^ES Schedule!B(\d+):M\1$/);
+    return row ? Number(row[1]) : null;
+  };
   const groups = new Map(archive.standings.map((s) => [s.teamId, s.group]));
   const sorted = [...archive.matches]
     .filter(recordedArchiveMatch)
@@ -34,15 +44,17 @@ export function archiveBracket(
   >();
   const last = new Map<string, { id: string; column: number; at: number }[]>();
   for (const m of sorted) {
-    const g =
-      archive.sourceUrl ===
+    // S1/S2 store overall final ranks in standings; original stage labels
+    // retain their round-robin groups independently of those final ranks.
+    const sourceGroup =
+      ((isS1Archive(archive) || s2Source) && /^小组赛 [AB]组$/.test(m.stage)) ||
+      (archive.sourceUrl ===
         "https://github.com/OCLR-dev/OCLR-website/issues/289" &&
-      /^瑞士輪第 \d+ 輪/.test(m.stage)
-        ? m.stage
-        : groups.get(m.teamA);
+        /^瑞士輪第 \d+ 輪/.test(m.stage));
+    const g = sourceGroup ? m.stage : groups.get(m.teamA);
     const isGroup =
       g &&
-      ((g === m.stage && /^瑞士輪第 \d+ 輪/.test(m.stage)) ||
+      (sourceGroup ||
         (g === groups.get(m.teamB) && /^(?:group(?:\s|$)|GS$)/i.test(m.stage)));
     const startedAt = m.roomOpenedAt ?? m.review?.startedAt ?? m.scheduledAt;
     const at = startedAt ? Date.parse(startedAt) : null;
@@ -98,6 +110,11 @@ export function archiveBracket(
         }
     }
   }
+  const orderByS2Rows =
+    s2Source &&
+    [...rounds.values()].every((r) =>
+      r.matches.every((m) => s2Row(m) !== null),
+    );
   return {
     editionSlug: archive.editionSlug,
     published: true,
@@ -111,7 +128,19 @@ export function archiveBracket(
               id: "match-path",
               label: "Match path",
               rounds: [...rounds.values()]
-                .sort((a, b) => a.column - b.column)
+                .sort((a, b) => {
+                  // S2's final has no date. Keep its recorded sheet-row order
+                  // without inventing a timestamp or a qualification edge.
+                  const ar = a.matches.map(s2Row),
+                    br = b.matches.map(s2Row);
+                  if (
+                    orderByS2Rows &&
+                    ar.every((n) => n !== null) &&
+                    br.every((n) => n !== null)
+                  )
+                    return Math.min(...ar) - Math.min(...br);
+                  return a.column - b.column;
+                })
                 .map((r, i) => ({
                   matches: r.matches,
                   id: `round-${i}`,

@@ -1,0 +1,34 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "rowHeight": 156.84375,
+    "avatarWidth": 40,
+    "firstRowTop": 291.6875,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "rowHeight": 295.6875,
+    "avatarWidth": 40,
+    "firstRowTop": 522.140625,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "rowHeight": 156.84375,
+    "avatarWidth": 40,
+    "firstRowTop": 291.6875,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "rowHeight": 295.6875,
+    "avatarWidth": 40,
+    "firstRowTop": 522.140625,
+    "overflow": false
+  }
+]

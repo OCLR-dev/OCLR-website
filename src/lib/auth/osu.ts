@@ -4,6 +4,7 @@ import { HttpError } from "../http";
 export const osuIdentity = z.object({
   id: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
   username: z.string().min(1).max(255),
+  previous_usernames: z.array(z.string().min(1).max(255)).optional(),
 });
 export function authorizationUrl(state: string) {
   const { clientId, redirectUri } = oauthConfig();

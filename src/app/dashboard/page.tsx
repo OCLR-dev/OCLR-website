@@ -1,4 +1,3 @@
-import { publicPlayer } from "@/lib/players";
 import { Avatar } from "@/components/avatar";
 import { ConfirmMutation } from "@/components/confirm-mutation";
 import { Action, EmptyState, PageHeading } from "@/components/ui";
@@ -30,10 +29,9 @@ async function Issue271Page({
 
   const user = await currentUser();
   if (!user) redirect("/login");
-  const [applications, snapshot, publishedParticipation] = await Promise.all([
+  const [applications, snapshot] = await Promise.all([
     playerApplications(user.osuId),
     getOsuUserProfile(user.osuId, "osu").catch(() => null),
-    publicPlayer(user.osuId),
   ]);
   const profile = snapshot?.profile;
   const country = profile?.countryCode;
@@ -94,23 +92,15 @@ async function Issue271Page({
               {tr("osu! ID: ")}
               {user.osuId}
             </p>
-            {publishedParticipation.length ? (
-              <p className="small">
-                <Link
-                  className="text-link"
-                  href={`/players/${user.osuId}`}
-                  prefetch={false}
-                >
-                  {tr("OCLR profile")} →
-                </Link>
-              </p>
-            ) : (
-              <p className="muted small">
-                {tr(
-                  "Your OCLR profile is available after you have public tournament participation.",
-                )}
-              </p>
-            )}
+            <p className="small">
+              <Link
+                className="text-link"
+                href={`/players/${user.osuId}`}
+                prefetch={false}
+              >
+                {tr("OCLR profile")} →
+              </Link>
+            </p>
             {country && (
               <p className="small">
                 <span

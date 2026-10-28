@@ -1,3 +1,9 @@
+import { MatchDetailsView } from "./match-details";
+import {
+  publicArchiveStatistics,
+  statisticsArchiveKey,
+} from "@/lib/archive-statistics";
+import { supportsArchiveStatistics } from "@/lib/archive-statistics-model";
 import { getAppTranslations } from "@/i18n/server";
 import { archivePoolMetadata } from "@/lib/archive-map-metadata";
 import { archiveArtworkSetIds } from "@/lib/archive-artwork";
@@ -23,6 +29,7 @@ import {
 } from "@/lib/public-read-models";
 import type { PublicPlayer } from "@/lib/read-api-contract";
 import { deriveS8Standings } from "@/lib/s8-standings";
+import { hasS1FinalStandings } from "@/lib/s1-archive";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -337,75 +344,76 @@ export async function HistoricalArchiveView({
             )
               match.note = tr("Forfeit");
       }
+    const finalRanks = hasS1FinalStandings(a);
+    const standingsContent = standings.length ? (
+      <>
+        <h2>{finalRanks ? tr("Final standings") : tr("Group standings")}</h2>
+        {derived && (
+          <p className="muted small">
+            {tr(
+              "Calculated from recorded group results: wins, then map difference. This is a derived order, not an official archived ranking. Equal values share a rank; incomplete or ambiguous groups await review.",
+            )}
+          </p>
+        )}
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label={title}
+        >
+          <table>
+            <thead>
+              <tr>
+                {[
+                  ...(finalRanks ? [] : [tr("Group")]),
+                  tr("Rank"),
+                  tr("Team"),
+                  ...(derived ? [tr("Played")] : []),
+                  tr("Wins"),
+                  tr("Losses"),
+                  tr("Maps won"),
+                  tr("Maps lost"),
+                  ...(derived ? [tr("Map difference")] : []),
+                ].map((h) => (
+                  <th key={h}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {standings.map((s) => (
+                <tr key={s.teamId}>
+                  {!finalRanks && <td>{s.group}</td>}
+                  <td>
+                    {s.rank ??
+                      ("status" in s
+                        ? s.status === "review"
+                          ? tr("Awaiting review")
+                          : tr("Incomplete results")
+                        : tr("Not recorded"))}
+                    {"tied" in s && s.tied ? ` · ${tr("Tied")}` : ""}
+                  </td>
+                  <td>{teamLink(s.teamId)}</td>
+                  {"played" in s && <td>{s.played}</td>}
+                  <td>{s.wins}</td>
+                  <td>{s.losses}</td>
+                  <td>{s.mapsWon}</td>
+                  <td>{s.mapsLost}</td>
+                  {"mapDifference" in s && <td>{s.mapDifference}</td>}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    ) : undefined;
     return (
       <ArchiveCompetition
         bracket={bracket}
         teamUrls={Object.fromEntries(
           a.teams.map((t) => [t.id, href("teams", t.id)]),
         )}
-        standings={
-          standings.length ? (
-            <>
-              <h2>{tr("Group standings")}</h2>
-              {derived && (
-                <p className="muted small">
-                  {tr(
-                    "Calculated from recorded group results: wins, then map difference. This is a derived order, not an official archived ranking. Equal values share a rank; incomplete or ambiguous groups await review.",
-                  )}
-                </p>
-              )}
-              <div
-                className="table-scroll"
-                tabIndex={0}
-                role="region"
-                aria-label={title}
-              >
-                <table>
-                  <thead>
-                    <tr>
-                      {[
-                        tr("Group"),
-                        tr("Rank"),
-                        tr("Team"),
-                        ...(derived ? [tr("Played")] : []),
-                        tr("Wins"),
-                        tr("Losses"),
-                        tr("Maps won"),
-                        tr("Maps lost"),
-                        ...(derived ? [tr("Map difference")] : []),
-                      ].map((h) => (
-                        <th key={h}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {standings.map((s) => (
-                      <tr key={s.teamId}>
-                        <td>{s.group}</td>
-                        <td>
-                          {s.rank ??
-                            ("status" in s
-                              ? s.status === "review"
-                                ? tr("Awaiting review")
-                                : tr("Incomplete results")
-                              : tr("Not recorded"))}
-                          {"tied" in s && s.tied ? ` · ${tr("Tied")}` : ""}
-                        </td>
-                        <td>{teamLink(s.teamId)}</td>
-                        {"played" in s && <td>{s.played}</td>}
-                        <td>{s.wins}</td>
-                        <td>{s.losses}</td>
-                        <td>{s.mapsWon}</td>
-                        <td>{s.mapsLost}</td>
-                        {"mapDifference" in s && <td>{s.mapDifference}</td>}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          ) : undefined
-        }
+        standings={finalRanks ? undefined : standingsContent}
+        finalStandings={finalRanks ? standingsContent : undefined}
       />
     );
   }
@@ -559,6 +567,22 @@ export async function HistoricalArchiveView({
         ? allPlayers.filter((p) => String(p.osuId) === id)
         : allPlayers;
     if (!players.length) notFound();
+    const aliases = preview
+      ? []
+      : remoteMode()
+        ? (
+            await (
+              await import("@/lib/frontend-data")
+            ).frontendPlayers(edition.slug)
+          ).rows.flatMap((p) =>
+            (p.previousUsernames ?? []).map((username) => ({
+              osuId: p.osuId,
+              username,
+            })),
+          )
+        : await (
+            await import("@/lib/player-identity")
+          ).visiblePlayerNames(players.map((p) => p.osuId));
     title = section === "player" ? players[0].username : tr("Players");
     content = (
       <>
@@ -566,7 +590,14 @@ export async function HistoricalArchiveView({
           <ArchivePlayerSearch
             players={players.map((p) => ({
               id: p.osuId,
-              searchText: [p.username, p.osuId, p.team?.name ?? ""].join(" "),
+              searchText: [
+                p.username,
+                p.osuId,
+                p.team?.name ?? "",
+                ...aliases
+                  .filter((n) => n.osuId === p.osuId)
+                  .map((n) => n.username),
+              ].join(" "),
               card: rosterCard(p),
             }))}
           />
@@ -575,6 +606,13 @@ export async function HistoricalArchiveView({
         )}
         {section === "player" && (
           <>
+            <Link
+              className="context-link"
+              href={`/players/${players[0].osuId}?edition=${edition.slug}`}
+            >
+              {tr("OCLR profile")} →
+            </Link>
+            {" · "}
             <a
               href={`https://osu.ppy.sh/users/${players[0].osuId}`}
               rel="noreferrer"
@@ -606,9 +644,32 @@ export async function HistoricalArchiveView({
       });
     if (section === "match" && !matches.length) notFound();
     title = section === "match" ? matches[0].label : tr("Matches & results");
+    const statistics =
+      section === "match" &&
+      !preview &&
+      supportsArchiveStatistics(edition.slug) &&
+      (process.env.DATABASE_URL || remoteMode())
+        ? await publicArchiveStatistics(edition.slug, id)
+        : null;
+    const details =
+      statistics?.archiveKey === statisticsArchiveKey(a)
+        ? (statistics.matchDetails.find((m) => m.fixtureId === id)?.details ??
+          null)
+        : null;
     content =
       section === "match" ? (
-        match(matches[0])
+        <>
+          {match(matches[0])}
+          {!preview && (
+            <MatchDetailsView
+              details={details}
+              slug={edition.slug}
+              teams={a.teams}
+              timeZone={edition.timeZone}
+              historical
+            />
+          )}
+        </>
       ) : (
         <EventSchedule
           key={statusFilter}

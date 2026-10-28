@@ -15,3 +15,16 @@ export const englishStorage = {
   ],
   origins: [],
 };
+
+/** Only automatic, non-authentication preferences are allowed for guests. */
+export function isAutomaticPreferenceCookie(cookie: {
+  name: string;
+  value: string;
+}) {
+  return (
+    (cookie.name === "oclr-locale" &&
+      ["zh-Hans", "zh-Hant", "en"].includes(cookie.value)) ||
+    (cookie.name === "oclr-system-theme" &&
+      ["light", "dark"].includes(cookie.value))
+  );
+}

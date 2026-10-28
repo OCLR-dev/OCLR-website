@@ -1,0 +1,33 @@
+/* Outrank ordinary themed dialogs: this modal always covers the viewport. */
+dialog.overlay.overlay[data-loading-overlay][open] {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: var(--site-backdrop, #0009);
+  cursor: progress;
+  outline: none;
+}
+dialog.overlay.overlay[data-loading-overlay]::backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+dialog.overlay.overlay[data-loading-overlay] > div {
+  display: grid;
+  place-items: center;
+}
+@media (forced-colors: active) {
+  dialog.overlay.overlay[data-loading-overlay][open] {
+    background: Canvas;
+  }
+}

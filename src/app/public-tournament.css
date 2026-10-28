@@ -145,6 +145,8 @@ html[data-theme="dark"] .themed-site {
   color: var(--site-secondary-text);
 }
 .public-tournament {
+  --tournament-header-height: 76px;
+  --tournament-scroll-offset: 160px;
   container: tournament / inline-size;
   width: min(1400px, calc(100% - clamp(2rem, 7vw, 6rem)));
   margin-inline: auto;
@@ -152,19 +154,26 @@ html[data-theme="dark"] .themed-site {
   padding: 1.5rem 0 4rem;
 }
 .event-context {
+  --tournament-navigation-font-size: 0.95rem;
+  position: sticky;
+  top: var(--tournament-header-height);
+  z-index: 20;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.65rem 1.25rem;
+  padding-block: 0.75rem;
   margin-bottom: 1rem;
+  background: var(--site-background);
+  border-bottom: 1px solid var(--site-border);
 }
 .event-identity {
   display: flex;
   align-items: center;
   gap: 0.65rem;
   flex-wrap: wrap;
-  font-size: 0.85rem;
+  font-size: var(--tournament-navigation-font-size, 0.95rem);
   color: var(--color-muted);
   flex: 1 1 14rem;
   min-width: 0;
@@ -204,7 +213,7 @@ html[data-theme="dark"] .themed-site {
   padding: 0.5rem 0.9rem;
   border-radius: 999px;
   color: var(--site-muted);
-  font-size: 0.85rem;
+  font-size: var(--tournament-navigation-font-size, 0.95rem);
   font-weight: 600;
 }
 .public-tournament .tournament-navigation nav a:hover {
@@ -311,16 +320,13 @@ html[data-theme="dark"] .themed-site {
   overflow-wrap: anywhere;
 }
 .public-tournament [id] {
-  scroll-margin-top: 90px;
+  scroll-margin-top: var(--tournament-scroll-offset);
 }
 .public-tournament #rules,
 .public-tournament #rules [id] {
-  scroll-margin-top: var(--rules-scroll-offset, 90px);
+  scroll-margin-top: var(--tournament-scroll-offset);
 }
 @media (max-width: 760px) {
-  .public-tournament #rules {
-    --rules-scroll-offset: 160px;
-  }
   .themed-site .main-nav.open {
     background: var(--site-surface);
     border-color: var(--site-border);
@@ -330,8 +336,25 @@ html[data-theme="dark"] .themed-site {
   }
 }
 @container tournament (max-width: 52rem) {
+  .event-context {
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+  }
+  .event-identity {
+    flex: 1 1 0;
+    gap: 0.25rem 0.5rem;
+  }
+  /* The full name remains in the page heading and accessible link name. */
+  .event-identity > a:last-of-type {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    min-width: 0;
+    line-height: 1.4;
+  }
   .tournament-navigation {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
   }
   .tournament-menu {
     display: inline-flex;
@@ -340,9 +363,18 @@ html[data-theme="dark"] .themed-site {
   }
   .public-tournament .tournament-navigation nav {
     display: none;
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
     width: 100%;
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
+    max-height: calc(100dvh - var(--tournament-scroll-offset) - 2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--site-control-border);
     border-radius: 1rem;
+    background: var(--site-surface);
+    box-shadow: 0 8px 24px var(--site-shadow);
   }
   .public-tournament .tournament-navigation[data-open] nav {
     display: grid;
@@ -350,6 +382,17 @@ html[data-theme="dark"] .themed-site {
   }
   .public-tournament .tournament-navigation nav a {
     white-space: normal;
+  }
+  /* Theme tab strips may be transparent; a floating menu needs a solid pane. */
+  html[data-appearance]
+    .themed-site
+    .public-tournament
+    > .event-context
+    .tournament-navigation
+    nav {
+    background-color: var(--site-surface);
+    padding: 0.5rem;
+    border: 1px solid var(--site-control-border);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1194,12 +1237,12 @@ body:has(dialog[open].map-dialog) {
 }
 .rules-desktop-contents {
   position: sticky;
-  top: 88px;
+  top: var(--tournament-scroll-offset, 88px);
   background: var(--site-surface);
   border: 1px solid var(--site-border);
   border-radius: 1rem;
   padding: 1rem;
-  max-height: calc(100dvh - 110px);
+  max-height: calc(100dvh - var(--tournament-scroll-offset, 88px) - 1rem);
   overflow: auto;
 }
 .rules-handbook nav {
@@ -1246,8 +1289,10 @@ body:has(dialog[open].map-dialog) {
   align-items: baseline;
   gap: 0.8rem;
   font-size: 1.35rem;
+  line-height: 1.4;
 }
 :is(.rules-article, [data-handbook]) h2 span {
+  flex-shrink: 0;
   color: var(--site-highlight);
   font-variant-numeric: tabular-nums;
 }

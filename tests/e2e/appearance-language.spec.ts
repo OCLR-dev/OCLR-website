@@ -6,6 +6,7 @@ import { seedResultReview } from "../fixtures/results";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { seedSession } from "./session";
+import { chooseTheme } from "./theme";
 
 test.describe("appearance and language preferences", () => {
   // Clearing preferences exposes browser detection, so make the initial
@@ -91,8 +92,7 @@ test.describe("appearance and language preferences", () => {
             .evaluate((node) => getComputedStyle(node).fontFamily),
         ).toContain(locale === "zh-Hant" ? "PingFang TC" : "PingFang SC");
       for (const theme of ["light", "dark"]) {
-        if ((await page.locator("html").getAttribute("data-theme")) !== theme)
-          await page.locator(".theme-control").click();
+        await chooseTheme(page, theme);
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
         for (const path of [
           "",
@@ -171,8 +171,7 @@ test.describe("appearance and language preferences", () => {
       exact: true,
     });
     for (const theme of ["light", "dark"]) {
-      if ((await page.locator("html").getAttribute("data-theme")) !== theme)
-        await page.locator(".theme-control").click();
+      await chooseTheme(page, theme);
       await trigger.click();
       const menu = page.getByRole("menu", { name: "Dashboards", exact: true });
       await expect(menu).toBeVisible();

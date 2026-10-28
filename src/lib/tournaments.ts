@@ -36,7 +36,13 @@ import { HttpError } from "./http";
 import {
   approveArchiveMatches,
   publicHistoricalArchive,
+  resolveArchiveIdentity,
+  exchangeArchivePlayers,
+  archivePlayerExchangeConfirmation,
+  addArchiveSubstitute,
+  archiveSubstituteConfirmation,
 } from "./historical-archive";
+import { supportsArchiveStatistics } from "./archive-statistics-model";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export function storedEdition(row: typeof editionState.$inferSelect) {
   if (!row.configuration) return undefined;
@@ -134,6 +140,29 @@ const createSchema = z
   })
   .strict();
 const commandSchema = z.discriminatedUnion("action", [
+  archivePlayerExchangeConfirmation
+    .extend({
+      ...version,
+      action: z.literal("exchange-archive-players"),
+      preserveStatistics: z.literal(true),
+    })
+    .strict(),
+  archiveSubstituteConfirmation
+    .extend({
+      ...version,
+      action: z.literal("add-archive-substitute"),
+      preserveStatistics: z.literal(true),
+    })
+    .strict(),
+  z
+    .object({
+      ...version,
+      action: z.literal("resolve-archive-identity"),
+      unresolvedId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/),
+      osuId: z.number().int().positive().max(2147483647),
+      source: z.string().trim().min(1).max(160),
+    })
+    .strict(),
   z
     .object({
       ...version,
@@ -225,8 +254,7 @@ export function tournamentLinks(
       .filter(
         (item) =>
           (!item.capabilities || item.capabilities.some(can)) &&
-          (item.path !== "statistics" ||
-            ["s7", "s8", "s9", "s10"].includes(slug)),
+          (item.path !== "statistics" || supportsArchiveStatistics(slug)),
       )
       .map((item) => ({
         href: `/admin/tournaments/${slug}${item.path ? `/${item.path}` : ""}`,
@@ -413,6 +441,100 @@ export async function tournamentCommand(
     const e = current.edition;
     let next: Edition = e;
     let registrationPausedAt = state.registrationPausedAt;
+    if (c.action === "add-archive-substitute") {
+      if (!e.archive || e.status !== "completed" || e.registration)
+        throw new HttpError(
+          409,
+          "Select a completed historical archive without registration.",
+        );
+      await assertCapability(actor, "approve_results", slug, tx);
+      try {
+        next = {
+          ...e,
+          archive: addArchiveSubstitute(e.archive, {
+            osuId: c.osuId,
+            username: c.username,
+            teamId: c.teamId,
+            source: c.source,
+            confirmationSource: c.confirmationSource,
+          }),
+        };
+      } catch {
+        throw new HttpError(
+          409,
+          "Select an unused substitute identity and a recorded team in a final-Tier archive.",
+        );
+      }
+      // The edition row is already locked, as for every statistics command.
+      const { preserveStatisticsForRosterAddition } =
+        await import("./archive-statistics");
+      await preserveStatisticsForRosterAddition(
+        tx,
+        actor,
+        e.archive,
+        next.archive!,
+      );
+    }
+    if (c.action === "exchange-archive-players") {
+      if (!e.archive || e.status !== "completed" || e.registration)
+        throw new HttpError(
+          409,
+          "Select a completed historical archive without registration.",
+        );
+      await assertCapability(actor, "approve_results", slug, tx);
+      const {
+        firstOsuId,
+        firstTeamId,
+        secondOsuId,
+        secondTeamId,
+        confirmationSource,
+      } = c;
+      const confirmation = {
+        firstOsuId,
+        firstTeamId,
+        secondOsuId,
+        secondTeamId,
+        confirmationSource,
+      };
+      try {
+        next = {
+          ...e,
+          archive: exchangeArchivePlayers(e.archive, confirmation),
+        };
+      } catch {
+        throw new HttpError(
+          409,
+          "Select two recorded players from different teams in a final-Tier archive. Refresh if their teams changed.",
+        );
+      }
+      const { preserveStatisticsForRosterExchange } =
+        await import("./archive-statistics");
+      await preserveStatisticsForRosterExchange(
+        tx,
+        actor,
+        e.archive,
+        next.archive!,
+        confirmation,
+      );
+    }
+    if (c.action === "resolve-archive-identity") {
+      if (!e.archive || e.status !== "completed" || e.registration)
+        throw new HttpError(
+          409,
+          "Select a completed historical archive without registration.",
+        );
+      try {
+        next = {
+          ...e,
+          archive: resolveArchiveIdentity(e.archive, c),
+        };
+      } catch {
+        throw new HttpError(
+          409,
+          "Select an unresolved archive identity and an unused osu! ID.",
+        );
+      }
+    }
     if (c.action === "approve-archive-matches") {
       if (!e.archive || e.status !== "completed" || e.registration)
         throw new HttpError(

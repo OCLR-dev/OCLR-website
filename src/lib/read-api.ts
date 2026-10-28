@@ -204,7 +204,10 @@ export function readApiRoute(request: Request) {
         for (const key of ["poolId", "fixtureId"]) {
           const value = query.get(key);
           const valid =
-            key === "fixtureId" && operation.id === "statisticsWorkspace"
+            key === "fixtureId" &&
+            ["statisticsWorkspace", "publicArchiveStatistics"].includes(
+              operation.id,
+            )
               ? /^[a-z0-9][a-z0-9-]{0,79}$/.test(value ?? "")
               : z.uuid().safeParse(value).success;
           if (value && !valid)
@@ -218,6 +221,32 @@ export function readApiRoute(request: Request) {
         return { data: JSON.parse(JSON.stringify(data ?? null)) };
       }
       switch (operation.id) {
+        case "getStaffOclrProfile":
+          return {
+            data: await (
+              await import("./player-profiles")
+            ).staffOclrPlayerProfile(
+              principal!.subject,
+              String(osuId(params.osuId)),
+              "osu",
+              edition(params.edition),
+            ),
+          };
+        case "getOclrProfile":
+        case "getMyOclrProfile": {
+          const own = operation.id === "getMyOclrProfile";
+          return {
+            data: await (
+              await import("./player-profiles")
+            ).publishedPlayerProfile(
+              String(own ? principal!.subject.osuId : osuId(params.osuId)),
+              "osu",
+              query.get("edition") ?? undefined,
+              own ? principal!.subject.osuId : undefined,
+              true,
+            ),
+          };
+        }
         case "getApiIdentity":
           return {
             data: {

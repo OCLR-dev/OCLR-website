@@ -23,6 +23,38 @@ export const users = pgTable("users", {
     .notNull()
     .defaultNow(),
 });
+// Evidence belongs to a confirmed osu! UID, independently of an OAuth account.
+export const playerNames = pgTable(
+  "player_names",
+  {
+    osuId: bigint("osu_id", { mode: "number" }).notNull(),
+    username: text("username").notNull(),
+    source: text("source").notNull(),
+    editionSlug: text("edition_slug").notNull().default(""),
+    reference: text("reference").notNull().default(""),
+    published: boolean("published").notNull().default(false),
+    firstObservedAt: timestamp("first_observed_at", { withTimezone: true }),
+    lastObservedAt: timestamp("last_observed_at", { withTimezone: true }),
+  },
+  (t) => [
+    primaryKey({
+      columns: [t.osuId, t.username, t.source, t.editionSlug, t.reference],
+    }),
+    check(
+      "player_names_uid",
+      sql`${t.osuId} > 0 AND ${t.osuId} <= 9007199254740991`,
+    ),
+    check(
+      "player_names_username",
+      sql`length(${t.username}) BETWEEN 1 AND 300`,
+    ),
+    check(
+      "player_names_source",
+      sql`${t.source} IN ('account', 'osu_current', 'osu_previous', 'archive_player', 'archive_staff', 'archive_replacement')`,
+    ),
+    index("player_names_search_idx").on(sql`lower(${t.username})`),
+  ],
+);
 // One site-wide default; visitor cookies remain independent overrides.
 export const siteSettings = pgTable(
   "site_settings",
@@ -42,7 +74,7 @@ export const siteSettings = pgTable(
     check("site_settings_revision", sql`${t.revision} >= 0`),
     check(
       "site_settings_appearance",
-      sql`${t.defaultAppearance} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero')`,
+      sql`${t.defaultAppearance} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena')`,
     ),
   ],
 );
@@ -65,7 +97,7 @@ export const siteSettingEvents = pgTable(
     check("site_setting_events_revision", sql`${t.revision} > 0`),
     check(
       "site_setting_events_appearances",
-      sql`${t.before} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero') AND ${t.after} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero') AND ${t.before} <> ${t.after}`,
+      sql`${t.before} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena') AND ${t.after} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena') AND ${t.before} <> ${t.after}`,
     ),
   ],
 );

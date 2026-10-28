@@ -1,12 +1,45 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "30 17 * * *" # 01:30 Asia/Taipei; core smoke
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Core smoke (default) or explicit full regression of this ref"
+        type: choice
+        options: [core, full]
+        default: core
 permissions:
   contents: read
-# A newer commit supersedes the same branch/PR's expensive browser sweep.
+# Supersede duplicate core runs on a ref; keep manual full separate.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.suite || 'core' }}
   cancel-in-progress: true
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      json: ${{ steps.scope.outputs.json }}
+      e2e_shards: ${{ steps.scope.outputs.e2e_shards }}
+      full: ${{ steps.scope.outputs.full }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: scope
+        name: Select core or explicit manual full coverage
+        env:
+          CI_EVENT: ${{ github.event_name }}
+          CI_SUITE: ${{ inputs.suite }}
+        run: node scripts/ci-plan.ts
+
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -49,66 +82,9 @@ jobs:
       - run: npm run db:migrate
       - run: npm run check
       - run: npm test
-      - run: npm run build
       - run: npm audit --omit=dev
-      - name: Package production build
-        run: tar --exclude='.next/cache' -czf /tmp/oclr-next-build.tgz .next
-      - uses: actions/upload-artifact@v4
-        with:
-          name: next-build
-          path: /tmp/oclr-next-build.tgz
-          retention-days: 1
-          compression-level: 0
-          if-no-files-found: error
 
-  e2e:
-    needs: verify
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
-    # Each runner has its own PostgreSQL service. Keep workers: 1 within it:
-    # tests intentionally truncate shared fixtures and cannot share a database.
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_USER: oclr_test
-          POSTGRES_PASSWORD: isolated_ci_fixture
-          POSTGRES_DB: oclr_test
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd pg_isready --health-interval 5s
-          --health-timeout 5s --health-retries 10
-    env:
-      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
-      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@127.0.0.1:5432/oclr_test
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci --include=dev
-      - uses: actions/download-artifact@v4
-        with:
-          name: next-build
-          path: /tmp
-      - run: tar -xzf /tmp/oclr-next-build.tgz
-      - run: npm run db:migrate
-      - run: npx playwright install --with-deps chromium firefox webkit
-      - run: npm run test:e2e -- --shard=${{ matrix.shard }}/4
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: browser-test-results-${{ matrix.shard }}
-          path: test-results/
-          retention-days: 7
-
-  remote-e2e:
-    needs: verify
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -132,34 +108,247 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --include=dev
+      - run: npm run db:migrate
+      - run: npm run build
+      - name: Package production build
+        run: tar --exclude='.next/cache' -czf /tmp/oclr-next-build.tgz .next
+      - uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: /tmp/oclr-next-build.tgz
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  e2e:
+    needs: [plan, build]
+    runs-on: ubuntu-latest
+    # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+      options: --ipc=host
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.e2e_shards) }}
+    # Each runner owns its PostgreSQL service; never increase workers on this DB.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: oclr_test
+          POSTGRES_PASSWORD: isolated_ci_fixture
+          POSTGRES_DB: oclr_test
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      OCLR_E2E_EVIDENCE: minimal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev
       - uses: actions/download-artifact@v4
         with:
           name: next-build
           path: /tmp
       - run: tar -xzf /tmp/oclr-next-build.tgz
       - run: npm run db:migrate
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e:remote
+      # The image runs as root; Firefox requires its actual root-owned home.
+      - run: HOME=/root node scripts/check-ci-browser.ts ${{ needs.plan.outputs.full == 'true' && 'chromium firefox webkit' || 'chromium' }}
+      - name: Run selected functional suite
+        env:
+          CI_FULL: ${{ needs.plan.outputs.full }}
+        run: |
+          if [ "$CI_FULL" = true ]; then
+            HOME=/root npm run test:e2e:functional -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          else
+            HOME=/root npm run test:e2e:core -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: remote-browser-test-results
+          name: e2e-results-${{ matrix.shard }}
           path: test-results/
           retention-days: 7
+          compression-level: 0
 
-  # Keep the original required check name; skipped/failed shards must fail it.
+  header-e2e:
+    needs: [plan, build]
+    if: needs.plan.outputs.full == 'true'
+    runs-on: ubuntu-latest
+    # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+      options: --ipc=host
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    # Each runner owns its PostgreSQL service; never increase workers on this DB.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: oclr_test
+          POSTGRES_PASSWORD: isolated_ci_fixture
+          POSTGRES_DB: oclr_test
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      OCLR_E2E_MATRIX: full
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: /tmp
+      - run: tar -xzf /tmp/oclr-next-build.tgz
+      - run: npm run db:migrate
+      - run: HOME=/root node scripts/check-ci-browser.ts
+      - run: HOME=/root npm run test:e2e:header -- --shard=${{ matrix.shard }}/4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: header-e2e-results-${{ matrix.shard }}
+          path: test-results/
+          retention-days: 7
+          compression-level: 0
+
+  remote-e2e:
+    needs: [plan, build]
+    runs-on: ubuntu-latest
+    # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+      options: --ipc=host
+    timeout-minutes: 20
+    # Each runner owns its PostgreSQL service; never increase workers on this DB.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: oclr_test
+          POSTGRES_PASSWORD: isolated_ci_fixture
+          POSTGRES_DB: oclr_test
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      OCLR_REMOTE_E2E_FULL: ${{ needs.plan.outputs.full }}
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: /tmp
+      - run: tar -xzf /tmp/oclr-next-build.tgz
+      - run: npm run db:migrate
+      - run: HOME=/root node scripts/check-ci-browser.ts chromium
+      - run: HOME=/root npm run test:e2e:remote:core
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: remote-e2e-results
+          path: test-results/
+          retention-days: 7
+          compression-level: 0
+
+  remote-matrix:
+    needs: [plan, build]
+    if: needs.plan.outputs.full == 'true'
+    runs-on: ubuntu-latest
+    # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+      options: --ipc=host
+    timeout-minutes: 20
+    # Each runner owns its PostgreSQL service; never increase workers on this DB.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: oclr_test
+          POSTGRES_PASSWORD: isolated_ci_fixture
+          POSTGRES_DB: oclr_test
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+      TEST_DATABASE_URL: postgresql://oclr_test:isolated_ci_fixture@postgres:5432/oclr_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --include=dev
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: /tmp
+      - run: tar -xzf /tmp/oclr-next-build.tgz
+      - run: npm run db:migrate
+      - run: HOME=/root node scripts/check-ci-browser.ts chromium
+      - run: HOME=/root npm run test:e2e:remote -- tests/remote-e2e/full-site.spec.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: remote-matrix-results
+          path: test-results/
+          retention-days: 7
+          compression-level: 0
+
+  # Aggregate CI results; this is advisory for merging.
   check:
     if: always()
-    needs: [verify, e2e, remote-e2e]
+    needs: [plan, verify, build, e2e, header-e2e, remote-e2e, remote-matrix]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Require all verification jobs
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Require every job selected by the coverage plan
         env:
-          VERIFY_RESULT: ${{ needs.verify.result }}
-          E2E_RESULT: ${{ needs.e2e.result }}
-          REMOTE_RESULT: ${{ needs.remote-e2e.result }}
-        run: |
-          test "$VERIFY_RESULT" = success
-          test "$E2E_RESULT" = success
-          test "$REMOTE_RESULT" = success
+          CI_NEEDS: ${{ toJSON(needs) }}
+        run: node scripts/ci-plan.ts gate
+
+  full-check:
+    if: always() && needs.plan.outputs.full == 'true'
+    needs: [plan, check]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Certify full coverage of this exact commit
+        env:
+          CHECK_RESULT: ${{ needs.check.result }}
+        run: test "$CHECK_RESULT" = success

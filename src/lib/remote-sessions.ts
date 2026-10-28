@@ -72,13 +72,16 @@ export function remoteConnection(id?: string) {
 export async function verifiedConnection(id?: string) {
   const connection = remoteConnection(id);
   let identity: RemoteIdentity | null = null;
+  let contractVersion: string | null = null;
   try {
-    if (connection.mode === "developer")
-      identity = apiIdentitySchema.parse(
-        (await remoteRead("/me", undefined, connection.token)).data,
-      );
-    if (connection.mode === "anonymous") await remoteRead("/site");
-    return { ...connection, identity };
+    if (connection.mode === "developer") {
+      const result = await remoteRead("/me", undefined, connection.token);
+      identity = apiIdentitySchema.parse(result.data);
+      contractVersion = result.contractVersion;
+    }
+    if (connection.mode === "anonymous")
+      contractVersion = (await remoteRead("/site")).contractVersion;
+    return { ...connection, identity, contractVersion };
   } catch (error) {
     if (error instanceof RemoteDataError && [401, 403].includes(error.status))
       disconnectRemote(id);

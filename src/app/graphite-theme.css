@@ -1,0 +1,502 @@
+/* S7 Graphite Arena: brushed silver, machined edges and competition yellow.
+ * Reflections are static background layers; original artwork stays literal. */
+html[data-appearance="graphite-arena"] .themed-site {
+  --site-background: #f3f4f2;
+  --site-surface: #ffffff;
+  --site-raised: #e9eceb;
+  --site-tint: #f6edc6;
+  --site-foreground: #171c20;
+  --site-muted: #596164;
+  --site-secondary-text: #414a50;
+  --site-accent: #796000;
+  --site-accent-strong: #604b00;
+  --site-border: #cdd2d0;
+  --site-control-border: #7b8588;
+  --site-header: #ffffff;
+  --site-primary: #eacb49;
+  --site-primary-hover: #f2d969;
+  --site-on-primary: #171c20;
+  --site-focus: #796000;
+  --site-selection: #e9d988;
+  --site-success: #246446;
+  --site-warning: #805500;
+  --site-danger: #b3231b;
+  --site-highlight: #796000;
+  --site-connector: #7b8588;
+  --site-shadow: #171c2014;
+  --site-soft-shadow: #171c2008;
+  --site-panel-shadow: #171c2024;
+  --site-dialog-shadow: #171c2033;
+  --site-backdrop: #171c2080;
+  --button-radius: 2px;
+  --radius-panel: 2px;
+  --graphite-yellow: #eacb49;
+  --graphite-pattern: url("/themes/graphite-arena/honeycomb.svg");
+  --graphite-grain: repeating-linear-gradient(
+    0deg,
+    #ffffff00 0 1px,
+    #ffffff18 1px 2px,
+    #00000005 2px 3px
+  );
+  --graphite-metal:
+    var(--graphite-grain),
+    linear-gradient(
+      112deg,
+      #d2d9df 0%,
+      #f8fafb 18%,
+      #e1e6ea 29%,
+      #c9d1d8 42%,
+      #f9fbfc 54%,
+      #e4e9ed 72%,
+      #cdd5dc 100%
+    );
+  --graphite-satin:
+    var(--graphite-grain),
+    linear-gradient(112deg, #e8edf0, #ffffff 30%, #e6ecef 62%, #f7f9fa);
+  --graphite-rim: #a9b5bf;
+  --graphite-edge-light: #ffffffcc;
+  --graphite-edge-dark: #33445226;
+  --graphite-relief:
+    inset 0 1px var(--graphite-edge-light),
+    inset 0 -1px var(--graphite-edge-dark), 0 8px 16px -16px #17212b80;
+  background: var(--site-background);
+}
+html[data-appearance="graphite-arena"][data-theme="dark"] .themed-site {
+  --site-background: #171c20;
+  --site-surface: #22292f;
+  --site-raised: #303940;
+  --site-tint: #443f27;
+  --site-foreground: #f3f4f2;
+  --site-muted: #b6bfc4;
+  --site-secondary-text: #d7dce0;
+  --site-accent: #eacb49;
+  --site-accent-strong: #f2d969;
+  --site-border: #485158;
+  --site-control-border: #88949b;
+  --site-header: #1c2227;
+  --site-focus: #eacb49;
+  --site-selection: #5b5128;
+  --site-success: #9acbb0;
+  --site-warning: #dfbf7d;
+  --site-danger: #ff9385;
+  --site-highlight: #eacb49;
+  --site-connector: #88949b;
+  --site-shadow: #0004;
+  --site-soft-shadow: #0002;
+  --site-panel-shadow: #0006;
+  --site-dialog-shadow: #0009;
+  --site-backdrop: #000a;
+  --graphite-grain: repeating-linear-gradient(
+    0deg,
+    #ffffff00 0 1px,
+    #ffffff07 1px 2px,
+    #0000000a 2px 3px
+  );
+  --graphite-metal:
+    var(--graphite-grain),
+    linear-gradient(
+      112deg,
+      #262e35 0%,
+      #3d4852 18%,
+      #2e373f 29%,
+      #20282e 42%,
+      #3c4852 54%,
+      #303a43 72%,
+      #232c33 100%
+    );
+  --graphite-satin:
+    var(--graphite-grain),
+    linear-gradient(112deg, #262e35, #38434c 30%, #252d34 62%, #303a43);
+  --graphite-rim: #62717e;
+  --graphite-edge-light: #e0efff40;
+  --graphite-edge-dark: #00000080;
+}
+html[data-appearance="graphite-arena"] .themed-site .site-header {
+  border-bottom: 1px solid var(--graphite-rim);
+  background-image: var(--graphite-satin);
+  box-shadow:
+    inset 0 1px var(--graphite-edge-light),
+    0 1px var(--graphite-edge-dark);
+}
+/* Keep the top navigation unfilled, with a single fine selection rule. */
+html[data-appearance="graphite-arena"] .themed-site .main-nav > a {
+  border-bottom-width: 1px;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .main-nav
+  > a[aria-current] {
+  background: transparent;
+  color: var(--site-accent);
+  box-shadow: none;
+}
+html[data-appearance="graphite-arena"] .themed-site .page-heading {
+  position: relative;
+  padding: 20px 24px 24px;
+  border-block: 1px solid var(--graphite-rim);
+  background-image: var(--graphite-metal);
+  box-shadow: var(--graphite-relief);
+}
+html[data-appearance="graphite-arena"] .themed-site .page-heading .eyebrow {
+  color: var(--site-accent-strong);
+}
+/* Long subtitles and links can cross the darkest part of the silver reflection. */
+html[data-appearance="graphite-arena"] .themed-site .page-heading .muted {
+  color: var(--site-secondary-text);
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .page-heading
+  a:not(.button) {
+  color: var(--site-accent-strong);
+}
+html[data-appearance="graphite-arena"] .themed-site .page-heading h1 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+/* A machined insert echoes the original plate's bevelled hexagonal recesses. */
+html[data-appearance="graphite-arena"] .themed-site .page-heading::before {
+  content: "";
+  position: absolute;
+  inset: 8px 20px 8px auto;
+  width: 264px;
+  background: var(--graphite-pattern) right center / contain no-repeat;
+  pointer-events: none;
+}
+html[data-appearance="graphite-arena"] .themed-site .page-heading::after {
+  content: "";
+  position: absolute;
+  inset: auto auto -1px 0;
+  width: 64px;
+  height: 2px;
+  background: var(--graphite-yellow);
+  pointer-events: none;
+}
+html[data-appearance="graphite-arena"] .themed-site .page-heading > * {
+  position: relative;
+}
+html[data-appearance="graphite-arena"] .themed-site .page-heading > :is(h1, p) {
+  max-width: calc(100% - 280px);
+}
+html[data-appearance="graphite-arena"] .themed-site .archive-key-visual {
+  display: block;
+  height: auto;
+}
+html[data-appearance="graphite-arena"] .themed-site .archive-key-visual img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+/* One brushed data plate; the reflection crosses all five real archive rows. */
+html[data-appearance="graphite-arena"] .themed-site .archive-counts {
+  border-top: 2px solid var(--graphite-yellow);
+  border-bottom: 1px solid var(--graphite-rim);
+  background-image: var(--graphite-metal);
+  box-shadow: var(--graphite-relief);
+}
+html[data-appearance="graphite-arena"] .themed-site .archive-counts > div {
+  padding: 16px 24px;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .archive-counts
+  > div:last-child {
+  border-bottom: 0;
+}
+html[data-appearance="graphite-arena"] .themed-site .archive-counts dt {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+html[data-appearance="graphite-arena"] .themed-site .archive-counts dd {
+  color: var(--site-foreground);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  :is(
+    button,
+    .button,
+    input,
+    select,
+    textarea,
+    .badge,
+    .map-slot-badge,
+    .settings-card,
+    .rules-article,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .map-browse-card,
+    .panel,
+    .public-match-card,
+    .table-scroll,
+    .empty-state,
+    .tournament-navigation nav,
+    .tournament-navigation nav a
+  ) {
+  border-radius: 2px;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  :is(
+    .settings-card,
+    .map-browse-card,
+    .public-match-card,
+    .rules-article,
+    .rules-desktop-contents,
+    .rules-mobile-contents
+  ) {
+  border-color: var(--site-border);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+/* Broad boards receive a satin finish; repeated rows and cards stay quiet. */
+html[data-appearance="graphite-arena"]
+  .themed-site
+  :is(
+    .settings-card,
+    .rules-article,
+    .rules-desktop-contents,
+    .rules-mobile-contents
+  ) {
+  border-color: var(--graphite-rim);
+  background-image: var(--graphite-satin);
+  box-shadow: var(--graphite-relief);
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  :is(button, .button):not([role="menuitemradio"], .map-open-button) {
+  background-image: linear-gradient(
+    180deg,
+    #ffffff38,
+    #ffffff00 50%,
+    #0000000a
+  );
+  box-shadow:
+    inset 0 1px var(--graphite-edge-light),
+    inset 0 -1px var(--graphite-edge-dark);
+}
+/* View buttons stand on their own, without a second capsule around them. */
+html[data-appearance="graphite-arena"] .themed-site .map-view-control {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+html[data-appearance="graphite-arena"] .themed-site .map-view-control button {
+  border-color: var(--site-control-border);
+}
+/* Map titles are text actions. Keep a consistent hit area and literal wrapping. */
+html[data-appearance="graphite-arena"] .themed-site button.map-open-button {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.15rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--site-foreground);
+  font: inherit;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  transform: none;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  button.map-open-button:is(:hover, :focus-visible, :active) {
+  background: transparent;
+  box-shadow: none;
+  color: var(--site-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  transform: none;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  :is(input, select, textarea) {
+  border-color: var(--site-control-border);
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  nav {
+  border: 1px solid var(--site-border);
+  background-color: var(--site-surface);
+  background-image: var(--graphite-satin);
+  box-shadow: var(--graphite-relief);
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  a[aria-current] {
+  color: var(--site-accent);
+  background: transparent;
+  box-shadow: inset 0 -2px var(--graphite-yellow);
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .tournament-navigation
+  a[aria-current]::before {
+  content: none;
+}
+html[data-appearance="graphite-arena"] .themed-site .sidebar {
+  background: var(--site-surface);
+  border-color: var(--site-border);
+}
+/* Workspace links are machined strips rather than the shared rounded pills. */
+html[data-appearance="graphite-arena"] .themed-site .sidebar nav a {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid transparent;
+  border-inline-start-width: 3px;
+  border-radius: 2px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+html[data-appearance="graphite-arena"] .themed-site .sidebar nav a:hover {
+  background: var(--site-raised);
+  color: var(--site-foreground);
+  box-shadow: none;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .sidebar
+  nav
+  a[aria-current] {
+  border-color: var(--graphite-rim);
+  border-inline-start-color: var(--graphite-yellow);
+  background-color: var(--site-surface);
+  background-image: var(--graphite-satin);
+  color: var(--site-accent-strong);
+  font-weight: 700;
+  box-shadow:
+    inset 0 1px var(--graphite-edge-light),
+    inset 0 -1px var(--graphite-edge-dark);
+}
+html[data-appearance="graphite-arena"] .themed-site .admin-nav-group {
+  gap: 0.25rem;
+  margin: 0;
+  padding-block: 0.5rem;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .admin-nav-group
+  + .admin-nav-group {
+  border-top: 1px solid var(--site-border);
+}
+html[data-appearance="graphite-arena"] .themed-site .admin-nav-group .eyebrow {
+  margin: 0.35rem 0 0.15rem;
+  color: var(--site-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+html[data-appearance="graphite-arena"] .themed-site :is(th, td) {
+  border-color: var(--site-border);
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="graphite-arena"] .themed-site th {
+  background: var(--site-raised);
+  color: var(--site-foreground);
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  :is(
+    .score,
+    .event-score,
+    .archive-score-team > strong,
+    .match-slot > strong,
+    .event-match-side > b
+  ) {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-appearance="graphite-arena"] .themed-site .page-heading {
+    animation: graphite-enter 180ms ease-out both;
+  }
+  html[data-appearance="graphite-arena"] .themed-site .main-nav > a {
+    transition:
+      color 140ms ease,
+      border-color 140ms ease;
+  }
+  html[data-appearance="graphite-arena"]
+    .themed-site
+    :is(button, .button):active {
+    transform: translateY(1px);
+  }
+}
+@keyframes graphite-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 1100px) {
+  html[data-appearance="graphite-arena"] .themed-site .page-heading::before {
+    display: none;
+  }
+  html[data-appearance="graphite-arena"]
+    .themed-site
+    .page-heading
+    > :is(h1, p) {
+    max-width: 100%;
+  }
+}
+@media (max-width: 760px) {
+  html[data-appearance="graphite-arena"] .themed-site .page-heading {
+    padding-inline: 16px;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="graphite-arena"]
+    .themed-site
+    :is(
+      .site-header,
+      .page-heading,
+      .archive-counts,
+      .settings-card,
+      .rules-article,
+      .rules-desktop-contents,
+      .rules-mobile-contents,
+      .public-tournament .tournament-navigation nav,
+      .sidebar nav a[aria-current],
+      button,
+      .button
+    ) {
+    background-image: none;
+    box-shadow: none;
+  }
+  html[data-appearance="graphite-arena"] .themed-site .page-heading::before,
+  html[data-appearance="graphite-arena"] .themed-site .page-heading::after {
+    display: none;
+  }
+  html[data-appearance="graphite-arena"]
+    .themed-site
+    :is(
+      .main-nav > a[aria-current],
+      .sidebar nav a[aria-current],
+      .tournament-navigation a[aria-current],
+      .map-view-control button[aria-pressed="true"]
+    ) {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+    box-shadow: none;
+  }
+}

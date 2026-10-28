@@ -56,7 +56,7 @@ existing migration history through `0043_contributor_directory` for this batch,
 including `0037_developer_api_access`. #271–#272 add no migration. Provisioning that backend is
 not part of a frontend checkout and does not authorize a deployment or real grant.
 
-The full-site adapter requires read contract **1.1.0 or a newer additive v1
+The full-site adapter requires read contract **1.2.0 or a newer additive v1
 version**, exposed as `X-OCLR-Read-Contract`. The OpenAPI document reports the same
 version. Missing/older/incompatible successful responses produce
 `REMOTE_INCOMPATIBLE`, with no local fallback. The backend operator must allow the
@@ -64,6 +64,12 @@ exact local origin in `OCLR_DEVELOPER_ORIGINS`; a proxy must preserve the contra
 and CORS headers. See [Developer access](developer-api.md).
 
 ## Read coverage and authority
+
+Read API 1.3 adds [known UID profiles and persistent name evidence](player-identity.md).
+The frontend negotiates that capability from the current verification response.
+Compatible 1.2 backends retain complete cross-edition public aggregation and the
+subject's zero-participation identity; persistent provenance needs backend 1.3 and
+migration 0049. Failed authorization or transport never selects a fallback.
 
 [The coverage inventory](remote-coverage.json) enumerates all current pages,
 layouts/metadata, GET routes and client fetch/poll modules. Its
@@ -164,7 +170,7 @@ storage or provider service supplies missing remote data.
 | Disconnected / process restarted                  | Open `/remote` and reconnect or explicitly select anonymous mode.                                |
 | 401 / expired or revoked                          | Issue fresh access on the backend; check the parent login session.                               |
 | 403                                               | Check the live Developer grant, requested scopes, bound origin and actual edition appointment.   |
-| `REMOTE_INCOMPATIBLE`                             | Update the separate backend to read API 1.1.0+ within v1 and preserve its contract header.       |
+| `REMOTE_INCOMPATIBLE`                             | Update the separate backend to read API 1.2.0+ within v1 and preserve its contract header.       |
 | Missing saved profile / historical “Not recorded” | These are saved-data states; a GET cannot refresh or invent a profile.                           |
 | 409 collection changed                            | Discard the whole collection and restart; the adapter retries one complete read.                 |
 | 413                                               | Narrow a supported filter; no truncated response is accepted.                                    |

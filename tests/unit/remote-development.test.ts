@@ -115,6 +115,64 @@ describe("explicit remote frontend boundaries", () => {
     );
     expect(() => getPool()).toThrow("Local database access is disabled");
   });
+  for (const mode of ["remote", "database"])
+    for (const method of ["GET", "HEAD"])
+      it(`allows bundled Wiki illustrations via ${method} in ${mode} mode`, () => {
+        vi.stubEnv("OCLR_DATA_SOURCE", mode);
+        for (const path of [
+          "/wiki/liru",
+          "/mascot/liru/sheet-main.webp",
+          "/mascot/liru/sheet-turnaround.webp",
+          "/mascot/liru/sheet-expressions.webp",
+          "/archive/s6/key-visual.jpg",
+          "/branding/oclr-mark.svg",
+          "/fonts/local.woff2",
+        ]) {
+          const response = proxy(
+            new NextRequest(`http://localhost:3000${path}`, {
+              method,
+              headers: { host: "localhost:3000" },
+            }),
+          );
+          expect(response.status, path).toBe(200);
+          expect(response.headers.get("x-middleware-next"), path).toBe("1");
+          expect(response.headers.get("location"), path).toBeNull();
+        }
+      });
+  it("keeps remote security checks on bundled illustrations and rejects lookalike directories", () => {
+    const path = "/mascot/liru/sheet-main.webp";
+    for (const method of ["POST", "PUT", "DELETE"])
+      expect(
+        proxy(
+          new NextRequest(`http://localhost:3000${path}`, {
+            method,
+            headers: { host: "localhost:3000" },
+          }),
+        ).status,
+      ).toBe(403);
+    const rejectedHeaders: Record<string, string>[] = [
+      { host: "evil.example" },
+      { host: "localhost:3000", "sec-fetch-site": "cross-site" },
+      { host: "localhost:3000", authorization: "Bearer synthetic" },
+    ];
+    for (const headers of rejectedHeaders)
+      expect(
+        proxy(new NextRequest(`http://localhost:3000${path}`, { headers }))
+          .status,
+      ).toBe(403);
+    for (const other of [
+      "/mascot-private/image.webp",
+      "/private/image.webp",
+      "/mascot-admin",
+    ])
+      expect(
+        proxy(
+          new NextRequest(`http://localhost:3000${other}`, {
+            headers: { host: "localhost:3000" },
+          }),
+        ).headers.get("location"),
+      ).toBe("http://localhost:3000/remote/unsupported");
+  });
   it("fails closed in every production entry point before dry-run or other work", () => {
     for (const [script, args] of [
       ["scripts/production.sh", ["setup", "--dry-run"]],

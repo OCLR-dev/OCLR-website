@@ -1,10 +1,10 @@
-# Historical MP statistics — S7–S10 (#177)
+# Historical MP statistics — S1–S10 (#177, #366)
 
 ## Product and calculation
 
 The statistics workspace uses the existing MainSheet appearance tokens: a calm, compact table with small player avatars and one accent for selection. The reading order is coverage → stage tabs → team/search/sort → player aggregates → optional per-game detail. Interaction is confined to tab/filter transitions, row selection and expanding details; no decorative dashboard mosaic or new UI framework.
 
-The existing archive MP inventory contains 111 played matches / 111 links: S7 21, S8 38, S9 22 and S10 30. The S7 confirmed forfeit has no played game and contributes no player statistics. Empty templates are not imported.
+The original #177 S7–S10 MP inventory contains 111 played matches / 111 links: S7 21, S8 38, S9 22 and S10 30. The S7 confirmed forfeit has no played game and contributes no player statistics. Empty templates are not imported. S1–S6 coverage is computed from each saved archive rather than included in that original inventory.
 
 - One selected official game is one map appearance, including a recorded failed score. Match appearances count distinct archive fixture IDs.
 - Raw total / arithmetic mean score, arithmetic mean known accuracy, maximum recorded combo, complete-known Miss sum and mean known pass flags are shown. Missing fields stay null, never guessed as zero. Accuracy shows known-value coverage.
@@ -12,7 +12,9 @@ The existing archive MP inventory contains 111 played matches / 111 links: S7 21
 - All-zero games have no relative score. Zero observed appearances are displayed as unknown when match coverage is incomplete. Raw score systems remain literal in per-game detail; cross-system totals and small samples require care.
 - Stage labels, identities, map metadata, timestamps and mod values remain source literals. Stage grouping uses existing archive fixture stages; it does not fabricate weekly dates or unrecorded knockout round names.
 
-Public: `/tournaments/s7/statistics` through `s10`. Admin: `/admin/tournaments/{edition}/statistics`.
+Public: `/tournaments/s1/statistics` through `s10` (including OCLR β as `s5`). Admin: `/admin/tournaments/{edition}/statistics`. Navigation, archive match details and saved statistics reads share the same exact season allowlist. An edition still needs its own saved historical archive and publication; adding support does not import, approve or publish any MP statistics.
+
+S1–S6 use the existing import/review/release workflow and database/remote read contracts without a new table or migration. Public reads show only reviewed, released snapshots. Empty drafts have no player rows; matches without MP evidence remain uncovered rather than receiving fabricated appearances or zero scores. Edition-scoped staff access, optimistic versions and transactional audit remain enforced. Source/result/ranking uncertainties stay in the archive; this compatibility change does not resolve them. #365 separately tracks S2 evidence and statistical review.
 
 ## Import and review
 
@@ -32,14 +34,14 @@ An edition Admin explicitly **Approve & publish statistics** for a whole fixture
 
 Migration `0029_historical_statistics.sql` adds `historical_statistics`, keyed by edition + MP ID, with independent draft, published snapshot and optimistic version. Writes lock the authoritative edition row, recheck permission and archive fingerprint, and append an automatic `edition_events` record transactionally. Concurrent stale operations fail 409. An unchanged source refresh preserves review choices and adds no duplicate release/audit.
 
-Referees may import/review only their edition; Admin approval is required for publication/withdrawal. Public reads require a published S7–S10 historical edition and expose only selected released games with minimal existing roster identities. Provider event logs, draft selections and audit details remain private. Refreshed/edited drafts never silently replace a published snapshot.
+Referees may import/review only their edition; Admin approval is required for publication/withdrawal. Public reads require a published supported historical edition and expose only selected released games with minimal existing roster identities. Provider event logs, draft selections and audit details remain private. Refreshed/edited drafts never silently replace a published snapshot.
 
 The archive fingerprint covers competition identities, matches and pool evidence. Competition changes invalidate dependent statistics; staff-only/provenance edits do not. Duplicate game claims across published fixtures are rejected. No accounts, registrations, roles or live result records are created.
 
 ## Deployment handoff
 
 1. Organizer deploys the reviewed commit using the existing backed-up migration/release workflow. This feature requires migration 0029; do not roll back to a build that lacks this table while serving these routes.
-2. Through computer use, open each S7–S10 statistics manager and import missing MP histories. Existing edition visibility stays unchanged.
+2. Through computer use, open the intended S1–S10 statistics manager and import missing MP histories. Existing edition visibility stays unchanged.
 3. Review official games against pool/roster/series score. Leave unavailable sources uncovered; retain original series results.
 4. Approve and publish each reviewed fixture separately. Verify anonymous coverage, stage/team/player filters, score details, desktop/mobile and both themes.
 5. Record actual production evidence on #177. Local synthetic verification does not establish availability of these 111 historical MP histories.
@@ -62,7 +64,6 @@ The follow-up adds explicit per-game/UID zero-score exclusions with immutable so
 
 Live follow-up: the real all-miss records did not show the exclusion control when successful-hit fields were absent. The eligibility helper now permits explicit review with recorded zero score/ACC/combo, a positive recorded Miss count and no reported positive successful hits. Nullable hit counts remain nullable; missing data is never rewritten as zero, and no record is automatically excluded. Regression tests use a sparse `{count_miss: 100}` response, matching the dictionary form of [official ScoreStatistics](https://osu.ppy.sh/docs/#scorestatistics). All 99 test files passed (733 tests, one existing skipped), lint/types/build and desktop/mobile Chrome flows passed. This follow-up requires a normal deployment but no migration or MP refresh.
 
-
 ## Explicit historical exceptions (2026-10-24)
 
 Live review identified organizer-confirmed technical adjudication (S8 6, 15, 20 and S10 26), incorrectly selected MP team colors (S8 7), and a referee lobby record with 3 points (S10 29/30). These are explicit Admin-only review choices, with optimistic versions and transactional audit; imports and source refreshes do not infer them.
@@ -75,7 +76,6 @@ Live review identified organizer-confirmed technical adjudication (S8 6, 15, 20 
 Local exception verification: 99 files / 737 tests passed with one existing skipped, lint/types and production build passed. Four desktop/mobile Chrome flows passed, including exception review, explicit release, anonymous notice, real-player exclusion rejection, all appearances/themes and Axe. Production dependency audit: zero vulnerabilities. This follow-up needs organizer deployment, with no migration or MP re-import.
 
 Current live checkpoint: S9 22/22 released (213 scoring games / 64 played UIDs); S7 A1 corrected and re-published with referee/bench placeholders excluded. S8 and S10 review is ongoing. Organizer confirmed S8 36/38 and S10 30 terminal extra games are post-match and should be excluded; short-handed official games are published only for actual recorded UIDs and scores, never supplemented with zeroes. None of these confirmations changes original historical results.
-
 
 Organizer-confirmed S7 A10 follow-up: a rostered bench occupant left 0/50-point lobby records while four teammates already had positive scores. Explicit Admin non-participant review now also permits a bench record only when at least four other distinct, positive, valid same-team records remain after **all** exclusions. Multiple exclusions cannot reduce that lineup below four. No record is automatically removed, and raw source facts remain intact. This requires a normal deployment without migration or re-import; S7 A10 remains draft until applied and checked through the UI.
 

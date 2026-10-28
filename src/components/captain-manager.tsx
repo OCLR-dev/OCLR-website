@@ -5,7 +5,8 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import { useRef, useState, type PointerEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePendingRefresh } from "./use-pending-refresh";
+import { LoadingRegion } from "./loading-region";
 import { CaptainPlayerCard, type CaptainIdentity } from "./captain-player-card";
 import type { captainSetup } from "@/lib/captains";
 import { ConfirmMutation } from "./confirm-mutation";
@@ -27,18 +28,22 @@ export function CaptainManager({
   const [previousUserId, setPrevious] = useState("");
   const [order, setOrder] = useState(setup.captains.map((c) => c.userId));
   const [search, setSearch] = useState("");
-  const [pending, setPending] = useState(false),
+  const [requestPending, setPending] = useState(false),
     [error, setError] = useState("");
+  const [activeMutation, setActiveMutation] = useState<number | "order" | null>(
+    null,
+  );
   const [notice, setNotice] = useState("");
   const [dragging, setDragging] = useState<number | null>(null);
   const dragged = useRef<number | null>(null);
-  const router = useRouter();
+  const { refreshing, refresh } = usePendingRefresh();
   const [revision, setRevision] = useState(setup.version);
   const [published, setPublished] = useState(
     setup.captains.length > 0 && setup.captains.every((c) => c.published),
   );
   const [available, setAvailable] = useState(true);
   const [poolPublished, setPoolPublished] = useState(setup.poolPublished);
+  const pending = requestPending || refreshing;
   // Sync authoritative order changes without losing conflict/error feedback.
   if (revision !== setup.version) {
     setRevision(setup.version);
@@ -83,6 +88,7 @@ export function CaptainManager({
       | { action: "order"; userIds: number[] },
   ) {
     if (!editable) return;
+    setActiveMutation(command.action === "appoint" ? command.userId : "order");
     setPending(true);
     setError("");
     try {
@@ -104,14 +110,14 @@ export function CaptainManager({
           ? "Captain appointed."
           : "Captain order saved.",
       );
-      router.refresh();
+      refresh();
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
           : "Appointment failed. Refresh to check the saved state.",
       );
-      router.refresh();
+      refresh();
     } finally {
       setPending(false);
     }
@@ -178,6 +184,7 @@ export function CaptainManager({
             : { action, userId: Number(userId) };
   return (
     <div className="stack">
+      {pending && <LoadingRegion />}
       {error && (
         <p className="notice error-text" role="alert">
           {tr(error)}
@@ -335,9 +342,10 @@ export function CaptainManager({
                 type="button"
                 className="secondary"
                 disabled={!changed || pending}
+                aria-busy={pending && activeMutation === "order"}
                 onClick={() => void mutate({ action: "order", userIds: order })}
               >
-                {pending ? tr("Saving…") : tr("Save captain order")}
+                {tr("Save captain order")}
               </MutationButton>
               <MutationButton
                 className="secondary"
@@ -401,6 +409,7 @@ export function CaptainManager({
                     className="secondary"
                     type="button"
                     disabled={!editable || changed}
+                    aria-busy={pending && activeMutation === p.userId}
                     aria-label={tr("Appoint {value0} as captain", {
                       value0: p.username,
                     })}

@@ -1,86 +1,146 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="zh-Hant">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>OCLR s7 — Theme sample</title>
-    <link rel="stylesheet" href="sample.css" />
-    <link rel="stylesheet" href="s7.css" />
-    <script src="sample.js" defer></script>
+    <title>S7 · 最新應用 UI 設計對照</title>
+    <script src="s7.js" defer></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f3f4f2;
+        color: #171c20;
+        font:
+          16px/1.6 system-ui,
+          sans-serif;
+      }
+      header {
+        padding: 24px;
+        background: #fff;
+        border-bottom: 1px solid #cdd2d0;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 0;
+      }
+      a {
+        color: #796000;
+      }
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px 24px;
+        background: #fff;
+      }
+      label {
+        display: grid;
+        gap: 4px;
+        font-size: 14px;
+      }
+      select {
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid #66889d;
+        border-radius: 6px;
+        font: inherit;
+        color: inherit;
+        background: #fff;
+      }
+      figure {
+        margin: 24px;
+      }
+      figcaption {
+        margin-bottom: 12px;
+      }
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border: 1px solid #cdd2d0;
+        background: #fff;
+      }
+      :focus-visible {
+        outline: 3px solid #796000;
+        outline-offset: 3px;
+      }
+    </style>
   </head>
   <body>
-    <div id="sample-root"></div>
-    <noscript
-      >This local design sample needs JavaScript for its preview
-      controls.</noscript
-    >
-    <script id="sample-data" type="application/json">
-      {
-        "number": 7,
-        "art": "s7/key-visual.jpg",
-        "width": 1920,
-        "height": 1080,
-        "period": "2021–2022",
-        "direction": "Graphite Arena",
-        "chineseName": "石墨競技場",
-        "thesis": "從金屬主視覺保留石墨灰、銀色與競技黃，轉成乾淨的工業感介面。金屬刮痕只留在原圖，資料區使用平整表面；黃色配深色文字，避免白字落在亮黃上。",
-        "geometry": "2px 面板與 2px 控制項圓角，端正的粗細線與等寬比分。亮色為銀白工作面，深色為石墨工作面；兩者都以單一金黃聚焦互動。",
-        "swatches": [
-          ["Signal", "#EACB49"],
-          ["Steel", "#A6ADB4"],
-          ["Graphite", "#252B30"],
-          ["Ink", "#171C20"],
-          ["Paper", "#F3F4F2"]
-        ],
-        "season": "s7",
-        "teams": 8,
-        "pools": 3,
-        "poolName": "小组赛",
-        "maps": [
-          {
-            "slot": "NM1",
-            "beatmapId": 1981240,
-            "title": "Sasaki Rico - Recollections [Resolve]",
-            "mapper": "Lasse",
-            "stars": 6.39
-          },
-          {
-            "slot": "NM2",
-            "beatmapId": 3385965,
-            "title": "DragonForce - My Heart Will Go On [Expert]",
-            "mapper": "[Karcher]",
-            "stars": 6.37
-          },
-          {
-            "slot": "NM3",
-            "beatmapId": 2220743,
-            "title": "Suda Keina - veil [yudragen's extra]",
-            "mapper": "Kaitjuh",
-            "stars": 6.03
-          }
-        ],
-        "matches": [
-          {
-            "label": "A1",
-            "stage": "Group A",
-            "date": "2021-12-27",
-            "time": "20:00",
-            "teams": ["∀ W∀∃⊥", "C"],
-            "score": [4, 6],
-            "url": "https://osu.ppy.sh/community/matches/95753733"
-          },
-          {
-            "label": "A2",
-            "stage": "Group A",
-            "date": "2021-12-25",
-            "time": "20:00",
-            "teams": ["牢龙", "卧龙"],
-            "score": [4, 6],
-            "url": "https://osu.ppy.sh/community/matches/95671185"
-          }
-        ]
-      }
-    </script>
+    <header>
+      <h1>S7 · 最新應用 UI 設計對照</h1>
+      <p>
+        圖片來自 main <code>d34378e</code> 上的 S7 實作
+        <code>5c9f083</code> 實際頁面，使用 S7 Graphite Arena 的 SSR
+        外觀偏好與打包樣式。拉絲銀色／深鋼金屬、具倒角與內凹槽的六角金屬嵌件，配上蜂巢線稿及競技黃細線；保留完整原主視覺。
+      </p>
+      <p>
+        <a href="s7/DESIGN.md">設計規格與重現步驟</a> ·
+        <a href="s7/verification.json">截圖與檢查紀錄</a> ·
+        <a href="https://github.com/OCLR-dev/OCLR-website/issues/198"
+          >Issue #198</a
+        >
+      </p>
+    </header>
+    <p style="margin: 16px 24px">
+      金屬嵌件局部：<a href="s7/detail-desktop-light.png">Light</a> ·
+      <a href="s7/detail-desktop-dark.png">Dark</a>（實際頁面 2× 截圖）
+    </p>
+    <p style="margin: 16px 24px">
+      圖池修復局部：<a href="s7/map-controls-dark.png">檢視控制</a> ·
+      <a href="s7/map-nm2-dark.png">NM2</a> ·
+      <a href="s7/map-ace1-dark.png">ACE1</a>
+    </p>
+    <p style="margin: 16px 24px">
+      管理側欄：<a href="s7/admin-sidebar-light.png">Light</a> ·
+      <a href="s7/admin-sidebar-dark.png">Dark</a> ·
+      <a href="s7/admin-sidebar-mobile-dark.png">手機展開</a>（實際頁面 2× 截圖）
+    </p>
+    <form aria-label="預覽控制">
+      <label
+        >實際頁面<select name="surface">
+          <option value="">S7 主頁</option>
+          <option value="mappools-">S7 圖池</option>
+          <option value="admin-">Admin 網站設定</option>
+        </select></label
+      >
+      <label
+        >尺寸<select name="size">
+          <option value="desktop">桌面 1440px</option>
+          <option value="mobile">手機 390px</option>
+        </select></label
+      >
+      <label
+        >明暗<select name="theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select></label
+      >
+      <label
+        >設計<select name="version">
+          <option value="">S7 精修實作</option>
+          <option value="current-">最新 UI 原有風格</option>
+        </select></label
+      >
+    </form>
+    <figure>
+      <figcaption aria-live="polite" id="caption">
+        S7 精修實作 · S7 主頁 · 桌面 · Light
+      </figcaption>
+      <img
+        id="preview"
+        src="s7/desktop-light.webp"
+        width="1440"
+        height="1000"
+        alt="最新 S7 實際主頁，使用正式 S7 樣式"
+      />
+    </figure>
   </body>
 </html>

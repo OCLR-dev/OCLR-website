@@ -11,6 +11,7 @@ import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
 import { profileResponse } from "../fixtures/osu-profile";
+import { toggleTheme } from "./theme";
 const locales = ["en", "zh-Hans", "zh-Hant"];
 const themes = ["light", "dark"];
 async function preferences(
@@ -149,7 +150,7 @@ test.describe("one MainSheet appearance across dashboards", () => {
             await accessible(page);
         }
         // A direct private entry and reload keep the saved site preference.
-        await page.locator(".theme-control").click();
+        await toggleTheme(page);
         const next = theme === "light" ? "dark" : "light";
         await layout(page, next);
         await page.goto("/admin/tournaments/test-cup/settings");

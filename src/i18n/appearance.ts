@@ -22,6 +22,14 @@ export function appearanceLabel(
       return tr("Retro arcade");
     case "frutiger-aero":
       return tr("Frutiger Aero");
+    case "skyline-pop":
+      return tr("S10 · Skyline Pop");
+    case "glacier-blue":
+      return tr("S9 · Glacier Blue");
+    case "sakura-circuit":
+      return tr("S8 · Sakura Circuit");
+    case "graphite-arena":
+      return tr("S7 · Graphite Arena");
     default:
       return tr("Original design");
   }

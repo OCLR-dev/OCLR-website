@@ -59,6 +59,10 @@ describe.skipIf(!url)("global site appearance settings", () => {
     "esports-broadcast",
     "retro-arcade",
     "frutiger-aero",
+    "skyline-pop",
+    "glacier-blue",
+    "sakura-circuit",
+    "graphite-arena",
   ])("saves %s with an authoritative audit event", async (appearance) => {
     expect(await siteSettingsForAdmin(admin)).toMatchObject({
       defaultAppearance: "default",

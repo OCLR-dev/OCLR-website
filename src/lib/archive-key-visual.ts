@@ -2,6 +2,16 @@ import type { HistoricalArchive } from "./historical-archive";
 
 const visuals: Record<string, { src: string; width: number; height: number }> =
   {
+    "10OvY6V2_nJpmv3LekQJZw6Eo5Hy1V-ggSoOQIxIdm6I": {
+      src: "/archive/s1/key-visual.webp",
+      width: 1728,
+      height: 1080,
+    },
+    "1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY": {
+      src: "/archive/s2/key-visual.avif",
+      width: 1379,
+      height: 862,
+    },
     "1o4asx7nZQTAWwNjK_TyB_aq2ZWD471BHAxcdLp-TPAo": {
       src: "/archive/s3/key-visual.avif",
       width: 995,
@@ -52,12 +62,17 @@ export function archiveKeyVisual<
       : sheet
         ? visuals[sheet]
         : undefined;
+  // Resolve selected workbook artwork independently of the edition's source,
+  // including the square S10 image.
+  const selected = configured
+    ? Object.values(visuals).find((visual) => visual.src === configured)
+    : undefined;
   // Explicit edition branding still takes priority over the source supplement.
   return configured
-    ? {
+    ? (selected ?? {
         src: configured,
         width: original?.src === configured ? original.width : 1672,
         height: original?.src === configured ? original.height : 941,
-      }
+      })
     : original;
 }

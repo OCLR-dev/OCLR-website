@@ -1,86 +1,149 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="zh-Hant">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>OCLR s8 — Theme sample</title>
-    <link rel="stylesheet" href="sample.css" />
-    <link rel="stylesheet" href="s8.css" />
-    <script src="sample.js" defer></script>
+    <title>S8 · 最新應用 UI 設計對照</title>
+    <script src="s8.js" defer></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #fff8fa;
+        color: #492738;
+        font:
+          16px/1.6 system-ui,
+          sans-serif;
+      }
+      header {
+        padding: 24px;
+        background: #fff;
+        border-bottom: 1px solid #ecd0db;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 0;
+      }
+      a {
+        color: #a92e62;
+      }
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px 24px;
+        background: #fff;
+      }
+      label {
+        display: grid;
+        gap: 4px;
+        font-size: 14px;
+      }
+      select {
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid #66889d;
+        border-radius: 6px;
+        font: inherit;
+        color: inherit;
+        background: #fff;
+      }
+      figure {
+        margin: 24px;
+      }
+      figcaption {
+        margin-bottom: 12px;
+      }
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border: 1px solid #ecd0db;
+        background: #fff;
+      }
+      :focus-visible {
+        outline: 3px solid #a92e62;
+        outline-offset: 3px;
+      }
+    </style>
   </head>
   <body>
-    <div id="sample-root"></div>
-    <noscript
-      >This local design sample needs JavaScript for its preview
-      controls.</noscript
-    >
-    <script id="sample-data" type="application/json">
-      {
-        "number": 8,
-        "art": "s8/thumbnail.jpg",
-        "width": 1920,
-        "height": 1080,
-        "period": "2023 spring",
-        "direction": "Sakura Circuit",
-        "chineseName": "櫻花折線",
-        "thesis": "沿用春季主視覺的櫻花粉與橘色折角，使用帶暖意的白色作為資料底色。莓粉承擔互動與焦點，橘色只在主視覺邊線出現，維持活潑而有秩序的閱讀感。",
-        "geometry": "8px 面板與 8px 控制項圓角；橘色 L 形角標回應原圖折角框。文字與點擊區保持矩形，裝飾不裁切表單或焦點外框。",
-        "swatches": [
-          ["Sakura", "#F175AF"],
-          ["Citrus", "#FF762E"],
-          ["Blush", "#FCEAF2"],
-          ["Berry", "#A92E62"],
-          ["Paper", "#FFF8FA"]
-        ],
-        "season": "s8",
-        "teams": 16,
-        "pools": 4,
-        "poolName": "GROUP STAGE",
-        "maps": [
-          {
-            "slot": "NM1",
-            "beatmapId": 3645338,
-            "title": "Suzuki Konomi - Zenbu Kimi ga Ita kara Shittanda [Mayu's Expert]",
-            "mapper": "Liyuu",
-            "stars": 5.8685
-          },
-          {
-            "slot": "NM2",
-            "beatmapId": 4015373,
-            "title": "P4koo - Illusion of Mind [oclr edit]",
-            "mapper": "Callionet",
-            "stars": 5.9374
-          },
-          {
-            "slot": "NM3",
-            "beatmapId": 3476281,
-            "title": "Yorushika - Hirutonbi [nightscape]",
-            "mapper": "alevi",
-            "stars": 5.39425
-          }
-        ],
-        "matches": [
-          {
-            "label": "1",
-            "stage": "Group A",
-            "date": "2023-02-25",
-            "time": "22:00",
-            "teams": ["RIP AR8HD", "14utc plz"],
-            "score": [6, 1],
-            "url": "https://osu.ppy.sh/community/matches/107048152"
-          },
-          {
-            "label": "2",
-            "stage": "Group A",
-            "date": "2023-02-25",
-            "time": "20:00",
-            "teams": ["Baby Bus", "好幸福队"],
-            "score": [1, 6],
-            "url": "https://osu.ppy.sh/community/matches/107045885"
-          }
-        ]
-      }
-    </script>
+    <header>
+      <h1>S8 · 最新應用 UI 設計對照</h1>
+      <p>
+        圖片來自 S8 標題比例修復 <code>ce92b4d</code> 的實際頁面，UI 基於
+        main <code>d34378e</code>。使用 SSR 外觀偏好、打包樣式與正式素材；
+        花枝已精修，移除強制折角，以少量 1px 橙色印刷線呼應原主視覺，頁首導覽採透明底色與單條細底線。
+      </p>
+      <p>
+        <a href="s8/DESIGN.md">設計規格與重現步驟</a> ·
+        <a href="s8/verification.json">截圖與檢查紀錄</a> ·
+        <a href="https://github.com/OCLR-dev/OCLR-website/issues/197"
+          >Issue #197</a
+        >
+      </p>
+    </header>
+    <p style="margin: 16px 24px">原始 RULES banner 由主辦方提供；半身角色為參考該圖補全的候選插畫。<a href="s8/ARTWORK.md">素材與完整生成記錄</a></p>
+    <p style="margin: 16px 24px">
+      標題比例修復：<a href="s8/heading-937-light.png">937px Light</a> ·
+      <a href="s8/heading-937-dark.png">Dark</a> ·
+      <a href="s8/heading-390-light.png">手機</a>（實際頁面原生 2× 截圖）
+    </p>
+    <p style="margin: 16px 24px">
+      女主角精修局部：<a href="s8/heroine-937-light.png">937px Light</a> ·
+      <a href="s8/heroine-937-dark.png">Dark</a> ·
+      <a href="s8/heroine-390-light.png">390px 手機</a>（實際頁面原生 2× 截圖）
+    </p>
+    <p style="margin: 16px 24px">
+      規則區完整 banner：<a href="s8/rules-desktop-light.webp">桌面 Light</a> ·
+      <a href="s8/rules-desktop-dark.webp">桌面 Dark</a> ·
+      <a href="s8/rules-mobile-light.webp">手機 Light</a> ·
+      <a href="s8/rules-mobile-dark.webp">手機 Dark</a>
+    </p>
+    <form aria-label="預覽控制">
+      <label
+        >實際頁面<select name="surface">
+          <option value="">S8 主頁</option>
+          <option value="mappools-">S8 圖池</option>
+          <option value="admin-">Admin 網站設定</option>
+        </select></label
+      >
+      <label
+        >尺寸<select name="size">
+          <option value="desktop">桌面 1440px</option>
+          <option value="mobile">手機 390px</option>
+        </select></label
+      >
+      <label
+        >明暗<select name="theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select></label
+      >
+      <label
+        >設計<select name="version">
+          <option value="">S8 精修實作</option>
+          <option value="current-">最新 UI 原有風格</option>
+        </select></label
+      >
+    </form>
+    <figure>
+      <figcaption aria-live="polite" id="caption">
+        S8 精修實作 · S8 主頁 · 桌面 · Light
+      </figcaption>
+      <img
+        id="preview"
+        src="s8/desktop-light.webp"
+        width="1440"
+        height="1000"
+        alt="最新 S8 實際主頁，使用正式 S8 樣式"
+      />
+    </figure>
   </body>
 </html>

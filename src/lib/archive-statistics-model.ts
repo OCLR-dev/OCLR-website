@@ -1,7 +1,22 @@
 import type { HistoricalArchive } from "./historical-archive";
 import type { MatchGame, MatchScore, MatchSource } from "./match-model";
 
-export const statisticsSeasons = ["s7", "s8", "s9", "s10"] as const;
+export const statisticsSeasons = [
+  "s1",
+  "s2",
+  "s3",
+  "s4",
+  "s5",
+  "s6",
+  "s7",
+  "s8",
+  "s9",
+  "s10",
+] as const;
+/** Shared by navigation and saved-statistics reads; availability is not publication. */
+export function supportsArchiveStatistics(slug: string) {
+  return (statisticsSeasons as readonly string[]).includes(slug);
+}
 export type StatisticsSnapshot = {
   archiveKey: string;
   source: MatchSource;
@@ -53,8 +68,18 @@ export function canExcludeNonParticipantScore(
     ![fixture.teamA, fixture.teamB].includes(player?.teamId ?? "")
   );
 }
-// A reviewed bench occupant can also be on the edition roster. Require four
-// other positive, retained same-team records; never reduce a real lineup.
+// S2's organizer-supplied rules specify 3v3. Other supported editions retain
+// the existing four-player safeguard. A slug alone cannot opt into S2's rule.
+function statisticsLineupSize(archive: HistoricalArchive) {
+  return archive.editionSlug === "s2" &&
+    /^https:\/\/docs\.google\.com\/spreadsheets\/d\/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY(?:\/|$)/.test(
+      archive.sourceUrl,
+    )
+    ? 3
+    : 4;
+}
+// A reviewed bench occupant can also be on the edition roster. Require a full
+// positive, retained same-team lineup after every exclusion.
 export function canExcludeStatisticsBenchScore(
   archive: HistoricalArchive,
   fixtureId: string,
@@ -84,7 +109,7 @@ export function canExcludeStatisticsBenchScore(
               team,
         )
         .map((other) => other.osuId),
-    ).size >= 4
+    ).size >= statisticsLineupSize(archive)
   );
 }
 export function statisticsScores(
@@ -152,7 +177,10 @@ export function archiveMpId(url: string) {
 }
 export function statisticsFixtures(archive: HistoricalArchive) {
   return archive.matches.filter(
-    (m) => m.score && m.mpUrls.length && m.forfeitWinner === undefined,
+    (m) =>
+      m.score &&
+      m.review?.status !== "pending" &&
+      m.forfeitWinner === undefined,
   );
 }
 export function statisticsGameIssues(
@@ -250,8 +278,7 @@ export function fixtureStatisticsIssues(
     ids.some((id) => !fixture.mpUrls.some((url) => archiveMpId(url) === id))
   )
     return ["Import every recorded MP link before publishing this match."];
-  const seen = new Set<number>(),
-    maps = new Set<number>();
+  const seen = new Set<number>();
   const wins = [0, 0];
   const issues: string[] = [];
   for (const s of snapshots) {
@@ -286,10 +313,10 @@ export function fixtureStatisticsIssues(
           s.rosterTeamGames?.includes(g.id),
         ),
       );
-      if (seen.has(g.id) || (g.beatmapId !== null && maps.has(g.beatmapId)))
-        issues.push("Exclude duplicate games and replayed beatmaps.");
+      // Review selects game identities, not unique beatmaps: a map may be played
+      // again legitimately. Excluded replays remain in the published source.
+      if (seen.has(g.id)) issues.push("Exclude duplicate games.");
       seen.add(g.id);
-      if (g.beatmapId) maps.add(g.beatmapId);
       const totals = [fixture.teamA, fixture.teamB].map((id) =>
         statisticsScores(g, s.excludedScores).reduce(
           (sum, score) =>

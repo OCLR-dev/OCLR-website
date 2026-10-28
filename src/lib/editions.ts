@@ -72,17 +72,24 @@ export const editionSchema = z
             "/archive/s5/key-visual.png",
             "/archive/s4/key-visual.avif",
             "/archive/s3/key-visual.avif",
+            "/archive/s2/key-visual.avif",
+            "/archive/s1/key-visual.webp",
           ])
           .nullable(),
         background: z.enum(["/oclr-s11-website-background.webp"]).nullable(),
         keyVisual: z
           .enum([
             "/oclr-s11-key-visual.webp",
+            "/archive/s10/thumbnail.png",
+            "/archive/s9/thumbnail.png",
+            "/archive/s8/thumbnail.jpg",
             "/archive/s7/key-visual.jpg",
             "/archive/s6/key-visual.jpg",
             "/archive/s5/key-visual.png",
             "/archive/s4/key-visual.avif",
             "/archive/s3/key-visual.avif",
+            "/archive/s2/key-visual.avif",
+            "/archive/s1/key-visual.webp",
           ])
           .nullable(),
       })

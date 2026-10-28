@@ -426,6 +426,148 @@ export function approveArchiveMatches(
   });
 }
 
+/** Organizer evidence for one additional historical substitute. */
+export const archiveSubstituteConfirmation = z
+  .object({
+    osuId: id,
+    username: text,
+    teamId: key,
+    source,
+    confirmationSource: source,
+  })
+  .strict();
+
+/** Append confirmed participation, without guessing draft Tier or replacement. */
+export function addArchiveSubstitute(
+  archive: HistoricalArchive,
+  input: z.infer<typeof archiveSubstituteConfirmation>,
+): HistoricalArchive {
+  const c = archiveSubstituteConfirmation.parse(input);
+  if (
+    archive.formatVersion !== 2 ||
+    archive.draftMode !== "final-tiers" ||
+    !archive.teams.some((t) => t.id === c.teamId) ||
+    archive.players.some(
+      (p) => p.osuId === c.osuId || p.username === c.username,
+    ) ||
+    archive.unresolvedPlayers?.some((p) => p.username === c.username) ||
+    archive.rosterReplacements?.some((r) =>
+      r.people.some((p) => p.osuId === c.osuId),
+    )
+  )
+    throw new Error("Substitute identity is missing or already recorded.");
+  return historicalArchiveSchema.parse({
+    ...archive,
+    players: [
+      ...archive.players,
+      {
+        osuId: c.osuId,
+        username: c.username,
+        teamId: c.teamId,
+        role: "player",
+        tier: null,
+        source: c.source,
+      },
+    ],
+    sourceFacts: [
+      ...(archive.sourceFacts ?? []),
+      {
+        category: "review",
+        label: "Archive substitute confirmation",
+        text: `${c.username} (osu! UID ${c.osuId}) confirmed as a legal substitute for ${c.teamId}. Tier and replaced player remain unknown. Original roster source: ${c.source}`,
+        source: c.confirmationSource,
+      },
+    ],
+  });
+}
+
+/** Both saved teams are preconditions, so a repeated request cannot swap back. */
+export const archivePlayerExchangeConfirmation = z
+  .object({
+    firstOsuId: id,
+    firstTeamId: key,
+    secondOsuId: id,
+    secondTeamId: key,
+    confirmationSource: source,
+  })
+  .strict();
+
+export function exchangeArchivePlayers(
+  archive: HistoricalArchive,
+  input: z.infer<typeof archivePlayerExchangeConfirmation>,
+): HistoricalArchive {
+  const c = archivePlayerExchangeConfirmation.parse(input);
+  const first = archive.players.find((p) => p.osuId === c.firstOsuId);
+  const second = archive.players.find((p) => p.osuId === c.secondOsuId);
+  if (
+    archive.formatVersion !== 2 ||
+    archive.draftMode !== "final-tiers" ||
+    !first ||
+    !second ||
+    first.osuId === second.osuId ||
+    first.role !== "player" ||
+    second.role !== "player" ||
+    first.teamId !== c.firstTeamId ||
+    second.teamId !== c.secondTeamId ||
+    first.teamId === second.teamId
+  )
+    throw new Error("Select two recorded players from different teams.");
+  return historicalArchiveSchema.parse({
+    ...archive,
+    players: archive.players.map((p) =>
+      p.osuId === first.osuId
+        ? { ...p, teamId: second.teamId }
+        : p.osuId === second.osuId
+          ? { ...p, teamId: first.teamId }
+          : p,
+    ),
+    sourceFacts: [
+      ...(archive.sourceFacts ?? []),
+      {
+        category: "review",
+        label: "Archive player exchange confirmation",
+        text: `${first.username} (osu! UID ${first.osuId}): ${first.teamId} → ${second.teamId}; ${second.username} (osu! UID ${second.osuId}): ${second.teamId} → ${first.teamId}. Original roster sources: ${first.source}; ${second.source}. Roles and Tiers retained; exchange date unknown.`,
+        source: c.confirmationSource,
+      },
+    ],
+  });
+}
+
+/** Resolve one source-only identity without replacing competition history. */
+export function resolveArchiveIdentity(
+  archive: HistoricalArchive,
+  confirmation: { unresolvedId: string; osuId: number; source: string },
+): HistoricalArchive {
+  const person = archive.unresolvedPlayers?.find(
+    (p) => p.id === confirmation.unresolvedId,
+  );
+  if (
+    !person ||
+    archive.players.some((p) => p.osuId === confirmation.osuId) ||
+    archive.rosterReplacements?.some((r) =>
+      r.people.some((p) => p.osuId === confirmation.osuId),
+    )
+  )
+    throw new Error("Identity is missing or already recorded.");
+  const { id: unresolvedId, ...identity } = person;
+  return historicalArchiveSchema.parse({
+    ...archive,
+    players: [...archive.players, { ...identity, osuId: confirmation.osuId }],
+    unresolvedPlayers: archive.unresolvedPlayers!.filter(
+      (p) => p.id !== unresolvedId,
+    ),
+    sourceFacts: [
+      ...(archive.sourceFacts ?? []),
+      {
+        category: "review",
+        label: "Archive identity confirmation",
+        text: `${unresolvedId}: ${person.username} → osu! UID ${confirmation.osuId}. Original roster source: ${person.source}`,
+        source: confirmation.source,
+      },
+    ],
+  });
+}
+
 export function recordedArchiveMatch(m: HistoricalArchive["matches"][number]) {
   return (
     m.review?.status !== "pending" &&

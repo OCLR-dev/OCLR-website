@@ -70,6 +70,87 @@ describe.skipIf(!url)("historical archive transactions", () => {
     await closeDb();
     vi.unstubAllEnvs();
   });
+  it("resolves one published source identity with scoped authority, optimistic revision and audit", async () => {
+    const archive = historicalSourceDetails(slug);
+    await tournamentCommand(admin, slug, command(0, archive));
+    await tournamentCommand(admin, slug, {
+      action: "publication",
+      expectedRevision: 1,
+      confirmed: true,
+      published: true,
+    });
+    const resolve = {
+      action: "resolve-archive-identity",
+      expectedRevision: 2,
+      confirmed: true,
+      unresolvedId: "unknown-captain",
+      osuId: 91991,
+      source: "Synthetic organizer confirmation",
+    };
+    await expect(
+      tournamentCommand(scoped, slug, resolve),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      tournamentCommand(admin, slug, {
+        ...resolve,
+        osuId: archive.players[0].osuId,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      tournamentCommand(admin, slug, { ...resolve, osuId: 91005 }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      tournamentCommand(admin, slug, { ...resolve, unresolvedId: "missing" }),
+    ).rejects.toMatchObject({ status: 409 });
+    await db().insert(staffRoles).values({
+      userId: scoped.osuId,
+      role: "admin",
+      editionSlug: slug,
+      grantedBy: admin.osuId,
+    });
+    await tournamentCommand(scoped, slug, resolve);
+    const saved = (await readTournament(slug))!;
+    expect(saved.revision).toBe(3);
+    expect(saved.edition.published).toBe(true);
+    expect(saved.edition.archive!.players.at(-1)).toEqual({
+      ...archive.unresolvedPlayers![0],
+      id: undefined,
+      osuId: 91991,
+    });
+    expect(saved.edition.archive!.unresolvedPlayers).toEqual([]);
+    for (const key of [
+      "matches",
+      "standings",
+      "teams",
+      "pools",
+      "picks",
+    ] as const)
+      expect(saved.edition.archive![key]).toEqual(archive[key]);
+    expect(saved.edition.archive!.sourceFacts!.at(-1)?.source).toBe(
+      resolve.source,
+    );
+    expect(
+      publicHistoricalArchive(saved.edition.archive!).sourceFacts,
+    ).toBeUndefined();
+    expect(await db().select().from(users)).toHaveLength(2);
+    expect(await db().select().from(registrations)).toHaveLength(0);
+    expect(await db().select().from(teams)).toHaveLength(0);
+    const events = await db()
+      .select()
+      .from(editionEvents)
+      .where(eq(editionEvents.editionSlug, slug));
+    expect(events).toHaveLength(3);
+    expect(events.at(-1)?.kind).toBe("tournament_resolve-archive-identity");
+    await expect(
+      tournamentCommand(scoped, slug, resolve),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      tournamentCommand(scoped, slug, { ...resolve, expectedRevision: 3 }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      tournamentCommand(admin, slug, command(3, archive)),
+    ).rejects.toMatchObject({ status: 409 });
+  });
   it("imports privately, keeps source identities out of accounts, and publishes separately", async () => {
     await tournamentCommand(admin, slug, command(0));
     expect((await readTournament(slug))?.edition.archive).toEqual(

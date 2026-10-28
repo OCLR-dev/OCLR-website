@@ -61,6 +61,7 @@ export async function extendedRead(
     case "publicArchiveStatistics":
       return (await import("./archive-statistics")).publicArchiveStatistics(
         slug,
+        query.get("fixtureId") ?? undefined,
       );
     case "publicFixture":
       return (await import("./public-competition")).publicFixture(slug, target);

@@ -88,6 +88,12 @@ export const collectionQuery = z
 
 /** Same request schemas drive service validation, the v1 boundary and OpenAPI parameters. */
 export function readQuerySchema(id: string, keys: readonly string[]) {
+  if (["getOclrProfile", "getMyOclrProfile"].includes(id))
+    return z
+      .object({
+        edition: editionSchema.shape.slug.optional(),
+      })
+      .strict();
   if (id === "publicPlayerParticipation")
     return z.object({ edition: editionSchema.shape.slug.optional() }).strict();
   if (
@@ -104,7 +110,7 @@ export function readQuerySchema(id: string, keys: readonly string[]) {
   if (id === "auditLog") return auditFilters;
   if (id === "streamingWorkspace")
     return streamingFilters.extend({ fixtureId: z.uuid().optional() });
-  if (id === "statisticsWorkspace")
+  if (["statisticsWorkspace", "publicArchiveStatistics"].includes(id))
     return z
       .object({
         fixtureId: z

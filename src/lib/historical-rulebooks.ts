@@ -48,6 +48,34 @@ export function historicalRulebook(
     sections: HistoricalRulebook["sections"];
   } | null,
 ): HistoricalRulebook | null {
+  // Bind S1 to its workbook, never the mutable edition slug or private facts.
+  if (
+    configured &&
+    /^https:\/\/docs\.google\.com\/spreadsheets\/d\/10OvY6V2_nJpmv3LekQJZw6Eo5Hy1V-ggSoOQIxIdm6I(?:\/edit)?$/.test(
+      archive.sourceUrl,
+    )
+  ) {
+    return {
+      title: "OCLR S1总规则",
+      version: configured.version,
+      documentUrl: "/archive/s1/rules.pdf",
+      sections: configured.sections,
+    };
+  }
+  // Use S2's saved native sections even after private source facts are removed.
+  if (
+    configured &&
+    /^https:\/\/docs\.google\.com\/spreadsheets\/d\/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY(?:\/edit)?$/.test(
+      archive.sourceUrl,
+    )
+  ) {
+    return {
+      title: "OCLR S2总规则",
+      version: configured.version,
+      documentUrl: "/archive/s2/rules.pdf",
+      sections: configured.sections,
+    };
+  }
   // S3 uses the saved native sections, including after private source facts
   // have been removed from public page/API models.
   if (
@@ -141,6 +169,16 @@ export function historicalRulebook(
 
 /** Identify the approved source pair independently of editable edition slugs. */
 export function historicalRulebookSeason(rules: HistoricalRulebook) {
+  if (
+    rules.title === "OCLR S1总规则" &&
+    rules.documentUrl === "/archive/s1/rules.pdf"
+  )
+    return "1";
+  if (
+    rules.title === "OCLR S2总规则" &&
+    rules.documentUrl === "/archive/s2/rules.pdf"
+  )
+    return "2";
   if (
     rules.title === "OCLR S3总规则" &&
     rules.documentUrl === "/archive/s3/rules.pdf"

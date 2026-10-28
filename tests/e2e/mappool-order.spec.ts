@@ -5,6 +5,7 @@ import { sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { mappoolEntries } from "../../src/db/schema";
 import { seedSession } from "./session";
+import { chooseTheme } from "./theme";
 
 const api = "/api/admin/tournaments/test-cup/mappools";
 test.describe("quick paste and mappool ordering", () => {
@@ -358,9 +359,9 @@ test.describe("quick paste and mappool ordering", () => {
       .getByRole("alert")
       .filter({ hasText: "This pool changed" });
     await expect(conflict).toHaveCSS("color", "rgb(164, 37, 74)");
-    await page.locator(".theme-control").click();
+    await chooseTheme(page, "dark");
     await expect(conflict).toHaveCSS("color", "rgb(255, 158, 175)");
-    await page.locator(".theme-control").click();
+    await chooseTheme(page, "light");
     await expect(conflict).toHaveCSS("color", "rgb(164, 37, 74)");
     await expect.poll(uiOrder).toEqual(authoritative);
     await expect(save).toBeDisabled();

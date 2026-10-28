@@ -26,16 +26,25 @@ const filtersSchema = z
     page: z.coerce.number().int().min(1).max(10000).default(1),
   })
   .strict();
-type PublishedPlayer = {
+export type PublishedPlayer = {
   osuId: number;
   username: string;
   editionSlug: string;
   editionName: string;
   team: { id: string; name: string } | null;
   captain: boolean;
-  participation: "accepted" | "captain" | "finalized_roster" | "coach";
+  participation:
+    "accepted" | "captain" | "finalized_roster" | "coach" | "historical";
   coachedTeams?: { id: string; name: string }[];
-};
+  role?: "captain" | "player" | "coach" | "free_agent";
+  sourceReference?: string;
+  placing?: number | null;
+} & Partial<
+  Pick<
+    import("./read-api-contract").PublicPlayer,
+    "source" | "statistics" | "bio" | "tier" | "tierLabel" | "previousUsernames"
+  >
+>;
 export function publicPlayerFilters(input: unknown, exactOsuId?: number) {
   const parsed = filtersSchema.safeParse(input);
   if (!parsed.success)
@@ -215,11 +224,21 @@ export async function publicPlayers(input: unknown, exactOsuId?: number) {
         });
       }
       const q = filters.q.toLowerCase();
+      const aliases = q
+        ? await (
+            await import("./player-identity")
+          ).visiblePlayerNames([...byIdentity.values()].map((p) => p.osuId))
+        : [];
       const matching = [...byIdentity.values()]
         .filter((p) =>
           exactOsuId
             ? p.osuId === exactOsuId
-            : p.username.toLowerCase().includes(q) || String(p.osuId) === q,
+            : p.username.toLowerCase().includes(q) ||
+              String(p.osuId) === q ||
+              aliases.some(
+                (n) =>
+                  n.osuId === p.osuId && n.username.toLowerCase().includes(q),
+              ),
         )
         .sort(
           (a, b) =>
@@ -238,7 +257,42 @@ export async function publicPlayers(input: unknown, exactOsuId?: number) {
   );
 }
 async function databasePublicPlayer(osuId: number, edition?: string) {
-  return (await publicPlayers(edition ? { edition } : {}, osuId)).rows;
+  const rows = (await publicPlayers(edition ? { edition } : {}, osuId)).rows;
+  const byEdition = new Map(rows.map((p) => [p.editionSlug, p]));
+  for (const e of await getPublicEditions()) {
+    if ((edition && e.slug !== edition) || !e.archive) continue;
+    const p = e.archive.players.find((p) => p.osuId === osuId);
+    const replacement = e.archive.rosterReplacements?.find((r) =>
+      r.people.some((p) => p.osuId === osuId),
+    );
+    const person = p ?? replacement?.people.find((p) => p.osuId === osuId);
+    if (!person) continue;
+    const teamId = p?.teamId ?? replacement?.teamId;
+    const team = e.archive.teams.find((t) => t.id === teamId);
+    // Archives are authoritative for their editions. Never double-count a UID
+    // that also occurs in imported/native tables, and retain the literal name.
+    byEdition.set(e.slug, {
+      osuId,
+      username: person.username,
+      editionSlug: e.slug,
+      editionName: e.name,
+      team: team ? { id: team.id, name: team.name } : null,
+      captain: p?.role === "captain",
+      participation: "historical",
+      role: p?.role ?? "player",
+      source: {
+        kind: "historical_archive",
+        revision: null,
+        updatedAt: null,
+        capturedOn: e.archive.capturedOn,
+      },
+      tier: p?.tier ?? replacement?.tier ?? null,
+      sourceReference: person.source,
+      placing:
+        e.archive.standings.find((s) => s.teamId === teamId)?.rank ?? null,
+    });
+  }
+  return [...byEdition.values()];
 }
 export async function publicPlayer(
   osuId: number,

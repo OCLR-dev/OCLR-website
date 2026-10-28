@@ -1,79 +1,381 @@
 {
-  "date": "2026-10-24",
-  "browser": "Headless Google Chrome",
-  "scope": "Static design samples; not application regression or production verification",
+  "date": "2026-10-26",
+  "uiBaseline": "0d3e203d22c33fb61e988f80f2a7ab561c1a8563",
+  "scope": "Actual current application routes with browser-only S10 CSS overlay; public committed S10 archive and one synthetic local test account; no business commands",
+  "locale": "zh-Hans",
+  "browser": "Google Chrome",
+  "design": "Vivid hand-drawn city-pop panorama in the original S10 sky-blue, cyan, peach-pink and cream palette",
+  "decorativeAssets": [
+    "city-pop-coast.webp"
+  ],
+  "materialChecks": [
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "forcedColors": "passed",
+      "decorationRemoved": true,
+      "selectionVisible": true,
+      "menuInViewport": true
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "mobile-light.webp",
+      "path": "/tournaments/s10",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "rules-mobile-light.webp",
+      "path": "/tournaments/s10#rules",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "mappools-mobile-light.webp",
+      "path": "/tournaments/s10/mappools",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "admin-mobile-light.webp",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "desktop-light.webp",
+      "path": "/tournaments/s10",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "rules-desktop-light.webp",
+      "path": "/tournaments/s10#rules",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "mappools-desktop-light.webp",
+      "path": "/tournaments/s10/mappools",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "admin-desktop-light.webp",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "mobile-dark.webp",
+      "path": "/tournaments/s10",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "rules-mobile-dark.webp",
+      "path": "/tournaments/s10#rules",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "mappools-mobile-dark.webp",
+      "path": "/tournaments/s10/mappools",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "admin-mobile-dark.webp",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "desktop-dark.webp",
+      "path": "/tournaments/s10",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "rules-desktop-dark.webp",
+      "path": "/tournaments/s10#rules",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "mappools-desktop-dark.webp",
+      "path": "/tournaments/s10/mappools",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "admin-desktop-dark.webp",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000
+    }
+  ],
   "cases": [
     {
-      "season": "s10",
-      "mode": "light",
+      "surface": "overview",
+      "path": "/tournaments/s10",
+      "theme": "light",
       "width": 320,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0
     },
     {
-      "season": "s10",
-      "mode": "light",
-      "width": 390,
-      "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
-    },
-    {
-      "season": "s10",
-      "mode": "light",
-      "width": 768,
-      "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
-    },
-    {
-      "season": "s10",
-      "mode": "light",
-      "width": 1440,
-      "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
-    },
-    {
-      "season": "s10",
-      "mode": "dark",
+      "surface": "mappools",
+      "path": "/tournaments/s10/mappools",
+      "theme": "light",
       "width": 320,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0
     },
     {
-      "season": "s10",
-      "mode": "dark",
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s10",
+      "theme": "light",
       "width": 390,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0
     },
     {
-      "season": "s10",
-      "mode": "dark",
+      "surface": "mappools",
+      "path": "/tournaments/s10/mappools",
+      "theme": "light",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s10",
+      "theme": "light",
       "width": 768,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0
     },
     {
-      "season": "s10",
-      "mode": "dark",
-      "width": 1440,
+      "surface": "mappools",
+      "path": "/tournaments/s10/mappools",
+      "theme": "light",
+      "width": 768,
+      "domPreserved": true,
       "overflow": false,
-      "brokenImages": false,
-      "axes": 2,
-      "keyboardAndForm": "passed"
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s10",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s10/mappools",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "light",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s10",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s10/mappools",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 320,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s10",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s10/mappools",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 390,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s10",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s10/mappools",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 768,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "overview",
+      "path": "/tournaments/s10",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "mappools",
+      "path": "/tournaments/s10/mappools",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "surface": "admin",
+      "path": "/admin/settings",
+      "theme": "dark",
+      "width": 1440,
+      "domPreserved": true,
+      "overflow": false,
+      "axeViolations": 0
     }
   ],
   "errors": []

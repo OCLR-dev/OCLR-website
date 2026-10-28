@@ -3,7 +3,7 @@
 import { TeamAvatar } from "./team-avatar";
 import { useAppTranslations } from "@/i18n/shared";
 
-import Link from "next/link";
+import Link from "./pending-link";
 import { useState } from "react";
 import type { PublicFixture, PublicGroup } from "@/lib/public-competition";
 import { formatDate } from "@/lib/editions";

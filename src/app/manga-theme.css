@@ -321,13 +321,13 @@ html[data-appearance="manga-halftone"]
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  .information-page
+  .information-overview-reading
   > .information-banner {
   box-shadow: none;
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  .information-page
+  .information-overview-reading
   > .stage-scroll {
   margin: 14px 0 2.5rem;
   padding-top: 0.5rem;
@@ -455,7 +455,7 @@ html[data-appearance="manga-halftone"]
 /* Disabled reads as an unfinished pencil line: dashed, flat, base opacity. */
 html[data-appearance="manga-halftone"]
   .themed-site
-  :is(button, .button):disabled,
+  :is(button, .button):disabled:not([aria-busy="true"]),
 html[data-appearance="manga-halftone"]
   .themed-site
   .button[aria-disabled="true"] {
@@ -564,7 +564,7 @@ html[data-appearance="manga-halftone"][data-theme="dark"]
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  :is(.appearance-control, .language-control, .account-menu)
+  :is(.appearance-control, .theme-menu, .language-control, .account-menu)
   :is([role="menu"], .account-dropdown) {
   border: 2px solid var(--manga-ink);
   border-radius: var(--radius-panel);
@@ -573,14 +573,14 @@ html[data-appearance="manga-halftone"]
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[role] {
   border-radius: var(--button-radius);
 }
 html[data-appearance="manga-halftone"]
   .themed-site
-  :is(.appearance-control, .language-control)
+  :is(.appearance-control, .theme-menu, .language-control)
   [role="menu"]
   button[aria-checked="true"],
 html[data-appearance="manga-halftone"]
@@ -879,6 +879,10 @@ html[data-appearance="manga-halftone"]
   background: var(--site-primary);
   color: var(--site-on-primary);
   font-weight: 700;
+}
+/* Player row links sit on the same ink band as their row heading. */
+html[data-appearance="manga-halftone"] .themed-site th[scope="row"] .text-link {
+  color: inherit;
 }
 html[data-appearance="manga-halftone"] .themed-site .badge {
   border: 2px solid var(--manga-ink);

@@ -265,7 +265,7 @@
   color: var(--site-accent);
 }
 .public-tournament .information-page [id] {
-  scroll-margin-top: 100px;
+  scroll-margin-top: var(--tournament-scroll-offset, 100px);
 }
 html[data-appearance="swiss-minimal"]
   .information-page
@@ -413,7 +413,7 @@ html[data-appearance="cute-pastel"] .public-tournament .information-layout {
     padding: 0.75rem 1rem;
   }
   .public-tournament .information-page [id] {
-    scroll-margin-top: 160px;
+    scroll-margin-top: var(--tournament-scroll-offset, 160px);
   }
   .public-tournament .information-contents .information-back-top {
     display: flex;
@@ -529,9 +529,40 @@ html[data-appearance="cute-pastel"] .public-tournament .information-layout {
   display: block;
 }
 
-/* The overview spans the page; the left index belongs only to the rules below. */
+/* One document index uses the existing handbook appearance and mobile control. */
+.information-overview-reading {
+  min-width: 0;
+}
+.information-overview-reading > .archive-overview-rules {
+  margin-top: 2rem;
+}
+.information-overview-contents
+  :is(.overview-contents-list, .overview-contents-chapters) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.information-overview-contents .overview-contents-chapters {
+  padding-inline-start: 0.75rem;
+}
+.information-overview-contents a {
+  overflow-wrap: anywhere;
+}
+.information-overview-contents li + li {
+  margin-top: 0.25rem;
+}
+.information-overview-layout > .rules-mobile-contents {
+  margin-bottom: 0;
+}
+@media (min-width: 761px) and (max-width: 980px) {
+  html[data-appearance]
+    .themed-site
+    .information-overview-layout.rules-handbook {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+}
 .information-overview-details {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 .public-tournament .information-overview-details > .information-document {
   padding: 0;
@@ -539,4 +570,20 @@ html[data-appearance="cute-pastel"] .public-tournament .information-layout {
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+}
+.public-tournament
+  .information-overview-details
+  .information-document
+  > section {
+  margin-top: 0;
+}
+.public-tournament
+  .information-overview-details
+  .information-document
+  > section
+  + section {
+  margin-top: 2rem;
+}
+.public-tournament .information-overview-details table {
+  font-size: 0.875rem;
 }

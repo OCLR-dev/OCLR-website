@@ -33,7 +33,7 @@ Open [http://localhost:3000](http://localhost:3000). Configure `APP_URL`, `DATAB
 
 ### Frontend development without a local database
 
-Use an existing OCLR backend with read API 1.1.0+ within v1:
+Use an existing OCLR backend with read API 1.2.0+ within v1:
 
 ```sh
 npm ci
@@ -67,6 +67,9 @@ This creates a dedicated loopback-only PostgreSQL container and synthetic demo c
 Team images and private Replays require durable storage configured through `OCLR_MEDIA_DIR`; Replay validation also needs **Python 3 with standard-library LZMA support**. See [Replay deployment requirements](docs/deployment.md#private-mappool-replay-storage-185). Never commit local environment files, credentials, uploaded files or database dumps.
 
 ## Checks
+
+See [CI coverage and acceptance](docs/ci.md) for the daily core checks,
+manual full regression and the advisory merge policy.
 
 ```sh
 npm run check        # ESLint and TypeScript

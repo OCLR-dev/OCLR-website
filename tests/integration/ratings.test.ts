@@ -1,3 +1,4 @@
+import { publicFixture } from "../../src/lib/public-competition";
 import {
   beforeAll,
   beforeEach,
@@ -39,6 +40,14 @@ describe.skipIf(!url)("approved fixture ratings", () => {
     expect(r?.gameCount).toBe(6);
     expect(r?.players).toHaveLength(4);
     expect(r?.issues).toEqual([]);
+    const fixture = await publicFixture("test-cup", s.fixtureId);
+    expect(fixture?.details?.games).toHaveLength(6);
+    expect(fixture?.details?.games[0].scores).toHaveLength(4);
+    expect(fixture?.details?.rating?.fingerprint).toBe(r!.fingerprint);
+    expect(JSON.stringify(fixture?.details)).not.toContain(
+      "Synthetic fixture-only review",
+    );
+    expect(await publicFixture("private-test-cup", s.fixtureId)).toBeNull();
     expect(
       await matchRatingWorkspace(admin, "test-cup", s.fixtureId),
     ).toMatchObject({ fingerprint: r!.fingerprint });
@@ -55,6 +64,9 @@ describe.skipIf(!url)("approved fixture ratings", () => {
       .set({ publishedRevision: null, publishedAt: null })
       .where(eq(matchResults.fixtureId, s.fixtureId));
     expect(await publicMatchRating("test-cup", s.fixtureId)).toBeNull();
+    expect(
+      (await publicFixture("test-cup", s.fixtureId))?.details ?? null,
+    ).toBeNull();
   });
   it("keeps role and team release boundaries even for direct service callers", async () => {
     const s = await seedAwardReview(admin.osuId, 192002, 192100);
@@ -70,6 +82,9 @@ describe.skipIf(!url)("approved fixture ratings", () => {
       .set({ rosterPublished: false })
       .where(eq(teams.id, s.home.teamId));
     expect(await publicMatchRating("test-cup", s.fixtureId)).toBeNull();
+    expect(
+      (await publicFixture("test-cup", s.fixtureId))?.details ?? null,
+    ).toBeNull();
     await db()
       .update(teams)
       .set({ rosterPublished: true })
@@ -79,6 +94,9 @@ describe.skipIf(!url)("approved fixture ratings", () => {
       .set({ status: "cancelled" })
       .where(eq(fixtures.id, s.fixtureId));
     expect(await publicMatchRating("test-cup", s.fixtureId)).toBeNull();
+    expect(
+      (await publicFixture("test-cup", s.fixtureId))?.details ?? null,
+    ).toBeNull();
     expect(await publicMatchRating("test-cup", "unknown-fixture")).toBeNull();
     // Accepted registration metadata never enters the public rating projection.
     const serialized = JSON.stringify(

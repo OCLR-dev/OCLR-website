@@ -1,7 +1,15 @@
+import { archiveMatchDetails } from "./match-details-model";
+import {
+  archivePoolFixtures,
+  type EventPoolFixture,
+} from "./archive-mappool-statistics";
+import { ratingSnapshot } from "./ratings";
+import type { RatingGame } from "./yumu-rating";
 import { db } from "@/db";
 import { editionEvents, editionState, historicalStatistics } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
 import {
   archiveMpId,
@@ -11,7 +19,7 @@ import {
   projectStatistics,
   statisticsFixtures,
   statisticsGameIssues,
-  statisticsSeasons,
+  supportsArchiveStatistics,
   suggestStatisticsPool,
   validStatisticsExclusions,
   type StatisticsSnapshot,
@@ -24,7 +32,11 @@ import {
 } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import type { HistoricalArchive } from "./historical-archive";
+import {
+  exchangeArchivePlayers,
+  type archivePlayerExchangeConfirmation,
+  type HistoricalArchive,
+} from "./historical-archive";
 import { HttpError } from "./http";
 import { matchSourceSchema } from "./match-model";
 import { fetchMatchSource } from "./osu-matches";
@@ -133,16 +145,13 @@ export function statisticsArchiveKey(a: HistoricalArchive) {
     )
     .digest("hex");
 }
-function supported(slug: string) {
-  return (statisticsSeasons as readonly string[]).includes(slug);
-}
 async function archiveFor(
   slug: string,
   reader: Reader = db(),
   publicOnly = false,
 ) {
   const t = await readTournament(slug, reader, publicOnly);
-  if (!supported(slug) || !t?.edition.archive)
+  if (!supportsArchiveStatistics(slug) || !t?.edition.archive)
     throw new HttpError(404, "Historical statistics are unavailable.");
   return t.edition.archive;
 }
@@ -159,6 +168,159 @@ async function stored(slug: string, reader: Reader = db()) {
     draft: snapshotSchema.parse(r.draft),
     published: r.published ? snapshotSchema.parse(r.published) : null,
   }));
+}
+
+/** Called only by explicit Admin roster confirmation under the edition lock. */
+export async function preserveStatisticsForRosterAddition(
+  tx: Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0],
+  actor: User,
+  before: HistoricalArchive,
+  after: HistoricalArchive,
+) {
+  await assertCapability(actor, "approve_results", before.editionSlug, tx);
+  // Never offer this as a general way to bless a changed archive key.
+  const { players: oldPlayers, sourceFacts: _oldFacts, ...oldRest } = before;
+  const { players: newPlayers, sourceFacts: _newFacts, ...newRest } = after;
+  void _oldFacts;
+  void _newFacts;
+  if (
+    !isDeepStrictEqual(oldRest, newRest) ||
+    newPlayers.length !== oldPlayers.length + 1 ||
+    !isDeepStrictEqual(oldPlayers, newPlayers.slice(0, oldPlayers.length))
+  )
+    throw new HttpError(409, "Archive changed. Reload before retrying.");
+  await preserveStatisticsForRosterChange(tx, actor, before, after);
+}
+
+/** A narrowly validated exchange is not permission to revalidate arbitrary edits. */
+export async function preserveStatisticsForRosterExchange(
+  tx: Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0],
+  actor: User,
+  before: HistoricalArchive,
+  after: HistoricalArchive,
+  confirmation: z.infer<typeof archivePlayerExchangeConfirmation>,
+) {
+  await assertCapability(actor, "approve_results", before.editionSlug, tx);
+  if (!isDeepStrictEqual(after, exchangeArchivePlayers(before, confirmation)))
+    throw new HttpError(409, "Archive changed. Reload before retrying.");
+  await preserveStatisticsForRosterChange(tx, actor, before, after);
+}
+
+async function preserveStatisticsForRosterChange(
+  tx: Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0],
+  actor: User,
+  before: HistoricalArchive,
+  after: HistoricalArchive,
+) {
+  const oldKey = statisticsArchiveKey(before);
+  const newKey = statisticsArchiveKey(after);
+  const rows = await stored(before.editionSlug, tx);
+  const unchanged = (fixtureId: string, s: StatisticsSnapshot) => {
+    if (
+      s.archiveKey !== oldKey ||
+      !statisticsFixtures(after).some(
+        (f) =>
+          f.id === fixtureId &&
+          f.mpUrls.some((u) => archiveMpId(u) === s.source.match.id),
+      ) ||
+      [before, after].some(
+        (a) => !validStatisticsExclusions(s, a, fixtureId),
+      ) ||
+      (!after.pools.some((p) => p.id === s.poolId) &&
+        !(s.allowUnlistedMaps && s.poolId === "")) ||
+      new Set(s.included).size !== s.included.length ||
+      new Set(s.rosterTeamGames ?? []).size !==
+        (s.rosterTeamGames ?? []).length ||
+      (s.rosterTeamGames ?? []).some(
+        (id) => !s.source.games.some((g) => g.id === id),
+      ) ||
+      s.included.some((id) => {
+        const g = s.source.games.find((g) => g.id === id);
+        return (
+          !g ||
+          [before, after].some(
+            (a) =>
+              statisticsGameIssues(
+                a,
+                fixtureId,
+                s.poolId,
+                g,
+                s.allowUnlistedMaps,
+                s.excludedScores,
+                s.rosterTeamGames?.includes(id),
+              ).length,
+          )
+        );
+      })
+    )
+      return false;
+    return isDeepStrictEqual(
+      projectStatistics(before, fixtureId, s),
+      projectStatistics(after, fixtureId, s),
+    );
+  };
+  for (const fixture of statisticsFixtures(before)) {
+    const released = rows.filter(
+      (r) => r.fixtureId === fixture.id && r.published?.archiveKey === oldKey,
+    );
+    if (!released.length) continue;
+    const snapshots = released.map((r) => r.published!);
+    if (
+      released.some((r) => !unchanged(r.fixtureId, r.published!)) ||
+      [before, after].some(
+        (a) => fixtureStatisticsIssues(a, fixture.id, snapshots).length,
+      )
+    )
+      throw new HttpError(
+        409,
+        "Published statistics would change. Review or withdraw them before changing this roster.",
+      );
+  }
+  const versions = [];
+  for (const row of rows) {
+    const draft = unchanged(row.fixtureId, row.draft)
+      ? { ...row.draft, archiveKey: newKey }
+      : row.draft;
+    const published =
+      row.published?.archiveKey === oldKey
+        ? { ...row.published, archiveKey: newKey }
+        : row.published;
+    // A current published snapshot must have been fully checked above.
+    if (
+      row.published?.archiveKey === oldKey &&
+      !unchanged(row.fixtureId, row.published)
+    )
+      throw new HttpError(
+        409,
+        "Published statistics would change. Review or withdraw them before changing this roster.",
+      );
+    if (draft === row.draft && published === row.published) continue;
+    await tx
+      .update(historicalStatistics)
+      .set({
+        draft,
+        published,
+        version: row.version + 1,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(where(before.editionSlug), eq(historicalStatistics.mpId, row.mpId)),
+      );
+    versions.push({
+      mpId: row.mpId,
+      fromVersion: row.version,
+      toVersion: row.version + 1,
+      draft: draft !== row.draft,
+      published: published !== row.published,
+    });
+  }
+  if (versions.length)
+    await tx.insert(editionEvents).values({
+      editionSlug: before.editionSlug,
+      actorId: actor.osuId,
+      kind: "statistics_roster_revalidation",
+      detail: { oldKey, newKey, versions },
+    });
 }
 async function databaseStatisticsWorkspace(
   actor: User,
@@ -506,70 +668,139 @@ export async function statisticsCommand(
   });
   return statisticsWorkspace(actor, slug, fixture.id);
 }
-async function databasePublicArchiveStatistics(slug: string) {
-  const archive = await archiveFor(slug, db(), true);
-  const key = statisticsArchiveKey(archive);
-  const rows = await stored(slug);
-  const fixtures = statisticsFixtures(archive);
-  const published = fixtures.flatMap((fixture) => {
-    const sources = rows.filter(
-      (r) =>
-        r.fixtureId === fixture.id &&
-        fixture.mpUrls.some((u) => archiveMpId(u) === r.mpId),
-    );
-    if (
-      !sources.length ||
-      sources.some((r) => !r.published || r.published.archiveKey !== key)
-    )
-      return [];
-    const snapshots = sources.map((r) => r.published!);
-    if (fixtureStatisticsIssues(archive, fixture.id, snapshots).length)
-      return [];
-    return sources;
-  });
-  const plays = published.flatMap((r) =>
-    projectStatistics(archive, r.fixtureId, r.published!),
+async function databasePublicArchiveStatistics(
+  slug: string,
+  fixtureId?: string,
+) {
+  return db().transaction(
+    async (tx) => {
+      const archive = await archiveFor(slug, tx, true);
+      const key = statisticsArchiveKey(archive);
+      const rows = await stored(slug, tx);
+      const fixtures = statisticsFixtures(archive).filter(
+        (f) => !fixtureId || f.id === fixtureId,
+      );
+      const published = fixtures.flatMap((fixture) => {
+        const sources = rows.filter(
+          (r) =>
+            r.fixtureId === fixture.id &&
+            fixture.mpUrls.some((u) => archiveMpId(u) === r.mpId),
+        );
+        if (
+          !sources.length ||
+          sources.some((r) => !r.published || r.published.archiveKey !== key)
+        )
+          return [];
+        const snapshots = sources.map((r) => r.published!);
+        if (fixtureStatisticsIssues(archive, fixture.id, snapshots).length)
+          return [];
+        return sources;
+      });
+      const plays = published.flatMap((r) =>
+        projectStatistics(archive, r.fixtureId, r.published!),
+      );
+      return {
+        slug,
+        archiveKey: key,
+        matchDetails: (fixtureId ? fixtures : []).flatMap((f) => {
+          const sources = published.filter((r) => r.fixtureId === f.id);
+          if (!sources.length) return [];
+          // Published snapshot identity, not the mutable draft version, anchors the report.
+          const details = archiveMatchDetails(
+            archive,
+            f.id,
+            sources.map((r) => ({
+              snapshot: r.published!,
+              revision: createHash("sha256")
+                .update(JSON.stringify(r.published))
+                .digest("hex"),
+            })),
+          );
+          const games: RatingGame[] = details.games
+            .filter((g) => g.included)
+            .map((g) => ({
+              fixtureId: f.id,
+              gameId: g.gameId,
+              // Historical snapshots have no numeric result revision; fingerprint is authoritative.
+              revision: 0,
+              fingerprint: g.revision,
+              approvalFingerprint: g.revision,
+              at: g.startTime,
+              teamIds: details.teamIds,
+              winnerTeamId:
+                g.effectiveTotals[0] === g.effectiveTotals[1]
+                  ? null
+                  : details.teamIds[
+                      g.effectiveTotals[0]! > g.effectiveTotals[1]! ? 0 : 1
+                    ],
+              scores: g.scores
+                .filter((s) => s.included)
+                .map((s) => ({
+                  userId: s.osuId,
+                  teamId: s.teamId!,
+                  total: s.effectiveTotal!,
+                })),
+            }));
+          details.rating = ratingSnapshot(
+            games,
+            new Map(archive.players.map((p) => [p.osuId, p.username])),
+          );
+          return [{ fixtureId: f.id, details }];
+        }),
+        players: archive.players.map(
+          ({ osuId, username, teamId, role, tier }) => ({
+            osuId,
+            username,
+            teamId,
+            role,
+            tier,
+          }),
+        ),
+        teams: archive.teams.map(({ id, name }) => ({ id, name })),
+        stages: [...new Set(fixtures.map((m) => m.stage))],
+        fixtures: fixtures.map((m) => ({
+          id: m.id,
+          label: m.label,
+          stage: m.stage,
+          covered: published.some((r) => r.fixtureId === m.id),
+          technicalAdjudication: published.some(
+            (r) => r.fixtureId === m.id && r.published?.technicalAdjudication,
+          ),
+          score: m.score,
+        })),
+        plays,
+        // Optional on the wire so an older read backend remains consumable;
+        // the frontend leaves eligibility and coverage unknown when absent.
+        poolFixtures: archivePoolFixtures(
+          archive,
+          published.map((r) => ({
+            fixtureId: r.fixtureId,
+            snapshot: r.published!,
+          })),
+        ).filter((f) => !fixtureId || f.id === fixtureId) as
+          EventPoolFixture[] | undefined,
+        publishedAt:
+          published
+            .map((r) => r.publishedAt!.toISOString())
+            .sort()
+            .at(-1) ?? null,
+        mpTotal: fixtures.reduce((n, m) => n + m.mpUrls.length, 0),
+        mpCovered: published.length,
+      };
+    },
+    { isolationLevel: "repeatable read", accessMode: "read only" },
   );
-  return {
-    slug,
-    players: archive.players.map(({ osuId, username, teamId, role, tier }) => ({
-      osuId,
-      username,
-      teamId,
-      role,
-      tier,
-    })),
-    teams: archive.teams.map(({ id, name }) => ({ id, name })),
-    stages: [...new Set(fixtures.map((m) => m.stage))],
-    fixtures: fixtures.map((m) => ({
-      id: m.id,
-      label: m.label,
-      stage: m.stage,
-      covered: published.some((r) => r.fixtureId === m.id),
-      technicalAdjudication: published.some(
-        (r) => r.fixtureId === m.id && r.published?.technicalAdjudication,
-      ),
-      score: m.score,
-    })),
-    plays,
-    publishedAt:
-      published
-        .map((r) => r.publishedAt!.toISOString())
-        .sort()
-        .at(-1) ?? null,
-    mpTotal: fixtures.reduce((n, m) => n + m.mpUrls.length, 0),
-    mpCovered: published.length,
-  };
 }
 export async function publicArchiveStatistics(
   slug: string,
+  fixtureId?: string,
 ): Promise<Awaited<ReturnType<typeof databasePublicArchiveStatistics>>> {
   if (remoteMode()) {
     return frontendResource<
       Awaited<ReturnType<typeof databasePublicArchiveStatistics>>
-    >("publicArchiveStatistics", { slug });
+    >("publicArchiveStatistics", { slug, fixtureId });
   }
-  return databasePublicArchiveStatistics(slug);
+  return databasePublicArchiveStatistics(slug, fixtureId);
 }
 
 export type PublicArchiveStatistics = Awaited<

@@ -1,4 +1,5 @@
 "use client";
+import { LoadingRegion } from "./loading-region";
 import {
   ReadOnlyFields,
   MutationButton,
@@ -25,12 +26,14 @@ export function AwardManager({ initial }: { initial: Data }) {
     [error, setError] = useState(""),
     [notice, setNotice] = useState("");
   const [validity, setValidity] = useState<Record<string, boolean>>({});
+  const [activeAction, setActiveAction] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const dirty =
     JSON.stringify(weeks) !== JSON.stringify(data.weeks) ||
     policy !== data.policy;
   async function send(command: Record<string, unknown>) {
-    if (readOnly) return;
+    if (readOnly || busy) return;
+    setActiveAction(String(command.action));
     setBusy(true);
     setError("");
     setNotice("");
@@ -81,6 +84,7 @@ export function AwardManager({ initial }: { initial: Data }) {
             void send({ action: "configure", weeks, policy });
           }}
         >
+          {busy && activeAction === "configure" && <LoadingRegion />}
           <ReadOnlyFields>
             <label className="field">
               <span>{tr("Rating policy")}</span>
@@ -194,6 +198,7 @@ export function AwardManager({ initial }: { initial: Data }) {
             </table>
           </div>
           <MutationButton
+            aria-busy={busy && activeAction === "configure"}
             disabled={busy || !dirty || Object.values(validity).some((v) => !v)}
           >
             {tr("Save configuration")}
@@ -201,10 +206,12 @@ export function AwardManager({ initial }: { initial: Data }) {
         </form>
       </details>
       <section className="panel form-stack">
+        {busy && activeAction !== "configure" && <LoadingRegion />}
         <label className="field">
           {tr("Review week")}
           <select
             value={selected}
+            disabled={busy}
             onChange={(e) => setSelected(Number(e.target.value))}
           >
             {data.weeks.map((w) => (
@@ -255,6 +262,7 @@ export function AwardManager({ initial }: { initial: Data }) {
             />
             <div className="actions">
               <MutationButton
+                aria-busy={busy && activeAction === "publish"}
                 disabled={
                   busy ||
                   dirty ||
@@ -279,6 +287,7 @@ export function AwardManager({ initial }: { initial: Data }) {
               {release && (
                 <MutationButton
                   className="secondary"
+                  aria-busy={busy && activeAction === "unpublish"}
                   disabled={busy}
                   onClick={() => {
                     void send({

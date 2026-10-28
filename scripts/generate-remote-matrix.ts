@@ -7,7 +7,9 @@ const walk = (dir: string): string[] =>
   fs
     .readdirSync(dir, { withFileTypes: true })
     .flatMap((e) =>
-      e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)],
+      e.isDirectory()
+        ? walk(path.posix.join(dir, e.name))
+        : [path.posix.join(dir, e.name)],
     );
 const known = new Map(resources.map((r) => [r.fn, r.id]));
 for (const [fn, id] of Object.entries({
@@ -15,7 +17,7 @@ for (const [fn, id] of Object.entries({
   frontendTournaments: "listPublicTournaments",
   frontendTournament: "getPublicTournament",
   frontendPlayers: "listPublicPlayers",
-  frontendProfile: "getPublicPlayer",
+  frontendProfile: "getOclrProfile",
   frontendPrivateTournaments: "listStaffTournaments",
   frontendPrivateTournament: "getStaffTournament",
   frontendConnection: "getApiIdentity",
