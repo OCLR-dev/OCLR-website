@@ -17,6 +17,7 @@ vi.mock("next/server", () => ({
   after: (callback: () => Promise<void>) => callbacks.push(callback),
 }));
 vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
   notFound: () => {
     throw Error("NOT_FOUND");
   },
@@ -27,6 +28,9 @@ vi.mock("../../src/i18n/server", () => ({
 vi.mock("../../src/lib/auth/user", () => ({ currentUser: async () => null }));
 vi.mock("../../src/lib/player-messages", () => ({
   publicPlayerIntroductions: async () => new Map(),
+}));
+vi.mock("../../src/lib/player-identity", () => ({
+  visiblePlayerNames: async () => [],
 }));
 vi.mock("../../src/lib/players", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../src/lib/players")>()),

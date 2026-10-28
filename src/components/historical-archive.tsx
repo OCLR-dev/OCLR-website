@@ -29,6 +29,7 @@ import {
   publicEditionContext,
 } from "@/lib/public-read-models";
 import type { PublicPlayer } from "@/lib/read-api-contract";
+import { publicDirectoryPlayer } from "@/lib/player-directory";
 import { deriveS8Standings } from "@/lib/s8-standings";
 import { hasS1FinalStandings } from "@/lib/s1-archive";
 import Image from "next/image";
@@ -560,7 +561,7 @@ export async function HistoricalArchiveView({
       section === "player"
         ? allPlayers.filter((p) => String(p.osuId) === id)
         : allPlayers;
-    if (!players.length) notFound();
+    if (!players.length && section === "player") notFound();
     const aliases = preview
       ? []
       : remoteMode()
@@ -583,15 +584,12 @@ export async function HistoricalArchiveView({
         {section === "players" ? (
           <ArchivePlayerSearch
             players={players.map((p) => ({
-              id: p.osuId,
-              searchText: [
-                p.username,
-                p.osuId,
-                p.team?.name ?? "",
-                ...aliases
+              ...publicDirectoryPlayer(
+                p,
+                aliases
                   .filter((n) => n.osuId === p.osuId)
                   .map((n) => n.username),
-              ].join(" "),
+              ),
               card: rosterCard(p),
             }))}
           />

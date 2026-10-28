@@ -49,6 +49,7 @@
 }
 .event-player-group h2 {
   font-size: 1.1rem;
+  overflow-wrap: anywhere;
   border-bottom: 1px solid var(--site-border);
   padding-bottom: 1rem;
 }
@@ -693,6 +694,14 @@
   flex: 0 0 56px;
   width: 56px;
   height: 56px;
+}
+.event-player-identity > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.event-player-identity .text-link {
+  display: block;
+  width: fit-content;
 }
 .event-player-bio > p {
   white-space: pre-wrap;
