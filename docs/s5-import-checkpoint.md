@@ -73,3 +73,29 @@
   4 個檔案 34 tests 全通過。修正後未再次執行完整套件；未配置隔離
   `TEST_DATABASE_URL`，未跑資料庫整合及桌面／手機 E2E。
   沙箱內初次完整測試／建置停滯後已中止，以上完整結果來自正常本機權限重試。
+
+## 2026-10-29 — 缺失譜面資料補件（僅匯入包，站上待重新匯入）
+
+- 提交 `b94dd7c` 手動補了 `s5-archive.json` 三張圖，但生成腳本仍會把它們還原。
+  本次把補充寫回 `scripts/prepare-s5-archive.py`（`ORIGINAL_BEATMAP_IDS`、
+  `SUPPLEMENTAL_MAP_ATTRIBUTES`），重跑後逐欄重現該提交的資料。
+- 明細：[DT2 2567502](https://osu.ppy.sh/beatmaps/2567502) 加 `originalId` 2933979
+  （本身頁面仍可用，不補值）；DT4 2720295 加 `originalId` 2678913，補 mapper Gaia、
+  stars 6.27、bpm 210、drain 111（167s ÷ 1.5 取整）、cs 4、ar 8.5、od 8；Final NM4 2756449 加
+  `originalId` 2755377，補 cs 4、ar 9.4、od 8。
+- 補上的數值是**該 edit 的上傳值，不是本次重新裁定或量測的比賽實測值**；已寫入匯入包
+  `notes` 與 [圖池中繼資料說明](archive-map-metadata.md)。主辦者確認 2026-10-29：
+  DT4 2720295 是原始圖 2678913 的 1.5× 版本，該版本把 AR 由 9 改為 8.5、OD 由
+  8.5 改為 8，因此 stars 6.27、bpm 210；NM4 2756449 的 cs／ar／od 與原始圖
+  2755377 相同（4／9.4／8）。兩者都是該 edit 的上傳值，不是原始圖頁面基礎值
+  （2678913 為 4.46★／140 BPM／AR 9／OD 8.5），也不是本次重新量測。未變更
+  `src/data/archive-beatmaps.json`：快照仍記錄那兩個 BID 的頁面為 404。
+- 重跑 `python3 scripts/prepare-s5-archive.py` 與
+  `python3 scripts/prepare-s5-reviewed-import.py`（需 Python ≥3.10，腳本使用
+  `zip(strict=True)`）：兩份包的 pools 重新一致，`s5-match-side-evidence.json`
+  無變動。
+- 公開站目前是 revision 5，由舊的待核准包匯入，尚不含這些值；需重新匯入
+  `s5-reviewed-import.json`（或於後台逐欄修改）才會顯示。本次未連線資料庫、
+  未重新匯入、未部署。
+- 驗證：`archive-map-metadata` 與 `historical-rulebooks` 單元測試 23 項通過；
+  生成腳本重跑與提交內容逐欄一致（僅新增第 4 條 notes）。

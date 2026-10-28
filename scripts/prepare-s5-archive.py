@@ -11,6 +11,21 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'docs/imports/s5-source-records.json'
 OUTPUT = ROOT / 'docs/imports/s5-archive.json'
 
+# Provenance for archived S5 edits whose official beatmap page is gone: the edit
+# stays in beatmapId, originalId points at the surviving source map players can
+# still open. Mirrors ORIGINAL_BEATMAP_IDS in the S6/S9/S10 builders (#420).
+ORIGINAL_BEATMAP_IDS = {2567502: 2933979, 2720295: 2678913, 2756449: 2755377}
+# The two edits without a surviving page have unpublished cells, so the editors'
+# own values fill them (organizer-confirmed 2026-10-29): DT4 is the 1.5x version of
+# 2678913 with AR 9 -> 8.5 and OD 8.5 -> 8 (hence stars 6.27 / bpm 210, and
+# drainSeconds 167 / 1.5 ~= 111), and NM4's cs/ar/od match 2755377. These are the
+# edits' values, not re-measured results.
+SUPPLEMENTAL_MAP_ATTRIBUTES = {
+    2720295: dict(mapper='Gaia', stars=6.27, bpm=210, drainSeconds=111,
+                  cs=4, ar=8.5, od=8),
+    2756449: dict(cs=4, ar=9.4, od=8),
+}
+
 
 def build():
     s = json.loads(SOURCE.read_text())
@@ -20,7 +35,8 @@ def build():
              matches=[], pools=[], qualifiers=[], reviewTables=[], sourceFacts=[],
              notes=['S5 私人草稿；名單以 MainSheet 為準。',
                     '34 場原表比分尚未覆核；原始日期、時間及比分存於管理附錄。時區及 MP 紅藍隊未知，不補造 review sides 或 UTC 時間。',
-                    '規則原文、最終名次、晉級連線及未知 UID 尚待核實。'],
+                    '規則原文、最終名次、晉級連線及未知 UID 尚待核實。',
+                    'DT2、DT4、NM4 的 originalId 指向仍可開啟的原始圖；DT4 是 2678913 的 1.5× 版本（AR 9→8.5、OD 8.5→8，故 stars 6.27、bpm 210），DT4、NM4 的 mapper、stars、bpm、drainSeconds、cs、ar、od 為該 edit 的上傳值，不是本次重新裁定或量測的比賽結果。'],
              links=[dict(label='來源整理與差異記錄', url='https://github.com/OCLR-dev/OCLR-website/blob/82032bce0a512ae99c9fa2e27d59b6470012d9e7/docs/s5-archive.md'),
                     dict(label='S5 規則來源（原文待取得）', url=s['rulesLink'])])
     def fact(category, label, value, source):
@@ -51,12 +67,17 @@ def build():
                 v=meta.get(key)
                 return float(v) if v and re.fullmatch(r'\d+(?:\.\d+)?',v) else None
             slot=m['slot'].replace('(EX)',''); slot='TB1' if slot=='TB' else slot
-            maps.append(dict(slot=slot,beatmapId=m['beatmapId'],title=m['title'],
-                             mapper=meta.get('J' if first else 'L') if full else None,
-                             stars=number('F' if first else 'G') if full else None,
-                             bpm=number('G' if first else 'H') if full else None,
-                             drainSeconds=int(drain[1])*60+int(drain[2]) if drain else None,
-                             cs=None,ar=None,od=None,source=m['source']))
+            bid=m['beatmapId']
+            entry=dict(slot=slot,beatmapId=bid,
+                       **({'originalId':ORIGINAL_BEATMAP_IDS[bid]} if bid in ORIGINAL_BEATMAP_IDS else {}),
+                       title=m['title'],
+                       mapper=meta.get('J' if first else 'L') if full else None,
+                       stars=number('F' if first else 'G') if full else None,
+                       bpm=number('G' if first else 'H') if full else None,
+                       drainSeconds=int(drain[1])*60+int(drain[2]) if drain else None,
+                       cs=None,ar=None,od=None,source=m['source'])
+            entry.update(SUPPLEMENTAL_MAP_ATTRIBUTES.get(bid,{}))
+            maps.append(entry)
         a['pools'].append(dict(id=f'pool-{i+1}',name=p['sheet'],source=p['sheet'],maps=maps))
         fact('provenance',p['sheet']+' 原始 EX 標記',[m['slot'] for m in p['maps'] if '(EX)' in m['slot']],p['sheet'])
     qmaps=[]
