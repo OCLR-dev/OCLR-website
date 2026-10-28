@@ -326,6 +326,46 @@ html[data-appearance="graphite-arena"] .themed-site .map-view-control {
 html[data-appearance="graphite-arena"] .themed-site .map-view-control button {
   border-color: var(--site-control-border);
 }
+/* Read-only pool metadata and mod filters do not need another metal enclosure. */
+html[data-appearance="graphite-arena"] .themed-site .pool-summary {
+  padding: 0 0 12px;
+  margin-bottom: 16px;
+  border: 0;
+  border-bottom: 1px solid var(--site-border);
+  border-radius: 0;
+  background: transparent;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .map-browse-toolbar
+  .event-pills:not(.map-view-control) {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .map-browse-toolbar
+  .event-pills:not(.map-view-control)
+  button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+html[data-appearance="graphite-arena"]
+  .themed-site
+  .map-browse-toolbar
+  .event-pills:not(.map-view-control)
+  button[aria-pressed="true"] {
+  color: var(--site-accent-strong);
+  border-bottom-color: var(--graphite-yellow);
+}
 /* Map titles are text actions. Keep a consistent hit area and literal wrapping. */
 html[data-appearance="graphite-arena"] .themed-site button.map-open-button {
   width: 100%;
@@ -472,7 +512,8 @@ html[data-appearance="graphite-arena"]
     :is(button, .button):not(
       [disabled],
       [role="menuitemradio"],
-      .map-open-button
+      .map-open-button,
+      .map-browse-toolbar .event-pills:not(.map-view-control) button
     ):active {
     transform: translateY(1px);
   }
@@ -528,7 +569,7 @@ html[data-appearance="graphite-arena"]
       .main-nav > a[aria-current],
       .sidebar nav a[aria-current],
       .tournament-navigation a[aria-current],
-      .map-view-control button[aria-pressed="true"]
+      .map-browse-toolbar button[aria-pressed="true"]
     ) {
     outline: 2px solid Highlight;
     outline-offset: -3px;
