@@ -544,11 +544,27 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
     .set({ revokedAt: new Date() })
     .where(eq(staffRoles.userId, owner));
   await page.reload();
+  const denied = await context.request.get("/api/remote/connection");
+  expect(denied.status()).toBe(403);
+  expect(await denied.json()).toMatchObject({
+    state: "unavailable",
+    code: "DEVELOPER_REQUIRED",
+  });
+  const deniedPrivateRead = await context.request.get(
+    "/api/remote/read/staff/tournaments/private-test-cup",
+  );
+  expect(deniedPrivateRead.status()).toBe(403);
+  expect(await deniedPrivateRead.json()).not.toHaveProperty("data");
   await expect(
     page
-      .getByText(
-        "This remote token does not permit this read. Check its scopes and Developer grant.",
-      )
+      .getByRole("status")
+      .filter({
+        has: page.getByRole("heading", {
+          name: "Remote frontend development",
+          exact: true,
+        }),
+      })
+      .getByText("Developer access is required.", { exact: true })
       .first(),
   ).toBeVisible();
   await expect(

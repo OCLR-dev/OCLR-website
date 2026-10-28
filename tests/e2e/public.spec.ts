@@ -34,16 +34,14 @@ test("shared navigation works at desktop and mobile widths", async ({
   await page.getByRole("link", { name: "privacy notice", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
-test("landing page has honest CTAs and readable original artwork", async ({
+test("landing page exposes the official identity and working tournament entry", async ({
   page,
 }, testInfo) => {
   await page.goto("/");
-  await expect(page.locator(".home-full-name")).toHaveText(
-    "osu! Chinese League Rookie",
-  );
-  await expect(page.locator("#hero-title img")).toHaveAttribute(
-    "alt",
-    "OCLR S11",
+  // Core smoke checks the accessible identity and navigation contract. Detailed
+  // decorative/responsive image checks remain in the full artwork regression.
+  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+    /osu! Chinese League Rookie/,
   );
   await expect(page.locator(".home-information-link")).toHaveAttribute(
     "href",
