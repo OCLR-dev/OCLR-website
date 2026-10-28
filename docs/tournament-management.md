@@ -51,6 +51,15 @@ rules editor; see [the import checkpoint](s6-archive.md) for the confirmed versi
 and pending display deployment. The S6 archive's exact source pair enables the same saved sections in
 historical public/private views and saved reads.
 
+Both artwork selectors use localized season labels, including **Season 5 (β)**.
+The existing S8/S9 1920×1080 images and S10 1024×1024 image are available as both
+logo and key visual (#356). Select and preview the desired image in General
+settings, then explicitly save; deployment does not select it automatically.
+Saved reads and public historical views retain the selected image's dimensions.
+**No edition artwork** clears the explicit configuration; existing historical
+source-artwork fallback rules remain in effect. No migration or image replacement
+is required.
+
 S5 likewise uses its native versioned editor, bound to the exact S5 MainSheet and
 QQ rulebook source URLs. The organizer-provided `OCLR β 规则表` is saved in its
 original order as `重点规则:`, `BP流程`, and `时限`; source subheadings, wording,
