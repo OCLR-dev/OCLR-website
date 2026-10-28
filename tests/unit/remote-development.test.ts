@@ -8,7 +8,7 @@ import {
   remoteMode,
   remotePageSupported,
 } from "../../src/lib/data-source";
-import { remoteOperation } from "../../src/lib/remote-transport";
+import { remoteOperation, remoteRead } from "../../src/lib/remote-transport";
 import { proxy } from "../../src/proxy";
 beforeEach(() => {
   vi.stubEnv("NODE_ENV", "development");
@@ -16,7 +16,10 @@ beforeEach(() => {
   vi.stubEnv("APP_URL", "http://localhost:3000");
   vi.stubEnv("OCLR_API_BASE_URL", "https://backend.example");
 });
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+});
 describe("explicit remote frontend boundaries", () => {
   it("keeps app and API origins separate and refuses production, unknown modes and unsafe origins", () => {
     expect(remoteMode()).toBe(true);
@@ -138,6 +141,35 @@ describe("explicit remote frontend boundaries", () => {
       { authorization: "Bearer synthetic" },
     ])
       expect(proxy(request("/", headers)).status).toBe(403);
+  });
+  it("preserves safe backend denial codes instead of blaming every 403 on token scopes", async () => {
+    for (const code of [
+      "ORIGIN_NOT_ALLOWED",
+      "INSUFFICIENT_SCOPE",
+      "DEVELOPER_REQUIRED",
+      "UNKNOWN_BACKEND_CODE",
+    ]) {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () =>
+          Response.json(
+            {
+              error: {
+                code,
+                message: "Do not relay arbitrary backend messages",
+              },
+            },
+            { status: 403 },
+          ),
+        ),
+      );
+      await expect(
+        remoteRead("/me", undefined, "synthetic-test-token"),
+      ).rejects.toMatchObject({
+        status: 403,
+        code: code === "UNKNOWN_BACKEND_CODE" ? "REMOTE_FORBIDDEN" : code,
+      });
+    }
   });
   it("refuses any local database pool even with a configured URL", () => {
     vi.stubEnv(

@@ -86,8 +86,6 @@ export async function remoteRead(
       );
     if (response.status === 401)
       throw new RemoteDataError("REMOTE_EXPIRED", 401);
-    if (response.status === 403)
-      throw new RemoteDataError("REMOTE_FORBIDDEN", 403);
     if (
       response.ok &&
       !supportsFullSiteRead(response.headers.get(readContractHeader))
@@ -110,6 +108,19 @@ export async function remoteRead(
       chunks.push(value);
     }
     const input = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    if (response.status === 403) {
+      const code = input?.error?.code;
+      throw new RemoteDataError(
+        [
+          "ORIGIN_NOT_ALLOWED",
+          "INSUFFICIENT_SCOPE",
+          "DEVELOPER_REQUIRED",
+        ].includes(code)
+          ? code
+          : "REMOTE_FORBIDDEN",
+        403,
+      );
+    }
     if (!response.ok) {
       const known = [
         "NOT_FOUND",

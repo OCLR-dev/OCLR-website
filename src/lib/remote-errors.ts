@@ -21,6 +21,12 @@ export function remoteErrorMessage(
       );
     case "REMOTE_EXPIRED":
       return tr("Remote access expired or was revoked. Connect again.");
+    case "ORIGIN_NOT_ALLOWED":
+      return tr("This local origin is not allowed.");
+    case "INSUFFICIENT_SCOPE":
+      return tr("This token does not include the required read scope.");
+    case "DEVELOPER_REQUIRED":
+      return tr("Developer access is required.");
     case "REMOTE_FORBIDDEN":
       return tr(
         "This remote token does not permit this read. Check its scopes and Developer grant.",
