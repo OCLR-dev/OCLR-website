@@ -1,5 +1,11 @@
 {
   "ui": {
+    "m513501254919": "Applicable matches",
+    "m7fdd3be56e77": "Unknown mappool matches",
+    "mafec993e7160": "Pick coverage",
+    "m1b44c30e2bf1": "Ban coverage",
+    "me19695c3a287": "Rates require known mappools and complete coverage. Coverage shows recorded / applicable matches. Unknown mappool matches are listed separately.",
+    "m7dca87f6ff98": "Scores and picks use reviewed and published MP games. Bans use published schedule records. Missing data is not zero.",
     "m0c953ab32c60": "Something went wrong.",
     "maa9b8b4a1a2d": "Please try again. If the problem continues, return later.",
     "md8b8392e2c54": "Try again",

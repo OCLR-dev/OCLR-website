@@ -1,4 +1,8 @@
 import { archiveMatchDetails } from "./match-details-model";
+import {
+  archivePoolFixtures,
+  type EventPoolFixture,
+} from "./archive-mappool-statistics";
 import { ratingSnapshot } from "./ratings";
 import type { RatingGame } from "./yumu-rating";
 import { db } from "@/db";
@@ -765,6 +769,16 @@ async function databasePublicArchiveStatistics(
           score: m.score,
         })),
         plays,
+        // Optional on the wire so an older read backend remains consumable;
+        // the frontend leaves eligibility and coverage unknown when absent.
+        poolFixtures: archivePoolFixtures(
+          archive,
+          published.map((r) => ({
+            fixtureId: r.fixtureId,
+            snapshot: r.published!,
+          })),
+        ).filter((f) => !fixtureId || f.id === fixtureId) as
+          EventPoolFixture[] | undefined,
         publishedAt:
           published
             .map((r) => r.publishedAt!.toISOString())

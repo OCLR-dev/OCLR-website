@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
 import type { PublicArchiveStatistics } from "@/lib/archive-statistics";
+import { eventMappoolRows } from "@/lib/archive-mappool-statistics";
 import type { EventScore } from "@/lib/event-statistics";
 import {
   eventMapKey,
@@ -56,6 +57,7 @@ export function EventStatistics({
       plays.map((s) => (view === 3 || view === 4 ? s.team : s.player)),
     ),
   ];
+  const poolFixtures = coverage?.poolFixtures;
   const maps = groupEventMaps(view >= 4 ? eligible : plays);
   const placementLabels = new Map<string, string>(
     maps.flatMap((map): [string, string][] => [
@@ -63,6 +65,12 @@ export function EventStatistics({
       [`${map.key}:score`, `${map.label} ${tr("Score")}`],
     ]),
   );
+  const poolLabels: Record<string, string> = {
+    "Applicable matches": tr("Applicable matches"),
+    "Unknown mappool matches": tr("Unknown mappool matches"),
+    "Pick coverage": tr("Pick coverage"),
+    "Ban coverage": tr("Ban coverage"),
+  };
   if (view === 0) {
     columns = [
       "Player",
@@ -127,53 +135,52 @@ export function EventStatistics({
       "Pick rate",
       "Bans",
       "Ban rate",
+      "Applicable matches",
+      "Unknown mappool matches",
+      "Pick coverage",
+      "Ban coverage",
     ];
-    rows = maps.map(({ plays: p }) => {
-      const best = [...p].sort((a, b) => b.score - a.score)[0];
-      const teams = [...new Set(p.map((s) => s.game + ":" + s.team))]
-        .map((g) => {
-          const a = p.filter((s) => s.game + ":" + s.team === g);
-          return {
-            name: a[0].team,
-            total: a.reduce((n, s) => n + s.score, 0),
-            mp: a[0].mp,
-          };
-        })
-        .sort((a, b) => b.total - a.total);
-      const games = new Set(p.map((s) => s.game)).size;
-      return {
-        Map: `${best.round} · ${best.slot}`,
-        Beatmap: best.title,
-        "Map ID": best.mapId,
-        "Best player": best.player,
-        Score: best.score,
-        Accuracy: best.accuracy,
-        Mods: best.mods,
-        Match: best.mp,
-        "Best team": teams[0]?.name ?? null,
-        "Team score": teams[0]?.total ?? null,
-        "Team match": teams[0]?.mp ?? null,
-        "Average score": avg(p, "score"),
-        "Average accuracy": avg(p, "accuracy"),
-        "Average team score": teams.length
-          ? teams.reduce((n, s) => n + s.total, 0) / teams.length
-          : null,
-        Picks: games,
-        "Pick rate":
-          new Set(p.map((s) => s.fixture)).size /
-          (best.poolMatches ??
-            new Set(
-              scores
-                .filter((s) => s.round === best.round)
-                .map((s) => s.fixture),
-            ).size),
-        Bans: best.bans ?? null,
-        "Ban rate":
-          best.bans !== undefined && best.poolMatches
-            ? best.bans / best.poolMatches
+    rows = eventMappoolRows(scores, poolFixtures, round, team, slot).map(
+      ({ map, plays: p, ...stats }) => {
+        const best = [...p].sort((a, b) => b.score - a.score)[0];
+        const teams = [...new Set(p.map((s) => s.game + ":" + s.team))]
+          .map((g) => {
+            const a = p.filter((s) => s.game + ":" + s.team === g);
+            return {
+              name: a[0].team,
+              total: a.reduce((n, s) => n + s.score, 0),
+              mp: a[0].mp,
+            };
+          })
+          .sort((a, b) => b.total - a.total);
+        return {
+          Map: `${map.round} · ${map.slot}`,
+          Beatmap: map.title,
+          "Map ID": map.mapId,
+          "Best player": best?.player ?? null,
+          Score: best?.score ?? null,
+          Accuracy: best?.accuracy ?? null,
+          Mods: best?.mods ?? null,
+          Match: best?.mp ?? null,
+          "Best team": teams[0]?.name ?? null,
+          "Team score": teams[0]?.total ?? null,
+          "Team match": teams[0]?.mp ?? null,
+          "Average score": avg(p, "score"),
+          "Average accuracy": avg(p, "accuracy"),
+          "Average team score": teams.length
+            ? teams.reduce((n, s) => n + s.total, 0) / teams.length
             : null,
-      };
-    });
+          Picks: stats.picks,
+          "Pick rate": stats.pickRate,
+          Bans: stats.bans,
+          "Ban rate": stats.banRate,
+          "Applicable matches": stats.applicable,
+          "Unknown mappool matches": stats.unknown,
+          "Pick coverage": stats.pickCoverage,
+          "Ban coverage": stats.banCoverage,
+        };
+      },
+    );
   } else if (view === 2 || view === 3) {
     columns =
       view === 2
@@ -231,6 +238,7 @@ export function EventStatistics({
   rows.sort((a, b) => {
     const x = a[sort],
       y = b[sort];
+    if (x == null && y == null) return 0;
     if (x == null) return 1;
     if (y == null) return -1;
     return (
@@ -293,9 +301,13 @@ export function EventStatistics({
             </div>
           </div>
           <p className="muted">
-            {tr(
-              "Only reviewed and published MP games are counted. Missing data is not zero.",
-            )}
+            {view === 1
+              ? tr(
+                  "Scores and picks use reviewed and published MP games. Bans use published schedule records. Missing data is not zero.",
+                )
+              : tr(
+                  "Only reviewed and published MP games are counted. Missing data is not zero.",
+                )}
           </p>
           <p className="muted">
             {tr("Known accuracy")}{" "}
@@ -384,7 +396,13 @@ export function EventStatistics({
             label: "Map",
             value: slot,
             set: setSlot,
-            options: groupEventMaps(scores).map((map) => ({
+            options: (view === 1
+              ? eventMappoolRows(scores, poolFixtures).map(({ key, map }) => ({
+                  key,
+                  label: `${map.round} · ${map.slot} · ${map.mapId ?? map.title}`,
+                }))
+              : groupEventMaps(scores)
+            ).map((map) => ({
               value: map.key,
               label: map.label,
             })),
@@ -408,6 +426,13 @@ export function EventStatistics({
         </label>
       </div>
       <h2>{tr(views[view])}</h2>
+      {view === 1 && coverage && (
+        <p className="muted">
+          {tr(
+            "Rates require known mappools and complete coverage. Coverage shows recorded / applicable matches. Unknown mappool matches are listed separately.",
+          )}
+        </p>
+      )}
       <div
         className="event-table-scroll"
         tabIndex={0}
@@ -436,7 +461,7 @@ export function EventStatistics({
                       setDescending(sort === c ? !descending : true);
                     }}
                   >
-                    {placementLabels.get(c) ?? tr(c)}{" "}
+                    {placementLabels.get(c) ?? poolLabels[c] ?? tr(c)}{" "}
                     {sort === c ? (descending ? "↓" : "↑") : ""}
                   </button>
                 </th>
