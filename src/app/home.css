@@ -82,7 +82,7 @@
 }
 .home-wordmark-layout-b {
   display: block;
-  width: min(58vw, 56rem);
+  width: min(50vw, 48rem);
   line-height: 0;
 }
 .home-vector-wordmark {
@@ -92,7 +92,7 @@
 }
 @media (max-width: 760px) {
   .home-wordmark-layout-b {
-    width: 100%;
+    width: 90%;
   }
 }
 .home-contact-bar {

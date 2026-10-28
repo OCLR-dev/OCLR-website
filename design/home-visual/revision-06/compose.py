@@ -8,11 +8,11 @@ NS = 'http://www.w3.org/2000/svg'
 ET.register_namespace('', NS)
 source = ET.parse(ROOT.parent / 'revision-05/oclr-s11-angular.svg').getroot()
 svg = ET.Element(f'{{{NS}}}svg', {
-    'viewBox': '40 0 1030 490', 'width': '1030', 'height': '490',
+    'viewBox': '40 0 1160 490', 'width': '1160', 'height': '490',
     'color': '#fff5ee', 'role': 'img', 'aria-labelledby': 'title desc',
 })
 ET.SubElement(svg, f'{{{NS}}}title', id='title').text = 'osu! Chinese League Rookie — S11'
-ET.SubElement(svg, f'{{{NS}}}desc', id='desc').text = 'Horizontal outline OCLR, small S11 above the O, Katu above the R, and an outline timing bar with one marker in the early 100 region.'
+ET.SubElement(svg, f'{{{NS}}}desc', id='desc').text = 'Horizontal outline OCLR, small S11 to the right of OCLR aligned to its baseline, Katu above the R, and an outline timing bar with one marker in the early 100 region.'
 main = ET.SubElement(svg, f'{{{NS}}}g', transform='translate(0 60)')
 for name in ['O-angular', 'C-angular', 'L-angular', 'R-reference-slider', 'judgement-katu', 'english-name']:
     node = copy.deepcopy(next(e for e in source if e.get('id') == name))
@@ -31,7 +31,7 @@ for name in ['O-angular', 'C-angular', 'L-angular', 'R-reference-slider', 'judge
                 e.set('stroke', '#e3d9f5')
     main.append(node)
 season = ET.SubElement(svg, f'{{{NS}}}g', id='season-label',
-                       transform='translate(64 25) scale(.23) translate(-1030 -66)')
+                       transform='translate(1040 317) scale(.23) translate(-1030 -66)')
 for name in ['S-angular', 'season-one-a', 'season-one-b']:
     node = copy.deepcopy(next(e for e in source if e.get('id') == name))
     node.set('stroke-width', '10')
