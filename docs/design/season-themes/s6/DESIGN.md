@@ -12,7 +12,7 @@
 - [桌面 Dark](desktop-dark.webp)／[Light](desktop-light.webp) · [手機 Dark](mobile-dark.webp)／[Light](mobile-light.webp)。
 - [賽程](schedule-desktop-dark.webp) · [圖池](mappools-desktop-dark.webp) · [Admin](admin-desktop-dark.webp)。
 - [937px 標題](heading-937-dark.png)／[390px 標題](heading-390-dark.png)，原生 2×。
-- 紅藍高張力水平頻譜局部：[Dark](spectrum-peaks-dark.png)／[Light](spectrum-peaks-light.png)。
+- 音訊分析版頻譜局部：[Dark](spectrum-audio-dark.png)／[Light](spectrum-audio-light.png)。
 
 ## 候選語意 tokens
 
@@ -41,7 +41,9 @@
 ## 素材與資料來源
 
 - [原圖](../../../../public/archive/s6/key-visual.jpg)：原有 1920×1080 JPEG，完整呈現，不裁切、重繪、調色或改字；原圖歷史英文保留原樣。
-- [music-spectrum.svg](music-spectrum.svg)：以原生 SVG 繪製 32 根高低起伏的水平排列頻譜柱，每柱以分段亮格呈現，由左側紅色平滑漸變至右側藍色；加大四組尖峰與低谷的高差、略加寬亮格，配上少量峰值標記及柔和光暈，使輪廓更有張力。這是靜態音樂頻譜意象，沒有假稱實測音訊數據。無文字、外部資產或生成圖，不取代原圖。
+- [music-spectrum.svg](music-spectrum.svg)：32 根分段柱的高度來自音樂片段的實際頻域分析，取消手工安排的四組尖峰及峰值帽。保留左紅→右藍漸變與克制的微光；作為靜態頻譜快照，不取代原主視覺。
+- 音樂樣本為 MDN 官方範例的 [Outfoxing the Fox](https://github.com/mdn/webaudio-examples/blob/main/audio-basics/outfoxing.mp3)，作者 Kevin MacLeod，署名依 [MDN 範例原始碼](https://github.com/mdn/webaudio-examples/blob/main/audio-basics/index.html)。僅供頻譜造型分析，不是 S6 賽事音樂；音檔只下載至暫存目錄，不加入 repository 或產品。
+- [spectrum-data.json](spectrum-data.json) 記錄來源 URL／SHA-256、取樣時間、頻段邊界、能量與亮格數。使用瀏覽器原生 Web Audio `AnalyserNode`，FFT 8192；取約12.8–13.2秒五個快照，40Hz–16kHz分成32個對數頻段，先加總各頻段FFT bin功率，再對五幀平均。以固定−80至−20dB範圍映射至0–24格，各柱均使用同一刻度，沒有逐柱手工調高或製造規律尖峰。分析方法參考 [MDN Web Audio 頻譜指南](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API)。
 - 資料使用已提交的 `s6-confirmed-archive.json` 與 `s6-configured-rules.json`，沿用既有 S6 presentation fixture 的純函式，於隔離 test DB 重現 [2026-10-25 主辦方確認的 33 場紀錄](../../../s6-archive.md)。沒有讀取 production 或執行真實審批；合成 fixture 的來源標記明確註明 Synthetic UI。
 - 主頁保留 12 隊、85 位選手／教練、33 場已記錄結果、5 個圖池、71 張譜面與四章規則。未補造缺失對局、日期、名次或隊伍。Admin 只使用隔離 DB 的 `Synthetic UI Preview` 合成帳號；session 僅留在程序記憶體。
 
@@ -68,6 +70,14 @@ DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 APP_URL=http://127.0.0.1:3
 ```sh
 node --import tsx docs/design/season-themes/s6/capture.mjs
 ```
+
+若要重建頻譜，先將上述 MDN 範例音檔另存至本機暫存目錄，再執行：
+
+```sh
+node docs/design/season-themes/s6/analyse-spectrum.mjs /private/tmp/oclr-s6-spectrum-source.mp3
+```
+
+工具先核對音檔 SHA-256，再輸出頻段數據及 SVG；使用 OfflineAudioContext，不播放聲音，也不在預覽時載入音檔。
 
 `S6_UI_BASELINE` 指定應用基準 SHA，`S6_PREVIEW_ORIGIN` 可指定另一 loopback 專用預覽。工具會先核對 `src`／`messages`／`public` 與基準相同。圖庫可直接開啟 `s6.html`，不依賴上述服務。
 
