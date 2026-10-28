@@ -79,11 +79,9 @@ test.describe("S6 Orbital Pulse appearance", () => {
         await page.waitForLoadState("networkidle");
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
-        const menu = page
-          .getByRole("menu")
-          .filter({
-            has: page.locator('[data-appearance-option="orbital-pulse"]'),
-          });
+        const menu = page.getByRole("menu").filter({
+          has: page.locator('[data-appearance-option="orbital-pulse"]'),
+        });
         await expect(menu.getByRole("menuitemradio")).toHaveCount(15);
         await page.keyboard.press("End");
         await expect(
@@ -112,6 +110,20 @@ test.describe("S6 Orbital Pulse appearance", () => {
             .locator(".page-heading")
             .evaluate((n) => getComputedStyle(n, "::before").backgroundImage),
         ).toContain("/themes/orbital-pulse/music-spectrum.svg");
+        const circuit = `/themes/orbital-pulse/circuit-${theme}.svg`;
+        expect(
+          await page
+            .locator(".page-heading")
+            .evaluate((n) => getComputedStyle(n).backgroundImage),
+        ).toContain(circuit);
+        expect(
+          await page.evaluate(async (src) => {
+            const image = new Image();
+            image.src = src;
+            await image.decode();
+            return { width: image.naturalWidth, height: image.naturalHeight };
+          }, circuit),
+        ).toEqual({ width: 1440, height: 240 });
         const original = page.locator(".archive-key-visual img");
         await expect(original).toHaveAttribute(
           "src",

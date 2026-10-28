@@ -34,6 +34,11 @@ html[data-appearance="orbital-pulse"] .themed-site {
   --orbital-blue-ink: #214ba9;
   --orbital-red: #de3e59;
   --orbital-heading: linear-gradient(110deg, #fffafb, #f8f7fc 45%, #edf2ff);
+  --orbital-circuit: url("/themes/orbital-pulse/circuit-light.svg");
+  --orbital-veil: #fffafbfa;
+  --orbital-rim: #c9d2e6;
+  --orbital-edge-light: #ffffffc9;
+  --orbital-edge-shade: #b9c8e233;
   --orbital-diagram: url("/themes/orbital-pulse/music-spectrum.svg");
   background: var(--site-background);
 }
@@ -69,6 +74,11 @@ html[data-appearance="orbital-pulse"][data-theme="dark"] .themed-site {
   --orbital-blue-ink: #a8bfff;
   --orbital-red: #ff657b;
   --orbital-heading: linear-gradient(110deg, #201e36, #19243f 45%, #182d4b);
+  --orbital-circuit: url("/themes/orbital-pulse/circuit-dark.svg");
+  --orbital-veil: #201e36fa;
+  --orbital-rim: #3a4b6a;
+  --orbital-edge-light: #b1c8ff14;
+  --orbital-edge-shade: #07102559;
 }
 html[data-appearance="orbital-pulse"] .themed-site .site-header {
   border-bottom: 1px solid var(--site-border);
@@ -86,10 +96,17 @@ html[data-appearance="orbital-pulse"] .themed-site .main-nav > a[aria-current] {
 html[data-appearance="orbital-pulse"] .themed-site .page-heading {
   position: relative;
   padding: 24px 32px;
-  border: 1px solid var(--site-border);
+  border: 1px solid var(--orbital-rim);
   border-radius: 8px;
-  background: var(--orbital-heading);
-  box-shadow: 0 6px 20px -20px var(--site-panel-shadow);
+  background:
+    linear-gradient(90deg, var(--orbital-veil) 0 24%, transparent 72%),
+    var(--orbital-circuit) right center / auto 100% no-repeat,
+    var(--orbital-heading);
+  box-shadow:
+    inset 0 1px 0 var(--orbital-edge-light),
+    inset 0 -1px 0 var(--orbital-edge-shade),
+    0 1px 2px var(--site-soft-shadow),
+    0 12px 24px -24px var(--site-panel-shadow);
 }
 html[data-appearance="orbital-pulse"] .themed-site .page-heading .eyebrow {
   color: var(--site-accent-strong);
@@ -400,6 +417,10 @@ html[data-appearance="orbital-pulse"]
 @media (max-width: 760px) {
   html[data-appearance="orbital-pulse"] .themed-site .page-heading {
     padding: 20px;
+    background:
+      linear-gradient(180deg, var(--orbital-veil) 0 74%, transparent),
+      var(--orbital-circuit) right bottom / 840px 140px no-repeat,
+      var(--orbital-heading);
   }
   html[data-appearance="orbital-pulse"] .themed-site .archive-counts > div {
     padding: 12px 20px;
