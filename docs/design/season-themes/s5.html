@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-Hant" data-preview-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>OCLR S5 · Prism Overture 主題預覽</title>
+    <script src="s5.js" defer></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        color-scheme: dark;
+        --preview-bg: #1b1730;
+        --preview-surface: #26203e;
+        --preview-ink: #f5efff;
+        --preview-muted: #c0b6d4;
+        --preview-border: #4d4166;
+        --preview-control: #9b86b4;
+        --preview-accent: #d5b8ff;
+      }
+      :root[data-preview-theme="light"] {
+        color-scheme: light;
+        --preview-bg: #f7f5fc;
+        --preview-surface: #ffffff;
+        --preview-ink: #302644;
+        --preview-muted: #6c617e;
+        --preview-border: #d9d0e7;
+        --preview-control: #8a779e;
+        --preview-accent: #6943ac;
+      }
+      body {
+        margin: 0;
+        background: var(--preview-bg);
+        color: var(--preview-ink);
+        font:
+          15px/1.65 system-ui,
+          sans-serif;
+      }
+      header {
+        padding: 28px 32px 24px;
+        border-bottom: 1px solid var(--preview-border);
+      }
+      .eyebrow {
+        color: var(--preview-accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
+      h1 {
+        margin: 8px 0;
+        font-size: clamp(24px, 3vw, 32px);
+        line-height: 1.2;
+      }
+      p {
+        margin: 8px 0 0;
+        color: var(--preview-muted);
+      }
+      a {
+        color: var(--preview-accent);
+        text-underline-offset: 3px;
+      }
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 20px 32px;
+        background: var(--preview-surface);
+        border-bottom: 1px solid var(--preview-border);
+      }
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--preview-muted);
+      }
+      select {
+        min-height: 44px;
+        padding: 8px 32px 8px 12px;
+        border: 1px solid var(--preview-control);
+        border-radius: 6px;
+        color: var(--preview-ink);
+        background: var(--preview-bg);
+        font: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--preview-accent);
+        outline-offset: 3px;
+      }
+      figure {
+        margin: 24px 32px 40px;
+      }
+      figcaption {
+        margin-bottom: 12px;
+        color: var(--preview-muted);
+      }
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border: 1px solid var(--preview-border);
+      }
+      @media (max-width: 600px) {
+        header,
+        form {
+          padding: 20px;
+        }
+        figure {
+          margin: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">OCLR · SEASON 5 · DESIGN PREVIEW</div>
+      <h1>稜光序曲 · Prism Overture</h1>
+      <p>
+        候選設計預覽：青紫稜面、粉桃暖光與折射稜鏡，完整保留 OCLR β 原始主視覺。
+        主頁、賽程、圖池與管理設定均為實際應用元件截圖。
+      </p>
+      <p>
+        <a href="s5/DESIGN.md">設計與重現步驟</a> ·
+        <a href="s5/verification.json">驗證紀錄</a> ·
+        <a href="s5/heading-937-dark.png">937px 標題局部</a> ·
+        <a href="https://github.com/OCLR-dev/OCLR-website/issues/345"
+          >Issue #345</a
+        >
+      </p>
+    </header>
+    <form aria-label="主題預覽控制">
+      <label
+        >頁面<select name="surface">
+          <option value="">S5 主頁</option>
+          <option value="schedule-">S5 賽程</option>
+          <option value="mappools-">S5 圖池</option>
+          <option value="admin-">管理設定</option>
+        </select></label
+      >
+      <label
+        >尺寸<select name="size">
+          <option value="desktop">桌面 1440px</option>
+          <option value="mobile">手機 390px</option>
+        </select></label
+      >
+      <label
+        >明暗<select name="theme">
+          <option value="dark">深色</option>
+          <option value="light">淺色</option>
+        </select></label
+      >
+      <label
+        >樣式<select name="version">
+          <option value="">S5 候選主題</option>
+          <option value="current-">目前原有風格</option>
+        </select></label
+      >
+    </form>
+    <figure>
+      <figcaption id="caption" aria-live="polite">
+        S5 主頁 · 桌面 1440px · 深色 · S5 Prism Overture
+      </figcaption>
+      <img
+        id="preview"
+        src="s5/desktop-dark.webp"
+        width="1440"
+        height="1000"
+        alt="S5 主頁 · 桌面 1440px · 深色 · S5 Prism Overture"
+      />
+    </figure>
+  </body>
+</html>

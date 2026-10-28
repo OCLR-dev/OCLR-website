@@ -1,6 +1,8 @@
-# S10 / S9 / S8 / S7 / S6 theme samples
+# S10 / S9 / S8 / S7 / S6 / S5 theme samples
 
 主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10／S9／S8／S7 已依主辦方要求接入正式外觀 `skyline-pop`／`glacier-blue`／`sakura-circuit`／`graphite-arena`，各自的視覺審閱／合併證據以對應 issue 為準。
+
+**2026-10-29 S5首版候選**：[#345](https://github.com/OCLR-dev/OCLR-website/issues/345) 的 Prism Overture／稜光序曲，以青紫稜面、粉桃暖光與有限環弧呈現 OCLR β (S5)，保留完整原圖與歷史β識別。沿用最新main `9e10f72` 的實際元件，先提供候選CSS圖庫，尚未註冊正式外觀。[圖庫](s5.html)／[Design](s5/DESIGN.md)／[檢查](s5/verification.json)。
 
 **2026-10-29 S6 banner 精修**：[#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 的 Orbital Pulse／星環脈衝已由 [#419](https://github.com/OCLR-dev/OCLR-website/pull/419) 正式接入。本輪在紅藍水平頻譜周圍加入細電路、接點與訊號路徑，配合漸淡遮罩與細亮邊精修層次；新PR供審閱。圖庫為正式SSR外觀的實際頁面。[圖庫](s6.html)／[Design](s6/DESIGN.md)／[頁面檢查](s6/verification.json)。
 
@@ -10,13 +12,14 @@ S10 的 `s10.html` 現為**實際截圖對照圖庫**，可切換頁面、尺寸
 
 **2026-10-26 S9 琪露諾元素精修**：[#196](https://github.com/OCLR-dev/OCLR-website/issues/196) 以 main `cc366f2` 的實際 UI 產圖。保留無框完整原圖與琪露諾同人插畫，精修角色漸隱／霧光融合、小雪晶、較緊湊的標題、選取底色與統計閱讀層級。素材為東方Project二次創作，見 [ARTWORK](s9/ARTWORK.md)；明暗／手機／Admin 圖庫與檢查見 [S9 DESIGN](s9/DESIGN.md)。S10 維持已合併版本。
 
-| Season | 提案                        | 可操作樣本           | 設計規格                | 預覽                                                                                              |
-| ------ | --------------------------- | -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
-| S10    | Skyline Pop · 晴空未來城    | [s10.html](s10.html) | [Design](s10/DESIGN.md) | [Light](s10/desktop-light.webp) / [Dark](s10/desktop-dark.webp) / [Mobile](s10/mobile-light.webp) |
-| S9     | Glacier Blue · 冰晶鈷藍     | [s9.html](s9.html)   | [Design](s9/DESIGN.md)  | [Light](s9/desktop-light.webp) / [Dark](s9/desktop-dark.webp) / [Mobile](s9/mobile-light.webp)    |
-| S8     | Sakura Circuit · 櫻花折線   | [s8.html](s8.html)   | [Design](s8/DESIGN.md)  | [Light](s8/desktop-light.webp) / [Dark](s8/desktop-dark.webp) / [Mobile](s8/mobile-light.webp)    |
-| S7     | Graphite Arena · 石墨競技場 | [s7.html](s7.html)   | [Design](s7/DESIGN.md)  | [Light](s7/desktop-light.webp) / [Dark](s7/desktop-dark.webp) / [Mobile](s7/mobile-light.webp)    |
-| S6     | Orbital Pulse · 星環脈衝    | [s6.html](s6.html)   | [Design](s6/DESIGN.md)  | [Light](s6/desktop-light.webp) / [Dark](s6/desktop-dark.webp) / [Mobile](s6/mobile-dark.webp)     |
+| Season | 提案                              | 可操作樣本           | 設計規格                | 預覽                                                                                              |
+| ------ | --------------------------------- | -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
+| S10    | Skyline Pop · 晴空未來城          | [s10.html](s10.html) | [Design](s10/DESIGN.md) | [Light](s10/desktop-light.webp) / [Dark](s10/desktop-dark.webp) / [Mobile](s10/mobile-light.webp) |
+| S9     | Glacier Blue · 冰晶鈷藍           | [s9.html](s9.html)   | [Design](s9/DESIGN.md)  | [Light](s9/desktop-light.webp) / [Dark](s9/desktop-dark.webp) / [Mobile](s9/mobile-light.webp)    |
+| S8     | Sakura Circuit · 櫻花折線         | [s8.html](s8.html)   | [Design](s8/DESIGN.md)  | [Light](s8/desktop-light.webp) / [Dark](s8/desktop-dark.webp) / [Mobile](s8/mobile-light.webp)    |
+| S7     | Graphite Arena · 石墨競技場       | [s7.html](s7.html)   | [Design](s7/DESIGN.md)  | [Light](s7/desktop-light.webp) / [Dark](s7/desktop-dark.webp) / [Mobile](s7/mobile-light.webp)    |
+| S6     | Orbital Pulse · 星環脈衝          | [s6.html](s6.html)   | [Design](s6/DESIGN.md)  | [Light](s6/desktop-light.webp) / [Dark](s6/desktop-dark.webp) / [Mobile](s6/mobile-dark.webp)     |
+| S5     | Prism Overture · 稜光序曲（候選） | [s5.html](s5.html)   | [Design](s5/DESIGN.md)  | [Light](s5/desktop-light.webp) / [Dark](s5/desktop-dark.webp) / [Mobile](s5/mobile-light.webp)    |
 
 **2026-10-27 S8 初稿**：[#197](https://github.com/OCLR-dev/OCLR-website/issues/197) 以 main `a50e03d` 的實際 UI 產圖。沿用櫻花粉／柑橘橙／暖白與原圖折角，加入使用者提供的 RULES banner、依該 banner 補全的半身女主角，以及自繪櫻花枝紋。保留完整無框原主視覺；[S8 DESIGN](s8/DESIGN.md)／[素材與提示詞](s8/ARTWORK.md)。初稿已由主辦方確認；正式接入精修時移除強制折角，採細花脈櫻花插畫與漸淡分隔線；本輪再以少量 1px 橙色細線呼應原圖，正式外觀使用 `sakura-circuit`，不自動更動任何既有預設。圖庫已更新為實作 `316c0eb` 的實際 SSR 外觀截圖；正式接入證據見 #197。
 
@@ -26,7 +29,8 @@ S10 的 `s10.html` 現為**實際截圖對照圖庫**，可切換頁面、尺寸
 
 - **S10／S9／S8／S7**：圖庫控制只切換真實截圖，不假裝提供正式管理功能；`current-*.webp` 為同頁同尺寸同明暗的原有風格對照。
 - **S6**：正式 `orbital-pulse` SSR 外觀的實際頁面截圖，圖庫只切換保存圖片；`s6.css` 保留為候選階段歷史參考。
-- 五季皆使用真實應用截圖圖庫；舊靜態樣本結果只作歷史紀錄。
+- **S5**：候選CSS套用於實際元件後直接截圖；尚未註冊外觀或修改正式選單。
+- 六季皆使用真實應用截圖圖庫；舊靜態樣本結果只作歷史紀錄。
 
 ## 圖片與資料
 
