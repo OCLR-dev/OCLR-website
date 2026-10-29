@@ -1,3 +1,4 @@
+import { appearances } from "../../src/lib/preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";
@@ -172,13 +173,16 @@ test.describe("S8 Sakura Circuit appearance", () => {
         const menu = page.getByRole("menu").filter({
           has: page.locator('[data-appearance-option="sakura-circuit"]'),
         });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(18);
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(
+          appearances.length + 1,
+        );
         await page.keyboard.press("End");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
+        for (
+          let step = appearances.indexOf("sakura-circuit");
+          step < appearances.length - 1;
+          step++
+        )
+          await page.keyboard.press("ArrowUp");
         const option = menu.getByRole("menuitemradio", {
           name: label,
           exact: true,

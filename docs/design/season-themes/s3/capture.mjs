@@ -1,4 +1,4 @@
-// Current React routes with a review-only CSS overlay; no application registration.
+// Capture the registered Frost Waltz appearance through its SSR preference.
 import { chromium } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import sharp from "sharp";
@@ -13,11 +13,19 @@ assertTestDatabase(process.env.TEST_DATABASE_URL);
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
 const base = "http://127.0.0.1:3193";
 const out = new URL(".", import.meta.url);
-const css = await readFile(new URL("../s3.css", import.meta.url), "utf8");
+const css = await readFile(
+  new URL("../../../../src/app/frost-theme.css", import.meta.url),
+  "utf8",
+);
 const assets = await Promise.all(
   ["light", "dark"].map(async (theme) => ({
     theme,
-    bytes: await readFile(new URL(`frost-field-${theme}.svg`, out)),
+    bytes: await readFile(
+      new URL(
+        `../../../../public/themes/frost-waltz/frost-field-${theme}.svg`,
+        out,
+      ),
+    ),
   })),
 );
 const browser = await chromium.launch({ channel: "chrome" });
@@ -32,16 +40,35 @@ async function ready(page) {
     .evaluateAll((ns) => Promise.all(ns.map((n) => n.decode())));
 }
 async function apply(page) {
-  await page.addStyleTag({ content: css });
-  await page.evaluate(() =>
-    document.documentElement.setAttribute("data-s3-preview", ""),
+  await context.addCookies([
+    { name: "oclr-appearance", value: "frost-waltz", url: base },
+  ]);
+  const response = await page.reload();
+  assert.equal(response.status(), 200);
+  assert(
+    (await response.text())
+      .match(/<html[^>]+>/)?.[0]
+      ?.includes('data-appearance="frost-waltz"'),
   );
   await ready(page);
+  for (const theme of ["light", "dark"]) {
+    const response = await page.request.get(
+      `${base}/themes/frost-waltz/frost-field-${theme}.svg`,
+    );
+    assert.equal(response.status(), 200);
+    assert(
+      (await response.body()).equals(
+        assets.find((a) => a.theme === theme).bytes,
+      ),
+    );
+  }
 }
 async function snapshot(page) {
   return page.locator("body").evaluate((n) => {
     const c = n.cloneNode(true);
-    c.querySelectorAll("script,style").forEach((e) => e.remove());
+    c.querySelectorAll("script,style,title,meta,link,next-route-announcer,.appearance-trigger").forEach((e) =>
+      e.remove(),
+    );
     return c.textContent;
   });
 }
@@ -49,11 +76,6 @@ async function guard(page) {
   page.on("pageerror", (e) => errors.push(e.message));
   await page.route("**/*", (route) => {
     const url = route.request().url();
-    const asset = assets.find(
-      (a) => url === `${base}/s3-preview/frost-field-${a.theme}.svg`,
-    );
-    if (asset)
-      return route.fulfill({ contentType: "image/svg+xml", body: asset.bytes });
     return url.startsWith(base + "/") &&
       ["GET", "HEAD"].includes(route.request().method())
       ? route.continue()
@@ -72,9 +94,9 @@ try {
     for (const width of [320, 390, 768, 1440]) {
       await page.setViewportSize({ width, height: width < 800 ? 844 : 1000 });
       for (const [name, path, prefix] of [
-        ["overview", "/tournaments/s3-design", ""],
-        ["schedule", "/tournaments/s3-design/schedule", "schedule-"],
-        ["mappools", "/tournaments/s3-design/mappools", "mappools-"],
+        ["overview", "/tournaments/s3", ""],
+        ["schedule", "/tournaments/s3/schedule", "schedule-"],
+        ["mappools", "/tournaments/s3/mappools", "mappools-"],
         ["admin", "/admin/settings", "admin-"],
       ]) {
         await context.clearCookies();
@@ -173,7 +195,7 @@ try {
         ].map(([name, value]) => ({ name, value, url: base })),
       );
       await page.setViewportSize({ width, height: 1000 });
-      await page.goto(base + "/tournaments/s3-design");
+      await page.goto(base + "/tournaments/s3");
       await ready(page);
       await apply(page);
       const heading = page.locator(".historical-archive > .page-heading");
@@ -198,10 +220,10 @@ try {
     JSON.stringify(
       {
         date: "2026-10-29",
-        baseline: "f4b5eb85",
+        baseline: "0ed51019",
         runtime: process.version,
         scope:
-          "Actual built React routes with candidate CSS overlay. Not registered SSR appearance.",
+          "Registered frost-waltz SSR preference, built CSS and shipped SVG assets. No injected styles.",
         fixture:
           "Synthetic design-only placeholder, not historical S3 data; one placeholder team/captain and empty schedule/mappools.",
         buildId: (
@@ -216,7 +238,7 @@ try {
         errors,
         additionalChecks: [
           "original artwork 995x621/contain",
-          "unchanged text before/after CSS",
+          "unchanged content except appearance trigger after SSR selection",
           "five existing metric rows",
           "mobile menu geometry",
           "4 heading/forced-colors cases",

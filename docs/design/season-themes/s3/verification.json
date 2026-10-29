@@ -1,19 +1,19 @@
 {
   "date": "2026-10-29",
-  "baseline": "f4b5eb85",
-  "runtime": "v24.22.1",
-  "scope": "Actual built React routes with candidate CSS overlay. Not registered SSR appearance.",
+  "baseline": "0ed51019",
+  "runtime": "v24.22.2",
+  "scope": "Registered frost-waltz SSR preference, built CSS and shipped SVG assets. No injected styles.",
   "fixture": "Synthetic design-only placeholder, not historical S3 data; one placeholder team/captain and empty schedule/mappools.",
-  "buildId": "LtwNFgBffgTBIyUkvkx-U",
-  "cssSha256": "21b4b89a4379752af1974acf97b1dd119d8ca4248e8b21b56d38a49c2aeb1c12",
+  "buildId": "vEyRJ074E_A217dvqt8QO",
+  "cssSha256": "d15b9920e1b74c4dba1379d7ef18a81ceb758840b7e02fc80b03a7237fa4ac5a",
   "assets": [
     {
       "theme": "light",
-      "sha256": "93c55a33e1380017954eb9e009d23e7e0061faa99a6b856a5bcfb0a7e174531e"
+      "sha256": "190397d5cb0aa7a1e8626aafc0b0dc490f6523f8450de7b10ce7dde4cb7965d5"
     },
     {
       "theme": "dark",
-      "sha256": "d388365fc60c0b23279e18cab3dc9054cf79e9007765249c8ff4d60e5c6721bb"
+      "sha256": "ce86f74576dc30542b2f5d5edb8e90b1f69ca96a790f70e08bf798bfdd35a050"
     }
   ],
   "cases": [
@@ -277,7 +277,7 @@
   "errors": [],
   "additionalChecks": [
     "original artwork 995x621/contain",
-    "unchanged text before/after CSS",
+    "unchanged content except appearance trigger after SSR selection",
     "five existing metric rows",
     "mobile menu geometry",
     "4 heading/forced-colors cases",

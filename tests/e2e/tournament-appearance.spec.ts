@@ -18,6 +18,7 @@ test.describe("tournament appearance inheritance", () => {
     "prism-overture",
     "azure-brush",
     "verdant-prelude",
+    "frost-waltz",
   ])
     test(`saves ${appearance} as a scoped default, SSR renders it and visitor choice survives cross-edition navigation`, async ({
       page,

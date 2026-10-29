@@ -382,6 +382,7 @@ test.describe("tournament overview alignment (#265, #323)", () => {
       "prism-overture",
       "azure-brush",
       "verdant-prelude",
+      "frost-waltz",
     ]) {
       for (const theme of ["light", "dark"]) {
         await context.addCookies([

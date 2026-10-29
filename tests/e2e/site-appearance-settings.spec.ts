@@ -139,6 +139,7 @@ test.describe("Admin default and visitor appearance overrides", () => {
         "prism-overture",
         "azure-brush",
         "verdant-prelude",
+        "frost-waltz",
         "frutiger-aero",
         "retro-arcade",
         "manga-halftone",

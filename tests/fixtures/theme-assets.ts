@@ -10,6 +10,7 @@ export const bundledSeasonThemes = [
   { appearance: "prism-overture", stylesheet: "prism-theme.css" },
   { appearance: "azure-brush", stylesheet: "azure-theme.css" },
   { appearance: "verdant-prelude", stylesheet: "verdant-theme.css" },
+  { appearance: "frost-waltz", stylesheet: "frost-theme.css" },
 ].map(({ appearance, stylesheet }) => ({
   appearance,
   assets: [
