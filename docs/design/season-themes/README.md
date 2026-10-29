@@ -1,4 +1,6 @@
-# S10 / S9 / S8 / S7 / S6 / S5 theme samples
+# S10 / S9 / S8 / S7 / S6 / S5 / S2 theme samples
+
+**2026-10-29 S2 候選樣本**：[青燕春序圖庫](s2.html)／[設計與資料限制](s2/DESIGN.md)。以目前實際頁面套用候選 CSS，提供明暗、桌面／手機及 default 對照；未註冊正式外觀，合成資料與賽程／圖池空態不代表歷史統計。
 
 主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10／S9／S8／S7 已依主辦方要求接入正式外觀 `skyline-pop`／`glacier-blue`／`sakura-circuit`／`graphite-arena`，各自的視覺審閱／合併證據以對應 issue 為準。
 
