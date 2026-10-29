@@ -5,11 +5,11 @@
   "assets": [
     {
       "theme": "light",
-      "sha256": "580ba03f017a0c889ab9adba1b519c369962c0408f9de3203fdef2af28ed9a41"
+      "sha256": "190397d5cb0aa7a1e8626aafc0b0dc490f6523f8450de7b10ce7dde4cb7965d5"
     },
     {
       "theme": "dark",
-      "sha256": "ad0defe06fad113ed30e326b0c4c81b3227a937d58cfd08ac72b936715fffec8"
+      "sha256": "ce86f74576dc30542b2f5d5edb8e90b1f69ca96a790f70e08bf798bfdd35a050"
     }
   ],
   "cases": [
