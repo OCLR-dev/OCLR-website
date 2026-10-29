@@ -368,9 +368,6 @@ test.describe("historical statistics review and public exploration", () => {
             await expect(
               page.getByRole("region", { name: "Statistics coverage" }),
             ).toContainText("1 / 2");
-            await page
-              .getByRole("button", { name: "Notes", exact: true })
-              .click();
             await page.getByText("Match coverage", { exact: true }).click();
             await expect(
               page

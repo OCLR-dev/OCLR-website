@@ -5,7 +5,6 @@ test("statistics notification opens below heading and update round coverage", as
 }) => {
   await page.goto("/statistics-explorer");
   const notes = page.getByRole("region", { name: "Notes", exact: true });
-  await page.getByRole("button", { name: "Notes", exact: true }).click();
   await expect(notes).toContainText("Missing data is not zero");
   await expect(notes).toContainText(
     "Some matches include confirmed technical adjudication",
@@ -16,7 +15,6 @@ test("statistics notification opens below heading and update round coverage", as
   await page.keyboard.press("Escape");
   await page.locator(".statistics-player").first().click();
   await expect(page.locator(".statistics-detail")).toBeVisible();
-  await page.getByRole("button", { name: "Notes", exact: true }).click();
   const summary = notes.getByText("Match coverage", { exact: true });
   await summary.focus();
   await page.keyboard.press("Enter");
@@ -26,7 +24,6 @@ test("statistics notification opens below heading and update round coverage", as
   ).toHaveAttribute("href", "/tournaments/synthetic/matches/one");
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Semi", exact: true }).click();
-  await page.getByRole("button", { name: "Notes", exact: true }).click();
   await expect(notes.locator(".statistics-coverage li")).toHaveCount(1);
   await expect(notes).toContainText("Not yet covered");
   await expect(notes).not.toContainText(

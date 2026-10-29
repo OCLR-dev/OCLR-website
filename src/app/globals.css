@@ -5753,7 +5753,6 @@ button.staff-role-save {
 
 .bws-summary {
   position: relative;
-  padding-inline-end: 3.5rem;
 }
 .bws-metrics {
   display: grid;
@@ -5764,45 +5763,6 @@ button.staff-role-save {
 .bws-metrics h3,
 .bws-metrics p {
   margin: 0 0 0.5rem;
-}
-.profile-info-trigger {
-  position: absolute;
-  inset-block-start: 0.75rem;
-  inset-inline-end: 0;
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  color: var(--color-muted);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
-}
-.profile-info-trigger:hover {
-  color: var(--color-foreground);
-  background: var(--color-raised);
-}
-.profile-info-trigger:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
-}
-.profile-info-popover {
-  position: fixed;
-  margin: 0;
-  width: min(22.5rem, calc(100vw - 1.5rem));
-  max-height: min(26.25rem, calc(100dvh - 1.5rem));
-  overflow: auto;
-  padding: 1.25rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-panel);
-  background: var(--color-surface);
-  color: var(--color-foreground);
-  box-shadow: 0 12px 32px #0003;
-  overflow-wrap: anywhere;
-}
-.profile-info-popover p:first-child {
-  margin-top: 0;
 }
 
 /* Compact staff controls retain native keyboard disclosure behavior. */
@@ -5840,14 +5800,24 @@ button.staff-role-save {
   padding-block: 0.25rem;
 }
 
-.profile-info-trigger.profile-info-inline {
-  position: static;
-  display: inline-grid;
-  vertical-align: middle;
-  flex: 0 0 auto;
-  margin-block: 0.25rem;
+.info-note-box {
+  width: 100%;
+  min-width: 0;
+  margin-block: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
 }
-.profile-info-popover .page-notes {
+.info-note-box > :first-child {
+  margin-top: 0;
+}
+.info-note-box > :last-child {
+  margin-bottom: 0;
+}
+.info-note-box .page-notes {
   margin-block-start: 0;
   padding-block-start: 0;
   border-block-start: 0;

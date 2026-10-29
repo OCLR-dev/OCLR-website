@@ -56,20 +56,16 @@ test("all six statistics views preserve identity and same-name team filters", as
   await expect(rows.locator("td").nth(10)).toHaveText("50");
 });
 
-test("statistics notification opens below title and closes with Escape", async ({
-  page,
-}) => {
+test("statistics notes remain visible below title", async ({ page }) => {
   await page.goto("/event-statistics");
-  const trigger = page.getByRole("button", { name: "Notes", exact: true });
   const panel = page.getByRole("region", { name: "Notes", exact: true });
-  await expect(panel).toBeHidden();
+  await expect(panel).toBeVisible();
   const heading = await page
     .getByRole("heading", { name: "Statistics", exact: true })
     .boundingBox();
-  expect((await trigger.boundingBox())!.y).toBeGreaterThanOrEqual(
+  expect((await panel.boundingBox())!.y).toBeGreaterThanOrEqual(
     heading!.y + heading!.height,
   );
-  await trigger.click();
   await expect(panel).toBeVisible();
   await expect(panel).toContainText("Missing data is not zero");
   await panel.getByText("Match coverage", { exact: true }).click();
@@ -79,6 +75,6 @@ test("statistics notification opens below title and closes with Escape", async (
     page.viewportSize()!.width,
   );
   await page.keyboard.press("Escape");
-  await expect(panel).toBeHidden();
+  await expect(panel).toBeVisible();
   await expect(trigger).toBeFocused();
 });

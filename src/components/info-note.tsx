@@ -7,9 +7,5 @@ import { ProfileInfo } from "./profile-info";
 /** Supplemental explanation. Keep errors, consent and action-critical status visible. */
 export function InfoNote({ children }: { children: ReactNode }) {
   const tr = useAppTranslations();
-  return (
-    <ProfileInfo label={tr("Notes")} inline>
-      {children}
-    </ProfileInfo>
-  );
+  return <ProfileInfo label={tr("Notes")}>{children}</ProfileInfo>;
 }
