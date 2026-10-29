@@ -28,6 +28,7 @@
     "/admin/tournaments",
     "/dashboard",
     "/developer",
+    "/games/ocl-chess",
     "/login",
     "/news/[slug]",
     "/news",

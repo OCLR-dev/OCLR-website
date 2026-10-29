@@ -400,6 +400,13 @@
       "when": 1793263221804,
       "tag": "0056_designer_role",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1793263221805,
+      "tag": "0057_ocl_chess",
+      "breakpoints": true
     }
   ]
 }

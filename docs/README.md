@@ -50,3 +50,5 @@ real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
   2021 MP histories, preliminary/knockout tables, replay and format uncertainties.
 - [S7 archive](s7-archive.md), [S8 archive](s8-archive.md),
   [S9 archive](s9-archive.md), [S10 archive](s10-archive.md).
+
+- [OCL Chess](ocl-chess.md) — shared pixel canvas, permissions, persistence and verification scope (#379).

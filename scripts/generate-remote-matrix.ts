@@ -149,7 +149,7 @@ const rows = files.map((file) => {
   }
   if (file.includes("/captains/page")) operations.add("captainIdentities");
   const denied =
-    /\/auth\/|\/api\/health\/|\/api\/developer\/|\/registrations\/export\//.test(
+    /\/api\/games\/|\/auth\/|\/api\/health\/|\/api\/developer\/|\/registrations\/export\//.test(
       file,
     );
   const remoteControl =

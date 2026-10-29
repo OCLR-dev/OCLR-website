@@ -1233,3 +1233,38 @@ export const contributorEvents = pgTable(
   },
   (t) => [check("contributor_events_revision", sql`${t.revision} > 0`)],
 );
+
+// One bounded canvas serializes accepted pixel and moderation writes.
+export const chessBoards = pgTable(
+  "chess_boards",
+  {
+    id: integer("id").primaryKey(),
+    pixels: text("pixels").notNull(),
+    revision: integer("revision").notNull().default(0),
+    enabled: boolean("enabled").notNull().default(false),
+  },
+  (t) => [
+    check("chess_board_singleton", sql`${t.id} = 1`),
+    check(
+      "chess_pixels_valid",
+      sql`length(${t.pixels}) = 16384 AND ${t.pixels} ~ '^[0-9a-f]+$'`,
+    ),
+  ],
+);
+export const chessPlayers = pgTable("chess_players", {
+  userId: bigint("user_id", { mode: "number" })
+    .primaryKey()
+    .references(() => users.osuId),
+  nextAt: timestamp("next_at", { withTimezone: true }).notNull(),
+});
+export const chessEvents = pgTable("chess_events", {
+  requestId: uuid("request_id").primaryKey(),
+  actorId: bigint("actor_id", { mode: "number" })
+    .notNull()
+    .references(() => users.osuId),
+  command: jsonb("command").notNull(),
+  revision: integer("revision").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
