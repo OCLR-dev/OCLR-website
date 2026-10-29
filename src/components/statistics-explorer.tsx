@@ -1,4 +1,5 @@
 "use client";
+import { PageNotes } from "./page-notes";
 import { useMemo, useState } from "react";
 import Link from "./pending-link";
 import { useAppTranslations } from "@/i18n/shared";
@@ -68,11 +69,6 @@ export function StatisticsExplorer({
           <strong>{new Set(plays.map((p) => p.osuId)).size}</strong>
           <span>{tr("Players with data")}</span>
         </div>
-        <p className="muted">
-          {tr(
-            "Only reviewed and published MP games are counted. Missing data is not zero.",
-          )}
-        </p>
       </div>
       <div
         className="tab-nav statistics-rounds"
@@ -328,44 +324,53 @@ export function StatisticsExplorer({
           </div>
         </section>
       )}
-      {fixtures.some((f) => f.technicalAdjudication) && (
-        <p className="notice">
+      <PageNotes>
+        <p className="muted">
           {tr(
-            "Some matches include confirmed technical adjudication. Historical series results are retained; player statistics reflect actual MP scores, without invented scores for awarded points.",
+            "Only reviewed and published MP games are counted. Missing data is not zero.",
           )}
         </p>
-      )}
-      <details className="statistics-method">
-        <summary>{tr("Statistics calculation")}</summary>
-        <p>
-          {tr(
-            "Each included game counts as one appearance, including failed plays with a recorded score. Relative score is the player's score divided by the highest player score in that game, then averaged. Accuracy is the arithmetic mean of recorded accuracy values; its coverage is shown. Different score systems and small samples should be compared with care. Forfeits without games are excluded.",
-          )}
-        </p>
-      </details>
-      <details>
-        <summary>{tr("Match coverage")}</summary>
-        <ul className="statistics-coverage">
-          {fixtures.map((f) => (
-            <li key={f.id}>
-              <Link href={"/tournaments/" + data.slug + "/matches/" + f.id}>
-                {f.label} · {f.stage}
-              </Link>
-              <span>
-                {f.covered ? tr("Published") : tr("Not yet covered")}
-                {f.technicalAdjudication && (
-                  <>
-                    {" "}
-                    · {tr("Technical adjudication; recorded series score")}{" "}
-                    {f.score?.join(" : ")}.{" "}
-                    {tr("Player statistics reflect recorded MP scores only.")}
-                  </>
-                )}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </details>
+        {fixtures.some((f) => f.technicalAdjudication) && (
+          <p>
+            {tr(
+              "Some matches include confirmed technical adjudication. Historical series results are retained; player statistics reflect actual MP scores, without invented scores for awarded points.",
+            )}
+          </p>
+        )}
+        <details className="statistics-method">
+          <summary>{tr("Statistics calculation")}</summary>
+          <p>
+            {tr(
+              "Each included game counts as one appearance, including failed plays with a recorded score. Relative score is the player's score divided by the highest player score in that game, then averaged. Accuracy is the arithmetic mean of recorded accuracy values; its coverage is shown. Different score systems and small samples should be compared with care. Forfeits without games are excluded.",
+            )}
+          </p>
+        </details>
+        <details>
+          <summary>{tr("Match coverage")}</summary>
+          <ul className="statistics-coverage">
+            {fixtures.map((f) => (
+              <li key={f.id}>
+                <Link href={"/tournaments/" + data.slug + "/matches/" + f.id}>
+                  {f.label} · {f.stage}
+                </Link>
+                <span>
+                  {f.covered ? tr("Published") : tr("Not yet covered")}
+                  {f.technicalAdjudication && (
+                    <>
+                      {" "}
+                      · {tr(
+                        "Technical adjudication; recorded series score",
+                      )}{" "}
+                      {f.score?.join(" : ")}.{" "}
+                      {tr("Player statistics reflect recorded MP scores only.")}
+                    </>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </PageNotes>
     </section>
   );
 }

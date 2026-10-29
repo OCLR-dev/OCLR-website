@@ -46,7 +46,7 @@ test("241 historical presentation", async ({ page, context }, info) => {
           season === 8 ? 14 : 10,
         );
         await expect(canvas.locator("svg path").first()).toBeVisible();
-        await expect(page.locator(".archive-competition")).toContainText(
+        await expect(page.locator(".page-notes")).toContainText(
           "Recorded appearances are reference links, not confirmed advancement.",
         );
         await page.getByText("Connection sources", { exact: true }).click();

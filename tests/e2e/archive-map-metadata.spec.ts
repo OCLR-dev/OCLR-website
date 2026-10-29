@@ -48,10 +48,26 @@ test.describe("archive map missing metadata", () => {
       await expect(row).not.toContainText("#N/A");
       await expect(row).toContainText("[Extra]");
       await expect(row).toContainText("4.25 ★");
-      await expect(row).toContainText("current osu! base metadata (no mods)");
+      const notes = page.locator(".page-notes");
+      await expect(row).not.toContainText(
+        "current osu! base metadata (no mods)",
+      );
+      await expect(notes).toContainText("NM1");
+      await expect(notes).toContainText("current osu! base metadata (no mods)");
       await expect(
-        row.getByRole("link", { name: "Source", exact: true }),
+        notes.getByRole("link", { name: "Source", exact: true }),
       ).toHaveAttribute("href", "https://osu.ppy.sh/beatmaps/2076750");
+      expect(
+        await notes.evaluate((node) => {
+          const list = document.querySelector(
+            ".archive-map-cards, .archive-map-list",
+          )!;
+          return !!(
+            list.compareDocumentPosition(node) &
+            Node.DOCUMENT_POSITION_FOLLOWING
+          );
+        }),
+      ).toBe(true);
       await row.getByRole("button", { name: /View / }).click();
       await expect(page.getByRole("dialog")).toContainText("192");
       await page.getByRole("button", { name: "Close map details" }).click();

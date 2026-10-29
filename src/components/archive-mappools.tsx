@@ -1,5 +1,6 @@
 "use client";
 
+import { PageNotes } from "./page-notes";
 import { BeatmapActions } from "./beatmap-actions";
 import { BeatmapCover } from "./beatmap-cover";
 import Link from "next/link";
@@ -228,7 +229,6 @@ export function ArchiveMappools({
           </div>
         ))}
       </dl>
-      {supplemented(m)}
     </>
   );
   return (
@@ -365,7 +365,6 @@ export function ArchiveMappools({
                       value1: m.title ?? tr("Not recorded"),
                     })}
                     onOpen={() => setSelected(m.slot)}
-                    note={supplemented(m)}
                   />
                 );
               }
@@ -443,6 +442,16 @@ export function ArchiveMappools({
           onClose={() => setSelected(null)}
         />
       )}
+      <PageNotes>
+        {maps
+          .filter((m) => m.supplemented?.length)
+          .map((m) => (
+            <div key={m.slot}>
+              <strong>{m.slot}</strong>
+              {supplemented(m)}
+            </div>
+          ))}
+      </PageNotes>
     </div>
   );
 }

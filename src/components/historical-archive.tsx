@@ -1,3 +1,4 @@
+import { PageNotes } from "./page-notes";
 import { MatchDetailsView } from "./match-details";
 import {
   publicArchiveStatistics,
@@ -286,7 +287,14 @@ export async function HistoricalArchiveView({
   );
   function rulesContent() {
     const rules = historicalRulebook(a, edition.rules);
-    if (!rules && a.sourceFacts?.some((f) => f.category === "rules"))
+    if (!rules && a.sourceFacts?.some((f) => f.category === "rules")) {
+      notes = a.sourceFacts
+        .filter((f) => f.category === "rules")
+        .map((f, i) => (
+          <p key={i}>
+            {f.label} · {f.source}
+          </p>
+        ));
       return (
         <div className="stack">
           {a.sourceFacts
@@ -295,11 +303,11 @@ export async function HistoricalArchiveView({
               <section key={i}>
                 <h3>{f.label}</h3>
                 <p>{f.text}</p>
-                <p className="muted small">{f.source}</p>
               </section>
             ))}
         </div>
       );
+    }
     return rules ? (
       <>
         <p className="rules-version muted small">
@@ -346,17 +354,26 @@ export async function HistoricalArchiveView({
             )
               match.note = tr("Forfeit");
       }
+    notes = [
+      derived && (
+        <p key="standings">
+          {tr(
+            "Calculated from recorded group results: wins, then map difference. This is a derived order, not an official archived ranking. Equal values share a rank; incomplete or ambiguous groups await review.",
+          )}
+        </p>
+      ),
+      bracket?.groups.some((g) => g.layout !== "grid") && (
+        <p key="appearances">
+          {tr(
+            "Recorded appearances are reference links, not confirmed advancement.",
+          )}
+        </p>
+      ),
+    ];
     const finalRanks = hasS1FinalStandings(a);
     const standingsContent = standings.length ? (
       <>
         <h2>{finalRanks ? tr("Final standings") : tr("Group standings")}</h2>
-        {derived && (
-          <p className="muted small">
-            {tr(
-              "Calculated from recorded group results: wins, then map difference. This is a derived order, not an official archived ranking. Equal values share a rank; incomplete or ambiguous groups await review.",
-            )}
-          </p>
-        )}
         <div
           className="table-scroll"
           tabIndex={0}
@@ -419,6 +436,7 @@ export async function HistoricalArchiveView({
       />
     );
   }
+  let notes: React.ReactNode;
   let content;
   let title = edition.name;
   if (section === "overview") {
@@ -720,12 +738,13 @@ export async function HistoricalArchiveView({
     content = competition();
   } else if (section === "draft") {
     title = tr("Draft results");
+    if (a.draftMode === "final-tiers")
+      notes = (
+        <p>{tr("Final Tier allocations; selection order was not recorded.")}</p>
+      );
     content =
       a.draftMode === "final-tiers" ? (
         <div className="archive-draft">
-          <p className="muted">
-            {tr("Final Tier allocations; selection order was not recorded.")}
-          </p>
           {[
             ...new Set(
               a.players
@@ -805,6 +824,7 @@ export async function HistoricalArchiveView({
         </Link>
       )}
       {content}
+      <PageNotes>{notes}</PageNotes>
     </div>
   );
 }

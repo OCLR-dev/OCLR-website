@@ -53,11 +53,6 @@ export function ArchiveCompetition({
             />
             {tr("Show previous recorded appearances (reference only)")}
           </label>
-          <p className="muted small">
-            {tr(
-              "Recorded appearances are reference links, not confirmed advancement.",
-            )}
-          </p>
         </div>
       )}
       {bracket && groups.length ? (
