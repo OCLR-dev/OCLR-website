@@ -322,8 +322,8 @@ export function ChessCanvas() {
         )}
         <p role="status">{offline ? connectionError : error}</p>
         {state?.admin && (
-          <section>
-            <h2>{tr("Canvas administration")}</h2>
+          <details className="chess-administration">
+            <summary>{tr("Canvas administration")}</summary>
             <button
               disabled={busy}
               onClick={() =>
@@ -389,7 +389,7 @@ export function ChessCanvas() {
                 <button onClick={() => setClear(false)}>{tr("Cancel")}</button>
               </div>
             )}
-          </section>
+          </details>
         )}
       </div>
     </section>

@@ -29,7 +29,7 @@
 .chess-controls > [role="status"]:empty {
   display: none;
 }
-.chess-controls > section,
+.chess-controls > .chess-administration,
 .chess-controls > [role="status"]:not(:empty) {
   flex-basis: 100%;
 }
@@ -108,12 +108,12 @@
   outline: 3px solid currentColor;
   outline-offset: 2px;
 }
-.chess-workspace section {
+.chess-workspace .chess-administration {
   border-top: 1px solid currentColor;
-  margin-top: 32px;
-  padding-top: 16px;
+  margin-top: 4px;
+  padding-top: 4px;
 }
-.chess-workspace section label {
+.chess-administration label {
   display: inline-block;
   margin: 8px;
 }
@@ -202,4 +202,12 @@
   .chess-workspace > header {
     align-items: center;
   }
+}
+
+.chess-administration > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 10px;
+  box-sizing: border-box;
+  font-weight: 700;
 }
