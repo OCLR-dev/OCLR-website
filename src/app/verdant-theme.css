@@ -326,7 +326,7 @@ html[data-appearance="verdant-prelude"]
 }
 html[data-appearance="verdant-prelude"] .themed-site .sidebar {
   border-color: var(--site-border);
-  background: var(--site-surface);
+  background: var(--site-background);
 }
 html[data-appearance="verdant-prelude"] .themed-site .sidebar nav a {
   min-height: 44px;
