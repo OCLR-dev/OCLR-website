@@ -443,6 +443,8 @@ Check the service journal privately, `/api/health`, public pages and the relevan
 
 Copy and adapt [oclr-nginx.conf](examples/oclr-nginx.conf) **on the Nginx host**, not the app host. `192.0.2.20`, `oclr.example.com` and certificate filenames are documentation placeholders. Replace them with the Rocky application's private IP, actual canonical public domain and existing certificate paths. Set APP_URL=https://YOUR_REAL_DOMAIN and register the exact OAuth callback https://YOUR_REAL_DOMAIN/auth/osu/callback.
 
+For browser asset caching, retain upstream headers and disable inherited `expires` overrides as in the example. Production public images/fonts use a five-minute freshness window with mandatory revalidation afterwards; hashed Next.js build assets retain the framework's immutable policy. See [static asset caching and rollout checks](static-asset-caching.md), including original-path replacement and old-chunk retention limits.
+
 The example terminates HTTPS on the existing proxy and forwards to Node over a restricted private network. If that path crosses an untrusted network, use a verified encrypted tunnel or separately configured TLS upstream instead of plain HTTP. Host and forwarded protocol are set explicitly, which keeps canonical redirects, secure cookies and Origin validation consistent. The public browser's Origin header is preserved. Do not cache authenticated responses or OAuth callbacks; do not hide the application's CSP/no-store headers. Drafts use controlled polling; no WebSocket upgrade is needed. See official [proxy directives](https://nginx.org/en/docs/http/ngx_http_proxy_module.html) and [TLS settings](https://nginx.org/en/docs/http/ngx_http_ssl_module.html).
 
 ```sh
