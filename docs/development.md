@@ -57,6 +57,14 @@ Check the issues for commit-specific local results, actual CI and organizer revi
 
 `npm run check` runs ESLint, generated route types and TypeScript. `npm run build` creates the production build; `npm start` serves it on a conventional Node.js host. CI runs the same checks. No Vercel services are required.
 
+`npm run test:components` runs the player-message board's desktop/mobile browser
+regressions without PostgreSQL or a Next.js build. Install the configured
+Playwright Chromium first (`npx playwright install chromium`). The loopback-only
+test host bundles actual client components and translations; tests intercept HTTP
+with synthetic responses to control request completion order. This checks client
+state recovery, not backend authorization or full application E2E. It is a
+separate local command and does not expand the fixed core CI browser allowlist.
+
 ## Design and content
 
 The committed `docs/design/oclr-website-concept.webp` is a visual reference only. Its dates, statistics, format, identities and expanded tournament name are placeholders. The correct name is **osu! Chinese League Rookie**. Registration is individual; teams are formed through the staff-appointed captain draft.
