@@ -1,0 +1,647 @@
+{
+  "date": "2026-10-29",
+  "base": "f4b5eb85e363ddf1aed77a9cfcc7f40653c01180",
+  "browser": "Google Chrome",
+  "buildId": "br6UcNwyI-Uw30wCj_xqy",
+  "stylesheetSha256": "cd3779c5afb5f785b28543d45905ccd5a507f49a909d9c92f983d24ce582bfe7",
+  "cases": [
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 320,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 390,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 768,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "width": 320,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "width": 390,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "width": 768,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "width": 1440,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "width": 320,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "width": 390,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "width": 768,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "light",
+      "width": 1440,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "width": 320,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "width": 390,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "width": 768,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hans",
+      "theme": "dark",
+      "width": 1440,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "width": 320,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "width": 390,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "width": 768,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "light",
+      "width": 1440,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "width": 320,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "width": 390,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "width": 768,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    },
+    {
+      "locale": "zh-Hant",
+      "theme": "dark",
+      "width": 1440,
+      "outerRadius": "12px",
+      "padding": "4px",
+      "buttons": [
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        },
+        {
+          "radius": "8px",
+          "height": 44,
+          "inside": true
+        }
+      ],
+      "preservedSearch": true,
+      "preservedSort": true,
+      "keyboard": true,
+      "axeViolations": [
+        0,
+        0
+      ]
+    }
+  ],
+  "highContrast": [
+    {
+      "theme": "light",
+      "focus": "solid",
+      "visible": true
+    },
+    {
+      "theme": "dark",
+      "focus": "solid",
+      "visible": true
+    }
+  ],
+  "defaultRadius": "24px",
+  "errors": []
+}
