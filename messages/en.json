@@ -2868,6 +2868,8 @@
     "mdd232ad1560d": "Choose valid player filters and sorting.",
     "m6dde11117000": "Applied filters",
     "m23c5cdc6269e": "Remove filter",
-    "m34bfbc9aefa3": "No public players are available for this season yet."
+    "m34bfbc9aefa3": "No public players are available for this season yet.",
+    "mce97cbf4dc57": "This fixture has changed. Your unsaved draft is still shown. Copy any changes you want to keep before loading the latest version; loading it will discard this draft.",
+    "mcecb74393a64": "Load latest fixture version"
   }
 }
