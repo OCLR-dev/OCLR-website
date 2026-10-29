@@ -27,31 +27,31 @@ async function Issue271Page() {
   const groups = [
     {
       id: "pooler",
-      title: "Pooler",
+      title: tr("Pooler"),
       names: organizerDirectory.pooler,
       roles: ["mappooler"],
     },
     {
       id: "replayer",
-      title: "Replayer",
+      title: tr("Replayer"),
       names: [],
       roles: ["replayer"],
     },
     {
       id: "tester",
-      title: "Tester",
+      title: tr("Tester"),
       names: organizerDirectory.tester,
       roles: ["tester"],
     },
     {
       id: "streamer",
-      title: "Streamer",
+      title: tr("Streamer"),
       names: organizerDirectory.streamer,
       roles: ["streamer"],
     },
     {
       id: "referee",
-      title: "Referee",
+      title: tr("Referee"),
       names: organizerDirectory.referee,
       roles: ["referee"],
     },

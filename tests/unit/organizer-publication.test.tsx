@@ -1,11 +1,15 @@
 import React from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { english } from "../../src/i18n/translate";
+import { createTranslator } from "next-intl";
+import { appTranslator, english } from "../../src/i18n/translate";
+import hans from "../../messages/zh-Hans.json";
+import hant from "../../messages/zh-Hant.json";
 import About from "../../src/app/about/page";
 import { publicStaff } from "../../src/lib/public-staff";
+let translator = english;
 vi.mock("../../src/i18n/server", () => ({
-  getAppTranslations: async () => english,
+  getAppTranslations: async () => translator,
 }));
 vi.mock("../../src/i18n/shared", () => ({ useAppTranslations: () => english }));
 vi.mock("../../src/lib/public-staff", () => ({ publicStaff: vi.fn() }));
@@ -15,6 +19,7 @@ async function render() {
 }
 describe("organizer directory publication", () => {
   beforeEach(() => {
+    translator = english;
     vi.stubGlobal("React", React);
     vi.mocked(publicStaff).mockResolvedValue([]);
   });
@@ -22,6 +27,58 @@ describe("organizer directory publication", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
+  it.each([
+    [
+      "zh-Hans",
+      hans,
+      ["选图", "打图录像", "图池测试", "直播", "裁判", "工作人员", "开发者"],
+    ],
+    [
+      "zh-Hant",
+      hant,
+      ["選圖", "打圖錄像", "圖池測試", "直播", "裁判", "工作人員", "開發者"],
+    ],
+  ] as const)(
+    "localizes the directory, section titles and saved role codes in %s",
+    async (locale, catalog, labels) => {
+      const native = createTranslator({ locale, messages: catalog.ui });
+      translator = appTranslator(
+        (key, values) => native(key as keyof typeof catalog.ui, values),
+        locale,
+      );
+      vi.mocked(publicStaff).mockResolvedValue([
+        {
+          osuId: 4242,
+          username: "Published Replayer",
+          countryCode: null,
+          roles: [
+            "mappooler",
+            "replayer",
+            "tester",
+            "streamer",
+            "referee",
+            "developer",
+          ].map((role) => ({ role, edition: null })),
+        },
+      ]);
+      const html = await render();
+      for (const [index, id] of [
+        "pooler",
+        "replayer",
+        "tester",
+        "streamer",
+        "referee",
+        "staff",
+        "developer",
+      ].entries()) {
+        expect(html).toContain(`href="#${id}">${labels[index]}</a>`);
+        expect(html).toContain(`id="${id}-title">${labels[index]}</h`);
+      }
+      for (const label of labels.slice(0, 5))
+        expect(html).toContain(`<span class="staff-role-name">${label}</span>`);
+      expect(html).toContain("Published Replayer");
+    },
+  );
   it.each(["production", "test"])(
     "keeps placeholder identities out of %s",
     async (mode) => {

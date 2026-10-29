@@ -2917,6 +2917,9 @@
     "mbabe9dda8503": "Start time",
     "m2e46006a5eeb": "End time",
     "m561d7790adea": "End time must not precede start time",
-    "mf7bd60bb5186": "TBA"
+    "mf7bd60bb5186": "TBA",
+    "m4d7013291ece": "Pooler",
+    "streamer": "streamer",
+    "developer": "developer"
   }
 }
