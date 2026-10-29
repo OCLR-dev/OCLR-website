@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff";
 import { draftCommand, staffDraft } from "@/lib/draft";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { draftCommandBodyLimit } from "@/lib/request-body-limits";
 async function readGET(
   _request: Request,
   context: { params: Promise<{ edition: string }> },
@@ -26,7 +27,11 @@ export async function POST(
     const actor = await requireStaff();
     const { edition } = await context.params;
     return NextResponse.json(
-      await draftCommand(actor, edition, await readJson(request)),
+      await draftCommand(
+        actor,
+        edition,
+        await readJson(request, draftCommandBodyLimit),
+      ),
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {
