@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-Hant" data-preview-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>OCLR S4 · Azure Brush 主題預覽</title>
+    <script src="s4.js" defer></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        color-scheme: dark;
+        --preview-bg: #0f2132;
+        --preview-surface: #172e42;
+        --preview-ink: #eef7fc;
+        --preview-muted: #acc3d3;
+        --preview-border: #38566c;
+        --preview-control: #6c8ca3;
+        --preview-accent: #9dcced;
+      }
+      :root[data-preview-theme="light"] {
+        color-scheme: light;
+        --preview-bg: #f2f8fa;
+        --preview-surface: #ffffff;
+        --preview-ink: #102e46;
+        --preview-muted: #526d7e;
+        --preview-border: #c4d5de;
+        --preview-control: #758e9e;
+        --preview-accent: #176ca4;
+      }
+      body {
+        margin: 0;
+        background: var(--preview-bg);
+        color: var(--preview-ink);
+        font:
+          15px/1.65 system-ui,
+          sans-serif;
+      }
+      header {
+        padding: 28px 32px 24px;
+        border-bottom: 1px solid var(--preview-border);
+      }
+      .eyebrow {
+        color: var(--preview-accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
+      h1 {
+        margin: 8px 0;
+        font-size: clamp(24px, 3vw, 32px);
+        line-height: 1.2;
+      }
+      p {
+        margin: 8px 0 0;
+        color: var(--preview-muted);
+      }
+      a {
+        color: var(--preview-accent);
+        text-underline-offset: 3px;
+      }
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 20px 32px;
+        background: var(--preview-surface);
+        border-bottom: 1px solid var(--preview-border);
+      }
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--preview-muted);
+      }
+      select {
+        min-height: 44px;
+        padding: 8px 32px 8px 12px;
+        border: 1px solid var(--preview-control);
+        border-radius: 6px;
+        color: var(--preview-ink);
+        background: var(--preview-bg);
+        font: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--preview-accent);
+        outline-offset: 3px;
+      }
+      figure {
+        margin: 24px 32px 40px;
+      }
+      figcaption {
+        margin-bottom: 12px;
+        color: var(--preview-muted);
+      }
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border: 1px solid var(--preview-border);
+      }
+      @media (max-width: 600px) {
+        header,
+        form {
+          padding: 20px;
+        }
+        figure {
+          margin: 20px;
+        }
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+      .preview-tabs {
+        display: flex;
+        gap: 8px;
+        margin: 0;
+        padding: 16px 32px;
+        border-bottom: 1px solid var(--preview-border);
+      }
+      .preview-tabs button,
+      .sample-actions button,
+      #sample-name {
+        min-height: 44px;
+        border: 1px solid var(--preview-accent);
+        border-radius: 3px;
+        padding: 10px 16px;
+        color: var(--preview-ink);
+        background: var(--preview-bg);
+        font: inherit;
+      }
+      .preview-tabs [aria-selected="true"] {
+        border-bottom: 3px solid var(--preview-accent);
+        font-weight: 700;
+      }
+      .preview-tabs button:focus-visible,
+      .sample-actions button:focus-visible,
+      #sample-name:focus-visible {
+        outline: 2px solid var(--preview-accent);
+        outline-offset: 3px;
+      }
+      #panel-controls {
+        padding: 24px 32px;
+      }
+      #component-form {
+        display: grid;
+        gap: 12px;
+        max-width: 36rem;
+      }
+      #component-form label {
+        font-weight: 700;
+      }
+      #sample-name {
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      #sample-name[aria-invalid="true"] {
+        border-color: #b52d45;
+      }
+      .sample-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .sample-actions .sample-primary {
+        color: #fff;
+        background: #126a9f;
+      }
+      .sample-actions button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .sample-error {
+        color: #a5273e;
+      }
+      [data-preview-theme="dark"] .sample-error {
+        color: #ffb4bd;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">OCLR · SEASON 4 · APPEARANCE PREVIEW</div>
+      <h1>蒼藍筆鋒 · Azure Brush</h1>
+      <p>
+        蒼藍筆鋒：蒼藍水墨、毛筆飛白與自然暈染，保留完整 S4 原始主視覺。
+        主頁、賽程、圖池與管理設定均為正式主題的實際應用元件截圖。
+      </p>
+      <p>
+        <a href="s4/DESIGN.md">設計與重現步驟</a> ·
+        <a href="s4/verification.json">驗證紀錄</a> ·
+        <a href="s4/heading-937-dark.png">937px 標題局部</a> ·
+        <a href="https://github.com/OCLR-dev/OCLR-website/issues/344"
+          >Issue #344</a
+        >
+      </p>
+    </header>
+    <div class="preview-tabs" role="tablist" aria-label="預覽內容">
+      <button
+        id="tab-pages"
+        role="tab"
+        aria-selected="true"
+        aria-controls="panel-pages"
+        type="button"
+      >
+        實際頁面
+      </button>
+      <button
+        id="tab-controls"
+        role="tab"
+        aria-selected="false"
+        aria-controls="panel-controls"
+        tabindex="-1"
+        type="button"
+      >
+        控制項
+      </button>
+    </div>
+    <section id="panel-pages" role="tabpanel" aria-labelledby="tab-pages">
+      <form id="gallery-form" aria-label="主題預覽控制">
+        <label
+          >頁面<select name="surface">
+            <option value="">S4 主頁</option>
+            <option value="schedule-">S4 賽程</option>
+            <option value="mappools-">S4 圖池</option>
+            <option value="admin-">管理設定</option>
+          </select></label
+        >
+        <label
+          >尺寸<select name="size">
+            <option value="desktop">桌面 1440px</option>
+            <option value="mobile">手機 390px</option>
+          </select></label
+        >
+        <label
+          >明暗<select name="theme">
+            <option value="dark">深色</option>
+            <option value="light">淺色</option>
+          </select></label
+        >
+        <label
+          >樣式<select name="version">
+            <option value="">S4 主題</option>
+            <option value="current-">目前原有風格</option>
+          </select></label
+        >
+      </form>
+      <figure>
+        <figcaption id="caption" aria-live="polite">
+          S4 主頁 · 桌面 1440px · 深色 · S4 Azure Brush
+        </figcaption>
+        <img
+          id="preview"
+          src="s4/desktop-dark.webp"
+          width="1440"
+          height="1000"
+          alt="S4 主頁 · 桌面 1440px · 深色 · S4 Azure Brush"
+        />
+      </figure>
+    </section>
+    <section
+      id="panel-controls"
+      role="tabpanel"
+      aria-labelledby="tab-controls"
+      hidden
+    >
+      <h2>控制項預覽</h2>
+      <p>僅在此頁預覽輸入與狀態，不傳送或保存資料。</p>
+      <form id="component-form" novalidate>
+        <label for="sample-name">範例文字（至少三個字元）</label>
+        <input
+          id="sample-name"
+          name="sample-name"
+          required
+          minlength="3"
+          aria-describedby="sample-error"
+        />
+        <p id="sample-error" class="sample-error" hidden>
+          請輸入至少三個字元。
+        </p>
+        <div class="sample-actions">
+          <button class="sample-primary" type="submit">預覽</button>
+          <button type="reset">重設</button>
+          <button type="button" disabled>停用操作</button>
+        </div>
+        <p id="sample-result" role="status" aria-live="polite">尚未預覽。</p>
+      </form>
+    </section>
+  </body>
+</html>

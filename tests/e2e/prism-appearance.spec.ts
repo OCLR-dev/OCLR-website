@@ -71,8 +71,9 @@ test.describe("S5 Prism Overture appearance", () => {
         const menu = page.getByRole("menu").filter({
           has: page.locator('[data-appearance-option="prism-overture"]'),
         });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(16);
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(17);
         await page.keyboard.press("End");
+        await page.keyboard.press("ArrowUp");
         await expect(
           menu.getByRole("menuitemradio", { name: label, exact: true }),
         ).toBeFocused();
