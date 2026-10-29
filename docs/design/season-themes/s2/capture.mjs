@@ -1,4 +1,4 @@
-// Capture unregistered S2 candidate CSS on isolated current React routes.
+// Capture the registered S2 appearance from the production build and SSR cookie.
 import { chromium } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import sharp from "sharp";
@@ -17,27 +17,23 @@ const base = process.env.S2_PREVIEW_ORIGIN ?? "http://127.0.0.1:3192";
 const origin = new URL(base);
 if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
-const uiBaseline = "f4b5eb85e363ddf1aed77a9cfcc7f40653c01180";
+const uiBaseline = "HEAD";
 const out = fileURLToPath(new URL(".", import.meta.url));
 const sourceCss = await readFile(
-  new URL("candidate.css", import.meta.url),
+  new URL("../../../../src/app/verdant-theme.css", import.meta.url),
   "utf8",
 );
 const assets = await Promise.all(
   ["paper-light.svg", "paper-dark.svg"].map(async (file) => ({
     file,
-    bytes: await readFile(new URL(file, import.meta.url)),
+    bytes: await readFile(
+      new URL(
+        `../../../../public/themes/verdant-prelude/${file}`,
+        import.meta.url,
+      ),
+    ),
   })),
 );
-const previewCss = sourceCss
-  .replace(
-    "__S2_LIGHT__",
-    `data:image/svg+xml;base64,${assets[0].bytes.toString("base64")}`,
-  )
-  .replace(
-    "__S2_DARK__",
-    `data:image/svg+xml;base64,${assets[1].bytes.toString("base64")}`,
-  );
 const sourceArtwork = await readFile(
   new URL("../../../../public/archive/s2/key-visual.avif", import.meta.url),
 );
@@ -49,10 +45,20 @@ const browser = await chromium.launch({ channel: "chrome", headless: true });
 const context = await browser.newContext({ reducedMotion: "reduce" });
 
 async function applyPreview(page) {
-  await page.evaluate(() =>
-    document.documentElement.setAttribute("data-appearance", "verdant-prelude"),
-  );
-  await page.addStyleTag({ content: previewCss });
+  await page
+    .context()
+    .addCookies([
+      { name: "oclr-appearance", value: "verdant-prelude", url: base },
+    ]);
+  const response = await page.reload();
+  if (
+    !response ||
+    response.status() !== 200 ||
+    !(await response.text())
+      .match(/<html[^>]+>/)?.[0]
+      ?.includes('data-appearance="verdant-prelude"')
+  )
+    throw new Error("S2 appearance was not server rendered");
   await ready(page);
 }
 async function contentSnapshot(page) {
@@ -301,8 +307,9 @@ try {
       const geometry = await heading.evaluate((n) => ({
         width: n.getBoundingClientRect().width,
         height: n.getBoundingClientRect().height,
-        hasTexture:
-          getComputedStyle(n).backgroundImage.includes("data:image/svg+xml"),
+        hasTexture: getComputedStyle(n).backgroundImage.includes(
+          "/themes/verdant-prelude/paper-",
+        ),
         text: [...n.querySelectorAll("h1,p")].map((el) => ({
           width: el.getBoundingClientRect().width,
           fits: el.scrollWidth <= el.clientWidth,
@@ -336,7 +343,7 @@ try {
           encoding: "utf8",
         }).trim(),
         scope:
-          "Candidate CSS injected into current real React pages; unregistered appearance; no business writes",
+          "Registered verdant-prelude SSR appearance, production CSS and public SVG assets; no injected preview styles",
         buildId: (
           await readFile(
             new URL("../../../../.next/BUILD_ID", import.meta.url),
@@ -356,7 +363,7 @@ try {
         artworkSha256: createHash("sha256").update(sourceArtwork).digest("hex"),
         stylesheetSha256: createHash("sha256").update(sourceCss).digest("hex"),
         fixture:
-          "Synthetic empty S2 archive with one explicitly synthetic team/captain required by schema; committed S2 rules and unchanged original artwork. No private exports or historical score claims.",
+          "Shared synthetic component fixture with teams, players, matches and mappools; committed S2 rules and unchanged original artwork. No private exports or historical score claims.",
       },
       null,
       2,

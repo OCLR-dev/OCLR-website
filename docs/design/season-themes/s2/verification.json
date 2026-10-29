@@ -1,17 +1,17 @@
 {
   "date": "2026-10-29",
-  "uiBaseline": "f4b5eb85e363ddf1aed77a9cfcc7f40653c01180",
-  "scope": "Candidate CSS injected into current real React pages; unregistered appearance; no business writes",
-  "buildId": "_FyEQHO9UwodUPI83YTaI",
+  "uiBaseline": "a8255a0087e92a3423d1b6fb4ab8e75c7281ab06",
+  "scope": "Registered verdant-prelude SSR appearance, production CSS and public SVG assets; no injected preview styles",
+  "buildId": "GM37NGkFW5ly40R0nLrpk",
   "locale": "zh-Hant",
   "decorativeAssets": [
     {
       "file": "paper-light.svg",
-      "sha256": "23fdf9907e38c771961451a4c1e8288070a65c4f1adb081da563149f043ad7fd"
+      "sha256": "55490652a855122268a32b0bbbd75d17933df914f6c630dec170b2687a1da148"
     },
     {
       "file": "paper-dark.svg",
-      "sha256": "00af3bdc25216317dd34b061da4a2f5089a3f9eafae8ea530e5b6780edd7ce63"
+      "sha256": "b426e47398b07431703e1c45130a2946b377433ed1af2387a14fe231aa82b3c5"
     }
   ],
   "browser": "Google Chrome",
@@ -555,6 +555,7 @@
   ],
   "errors": [],
   "artworkSha256": "f5a90a4b55dbc051846c9b2b5d5a0ebee3a20df82b618d1ab643fa108631fcbf",
-  "stylesheetSha256": "1bf43d9aaeb432c3a76195f3ce4b84adad7d4aa306c605e4833be2a0b5fa1776",
-  "fixture": "Synthetic empty S2 archive with one explicitly synthetic team/captain required by schema; committed S2 rules and unchanged original artwork. No private exports or historical score claims."
+  "stylesheetSha256": "937fa4e1fa70d6bde23c0ebf9203e5766b753013d0d1b0047d9341a94ab6a8d1",
+  "fixture": "Shared synthetic component fixture with teams, players, matches and mappools; committed S2 rules and unchanged original artwork. No private exports or historical score claims.",
+  "sourceNote": "Build preceded the implementation commit; committed runtime sources are identical to the captured build. SVG/CSS and build ID verified."
 }
