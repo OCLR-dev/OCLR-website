@@ -6,6 +6,7 @@ import {
   remoteApiSupported,
 } from "@/lib/data-source";
 import { appUrl } from "@/lib/http";
+import { isDevelopmentNetworkRequest } from "@/lib/site-origin";
 import { localeCookie, readLocale } from "@/i18n/config";
 export function proxy(request: NextRequest) {
   // Non-v1 endpoints keep their session/anonymous transport. In particular a
@@ -73,6 +74,7 @@ export function proxy(request: NextRequest) {
   if (
     canonical &&
     request.headers.get("host") !== canonical.host &&
+    !isDevelopmentNetworkRequest(request.headers.get("host")) &&
     ["GET", "HEAD"].includes(request.method)
   ) {
     canonical.pathname = request.nextUrl.pathname;

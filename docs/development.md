@@ -11,6 +11,25 @@ Use Node.js 24 LTS (minimum 22.13) and npm. Run `npm ci`. For database-backed fe
 
 One Next.js App Router application uses strict TypeScript, React and Tailwind CSS. Shared tokens and responsive patterns live in `src/app/globals.css`. Static tournament information works without external services; authentication, registration, teams and live draft data require PostgreSQL. Empty production content stays unpublished until approved by organizers.
 
+## Phone and LAN preview
+
+`next dev` serves responsive layouts to another device on the same network, but only for an origin the application accepts. Set `APP_URL` to this machine's private IPv4 origin, then restart the dev server (environment and `next.config.ts` changes need a restart):
+
+```sh
+# macOS: ipconfig getifaddr en0 | Linux: hostname -I
+APP_URL=http://192.168.100.31:3000 npm run dev
+```
+
+Open the same address on the phone. Three development-only rules make that work, and none of them changes a production server:
+
+- `appUrl()` in `src/lib/http.ts` accepts plain HTTP on a private IPv4 origin, while `NODE_ENV` is `development`. Loopback stays allowed everywhere; `next build` and `next start` keep the HTTPS-only rule, so a private HTTP `APP_URL` fails closed there.
+- `next.config.ts` derives `allowedDevOrigins` from that `APP_URL` hostname, which is the allowlist Next needs before it answers dev assets and HMR requests from a hostname other than its startup host.
+- `src/proxy.ts` skips the canonical-host redirect for a private-network request while developing. Next relativizes redirects against the dev server's own startup origin, so that redirect would otherwise return the same URL forever (`ERR_TOO_MANY_REDIRECTS`). Pages load even when `APP_URL` is still loopback, but write requests then fail the same-origin check, so point `APP_URL` at the LAN origin for a full preview.
+
+Sign-in needs the osu! callback registered as `APP_URL/auth/osu/callback` for that exact origin; without it, preview public pages only. Remote read mode (`OCLR_DATA_SOURCE=remote`) still requires a loopback `APP_URL` and rejects other hosts by design.
+
+While the dev server listens on the network, any device that can reach it also reaches unminified source, dev error overlays and unpublished demo data. Use this on a trusted network only, and return `APP_URL` to `http://localhost:3000` afterwards.
+
 ## Local frontend database and demo content
 
 For frontend work without an organizer database, use the existing Docker installation:
@@ -199,7 +218,6 @@ and object URL release on replacement, removal, cancel/Escape and unmount. The
 host supplies only synthetic data and a minimal router context; these checks do
 not replace authenticated application E2E, backend permissions or storage tests.
 The fixed daily core browser allowlist is unchanged.
-
 
 The persistent `oclr_frontend_test` preview is explicitly rejected by the shared
 destructive-test guard, regardless of host alias or encoded database name (#454).

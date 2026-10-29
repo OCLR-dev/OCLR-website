@@ -20,6 +20,38 @@ it("rejects untrusted origins, missing origins and non-loopback HTTP", () => {
   vi.stubEnv("APP_URL", "http://oclr.example.test");
   expect(() => appUrl()).toThrow();
 });
+it("accepts a private IPv4 origin only while NODE_ENV is development", () => {
+  vi.stubEnv("NODE_ENV", "development");
+  for (const origin of [
+    "http://192.168.100.31:3000",
+    "http://10.0.0.4:3000",
+    "http://172.16.5.4:3000",
+    "http://172.31.255.254:3000",
+  ]) {
+    vi.stubEnv("APP_URL", origin);
+    expect(appUrl()).toBe(origin);
+  }
+  for (const origin of [
+    "http://172.32.5.4:3000",
+    "http://192.168.0.256:3000",
+    "http://oclr.example.test",
+    "http://192.168.100.31:3000/base",
+    "https://user:private-value@192.168.100.31:3000",
+  ]) {
+    vi.stubEnv("APP_URL", origin);
+    expect(() => appUrl()).toThrow();
+  }
+});
+it("keeps private origins HTTPS-only outside development", () => {
+  vi.stubEnv("APP_URL", "http://192.168.100.31:3000");
+  for (const environment of ["production", "test"]) {
+    vi.stubEnv("NODE_ENV", environment);
+    expect(() => appUrl()).toThrow("The site origin is invalid.");
+  }
+  vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv("APP_URL", "https://192.168.100.31:3000");
+  expect(appUrl()).toBe("https://192.168.100.31:3000");
+});
 it("bounds body size even when length is absent and validates JSON", async () => {
   await expect(
     readJson(

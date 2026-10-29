@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server.js";
+import { allowsPlainHttpOrigin } from "./site-origin";
 export class HttpError extends Error {
   constructor(
     public status: number,
@@ -20,7 +21,7 @@ export function appUrl() {
     (url.protocol !== "https:" &&
       !(
         url.protocol === "http:" &&
-        ["localhost", "127.0.0.1"].includes(url.hostname)
+        allowsPlainHttpOrigin(url.hostname, process.env.NODE_ENV)
       ))
   )
     throw new HttpError(503, "The site origin is invalid.");

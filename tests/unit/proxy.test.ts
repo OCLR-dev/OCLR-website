@@ -14,6 +14,41 @@ it("redirects untrusted hosts only to the configured canonical origin", () => {
     "https://oclr.example.test/tournaments?x=1",
   );
 });
+it("serves a private development origin instead of redirecting to a loop", () => {
+  vi.stubEnv("NODE_ENV", "development");
+  vi.stubEnv("APP_URL", "http://192.168.100.31:3000");
+  const response = proxy(
+    new NextRequest("http://192.168.100.31:3000/tournaments", {
+      headers: { host: "192.168.100.31:3000" },
+    }),
+  );
+  expect(response.status).toBe(200);
+  expect(response.headers.get("location")).toBeNull();
+});
+it("lets a private development host reach pages when APP_URL stays loopback", () => {
+  vi.stubEnv("NODE_ENV", "development");
+  vi.stubEnv("APP_URL", "http://localhost:3000");
+  const response = proxy(
+    new NextRequest("http://192.168.100.31:3000/tournaments", {
+      headers: { host: "192.168.100.31:3000" },
+    }),
+  );
+  expect(response.status).toBe(200);
+  expect(response.headers.get("location")).toBeNull();
+});
+it("keeps the canonical redirect for non-private hosts in development", () => {
+  vi.stubEnv("NODE_ENV", "development");
+  vi.stubEnv("APP_URL", "http://localhost:3000");
+  const response = proxy(
+    new NextRequest("http://attacker.test/tournaments", {
+      headers: { host: "attacker.test" },
+    }),
+  );
+  expect(response.status).toBe(308);
+  expect(response.headers.get("location")).toBe(
+    "http://localhost:3000/tournaments",
+  );
+});
 it("generates fresh strict script nonces, HSTS and no-store API responses", () => {
   vi.stubEnv("APP_URL", "https://oclr.example.test");
   const request = () =>
