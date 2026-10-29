@@ -1,0 +1,43 @@
+/* Stretch each link across its definition row while retaining valid dl markup. */
+.archive-overview-summary .archive-counts > .archive-count {
+  position: relative;
+  padding-inline: 1rem;
+  border-left: 3px solid var(--site-border);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+.archive-count a {
+  color: inherit;
+  text-decoration: none;
+}
+.archive-count a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.archive-count:has(a:focus-visible) {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
+.archive-count a:focus-visible {
+  outline: none;
+}
+@media (hover: hover) {
+  .archive-overview-summary .archive-count[data-link]:hover {
+    border-left-color: var(--site-accent);
+    background: color-mix(in srgb, var(--site-accent) 8%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .archive-overview-summary .archive-counts > .archive-count,
+  .edition-card,
+  .edition-card-glow {
+    transition: none;
+  }
+}
+@media (max-width: 640px) {
+  .archive-overview-summary .archive-counts {
+    max-width: none;
+  }
+}

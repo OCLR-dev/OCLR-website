@@ -444,17 +444,6 @@ export async function HistoricalArchiveView({
       edition,
       a,
     );
-    const statistics = !preview && supportsArchiveStatistics(edition.slug);
-    let scores = 0;
-    if (statistics) {
-      try {
-        scores =
-          (await publicArchiveStatistics(edition.slug)).plays?.length ?? 0;
-      } catch {
-        // The overview stays readable when statistics are unavailable.
-        scores = 0;
-      }
-    }
     const metrics = [
       {
         key: "teams",
@@ -464,13 +453,13 @@ export async function HistoricalArchiveView({
       },
       {
         key: "players",
-        label: tr("Players"),
+        label: tr("Players & coaches"),
         count: counts.players,
         href: href("players"),
       },
       {
         key: "matches",
-        label: tr("Matches"),
+        label: tr("Recorded results"),
         count: counts.results,
         href: href("schedule"),
       },
@@ -481,10 +470,10 @@ export async function HistoricalArchiveView({
         href: href("mappools"),
       },
       {
-        key: "scores",
-        label: tr("Scores"),
-        count: scores,
-        href: statistics ? href("statistics") : undefined,
+        key: "maps",
+        label: tr("Maps"),
+        count: counts.maps,
+        href: href("mappools"),
       },
     ];
     content = (

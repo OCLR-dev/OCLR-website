@@ -507,9 +507,7 @@ test.describe("historical archive browser workflow", () => {
       path: info.outputPath("s6-directory-card.png"),
       animations: "disabled",
     });
-    await card
-      .getByRole("link", { name: "View tournament", exact: true })
-      .click();
+    await card.getByRole("link", { name: /^View tournament: / }).click();
     await expect(page.locator(".rules-article > section")).toHaveCount(4);
     for (const section of rules.sections)
       await expect(page.locator(".rules-article")).toContainText(section.body);
@@ -1163,7 +1161,11 @@ test.describe("historical archive browser workflow", () => {
           exact: true,
         }),
       ).toBeVisible();
-      await expect(page.getByText("Captain", { exact: true })).toHaveCount(2);
+      await expect(
+        page
+          .locator(".archive-player-card")
+          .getByText("Captain", { exact: true }),
+      ).toHaveCount(2);
       const search = page.getByRole("searchbox", {
         name: locale === "zh-Hant" ? "搜尋選手" : "搜索选手",
         exact: true,

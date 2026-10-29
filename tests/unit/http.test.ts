@@ -52,6 +52,27 @@ it("keeps private origins HTTPS-only outside development", () => {
   vi.stubEnv("APP_URL", "https://192.168.100.31:3000");
   expect(appUrl()).toBe("https://192.168.100.31:3000");
 });
+it("keeps exact origin and session-only writes during LAN preview", () => {
+  vi.stubEnv("NODE_ENV", "development");
+  vi.stubEnv("APP_URL", "http://192.168.1.2:3000");
+  const request = (origin: string, authorization?: string) =>
+    new Request("http://192.168.1.2:3000/api/settings", {
+      method: "POST",
+      headers: { origin, ...(authorization ? { authorization } : {}) },
+    });
+  expect(() =>
+    requireSameOrigin(request("http://192.168.1.2:3000")),
+  ).not.toThrow();
+  for (const origin of [
+    "http://192.168.1.3:3000",
+    "http://192.168.1.2:3001",
+    "https://attacker.test",
+  ])
+    expect(() => requireSameOrigin(request(origin))).toThrow();
+  expect(() =>
+    requireSameOrigin(request("http://192.168.1.2:3000", "Bearer synthetic")),
+  ).toThrow();
+});
 it("bounds body size even when length is absent and validates JSON", async () => {
   await expect(
     readJson(

@@ -504,7 +504,7 @@ button:hover {
   outline: none;
 }
 .edition-card:has(.edition-card-link:focus-visible) {
-  outline: 3px solid var(--site-focus, #e1a6ff);
+  outline: 3px solid var(--site-accent, #e1a6ff);
   outline-offset: 3px;
 }
 /* Accent rim and lift reuse the shared panel shadow and appearance accent. */

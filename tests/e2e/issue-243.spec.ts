@@ -64,7 +64,7 @@ test("243 historical presentation", async ({
           expect(data!.y).toBeGreaterThanOrEqual(box!.y + box!.height);
         } else {
           expect(data!.x).toBeGreaterThanOrEqual(box!.x + box!.width);
-          // #265 intentionally caps the five compact metric bars inside the
+          // #265 intentionally caps the five compact metric rows inside the
           // equal-width data column instead of stretching them to the artwork.
           const summary = (await page
             .locator(".archive-overview-summary")
@@ -84,10 +84,44 @@ test("243 historical presentation", async ({
             ).length,
           ),
           String(archives[season - 7].pools.length),
-          // The final bar counts published statistics plays; these synthetic
-          // season slugs have no statistics source, so the count is zero.
-          "0",
+          String(
+            archives[season - 7].pools.reduce(
+              (total, pool) => total + pool.maps.length,
+              0,
+            ),
+          ),
         ]);
+        const metricLinks = page.locator(".archive-counts a");
+        await expect(metricLinks).toHaveCount(5);
+        for (const [index, section] of [
+          "teams",
+          "players",
+          "schedule",
+          "mappools",
+          "mappools",
+        ].entries()) {
+          await expect(metricLinks.nth(index)).toHaveAttribute(
+            "href",
+            `/tournaments/issue-243-s${season}/${section}`,
+          );
+        }
+        await page
+          .locator(".archive-counts dt")
+          .first()
+          .scrollIntoViewIfNeeded();
+        // Clicking the label side must hit the row link, not just its number.
+        expect(
+          await page
+            .locator(".archive-counts dt")
+            .first()
+            .evaluate((label) => {
+              const rect = label.getBoundingClientRect();
+              return document
+                .elementFromPoint(rect.x + 2, rect.y + 2)
+                ?.closest("a")
+                ?.getAttribute("href");
+            }),
+        ).toBe(`/tournaments/issue-243-s${season}/teams`);
         expect(box!.height).toBeLessThanOrEqual(
           page.viewportSize()!.height / 2 + 1,
         );

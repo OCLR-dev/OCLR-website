@@ -31,7 +31,7 @@ export async function EditionCard({
       <PendingLink
         className="edition-card-link"
         href={tournamentHref}
-        aria-label={tr("View tournament")}
+        aria-label={`${tr("View tournament")}: ${edition.name}`}
       />
       <span className="edition-card-glow" aria-hidden="true" />
       <EditionArtwork slug={edition.slug} logo={artwork} />

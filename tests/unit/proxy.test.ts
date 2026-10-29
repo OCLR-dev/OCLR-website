@@ -49,6 +49,19 @@ it("keeps the canonical redirect for non-private hosts in development", () => {
     "http://localhost:3000/tournaments",
   );
 });
+it("does not exempt private hosts from production canonical redirects", () => {
+  vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv("APP_URL", "https://oclr.example.test");
+  const response = proxy(
+    new NextRequest("http://192.168.1.2:3000/tournaments?x=1", {
+      headers: { host: "192.168.1.2:3000" },
+    }),
+  );
+  expect(response.status).toBe(308);
+  expect(response.headers.get("location")).toBe(
+    "https://oclr.example.test/tournaments?x=1",
+  );
+});
 it("generates fresh strict script nonces, HSTS and no-store API responses", () => {
   vi.stubEnv("APP_URL", "https://oclr.example.test");
   const request = () =>
