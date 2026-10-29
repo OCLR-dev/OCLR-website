@@ -1,3 +1,4 @@
+import { appearances } from "../../src/lib/preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";

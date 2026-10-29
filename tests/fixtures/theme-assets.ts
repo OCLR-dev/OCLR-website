@@ -11,6 +11,7 @@ export const bundledSeasonThemes = [
   { appearance: "azure-brush", stylesheet: "azure-theme.css" },
   { appearance: "verdant-prelude", stylesheet: "verdant-theme.css" },
   { appearance: "chromatic-origins", stylesheet: "chromatic-theme.css" },
+  { appearance: "frost-waltz", stylesheet: "frost-theme.css" },
 ].map(({ appearance, stylesheet }) => ({
   appearance,
   assets: [

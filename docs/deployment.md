@@ -557,6 +557,10 @@ S2 Verdant Prelude (`verdant-prelude`) uses mint paper surfaces, refined swallow
 
 ### S4 Azure Brush appearance (#344)
 
+### S3 Frost Waltz appearance (#343)
+
+S3 Frost Waltz (`frost-waltz`) uses snow-white/blue-grey surfaces and the approved crystalline snowflake waltz banner. `src/app/frost-theme.css` is scoped to ordinary `.themed-site` pages; original 995×621 artwork and OBS/presenter isolation are preserved. The two static SVG textures are bundled under `/themes/frost-waltz/`. Migration `0055_frost_waltz_appearance` only expands site-setting/audit constraints. This historical migration preserves site/audit compatibility; #445 permits new S3 choices only in tournament settings. Existing defaults and audit history remain unchanged. Before intentionally rolling back to older code, select defaults supported by that version; never down-migrate live data. See [S3 design and verification](design/season-themes/s3/DESIGN.md).
+
 S4 Azure Brush (`azure-brush`) uses paper-white/ink-blue surfaces, 2–4px geometry and original azure Chinese ink-wash brushwork in the banner. `src/app/azure-theme.css` is scoped to ordinary `.themed-site` pages. The complete original 1728×1080 S4 AVIF and OBS/presenter isolation are preserved. The generated alpha-preserving WebP is bundled under `/themes/azure-brush/`; prompt and provenance are documented with the design. Migration `0052_azure_brush_appearance` expands only site-setting/audit appearance constraints, without changing existing defaults, archive review/publication or audit history. This historical migration preserves site/audit compatibility; #445 permits new S4 choices only in tournament settings. Before an intentional older-version rollback, select supported site/tournament defaults; never down-migrate a live database or delete history. See [S4 design and verification](design/season-themes/s4/DESIGN.md).
 
 ## Season theme selection policy (#445)

@@ -2,6 +2,8 @@
 
 **2026-10-29 S2 正式接入樣本**：[青燕春序圖庫](s2.html)／[設計與資料限制](s2/DESIGN.md)。以註冊外觀 `verdant-prelude` 擷取實際 SSR 頁面，提供明暗、桌面／手機及 default 對照；合成隊伍、賽程與圖池不代表歷史統計，未部署。
 
+**2026-10-29 S3 正式接入**：依 [#343](https://github.com/OCLR-dev/OCLR-website/issues/343) 主辦方確認，接入 `frost-waltz`／雪花圓舞曲。晶瑩雪花、三段舞步光流與局部星芒，保留完整995×621原圖。圖庫更新為正式SSR外觀，合成計數不代表S3歷史資料；不自動修改預設。[圖庫](s3.html)／[設計](s3/DESIGN.md)／[驗證](s3/verification.json)。
+
 主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10／S9／S8／S7 已依主辦方要求接入正式外觀 `skyline-pop`／`glacier-blue`／`sakura-circuit`／`graphite-arena`，各自的視覺審閱／合併證據以對應 issue 為準。
 
 **2026-10-29 S4開發預覽**：[#344](https://github.com/OCLR-dev/OCLR-website/issues/344) 的 Azure Brush／蒼藍筆鋒，以蒼藍水墨筆鋒、飛白及墨色暈染延伸原圖，資料區維持紙白／墨藍和清楚層級。依主辦方本輪設計開發要求實作 `azure-brush`，交付實際頁面明暗／手機圖庫及本機控制項預覽；視覺與中文名稱供審閱。[圖庫](s4.html)／[Design](s4/DESIGN.md)／[檢查](s4/verification.json)。

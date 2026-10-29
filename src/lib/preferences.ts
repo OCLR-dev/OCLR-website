@@ -44,6 +44,7 @@ export const seasonAppearances = [
   "azure-brush",
   "verdant-prelude",
   "chromatic-origins",
+  "frost-waltz",
 ] as const;
 export const appearances = [
   ...publicAppearances,

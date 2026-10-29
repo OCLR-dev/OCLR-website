@@ -124,6 +124,8 @@ Artwork and tournament dates shown in [design references](docs/design/) are exam
 
 - [Muziyami](https://osu.ppy.sh/users/7003013)
 
+S3 Frost Waltz (`frost-waltz`, #343) adds the approved crystalline snowflake waltz appearance. See [design and verification](docs/design/season-themes/s3/DESIGN.md) and [migration / update guidance](docs/deployment.md). Existing defaults are unchanged.
+
 ## License
 
 Project code is licensed under the [MIT License](LICENSE). Adapted yumu-bot components retain their [Apache-2.0 license](LICENSES/yumu-bot-Apache-2.0.txt) and [attribution](docs/yumu-rating.md).

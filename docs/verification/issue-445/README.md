@@ -61,3 +61,11 @@ These contain only synthetic identities and tournament dates.
 - [Mobile public menu](mobile-public-menu.png)
 - [Desktop site settings](desktop-site-settings.png)
 - [Mobile site settings](mobile-site-settings.png)
+
+## S3/S1 follow-up — 2026-10-29
+
+Integrated main `676b6aeb` (S3 Frost Waltz). `frost-waltz` and S1
+`chromatic-origins` are both in `seasonAppearances`, available to edition Admins
+but excluded from visitor preferences and site-wide defaults. Per the organizer’s
+explicit request, no tests, build, lint or browser checks were rerun for this
+follow-up; the earlier results above apply only to their recorded commits.

@@ -1,0 +1,88 @@
+{
+  "scope": "Isolated actual PageHeading component with existing source styles; not full app screenshots. Full-app recapture blocked by local PostgreSQL shared-memory limit.",
+  "runtime": "v24.22.1",
+  "componentSha256": "d7af8d057e8080eda1ab57f3dee39b92eca8242cd7d420d4643a7dab773e891d",
+  "assets": [
+    {
+      "theme": "light",
+      "sha256": "190397d5cb0aa7a1e8626aafc0b0dc490f6523f8450de7b10ce7dde4cb7965d5"
+    },
+    {
+      "theme": "dark",
+      "sha256": "ce86f74576dc30542b2f5d5edb8e90b1f69ca96a790f70e08bf798bfdd35a050"
+    }
+  ],
+  "cases": [
+    {
+      "width": 320,
+      "theme": "light",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    },
+    {
+      "width": 937,
+      "theme": "light",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    },
+    {
+      "width": 937,
+      "theme": "dark",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "axeViolations": 0,
+      "overflow": false,
+      "forcedColors": true
+    }
+  ],
+  "keyboard": true
+}

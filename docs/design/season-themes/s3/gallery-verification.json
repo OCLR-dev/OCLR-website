@@ -1,0 +1,53 @@
+{
+  "results": [
+    {
+      "width": 320,
+      "theme": "light",
+      "imagesDecoded": 16,
+      "axeViolations": 0
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "imagesDecoded": 16,
+      "axeViolations": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "imagesDecoded": 16,
+      "axeViolations": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "imagesDecoded": 16,
+      "axeViolations": 0
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "imagesDecoded": 16,
+      "axeViolations": 0
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "imagesDecoded": 16,
+      "axeViolations": 0
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "imagesDecoded": 16,
+      "axeViolations": 0
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "imagesDecoded": 16,
+      "axeViolations": 0
+    }
+  ],
+  "keyboardFocus": true
+}

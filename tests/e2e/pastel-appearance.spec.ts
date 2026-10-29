@@ -66,6 +66,11 @@ const optional = {
     lightBackground: "rgb(246, 244, 247)",
     darkBackground: "rgb(33, 28, 41)",
   },
+  "frost-waltz": {
+    label: "S3 · Frost Waltz",
+    lightBackground: "rgb(242, 250, 255)",
+    darkBackground: "rgb(16, 30, 42)",
+  },
   "verdant-prelude": {
     label: "S2 · Verdant Prelude",
     lightBackground: "rgb(245, 250, 247)",

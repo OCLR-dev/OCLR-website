@@ -1,0 +1,286 @@
+{
+  "date": "2026-10-29",
+  "baseline": "5032b947",
+  "runtime": "v24.22.2",
+  "scope": "Registered frost-waltz SSR preference, built CSS and shipped SVG assets. No injected styles.",
+  "fixture": "Synthetic design-only placeholder, not historical S3 data; one placeholder team/captain and empty schedule/mappools.",
+  "buildId": "TzcdITQr2-jtkFztsOb4I",
+  "cssSha256": "d15b9920e1b74c4dba1379d7ef18a81ceb758840b7e02fc80b03a7237fa4ac5a",
+  "assets": [
+    {
+      "theme": "light",
+      "sha256": "190397d5cb0aa7a1e8626aafc0b0dc490f6523f8450de7b10ce7dde4cb7965d5"
+    },
+    {
+      "theme": "dark",
+      "sha256": "ce86f74576dc30542b2f5d5edb8e90b1f69ca96a790f70e08bf798bfdd35a050"
+    }
+  ],
+  "cases": [
+    {
+      "name": "overview",
+      "width": 320,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 320,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 320,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 320,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
+      "width": 320,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 320,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 320,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 320,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
+      "width": 390,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 390,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 390,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 390,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
+      "width": 768,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 768,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 768,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 768,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
+      "width": 1440,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 1440,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 1440,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 1440,
+      "theme": "dark",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "additionalChecks": [
+    "original artwork 995x621/contain",
+    "unchanged content except appearance trigger after SSR selection",
+    "five existing metric rows",
+    "mobile menu geometry",
+    "4 heading/forced-colors cases",
+    "reduced motion context"
+  ]
+}
