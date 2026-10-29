@@ -1,4 +1,4 @@
-// Capture candidate S1 CSS on actual application routes in an isolated test fixture.
+// Capture the registered S1 appearance through real SSR on isolated routes.
 import { chromium } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import sharp from "sharp";
@@ -17,13 +17,21 @@ const base = process.env.S1_PREVIEW_ORIGIN ?? "http://127.0.0.1:3191";
 const origin = new URL(base);
 if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
-const uiBaseline = "f4b5eb85";
+const uiBaseline = process.env.S1_UI_BASELINE ?? "HEAD";
 const out = fileURLToPath(new URL(".", import.meta.url));
-const sourceCss = await readFile(new URL("../s1.css", import.meta.url), "utf8");
+const sourceCss = await readFile(
+  new URL("../../../../src/app/chromatic-theme.css", import.meta.url),
+  "utf8",
+);
 const assets = await Promise.all(
   ["ink-diffusion.webp"].map(async (file) => ({
     file,
-    bytes: await readFile(new URL(file, import.meta.url)),
+    bytes: await readFile(
+      new URL(
+        `../../../../public/themes/chromatic-origins/${file}`,
+        import.meta.url,
+      ),
+    ),
   })),
 );
 const sourceArtwork = await readFile(
@@ -37,10 +45,19 @@ const browser = await chromium.launch({ channel: "chrome", headless: true });
 const context = await browser.newContext({ reducedMotion: "reduce" });
 
 async function applyPreview(page) {
-  await page.evaluate(() => {
-    document.documentElement.dataset.s1Preview = "";
-  });
-  await page.addStyleTag({ content: sourceCss });
+  await page
+    .context()
+    .addCookies([
+      { name: "oclr-appearance", value: "chromatic-origins", url: base },
+    ]);
+  const response = await page.reload();
+  if (
+    !response ||
+    !(await response.text())
+      .match(/<html[^>]+>/)?.[0]
+      ?.includes('data-appearance="chromatic-origins"')
+  )
+    throw new Error("S1 appearance must be server rendered");
   await ready(page);
 }
 async function contentSnapshot(page) {
@@ -60,12 +77,6 @@ async function guard(page) {
   page.on("pageerror", (error) => errors.push(error.message));
   await page.route("**/*", (route) => {
     const request = route.request();
-    const asset = assets.find(
-      ({ file }) =>
-        new URL(request.url()).pathname === `/s1-design-assets/${file}`,
-    );
-    if (asset)
-      return route.fulfill({ contentType: "image/webp", body: asset.bytes });
     return new URL(request.url()).origin === origin.origin &&
       ["GET", "HEAD"].includes(request.method())
       ? route.continue()
@@ -296,7 +307,7 @@ try {
         width: n.getBoundingClientRect().width,
         height: n.getBoundingClientRect().height,
         hasTexture: getComputedStyle(n).backgroundImage.includes(
-          "/s1-design-assets/ink-diffusion.webp",
+          "/themes/chromatic-origins/ink-diffusion.webp",
         ),
         text: [...n.querySelectorAll("h1,p")].map((el) => ({
           width: el.getBoundingClientRect().width,
@@ -331,7 +342,7 @@ try {
           encoding: "utf8",
         }).trim(),
         scope:
-          "Candidate S1 CSS applied to actual built application DOM; browser-served local ink-diffusion WebP; no appearance registration or preference writes",
+          "Registered chromatic-origins SSR preference, built CSS and shipped ink-diffusion WebP; no injected styles or intercepted assets",
         buildId: (
           await readFile(
             new URL("../../../../.next/BUILD_ID", import.meta.url),
