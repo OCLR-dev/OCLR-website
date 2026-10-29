@@ -1,6 +1,6 @@
 # S10 / S9 / S8 / S7 / S6 / S5 theme samples
 
-**2026-10-29 S3 重新提案**：依 [#343](https://github.com/OCLR-dev/OCLR-website/issues/343) 最新回饋，改用已接入S5／S6的現有MainSheet元件與實際應用截圖流程。薄霜面、雪花細線及雙環banner；原主視覺完整保留。圖庫中的計數來自明確標示的合成測試佔位，不代表S3歷史資料。尚未註冊正式外觀。[圖庫](s3.html)／[設計](s3/DESIGN.md)／[驗證](s3/verification.json)。
+**2026-10-29 S3 重新提案**：依 [#343](https://github.com/OCLR-dev/OCLR-website/issues/343) 最新回饋，改用已接入S5／S6的現有MainSheet元件與實際應用截圖流程。薄霜面、全幅大雪花banner；原主視覺完整保留。圖庫中的計數來自明確標示的合成測試佔位，不代表S3歷史資料。尚未註冊正式外觀。[圖庫](s3.html)／[設計](s3/DESIGN.md)／[驗證](s3/verification.json)。
 
 主辦方原始提案：[S10 #195](https://github.com/OCLR-dev/OCLR-website/issues/195)、[S9 #196](https://github.com/OCLR-dev/OCLR-website/issues/196)、[S8 #197](https://github.com/OCLR-dev/OCLR-website/issues/197)、[S7 #198](https://github.com/OCLR-dev/OCLR-website/issues/198)。S10／S9／S8／S7 已依主辦方要求接入正式外觀 `skyline-pop`／`glacier-blue`／`sakura-circuit`／`graphite-arena`，各自的視覺審閱／合併證據以對應 issue 為準。
 

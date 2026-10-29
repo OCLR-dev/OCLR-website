@@ -35,8 +35,8 @@ html[data-s3-preview] .themed-site {
   --frost-cyan: #8fd6e5;
   --frost-heading: linear-gradient(115deg, #fcfeff, #e7f5fc 55%, #d5edf6);
   --frost-snow-field: url("/s3-preview/frost-field-light.svg");
-  --frost-reading-wash: #f7fcffe8;
-  --frost-mobile-wash: #f7fcffb8;
+  --frost-reading-wash: #f7fcffc9;
+  --frost-mobile-wash: #f7fcffa8;
   --frost-edge-light: #ffffffa6;
   background: var(--site-background);
 }
@@ -74,8 +74,8 @@ html[data-s3-preview][data-theme="dark"] .themed-site {
   --frost-cyan: #87c9da;
   --frost-heading: linear-gradient(115deg, #172b39, #1b3547 55%, #23495a);
   --frost-snow-field: url("/s3-preview/frost-field-dark.svg");
-  --frost-reading-wash: #142633e8;
-  --frost-mobile-wash: #142633be;
+  --frost-reading-wash: #142633ce;
+  --frost-mobile-wash: #142633ae;
   --frost-edge-light: #ffffff12;
 }
 html[data-s3-preview] .themed-site .site-header {
