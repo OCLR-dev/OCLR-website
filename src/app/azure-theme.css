@@ -310,7 +310,7 @@ html[data-appearance="azure-brush"] .themed-site button.map-open-button:hover {
 }
 html[data-appearance="azure-brush"] .themed-site .sidebar {
   border-color: var(--site-border);
-  background: var(--site-surface);
+  background: transparent;
 }
 html[data-appearance="azure-brush"] .themed-site .sidebar nav a {
   min-height: 44px;

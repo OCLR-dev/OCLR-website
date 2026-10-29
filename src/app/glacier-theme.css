@@ -115,7 +115,7 @@ html[data-appearance="glacier-blue"]
 }
 html[data-appearance="glacier-blue"] .themed-site .sidebar {
   border-color: var(--site-border);
-  background: var(--site-header);
+  background: transparent;
 }
 html[data-appearance="glacier-blue"]
   .themed-site

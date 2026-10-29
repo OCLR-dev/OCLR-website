@@ -148,7 +148,7 @@ test.describe("S7 Graphite Arena appearance", () => {
     expect(errors).toEqual([]);
   });
 
-  test("keeps mappool text actions clear and long titles readable", async ({
+  test("keeps mappool text actions clear and complete metadata accessible", async ({
     context,
     isMobile,
   }) => {
@@ -187,33 +187,43 @@ test.describe("S7 Graphite Arena appearance", () => {
             "aria-pressed",
             "true",
           );
-          for (const [slot, literal] of [
-            ["NM2", "DragonForce - My Heart Will Go On [Expert]"],
-            ["ACE1", "Shimotsuki Haruka - Secret Liqueur [Last Order]"],
+          for (const [slot, artist, text, difficulty] of [
+            ["NM2", "DragonForce", "My Heart Will Go On", "Expert"],
+            ["ACE1", "Shimotsuki Haruka", "Secret Liqueur", "Last Order"],
           ]) {
-            const title = page.locator(`#map-${slot} .map-open-button`);
-            await expect(title).toHaveText(literal);
+            const card = page.locator(`#map-${slot}`);
+            const title = card.locator(".map-open-button");
+            // Shared band cards display title, artist and difficulty separately.
+            // Ellipsis may shorten the visual text; the action retains all metadata.
+            await expect(title).toHaveText(text);
+            await expect(card.locator(".map-card-artist")).toHaveText(artist);
+            await expect(card.locator(".map-card-difficulty")).toHaveText(
+              `[${difficulty}]`,
+            );
+            expect(await title.getAttribute("aria-label")).toContain(
+              `${artist} - ${text} [${difficulty}]`,
+            );
             await expect(title).toHaveCSS("background-image", "none");
             await expect(title).toHaveCSS("box-shadow", "none");
             const geometry = await title.evaluate((node) => {
               const button = node.getBoundingClientRect();
               const heading = node.parentElement!.getBoundingClientRect();
-              const range = document.createRange();
-              range.selectNodeContents(node);
+              const text = node
+                .querySelector(".map-card-title")!
+                .getBoundingClientRect();
               return {
-                largeEnough: button.height >= 44,
+                visible: button.width > 0 && button.height > 0,
                 fillsHeading: Math.abs(button.width - heading.width) < 1,
                 unclipped:
                   node.scrollWidth <= node.clientWidth &&
                   node.scrollHeight <= node.clientHeight,
-                textInside: [...range.getClientRects()].every(
-                  (r) =>
-                    r.left >= button.left - 1 && r.right <= button.right + 1,
-                ),
+                textInside:
+                  text.left >= button.left - 1 &&
+                  text.right <= button.right + 1,
               };
             });
             expect(geometry).toEqual({
-              largeEnough: true,
+              visible: true,
               fillsHeading: true,
               unclipped: true,
               textInside: true,

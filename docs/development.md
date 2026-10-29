@@ -26,7 +26,7 @@ npm run dev
 
 Database files live in the Docker volume `oclr-frontend-postgres-data`, outside the repository. `.env.local` is ignored by Git. Never commit database dumps, storage files, local configuration or credentials. Stop this database with `docker stop oclr-frontend-postgres`; restart it with `npm run db:local`. This does not change any other database or running demo/production container.
 
-The explicit `db:seed:dev` command accepts only this loopback port and database name, requires matching `DATABASE_URL` and `TEST_DATABASE_URL`, and refuses production mode. It inserts data transactionally and preserves existing demo edits on subsequent runs. It creates two clearly labeled synthetic editions, 28 identities (24 accepted, four pending), four teams, 12 mappool entries, three fixtures and one synthetic published result. Visit `/tournaments/dev-s11` for the populated edition and `/tournaments/dev-archive` for the completed-edition layout. The seed never runs automatically when serving pages and does not modify the real `s11` bootstrap edition. Dates are relative to the first seed run. Profile snapshots are synthetic; no osu! API credentials or real participant records are copied.
+The explicit `db:seed:dev` command accepts only this loopback port and database name, requires matching `DATABASE_URL` and `OCLR_DEVELOPMENT_DATABASE_URL`, and refuses production mode. It inserts data transactionally and preserves existing demo edits on subsequent runs. It creates two clearly labeled synthetic editions, 28 identities (24 accepted, four pending), four teams, 12 mappool entries, three fixtures and one synthetic published result. Visit `/tournaments/dev-s11` for the populated edition and `/tournaments/dev-archive` for the completed-edition layout. The seed never runs automatically when serving pages and does not modify the real `s11` bootstrap edition. Dates are relative to the first seed run. Profile snapshots are synthetic; no osu! API credentials or real participant records are copied.
 
 The local database is for UI preview. Database-backed automated tests may truncate their target; use a different isolated test database for the full suite. OAuth, account access and real registration still require the organizer-approved configuration described below. No development authentication bypass is added.
 
@@ -199,3 +199,19 @@ and object URL release on replacement, removal, cancel/Escape and unmount. The
 host supplies only synthetic data and a minimal router context; these checks do
 not replace authenticated application E2E, backend permissions or storage tests.
 The fixed daily core browser allowlist is unchanged.
+
+
+The persistent `oclr_frontend_test` preview is explicitly rejected by the shared
+destructive-test guard, regardless of host alias or encoded database name (#454).
+New `db:local` configurations write `OCLR_DEVELOPMENT_DATABASE_URL` as the seed
+confirmation, never `TEST_DATABASE_URL`. Set `TEST_DATABASE_URL` only for a separate
+disposable target such as `oclr_test`. Existing environment files are preserved:
+the seed alone can still accept their legacy matching preview `TEST_DATABASE_URL`,
+but automated tests reject that target before connecting. No preview database is
+renamed, recreated or cleared by this change.
+
+Registration CSV exports use one read-only repeatable-read snapshot for staff
+scope, list/count, saved profile batches, answers and fixed submitted question
+revisions (#452). The concurrency regression pauses real PostgreSQL reads at both
+list-to-answer and answer-to-revision boundaries, commits a normal reapplication
+on a separate connection, then checks complete old/new attempts without mixing.

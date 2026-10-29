@@ -3,7 +3,10 @@ import { randomBytes } from "node:crypto";
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { localDatabase as local } from "./development-database";
+import {
+  localDatabase as local,
+  developmentEnvironment,
+} from "./development-database";
 
 function docker(args: string[], optional = false) {
   const result = spawnSync("docker", args, { encoding: "utf8" });
@@ -86,11 +89,10 @@ async function main() {
         "postgres:17",
       ]);
       const url = `postgresql://${local.user}:${password}@127.0.0.1:${local.port}/${local.name}?sslmode=disable`;
-      writeFileSync(
-        ".env.local",
-        `# Private local frontend database; never commit this file.\nAPP_URL=http://localhost:3000\nDATABASE_URL=${url}\nTEST_DATABASE_URL=${url}\n`,
-        { mode: 0o600, flag: "wx" },
-      );
+      writeFileSync(".env.local", developmentEnvironment(url), {
+        mode: 0o600,
+        flag: "wx",
+      });
     } finally {
       rmSync(temporary, { recursive: true, force: true });
     }

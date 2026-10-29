@@ -1,5 +1,5 @@
 import { staffApplicationFilters } from "./read-api-queries";
-import { db } from "@/db";
+import { db, readOnlyData } from "@/db";
 import {
   editionRevisions,
   editionState,
@@ -8,18 +8,7 @@ import {
   registrations,
   users,
 } from "@/db/schema";
-import {
-  and,
-  count,
-  desc,
-  eq,
-  exists,
-  ilike,
-  inArray,
-  ne,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { applicationAnswers } from "./application-answers";
 import type { User } from "./auth/sessions";
@@ -126,6 +115,12 @@ export async function listApplications(
 }
 
 export async function exportApplications(actor: User, input: unknown) {
+  if (remoteMode()) throw new RemoteDataError("REMOTE_FORBIDDEN", 403);
+  // db() resolves to this shared repeatable-read connection in all nested
+  // authorization, list and batched saved-statistics readers.
+  return readOnlyData(() => exportApplicationSnapshot(actor, input));
+}
+async function exportApplicationSnapshot(actor: User, input: unknown) {
   const { rows } = await listApplications(actor, input, true);
   if (!rows.length) return [];
   const statistics = await cachedExportStatistics(
@@ -147,6 +142,18 @@ export async function exportApplications(actor: User, input: unknown) {
     );
   // Read each submitted question revision once, without repeating large rules
   // documents for every applicant in the bounded export.
+  const selectedRevisions = [
+    ...new Map(
+      snapshots.map((row) => [
+        JSON.stringify([row.editionSlug, row.version]),
+        { slug: row.editionSlug, version: row.version },
+      ]),
+    ).values(),
+  ];
+  const knownRevisions = selectedRevisions.filter(
+    (revision): revision is { slug: string; version: number } =>
+      revision.version !== null,
+  );
   const revisions = await db()
     .select({
       slug: editionRevisions.editionSlug,
@@ -157,21 +164,14 @@ export async function exportApplications(actor: User, input: unknown) {
     })
     .from(editionRevisions)
     .where(
-      exists(
-        db()
-          .select({ id: registrations.id })
-          .from(registrations)
-          .where(
-            and(
-              inArray(
-                registrations.id,
-                rows.map((row) => row.id),
-              ),
-              eq(registrations.editionSlug, editionRevisions.editionSlug),
-              eq(registrations.configurationVersion, editionRevisions.version),
-            ),
+      or(
+        ...knownRevisions.map((revision) =>
+          and(
+            eq(editionRevisions.editionSlug, revision.slug),
+            eq(editionRevisions.version, revision.version),
           ),
-      ),
+        ),
+      ) ?? sql`false`,
     );
   const byRevision = new Map(
     revisions.map((row) => [

@@ -7,7 +7,7 @@ import {
   expect,
   vi,
 } from "vitest";
-import { mkdtemp, rm, readdir } from "node:fs/promises";
+import { mkdtemp, rm, readdir, realpath } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import sharp from "sharp";
@@ -38,7 +38,9 @@ describe.skipIf(!url)(
       vi.stubEnv("DATABASE_URL", url!);
       vi.stubEnv("ADMIN_OSU_IDS", "918001");
       vi.stubEnv("APP_URL", "https://oclr.example.test");
-      root = await mkdtemp(join(tmpdir(), "oclr-upload-api-test-"));
+      root = await realpath(
+        await mkdtemp(join(tmpdir(), "oclr-upload-api-test-")),
+      );
       vi.stubEnv("OCLR_MEDIA_DIR", root);
       bytes = await sharp({
         create: { width: 80, height: 40, channels: 3, background: "purple" },

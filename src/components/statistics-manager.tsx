@@ -340,8 +340,10 @@ export function StatisticsManager({
   initial: StatisticsWorkspace;
 }) {
   const tr = useAppTranslations();
-  const [data, setData] = useState(initial),
-    [fixtureId, setFixture] = useState("");
+  // Selection and loaded reviews commit together; a failed switch keeps the
+  // previous complete context, including its title, draft and write targets.
+  const [selection, setSelection] = useState({ data: initial, fixtureId: "" });
+  const { data, fixtureId } = selection;
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [errors, setErrors] = useState<string[]>([]);
@@ -352,10 +354,10 @@ export function StatisticsManager({
     const response = await fetch(url + "?fixture=" + encodeURIComponent(id));
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
-    setData(result);
+    setSelection({ data: result, fixtureId: id });
     return result as StatisticsWorkspace;
   }
-  async function post(body: Record<string, unknown>) {
+  async function post(body: Record<string, unknown>, commit = true) {
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -363,7 +365,7 @@ export function StatisticsManager({
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
-    setData(result);
+    if (commit) setSelection((current) => ({ ...current, data: result }));
     return result as StatisticsWorkspace;
   }
   async function save(body: Record<string, unknown>) {
@@ -402,12 +404,15 @@ export function StatisticsManager({
             ids.length,
         );
         try {
-          current = await post({
-            action: "import",
-            mpId,
-            expectedVersion:
-              current.summaries.find((s) => s.mpId === mpId)?.version ?? 0,
-          });
+          current = await post(
+            {
+              action: "import",
+              mpId,
+              expectedVersion:
+                current.summaries.find((s) => s.mpId === mpId)?.version ?? 0,
+            },
+            false,
+          );
         } catch (e) {
           failures.push("MP " + mpId + ": " + tr((e as Error).message));
         }
@@ -417,7 +422,7 @@ export function StatisticsManager({
           ? tr("Import stopped. Saved progress is retained.")
           : tr("Import complete. Review each match before publishing."),
       );
-      if (fixtureId) await load(fixtureId);
+      await load(fixtureId);
     } catch {
       failures.push(tr("Connection interrupted. Reload before retrying."));
     } finally {
@@ -483,7 +488,6 @@ export function StatisticsManager({
           disabled={busy}
           onChange={(e) => {
             const id = e.target.value;
-            setFixture(id);
             setErrors([]);
             setMessage("");
             setActiveAction("load");

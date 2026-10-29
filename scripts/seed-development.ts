@@ -41,7 +41,9 @@ const env = "default" in nextEnv ? nextEnv.default : nextEnv;
 async function seed() {
   assertDevelopmentDatabase(
     process.env.DATABASE_URL,
-    process.env.TEST_DATABASE_URL,
+    // Compatibility for existing preview configuration only. The destructive
+    // test guard always rejects this preview database, including legacy URLs.
+    process.env.OCLR_DEVELOPMENT_DATABASE_URL ?? process.env.TEST_DATABASE_URL,
   );
   const [{ name }] = (
     await db().execute(sql`SELECT current_database() AS name`)

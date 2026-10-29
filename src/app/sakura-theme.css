@@ -238,7 +238,7 @@ html[data-appearance="sakura-circuit"] .themed-site .map-slot-badge {
   border-radius: 4px;
 }
 html[data-appearance="sakura-circuit"] .themed-site .sidebar {
-  background: var(--site-surface);
+  background: transparent;
   border-color: var(--site-border);
 }
 html[data-appearance="sakura-circuit"] .themed-site .sidebar a[aria-current] {

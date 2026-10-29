@@ -344,7 +344,7 @@ html[data-appearance="orbital-pulse"]
 }
 html[data-appearance="orbital-pulse"] .themed-site .sidebar {
   border-color: var(--site-border);
-  background: var(--site-surface);
+  background: transparent;
 }
 html[data-appearance="orbital-pulse"] .themed-site .sidebar nav a {
   min-height: 44px;

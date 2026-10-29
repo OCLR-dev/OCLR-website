@@ -399,7 +399,7 @@ html[data-appearance="graphite-arena"]
   content: none;
 }
 html[data-appearance="graphite-arena"] .themed-site .sidebar {
-  background: var(--site-surface);
+  background: transparent;
   border-color: var(--site-border);
 }
 /* Workspace links are machined strips rather than the shared rounded pills. */

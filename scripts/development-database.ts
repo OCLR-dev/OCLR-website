@@ -7,17 +7,21 @@ export const localDatabase = {
   label: "frontend-test-v1",
 } as const;
 
-/** The demo writer is deliberately restricted to this disposable local database. */
+/** The demo writer is deliberately restricted to this persistent local preview database. */
 export function assertDevelopmentDatabase(
   databaseUrl: string | undefined,
-  testDatabaseUrl: string | undefined,
+  developmentDatabaseUrl: string | undefined,
   nodeEnv = process.env.NODE_ENV,
 ) {
   if (nodeEnv === "production")
     throw new Error("Development data is disabled in production.");
-  if (!databaseUrl || !testDatabaseUrl || databaseUrl !== testDatabaseUrl)
+  if (
+    !databaseUrl ||
+    !developmentDatabaseUrl ||
+    databaseUrl !== developmentDatabaseUrl
+  )
     throw new Error(
-      "DATABASE_URL and TEST_DATABASE_URL must identify the same local test database.",
+      "DATABASE_URL and OCLR_DEVELOPMENT_DATABASE_URL must identify the same local preview database.",
     );
   let url: URL;
   try {
@@ -37,4 +41,9 @@ export function assertDevelopmentDatabase(
     throw new Error(
       `Development data requires the loopback database ${localDatabase.name} on port ${localDatabase.port}.`,
     );
+}
+
+/** Keep seed confirmation separate from disposable automated-test targets. */
+export function developmentEnvironment(url: string) {
+  return `# Private local frontend database; never commit this file.\nAPP_URL=http://localhost:3000\nDATABASE_URL=${url}\nOCLR_DEVELOPMENT_DATABASE_URL=${url}\n`;
 }

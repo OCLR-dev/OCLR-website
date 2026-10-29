@@ -315,7 +315,7 @@ html[data-appearance="prism-overture"]
 }
 html[data-appearance="prism-overture"] .themed-site .sidebar {
   border-color: var(--site-border);
-  background: var(--site-surface);
+  background: transparent;
 }
 html[data-appearance="prism-overture"] .themed-site .sidebar nav a {
   min-height: 44px;

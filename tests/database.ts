@@ -1,3 +1,4 @@
+import { localDatabase } from "../scripts/development-database";
 /** Destructive fixtures require an explicitly supplied, clearly named test database. */
 export function assertTestDatabase(
   value: string | undefined,
@@ -13,6 +14,10 @@ export function assertTestDatabase(
   if (
     !["postgres:", "postgresql:"].includes(url.protocol) ||
     !/^[a-z0-9_-]+$/i.test(name) ||
+    name.toLowerCase() === localDatabase.name ||
+    ["database", "dbname", "host", "hostaddr", "port", "service"].some((key) =>
+      url.searchParams.has(key),
+    ) ||
     !/(?:^|[_-])test(?:$|[_-])/i.test(name)
   )
     throw new Error(

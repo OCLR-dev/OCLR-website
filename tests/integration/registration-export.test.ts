@@ -8,8 +8,9 @@ import {
   it,
   vi,
 } from "vitest";
+import { Client } from "pg";
 import { sql } from "drizzle-orm";
-import { closeDb, db, getPool } from "../../src/db";
+import { closeDb, db } from "../../src/db";
 import {
   registrations,
   staffRoles,
@@ -164,7 +165,7 @@ describe.skipIf(!url)("private registration export statistics", () => {
     await cache(11, { rank: "12345", pp: "7890.45" });
     await cache(12, { rank: 1.5, pp: -1 });
     await cache(13, { rank: null });
-    const query = vi.spyOn(getPool(), "query");
+    const query = vi.spyOn(Client.prototype, "query");
     const rows = await exportApplications(admin, { status: "" });
     expect(rows).toHaveLength(30);
     expect(cacheQueries(query)).toHaveLength(1);
@@ -236,7 +237,7 @@ describe.skipIf(!url)("private registration export statistics", () => {
   });
 
   it("does not read profile data for unauthorized or empty exports", async () => {
-    const query = vi.spyOn(getPool(), "query");
+    const query = vi.spyOn(Client.prototype, "query");
     for (const actor of [
       referee,
       { osuId: base, username: "Synthetic Player" },
@@ -257,7 +258,7 @@ describe.skipIf(!url)("private registration export statistics", () => {
   it("deduplicates and batches cache reads while retaining the export limit", async () => {
     await cache(0);
     const ids = Array.from({ length: 501 }, (_, i) => base + i);
-    const query = vi.spyOn(getPool(), "query");
+    const query = vi.spyOn(Client.prototype, "query");
     const statistics = await cachedExportStatistics([...ids, ...ids]);
     expect(cacheQueries(query)).toHaveLength(2);
     expect(statistics.size).toBe(1);
@@ -288,7 +289,7 @@ describe.skipIf(!url)("private registration export statistics", () => {
         rulesVersion: "test-v1",
         answers: {},
       });
-    const query = vi.spyOn(getPool(), "query");
+    const query = vi.spyOn(Client.prototype, "query");
     await expect(
       exportApplications(admin, { status: "" }),
     ).rejects.toMatchObject({ status: 413 });
