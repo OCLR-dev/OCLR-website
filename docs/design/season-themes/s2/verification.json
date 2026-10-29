@@ -7,11 +7,11 @@
   "decorativeAssets": [
     {
       "file": "paper-light.svg",
-      "sha256": "09aaac1d3d56f7b623471df20cf80c41e9a057527b2687fc2999c7edc1a19211"
+      "sha256": "23fdf9907e38c771961451a4c1e8288070a65c4f1adb081da563149f043ad7fd"
     },
     {
       "file": "paper-dark.svg",
-      "sha256": "c7dd4c0c82825a6f81cd8f6220fa62de8582d0fabd1c90fbc6361137f68b1c3b"
+      "sha256": "00af3bdc25216317dd34b061da4a2f5089a3f9eafae8ea530e5b6780edd7ce63"
     }
   ],
   "browser": "Google Chrome",

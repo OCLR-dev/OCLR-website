@@ -75,3 +75,9 @@ node docs/design/season-themes/s2/verify-gallery.mjs
 本輪執行 Node.js 24 鎖定安裝、production build、`npm run check`、擷取工具 ESLint／語法及格式檢查。僅新增設計檔與預覽工具，未修改 runtime；未跑完整 unit／integration 或全站 E2E，未宣稱 CI、正式註冊或部署通過。
 
 設計方法沿用專案指定 [Refactoring UI](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 與 frontend skill，優先維持既有元件及閱讀層級。
+
+## 雙燕精修（2026-10-29）
+
+依主辦方回饋細修兩隻燕子：以彎曲肩部、逐層飛羽輪廓及細羽軸取代簡單色塊，延長剪形尾羽，加入胸腹柔光、朱紅喉部、眼部高光與背部色階。保留雙燕位置、葉枝、圓弧、紙面、頁面布局與原主視覺。明暗版採各自配色，原生 SVG 不增加網路請求或圖片依賴。
+
+沿用同一 production build 與隔離 fixture，更新32組實際頁面檢查與所有候選截圖、937／390px標題局部及素材hash。此輪僅改SVG裝飾，未重跑未受影響的完整應用check／build／單元測試；前述build與check為初版既有證據。最新結果見 verification.json；CI按新提交另記。
