@@ -6,12 +6,13 @@ import { InformationDocument } from "@/components/tournament-information";
 import { getAppTranslations } from "@/i18n/server";
 import { notFound } from "next/navigation";
 import { getPublicEdition } from "@/lib/content";
-import { formatDate, publicEditionSummary } from "@/lib/editions";
+import { publicEditionSummary } from "@/lib/editions";
 import {
   informationPreview,
   type TournamentInformation,
 } from "@/lib/tournament-information";
 import "./information.css";
+import { tournamentTimeline } from "@/lib/tournament-timeline";
 import { tournamentStages } from "@/lib/tournament-stages";
 import {
   TournamentRules,
@@ -100,39 +101,13 @@ async function OverviewContent({
   const roles = new Map(
     edition.overview.organization.map((entry) => [entry.role, entry.members]),
   );
+  const timeline = tournamentTimeline(edition, tr, tr.locale);
   const document: TournamentInformation = {
     name: edition.name,
     intro: publicEditionSummary(edition.summary) ?? "",
     banner: winterBanner ?? edition.branding.background,
     timeZone: edition.timeZone,
-    schedule: [
-      ...(edition.registration
-        ? [
-            {
-              event: tr("Registration opens"),
-              date: formatDate(
-                edition.registration.opensAt,
-                edition.timeZone,
-                tr.locale,
-              ),
-            },
-            {
-              event: tr("Registration closes"),
-              date: formatDate(
-                edition.registration.closesAt,
-                edition.timeZone,
-                tr.locale,
-              ),
-            },
-          ]
-        : []),
-      ...edition.schedule
-        .filter((event) => event.at)
-        .map((event) => ({
-          event: event.label,
-          date: formatDate(event.at, edition.timeZone, tr.locale),
-        })),
-    ],
+    schedule: timeline.schedule,
     prizes: [],
     organization: [...roles].map(([role, members]) => ({
       role: tr(role),
@@ -182,15 +157,7 @@ async function OverviewContent({
       ? {
           phaseId: "registration",
           label: tr("Registration phase"),
-          detail: edition.registration
-            ? tr("Deadline {date}", {
-                date: formatDate(
-                  edition.registration.closesAt,
-                  edition.timeZone,
-                  tr.locale,
-                ),
-              })
-            : undefined,
+          detail: timeline.stages.find((s) => s.id === "registration")?.detail,
           href: `${base}/register`,
           action: tr("Register individually"),
         }
@@ -234,31 +201,11 @@ async function OverviewContent({
         }
         active={active}
         stages={tournamentStages(
-          [
-            ...(edition.registration
-              ? [
-                  {
-                    id: "registration",
-                    label: tr("Registration phase"),
-                    detail: `${formatDate(edition.registration.opensAt, edition.timeZone, tr.locale)} — ${formatDate(edition.registration.closesAt, edition.timeZone, tr.locale)}`,
-                    at: edition.registration.closesAt,
-                    href: `${base}/register`,
-                    action: tr("View registration"),
-                  },
-                ]
-              : []),
-            ...edition.schedule.map((event, index) => ({
-              id: `schedule-${index}`,
-              label: event.label,
-              detail: event.at
-                ? formatDate(event.at, edition.timeZone, tr.locale)
-                : undefined,
-              at: event.at ?? undefined,
-              href: `${base}/schedule`,
-              action: tr("View schedule"),
-            })),
-          ],
-          active,
+          timeline.stages,
+          state === "open" ||
+            (draft && ["live", "paused"].includes(draft.state))
+            ? active
+            : null,
         )}
       />
     </>

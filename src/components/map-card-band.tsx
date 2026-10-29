@@ -210,16 +210,60 @@ export function MapCardBand({
           <span className="map-card-artist">{artist ?? "—"}</span>
         </p>
         <div className="map-card-footer">
-          {note ? <div className="map-card-note">{note}</div> : null}
-          <p className="map-card-meta map-card-meta--stats">
-            <span className="map-card-star">
-              {formatBeatmapNumber(stars)} ★
-            </span>
-            <span className="map-card-difficulty">[{difficulty ?? "—"}]</span>
-            {mapper ? (
-              <span className="map-card-mapper">({mapper})</span>
+          <div className="map-card-stats-row">
+            <p className="map-card-meta map-card-meta--stats">
+              <span className="map-card-star">
+                {formatBeatmapNumber(stars)} ★
+              </span>
+              <span className="map-card-difficulty">[{difficulty ?? "—"}]</span>
+              {mapper ? (
+                <span className="map-card-mapper">({mapper})</span>
+              ) : null}
+            </p>
+            {note ? (
+              <div className="map-card-note">
+                <button
+                  type="button"
+                  className="map-card-note-trigger"
+                  aria-label={tr("Explanation")}
+                  aria-describedby={`${id}-note`}
+                >
+                  <svg
+                    className="map-card-note-icon"
+                    viewBox="0 0 16 16"
+                    width="18"
+                    height="18"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="6.4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                    />
+                    <circle cx="8" cy="4.9" r="0.95" fill="currentColor" />
+                    <path
+                      d="M8 7.1v4.2"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+                <div
+                  className="map-card-note-panel"
+                  id={`${id}-note`}
+                  role="note"
+                >
+                  {note}
+                </div>
+              </div>
             ) : null}
-          </p>
+          </div>
           <div className="map-card-values">
             <span>
               {formatBeatmapNumber(bpm)} {tr("BPM")}

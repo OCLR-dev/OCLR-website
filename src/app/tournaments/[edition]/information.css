@@ -598,3 +598,16 @@ html[data-appearance="cute-pastel"] .public-tournament .information-layout {
 .information-banner.information-winter-banner::after {
   display: none;
 }
+
+/* Season intervals remain readable without horizontal scrolling on phones. */
+.public-tournament .information-document #schedule table {
+  table-layout: fixed;
+  min-width: 0;
+}
+.public-tournament .information-document #schedule :is(th, td) {
+  overflow-wrap: anywhere;
+}
+.public-tournament .information-document #schedule :is(th, td):first-child {
+  width: 34%;
+  min-width: 0;
+}

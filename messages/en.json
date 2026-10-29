@@ -2907,6 +2907,16 @@
     "m8b6d8e40753a": "Designer",
     "me71d5db1b82b": "Configure durable private media storage outside application releases and public roots.",
     "mdd59ed97cc50": "Private media storage is unavailable.",
-    "designer": "Designer"
+    "designer": "Designer",
+    "m9efeec7da2b8": "Competition times and milestones",
+    "mf06d757a3e31": "Registration dates are maintained in Registration settings.",
+    "m8707e7b94171": "Phase type",
+    "mf0284a778e4a": "Custom milestone",
+    "md216068038f3": "Group stage",
+    "md708d265ba22": "Knockout stage",
+    "mbabe9dda8503": "Start time",
+    "m2e46006a5eeb": "End time",
+    "m561d7790adea": "End time must not precede start time",
+    "mf7bd60bb5186": "TBA"
   }
 }

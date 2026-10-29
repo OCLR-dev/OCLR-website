@@ -185,8 +185,21 @@ export const editionSchema = z
           .object({
             label: z.string().trim().min(1).max(200),
             at: instant.nullable(),
+            kind: z.enum(["group", "knockout"]).optional(),
+            endAt: instant.nullable().optional(),
           })
-          .strict(),
+          .strict()
+          .refine(
+            (event) => !event.endAt || Boolean(event.kind),
+            "Only competition phases have an end time",
+          )
+          .refine(
+            (event) =>
+              !event.at ||
+              !event.endAt ||
+              Date.parse(event.endAt) >= Date.parse(event.at),
+            "End time must not precede start time",
+          ),
       )
       .max(64),
   })

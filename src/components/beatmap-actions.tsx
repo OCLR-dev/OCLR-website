@@ -82,6 +82,10 @@ export function BeatmapActions({
             <a
               key={kind}
               href={links[kind]!}
+              // The web (secondary) action is a normal https page; open it in a
+              // new tab so the current mappool view is not navigated away from.
+              target={kind === "web" ? "_blank" : undefined}
+              rel={kind === "web" ? "noopener noreferrer" : undefined}
               className={`button${kind === "direct" && !compact ? "" : " secondary"}`}
               aria-label={name ? `${labels[kind]} · ${name}` : labels[kind]}
               title={compact ? labels[kind] : undefined}

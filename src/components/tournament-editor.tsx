@@ -964,7 +964,10 @@ function Schedule({ data, saved }: EditorProps) {
   return (
     <ReadOnlyFields>
       <section className="panel form-stack">
-        <h2>{tr("Tournament milestones")}</h2>
+        <h2>{tr("Competition times and milestones")}</h2>
+        <p className="muted small">
+          {tr("Registration dates are maintained in Registration settings.")}
+        </p>
         <p className="muted small">
           {tr("Leave unconfirmed dates blank for TBA.")}
         </p>
@@ -991,11 +994,45 @@ function Schedule({ data, saved }: EditorProps) {
                 }
               />
             </label>
+            <label className="field">
+              <span>{tr("Phase type")}</span>
+              <select
+                aria-label={tr("Phase type")}
+                value={s.kind ?? "custom"}
+                onChange={(e) =>
+                  setSchedule(
+                    schedule.map((v, j) =>
+                      j === i
+                        ? {
+                            ...v,
+                            kind:
+                              e.target.value === "custom"
+                                ? undefined
+                                : (e.target.value as "group" | "knockout"),
+                            endAt:
+                              e.target.value === "custom" ? undefined : v.endAt,
+                          }
+                        : v,
+                    ),
+                  )
+                }
+              >
+                <option value="custom">{tr("Custom milestone")}</option>
+                <option value="group">{tr("Group stage")}</option>
+                <option value="knockout">{tr("Knockout stage")}</option>
+              </select>
+            </label>
             <ZonedDateInput
-              label={tr("Milestone {value0} time", { value0: i + 1 })}
+              label={
+                s.kind
+                  ? tr("Start time")
+                  : tr("Milestone {value0} time", { value0: i + 1 })
+              }
               onValidityChange={(valid) =>
                 setInvalid((old) =>
-                  old[s.id] === !valid ? old : { ...old, [s.id]: !valid },
+                  old[s.id * 2] === !valid
+                    ? old
+                    : { ...old, [s.id * 2]: !valid },
                 )
               }
               value={s.at}
@@ -1007,6 +1044,33 @@ function Schedule({ data, saved }: EditorProps) {
                 )
               }
             />
+            {s.kind && (
+              <>
+                <ZonedDateInput
+                  label={tr("End time")}
+                  value={s.endAt ?? null}
+                  timeZone={data.edition.timeZone}
+                  optional
+                  onValidityChange={(valid) =>
+                    setInvalid((old) =>
+                      old[s.id * 2 + 1] === !valid
+                        ? old
+                        : { ...old, [s.id * 2 + 1]: !valid },
+                    )
+                  }
+                  onChange={(endAt) =>
+                    setSchedule(
+                      schedule.map((v, j) => (j === i ? { ...v, endAt } : v)),
+                    )
+                  }
+                />
+                {s.at && s.endAt && Date.parse(s.endAt) < Date.parse(s.at) && (
+                  <p role="alert" className="error-text">
+                    {tr("End time must not precede start time")}
+                  </p>
+                )}
+              </>
+            )}
             <div className="actions">
               <button
                 type="button"
@@ -1052,9 +1116,20 @@ function Schedule({ data, saved }: EditorProps) {
           saved={saved}
           action="schedule"
           fields={{
-            schedule: schedule.map(({ label, at }) => ({ label, at })),
+            schedule: schedule.map((s) => ({
+              label: s.label,
+              at: s.at,
+              ...(s.kind ? { kind: s.kind, endAt: s.endAt ?? null } : {}),
+            })),
           }}
-          disabled={schedule.some((s) => invalid[s.id])}
+          disabled={schedule.some(
+            (s) =>
+              !s.label.trim() ||
+              invalid[s.id * 2] ||
+              (s.kind &&
+                (invalid[s.id * 2 + 1] ||
+                  (s.at && s.endAt && Date.parse(s.endAt) < Date.parse(s.at)))),
+          )}
           label={tr("Save milestones")}
         />
       </section>

@@ -249,3 +249,41 @@ legacy season-valued site settings render as `default` without rewriting data or
 audit history. No migration is needed. See the [selection and compatibility
 policy](localization.md#season-theme-selection-policy-445) for route inheritance,
 explicit repair of old global values, remote reads and broadcast isolation.
+
+## Competition times and milestones (#430)
+
+The Milestones tab in edition settings accepts custom point milestones and typed
+Group stage / Knockout stage intervals in the same versioned schedule array.
+`at` remains the start instant; optional `kind=group|knockout` and `endAt` are
+additive fields. Existing rows remain custom milestones. No schema migration or
+real tournament date edits are required. Registration dates remain in Registration.
+
+Both interval endpoints are optional. The existing zoned date controls preserve
+instants when reloaded, validate calendar/DST input and show the edition zone.
+An end before a known start is rejected by the server and editor. Names are
+required organizer-authored text and remain literal in all locales.
+
+The public overview derives its stage browser and schedule table from one
+model, including undated custom milestones and competition phases. Exact
+duplicate names/times are suppressed only in presentation; stored content is
+retained. Same-time events with different names remain distinct, since legacy
+free text does not establish semantic identity. Dates sort chronologically,
+with undated group/knockout/custom entries last in that order.
+
+A complete competition interval is current on [start, end); all overlapping
+intervals are shown as current. A gap has no current competition interval.
+A future known start is upcoming, a passed known end is earlier, and otherwise
+partial/unknown intervals remain planned with explicit start/end TBA labels.
+Open registration and live/paused drafts retain precedence over scheduled
+competition intervals. Completed editions never acquire a current competition
+phase from dates. A future fixture alone no longer establishes a current phase.
+These are display rules only: no registration switches, draft transitions,
+fixtures, results, publication, or tournament status are changed by the clock.
+
+Existing edition Admin authorization, optimistic revision checks and
+transactional automatic audits protect saves; remote Developer views remain
+read-only. The shared read schema and generated OpenAPI expose the additive
+fields. Chinese additions (including extraction of two existing private-media
+error messages) await organizer wording review.
+
+See [verification evidence](verification/issue-430/README.md).

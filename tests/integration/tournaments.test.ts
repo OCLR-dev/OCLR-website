@@ -144,6 +144,39 @@ describe.skipIf(!url)("authoritative tournament edition storage", () => {
     );
     expect(second.data.map((row) => row.season)).toEqual(["10", "9"]);
   });
+  it("persists competition intervals with revision, authorization and transactional audit", async () => {
+    await create();
+    const schedule = [
+      {
+        label: "Synthetic group",
+        kind: "group",
+        at: "2026-10-29T00:00:00Z",
+        endAt: "2026-10-30T00:00:00Z",
+      },
+      { label: "Synthetic final", kind: "knockout", at: null, endAt: null },
+      { label: "Legacy event", at: null },
+    ];
+    const before = await readTournament("s12");
+    const saved = await change(0, "schedule", { schedule });
+    expect((await readTournament("s12"))?.edition.schedule).toEqual(schedule);
+    expect(saved.edition.registration).toEqual(before?.edition.registration);
+    await expect(change(0, "schedule", { schedule: [] })).rejects.toThrow();
+    await expect(
+      tournamentCommand(mapper, "s12", {
+        action: "schedule",
+        expectedRevision: saved.revision,
+        confirmed: true,
+        schedule: [],
+      }),
+    ).rejects.toThrow();
+    await expect(
+      change(saved.revision, "schedule", {
+        schedule: [{ ...schedule[0], endAt: "2026-10-28T00:00:00Z" }],
+      }),
+    ).rejects.toThrow();
+    expect((await readTournament("s12"))?.edition.schedule).toEqual(schedule);
+    expect(await auditEvents()).toHaveLength(2);
+  });
   it("stores optional appearance defaults with scoped authorization, revisions and audit", async () => {
     const created = await create();
     expect(created.edition.defaultAppearance).toBeUndefined();

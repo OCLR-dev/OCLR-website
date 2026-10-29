@@ -53,3 +53,13 @@ All identities, images and grants in these screenshots are synthetic.
 - [Staff cards, mobile dark](staff-mobile-dark.png)
 - [Published Designer, desktop light](designer-desktop-light.png)
 - [Published Designer, mobile dark](designer-mobile-dark.png)
+
+## Concurrent main integration
+
+Before merging PR #491, main advanced through #486 and #430 to
+`1f52a45738ae15e52aa896964394ddac9638cac9`. Translation catalogs were merged
+without dropping either change and read contracts/OpenAPI were regenerated from
+the combined source. The new main's media-storage translations take precedence.
+Seven affected test files (contracts, i18n, timeline and staff authorization) were
+rerun: 31 checks passed. The full-suite/build/browser results above were collected
+before this unrelated main integration; no second full matrix is implied.
