@@ -33,6 +33,7 @@ export function PlayerMessageBoard({
   const trigger = useRef<HTMLButtonElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const requestId = useRef<string | null>(null);
+  const readGeneration = useRef(0);
   const endpoint = `/api/tournaments/${edition}/players/${playerId}/messages`;
   const loadError = tr(
     "Messages could not be loaded. Please refresh to try again.",
@@ -47,12 +48,23 @@ export function PlayerMessageBoard({
     setLoaded(true);
   }, []);
   const load = useCallback(
-    async (signal?: AbortSignal): Promise<PlayerMessage[]> => {
-      const response = await fetch(endpoint, { signal });
-      if (!response.ok) throw new Error();
-      return response.json();
+    async (signal?: AbortSignal): Promise<PlayerMessage[] | null> => {
+      const generation = ++readGeneration.current;
+      try {
+        const response = await fetch(endpoint, { signal });
+        if (!response.ok) throw new Error();
+        const rows: PlayerMessage[] = await response.json();
+        if (signal?.aborted || generation !== readGeneration.current)
+          return null;
+        receive(rows);
+        return rows;
+      } catch (error) {
+        if (signal?.aborted || generation !== readGeneration.current)
+          return null;
+        throw error;
+      }
     },
-    [endpoint],
+    [endpoint, receive],
   );
   useEffect(() => {
     const controller = new AbortController();
@@ -63,11 +75,9 @@ export function PlayerMessageBoard({
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
         observer.disconnect();
-        load(controller.signal)
-          .then(receive)
-          .catch((error) => {
-            if (error.name !== "AbortError") setError(loadError);
-          });
+        load(controller.signal).catch((error) => {
+          if (error.name !== "AbortError") setError(loadError);
+        });
       },
       { rootMargin: "200px" },
     );
@@ -75,6 +85,7 @@ export function PlayerMessageBoard({
     return () => {
       observer.disconnect();
       controller.abort();
+      readGeneration.current++;
     };
   }, [load, receive, loadError]);
   useEffect(() => {
@@ -93,6 +104,9 @@ export function PlayerMessageBoard({
     requestAnimationFrame(() => trigger.current?.focus());
   }
   function showMessage(message: PlayerMessage) {
+    // A confirmed write supersedes every list read already in flight.
+    readGeneration.current++;
+    setLoaded(true);
     setMessages((rows) =>
       rows.some((m) => m.id === message.id)
         ? rows.map((m) => (m.id === message.id ? message : m))
@@ -151,6 +165,8 @@ export function PlayerMessageBoard({
         setError(result.error);
         return;
       }
+      readGeneration.current++;
+      setLoaded(true);
       const remaining = messages.filter((m) => m.id !== current.id);
       setMessages(remaining);
       setCurrentId(
@@ -363,9 +379,7 @@ export function PlayerMessageBoard({
             disabled={busy}
             onClick={() => {
               setError("");
-              load()
-                .then(receive)
-                .catch(() => setError(loadError));
+              load().catch(() => setError(loadError));
             }}
           >
             {tr("Reload messages")}
