@@ -58,6 +58,11 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "azure-brush": {
+    label: "S4 · Azure Brush",
+    lightBackground: "rgb(242, 248, 250)",
+    darkBackground: "rgb(15, 33, 50)",
+  },
   "prism-overture": {
     label: "S5 · Prism Overture",
     lightBackground: "rgb(247, 245, 252)",

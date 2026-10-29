@@ -181,6 +181,10 @@ html[data-appearance="sakura-circuit"]
 html[data-appearance="sakura-circuit"] .themed-site :is(button, .button) {
   border-radius: 8px;
 }
+/* Follow the 8px buttons and their existing 4px inset instead of a capsule. */
+html[data-appearance="sakura-circuit"] .themed-site .map-view-control {
+  border-radius: 12px;
+}
 html[data-appearance="sakura-circuit"]
   .themed-site
   :is(.settings-card, .map-browse-card) {
