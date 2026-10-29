@@ -136,6 +136,7 @@ test.describe("Admin default and visitor appearance overrides", () => {
         "sakura-circuit",
         "graphite-arena",
         "orbital-pulse",
+        "prism-overture",
         "frutiger-aero",
         "retro-arcade",
         "manga-halftone",

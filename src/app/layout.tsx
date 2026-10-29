@@ -33,6 +33,7 @@ import "./glacier-theme.css";
 import "./sakura-theme.css";
 import "./graphite-theme.css";
 import "./orbital-theme.css";
+import "./prism-theme.css";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";
 import { tournamentAppearanceScopes } from "@/lib/tournaments";

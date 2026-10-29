@@ -32,6 +32,8 @@ export function appearanceLabel(
       return tr("S7 · Graphite Arena");
     case "orbital-pulse":
       return tr("S6 · Orbital Pulse");
+    case "prism-overture":
+      return tr("S5 · Prism Overture");
     default:
       return tr("Original design");
   }

@@ -1,7 +1,8 @@
 {
   "date": "2026-10-29",
-  "uiBaseline": "9e10f727c733ca517d183204c5c3ed97e127ed56",
-  "scope": "Candidate S5 CSS injected into unchanged real application pages; not a registered or SSR-selected S5 appearance",
+  "uiBaseline": "96652aa981626d69f682f7f4f6315e7a2dc44ca7",
+  "scope": "Registered prism-overture SSR preference, built application CSS and shipped SVG assets; no injected preview styles",
+  "buildId": "TTObTiTvLbcLh8e16Su6R",
   "locale": "zh-Hant",
   "decorativeAssets": [
     {
@@ -554,6 +555,6 @@
   ],
   "errors": [],
   "artworkSha256": "26fb173d1641df56a81fa7e9d7a2948b5280927d3c93fbd2324b7f169a9c80e4",
-  "candidateCssSha256": "2fb3539eedab0250ef1f77c037561ea0c1cecb88eb47f360ffa9b9ecaeb9db30",
+  "stylesheetSha256": "e34e4caba6f1185389226dff6326c2dc98aac1a59dddfaaaba126a13539b4e93",
   "fixture": "Committed S5 reviewed-import and rulebook; all 34 pending source results remain unapproved, and the ordinary public projection hides their scores in the isolated test DB"
 }

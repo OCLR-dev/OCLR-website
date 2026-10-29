@@ -1,4 +1,4 @@
-// Candidate S5 CSS over real application routes. No application registration or live writes.
+// Capture the shipped S5 appearance through its SSR preference on isolated real routes.
 import { chromium } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import sharp from "sharp";
@@ -17,31 +17,23 @@ const base = process.env.S5_PREVIEW_ORIGIN ?? "http://127.0.0.1:3195";
 const origin = new URL(base);
 if (!["127.0.0.1", "localhost"].includes(origin.hostname))
   throw new Error("Use the isolated loopback preview application.");
-const uiBaseline =
-  process.env.S5_UI_BASELINE ?? "9e10f727c733ca517d183204c5c3ed97e127ed56";
-execFileSync("git", [
-  "diff",
-  "--exit-code",
-  uiBaseline,
-  "--",
-  "src",
-  "messages",
-  "public",
-]);
+const uiBaseline = "96652aa981626d69f682f7f4f6315e7a2dc44ca7";
 const out = fileURLToPath(new URL(".", import.meta.url));
-const sourceCss = await readFile(new URL("../s5.css", import.meta.url), "utf8");
+const sourceCss = await readFile(
+  new URL("../../../../src/app/prism-theme.css", import.meta.url),
+  "utf8",
+);
 const assets = await Promise.all(
   ["prism-field-light.svg", "prism-field-dark.svg"].map(async (file) => ({
     file,
-    bytes: await readFile(new URL(file, import.meta.url)),
+    bytes: await readFile(
+      new URL(
+        `../../../../public/themes/prism-overture/${file}`,
+        import.meta.url,
+      ),
+    ),
   })),
 );
-let overlay = sourceCss;
-for (const asset of assets)
-  overlay = overlay.replace(
-    `url("./s5/${asset.file}")`,
-    `url("data:image/svg+xml;base64,${asset.bytes.toString("base64")}")`,
-  );
 const sourceArtwork = await readFile(
   new URL("../../../../public/archive/s5/key-visual.png", import.meta.url),
 );
@@ -53,13 +45,34 @@ const browser = await chromium.launch({ channel: "chrome", headless: true });
 const context = await browser.newContext({ reducedMotion: "reduce" });
 
 async function applyPreview(page) {
-  await page.evaluate(() =>
-    document.documentElement.setAttribute("data-s5-preview", ""),
-  );
-  await page.addStyleTag({ content: overlay });
-  await page.evaluate(
-    () => new Promise((resolve) => requestAnimationFrame(() => resolve())),
-  );
+  await page
+    .context()
+    .addCookies([
+      { name: "oclr-appearance", value: "prism-overture", url: base },
+    ]);
+  const response = await page.reload();
+  if (
+    !response ||
+    response.status() !== 200 ||
+    !(await response.text())
+      .match(/<html[^>]+>/)?.[0]
+      ?.includes('data-appearance="prism-overture"')
+  )
+    throw new Error("S5 appearance was not server rendered");
+  await ready(page);
+}
+async function contentSnapshot(page) {
+  return page.locator("body").evaluate((n) => {
+    const clone = n.cloneNode(true);
+    clone
+      .querySelectorAll("script,style,.appearance-trigger")
+      .forEach((el) => el.remove());
+    return {
+      text: clone.textContent,
+      elements: n.querySelectorAll("*").length,
+      overflow: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
 }
 async function guard(page) {
   page.on("pageerror", (error) => errors.push(error.message));
@@ -143,24 +156,17 @@ try {
           throw new Error(`${surface.name}: HTTP ${response.status()}`);
         await page.locator(surface.selector).waitFor();
         await ready(page);
-        const before = await page.locator("body").evaluate((n) => ({
-          text: n.innerText,
-          elements: n.querySelectorAll("*").length,
-        }));
+        const before = await contentSnapshot(page);
         const size = width === 1440 ? "desktop" : "mobile";
         if ([390, 1440].includes(width))
           await sharp(await page.screenshot())
             .webp({ quality: 88 })
             .toFile(`${out}current-${surface.prefix}${size}-${theme}.webp`);
         await applyPreview(page);
-        const after = await page.locator("body").evaluate((n) => ({
-          text: n.innerText,
-          elements: n.querySelectorAll("*").length,
-          overflow: document.documentElement.scrollWidth > innerWidth,
-        }));
+        const after = await contentSnapshot(page);
         if (before.text !== after.text || before.elements !== after.elements)
           throw new Error(
-            `${surface.name}: candidate changed application content`,
+            `${surface.name}: appearance changed application content beyond its active label`,
           );
         if (after.overflow)
           throw new Error(
@@ -301,8 +307,9 @@ try {
       const geometry = await heading.evaluate((n) => ({
         width: n.getBoundingClientRect().width,
         height: n.getBoundingClientRect().height,
-        hasTexture:
-          getComputedStyle(n).backgroundImage.includes("data:image/svg+xml"),
+        hasTexture: getComputedStyle(n).backgroundImage.includes(
+          "/themes/prism-overture/prism-field-",
+        ),
         text: [...n.querySelectorAll("h1,p")].map((el) => ({
           width: el.getBoundingClientRect().width,
           fits: el.scrollWidth <= el.clientWidth,
@@ -336,7 +343,13 @@ try {
           encoding: "utf8",
         }).trim(),
         scope:
-          "Candidate S5 CSS injected into unchanged real application pages; not a registered or SSR-selected S5 appearance",
+          "Registered prism-overture SSR preference, built application CSS and shipped SVG assets; no injected preview styles",
+        buildId: (
+          await readFile(
+            new URL("../../../../.next/BUILD_ID", import.meta.url),
+            "utf8",
+          )
+        ).trim(),
         locale: "zh-Hant",
         decorativeAssets: assets.map(({ file, bytes }) => ({
           file,
@@ -348,9 +361,7 @@ try {
         forcedColours,
         errors,
         artworkSha256: createHash("sha256").update(sourceArtwork).digest("hex"),
-        candidateCssSha256: createHash("sha256")
-          .update(sourceCss)
-          .digest("hex"),
+        stylesheetSha256: createHash("sha256").update(sourceCss).digest("hex"),
         fixture:
           "Committed S5 reviewed-import and rulebook; all 34 pending source results remain unapproved, and the ordinary public projection hides their scores in the isolated test DB",
       },

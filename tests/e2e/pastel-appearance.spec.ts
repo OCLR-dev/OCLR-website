@@ -58,6 +58,11 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "prism-overture": {
+    label: "S5 · Prism Overture",
+    lightBackground: "rgb(247, 245, 252)",
+    darkBackground: "rgb(27, 23, 48)",
+  },
   "orbital-pulse": {
     label: "S6 · Orbital Pulse",
     lightBackground: "rgb(244, 246, 252)",

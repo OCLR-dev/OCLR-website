@@ -36,6 +36,7 @@ export const appearances = [
   "sakura-circuit",
   "graphite-arena",
   "orbital-pulse",
+  "prism-overture",
 ] as const;
 export type Appearance = (typeof appearances)[number];
 export const appearanceCookie = "oclr-appearance";

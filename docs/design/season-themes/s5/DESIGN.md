@@ -1,6 +1,6 @@
 # S5 — Prism Overture / 稜光序曲
 
-2026-10-29，依 [#345](https://github.com/OCLR-dev/OCLR-website/issues/345) 與主辦方「開始設計S5主題theme」製作候選，並依後續「稜鏡應成為banner紋理、需要更精緻且更多折面，加入beta元素」回饋更新。基於 main `9e10f727c733ca517d183204c5c3ed97e127ed56` 的實際 MainSheet 元件，先交付視覺預覽供審閱；尚未註冊 `prism-overture`、更改任何預設或加入正式外觀選單。
+2026-10-29，依 [#345](https://github.com/OCLR-dev/OCLR-website/issues/345) 與主辦方逐輪確認的全幅稜鏡紋理、更多細折面及藝術斜體β設計，接入正式外觀 `prism-overture`。本輪基於 main `96652aa981626d69f682f7f4f6315e7a2dc44ca7`，新增PR供審閱，尚未合併或部署；原有預設保持不變。
 
 ## 視覺與層級
 
@@ -10,13 +10,13 @@
 
 動效僅保留160ms標題入場、140ms導覽過渡與1px按壓回饋，尊重reduced motion；沒有旋轉、閃爍或掃光。Forced colours移除裝飾與漸層，使用系統Highlight識別目前頁。
 
-- [可切換圖庫](../s5.html)：主頁／賽程／圖池／管理設定 × 桌面／手機 × 明暗 × S5候選／原有外觀，共32種切換。
+- [可切換圖庫](../s5.html)：主頁／賽程／圖池／管理設定 × 桌面／手機 × 明暗 × S5主題／原有外觀，共32種切換。
 - [桌面Light](desktop-light.webp)／[Dark](desktop-dark.webp) · [手機Light](mobile-light.webp)／[Dark](mobile-dark.webp)。
 - [937px標題](heading-937-dark.png)／[390px標題](heading-390-dark.png)，原生2×。
 
 ## Tokens
 
-完整候選值見 [s5.css](../s5.css)。110片不規則三角折面鋪滿banner，密度為前一版22片的5倍；各面帶有漸層深淺與局部細稜線，保留青紫基調與少量粉桃反光。β採EB Garamond Italic的古典書寫斜體字形，轉為向量壓印融入材質，保留粗細筆畫與Greek beta的下伸筆畫。內文限制在54ch以維持閱讀節奏；手機調整背景取景與閱讀罩層，使β可見並維持文字對比。字體與主要資訊架構沿用MainSheet。
+正式樣式見 [prism-theme.css](../../../../src/app/prism-theme.css)。110片不規則三角折面鋪滿banner，密度為前一版22片的5倍；各面帶有漸層深淺與局部細稜線，保留青紫基調與少量粉桃反光。β採EB Garamond Italic的古典書寫斜體字形，轉為向量壓印融入材質，保留粗細筆畫與Greek beta的下伸筆畫。內文限制在54ch以維持閱讀節奏；手機調整背景取景與閱讀罩層，使β可見並維持文字對比。字體與主要資訊架構沿用MainSheet。
 
 | Token                   | Light     | Dark      |
 | ----------------------- | --------- | --------- |
@@ -39,18 +39,20 @@
 ## 素材與資料
 
 - [完整原圖](../../../../public/archive/s5/key-visual.png)：原有1920×1080 PNG，SHA-256 `26fb173d1641df56a81fa7e9d7a2948b5280927d3c93fbd2324b7f169a9c80e4`，不裁切、重繪、調色或改字，保留原檔與既有透明資訊。
-- [Light紋理](prism-field-light.svg)／[Dark紋理](prism-field-dark.svg)：原生SVG自繪，每份含110片不規則折面、6組色面漸層、選擇性的細反射稜線與藝術斜體β壓印。β字形已轉成向量，執行時不載入字型或外部資源；不是新增賽事logo。兩份紋理合計約34KB，依明暗分別控制色面與反光強度，沒有腳本或循環動效。
+- [Light紋理](../../../../public/themes/prism-overture/prism-field-light.svg)／[Dark紋理](../../../../public/themes/prism-overture/prism-field-dark.svg)：原生SVG自繪，每份含110片不規則折面、6組色面漸層、選擇性的細反射稜線與藝術斜體β壓印。β字形已轉成向量，執行時不載入字型或外部資源；不是新增賽事logo。兩份紋理合計約34KB，依明暗分別控制色面與反光強度，沒有腳本或循環動效。
 - [β字形來源與轉製說明](fonts/BETA.md)：EB Garamond Italic 400的Greek U+03B2，採SIL OFL 1.1授權，來源及完整版權／授權文字隨文件保存。只嵌入字形輪廓，不加入整套字型或改變MainSheet文字字體。
 - 使用已提交的 `s5-reviewed-import.json` 與 `s5-rulebook.json`，沿用既有歷史資料schema及公開投影；來源與限制見 [S5來源整理](../../../s5-archive.md)。
 - `reviewed-import` 的34場來源結果仍全部為pending；此fixture沒有呼叫核准函式或改變審批狀態。公開頁沿用正常投影隱藏其比分，因此顯示0個已記錄賽果，不把34個待審來源當作已核准結果。
 - 實際主頁顯示12隊、85位選手與教練、5個圖池、77個譜面位置（包含教練資格賽），三章原文規則。沒有補造日期、名次、比分或缺漏身分。
 - 只有隔離test DB的合成 `Synthetic UI Preview` 管理帳號；session僅在擷取程序記憶體中使用。沒有讀取production、真實OAuth或私密申請資料。
 
-## 方法與邊界
+## 正式接入與邊界
 
-目前未修改`src`、`messages`、`public`、正式路由、外觀白名單或migration。以同一已建置的main應用基準作比較，加入 `data-s5-preview` 與候選CSS後直接擷取真實頁面；這是設計候選，尚非正式S5 SSR外觀。SVG由工具內嵌為本機data URI。
+`prism-overture` 加入共用白名單及三語標籤：S5 · Prism Overture／S5 · 棱光序曲／S5 · 稜光序曲。沿用外觀選單、SSR cookie、全站及賽事管理設定；優先序仍是訪客選擇 → 當前有權限／已發佈賽事預設 → 全站預設。清除訪客選擇跟隨目前路由，不寫入自動偏好；非賽事頁不繼承上一季，light/dark獨立，OBS／presenter保持隔離。
 
-圖庫只切換保存的圖片，不連接API／DB或儲存偏好。擷取過程封鎖外部流量及非GET／HEAD請求，並核對套用樣式前後的body文字與元素數量不變。
+Migration `0051_prism_overture_appearance` 只擴充site settings／audit appearance約束，沒有改變任何既有預設、賽事資料或審批狀態。更新前經正常審閱流程套用migration；有意退回舊程式前先選回舊版支援的站點／賽事預設，不刪除歷史或down-migrate live DB。
+
+圖庫直接擷取已註冊的實際頁面：先保存default對照，再寫入本機測試context的`oclr-appearance=prism-overture`並reload，核對SSR回應，使用建置後CSS及正式SVG，沒有注入候選CSS。圖庫只切換保存的圖片，不連接API／DB或儲存偏好。擷取過程封鎖外部流量及非GET／HEAD請求，並核對除目前外觀按鈕名稱外的body文字／元素數量不變。
 
 ## 重現
 
@@ -70,17 +72,18 @@ DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 APP_URL=http://127.0.0.1:3
 node --import tsx docs/design/season-themes/s5/capture.mjs
 ```
 
-`S5_UI_BASELINE`可指定應用基準，`S5_PREVIEW_ORIGIN`可指定另一loopback專用預覽。工具先確認`src`／`messages`／`public`與基準相同。圖庫`s5.html`可直接離線開啟，不依賴上述服務。
+`S5_PREVIEW_ORIGIN`可指定另一loopback專用預覽。工具保存應用基準、build ID、正式CSS／SVG及原圖hash，並確認SSR外觀。圖庫`s5.html`可直接離線開啟，不依賴上述服務。
 
 ## 本輪驗證
 
-- 沿用首版Node.js24.22.1已完成的`npm ci`、production build與TypeScript檢查，應用基準與資料相同。本輪只改候選CSS／SVG、文件與圖庫，未重建未更動的應用。
-- [verification.json](verification.json)：主頁／賽程／圖池／Admin × 320／390／768／1440px × 明暗，共32組、32次Axe AA，零違規、無水平溢出或pageerror。
-- 樣式前後body文字／元素數量不變；完整1920×1080 PNG、五列統計與三章規則保留。手機選單／Escape焦點、Admin鍵盤焦點、4組forced colours及937／390px紋理載入與標題幾何檢查通過。
-- [gallery-verification.json](gallery-verification.json)：圖庫32種切換正確載入，四種寬度×明暗共8次Axe AA零違規，無溢出或pageerror，鍵盤焦點通過。
-- 工具ESLint／語法、格式、文件連結與`git diff --check`通過；原圖SHA-256與來源相同，候選CSS與兩份SVG hash和最終擷取報告一致。`src`／`messages`／`public`與基準main完全相同；專用預覽與test PostgreSQL於完成後停止。
-- 本輪為docs候選設計，未執行完整應用單元／整合、全站E2E、三語／Safari矩陣或正式S5 SSR偏好驗收。
+正式接入後於Node.js24.22.1重新安裝鎖定依賴，執行完整`npm run check`、`npm test`及production build；180個測試檔、1459項測試通過，1項略過。`i18n:extract`／`test:i18n`通過（4項），`npm audit --omit=dev`為0漏洞。首版及候選階段的結果不作本輪正式SSR驗收證據。
 
-基準main `9e10f72` 的 [CI 40732722069](https://github.com/OCLR-dev/OCLR-website/actions/runs/40732722069) 為 **failure**：verify的OpenAPI同步單元斷言、core首頁內容定位，以及remote-e2e定位檢查失敗，彙總check隨之失敗。此CI沒有包含尚未推送的S5候選文件；本輪本機畫面檢查不代表基準CI已通過，也不作整體應用發佈或正式接入驗收。
+- [verification.json](verification.json)：正式SSR主頁／賽程／圖池／Admin × 320／390／768／1440px × 明暗，共32組／32次Axe AA零違規，無溢出或pageerror；4組forced colours、原圖／統計／規則、手機選單／Escape焦點與Admin鍵盤焦點、937／390px標題幾何皆通過。保存build ID及CSS／SVG／原圖hash。
+- [gallery-verification.json](gallery-verification.json)：32種切換、四種寬度×明暗共8次Axe AA零違規，無溢出或pageerror，鍵盤焦點通過。
+- `tests/e2e/prism-appearance.spec.ts`：三語選單／SSR／完整原圖、reduced motion、forced colours及窄螢幕；共用外觀流程另涵蓋公開／Admin頁面、訪客切換及OBS／presenter隔離。
+- 受影響的桌面／手機E2E共16項全部通過：S5專用三語／窄螢幕、共用外觀／OBS隔離、站點設定與賽事繼承。共用migration測試已通過升級前拒絕、升級後接受且保留既有預設及審計歷史檢查。
+- 本輪執行範圍為完整單元／整合及受影響的桌面／手機瀏覽器流程，沒有執行全站完整functional／header／remote或Safari矩陣；普通PR CI沿用固定core，不自動提升full。
 
-設計方法採專案指定 [Refactoring UI](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 的層級、色彩與留白原則，並沿用前端設計指引。名稱、配色與裝飾仍供主辦方審閱；正式接入及其三語文案、SSR偏好與完整應用矩陣留待獲准接入時處理。
+基準main `9e10f72` 的舊 [CI 40732722069](https://github.com/OCLR-dev/OCLR-website/actions/runs/40732722069) 曾為failure；它沒有包含本輪S5正式接入，不能替代本輪提交的實際CI狀態。
+
+設計方法採專案指定 [Refactoring UI](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 的層級、色彩與留白原則，並沿用前端設計指引。主辦方已確認視覺方向並要求開發提交；新增選單中文名稱仍隨PR供審閱，未宣稱整體發佈或真實部署驗收。

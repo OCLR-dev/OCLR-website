@@ -9,4 +9,4 @@ The decorative **β** (Greek small letter beta, U+03B2) uses **EB Garamond Itali
 - Conversion: CoreText, font size 1000, U+03B2 → glyph 1839; original bounds `(-54.133333, -285, 504.133333, 990)`.
 - Normalize the outline to 198 SVG units high at `(1268, 20)` in the 1600×240 background. Keep the natural italic proportions, thick/thin strokes and descender. Gradient fill and fine edge shading embed the lettering in the faceted surface.
 
-The two `prism-field-*.svg` files contain the final outline and local gradients. The full font is not bundled. MainSheet interface typography and the original OCLR β key visual remain unchanged.
+The two [shipped SVG textures](../../../../../public/themes/prism-overture/) contain the final outline and local gradients. The full font is not bundled. MainSheet interface typography and the original OCLR β key visual remain unchanged.

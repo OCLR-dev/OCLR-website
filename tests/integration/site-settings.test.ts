@@ -64,6 +64,7 @@ describe.skipIf(!url)("global site appearance settings", () => {
     "sakura-circuit",
     "graphite-arena",
     "orbital-pulse",
+    "prism-overture",
   ])("saves %s with an authoritative audit event", async (appearance) => {
     expect(await siteSettingsForAdmin(admin)).toMatchObject({
       defaultAppearance: "default",
