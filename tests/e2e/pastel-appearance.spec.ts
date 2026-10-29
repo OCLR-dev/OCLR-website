@@ -58,6 +58,11 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "chromatic-origins": {
+    label: "S1 · Chromatic Origins",
+    lightBackground: "rgb(246, 244, 247)",
+    darkBackground: "rgb(33, 28, 41)",
+  },
   "frost-waltz": {
     label: "S3 · Frost Waltz",
     lightBackground: "rgb(242, 250, 255)",

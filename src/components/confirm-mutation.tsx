@@ -3,7 +3,7 @@
 import { useStaffReadOnly } from "./staff-read-only";
 import { useAppTranslations } from "@/i18n/shared";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { LoadingRegion } from "./loading-region";
@@ -43,8 +43,11 @@ export function ConfirmMutation({
   const [requestPending, setPending] = useState(false);
   const [error, setError] = useState("");
   const pending = requestPending || refreshing;
+  useEffect(() => {
+    if (readOnly || disabled) dialog.current?.close();
+  }, [readOnly, disabled]);
   async function confirm() {
-    if (readOnly || pending) return;
+    if (readOnly || disabled || pending || !canConfirm) return;
     setPending(true);
     setError("");
     try {
@@ -126,7 +129,7 @@ export function ConfirmMutation({
           <div className="actions">
             <button
               aria-busy={pending}
-              disabled={readOnly || pending || !canConfirm}
+              disabled={readOnly || disabled || pending || !canConfirm}
               onClick={confirm}
             >
               {tr("Confirm")}

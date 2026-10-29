@@ -43,7 +43,7 @@
 
 三語選單：**S3 · Frost Waltz／S3 · 雪花圆舞曲／S3 · 雪花圓舞曲**。重用既有外觀白名單、SSR cookie、全站與賽事設定及共用讀取契約。訪客選擇 → 當前已授權／已發佈賽事預設 → 全站預設的優先序維持；清除選擇跟隨當前路由、不寫自動cookie，非賽事頁不繼承上一季，明暗獨立。
 
-Migration `0054_frost_waltz_appearance` 只擴充 `site_settings`／`site_setting_events` 的外觀約束。現有預設、賽事配置與審計歷史不變；升級前後測試確認舊約束拒絕新值、升級後接受且保留歷史。部署時經既有reviewed update流程套用；有意退回舊版程式前先選回舊版支援的預設，不刪歷史或down-migrate live DB。
+Migration `0055_frost_waltz_appearance` 只擴充 `site_settings`／`site_setting_events` 的外觀約束。現有預設、賽事配置與審計歷史不變；升級前後測試確認舊約束拒絕新值、升級後接受且保留歷史。部署時經既有reviewed update流程套用；有意退回舊版程式前先選回舊版支援的預設，不刪歷史或down-migrate live DB。
 
 ## 預覽資料
 

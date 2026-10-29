@@ -39,6 +39,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"] as const)
     "prism-overture",
     "azure-brush",
     "verdant-prelude",
+    "chromatic-origins",
     "frost-waltz",
   ])
     for (const theme of ["light", "dark"])

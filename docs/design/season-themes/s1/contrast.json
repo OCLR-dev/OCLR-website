@@ -1,0 +1,72 @@
+[
+  {
+    "theme": "light",
+    "fg": "foreground",
+    "bg": "background",
+    "ratio": 13.04052053560821,
+    "pass": true
+  },
+  {
+    "theme": "light",
+    "fg": "muted",
+    "bg": "surface",
+    "ratio": 5.755350980272242,
+    "pass": true
+  },
+  {
+    "theme": "light",
+    "fg": "on-primary",
+    "bg": "primary",
+    "ratio": 6.61007668365829,
+    "pass": true
+  },
+  {
+    "theme": "light",
+    "fg": "control-border",
+    "bg": "surface",
+    "ratio": 4.028305980769671,
+    "pass": true
+  },
+  {
+    "theme": "light",
+    "fg": "focus",
+    "bg": "surface",
+    "ratio": 6.61007668365829,
+    "pass": true
+  },
+  {
+    "theme": "dark",
+    "fg": "foreground",
+    "bg": "background",
+    "ratio": 14.787206853702038,
+    "pass": true
+  },
+  {
+    "theme": "dark",
+    "fg": "muted",
+    "bg": "surface",
+    "ratio": 7.647345193347081,
+    "pass": true
+  },
+  {
+    "theme": "dark",
+    "fg": "on-primary",
+    "bg": "primary",
+    "ratio": 8.383298897414567,
+    "pass": true
+  },
+  {
+    "theme": "dark",
+    "fg": "control-border",
+    "bg": "surface",
+    "ratio": 4.541263975799271,
+    "pass": true
+  },
+  {
+    "theme": "dark",
+    "fg": "focus",
+    "bg": "surface",
+    "ratio": 8.746913587352886,
+    "pass": true
+  }
+]

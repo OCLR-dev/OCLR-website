@@ -46,6 +46,8 @@ export function usePlayerDirectory<T extends DirectoryPlayer>(
       if (value) next.set(key, value);
       else next.delete(key);
     }
+    next.delete("ranked");
+    next.delete("hasPp");
     next.delete("page");
     const nextQuery = next.toString();
     window.history.pushState(
@@ -74,7 +76,6 @@ export function PlayerDirectoryTools({
 }) {
   const tr = useAppTranslations();
   const id = useId();
-  const [expanded, setExpanded] = useState(false);
   const { state, update, rows, total, options, errors } = directory;
   const labels = {
     default: tr("Default order"),
@@ -96,6 +97,15 @@ export function PlayerDirectoryTools({
       !["group"].includes(key) &&
       state[key] &&
       !(key === "sort" && state.sort === "default"),
+  );
+  const rangeActive = [
+    state.rankMin,
+    state.rankMax,
+    state.ppMin,
+    state.ppMax,
+  ].filter(Boolean).length;
+  const [expanded, setExpanded] = useState(
+    () => errors.length > 0 || rangeActive > 0,
   );
   const reset = () => update({}, true);
   const field = (
@@ -202,44 +212,68 @@ export function PlayerDirectoryTools({
             </select>
           </label>
         )}
-        {options.rank && (
-          <label className={styles.check}>
-            <input
-              type="checkbox"
-              checked={state.ranked === "1"}
-              onChange={(e) => update({ ranked: e.target.checked ? "1" : "" })}
-            />
-            {tr("Has global rank")}
-          </label>
-        )}
-        {options.pp && (
-          <label className={styles.check}>
-            <input
-              type="checkbox"
-              checked={state.hasPp === "1"}
-              onChange={(e) => update({ hasPp: e.target.checked ? "1" : "" })}
-            />
-            {tr("Has PP")}
-          </label>
-        )}
         {(options.rank || options.pp) && (
           <details
             className={styles.advanced}
-            open={errors.length > 0 || undefined}
+            open={errors.length > 0 || rangeActive > 0 || undefined}
           >
-            <summary>{tr("Advanced filters")}</summary>
+            <summary>
+              <svg
+                className={styles.filterIcon}
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                <path d="M4 7h9m4 0h3M4 17h3m4 0h9M13 4v6M7 14v6" />
+              </svg>
+              <span>{tr("Advanced filters")}</span>
+              {rangeActive > 0 && (
+                <span className={styles.count}>{rangeActive}</span>
+              )}
+              <svg
+                className={styles.chevron}
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
             <div className={styles.ranges}>
               {options.rank && (
-                <>
-                  {field("rankMin", tr("Global rank minimum (number)"))}
-                  {field("rankMax", tr("Global rank maximum (number)"))}
-                </>
+                <fieldset className={styles.rangeGroup}>
+                  <legend>{tr("Global rank")}</legend>
+                  <div className={styles.rangeFields}>
+                    {field("rankMin", tr("Global rank minimum (number)"))}
+                    <span className={styles.rangeSeparator} aria-hidden="true">
+                      –
+                    </span>
+                    {field("rankMax", tr("Global rank maximum (number)"))}
+                  </div>
+                </fieldset>
               )}
               {options.pp && (
-                <>
-                  {field("ppMin", tr("PP minimum"))}
-                  {field("ppMax", tr("PP maximum"))}
-                </>
+                <fieldset className={styles.rangeGroup}>
+                  <legend>PP</legend>
+                  <div className={styles.rangeFields}>
+                    {field("ppMin", tr("PP minimum"))}
+                    <span className={styles.rangeSeparator} aria-hidden="true">
+                      –
+                    </span>
+                    {field("ppMax", tr("PP maximum"))}
+                  </div>
+                </fieldset>
               )}
               <p className="muted small">
                 {tr(
@@ -317,8 +351,6 @@ export function PlayerDirectoryTools({
                     q: tr("Search players"),
                     team: tr("Team"),
                     role: tr("Role"),
-                    ranked: tr("Has global rank"),
-                    hasPp: tr("Has PP"),
                     sort: tr("Sort players"),
                     rankMin: tr("Global rank minimum (number)"),
                     rankMax: tr("Global rank maximum (number)"),
@@ -327,8 +359,7 @@ export function PlayerDirectoryTools({
                     group: "",
                   }[key]
                 }
-                {!["ranked", "hasPp"].includes(key) &&
-                  `: ${key === "sort" ? (labels[state.sort as keyof typeof labels] ?? state.sort) : key === "team" ? (options.teams.find((t) => t.id === state.team)?.name ?? (state.team === "free_agent" ? tr("Free agent") : state.team)) : key === "role" ? (roleLabels[state.role] ?? state.role) : state[key]}`}{" "}
+                {`: ${key === "sort" ? (labels[state.sort as keyof typeof labels] ?? state.sort) : key === "team" ? (options.teams.find((t) => t.id === state.team)?.name ?? (state.team === "free_agent" ? tr("Free agent") : state.team)) : key === "role" ? (roleLabels[state.role] ?? state.role) : state[key]}`}{" "}
                 <span aria-hidden="true">×</span>
                 <span className="sr-only"> {tr("Remove filter")}</span>
               </button>

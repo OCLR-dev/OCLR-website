@@ -38,6 +38,8 @@ export function appearanceLabel(
       return tr("S4 · Azure Brush");
     case "verdant-prelude":
       return tr("S2 · Verdant Prelude");
+    case "chromatic-origins":
+      return tr("S1 · Chromatic Origins");
     case "frost-waltz":
       return tr("S3 · Frost Waltz");
     default:
