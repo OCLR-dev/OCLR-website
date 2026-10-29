@@ -80,6 +80,11 @@ test.describe("staff assignment interface (#357)", () => {
     await expect.poll(() => requests).toBe(1);
     release();
     await expect(group).toHaveCount(1);
+    await expect(group.locator(".staff-role-editor")).not.toHaveAttribute(
+      "open",
+      "",
+    );
+    await group.locator(".staff-role-editor > summary").click();
     await expect(grant.getByRole("status")).toHaveText("Roles saved.");
     const save = group.getByRole("button", { name: "Save roles", exact: true });
     await expect(save).toBeDisabled();
@@ -120,6 +125,7 @@ test.describe("staff assignment interface (#357)", () => {
     await expect(group.locator(".staff-saved-roles")).toContainText("Designer");
     await expect(save).toBeDisabled();
     await page.reload();
+    await group.locator(".staff-role-editor > summary").click();
     await expect(group.locator(".staff-role-status")).toHaveText(
       "No unsaved changes.",
     );
@@ -130,6 +136,7 @@ test.describe("staff assignment interface (#357)", () => {
       group.getByRole("checkbox", { name: "Referee", exact: true }),
     ).not.toBeChecked();
 
+    await group.locator(".staff-role-publication > summary").click();
     const map = group
       .locator(".staff-role-row")
       .filter({ has: page.getByText("Mappooler", { exact: true }) });
@@ -249,6 +256,11 @@ test.describe("staff assignment interface (#357)", () => {
             { name: "oclr-theme", value: theme, url: "http://127.0.0.1:3100" },
           ]);
           await page.goto("/admin/staff");
+          await page
+            .locator(".staff-role-group .staff-role-editor > summary")
+            .evaluateAll((items) =>
+              items.forEach((item) => (item as HTMLElement).click()),
+            );
           const forms = page.locator(".staff-role-form.panel").or(
             page
               .locator(".staff-role-group")

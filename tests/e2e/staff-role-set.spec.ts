@@ -31,6 +31,11 @@ test.describe("staff multi-role editing (#260)", () => {
       }),
     });
     await expect(group).toHaveCount(1);
+    await expect(group.locator(".staff-role-editor")).not.toHaveAttribute(
+      "open",
+      "",
+    );
+    await group.locator(".staff-role-editor > summary").click();
     await expect(
       group.getByRole("button", { name: "Save roles", exact: true }),
     ).toBeVisible();
@@ -51,6 +56,7 @@ test.describe("staff multi-role editing (#260)", () => {
     await expect(page.getByRole("dialog")).not.toBeVisible();
     await expect(group.locator(".staff-saved-roles")).toContainText("Tester");
     await page.reload();
+    await group.locator(".staff-role-editor > summary").click();
     await expect(
       group.getByRole("button", { name: "Save roles", exact: true }),
     ).toBeVisible();
@@ -74,6 +80,7 @@ test.describe("staff multi-role editing (#260)", () => {
           { name: "oclr-theme", value: theme, url: "http://127.0.0.1:3100" },
         ]);
         await page.reload();
+        await group.locator(".staff-role-editor > summary").click();
         await expect(
           group.getByRole("button", { name: "Save roles", exact: true }),
         ).toBeVisible();

@@ -5452,7 +5452,7 @@ body:has([data-broadcast]) .site-shell {
 
 .staff-role-form,
 .staff-assignments {
-  max-width: 56rem;
+  max-width: 80rem;
   min-width: 0;
 }
 .staff-role-fields {
@@ -5478,6 +5478,7 @@ body:has([data-broadcast]) .site-shell {
   gap: 1rem;
   align-items: end;
 }
+.staff-role-summary,
 .staff-saved-roles,
 .staff-role-scope {
   display: flex;
@@ -5802,4 +5803,39 @@ button.staff-role-save {
 }
 .profile-info-popover p:first-child {
   margin-top: 0;
+}
+
+/* Compact staff controls retain native keyboard disclosure behavior. */
+.staff-role-group.panel {
+  padding: 1rem;
+}
+.staff-role-group .staff-role-editor {
+  margin-block: 0.75rem 0;
+}
+.staff-role-group .staff-role-publication {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+.staff-role-group details > summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+  font-weight: 600;
+  border-radius: var(--radius-control, 0.5rem);
+}
+.staff-role-group details > summary:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
+.staff-role-group details[open] > summary {
+  margin-bottom: 0.5rem;
+}
+.staff-role-group .staff-role-fields {
+  gap: 0.75rem;
+}
+.staff-role-group .staff-role-grid {
+  gap: 0.25rem 0.5rem;
+}
+.staff-role-group .staff-role-option {
+  padding-block: 0.25rem;
 }

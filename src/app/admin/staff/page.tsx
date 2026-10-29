@@ -98,6 +98,14 @@ async function Issue271Page({
                         : tr("Global — all editions")}
                     </strong>
                   </p>
+                  <p className="staff-role-summary">
+                    <span className="muted">{tr("Saved roles")}</span>
+                    <strong>
+                      {rows
+                        .map(({ grant }) => roleLabels[grant.role])
+                        .join(" / ")}
+                    </strong>
+                  </p>
                 </header>
                 <StaffReadOnlyContext
                   value={
@@ -108,11 +116,11 @@ async function Issue271Page({
                     )
                   }
                 >
-                  <section
+                  <details
                     className="staff-role-editor"
                     aria-label={`${tr("Edit roles")} · ${username} · ${first.userId}`}
                   >
-                    <h4>{tr("Edit roles")}</h4>
+                    <summary>{tr("Edit roles")}</summary>
                     <StaffRoleForm
                       scopes={writeScopes}
                       editions={editions.map((e) => ({
@@ -128,12 +136,12 @@ async function Issue271Page({
                         })),
                       }}
                     />
-                  </section>
-                  <section
+                  </details>
+                  <details
                     className="staff-role-publication"
                     aria-label={tr("About visibility and revocation")}
                   >
-                    <h4>{tr("About visibility and revocation")}</h4>
+                    <summary>{tr("About visibility and revocation")}</summary>
                     <p className="muted staff-role-help">
                       {tr(
                         "These actions apply to saved roles independently of the role selection above.",
@@ -173,7 +181,7 @@ async function Issue271Page({
                         </div>
                       </div>
                     ))}
-                  </section>
+                  </details>
                 </StaffReadOnlyContext>
               </article>
             );
