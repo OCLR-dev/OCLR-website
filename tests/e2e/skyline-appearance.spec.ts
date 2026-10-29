@@ -72,8 +72,10 @@ test.describe("S10 Skyline Pop appearance", () => {
         const menu = page.getByRole("menu").filter({
           has: page.locator('[data-appearance-option="skyline-pop"]'),
         });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(16);
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(18);
         await page.keyboard.press("End");
+        await page.keyboard.press("ArrowUp");
+        await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");

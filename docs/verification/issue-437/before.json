@@ -1,0 +1,21 @@
+{
+  "base": "f4b5eb85e363ddf1aed77a9cfcc7f40653c01180",
+  "rows": [
+    {
+      "width": 1440,
+      "theme": "dark",
+      "outerRadius": "24px",
+      "buttonRadius": "8px",
+      "padding": "4px",
+      "height": 54
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "outerRadius": "24px",
+      "buttonRadius": "8px",
+      "padding": "4px",
+      "height": 54
+    }
+  ]
+}

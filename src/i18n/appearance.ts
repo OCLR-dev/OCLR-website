@@ -34,6 +34,10 @@ export function appearanceLabel(
       return tr("S6 · Orbital Pulse");
     case "prism-overture":
       return tr("S5 · Prism Overture");
+    case "azure-brush":
+      return tr("S4 · Azure Brush");
+    case "verdant-prelude":
+      return tr("S2 · Verdant Prelude");
     default:
       return tr("Original design");
   }
