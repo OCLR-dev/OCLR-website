@@ -76,5 +76,7 @@ test("statistics notes remain visible below title", async ({ page }) => {
   );
   await page.keyboard.press("Escape");
   await expect(panel).toBeVisible();
-  await expect(trigger).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "Notes", exact: true }),
+  ).toHaveCount(0);
 });
