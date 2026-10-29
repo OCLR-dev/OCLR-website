@@ -1,0 +1,53 @@
+{
+  "switches": 32,
+  "cases": [
+    {
+      "width": 320,
+      "theme": "light",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "violations": [],
+      "overflow": false
+    }
+  ]
+}
