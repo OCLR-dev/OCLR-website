@@ -20,47 +20,44 @@ No production configuration or data was changed and no deployment was performed.
 
 ## Local verification — 2026-10-29
 
-Node.js 24.22.1, existing lockfile and `npm ci`. Tests use only disposable
-`oclr_445_test` / `oclr_445_unit_test` databases on a dedicated loopback PostgreSQL
-cluster. Screenshots contain synthetic identities and tournament dates.
+Final integration base: `3ced64d645eccf43752bfa4bd01867aa3e249db0`, including
+S4 Azure Brush, S2 Verdant Prelude and the latest player-filter changes.
+Node.js 24.22.1, existing lockfile and `npm ci`. No new dependencies or migration.
 
-- `npm run check`: passed.
-- `npm test`: 186 files passed, 1,529 tests passed, one skipped (after integration). An earlier run found an incorrect new
-  test assertion treating an unchanged `default` save as a new audit event. The
-  test setup was corrected; targeted appearance/permission checks passed 84/84.
+- `npm run check`: lint and types passed.
+- `npm test`: 186 files passed, 1,535 tests passed, one skipped.
 - `npm run build`: passed.
-- `npm run i18n:extract` and `npm run test:i18n`: passed; Chinese catalog text
-  is proposed wording, still subject to organizer review.
-- Initial desktop/mobile browser checks before the main sync: 50 distinct targeted cases passed across the
-  combined runs. S8 had one transient desktop selector timeout; its final isolated
-  desktop/mobile rerun passed 2/2. Tests now configure
-  season themes on editions instead of selecting them through public cookies.
-  Earlier S7/S8 tests assumed that navigating away retained a season theme;
-  those fixtures now configure the actual target edition. Header dismissal
-  checks assert hidden state, compatible with existing mounted hidden menus.
-- Remote frontend core desktop/mobile check: 2/2 passed, including real synthetic
-  grant revocation, session isolation and the no-local-database guard.
-- `npm audit --omit=dev`: zero vulnerabilities.
+- i18n extraction and checks: passed. The new Chinese hint remains proposed
+  wording for organizer review.
+- Final desktop/mobile targeted browser run: 26/26 passed across season policy,
+  global site settings, all eight Admin-configured edition defaults, and S2
+  rendering/responsiveness. Coverage includes legacy/forged cookies, SSR without
+  JavaScript, cross-edition navigation, independent brightness, three locales,
+  saved-value recovery, authorization, origin and concurrency checks.
+- Final remote frontend core desktop/mobile run: 2/2 passed, including real
+  synthetic grant revocation, session isolation and the no-local-database guard.
+- `npm audit --omit=dev`: zero vulnerabilities; dependencies unchanged.
 - Formatting and `git diff --check`: passed.
 
-This is targeted browser regression, not the full functional/header/remote
-matrix. Commit-specific GitHub CI and maintainer acceptance remain separate.
+All database checks used disposable `oclr_445_test` / `oclr_445_unit_test`
+databases on a dedicated loopback PostgreSQL cluster. The final browser runs used
+31545/31570 because another task occupied 3100. Temporary copies changed only
+loopback URLs and relocated test imports; the provider fixture retained its
+isolated-database/synthetic-credential checks at the dedicated origin. Temporary
+configs/fixtures were removed afterwards. The committed tests retain their normal
+3100/31470 setup. No other local service was stopped or changed.
+
+Earlier regression also covered S4–S10 rendering, generic visitor choices and
+Header interaction. One S8 desktop selector timeout occurred; its isolated
+retest passed on both desktop and mobile. These checks are targeted regression,
+not the full functional/header/remote matrix. Commit-specific GitHub CI and
+maintainer acceptance remain separate.
 
 ## Screenshots
+
+These contain only synthetic identities and tournament dates.
 
 - [Desktop public menu](desktop-public-menu.png)
 - [Mobile public menu](mobile-public-menu.png)
 - [Desktop site settings](desktop-site-settings.png)
 - [Mobile site settings](mobile-site-settings.png)
-
-The final branch also incorporates S4 Azure Brush from updated main
-`3750bc932cf0cd37b1ed5b74921080c881c164b7`; the same Admin-only policy applies.
-Post-integration build, lint/types and i18n checks passed. The final targeted
-desktop/mobile run passed 24/24 across season policy, site settings, all seven
-Admin-configured edition defaults and S4 Azure rendering/responsiveness. The
-full unit/integration counts above are from this integrated version. The remote
-frontend core desktop/mobile checks were also rerun after integration: 2/2 passed.
-
-PR synchronization also incorporates S2 Verdant Prelude and the player-filter
-changes from main `3ced64d645eccf43752bfa4bd01867aa3e249db0`. The public whitelist
-remains unchanged; S2 is likewise edition-Admin-only.

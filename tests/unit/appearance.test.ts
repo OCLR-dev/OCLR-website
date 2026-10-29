@@ -8,7 +8,7 @@ import {
 } from "../../src/lib/preferences";
 
 describe("registered appearance decoding", () => {
-  it("supports only the registered designs, including Admin-configurable S4–S10 season themes", () => {
+  it("supports only the registered designs, including Admin-configurable season themes", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",
