@@ -10,13 +10,11 @@ export function BracketView({
   renderMatch,
   teamUrls,
   hideGroupTabs = false,
-  showAppearanceLinks = false,
 }: {
   bracket: ResolvedBracket;
   renderMatch?: (match: ResolvedMatch) => ReactNode;
   teamUrls?: Record<string, string>;
   hideGroupTabs?: boolean;
-  showAppearanceLinks?: boolean;
 }) {
   const tr = useAppTranslations();
   const [groupId, setGroup] = useState(bracket.groups[0].id);
@@ -56,7 +54,6 @@ export function BracketView({
           group={group}
           editionSlug={bracket.editionSlug}
           teamUrls={teamUrls}
-          showAppearanceLinks={showAppearanceLinks}
         />
       )}
     </>

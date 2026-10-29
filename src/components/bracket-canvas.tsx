@@ -31,12 +31,10 @@ export function BracketCanvas({
   group,
   editionSlug,
   teamUrls,
-  showAppearanceLinks,
 }: {
   group: ResolvedBracket["groups"][number];
   editionSlug: string;
   teamUrls?: Record<string, string>;
-  showAppearanceLinks: boolean;
 }) {
   const tr = useAppTranslations();
   const data = useMemo(() => doubleBracketMatches(group), [group]);
@@ -92,25 +90,7 @@ export function BracketCanvas({
             formatLabel: "Historical archive",
             updatedAt: "2026-01-01T00:00:00Z",
             source: { label: "Source", url: null },
-            groups: [
-              {
-                ...group,
-                layout: group.layout,
-                rounds: group.rounds.map((r) => ({
-                  ...r,
-                  matches: r.matches.map((m) => ({
-                    ...m,
-                    slots: m.slots.map((s) => ({
-                      ...s,
-                      sourceMatchId:
-                        s.kind === "team" && !showAppearanceLinks
-                          ? null
-                          : s.sourceMatchId,
-                    })) as typeof m.slots,
-                  })),
-                })),
-              },
-            ],
+            groups: [group],
           }}
           teamUrls={teamUrls}
           hideGroupTabs
@@ -202,7 +182,7 @@ export function BracketCanvas({
     <>
       <h2 className="sr-only">{group.label}</h2>
       <div
-        className={`bracket-library-scroll${historical ? " bracket-library-references" : ""}${historical && !showAppearanceLinks ? " bracket-library-no-lines" : ""}`}
+        className={`bracket-library-scroll${historical ? " bracket-library-references" : ""}`}
         role="region"
         aria-label={tr("{value0} bracket; scroll horizontally", {
           value0: group.label,

@@ -1708,9 +1708,6 @@ body:has(.presenter-view) .site-footer,
 .bracket-library-references svg path {
   stroke-dasharray: 6 4;
 }
-.bracket-library-no-lines svg path {
-  visibility: hidden;
-}
 .bracket-source-details ul {
   display: grid;
   gap: 0.75rem;
