@@ -1,6 +1,6 @@
 # S5 — Prism Overture / 稜光序曲
 
-2026-10-29，依 [#345](https://github.com/OCLR-dev/OCLR-website/issues/345) 與主辦方逐輪確認的全幅稜鏡紋理、更多細折面及藝術斜體β設計，接入正式外觀 `prism-overture`。本輪基於 main `96652aa981626d69f682f7f4f6315e7a2dc44ca7`，新增PR供審閱，尚未合併或部署；原有預設保持不變。
+2026-10-29，依 [#345](https://github.com/OCLR-dev/OCLR-website/issues/345) 與主辦方逐輪確認的全幅稜鏡紋理、更多細折面及藝術斜體β設計，接入正式外觀 `prism-overture`。應用／擷取基準為main `96652aa981626d69f682f7f4f6315e7a2dc44ca7`，提交前另同步main `c2a1e2d751814cf639ff12cba55856c5080e3fee` 的OpenAPI／測試修復（無執行時程式差異），新增PR供審閱，尚未合併或部署；原有預設保持不變。
 
 ## 視覺與層級
 
@@ -82,6 +82,7 @@ node --import tsx docs/design/season-themes/s5/capture.mjs
 - [gallery-verification.json](gallery-verification.json)：32種切換、四種寬度×明暗共8次Axe AA零違規，無溢出或pageerror，鍵盤焦點通過。
 - `tests/e2e/prism-appearance.spec.ts`：三語選單／SSR／完整原圖、reduced motion、forced colours及窄螢幕；共用外觀流程另涵蓋公開／Admin頁面、訪客切換及OBS／presenter隔離。
 - 受影響的桌面／手機E2E共16項全部通過：S5專用三語／窄螢幕、共用外觀／OBS隔離、站點設定與賽事繼承。共用migration測試已通過升級前拒絕、升級後接受且保留既有預設及審計歷史檢查。
+- 最終同步main後重新產生OpenAPI，並重跑read-api／DX契約檢查。專用預覽與test PostgreSQL於完成後停止。
 - 本輪執行範圍為完整單元／整合及受影響的桌面／手機瀏覽器流程，沒有執行全站完整functional／header／remote或Safari矩陣；普通PR CI沿用固定core，不自動提升full。
 
 基準main `9e10f72` 的舊 [CI 40732722069](https://github.com/OCLR-dev/OCLR-website/actions/runs/40732722069) 曾為failure；它沒有包含本輪S5正式接入，不能替代本輪提交的實際CI狀態。
