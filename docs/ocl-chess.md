@@ -1,6 +1,6 @@
 # OCL Chess (#379)
 
-The first version is available at `/games/ocl-chess`: a permanent 128×128 canvas,
+The desktop header and mobile navigation both link to `/games/ocl-chess`: a permanent 128×128 canvas,
 16 indexed colors, authenticated osu! browser-session placement and a 30-second
 per-account cooldown. Public visitors may watch. The canvas starts paused after
 migration 0057; only a global Admin can open it or clear a bounded rectangle.

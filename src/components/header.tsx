@@ -229,6 +229,7 @@ export function Header({
     { href: informationHref, label: tr("Information page") },
     { href: "/news", label: tr("Tournament news") },
     { href: "/wiki", label: tr("OCLR Wiki") },
+    { href: "/games/ocl-chess", label: tr("OCL Chess") },
     { href: "/about", label: tr("Organizers") },
   ];
   const [open, setOpen] = useState(false);

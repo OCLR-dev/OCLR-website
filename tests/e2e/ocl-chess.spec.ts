@@ -1,3 +1,5 @@
+import { sql } from "drizzle-orm";
+import { assertTestDatabase } from "../database";
 import { test, expect } from "@playwright/test";
 import { db, closeDb } from "../../src/db";
 import { chessBoards } from "../../src/db/schema";
@@ -10,6 +12,9 @@ test.describe("OCL Chess saved canvas", () => {
     context,
     browser,
   }) => {
+    assertTestDatabase(process.env.TEST_DATABASE_URL);
+    process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+    await db().execute(sql`TRUNCATE chess_players, chess_events`);
     const cookie = await seedSession(660001);
     await db()
       .insert(chessBoards)
@@ -21,7 +26,17 @@ test.describe("OCL Chess saved canvas", () => {
     await context.addCookies([cookie]);
     const viewer = await browser.newContext();
     try {
-      await page.goto("/games/ocl-chess");
+      await page.goto("/");
+      const menu = page.locator(".menu-toggle");
+      if (await menu.isVisible()) await menu.click();
+      const entry = page
+        .locator("#main-navigation")
+        .getByRole("link", { name: "OCL Chess", exact: true });
+      await entry.click();
+      await expect(page).toHaveURL(/\/games\/ocl-chess$/);
+      await expect(entry).toHaveAttribute("aria-current", "page");
+      if (await menu.isVisible())
+        await expect(menu).toHaveAttribute("aria-expanded", "false");
       await expect(
         page.getByRole("button", { name: "Confirm pixel" }),
       ).toBeEnabled();
