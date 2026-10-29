@@ -661,7 +661,6 @@ export async function HistoricalArchiveView({
             >
               {tr("OCLR profile")} →
             </Link>
-            {" · "}
             <a
               href={`https://osu.ppy.sh/users/${players[0].osuId}`}
               rel="noreferrer"
