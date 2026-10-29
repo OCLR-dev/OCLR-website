@@ -3,6 +3,11 @@
 Base: `c9aea22` (upstream main). Local verification on 2026-10-28,
 using synthetic data and dedicated loopback PostgreSQL test databases.
 
+Before opening the PR, synced upstream `0ed5101` and retained both upstream
+and #444 translation additions. `npm run check` and `npm run test:i18n`
+(4 tests) passed again after that sync. The broader results below were recorded
+for implementation commit `094a850`; that implementation is unchanged.
+
 ## Behavior
 
 - An open editor keeps its original fixture snapshot and unsaved fields.

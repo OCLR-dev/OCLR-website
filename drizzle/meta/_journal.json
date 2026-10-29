@@ -372,6 +372,13 @@
       "when": 1793232761590,
       "tag": "0052_azure_brush_appearance",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1793242741119,
+      "tag": "0053_verdant_prelude_appearance",
+      "breakpoints": true
     }
   ]
 }

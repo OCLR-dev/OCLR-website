@@ -26,10 +26,12 @@ import {
 const state = vi.hoisted(() => ({
   actor: { osuId: 443001, username: "Synthetic body-budget admin" },
 }));
-vi.mock("../../src/lib/auth/user", () => ({
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
   requireUser: async () => state.actor,
 }));
-vi.mock("../../src/lib/auth/staff", () => ({
+vi.mock("../../src/lib/auth/staff", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/staff")>()),
   requireStaff: async () => state.actor,
 }));
 const url = process.env.TEST_DATABASE_URL;

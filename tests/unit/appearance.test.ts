@@ -26,6 +26,7 @@ describe("visitor appearance preference", () => {
       "orbital-pulse",
       "prism-overture",
       "azure-brush",
+      "verdant-prelude",
     ]);
     expect(appearanceCookie).toBe("oclr-appearance");
     expect(readAppearance("cute-pastel")).toBe("cute-pastel");

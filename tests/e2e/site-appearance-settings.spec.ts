@@ -10,7 +10,7 @@ import {
 import { assertTestDatabase } from "../database";
 import { seedSession } from "./session";
 import { appearances } from "../../src/lib/preferences";
-const origin = "http://127.0.0.1:3100";
+const origin = process.env.OCLR_E2E_ORIGIN ?? "http://127.0.0.1:3100";
 const headers = { Origin: origin };
 
 test.describe("Admin default and visitor appearance overrides", () => {
@@ -138,6 +138,7 @@ test.describe("Admin default and visitor appearance overrides", () => {
         "orbital-pulse",
         "prism-overture",
         "azure-brush",
+        "verdant-prelude",
         "frutiger-aero",
         "retro-arcade",
         "manga-halftone",
