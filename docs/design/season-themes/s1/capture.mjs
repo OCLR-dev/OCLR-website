@@ -21,7 +21,7 @@ const uiBaseline = "f4b5eb85";
 const out = fileURLToPath(new URL(".", import.meta.url));
 const sourceCss = await readFile(new URL("../s1.css", import.meta.url), "utf8");
 const assets = await Promise.all(
-  ["ink-field-light.svg", "ink-field-dark.svg"].map(async (file) => ({
+  ["ink-diffusion.webp"].map(async (file) => ({
     file,
     bytes: await readFile(new URL(file, import.meta.url)),
   })),
@@ -65,7 +65,7 @@ async function guard(page) {
         new URL(request.url()).pathname === `/s1-design-assets/${file}`,
     );
     if (asset)
-      return route.fulfill({ contentType: "image/svg+xml", body: asset.bytes });
+      return route.fulfill({ contentType: "image/webp", body: asset.bytes });
     return new URL(request.url()).origin === origin.origin &&
       ["GET", "HEAD"].includes(request.method())
       ? route.continue()
@@ -296,7 +296,7 @@ try {
         width: n.getBoundingClientRect().width,
         height: n.getBoundingClientRect().height,
         hasTexture: getComputedStyle(n).backgroundImage.includes(
-          "/s1-design-assets/ink-field-",
+          "/s1-design-assets/ink-diffusion.webp",
         ),
         text: [...n.querySelectorAll("h1,p")].map((el) => ({
           width: el.getBoundingClientRect().width,
@@ -331,7 +331,7 @@ try {
           encoding: "utf8",
         }).trim(),
         scope:
-          "Candidate S1 CSS applied to actual built application DOM; browser-served local SVG; no appearance registration or preference writes",
+          "Candidate S1 CSS applied to actual built application DOM; browser-served local ink-diffusion WebP; no appearance registration or preference writes",
         buildId: (
           await readFile(
             new URL("../../../../.next/BUILD_ID", import.meta.url),

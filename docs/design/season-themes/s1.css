@@ -34,7 +34,7 @@ html[data-s1-preview] .themed-site {
   --chromatic-peach: #ef8c7c;
   --chromatic-cyan: #4bbeb8;
   --chromatic-heading: linear-gradient(115deg, #fffcff, #f5f0fc 55%, #eef8fa);
-  --chromatic-facet-field: url("/s1-design-assets/ink-field-light.svg");
+  --chromatic-facet-field: url("/s1-design-assets/ink-diffusion.webp");
   --chromatic-reading-wash: #fcf9ffde;
   --chromatic-mobile-wash: #fcf9ff6b;
   --chromatic-edge-light: #ffffffa6;
@@ -73,7 +73,7 @@ html[data-s1-preview][data-theme="dark"] .themed-site {
   --chromatic-peach: #f1b4bc;
   --chromatic-cyan: #87c9da;
   --chromatic-heading: linear-gradient(115deg, #2d2343, #302747 55%, #25384a);
-  --chromatic-facet-field: url("/s1-design-assets/ink-field-dark.svg");
+  --chromatic-facet-field: url("/s1-design-assets/ink-diffusion.webp");
   --chromatic-reading-wash: #211a32e6;
   --chromatic-mobile-wash: #211a3299;
   --chromatic-edge-light: #ffffff12;
@@ -424,5 +424,17 @@ html[data-s1-preview]
     outline: 2px solid Highlight;
     outline-offset: -3px;
     box-shadow: none;
+  }
+}
+
+/* Dark paper absorbs the same pigments; preserve the original asset. */
+html[data-s1-preview][data-theme="dark"] .themed-site .page-heading {
+  background-image:
+    linear-gradient(90deg, #211a32f5 0 20%, #211a3280 100%),
+    var(--chromatic-facet-field), var(--chromatic-heading);
+}
+@media (forced-colors: active) {
+  html[data-s1-preview][data-theme="dark"] .themed-site .page-heading {
+    background-image: none;
   }
 }

@@ -1,17 +1,13 @@
 {
   "date": "2026-10-29",
   "uiBaseline": "f4b5eb85e363ddf1aed77a9cfcc7f40653c01180",
-  "scope": "Candidate S1 CSS applied to actual built application DOM; browser-served local SVG; no appearance registration or preference writes",
+  "scope": "Candidate S1 CSS applied to actual built application DOM; browser-served local ink-diffusion WebP; no appearance registration or preference writes",
   "buildId": "5c2_1p9IMUytqprGcW02G",
   "locale": "zh-Hant",
   "decorativeAssets": [
     {
-      "file": "ink-field-light.svg",
-      "sha256": "2fd71e3669c1e321a4842191e90cf59a7ce908aef5848712328b86d1ff1de3d7"
-    },
-    {
-      "file": "ink-field-dark.svg",
-      "sha256": "d3317358057f8a992f701be761bc2cf9cd9511bf177f3fbbea4cb456356c6c4d"
+      "file": "ink-diffusion.webp",
+      "sha256": "baee6fc3282406537d98869ce0f1d0a23ebd33b07a49d766156bbb750e945db0"
     }
   ],
   "browser": "Google Chrome",
@@ -555,6 +551,6 @@
   ],
   "errors": [],
   "artworkSha256": "33776a2e6f3deaa3b7463a861d5da20bfe0e051e5bd9515b9c26e6c797f74295",
-  "stylesheetSha256": "3e46ffdc3b33319ee61a2565a88447122c98e01b8e112a581ff8ab8a5d10bc69",
+  "stylesheetSha256": "61aa584db9004ba20fc16a6d9e4a3add97852e60a60a4c7108c6e1df13a793da",
   "fixture": "Committed S1 rules and original art; one explicitly synthetic schema-required team, one synthetic Captain, no matches or pools; isolated test database"
 }
