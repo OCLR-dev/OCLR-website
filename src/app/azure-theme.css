@@ -1,0 +1,435 @@
+/* S4 Azure Brush: paper-white editorial surfaces and Chinese ink-wash brushwork. */
+html[data-appearance="azure-brush"] .themed-site {
+  --site-background: #f2f8fa;
+  --site-surface: #ffffff;
+  --site-raised: #e3eef2;
+  --site-tint: #e0eef7;
+  --site-foreground: #102e46;
+  --site-muted: #526d7e;
+  --site-secondary-text: #3e5c70;
+  --site-accent: #176ca4;
+  --site-accent-strong: #124d79;
+  --site-border: #c4d5de;
+  --site-control-border: #758e9e;
+  --site-header: #fbfdfe;
+  --site-primary: #126a9f;
+  --site-primary-hover: #0c557f;
+  --site-on-primary: #ffffff;
+  --site-focus: #126a9f;
+  --site-selection: #cce4f3;
+  --site-success: #24614d;
+  --site-warning: #805600;
+  --site-danger: #ac3046;
+  --site-highlight: #176ca4;
+  --site-connector: #758e9e;
+  --site-shadow: #17394e12;
+  --site-soft-shadow: #17394e08;
+  --site-panel-shadow: #17394e20;
+  --site-dialog-shadow: #17394e38;
+  --site-backdrop: #0b203180;
+  --button-radius: 3px;
+  --radius-panel: 4px;
+  --azure-blue: #267ab5;
+  --azure-number-ink: #176ca4;
+  --azure-mark: #267ab5;
+  --azure-heading: #f7fbfd;
+  --azure-brush-field: url("/themes/azure-brush/ink-brush.webp");
+  --azure-reading-wash: #f7fbfdf5;
+  --azure-mobile-wash: #f7fbfdad;
+  background: var(--site-background);
+}
+html[data-appearance="azure-brush"][data-theme="dark"] .themed-site {
+  --site-background: #0f2132;
+  --site-surface: #172e42;
+  --site-raised: #213e54;
+  --site-tint: #294b65;
+  --site-foreground: #eef7fc;
+  --site-muted: #acc3d3;
+  --site-secondary-text: #cedee8;
+  --site-accent: #9dcced;
+  --site-accent-strong: #c2e5fc;
+  --site-border: #38566c;
+  --site-control-border: #6c8ca3;
+  --site-header: #12283b;
+  --site-primary: #8cc8ef;
+  --site-primary-hover: #afdcf7;
+  --site-on-primary: #102b40;
+  --site-focus: #69c5f1;
+  --site-selection: #294f6d;
+  --site-success: #91d5bd;
+  --site-warning: #f1d090;
+  --site-danger: #ffb4bd;
+  --site-highlight: #9dcced;
+  --site-connector: #6c8ca3;
+  --site-shadow: #06121e40;
+  --site-soft-shadow: #06121e28;
+  --site-panel-shadow: #06121e66;
+  --site-dialog-shadow: #06121e99;
+  --site-backdrop: #06121eb0;
+  --azure-blue: #80bee6;
+  --azure-number-ink: #b4dcf6;
+  --azure-mark: #80bee6;
+  --azure-heading: #172e42;
+  --azure-brush-field: url("/themes/azure-brush/ink-brush.webp");
+  --azure-reading-wash: #172e42f5;
+  --azure-mobile-wash: #172e427a;
+}
+html[data-appearance="azure-brush"] .themed-site .site-header {
+  border-bottom: 1px solid var(--site-border);
+  background: var(--site-header);
+  box-shadow: 0 1px 0 var(--site-soft-shadow);
+}
+html[data-appearance="azure-brush"] .themed-site .main-nav > a {
+  border-bottom-width: 1px;
+}
+html[data-appearance="azure-brush"] .themed-site .main-nav > a[aria-current] {
+  color: var(--site-accent-strong);
+  background: transparent;
+  box-shadow: none;
+}
+html[data-appearance="azure-brush"] .themed-site .page-heading {
+  position: relative;
+  padding: 30px 32px;
+  border: 1px solid var(--site-border);
+  border-radius: 4px;
+  background:
+    linear-gradient(90deg, var(--azure-reading-wash) 0 32%, transparent 72%),
+    var(--azure-brush-field) right center / auto 185% no-repeat,
+    var(--azure-heading);
+  box-shadow: none;
+}
+html[data-appearance="azure-brush"] .themed-site .page-heading .eyebrow {
+  color: var(--site-accent-strong);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  .page-heading
+  .eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 24px;
+  height: 3px;
+  margin-inline-end: 10px;
+  background: currentColor;
+  transform: rotate(-38deg);
+  vertical-align: middle;
+}
+html[data-appearance="azure-brush"] .themed-site .page-heading h1 {
+  margin-bottom: 12px;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+html[data-appearance="azure-brush"] .themed-site .page-heading > :is(h1, p) {
+  position: relative;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+html[data-appearance="azure-brush"] .themed-site .page-heading > :last-child {
+  margin-bottom: 0;
+}
+html[data-appearance="azure-brush"] .themed-site .page-heading .muted {
+  color: var(--site-secondary-text);
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  .page-heading
+  > p:not(.eyebrow) {
+  max-width: 50ch;
+}
+html[data-appearance="azure-brush"] .themed-site .page-heading::before,
+html[data-appearance="azure-brush"] .themed-site .page-heading::after {
+  content: none;
+  display: none;
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  .archive-overview-summary.has-visual {
+  align-items: stretch;
+  gap: 24px;
+}
+html[data-appearance="azure-brush"] .themed-site .archive-key-visual {
+  display: block;
+  align-self: center;
+  height: auto;
+}
+html[data-appearance="azure-brush"] .themed-site .archive-key-visual img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  .archive-overview-summary
+  .archive-counts {
+  position: relative;
+  max-width: none;
+  border: 1px solid var(--site-border);
+  border-top-color: var(--azure-blue);
+  border-radius: 4px;
+  background: var(--site-surface);
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  .archive-overview-summary
+  .archive-counts::before {
+  content: "";
+  position: absolute;
+  inset: -1px -1px auto;
+  height: 2px;
+  background: var(--azure-blue);
+  pointer-events: none;
+}
+html[data-appearance="azure-brush"] .themed-site .archive-counts > div {
+  min-width: 0;
+  gap: 24px;
+  padding: 12px 24px;
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  .archive-counts
+  > div:last-child {
+  border-bottom: 0;
+}
+html[data-appearance="azure-brush"] .themed-site .archive-counts dt {
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+html[data-appearance="azure-brush"] .themed-site .archive-counts dd {
+  flex: none;
+  color: var(--azure-number-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  :is(
+    .settings-card,
+    .rules-article,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .map-browse-card,
+    .public-match-card,
+    .empty-state
+  ) {
+  border: 1px solid var(--site-border);
+  border-radius: 4px;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  :is(
+    button:not([role="tab"]),
+    .button,
+    input,
+    select,
+    textarea,
+    .badge,
+    .map-slot-badge,
+    .account-dropdown
+  ) {
+  border-radius: 3px;
+}
+html[data-appearance="azure-brush"] .themed-site :is(input, select, textarea) {
+  border-color: var(--site-control-border);
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  nav {
+  border: 1px solid var(--site-border);
+  border-radius: 3px;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="azure-brush"] .themed-site .tournament-navigation nav a {
+  border-radius: 3px;
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  a[aria-current] {
+  color: var(--site-accent-strong);
+  background: var(--site-tint);
+  box-shadow: none;
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  .tournament-navigation
+  a[aria-current]::before {
+  content: none;
+}
+html[data-appearance="azure-brush"] .themed-site .map-view-control {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+html[data-appearance="azure-brush"] .themed-site .map-view-control button {
+  border-color: var(--site-control-border);
+}
+html[data-appearance="azure-brush"] .themed-site .pool-summary {
+  padding: 0 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--site-border);
+  border-radius: 0;
+  background: transparent;
+}
+html[data-appearance="azure-brush"] .themed-site button.map-open-button {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.15rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--site-foreground);
+  font: inherit;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  transform: none;
+}
+html[data-appearance="azure-brush"] .themed-site button.map-open-button:hover {
+  color: var(--site-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+html[data-appearance="azure-brush"] .themed-site .sidebar {
+  border-color: var(--site-border);
+  background: var(--site-surface);
+}
+html[data-appearance="azure-brush"] .themed-site .sidebar nav a {
+  min-height: 44px;
+  padding: 0.6rem 0.85rem;
+  border-inline-start: 3px solid transparent;
+  border-radius: 3px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+html[data-appearance="azure-brush"] .themed-site .sidebar nav a[aria-current] {
+  border-inline-start-color: var(--azure-mark);
+  background: var(--site-tint);
+  color: var(--site-accent-strong);
+  box-shadow: none;
+}
+html[data-appearance="azure-brush"] .themed-site :is(th, td) {
+  border-color: var(--site-border);
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="azure-brush"] .themed-site th {
+  background: var(--site-raised);
+  color: var(--site-foreground);
+}
+html[data-appearance="azure-brush"]
+  .themed-site
+  :is(
+    .score,
+    .event-score,
+    .match-slot > strong,
+    .archive-score-team > strong,
+    .event-match-side > b
+  ) {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-appearance="azure-brush"] .themed-site .page-heading {
+    animation: azure-enter 160ms ease-out both;
+  }
+  html[data-appearance="azure-brush"] .themed-site .main-nav > a {
+    transition:
+      color 140ms ease,
+      border-color 140ms ease;
+  }
+  html[data-appearance="azure-brush"]
+    .themed-site
+    :is(button, .button):not(
+      [disabled],
+      [role="tab"],
+      [role="menuitemradio"],
+      .map-open-button
+    ):active {
+    transform: translateY(1px);
+  }
+}
+@keyframes azure-enter {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 760px) {
+  html[data-appearance="azure-brush"] .themed-site .page-heading {
+    padding: 24px;
+    background-image:
+      linear-gradient(
+        90deg,
+        var(--azure-reading-wash) 0 12%,
+        var(--azure-mobile-wash)
+      ),
+      var(--azure-brush-field);
+    background-position:
+      center,
+      80% center;
+  }
+  html[data-appearance="azure-brush"] .themed-site .archive-counts > div {
+    padding: 12px 20px;
+  }
+  html[data-appearance="azure-brush"] .themed-site .archive-counts dd {
+    font-size: 1.75rem;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="azure-brush"]
+    .themed-site
+    :is(
+      .site-header,
+      .page-heading,
+      .archive-counts,
+      .settings-card,
+      .rules-article,
+      .rules-desktop-contents,
+      .rules-mobile-contents,
+      .tournament-navigation nav,
+      button,
+      .button
+    ) {
+    background-image: none;
+    box-shadow: none;
+  }
+  html[data-appearance="azure-brush"] .themed-site .page-heading::before,
+  html[data-appearance="azure-brush"] .themed-site .page-heading::after,
+  html[data-appearance="azure-brush"] .themed-site .archive-counts::before {
+    display: none;
+  }
+  html[data-appearance="azure-brush"]
+    .themed-site
+    :is(
+      .main-nav > a[aria-current],
+      .sidebar a[aria-current],
+      .tournament-navigation a[aria-current],
+      .map-view-control [aria-pressed="true"]
+    ) {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+    box-shadow: none;
+  }
+}
