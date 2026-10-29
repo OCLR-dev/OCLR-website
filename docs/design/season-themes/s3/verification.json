@@ -1,0 +1,241 @@
+{
+  "date": "2026-10-29",
+  "kind": "Offline specimen, not application or release acceptance",
+  "artworkSha256": "9485eb5d819e80e94f827491e6fca96462a59c738f7dcb2ab5b9717395ac7e43",
+  "results": [
+    {
+      "width": 320,
+      "theme": "light",
+      "panel": "overview",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "panel": "schedule",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "panel": "mappools",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "panel": "admin",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "panel": "overview",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "panel": "schedule",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "panel": "mappools",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "panel": "admin",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "panel": "overview",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "panel": "schedule",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "panel": "mappools",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "panel": "admin",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "panel": "overview",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "panel": "schedule",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "panel": "mappools",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "panel": "admin",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "panel": "overview",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "panel": "schedule",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "panel": "mappools",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "panel": "admin",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "panel": "overview",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "panel": "schedule",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "panel": "mappools",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "panel": "admin",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "panel": "overview",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "panel": "schedule",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "panel": "mappools",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "panel": "admin",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "panel": "overview",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "panel": "schedule",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "panel": "mappools",
+      "axeViolations": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "panel": "admin",
+      "axeViolations": 0,
+      "overflow": false
+    }
+  ],
+  "checks": [
+    "image 995x621 decoded",
+    "tabs and keyboard Home/ArrowRight",
+    "form invalid/reset/preview",
+    "mode switch",
+    "no cookies/localStorage",
+    "forced-colors rings hidden",
+    "reduced-motion enabled",
+    "no page errors"
+  ]
+}
