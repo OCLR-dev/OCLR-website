@@ -26,4 +26,21 @@ describe("archive edit destinations", () => {
       expect(html.includes("Open original map")).toBe(missing);
     },
   );
+
+  it.each([false, true])(
+    "opens the web (secondary) action in a new tab (compact=%s)",
+    (compact) => {
+      vi.stubGlobal("React", React);
+      const html = renderToStaticMarkup(
+        <BeatmapActions beatmapId={123} setId={null} compact={compact} />,
+      );
+      const anchors = html.match(/<a\b[^>]*>/g) ?? [];
+      const web = anchors.find((a) => a.includes("https://osu.ppy.sh/"));
+      const direct = anchors.find((a) => a.includes("osu://b/"));
+      expect(web).toContain('target="_blank"');
+      expect(web).toContain('rel="noopener noreferrer"');
+      expect(direct).not.toContain('target="_blank"');
+      expect(direct).not.toContain('rel="noopener noreferrer"');
+    },
+  );
 });
