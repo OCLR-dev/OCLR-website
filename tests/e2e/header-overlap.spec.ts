@@ -1,3 +1,5 @@
+import { isPublicAppearance } from "../../src/lib/preferences";
+import { setEditionAppearance } from "../fixtures/editions";
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { closeDb } from "../../src/db";
 import { seedSession } from "./session";
@@ -114,7 +116,11 @@ for (const { locale, theme, appearance } of headerMatrix(
     ]);
     await page.route("https://a.ppy.sh/**", (route) => route.abort());
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/");
+    if (!isPublicAppearance(appearance))
+      await setEditionAppearance("test-cup", appearance);
+    await page.goto(
+      isPublicAppearance(appearance) ? "/" : "/tournaments/test-cup",
+    );
     const header = page.locator(".site-header");
     const account = header.locator("button.account-control");
     const appearanceTrigger = header.locator(".appearance-trigger");
@@ -164,7 +170,7 @@ for (const { locale, theme, appearance } of headerMatrix(
       await page.keyboard.press("End");
       await expect(menu.getByRole("menuitem").last()).toBeFocused();
       await page.keyboard.press("Escape");
-      await expect(menu).toHaveCount(0);
+      await expect(menu).toBeHidden();
       await expect(account).toBeFocused();
 
       // Opening another control dismisses the previous menu through the
@@ -176,12 +182,12 @@ for (const { locale, theme, appearance } of headerMatrix(
       await withinViewport(page, appearanceMenu, width);
       await unobstructed(appearanceMenu.getByRole("menuitemradio"));
       await activate(language);
-      await expect(appearanceMenu).toHaveCount(0);
+      await expect(appearanceMenu).toBeHidden();
       const languageMenu = header.locator('.language-control [role="menu"]');
       await withinViewport(page, languageMenu, width);
       await unobstructed(languageMenu.getByRole("menuitemradio"));
       await activate(account);
-      await expect(languageMenu).toHaveCount(0);
+      await expect(languageMenu).toBeHidden();
       await unobstructed(menu.getByRole("menuitem"));
       await page.keyboard.press("Escape");
       await language.focus();

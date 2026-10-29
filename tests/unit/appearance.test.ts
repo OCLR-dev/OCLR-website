@@ -7,8 +7,8 @@ import {
   isAppearance,
 } from "../../src/lib/preferences";
 
-describe("visitor appearance preference", () => {
-  it("supports only the registered designs, including the S4–S10 season themes", () => {
+describe("registered appearance decoding", () => {
+  it("supports only the registered designs, including Admin-configurable S4–S10 season themes", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",

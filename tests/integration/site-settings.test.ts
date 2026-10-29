@@ -25,6 +25,11 @@ import { assertTestDatabase } from "../database";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 
+import {
+  publicAppearances,
+  seasonAppearances,
+} from "../../src/lib/preferences";
+
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 1320001, username: "Synthetic Site Admin" };
 const operator = { osuId: 1320002, username: "Synthetic Operator" };
@@ -50,52 +55,63 @@ describe.skipIf(!url)("global site appearance settings", () => {
     await closeDb();
     vi.unstubAllEnvs();
   });
-  it.each([
-    "cute-pastel",
-    "swiss-minimal",
-    "claymorphism",
-    "manga-halftone",
-    "glassmorphism",
-    "esports-broadcast",
-    "retro-arcade",
-    "frutiger-aero",
-    "skyline-pop",
-    "glacier-blue",
-    "sakura-circuit",
-    "graphite-arena",
-    "orbital-pulse",
-    "prism-overture",
-    "azure-brush",
-  ])("saves %s with an authoritative audit event", async (appearance) => {
-    expect(await siteSettingsForAdmin(admin)).toMatchObject({
-      defaultAppearance: "default",
-      revision: 0,
-    });
-    const saved = await updateSiteSettings(admin, save(appearance));
-    expect(saved).toMatchObject({
-      id: 1,
-      defaultAppearance: appearance,
-      revision: 1,
-    });
-    expect(await defaultSiteAppearance()).toBe(appearance);
-    const logs = await auditLog(admin, { module: "site" });
-    expect(logs.total).toBe(1);
-    expect(logs.rows[0]).toMatchObject({
-      actorId: admin.osuId,
-      username: admin.username,
-      edition: null,
-      entityType: "site settings",
-      entityId: "1",
-      action: "site_appearance_changed",
-      before: { defaultAppearance: "default", revision: 0 },
-      after: { defaultAppearance: appearance, revision: 1 },
-    });
-    expect(new Date(logs.rows[0].timestamp).getTime()).toBeGreaterThan(
-      Date.now() - 30000,
-    );
-    expect(await updateSiteSettings(admin, save(appearance, 1))).toEqual(saved);
-    expect(await db().select().from(siteSettingEvents)).toHaveLength(1);
-  });
+  it.each(publicAppearances.filter((value) => value !== "default"))(
+    "saves %s with an authoritative audit event",
+    async (appearance) => {
+      expect(await siteSettingsForAdmin(admin)).toMatchObject({
+        defaultAppearance: "default",
+        revision: 0,
+      });
+      const saved = await updateSiteSettings(admin, save(appearance));
+      expect(saved).toMatchObject({
+        id: 1,
+        defaultAppearance: appearance,
+        revision: 1,
+      });
+      expect(await defaultSiteAppearance()).toBe(appearance);
+      const logs = await auditLog(admin, { module: "site" });
+      expect(logs.total).toBe(1);
+      expect(logs.rows[0]).toMatchObject({
+        actorId: admin.osuId,
+        username: admin.username,
+        edition: null,
+        entityType: "site settings",
+        entityId: "1",
+        action: "site_appearance_changed",
+        before: { defaultAppearance: "default", revision: 0 },
+        after: { defaultAppearance: appearance, revision: 1 },
+      });
+      expect(new Date(logs.rows[0].timestamp).getTime()).toBeGreaterThan(
+        Date.now() - 30000,
+      );
+      expect(await updateSiteSettings(admin, save(appearance, 1))).toEqual(
+        saved,
+      );
+      expect(await db().select().from(siteSettingEvents)).toHaveLength(1);
+    },
+  );
+  it.each(seasonAppearances)(
+    "rejects new site-wide %s saves and safely reads legacy values",
+    async (theme) => {
+      await db()
+        .insert(siteSettings)
+        .values({ id: 1, defaultAppearance: theme, revision: 5 });
+      const raw = await siteSettingsForAdmin(admin);
+      expect(raw.defaultAppearance).toBe(theme);
+      expect(await defaultSiteAppearance()).toBe("default");
+      await expect(
+        updateSiteSettings(admin, save(theme, 5)),
+      ).rejects.toMatchObject({ status: 400 });
+      expect(await siteSettingsForAdmin(admin)).toEqual(raw);
+      expect(await db().select().from(siteSettingEvents)).toHaveLength(0);
+      await updateSiteSettings(admin, save("default", 5));
+      expect((await db().select().from(siteSettingEvents))[0]).toMatchObject({
+        before: theme,
+        after: "default",
+        revision: 6,
+      });
+    },
+  );
   it.each([
     ["admin", edition.slug],
     ["mappooler", null],

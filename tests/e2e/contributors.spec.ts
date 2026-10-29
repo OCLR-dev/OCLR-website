@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { staffRoles } from "../../src/db/schema";
 import { updateContributors } from "../../src/lib/contributors";
-import { appearances } from "../../src/lib/preferences";
+import { publicAppearances as appearances } from "../../src/lib/preferences";
 import { assertTestDatabase } from "../database";
 import { seedSession } from "./session";
 

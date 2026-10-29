@@ -1,3 +1,4 @@
+import { publicAppearances as appearances } from "../../src/lib/preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -9,24 +10,7 @@ const labels = {
     credits: "Credits and licence",
   },
 };
-const appearances = [
-  "default",
-  "cute-pastel",
-  "swiss-minimal",
-  "claymorphism",
-  "manga-halftone",
-  "glassmorphism",
-  "esports-broadcast",
-  "retro-arcade",
-  "frutiger-aero",
-  "skyline-pop",
-  "glacier-blue",
-  "sakura-circuit",
-  "graphite-arena",
-  "orbital-pulse",
-  "prism-overture",
-  "azure-brush",
-];
+
 // Every appearance in the default locale, plus the other locales in the default appearance.
 const cases = [
   ...appearances.map((appearance) => ["zh-Hans", appearance] as const),

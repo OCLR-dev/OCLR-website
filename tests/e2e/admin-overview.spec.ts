@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { closeDb, db } from "../../src/db";
 import { staffRoles } from "../../src/db/schema";
-import { appearances } from "../../src/lib/preferences";
+import { publicAppearances as appearances } from "../../src/lib/preferences";
 import { seedAdminOverview } from "../fixtures/admin-overview";
 const local = "http://127.0.0.1:3100";
 test.describe("administration overview tournaments", () => {

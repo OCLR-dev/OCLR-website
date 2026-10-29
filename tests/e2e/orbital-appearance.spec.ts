@@ -28,6 +28,7 @@ test.describe("S6 Orbital Pulse appearance", () => {
     await seedEditions([
       {
         ...edition,
+        defaultAppearance: "orbital-pulse",
         slug: "s6",
         season: "6",
         name: "OCLR Season 6",
@@ -55,14 +56,14 @@ test.describe("S6 Orbital Pulse appearance", () => {
   });
   test.afterAll(closeDb);
 
-  test("selects all three labels with keyboard, persists SSR and preserves complete artwork", async ({
+  test("inherits the configured season with a public-only menu, renders SSR and preserves complete artwork", async ({
     page,
     context,
   }, info) => {
     test.setTimeout(180000);
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    for (const [locale, label] of [
+    for (const [locale] of [
       ["en", "S6 · Orbital Pulse"],
       ["zh-Hans", "S6 · 星环脉冲"],
       ["zh-Hant", "S6 · 星環脈衝"],
@@ -72,23 +73,20 @@ test.describe("S6 Orbital Pulse appearance", () => {
           [
             ["oclr-locale", locale],
             ["oclr-theme", theme],
-            ["oclr-appearance", "default"],
           ].map(([name, value]) => ({ name, value, url: origin })),
         );
         await page.goto("/tournaments/s6");
         await page.waitForLoadState("networkidle");
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
-        const menu = page.getByRole("menu").filter({
-          has: page.locator('[data-appearance-option="orbital-pulse"]'),
-        });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(17);
-        await page.keyboard.press("End");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
+        const menu = page.locator('.appearance-control [role="menu"]');
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(10);
         await expect(
-          menu.getByRole("menuitemradio", { name: label, exact: true }),
-        ).toBeFocused();
+          menu.locator('[data-appearance-option="orbital-pulse"]'),
+        ).toHaveCount(0);
+        await page.keyboard.press("Home");
+        const option = menu.getByRole("menuitemradio").first();
+        await expect(option).toBeFocused();
         const box = (await menu.boundingBox())!;
         expect(box.y).toBeGreaterThanOrEqual(0);
         expect(box.y + box.height).toBeLessThanOrEqual(
@@ -173,7 +171,6 @@ test.describe("S6 Orbital Pulse appearance", () => {
           [
             ["oclr-locale", "zh-Hant"],
             ["oclr-theme", theme],
-            ["oclr-appearance", "orbital-pulse"],
           ].map(([name, value]) => ({ name, value, url: origin })),
         );
         await page.setViewportSize({ width, height: 844 });

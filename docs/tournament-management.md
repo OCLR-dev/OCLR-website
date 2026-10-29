@@ -237,3 +237,13 @@ Confirmation submits only the selected stable IDs and the previewed edition revi
 Both batch endpoints require same-origin authenticated `manage_registrations` permission for the requested edition and bound streamed JSON to 32 KiB. Provider lookups are sequential within a batch and use the shared provider pacer (1.1 seconds between calls, 10-second fetch timeout, at most two transport attempts). The existing profile service caps concurrent outstanding ID lookups at 32. Provider rate limits/timeouts remain failures; there is no fallback enrollment. Commit rechecks identity, eligibility, authorization, edition protection and configuration revision for each transaction. No player answers/consent, OAuth sessions, captain/team/Tier assignments or new migration are created.
 
 The new #184 Simplified/Traditional Chinese interface wording is pending organizer review; the earlier #85 wording approval does not cover these additions. This feature does not deploy the site or perform real tournament enrollment.
+
+## Season theme selection policy (#445)
+
+Season themes are available only in edition Admin settings. Header choices and
+site-wide defaults accept only `publicAppearances`; valid public visitor choices
+still override edition defaults. Old season cookies are ignored and expired;
+legacy season-valued site settings render as `default` without rewriting data or
+audit history. No migration is needed. See the [selection and compatibility
+policy](localization.md#season-theme-selection-policy-445) for route inheritance,
+explicit repair of old global values, remote reads and broadcast isolation.

@@ -21,7 +21,8 @@ export function resolveTheme(
 // Runs in <head> before first paint, so following the system never flashes
 // the server's guess. Without matchMedia the server-rendered value remains.
 export const themeScript = `(function(){try{var c=document.cookie,p=/(?:^|;\\s*)${themeCookie}=(light|dark)(?:;|$)/.exec(c),h=/(?:^|;\\s*)${systemThemeCookie}=(light|dark)(?:;|$)/.exec(c),s=matchMedia("${systemThemeQuery}").matches?"dark":"light";if(!h||h[1]!==s)document.cookie="${systemThemeCookie}="+s+"; Path=/; Max-Age=31536000; SameSite=Lax"+(location.protocol==="https:"?"; Secure":"");document.documentElement.dataset.theme=p?p[1]:s}catch(e){}})()`;
-export const appearances = [
+// Only these cross-season designs may be selected by visitors or site Admins.
+export const publicAppearances = [
   "default",
   "cute-pastel",
   "swiss-minimal",
@@ -31,6 +32,9 @@ export const appearances = [
   "esports-broadcast",
   "retro-arcade",
   "frutiger-aero",
+] as const;
+// New designs must explicitly opt into publicAppearances to be publicly selectable.
+export const seasonAppearances = [
   "skyline-pop",
   "glacier-blue",
   "sakura-circuit",
@@ -39,14 +43,36 @@ export const appearances = [
   "prism-overture",
   "azure-brush",
 ] as const;
+export const appearances = [
+  ...publicAppearances,
+  ...seasonAppearances,
+] as const;
 export type Appearance = (typeof appearances)[number];
+export type PublicAppearance = (typeof publicAppearances)[number];
 export const appearanceCookie = "oclr-appearance";
 export function isAppearance(value: unknown): value is Appearance {
   return appearances.some((appearance) => appearance === value);
 }
+/** Decode saved edition configuration, not visitor cookies or site defaults. */
 export function readAppearance(
   value: string | undefined,
   siteDefault: Appearance = "default",
 ): Appearance {
   return isAppearance(value) ? value : siteDefault;
+}
+
+/** Visitor cookies and whole-site defaults cannot select season designs. */
+export function isPublicAppearance(value: unknown): value is PublicAppearance {
+  return publicAppearances.some((appearance) => appearance === value);
+}
+export function readVisitorAppearance(
+  value: string | undefined,
+  inherited: Appearance = "default",
+): Appearance {
+  return isPublicAppearance(value) ? value : inherited;
+}
+export function readSiteAppearance(
+  value: string | undefined,
+): PublicAppearance {
+  return isPublicAppearance(value) ? value : "default";
 }

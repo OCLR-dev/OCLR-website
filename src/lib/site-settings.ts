@@ -8,7 +8,7 @@ import { assertCapability, assertReadCapability } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
-import { appearances, readAppearance } from "./preferences";
+import { publicAppearances, readSiteAppearance } from "./preferences";
 
 export async function readSiteSettings() {
   const [settings] = await db()
@@ -30,7 +30,7 @@ export async function readSiteSettings() {
 export const defaultSiteAppearance = cache(async () => {
   if (!process.env.DATABASE_URL) return "default" as const;
   try {
-    return readAppearance((await readSiteSettings()).defaultAppearance);
+    return readSiteAppearance((await readSiteSettings()).defaultAppearance);
   } catch {
     console.error(
       "Site appearance is temporarily unavailable; using the original design.",
@@ -60,7 +60,7 @@ export async function updateSiteSettings(actor: User, input: unknown) {
   await assertCapability(actor, "configure_tournament");
   const parsed = z
     .object({
-      defaultAppearance: z.enum(appearances),
+      defaultAppearance: z.enum(publicAppearances),
       expectedRevision: z.number().int().min(0).max(2147483646),
     })
     .strict()

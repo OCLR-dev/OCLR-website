@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { closeDb } from "../../src/db";
 import { createSession } from "../../src/lib/auth/sessions";
-import { appearances } from "../../src/lib/preferences";
+import { publicAppearances as appearances } from "../../src/lib/preferences";
 import {
   seedPlayerHistory,
   historyUid,

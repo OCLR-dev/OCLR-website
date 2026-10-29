@@ -36,6 +36,7 @@ import { collectionPage } from "../../src/lib/read-api";
 import { getPublicEdition } from "../../src/lib/content";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
+import { seasonAppearances } from "../../src/lib/preferences";
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 330001, username: "Synthetic Tournament Admin" };
 const mapper = { osuId: 330002, username: "Synthetic Mappooler" };
@@ -202,30 +203,33 @@ describe.skipIf(!url)("authoritative tournament edition storage", () => {
     });
     expect((await readTournament("s12"))?.edition.defaultAppearance).toBeNull();
   });
-  it("allows a scoped Admin to change only their tournament default", async () => {
-    await create();
-    await db().insert(staffRoles).values({
-      userId: player.osuId,
-      role: "admin",
-      editionSlug: "s12",
-      grantedBy: admin.osuId,
-    });
-    const command = {
-      ...fields,
-      action: "general",
-      status: "upcoming",
-      expectedRevision: 0,
-      confirmed: true,
-      defaultAppearance: "cute-pastel",
-    };
-    await tournamentCommand(player, "s12", command);
-    await expect(
-      tournamentCommand(player, "test-cup", command),
-    ).rejects.toMatchObject({ status: 403 });
-    const scopes = await tournamentAppearanceScopes(player);
-    expect(scopes.some((s) => s.slug === "s12" && s.staff)).toBe(true);
-    expect(scopes.some((s) => s.slug === "private-test-cup")).toBe(false);
-  });
+  it.each(seasonAppearances)(
+    "allows a scoped Admin to change only their tournament default to %s",
+    async (theme) => {
+      await create();
+      await db().insert(staffRoles).values({
+        userId: player.osuId,
+        role: "admin",
+        editionSlug: "s12",
+        grantedBy: admin.osuId,
+      });
+      const command = {
+        ...fields,
+        action: "general",
+        status: "upcoming",
+        expectedRevision: 0,
+        confirmed: true,
+        defaultAppearance: theme,
+      };
+      await tournamentCommand(player, "s12", command);
+      await expect(
+        tournamentCommand(player, "test-cup", command),
+      ).rejects.toMatchObject({ status: 403 });
+      const scopes = await tournamentAppearanceScopes(player);
+      expect(scopes.some((s) => s.slug === "s12" && s.staff)).toBe(true);
+      expect(scopes.some((s) => s.slug === "private-test-cup")).toBe(false);
+    },
+  );
   it("filters unpublished configurations in the database and ignores legacy state without inventing content", async () => {
     await db().execute(
       sql`INSERT INTO edition_state (slug) VALUES ('legacy-unknown')`,

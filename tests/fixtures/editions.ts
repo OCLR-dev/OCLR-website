@@ -31,3 +31,20 @@ export async function seedEditions(
   }
 }
 export type { Edition };
+
+/** Presentation-only test setup; real appearance changes use Admin commands. */
+export async function setEditionAppearance(slug: string, appearance: string) {
+  assertTestDatabase(process.env.TEST_DATABASE_URL);
+  const { eq } = await import("drizzle-orm");
+  const { isAppearance } = await import("../../src/lib/preferences");
+  if (!isAppearance(appearance)) throw new Error("Unknown fixture appearance");
+  const rows = await db()
+    .update(editionState)
+    .set({
+      configuration: sql`jsonb_set(${editionState.configuration}, '{defaultAppearance}', ${JSON.stringify(appearance)}::jsonb)`,
+    })
+    .where(eq(editionState.slug, slug))
+    .returning({ slug: editionState.slug });
+  if (rows.length !== 1)
+    throw new Error("Missing synthetic appearance edition");
+}

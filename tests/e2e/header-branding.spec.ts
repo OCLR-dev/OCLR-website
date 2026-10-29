@@ -1,3 +1,4 @@
+import { publicAppearances } from "../../src/lib/preferences";
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import AxeBuilder from "@axe-core/playwright";
@@ -21,24 +22,7 @@ const approvedPaths = Array.from(
 );
 
 for (const locale of ["zh-Hans", "zh-Hant", "en"] as const)
-  for (const appearance of [
-    "default",
-    "cute-pastel",
-    "swiss-minimal",
-    "claymorphism",
-    "manga-halftone",
-    "glassmorphism",
-    "esports-broadcast",
-    "retro-arcade",
-    "frutiger-aero",
-    "skyline-pop",
-    "glacier-blue",
-    "sakura-circuit",
-    "graphite-arena",
-    "orbital-pulse",
-    "prism-overture",
-    "azure-brush",
-  ])
+  for (const appearance of publicAppearances)
     for (const theme of ["light", "dark"])
       test(`OCLR header: ${locale}, ${appearance}, ${theme}`, async ({
         page,

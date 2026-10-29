@@ -22,6 +22,7 @@ test.describe("S10 Skyline Pop appearance", () => {
     await seedEditions([
       {
         ...edition,
+        defaultAppearance: "skyline-pop",
         slug: "s10",
         season: "10",
         name: "OCLR Season 10",
@@ -41,7 +42,7 @@ test.describe("S10 Skyline Pop appearance", () => {
   });
   test.afterAll(closeDb);
 
-  test("selects S10 from the real menu in all locales and persists the shipped light/dark design", async ({
+  test("inherits configured S10 in all locales and renders the shipped light/dark design", async ({
     page,
     context,
     isMobile,
@@ -53,7 +54,7 @@ test.describe("S10 Skyline Pop appearance", () => {
     const asset = await context.request.get("/themes/skyline-pop/coast.webp");
     expect(asset.status()).toBe(200);
     expect(asset.headers()["content-type"]).toContain("image/webp");
-    for (const [locale, label] of [
+    for (const [locale] of [
       ["en", "S10 · Skyline Pop"],
       ["zh-Hans", "S10 · 晴空未来城"],
       ["zh-Hant", "S10 · 晴空未來城"],
@@ -63,27 +64,18 @@ test.describe("S10 Skyline Pop appearance", () => {
           [
             ["oclr-locale", locale],
             ["oclr-theme", theme],
-            ["oclr-appearance", "default"],
           ].map(([name, value]) => ({ name, value, url: origin })),
         );
         expect((await page.goto("/tournaments/s10"))?.status()).toBe(200);
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
-        const menu = page.getByRole("menu").filter({
-          has: page.locator('[data-appearance-option="skyline-pop"]'),
-        });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(17);
-        await page.keyboard.press("End");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        const option = menu.getByRole("menuitemradio", {
-          name: label,
-          exact: true,
-        });
+        const menu = page.locator('.appearance-control [role="menu"]');
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(10);
+        await expect(
+          menu.locator('[data-appearance-option="skyline-pop"]'),
+        ).toHaveCount(0);
+        await page.keyboard.press("Home");
+        const option = menu.getByRole("menuitemradio").first();
         await expect(option).toBeFocused();
         const box = (await menu.boundingBox())!;
         expect(box.y).toBeGreaterThanOrEqual(0);
@@ -134,7 +126,7 @@ test.describe("S10 Skyline Pop appearance", () => {
         await page.goto("/privacy");
         await expect(page.locator("html")).toHaveAttribute(
           "data-appearance",
-          "skyline-pop",
+          "default",
         );
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       }

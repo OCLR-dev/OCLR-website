@@ -5,7 +5,7 @@ import { db, closeDb } from "../../src/db";
 import { assertTestDatabase } from "../database";
 import { seedBrowserEditions } from "./setup";
 import { seedSession } from "./session";
-import { seedEditions } from "../fixtures/editions";
+import { seedEditions, setEditionAppearance } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { chooseTheme } from "./theme";
 import s7Archive from "../../docs/imports/s7-archive.json" with { type: "json" };
@@ -24,6 +24,7 @@ test.describe("S7 Graphite Arena appearance", () => {
     await seedEditions([
       {
         ...edition,
+        defaultAppearance: "graphite-arena",
         slug: "s7",
         season: "7",
         name: "OCLR Season 7",
@@ -63,7 +64,6 @@ test.describe("S7 Graphite Arena appearance", () => {
             [
               ["oclr-locale", locale],
               ["oclr-theme", theme],
-              ["oclr-appearance", "graphite-arena"],
             ].map(([name, value]) => ({ name, value, url: origin })),
           );
           expect((await page.goto("/admin/tournaments/s7"))?.status()).toBe(
@@ -170,7 +170,6 @@ test.describe("S7 Graphite Arena appearance", () => {
             [
               ["oclr-locale", locale],
               ["oclr-theme", theme],
-              ["oclr-appearance", "graphite-arena"],
             ].map(([name, value]) => ({ name, value, url: origin })),
           );
           expect((await page.goto("/tournaments/s7/mappools"))?.status()).toBe(
@@ -287,7 +286,6 @@ test.describe("S7 Graphite Arena appearance", () => {
     await context.clearCookies();
     await context.addCookies([
       { name: "oclr-locale", value: "en", url: origin },
-      { name: "oclr-appearance", value: "graphite-arena", url: origin },
     ]);
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/tournaments/s7");
@@ -320,10 +318,10 @@ test.describe("S7 Graphite Arena appearance", () => {
     await page.goto("/privacy");
     await expect(html).toHaveAttribute("data-theme-preference", "system");
     await expect(html).toHaveAttribute("data-theme", "dark");
-    await expect(html).toHaveAttribute("data-appearance", "graphite-arena");
+    await expect(html).toHaveAttribute("data-appearance", "default");
   });
 
-  test("selects S7 from the real menu in all locales and persists the shipped light/dark design", async ({
+  test("inherits configured S7 in all locales and renders the shipped light/dark design", async ({
     page,
     context,
     isMobile,
@@ -337,7 +335,7 @@ test.describe("S7 Graphite Arena appearance", () => {
     );
     expect(asset.status()).toBe(200);
     expect(asset.headers()["content-type"]).toContain("image/svg+xml");
-    for (const [locale, label] of [
+    for (const [locale] of [
       ["en", "S7 · Graphite Arena"],
       ["zh-Hans", "S7 · 石墨竞技场"],
       ["zh-Hant", "S7 · 石墨競技場"],
@@ -347,7 +345,6 @@ test.describe("S7 Graphite Arena appearance", () => {
           [
             ["oclr-locale", locale],
             ["oclr-theme", theme],
-            ["oclr-appearance", "default"],
           ].map(([name, value]) => ({ name, value, url: origin })),
         );
         expect((await page.goto("/tournaments/s7"))?.status()).toBe(200);
@@ -356,18 +353,13 @@ test.describe("S7 Graphite Arena appearance", () => {
         await page.waitForLoadState("networkidle");
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
-        const menu = page.getByRole("menu").filter({
-          has: page.locator('[data-appearance-option="graphite-arena"]'),
-        });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(17);
-        await page.keyboard.press("End");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        const option = menu.getByRole("menuitemradio", {
-          name: label,
-          exact: true,
-        });
+        const menu = page.locator('.appearance-control [role="menu"]');
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(10);
+        await expect(
+          menu.locator('[data-appearance-option="graphite-arena"]'),
+        ).toHaveCount(0);
+        await page.keyboard.press("Home");
+        const option = menu.getByRole("menuitemradio").first();
         await expect(option).toBeFocused();
         const box = (await menu.boundingBox())!;
         expect(box.y).toBeGreaterThanOrEqual(0);
@@ -429,15 +421,19 @@ test.describe("S7 Graphite Arena appearance", () => {
         await page.waitForLoadState("networkidle");
         await expect(page.locator("html")).toHaveAttribute(
           "data-appearance",
-          "graphite-arena",
+          "default",
         );
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-        // The global information link may target a featured edition rather
-        // than this historical archive. Follow its real href to test selection.
+        // The featured link can point to another edition. Configure that edition
+        // explicitly before checking season-specific header styles there.
         const informationHref = await page
           .locator('.main-nav > a[href^="/tournaments"]')
           .getAttribute("href");
-        expect(informationHref).toBeTruthy();
+        expect(informationHref).toMatch(/^\/tournaments\/[^/?#]+$/);
+        await setEditionAppearance(
+          informationHref!.split("/")[2],
+          "graphite-arena",
+        );
         await page.goto(informationHref!);
         await page.waitForLoadState("networkidle");
         if (isMobile) await page.locator(".menu-toggle").click();

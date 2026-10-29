@@ -19,3 +19,28 @@ Light/dark follows the visitor's system `prefers-color-scheme` by default (#358)
 Public News categories use the exhaustive `publicNewsKind` mapping in `src/lib/public-news-model.ts`; never render an internal kind with `toUpperCase()`. Generated titles/summaries translate their surrounding template while retaining authored pool/round/team names. The terminology glossary is Mappool(s) → 图池 / 圖池; Mappooler → 选图员 / 選圖員; Player pool → 选手池 / 選手池. Unit tests cover every event kind, future labels, glossary consistency and interpolation; browser fixtures cover list/detail/metadata and published-result boundaries in all three locales.
 
 Standard osu! mod names are non-translatable domain labels in every locale: NM — No Mod, HD — Hidden, DT — Double Time, HR — Hard Rock, FM — FM / Free Mod / Force Mod, TB — Tie Breaker. Render them from `categoryNames` / `fmModeNames`; translate surrounding help and errors. Preserve these names inside catalog sentences too. This organizer-approved terminology update is #83; it does not change gameplay settings or the 图池 / 圖池 and 选手池 / 選手池 glossary.
+
+## Season theme selection policy (#445)
+
+Visitors and whole-site settings may select only the nine cross-season designs
+in `publicAppearances`. Season themes remain registered and available only to an
+authorized Admin in the edition's existing **Default tournament appearance**
+setting. The explicit public visitor choice still overrides the current edition
+default, which overrides the public site default. Light/dark/system is independent.
+
+Old or manually forged season-valued `oclr-appearance` cookies are ignored on the
+server and client, then expired by the client provider. A legacy season-valued
+site setting renders as `default`; its stored value, revision and audit history
+remain unchanged until a global Admin explicitly saves a public design. The site
+settings form shows the effective fallback and allows that explicit repair.
+The existing database constraints and read contracts continue accepting old
+registered values so history and older backends remain readable; new site-setting
+writes reject them. No migration or automatic data rewrite is required.
+
+Edition defaults apply only to the current published/authorized edition,
+including the edition context on player profiles. Leaving it restores the public
+site default or visitor choice; inherited themes never become personal cookies.
+Private editions and OBS/presenter output retain their existing boundaries.
+This policy supersedes earlier instructions offering season designs in the
+Header or as site-wide defaults; historical design verification is not current
+selection-policy evidence.

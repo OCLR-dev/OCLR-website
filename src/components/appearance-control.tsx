@@ -3,7 +3,8 @@ import { appearanceLabel } from "@/i18n/appearance";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import {
   appearanceCookie,
-  appearances,
+  publicAppearances,
+  isPublicAppearance,
   type Appearance,
 } from "@/lib/preferences";
 import { useAppearanceScope } from "./appearance-provider";
@@ -24,7 +25,7 @@ export function AppearanceControl({
   const scope = useAppearanceScope();
   const [localAppearance, setAppearance] = useState(initialAppearance);
   const [localPreference, setPreference] = useState<Appearance | "site">(
-    initialPreference ?? "site",
+    isPublicAppearance(initialPreference) ? initialPreference : "site",
   );
   const appearance = scope?.appearance ?? localAppearance;
   const preference = scope ? (scope.preference ?? "site") : localPreference;
@@ -112,7 +113,7 @@ export function AppearanceControl({
           event.preventDefault();
           focus.current =
             event.key === "ArrowUp"
-              ? appearances[appearances.length - 1]
+              ? publicAppearances[publicAppearances.length - 1]
               : "site";
           setOpen(true);
         }}
@@ -140,7 +141,7 @@ export function AppearanceControl({
           className={styles.menu}
           onKeyDown={keyboard}
         >
-          {(["site", ...appearances] as const).map((value) => (
+          {(["site", ...publicAppearances] as const).map((value) => (
             <button
               key={value}
               type="button"

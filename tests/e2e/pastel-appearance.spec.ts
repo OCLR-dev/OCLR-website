@@ -10,7 +10,10 @@ import { prepareDraft } from "../fixtures/draft";
 import { seedBrowserEditions } from "./setup";
 import { readTournament } from "../../src/lib/tournaments";
 import { seedEditions } from "../fixtures/editions";
-import { appearances } from "../../src/lib/preferences";
+import {
+  publicAppearances as appearances,
+  isPublicAppearance,
+} from "../../src/lib/preferences";
 import { chooseTheme } from "./theme";
 const origin = "http://127.0.0.1:3100",
   base = "/tournaments/test-cup";
@@ -135,6 +138,7 @@ const optional = {
   },
 } as const;
 for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
+  if (!isPublicAppearance(appearance)) continue;
   const { label, lightBackground, darkBackground } = optional[appearance];
   const setPreferences = (
     context: BrowserContext,
@@ -190,7 +194,7 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
         // ArrowUp opens on the last option; step up to this appearance.
         await page.keyboard.press("ArrowUp");
         for (
-          let step = appearances.indexOf(appearance);
+          let step = appearances.findIndex((value) => value === appearance);
           step < appearances.length - 1;
           step++
         )

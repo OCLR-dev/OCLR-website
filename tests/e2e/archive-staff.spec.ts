@@ -1,3 +1,4 @@
+import { setEditionAppearance } from "../fixtures/editions";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";
@@ -330,6 +331,7 @@ test.describe("historical staff categories and verified username lookup", () => 
           },
           { name: "oclr-theme", value: theme, url: "http://127.0.0.1:3100" },
         ]);
+        await setEditionAppearance(slug, appearance);
         await page.goto(`/tournaments/${slug}/staff`);
         await expect(
           page.getByRole("heading", { name: "Referee", exact: true }),

@@ -1,3 +1,4 @@
+import { setEditionAppearance } from "../fixtures/editions";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { eq } from "drizzle-orm";
@@ -110,6 +111,7 @@ test.describe("published match details", () => {
               url: "http://127.0.0.1:3100",
             })),
           );
+          await setEditionAppearance("s10", appearance);
           await page.goto("/tournaments/s10/matches/match-2");
           await expect(page.locator("article[id^='game-']")).toHaveCount(4);
           await expect(page.locator("#game-1 tbody tr")).toHaveCount(4);
@@ -235,6 +237,7 @@ test.describe("published match details", () => {
               url: "http://127.0.0.1:3100",
             })),
           );
+          await setEditionAppearance("test-cup", appearance);
           await page.goto(`/tournaments/test-cup/matches/${seeded.fixtureId}`);
           await expect(page.locator("article[id^='game-']")).toHaveCount(6);
           await expect(

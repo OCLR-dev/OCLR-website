@@ -4,7 +4,12 @@ import { appearanceLabel } from "@/i18n/appearance";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
-import { appearances, type Appearance } from "@/lib/preferences";
+import {
+  publicAppearances,
+  readSiteAppearance,
+  type Appearance,
+  type PublicAppearance,
+} from "@/lib/preferences";
 
 export function SiteAppearanceForm({
   initialAppearance,
@@ -15,7 +20,9 @@ export function SiteAppearanceForm({
 }) {
   const tr = useAppTranslations();
   const router = useRouter();
-  const [appearance, setAppearance] = useState(initialAppearance);
+  const [appearance, setAppearance] = useState(
+    readSiteAppearance(initialAppearance),
+  );
   const [saved, setSaved] = useState({
     appearance: initialAppearance,
     revision,
@@ -62,17 +69,22 @@ export function SiteAppearanceForm({
               "Used when no tournament default is configured. Explicit visitor appearance and light/dark preferences remain independent.",
             )}
           </p>
+          <p className="muted small">
+            {tr(
+              "Season themes can only be configured for individual tournaments.",
+            )}
+          </p>
           <label className="field">
             <span>{tr("Design")}</span>
             <select
               aria-label={tr("Design")}
               value={appearance}
               onChange={(event) =>
-                setAppearance(event.target.value as Appearance)
+                setAppearance(event.target.value as PublicAppearance)
               }
               aria-describedby="site-appearance-description"
             >
-              {appearances.map((value) => (
+              {publicAppearances.map((value) => (
                 <option key={value} value={value}>
                   {appearanceLabel(value, tr)}
                 </option>

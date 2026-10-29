@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { assertTestDatabase } from "../database";
 import { seedBrowserEditions } from "./setup";
-import { seedEditions } from "../fixtures/editions";
+import { seedEditions, setEditionAppearance } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import s8Archive from "../../docs/imports/s8-archive.json" with { type: "json" };
 
@@ -22,6 +22,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
     await seedEditions([
       {
         ...edition,
+        defaultAppearance: "sakura-circuit",
         slug: "s8",
         season: "8",
         name: "OCLR Season 8",
@@ -59,7 +60,6 @@ test.describe("S8 Sakura Circuit appearance", () => {
             [
               ["oclr-locale", locale],
               ["oclr-theme", theme],
-              ["oclr-appearance", "sakura-circuit"],
             ].map(([name, value]) => ({ name, value, url: origin })),
           );
           expect((await page.goto("/tournaments/s8"))?.status()).toBe(200);
@@ -131,7 +131,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
     expect(errors).toEqual([]);
   });
 
-  test("selects S8 from the real menu in all locales and persists the shipped light/dark design", async ({
+  test("inherits configured S8 in all locales and renders the shipped light/dark design", async ({
     page,
     context,
     isMobile,
@@ -150,7 +150,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
         (await context.request.get(`/themes/sakura-circuit/${name}`)).status(),
       ).toBe(200);
     }
-    for (const [locale, label] of [
+    for (const [locale] of [
       ["en", "S8 · Sakura Circuit"],
       ["zh-Hans", "S8 · 樱花折线"],
       ["zh-Hant", "S8 · 櫻花折線"],
@@ -160,7 +160,6 @@ test.describe("S8 Sakura Circuit appearance", () => {
           [
             ["oclr-locale", locale],
             ["oclr-theme", theme],
-            ["oclr-appearance", "default"],
           ].map(([name, value]) => ({ name, value, url: origin })),
         );
         expect((await page.goto("/tournaments/s8"))?.status()).toBe(200);
@@ -169,19 +168,13 @@ test.describe("S8 Sakura Circuit appearance", () => {
         await page.waitForLoadState("networkidle");
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
-        const menu = page.getByRole("menu").filter({
-          has: page.locator('[data-appearance-option="sakura-circuit"]'),
-        });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(17);
-        await page.keyboard.press("End");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        await page.keyboard.press("ArrowUp");
-        const option = menu.getByRole("menuitemradio", {
-          name: label,
-          exact: true,
-        });
+        const menu = page.locator('.appearance-control [role="menu"]');
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(10);
+        await expect(
+          menu.locator('[data-appearance-option="sakura-circuit"]'),
+        ).toHaveCount(0);
+        await page.keyboard.press("Home");
+        const option = menu.getByRole("menuitemradio").first();
         await expect(option).toBeFocused();
         const box = (await menu.boundingBox())!;
         expect(box.y).toBeGreaterThanOrEqual(0);
@@ -250,15 +243,19 @@ test.describe("S8 Sakura Circuit appearance", () => {
         await page.waitForLoadState("networkidle");
         await expect(page.locator("html")).toHaveAttribute(
           "data-appearance",
-          "sakura-circuit",
+          "default",
         );
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-        // The global information link may target a featured edition rather
-        // than this historical archive. Follow its real href to test selection.
+        // The featured link can point to another edition. Configure that edition
+        // explicitly before checking season-specific header styles there.
         const informationHref = await page
           .locator('.main-nav > a[href^="/tournaments"]')
           .getAttribute("href");
-        expect(informationHref).toBeTruthy();
+        expect(informationHref).toMatch(/^\/tournaments\/[^/?#]+$/);
+        await setEditionAppearance(
+          informationHref!.split("/")[2],
+          "sakura-circuit",
+        );
         await page.goto(informationHref!);
         await page.waitForLoadState("networkidle");
         if (isMobile) await page.locator(".menu-toggle").click();

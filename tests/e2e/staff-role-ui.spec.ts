@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { seedSession } from "./session";
 import { closeDb } from "../../src/db";
 import { changeStaffRoleSet, listStaffRoles } from "../../src/lib/staff-roles";
-import { appearances } from "../../src/lib/preferences";
+import { publicAppearances as appearances } from "../../src/lib/preferences";
 
 test.describe("staff assignment interface (#357)", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");

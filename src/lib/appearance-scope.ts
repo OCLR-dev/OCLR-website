@@ -1,4 +1,8 @@
-import { readAppearance, type Appearance } from "./preferences";
+import {
+  readAppearance,
+  readSiteAppearance,
+  type Appearance,
+} from "./preferences";
 import { isBroadcastPage } from "./public-navigation";
 export type AppearanceScope = {
   slug: string;
@@ -13,6 +17,7 @@ export function inheritedAppearance(
   scopes: AppearanceScope[],
   siteDefault: Appearance,
 ) {
+  siteDefault = readSiteAppearance(siteDefault);
   if (isBroadcastPage(path, query.get("presenter") === "1"))
     return { appearance: siteDefault, edition: false };
   const route =

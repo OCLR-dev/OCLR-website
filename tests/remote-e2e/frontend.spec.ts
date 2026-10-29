@@ -1,3 +1,4 @@
+import { setEditionAppearance } from "../fixtures/editions";
 import { expect, test } from "@playwright/test";
 import { eq, sql } from "drizzle-orm";
 import { readFileSync } from "node:fs";
@@ -477,6 +478,8 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
     await context.addCookies([
       { name: "oclr-appearance", value: appearance, url: local },
     ]);
+    await setEditionAppearance("test-cup", appearance);
+    await renewConnection();
     await page.goto("/tournaments/test-cup/players");
     await expect(page.locator(".event-player-row")).toHaveCount(108);
     await expect(page.locator("html")).toHaveAttribute(

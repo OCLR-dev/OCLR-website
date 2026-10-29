@@ -25,6 +25,7 @@ test.describe("S5 Prism Overture appearance", () => {
     await seedEditions([
       {
         ...edition,
+        defaultAppearance: "prism-overture",
         slug: "s5",
         season: "5",
         name: "OCLR β (S5)",
@@ -44,14 +45,14 @@ test.describe("S5 Prism Overture appearance", () => {
   });
   test.afterAll(closeDb);
 
-  test("selects all three labels with keyboard, persists SSR and preserves complete artwork", async ({
+  test("inherits the configured season with a public-only menu, renders SSR and preserves complete artwork", async ({
     page,
     context,
   }, info) => {
     test.setTimeout(180000);
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    for (const [locale, label] of [
+    for (const [locale] of [
       ["en", "S5 · Prism Overture"],
       ["zh-Hans", "S5 · 棱光序曲"],
       ["zh-Hant", "S5 · 稜光序曲"],
@@ -61,22 +62,20 @@ test.describe("S5 Prism Overture appearance", () => {
           [
             ["oclr-locale", locale],
             ["oclr-theme", theme],
-            ["oclr-appearance", "default"],
           ].map(([name, value]) => ({ name, value, url: origin })),
         );
         await page.goto("/tournaments/s5");
         await page.waitForLoadState("networkidle");
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
-        const menu = page.getByRole("menu").filter({
-          has: page.locator('[data-appearance-option="prism-overture"]'),
-        });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(17);
-        await page.keyboard.press("End");
-        await page.keyboard.press("ArrowUp");
+        const menu = page.locator('.appearance-control [role="menu"]');
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(10);
         await expect(
-          menu.getByRole("menuitemradio", { name: label, exact: true }),
-        ).toBeFocused();
+          menu.locator('[data-appearance-option="prism-overture"]'),
+        ).toHaveCount(0);
+        await page.keyboard.press("Home");
+        const option = menu.getByRole("menuitemradio").first();
+        await expect(option).toBeFocused();
         const box = (await menu.boundingBox())!;
         expect(box.y).toBeGreaterThanOrEqual(0);
         expect(box.y + box.height).toBeLessThanOrEqual(
@@ -156,7 +155,6 @@ test.describe("S5 Prism Overture appearance", () => {
           [
             ["oclr-locale", "zh-Hant"],
             ["oclr-theme", theme],
-            ["oclr-appearance", "prism-overture"],
           ].map(([name, value]) => ({ name, value, url: origin })),
         );
         await page.setViewportSize({ width, height: 844 });
