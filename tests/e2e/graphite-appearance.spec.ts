@@ -359,8 +359,9 @@ test.describe("S7 Graphite Arena appearance", () => {
         const menu = page.getByRole("menu").filter({
           has: page.locator('[data-appearance-option="graphite-arena"]'),
         });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(17);
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(18);
         await page.keyboard.press("End");
+        await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");
