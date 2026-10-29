@@ -39,11 +39,17 @@ export function BracketCanvas({
   showAppearanceLinks: boolean;
 }) {
   const tr = useAppTranslations();
-  const data = useMemo(() => doubleBracketMatches(group), [group]);
+  // Recorded appearances are not a conventional double-elimination tree.
+  // The library can accept these graphs but omit disconnected branches and
+  // cross-bracket links. Render every recorded match in chronological columns.
   const historical = group.rounds.some((r) =>
     r.matches.some((m) =>
       m.slots.some((s) => s.kind === "team" && s.sourceMatchId),
     ),
+  );
+  const data = useMemo(
+    () => (historical ? null : doubleBracketMatches(group)),
+    [group, historical],
   );
   const sources = group.rounds.flatMap((round) =>
     round.matches.flatMap((match) =>
@@ -75,11 +81,13 @@ export function BracketCanvas({
   if (!data)
     return (
       <div className={historical ? "bracket-library-references" : undefined}>
-        <p className="muted small">
-          {tr(
-            "Some bracket sources are missing. Recorded matches are shown without invented advancement links.",
-          )}
-        </p>
+        {!historical && (
+          <p className="muted small">
+            {tr(
+              "Some bracket sources are missing. Recorded matches are shown without invented advancement links.",
+            )}
+          </p>
+        )}
         {historical && (
           <p className="muted small">
             {tr("Recorded appearance only (unconfirmed progression)")}
