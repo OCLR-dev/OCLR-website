@@ -39,6 +39,20 @@ export function ChessCanvas() {
     top: number;
     moved: boolean;
   } | null>(null);
+  useEffect(() => {
+    const viewport = view.current;
+    if (!viewport) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (!width || !height) return;
+      setZoom(
+        Math.min(32, Math.max(2, Math.ceil(Math.max(width, height) / 128))),
+      );
+      observer.disconnect();
+    });
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, []);
   function receive(data: ChessState) {
     setState((old) => (!old || data.revision >= old.revision ? data : old));
     deadline.current = Date.now() + Math.max(0, data.nextAt - data.serverTime);
@@ -134,7 +148,7 @@ export function ChessCanvas() {
     }
   }
   return (
-    <main className="chess-workspace">
+    <section className="chess-workspace">
       <header>
         <h1>{tr("OCL Chess")}</h1>
         <p>
@@ -378,6 +392,6 @@ export function ChessCanvas() {
           </section>
         )}
       </div>
-    </main>
+    </section>
   );
 }

@@ -29,13 +29,11 @@ test.describe("OCL Chess saved canvas", () => {
       await page.goto("/");
       const menu = page.locator(".menu-toggle");
       if (await menu.isVisible()) await menu.click();
-      const entry = page
-        .locator("#main-navigation")
-        .getByRole("link", {
-          name: "OCL Chess",
-          exact: true,
-          includeHidden: true,
-        });
+      const entry = page.locator("#main-navigation").getByRole("link", {
+        name: "OCL Chess",
+        exact: true,
+        includeHidden: true,
+      });
       await entry.click();
       await expect(page).toHaveURL(/\/games\/ocl-chess$/);
       await expect(entry).toHaveAttribute("aria-current", "page");
@@ -44,14 +42,22 @@ test.describe("OCL Chess saved canvas", () => {
       await expect(
         page.getByRole("button", { name: "Confirm pixel" }),
       ).toBeEnabled();
+      const drawing = await page.locator(".chess-viewport").boundingBox();
+      const screen = page.viewportSize()!;
+      expect(drawing!.width).toBeGreaterThan(screen.width * 0.9);
+      expect(drawing!.height).toBeGreaterThan(screen.height * 0.5);
+      await page.screenshot({
+        path: `/tmp/oclr-fullscreen-real-${test.info().project.name}.png`,
+      });
       await page.getByLabel("X", { exact: true }).fill("12");
       await page.getByLabel("Y", { exact: true }).fill("10");
       await page.getByRole("button", { name: "Confirm pixel" }).click();
       await expect(
         page.getByRole("button", { name: "Confirm pixel" }),
       ).toBeDisabled();
+      const origin = new URL(page.url()).origin;
       const state = await (
-        await viewer.request.get("http://127.0.0.1:3100/api/games/ocl-chess")
+        await viewer.request.get(`${origin}/api/games/ocl-chess`)
       ).json();
       expect(state.pixels[10 * 128 + 12]).toBe("5");
       expect(state.signedIn).toBe(false);
@@ -59,17 +65,17 @@ test.describe("OCL Chess saved canvas", () => {
       expect(
         (
           await context.request.post("/api/games/ocl-chess", {
-            headers: { Origin: "http://127.0.0.1:3100" },
+            headers: { Origin: origin },
             data: request,
           })
         ).status(),
       ).toBe(429);
       expect(
         (
-          await viewer.request.post(
-            "http://127.0.0.1:3100/api/games/ocl-chess",
-            { headers: { Origin: "http://127.0.0.1:3100" }, data: request },
-          )
+          await viewer.request.post(`${origin}/api/games/ocl-chess`, {
+            headers: { Origin: origin },
+            data: request,
+          })
         ).status(),
       ).toBe(401);
       await page.reload();

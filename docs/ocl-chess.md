@@ -39,3 +39,10 @@ integration tests, plus desktop/mobile browser confirmation and uncertain-save
 retry tests. Component browser tests mock HTTP; they do not establish production
 OAuth, deployment acceptance or large-scale load capacity. New Chinese wording
 requires organizer review. See the issue for commit-specific verification results.
+
+The game workspace uses the viewport height below the site header, with compact
+controls and no footer on this route. Desktop controls share rows when space
+allows; the mobile palette scrolls horizontally while retaining 44px targets.
+Initial zoom fills the drawing viewport with square pixels (pan to reach the
+rest of the board); subsequent zoom remains under the player's control. Very
+short windows retain a 480px minimum shell height so controls remain accessible.

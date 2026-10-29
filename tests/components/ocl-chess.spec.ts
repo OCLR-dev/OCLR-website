@@ -22,6 +22,13 @@ test("selects without writing and confirms a saved pixel", async ({ page }) => {
   await expect(
     page.getByRole("button", { name: "Confirm pixel" }),
   ).toBeEnabled();
+  const viewport = await page.locator(".chess-viewport").boundingBox();
+  const screen = page.viewportSize()!;
+  expect(viewport!.width).toBeGreaterThan(screen.width * 0.9);
+  expect(viewport!.height).toBeGreaterThan(screen.height * 0.5);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(screen.width);
   await page
     .getByLabel("Shared pixel canvas")
     .click({ position: { x: 25, y: 25 } });
