@@ -46,29 +46,35 @@ loopback servers on 31401/31402.
 
 ## Actual checks
 
+After syncing upstream main `ab4c3e7`, lint/types, production build, focused unit
+checks and component/production browser checks were rerun successfully.
+
 - `npm ci`, `npm run check`, production build and `git diff --check`: passed.
 - `npm run i18n:extract` and `npm run test:i18n`: run; all four i18n checks passed.
   Extraction also discovered two pre-existing uncatalogued storage-error messages;
   those unrelated generated additions were excluded from this change.
 - Focused unit checks: **7 files, 73 tests passed**, including empty/multiple notes,
   i18n, archive support/navigation, statistics and mappool calculation regressions.
-- DB-free component browsers: **4 passed** across desktop/mobile. Both statistics
+- DB-free component browsers: **6 passed** across desktop/mobile, including the newly merged statistics-manager
+  harness. Both statistics
   renderers retain interactions; Explorer coverage and method details expand by
   keyboard, update with rounds and remain after selected player details.
-- Focused production-browser checks: **10 passed** across desktop/mobile, including
+- Focused production-browser checks: **12 passed** across desktop/mobile, including
   S1–S10 statistics, round/team/map filters, coverage links and keyboard expansion,
   all **19 registered appearances** in both brightness modes, all three locales
   distributed across appearances, empty notes, private-marker non-disclosure,
-  mappool supplementation and S7–S10 bracket/standings regressions. Default notes
+  mappool supplementation/denominators and S7–S10 bracket/standings regressions. Default notes
   also pass the scoped axe check. This is not every locale × appearance combination.
 - `npm audit --omit=dev`: **0 vulnerabilities**.
-- Full `npm test`: **175 files passed / 16 failed; 1478 tests passed / 66 failed /
+- Full `npm test` at the original implementation `6bbedea`, before syncing main: **175 files passed / 16 failed; 1478 tests passed / 66 failed /
   3 skipped**. Rerunning those 16 failed files on unmodified baseline main reproduced
   the **same 66 failures and identical failed-test names** (28 other tests passed,
   3 skipped). Failures concern Linux shell commands, Windows fsync/symlink support,
   and Python/replay/import tooling; no related statistics/notes check failed.
-- Full browser regression was also invoked with `--max-failures=5`; its result is
-  tracked separately from the focused passing checks in the PR.
+- Full browser regression (1036 tests) was invoked with `--max-failures=5`, then
+  interrupted to sync newly landed upstream changes and resolve the harness
+  conflict. It is **not** a full-suite pass. The focused 12-test production-browser
+  run above passed after the merge; the complete browser suite remains for CI.
 
 The only new interface copy is **Notes / 备注 / 備註**; the Chinese heading awaits
 organizer review. Existing explanatory wording and data semantics are retained.
