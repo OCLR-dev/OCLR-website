@@ -7,11 +7,11 @@
   "decorativeAssets": [
     {
       "file": "ink-field-light.svg",
-      "sha256": "ba6d003d6c9bdffa108deb6a6ba534fad74deaddbe3f81ce9b8ec4eaf6e4856b"
+      "sha256": "2fd71e3669c1e321a4842191e90cf59a7ce908aef5848712328b86d1ff1de3d7"
     },
     {
       "file": "ink-field-dark.svg",
-      "sha256": "a78a39c01340a50d648ff3f0bd076efcf607f3d0e1099bebcea3b03e7e521f00"
+      "sha256": "d3317358057f8a992f701be761bc2cf9cd9511bf177f3fbbea4cb456356c6c4d"
     }
   ],
   "browser": "Google Chrome",
