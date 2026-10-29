@@ -36,6 +36,8 @@ export function appearanceLabel(
       return tr("S5 · Prism Overture");
     case "azure-brush":
       return tr("S4 · Azure Brush");
+    case "chromatic-origins":
+      return tr("S1 · Chromatic Origins");
     default:
       return tr("Original design");
   }

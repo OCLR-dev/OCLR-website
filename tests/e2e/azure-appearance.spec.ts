@@ -77,8 +77,9 @@ test.describe("S4 Azure Brush appearance", () => {
         const menu = page.getByRole("menu").filter({
           has: page.locator('[data-appearance-option="azure-brush"]'),
         });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(17);
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(18);
         await page.keyboard.press("End");
+        await page.keyboard.press("ArrowUp");
         await expect(
           menu.getByRole("menuitemradio", { name: label, exact: true }),
         ).toBeFocused();

@@ -9,6 +9,7 @@ export const bundledSeasonThemes = [
   { appearance: "orbital-pulse", stylesheet: "orbital-theme.css" },
   { appearance: "prism-overture", stylesheet: "prism-theme.css" },
   { appearance: "azure-brush", stylesheet: "azure-theme.css" },
+  { appearance: "chromatic-origins", stylesheet: "chromatic-theme.css" },
 ].map(({ appearance, stylesheet }) => ({
   appearance,
   assets: [
