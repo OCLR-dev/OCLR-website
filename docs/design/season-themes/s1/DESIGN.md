@@ -33,3 +33,5 @@ node --import tsx docs/design/season-themes/s1/capture.mjs
 Node 24.22.1；npm ci、npm run check、production build 通過。完整單元／整合 183 檔、1480 項通過、1 項略過；npm audit --omit=dev 為 0 漏洞。主要明暗 token 對比數值見 [contrast.json](contrast.json)。候選 CSS 與圖庫腳本 lint／語法檢查通過。新增產品翻譯為零。
 
 鮮豔版最終擷取：四頁 × 320／390／768／1440px × 明暗，共32組及32次Axe AA，零違規、無溢出；4組forced colors通過。原圖尺寸／contain、DOM文字與元素、手機選單與焦點、Admin焦點及937／390px標題幾何通過。已人工檢視桌面淺色及手機深色。圖庫32種切換、8次Axe AA零違規且無溢出，見 [gallery-verification.json](gallery-verification.json)。
+
+固定核心桌面／手機 E2E 28項全部通過（2.1分鐘）。上述建置、測試及截圖基於 `f4b5eb85` 加本輪候選設計。提交 PR 後正常合併最新 main `49f7355`（含 S4 正式主題與 S8 控制項修正）；沒有將舊建置結果宣稱為合併後完整回歸，最終提交 CI 另行記錄。
