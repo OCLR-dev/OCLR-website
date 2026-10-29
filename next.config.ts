@@ -1,6 +1,8 @@
 import { remoteConfiguration } from "./src/lib/data-source";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { publicAssetCacheHeaders } from "./src/lib/static-asset-cache";
+import { join } from "node:path";
 if (
   process.env.OCLR_DATA_SOURCE &&
   process.env.OCLR_DATA_SOURCE !== "database" &&
@@ -31,6 +33,10 @@ const config: NextConfig = {
   },
   async headers() {
     return [
+      ...publicAssetCacheHeaders(
+        join(process.cwd(), "public"),
+        process.env.NODE_ENV === "production",
+      ),
       {
         source: "/:path*",
         headers: [

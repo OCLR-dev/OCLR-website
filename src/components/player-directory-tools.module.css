@@ -1,0 +1,140 @@
+.tools {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  margin-bottom: 1rem;
+}
+:global(.directory-team-heading) {
+  grid-column: 1 / -1;
+  list-style: none;
+}
+.tools :global(.event-tabs) {
+  margin: 0;
+  padding-bottom: 0.5rem;
+}
+.primary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+}
+.search {
+  display: flex;
+  flex: 2 1 18rem;
+  align-items: end;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.search > label {
+  flex: 1;
+  min-width: 0;
+}
+.primary > label {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+.tools :global(.field) {
+  margin: 0;
+  min-width: 0;
+}
+.tools input:not([type="checkbox"]),
+.tools select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: end;
+  min-width: 0;
+}
+.filters > label:global(.field) {
+  flex: 1 1 12rem;
+  max-width: 24rem;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+.advanced {
+  flex-basis: 100%;
+  min-width: 0;
+}
+.advanced summary {
+  cursor: pointer;
+  width: fit-content;
+  padding-block: 0.5rem;
+}
+.ranges {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.ranges p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.status p {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.applied {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.applied li {
+  min-width: 0;
+  max-width: 100%;
+}
+.applied button {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: start;
+  font-size: 0.875rem;
+}
+.toggle {
+  display: none;
+}
+@media (max-width: 640px) {
+  .primary {
+    align-items: stretch;
+  }
+  .search {
+    flex-basis: 100%;
+  }
+  .primary > label {
+    flex: 1 1 10rem;
+  }
+  .toggle {
+    display: block;
+    align-self: end;
+  }
+  .filters {
+    display: none;
+  }
+  .filters.expanded {
+    display: flex;
+  }
+  .filters > label:global(.field) {
+    max-width: none;
+  }
+  .ranges {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

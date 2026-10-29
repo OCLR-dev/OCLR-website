@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+X-Frame-Options: DENY
+Permissions-Policy: camera=(), microphone=(), geolocation=()
+content-language: zh-Hans
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-NjhmMjllYzgtYjFkZS00MmQ4LTliNzQtYjk3NDNiZjVjMWM0' 'strict-dynamic' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+Accept-Ranges: bytes
+Cache-Control: public, max-age=0
+Last-Modified: Thu, 29 Oct 2026 00:39:02 GMT
+ETag: W/"4b1-1a18518938c"
+Content-Type: image/svg+xml
+Content-Length: 1201
+Vary: Accept-Encoding
+Date: Thu, 29 Oct 2026 00:45:19 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+

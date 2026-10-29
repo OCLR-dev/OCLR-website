@@ -1,0 +1,354 @@
+[
+  {
+    "path": "/archive/s1/key-visual.webp",
+    "bytes": 269962
+  },
+  {
+    "path": "/archive/s10/rules-1.png",
+    "bytes": 13021
+  },
+  {
+    "path": "/archive/s10/rules-2.png",
+    "bytes": 18911
+  },
+  {
+    "path": "/archive/s10/thumbnail.png",
+    "bytes": 1059645
+  },
+  {
+    "path": "/archive/s2/key-visual.avif",
+    "bytes": 38400
+  },
+  {
+    "path": "/archive/s3/key-visual.avif",
+    "bytes": 26966
+  },
+  {
+    "path": "/archive/s4/key-visual.avif",
+    "bytes": 101496
+  },
+  {
+    "path": "/archive/s5/key-visual.png",
+    "bytes": 1922586
+  },
+  {
+    "path": "/archive/s6/key-visual.jpg",
+    "bytes": 598093
+  },
+  {
+    "path": "/archive/s7/key-visual.jpg",
+    "bytes": 638212
+  },
+  {
+    "path": "/archive/s8/rules-1.png",
+    "bytes": 168548
+  },
+  {
+    "path": "/archive/s8/rules-2.png",
+    "bytes": 13021
+  },
+  {
+    "path": "/archive/s8/rules-3.png",
+    "bytes": 18911
+  },
+  {
+    "path": "/archive/s8/rules-4.png",
+    "bytes": 68774
+  },
+  {
+    "path": "/archive/s8/thumbnail.jpg",
+    "bytes": 443916
+  },
+  {
+    "path": "/archive/s9/rules-1.png",
+    "bytes": 18911
+  },
+  {
+    "path": "/archive/s9/rules-2.png",
+    "bytes": 68774
+  },
+  {
+    "path": "/archive/s9/thumbnail.png",
+    "bytes": 2571904
+  },
+  {
+    "path": "/branding/home-s11/foreground-1600.png",
+    "bytes": 303331
+  },
+  {
+    "path": "/branding/home-s11/foreground-480.png",
+    "bytes": 35455
+  },
+  {
+    "path": "/branding/home-s11/foreground-960.png",
+    "bytes": 124555
+  },
+  {
+    "path": "/branding/home-s11/foreground.png",
+    "bytes": 369197
+  },
+  {
+    "path": "/branding/home-s11/katu-cropped.svg",
+    "bytes": 2263
+  },
+  {
+    "path": "/branding/home-s11/liru-refined-v2-320.png",
+    "bytes": 48729
+  },
+  {
+    "path": "/branding/home-s11/liru-refined-v2-640.png",
+    "bytes": 155683
+  },
+  {
+    "path": "/branding/home-s11/liru-refined-v2-vector-2048.png",
+    "bytes": 1869507
+  },
+  {
+    "path": "/branding/home-s11/liru-refined-v2.png",
+    "bytes": 336793
+  },
+  {
+    "path": "/branding/home-s11/liru-refined-v2.svg",
+    "bytes": 5194391
+  },
+  {
+    "path": "/branding/home-s11/liru-smooth-final.svg",
+    "bytes": 2269476
+  },
+  {
+    "path": "/branding/home-s11/liru.png",
+    "bytes": 1982031
+  },
+  {
+    "path": "/branding/home-s11/nebula-only-1600.png",
+    "bytes": 855192
+  },
+  {
+    "path": "/branding/home-s11/nebula-only-480.png",
+    "bytes": 82482
+  },
+  {
+    "path": "/branding/home-s11/nebula-only-960.png",
+    "bytes": 317687
+  },
+  {
+    "path": "/branding/home-s11/nebula-only.png",
+    "bytes": 1016645
+  },
+  {
+    "path": "/branding/home-s11/oclr-layer.svg",
+    "bytes": 16400
+  },
+  {
+    "path": "/branding/home-s11/season-layer.svg",
+    "bytes": 1870
+  },
+  {
+    "path": "/branding/oclr-16.png",
+    "bytes": 644
+  },
+  {
+    "path": "/branding/oclr-180.png",
+    "bytes": 2258
+  },
+  {
+    "path": "/branding/oclr-32.png",
+    "bytes": 1586
+  },
+  {
+    "path": "/branding/oclr-48.png",
+    "bytes": 2604
+  },
+  {
+    "path": "/branding/oclr-mark-mono.svg",
+    "bytes": 646
+  },
+  {
+    "path": "/branding/oclr-mark.svg",
+    "bytes": 1201
+  },
+  {
+    "path": "/branding/oclr-s11-layout-b.svg",
+    "bytes": 13462
+  },
+  {
+    "path": "/branding/oclr-s11-logo.svg",
+    "bytes": 18440
+  },
+  {
+    "path": "/branding/oclr-s11-winter-banner.svg",
+    "bytes": 219823
+  },
+  {
+    "path": "/branding/oclr-wordmark-dark.svg",
+    "bytes": 2319
+  },
+  {
+    "path": "/branding/oclr-wordmark-light.svg",
+    "bytes": 2319
+  },
+  {
+    "path": "/branding/oclr-wordmark.svg",
+    "bytes": 2319
+  },
+  {
+    "path": "/fonts/PressStart2P-Regular.ttf",
+    "bytes": 118204
+  },
+  {
+    "path": "/fonts/bangers-latin-400.woff2",
+    "bytes": 23528
+  },
+  {
+    "path": "/fonts/barlow-condensed-latin-800-italic.woff2",
+    "bytes": 23780
+  },
+  {
+    "path": "/fonts/fusion-pixel/fusion-pixel-12px-proportional-latin.otf.woff2",
+    "bytes": 688404
+  },
+  {
+    "path": "/fonts/fusion-pixel/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+    "bytes": 701520
+  },
+  {
+    "path": "/fonts/fusion-pixel/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+    "bytes": 696196
+  },
+  {
+    "path": "/fonts/quicksand-latin-variable.woff2",
+    "bytes": 28244
+  },
+  {
+    "path": "/mascot/liru/sheet-expressions.webp",
+    "bytes": 182360
+  },
+  {
+    "path": "/mascot/liru/sheet-main.webp",
+    "bytes": 155098
+  },
+  {
+    "path": "/mascot/liru/sheet-turnaround.webp",
+    "bytes": 102150
+  },
+  {
+    "path": "/oclr-s11-banner.webp",
+    "bytes": 118832
+  },
+  {
+    "path": "/oclr-s11-classic-wordmark-soft.png",
+    "bytes": 107084
+  },
+  {
+    "path": "/oclr-s11-classic-wordmark.png",
+    "bytes": 108398
+  },
+  {
+    "path": "/oclr-s11-key-visual-enhanced-1280.webp",
+    "bytes": 62284
+  },
+  {
+    "path": "/oclr-s11-key-visual-enhanced-1920.webp",
+    "bytes": 106856
+  },
+  {
+    "path": "/oclr-s11-key-visual-enhanced-2560.webp",
+    "bytes": 151382
+  },
+  {
+    "path": "/oclr-s11-key-visual-enhanced-3840.webp",
+    "bytes": 258850
+  },
+  {
+    "path": "/oclr-s11-key-visual-enhanced-640.webp",
+    "bytes": 22792
+  },
+  {
+    "path": "/oclr-s11-key-visual-enhanced-960.webp",
+    "bytes": 42250
+  },
+  {
+    "path": "/oclr-s11-key-visual.webp",
+    "bytes": 106856
+  },
+  {
+    "path": "/oclr-s11-square-logo.webp",
+    "bytes": 46124
+  },
+  {
+    "path": "/oclr-s11-swirl-wordmark.png",
+    "bytes": 2087887
+  },
+  {
+    "path": "/oclr-s11-website-background.webp",
+    "bytes": 197388
+  },
+  {
+    "path": "/rookie-stage.svg",
+    "bytes": 2484
+  },
+  {
+    "path": "/themes/glacier-blue/cirno-ice-fairy.webp",
+    "bytes": 361402
+  },
+  {
+    "path": "/themes/glacier-blue/crystal-etching.svg",
+    "bytes": 1934
+  },
+  {
+    "path": "/themes/glacier-blue/frost-rim.svg",
+    "bytes": 2044
+  },
+  {
+    "path": "/themes/glacier-blue/ice-facets.svg",
+    "bytes": 1137
+  },
+  {
+    "path": "/themes/graphite-arena/honeycomb.svg",
+    "bytes": 4334
+  },
+  {
+    "path": "/themes/orbital-pulse/circuit-dark.svg",
+    "bytes": 3198
+  },
+  {
+    "path": "/themes/orbital-pulse/circuit-light.svg",
+    "bytes": 3198
+  },
+  {
+    "path": "/themes/orbital-pulse/music-spectrum.svg",
+    "bytes": 28294
+  },
+  {
+    "path": "/themes/prism-overture/prism-field-dark.svg",
+    "bytes": 16936
+  },
+  {
+    "path": "/themes/prism-overture/prism-field-light.svg",
+    "bytes": 16914
+  },
+  {
+    "path": "/themes/sakura-circuit/blossom-spray.webp",
+    "bytes": 212952
+  },
+  {
+    "path": "/themes/sakura-circuit/heroine-half-20261028.webp",
+    "bytes": 423550
+  },
+  {
+    "path": "/themes/sakura-circuit/heroine-half-refined.webp",
+    "bytes": 432818
+  },
+  {
+    "path": "/themes/sakura-circuit/heroine-half.webp",
+    "bytes": 462230
+  },
+  {
+    "path": "/themes/sakura-circuit/source-rules-banner.png",
+    "bytes": 146818
+  },
+  {
+    "path": "/themes/skyline-pop/coast.webp",
+    "bytes": 488896
+  }
+]

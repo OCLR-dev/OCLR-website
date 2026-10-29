@@ -11,13 +11,13 @@ import { eventPreview } from "@/lib/event-preview";
 import { historicalPage } from "@/components/historical-archive";
 import { getAppTranslations } from "@/i18n/server";
 import { publicPlayers, publicPlayerFilters } from "@/lib/players";
+import { directoryKeys, publicDirectoryPlayer } from "@/lib/player-directory";
+import { HttpError } from "@/lib/http";
 import { getPublicEdition } from "@/lib/content";
 import { notFound } from "next/navigation";
-import { HttpError } from "@/lib/http";
 import { Action, PageHeading } from "@/components/ui";
 import { after } from "next/server";
 import { refreshDirectoryStatistics } from "@/lib/osu-profiles";
-import { z } from "zod";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return {
@@ -53,39 +53,33 @@ async function PlayersContent({
       </>
     );
   const base = `/tournaments/${edition}/players`;
-  let result;
   try {
     const query = await searchParams;
-    const selected = z
-      .enum(["cards", "list"])
-      .default("cards")
-      .safeParse(query.view);
+    publicPlayerFilters({ edition, page: query.page });
     if (
-      !selected.success ||
-      Object.keys(query).some((key) => !["q", "page", "view"].includes(key))
+      Object.keys(query).some(
+        (key) => ![...directoryKeys, "page", "view"].includes(key),
+      ) ||
+      (query.view !== undefined &&
+        !["cards", "list"].includes(String(query.view)))
     )
-      throw new HttpError(400, "Choose a valid player search and page.");
-    result = {
-      filters: publicPlayerFilters({ q: query.q, page: query.page, edition }),
-    };
+      throw new HttpError(400, "Choose valid player filters and sorting.");
   } catch (error) {
     if (!(error instanceof HttpError) || error.status !== 400) throw error;
     return (
       <div className="directory-page edition-players">
-        <PageHeading eyebrow={tr("PUBLIC DIRECTORY")} title={tr("Players")}>
-          {tr(error.message)}
-        </PageHeading>
+        <PageHeading title={tr("Players")}>{tr(error.message)}</PageHeading>
         <Action href={base}>{tr("Clear filters")}</Action>
       </div>
     );
   }
-  const { filters } = result;
-  const { rows, refreshIds } = await frontendPlayers(edition, filters.q);
+  // Filtering runs over the complete public collection, including remote pages.
+  const { rows, refreshIds } = await frontendPlayers(edition);
   if (refreshIds.length)
     after(async () => {
       try {
         // A publication or registration decision may change after rendering.
-        const current = await publicPlayers(filters);
+        const current = await publicPlayers({ edition });
         const visible = new Set(current.rows.map((p) => p.osuId));
         await refreshDirectoryStatistics(
           refreshIds.filter((id) => visible.has(id)),
@@ -98,32 +92,17 @@ async function PlayersContent({
   return (
     <div className="directory-page edition-players">
       <PageHeading title={tr("Players")} />
-      <form action={base} className="event-tools">
-        <label>
-          {tr("Search players")}
-          <input
-            name="q"
-            defaultValue={filters.q}
-            placeholder={tr("Username or osu! ID")}
-          />
-        </label>
-        <button>{tr("Search")}</button>
-      </form>
       <EventPlayers
         edition={edition}
         remote={remoteMode()}
-        search={false}
         signedIn={Boolean(viewer)}
         viewerId={viewer?.osuId}
         grouped={rows.some((p) => p.participation === "finalized_roster")}
         players={rows.map((p) => ({
-          id: p.osuId,
-          name: p.username,
+          ...publicDirectoryPlayer(p),
           team: p.team?.name ?? null,
           captain: p.captain,
           bio: p.bio ?? undefined,
-          rank: p.statistics.globalRank,
-          pp: p.statistics.pp,
           href: `/players/${p.osuId}?edition=${edition}`,
           fetchedAt: p.statistics.fetchedAt ?? undefined,
         }))}

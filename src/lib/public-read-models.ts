@@ -407,6 +407,9 @@ export async function publicPlayerDirectoryModel(slug: string, q = "") {
       order: "preview-source" as const,
     };
   const result = await publicPlayers({ edition: slug, q });
+  const aliases = await (
+    await import("./player-identity")
+  ).visiblePlayerNames(result.rows.map((p) => p.osuId));
   let statisticsUnavailable = false;
   const { statistics, refreshIds } = await cachedDirectoryStatistics(
     result.rows.map((player) => player.osuId),
@@ -429,6 +432,9 @@ export async function publicPlayerDirectoryModel(slug: string, q = "") {
       const tier = tiers.get(player.osuId) ?? null;
       return publicPlayerSchema.parse({
         ...player,
+        previousUsernames: aliases
+          .filter((n) => n.osuId === player.osuId)
+          .map((n) => n.username),
         role:
           player.participation === "coach"
             ? "coach"

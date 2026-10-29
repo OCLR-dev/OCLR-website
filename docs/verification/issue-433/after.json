@@ -1,0 +1,807 @@
+{
+  "stage": "after",
+  "environment": "Next.js 16.4.2 next start; Node 24; direct loopback HTTP; no Nginx; no DB",
+  "headers": [
+    {
+      "path": "/branding/oclr-mark.svg",
+      "status": 200,
+      "headers": {
+        "cache-control": "public, max-age=300, must-revalidate",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-YmQxMzQ1NDEtNzFlZi00YjYzLWE4OGYtNWU1Y2JlZWZjMWRk' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "image/svg+xml",
+        "etag": "W/\"4b1-1a18518938c\"",
+        "last-modified": "Thu, 29 Oct 2026 00:39:02 GMT",
+        "vary": "Accept-Encoding",
+        "x-content-type-options": "nosniff"
+      },
+      "If-None-Match": {
+        "status": 304,
+        "bytes": 0
+      },
+      "If-Modified-Since": {
+        "status": 304,
+        "bytes": 0
+      }
+    },
+    {
+      "path": "/oclr-s11-key-visual.webp",
+      "status": 200,
+      "headers": {
+        "cache-control": "public, max-age=300, must-revalidate",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-ZDFkZDEzZmUtOWEzNS00OTNlLWIxMmMtZDU1ODExODEzYjBl' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "image/webp",
+        "etag": "W/\"1a168-1a18518939c\"",
+        "last-modified": "Thu, 29 Oct 2026 00:39:02 GMT",
+        "x-content-type-options": "nosniff"
+      },
+      "If-None-Match": {
+        "status": 304,
+        "bytes": 0
+      },
+      "If-Modified-Since": {
+        "status": 304,
+        "bytes": 0
+      }
+    },
+    {
+      "path": "/archive/s7/key-visual.jpg",
+      "status": 200,
+      "headers": {
+        "cache-control": "public, max-age=300, must-revalidate",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-ZTI5YzFkMTUtYjc5ZC00N2U0LWI4NGEtNzI0ZjI3NzkxODMz' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "image/jpeg",
+        "etag": "W/\"9bd04-1a18518935e\"",
+        "last-modified": "Thu, 29 Oct 2026 00:39:02 GMT",
+        "x-content-type-options": "nosniff"
+      },
+      "If-None-Match": {
+        "status": 304,
+        "bytes": 0
+      },
+      "If-Modified-Since": {
+        "status": 304,
+        "bytes": 0
+      }
+    },
+    {
+      "path": "/themes/prism-overture/prism-field-light.svg",
+      "status": 200,
+      "headers": {
+        "cache-control": "public, max-age=300, must-revalidate",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-Zjc3N2MzMWUtMjA3Mi00NDdlLWI4OGYtODExOWQ3ZGMyZDk0' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "image/svg+xml",
+        "etag": "W/\"4212-1a1851e02c8\"",
+        "last-modified": "Thu, 29 Oct 2026 00:44:58 GMT",
+        "vary": "Accept-Encoding",
+        "x-content-type-options": "nosniff"
+      },
+      "If-None-Match": {
+        "status": 304,
+        "bytes": 0
+      },
+      "If-Modified-Since": {
+        "status": 304,
+        "bytes": 0
+      }
+    },
+    {
+      "path": "/fonts/quicksand-latin-variable.woff2",
+      "status": 200,
+      "headers": {
+        "cache-control": "public, max-age=300, must-revalidate",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-ODYxZmVjNGQtYjZkNi00ZWUwLTk1NjUtNmJhODliYTI2Yjk0' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "font/woff2",
+        "etag": "W/\"6e54-1a185189396\"",
+        "last-modified": "Thu, 29 Oct 2026 00:39:02 GMT",
+        "x-content-type-options": "nosniff"
+      },
+      "If-None-Match": {
+        "status": 304,
+        "bytes": 0
+      },
+      "If-Modified-Since": {
+        "status": 304,
+        "bytes": 0
+      }
+    },
+    {
+      "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+      "status": 200,
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "content-type": "text/css; charset=UTF-8",
+        "etag": "W/\"20a2b-1a1851d1385\"",
+        "last-modified": "Thu, 29 Oct 2026 00:43:57 GMT",
+        "vary": "Accept-Encoding",
+        "x-content-type-options": "nosniff"
+      },
+      "If-None-Match": {
+        "status": 304,
+        "bytes": 0
+      },
+      "If-Modified-Since": {
+        "status": 304,
+        "bytes": 0
+      }
+    },
+    {
+      "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+      "status": 200,
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "content-type": "application/javascript; charset=UTF-8",
+        "etag": "W/\"206-1a1851d1321\"",
+        "last-modified": "Thu, 29 Oct 2026 00:43:57 GMT",
+        "vary": "Accept-Encoding",
+        "x-content-type-options": "nosniff"
+      },
+      "If-None-Match": {
+        "status": 304,
+        "bytes": 0
+      },
+      "If-Modified-Since": {
+        "status": 304,
+        "bytes": 0
+      }
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "headers": {
+        "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-MzViYWNiN2ItMmRhYy00NzcwLThjMzktMmZjNGVkZDk3ZjJl' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "text/html; charset=utf-8",
+        "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+        "x-content-type-options": "nosniff"
+      }
+    },
+    {
+      "path": "/api/v1/me",
+      "status": 401,
+      "headers": {
+        "cache-control": "no-store",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-MGU5OTRjZTktNjJhMC00ZGViLTllNzUtNjA4NzU2NzA3OGU1' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Origin",
+        "x-content-type-options": "nosniff"
+      }
+    },
+    {
+      "path": "/api/private.png",
+      "status": 404,
+      "headers": {
+        "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-MjRlNWU4NzAtOTMwZi00NjFkLWEzMDMtN2Y3MjM3YTRjYzY2' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "text/html; charset=utf-8",
+        "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+        "x-content-type-options": "nosniff"
+      }
+    },
+    {
+      "path": "/auth/osu",
+      "status": 503,
+      "headers": {
+        "cache-control": "no-store",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-MjcxYWNkNDUtZmY4ZS00MWM4LWIzZjktZjAyOGQ5NmFkMmM0' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "application/json",
+        "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+        "x-content-type-options": "nosniff"
+      }
+    },
+    {
+      "path": "/themes/missing.svg",
+      "status": 404,
+      "headers": {
+        "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'nonce-NWU2ODlkZTctNjE3NS00ODY3LWEwMzAtODJhNDA4OTE0NjM3' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' https://a.ppy.sh https://assets.ppy.sh data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        "content-type": "text/html; charset=utf-8",
+        "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+        "x-content-type-options": "nosniff"
+      }
+    }
+  ],
+  "browsers": [
+    {
+      "device": "Desktop Chromium",
+      "runs": [
+        {
+          "phase": "cold",
+          "pageStatus": 200,
+          "requests": 9,
+          "transferBytes": 804790,
+          "resources": [
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 25624,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 818,
+              "encodedBodySize": 518
+            },
+            {
+              "path": "/oclr-s11-key-visual.webp",
+              "transferSize": 107156,
+              "encodedBodySize": 106856
+            },
+            {
+              "path": "/branding/oclr-mark.svg",
+              "transferSize": 891,
+              "encodedBodySize": 591
+            },
+            {
+              "path": "/themes/prism-overture/prism-field-light.svg",
+              "transferSize": 3245,
+              "encodedBodySize": 2945
+            },
+            {
+              "path": "/archive/s7/key-visual.jpg",
+              "transferSize": 638512,
+              "encodedBodySize": 638212
+            },
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            },
+            {
+              "path": "/fonts/quicksand-latin-variable.woff2",
+              "transferSize": 28544,
+              "encodedBodySize": 28244
+            }
+          ]
+        },
+        {
+          "phase": "revisit",
+          "pageStatus": 200,
+          "requests": 9,
+          "transferBytes": 0,
+          "resources": [
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            },
+            {
+              "path": "/branding/oclr-mark.svg",
+              "transferSize": 0,
+              "encodedBodySize": 591
+            },
+            {
+              "path": "/oclr-s11-key-visual.webp",
+              "transferSize": 0,
+              "encodedBodySize": 106856
+            },
+            {
+              "path": "/archive/s7/key-visual.jpg",
+              "transferSize": 0,
+              "encodedBodySize": 638212
+            },
+            {
+              "path": "/themes/prism-overture/prism-field-light.svg",
+              "transferSize": 0,
+              "encodedBodySize": 2945
+            },
+            {
+              "path": "/fonts/quicksand-latin-variable.woff2",
+              "transferSize": 0,
+              "encodedBodySize": 28244
+            },
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            }
+          ]
+        },
+        {
+          "phase": "reload",
+          "pageStatus": 200,
+          "requests": 9,
+          "transferBytes": 0,
+          "resources": [
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            },
+            {
+              "path": "/branding/oclr-mark.svg",
+              "transferSize": 0,
+              "encodedBodySize": 591
+            },
+            {
+              "path": "/oclr-s11-key-visual.webp",
+              "transferSize": 0,
+              "encodedBodySize": 106856
+            },
+            {
+              "path": "/archive/s7/key-visual.jpg",
+              "transferSize": 0,
+              "encodedBodySize": 638212
+            },
+            {
+              "path": "/themes/prism-overture/prism-field-light.svg",
+              "transferSize": 0,
+              "encodedBodySize": 2945
+            },
+            {
+              "path": "/fonts/quicksand-latin-variable.woff2",
+              "transferSize": 0,
+              "encodedBodySize": 28244
+            },
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/oclr-s11-key-visual.webp",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/branding/oclr-mark.svg",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/fonts/quicksand-latin-variable.woff2",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/archive/s7/key-visual.jpg",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/themes/prism-overture/prism-field-light.svg",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/branding/oclr-mark.svg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/oclr-s11-key-visual.webp",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/archive/s7/key-visual.jpg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/themes/prism-overture/prism-field-light.svg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/fonts/quicksand-latin-variable.woff2",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/branding/oclr-mark.svg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/oclr-s11-key-visual.webp",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/archive/s7/key-visual.jpg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/themes/prism-overture/prism-field-light.svg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/fonts/quicksand-latin-variable.woff2",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        }
+      ]
+    },
+    {
+      "device": "iPhone 13 emulation",
+      "runs": [
+        {
+          "phase": "cold",
+          "pageStatus": 200,
+          "requests": 9,
+          "transferBytes": 804790,
+          "resources": [
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 25624,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 818,
+              "encodedBodySize": 518
+            },
+            {
+              "path": "/branding/oclr-mark.svg",
+              "transferSize": 891,
+              "encodedBodySize": 591
+            },
+            {
+              "path": "/oclr-s11-key-visual.webp",
+              "transferSize": 107156,
+              "encodedBodySize": 106856
+            },
+            {
+              "path": "/themes/prism-overture/prism-field-light.svg",
+              "transferSize": 3245,
+              "encodedBodySize": 2945
+            },
+            {
+              "path": "/archive/s7/key-visual.jpg",
+              "transferSize": 638512,
+              "encodedBodySize": 638212
+            },
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            },
+            {
+              "path": "/fonts/quicksand-latin-variable.woff2",
+              "transferSize": 28544,
+              "encodedBodySize": 28244
+            }
+          ]
+        },
+        {
+          "phase": "revisit",
+          "pageStatus": 200,
+          "requests": 9,
+          "transferBytes": 0,
+          "resources": [
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            },
+            {
+              "path": "/branding/oclr-mark.svg",
+              "transferSize": 0,
+              "encodedBodySize": 591
+            },
+            {
+              "path": "/oclr-s11-key-visual.webp",
+              "transferSize": 0,
+              "encodedBodySize": 106856
+            },
+            {
+              "path": "/archive/s7/key-visual.jpg",
+              "transferSize": 0,
+              "encodedBodySize": 638212
+            },
+            {
+              "path": "/themes/prism-overture/prism-field-light.svg",
+              "transferSize": 0,
+              "encodedBodySize": 2945
+            },
+            {
+              "path": "/fonts/quicksand-latin-variable.woff2",
+              "transferSize": 0,
+              "encodedBodySize": 28244
+            },
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            }
+          ]
+        },
+        {
+          "phase": "reload",
+          "pageStatus": 200,
+          "requests": 9,
+          "transferBytes": 0,
+          "resources": [
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            },
+            {
+              "path": "/branding/oclr-mark.svg",
+              "transferSize": 0,
+              "encodedBodySize": 591
+            },
+            {
+              "path": "/oclr-s11-key-visual.webp",
+              "transferSize": 0,
+              "encodedBodySize": 106856
+            },
+            {
+              "path": "/archive/s7/key-visual.jpg",
+              "transferSize": 0,
+              "encodedBodySize": 638212
+            },
+            {
+              "path": "/themes/prism-overture/prism-field-light.svg",
+              "transferSize": 0,
+              "encodedBodySize": 2945
+            },
+            {
+              "path": "/fonts/quicksand-latin-variable.woff2",
+              "transferSize": 0,
+              "encodedBodySize": 28244
+            },
+            {
+              "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+              "transferSize": 0,
+              "encodedBodySize": 25324
+            },
+            {
+              "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+              "transferSize": 0,
+              "encodedBodySize": 518
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/oclr-s11-key-visual.webp",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/archive/s7/key-visual.jpg",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/branding/oclr-mark.svg",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/fonts/quicksand-latin-variable.woff2",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/themes/prism-overture/prism-field-light.svg",
+          "status": 200,
+          "fromDiskCache": false
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/branding/oclr-mark.svg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/oclr-s11-key-visual.webp",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/archive/s7/key-visual.jpg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/themes/prism-overture/prism-field-light.svg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/fonts/quicksand-latin-variable.woff2",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/branding/oclr-mark.svg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/oclr-s11-key-visual.webp",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/archive/s7/key-visual.jpg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/themes/prism-overture/prism-field-light.svg",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/fonts/quicksand-latin-variable.woff2",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/0-h_u_3qnpnao.css",
+          "status": 200,
+          "fromDiskCache": true
+        },
+        {
+          "path": "/_next/static/chunks/01dghyb1fzo2e.js",
+          "status": 200,
+          "fromDiskCache": true
+        }
+      ]
+    }
+  ]
+}
