@@ -186,7 +186,7 @@ describe("localized News categories", () => {
             : "輪次「1」的圖池「test」已發布",
         );
         expect(tr("Mappooler")).toBe(
-          locale === "zh-Hans" ? "选图员" : "選圖員",
+          locale === "zh-Hans" ? "选图" : "選圖",
         );
         expect(tr("Player pool")).toBe(
           locale === "zh-Hans" ? "选手池" : "選手池",

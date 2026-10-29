@@ -2944,6 +2944,9 @@
     "m21579ce059f1": "Clear region",
     "m1d56571c8ec4": "This removes saved pixels in the selected rectangle.",
     "m6271c0fe59d1": "Confirm clear",
-    "m35119dbea185": "OCL Chess"
+    "m35119dbea185": "OCL Chess",
+    "m4d7013291ece": "Pooler",
+    "streamer": "streamer",
+    "developer": "developer"
   }
 }
