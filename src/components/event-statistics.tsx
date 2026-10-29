@@ -1,5 +1,5 @@
 "use client";
-import { PageNotes } from "./page-notes";
+import { StatisticsNotice } from "./statistics-notice";
 import { useState } from "react";
 import Link from "./pending-link";
 import { useAppTranslations } from "@/i18n/shared";
@@ -292,6 +292,59 @@ export function EventStatistics({
     <section className="event-statistics">
       <h1>{tr("Statistics")}</h1>
       {coverage && (
+        <StatisticsNotice>
+          <p className="muted">
+            {view === 1
+              ? tr(
+                  "Scores and picks use reviewed and published MP games. Bans use published schedule records. Missing data is not zero.",
+                )
+              : tr(
+                  "Only reviewed and published MP games are counted. Missing data is not zero.",
+                )}
+          </p>
+          <p className="muted">
+            {tr("Known accuracy")}{" "}
+            {plays.filter((p) => p.accuracy !== null).length} / {plays.length} ·{" "}
+            {tr("Known combo")} {plays.filter((p) => p.combo !== null).length} /{" "}
+            {plays.length}
+          </p>
+          <details>
+            <summary>{tr("Match coverage")}</summary>
+            <ul className="statistics-coverage">
+              {coverageFixtures!.map((f) => (
+                <li key={f.id}>
+                  <Link href={`/tournaments/${coverage.slug}/matches/${f.id}`}>
+                    {f.stage} · {f.label}
+                  </Link>
+                  <span>
+                    {f.covered ? tr("Published") : tr("Not yet covered")}
+                    {f.technicalAdjudication && (
+                      <>
+                        {" "}
+                        · {tr(
+                          "Technical adjudication; recorded series score",
+                        )}{" "}
+                        {f.score?.join(" : ")}.{" "}
+                        {tr(
+                          "Player statistics reflect recorded MP scores only.",
+                        )}
+                      </>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </details>
+          {view === 1 && (
+            <p className="muted">
+              {tr(
+                "Rates require known mappools and complete coverage. Coverage shows recorded / applicable matches. Unknown mappool matches are listed separately.",
+              )}
+            </p>
+          )}
+        </StatisticsNotice>
+      )}
+      {coverage && (
         <section aria-label={tr("Statistics coverage")}>
           <div className="statistics-summary">
             <div>
@@ -444,59 +497,6 @@ export function EventStatistics({
           </tbody>
         </table>
       </div>
-      {coverage && (
-        <PageNotes>
-          <p className="muted">
-            {view === 1
-              ? tr(
-                  "Scores and picks use reviewed and published MP games. Bans use published schedule records. Missing data is not zero.",
-                )
-              : tr(
-                  "Only reviewed and published MP games are counted. Missing data is not zero.",
-                )}
-          </p>
-          <p className="muted">
-            {tr("Known accuracy")}{" "}
-            {plays.filter((p) => p.accuracy !== null).length} / {plays.length} ·{" "}
-            {tr("Known combo")} {plays.filter((p) => p.combo !== null).length} /{" "}
-            {plays.length}
-          </p>
-          <details>
-            <summary>{tr("Match coverage")}</summary>
-            <ul className="statistics-coverage">
-              {coverageFixtures!.map((f) => (
-                <li key={f.id}>
-                  <Link href={`/tournaments/${coverage.slug}/matches/${f.id}`}>
-                    {f.stage} · {f.label}
-                  </Link>
-                  <span>
-                    {f.covered ? tr("Published") : tr("Not yet covered")}
-                    {f.technicalAdjudication && (
-                      <>
-                        {" "}
-                        · {tr(
-                          "Technical adjudication; recorded series score",
-                        )}{" "}
-                        {f.score?.join(" : ")}.{" "}
-                        {tr(
-                          "Player statistics reflect recorded MP scores only.",
-                        )}
-                      </>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </details>
-          {view === 1 && (
-            <p className="muted">
-              {tr(
-                "Rates require known mappools and complete coverage. Coverage shows recorded / applicable matches. Unknown mappool matches are listed separately.",
-              )}
-            </p>
-          )}
-        </PageNotes>
-      )}
     </section>
   );
 }

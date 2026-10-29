@@ -1,10 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-test("statistics notes follow player details and update round coverage", async ({
+test("statistics notification opens below heading and update round coverage", async ({
   page,
 }) => {
   await page.goto("/statistics-explorer");
   const notes = page.getByRole("region", { name: "Notes", exact: true });
+  await page.getByRole("button", { name: "Notes", exact: true }).click();
   await expect(notes).toContainText("Missing data is not zero");
   await expect(notes).toContainText(
     "Some matches include confirmed technical adjudication",
@@ -12,18 +13,10 @@ test("statistics notes follow player details and update round coverage", async (
   await expect(page.locator(".statistics-summary")).not.toContainText(
     "Missing data",
   );
+  await page.keyboard.press("Escape");
   await page.locator(".statistics-player").first().click();
   await expect(page.locator(".statistics-detail")).toBeVisible();
-  expect(
-    await notes.evaluate(
-      (node) =>
-        !!(
-          document
-            .querySelector(".statistics-detail")!
-            .compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING
-        ),
-    ),
-  ).toBe(true);
+  await page.getByRole("button", { name: "Notes", exact: true }).click();
   const summary = notes.getByText("Match coverage", { exact: true });
   await summary.focus();
   await page.keyboard.press("Enter");
@@ -31,7 +24,9 @@ test("statistics notes follow player details and update round coverage", async (
   await expect(
     notes.getByRole("link", { name: "Synthetic Final · Final" }),
   ).toHaveAttribute("href", "/tournaments/synthetic/matches/one");
+  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Semi", exact: true }).click();
+  await page.getByRole("button", { name: "Notes", exact: true }).click();
   await expect(notes.locator(".statistics-coverage li")).toHaveCount(1);
   await expect(notes).toContainText("Not yet covered");
   await expect(notes).not.toContainText(

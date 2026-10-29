@@ -1,0 +1,52 @@
+.notice {
+  margin-block: 0.5rem 1rem;
+}
+.trigger.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--site-border, #cbd5e1);
+  border-radius: 0.6rem;
+  color: var(--site-accent, #7257b5);
+  background: var(--site-raised, #fff);
+  cursor: pointer;
+}
+.trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.panel {
+  position: fixed;
+  inset: auto;
+  box-sizing: border-box;
+  width: min(32rem, calc(100vw - 24px));
+  margin: 0;
+  padding: 1rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--site-border, #cbd5e1);
+  border-radius: 0.75rem;
+  background: var(--site-raised, #fff);
+  color: var(--site-foreground, #172033);
+  box-shadow: 0 12px 32px #0003;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.panel p {
+  margin: 0 0 0.75rem;
+}
+.panel summary {
+  cursor: pointer;
+  padding-block: 0.25rem;
+}
+.panel ul {
+  padding-inline-start: 1.25rem;
+}
+.panel li {
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}

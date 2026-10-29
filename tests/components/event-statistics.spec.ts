@@ -55,3 +55,30 @@ test("all six statistics views preserve identity and same-name team filters", as
   await expect(player(22)).toHaveCount(1);
   await expect(rows.locator("td").nth(10)).toHaveText("50");
 });
+
+test("statistics notification opens below title and closes with Escape", async ({
+  page,
+}) => {
+  await page.goto("/event-statistics");
+  const trigger = page.getByRole("button", { name: "Notes", exact: true });
+  const panel = page.getByRole("region", { name: "Notes", exact: true });
+  await expect(panel).toBeHidden();
+  const heading = await page
+    .getByRole("heading", { name: "Statistics", exact: true })
+    .boundingBox();
+  expect((await trigger.boundingBox())!.y).toBeGreaterThanOrEqual(
+    heading!.y + heading!.height,
+  );
+  await trigger.click();
+  await expect(panel).toBeVisible();
+  await expect(panel).toContainText("Missing data is not zero");
+  await panel.getByText("Match coverage", { exact: true }).click();
+  const bounds = (await panel.boundingBox())!;
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
+  await page.keyboard.press("Escape");
+  await expect(panel).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
