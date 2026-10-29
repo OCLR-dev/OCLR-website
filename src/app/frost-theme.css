@@ -309,7 +309,7 @@ html[data-appearance="frost-waltz"] .themed-site button.map-open-button:hover {
 }
 html[data-appearance="frost-waltz"] .themed-site .sidebar {
   border-color: var(--site-border);
-  background: var(--site-surface);
+  background: transparent;
 }
 html[data-appearance="frost-waltz"] .themed-site .sidebar nav a {
   min-height: 44px;
