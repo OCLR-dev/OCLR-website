@@ -78,9 +78,16 @@ test.describe("S1 Chromatic Origins appearance", () => {
         const menu = page.getByRole("menu").filter({
           has: page.locator('[data-appearance-option="chromatic-origins"]'),
         });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(appearances.length + 1);
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(
+          appearances.length + 1,
+        );
         await page.keyboard.press("End");
-        for (let step = appearances.indexOf("chromatic-origins"); step < appearances.length - 1; step++) await page.keyboard.press("ArrowUp");
+        for (
+          let step = appearances.indexOf("chromatic-origins");
+          step < appearances.length - 1;
+          step++
+        )
+          await page.keyboard.press("ArrowUp");
         await expect(
           menu.getByRole("menuitemradio", { name: label, exact: true }),
         ).toBeFocused();

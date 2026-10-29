@@ -1,10 +1,10 @@
 {
   "date": "2026-10-29",
-  "baseline": "0ed51019",
+  "baseline": "5032b947",
   "runtime": "v24.22.2",
   "scope": "Registered frost-waltz SSR preference, built CSS and shipped SVG assets. No injected styles.",
   "fixture": "Synthetic design-only placeholder, not historical S3 data; one placeholder team/captain and empty schedule/mappools.",
-  "buildId": "vEyRJ074E_A217dvqt8QO",
+  "buildId": "TzcdITQr2-jtkFztsOb4I",
   "cssSha256": "d15b9920e1b74c4dba1379d7ef18a81ceb758840b7e02fc80b03a7237fa4ac5a",
   "assets": [
     {

@@ -66,9 +66,9 @@ async function apply(page) {
 async function snapshot(page) {
   return page.locator("body").evaluate((n) => {
     const c = n.cloneNode(true);
-    c.querySelectorAll("script,style,title,meta,link,next-route-announcer,.appearance-trigger").forEach((e) =>
-      e.remove(),
-    );
+    c.querySelectorAll(
+      "script,style,title,meta,link,next-route-announcer,.appearance-trigger",
+    ).forEach((e) => e.remove());
     return c.textContent;
   });
 }
@@ -220,7 +220,7 @@ try {
     JSON.stringify(
       {
         date: "2026-10-29",
-        baseline: "0ed51019",
+        baseline: "5032b947",
         runtime: process.version,
         scope:
           "Registered frost-waltz SSR preference, built CSS and shipped SVG assets. No injected styles.",

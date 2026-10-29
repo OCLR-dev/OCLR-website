@@ -8,7 +8,7 @@ import {
 } from "../../src/lib/preferences";
 
 describe("visitor appearance preference", () => {
-  it("supports only the registered designs, including the S4–S10 season themes", () => {
+  it("supports only the registered designs, including the S1–S10 season themes", () => {
     expect(appearances).toEqual([
       "default",
       "cute-pastel",

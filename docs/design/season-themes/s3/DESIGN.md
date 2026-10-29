@@ -1,6 +1,6 @@
 # S3 · Frost Waltz／雪花圓舞曲
 
-2026-10-29，依 [#343](https://github.com/OCLR-dev/OCLR-website/issues/343) 主辦方逐輪確認的晶瑩流光方案，正式接入 `frost-waltz`，提交PR供審閱。整合基準 main `0ed51019`。尚未合併或部署；既有全站與賽事預設保持不變。
+2026-10-29，依 [#343](https://github.com/OCLR-dev/OCLR-website/issues/343) 主辦方逐輪確認的晶瑩流光方案，正式接入 `frost-waltz`，提交PR供審閱。整合基準 main `5032b947`（含S1／S2正式接入）。尚未合併或部署；既有全站與賽事預設保持不變。
 
 [正式SSR對照圖庫](../s3.html) · [桌面深色](desktop-dark.webp) · [桌面明亮](desktop-light.webp) · [手機深色](mobile-dark.webp) · [手機明亮](mobile-light.webp) · [Banner局部](heading-937-dark.png)
 
@@ -19,23 +19,23 @@
 
 ## 語意色
 
-| Token | Light | Dark |
-| --- | --- | --- |
-| `--site-background` | `#F2FAFF` | `#101E2A` |
-| `--site-surface` | `#FFFFFF` | `#172B39` |
-| `--site-raised` | `#E5F3FA` | `#213C4C` |
-| `--site-tint` | `#E0F2F8` | `#244556` |
-| `--site-foreground` | `#18384E` | `#E9F5FB` |
-| `--site-muted` | `#506C7E` | `#ACC4D1` |
-| `--site-secondary-text` | `#365E75` | `#C4DBE7` |
+| Token                              | Light     | Dark      |
+| ---------------------------------- | --------- | --------- |
+| `--site-background`                | `#F2FAFF` | `#101E2A` |
+| `--site-surface`                   | `#FFFFFF` | `#172B39` |
+| `--site-raised`                    | `#E5F3FA` | `#213C4C` |
+| `--site-tint`                      | `#E0F2F8` | `#244556` |
+| `--site-foreground`                | `#18384E` | `#E9F5FB` |
+| `--site-muted`                     | `#506C7E` | `#ACC4D1` |
+| `--site-secondary-text`            | `#365E75` | `#C4DBE7` |
 | `--site-accent` / `--site-primary` | `#174A78` | `#91D8EF` |
-| `--site-on-primary` | `#FFFFFF` | `#102B3D` |
-| `--site-border` | `#C9DFE9` | `#345262` |
-| `--site-control-border` | `#668697` | `#7C9BAA` |
-| `--site-focus` | `#174A78` | `#83D4DF` |
-| `--site-success` | `#22654F` | `#9BDFC1` |
-| `--site-warning` | `#865500` | `#F4D397` |
-| `--site-danger` | `#B32F48` | `#FFB2C2` |
+| `--site-on-primary`                | `#FFFFFF` | `#102B3D` |
+| `--site-border`                    | `#C9DFE9` | `#345262` |
+| `--site-control-border`            | `#668697` | `#7C9BAA` |
+| `--site-focus`                     | `#174A78` | `#83D4DF` |
+| `--site-success`                   | `#22654F` | `#9BDFC1` |
+| `--site-warning`                   | `#865500` | `#F4D397` |
+| `--site-danger`                    | `#B32F48` | `#FFB2C2` |
 
 品牌色與成功／提醒／錯誤語意獨立。完整hover、selection與陰影值以正式CSS為準。
 
@@ -69,3 +69,17 @@ node docs/design/season-themes/s3/verify-gallery.mjs
 驗證結果以 [verification.json](verification.json)、[gallery-verification.json](gallery-verification.json) 及PR本輪紀錄為準。候選階段的獨立元件結果不代替正式整合、全站完整回歸、CI或部署驗收。
 
 設計方法沿用專案指定 [Refactoring UI](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 與frontend-skill，並保留主辦方確認的晶瑩流光視覺。
+
+## 本輪正式整合驗證（2026-10-29）
+
+同步 main `5032b947` 後，以 Node.js 24、全新隔離測試資料庫執行：
+
+- `npm run check`、`npm run build`、i18n extraction／4項檢查通過；`npm audit --omit=dev` 為0 vulnerabilities（合併未更動依賴）。
+- `npm test`：185個檔案，1,518 passed／1 skipped，包含S1→S3的0055約束升級與歷史保留測試。
+- Chrome桌面／手機：20 passed，涵蓋S1／S3、公開／Admin／Captain配色、全站／賽事預設、權限與OBS隔離。
+- 遠端core frontend桌面／手機：2 passed，包含已註冊主題素材GET／HEAD、SSR與授權撤銷隔離。
+- S3 WebKit桌面／手機：4 passed，涵蓋三語、明暗、鍵盤選取、SSR、完整原畫、窄螢幕、長文字與可及性。
+- 正式SSR擷取32組通過；圖庫128次圖片選取、8次Axe掃描通過，報告記錄最新build ID及素材hash。
+- 同步S1前另已通過固定核心28項、既有S2–S10選單／全站設定20項；這些結果保留其執行基準，不作為最新全站矩陣驗收。
+
+WebKit臨時設定的模組路徑及Chrome連接埠占用已修正後重跑；遠端測試曾因同步主線期間讀到衝突標記而中止，最終桌面／手機重跑均通過。未執行手動full全站矩陣、真實OAuth或部署；CI與主辦方驗收以PR的實際狀態為準。
