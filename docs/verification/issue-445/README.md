@@ -1,7 +1,7 @@
 # Admin-configured season themes (#445)
 
 The Header and whole-site settings offer only the nine cross-season designs in
-`publicAppearances`. All eight registered season designs remain available in the
+`publicAppearances`. All nine registered season designs remain available in the
 existing edition Admin form, with unchanged edition permissions, revisions and
 audit events. New season designs belong in `seasonAppearances` and remain
 unavailable as visitor/site choices.
@@ -61,3 +61,7 @@ These contain only synthetic identities and tournament dates.
 - [Mobile public menu](mobile-public-menu.png)
 - [Desktop site settings](desktop-site-settings.png)
 - [Mobile site settings](mobile-site-settings.png)
+
+Latest main synchronization incorporates S1 Chromatic Origins and fixture-editor
+recovery from `5032b947814fbcfc7315894639ede81c36fe013b`. Its season theme follows
+the same Admin-only rules.

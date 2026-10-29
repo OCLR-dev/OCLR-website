@@ -27,6 +27,7 @@ describe("registered appearance decoding", () => {
       "prism-overture",
       "azure-brush",
       "verdant-prelude",
+      "chromatic-origins",
     ]);
     expect(appearanceCookie).toBe("oclr-appearance");
     expect(readAppearance("cute-pastel")).toBe("cute-pastel");

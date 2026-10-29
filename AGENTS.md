@@ -75,3 +75,5 @@ A contribution or PR does not authorize deployment, service restarts, production
 ## Recorded organizer evidence
 
 - #10 release rehearsal was confirmed passed by the organizer on 2026-10-23, including the requested multi-account captain/staff workflow, conflicts, pause/reconnect and spectator/OBS checks. Earlier live OAuth/API, Rocky/Nginx HTTPS deploy/update, two staging upgrades (one migration) and backup restore also have organizer-attested evidence. Preserve the distinction from agent-performed local tests; do not reopen the completed rehearsal gate merely because synthetic tests alone cannot establish it. CI status and the dated development-tool maintenance exception remain separately tracked; never describe pending CI as passed. The organizer approved the current Chinese interface wording, including privacy/consent and competition terminology, on 2026-10-22 under #72. Future substantive Chinese wording changes still require organizer review. Follow docs/deployment.md and report remaining gates accurately.
+
+S1 Chromatic Origins (#417) is registered as `chromatic-origins` following organizer approval; existing defaults are unchanged.

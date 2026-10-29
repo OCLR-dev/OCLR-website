@@ -36,6 +36,7 @@ import "./orbital-theme.css";
 import "./prism-theme.css";
 import "./azure-theme.css";
 import "./verdant-theme.css";
+import "./chromatic-theme.css";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";
 import { tournamentAppearanceScopes } from "@/lib/tournaments";

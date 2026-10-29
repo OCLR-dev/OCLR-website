@@ -177,3 +177,5 @@ legacy season-valued site settings render as `default` without rewriting data or
 audit history. No migration is needed. See the [selection and compatibility
 policy](localization.md#season-theme-selection-policy-445) for route inheritance,
 explicit repair of old global values, remote reads and broadcast isolation.
+
+S1 Chromatic Origins (`chromatic-origins`, #417) uses the approved ink-diffusion banner and independent light/dark MainSheet tokens. Migration `0054_chromatic_origins_appearance` expands only site-setting/audit constraints. Existing defaults and tournament data remain unchanged; select an older supported default before reverting application code. See [S1 design](design/season-themes/s1/DESIGN.md).

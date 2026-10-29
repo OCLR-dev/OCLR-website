@@ -74,7 +74,7 @@ export const siteSettings = pgTable(
     check("site_settings_revision", sql`${t.revision} >= 0`),
     check(
       "site_settings_appearance",
-      sql`${t.defaultAppearance} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'verdant-prelude')`,
+      sql`${t.defaultAppearance} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'verdant-prelude', 'chromatic-origins')`,
     ),
   ],
 );
@@ -97,7 +97,7 @@ export const siteSettingEvents = pgTable(
     check("site_setting_events_revision", sql`${t.revision} > 0`),
     check(
       "site_setting_events_appearances",
-      sql`${t.before} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'verdant-prelude') AND ${t.after} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'verdant-prelude') AND ${t.before} <> ${t.after}`,
+      sql`${t.before} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'verdant-prelude', 'chromatic-origins') AND ${t.after} IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'verdant-prelude', 'chromatic-origins') AND ${t.before} <> ${t.after}`,
     ),
   ],
 );

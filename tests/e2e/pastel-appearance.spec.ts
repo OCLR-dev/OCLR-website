@@ -61,6 +61,11 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "chromatic-origins": {
+    label: "S1 · Chromatic Origins",
+    lightBackground: "rgb(246, 244, 247)",
+    darkBackground: "rgb(33, 28, 41)",
+  },
   "verdant-prelude": {
     label: "S2 · Verdant Prelude",
     lightBackground: "rgb(245, 250, 247)",
