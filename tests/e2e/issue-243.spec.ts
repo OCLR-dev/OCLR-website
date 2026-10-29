@@ -64,7 +64,7 @@ test("243 historical presentation", async ({
           expect(data!.y).toBeGreaterThanOrEqual(box!.y + box!.height);
         } else {
           expect(data!.x).toBeGreaterThanOrEqual(box!.x + box!.width);
-          // #265 intentionally caps the five compact metric rows inside the
+          // #265 intentionally caps the five compact metric bars inside the
           // equal-width data column instead of stretching them to the artwork.
           const summary = (await page
             .locator(".archive-overview-summary")
@@ -84,12 +84,9 @@ test("243 historical presentation", async ({
             ).length,
           ),
           String(archives[season - 7].pools.length),
-          String(
-            archives[season - 7].pools.reduce(
-              (total, pool) => total + pool.maps.length,
-              0,
-            ),
-          ),
+          // The final bar counts published statistics plays; these synthetic
+          // season slugs have no statistics source, so the count is zero.
+          "0",
         ]);
         expect(box!.height).toBeLessThanOrEqual(
           page.viewportSize()!.height / 2 + 1,

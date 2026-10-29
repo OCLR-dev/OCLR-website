@@ -444,6 +444,49 @@ export async function HistoricalArchiveView({
       edition,
       a,
     );
+    const statistics = !preview && supportsArchiveStatistics(edition.slug);
+    let scores = 0;
+    if (statistics) {
+      try {
+        scores =
+          (await publicArchiveStatistics(edition.slug)).plays?.length ?? 0;
+      } catch {
+        // The overview stays readable when statistics are unavailable.
+        scores = 0;
+      }
+    }
+    const metrics = [
+      {
+        key: "teams",
+        label: tr("Teams"),
+        count: counts.teams,
+        href: href("teams"),
+      },
+      {
+        key: "players",
+        label: tr("Players"),
+        count: counts.players,
+        href: href("players"),
+      },
+      {
+        key: "matches",
+        label: tr("Matches"),
+        count: counts.results,
+        href: href("schedule"),
+      },
+      {
+        key: "mappools",
+        label: tr("Mappools"),
+        count: counts.pools,
+        href: href("mappools"),
+      },
+      {
+        key: "scores",
+        label: tr("Scores"),
+        count: scores,
+        href: statistics ? href("statistics") : undefined,
+      },
+    ];
     content = (
       <>
         <div
@@ -461,16 +504,22 @@ export async function HistoricalArchiveView({
             </div>
           )}
           <dl className="archive-counts">
-            {[
-              [tr("Teams"), counts.teams],
-              [tr("Players & coaches"), counts.players],
-              [tr("Recorded results"), counts.results],
-              [tr("Mappools"), counts.pools],
-              [tr("Maps"), counts.maps],
-            ].map(([label, count]) => (
-              <div key={label}>
+            {metrics.map(({ key, label, count, href: to }) => (
+              <div
+                key={key}
+                className="archive-count"
+                data-link={to ? "" : undefined}
+              >
                 <dt>{label}</dt>
-                <dd>{count}</dd>
+                <dd>
+                  {to ? (
+                    <Link href={to} aria-label={`${label} ${count}`}>
+                      {count}
+                    </Link>
+                  ) : (
+                    count
+                  )}
+                </dd>
               </div>
             ))}
           </dl>
