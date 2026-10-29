@@ -31,7 +31,11 @@ test.describe("OCL Chess saved canvas", () => {
       if (await menu.isVisible()) await menu.click();
       const entry = page
         .locator("#main-navigation")
-        .getByRole("link", { name: "OCL Chess", exact: true });
+        .getByRole("link", {
+          name: "OCL Chess",
+          exact: true,
+          includeHidden: true,
+        });
       await entry.click();
       await expect(page).toHaveURL(/\/games\/ocl-chess$/);
       await expect(entry).toHaveAttribute("aria-current", "page");
