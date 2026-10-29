@@ -55,6 +55,12 @@ async function Issue271Page() {
       names: organizerDirectory.referee,
       roles: ["referee"],
     },
+    {
+      id: "designer",
+      title: tr("Designer"),
+      names: [],
+      roles: ["designer"],
+    },
   ];
   function people(names: readonly string[], roles: string[]) {
     const published = staff.flatMap((person) => {

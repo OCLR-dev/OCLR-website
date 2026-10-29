@@ -12,7 +12,7 @@ import { changeStaffRole } from "../../src/lib/staff-roles";
 test.describe("approved public About roster", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.afterAll(async () => closeDb());
-  for (const role of ["mappooler", "developer"] as const) {
+  for (const role of ["mappooler", "developer", "designer"] as const) {
     test(`Admin publishes, hides and revokes ${role}, while private grants remain hidden`, async ({
       page,
       browser,
@@ -99,7 +99,11 @@ test.describe("approved public About roster", () => {
         ).toBe(403);
         await page.goto("/about");
         const section = page.locator(
-          role === "developer" ? "#developer" : "#pooler",
+          role === "developer"
+            ? "#developer"
+            : role === "designer"
+              ? "#designer"
+              : "#pooler",
         );
         await expect(section.getByRole("heading")).toBeVisible();
         await expect(section.locator(".public-staff-list")).toHaveCount(0);
@@ -116,7 +120,12 @@ test.describe("approved public About roster", () => {
           .locator(".staff-role-row")
           .filter({
             has: operator.locator("strong").filter({
-              hasText: role === "developer" ? /^Developer$/ : /^Mappooler$/,
+              hasText:
+                role === "developer"
+                  ? /^Developer$/
+                  : role === "designer"
+                    ? /^Designer$/
+                    : /^Mappooler$/,
             }),
           });
         await row
@@ -144,7 +153,7 @@ test.describe("approved public About roster", () => {
         ).toBeVisible();
         await expect(
           page.locator(".public-staff-list .staff-role-name"),
-        ).toHaveText(role);
+        ).toHaveText(role === "designer" ? "Designer" : role);
         await expect(page.locator(".public-staff-list")).toContainText(
           role === "developer" ? "All editions" : "Synthetic test edition",
         );

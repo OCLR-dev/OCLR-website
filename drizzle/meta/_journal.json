@@ -393,6 +393,13 @@
       "when": 1793244846552,
       "tag": "0055_frost_waltz_appearance",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1793263221804,
+      "tag": "0056_designer_role",
+      "breakpoints": true
     }
   ]
 }

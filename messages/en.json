@@ -2903,6 +2903,10 @@
     "m80a1a7ab11ab": "Your unsaved draft",
     "m5deb5bf381db": "Edit latest message with this draft",
     "mcb30147eec19": "Discard draft",
-    "m8a7525b1492f": "Notes"
+    "m8a7525b1492f": "Notes",
+    "m8b6d8e40753a": "Designer",
+    "me71d5db1b82b": "Configure durable private media storage outside application releases and public roots.",
+    "mdd59ed97cc50": "Private media storage is unavailable.",
+    "designer": "Designer"
   }
 }

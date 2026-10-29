@@ -6,7 +6,13 @@ import { assertTestDatabase } from "../database";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { changeStaffRole, changeStaffRoleSet } from "../../src/lib/staff-roles";
-import { staffAccess, permits } from "../../src/lib/auth/staff";
+import {
+  capabilities,
+  canRead,
+  staffAccess,
+  permits,
+} from "../../src/lib/auth/staff";
+import { publicStaff } from "../../src/lib/public-staff";
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 496001, username: "Synthetic Admin" };
 const scoped = { osuId: 496002, username: "Synthetic Scoped Admin" };
@@ -44,6 +50,97 @@ describe.skipIf(!url)("atomic staff role sets", () => {
   afterAll(async () => {
     await closeDb();
     vi.unstubAllEnvs();
+  });
+  it.each([null, "test-cup"])(
+    "manages Designer in scope %s without granting capabilities",
+    async (scope) => {
+      const actor = scope ? scoped : admin;
+      const { grants } = await changeStaffRoleSet(
+        actor,
+        command(["designer"], [], scope),
+      );
+      const designer = grants[0];
+      expect(designer).toMatchObject({
+        role: "designer",
+        editionSlug: scope,
+        aboutPublished: false,
+      });
+      expect(await publicStaff()).toEqual([]);
+      const access = await staffAccess(member);
+      for (const capability of capabilities) {
+        expect(permits(access, capability, "test-cup")).toBe(false);
+        expect(canRead(access, capability, "test-cup")).toBe(false);
+      }
+      await expect(
+        changeStaffRoleSet(member, command(["admin"], [designer.id], scope)),
+      ).rejects.toMatchObject({ status: 403 });
+      await changeStaffRole(actor, {
+        action: "visibility",
+        confirmed: true,
+        grantId: designer.id,
+        expectedPublished: false,
+        published: true,
+      });
+      expect((await publicStaff())[0].roles[0]).toMatchObject({
+        role: "designer",
+        edition: scope ? { slug: scope } : null,
+      });
+      const updated = await changeStaffRoleSet(
+        actor,
+        command(["designer", "referee"], [designer.id], scope),
+      );
+      expect(updated.grants.find((g) => g.role === "designer")).toMatchObject({
+        id: designer.id,
+        aboutPublished: true,
+      });
+      await expect(
+        changeStaffRoleSet(actor, command([], [designer.id], scope)),
+      ).rejects.toMatchObject({ status: 409 });
+      await changeStaffRoleSet(
+        actor,
+        command(
+          ["referee"],
+          updated.grants.map((g) => g.id),
+          scope,
+        ),
+      );
+      expect((await staffAccess(member)).map((g) => g.role)).toEqual([
+        "referee",
+      ]);
+      expect(await publicStaff()).toEqual([]);
+      const events = await db()
+        .select()
+        .from(staffRoleEvents)
+        .where(eq(staffRoleEvents.targetId, member.osuId));
+      expect(
+        events.filter((e) => e.role === "designer").map((e) => e.action),
+      ).toEqual(["grant", "publish_profile", "revoke"]);
+      expect(events.every((e) => e.actorId === actor.osuId)).toBe(true);
+    },
+  );
+  it("denies cross-edition and global Designer assignments by scoped Admins", async () => {
+    for (const scope of [null, "other-test"])
+      await expect(
+        changeStaffRoleSet(scoped, command(["designer"], [], scope)),
+      ).rejects.toMatchObject({ status: 403 });
+    const grant = await changeStaffRole(admin, {
+      action: "grant",
+      confirmed: true,
+      userId: member.osuId,
+      role: "designer",
+      editionSlug: "other-test",
+    });
+    await expect(
+      changeStaffRole(scoped, {
+        action: "revoke",
+        confirmed: true,
+        grantId: grant.id,
+      }),
+    ).rejects.toMatchObject({ status: 403 });
+    expect((await staffAccess(member))[0]).toMatchObject({
+      role: "designer",
+      editionSlug: "other-test",
+    });
   });
   it("adds multiple roles, edits one scope, preserves retained visibility and revokes live access", async () => {
     const initial = await changeStaffRoleSet(

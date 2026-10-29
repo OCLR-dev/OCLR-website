@@ -503,6 +503,7 @@ export async function HistoricalArchiveView({
     const roleTitles: Record<string, string> = {
       referee: tr("Referee"),
       streamer: tr("Streamer"),
+      designer: tr("Designer"),
       commentator: tr("Commentator"),
       unspecified: tr("Staff (unspecified)"),
     };

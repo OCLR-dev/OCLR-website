@@ -72,7 +72,7 @@ test.describe("staff assignment interface (#357)", () => {
     await review.click();
     await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
     await expect(
-      dialog.getByRole("button", { name: "Saving…", exact: true }),
+      dialog.getByRole("button", { name: "Confirm", exact: true }),
     ).toBeDisabled();
     await expect(
       dialog.getByRole("button", { name: "Cancel", exact: true }),
@@ -86,9 +86,11 @@ test.describe("staff assignment interface (#357)", () => {
     await group
       .getByRole("checkbox", { name: "Referee", exact: true })
       .uncheck();
-    await group.getByRole("checkbox", { name: "Tester", exact: true }).check();
+    await group
+      .getByRole("checkbox", { name: "Designer", exact: true })
+      .check();
     await expect(group.locator(".staff-saved-roles")).toContainText("Referee");
-    await expect(group.getByRole("status")).toContainText("Unsaved changes.");
+    await expect(group.locator(".staff-role-status")).toContainText("Unsaved changes.");
     await expect(group.locator(".staff-role-row")).toHaveCount(2);
 
     await page.route(
@@ -110,13 +112,13 @@ test.describe("staff assignment interface (#357)", () => {
     await expect(group.getByRole("alert")).toBeVisible();
     await save.click();
     await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
-    await expect(group.getByRole("status")).toHaveText("Roles saved.");
-    await expect(group.locator(".staff-saved-roles")).toContainText("Tester");
+    await expect(group.locator(".staff-role-status")).toHaveText("Roles saved.");
+    await expect(group.locator(".staff-saved-roles")).toContainText("Designer");
     await expect(save).toBeDisabled();
     await page.reload();
-    await expect(group.getByRole("status")).toHaveText("No unsaved changes.");
+    await expect(group.locator(".staff-role-status")).toHaveText("No unsaved changes.");
     await expect(
-      group.getByRole("checkbox", { name: "Tester", exact: true }),
+      group.getByRole("checkbox", { name: "Designer", exact: true }),
     ).toBeChecked();
     await expect(
       group.getByRole("checkbox", { name: "Referee", exact: true }),

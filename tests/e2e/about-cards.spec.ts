@@ -158,12 +158,32 @@ test.describe("compact About organizer cards", () => {
               document: document.documentElement.scrollWidth,
               staff: rect(".organizer-directory"),
               contact: rect(".organizer-contact"),
+              grids: [...document.querySelectorAll(".public-staff-list")].map(
+                (list) => ({
+                  width: list.getBoundingClientRect().width,
+                  gap: parseFloat(getComputedStyle(list).columnGap),
+                  cards: [...list.children].map((card) =>
+                    card.getBoundingClientRect().toJSON(),
+                  ),
+                }),
+              ),
               cards: [
                 ...document.querySelectorAll(".public-staff-list > li"),
               ].map((el) => el.getBoundingClientRect().toJSON()),
             };
           });
           expect(g.document).toBeLessThanOrEqual(width);
+          for (const grid of g.grids) {
+            for (const card of grid.cards)
+              expect(
+                Math.abs(card.width - (grid.width - grid.gap) / 2),
+              ).toBeLessThanOrEqual(1);
+            if (grid.cards.length % 2)
+              expect(grid.cards.at(-1)!.left).toBeCloseTo(
+                grid.cards[0].left,
+                0,
+              );
+          }
           for (const card of g.cards) {
             expect(card.left).toBeGreaterThanOrEqual(g.staff.left);
             expect(card.right).toBeLessThanOrEqual(g.staff.right + 1);

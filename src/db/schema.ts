@@ -614,6 +614,7 @@ export const staffRole = pgEnum("staff_role", [
   "streamer",
   "tester",
   "replayer",
+  "designer",
 ]);
 export const staffRoles = pgTable(
   "staff_roles",

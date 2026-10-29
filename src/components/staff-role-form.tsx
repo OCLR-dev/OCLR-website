@@ -15,6 +15,7 @@ const roleOptions = [
   ["replayer", "Replayer"],
   ["referee", "Referee"],
   ["streamer", "Streamer"],
+  ["designer", "Designer"],
   ["developer", "Developer"],
   ["admin", "Admin"],
 ] as const;

@@ -34,9 +34,11 @@ export const roles = [
   "streamer",
   "tester",
   "replayer",
+  "designer",
 ] as const;
 export type StaffRole = (typeof roles)[number];
 const roleCapabilities: Record<StaffRole, readonly Capability[]> = {
+  designer: [],
   developer: [],
   admin: capabilities,
   mappooler: ["manage_mappools", "view_replays"],
