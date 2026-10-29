@@ -1,7 +1,7 @@
 # Admin-configured season themes (#445)
 
 The Header and whole-site settings offer only the nine cross-season designs in
-`publicAppearances`. All seven registered season designs remain available in the
+`publicAppearances`. All eight registered season designs remain available in the
 existing edition Admin form, with unchanged edition permissions, revisions and
 audit events. New season designs belong in `seasonAppearances` and remain
 unavailable as visitor/site choices.
@@ -60,3 +60,7 @@ desktop/mobile run passed 24/24 across season policy, site settings, all seven
 Admin-configured edition defaults and S4 Azure rendering/responsiveness. The
 full unit/integration counts above are from this integrated version. The remote
 frontend core desktop/mobile checks were also rerun after integration: 2/2 passed.
+
+PR synchronization also incorporates S2 Verdant Prelude and the player-filter
+changes from main `3ced64d645eccf43752bfa4bd01867aa3e249db0`. The public whitelist
+remains unchanged; S2 is likewise edition-Admin-only.

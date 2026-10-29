@@ -1,0 +1,463 @@
+/* S2 candidate only: spring paper, shared current MainSheet component geometry. */
+html[data-appearance="verdant-prelude"] .themed-site {
+  --site-background: #f5faf7;
+  --site-surface: #ffffff;
+  --site-raised: #e8f3ed;
+  --site-tint: #dfefe7;
+  --site-foreground: #244a43;
+  --site-muted: #526d63;
+  --site-secondary-text: #456356;
+  --site-accent: #2d634d;
+  --site-accent-strong: #285d48;
+  --site-border: #d4e5db;
+  --site-control-border: #718e80;
+  --site-header: #fbfdfb;
+  --site-primary: #397b60;
+  --site-primary-hover: #2d634d;
+  --site-on-primary: #ffffff;
+  --site-focus: #397b60;
+  --site-selection: #d4ebe0;
+  --site-success: #22654f;
+  --site-warning: #865500;
+  --site-danger: #b32f48;
+  --site-highlight: #397b60;
+  --site-connector: #718e80;
+  --site-shadow: #203b2e12;
+  --site-soft-shadow: #203b2e08;
+  --site-panel-shadow: #203b2e20;
+  --site-dialog-shadow: #203b2e38;
+  --site-backdrop: #13251c80;
+  --button-radius: 8px;
+  --radius-panel: 12px;
+  --verdant-leaf: #7da991;
+  --verdant-leaf-ink: #397b60;
+  --verdant-sage: #b5c8a1;
+  --verdant-mint: #9bcfc1;
+  --verdant-heading: linear-gradient(115deg, #fbfdf8, #eaf5ee 55%, #d9ede2);
+  --verdant-paper-field: url("__S2_LIGHT__");
+  --verdant-reading-wash: #f5faf7df;
+  --verdant-mobile-wash: #f5faf780;
+  --verdant-edge-light: #ffffffa6;
+  background: var(--site-background);
+}
+html[data-appearance="verdant-prelude"][data-theme="dark"] .themed-site {
+  --site-background: #12231f;
+  --site-surface: #1b302a;
+  --site-raised: #274138;
+  --site-tint: #304e42;
+  --site-foreground: #edf6f0;
+  --site-muted: #b5cbbf;
+  --site-secondary-text: #d2e4d9;
+  --site-accent: #9bcfc1;
+  --site-accent-strong: #c8ebdc;
+  --site-border: #3e5b4e;
+  --site-control-border: #7d9d8c;
+  --site-header: #172a23;
+  --site-primary: #9bcfc1;
+  --site-primary-hover: #bce5d5;
+  --site-on-primary: #17382d;
+  --site-focus: #b3e6d6;
+  --site-selection: #355e4b;
+  --site-success: #9bdfc1;
+  --site-warning: #f4d397;
+  --site-danger: #ffb2c2;
+  --site-highlight: #9bcfc1;
+  --site-connector: #7d9d8c;
+  --site-shadow: #08181040;
+  --site-soft-shadow: #08181028;
+  --site-panel-shadow: #08181066;
+  --site-dialog-shadow: #08181099;
+  --site-backdrop: #081810b0;
+  --verdant-leaf: #93c8ad;
+  --verdant-leaf-ink: #c1e4d3;
+  --verdant-sage: #b7ce9f;
+  --verdant-mint: #91bdb0;
+  --verdant-heading: linear-gradient(115deg, #213e31, #27483a 55%, #1d3932);
+  --verdant-paper-field: url("__S2_DARK__");
+  --verdant-reading-wash: #12231fe6;
+  --verdant-mobile-wash: #12231f99;
+  --verdant-edge-light: #ffffff12;
+}
+html[data-appearance="verdant-prelude"] .themed-site .site-header {
+  border-bottom: 1px solid var(--site-border);
+  background: var(--site-header);
+  box-shadow: 0 1px 0 var(--site-soft-shadow);
+}
+html[data-appearance="verdant-prelude"] .themed-site .main-nav > a {
+  border-bottom-width: 1px;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .main-nav
+  > a[aria-current] {
+  color: var(--site-accent-strong);
+  background: transparent;
+  box-shadow: none;
+}
+html[data-appearance="verdant-prelude"] .themed-site .page-heading {
+  position: relative;
+  padding: 28px 32px;
+  border: 1px solid var(--site-border);
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, var(--verdant-reading-wash) 0 20%, transparent 76%),
+    var(--verdant-paper-field) center / cover no-repeat,
+    var(--verdant-heading);
+  box-shadow:
+    inset 0 1px 0 var(--verdant-edge-light),
+    0 1px 2px var(--site-soft-shadow),
+    0 16px 28px -28px var(--site-panel-shadow);
+}
+html[data-appearance="verdant-prelude"] .themed-site .page-heading .eyebrow {
+  color: var(--site-accent-strong);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+html[data-appearance="verdant-prelude"] .themed-site .page-heading h1 {
+  margin-bottom: 12px;
+  font-size: clamp(1.75rem, 3vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .page-heading
+  > :is(h1, p) {
+  position: relative;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .page-heading
+  > :last-child {
+  margin-bottom: 0;
+}
+html[data-appearance="verdant-prelude"] .themed-site .page-heading .muted {
+  color: var(--site-secondary-text);
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .page-heading
+  > p:not(.eyebrow) {
+  max-width: 54ch;
+}
+html[data-appearance="verdant-prelude"] .themed-site .page-heading::before,
+html[data-appearance="verdant-prelude"] .themed-site .page-heading::after {
+  content: none;
+  display: none;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .archive-overview-summary.has-visual {
+  align-items: stretch;
+  gap: 24px;
+}
+html[data-appearance="verdant-prelude"] .themed-site .archive-key-visual {
+  display: block;
+  align-self: center;
+  height: auto;
+}
+html[data-appearance="verdant-prelude"] .themed-site .archive-key-visual img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .archive-overview-summary
+  .archive-counts {
+  position: relative;
+  max-width: none;
+  border: 1px solid var(--site-border);
+  border-top-color: var(--verdant-leaf);
+  border-radius: 12px;
+  background: var(--site-surface);
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .archive-overview-summary
+  .archive-counts::before {
+  content: "";
+  position: absolute;
+  inset: -1px -1px auto;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--verdant-mint),
+    var(--verdant-leaf) 58%,
+    var(--verdant-sage)
+  );
+  pointer-events: none;
+}
+html[data-appearance="verdant-prelude"] .themed-site .archive-counts > div {
+  min-width: 0;
+  gap: 24px;
+  padding: 12px 24px;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .archive-counts
+  > div:last-child {
+  border-bottom: 0;
+}
+html[data-appearance="verdant-prelude"] .themed-site .archive-counts dt {
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+html[data-appearance="verdant-prelude"] .themed-site .archive-counts dd {
+  flex: none;
+  color: var(--verdant-leaf-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  :is(
+    .settings-card,
+    .rules-article,
+    .rules-desktop-contents,
+    .rules-mobile-contents,
+    .map-browse-card,
+    .public-match-card,
+    .empty-state
+  ) {
+  border: 1px solid var(--site-border);
+  border-radius: 12px;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  :is(
+    button:not([role="tab"]),
+    .button,
+    input,
+    select,
+    textarea,
+    .badge,
+    .map-slot-badge,
+    .account-dropdown
+  ) {
+  border-radius: 8px;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  :is(input, select, textarea) {
+  border-color: var(--site-control-border);
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  nav {
+  border: 1px solid var(--site-border);
+  border-radius: 8px;
+  background: var(--site-surface);
+  box-shadow: none;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .tournament-navigation
+  nav
+  a {
+  border-radius: 8px;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .public-tournament
+  .tournament-navigation
+  a[aria-current] {
+  color: var(--site-accent-strong);
+  background: var(--site-tint);
+  box-shadow: none;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .tournament-navigation
+  a[aria-current]::before {
+  content: none;
+}
+html[data-appearance="verdant-prelude"] .themed-site .map-view-control {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+html[data-appearance="verdant-prelude"] .themed-site .map-view-control button {
+  border-color: var(--site-control-border);
+}
+html[data-appearance="verdant-prelude"] .themed-site .pool-summary {
+  padding: 0 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--site-border);
+  border-radius: 0;
+  background: transparent;
+}
+html[data-appearance="verdant-prelude"] .themed-site button.map-open-button {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.15rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--site-foreground);
+  font: inherit;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  transform: none;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  button.map-open-button:hover {
+  color: var(--site-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+html[data-appearance="verdant-prelude"] .themed-site .sidebar {
+  border-color: var(--site-border);
+  background: var(--site-surface);
+}
+html[data-appearance="verdant-prelude"] .themed-site .sidebar nav a {
+  min-height: 44px;
+  padding: 0.6rem 0.85rem;
+  border-inline-start: 3px solid transparent;
+  border-radius: 8px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  .sidebar
+  nav
+  a[aria-current] {
+  border-inline-start-color: var(--verdant-sage);
+  background: var(--site-tint);
+  color: var(--site-accent-strong);
+  box-shadow: none;
+}
+html[data-appearance="verdant-prelude"] .themed-site :is(th, td) {
+  border-color: var(--site-border);
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="verdant-prelude"] .themed-site th {
+  background: var(--site-raised);
+  color: var(--site-foreground);
+}
+html[data-appearance="verdant-prelude"]
+  .themed-site
+  :is(
+    .score,
+    .event-score,
+    .match-slot > strong,
+    .archive-score-team > strong,
+    .event-match-side > b
+  ) {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-appearance="verdant-prelude"] .themed-site .page-heading {
+    animation: verdant-enter 160ms ease-out both;
+  }
+  html[data-appearance="verdant-prelude"] .themed-site .main-nav > a {
+    transition:
+      color 140ms ease,
+      border-color 140ms ease;
+  }
+  html[data-appearance="verdant-prelude"]
+    .themed-site
+    :is(button, .button):not(
+      [disabled],
+      [role="tab"],
+      [role="menuitemradio"],
+      .map-open-button
+    ):active {
+    transform: translateY(1px);
+  }
+}
+@keyframes verdant-enter {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 760px) {
+  html[data-appearance="verdant-prelude"] .themed-site .page-heading {
+    padding: 24px;
+    background-image:
+      linear-gradient(
+        90deg,
+        var(--verdant-reading-wash) 0 12%,
+        var(--verdant-mobile-wash)
+      ),
+      var(--verdant-paper-field), var(--verdant-heading);
+    background-position:
+      center,
+      84% center,
+      center;
+  }
+  html[data-appearance="verdant-prelude"] .themed-site .archive-counts > div {
+    padding: 12px 20px;
+  }
+  html[data-appearance="verdant-prelude"] .themed-site .archive-counts dd {
+    font-size: 1.75rem;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="verdant-prelude"]
+    .themed-site
+    :is(
+      .site-header,
+      .page-heading,
+      .archive-counts,
+      .settings-card,
+      .rules-article,
+      .rules-desktop-contents,
+      .rules-mobile-contents,
+      .tournament-navigation nav,
+      button,
+      .button
+    ) {
+    background-image: none;
+    box-shadow: none;
+  }
+  html[data-appearance="verdant-prelude"] .themed-site .page-heading::before,
+  html[data-appearance="verdant-prelude"] .themed-site .page-heading::after,
+  html[data-appearance="verdant-prelude"] .themed-site .archive-counts::before {
+    display: none;
+  }
+  html[data-appearance="verdant-prelude"]
+    .themed-site
+    :is(
+      .main-nav > a[aria-current],
+      .sidebar a[aria-current],
+      .tournament-navigation a[aria-current],
+      .map-view-control [aria-pressed="true"]
+    ) {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+    box-shadow: none;
+  }
+}
+
+html[data-appearance="verdant-prelude"] .themed-site .map-view-control {
+  border-radius: var(--button-radius);
+}
+html[data-appearance="verdant-prelude"] .themed-site .map-view-control button {
+  border-radius: max(0px, calc(var(--button-radius) - 1px));
+}

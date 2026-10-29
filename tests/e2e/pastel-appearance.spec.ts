@@ -15,7 +15,7 @@ import {
   isPublicAppearance,
 } from "../../src/lib/preferences";
 import { chooseTheme } from "./theme";
-const origin = "http://127.0.0.1:3100",
+const origin = process.env.OCLR_E2E_ORIGIN ?? "http://127.0.0.1:3100",
   base = "/tournaments/test-cup";
 async function preferences(
   context: BrowserContext,
@@ -61,6 +61,11 @@ async function accessible(page: Page) {
   ).toEqual([]);
 }
 const optional = {
+  "verdant-prelude": {
+    label: "S2 · Verdant Prelude",
+    lightBackground: "rgb(245, 250, 247)",
+    darkBackground: "rgb(18, 35, 31)",
+  },
   "azure-brush": {
     label: "S4 · Azure Brush",
     lightBackground: "rgb(242, 248, 250)",

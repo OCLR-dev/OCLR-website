@@ -5,7 +5,7 @@ import { seedSession } from "./session";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
-const origin = "http://127.0.0.1:3100";
+const origin = process.env.OCLR_E2E_ORIGIN ?? "http://127.0.0.1:3100";
 test.describe("tournament appearance inheritance", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.afterAll(closeDb);
@@ -17,6 +17,7 @@ test.describe("tournament appearance inheritance", () => {
     "orbital-pulse",
     "prism-overture",
     "azure-brush",
+    "verdant-prelude",
   ])
     test(`saves ${appearance} as a scoped default, SSR renders it and visitor choice survives cross-edition navigation`, async ({
       page,

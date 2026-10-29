@@ -68,13 +68,15 @@ describe("complete public player directory selection", () => {
     expect(ids("sort=pp-desc")).toEqual([2, 3, 1, 4, 5]);
   });
   it("combines aliases, public team names, identities and data filters", () => {
-    expect(ids("q=FORMER&team=alpha&role=coach&ranked=1&hasPp=1")).toEqual([3]);
+    expect(ids("q=FORMER&team=alpha&role=coach")).toEqual([3]);
     expect(ids("q=Published+Alpha")).toEqual([3, 2]);
     expect(ids("q=3")).toEqual([3]);
-    expect(ids("hasPp=1")).toEqual([3, 2, 1]);
-    expect(ids("ranked=1")).toEqual([3, 2, 1]);
     expect(ids("team=free_agent")).toEqual([5]);
     expect(ids("team=private-team")).toEqual([]);
+  });
+  it("ignores removed presence filters in legacy URLs", () => {
+    expect(ids("ranked=1&hasPp=1")).toEqual(ids(""));
+    expect(directoryErrors(state("ranked=yes&hasPp=invalid"))).toEqual([]);
   });
   it("uses inclusive ranges, includes PP zero, excludes unavailable values", () => {
     expect(ids("rankMin=100&rankMax=100&ppMin=20&ppMax=20")).toEqual([3, 2]);
@@ -92,7 +94,6 @@ describe("complete public player directory selection", () => {
     "ppMin=0x10",
     "ppMin=1e3",
     "sort=bad",
-    "ranked=yes",
     "group=bad",
   ])("rejects invalid URL input: %s", (query) => {
     expect(directoryErrors(state(query)).length).toBeGreaterThan(0);
