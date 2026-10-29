@@ -1377,13 +1377,9 @@ test.describe("historical archive browser workflow", () => {
               ).toHaveText(String(match.score[1]));
             }
             await expect(canvas.locator("svg path").first()).toBeVisible();
-            await page.getByText("Connection sources", { exact: true }).click();
-            await expect(
-              page.locator(".bracket-source-details li"),
-            ).toHaveCount(12);
-            await expect(
-              page.locator(".bracket-source-details .match-source"),
-            ).toHaveCount(12);
+            await expect(page.locator(".bracket-source-details")).toHaveCount(
+              0,
+            );
             const references = page.getByRole("checkbox", {
               name: "Show previous recorded appearances (reference only)",
             });

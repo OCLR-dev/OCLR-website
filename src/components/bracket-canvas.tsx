@@ -215,38 +215,6 @@ export function BracketCanvas({
           }}
         />
       </div>
-      <details className="bracket-source-details">
-        <summary>{tr("Connection sources")}</summary>
-        <ul>
-          {data.edges.map((edge) => {
-            const source = [...data.upper, ...data.lower].find(
-                (m) => m.id === edge.sourceId,
-              )!,
-              target = [...data.upper, ...data.lower].find(
-                (m) => m.id === edge.targetId,
-              )!;
-            return (
-              <li key={edge.id}>
-                {source.original.label} → {target.original.label} ·{" "}
-                {target.original.slots[edge.targetSlot].label}
-                {edge.kind === "appearance" && (
-                  <span className="match-source">
-                    {tr("Recorded appearance only (unconfirmed progression)")}
-                  </span>
-                )}
-              </li>
-            );
-          })}
-          {[...data.upper, ...data.lower]
-            .filter((match) => match.original.note)
-            .map((match) => (
-              <li key={`note-${match.id}`}>
-                {match.original.label}
-                <p>{match.original.note}</p>
-              </li>
-            ))}
-        </ul>
-      </details>
     </>
   );
 }

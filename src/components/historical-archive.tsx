@@ -362,13 +362,6 @@ export async function HistoricalArchiveView({
           )}
         </p>
       ),
-      bracket?.groups.some((g) => g.layout !== "grid") && (
-        <p key="appearances">
-          {tr(
-            "Recorded appearances are reference links, not confirmed advancement.",
-          )}
-        </p>
-      ),
     ];
     const finalRanks = hasS1FinalStandings(a);
     const standingsContent = standings.length ? (
