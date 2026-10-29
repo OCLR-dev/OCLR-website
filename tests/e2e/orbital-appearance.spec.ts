@@ -82,8 +82,9 @@ test.describe("S6 Orbital Pulse appearance", () => {
         const menu = page.getByRole("menu").filter({
           has: page.locator('[data-appearance-option="orbital-pulse"]'),
         });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(18);
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(19);
         await page.keyboard.press("End");
+        await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");
         await page.keyboard.press("ArrowUp");

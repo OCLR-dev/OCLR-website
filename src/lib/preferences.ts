@@ -38,6 +38,7 @@ export const appearances = [
   "orbital-pulse",
   "prism-overture",
   "azure-brush",
+  "verdant-prelude",
   "chromatic-origins",
 ] as const;
 export type Appearance = (typeof appearances)[number];

@@ -77,7 +77,7 @@ test.describe("S1 Chromatic Origins appearance", () => {
         const menu = page.getByRole("menu").filter({
           has: page.locator('[data-appearance-option="chromatic-origins"]'),
         });
-        await expect(menu.getByRole("menuitemradio")).toHaveCount(18);
+        await expect(menu.getByRole("menuitemradio")).toHaveCount(19);
         await page.keyboard.press("End");
         await expect(
           menu.getByRole("menuitemradio", { name: label, exact: true }),

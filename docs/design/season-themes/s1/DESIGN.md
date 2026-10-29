@@ -4,7 +4,7 @@
 
 主辦方已確認彩墨浸染 Banner 並授權完整接入。正式外觀 `chromatic-origins` 使用 [chromatic-theme.css](../../../../src/app/chromatic-theme.css) 與 [核准素材](../../../../public/themes/chromatic-origins/ink-diffusion.webp)。三語名稱：S1 · Chromatic Origins／S1 · 彩墨初章。保留目前 Banner 配色與構圖，明暗獨立；公共、登入、Admin、Player、Captain 共用 MainSheet，OBS／presenter 隔離。
 
-訪客 cookie → 當前授權／已發佈賽事預設 → 全站預設。清除訪客選擇沿用當前路由繼承，非賽事頁不繼承上一季。Migration 0053 只擴充設定與稽核約束，不改任何預設或歷史。回退前先選擇舊版支援的預設，不刪歷史或down-migrate。
+訪客 cookie → 當前授權／已發佈賽事預設 → 全站預設。清除訪客選擇沿用當前路由繼承，非賽事頁不繼承上一季。Migration 0054 只擴充設定與稽核約束，不改任何預設或歷史。回退前先選擇舊版支援的預設，不刪歷史或down-migrate。
 
 圖庫以正式 cookie reload 驗證SSR，再使用建置CSS與正式WebP擷取；不注入候選樣式或攔截素材回應。來源資料限制與素材來源仍如下；舊候選CSS保留作歷史參考。未部署，新增中文名稱隨PR供審閱。
 

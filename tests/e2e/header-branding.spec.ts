@@ -38,6 +38,7 @@ for (const locale of ["zh-Hans", "zh-Hant", "en"] as const)
     "orbital-pulse",
     "prism-overture",
     "azure-brush",
+    "verdant-prelude",
     "chromatic-origins",
   ])
     for (const theme of ["light", "dark"])

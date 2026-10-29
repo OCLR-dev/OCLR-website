@@ -1,5 +1,5 @@
 {
-  "id": "53d89fe2-d169-4894-8662-296df5f2b297",
+  "id": "aa11da06-ebfa-4272-b8ab-19f11ea4a183",
   "prevId": "a966941a-1b44-4dee-8e76-9ccd087fa960",
   "version": "7",
   "dialect": "postgresql",
@@ -3779,7 +3779,7 @@
         },
         "site_setting_events_appearances": {
           "name": "site_setting_events_appearances",
-          "value": "\"site_setting_events\".\"before_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'chromatic-origins') AND \"site_setting_events\".\"after_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'chromatic-origins') AND \"site_setting_events\".\"before_appearance\" <> \"site_setting_events\".\"after_appearance\""
+          "value": "\"site_setting_events\".\"before_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'verdant-prelude') AND \"site_setting_events\".\"after_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'verdant-prelude') AND \"site_setting_events\".\"before_appearance\" <> \"site_setting_events\".\"after_appearance\""
         }
       },
       "isRLSEnabled": false
@@ -3833,7 +3833,7 @@
         },
         "site_settings_appearance": {
           "name": "site_settings_appearance",
-          "value": "\"site_settings\".\"default_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'chromatic-origins')"
+          "value": "\"site_settings\".\"default_appearance\" IN ('default', 'cute-pastel', 'swiss-minimal', 'claymorphism', 'manga-halftone', 'glassmorphism', 'esports-broadcast', 'retro-arcade', 'frutiger-aero', 'skyline-pop', 'glacier-blue', 'sakura-circuit', 'graphite-arena', 'orbital-pulse', 'prism-overture', 'azure-brush', 'verdant-prelude')"
         }
       },
       "isRLSEnabled": false

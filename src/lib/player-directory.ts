@@ -57,8 +57,6 @@ export const directoryKeys = [
   "q",
   "team",
   "role",
-  "ranked",
-  "hasPp",
   "sort",
   "group",
   "rankMin",
@@ -107,12 +105,7 @@ export function directoryErrors(state: DirectoryState) {
   }
   if (!directorySorts.includes(state.sort as (typeof directorySorts)[number]))
     errors.push("sort");
-  if (
-    !["", "1"].includes(state.ranked) ||
-    !["", "1"].includes(state.hasPp) ||
-    !["list", "team"].includes(state.group)
-  )
-    errors.push("filter");
+  if (!["list", "team"].includes(state.group)) errors.push("filter");
   return errors;
 }
 
@@ -191,8 +184,6 @@ export function selectDirectoryPlayers<T extends DirectoryPlayer>(
       const value = validMetric(p[key], key),
         min = state[`${key}Min`],
         max = state[`${key}Max`];
-      if ((key === "rank" ? state.ranked : state.hasPp) && value === null)
-        return false;
       if (
         (min !== "" || max !== "") &&
         (value === null ||
