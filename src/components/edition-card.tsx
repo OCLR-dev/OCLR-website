@@ -4,6 +4,7 @@ import { registrationAvailability } from "@/lib/registrations";
 import { archiveKeyVisual } from "@/lib/archive-key-visual";
 import { Action, Badge } from "./ui";
 import { EditionArtwork } from "./edition-artwork";
+import PendingLink from "./pending-link";
 import { formatDate, publicEditionSummary, type Edition } from "@/lib/editions";
 export async function EditionCard({
   edition,
@@ -24,8 +25,15 @@ export async function EditionCard({
   const artwork =
     edition.branding.logo ??
     (archive ? (archiveKeyVisual(archive, null)?.src ?? null) : null);
+  const tournamentHref = href ?? `/tournaments/${edition.slug}`;
   return (
     <article className="edition-card">
+      <PendingLink
+        className="edition-card-link"
+        href={tournamentHref}
+        aria-label={tr("View tournament")}
+      />
+      <span className="edition-card-glow" aria-hidden="true" />
       <EditionArtwork slug={edition.slug} logo={artwork} />
       <div className="edition-copy">
         {historical ? (
@@ -40,16 +48,13 @@ export async function EditionCard({
         )}
         <h2>{edition.name}</h2>
         {summary && <p className="muted">{summary}</p>}
-        <div className="actions">
-          {state === "open" && (
+        {state === "open" && (
+          <div className="actions">
             <Action href={`/tournaments/${edition.slug}/register`}>
               {tr("Register")}
             </Action>
-          )}
-          <Action href={href ?? `/tournaments/${edition.slug}`} secondary>
-            {tr("View tournament")}
-          </Action>
-        </div>
+          </div>
+        )}
       </div>
       {!historical && (
         <dl className="edition-facts">

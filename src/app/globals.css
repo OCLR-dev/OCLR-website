@@ -480,6 +480,7 @@ button:hover {
   font-size: 0.75rem;
 }
 .edition-card {
+  position: relative;
   display: grid;
   grid-template-columns: 128px minmax(0, 1fr) minmax(200px, 0.6fr);
   gap: 1.5rem;
@@ -488,6 +489,71 @@ button:hover {
   background: linear-gradient(110deg, #171b2e, #121522);
   border: 1px solid #2c2d45;
   border-radius: 0.8rem;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+/* The whole card is the tournament link; the register action sits above it. */
+.edition-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+.edition-card-link:focus-visible {
+  outline: none;
+}
+.edition-card:has(.edition-card-link:focus-visible) {
+  outline: 3px solid var(--site-focus, #e1a6ff);
+  outline-offset: 3px;
+}
+/* Accent rim and lift reuse the shared panel shadow and appearance accent. */
+.edition-card-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    color-mix(in srgb, var(--site-accent, #c566ed) 8%, transparent),
+    transparent 58%
+  );
+  box-shadow: 0 22px 48px -26px transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.edition-card:has(.edition-card-link:focus-visible) .edition-card-glow {
+  opacity: 1;
+  border-color: var(--site-accent, #c566ed);
+  box-shadow: 0 22px 48px -26px var(--site-panel-shadow, #0009);
+}
+.edition-card .actions {
+  position: relative;
+  z-index: 3;
+}
+@media (hover: hover) {
+  .edition-card:hover {
+    transform: translateY(-3px);
+  }
+  .edition-card:hover .edition-card-glow {
+    opacity: 1;
+    border-color: var(--site-accent, #c566ed);
+    box-shadow: 0 22px 48px -26px var(--site-panel-shadow, #0009);
+  }
+}
+.edition-card:has(.edition-card-link:active) {
+  transform: translateY(-1px) scale(0.995);
+}
+@media (prefers-reduced-motion: reduce) {
+  .edition-card:hover,
+  .edition-card:has(.edition-card-link:active) {
+    transform: none;
+  }
 }
 .edition-card > .edition-copy:last-child {
   grid-column: 2 / -1;
@@ -519,7 +585,7 @@ button:hover {
 }
 
 .edition-copy h2 {
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   margin: 0.65rem 0 0.5rem;
 }
 .edition-copy p {
@@ -612,9 +678,6 @@ button:hover {
   }
   .edition-art {
     min-height: 72px;
-  }
-  .edition-copy h2 {
-    font-size: 1.15rem;
   }
   .edition-art > span {
     font-size: 1.25rem;
