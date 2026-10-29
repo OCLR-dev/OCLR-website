@@ -1,59 +1,67 @@
-# S3 · Frost Waltz／霜雪圓舞
+# S3 · Frost Waltz／霜雪圓舞 — 最新元件版
 
-2026-10-29，依 [#343](https://github.com/OCLR-dev/OCLR-website/issues/343) 製作獨立離線設計樣本，基準 main `f4b5eb85`。候選名稱、中文樣本文案與視覺方向供主辦方審閱，尚未接入正式外觀。
+2026-10-29，依 [#343](https://github.com/OCLR-dev/OCLR-website/issues/343) 與主辦方「應當參考最新的theme來設計」回饋重製。應用基準為 main `f4b5eb85`，包含已接入 S5 Prism Overture（#432）及 S6 Orbital Pulse 的最新設計。前版 `551fc36` 的獨立靜態示範已撤換；舊結果不能作為本版證據。
 
-[開啟互動樣本](../s3.html) · [桌面明亮](overview-desktop-light.png) · [桌面深色](overview-desktop-dark.png) · [手機明亮](overview-mobile-light.png) · [手機深色](overview-mobile-dark.png)
+[互動對照圖庫](../s3.html) · [桌面 Light](desktop-light.webp) · [桌面 Dark](desktop-dark.webp) · [手機 Light](mobile-light.webp) · [手機 Dark](mobile-dark.webp) · [937px Banner](heading-937-dark.png)
 
-## 設計主張
+## 本輪改正
 
-以「柔霜、雙環與開闊留白」延伸原圖，保留冬日光感；沿用既有 season themes 的 MainSheet 語意色、水平導覽、完整主視覺與資料側欄。S9 著重銳利晶面與鈷藍，本季採低彩度雪白、深藍灰、柔和冰藍圓弧。湖青保留為少量裝飾色，不承擔一般文字或狀態語意。
+本版沿用實際應用的標頭、賽事導覽、主視覺、五列統計、規則閱讀區、賽程、圖池和Admin設定。沒有另外設計頁面骨架，沒有將設計宣言／色票放入產品頁面。圖庫比照最新S5／S6，只切換實際頁面的保存截圖，附相同頁面與尺寸的default對照。
 
-內容依序為賽季標題、四頁導覽、完整原圖／資料空態、設計色票。標題右側雙環與淡淡的 03 是唯一新增裝飾重心，手機縮減為側邊圓弧。資料區保持平整；面板12px、控制8px圓角，沿用系統字體及16px／1.65內文。原圖筆刷字不擴散到內文。
+候選 [s3.css](../s3.css) 以最新正式 [prism-theme.css](../../../../src/app/prism-theme.css) 為元件基礎：沿用28×32px banner內距、手機24px、12px面板、8px控制、主導覽的透明選取、賽事導覽的輕底色、五列統計的數字字體與間距、無外框的圖池視圖控制、Admin側欄與44px操作區。只改S3材質與語意色；不以舊 `sample.css` 重製另一套介面。
 
-互動採按鈕按壓位移、短背景色過渡及分頁淡入；無飄雪、旋轉或持續掃光。reduced motion 關閉動畫與過渡；forced colors 移除雙環並用系統 Highlight 標示選取。
+## 視覺方案
 
-## 語意色
+**薄霜工作面、細雪花線稿、雙環。** 參考S5的全幅紋理＋閱讀遮罩，以及S6精修後的細線密度、頂部亮邊與克制陰影。S3將材質換成有分枝的雪花、低對比霜點與細雙環；密度集中在banner右側與邊緣，左側文字保持安靜。手機保留局部紋理並加重閱讀遮罩。雙環內不塞巨大季數；不新增角色、音樂頻譜或稜鏡折面。
 
-[候選 CSS](../s3.css) 重用 MainSheet 的 `--site-*` 命名，僅供離線樣本。
+明亮採雪白與深冰藍；深色採低彩度藍灰與淺冰藍。湖青只作紋理／細亮邊點綴。S9的尖銳冰晶與鈷藍保持其專屬辨識，S3著重柔霜與圓形。資料面平整，不全頁堆疊雪花，不增加旋轉或飄雪。
 
-| Token | Light | Dark |
-| --- | --- | --- |
-| `--site-background` | `#F2FAFF` | `#101E2A` |
-| `--site-surface` | `#FFFFFF` | `#172B39` |
-| `--site-raised` | `#E5F3FA` | `#213C4C` |
-| `--site-tint` | `#E0F2F8` | `#244556` |
-| `--site-foreground` | `#18384E` | `#E9F5FB` |
-| `--site-muted` | `#506C7E` | `#ACC4D1` |
-| `--site-secondary-text` | `#365E75` | `#C4DBE7` |
+兩份原生SVG：[Light](frost-field-light.svg)／[Dark](frost-field-dark.svg)，由本次自繪幾何線條組成，沒有字體、腳本或遠端資產。原始 [995×621主視覺](../../../../public/archive/s3/key-visual.avif) 不裁切、不重繪、不調色。
+
+## 語意 tokens
+
+| Token                              | Light     | Dark      |
+| ---------------------------------- | --------- | --------- |
+| `--site-background`                | `#F2FAFF` | `#101E2A` |
+| `--site-surface`                   | `#FFFFFF` | `#172B39` |
+| `--site-raised`                    | `#E5F3FA` | `#213C4C` |
+| `--site-tint`                      | `#E0F2F8` | `#244556` |
+| `--site-foreground`                | `#18384E` | `#E9F5FB` |
+| `--site-muted`                     | `#506C7E` | `#ACC4D1` |
+| `--site-secondary-text`            | `#365E75` | `#C4DBE7` |
 | `--site-accent` / `--site-primary` | `#174A78` | `#91D8EF` |
-| `--site-accent-strong` / `--site-primary-hover` | `#123E65` | `#B7E9F8` |
-| `--site-on-primary` | `#FFFFFF` | `#102B3D` |
-| `--site-border` | `#C9DFE9` | `#345262` |
-| `--site-control-border` | `#668697` | `#7C9BAA` |
-| `--site-focus` | `#14658A` | `#91D8EF` |
-| `--site-selection` | `#C0E6F4` | `#34576B` |
-| `--site-success` | `#176449` | `#8BDDBB` |
-| `--site-warning` | `#785400` | `#EBCC87` |
-| `--site-danger` | `#A62942` | `#FFA4B5` |
+| `--site-on-primary`                | `#FFFFFF` | `#102B3D` |
+| `--site-border`                    | `#C9DFE9` | `#345262` |
+| `--site-control-border`            | `#668697` | `#7C9BAA` |
+| `--site-focus`                     | `#174A78` | `#83D4DF` |
+| `--site-success`                   | `#22654F` | `#9BDFC1` |
+| `--site-warning`                   | `#865500` | `#F4D397` |
+| `--site-danger`                    | `#B32F48` | `#FFB2C2` |
 
-明亮主要操作採深冰藍底／白字，深色採淺冰藍底／深字。成功、提醒、錯誤以獨立色與文字／符號呈現；控制邊框與分隔線分開，焦點使用3px外框。
+其他hover／陰影／selection值以CSS為準。語意色保持獨立；深色按鈕採淺底深字。沿用S5的160ms入場、140ms導覽過渡與按壓回饋；reduced motion停用，forced colours移除紋理與陰影並保留系統Highlight焦點／選取。
 
-## 原圖與內容
+## 預覽資料及邊界
 
-[原主視覺](../../../../public/archive/s3/key-visual.avif) 995×621，完整比例、無裁切、無濾鏡、無重繪。檔案未改動；hash記錄於驗證報告。歷史文字保持原樣，新標示使用 osu! Chinese League Rookie (OCLR)。
+Repository沒有完整可重現的S3歷史歸檔；本輪不讀取私人Admin或production。獨立 `oclr_s3_preview_test` 只建立清楚標示的合成介面樣本：一個placeholder team／captain是既有schema所需，畫面計數不代表S3歷史資料，賽程與圖池保留空態。摘要明示合成資料，圖庫明示設計預覽；不推測真實比分、日期、名次或身分。Admin僅使用隔離庫的合成帳號，session只在擷取程序記憶體中。
 
-這次不載入賽事資料：隊伍、賽程、圖池明確標記未載入；不推測日期、比分、名次、身分或賽制。Admin sample 是本機元件示範，提供主要／次要／停用、輸入／選取、必填錯誤、成功預覽和重設；沒有登入、角色、API／DB寫入、cookie或localStorage。表單不包含真實私人資料。
+候選CSS以 `html[data-s3-preview] .themed-site` 隔離，由擷取工具注入；SVG以loopback攔截提供。應用仍SSR default，沒有註冊 `frost-waltz`、新增選單文案、修改預設、migration、真實角色或發佈。圖庫是實際React頁面＋候選CSS的截圖，不宣稱已正式接入。
 
-## 驗證與重現
+## 重現與驗證
 
-完整 checkout 可直接開啟 `s3.html`，依賴同資料夾的既有 `sample.css` 與原圖。自動檢查使用既有 Playwright／Axe，執行 `node docs/design/season-themes/s3/verify.mjs`；工具自建 loopback 臨時伺服器，完成即關閉。
+使用Node24、npm與既有lockfile。`prepare.ts`只可用於獨立test庫，並非production seed。
 
-[verification.json](verification.json)：四頁 × 320／390／768／1440px × 明暗，共32組 Axe AA零違規、無頁面溢出及pageerror。另檢查圖片995×621解碼、鍵盤Home／右箭頭、表單空白驗證／重設／成功、明暗切換、無持久化及forced-colors裝飾移除。以reduced-motion產圖。保存8張Overview／Admin桌面手機明暗截圖；人工檢視桌面明亮及手機深色，原圖與文字無遮擋。
+```sh
+export TEST_DATABASE_URL=postgresql://emik@127.0.0.1:55433/oclr_s3_preview_test
+DATABASE_URL="$TEST_DATABASE_URL" npm run db:migrate
+node --import tsx docs/design/season-themes/s3/prepare.ts
+npm run build
+DATABASE_URL="$TEST_DATABASE_URL" ADMIN_OSU_IDS=60001 APP_URL=http://127.0.0.1:3193 npm start -- --hostname 127.0.0.1 --port 3193
+# 另一個terminal，同一TEST_DATABASE_URL
+node --import tsx docs/design/season-themes/s3/capture.mjs
+```
 
-本輪 `npm ci --ignore-scripts --offline` 使用既有lockfile，沒有變更依賴；執行環境為Node.js26.12.0，未取得專案指定Node24，屬本次驗證限制。這是獨立樣本證據，不是正式React頁面截圖、完整應用回歸、三語、CI或部署驗收。
+實際結果見 [verification.json](verification.json)，綁定build ID與候選CSS／SVG hash。本版驗證與前版獨立靜態結果分開。這些檢查不是正式外觀整合、完整全站回歸、CI或部署驗收；主辦方先審閱設計方向。
 
-## 後續接入
+設計方法沿用專案指定 [Refactoring UI](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 與frontend-skill，並以最新S5／S6正式元件設計優先。
 
-待主辦方審閱本稿。若後續要求正式接入，候選識別 `frost-waltz` 需套用於現有 `.themed-site` 元件、補齊三語名稱與註冊／設定約束、取得真實頁面截圖及正式應用驗證。保持訪客cookie → 當前已授權／已發佈賽事 → 全站預設優先序、清除後路由繼承、SSR、獨立明暗及OBS／presenter隔離；不自動改任何歷史賽事預設。
-
-設計方法採 [Refactoring UI skill](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md) 的層級與色彩指引，以及本機frontend-skill。樣本重用既有season theme基礎樣式，不引入框架。
+本輪Node24.22.1：鎖定依賴安裝及production build通過；32組實際頁面／尺寸／明暗Axe AA零違規，內容文字保持不變、無橫向溢出；原圖995×621完整呈現、五列統計、手機選單及四組banner forced-colors通過。人工檢視桌面明亮與手機明亮，另確認桌面深色紋理。圖庫驗證見 [gallery-verification.json](gallery-verification.json)。完整應用測試與CI不在本輪設計預覽的通過宣稱內。

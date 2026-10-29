@@ -1,17 +1,174 @@
 <!doctype html>
-<html lang="zh-Hant" data-theme="light">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S3 · 霜雪圓舞 — Design sample</title><link rel="stylesheet" href="sample.css"><link rel="stylesheet" href="s3.css"><script src="s3.js" defer></script></head>
-<body>
-<a class="skip button primary" href="#content">跳至內容</a>
-<div class="review-bar"><div class="wrap">S3 THEME STUDY · 設計樣本，非正式賽事頁</div></div>
-<header class="site-header"><div class="wrap header-inner"><a class="brand" href="s3.html"><span class="wordmark">OCLR.</span><span class="brand-caption">osu! Chinese League Rookie</span></a><div class="mode-switch" role="group" aria-label="明暗模式"><button data-mode="light" aria-pressed="true">明亮</button><button data-mode="dark" aria-pressed="false">深色</button></div></div></header>
-<main id="content" class="wrap">
-<section class="season-heading"><div class="eyebrow">SEASON 03 / FROST WALTZ</div><h1>霜雪圓舞</h1><p>OCLR Season 3</p><div class="rings" aria-hidden="true"><span>03</span></div></section>
-<div class="page-tabs" role="tablist" aria-label="設計頁面"><button id="tab-overview" role="tab" aria-controls="panel-overview" aria-selected="true">Overview</button><button id="tab-schedule" role="tab" aria-controls="panel-schedule" aria-selected="false" tabindex="-1">Schedule</button><button id="tab-mappools" role="tab" aria-controls="panel-mappools" aria-selected="false" tabindex="-1">Mappools</button><button id="tab-admin" role="tab" aria-controls="panel-admin" aria-selected="false" tabindex="-1">Admin sample</button></div>
-<section id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0"><div class="overview-grid"><figure class="artwork"><img src="../../../public/archive/s3/key-visual.avif" width="995" height="621" alt="OCLR Season 3 原始主視覺：冰藍雪花、雙層圓環與霜白筆刷字"><figcaption>SEASON 3 · 原始主視覺</figcaption></figure><aside class="season-detail"><div class="eyebrow">WINTER ARCHIVE</div><h2>OCLR Season 3</h2><dl><div><dt>隊伍</dt><dd>未載入</dd></div><div><dt>賽程</dt><dd>未載入</dd></div><div><dt>圖池</dt><dd>未載入</dd></div></dl><p class="source-note">本樣本只展示外觀，未載入賽事資料。</p><button class="primary" data-open="schedule">查看賽程樣式 →</button></aside></div><div class="intro"><div class="eyebrow">01 / VISUAL DIRECTION</div><h2>柔霜、圓環、開闊留白。</h2><p>從原圖的冬日光感延伸：薄霜般的工作面、輕盈的環形線條，讓賽事內容保持清晰。</p></div></section>
-<section id="panel-schedule" role="tabpanel" aria-labelledby="tab-schedule" tabindex="0" hidden><div class="section-heading"><h2>賽程</h2><span class="muted">空態樣式</span></div><div class="empty"><span class="empty-ring" aria-hidden="true"></span><h3>尚未載入賽程</h3><p>本設計樣本不提供對局、時間或比分。</p></div></section>
-<section id="panel-mappools" role="tabpanel" aria-labelledby="tab-mappools" tabindex="0" hidden><div class="section-heading"><h2>圖池</h2><span class="muted">空態樣式</span></div><div class="empty"><span class="empty-ring" aria-hidden="true"></span><h3>尚未載入圖池</h3><p>本設計樣本不提供譜面或歷史星數。</p></div></section>
-<section id="panel-admin" role="tabpanel" aria-labelledby="tab-admin" tabindex="0" hidden><form class="settings-form" novalidate><div class="eyebrow">COMPONENT STUDY</div><h2>外觀設定預覽</h2><p>僅在此頁預覽，不儲存設定。</p><label class="field" for="name">賽事名稱<input id="name" name="name" value="OCLR Season 3" maxlength="120" required aria-describedby="name-error"></label><p id="name-error" class="error" hidden>請填寫賽事名稱。</p><label class="field">候選外觀<select name="appearance"><option>霜雪圓舞 · Frost Waltz</option><option>跟隨全站預設</option></select></label><div class="actions"><button type="submit" class="primary">預覽變更</button><button type="reset">重設</button><button type="button" disabled>儲存不可用</button><output aria-live="polite"></output></div><div class="semantic"><p class="success">✓ 成功：本機預覽可用</p><p class="warning">△ 提醒：設計方向待審閱</p><p class="error">! 錯誤：必填欄位需完成</p></div></form></section>
-<section class="study"><div><div class="eyebrow">02 / COLOUR & MATERIAL</div><h2>雪白與冰藍之間</h2><p>湖青用於裝飾，深冰藍承擔文字與操作。</p></div><div class="palette"><div><div class="swatch snow"></div><div class="swatch-label">雪白<br>#F2FAFF</div></div><div><div class="swatch ice"></div><div class="swatch-label">冰藍<br>#71C9EE</div></div><div><div class="swatch aqua"></div><div class="swatch-label">湖青<br>#43C6CF</div></div><div><div class="swatch ink"></div><div class="swatch-label">深冰藍<br>#174A78</div></div></div></section>
-</main><footer><div class="wrap"><span>osu! Chinese League Rookie (OCLR)</span><a href="s3/DESIGN.md">設計規格 ↗</a></div></footer>
-</body></html>
+<html lang="zh-Hant" data-preview-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>OCLR S3 · Frost Waltz 主題預覽</title>
+    <script src="s3.js" defer></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        color-scheme: dark;
+        --preview-bg: #101e2a;
+        --preview-surface: #172b39;
+        --preview-ink: #e9f5fb;
+        --preview-muted: #acc4d1;
+        --preview-border: #345262;
+        --preview-control: #7c9baa;
+        --preview-accent: #91d8ef;
+      }
+      :root[data-preview-theme="light"] {
+        color-scheme: light;
+        --preview-bg: #f2faff;
+        --preview-surface: #ffffff;
+        --preview-ink: #18384e;
+        --preview-muted: #506c7e;
+        --preview-border: #c9dfe9;
+        --preview-control: #668697;
+        --preview-accent: #174a78;
+      }
+      body {
+        margin: 0;
+        background: var(--preview-bg);
+        color: var(--preview-ink);
+        font:
+          15px/1.65 system-ui,
+          sans-serif;
+      }
+      header {
+        padding: 28px 32px 24px;
+        border-bottom: 1px solid var(--preview-border);
+      }
+      .eyebrow {
+        color: var(--preview-accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
+      h1 {
+        margin: 8px 0;
+        font-size: clamp(24px, 3vw, 32px);
+        line-height: 1.2;
+      }
+      p {
+        margin: 8px 0 0;
+        color: var(--preview-muted);
+      }
+      a {
+        color: var(--preview-accent);
+        text-underline-offset: 3px;
+      }
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 20px 32px;
+        background: var(--preview-surface);
+        border-bottom: 1px solid var(--preview-border);
+      }
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--preview-muted);
+      }
+      select {
+        min-height: 44px;
+        padding: 8px 32px 8px 12px;
+        border: 1px solid var(--preview-control);
+        border-radius: 6px;
+        color: var(--preview-ink);
+        background: var(--preview-bg);
+        font: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--preview-accent);
+        outline-offset: 3px;
+      }
+      figure {
+        margin: 24px 32px 40px;
+      }
+      figcaption {
+        margin-bottom: 12px;
+        color: var(--preview-muted);
+      }
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border: 1px solid var(--preview-border);
+      }
+      @media (max-width: 600px) {
+        header,
+        form {
+          padding: 20px;
+        }
+        figure {
+          margin: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">OCLR · SEASON 3 · APPEARANCE PREVIEW</div>
+      <h1>霜雪圓舞 · Frost Waltz</h1>
+      <p>
+        候選樣式套用於最新實際應用元件：細緻雪花線稿、柔霜材質與雙環。
+        本機合成介面資料僅供設計檢視，計數不代表 S3
+        歷史資料。原始主視覺完整保留。
+      </p>
+      <p>
+        <a href="s3/DESIGN.md">設計與重現步驟</a> ·
+        <a href="s3/verification.json">驗證紀錄</a> ·
+        <a href="s3/heading-937-dark.png">937px 標題局部</a> ·
+        <a href="https://github.com/OCLR-dev/OCLR-website/issues/343"
+          >Issue #345</a
+        >
+      </p>
+    </header>
+    <form aria-label="主題預覽控制">
+      <label
+        >頁面<select name="surface">
+          <option value="">S3 主頁</option>
+          <option value="schedule-">S3 賽程</option>
+          <option value="mappools-">S3 圖池</option>
+          <option value="admin-">管理設定</option>
+        </select></label
+      >
+      <label
+        >尺寸<select name="size">
+          <option value="desktop">桌面 1440px</option>
+          <option value="mobile">手機 390px</option>
+        </select></label
+      >
+      <label
+        >明暗<select name="theme">
+          <option value="dark">深色</option>
+          <option value="light">淺色</option>
+        </select></label
+      >
+      <label
+        >樣式<select name="version">
+          <option value="">S3 主題</option>
+          <option value="current-">目前原有風格</option>
+        </select></label
+      >
+    </form>
+    <figure>
+      <figcaption id="caption" aria-live="polite">
+        S3 主頁 · 桌面 1440px · 深色 · S3 Frost Waltz
+      </figcaption>
+      <img
+        id="preview"
+        src="s3/desktop-dark.webp"
+        width="1440"
+        height="1000"
+        alt="S3 主頁 · 桌面 1440px · 深色 · S3 Frost Waltz"
+      />
+    </figure>
+  </body>
+</html>

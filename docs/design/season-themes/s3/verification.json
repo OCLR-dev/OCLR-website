@@ -1,241 +1,286 @@
 {
   "date": "2026-10-29",
-  "kind": "Offline specimen, not application or release acceptance",
-  "artworkSha256": "9485eb5d819e80e94f827491e6fca96462a59c738f7dcb2ab5b9717395ac7e43",
-  "results": [
+  "baseline": "f4b5eb85",
+  "runtime": "v24.22.1",
+  "scope": "Actual built React routes with candidate CSS overlay. Not registered SSR appearance.",
+  "fixture": "Synthetic design-only placeholder, not historical S3 data; one placeholder team/captain and empty schedule/mappools.",
+  "buildId": "LtwNFgBffgTBIyUkvkx-U",
+  "cssSha256": "ceb5b53d22697a038158151b993e39aa2f4fb608d9b042ecfe0edeccf30b5be7",
+  "assets": [
     {
+      "theme": "light",
+      "sha256": "b07fcbd5f763c2fce4b6b26cf5a8f6a57080768d1484cffc08cb303bcba99981"
+    },
+    {
+      "theme": "dark",
+      "sha256": "ed5f8fce1f814e96b661595cbb6fc86961ed6faa83066e355e817a4c924748c0"
+    }
+  ],
+  "cases": [
+    {
+      "name": "overview",
       "width": 320,
       "theme": "light",
-      "panel": "overview",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "schedule",
       "width": 320,
       "theme": "light",
-      "panel": "schedule",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "mappools",
       "width": 320,
       "theme": "light",
-      "panel": "mappools",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "admin",
       "width": 320,
       "theme": "light",
-      "panel": "admin",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "overview",
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 390,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 768,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "schedule",
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "mappools",
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "admin",
+      "width": 1440,
+      "theme": "light",
+      "axeViolations": 0,
+      "textUnchanged": true,
+      "overflow": false
+    },
+    {
+      "name": "overview",
       "width": 320,
       "theme": "dark",
-      "panel": "overview",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "schedule",
       "width": 320,
       "theme": "dark",
-      "panel": "schedule",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "mappools",
       "width": 320,
       "theme": "dark",
-      "panel": "mappools",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "admin",
       "width": 320,
       "theme": "dark",
-      "panel": "admin",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
-      "width": 390,
-      "theme": "light",
-      "panel": "overview",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
-      "width": 390,
-      "theme": "light",
-      "panel": "schedule",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
-      "width": 390,
-      "theme": "light",
-      "panel": "mappools",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
-      "width": 390,
-      "theme": "light",
-      "panel": "admin",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
+      "name": "overview",
       "width": 390,
       "theme": "dark",
-      "panel": "overview",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "schedule",
       "width": 390,
       "theme": "dark",
-      "panel": "schedule",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "mappools",
       "width": 390,
       "theme": "dark",
-      "panel": "mappools",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "admin",
       "width": 390,
       "theme": "dark",
-      "panel": "admin",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
-      "width": 768,
-      "theme": "light",
-      "panel": "overview",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
-      "width": 768,
-      "theme": "light",
-      "panel": "schedule",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
-      "width": 768,
-      "theme": "light",
-      "panel": "mappools",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
-      "width": 768,
-      "theme": "light",
-      "panel": "admin",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
+      "name": "overview",
       "width": 768,
       "theme": "dark",
-      "panel": "overview",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "schedule",
       "width": 768,
       "theme": "dark",
-      "panel": "schedule",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "mappools",
       "width": 768,
       "theme": "dark",
-      "panel": "mappools",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "admin",
       "width": 768,
       "theme": "dark",
-      "panel": "admin",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
-      "width": 1440,
-      "theme": "light",
-      "panel": "overview",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
-      "width": 1440,
-      "theme": "light",
-      "panel": "schedule",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
-      "width": 1440,
-      "theme": "light",
-      "panel": "mappools",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
-      "width": 1440,
-      "theme": "light",
-      "panel": "admin",
-      "axeViolations": 0,
-      "overflow": false
-    },
-    {
+      "name": "overview",
       "width": 1440,
       "theme": "dark",
-      "panel": "overview",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "schedule",
       "width": 1440,
       "theme": "dark",
-      "panel": "schedule",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "mappools",
       "width": 1440,
       "theme": "dark",
-      "panel": "mappools",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     },
     {
+      "name": "admin",
       "width": 1440,
       "theme": "dark",
-      "panel": "admin",
       "axeViolations": 0,
+      "textUnchanged": true,
       "overflow": false
     }
   ],
-  "checks": [
-    "image 995x621 decoded",
-    "tabs and keyboard Home/ArrowRight",
-    "form invalid/reset/preview",
-    "mode switch",
-    "no cookies/localStorage",
-    "forced-colors rings hidden",
-    "reduced-motion enabled",
-    "no page errors"
+  "errors": [],
+  "additionalChecks": [
+    "original artwork 995x621/contain",
+    "unchanged text before/after CSS",
+    "five existing metric rows",
+    "mobile menu geometry",
+    "4 heading/forced-colors cases",
+    "reduced motion context"
   ]
 }
