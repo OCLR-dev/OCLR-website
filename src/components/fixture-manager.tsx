@@ -8,7 +8,7 @@ import {
 import { useAppTranslations } from "@/i18n/shared";
 
 import Link from "next/link";
-import { useId, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoadingRegion } from "./loading-region";
 import { WorkspaceTabs } from "./workspace-tabs";
@@ -784,6 +784,23 @@ export function FixtureManager({
   const [notice, setNotice] = useState("");
   const createButton = useRef<HTMLButtonElement>(null);
   const [editing, setEditing] = useState<Fixture | "new" | null>(null);
+  // Keep the opened snapshot (and its draft) until the operator explicitly reloads.
+  // A refresh supplies current props but deliberately preserves this local state.
+  const latest =
+    editing && editing !== "new"
+      ? data.fixtures.find((fixture) => fixture.id === editing.id)
+      : undefined;
+  const stale = Boolean(
+    editing &&
+    editing !== "new" &&
+    (!latest ||
+      latest.version !== editing.version ||
+      latest.assignmentRevision !== editing.assignmentRevision),
+  );
+  const recoveryNotice = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (stale) recoveryNotice.current?.focus();
+  }, [stale]);
   const editor = useRef<HTMLDialogElement>(null),
     id = useId();
   const bracket = fixtureBracket(slug, data);
@@ -1074,16 +1091,49 @@ export function FixtureManager({
                 {tr("Close")}
               </button>
             </div>
-            {editing && editing !== "new" && (
-              <div className="form-stack">
-                <p className="small muted">
-                  {editing.publishedAt
+            {stale && (
+              <div
+                className="notice form-stack"
+                role="alert"
+                tabIndex={-1}
+                ref={recoveryNotice}
+              >
+                <p>
+                  {latest
                     ? tr(
-                        "Saved changes update this public fixture immediately.",
+                        "This fixture has changed. Your unsaved draft is still shown. Copy any changes you want to keep before loading the latest version; loading it will discard this draft.",
                       )
-                    : tr("Changes are private until publication.")}
+                    : tr("This fixture is no longer available.")}
                 </p>
-                <StaffReadOnlyContext value={readOnly || !data.canManage}>
+                {latest && (
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={readOnly || !data.canManage}
+                    onClick={() => setEditing(latest)}
+                  >
+                    {tr("Load latest fixture version")}
+                  </button>
+                )}
+              </div>
+            )}
+            <StaffReadOnlyContext
+              key={
+                editing && editing !== "new"
+                  ? `${editing.id}-${editing.version}-${editing.assignmentRevision}`
+                  : "new"
+              }
+              value={readOnly || !data.canManage || stale}
+            >
+              {editing && editing !== "new" && (
+                <div className="form-stack">
+                  <p className="small muted">
+                    {editing.publishedAt
+                      ? tr(
+                          "Saved changes update this public fixture immediately.",
+                        )
+                      : tr("Changes are private until publication.")}
+                  </p>
                   <ConfirmMutation
                     label={
                       editing.publishedAt
@@ -1111,11 +1161,9 @@ export function FixtureManager({
                       setEditing(null);
                     }}
                   />
-                </StaffReadOnlyContext>
-              </div>
-            )}
-            {editing && (
-              <StaffReadOnlyContext value={readOnly || !data.canManage}>
+                </div>
+              )}
+              {editing && (
                 <FixtureForm
                   key={
                     editing === "new"
@@ -1130,64 +1178,66 @@ export function FixtureManager({
                     setEditing(null);
                   }}
                 />
-              </StaffReadOnlyContext>
-            )}
-            {editing && editing !== "new" && (
-              <div className="fixture-delete-section">
-                <ConfirmMutation
-                  label={tr("Delete fixture")}
-                  className="secondary destructive-action"
-                  title={tr("Delete fixture {label}?", {
-                    label: editing.label,
-                  })}
-                  description={tr(
-                    "Delete an incorrect, unused setup fixture and its referee assignments. Match records, results and bracket dependencies cannot be deleted. This is separate from cancelling a match.",
-                  )}
-                  disabled={Boolean(editing.publishedAt)}
-                  url={`/api/admin/tournaments/${slug}/matches`}
-                  payload={{
-                    action: "delete",
-                    fixtureId: editing.id,
-                    expectedVersion: editing.version,
-                    expectedAssignmentRevision: editing.assignmentRevision,
-                    confirmed: true,
-                  }}
-                  onSuccess={() => {
-                    editor.current?.close();
-                    setEditing(null);
-                    setNotice(tr("Fixture deleted."));
-                    requestAnimationFrame(() => createButton.current?.focus());
-                  }}
-                >
-                  <dl className="detail-list">
-                    <div>
-                      <dt>{tr("Round")}</dt>
-                      <dd>
-                        {
-                          data.rounds.find(
-                            (r) => r.round.id === editing.roundId,
-                          )?.round.name
-                        }
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{tr("Teams")}</dt>
-                      <dd>
-                        {fixtureSlot(data, editing, "home").label} ·{" "}
-                        {fixtureSlot(data, editing, "away").label}
-                      </dd>
-                    </div>
-                  </dl>
-                </ConfirmMutation>
-                {editing.publishedAt && (
-                  <p className="muted small">
-                    {tr(
-                      "Unpublish this fixture before deleting it from the schedule.",
+              )}
+              {editing && editing !== "new" && (
+                <div className="fixture-delete-section">
+                  <ConfirmMutation
+                    label={tr("Delete fixture")}
+                    className="secondary destructive-action"
+                    title={tr("Delete fixture {label}?", {
+                      label: editing.label,
+                    })}
+                    description={tr(
+                      "Delete an incorrect, unused setup fixture and its referee assignments. Match records, results and bracket dependencies cannot be deleted. This is separate from cancelling a match.",
                     )}
-                  </p>
-                )}
-              </div>
-            )}
+                    disabled={Boolean(editing.publishedAt)}
+                    url={`/api/admin/tournaments/${slug}/matches`}
+                    payload={{
+                      action: "delete",
+                      fixtureId: editing.id,
+                      expectedVersion: editing.version,
+                      expectedAssignmentRevision: editing.assignmentRevision,
+                      confirmed: true,
+                    }}
+                    onSuccess={() => {
+                      editor.current?.close();
+                      setEditing(null);
+                      setNotice(tr("Fixture deleted."));
+                      requestAnimationFrame(() =>
+                        createButton.current?.focus(),
+                      );
+                    }}
+                  >
+                    <dl className="detail-list">
+                      <div>
+                        <dt>{tr("Round")}</dt>
+                        <dd>
+                          {
+                            data.rounds.find(
+                              (r) => r.round.id === editing.roundId,
+                            )?.round.name
+                          }
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{tr("Teams")}</dt>
+                        <dd>
+                          {fixtureSlot(data, editing, "home").label} ·{" "}
+                          {fixtureSlot(data, editing, "away").label}
+                        </dd>
+                      </div>
+                    </dl>
+                  </ConfirmMutation>
+                  {editing.publishedAt && (
+                    <p className="muted small">
+                      {tr(
+                        "Unpublish this fixture before deleting it from the schedule.",
+                      )}
+                    </p>
+                  )}
+                </div>
+              )}
+            </StaffReadOnlyContext>
           </dialog>
         </>
       )}
