@@ -30,7 +30,7 @@ test.describe("OCL Chess saved canvas", () => {
       const menu = page.locator(".menu-toggle");
       if (await menu.isVisible()) await menu.click();
       const entry = page.locator("#main-navigation").getByRole("link", {
-        name: "OCL Chess",
+        name: "Chess",
         exact: true,
         includeHidden: true,
       });
