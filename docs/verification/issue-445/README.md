@@ -20,17 +20,17 @@ No production configuration or data was changed and no deployment was performed.
 
 ## Local verification — 2026-10-29
 
-Final integration base: `3ced64d645eccf43752bfa4bd01867aa3e249db0`, including
-S4 Azure Brush, S2 Verdant Prelude and the latest player-filter changes.
+Final integration base: `5032b947814fbcfc7315894639ede81c36fe013b`, including
+S1 Chromatic Origins, S2 Verdant Prelude, S4 Azure Brush and fixture recovery.
 Node.js 24.22.1, existing lockfile and `npm ci`. No new dependencies or migration.
 
 - `npm run check`: lint and types passed.
-- `npm test`: 186 files passed, 1,535 tests passed, one skipped.
+- `npm test`: 186 files passed, 1,540 tests passed, one skipped.
 - `npm run build`: passed.
 - i18n extraction and checks: passed. The new Chinese hint remains proposed
   wording for organizer review.
-- Final desktop/mobile targeted browser run: 26/26 passed across season policy,
-  global site settings, all eight Admin-configured edition defaults, and S2
+- Final desktop/mobile targeted browser run: 28/28 passed across season policy,
+  global site settings, all nine Admin-configured edition defaults, and S1
   rendering/responsiveness. Coverage includes legacy/forged cookies, SSR without
   JavaScript, cross-edition navigation, independent brightness, three locales,
   saved-value recovery, authorization, origin and concurrency checks.
@@ -61,7 +61,3 @@ These contain only synthetic identities and tournament dates.
 - [Mobile public menu](mobile-public-menu.png)
 - [Desktop site settings](desktop-site-settings.png)
 - [Mobile site settings](mobile-site-settings.png)
-
-Latest main synchronization incorporates S1 Chromatic Origins and fixture-editor
-recovery from `5032b947814fbcfc7315894639ede81c36fe013b`. Its season theme follows
-the same Admin-only rules.
