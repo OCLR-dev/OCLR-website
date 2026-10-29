@@ -71,3 +71,57 @@ test("retries an uncertain save with the same request identity", async ({
   await expect.poll(() => commands.length).toBe(2);
   expect(commands[0]).toEqual(commands[1]);
 });
+
+for (const saved of [true, false]) {
+  test(`confirms an uncertain pixel after pause (${saved ? "saved" : "not saved"})`, async ({
+    page,
+  }) => {
+    const commands: unknown[] = [];
+    let paused = false;
+    const snapshot = () => ({
+      pixels: "0".repeat(16384),
+      revision: paused ? 1 : 0,
+      enabled: !paused,
+      nextAt: saved && paused ? Date.now() + 30000 : 0,
+      serverTime: Date.now(),
+      signedIn: true,
+      admin: false,
+    });
+    await page.route("**/api/games/ocl-chess", async (route) => {
+      if (route.request().method() === "POST") {
+        commands.push(route.request().postDataJSON());
+        if (commands.length === 1) {
+          paused = true;
+          await route.abort();
+          return;
+        }
+        await route.fulfill(
+          saved
+            ? { json: snapshot() }
+            : { status: 403, json: { error: "The canvas is paused." } },
+        );
+        return;
+      }
+      await route.fulfill({ json: snapshot() });
+    });
+    await page.goto("/ocl-chess");
+    await page.getByRole("button", { name: "Confirm pixel" }).click();
+    await expect(
+      page.getByText("Canvas paused", { exact: true }),
+    ).toBeVisible();
+    const retry = page.getByRole("button", { name: "Retry pixel" });
+    await expect(retry).toBeEnabled();
+    await retry.click();
+    await expect.poll(() => commands.length).toBe(2);
+    expect(commands[1]).toEqual(commands[0]);
+    await expect(
+      page.getByRole("button", { name: "Confirm pixel" }),
+    ).toBeDisabled();
+    await expect(page.locator(".chess-palette button").first()).toBeEnabled();
+    await expect(page.getByLabel("X", { exact: true })).toBeEnabled();
+    if (!saved)
+      await expect(page.locator('p[role="status"]')).toHaveText(
+        "The canvas is paused.",
+      );
+  });
+}

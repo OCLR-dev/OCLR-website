@@ -298,7 +298,9 @@ export function ChessCanvas() {
           <span>{chessPalette[color]}</span>
           <button
             disabled={
-              busy || !state?.signedIn || !state.enabled || remaining > 0
+              busy ||
+              !state?.signedIn ||
+              (!retry && (!state.enabled || remaining > 0))
             }
             onClick={() => {
               pending.current ??= {

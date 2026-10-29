@@ -49,3 +49,9 @@ short windows retain a 480px minimum shell height so controls remain accessible.
 
 Canvas administration is collapsed by default for Admins. Expand its native
 keyboard-accessible disclosure to pause/open the board or clear a region.
+
+An uncertain pixel can be retried with its original request ID even after a
+poll reports a paused board or a cooldown (#527). Authentication is still
+required. The server acknowledges an existing matching event without another
+write; a never-saved request is rejected while paused, ending the pending retry
+and unlocking the selection. New pixels remain disabled while paused/cooling.

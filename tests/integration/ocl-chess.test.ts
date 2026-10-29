@@ -46,6 +46,28 @@ describe.skipIf(!url)("OCL Chess transactions", () => {
       status: 429,
     });
   });
+  it("confirms a saved request while paused without writing or extending cooldown", async () => {
+    const command = pixel();
+    const saved = await writeChess(player, command);
+    await writeChess(
+      admin,
+      { action: "toggle", enabled: false, expectedRevision: 1 },
+      true,
+    );
+    const events = await db().select().from(chessEvents);
+    const confirmed = await writeChess(player, command);
+    expect(confirmed).toMatchObject({
+      enabled: false,
+      revision: 2,
+      pixels: saved.pixels,
+      nextAt: saved.nextAt,
+    });
+    expect(await db().select().from(chessEvents)).toEqual(events);
+    await expect(writeChess(player, pixel())).rejects.toMatchObject({
+      status: 403,
+    });
+    expect(await db().select().from(chessEvents)).toEqual(events);
+  });
   it("allows only one concurrent distinct command per account", async () => {
     const outcomes = await Promise.allSettled([
       writeChess(player, pixel()),
