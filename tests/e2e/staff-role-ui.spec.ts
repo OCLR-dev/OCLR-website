@@ -90,7 +90,9 @@ test.describe("staff assignment interface (#357)", () => {
       .getByRole("checkbox", { name: "Designer", exact: true })
       .check();
     await expect(group.locator(".staff-saved-roles")).toContainText("Referee");
-    await expect(group.locator(".staff-role-status")).toContainText("Unsaved changes.");
+    await expect(group.locator(".staff-role-status")).toContainText(
+      "Unsaved changes.",
+    );
     await expect(group.locator(".staff-role-row")).toHaveCount(2);
 
     await page.route(
@@ -112,11 +114,15 @@ test.describe("staff assignment interface (#357)", () => {
     await expect(group.getByRole("alert")).toBeVisible();
     await save.click();
     await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
-    await expect(group.locator(".staff-role-status")).toHaveText("Roles saved.");
+    await expect(group.locator(".staff-role-status")).toHaveText(
+      "Roles saved.",
+    );
     await expect(group.locator(".staff-saved-roles")).toContainText("Designer");
     await expect(save).toBeDisabled();
     await page.reload();
-    await expect(group.locator(".staff-role-status")).toHaveText("No unsaved changes.");
+    await expect(group.locator(".staff-role-status")).toHaveText(
+      "No unsaved changes.",
+    );
     await expect(
       group.getByRole("checkbox", { name: "Designer", exact: true }),
     ).toBeChecked();
