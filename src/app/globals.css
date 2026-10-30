@@ -5815,7 +5815,7 @@ button.staff-role-save {
   overflow-wrap: anywhere;
 }
 .info-note-box::before {
-  content: "ℹ";
+  content: "ⓘ";
   position: absolute;
   inset-inline-start: 0;
   inset-block-start: 0;
