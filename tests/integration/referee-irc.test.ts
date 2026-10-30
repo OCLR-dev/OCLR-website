@@ -83,78 +83,91 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, action);
     return action;
   }
-  it("leases once and records only new exact Bancho evidence, with idempotent receipts", async () => {
-    const request = await queue();
-    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, request);
-    const dispatched = await sync();
-    expect(dispatched.command?.target).toBe("#mp_123");
-    expect((await sync()).command).toBeNull();
-    const id = dispatched.command!.id;
-    await sync([{ commandId: id, status: "sent" }]);
-    expect(
-      (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
-        .activeSelections,
-    ).toHaveLength(0);
-    const evidence = {
-      sender: "BanchoBot",
-      target: "#mp_123",
-      text: "Beatmap changed to Test (https://osu.ppy.sh/b/10001)",
-    };
-    await sync([{ commandId: id, status: "confirmed", evidence }]);
-    expect(
-      (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
-        .activeSelections,
-    ).toHaveLength(0);
-    const message = {
-      id: "new-bancho-reply",
-      sender: evidence.sender,
-      text: evidence.text,
-      at: new Date().toISOString(),
-    };
-    await sync([{ commandId: id, status: "confirmed", evidence }], [message]);
-    await sync([{ commandId: id, status: "confirmed", evidence }], [message]);
-    expect(
-      (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
-        .activeSelections,
-    ).toHaveLength(1);
-    expect(
-      (await refereeIrcView(referee, "test-cup", fixtureId)).commands[0].status,
-    ).toBe("confirmed");
-  });
-  it("does not reuse prior reply, cross-session or withdrawn assignment", async () => {
-    const evidence = {
-      sender: "BanchoBot",
-      target: "#mp_123",
-      text: "Beatmap changed to Test (https://osu.ppy.sh/b/10001)",
-    };
-    const message = {
-      id: "old",
-      sender: evidence.sender,
-      text: evidence.text,
-      at: new Date().toISOString(),
-    };
-    await sync([], [message]);
-    await queue();
-    const dispatched = await sync([], [message]);
-    await sync(
-      [{ commandId: dispatched.command!.id, status: "confirmed", evidence }],
-      [message],
-    );
-    expect(
-      (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
-        .activeSelections,
-    ).toHaveLength(0);
-    await expect(
-      refereeIrcRelay({ ...actor, sessionId: randomUUID() }, fixtureId, {
-        action: "disconnect",
-        connectionId,
-      }),
-    ).rejects.toMatchObject({ status: 403 });
-    await db()
-      .delete(fixtureReferees)
-      .where(eq(fixtureReferees.fixtureId, fixtureId));
-    await expect(sync()).rejects.toMatchObject({ status: 403 });
-  });
+  it.each([
+    "Beatmap changed to Test (https://osu.ppy.sh/b/10001)",
+    "Changed beatmap to https://osu.ppy.sh/b/10001 Synthetic",
+  ])(
+    "leases once and records only new exact Bancho evidence, with idempotent receipts: %s",
+    async (text) => {
+      const request = await queue();
+      await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, request);
+      const dispatched = await sync();
+      expect(dispatched.command?.target).toBe("#mp_123");
+      expect((await sync()).command).toBeNull();
+      const id = dispatched.command!.id;
+      await sync([{ commandId: id, status: "sent" }]);
+      expect(
+        (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
+          .activeSelections,
+      ).toHaveLength(0);
+      const evidence = {
+        sender: "BanchoBot",
+        target: "#mp_123",
+        text,
+      };
+      await sync([{ commandId: id, status: "confirmed", evidence }]);
+      expect(
+        (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
+          .activeSelections,
+      ).toHaveLength(0);
+      const message = {
+        id: "new-bancho-reply",
+        sender: evidence.sender,
+        text: evidence.text,
+        at: new Date().toISOString(),
+      };
+      await sync([{ commandId: id, status: "confirmed", evidence }], [message]);
+      await sync([{ commandId: id, status: "confirmed", evidence }], [message]);
+      expect(
+        (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
+          .activeSelections,
+      ).toHaveLength(1);
+      expect(
+        (await refereeIrcView(referee, "test-cup", fixtureId)).commands[0]
+          .status,
+      ).toBe("confirmed");
+    },
+  );
+  it.each([
+    "Beatmap changed to Test (https://osu.ppy.sh/b/10001)",
+    "Changed beatmap to https://osu.ppy.sh/b/10001 Synthetic",
+  ])(
+    "does not reuse prior reply, cross-session or withdrawn assignment: %s",
+    async (text) => {
+      const evidence = {
+        sender: "BanchoBot",
+        target: "#mp_123",
+        text,
+      };
+      const message = {
+        id: "old",
+        sender: evidence.sender,
+        text: evidence.text,
+        at: new Date().toISOString(),
+      };
+      await sync([], [message]);
+      await queue();
+      const dispatched = await sync([], [message]);
+      await sync(
+        [{ commandId: dispatched.command!.id, status: "confirmed", evidence }],
+        [message],
+      );
+      expect(
+        (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
+          .activeSelections,
+      ).toHaveLength(0);
+      await expect(
+        refereeIrcRelay({ ...actor, sessionId: randomUUID() }, fixtureId, {
+          action: "disconnect",
+          connectionId,
+        }),
+      ).rejects.toMatchObject({ status: 403 });
+      await db()
+        .delete(fixtureReferees)
+        .where(eq(fixtureReferees.fixtureId, fixtureId));
+      await expect(sync()).rejects.toMatchObject({ status: 403 });
+    },
+  );
   it("revokes room binding and never redelivers unknown commands", async () => {
     await queue();
     const dispatched = await sync();

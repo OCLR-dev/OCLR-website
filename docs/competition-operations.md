@@ -303,6 +303,6 @@ are UI fixtures, not provider snapshots or approved tournament selections.
 
 服务端 endpoint：浏览器同源 cookie 的 `GET/POST /api/admin/tournaments/{edition}/matches/{fixture}/referee/irc`；桌面 Bearer 的 `POST /api/referee/v1/fixtures/{fixture}/relay`。绑定与同步始终复查授权、本人指派和 edition；投影仅含绑定房间的有界消息。新增 `0060_desktop_irc_relay` 保存短期桌面授权、会话、哈希 token、房间绑定及指令状态；不存 IRC 密码或上游 osu! token。
 
-目前仅匹配的后续 Bancho 地图回执和明确的中止/取消计时回执会自动确认；其他真实回覆仍显示，但不从 socket 写入推断成功。未知结果及执裁记录冲突必须人工检查。正式结果仍走既有 MP 审核发布流程。
+目前仅匹配的后续 Bancho 地图回执和明确的中止/取消计时回执会自动确认；其他真实回覆仍显示，但不从 socket 写入推断成功。未知结果及执裁记录冲突必须人工检查。正式结果仍走既有 MP 审核发布流程。 地图回执兼容 `Beatmap changed to` 与 `Changed beatmap to` 两种已知措辞，仍须核对目标房间、BanchoBot、精确谱面 ID 和新投影消息；详见 [#575 验证记录](verification/issue-575/README.md)。
 
 审核布局进一步收敛：赛前准备仅保留开房、规则、人员邀请与房间设置；切图通过 BP 图池，Mods、中止与计时/开赛使用 IRC 控制台。图池每行四个队伍操作横排，手机缩小按钮。执裁摘要最大固定宽度 48rem（小屏不超过容器），滚动至其位置后吸附在页头下方，只显示比分、BP 过程、重赛记录及胜局状态；长记录在各行内横向滚动。原有赛况录入和纠正功能保留在图池后的“记录与修正赛况”折叠区，不进入吸顶摘要。

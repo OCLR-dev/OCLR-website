@@ -96,7 +96,8 @@ export function confirmsMap(
     evidence.target.toLowerCase() !== target.toLowerCase()
   )
     return false;
-  if (!/^Beatmap changed to:? /i.test(evidence.text)) return false;
+  if (!/^(?:Beatmap changed to:?|Changed beatmap to) /i.test(evidence.text))
+    return false;
   const linked =
     /https:\/\/osu\.ppy\.sh\/(?:b|beatmaps)\/([1-9]\d*)(?=[\s\])]|$)/.exec(
       evidence.text,

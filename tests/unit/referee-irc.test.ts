@@ -47,6 +47,32 @@ describe("IRC relay boundary", () => {
     ).toBe(false);
     expect(confirmsMap("!mp start 1", "#mp_123", evidence)).toBe(false);
   });
+  it.each([
+    "Beatmap changed to: Synthetic (https://osu.ppy.sh/b/75)",
+    "Beatmap changed to Synthetic (https://osu.ppy.sh/beatmaps/75)",
+    "Changed beatmap to https://osu.ppy.sh/b/75 Kenji Ninuma - DISCO PRINCE",
+    "Changed beatmap to https://osu.ppy.sh/beatmaps/75 Synthetic",
+  ])("confirms both known map reply formats: %s", (text) => {
+    const evidence = { sender: "BanchoBot", target: "#mp_123", text };
+    for (const command of ["!mp map 75", "!mp map 75 0"]) {
+      expect(confirmsIrcCommand(command, "#mp_123", evidence)).toBe(true);
+      for (const patch of [
+        { sender: "Someone" },
+        { target: "#mp_124" },
+        { text: text.replace("/75", "/750") },
+        { text: text.replace("osu.ppy.sh", "osu.ppy.sh.invalid") },
+        { text: `Player says ${text}` },
+        {
+          text: text
+            .replace("beatmap", "beatmaps")
+            .replace("Beatmap", "Beatmaps"),
+        },
+      ])
+        expect(
+          confirmsIrcCommand(command, "#mp_123", { ...evidence, ...patch }),
+        ).toBe(false);
+    }
+  });
   it("confirms only recognized exact interruption replies", () => {
     expect(
       confirmsIrcCommand("!mp abort", "#mp_123", {
