@@ -208,6 +208,10 @@ html[data-appearance="skyline-pop"] .themed-site :is(input, select, textarea) {
 html[data-appearance="skyline-pop"] .themed-site :is(button, .button) {
   border-radius: var(--button-radius);
 }
+/* Match the button corners plus the control's 4px inset and 1px border. */
+html[data-appearance="skyline-pop"] .themed-site .map-view-control {
+  border-radius: calc(var(--button-radius) + 0.25rem + 1px);
+}
 html[data-appearance="skyline-pop"]
   .themed-site
   :is(.nav-login, .settings-card button[type="submit"]) {
