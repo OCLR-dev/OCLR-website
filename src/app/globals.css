@@ -5805,11 +5805,12 @@ button.staff-role-save {
   width: 100%;
   min-width: 0;
   margin-block: 0.75rem;
-  padding: 0;
-  padding-inline-start: 1.75rem;
+  padding: 1rem 1.25rem;
+  padding-inline-start: 3rem;
   border: 0;
-  border-radius: 0;
-  background: transparent;
+  border-inline-start: 4px solid var(--site-accent, #dfabfb);
+  border-radius: 0.375rem;
+  background: var(--color-raised);
   box-shadow: none;
   color: var(--color-muted);
   overflow-wrap: anywhere;
@@ -5817,8 +5818,9 @@ button.staff-role-save {
 .info-note-box::before {
   content: "ⓘ";
   position: absolute;
-  inset-inline-start: 0;
-  inset-block-start: 0;
+  inset-inline-start: 1rem;
+  inset-block-start: 1rem;
+  color: var(--site-accent, #dfabfb);
   line-height: inherit;
 }
 .info-note-box > :first-child {
