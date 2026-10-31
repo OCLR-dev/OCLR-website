@@ -17,10 +17,10 @@ export function EditionArtwork({
     image === "/archive/s2/key-visual.avif" ||
     image === "/archive/s3/key-visual.avif" ||
     image === "/archive/s4/key-visual.avif" ||
-    image === "/archive/s5/key-visual.png" ||
-    image === "/archive/s6/key-visual.jpg" ||
-    image === "/archive/s9/thumbnail.png" ||
-    image === "/archive/s8/thumbnail.jpg" ||
+    image === "/archive/s5/key-visual.webp" ||
+    image === "/archive/s6/key-visual.webp" ||
+    image === "/archive/s9/thumbnail.webp" ||
+    image === "/archive/s8/thumbnail.webp" ||
     image === "/archive/s7/key-visual.jpg";
   return (
     <div

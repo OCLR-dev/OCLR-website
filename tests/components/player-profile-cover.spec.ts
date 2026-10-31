@@ -32,6 +32,9 @@ test("the improvement index carries the faster-than-typical colour band", async 
   page,
 }) => {
   await page.goto("/player-profile-cover");
+  const badges = page.locator(".bws-card-metric").nth(3);
+  await expect(badges.locator(".bws-card-label")).toHaveText("Badges");
+  await expect(badges.locator(".bws-value")).toHaveText("2");
   const metric = page.locator(".bws-card-metric").last();
   await expect(metric.locator(".bws-card-label")).toHaveText("OII");
   const value = metric.locator(".bws-value");

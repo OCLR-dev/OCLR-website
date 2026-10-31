@@ -1751,10 +1751,15 @@
       "file": "src/app/players/[osuId]/page.tsx",
       "kind": "page",
       "authority": "saved-read",
-      "operations": ["getOclrProfile", "publicRoundRatings"],
+      "operations": [
+        "getOclrProfile",
+        "listPublicTournaments",
+        "publicRoundRatings"
+      ],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (listPublicTournaments)",
         "src/lib/public-read-models.ts / frontend-data.ts (getOclrProfile)",
         "src/lib/ratings.ts#publicRoundRatings"
       ],

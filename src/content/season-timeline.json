@@ -1,0 +1,71 @@
+{
+  "_readme": "OCLR 赛季时间轴，可直接编辑。每个赛季一条记录：season 为赛季序号；appearance 为该赛季启用的主题标识（用于取赛季颜色，留空则使用站点主题色）；start / end 为赛季开始与结束时间。日期可写 YYYY-MM-DD（按 UTC 整天计算，end 含当天），也可写完整 ISO 时间（例如 2025-03-14T00:00:00Z）。尚未确定的时间请保持 null：若玩家在该赛季有已记录的比赛，时间轴会用第一场～最后一场作为临时区间并标注“按已记录比赛推断”；既无时间也无比赛记录的赛季不会显示。",
+  "seasons": [
+    {
+      "season": 1,
+      "appearance": "chromatic-origins",
+      "start": "2018-10-26",
+      "end": "2018-12-16"
+    },
+    {
+      "season": 2,
+      "appearance": "verdant-prelude",
+      "start": "2019-06-01",
+      "end": "2019-07-20"
+    },
+    {
+      "season": 3,
+      "appearance": "frost-waltz",
+      "start": "2019-11-23",
+      "end": "2019-12-30"
+    },
+    {
+      "season": 4,
+      "appearance": "azure-brush",
+      "start": "2020-06-06",
+      "end": "2020-07-20"
+    },
+    {
+      "season": 5,
+      "appearance": "prism-overture",
+      "start": "2020-11-21",
+      "end": "2021-01-03"
+    },
+    {
+      "season": 6,
+      "appearance": "orbital-pulse",
+      "start": "2021-05-08",
+      "end": "2021-06-20"
+    },
+    {
+      "season": 7,
+      "appearance": "graphite-arena",
+      "start": "2021-12-25",
+      "end": "2022-03-05"
+    },
+    {
+      "season": 8,
+      "appearance": "sakura-circuit",
+      "start": "2023-02-19",
+      "end": "2023-04-09"
+    },
+    {
+      "season": 9,
+      "appearance": "glacier-blue",
+      "start": "2023-11-04",
+      "end": "2023-12-10"
+    },
+    {
+      "season": 10,
+      "appearance": "skyline-pop",
+      "start": "2025-03-09",
+      "end": "2025-04-27"
+    },
+    {
+      "season": 11,
+      "appearance": null,
+      "start": "2026-11-26",
+      "end": null
+    }
+  ]
+}

@@ -23,6 +23,13 @@ export type CompetitionMatchRecord = {
   at: string | null;
 };
 
+/** A tournament placement, exact or banded (e.g. "3–4", "9–12"). */
+export type TournamentFinish = {
+  label: string;
+  /** True when inferred from knockout series instead of an archived table. */
+  derived: boolean;
+};
+
 export type CompetitionEditionRecord = {
   editionSlug: string;
   editionName: string;
@@ -38,6 +45,14 @@ export type CompetitionEditionRecord = {
   placing: number | null;
   /** Recorded group-table position, when the edition archived a standings table. */
   groupRank: { group: string | null; rank: number } | null;
+  /** Final tournament placement, exact or a banded tie/residual place. */
+  finish: TournamentFinish | null;
+  /** A listed team of this person won the edition's deciding knockout series. */
+  champion: boolean;
+  /** A listed team of this person lost the edition's deciding knockout series. */
+  runnerUp: boolean;
+  /** A listed team of this person finished third, alone or tied for 3–4. */
+  thirdPlace: boolean;
   matches: CompetitionMatchRecord[];
   /** The edition's public projection could not be read; counts stay empty. */
   unavailable: boolean;
@@ -49,6 +64,12 @@ export type PlayerCompetitionRecord = {
   wins: number;
   losses: number;
   draws: number;
+  /** Seasons whose deciding series was won by a team this person was listed on. */
+  championships: number;
+  /** Seasons whose deciding series was lost by a team this person was listed on. */
+  runnerUps: number;
+  /** Seasons a listed team this person was on finished third. */
+  thirdPlaces: number;
   /** Wins ÷ (wins + losses); null when no decided match is known. */
   winRate: number | null;
   group: { wins: number; losses: number };
@@ -72,6 +93,321 @@ export function competitionStage(stage: string | null | undefined) {
     : ("knockout" as const);
 }
 
+/** One decided series, reduced to the labels, time and teams a placement needs. */
+export type SeriesResult = {
+  /** Stage or round label, e.g. "Grand Finals", "GF", "总决赛". */
+  label: string | null;
+  at: string | null;
+  winnerTeamId: string | null;
+  loserTeamId: string | null;
+};
+
+/** The minimal shape needed to find the deciding series. */
+export type DecisiveMatch = Pick<SeriesResult, "label" | "at" | "winnerTeamId">;
+
+// A lower-bracket, consolation or early round is never the deciding series,
+// even when its label contains "final" (lower bracket final, semifinal, ...).
+const earlyRound =
+  /semi|quarter|half|upper|lower|loser|consolation|third|3rd|季军|季軍|半决赛|半決賽|败者|敗者|胜者组|勝者組|四分之一|八分之一/i;
+const grandFinal = /grand\s*final|\bgf\b|总决赛|總決賽|冠军赛|冠軍賽/i;
+const finalRound = /finals?\b|决赛|決賽/i;
+
+/** How strongly a label names the deciding series: 2 grand final, 1 final, 0 other. */
+export function finalRoundRank(label: string | null | undefined) {
+  const value = label?.trim();
+  if (!value || earlyRound.test(value)) return 0;
+  if (grandFinal.test(value)) return 2;
+  return finalRound.test(value) ? 1 : 0;
+}
+
+/**
+ * Derive the champion team from recorded series instead of a standings table.
+ *
+ * The deciding series is the latest dated final-like knockout match, which also
+ * covers double-elimination bracket resets (two grand finals). Sources without
+ * labels fall back to the latest dated knockout match; when several candidates
+ * remain and cannot be ordered by date, the champion stays unknown rather than
+ * guessed.
+ */
+function seriesTime(match: DecisiveMatch) {
+  return match.at && !Number.isNaN(Date.parse(match.at))
+    ? Date.parse(match.at)
+    : null;
+}
+
+/** Latest final-like knockout series; null when the source cannot order them. */
+export function decidingSeries<T extends DecisiveMatch>(
+  matches: T[],
+): T | null {
+  const knockout = matches.filter(
+    (match) => match.winnerTeamId && competitionStage(match.label) !== "group",
+  );
+  if (!knockout.length) return null;
+  const ranked = knockout
+    .map((match) => ({ match, rank: finalRoundRank(match.label) }))
+    .filter((entry) => entry.rank > 0);
+  const best = ranked.length ? Math.max(...ranked.map((e) => e.rank)) : 0;
+  const candidates = ranked.length
+    ? ranked.filter((entry) => entry.rank === best).map((entry) => entry.match)
+    : knockout;
+  const dated = candidates.filter((match) => seriesTime(match) !== null);
+  // A single candidate needs no ordering; several undated ones stay unknown.
+  if (!dated.length) return candidates.length === 1 ? candidates[0] : null;
+  const latest = Math.max(...dated.map((match) => seriesTime(match)!));
+  const winners = new Set(
+    dated
+      .filter((match) => seriesTime(match) === latest)
+      .map((m) => m.winnerTeamId),
+  );
+  return winners.size === 1
+    ? (dated.find((match) => seriesTime(match) === latest) ?? null)
+    : null;
+}
+
+export function championTeamId(matches: DecisiveMatch[]): string | null {
+  return decidingSeries(matches)?.winnerTeamId ?? null;
+}
+
+export type TournamentPlacements = {
+  champion: string | null;
+  runnerUp: string | null;
+  /** One team, or both 3–4 finishers when the edition played no placement series. */
+  third: string[];
+};
+
+// A dedicated 3rd-place series names the position outright.
+const thirdPlaceRound = /third|3rd|季军|季軍|三四名|3[-–—]4|三、四/i;
+
+/**
+ * Derive champion, runner-up and third place from recorded series.
+ *
+ * Third place follows a dedicated placement series when one exists. Otherwise it
+ * comes from the last resolved knockout round before the deciding series: a
+ * single series (a lower final) names one third place, while two semifinals mean
+ * both losers finished 3–4 and count as third place.
+ */
+export function tournamentPlacements(
+  matches: SeriesResult[],
+): TournamentPlacements {
+  const decided = matches.filter(
+    (match) =>
+      match.winnerTeamId &&
+      match.loserTeamId &&
+      competitionStage(match.label) !== "group",
+  );
+  const deciding = decidingSeries(decided);
+  if (!deciding) return { champion: null, runnerUp: null, third: [] };
+  const champion = deciding.winnerTeamId;
+  const runnerUp = (deciding as SeriesResult).loserTeamId ?? null;
+  const thirdMatches = decided.filter(
+    (match) => thirdPlaceRound.test(match.label ?? "") && seriesTime(match),
+  );
+  if (thirdMatches.length) {
+    const latest = Math.max(...thirdMatches.map((match) => seriesTime(match)!));
+    return {
+      champion,
+      runnerUp,
+      third: [
+        ...new Set(
+          thirdMatches
+            .filter((match) => seriesTime(match) === latest)
+            .map((match) => match.winnerTeamId!),
+        ),
+      ],
+    };
+  }
+  const decidingAt = seriesTime(deciding);
+  if (decidingAt === null) return { champion, runnerUp, third: [] };
+  const earlier = decided.filter((match) => {
+    const time = seriesTime(match);
+    return time !== null && time < decidingAt;
+  });
+  if (!earlier.length) return { champion, runnerUp, third: [] };
+  const lastRoundAt = Math.max(...earlier.map((match) => seriesTime(match)!));
+  const round = earlier.filter((match) => seriesTime(match) === lastRoundAt);
+  // More than two series on that date spans unrelated rounds, so claim nothing.
+  if (round.length > 2) return { champion, runnerUp, third: [] };
+  return {
+    champion,
+    runnerUp,
+    third: [...new Set(round.map((match) => match.loserTeamId!))].filter(
+      (team) => team !== champion && team !== runnerUp,
+    ),
+  };
+}
+
+/** A standings row as archived: group label, team and optional rank. */
+export type StandingsRow = {
+  group: string | null;
+  teamId: string;
+  rank: number | null;
+};
+
+function placementBand(start: number, end: number) {
+  return start === end ? String(start) : `${start}–${end}`;
+}
+
+function dayOf(value: string | null) {
+  if (!value) return null;
+  const time = Date.parse(value);
+  return Number.isNaN(time) ? null : new Date(time).toISOString().slice(0, 10);
+}
+
+/**
+ * Final standings list every team once with an overall rank; group tables
+ * restart ranks inside each group. A rank repeated across groups therefore
+ * marks a group table, not a final placement.
+ */
+export function isFinalStandings(standings: StandingsRow[]): boolean {
+  const ranked = standings.filter((row) => row.rank !== null);
+  if (!ranked.length) return false;
+  const owner = new Map<number, string>();
+  for (const row of ranked) {
+    const group = row.group?.trim() ?? "";
+    const known = owner.get(row.rank!);
+    if (known !== undefined && known !== group) return false;
+    if (known === undefined) owner.set(row.rank!, group);
+  }
+  return true;
+}
+
+/**
+ * Read a team's final placement from an archived final standings table.
+ * Ties become a band ("5–6") and organizers' residual group ("第9–12名未細分")
+ * or the unranked tail becomes its own band. Group tables return null.
+ */
+export function finalStandingsFinish(
+  standings: StandingsRow[],
+  teamIds: Iterable<string>,
+  teamCount: number,
+): TournamentFinish | null {
+  if (!isFinalStandings(standings)) return null;
+  const teams = new Set(teamIds);
+  const ranked = standings.filter((row) => row.rank !== null);
+  const own =
+    standings.find((row) => teams.has(row.teamId) && row.rank !== null) ??
+    standings.find((row) => teams.has(row.teamId));
+  if (!own) return null;
+  if (own.rank !== null) {
+    const tied = ranked.filter((row) => row.rank === own.rank).length;
+    return {
+      label: placementBand(own.rank, own.rank + tied - 1),
+      derived: false,
+    };
+  }
+  // The organizer-authored residual label can name the band outright.
+  const named = /(\d{1,3})\s*[–—\-~～至]\s*(\d{1,3})/.exec(own.group ?? "");
+  if (named)
+    return {
+      label: placementBand(Number(named[1]), Number(named[2])),
+      derived: false,
+    };
+  // Otherwise the unranked rows occupy the tail after every ranked position.
+  const counts = new Map<number, number>();
+  for (const row of ranked)
+    counts.set(row.rank!, (counts.get(row.rank!) ?? 0) + 1);
+  let position = 1;
+  for (const rank of [...counts.keys()].sort((a, b) => a - b)) {
+    if (rank !== position) return null;
+    position += counts.get(rank)!;
+  }
+  const total = Math.max(teamCount, standings.length);
+  return position <= total
+    ? { label: placementBand(position, total), derived: false }
+    : null;
+}
+
+// Generic bracket wording cannot tell rounds apart; a date does.
+const genericRound = /淘汰赛|季后赛|季後賽|playoff|knockout|bracket/i;
+const namedRound =
+  /final|semi|quarter|round|group|swiss|决赛|決賽|半决|半決|四分之一|轮|輪/i;
+
+/**
+ * Derive a full placement ladder from a single-elimination / double-elimination
+ * bracket by grouping each team's last knockout loss into its elimination round.
+ * Non-playoff teams take the tail band and the deciding-series winner takes
+ * first place.
+ *
+ * Requires every decided knockout series to be dated, one deciding series (a
+ * replayed double-elimination grand final would repeat the label) and enough
+ * distinct rounds to leave exactly one champion. Anything irregular returns
+ * null so the caller keeps the recorded table instead of inventing a ladder.
+ */
+export function knockoutFinishBands(
+  matches: SeriesResult[],
+  teams: string[],
+): Map<string, TournamentFinish> | null {
+  const decided = matches.filter(
+    (match) =>
+      match.winnerTeamId &&
+      match.loserTeamId &&
+      competitionStage(match.label) !== "group",
+  );
+  if (!decided.length) return null;
+  if (decided.some((match) => seriesTime(match) === null)) return null;
+  const deciding = decidingSeries(decided);
+  if (!deciding?.winnerTeamId || !deciding.loserTeamId) return null;
+  const decidingLabel = (deciding.label ?? "").trim();
+  if (
+    decidingLabel &&
+    decided.filter((match) => (match.label ?? "").trim() === decidingLabel)
+      .length > 1
+  )
+    return null;
+  const playoff = new Set<string>();
+  const last = new Map<string, SeriesResult>();
+  for (const match of [...decided].sort(
+    (a, b) => seriesTime(a)! - seriesTime(b)!,
+  )) {
+    playoff.add(match.winnerTeamId!);
+    playoff.add(match.loserTeamId!);
+    last.set(match.winnerTeamId!, match);
+    last.set(match.loserTeamId!, match);
+  }
+  const eliminated = [...last.entries()]
+    .filter(([team, match]) => match.loserTeamId === team)
+    .map(([team]) => team);
+  if (eliminated.length + 1 !== playoff.size) return null;
+  if (eliminated.includes(deciding.winnerTeamId)) return null;
+  const rounds = new Map<string, { teams: string[]; at: number }>();
+  for (const team of eliminated) {
+    const match = last.get(team)!;
+    const label = (match.label ?? "").trim();
+    const key =
+      genericRound.test(label) && !namedRound.test(label)
+        ? `${label}|${dayOf(match.at) ?? ""}`
+        : label;
+    const entry = rounds.get(key) ?? { teams: [], at: 0 };
+    entry.teams.push(team);
+    entry.at = Math.max(entry.at, seriesTime(match)!);
+    rounds.set(key, entry);
+  }
+  const ordered = [...rounds.values()].sort((a, b) => a.at - b.at);
+  const result = new Map<string, TournamentFinish>();
+  const teamCount = teams.length;
+  const playoffCount = playoff.size;
+  let position = playoffCount;
+  for (const round of ordered) {
+    const size = round.teams.length;
+    // The champion must remain above the worst elimination round.
+    if (size > position - 1) return null;
+    for (const team of round.teams)
+      result.set(team, {
+        label: placementBand(position - size + 1, position),
+        derived: true,
+      });
+    position -= size;
+  }
+  if (position !== 1) return null;
+  result.set(deciding.winnerTeamId, { label: "1", derived: true });
+  const nonPlayoff = teams.filter((team) => !playoff.has(team));
+  if (nonPlayoff.length) {
+    const label = placementBand(playoffCount + 1, teamCount);
+    for (const team of nonPlayoff) result.set(team, { label, derived: true });
+  }
+  return result;
+}
+
 function timeOf(match: CompetitionMatchRecord) {
   return match.at ? Date.parse(match.at) : Number.NaN;
 }
@@ -92,6 +428,9 @@ export function summarizePlayerCompetition(
     wins: 0,
     losses: 0,
     draws: 0,
+    championships: 0,
+    runnerUps: 0,
+    thirdPlaces: 0,
     winRate: null,
     group: { wins: 0, losses: 0 },
     knockout: { wins: 0, losses: 0 },
@@ -134,12 +473,24 @@ export function summarizePlayerCompetition(
           record.lastAt = match.at;
       }
     }
-    if (edition.placing !== null) {
-      if (record.bestPlacing === null || edition.placing < record.bestPlacing)
-        record.bestPlacing = edition.placing;
-      if (record.worstPlacing === null || edition.placing > record.worstPlacing)
-        record.worstPlacing = edition.placing;
+    // A group-table rank is not a tournament placement, so the finish comes
+    // from the derived podium instead.
+    const finish = edition.champion
+      ? 1
+      : edition.runnerUp
+        ? 2
+        : edition.thirdPlace
+          ? 3
+          : null;
+    if (finish !== null) {
+      if (record.bestPlacing === null || finish < record.bestPlacing)
+        record.bestPlacing = finish;
+      if (record.worstPlacing === null || finish > record.worstPlacing)
+        record.worstPlacing = finish;
     }
+    if (edition.champion) record.championships += 1;
+    if (edition.runnerUp) record.runnerUps += 1;
+    if (edition.thirdPlace) record.thirdPlaces += 1;
   }
   const counted = record.wins + record.losses;
   record.winRate = counted ? record.wins / counted : null;

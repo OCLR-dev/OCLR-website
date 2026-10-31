@@ -100,6 +100,7 @@ export function PlayerProfile({
                 countryRank={s.countryRank}
                 globalRankPercent={s.globalRankPercent}
                 oii={oii}
+                badges={p.badges}
               />
             )}
           </div>
@@ -141,43 +142,6 @@ export function PlayerProfile({
           ))}
         </dl>
       </div>
-      {s.grades && (
-        <p className="muted small">
-          {tr("Grades:")}{" "}
-          {Object.entries(s.grades)
-            .map(([grade, count]) => `${grade.toUpperCase()} ${number(count)}`)
-            .join(" · ")}
-        </p>
-      )}
-      <dl className="profile-details muted small">
-        <div>
-          <dt>{tr("Joined")}</dt>
-          <dd>{p.joinedAt ?? tr("Unavailable")}</dd>
-        </div>
-        <div>
-          <dt>{tr("Last seen")}</dt>
-          <dd>{p.lastSeenAt ?? tr("Not public / unavailable")}</dd>
-        </div>
-        <div>
-          <dt>{tr("Active account")}</dt>
-          <dd>
-            {p.active === null
-              ? tr("Unavailable")
-              : p.active
-                ? tr("Yes")
-                : tr("No")}
-          </dd>
-        </div>
-        <div>
-          <dt>{tr("Bot account")}</dt>
-          <dd>
-            {p.bot === null ? tr("Unavailable") : p.bot ? tr("Yes") : tr("No")}
-          </dd>
-        </div>
-      </dl>
-      <footer className="profile-summary-footer">
-        {tr("Last updated")} <time dateTime={p.fetchedAt}>{p.fetchedAt}</time>
-      </footer>
     </section>
   );
 }

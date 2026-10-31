@@ -106,10 +106,37 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 960px) {
-  .summary {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
+.champion,
+.runnerUp,
+.third {
+  border-color: color-mix(
+    in srgb,
+    var(--site-accent, var(--color-accent)) 45%,
+    var(--site-border, var(--color-border))
+  );
+  color: var(--site-accent, var(--color-accent));
+  font-weight: 600;
+}
+
+.champion {
+  background: color-mix(
+    in srgb,
+    var(--site-accent, var(--color-accent)) 16%,
+    transparent
+  );
+}
+
+.runnerUp {
+  background: color-mix(
+    in srgb,
+    var(--site-accent, var(--color-accent)) 7%,
+    transparent
+  );
+}
+
+.third {
+  border-color: var(--site-border, var(--color-border));
+  color: var(--site-muted, var(--color-muted));
 }
 
 @media (max-width: 640px) {

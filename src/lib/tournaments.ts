@@ -27,6 +27,7 @@ import { remoteMode } from "./data-source";
 import {
   editionSchema,
   enrollmentState,
+  normalizeEditionBranding,
   registrationBlockers,
   suggestEditionSlug,
   type Edition,
@@ -54,7 +55,9 @@ type Reader = Pick<ReturnType<typeof db>, "select">;
 export function storedEdition(row: typeof editionState.$inferSelect) {
   if (!row.configuration) return undefined;
   return {
-    edition: editionSchema.parse({ ...row.configuration, slug: row.slug }),
+    edition: editionSchema.parse(
+      normalizeEditionBranding({ ...row.configuration, slug: row.slug }),
+    ),
     revision: row.configurationVersion,
     createdAt: row.createdAt,
     updatedAt: row.configurationUpdatedAt,

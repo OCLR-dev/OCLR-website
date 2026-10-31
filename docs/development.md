@@ -180,6 +180,11 @@ commits cancel superseded runs for the same branch or PR. Runner availability
 and the slowest test file still affect elapsed time; compare completed CI runs
 before claiming an actual speedup.
 
+Do not run these browser suites as routine agent verification; they are slow and
+reserved for browser-specific changes, reproductions of browser-only bugs, or an
+explicit request. Routine verification stays at `npm run check`, `npm test` and
+`npm run build`.
+
 To reproduce a shard locally after building and migrating an isolated test DB:
 
 ```sh

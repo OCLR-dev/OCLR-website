@@ -8,12 +8,11 @@ Selected official **OCLR** wordmark for **osu! Chinese League Rookie**, replacin
 - `oclr-wordmark.svg` and `oclr-wordmark-dark.svg` are for **dark** surfaces. `oclr-wordmark-light.svg` uses darker OCL lettering for accessible contrast on **light** surfaces, while keeping the same vivid R/star.
 - `src/components/oclr-logo.tsx` renders the same complete **OCLR** artwork, including the signature R and the star in its original position, with CSS theme-specific gradient stops. Display width: 132 px on desktop and 112 px below 400 px; preserve the **1465 × 430** viewBox ratio. Tournament wordmarks and favicon assets remain OCLR.
 - The favicon is **the signature pink-to-violet R plus four-point star**, cropped and adapted from the exact vector outlines in `oclr-wordmark.svg`, replacing the old standalone O mark.
-- `oclr-mark.svg`: scalable transparent R+star favicon. `oclr-mark-mono.svg`: monochrome silhouette for single-color contexts. `oclr-16.png`, `oclr-32.png`, `oclr-48.png`: matching raster browser icons; `oclr-180.png`: matching transparent Apple Touch Icon. All share the same R/star artwork and have no background.
-- `src/app/layout.tsx` links SVG and PNG favicon variants and the Apple icon with a shared `v=3` URL cache-buster.
+- `oclr-mark.svg`: scalable transparent R+star favicon. `oclr-mark-mono.svg`: monochrome silhouette for single-color contexts. `oclr-16.webp`, `oclr-32.webp`, `oclr-48.webp`: matching raster browser icons; `oclr-180.png`: matching transparent Apple Touch Icon. All share the same R/star artwork and have no background.
+- `src/app/layout.tsx` links the SVG, WebP browser-icon and PNG Apple-icon variants with a shared `v=3` URL cache-buster.
 - This is independent community tournament branding, not osu!'s official logo. Do not add unlicensed osu! brand marks.
 
 Previous wordmark versions are superseded by this design. No database or application behavior changes are needed.
-
 
 ## S11 local visual integration
 
@@ -23,22 +22,19 @@ Previous wordmark versions are superseded by this design. No database or applica
 
 Local development preview: http://localhost:3000/ and http://localhost:3000/tournaments/s11 .
 
-
 ### Liru refinement
 
-Homepage now uses `home-s11/liru-refined-v2.png`, preserving the seated pose while fixing the oversized looping hair and long neck. The built-in generation returned 1024×1536 despite requesting larger dimensions. `liru-refined-v2.svg` is a real traced vector (12,831 paths, no embedded raster); the corresponding `liru-refined-v2-vector-2048.png` is a 2048×3072 render, not additional native detail. SVG can scale its contours without raster interpolation, but automatic tracing visibly quantizes shading, so the corrected PNG remains the homepage default. Both are selectable in the layer studio. See `design/home-visual/layer-studio/liru-refinement-notes.md` and the adjacent prompt / tracing script.
+Homepage now uses `home-s11/liru-refined-v2.webp`, preserving the seated pose while fixing the oversized looping hair and long neck. The built-in generation returned 1024×1536 despite requesting larger dimensions. `liru-refined-v2.svg` is a real traced vector (12,831 paths, no embedded raster); the corresponding `liru-refined-v2-vector-2048.webp` is a 2048×3072 render, not additional native detail. SVG can scale its contours without raster interpolation, but automatic tracing visibly quantizes shading, so the corrected raster remains the homepage default. Both are selectable in the layer studio. See `design/home-visual/layer-studio/liru-refinement-notes.md` and the adjacent prompt / tracing script.
 
-The follow-up wallpaper-method pass switches the homepage to `home-s11/liru-smooth-final.svg`: color-layer Potrace with continuous Bezier outlines, cumulative masks to avoid seams, and SVGO optimization. The PNG and first tracing remain as comparisons; see the studio's `liru-refinement-notes.md` for reproduction and exact size report.
+The follow-up wallpaper-method pass switches the homepage to `home-s11/liru-smooth-final.svg`: color-layer Potrace with continuous Bezier outlines, cumulative masks to avoid seams, and SVGO optimization. The raster and first tracing remain as comparisons; see the studio's `liru-refinement-notes.md` for reproduction and exact size report.
 
-User review reverted the homepage and studio default to `liru-refined-v2.png` (corrected hair and neck). Vector variants remain backups, not the selected display asset.
+User review reverted the homepage and studio default to `liru-refined-v2.webp` (corrected hair and neck). Vector variants remain backups, not the selected display asset.
 
-
-PR #421 runtime-size follow-up: the homepage remains PNG-based, with palette-
+PR #421 runtime-size follow-up: the homepage is WebP-based, with palette-
 compressed, alpha-preserving variants selected by native `picture` / `srcset`.
 Full-resolution editing sources stay in `design/home-visual/layer-studio/assets/`.
 The runtime banner embeds only a 2000×1000 crop of the original NASA photo.
 See the studio README's runtime export commands for reproducible regeneration.
-
 
 ## Current S11 asset family — 2026-10-29
 
@@ -47,6 +43,8 @@ winter nebula / corrected Liru / constellation-R design. See
 [`design/home-visual/s11-assets/README.md`](../../design/home-visual/s11-assets/README.md)
 for the complete path list, source credits and reproducible export command.
 `oclr-s11-logo.svg` is the complete transparent season wordmark; the global
-OCLR identity above remains separate. Existing S11 square, key-visual, responsive,
-background, promotional-banner and classic transparent-wordmark URLs remain valid.
+OCLR identity above remains separate. S11 square, key-visual, responsive and
+background raster layers were re-encoded to WebP at their original dimensions
+(alpha preserved where present); the retired `.png` URLs for those layers no
+longer resolve. SVG wordmarks, fonts and the PNG Apple Touch Icon are unchanged.
 The older swirl wordmark and the source studies remain historical alternatives.

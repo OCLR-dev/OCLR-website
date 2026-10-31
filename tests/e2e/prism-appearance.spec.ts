@@ -111,7 +111,7 @@ test.describe("S5 Prism Overture appearance", () => {
         const original = page.locator(".archive-key-visual img");
         await expect(original).toHaveAttribute(
           "src",
-          "/archive/s5/key-visual.png",
+          "/archive/s5/key-visual.webp",
         );
         await expect(original).toHaveJSProperty("naturalWidth", 1920);
         await expect(original).toHaveJSProperty("naturalHeight", 1080);

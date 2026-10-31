@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import sharp from "sharp";
 import {
   archiveCounts,
   historicalArchiveSchema,
@@ -177,7 +178,7 @@ describe("S8 original rulebook", () => {
     expect(historicalRulebook({ ...archive, links: s10.links })).toBeNull();
     expect(historicalRulebook({ ...s10, links: archive.links })).toBeNull();
   });
-  it("retains seven chapters and the source's four images without rewriting S8 rules", () => {
+  it("retains seven chapters and the source's four images without rewriting S8 rules", async () => {
     const normalize = (s: string) =>
       s
         .split(/\r?\n/)
@@ -199,9 +200,9 @@ describe("S8 original rulebook", () => {
     const figures = [s8.cover, ...s8.sections.flatMap((s) => s.figures ?? [])];
     expect(figures).toHaveLength(4);
     for (const figure of figures) {
-      const bytes = readFileSync(`public${figure.src}`);
-      expect(bytes.readUInt32BE(16)).toBe(figure.width);
-      expect(bytes.readUInt32BE(20)).toBe(figure.height);
+      const metadata = await sharp(`public${figure.src}`).metadata();
+      expect(metadata.width).toBe(figure.width);
+      expect(metadata.height).toBe(figure.height);
     }
     for (const section of s8.sections)
       for (const figure of section.figures ?? [])

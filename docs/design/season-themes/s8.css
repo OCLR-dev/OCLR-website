@@ -184,7 +184,7 @@ html[data-s8-preview] .themed-site :is(.rules-desktop-contents,.rules-mobile-con
   box-shadow: none;
 }
 /* Reuse the actual RulesHandbook cover slot for the supplied 750x110 banner. */
-html[data-s8-preview] .themed-site .rules-illustration img[src="/archive/s8/rules-1.png"] {
+html[data-s8-preview] .themed-site .rules-illustration img[src="/archive/s8/rules-1.webp"] {
   content: var(--sakura-banner);
   object-fit: contain;
   max-width: min(100%, 750px);
@@ -266,7 +266,7 @@ html[data-s8-preview] .themed-site .public-tournament .event-content {
   }
 }
 @media (forced-colors: active) {
-  html[data-s8-preview] .themed-site .rules-illustration img[src="/archive/s8/rules-1.png"] {
+  html[data-s8-preview] .themed-site .rules-illustration img[src="/archive/s8/rules-1.webp"] {
     content: normal;
   }
   html[data-s8-preview] .themed-site :is(.site-header,.page-heading,.archive-counts,.settings-card,.rules-article,.rules-desktop-contents,.rules-mobile-contents,.sidebar) {

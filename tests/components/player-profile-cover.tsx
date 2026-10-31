@@ -35,6 +35,23 @@ const bws = {
   fetchedAt: "2026-08-14T00:00:00.000Z",
 };
 
+const badges = [
+  {
+    description: "Synthetic tournament badge",
+    awardedAt: "2026-01-01T00:00:00.000Z",
+    url: null,
+    imageUrl: "https://assets.ppy.sh/profile-badges/synthetic.png",
+    image2xUrl: "https://assets.ppy.sh/profile-badges/synthetic@2x.png",
+  },
+  {
+    description: "Synthetic contributor badge",
+    awardedAt: "2025-01-01T00:00:00.000Z",
+    url: null,
+    imageUrl: null,
+    image2xUrl: null,
+  },
+];
+
 // A short rank history so the two-column profile body renders under the cover.
 const history = [24000, 21000, 19000, 18000, 15000, 12345];
 
@@ -77,6 +94,7 @@ createRoot(document.getElementById("root")!).render(
                 countryRank={321}
                 globalRankPercent={0.0142}
                 oii={1.35}
+                badges={badges}
               />
             </div>
           </div>

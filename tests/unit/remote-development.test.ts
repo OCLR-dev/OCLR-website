@@ -190,7 +190,7 @@ describe("explicit remote frontend boundaries", () => {
           "/mascot/liru/sheet-main.webp",
           "/mascot/liru/sheet-turnaround.webp",
           "/mascot/liru/sheet-expressions.webp",
-          "/archive/s6/key-visual.jpg",
+          "/archive/s6/key-visual.webp",
           "/branding/oclr-mark.svg",
           "/fonts/local.woff2",
         ]) {

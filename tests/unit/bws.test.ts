@@ -96,6 +96,27 @@ describe("badge-weighted seeding", () => {
     expect(
       profile([{ ...badge, url: "javascript:alert(1)" }]).badges![0].url,
     ).toBeNull();
+    // Badge artwork is retained only from the osu! asset host; the 2x field is
+    // independent and may be missing on older or partial responses.
+    const badgeArt = profile([
+      {
+        ...badge,
+        image_url: "https://assets.ppy.sh/profile-badges/synthetic.png",
+        "image@2x_url": "http://assets.ppy.sh/profile-badges/synthetic@2x.png",
+      },
+    ]).badges![0];
+    expect(badgeArt.imageUrl).toBe(
+      "https://assets.ppy.sh/profile-badges/synthetic.png",
+    );
+    expect(badgeArt.image2xUrl).toBeNull();
+    expect(
+      profile([
+        {
+          ...badge,
+          image_url: "https://evil.example/profile-badges/synthetic.png",
+        },
+      ]).badges![0].imageUrl,
+    ).toBeNull();
     expect(
       summarizeBws(
         { profile: profile([], null), stale: false, notice: null },

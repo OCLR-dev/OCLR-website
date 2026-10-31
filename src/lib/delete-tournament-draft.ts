@@ -5,7 +5,7 @@ import { PgTable } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import type { User } from "./auth/sessions";
 import { assertBusinessWrite, assertCapability } from "./auth/staff";
-import { editionSchema } from "./editions";
+import { editionSchema, normalizeEditionBranding } from "./editions";
 import { HttpError } from "./http";
 import { isBlankTournamentDraft } from "./tournament-draft";
 import { storedEdition } from "./tournaments";
@@ -60,7 +60,9 @@ export async function deleteUnusedTournamentDraft(
       !isBlankTournamentDraft(current.edition) ||
       revisions.length !== current.revision + 1 ||
       revisions.some(({ configuration, version }, index) => {
-        const saved = editionSchema.safeParse({ ...configuration, slug });
+        const saved = editionSchema.safeParse(
+          normalizeEditionBranding({ ...configuration, slug }),
+        );
         return (
           version !== index ||
           !saved.success ||

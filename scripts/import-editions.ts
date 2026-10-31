@@ -7,13 +7,25 @@ import {
   editionRevisions,
   editionEvents,
 } from "../src/db/schema";
-import { editionsSchema, editionSchema } from "../src/lib/editions";
+import {
+  editionsSchema,
+  editionSchema,
+  normalizeEditionBranding,
+} from "../src/lib/editions";
 import bootstrap from "../drizzle/legacy-editions.json" with { type: "json" };
 export async function importLegacyEditions(
   input: unknown,
   allowBootstrap = false,
 ) {
-  const editions = editionsSchema.parse(input);
+  const editions = editionsSchema.parse(
+    Array.isArray(input)
+      ? input.map((candidate) =>
+          candidate && typeof candidate === "object"
+            ? normalizeEditionBranding(candidate as Record<string, unknown>)
+            : candidate,
+        )
+      : input,
+  );
   let imported = 0;
   await db().transaction(async (tx) => {
     for (const candidate of editions) {
@@ -34,18 +46,24 @@ export async function importLegacyEditions(
       if (
         state.configuration &&
         JSON.stringify(
-          editionSchema.parse({ ...state.configuration, slug }),
+          editionSchema.parse(
+            normalizeEditionBranding({ ...state.configuration, slug }),
+          ),
         ) === JSON.stringify(value)
       )
         continue;
       if (state.configuration) {
-        const original = editionSchema.parse(bootstrap[0]);
+        const original = editionSchema.parse(
+          normalizeEditionBranding(bootstrap[0]),
+        );
         if (
           !allowBootstrap ||
           slug !== "s11" ||
           state.configurationVersion !== 0 ||
           JSON.stringify(
-            editionSchema.parse({ ...state.configuration, slug }),
+            editionSchema.parse(
+              normalizeEditionBranding({ ...state.configuration, slug }),
+            ),
           ) !== JSON.stringify(original)
         )
           throw new Error(
@@ -75,23 +93,21 @@ export async function importLegacyEditions(
       await tx
         .insert(editionRevisions)
         .values({ editionSlug: slug, version: revision, configuration });
-      await tx
-        .insert(editionEvents)
-        .values({
-          editionSlug: slug,
-          kind: "tournament_legacy_import",
-          detail: {
-            entity: { type: "tournament", id: slug },
-            source: "one_time_migration",
-            before: state.configuration
-              ? {
-                  configuration: state.configuration,
-                  revision: state.configurationVersion,
-                }
-              : null,
-            after: { configuration, revision },
-          },
-        });
+      await tx.insert(editionEvents).values({
+        editionSlug: slug,
+        kind: "tournament_legacy_import",
+        detail: {
+          entity: { type: "tournament", id: slug },
+          source: "one_time_migration",
+          before: state.configuration
+            ? {
+                configuration: state.configuration,
+                revision: state.configurationVersion,
+              }
+            : null,
+          after: { configuration, revision },
+        },
+      });
       imported++;
     }
   });

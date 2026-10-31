@@ -155,8 +155,8 @@ describe("S6 surviving source evidence", () => {
     );
     expect(
       createHash("sha256")
-        .update(readFileSync("public/archive/s6/key-visual.jpg"))
+        .update(readFileSync("public/archive/s6/key-visual.webp"))
         .digest("hex"),
-    ).toBe("3f40ae9a494ef7b349229e45c016c0e8fb82719b125bd4c407cd121099e720b7");
+    ).toBe("c6b0d5597c33b5ea71b1f477abde2bfe6d5678b078c42fbe96f058b99d5f5200");
   });
 });

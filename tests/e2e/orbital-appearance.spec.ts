@@ -127,7 +127,7 @@ test.describe("S6 Orbital Pulse appearance", () => {
         const original = page.locator(".archive-key-visual img");
         await expect(original).toHaveAttribute(
           "src",
-          "/archive/s6/key-visual.jpg",
+          "/archive/s6/key-visual.webp",
         );
         await expect(original).toHaveJSProperty("naturalWidth", 1920);
         await expect(original).toHaveJSProperty("naturalHeight", 1080);

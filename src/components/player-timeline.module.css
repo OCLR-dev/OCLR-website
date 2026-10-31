@@ -1,0 +1,230 @@
+.section {
+  --timeline-ink: var(--site-foreground, var(--color-foreground));
+  --timeline-muted: var(--site-muted, var(--color-muted));
+  --timeline-line: var(--site-border, var(--color-border));
+  --timeline-raised: var(--site-raised, var(--color-raised));
+  --timeline-surface: var(--site-surface, var(--color-surface));
+  --timeline-accent: var(--site-accent, var(--color-accent));
+}
+
+.titleRow {
+  margin-bottom: 0.7rem;
+}
+
+.titleRow h2 {
+  margin: 0;
+}
+
+.card {
+  position: relative;
+  padding: 4px 16px;
+  border: 1px solid var(--timeline-line);
+  border-radius: 0.9rem;
+  background: var(--timeline-raised);
+}
+
+/* Range captions: the old below-rail text moved to the card's top corners. */
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2px;
+  color: var(--timeline-muted);
+  font-size: 0.6rem;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.metaRow > span {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.plot {
+  position: relative;
+  height: 34px;
+}
+
+.track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 15px;
+  height: 16px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--timeline-line) 70%, transparent);
+}
+
+.period {
+  z-index: 1;
+  left: var(--tl-left, 0);
+  width: max(16px, var(--tl-width, 0%));
+}
+
+/* Keep the 16px rail readable as a target on touch screens. */
+.period::before {
+  content: "";
+  position: absolute;
+  inset: -8px -3px;
+}
+
+.period[aria-pressed="true"] {
+  z-index: 2;
+}
+
+/* Taller than the 16px rail so each season reads as a capsule, not a hairline. */
+.periodFill {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 20px;
+  margin-top: -10px;
+  display: block;
+  border-radius: 10px;
+  background-color: color-mix(in srgb, var(--timeline-muted) 60%, transparent);
+  transition:
+    background-color 0.15s ease,
+    filter 0.15s ease;
+}
+
+.periodFill[data-participated="true"] {
+  background-color: var(--timeline-accent);
+}
+
+/* The season accent needs the dark variant of that same season theme. */
+:global(html[data-theme="dark"]) .periodFill[data-participated="true"] {
+  background-color: var(--timeline-accent-dark, var(--timeline-accent));
+}
+
+/* Hatching marks a span inferred from recorded matches, not a fixed window. */
+.periodFill[data-provisional="true"] {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 2px,
+    var(--timeline-raised) 2px 4px
+  );
+}
+
+.periodFill[data-active="true"] {
+  filter: brightness(1.12);
+  outline: 2px solid var(--timeline-ink);
+  outline-offset: 1px;
+}
+
+/* Player milestones keep the season capsule geometry, in the page ink colour. */
+.markPoint {
+  position: absolute;
+  z-index: 4;
+  bottom: 13px;
+  left: var(--tl-left, 0);
+  width: 16px;
+  height: 20px;
+  margin-left: -8px;
+  border-radius: 10px;
+  background: var(--timeline-ink);
+  box-shadow: 0 0 0 2px var(--timeline-raised);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.markPoint[data-active="true"] {
+  background: var(--timeline-accent);
+  transform: scale(1.1);
+}
+
+/* Two-digit year ticks under the rail, like the former "osu! · 2007.07" text. */
+.years {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 10px;
+  color: var(--timeline-muted);
+  font-size: 0.55rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.year {
+  position: absolute;
+  bottom: 0;
+  left: var(--tl-year, 0%);
+  transform: translateX(-50%);
+}
+
+/* Text-width bubble, centred on the hovered item and clamped after measuring. */
+.tip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 6;
+  width: max-content;
+  max-width: min(24rem, calc(100vw - 2rem));
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--timeline-line);
+  border-radius: 0.75rem;
+  background: var(--timeline-surface);
+  color: var(--timeline-ink);
+  box-shadow: 0 0.6rem 1.6rem rgb(0 0 0 / 45%);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+/* The edition's key visual tints the bubble at a flat, readable opacity. */
+.tipVisual {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.tipText {
+  position: relative;
+}
+
+/* On narrow screens the whole axis switches to the log scale computed inline. */
+@media (max-width: 560px) {
+  .period {
+    left: var(--tl-left-log, var(--tl-left, 0));
+    width: max(16px, var(--tl-width-log, var(--tl-width, 0%)));
+  }
+
+  .markPoint {
+    left: var(--tl-left-log, var(--tl-left, 0));
+  }
+
+  .card {
+    padding-inline: 12px;
+  }
+
+  .year {
+    left: var(--tl-year-log, var(--tl-year, 0%));
+    font-size: 0.5rem;
+  }
+
+  /* Thin the crowded log-scale ticks to five-year marks; the end year stays. */
+  .year[data-sparse="true"] {
+    display: none;
+  }
+
+  .year[data-last="true"] {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .markPoint,
+  .periodFill {
+    transition: none;
+  }
+}

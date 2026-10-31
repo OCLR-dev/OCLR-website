@@ -221,11 +221,14 @@ button:hover {
   margin-bottom: 1rem;
 }
 /* The profile card is a banner plus body, not a normal content panel: its
-   first branch (the cover) sits flush against the card border, so the side
-   insets below it follow the cover's 1.25rem group inset instead of the
-   1.5rem panel padding. */
+   first branch (the cover) sits flush against the card border, so the card
+   uses one 20px inset instead of the panel's 1.5rem padding. */
 .panel.profile-summary {
+  /* One 20px inset on every side; the banner bleeds exactly the block padding
+     above it so the cover stays flush with the card border. */
+  padding-block: 20px;
   padding-inline: 1.25rem;
+  --profile-cover-bleed: 20px;
 }
 .panel {
   background: linear-gradient(120deg, #171b2d, #111523);
@@ -390,11 +393,6 @@ button:hover {
   }
   .panel {
     padding: 1.4rem;
-  }
-  /* Keep the profile banner flush with the card: it bleeds by the panel's real
-     block padding, which is 1.4rem at this width. */
-  .panel.profile-summary {
-    --profile-cover-bleed: 1.4rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2639,9 +2637,8 @@ html[data-appearance]
 }
 .profile-cover {
   /* One inset for every group overlaid on the cover: the content row, the
-     level chip and the id pill. The panel's own padding is 1.5rem, but the
-     cover is a banner, not a content block, so its groups sit a step closer
-     to the artwork edges. */
+     level chip and the id pill. It matches the card's own 1.25rem padding, so
+     the overlaid groups line up with the body content below the banner. */
   --profile-cover-inset: 1.25rem;
   /* The id pill's outer block size: 0.8rem at a 1.35 line height plus 0.1rem
      of block padding. The narrow-screen heading reserve below adds it to the
@@ -2652,8 +2649,7 @@ html[data-appearance]
   align-items: flex-end;
   /* Bleed exactly the card's own padding so the banner is flush with the card
      edges: the same 1.25rem inline inset the card is padded with, and the
-     panel's block padding, which the narrow breakpoint shrinks and therefore
-     owns through this variable instead of us assuming 1.5rem. */
+     card's 20px block padding, owned here through this variable. */
   margin-block: calc(-1 * var(--profile-cover-bleed, var(--space-panel))) 0;
   margin-inline: calc(-1 * var(--profile-cover-inset));
   min-height: clamp(7rem, 18vw, 13rem);
@@ -2911,6 +2907,46 @@ html:not([data-theme="dark"])
   font-size: 0.8rem;
   max-width: 15rem;
 }
+/* Badge artwork and award metadata inside the badges note panel. */
+.bws-card-badge-list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.bws-card-badge-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+.bws-card-badge-image {
+  flex: none;
+  width: 4rem;
+  height: 1.5rem;
+  border-radius: 0.2rem;
+  object-fit: contain;
+  object-position: left center;
+}
+.bws-card-badge-image--empty {
+  border: 1px dashed var(--site-border, var(--color-border));
+  opacity: 0.45;
+}
+.bws-card-badge-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.bws-card-badge-description {
+  font-size: 0.78rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.bws-card-badge-meta {
+  color: var(--site-muted, var(--color-muted));
+  font-size: 0.72rem;
+}
 .bws-card-divider {
   width: 1px;
   align-self: stretch;
@@ -3057,18 +3093,24 @@ html[data-appearance]
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(15rem, 1fr);
   gap: 1.25rem 2rem;
-  align-items: start;
+  /* The chart card stretches to the row height set by the statistics column,
+     so the two columns end on the same line. */
+  align-items: stretch;
   /* The cover keeps no bottom margin; this is the body's own breathing room
      above the chart and statistics, matching the cover's 1.25rem group inset
-     so the whole profile card keeps one vertical rhythm. */
-  margin-block: 1.25rem;
+     so the whole profile card keeps one vertical rhythm. No bottom margin:
+     the card's own 20px padding closes the card. */
+  margin-block: 1.25rem 0;
 }
 .profile-body--single {
   grid-template-columns: minmax(0, 1fr);
 }
 .rank-chart-card {
   /* One 0.75rem inset on all four sides; the chart's own 12px internal
-     margins sit inside it. */
+     margins sit inside it. The card is a stretched grid item, so the chart
+     fills whatever height the statistics column gives the row. */
+  display: flex;
+  flex-direction: column;
   padding: 0.75rem;
   border: 1px solid var(--site-border, var(--color-border));
   border-radius: 0.9rem;
@@ -3077,6 +3119,7 @@ html[data-appearance]
 
 .rank-chart {
   position: relative;
+  flex: 1;
   min-height: 184px;
   touch-action: pan-y;
 }
