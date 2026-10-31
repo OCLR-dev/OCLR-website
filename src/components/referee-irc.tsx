@@ -343,11 +343,6 @@ export function RefereeIrc({
               : tr("IRC not connected")}
         </span>
       </header>
-      <p className="small muted">
-        {tr(
-          "BP saves sync automatically: Ban announces; Pick announces, changes the map and applies saved Mods.",
-        )}
-      </p>
       {syncEvents.length > 0 && (
         <div role="status" className={styles.syncStatus}>
           <span>
@@ -388,21 +383,7 @@ export function RefereeIrc({
               </a>
             </p>
           )}
-          {!connected && (
-            <p className="small muted">
-              {tr(
-                "If the app does not open, install the latest OCLR IRC and launch it once, then try again.",
-              )}{" "}
-              <a
-                href="https://github.com/OCLR-dev/OCLR-IRC/actions/workflows/test-builds.yml"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {tr("Get OCLR IRC")}
-              </a>
-            </p>
-          )}
-          {relay?.connection ? (
+          {relay?.connection && (
             <div className={styles.ircConnection}>
               <span className="small">
                 {relay.connection.ircUsername} ·{" "}
@@ -419,15 +400,28 @@ export function RefereeIrc({
                 {tr("Disconnect relay")}
               </button>
             </div>
-          ) : (
-            <p className="small muted">
-              {tr(
-                "Open OCLR IRC to continue connecting this match. Sign in and confirm the connection in the desktop app.",
-              )}
-            </p>
           )}
           <details className={styles.ircHelp}>
             <summary>{tr("Connection setup")}</summary>
+            <p className="small muted">
+              {tr(
+                "BP saves sync automatically: Ban announces; Pick announces, changes the map and applies saved Mods.",
+              )}
+            </p>
+            {!connected && (
+              <p className="small muted">
+                {tr(
+                  "If the app does not open, install the latest OCLR IRC and launch it once, then try again.",
+                )}{" "}
+                <a
+                  href="https://github.com/OCLR-dev/OCLR-IRC/actions/workflows/test-builds.yml"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {tr("Get OCLR IRC")}
+                </a>
+              </p>
+            )}
             <ol>
               <li>{tr("Open oclr-irc and sign in to osu! IRC locally.")}</li>
               <li>
