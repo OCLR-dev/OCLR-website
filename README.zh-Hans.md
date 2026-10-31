@@ -116,9 +116,6 @@ Playwright 会在本地回环地址的 3100 端口启动生产构建。如需使
 - [Shi Thi](https://osu.ppy.sh/users/3094900)
 - [qi_e](https://osu.ppy.sh/users/6963321)
 - [\[SHK\]ShandenYMD](https://osu.ppy.sh/users/13413713)
-
-## 贡献者
-
 - [Muziyami](https://osu.ppy.sh/users/7003013)
 
 ## 许可
