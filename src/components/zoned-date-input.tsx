@@ -14,6 +14,7 @@ export function ZonedDateInput({
   onChange,
   onValidityChange,
   optional = false,
+  hideEmptyError = false,
 }: {
   label: string;
   value: string | null;
@@ -21,6 +22,7 @@ export function ZonedDateInput({
   onChange: (value: string | null) => void;
   onValidityChange: (valid: boolean) => void;
   optional?: boolean;
+  hideEmptyError?: boolean;
 }) {
   const tr = useAppTranslations();
 
@@ -53,6 +55,9 @@ export function ZonedDateInput({
     draft.offset,
   );
   const valid = result.value !== undefined;
+  const showError = Boolean(
+    result.error && (!hideEmptyError || draft.date || draft.time),
+  );
   useEffect(() => {
     onValidityChange(valid);
   }, [valid, onValidityChange]);
@@ -87,7 +92,7 @@ export function ZonedDateInput({
   return (
     <fieldset
       className="zoned-date-input"
-      aria-describedby={`${id}-help${result.error ? ` ${id}-error` : ""}`}
+      aria-describedby={`${id}-help${showError ? ` ${id}-error` : ""}`}
     >
       <legend>
         {label}
@@ -101,8 +106,8 @@ export function ZonedDateInput({
             type="date"
             required={!optional}
             value={draft.date}
-            aria-invalid={!valid}
-            aria-describedby={result.error ? `${id}-error` : `${id}-help`}
+            aria-invalid={showError}
+            aria-describedby={showError ? `${id}-error` : `${id}-help`}
             onChange={(event) => edit(event.target.value, draft.time)}
           />
         </label>
@@ -118,8 +123,8 @@ export function ZonedDateInput({
               maxLength={5}
               required={!optional}
               value={draft.time}
-              aria-invalid={!valid}
-              aria-describedby={result.error ? `${id}-error` : `${id}-help`}
+              aria-invalid={showError}
+              aria-describedby={showError ? `${id}-error` : `${id}-help`}
               onChange={(event) => {
                 const text = event.target.value;
                 // Numeric mobile keyboards need no colon key: 1510 → 15:10.
@@ -157,8 +162,8 @@ export function ZonedDateInput({
           </span>
           <select
             aria-labelledby={`${id}-offset-label`}
-            aria-describedby={result.error ? `${id}-error` : undefined}
-            aria-invalid={!valid}
+            aria-describedby={showError ? `${id}-error` : undefined}
+            aria-invalid={showError}
             value={selectedOffset}
             onChange={(event) =>
               edit(draft.date, draft.time, event.target.value)
@@ -180,7 +185,7 @@ export function ZonedDateInput({
           </select>
         </label>
       )}
-      {result.error && (
+      {showError && (
         <p id={`${id}-error`} role="alert" className="error-text small">
           {tr(result.error)}
         </p>

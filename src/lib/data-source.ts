@@ -75,6 +75,12 @@ function matchesRoute(path: string, template: string, api = false) {
   );
 }
 export function remotePageSupported(path: string) {
+  if (
+    /^\/(?:admin\/)?tournaments\/[^/]+\/(?:schedule\/requests|matches\/schedule-requests)(?:\/|$)/.test(
+      path,
+    )
+  )
+    return false;
   return paths.pages.some((template) => matchesRoute(path, template));
 }
 export function remoteApiSupported(path: string) {

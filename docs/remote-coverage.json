@@ -403,6 +403,22 @@
       "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
     },
     {
+      "file": "src/app/admin/tournaments/[edition]/matches/schedule-requests/page.tsx",
+      "kind": "page",
+      "authority": "denied",
+      "operations": ["getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Denied in remote mode",
+      "adapter": "proxy rejection",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "403 without database/provider access"
+    },
+    {
       "file": "src/app/admin/tournaments/[edition]/page.tsx",
       "kind": "page",
       "authority": "saved-read",
@@ -1468,6 +1484,22 @@
       "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
     },
     {
+      "file": "src/app/api/tournaments/[edition]/schedule/requests/route.ts",
+      "kind": "read-route",
+      "authority": "denied",
+      "operations": ["getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Denied in remote mode",
+      "adapter": "proxy rejection",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "403 without database/provider access"
+    },
+    {
       "file": "src/app/api/tournaments/route.ts",
       "kind": "read-route",
       "authority": "saved-read",
@@ -2127,6 +2159,22 @@
       "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
     },
     {
+      "file": "src/app/tournaments/[edition]/schedule/requests/page.tsx",
+      "kind": "page",
+      "authority": "denied",
+      "operations": ["getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Same file; shared request adapter for dynamic data",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Denied in remote mode",
+      "adapter": "proxy rejection",
+      "media": "Published/protected avatar routes",
+      "requiredVerification": "403 without database/provider access"
+    },
+    {
       "file": "src/app/tournaments/[edition]/staff/page.tsx",
       "kind": "page",
       "authority": "saved-read",
@@ -2669,6 +2717,20 @@
       "authorization": "Existing publication/subject boundaries",
       "adapter": "no database; repository content/navigation/preferences",
       "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/schedule-manager.tsx",
+      "kind": "client",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Denied in remote mode",
+      "adapter": "proxy rejection",
+      "media": "Published/protected avatar routes",
       "requiredVerification": "Browser interaction/polling + API snapshot immutability"
     },
     {

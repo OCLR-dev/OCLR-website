@@ -1523,3 +1523,98 @@ export const mappoolCandidateComments = pgTable(
     index("candidate_comment_target_idx").on(t.candidateId, t.createdAt),
   ],
 );
+
+// Private scheduling data. Requests retain their immutable fixture snapshot after deletion.
+export const scheduleAvailability = pgTable(
+  "schedule_availability",
+  {
+    fixtureId: uuid("fixture_id")
+      .notNull()
+      .references(() => fixtures.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId),
+    membershipId: uuid("membership_id")
+      .notNull()
+      .references(() => memberships.id),
+    intervals: jsonb("intervals")
+      .$type<import("@/lib/schedule-model").AvailabilityInterval[]>()
+      .notNull(),
+    version: integer("version").notNull().default(1),
+  },
+  (t) => [
+    primaryKey({ columns: [t.fixtureId, t.userId] }),
+    check(
+      "schedule_availability_intervals",
+      sql`jsonb_typeof(${t.intervals}) = 'array' AND jsonb_array_length(${t.intervals}) <= 40`,
+    ),
+  ],
+);
+export const scheduleRequests = pgTable(
+  "schedule_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    editionSlug: text("edition_slug")
+      .notNull()
+      .references(() => editionState.slug),
+    fixtureId: uuid("fixture_id").references(() => fixtures.id, {
+      onDelete: "set null",
+    }),
+    fixtureSnapshotId: uuid("fixture_snapshot_id").notNull(),
+    label: text("label").notNull(),
+    basis: jsonb("basis")
+      .$type<import("@/lib/schedule-model").ScheduleBasis>()
+      .notNull(),
+    proposedAt: timestamp("proposed_at", { withTimezone: true }).notNull(),
+    proposerId: bigint("proposer_id", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId),
+    status: text("status")
+      .$type<import("@/lib/schedule-model").ScheduleStatus>()
+      .notNull(),
+    version: integer("version").notNull().default(1),
+    decisionNote: text("decision_note"),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("schedule_one_active_request")
+      .on(t.fixtureId)
+      .where(sql`${t.status} IN ('waiting', 'pending')`),
+    index("schedule_requests_edition").on(t.editionSlug),
+    check(
+      "schedule_request_status",
+      sql`${t.status} IN ('waiting','pending','approved','rejected','withdrawn','expired')`,
+    ),
+  ],
+);
+export const scheduleEvents = pgTable(
+  "schedule_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    editionSlug: text("edition_slug")
+      .notNull()
+      .references(() => editionState.slug),
+    requestId: uuid("request_id").references(() => scheduleRequests.id),
+    actorId: bigint("actor_id", { mode: "number" }).references(
+      () => users.osuId,
+      { onDelete: "set null" },
+    ),
+    requestKey: uuid("request_key"),
+    requestHash: text("request_hash"),
+    action: text("action").notNull(),
+    detail: jsonb("detail").$type<Record<string, unknown>>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("schedule_event_request_key").on(
+      t.editionSlug,
+      t.actorId,
+      t.requestKey,
+    ),
+    index("schedule_events_request").on(t.requestId),
+  ],
+);

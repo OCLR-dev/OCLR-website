@@ -1,3 +1,5 @@
+import { Action } from "@/components/ui";
+import { getAppTranslations } from "@/i18n/server";
 import { EventSchedule } from "@/components/event-schedule";
 import { historicalPage } from "@/components/historical-archive";
 import { getPublicEdition } from "@/lib/content";
@@ -48,12 +50,20 @@ async function Issue271Page({
     sourceBlue: f.away.sourceId ?? undefined,
     href: `/tournaments/${slug}/matches/${f.id}`,
   }));
+  const tr = await getAppTranslations();
   return (
-    <EventSchedule
-      edition={slug}
-      matches={matches}
-      groups={competition?.groups}
-    />
+    <>
+      <div className="actions">
+        <Action href={`/tournaments/${slug}/schedule/requests`} secondary>
+          {tr("Schedule requests")}
+        </Action>
+      </div>
+      <EventSchedule
+        edition={slug}
+        matches={matches}
+        groups={competition?.groups}
+      />
+    </>
   );
 }
 

@@ -1,0 +1,146 @@
+.schedule-tool {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+.schedule-editor {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+.schedule-heading {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.schedule-heading h2 {
+  margin: 0.25rem 0;
+}
+.schedule-heading p {
+  margin: 0.25rem 0;
+}
+.schedule-proposal-box {
+  border-inline-start: 3px solid var(--site-accent);
+  padding: 1rem;
+  background: var(--site-raised);
+}
+.schedule-forms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+}
+.schedule-forms section {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+.schedule-slots {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.schedule-slots li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--site-border);
+}
+.schedule-tool select,
+.schedule-tool textarea {
+  max-width: 100%;
+}
+.schedule-tool details {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--site-border);
+  overflow-wrap: anywhere;
+}
+.schedule-calendar {
+  min-width: 0;
+  overflow: hidden;
+  --fc-classic-background: var(--site-surface);
+  --fc-classic-foreground: var(--site-foreground);
+  --fc-classic-muted-foreground: var(--site-muted);
+  --fc-classic-faint-foreground: var(--site-muted);
+  --fc-classic-border: var(--site-border);
+  --fc-classic-strong-border: var(--site-control-border);
+  --fc-classic-button: var(--site-primary);
+  --fc-classic-button-border: var(--site-primary);
+  --fc-classic-button-strong: var(--site-primary-hover);
+  --fc-classic-button-strong-border: var(--site-primary-hover);
+  --fc-classic-button-foreground: var(--site-on-primary);
+  --fc-classic-primary: var(--site-primary);
+  --fc-classic-primary-foreground: var(--site-on-primary);
+  --fc-classic-event: var(--site-primary);
+  --fc-classic-event-contrast: var(--site-on-primary);
+  --fc-classic-background-event: var(--site-success);
+  --fc-classic-background-event-opacity: 20%;
+  --fc-classic-background-event-foreground-opacity: 100%;
+  --fc-classic-highlight: var(--site-selection);
+  --fc-classic-today: var(--site-raised);
+  --fc-classic-now: var(--site-danger);
+  --fc-classic-faint: var(--site-raised);
+  --fc-classic-muted: var(--site-tint);
+  --fc-classic-strong: var(--site-border);
+  --fc-classic-button-outline: var(--site-focus);
+}
+.schedule-calendar .schedule-calendar-root {
+  font-size: 0.8125rem;
+}
+.schedule-calendar .schedule-calendar-title {
+  font-size: 1rem;
+}
+.schedule-calendar .schedule-official {
+  font-weight: 700;
+}
+.schedule-calendar .schedule-proposal {
+  border-style: dashed;
+}
+@media (max-width: 640px) {
+  .schedule-forms {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+  .schedule-calendar-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .schedule-editor {
+    padding: 1rem;
+  }
+}
+
+.schedule-calendar .schedule-point {
+  background: transparent;
+  border: 0;
+  color: var(--site-foreground);
+  box-shadow: none;
+  border-block-start: 2px solid var(--site-accent);
+}
+.schedule-calendar .schedule-proposal {
+  border-block-start-style: dashed;
+}
+
+.schedule-forms .zoned-date-input {
+  border: 1px solid var(--site-border);
+  border-radius: var(--radius-panel);
+  padding: 0.75rem 1rem 1rem;
+  min-width: 0;
+  margin: 0;
+}
+.schedule-forms .zoned-date-input legend {
+  padding: 0 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.schedule-time-scroller:focus-visible {
+  outline: 2px solid var(--site-focus);
+  outline-offset: -2px;
+}

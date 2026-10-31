@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { FixtureManager } from "@/components/fixture-manager";
 import { StreamingManager } from "@/components/streaming-manager";
-import { PageHeading } from "@/components/ui";
+import { Action, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { canRead, staffAccess } from "@/lib/auth/staff";
@@ -59,6 +59,16 @@ async function Issue271Page({
               : tr("My assigned matches")
           }
         />
+        {data.canManage && (
+          <div className="actions">
+            <Action
+              href={`/admin/tournaments/${edition}/matches/schedule-requests`}
+              secondary
+            >
+              {tr("Review schedule requests")}
+            </Action>
+          </div>
+        )}
         <FixtureManager slug={edition} data={data} />
       </>
     );
