@@ -452,7 +452,7 @@ export const historicalArchiveSchema = z
         "pool slot",
       );
   })
-  .transform((archive): typeof archive => {
+  .overwrite((archive) => {
     // #629 supersedes the old #289 interpretation of this exact source cell.
     // Normalize saved imports as well as new uploads without rewriting evidence.
     if (
