@@ -45,6 +45,7 @@ async function editionRecord(
   const base: CompetitionEditionRecord = {
     editionSlug: slug,
     editionName: first.editionName,
+    season: null,
     team: teams.values().next().value ?? null,
     coachedTeams: [
       ...new Map(
@@ -60,9 +61,11 @@ async function editionRecord(
     matches: [],
     unavailable: false,
   };
-  if (!teams.size) return base;
   try {
+    // The edition's stored season orders the player's tournaments newest first.
     const edition = await getPublicEdition(slug);
+    base.season = edition?.season ?? null;
+    if (!teams.size) return base;
     if (edition?.archive) {
       const recorded = edition.archive.matches.filter(recordedArchiveMatch);
       const matches: CompetitionMatchRecord[] = [];

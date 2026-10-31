@@ -26,6 +26,7 @@ function edition(
   return {
     editionSlug: slug,
     editionName: slug.toUpperCase(),
+    season: /\d+$/.exec(slug)?.[0] ?? null,
     team: { id: `${slug}-team`, name: `${slug} team` },
     coachedTeams: [],
     role: null,
@@ -103,19 +104,34 @@ describe("player competition summary", () => {
     expect(result.longestWinStreak).toBe(3);
   });
 
-  it("orders editions by their first recorded match and keeps undated editions last", () => {
+  it("orders editions by stored season, newest first, and keeps unknown seasons last", () => {
     const result = summarizePlayerCompetition([
       edition("undated", [match("win", "group", 6, 0, null)]),
-      edition("later", [match("loss", "group", 1, 6, "2025-01-01T00:00:00Z")]),
-      edition("earlier", [match("win", "group", 6, 0, "2024-01-01T00:00:00Z")]),
+      edition("s10", []),
+      edition("s2", [match("loss", "group", 1, 6, "2025-01-01T00:00:00Z")]),
+      edition("s3", [match("win", "group", 6, 0, "2024-01-01T00:00:00Z")]),
     ]);
     expect(result.editions.map((e) => e.editionSlug)).toEqual([
-      "earlier",
-      "later",
+      "s10",
+      "s3",
+      "s2",
       "undated",
     ]);
     expect(result.firstAt).toBe("2024-01-01T00:00:00Z");
     expect(result.lastAt).toBe("2025-01-01T00:00:00Z");
+  });
+
+  it("still orders a season without match dates by its stored season", () => {
+    const result = summarizePlayerCompetition([
+      edition("s5", [match("win", "group", 6, 0, null)]),
+      edition("s4", [match("win", "group", 6, 0, "2020-06-06T00:00:00Z")]),
+      edition("s7", [match("loss", "group", 1, 6, "2021-12-27T00:00:00Z")]),
+    ]);
+    expect(result.editions.map((e) => e.editionSlug)).toEqual([
+      "s7",
+      "s5",
+      "s4",
+    ]);
   });
 
   it("reports the best and worst recorded finish and leaves the rate unknown without decided matches", () => {
@@ -132,7 +148,9 @@ describe("player competition summary", () => {
       draws: 1,
       winRate: 1,
     });
-    expect(result.editions.at(-1)?.unavailable).toBe(true);
+    expect(
+      result.editions.find((e) => e.editionSlug === "s4")?.unavailable,
+    ).toBe(true);
     const empty = summarizePlayerCompetition([edition("s5", [])]);
     expect(empty.winRate).toBeNull();
     expect(empty.bestPlacing).toBeNull();
