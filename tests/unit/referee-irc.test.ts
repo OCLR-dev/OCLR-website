@@ -153,3 +153,59 @@ it("separates creation receivers from room commands and rejects injected room ti
   ])
     expect(allowedMakeCommand(text)).toBe(false);
 });
+
+it.each([
+  ["!mp timer 30", "Countdown ends in 30 seconds"],
+  ["!mp timer 90", "Countdown ends in 1 minute and 30 seconds"],
+  ["!mp addref Ref_Name", "Added Ref Name to the match referees"],
+])("confirms scoped exact reply for %s", (command, text) => {
+  const evidence = { sender: "BanchoBot", target: "#mp_123", text };
+  expect(confirmsIrcCommand(command, "#mp_123", evidence)).toBe(true);
+  for (const patch of [
+    { sender: "Fake" },
+    { target: "#mp_124" },
+    { text: "prefix " + text },
+    {
+      text: text
+        .replace("30", "20")
+        .replace("Ref Name", "Other")
+        .replace("1 minute", "2 minutes"),
+    },
+  ])
+    expect(
+      confirmsIrcCommand(command, "#mp_123", { ...evidence, ...patch }),
+    ).toBe(false);
+});
+it("does not confirm a completed timer or a queued start as timer acceptance", () => {
+  for (const text of [
+    "Countdown finished",
+    "Queued the match to start in 30 seconds",
+    "Countdown ends in 1 minute and 90 seconds",
+  ])
+    expect(
+      confirmsIrcCommand("!mp timer 30", "#mp_123", {
+        sender: "BanchoBot",
+        target: "#mp_123",
+        text,
+      }),
+    ).toBe(false);
+});
+
+it("accepts only bounded receipt reason codes", () => {
+  const value = {
+    action: "sync",
+    connectionId: "00000000-0000-4000-8000-000000000010",
+    sequence: 1,
+    projection: { status: "connected", messages: [] },
+    receipts: [
+      {
+        commandId: "00000000-0000-4000-8000-000000000011",
+        status: "failed",
+        reason: "pending_operation",
+      },
+    ],
+  };
+  expect(relaySchema.safeParse(value).success).toBe(true);
+  value.receipts[0].reason = "private raw error";
+  expect(relaySchema.safeParse(value).success).toBe(false);
+});

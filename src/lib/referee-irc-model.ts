@@ -67,6 +67,17 @@ export const relaySchema = z.discriminatedUnion("action", [
             .object({
               commandId: z.uuid(),
               status: z.enum(["sent", "confirmed", "failed", "unknown"]),
+              reason: z
+                .enum([
+                  "pending_operation",
+                  "room_checks",
+                  "bancho_rejected",
+                  "reply_timeout",
+                  "invalid_command",
+                  "target_changed",
+                  "local_rejected",
+                ])
+                .optional(),
               evidence: z
                 .object({
                   sender: line(100),
@@ -131,6 +142,29 @@ export function confirmsIrcCommand(
     evidence.target.toLowerCase() !== target.toLowerCase()
   )
     return false;
+  const timer = /^!mp timer ([1-9]\d{0,3})$/.exec(text);
+  const countdown =
+    /^Countdown ends in (\d{1,4}) (minute|second)s?(?: and (\d{1,2}) seconds?)?$/.exec(
+      evidence.text,
+    );
+  if (
+    timer &&
+    countdown &&
+    (!countdown[3] || (countdown[2] === "minute" && Number(countdown[3]) < 60))
+  ) {
+    const seconds =
+      Number(countdown[1]) * (countdown[2] === "minute" ? 60 : 1) +
+      Number(countdown[3] ?? 0);
+    if (seconds === Number(timer[1]) && seconds <= 3600) return true;
+  }
+  const addref = /^!mp addref ([A-Za-z0-9_\[\]-]{1,50})$/.exec(text);
+  const added = /^Added (.+) to the match referees\.?$/.exec(evidence.text);
+  if (
+    addref &&
+    added &&
+    normalizedIrcUsername(addref[1]) === normalizedIrcUsername(added[1])
+  )
+    return true;
   if (text === "!mp abort")
     return /^Aborted the match\.?$/i.test(evidence.text);
   if (text === "!mp aborttimer")

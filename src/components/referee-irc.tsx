@@ -146,6 +146,29 @@ export function RefereeIrc({
     unknown: tr("Outcome unknown; check the room"),
     record_failed: tr("IRC confirmed; referee record needs review"),
   };
+  const failureReasons: Record<string, string> = {
+    "relay:local_rejected": tr(
+      "The local app rejected this command before sending. Check operation records and room state in OCLR IRC.",
+    ),
+    "relay:pending_operation": tr(
+      "A previous room operation needs review in OCLR IRC before sending another command.",
+    ),
+    "relay:room_checks": tr(
+      "The local app could not verify current room settings or referee access. Refresh them in OCLR IRC.",
+    ),
+    "relay:bancho_rejected": tr(
+      "BanchoBot rejected this command. Check the room reply in OCLR IRC.",
+    ),
+    "relay:reply_timeout": tr(
+      "No matching BanchoBot reply was confirmed. Check the room before sending another command.",
+    ),
+    "relay:invalid_command": tr(
+      "This command is not supported by the local IRC relay.",
+    ),
+    "relay:target_changed": tr(
+      "The local room or connection changed before this command could be sent.",
+    ),
+  };
   async function submit() {
     if (
       inFlight.current ||
@@ -351,6 +374,10 @@ export function RefereeIrc({
                   <div className={styles.ircMessage} key={command.id}>
                     <code>{command.text}</code>
                     <small>{statusLabels[command.status]}</small>
+                    {command.recordError &&
+                      failureReasons[command.recordError] && (
+                        <small>{failureReasons[command.recordError]}</small>
+                      )}
                   </div>
                 ))}
               </details>

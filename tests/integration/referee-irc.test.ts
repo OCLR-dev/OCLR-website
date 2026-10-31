@@ -309,4 +309,48 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
       }),
     ).rejects.toThrow();
   });
+  it("confirms a timer then dispatches addref, and records safe local rejection reasons", async () => {
+    const queue = (text: string) =>
+      refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+        action: "queue",
+        requestKey: randomUUID(),
+        text,
+      });
+    await sync();
+    await queue("!mp timer 30");
+    const timer = (await sync()).command!;
+    const text = "Countdown ends in 30 seconds";
+    const message = {
+      id: randomUUID(),
+      sender: "BanchoBot",
+      text,
+      at: new Date().toISOString(),
+    };
+    await sync(
+      [
+        { commandId: timer.id, status: "sent" },
+        {
+          commandId: timer.id,
+          status: "confirmed",
+          evidence: { sender: "BanchoBot", target: timer.target, text },
+        },
+      ],
+      [message],
+    );
+    expect(
+      (await refereeIrcView(referee, "test-cup", fixtureId)).commands.at(-1)
+        ?.status,
+    ).toBe("confirmed");
+    await queue("!mp addref SyntheticRef");
+    const addref = (await sync()).command!;
+    await sync([
+      { commandId: addref.id, status: "failed", reason: "pending_operation" },
+    ]);
+    const row = (
+      await refereeIrcView(referee, "test-cup", fixtureId)
+    ).commands.at(-1)!;
+    expect(row.status).toBe("failed");
+    expect(row.recordError).toBe("relay:pending_operation");
+    expect((await sync()).command).toBeNull();
+  });
 });

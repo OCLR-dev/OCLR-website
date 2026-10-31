@@ -445,3 +445,11 @@ relay wire 使用保留值 roomId 0 表示開房接收器，目標 BanchoBot；s
 執裁頁未連接 IRC 時，按「開啟 OCLR IRC」呼叫 `oclr-irc://connect?fixture=<UUID>`。瀏覽器可能要求確認開啟外部程式；沒有開啟時請下載最新版封裝程式並先啟動一次，Linux 另執行 portable 成品的 install-protocol.sh。桌面會帶入待連接場次；登入 IRC 後按「繼續連接」，必要時完成原系統瀏覽器 PKCE 授權，再確認帳號並啟用網站 IRC。網站只有收到既有 relay heartbeat 才顯示已連接，不以點擊或等待秒數宣稱成功。
 
 啟動連結只帶 fixture UUID，不含 token、網站 cookie、IRC 憑證或指令，也不自動變更房間。桌面重新驗證本人指派與面板，無效或未授權連結不會取得資料。模擬執裁頁不提供外部程式入口。新增介面文字仍待組織者審閱。
+
+### 2026-10-31 IRC 指令狀態診斷
+
+修正本機未送出卻回報結果未知的情境。新桌面先核對共同操作佇列及必要房間證據，只有進入 socket write 才回報已嘗試送出；拒絕則顯示 failed 與有限原因。若有舊 pending／unknown，請先至 OCLR IRC 操作記錄人工核對，不重新按送出。歷史回執不會追溯改成成功，也不自動重送。
+
+timer 只接受相同秒數的送後 BanchoBot 倒數回覆；addref 只接受同名 Added ... to the match referees。網站仍重新核對房間、來源、baseline ID 及同步投影，送出／觀測確認不同於因果或 exactly-once 保證。addref 的實際建立者權限仍由 Bancho 控制。
+
+bind 新增可選能力 receiptReasons:true；reason 是有限 enum，存入既有 recordError 的 relay: 前綴、以固定三語言文案顯示，無 DB migration。新桌面向舊網站不送 reason，舊客戶端沒有 reason 時維持原有狀態顯示。未取得精確回覆時保留 unknown，不以網站已連接標記宣稱命令已執行。新增中文提示待組織者審閱。
