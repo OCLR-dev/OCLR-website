@@ -21,6 +21,7 @@ import {
 import type { MappoolWorkspace } from "@/lib/mappools";
 import { EntryForm } from "./mappool-editor";
 import { WorkspaceTabs } from "./workspace-tabs";
+import { MapCardBand } from "./map-card-band";
 import { BeatmapCover } from "./beatmap-cover";
 import { BeatmapActions } from "./beatmap-actions";
 import styles from "./mappool-workbench.module.css";
@@ -587,10 +588,38 @@ export function SelectionWorkbench({
                   aria-label={`BID ${c.beatmapId}`}
                 >
                   <div>
-                    <div className={styles.mapRow}>
-                      <MapIdentity id={c.beatmapId} metadata={c.metadata} />
-                      <Parameters m={c.metadata} />
-                      <div className="small muted">
+                    <MapCardBand
+                      id={`candidate-map-${c.id}`}
+                      dataCategory={c.category}
+                      slot={
+                        c.category === "unassigned"
+                          ? tr("Unassigned")
+                          : c.category
+                      }
+                      title={c.metadata.title ?? `BID ${c.beatmapId}`}
+                      artist={c.metadata.artist}
+                      difficulty={c.metadata.difficulty}
+                      mapper={c.metadata.mapper}
+                      beatmapId={c.beatmapId}
+                      setId={c.metadata.setId}
+                      stars={c.metadata.stars}
+                      bpm={c.metadata.bpm}
+                      durationSeconds={c.metadata.duration}
+                      cs={c.metadata.cs}
+                      ar={c.metadata.ar}
+                      od={c.metadata.od}
+                      showMode={false}
+                      openHref={`https://osu.ppy.sh/beatmaps/${c.beatmapId}`}
+                      openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
+                      note={tr("★ base")}
+                      chips={
+                        <span>
+                          {tr("HP")} {formatBeatmapNumber(c.metadata.hp)}
+                        </span>
+                      }
+                    />
+                    <div className={styles.candidateTools}>
+                      <div className={`small muted ${styles.attribution}`}>
                         <p>
                           {tr("Added by")}{" "}
                           <a
@@ -602,48 +631,48 @@ export function SelectionWorkbench({
                         </p>
                         <Stamp value={c.createdAt} />
                       </div>
+                      {writable && (
+                        <label className={`field ${styles.categoryField}`}>
+                          <span>{tr("Mod category")}</span>
+                          <select
+                            value={c.category}
+                            disabled={busy}
+                            onChange={async (event) => {
+                              setBusy(true);
+                              setError("");
+                              try {
+                                await request(base, {
+                                  action: "classify",
+                                  candidateId: c.id,
+                                  category: event.target.value,
+                                  expectedCategory: c.category,
+                                });
+                                await reload();
+                              } catch (e) {
+                                setError((e as Error).message);
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          >
+                            {candidateCategories.map((value) => (
+                              <option key={value} value={value}>
+                                {value === "unassigned"
+                                  ? tr("Unassigned")
+                                  : value}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      )}
+                      {officialPools && (
+                        <PromoteCandidate
+                          slug={slug}
+                          candidate={c}
+                          initialPools={officialPools}
+                        />
+                      )}
                     </div>
-                    {writable && (
-                      <label className={`field ${styles.categoryField}`}>
-                        <span>{tr("Mod category")}</span>
-                        <select
-                          value={c.category}
-                          disabled={busy}
-                          onChange={async (event) => {
-                            setBusy(true);
-                            setError("");
-                            try {
-                              await request(base, {
-                                action: "classify",
-                                candidateId: c.id,
-                                category: event.target.value,
-                                expectedCategory: c.category,
-                              });
-                              await reload();
-                            } catch (e) {
-                              setError((e as Error).message);
-                            } finally {
-                              setBusy(false);
-                            }
-                          }}
-                        >
-                          {candidateCategories.map((value) => (
-                            <option key={value} value={value}>
-                              {value === "unassigned"
-                                ? tr("Unassigned")
-                                : value}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    )}
-                    {officialPools && (
-                      <PromoteCandidate
-                        slug={slug}
-                        candidate={c}
-                        initialPools={officialPools}
-                      />
-                    )}
                   </div>
                   <Comments
                     slug={slug}
