@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { RefereeWorkspace } from "@/lib/referee";
+import { desktopLaunchUrl } from "@/lib/desktop-launch";
 import styles from "./referee-panel.module.css";
 
 type Selection = {
@@ -45,6 +46,7 @@ type QueueRequest = {
 };
 export function RefereeIrc({
   draft,
+  fixtureId,
   simulation,
   disabled,
   startSeconds,
@@ -60,6 +62,7 @@ export function RefereeIrc({
   onConfirmed,
 }: {
   draft: string;
+  fixtureId: string;
   simulation: boolean;
   disabled: boolean;
   startSeconds: number;
@@ -132,6 +135,7 @@ export function RefereeIrc({
       clearTimeout(timer);
     };
   }, [endpoint, simulation]);
+  const launchUrl = desktopLaunchUrl(fixtureId);
   const connected = !!relay?.connection?.connected;
   const statusLabels = {
     queued: tr("Queued for local IRC"),
@@ -239,6 +243,27 @@ export function RefereeIrc({
         </p>
       ) : (
         <>
+          {!connected && launchUrl && (
+            <p>
+              <a className="button secondary" href={launchUrl}>
+                {tr("Open OCLR IRC")}
+              </a>
+            </p>
+          )}
+          {!connected && (
+            <p className="small muted">
+              {tr(
+                "If the app does not open, install the latest OCLR IRC and launch it once, then try again.",
+              )}{" "}
+              <a
+                href="https://github.com/OCLR-dev/OCLR-IRC/actions/workflows/test-builds.yml"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {tr("Get OCLR IRC")}
+              </a>
+            </p>
+          )}
           {relay?.connection ? (
             <div className={styles.ircConnection}>
               <span className="small">
@@ -259,7 +284,7 @@ export function RefereeIrc({
           ) : (
             <p className="small muted">
               {tr(
-                "Open oclr-irc, authorize OCLR, then create or join a room and sync this match from the desktop app.",
+                "Open OCLR IRC to continue connecting this match. Sign in and confirm the connection in the desktop app.",
               )}
             </p>
           )}
@@ -274,13 +299,13 @@ export function RefereeIrc({
               </li>
               <li>
                 {tr(
-                  "Create or join the match room locally, then enable synchronization.",
+                  "Confirm the accounts and enable website IRC. You can then create a room from this page.",
                 )}
               </li>
             </ol>
             <p>
               {tr(
-                "Room creation stays in the desktop app. IRC credentials never enter this page.",
+                "IRC credentials stay in the desktop app. The launch link does not sign you in or send commands.",
               )}
             </p>
             <a href="/desktop/sessions">{tr("Manage desktop sessions")}</a>

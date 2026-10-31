@@ -439,3 +439,9 @@ Until approval, public schedule data retains the original official time.
 新版桌面可在正式授權、本人場次與帳號核對後，按「連接網站 IRC」建立尚無房間的開房接收連線。網站按傳送即可將 make 交給本機 BanchoBot 開房流程；不再要求先有 MP 房間。此狀態只接受一次 make，其他房內操作仍須已加入且核對的房間。完成 JOIN／History／裁判名單核對後轉為房間投影。未知結果不重送，開房 receipt 仍保守標示待人工核對；不得據此重建第二間房。
 
 relay wire 使用保留值 roomId 0 表示開房接收器，目標 BanchoBot；sync 可在已派送 make 後帶正整數 roomId 轉入已觀測房間。0 不代表合法 MP 房號，不需 DB migration。桌面與網站需一起更新；PKCE、scope、本人指派及暱稱人工配對保持有效。desktop panel 的 capturedAt／freshUntil 使用同一時鐘讀取，避免毫秒邊界超出 30 秒。
+
+### 網頁喚起 OCLR IRC（2026-10-31）
+
+執裁頁未連接 IRC 時，按「開啟 OCLR IRC」呼叫 `oclr-irc://connect?fixture=<UUID>`。瀏覽器可能要求確認開啟外部程式；沒有開啟時請下載最新版封裝程式並先啟動一次，Linux 另執行 portable 成品的 install-protocol.sh。桌面會帶入待連接場次；登入 IRC 後按「繼續連接」，必要時完成原系統瀏覽器 PKCE 授權，再確認帳號並啟用網站 IRC。網站只有收到既有 relay heartbeat 才顯示已連接，不以點擊或等待秒數宣稱成功。
+
+啟動連結只帶 fixture UUID，不含 token、網站 cookie、IRC 憑證或指令，也不自動變更房間。桌面重新驗證本人指派與面板，無效或未授權連結不會取得資料。模擬執裁頁不提供外部程式入口。新增介面文字仍待組織者審閱。

@@ -1026,6 +1026,7 @@ export function RefereePanel({
         </section>
       </div>
       <RefereeIrc
+        fixtureId={data.fixture.id}
         key={simulationEpoch}
         endpoint={`${endpoint}/irc`}
         selection={
