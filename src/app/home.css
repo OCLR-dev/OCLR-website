@@ -466,11 +466,24 @@ html[data-theme="dark"]
 .home-person-feature::after {
   display: none;
 }
+/* The hero is 2:1 on wide screens, capped so the header, the entries and the
+ * start of the next section share the first screen. The artwork is laid out on
+ * a 2:1 stage that scales with the hero; when the cap applies, the stage keeps
+ * the logo aligned with the page container and the sky fills the full width. */
+.home-person-feature {
+  --home-hero-h: min(50vw, max(26rem, 100svh - 16rem));
+}
 .home-composition {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  --home-stage-w: min(100%, 2 * var(--home-hero-h));
+  --home-stage-x: clamp(
+    0px,
+    max(3rem, (100% - 1240px) / 2) - 0.043788 * var(--home-stage-w),
+    100% - var(--home-stage-w)
+  );
 }
 .home-composition .home-layer {
   position: absolute;
@@ -484,9 +497,9 @@ html[data-theme="dark"]
   filter: saturate(0.78) brightness(1.8);
 }
 .home-layer-ground {
-  left: -29.1%;
-  top: 89.2%;
-  width: 94.4%;
+  left: calc(var(--home-stage-x) - 0.291 * var(--home-stage-w));
+  top: calc(0.892 * var(--home-hero-h));
+  width: calc(0.944 * var(--home-stage-w));
 }
 .home-composition-shade {
   position: absolute;
@@ -499,40 +512,43 @@ html[data-theme="dark"]
   );
 }
 .home-layer-person {
-  left: 63%;
-  top: 28%;
-  width: 53.97609%;
+  left: calc(var(--home-stage-x) + 0.63 * var(--home-stage-w));
+  top: calc(0.28 * var(--home-hero-h));
+  width: calc(0.5397609 * var(--home-stage-w));
   transform: perspective(1200px) rotateY(12deg);
 }
 .home-layer-logo {
-  left: 4.3788%;
-  top: 14.4727%;
-  width: 46.4545%;
+  left: calc(var(--home-stage-x) + 0.043788 * var(--home-stage-w));
+  top: calc(0.144727 * var(--home-hero-h));
+  width: calc(0.464545 * var(--home-stage-w));
 }
 .home-layer-season {
-  left: -32.0428%;
-  top: -7.97239%;
-  width: 90.5268%;
+  left: calc(var(--home-stage-x) - 0.320428 * var(--home-stage-w));
+  top: calc(-0.0797239 * var(--home-hero-h));
+  width: calc(0.905268 * var(--home-stage-w));
 }
 .home-layer-katu {
-  left: 41.4881%;
-  top: 22.0044%;
-  width: 4.68417%;
+  left: calc(var(--home-stage-x) + 0.414881 * var(--home-stage-w));
+  top: calc(0.220044 * var(--home-hero-h));
+  width: calc(0.0468417 * var(--home-stage-w));
 }
 .home-person-feature .home-feature-inner {
   position: relative;
-  min-height: 50vw;
+  min-height: var(--home-hero-h);
   align-items: end;
-  padding-block: 0 4vw;
+  padding-block: 0 calc(0.08 * var(--home-hero-h));
 }
 .home-person-feature .home-feature-left {
   width: 40%;
   padding: 0;
 }
 @media (max-width: 1000px) {
+  /* Narrow screens stack the full-width artwork above the entries. */
   .home-person-feature .home-composition {
     position: relative;
     aspect-ratio: 2 / 1;
+    container-type: inline-size;
+    --home-hero-h: 50cqw;
   }
   .home-person-feature .home-feature-inner {
     min-height: 0;

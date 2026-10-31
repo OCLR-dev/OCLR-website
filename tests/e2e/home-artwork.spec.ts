@@ -33,3 +33,28 @@ test("a narrow homepage downloads responsive PNGs without full-size fallbacks", 
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(390);
 });
+
+test("the homepage hero leaves the entries and the next section on the first screen (#587)", async ({
+  page,
+}) => {
+  for (const [width, height] of [
+    [1920, 990],
+    [1440, 990],
+    [1366, 768],
+    [1280, 720],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/");
+    const box = async (selector: string) =>
+      (await page.locator(selector).first().boundingBox())!;
+    const hero = await box(".home-feature");
+    const entries = await box(".home-entry-links");
+    const logo = await box(".home-layer-logo");
+    expect(entries.y + entries.height).toBeLessThanOrEqual(height);
+    expect(hero.y + hero.height).toBeLessThanOrEqual(height - 120);
+    expect(logo.y + logo.height).toBeLessThan(entries.y);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(width);
+  }
+});
