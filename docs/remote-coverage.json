@@ -546,7 +546,6 @@
       "kind": "page",
       "authority": "saved-read",
       "operations": [
-        "captainIdentities",
         "captainSetup",
         "getTeamAvatar",
         "staffAccess",
@@ -556,7 +555,6 @@
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
       "services": [
-        "src/lib/frontend-read-models.ts#captainIdentities",
         "src/lib/fixtures.ts#staffFixtures",
         "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)",
         "src/lib/auth/staff.ts#staffAccess",

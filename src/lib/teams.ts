@@ -194,6 +194,17 @@ export async function updateTeams(
     )
       throw new HttpError(409, "Coaching is disabled for this tournament.");
     const protection = await draftSetupProtection(tx, slug);
+    const globalCapacity = state.configuration?.rosterCapacity;
+    if (
+      globalCapacity !== undefined &&
+      ((command.action === "configure" &&
+        command.teams.some((t) => t.capacity !== globalCapacity)) ||
+        (command.action === "edit" && command.capacity !== globalCapacity))
+    )
+      throw new HttpError(
+        400,
+        "Change roster capacity in tournament settings.",
+      );
     const before = await tx
       .select()
       .from(teams)

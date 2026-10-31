@@ -1,5 +1,3 @@
-import { CaptainManager } from "@/components/captain-manager";
-import { captainIdentities } from "@/lib/frontend-read-models";
 import styles from "@/components/team-management.module.css";
 import { StageGroups } from "@/components/stage-groups";
 import { StaffReadOnlyContext } from "@/components/staff-read-only";
@@ -8,7 +6,6 @@ import { ConfirmMutation } from "@/components/confirm-mutation";
 import { TeamAvatar } from "@/components/team-avatar";
 import { TeamCoachManager } from "@/components/team-coach-manager";
 import { TeamEditor } from "@/components/team-editor";
-import { TeamManager } from "@/components/team-manager";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
@@ -28,7 +25,6 @@ async function Issue271Page({
     const actor = await requireStaff();
     const { edition } = await params;
     const setup = await captainSetup(actor, edition);
-    const identities = await captainIdentities(actor, edition);
     const data = await staffTeams(actor, edition);
     const competition = await staffFixtures(actor, edition);
     return (
@@ -62,7 +58,10 @@ async function Issue271Page({
               )}
             </p>
             <div className="actions">
-              <Link className="button" href="#captains">
+              <Link
+                className="button"
+                href={`/admin/tournaments/${edition}/captains`}
+              >
                 {tr("Appoint captains")}
               </Link>
               {!setup.candidates.length && (
@@ -152,7 +151,6 @@ async function Issue271Page({
                         slug={edition}
                         version={data.version}
                         team={t}
-                        locked={data.locked}
                       />
                       <ConfirmMutation
                         label={
@@ -221,32 +219,6 @@ async function Issue271Page({
             </tbody>
           </table>
         </div>
-        <section id="captains" className={styles.configuration}>
-          <h2>{tr("Captains & player pool")}</h2>
-          <details open={!data.teams.length}>
-            <summary>{tr("Captains & player pool")}</summary>
-            <CaptainManager
-              slug={edition}
-              setup={setup}
-              identities={identities}
-            />
-          </details>
-          {!data.locked && setup.captains.length > 0 && (
-            <TeamManager
-              key={data.version}
-              slug={edition}
-              version={data.version}
-              captains={setup.captains.map((c) => {
-                const t = data.teams.find((t) => t.captainId === c.userId);
-                return {
-                  ...c,
-                  name: t?.name ?? "",
-                  capacity: t?.capacity ?? null,
-                };
-              })}
-            />
-          )}
-        </section>
       </>
     );
   });

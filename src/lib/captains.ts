@@ -305,6 +305,28 @@ export async function updateCaptains(
       await tx
         .insert(captains)
         .values({ editionSlug: slug, userId: command.userId, position });
+      const [user] = await tx
+        .select()
+        .from(users)
+        .where(eq(users.osuId, command.userId));
+      const [team] = await tx
+        .insert(teams)
+        .values({
+          editionSlug: slug,
+          captainId: command.userId,
+          name: user.username,
+          capacity: state.configuration?.rosterCapacity ?? null,
+        })
+        .returning();
+      await tx
+        .insert(memberships)
+        .values({
+          editionSlug: slug,
+          teamId: team.id,
+          userId: command.userId,
+          origin: "captain",
+        });
+      rosterChange = { ...rosterChange, createdTeam: team };
     } else if (command.action === "revoke") {
       if (!before.some((c) => c.userId === command.userId))
         throw new HttpError(409, "Captain not found.");

@@ -40,12 +40,13 @@ test.describe("count-first group assignment", () => {
     await expect(
       page.getByRole("table", { name: "Team management", exact: true }),
     ).toBeVisible();
+    await expect(page.locator("#captains")).toHaveCount(0);
     await expect(
-      page
-        .locator("#captains")
-        .getByText("Captains & player pool", { exact: true })
-        .first(),
-    ).toBeVisible();
+      page.getByRole("heading", {
+        name: "Configure captain teams",
+        exact: true,
+      }),
+    ).toHaveCount(0);
     const board = page.locator(".group-assignment");
     await expect(
       board.getByLabel("Group count", { exact: true }).locator("option"),
@@ -72,6 +73,12 @@ test.describe("count-first group assignment", () => {
     await expect(page.getByRole("dialog")).toBeHidden();
     await page.reload();
     await expect(board.locator(".group-assignment-card")).toHaveCount(2);
+    const aBox = await a.boundingBox(),
+      bBox = await b.boundingBox();
+    expect(aBox).not.toBeNull();
+    expect(bBox).not.toBeNull();
+    if (!isMobile) expect(Math.abs(aBox!.y - bBox!.y)).toBeLessThan(2);
+    else expect(bBox!.y).toBeGreaterThan(aBox!.y);
     const before = await (
       await context.request.get("/api/admin/tournaments/test-cup/matches")
     ).json();

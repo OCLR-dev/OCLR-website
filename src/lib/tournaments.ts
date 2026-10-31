@@ -5,10 +5,11 @@ import {
   editionRevisions,
   editionState,
   registrations,
+  memberships,
   teams,
   tournamentStages,
 } from "@/db/schema";
-import { and, desc, eq, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
@@ -32,6 +33,8 @@ import {
 } from "./editions";
 import { compareTournamentSeasons } from "./tournament-order";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { draftSetupProtection } from "./draft-setup";
+import { refreshDraftSnapshot } from "./draft";
 import { HttpError } from "./http";
 import {
   archiveStaffConfirmation,
@@ -201,6 +204,7 @@ const commandSchema = z.discriminatedUnion("action", [
       ...identity,
       status: shape.status,
       coachesEnabled: shape.coachesEnabled,
+      rosterCapacity: shape.rosterCapacity,
     })
     .strict(),
   z
@@ -650,6 +654,43 @@ export async function tournamentCommand(
       .select()
       .from(editionRevisions)
       .where(eq(editionRevisions.editionSlug, slug));
+    if (
+      c.action === "general" &&
+      c.rosterCapacity !== undefined &&
+      c.rosterCapacity !== e.rosterCapacity
+    ) {
+      if ((await draftSetupProtection(tx, slug)).locked)
+        throw new HttpError(409, "Roster capacity is locked for the draft.");
+      const active = await tx
+        .select()
+        .from(teams)
+        .where(and(eq(teams.editionSlug, slug), isNull(teams.archivedAt)));
+      for (const team of active) {
+        const roster = await tx
+          .select()
+          .from(memberships)
+          .where(
+            and(eq(memberships.teamId, team.id), isNull(memberships.leftAt)),
+          );
+        if (
+          team.finalizedAt ||
+          (c.rosterCapacity !== null && roster.length > c.rosterCapacity)
+        )
+          throw new HttpError(
+            409,
+            "Capacity cannot be smaller than the current roster or changed for finalized teams.",
+          );
+      }
+      await tx
+        .update(teams)
+        .set({ capacity: c.rosterCapacity })
+        .where(and(eq(teams.editionSlug, slug), isNull(teams.archivedAt)));
+      await tx
+        .update(editionState)
+        .set({ setupVersion: state.setupVersion + 1 })
+        .where(eq(editionState.slug, slug));
+      await refreshDraftSnapshot(tx, slug);
+    }
     if (c.action === "general")
       next = {
         ...e,
@@ -657,6 +698,9 @@ export async function tournamentCommand(
         season: c.season,
         summary: c.summary,
         status: c.status,
+        ...(c.rosterCapacity !== undefined
+          ? { rosterCapacity: c.rosterCapacity }
+          : {}),
         ...(c.coachesEnabled !== undefined
           ? { coachesEnabled: c.coachesEnabled }
           : {}),

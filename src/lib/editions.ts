@@ -96,6 +96,7 @@ export const editionSchema = z
       .strict()
       .default({ logo: null, background: null, keyVisual: null }),
     defaultAppearance: z.enum(appearances).nullable().optional(),
+    rosterCapacity: z.number().int().min(1).max(256).nullable().optional(),
     coachesEnabled: z.boolean().optional(),
     archive: historicalArchiveSchema.optional(),
     published: z.boolean(),

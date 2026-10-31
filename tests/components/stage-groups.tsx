@@ -4,6 +4,7 @@ import {
   AppRouterContext,
   type AppRouterInstance,
 } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import styles from "../../src/components/team-management.module.css";
 import { StageGroups } from "../../src/components/stage-groups";
 import { StaffReadOnlyContext } from "../../src/components/staff-read-only";
 import en from "../../messages/en.json";
@@ -60,7 +61,9 @@ createRoot(document.getElementById("root")!).render(
         <div className="themed-site private-site">
           <main className="container">
             <h1>Group assignment</h1>
-            <StageGroups slug="synthetic" stage={stage} data={{ teams }} />
+            <section className={styles.groups}>
+              <StageGroups slug="synthetic" stage={stage} data={{ teams }} />
+            </section>
           </main>
         </div>
       </StaffReadOnlyContext>
