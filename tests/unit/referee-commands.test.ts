@@ -81,6 +81,8 @@ describe("referee command generation", () => {
   it("invites all twelve roster players by saved username, not only captains or starters", () => {
     const teams = input.teams.map((team, index) => ({
       ...team,
+      captainId: 9000 + index * 10,
+      captainUsername: `Player ${index}-0`,
       members: Array.from({ length: 6 }, (_, n) => ({
         osuId: 9000 + index * 10 + n,
         username: `Player ${index}-${n}`,
@@ -101,7 +103,37 @@ describe("referee command generation", () => {
         ...input,
         teams: teams.map((t) => ({ ...t, members: [] })),
       }).filter((c) => c.kind === "invite"),
-    ).toHaveLength(0);
+    ).toHaveLength(2);
+    expect(invites.filter((c) => c.isCaptain)).toHaveLength(2);
+  });
+  it("always offers each saved captain when roster arrays are empty, using usernames rather than UIDs", () => {
+    const invites = refereeCommands({
+      ...input,
+      teams: input.teams.map((t) => ({ ...t, members: [] })),
+    }).filter((c) => c.kind === "invite");
+    expect(invites.map((c) => c.text)).toEqual([
+      "!mp invite Captain_A",
+      "!mp invite Captain_B",
+    ]);
+    expect(invites.every((c) => c.isCaptain)).toBe(true);
+    const mixed = refereeCommands({
+      ...input,
+      teams: [
+        {
+          ...input.teams[0],
+          members: [
+            { osuId: 123, username: "Stale Name" },
+            { osuId: 4567, username: "Other Player" },
+            { osuId: 4567, username: "Other Player" },
+          ],
+        },
+      ],
+    }).filter((c) => c.kind === "invite");
+    expect(mixed.map((c) => c.text)).toEqual([
+      "!mp invite Captain_A",
+      "!mp invite Other_Player",
+    ]);
+    expect(mixed[0].isCaptain).toBe(true);
   });
   it.each(["", " ", "Player\n!mp abort", "Player\tName"])(
     "rejects unsafe invitation names %j",

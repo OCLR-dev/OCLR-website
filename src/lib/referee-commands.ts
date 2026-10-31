@@ -140,6 +140,7 @@ export type RefereeCommand = {
   reason: string | null;
   teamName?: string;
   playerName?: string;
+  isCaptain?: boolean;
 };
 const positiveInteger = (value: unknown): value is number =>
   typeof value === "number" && Number.isSafeInteger(value) && value > 0;
@@ -225,9 +226,23 @@ export function refereeCommands(input: RefereeCommandInput): RefereeCommand[] {
       "Assign an active Streamer in this fixture’s streaming task.",
     ),
     ...teams.flatMap((team) => {
-      const players = team.members ?? [
-        { osuId: team.captainId, username: team.captainUsername ?? "" },
-      ];
+      const seen = new Set<number>();
+      const players = [
+        {
+          osuId: team.captainId,
+          username: team.captainUsername ?? "",
+          isCaptain: true,
+        },
+        ...(team.members ?? []).map((member) => ({
+          ...member,
+          isCaptain: false,
+        })),
+      ].filter((player) => {
+        if (!positiveInteger(player.osuId)) return true;
+        if (seen.has(player.osuId)) return false;
+        seen.add(player.osuId);
+        return true;
+      });
       return players.map((player) => ({
         ...command(
           "invite",
@@ -236,9 +251,10 @@ export function refereeCommands(input: RefereeCommandInput): RefereeCommand[] {
             : null,
           "This player's saved username is missing or invalid.",
         ),
-        id: team.members
-          ? `invite:${team.id}:${player.osuId}`
-          : `invite:${team.id}`,
+        id: player.isCaptain
+          ? `invite:${team.id}`
+          : `invite:${team.id}:${player.osuId}`,
+        isCaptain: player.isCaptain,
         teamName: team.name,
         playerName: player.username,
       }));

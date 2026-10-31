@@ -323,6 +323,11 @@ Room capacity and players-per-team are distinct. The map mode comes from the
 round's scoring rules; Mods/NF/Freemod and timer defaults require explicit policy.
 `make` creates a new room through BanchoBot; `name` renames an existing room.
 `addref` requires the osu! room creator and grants room control, not a website role.
+Each team has an explicit **Invite captain** command using its saved captain UID
+and osu! username, even when the member list is empty (#626). Captains are listed
+first and deduplicated by UID against the team's remaining invite list. Missing or
+invalid saved identities keep that invitation unavailable; preparing/copying is
+still separate from sending the IRC command.
 Player invites include every member of both saved playing rosters, including
 captains and substitutes, resolving roster membership through saved UID relationships and
 using saved usernames (spaces converted to underscores) in invitation text. Each command

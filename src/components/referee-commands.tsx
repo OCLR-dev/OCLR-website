@@ -65,9 +65,11 @@ function CommandLine({
       "Configure the independent start countdown first.",
     ),
   };
-  const label = command.teamName
-    ? `${command.teamName} · ${command.playerName || labels[command.kind]}`
-    : labels[command.kind];
+  const label = command.isCaptain
+    ? `${tr("Invite captain: {team}", { team: command.teamName ?? "" })} · ${command.playerName || tr("Not set")}`
+    : command.teamName
+      ? `${command.teamName} · ${command.playerName || labels[command.kind]}`
+      : labels[command.kind];
   async function copy() {
     if (!command.text) return;
     if (onPrepare) {
