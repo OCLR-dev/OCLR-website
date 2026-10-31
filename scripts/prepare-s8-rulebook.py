@@ -49,7 +49,7 @@ figures = []
 for i, (image, alt) in enumerate(zip(images.images, ["原始规则书页首横幅", "选秀次序原始示意图", "比赛选图与禁图顺序原始示意图", "错误选图方法原始示例"]), 1):
     width, height = struct.unpack(">II", image[16:24])
     (folder / f"rules-{i}.png").write_bytes(image)
-    figures.append({"src": f"/archive/s8/rules-{i}.png", "alt": alt, "width": width, "height": height})
+    figures.append({"src": f"/archive/s8/rules-{i}.webp", "alt": alt, "width": width, "height": height})
 for section, figure, anchor in [(4, figures[1], "第二轮，第四轮及第六轮的选人次序同第一轮。"), (5, figures[2], "此时顺序如下："), (5, figures[3], "如果超时，裁判会进行一个roll图来代替队伍pick。")]:
     assert anchor in sections[section]["body"]
     sections[section].setdefault("figures", []).append({"after": anchor, **figure})

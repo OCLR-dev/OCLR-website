@@ -51,6 +51,63 @@ export const questionSchema = z.union([
     }),
 ]);
 export type ApplicationQuestion = z.output<typeof questionSchema>;
+// Archived artwork was re-encoded to WebP without changing dimensions. Stored
+// edition configuration may still name the old files, so reads map those paths
+// before validation instead of dropping an admin's saved choice.
+const archiveArtworkPaths = [
+  "/archive/s10/thumbnail.webp",
+  "/archive/s9/thumbnail.webp",
+  "/archive/s8/thumbnail.webp",
+  "/archive/s7/key-visual.jpg",
+  "/archive/s6/key-visual.webp",
+  "/archive/s5/key-visual.webp",
+  "/archive/s4/key-visual.avif",
+  "/archive/s3/key-visual.avif",
+  "/archive/s2/key-visual.avif",
+  "/archive/s1/key-visual.webp",
+] as const;
+type ArchiveArtworkPath = (typeof archiveArtworkPaths)[number];
+const legacyBrandingPaths: Record<string, ArchiveArtworkPath> = {
+  "/archive/s10/thumbnail.png": "/archive/s10/thumbnail.webp",
+  "/archive/s9/thumbnail.png": "/archive/s9/thumbnail.webp",
+  "/archive/s8/thumbnail.jpg": "/archive/s8/thumbnail.webp",
+  "/archive/s6/key-visual.jpg": "/archive/s6/key-visual.webp",
+  "/archive/s5/key-visual.png": "/archive/s5/key-visual.webp",
+};
+export function normalizeBrandingPath<T extends string | null | undefined>(
+  path: T,
+): T {
+  return (
+    typeof path === "string" ? (legacyBrandingPaths[path] ?? path) : path
+  ) as T;
+}
+/**
+ * Map branding on a stored edition configuration or edition object onto the
+ * current artwork files. Unknown values pass through so validation still
+ * rejects arbitrary paths.
+ */
+export function normalizeEditionBranding<T extends { branding?: unknown }>(
+  edition: T,
+): T {
+  const branding = edition.branding;
+  if (!branding || typeof branding !== "object" || Array.isArray(branding))
+    return edition;
+  const normalized: Record<string, unknown> = { ...branding };
+  for (const key of ["logo", "background", "keyVisual"] as const) {
+    const value = normalized[key];
+    if (typeof value === "string")
+      normalized[key] = legacyBrandingPaths[value] ?? value;
+  }
+  return { ...edition, branding: normalized } as T;
+}
+const brandingPaths = [
+  "/oclr-s11-square-logo.webp",
+  ...archiveArtworkPaths,
+] as const;
+const keyVisualPaths = [
+  "/oclr-s11-key-visual.webp",
+  ...archiveArtworkPaths,
+] as const;
 export const editionSchema = z
   .object({
     slug: z
@@ -61,37 +118,9 @@ export const editionSchema = z
     season: z.string().trim().min(1).max(40).nullable().default(null),
     branding: z
       .object({
-        logo: z
-          .enum([
-            "/oclr-s11-square-logo.webp",
-            "/archive/s10/thumbnail.png",
-            "/archive/s9/thumbnail.png",
-            "/archive/s8/thumbnail.jpg",
-            "/archive/s7/key-visual.jpg",
-            "/archive/s6/key-visual.jpg",
-            "/archive/s5/key-visual.png",
-            "/archive/s4/key-visual.avif",
-            "/archive/s3/key-visual.avif",
-            "/archive/s2/key-visual.avif",
-            "/archive/s1/key-visual.webp",
-          ])
-          .nullable(),
+        logo: z.enum(brandingPaths).nullable(),
         background: z.enum(["/oclr-s11-website-background.webp"]).nullable(),
-        keyVisual: z
-          .enum([
-            "/oclr-s11-key-visual.webp",
-            "/archive/s10/thumbnail.png",
-            "/archive/s9/thumbnail.png",
-            "/archive/s8/thumbnail.jpg",
-            "/archive/s7/key-visual.jpg",
-            "/archive/s6/key-visual.jpg",
-            "/archive/s5/key-visual.png",
-            "/archive/s4/key-visual.avif",
-            "/archive/s3/key-visual.avif",
-            "/archive/s2/key-visual.avif",
-            "/archive/s1/key-visual.webp",
-          ])
-          .nullable(),
+        keyVisual: z.enum(keyVisualPaths).nullable(),
       })
       .strict()
       .default({ logo: null, background: null, keyVisual: null }),

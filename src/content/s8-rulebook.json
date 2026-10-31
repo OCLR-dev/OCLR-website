@@ -3,7 +3,7 @@
   "version": null,
   "documentUrl": "https://docs.google.com/document/d/1Bcwl0HD9QVjl8P-Iq5nBqzPPlT-Oag-_IZjzNIfbjpI/edit",
   "cover": {
-    "src": "/archive/s8/rules-1.png",
+    "src": "/archive/s8/rules-1.webp",
     "alt": "原始规则书页首横幅",
     "width": 750,
     "height": 110
@@ -31,7 +31,7 @@
       "figures": [
         {
           "after": "第二轮，第四轮及第六轮的选人次序同第一轮。",
-          "src": "/archive/s8/rules-2.png",
+          "src": "/archive/s8/rules-2.webp",
           "alt": "选秀次序原始示意图",
           "width": 732,
           "height": 255
@@ -44,14 +44,14 @@
       "figures": [
         {
           "after": "此时顺序如下：",
-          "src": "/archive/s8/rules-3.png",
+          "src": "/archive/s8/rules-3.webp",
           "alt": "比赛选图与禁图顺序原始示意图",
           "width": 561,
           "height": 279
         },
         {
           "after": "如果超时，裁判会进行一个roll图来代替队伍pick。",
-          "src": "/archive/s8/rules-4.png",
+          "src": "/archive/s8/rules-4.webp",
           "alt": "错误选图方法原始示例",
           "width": 542,
           "height": 140

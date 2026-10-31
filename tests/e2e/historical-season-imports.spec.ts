@@ -10,7 +10,7 @@ import { edition } from "../fixtures/edition";
 const samples = [
   {
     key: "s8",
-    thumbnail: "/archive/s8/thumbnail.jpg",
+    thumbnail: "/archive/s8/thumbnail.webp",
     thumbnailWidth: 1920,
     thumbnailRatio: 16 / 9,
     season: "8",
@@ -27,7 +27,7 @@ const samples = [
   },
   {
     key: "s10",
-    thumbnail: "/archive/s10/thumbnail.png",
+    thumbnail: "/archive/s10/thumbnail.webp",
     thumbnailWidth: 1024,
     thumbnailRatio: 1,
     season: "10",

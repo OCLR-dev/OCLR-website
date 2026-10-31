@@ -33,14 +33,14 @@
       "figures": [
         {
           "after": "此时顺序如下：",
-          "src": "/archive/s9/rules-1.png",
+          "src": "/archive/s9/rules-1.webp",
           "alt": "Red Ban NM1、Blue Ban NM2、Blue Pick NM3（Team X）、Red Pick NM4（Team Y）、Red Ban HD1、Blue Ban HD2、Blue Pick NM5、Red Pick NM6。",
           "width": 561,
           "height": 279
         },
         {
           "after": "善用Q群，如果超时，裁判会进行一个roll图来代替队伍pick。",
-          "src": "/archive/s9/rules-2.png",
+          "src": "/archive/s9/rules-2.webp",
           "alt": "错误 Pick 方法示范：Neino 使用「那个蓝色背景的hd」指代谱面。",
           "width": 542,
           "height": 140

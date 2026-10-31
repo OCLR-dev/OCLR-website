@@ -124,7 +124,7 @@ it("retains unknown map metadata, raw qualifiers, scheduled and actual times sep
   expect(archive.matches.filter((m) => m.scheduledAt)).toHaveLength(6);
   expect(archive.matches.every((m) => m.review!.startedAt !== null)).toBe(true);
   expect(archiveKeyVisual(archive, null)).toEqual({
-    src: "/archive/s6/key-visual.jpg",
+    src: "/archive/s6/key-visual.webp",
     width: 1920,
     height: 1080,
   });

@@ -1,15 +1,18 @@
 import { describe, expect, it } from "vitest";
 import sharp from "sharp";
-import { editionSchema } from "../../src/lib/editions";
+import {
+  editionSchema,
+  normalizeEditionBranding,
+} from "../../src/lib/editions";
 import { archiveKeyVisual } from "../../src/lib/archive-key-visual";
 import { historicalTournamentOverview } from "../../src/lib/public-read-models";
 import { edition } from "../fixtures/edition";
 import { historicalArchive } from "../fixtures/historical-archive";
 
 const assets = [
-  { src: "/archive/s8/thumbnail.jpg", width: 1920, height: 1080 },
-  { src: "/archive/s9/thumbnail.png", width: 1920, height: 1080 },
-  { src: "/archive/s10/thumbnail.png", width: 1024, height: 1024 },
+  { src: "/archive/s8/thumbnail.webp", width: 1920, height: 1080 },
+  { src: "/archive/s9/thumbnail.webp", width: 1920, height: 1080 },
+  { src: "/archive/s10/thumbnail.webp", width: 1024, height: 1024 },
 ];
 
 describe("built-in tournament branding (#356)", () => {
@@ -40,6 +43,30 @@ describe("built-in tournament branding (#356)", () => {
       ).toEqual(asset);
     },
   );
+  it("maps stored pre-WebP branding onto the current artwork", () => {
+    const configured = editionSchema.parse(
+      normalizeEditionBranding({
+        ...edition,
+        branding: {
+          logo: "/archive/s9/thumbnail.png",
+          keyVisual: "/archive/s10/thumbnail.png",
+          background: null,
+        },
+      }),
+    );
+    expect(configured.branding).toEqual({
+      logo: "/archive/s9/thumbnail.webp",
+      keyVisual: "/archive/s10/thumbnail.webp",
+      background: null,
+    });
+    expect(
+      archiveKeyVisual(historicalArchive, "/archive/s9/thumbnail.png"),
+    ).toEqual({
+      src: "/archive/s9/thumbnail.webp",
+      width: 1920,
+      height: 1080,
+    });
+  });
   it("keeps existing choices and clearing while refusing arbitrary paths and URLs", () => {
     for (const src of [
       null,
@@ -47,7 +74,7 @@ describe("built-in tournament branding (#356)", () => {
       "/archive/s1/key-visual.webp",
       "/archive/s3/key-visual.avif",
       "/archive/s4/key-visual.avif",
-      "/archive/s5/key-visual.png",
+      "/archive/s5/key-visual.webp",
     ])
       expect(
         editionSchema.shape.branding.safeParse({
