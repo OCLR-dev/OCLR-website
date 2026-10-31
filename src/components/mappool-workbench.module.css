@@ -164,7 +164,7 @@
   align-items: start;
   gap: 1.5rem;
 }
-.candidateRow > div {
+.candidateRow > * {
   min-width: 0;
 }
 .discussion h3 {
@@ -194,7 +194,7 @@
   max-width: 100%;
 }
 .promotion {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
 }
 .promotion:has(.promotionForm) {
@@ -210,13 +210,19 @@
   align-items: end;
   flex-wrap: wrap;
   gap: 1rem 1.5rem;
-  padding-top: 1rem;
 }
 .attribution {
-  flex: 1 1 16rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--site-border);
 }
 .attribution p {
-  margin: 0 0 0.25rem;
+  margin: 0;
 }
 
 .commentActions {
@@ -283,4 +289,51 @@
   min-height: 32px;
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
+}
+
+/* Workbench-only extension of the historical map band. */
+.workbenchCard > :global(.map-card-cover),
+.workbenchCard > :global(.map-card-copy) {
+  min-height: 9.75rem;
+}
+.workbenchCard > :global(.map-card-extension) {
+  grid-column: 1 / -1;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  padding: 1rem 1.1rem;
+  border-top: 1px solid var(--site-border);
+  background: var(--site-raised);
+}
+.candidateTools > .candidateRounds {
+  flex: 1 1 20rem;
+}
+.candidateTools > .candidateRounds:has(form) {
+  flex-basis: 100%;
+}
+.candidateTools > .categoryField {
+  flex: 0 1 10rem;
+  width: 10rem;
+}
+.workbenchCard .roundSummary {
+  align-items: center;
+}
+@media (max-width: 640px) {
+  .workbenchCard > :global(.map-card-cover),
+  .workbenchCard > :global(.map-card-copy) {
+    min-height: 0;
+  }
+  .workbenchCard > :global(.map-card-extension) {
+    padding: 0.85rem 0.9rem;
+  }
+  .candidateTools > .candidateRounds,
+  .candidateTools > .categoryField,
+  .candidateTools > .promotion {
+    flex-basis: 100%;
+    max-width: none;
+    width: 100%;
+  }
+  .promotion > button {
+    width: 100%;
+  }
 }

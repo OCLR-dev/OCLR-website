@@ -66,9 +66,11 @@ commit together under the edition lock.
 
 Candidates reuse the historical mappool `MapCardBand`: cover, star-coloured rail,
 Mod category, title/artist/mapper, saved base parameters (including HP), copyable
-BID, official osu! link and osu!direct. Adder, time, category editing and official
-pool promotion sit below the card. Mode/status and snapshot details stay hidden;
-saved metadata is not a live lookup, and unknown fields stay unknown. Comment
+BID, official osu! link and osu!direct. A workbench-specific card extension groups
+round intent, Mod category, official pool promotion, adder and time inside the
+same card boundary; expanded forms use a full row, and controls stack on mobile.
+Mode/status and snapshot details stay hidden; saved metadata is not a live lookup,
+and unknown fields stay unknown. Comment
 boxes remain visible below each card on desktop and mobile; history uses a
 bounded scrolling area inspired by player messages and loads near the viewport.
 Comments preserve author identity/name and their original UTC posting time.
