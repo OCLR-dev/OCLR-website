@@ -1,3 +1,11 @@
+import {
+  archivePlacement,
+  archiveAdjudication,
+  archiveRound,
+  archiveSeason,
+  archiveStandingMetadata,
+  archiveTimeZone,
+} from "./archive-metadata";
 import { z } from "zod";
 import {
   unresolvedArchivePlayer,
@@ -34,7 +42,23 @@ export const historicalArchiveSchema = z
     formatVersion: z.union([z.literal(1), z.literal(2)]),
     editionSlug: key,
     sourceUrl: url,
+    // Capture/import date is provenance, never a competition date.
     capturedOn: z.iso.date(),
+    season: archiveSeason.optional(),
+    finalPlacements: z
+      .array(
+        z
+          .object({
+            teamId: key,
+            ...archiveStandingMetadata,
+            placement: archivePlacement,
+            scope: z.literal("final").optional(),
+            source,
+          })
+          .strict(),
+      )
+      .max(128)
+      .optional(),
     notes: z.array(z.string().trim().min(1).max(2000)).max(30),
     links: z.array(z.object({ label: text, url }).strict()).max(30),
     teams: z
@@ -93,6 +117,7 @@ export const historicalArchiveSchema = z
         z
           .object({
             group: text,
+            ...archiveStandingMetadata,
             teamId: key,
             rank: id.max(128).nullable(),
             wins: score,
@@ -111,6 +136,17 @@ export const historicalArchiveSchema = z
             id: key,
             label: text,
             stage: text,
+            round: archiveRound.optional(),
+            format: z
+              .object({
+                bestOf: id
+                  .max(99)
+                  .refine((value) => value % 2 === 1, "Best-of must be odd."),
+              })
+              .strict()
+              .optional(),
+            timeZone: archiveTimeZone.optional(),
+            adjudication: archiveAdjudication.optional(),
             poolId: key.nullable().optional(),
             teamA: key,
             teamB: key,
@@ -181,7 +217,25 @@ export const historicalArchiveSchema = z
     };
     if (
       archive.formatVersion === 1 &&
-      (archive.unresolvedPlayers !== undefined ||
+      (archive.season !== undefined ||
+        archive.finalPlacements !== undefined ||
+        archive.standings.some(
+          (s) =>
+            s.placement !== undefined ||
+            s.scope !== undefined ||
+            s.tied !== undefined ||
+            s.qualified !== undefined ||
+            s.official !== undefined ||
+            s.note !== undefined,
+        ) ||
+        archive.matches.some(
+          (m) =>
+            m.round !== undefined ||
+            m.format !== undefined ||
+            m.timeZone !== undefined ||
+            m.adjudication !== undefined,
+        ) ||
+        archive.unresolvedPlayers !== undefined ||
         archive.rosterReplacements !== undefined ||
         archive.qualifiers !== undefined ||
         archive.reviewTables !== undefined ||
@@ -373,7 +427,25 @@ export const historicalArchiveSchema = z
       );
       for (const r of table.rows) team(r.teamId);
     }
-    for (const s of archive.standings) team(s.teamId);
+    unique(
+      (archive.finalPlacements ?? []).map((s) => s.teamId),
+      "final placement team",
+    );
+    for (const s of [
+      ...archive.standings,
+      ...(archive.finalPlacements ?? []),
+    ]) {
+      team(s.teamId);
+      if (s.placement && s.placement.end > archive.teams.length)
+        issue("Placement exceeds the edition team count.");
+      if (
+        "rank" in s &&
+        s.rank !== null &&
+        s.placement &&
+        s.rank !== s.placement.start
+      )
+        issue("Standing rank must agree with structured placement.");
+    }
     for (const p of archive.pools)
       unique(
         p.maps.map((m) => m.slot),

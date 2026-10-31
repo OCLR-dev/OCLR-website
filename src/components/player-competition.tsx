@@ -158,6 +158,15 @@ export function PlayerCompetition({
           const group = stage(edition.matches, "group");
           const knockout = stage(edition.matches, "knockout");
           const totals = maps(edition);
+          const finish = edition.placingRange
+            ? {
+                label:
+                  edition.placingRange.start === edition.placingRange.end
+                    ? String(edition.placingRange.start)
+                    : `${edition.placingRange.start}–${edition.placingRange.end}`,
+                derived: false,
+              }
+            : edition.finish;
           return (
             <li className={styles.edition} key={edition.editionSlug}>
               <div className={styles.head}>
@@ -235,15 +244,15 @@ export function PlayerCompetition({
                 </div>
                 <div>
                   <dt>
-                    {edition.finish
-                      ? edition.finish.derived
+                    {finish
+                      ? finish.derived
                         ? tr("Derived placement")
                         : tr("Final placement")
                       : tr("Group rank")}
                   </dt>
                   <dd>
-                    {edition.finish
-                      ? edition.finish.label
+                    {finish
+                      ? finish.label
                       : edition.groupRank
                         ? `${edition.groupRank.group ? `${edition.groupRank.group} · ` : ""}${edition.groupRank.rank}`
                         : "—"}
