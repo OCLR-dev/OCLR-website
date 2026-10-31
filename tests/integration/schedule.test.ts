@@ -19,12 +19,19 @@ import {
   scheduleRequests,
   scheduleEvents,
   scheduleAvailability,
+  resultAuditEvents,
+  matchResults,
+  staffRoles,
+  fixtureReferees,
   teams,
   tournamentStages,
   tournamentRounds,
   users,
 } from "../../src/db/schema";
 import { scheduleCommand, scheduleWorkspace } from "../../src/lib/schedule";
+import { fixtureCommand } from "../../src/lib/fixtures";
+import { refereeCommand, refereeWorkspace } from "../../src/lib/referee";
+import { publicFixture } from "../../src/lib/public-competition";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
@@ -500,5 +507,285 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
     await expect(scheduleWorkspace(player, slug)).rejects.toMatchObject({
       status: 403,
     });
+  });
+  it.each(["decline", "withdraw", "staff-reject"])(
+    "preserves official time and terminal history after %s, including late approvals",
+    async (decision) => {
+      const r = decision === "staff-reject" ? await pending() : await propose();
+      const action = decision === "withdraw" ? "withdraw" : "reject";
+      await scheduleCommand(
+        decision === "staff-reject" ? admin : decision === "withdraw" ? a : b,
+        slug,
+        command(action, {
+          requestId: r.id,
+          expectedVersion: decision === "staff-reject" ? 2 : 1,
+          ...(decision === "staff-reject"
+            ? { decisionNote: "Coverage unavailable" }
+            : {}),
+        }),
+      );
+      const [saved] = await db().select().from(scheduleRequests);
+      const before = await db().select().from(scheduleEvents);
+      await expect(
+        scheduleCommand(
+          admin,
+          slug,
+          command("approve", {
+            requestId: r.id,
+            expectedVersion: saved.version,
+          }),
+        ),
+      ).rejects.toMatchObject({ status: 409 });
+      expect(await db().select().from(scheduleEvents)).toEqual(before);
+      expect(
+        (await db().select().from(fixtures))[0].scheduledAt?.toISOString(),
+      ).toBe(official);
+      expect((await scheduleWorkspace(a, slug)).requests[0].status).toBe(
+        decision === "withdraw" ? "withdrawn" : "rejected",
+      );
+      expect(await db().select().from(resultAuditEvents)).toHaveLength(0);
+    },
+  );
+  it("serializes approval against the actual staff fixture editor", async () => {
+    const r = await pending();
+    const [f] = await db().select().from(fixtures).where(eq(fixtures.id, id));
+    const changed = "2090-01-05T12:00:00.000Z";
+    const results = await Promise.allSettled([
+      scheduleCommand(
+        admin,
+        slug,
+        command("approve", { requestId: r.id, expectedVersion: 2 }),
+      ),
+      fixtureCommand(admin, slug, {
+        action: "edit",
+        confirmed: true,
+        fixtureId: id,
+        expectedVersion: 0,
+        label: f.label,
+        roundId: f.roundId,
+        homeTeamId: ta,
+        awayTeamId: tb,
+        scheduledAt: changed,
+        timeZone: f.timeZone,
+        status: f.status,
+        mappoolId: f.mappoolId,
+        position: f.position,
+        homeSourceId: null,
+        homeSourceOutcome: null,
+        awaySourceId: null,
+        awaySourceOutcome: null,
+      }),
+    ]);
+    expect(results.filter((x) => x.status === "fulfilled")).toHaveLength(1);
+    const [saved] = await db().select().from(scheduleRequests);
+    const approved = saved.status === "approved";
+    expect((await db().select().from(fixtures))[0]).toMatchObject({
+      version: 1,
+      scheduledAt: new Date(approved ? proposed : changed),
+    });
+    expect(saved.status).toBe(approved ? "approved" : "expired");
+    expect(
+      (await db().select().from(scheduleEvents)).filter(
+        (e) => e.action === "approve",
+      ),
+    ).toHaveLength(approved ? 1 : 0);
+    expect(
+      (await db().select().from(resultAuditEvents)).filter(
+        (e) => e.action === "fixture_reschedule",
+      ),
+    ).toHaveLength(approved ? 1 : 0);
+  });
+  it("serializes approval against the actual referee start command", async () => {
+    const r = await pending();
+    const w = await refereeWorkspace(admin, slug, id);
+    const results = await Promise.allSettled([
+      scheduleCommand(
+        admin,
+        slug,
+        command("approve", { requestId: r.id, expectedVersion: 2 }),
+      ),
+      refereeCommand(admin, slug, id, {
+        action: "set_order",
+        firstBanTeamId: ta,
+        firstPickTeamId: tb,
+        expectedRevision: 0,
+        dependencyFingerprint: w.dependencyFingerprint,
+        requestKey: randomUUID(),
+      }),
+    ]);
+    expect(results.filter((x) => x.status === "fulfilled")).toHaveLength(1);
+    const [saved] = await db().select().from(scheduleRequests);
+    const approved = saved.status === "approved";
+    expect(saved.status).toBe(approved ? "approved" : "expired");
+    expect(
+      (await db().select().from(fixtures))[0].scheduledAt?.toISOString(),
+    ).toBe(approved ? proposed : official);
+    const operational = await db().execute(
+      sql`SELECT * FROM referee_events WHERE payload->>'type'='order_set'`,
+    );
+    expect(operational.rows).toHaveLength(approved ? 0 : 1);
+    expect(
+      (await db().select().from(scheduleEvents)).filter(
+        (e) => e.action === "approve",
+      ),
+    ).toHaveLength(approved ? 1 : 0);
+    expect(
+      (await db().select().from(resultAuditEvents)).filter(
+        (e) => e.action === "fixture_reschedule",
+      ),
+    ).toHaveLength(approved ? 1 : 0);
+  });
+  it.each(["team", "captain-membership", "result", "started"])(
+    "invalidates pending agreement on %s changes and rejects approval without a success event",
+    async (change) => {
+      const r = await pending();
+      if (change === "team")
+        await db()
+          .update(fixtures)
+          .set({ homeTeamId: null })
+          .where(eq(fixtures.id, id));
+      if (change === "captain-membership")
+        await db()
+          .update(memberships)
+          .set({ leftAt: new Date() })
+          .where(eq(memberships.userId, a.osuId));
+      if (change === "result")
+        await db().insert(matchResults).values({ fixtureId: id });
+      if (change === "started")
+        await db()
+          .update(fixtures)
+          .set({ status: "in_progress" })
+          .where(eq(fixtures.id, id));
+      await expect(
+        scheduleCommand(
+          admin,
+          slug,
+          command("approve", { requestId: r.id, expectedVersion: 2 }),
+        ),
+      ).rejects.toMatchObject({ status: 409 });
+      expect((await db().select().from(scheduleRequests))[0].status).toBe(
+        "expired",
+      );
+      expect(
+        (await db().select().from(scheduleEvents)).filter(
+          (e) => e.action === "approve",
+        ),
+      ).toHaveLength(0);
+      expect(await db().select().from(resultAuditEvents)).toHaveLength(0);
+    },
+  );
+  it("rechecks revoked scoped staff grants and does not broaden referee privileges", async () => {
+    const r = await pending();
+    const [grant] = await db()
+      .insert(staffRoles)
+      .values({
+        userId: other.osuId,
+        role: "admin",
+        editionSlug: slug,
+        grantedBy: admin.osuId,
+      })
+      .returning();
+    expect((await scheduleWorkspace(other, slug)).admin).toBe(true);
+    await db()
+      .update(staffRoles)
+      .set({ revokedAt: new Date() })
+      .where(eq(staffRoles.id, grant.id));
+    await db().insert(staffRoles).values({
+      userId: other.osuId,
+      role: "referee",
+      editionSlug: slug,
+      grantedBy: admin.osuId,
+    });
+    await expect(
+      scheduleCommand(
+        other,
+        slug,
+        command("approve", { requestId: r.id, expectedVersion: 2 }),
+      ),
+    ).rejects.toMatchObject({ status: 403 });
+    expect((await db().select().from(scheduleRequests))[0].status).toBe(
+      "pending",
+    );
+    expect(
+      (await db().select().from(scheduleEvents)).filter(
+        (e) => e.action === "approve",
+      ),
+    ).toHaveLength(0);
+  });
+  it("does not inherit availability from a previous membership when a player rejoins", async () => {
+    await scheduleCommand(
+      player,
+      slug,
+      command("availability", {
+        expectedVersion: 0,
+        intervals: [{ start: official, end: proposed }],
+      }),
+    );
+    await db()
+      .update(memberships)
+      .set({ leftAt: new Date() })
+      .where(eq(memberships.userId, player.osuId));
+    await expect(scheduleWorkspace(player, slug)).rejects.toMatchObject({
+      status: 403,
+    });
+    await db().insert(memberships).values({
+      editionSlug: slug,
+      teamId: ta,
+      userId: player.osuId,
+      origin: "draft",
+    });
+    expect(
+      (await scheduleWorkspace(player, slug)).fixtures[0].ownAvailability
+        .intervals,
+    ).toEqual([]);
+    expect((await scheduleWorkspace(a, slug)).fixtures[0].unreported).toBe(2);
+    await scheduleCommand(
+      player,
+      slug,
+      command("availability", {
+        expectedVersion: 1,
+        intervals: [{ start: proposed, end: "2090-01-02T13:00:00Z" }],
+      }),
+    );
+    expect(
+      (await scheduleWorkspace(a, slug)).fixtures[0].summary[0].count,
+    ).toBe(1);
+  });
+  it("publishes only the approved fixture instant while preserving referee and streaming assignments", async () => {
+    await db()
+      .insert(fixtureReferees)
+      .values({ fixtureId: id, userId: other.osuId, assignedBy: admin.osuId });
+    await db()
+      .insert(fixtureStreams)
+      .values({
+        fixtureId: id,
+        userId: other.osuId,
+        source: "staff",
+        assignedBy: admin.osuId,
+        confirmedScheduledAt: new Date(official),
+        confirmedTimeZone: "Asia/Taipei",
+      });
+    const r = await pending();
+    expect((await publicFixture(slug, id))?.scheduledAt).toBe(official);
+    await scheduleCommand(
+      admin,
+      slug,
+      command("approve", { requestId: r.id, expectedVersion: 2 }),
+    );
+    const published = await publicFixture(slug, id);
+    expect(published?.scheduledAt).toBe(proposed);
+    expect(JSON.stringify(published)).not.toContain('"basis"');
+    expect((await db().select().from(fixtureReferees))[0].userId).toBe(
+      other.osuId,
+    );
+    expect((await db().select().from(fixtureStreams))[0]).toMatchObject({
+      userId: other.osuId,
+      confirmedScheduledAt: new Date(official),
+    });
+    expect(
+      (await db().select().from(resultAuditEvents)).filter(
+        (e) => e.action === "fixture_reschedule",
+      ),
+    ).toHaveLength(1);
   });
 });

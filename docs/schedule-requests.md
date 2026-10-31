@@ -73,5 +73,5 @@ claimed end time. Staff approval remains a separate confirmation.
 Apply the additive migration before running this release. Application rollback
 must retain these tables, events and invalidation triggers; do not remove saved
 requests or rewrite history. This document does not authorize a production
-migration, role grant or deployment. New Chinese interface wording awaits
-organizer review.
+migration, role grant or deployment. The organizer approved the new Chinese interface wording on 2026-10-31 during
+[#591 acceptance](verification/issue-591/README.md#acceptance-audit--2026-10-31).
