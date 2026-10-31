@@ -332,6 +332,15 @@ Both paths return the identical fixture/stage/mappools schema. The latter accept
 only the edition-bound streaming audience and grants no other Developer reads.
 See [Streaming API](streaming-api.md) for selection, idle expiry and transport.
 
+### Contract 1.13.0: saved profile badge artwork
+
+Saved osu! profile badges add optional `imageUrl` and `image2xUrl` fields, both
+restricted to `https://assets.ppy.sh` when fetched from the provider. Older saved
+rows and backends omit them and parse as `null`; the badge count still comes from
+the saved `badges` array. This is an additive read-only projection with no
+database migration or write capability. The players page shows the total profile
+badge count and uses the artwork in its explanatory panel.
+
 ### Contract 1.7.0: repeated Mod Bans
 
 Referee policies add optional `banCategoryRules: { allowRepeats, repeatExceptions }`.
@@ -363,7 +372,7 @@ published teams. Remote frontends need this backend contract for these controls;
 older backends do not supply the new setup behavior.
 
 
-## Historical metadata additions (v1.13.0, #610)
+## Historical metadata additions (v1.14.0, #610)
 
 Optional `placingRange` on public participation retains start/end, official and
 tied facts. Optional match-game `excludedReason` provides the reviewed enum (or

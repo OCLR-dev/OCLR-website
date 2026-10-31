@@ -1,3 +1,4 @@
+import { normalizeBrandingPath } from "./editions";
 import type { HistoricalArchive } from "./historical-archive";
 
 const visuals: Record<string, { src: string; width: number; height: number }> =
@@ -23,7 +24,7 @@ const visuals: Record<string, { src: string; width: number; height: number }> =
       height: 1080,
     },
     "100CrQhmcX3lQ_7yn4xcP3cC316A7t35wK6kGfSW2tyM": {
-      src: "/archive/s5/key-visual.png",
+      src: "/archive/s5/key-visual.webp",
       width: 1920,
       height: 1080,
     },
@@ -33,17 +34,17 @@ const visuals: Record<string, { src: string; width: number; height: number }> =
       height: 1080,
     },
     "16ASDCD95p3TgfjgSHCjXmRN3KJuuAD4KS0fImpcTiiM": {
-      src: "/archive/s8/thumbnail.jpg",
+      src: "/archive/s8/thumbnail.webp",
       width: 1920,
       height: 1080,
     },
     "11PwNlEsUFb6f3VCY2-sdGlPysP0ukihN8_lE4DGuzfA": {
-      src: "/archive/s9/thumbnail.png",
+      src: "/archive/s9/thumbnail.webp",
       width: 1920,
       height: 1080,
     },
     "12BGS8WRnl10OdeUKyvmOypFzpTYCpHgx9QY1mw-0hlw": {
-      src: "/archive/s10/thumbnail.png",
+      src: "/archive/s10/thumbnail.webp",
       width: 1024,
       height: 1024,
     },
@@ -58,21 +59,22 @@ export function archiveKeyVisual<
       : undefined;
   const original =
     archive.sourceUrl === "https://github.com/OCLR-dev/OCLR-website/issues/289"
-      ? { src: "/archive/s6/key-visual.jpg", width: 1920, height: 1080 }
+      ? { src: "/archive/s6/key-visual.webp", width: 1920, height: 1080 }
       : sheet
         ? visuals[sheet]
         : undefined;
   // Resolve selected workbook artwork independently of the edition's source,
   // including the square S10 image.
-  const selected = configured
-    ? Object.values(visuals).find((visual) => visual.src === configured)
+  const normalized = normalizeBrandingPath(configured);
+  const selected = normalized
+    ? Object.values(visuals).find((visual) => visual.src === normalized)
     : undefined;
   // Explicit edition branding still takes priority over the source supplement.
-  return configured
+  return normalized
     ? (selected ?? {
-        src: configured,
-        width: original?.src === configured ? original.width : 1672,
-        height: original?.src === configured ? original.height : 941,
+        src: normalized,
+        width: original?.src === normalized ? original.width : 1672,
+        height: original?.src === normalized ? original.height : 941,
       })
     : original;
 }

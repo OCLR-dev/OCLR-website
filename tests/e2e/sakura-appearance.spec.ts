@@ -208,7 +208,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
             ),
         ).toContain("/themes/sakura-circuit/heroine-half-20261028.webp");
         const banner = page.locator(
-          '.rules-illustration img[src="/archive/s8/rules-1.png"]',
+          '.rules-illustration img[src="/archive/s8/rules-1.webp"]',
         );
         await expect(banner).toHaveCount(1);
         expect(
@@ -217,7 +217,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
         const original = page.locator(".archive-key-visual img");
         await expect(original).toHaveAttribute(
           "src",
-          "/archive/s8/thumbnail.jpg",
+          "/archive/s8/thumbnail.webp",
         );
         await expect(original).toHaveJSProperty("naturalWidth", 1920);
         await expect(original).toHaveJSProperty("naturalHeight", 1080);
@@ -279,7 +279,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
     ).toBe("none");
     expect(
       await page
-        .locator('.rules-illustration img[src="/archive/s8/rules-1.png"]')
+        .locator('.rules-illustration img[src="/archive/s8/rules-1.webp"]')
         .evaluate((node) => getComputedStyle(node).content),
     ).toBe("normal");
     await page.emulateMedia({ forcedColors: "none" });
@@ -289,7 +289,7 @@ test.describe("S8 Sakura Circuit appearance", () => {
     await page.reload();
     expect(
       await page
-        .locator('.rules-illustration img[src="/archive/s8/rules-1.png"]')
+        .locator('.rules-illustration img[src="/archive/s8/rules-1.webp"]')
         .evaluate((node) => getComputedStyle(node).content),
     ).toBe("normal");
     expect(errors).toEqual([]);

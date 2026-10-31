@@ -496,7 +496,7 @@ test.describe("historical archive browser workflow", () => {
     });
     await expect(card.locator("img")).toHaveAttribute(
       "src",
-      "/archive/s6/key-visual.jpg",
+      "/archive/s6/key-visual.webp",
     );
     await expect(card.locator("img")).toHaveAttribute("width", "1920");
     await expect(card.locator("img")).toHaveAttribute("height", "1080");
@@ -570,12 +570,12 @@ test.describe("historical archive browser workflow", () => {
     await expect(
       page
         .getByLabel("Square logo")
-        .locator('option[value="/archive/s6/key-visual.jpg"]'),
+        .locator('option[value="/archive/s6/key-visual.webp"]'),
     ).toHaveCount(1);
     await expect(
       page
         .getByLabel("Key visual")
-        .locator('option[value="/archive/s6/key-visual.jpg"]'),
+        .locator('option[value="/archive/s6/key-visual.webp"]'),
     ).toHaveCount(1);
   });
   test("imports the complete S6 review package privately without resolving pending interpretations", async ({
@@ -1219,7 +1219,7 @@ test.describe("historical archive browser workflow", () => {
         ...edition,
         slug,
         name: "S9 archive design verification",
-        branding: { ...edition.branding, logo: "/archive/s9/thumbnail.png" },
+        branding: { ...edition.branding, logo: "/archive/s9/thumbnail.webp" },
         season: "9",
         published: true,
         status: "completed",
@@ -1247,7 +1247,7 @@ test.describe("historical archive browser workflow", () => {
         const thumbnail = card.locator(".edition-art img");
         await expect(thumbnail).toHaveAttribute(
           "src",
-          "/archive/s9/thumbnail.png",
+          "/archive/s9/thumbnail.webp",
         );
         await expect
           .poll(() =>

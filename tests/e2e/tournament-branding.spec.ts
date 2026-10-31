@@ -9,9 +9,9 @@ import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { publicTournamentSchema } from "../../src/lib/read-api-contract";
 
 const assets = [
-  { src: "/archive/s8/thumbnail.jpg", width: 1920, height: 1080 },
-  { src: "/archive/s9/thumbnail.png", width: 1920, height: 1080 },
-  { src: "/archive/s10/thumbnail.png", width: 1024, height: 1024 },
+  { src: "/archive/s8/thumbnail.webp", width: 1920, height: 1080 },
+  { src: "/archive/s9/thumbnail.webp", width: 1920, height: 1080 },
+  { src: "/archive/s10/thumbnail.webp", width: 1024, height: 1024 },
 ];
 const labels = {
   en: {
@@ -53,7 +53,7 @@ const earlyAssets = [
   "/archive/s2/key-visual.avif",
   "/archive/s3/key-visual.avif",
   "/archive/s4/key-visual.avif",
-  "/archive/s5/key-visual.png",
+  "/archive/s5/key-visual.webp",
 ];
 
 test.describe("tournament artwork options (#356)", () => {
@@ -93,8 +93,8 @@ test.describe("tournament artwork options (#356)", () => {
         for (const width of isMobile ? [320, 390] : [1440]) {
           await page.setViewportSize({ width, height: 1000 });
           if (theme === "light") {
-            await logo.selectOption("/archive/s5/key-visual.png");
-            await visual.selectOption("/archive/s5/key-visual.png");
+            await logo.selectOption("/archive/s5/key-visual.webp");
+            await visual.selectOption("/archive/s5/key-visual.webp");
             for (const preview of await page
               .locator(".settings-artwork-preview")
               .all())

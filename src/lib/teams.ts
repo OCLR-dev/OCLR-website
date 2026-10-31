@@ -20,7 +20,11 @@ import { remoteMode } from "./data-source";
 import { refreshDraftSnapshot } from "./draft";
 import { draftSetupProtection } from "./draft-setup";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import { coachingEnabled, editionSchema } from "./editions";
+import {
+  coachingEnabled,
+  editionSchema,
+  normalizeEditionBranding,
+} from "./editions";
 import { HttpError } from "./http";
 import { getOsuUserProfile } from "./osu-profiles";
 const teamInput = z
@@ -117,7 +121,9 @@ async function databaseStaffTeams(actor: User, slug: string) {
         version: state?.setupVersion ?? 0,
         locked: protection.locked,
         coachesEnabled: coachingEnabled(
-          editionSchema.parse({ ...state?.configuration, slug }),
+          editionSchema.parse(
+            normalizeEditionBranding({ ...state?.configuration, slug }),
+          ),
         ),
         teams: rows.map((team) => ({
           ...team,
@@ -190,7 +196,11 @@ export async function updateTeams(
       throw new HttpError(409, "Setup changed. Refresh before continuing.");
     if (
       coachAction &&
-      !coachingEnabled(editionSchema.parse({ ...state.configuration, slug }))
+      !coachingEnabled(
+        editionSchema.parse(
+          normalizeEditionBranding({ ...state.configuration, slug }),
+        ),
+      )
     )
       throw new HttpError(409, "Coaching is disabled for this tournament.");
     const protection = await draftSetupProtection(tx, slug);

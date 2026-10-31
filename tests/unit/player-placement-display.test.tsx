@@ -22,17 +22,25 @@ it("shows a structured placement range without turning it into a precise finish"
     placing: null,
     placingRange: { start: 9, end: 12, official: false, tied: false },
     groupRank: null,
+    finish: { label: "1", derived: true },
+    champion: false,
+    runnerUp: false,
+    thirdPlace: false,
     matches: [],
     unavailable: false,
   };
   const summary = summarizePlayerCompetition([record]);
   const html = renderToStaticMarkup(<PlayerCompetition record={summary} />);
   expect(html).toContain("9–12");
+  expect(html).toContain("Final placement");
+  expect(html).not.toContain("Derived placement");
   expect(summary.bestPlacing).toBeNull();
   expect(summary.worstPlacing).toBeNull();
   const unknown = renderToStaticMarkup(
     <PlayerCompetition
-      record={summarizePlayerCompetition([{ ...record, placingRange: null }])}
+      record={summarizePlayerCompetition([
+        { ...record, placingRange: null, finish: null },
+      ])}
     />,
   );
   expect(unknown).not.toContain("9–12");

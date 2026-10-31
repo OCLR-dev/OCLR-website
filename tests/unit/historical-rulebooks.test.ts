@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import sharp from "sharp";
 import {
   historicalArchiveSchema,
   publicHistoricalArchive,
@@ -97,7 +98,7 @@ describe("S9 historical rulebook supplement", () => {
     );
     expect(s9.version).toContain("v1.2");
   });
-  it("retains both source illustrations at valid text anchors and their original dimensions", () => {
+  it("retains both source illustrations at valid text anchors and their original dimensions", async () => {
     const figures = s9.sections.flatMap(
       (section) => ("figures" in section ? section.figures : []) ?? [],
     );
@@ -106,9 +107,9 @@ describe("S9 historical rulebook supplement", () => {
       for (const figure of ("figures" in section ? section.figures : []) ??
         []) {
         expect(section.body).toContain(figure.after);
-        const image = readFileSync(`public${figure.src}`);
-        expect(image.readUInt32BE(16)).toBe(figure.width);
-        expect(image.readUInt32BE(20)).toBe(figure.height);
+        const metadata = await sharp(`public${figure.src}`).metadata();
+        expect(metadata.width).toBe(figure.width);
+        expect(metadata.height).toBe(figure.height);
       }
   });
 });

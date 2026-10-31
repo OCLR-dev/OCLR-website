@@ -205,7 +205,7 @@ html[data-appearance="sakura-circuit"]
 html[data-appearance="sakura-circuit"]
   .themed-site
   .rules-illustration
-  img[src="/archive/s8/rules-1.png"] {
+  img[src="/archive/s8/rules-1.webp"] {
   content: var(--sakura-banner);
   object-fit: contain;
   max-width: min(100%, 750px);
@@ -310,7 +310,7 @@ html[data-appearance="sakura-circuit"]
   html[data-appearance="sakura-circuit"]
     .themed-site
     .rules-illustration
-    img[src="/archive/s8/rules-1.png"] {
+    img[src="/archive/s8/rules-1.webp"] {
     content: normal;
   }
   html[data-appearance="sakura-circuit"]

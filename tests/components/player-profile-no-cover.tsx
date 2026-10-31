@@ -45,6 +45,8 @@ const snapshot: ProfileSnapshot = {
         description: "Contributed",
         awardedAt: "2024-01-02T00:00:00Z",
         url: null,
+        imageUrl: null,
+        image2xUrl: null,
       },
     ],
     statistics: {

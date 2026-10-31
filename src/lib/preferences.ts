@@ -52,6 +52,7 @@ export const appearances = [
 ] as const;
 export type Appearance = (typeof appearances)[number];
 export type PublicAppearance = (typeof publicAppearances)[number];
+export type SeasonAppearance = (typeof seasonAppearances)[number];
 export const appearanceCookie = "oclr-appearance";
 export function isAppearance(value: unknown): value is Appearance {
   return appearances.some((appearance) => appearance === value);

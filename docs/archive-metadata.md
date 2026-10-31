@@ -117,7 +117,7 @@ structured/legacy decisions are rejected. Existing controls preserve richer
 adjudication notes and exclusion reasons when saving through the old payload.
 Published data remains separate from draft edits.
 
-The saved-read contract is now additive v1.13.0. New staff metadata, public
+The saved-read contract is now additive v1.14.0 after integrating main’s independent 1.13.0 profile artwork changes. New staff metadata, public
 `placingRange` and match `excludedReason` fields are optional on the wire so older
 backends remain readable. Player cards show explicit placement intervals as
 intervals (for example `9–12`); those intervals do not become precise best/worst

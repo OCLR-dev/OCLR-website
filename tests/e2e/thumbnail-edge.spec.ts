@@ -12,9 +12,9 @@ test.describe("S11 thumbnail source edge", () => {
     isMobile,
   }, info) => {
     const assets = [
-      "/archive/s8/thumbnail.jpg",
-      "/archive/s9/thumbnail.png",
-      "/archive/s10/thumbnail.png",
+      "/archive/s8/thumbnail.webp",
+      "/archive/s9/thumbnail.webp",
+      "/archive/s10/thumbnail.webp",
       "/oclr-s11-square-logo.webp",
     ];
     await seedEditions(

@@ -9,7 +9,10 @@ import {
 } from "../../src/lib/historical-archive";
 import { archiveEventMatches } from "../../src/lib/archive-event-matches";
 import { archiveBracket } from "../../src/lib/archive-bracket";
-import { editionSchema } from "../../src/lib/editions";
+import {
+  editionSchema,
+  normalizeEditionBranding,
+} from "../../src/lib/editions";
 import {
   historicalRulebook,
   historicalRulebookSeason,
@@ -161,16 +164,24 @@ it("preserves all supplied rule sections and labels the obsolete group proposal"
   );
 });
 
-it("accepts the original S6 image in both branding slots and minimal read summaries", () => {
+it("maps the original S6 image in both branding slots and minimal read summaries", () => {
   expect(
-    editionSchema.shape.branding.parse({
-      logo: "/archive/s6/key-visual.jpg",
-      keyVisual: "/archive/s6/key-visual.jpg",
-      background: null,
-    }),
-  ).toBeTruthy();
+    editionSchema.shape.branding.parse(
+      normalizeEditionBranding({
+        branding: {
+          logo: "/archive/s6/key-visual.jpg",
+          keyVisual: "/archive/s6/key-visual.jpg",
+          background: null,
+        },
+      }).branding,
+    ),
+  ).toEqual({
+    logo: "/archive/s6/key-visual.webp",
+    keyVisual: "/archive/s6/key-visual.webp",
+    background: null,
+  });
   expect(archiveKeyVisual({ sourceUrl: archive.sourceUrl }, null)).toEqual({
-    src: "/archive/s6/key-visual.jpg",
+    src: "/archive/s6/key-visual.webp",
     width: 1920,
     height: 1080,
   });

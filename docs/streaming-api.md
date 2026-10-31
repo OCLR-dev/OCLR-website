@@ -132,3 +132,35 @@ before using the API. It adds dedicated credential/audit tables; existing Develo
 tokens and expiry policies are unchanged. This implementation does not grant real
 roles, issue real credentials or deploy. Synthetic database/browser evidence and
 commit-specific CI are recorded on #540; real Overlay/OBS integration is pending.
+
+## Connect directly from Overlay (#616)
+
+The companion Overlay console can open
+`/streaming/{edition}/connect?origin={configured-loopback-origin}&state={nonce}`.
+Sign in with osu!, then authorize the displayed edition and local console. The
+credential returns automatically to the initiating window; copying remains
+available at `/streaming/{edition}` and as a fallback on the connect page.
+The Overlay update and this website update must both be installed before automatic
+connection works. This change does not deploy either application.
+
+Only an exact configured `OCLR_STREAMING_ORIGINS` entry is accepted. The connect
+page and Overlay exchange messages with exact origins and window references; the
+Overlay also consumes its own one-time, ten-minute state. Credentials travel in
+message/JSON bodies, never URLs, browser storage or logs. After the console
+acknowledges receipt, the website clears the temporary token and closes the window.
+If a browser blocks the popup or loses its opener, restart from the console or use
+manual copying. The website still requires an explicit authorization click and
+rechecks the live browser session and Streamer grant when issuing access.
+
+OAuth preserves only this validated same-site connect path in a ten-minute
+HttpOnly cookie bound to the consumed OAuth state hash. Callback handling
+revalidates the origin configuration and clears the cookie on success or failure.
+Ordinary login and desktop authorization retain their existing destinations.
+No database migration, new role, scope or business write is introduced.
+
+The Overlay reads a page of up to five assignments by following `afterFixtureId`
+serially, refreshing every 15 seconds. Its task picker changes the preview only;
+using a task is a separate local action. More tasks are available through the next
+page, and no task is marked complete by browsing or choosing it. Missing scoring
+rules must remain explicitly unconfirmed; they do not prohibit selecting a task
+or justify inferring BO from round names.

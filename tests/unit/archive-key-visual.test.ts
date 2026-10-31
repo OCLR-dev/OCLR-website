@@ -19,6 +19,18 @@ for (const season of [4, 5, 7, 8, 9, 10])
     ).toBeUndefined();
   });
 
+it("maps a stored pre-WebP selection onto its current WebP artwork", () => {
+  expect(
+    archiveKeyVisual(
+      { sourceUrl: "https://example.com/unknown" },
+      "/archive/s5/key-visual.png",
+    ),
+  ).toEqual({
+    src: "/archive/s5/key-visual.webp",
+    width: 1920,
+    height: 1080,
+  });
+});
 it("uses the S4 original dimensions with and without the workbook edit suffix", () => {
   for (const suffix of ["", "/edit"])
     expect(

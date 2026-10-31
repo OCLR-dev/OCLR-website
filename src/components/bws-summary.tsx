@@ -1,6 +1,9 @@
+import Image from "next/image";
 import { ProfileInfo } from "./profile-info";
 import { useAppTranslations } from "@/i18n/shared";
 import type { BwsSummary as Summary } from "@/lib/bws-model";
+import type { ProfileBadge } from "@/lib/osu-profile-model";
+import { formatDate } from "@/lib/editions";
 import { globalRankTier, type GlobalRankTier } from "@/lib/rank-tier";
 
 function BwsNote({ value }: { value: Summary }) {
@@ -49,6 +52,77 @@ function BwsNote({ value }: { value: Summary }) {
         <time dateTime={value.fetchedAt}>{value.fetchedAt}</time>
         {value.stale && <> · {tr("Stale snapshot")}</>}
       </p>
+    </>
+  );
+}
+
+function BadgeNote({ badges }: { badges: ProfileBadge[] | null }) {
+  const tr = useAppTranslations();
+  if (badges === null)
+    return (
+      <p className="small muted">
+        {tr("Badge data is unavailable in this saved profile.")}
+      </p>
+    );
+  if (!badges.length)
+    return (
+      <p className="small muted">{tr("Provider returned no profile badges")}</p>
+    );
+  return (
+    <>
+      <p className="small muted">
+        {tr(
+          "Total badges published on the osu! profile. BWS counts only staff-reviewed tournament badges.",
+        )}
+      </p>
+      <ul className="bws-card-badge-list">
+        {badges.map((badge, index) => {
+          // The 2x ribbon is the same artwork with more detail on dense screens.
+          const artwork = badge.image2xUrl ?? badge.imageUrl;
+          return (
+            <li key={`${badge.awardedAt}-${index}`}>
+              {artwork ? (
+                <Image
+                  className="bws-card-badge-image"
+                  src={artwork}
+                  alt=""
+                  width={64}
+                  height={24}
+                  unoptimized
+                />
+              ) : (
+                <span
+                  className="bws-card-badge-image bws-card-badge-image--empty"
+                  aria-hidden="true"
+                />
+              )}
+              <div className="bws-card-badge-copy">
+                <span className="bws-card-badge-description">
+                  {badge.description}
+                </span>
+                <span className="bws-card-badge-meta">
+                  <time dateTime={badge.awardedAt}>
+                    {formatDate(badge.awardedAt, "UTC", tr.locale)}
+                  </time>
+                  {badge.url && (
+                    <>
+                      {" · "}
+                      <a
+                        className="text-link"
+                        href={badge.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {tr("Badge source")}
+                      </a>
+                    </>
+                  )}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
 }
@@ -121,11 +195,13 @@ function CompactBwsSummary({
   countryRank,
   globalRankPercent,
   oii,
+  badges,
 }: {
   value: Summary;
   countryRank: number | null;
   globalRankPercent: number | null;
   oii: number | null;
+  badges: ProfileBadge[] | null;
 }) {
   // The index carries the rank-tier gradient only where it says something:
   // above 1.1 the player is progressing faster than the curve, below 0.9 slower.
@@ -226,6 +302,27 @@ function CompactBwsSummary({
       <span className="bws-card-divider" aria-hidden="true" />
       <div className="bws-card-metric">
         <div className="bws-card-label-row">
+          <span className="bws-card-label">{tr("Badges")}</span>
+          <div className="bws-card-note">
+            <InfoTrigger onOpenLabel={tr("Explanation")} />
+            <div className="bws-card-note-panel" role="note">
+              <BadgeNote badges={badges} />
+            </div>
+          </div>
+        </div>
+        <div className="bws-card-value-row">
+          {badges !== null ? (
+            <strong className="bws-value">{number(badges.length, 0)}</strong>
+          ) : (
+            <span className="bws-card-state" role="status">
+              —
+            </span>
+          )}
+        </div>
+      </div>
+      <span className="bws-card-divider" aria-hidden="true" />
+      <div className="bws-card-metric">
+        <div className="bws-card-label-row">
           <span className="bws-card-label">{tr("OII")}</span>
           <div className="bws-card-note">
             <InfoTrigger onOpenLabel={tr("Explanation")} />
@@ -265,12 +362,14 @@ export function BwsSummary({
   countryRank = null,
   globalRankPercent = null,
   oii = null,
+  badges = null,
 }: {
   value: Summary;
   variant?: "detail" | "compact";
   countryRank?: number | null;
   globalRankPercent?: number | null;
   oii?: number | null;
+  badges?: ProfileBadge[] | null;
 }) {
   const tr = useAppTranslations();
   if (variant === "compact")
@@ -280,6 +379,7 @@ export function BwsSummary({
         countryRank={countryRank}
         globalRankPercent={globalRankPercent}
         oii={oii}
+        badges={badges}
       />
     );
   return (

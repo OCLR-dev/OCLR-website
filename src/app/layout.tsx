@@ -70,8 +70,8 @@ export async function generateMetadata(): Promise<Metadata> {
           sizes: "any",
         },
         ...[16, 32, 48].map((size) => ({
-          url: `/branding/oclr-${size}.png?v=3`,
-          type: "image/png",
+          url: `/branding/oclr-${size}.webp?v=3`,
+          type: "image/webp",
           sizes: `${size}x${size}`,
         })),
       ],
@@ -82,7 +82,7 @@ export async function generateMetadata(): Promise<Metadata> {
           type: "image/png",
         },
       ],
-      shortcut: "/branding/oclr-32.png?v=3",
+      shortcut: "/branding/oclr-32.webp?v=3",
     },
     title: {
       default: "OCLR — osu! Chinese League Rookie",

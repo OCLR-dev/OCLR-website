@@ -299,6 +299,9 @@ export const savedOsuProfileSchema = z
             description: text,
             awardedAt: timestamp,
             url: text.nullable(),
+            // Additive in 1.13.0: older snapshots and backends omit the ribbons.
+            imageUrl: nullableText,
+            image2xUrl: nullableText,
           })
           .strip(),
       )

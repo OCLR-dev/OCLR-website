@@ -102,6 +102,11 @@ Review acceptance, issue closure and release acceptance need their own evidence.
 
 ## Local verification
 
+Do not run these browser suites for routine development or agent verification:
+they are slow and belong to nightly/core CI or an explicitly requested browser
+check. Run them only when the change under test is browser behavior or a
+browser-only bug must be reproduced, and report them as not run otherwise.
+
 Use Node/npm and the isolated test database setup in the development guide. Set
 TEST_DATABASE_URL even for --list: database-only cases are otherwise absent. Build
 first, then run suites sequentially against a disposable database:

@@ -1,6 +1,9 @@
 import { getPublicEdition } from "./content";
 import { archiveWinner, recordedArchiveMatch } from "./historical-archive";
 import {
+  tournamentPlacements,
+  finalStandingsFinish,
+  knockoutFinishBands,
   competitionStage,
   summarizePlayerCompetition,
   type CompetitionEditionRecord,
@@ -60,6 +63,10 @@ async function editionRecord(
     placingRange:
       people.find((p) => p.placingRange != null)?.placingRange ?? null,
     groupRank: null,
+    finish: null,
+    champion: false,
+    runnerUp: false,
+    thirdPlace: false,
     matches: [],
     unavailable: false,
   };
@@ -98,12 +105,52 @@ async function editionRecord(
         (row) =>
           teams.has(row.teamId) && row.rank !== null && row.scope !== "final",
       );
+      const series = recorded.map((match) => {
+        const winner = archiveWinner(match);
+        return {
+          label: match.stage,
+          at:
+            match.scheduledAt ??
+            match.roomOpenedAt ??
+            match.review?.startedAt ??
+            null,
+          winnerTeamId:
+            winner === null ? null : winner === 0 ? match.teamA : match.teamB,
+          loserTeamId:
+            winner === null ? null : winner === 0 ? match.teamB : match.teamA,
+        };
+      });
+      // Standings ranks are group-scoped, so podium places come from the
+      // deciding knockout series rather than from rank 1.
+      const placements = tournamentPlacements(series);
+      // Prefer an archived final table; otherwise derive the ladder only when
+      // the bracket is regular enough to name every elimination round.
+      const teamIds = edition.archive.teams.map((team) => team.id);
+      const candidates = [
+        ...(base.team ? [base.team.id] : []),
+        ...teams.keys(),
+      ];
+      const bands = knockoutFinishBands(series, teamIds);
+      const finish =
+        finalStandingsFinish(
+          edition.archive.standings,
+          candidates,
+          edition.archive.teams.length,
+        ) ??
+        candidates.map((team) => bands?.get(team)).find(Boolean) ??
+        null;
       return {
         ...base,
         groupRank:
           standing?.rank != null
             ? { group: standing.group || null, rank: standing.rank }
             : null,
+        finish,
+        champion:
+          placements.champion !== null && teams.has(placements.champion),
+        runnerUp:
+          placements.runnerUp !== null && teams.has(placements.runnerUp),
+        thirdPlace: placements.third.some((team) => teams.has(team)),
         matches,
       };
     }
@@ -137,7 +184,32 @@ async function editionRecord(
         at: fixture.scheduledAt,
       });
     }
-    return { ...base, matches };
+    // Live fixtures expose structural stages; labels only add the round name.
+    const placements = tournamentPlacements(
+      (competition?.fixtures ?? []).flatMap((fixture) => {
+        const result = fixture.result;
+        if (!result) return [];
+        const winner = result.draw ? null : result.winnerTeamId;
+        const sides = [fixture.home.team?.id, fixture.away.team?.id];
+        return [
+          {
+            label: `${fixture.stage} ${fixture.roundName}`.trim(),
+            at: fixture.scheduledAt,
+            winnerTeamId: winner ?? null,
+            loserTeamId: winner
+              ? (sides.find((team) => team && team !== winner) ?? null)
+              : null,
+          },
+        ];
+      }),
+    );
+    return {
+      ...base,
+      champion: placements.champion !== null && teams.has(placements.champion),
+      runnerUp: placements.runnerUp !== null && teams.has(placements.runnerUp),
+      thirdPlace: placements.third.some((team) => teams.has(team)),
+      matches,
+    };
   } catch {
     // The profile stays readable when one public projection is unavailable.
     return { ...base, unavailable: true };

@@ -86,9 +86,9 @@ async function HomeContent() {
             logo:
               (
                 {
-                  10: "/archive/s10/thumbnail.png",
-                  9: "/archive/s9/thumbnail.png",
-                  8: "/archive/s8/thumbnail.jpg",
+                  10: "/archive/s10/thumbnail.webp",
+                  9: "/archive/s9/thumbnail.webp",
+                  8: "/archive/s8/thumbnail.webp",
                 } as const
               )[season as 10 | 9 | 8] ?? null,
           },
@@ -135,12 +135,12 @@ async function HomeContent() {
         <div className="home-composition" aria-hidden="true">
           <picture>
             <source
-              type="image/png"
-              srcSet="/branding/home-s11/nebula-only-480.png 480w, /branding/home-s11/nebula-only-960.png 960w, /branding/home-s11/nebula-only-1600.png 1600w, /branding/home-s11/nebula-only.png 2048w"
+              type="image/webp"
+              srcSet="/branding/home-s11/nebula-only-480.webp 480w, /branding/home-s11/nebula-only-960.webp 960w, /branding/home-s11/nebula-only-1600.webp 1600w, /branding/home-s11/nebula-only.webp 2048w"
               sizes="103vw"
             />
             <Image
-              src="/branding/home-s11/nebula-only.png"
+              src="/branding/home-s11/nebula-only.webp"
               unoptimized
               alt=""
               width={2048}
@@ -151,12 +151,12 @@ async function HomeContent() {
           </picture>
           <picture>
             <source
-              type="image/png"
-              srcSet="/branding/home-s11/foreground-480.png 480w, /branding/home-s11/foreground-960.png 960w, /branding/home-s11/foreground-1600.png 1600w, /branding/home-s11/foreground.png 1774w"
+              type="image/webp"
+              srcSet="/branding/home-s11/foreground-480.webp 480w, /branding/home-s11/foreground-960.webp 960w, /branding/home-s11/foreground-1600.webp 1600w, /branding/home-s11/foreground.webp 1774w"
               sizes="95vw"
             />
             <Image
-              src="/branding/home-s11/foreground.png"
+              src="/branding/home-s11/foreground.webp"
               unoptimized
               alt=""
               width={1774}
@@ -167,12 +167,12 @@ async function HomeContent() {
           <div className="home-composition-shade" />
           <picture>
             <source
-              type="image/png"
-              srcSet="/branding/home-s11/liru-refined-v2-320.png 320w, /branding/home-s11/liru-refined-v2-640.png 640w, /branding/home-s11/liru-refined-v2.png 1024w"
+              type="image/webp"
+              srcSet="/branding/home-s11/liru-refined-v2-320.webp 320w, /branding/home-s11/liru-refined-v2-640.webp 640w, /branding/home-s11/liru-refined-v2.webp 1024w"
               sizes="54vw"
             />
             <Image
-              src="/branding/home-s11/liru-refined-v2.png"
+              src="/branding/home-s11/liru-refined-v2.webp"
               unoptimized
               alt=""
               width={1024}
