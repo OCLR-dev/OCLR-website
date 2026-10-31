@@ -83,6 +83,74 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, action);
     return action;
   }
+  it("keeps click-recorded BP independent from a later plain map confirmation", async () => {
+    const record = async (bid: number) => {
+      const w = await refereeWorkspace(referee, "test-cup", fixtureId);
+      await refereeCommand(referee, "test-cup", fixtureId, {
+        action: "record_selection",
+        entryId: w.maps.find((map) => map.beatmapId === bid)!.id,
+        requestKey: randomUUID(),
+        expectedRevision: w.session!.revision,
+        dependencyFingerprint: w.dependencyFingerprint,
+      });
+    };
+    await record(10001);
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+      action: "queue",
+      requestKey: randomUUID(),
+      text: "!mp map 10001 0",
+    });
+    const dispatched = await sync();
+    await record(10002);
+    const before = await refereeWorkspace(referee, "test-cup", fixtureId);
+    const text = "Beatmap changed to https://osu.ppy.sh/b/10001";
+    const evidence = { sender: "BanchoBot", target: "#mp_123", text };
+    const receipt = {
+      commandId: dispatched.command!.id,
+      status: "confirmed",
+      evidence,
+    };
+    const messages = [
+      {
+        id: "independent-reply",
+        sender: "BanchoBot",
+        text,
+        at: new Date().toISOString(),
+      },
+    ];
+    await sync([receipt], messages);
+    await sync([receipt], messages);
+    const after = await refereeWorkspace(referee, "test-cup", fixtureId);
+    expect(after.projection.activeSelections).toHaveLength(2);
+    expect(after.events).toEqual(before.events);
+    expect(after.session!.revision).toBe(before.session!.revision);
+    expect(
+      (await refereeIrcView(referee, "test-cup", fixtureId)).commands[0].status,
+    ).toBe("confirmed");
+  });
+  it("does not undo a saved BP record when its independent IRC command fails", async () => {
+    const w = await refereeWorkspace(referee, "test-cup", fixtureId);
+    const request = {
+      action: "record_selection",
+      entryId: w.maps.find((map) => map.beatmapId === 10001)!.id,
+      requestKey: randomUUID(),
+      expectedRevision: w.session!.revision,
+      dependencyFingerprint: w.dependencyFingerprint,
+    };
+    await refereeCommand(referee, "test-cup", fixtureId, request);
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+      action: "queue",
+      requestKey: randomUUID(),
+      text: "!mp map 10001 0",
+    });
+    const dispatched = await sync();
+    await sync([{ commandId: dispatched.command!.id, status: "failed" }]);
+    await refereeCommand(referee, "test-cup", fixtureId, request);
+    expect(
+      (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
+        .activeSelections,
+    ).toHaveLength(1);
+  });
   it.each([
     "Beatmap changed to Test (https://osu.ppy.sh/b/10001)",
     "Changed beatmap to https://osu.ppy.sh/b/10001 Synthetic",

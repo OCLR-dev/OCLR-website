@@ -300,10 +300,9 @@ test.describe("referee command workspace", () => {
     expect((await deniedPage.goto(path))?.status()).toBe(404);
     await guest.close();
   });
-  test("advances BP only after the relay confirms an authoritative record", async ({
+  test("records BP on click and keeps later IRC receipts independent", async ({
     page,
     context,
-    baseURL,
   }) => {
     const seeded = await seed();
     await context.addCookies([seeded.cookie]);
@@ -383,6 +382,13 @@ test.describe("referee command workspace", () => {
       .getByRole("button", { name: "Blue team BAN", exact: true })
       .first()
       .click();
+    await expect
+      .poll(
+        async () =>
+          (await (await context.request.get(api)).json()).projection
+            .activeSelections.length,
+      )
+      .toBe(1);
     await page
       .getByRole("button", { name: "Send to local IRC", exact: true })
       .click();
@@ -390,31 +396,30 @@ test.describe("referee command workspace", () => {
       page.getByText("Queued for local IRC", { exact: true }),
     ).toBeVisible();
     expect(commands).toHaveLength(1);
-    expect(selection).toBeDefined();
+    expect(selection).toBeUndefined();
     const summary = page.getByRole("region", {
       name: "Referee records",
       exact: true,
     });
-    await expect(summary).not.toContainText("BAN NM1");
+    await expect(summary).toContainText("BAN NM1");
     commands[0].status = "sent";
     await expect(
       page.getByText("Sent; awaiting room confirmation", { exact: true }),
     ).toBeVisible();
-    await expect(summary).not.toContainText("BAN NM1");
-    const response = await context.request.patch(api, {
-      headers: { Origin: baseURL! },
-      data: {
-        action: "record_selection",
-        ...selection,
-        requestKey: crypto.randomUUID(),
-      },
-    });
-    expect(response.status()).toBe(200);
+    await expect(summary).toContainText("BAN NM1");
+    expect(
+      (await (await context.request.get(api)).json()).projection
+        .activeSelections,
+    ).toHaveLength(1);
     commands[0].status = "confirmed";
     await expect(
       page.getByText("Confirmed by IRC", { exact: true }),
     ).toBeVisible();
     await expect(summary).toContainText("BAN NM1");
+    expect(
+      (await (await context.request.get(api)).json()).projection
+        .activeSelections,
+    ).toHaveLength(1);
   });
   test("keeps every appearance usable in light/dark and all locales @full", async ({
     page,

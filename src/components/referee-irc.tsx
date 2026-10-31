@@ -5,11 +5,6 @@ import type { RefereeWorkspace } from "@/lib/referee";
 import { desktopLaunchUrl } from "@/lib/desktop-launch";
 import styles from "./referee-panel.module.css";
 
-type Selection = {
-  entryId: string;
-  expectedRevision: number;
-  dependencyFingerprint: string;
-};
 type RelayView = {
   connection: null | {
     id: string;
@@ -42,7 +37,6 @@ type QueueRequest = {
   action: "queue";
   requestKey: string;
   text: string;
-  selection?: Selection;
 };
 export function RefereeIrc({
   draft,
@@ -51,12 +45,11 @@ export function RefereeIrc({
   disabled,
   startSeconds,
   selectedMods,
-  selectionLabel,
+  recordedSelectionLabel,
   onChange,
   onPrepare,
   onConfirm,
   endpoint,
-  selection,
   onWorkspace,
   onQueued,
   onConfirmed,
@@ -67,12 +60,11 @@ export function RefereeIrc({
   disabled: boolean;
   startSeconds: number;
   selectedMods: string | null;
-  selectionLabel: string | null;
+  recordedSelectionLabel: string | null;
   onChange: (text: string) => void;
   onPrepare: (text: string) => void;
   onConfirm: () => Promise<boolean>;
   endpoint: string;
-  selection: Selection | null;
   onWorkspace: (workspace: RefereeWorkspace) => void;
   onQueued: () => void;
   onConfirmed: (commands: string[]) => void;
@@ -184,7 +176,7 @@ export function RefereeIrc({
     try {
       if (simulation) {
         const text = draft,
-          label = selectionLabel;
+          label = recordedSelectionLabel;
         if (!(await onConfirm())) {
           setError("send");
           return;
@@ -198,7 +190,6 @@ export function RefereeIrc({
           action: "queue" as const,
           requestKey: crypto.randomUUID(),
           text: draft,
-          ...(selection ? { selection } : {}),
         };
         setRetry(request);
         const response = await fetch(endpoint, {
@@ -398,9 +389,9 @@ export function RefereeIrc({
         }}
         className={styles.ircComposer}
       >
-        {selectionLabel && (
+        {recordedSelectionLabel && (
           <p className="small" role="status">
-            {tr("Pending: {value0}", { value0: selectionLabel })}
+            {tr("Recorded: {value0}", { value0: recordedSelectionLabel })}
           </p>
         )}
         <label htmlFor="referee-irc-input">{tr("IRC command")}</label>
@@ -451,7 +442,7 @@ export function RefereeIrc({
                     "The queue response was lost. Retry the same request; do not resend it as a new command.",
                   )
                 : tr(
-                    "Command not confirmed. Check the current BP step and try again.",
+                    "Unable to send this command. Check its contents and try again.",
                   )}
           </p>
         )}
