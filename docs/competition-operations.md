@@ -206,10 +206,17 @@ Active recorded selections and completed-fixture history still block changes.
 Repeated Ban presets are mutually exclusive: all categories may repeat, only
 NM/FM may repeat, or no category may repeat for the same team. Existing custom
 exceptions remain visible and are preserved until explicitly changed. TB remains
-unbannable in every mode. NM's Mod/Freemod override controls have been removed;
-an explicit form save makes NM clear Mods, while the independent NF setting
-continues to apply. A previously saved NM override is called out before saving;
-existing policy data and referee history are never rewritten merely by reading.
+unbannable in every mode.
+
+The round form uses NF and standard category Mods automatically (#602): NM
+clears category Mods, HD/HR/DT apply their corresponding Mod, and FM/TB use
+Freemod. All combine with NF. There are no individual category Mod/Freemod or
+NF inputs in the normal editor. New saves include every standard category,
+including rounds without an S11 template. A saved nonstandard policy is retained
+and shown under saved custom settings; an explicit restore-defaults checkbox
+replaces it on save. Timers, replay limits and BP remain independently editable.
+Reads do not rewrite saved rules or referee history, and existing server-side
+permission/version/history protection continues to apply.
 
 The step editor uses compact rows with one action/order selector, up/down controls
 and optional step limits. Category restrictions use buttons; selecting specific

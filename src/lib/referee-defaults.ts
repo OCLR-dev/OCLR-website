@@ -31,14 +31,7 @@ export function s11RefereeDefaults(
       pickSeconds: 90,
       prepareSeconds: 120,
       startSeconds: null,
-      categoryMods: {
-        NM: { mods: [], freemod: false },
-        HD: { mods: ["HD"], freemod: false },
-        HR: { mods: ["HR"], freemod: false },
-        DT: { mods: ["DT"], freemod: false },
-        FM: { mods: [], freemod: true },
-        TB: { mods: [], freemod: true },
-      },
+      categoryMods: standardRefereeCategoryMods(),
     },
   };
 }
@@ -73,4 +66,16 @@ export function s11RefereeSteps(
         ...picks.slice(2),
         step("tb", "neutral"),
       ];
+}
+
+/** Room Mod mapping used by the simplified editor; NF is applied separately. */
+export function standardRefereeCategoryMods(): RefereeCommandPolicy["categoryMods"] {
+  return {
+    NM: { mods: [], freemod: false },
+    HD: { mods: ["HD"], freemod: false },
+    HR: { mods: ["HR"], freemod: false },
+    DT: { mods: ["DT"], freemod: false },
+    FM: { mods: [], freemod: true },
+    TB: { mods: [], freemod: true },
+  };
 }

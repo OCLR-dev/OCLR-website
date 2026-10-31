@@ -9,6 +9,8 @@ import {
   type RefereeCommandInput,
 } from "../../src/lib/referee-commands";
 
+import { standardRefereeCategoryMods } from "../../src/lib/referee-defaults";
+
 describe("default referee room name", () => {
   const teams = [{ name: "knd" }, { name: "bhou" }];
   it.each(["11", "s11", "S11"])("formats season %s", (season) => {
@@ -181,6 +183,29 @@ describe("referee command generation", () => {
   ])("combines explicit %s policy with NF", (category, expected) => {
     expect(
       command({ ...input, selectedMap: { beatmapId: 789, category } }, "mods"),
+    ).toBe(`!mp mods ${expected}`);
+  });
+  it.each([
+    ["NM", "NF"],
+    ["HD", "NF HD"],
+    ["HR", "NF HR"],
+    ["DT", "NF DT"],
+    ["FM", "NF Freemod"],
+    ["TB", "NF Freemod"],
+  ])("generates the standard %s command with NF", (category, expected) => {
+    expect(
+      command(
+        {
+          ...input,
+          policy: {
+            ...input.policy!,
+            noFail: true,
+            categoryMods: standardRefereeCategoryMods(),
+          },
+          selectedMap: { beatmapId: 789, category },
+        },
+        "mods",
+      ),
     ).toBe(`!mp mods ${expected}`);
   });
   it("clears previous mods with None when NM explicitly disables NF", () => {
