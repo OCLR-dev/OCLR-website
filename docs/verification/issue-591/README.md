@@ -67,11 +67,14 @@ Screenshots show synthetic identities and times only:
 
 ## Review and operations
 
-New Simplified/Traditional Chinese interface wording awaits organizer review.
+New Simplified/Traditional Chinese interface wording was approved by the organizer
+on 2026-10-31 during the acceptance review below. This supersedes the pending
+wording review recorded in the original PR handoff.
 Apply the additive migration through the normal approved deployment process
 before running the new application. Preserve the tables, events and invalidation
 triggers on application rollback. No production migration/deploy, grant or issue
-closure was performed.
+closure was performed during the implementation/merge phase. The acceptance
+checkpoint below records the later issue-closure decision separately.
 
 ## Latest-main reconciliation — 2026-10-31
 
@@ -100,5 +103,107 @@ Post-reconciliation local results:
   migrated isolated browser database using the same dedicated port setup.
 - Current CI evidence and the exact updated head are recorded in PR #599.
 
-This fixes integration with current main; it does not claim a full browser
-matrix, Chinese wording acceptance, or production deployment.
+That reconciliation fixed integration with current main; by itself it did not
+establish full browser regression, Chinese wording acceptance or deployment. The
+later organizer wording approval is recorded in the acceptance audit below.
+
+## Acceptance audit — 2026-10-31
+
+The organizer explicitly requested checking every #591 acceptance condition,
+updating the evidence and closing the issue if complete. The organizer also
+explicitly approved this feature's new Chinese interface wording in the same
+conversation. This approval applies to both Chinese catalogs introduced by
+PR #599; it is separate from deployment authorization.
+
+Implementation: merged PR [#599](https://github.com/OCLR-dev/OCLR-website/pull/599),
+main `34a0398f383c8b01f2547bf2c9a8d1ee6d939361`. Its tree
+`5bf67bebf079371812faa5a17707774884c71b85` equals verified PR head
+`8324b2e7dd27fae9a0e8ee38009d36ea40586150`.
+[CI #1083](https://github.com/OCLR-dev/OCLR-website/actions/runs/41169657665)
+is **completed / success**: verify, build, both core functional browser shards,
+remote-e2e and aggregate check passed. Header-e2e, remote-matrix and full-check
+were skipped by the fixed core plan, not passed.
+
+### Acceptance-condition evidence
+
+The rows follow the issue's twelve main acceptance conditions in order.
+
+| #   | Result                                 | Evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Pass                                   | [Schedule E2E](../../../tests/e2e/schedule.spec.ts): player entry, multiple intervals, edit/delete, real persistence after reload, opponent privacy and absent captain controls. [Integration](../../../tests/integration/schedule.test.ts) rejects forged actors and outsider access.                                                                                                                                                                                                      |
+| 2   | Pass                                   | Integration asserts captain-only detail, unreported count, and no disclosure to the opposing team or an independent Admin. [Projection tests](../../../tests/unit/schedule-model.test.ts) count people once despite overlapping intervals. Rejoined members do not inherit former submissions.                                                                                                                                                                                              |
+| 3   | Pass                                   | Real desktop/mobile E2E executes player → captain A → captain B → independently granted edition Admin. Integration checks unchanged public fixture before approval and the new public instant after approval.                                                                                                                                                                                                                                                                               |
+| 4   | Pass                                   | Integration covers fresh agreement after counterproposal, own-proposal confirmation denial, idempotent approval, payload/key mismatch and concurrent first proposals.                                                                                                                                                                                                                                                                                                                       |
+| 5   | Pass                                   | Parameterized decline/withdraw/staff-reject cases preserve official time and history, reject later approval and leave no success event/audit. Staff rejection requires a visible decision note.                                                                                                                                                                                                                                                                                             |
+| 6   | Pass                                   | Integration covers official-time change-and-reversal, opponents, captain appointment/membership, revoked edition Admin grant, cancelled/in-progress fixture, saved results, publication, edition lock and operational referee events. The time projection tests expire passed plans without rewriting terminal history.                                                                                                                                                                     |
+| 7   | Pass                                   | Actual `fixtureCommand` and `refereeCommand` race with Schedule approval; only one succeeds. Approval-versus-withdrawal is also tested. Fixture versions/times, request state, approval events and reschedule audit counts remain consistent with the winning operation.                                                                                                                                                                                                                    |
+| 8   | Pass                                   | Public fixture read-model assertion, retained referee/streamer assignments and unchanged stream confirmation baseline establish the approved instant and reconfirmation requirement. Existing fixture/referee/streaming browser regressions passed in the implementation batch; core read-API/remote checks passed CI #1083. The Schedule API revalidates tournament and Admin layouts after mutations.                                                                                     |
+| 9   | Pass                                   | Extended desktop/mobile E2E verifies cross-midnight UTC round trips, multiple slots, modification/removal, stale 409 feedback and explicit reload, long multilingual names, keyboard scroll, three locales, both brightness modes and 320px containment. [Shared time-input tests](../../../tests/unit/edition-time.test.ts) cover explicit DST ambiguity, nonexistent dates and non-hour offsets; Schedule projection tests preserve distinct DST instants.                                |
+| 10  | Pass                                   | Acceptance audit reread the installed Next 16.4.2 Route Handlers, Server/Client Components and Caching guides under `node_modules/next/dist/docs/01-app/01-getting-started/`. Awaited route params, authenticated request-time private reads, client-only calendar and mutation revalidation follow these APIs. Refactoring UI hierarchy/spacing guidance was reviewed against the existing MainSheet layout and the desktop/mobile screenshots below. No new visual system was introduced. |
+| 11  | Pass within the documented issue scope | See the exact local results below and immutable CI evidence above. Tests use separate isolated test databases; upgrade/replay and retained history have explicit regression coverage. Desktop/mobile Schedule E2E passed. This does not claim full-site release regression or deployment.                                                                                                                                                                                                   |
+| 12  | Pass                                   | Organizer explicitly approved the new Chinese wording on 2026-10-31 after being given the PR message catalogs and actual mobile screenshot. Design, implementation, merge, technical verification and organizer wording approval are recorded as separate events.                                                                                                                                                                                                                           |
+
+The five FullCalendar introduction checks are also satisfied: locked Standard
+7.1.3 and MIT dependency; successful production build and no runtime/hydration
+errors in real browser flows; desktop pointer selection and equivalent mobile/
+keyboard forms; labelled own/official/proposed states with long-name and narrow
+layout coverage; explicit IANA-zone/UTC conversion; private authorized data only;
+no drag path can update the official fixture without both captains and staff.
+Official/proposed calendar events remain start markers with no asserted duration.
+
+### Additional local verification
+
+This acceptance checkpoint authors tests and documentation only. The Schedule
+services/components, dependency lockfile and migration 0065 are unchanged from
+the verified merge; the intervening main update is preserved.
+
+- Full `npm test` on the verified merge plus these acceptance tests: **1,920 passed,
+  2 skipped**, 236 files (286.85 seconds).
+- `npm run check`: passed, including a fresh pass after synchronizing main
+  `0a8cbf9605c252c5a9c26f3f79e81eb0ce6ba332` (PR #601).
+- Extended Schedule E2E: **2 passed** (desktop and mobile, 24.3 seconds).
+  This first run reused the production build from the verified merge.
+- A fresh production build after syncing main `0a8cbf96` also passed; the final
+  desktop/mobile rerun against that build is recorded below: **2 passed** (desktop and mobile, 25.1 seconds).
+- After that main update, the affected Schedule, time input, player/read-model
+  and remote-boundary tests passed **96/96** across seven files.
+- The new main instructions require read-contract regeneration/checking after
+  integration: `npm run read-api:generate` produced no diff;
+  `npm run read-api:check` passed 56 contracts, 171 coverage rows and **8 tests**.
+- Before publication, main additionally reached `a909135ef70be6c6ceaf4468e4f24a40cf3ae24e`
+  (PRs #604/#605). These IRC/mappool changes are preserved; Schedule
+  services/components remain unchanged. The affected Schedule/IRC unit and
+  integration checks passed **68/68** across three files. Read-contract
+  regeneration/checking was repeated after this integration with no generated
+  diff. The full-suite/build/browser results above remain tied to their stated
+  checkpoints, not relabelled as a full regression of unrelated changes.
+- `git diff --check` and local documentation-link checks passed.
+- Existing build, audit, i18n extraction/checks, clean install and 0064 → 0065
+  upgrade/replay evidence remain above and in CI #1083; no dependency, interface
+  message, runtime or migration change was authored in this checkpoint. The
+  intervening main update is preserved and its affected checks are distinguished
+  from the full-suite run above.
+
+The first local retry used a Unix-socket URL, which is accepted by ordinary
+Schedule tests but unsupported by the deployment/backup test harness. The final
+full-suite run uses the same dedicated `oclr_591_test` target through loopback
+TCP. No application code or database transport policy was changed to bypass
+that harness. Browser checks use separate `oclr_591_browser_test`, port 31591,
+and the synthetic-only provider guard copied to a temporary ignored location.
+Existing services on port 3100 and the original dirty checkout were preserved.
+
+New, visually reviewed evidence with deliberately long synthetic team names:
+
+- [Desktop, light](acceptance-desktop-long-name.png)
+- [320px mobile, Traditional Chinese](acceptance-mobile-hant-long-name.png)
+
+Guidance reviewed:
+[Refactoring UI skill](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/SKILL.md),
+[hierarchy](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/references/hierarchy.md),
+[layout and spacing](https://github.com/LovroPodobnik/refactoring-ui-skill/blob/main/.claude/skills/ui-refactor/references/layout-spacing.md).
+
+Issue-specific technical acceptance and organizer wording review are complete. The full 956-case local browser matrix and
+full-only CI lanes remain unverified, as already disclosed; the organizer's
+fixed core-CI policy is unchanged. This audit authorizes no production migration,
+role/credential change or deployment. Issue closure is recorded on #591 after
+publishing this verification checkpoint.

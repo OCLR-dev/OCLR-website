@@ -61,7 +61,7 @@ test.describe("Schedule requests #591", () => {
         [1, 2].map((n) => ({
           editionSlug: slug,
           captainId: actorBase + n,
-          name: `Synthetic team ${n}`,
+          name: `Synthetic team ${n} ${"Long name 中文隊伍 ".repeat(5)}`,
           identityPublished: true,
           rosterPublished: true,
           finalizedAt: new Date(),
@@ -170,6 +170,100 @@ test.describe("Schedule requests #591", () => {
         .getByRole("button", { name: "Save availability", exact: true })
         .click();
       expect((await save).status()).toBe(200);
+      await page.reload();
+      await expect(page.locator(".schedule-slots li")).toHaveCount(1);
+      const snapshot = await (await page.request.get(endpoint)).json();
+      const own = snapshot.fixtures.find((x: { id: string }) => x.id === f.id);
+      expect(
+        (
+          await page.request.post(endpoint, {
+            headers: { origin: baseURL! },
+            data: {
+              action: "availability",
+              fixtureId: f.id,
+              expectedFixtureVersion: own.version,
+              expectedVersion: own.ownAvailability.version,
+              requestKey: randomUUID(),
+              intervals: own.ownAvailability.intervals,
+            },
+          })
+        ).status(),
+      ).toBe(200);
+      const staleReply = page.waitForResponse(
+        (r) => r.url().endsWith(endpoint) && r.request().method() === "POST",
+      );
+      await page
+        .getByRole("button", { name: "Save availability", exact: true })
+        .click();
+      expect((await staleReply).status()).toBe(409);
+      await expect(
+        page.locator(".schedule-tool").getByRole("alert"),
+      ).toContainText("Reload before continuing");
+      const reloadReply = page.waitForResponse(
+        (r) => r.url().endsWith(endpoint) && r.request().method() === "GET",
+      );
+      await page
+        .getByRole("button", { name: "Reload schedule", exact: true })
+        .click();
+      await reloadReply;
+      await expect(
+        page.locator(".schedule-tool").getByRole("alert"),
+      ).toHaveCount(0);
+      await page
+        .locator(".schedule-slots")
+        .getByRole("button", { name: "Edit", exact: true })
+        .click();
+      await page
+        .getByLabel("Available from: time (HH:mm)", { exact: true })
+        .fill("19:30");
+      await page
+        .getByRole("button", { name: "Update time slot", exact: true })
+        .click();
+      await page
+        .getByLabel("Available from: date", { exact: true })
+        .fill("2090-01-02");
+      await page
+        .getByLabel("Available from: time (HH:mm)", { exact: true })
+        .fill("23:30");
+      await page
+        .getByLabel("Available until: date", { exact: true })
+        .fill("2090-01-03");
+      await page
+        .getByLabel("Available until: time (HH:mm)", { exact: true })
+        .fill("01:00");
+      await page
+        .getByRole("button", { name: "Add time slot", exact: true })
+        .click();
+      await expect(page.locator(".schedule-slots li")).toHaveCount(2);
+      const modifiedReply = page.waitForResponse(
+        (r) => r.url().endsWith(endpoint) && r.request().method() === "POST",
+      );
+      await page
+        .getByRole("button", { name: "Save availability", exact: true })
+        .click();
+      expect((await modifiedReply).status()).toBe(200);
+      await page.reload();
+      await expect(page.locator(".schedule-slots li")).toHaveCount(2);
+      const savedSlots = (
+        await (await page.request.get(endpoint)).json()
+      ).fixtures.find((x: { id: string }) => x.id === f.id).ownAvailability
+        .intervals;
+      expect(savedSlots).toEqual([
+        { start: "2090-01-02T11:30:00.000Z", end: "2090-01-02T14:00:00.000Z" },
+        { start: "2090-01-02T15:30:00.000Z", end: "2090-01-02T17:00:00.000Z" },
+      ]);
+      await page
+        .locator(".schedule-slots li")
+        .last()
+        .getByRole("button", { name: "Remove", exact: true })
+        .click();
+      const removedReply = page.waitForResponse(
+        (r) => r.url().endsWith(endpoint) && r.request().method() === "POST",
+      );
+      await page
+        .getByRole("button", { name: "Save availability", exact: true })
+        .click();
+      expect((await removedReply).status()).toBe(200);
       await page.reload();
       await expect(page.locator(".schedule-slots li")).toHaveCount(1);
       expect(errors).toEqual([]);
