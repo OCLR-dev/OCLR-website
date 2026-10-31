@@ -305,6 +305,11 @@ export function RoundManager({
                           <RoundRules
                             key={`rules-${round.id}-${round.version}`}
                             slug={slug}
+                            refereePolicyRevision={
+                              refereeData?.refereeRules?.find(
+                                (rule) => rule.roundId === round.id,
+                              )?.revision
+                            }
                             entry={competitionData.rounds.find(
                               (r) => r.round.id === round.id,
                             )!}
@@ -317,7 +322,7 @@ export function RoundManager({
                         (rule) => rule.roundId === round.id,
                       ) && (
                         <RoundRefereePolicy
-                          key={`${round.id}-${refereeData.refereeRules.find((rule) => rule.roundId === round.id)!.revision}`}
+                          key={`${round.id}-${round.version}-${refereeData.refereeRules.find((rule) => rule.roundId === round.id)!.revision}`}
                           slug={slug}
                           roundVersion={round.version}
                           season={season}

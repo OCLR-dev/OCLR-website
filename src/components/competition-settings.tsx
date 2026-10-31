@@ -7,7 +7,15 @@ import { ConfirmMutation } from "./confirm-mutation";
 import { InfoNote } from "./info-note";
 import styles from "./competition-settings.module.css";
 type Round = FixtureWorkspace["rounds"][number];
-export function RoundRules({ slug, entry }: { slug: string; entry: Round }) {
+export function RoundRules({
+  slug,
+  entry,
+  refereePolicyRevision,
+}: {
+  slug: string;
+  entry: Round;
+  refereePolicyRevision?: number;
+}) {
   const tr = useAppTranslations();
 
   const { round, stage } = entry;
@@ -24,8 +32,8 @@ export function RoundRules({ slug, entry }: { slug: string; entry: Round }) {
   const [exPlayers, setExPlayers] = useState(
     String(rules?.exPlayersPerTeam ?? ""),
   );
-  const [maps, setMaps] = useState(
-    String(rules?.series.type === "first_to" ? rules.series.wins : ""),
+  const [bestOf, setBestOf] = useState(
+    String(rules?.series.type === "first_to" ? rules.series.wins * 2 - 1 : ""),
   );
   const ranked = true;
   const [winPoints, setWinPoints] = useState(
@@ -129,17 +137,30 @@ export function RoundRules({ slug, entry }: { slug: string; entry: Round }) {
                   onChange={(e) => setExPlayers(e.target.value)}
                 />
               </label>
-              <p className="small muted">
-                {tr("First to a configured number of map wins")}
-              </p>
+              <label className="field">
+                <span>{tr("Best of (BO)")}</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={197}
+                  step={2}
+                  required
+                  value={bestOf}
+                  onChange={(e) => setBestOf(e.target.value)}
+                />
+              </label>
               <label className="field">
                 <span>{tr("Map wins required")}</span>
                 <input
                   type="number"
-                  min={1}
-                  max={99}
-                  value={maps}
-                  onChange={(e) => setMaps(e.target.value)}
+                  readOnly
+                  value={
+                    Number(bestOf) >= 1 &&
+                    Number(bestOf) <= 197 &&
+                    Number(bestOf) % 2 === 1
+                      ? (Number(bestOf) + 1) / 2
+                      : ""
+                  }
                 />
               </label>
             </section>
@@ -191,6 +212,12 @@ export function RoundRules({ slug, entry }: { slug: string; entry: Round }) {
           )}
         </div>
         <ConfirmMutation
+          canConfirm={
+            Number.isInteger(Number(bestOf)) &&
+            Number(bestOf) >= 1 &&
+            Number(bestOf) <= 197 &&
+            Number(bestOf) % 2 === 1
+          }
           label={tr("Save approved round rules")}
           title={tr("Confirm competition rules?")}
           description={tr(
@@ -202,6 +229,9 @@ export function RoundRules({ slug, entry }: { slug: string; entry: Round }) {
             action: "round_rules",
             roundId: round.id,
             expectedVersion: round.version,
+            ...(refereePolicyRevision === undefined
+              ? {}
+              : { expectedRefereePolicyRevision: refereePolicyRevision }),
             scoringRules: enabled
               ? {
                   mode,
@@ -210,7 +240,7 @@ export function RoundRules({ slug, entry }: { slug: string; entry: Round }) {
                   aggregation,
                   playersPerTeam: Number(players),
                   exPlayersPerTeam: exPlayers.trim() ? Number(exPlayers) : null,
-                  series: { type: "first_to", wins: Number(maps) },
+                  series: { type: "first_to", wins: (Number(bestOf) + 1) / 2 },
                   allowSubstitutions: rules?.allowSubstitutions ?? false,
                   allowShortHanded: rules?.allowShortHanded ?? false,
                   failedScorePolicy: "include",

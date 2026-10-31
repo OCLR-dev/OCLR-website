@@ -67,6 +67,7 @@ export async function persistRoundRefereePolicy(
   seriesChange?: z.infer<
     typeof roundRefereePolicyCommandSchema
   >["seriesChange"],
+  validateUnchanged = false,
 ) {
   await assertCapability(actor, "manage_fixtures", slug, tx);
   await assertOperationalEdition(slug, tx);
@@ -115,7 +116,12 @@ export async function persistRoundRefereePolicy(
       409,
       "The round referee policy changed. Refresh before saving.",
     );
-  if (before && isDeepStrictEqual(before.policy, policy) && !seriesChanged)
+  if (
+    before &&
+    isDeepStrictEqual(before.policy, policy) &&
+    !seriesChanged &&
+    !validateUnchanged
+  )
     return before.revision;
   const pools = await tx
     .select()
@@ -181,7 +187,9 @@ export async function persistRoundRefereePolicy(
       policy.steps.slice(0, tb).filter((step) => step.kind === "pick").length <
         tiedAt * 2 ||
       (scoringRules?.series.type === "first_to" &&
-        tiedAt !== scoringRules.series.wins - 1)
+        (tiedAt !== scoringRules.series.wins - 1 ||
+          policy.steps.filter((step) => step.kind === "pick").length !==
+            (scoringRules.series.wins - 1) * 2))
     )
       throw new HttpError(
         400,

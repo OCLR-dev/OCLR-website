@@ -32,6 +32,7 @@ import {
   syntheticRefereePolicy as policy,
 } from "../fixtures/referee";
 import { assertTestDatabase } from "../database";
+import { fixtureCommand } from "../../src/lib/fixtures";
 import { s11RefereeSteps } from "../../src/lib/referee-defaults";
 const url = process.env.TEST_DATABASE_URL;
 describe.skipIf(!url)("round referee policies independent of fixtures", () => {
@@ -54,6 +55,78 @@ describe.skipIf(!url)("round referee policies independent of fixtures", () => {
       expectedRevision,
       policy: { ...policy, ...changes },
     });
+  async function saveBO(wins: number, revision = 1) {
+    const [round] = await db()
+      .select()
+      .from(tournamentRounds)
+      .where(eq(tournamentRounds.id, w.round.id));
+    return fixtureCommand(admin, "test-cup", {
+      action: "round_rules",
+      roundId: round.id,
+      expectedVersion: round.version,
+      expectedRefereePolicyRevision: revision,
+      scoringRules: {
+        ...round.scoringRules!,
+        version: undefined,
+        series: { type: "first_to", wins },
+      },
+      standingsRules: round.standingsRules,
+      confirmed: true,
+    });
+  }
+  it("links the scoring BO, BP picks and TB atomically through the sole round rules entry", async () => {
+    await save();
+    await saveBO(7);
+    let read = await refereeWorkspace(referee, "test-cup", w.fixture.id);
+    expect(read.series).toEqual({ type: "first_to", wins: 7 });
+    expect(
+      read.policy!.steps.filter((step) => step.kind === "pick"),
+    ).toHaveLength(12);
+    expect(read.policy!.steps.at(-1)).toMatchObject({ kind: "tb", tiedAt: 6 });
+    expect(read.policy!.steps.filter((step) => step.kind === "ban")).toEqual(
+      policy.steps.filter((step) => step.kind === "ban"),
+    );
+    expect(read.policy!.commands).toEqual(policy.commands);
+    expect(read.policyRevision).toBe(2);
+    await expect(saveBO(6, 1)).rejects.toMatchObject({ status: 409 });
+    await saveBO(6, 2);
+    read = await refereeWorkspace(referee, "test-cup", w.fixture.id);
+    expect(read.series).toEqual({ type: "first_to", wins: 6 });
+    expect(
+      read.policy!.steps.filter((step) => step.kind === "pick"),
+    ).toHaveLength(10);
+    expect(read.policy!.steps.at(-1)?.tiedAt).toBe(5);
+  });
+  it("rolls scoring and policy back together if the policy audit fails", async () => {
+    await save();
+    const before = await refereeWorkspace(referee, "test-cup", w.fixture.id);
+    await db().execute(
+      sql`CREATE FUNCTION test_bo_audit_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='round_referee_policy' THEN RAISE EXCEPTION 'Synthetic BO audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER test_bo_audit_failure BEFORE INSERT ON mappool_events FOR EACH ROW EXECUTE FUNCTION test_bo_audit_failure()`,
+    );
+    try {
+      await expect(saveBO(7)).rejects.toThrow();
+      const after = await refereeWorkspace(referee, "test-cup", w.fixture.id);
+      expect(after.series).toEqual(before.series);
+      expect(after.policy).toEqual(before.policy);
+      expect(after.policyRevision).toBe(before.policyRevision);
+    } finally {
+      await db().execute(sql`DROP FUNCTION test_bo_audit_failure() CASCADE`);
+    }
+  });
+  it("accepts only one concurrent BO save and keeps series and BP consistent", async () => {
+    await save();
+    const results = await Promise.allSettled([saveBO(7), saveBO(6)]);
+    expect(
+      results.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
+    const read = await refereeWorkspace(referee, "test-cup", w.fixture.id);
+    expect(read.series?.type).toBe("first_to");
+    const wins = read.series!.type === "first_to" ? read.series!.wins : 0;
+    expect(
+      read.policy!.steps.filter((step) => step.kind === "pick"),
+    ).toHaveLength(2 * (wins - 1));
+    expect(read.policy!.steps.at(-1)?.tiedAt).toBe(wins - 1);
+  });
   it("saves before any fixture exists without creating a referee session", async () => {
     const [original] = await db()
       .select()
@@ -283,6 +356,7 @@ describe.skipIf(!url)("round referee policies independent of fixtures", () => {
     await expect(save(1, { maxReplaysPerMap: 1 })).rejects.toMatchObject({
       status: 409,
     });
+    await expect(saveBO(7)).rejects.toMatchObject({ status: 409 });
     const [original] = await db()
       .select()
       .from(fixtures)
@@ -324,5 +398,6 @@ describe.skipIf(!url)("round referee policies independent of fixtures", () => {
     await expect(save(1, { maxReplaysPerMap: 1 })).rejects.toMatchObject({
       status: 409,
     });
+    await expect(saveBO(7)).rejects.toMatchObject({ status: 409 });
   });
 });

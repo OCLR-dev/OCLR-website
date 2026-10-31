@@ -287,64 +287,87 @@ for (const [locale, catalog] of [
   });
 }
 
-test("updates BO and the unsaved S11 sequence together without NM override controls", async ({
+test("uses one BO input, derives wins, and reloads synchronized BP and TB after saving", async ({
   page,
 }) => {
-  const writes: Record<string, unknown>[] = [];
-  await page.route(route, async (request) => {
-    const body = request.request().postDataJSON();
-    writes.push(body);
-    await request.fulfill({
-      json: {
-        revision: 1,
-        policy: body.policy,
-        series: { type: "first_to", wins: 7 },
-        roundVersion: 1,
-      },
-    });
+  let requestBody!: {
+    expectedRefereePolicyRevision: number;
+    scoringRules: { series: { wins: number } };
+  };
+  await page.route("**/api/admin/tournaments/synthetic/matches", async (r) => {
+    requestBody = r.request().postDataJSON();
+    await r.fulfill({ json: { ok: true } });
   });
-  await page.goto("/round-referee-policy");
+  await page.route("**/synthetic-round-state", (r) =>
+    r.fulfill({
+      json: {
+        wins: 7,
+        roundVersion: 1,
+        policyRevision: 5,
+        policy: {
+          steps: [
+            "ban",
+            "ban",
+            "pick",
+            "pick",
+            "ban",
+            "ban",
+            ...Array(10).fill("pick"),
+            "tb",
+          ].map((kind, i) => ({
+            kind,
+            actor:
+              kind === "tb"
+                ? "neutral"
+                : kind === "ban"
+                  ? i % 2
+                    ? "secondBan"
+                    : "firstBan"
+                  : i % 2
+                    ? "secondPick"
+                    : "firstPick",
+            categories: kind === "tb" ? ["TB"] : [],
+            entryIds: [],
+            avoidRepeatCategory: false,
+            tiedAt: kind === "tb" ? 6 : null,
+          })),
+          commands: null,
+        },
+      },
+    }),
+  );
+  await page.goto("/round-referee-policy?saved&linked");
+  const bo = page.getByLabel("Best of (BO)", { exact: true });
+  await expect(bo).toHaveCount(1);
+  await expect(bo).toHaveValue("11");
+  const required = page.getByLabel("Map wins required", { exact: true });
+  await expect(required).toHaveAttribute("readonly", "");
+  await bo.fill("13");
+  await expect(required).toHaveValue("7");
+  await page
+    .getByRole("button", { name: "Save approved round rules", exact: true })
+    .click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Confirm", exact: true })
+    .click();
+  await expect(bo).toHaveValue("13");
+  await expect.poll(() => requestBody?.scoringRules.series.wins).toBe(7);
+  expect(requestBody.expectedRefereePolicyRevision).toBe(4);
   await page
     .getByText("Configure round referee policy", { exact: true })
     .click();
-  await page.getByLabel("Best of (BO)", { exact: true }).fill("13");
   await expect(
     page
       .getByRole("list", { name: "Finite Ban / Pick sequence", exact: true })
       .locator(":scope > li"),
   ).toHaveCount(17);
-  await expect(
-    page.getByLabel("Both teams must have this score before TB", {
-      exact: true,
-    }),
-  ).toHaveValue("6");
-  await expect(
-    page.getByLabel("Mods for NM (space separated; empty clears Mods)", {
-      exact: true,
-    }),
-  ).toHaveCount(0);
-  await expect(page.getByLabel("NM · Freemod", { exact: true })).toHaveCount(0);
-  await page
-    .getByLabel("Room size (separate from players per team)", { exact: true })
-    .fill("16");
-  await page
-    .getByRole("button", { name: "Save round referee policy", exact: true })
-    .click();
-  await expect(page.getByRole("status")).toHaveText(
-    "Round referee policy saved.",
-  );
-  expect(writes[0]).toMatchObject({
-    seriesChange: { bestOf: 13, expectedRoundVersion: 0 },
-    policy: {
-      commands: { categoryMods: { NM: { mods: [], freemod: false } } },
-    },
+  const tb = page.getByLabel("Both teams must have this score before TB", {
+    exact: true,
   });
-  await page
-    .getByText("Configure round referee policy", { exact: true })
-    .click();
-  await expect(page.getByLabel("Best of (BO)", { exact: true })).toHaveValue(
-    "13",
-  );
+  await expect(tb).toHaveValue("6");
+  await expect(tb).toHaveAttribute("readonly", "");
+  await expect(bo).toHaveCount(1);
 });
 test("restores NF and standard Mods only after explicit choice and keeps custom steps", async ({
   page,
@@ -396,12 +419,12 @@ test("does not convert unconfigured or fixed-map scoring into BO", async ({
     await page
       .getByText("Configure round referee policy", { exact: true })
       .click();
+    await expect(page.getByLabel("Best of (BO)", { exact: true })).toHaveCount(
+      1,
+    );
     await expect(
-      page.getByLabel("Best of (BO)", { exact: true }),
-    ).toBeDisabled();
-    await expect(
-      page.getByRole("link", { name: "Configure scoring rules", exact: true }),
-    ).toHaveAttribute("href", "/admin/tournaments/synthetic/matches");
+      page.getByLabel("Map wins required", { exact: true }),
+    ).toHaveAttribute("readonly", "");
   }
 });
 

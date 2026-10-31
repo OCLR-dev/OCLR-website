@@ -66,7 +66,7 @@ export function RoundRefereePolicy({
           maps={maps}
           series={saved.series}
           busy={busy}
-          onSave={async (policy, bestOf) => {
+          onSave={async (policy) => {
             setBusy(true);
             setFeedback(null);
             try {
@@ -78,14 +78,6 @@ export function RoundRefereePolicy({
                   body: JSON.stringify({
                     expectedRevision: saved.revision,
                     policy,
-                    ...(bestOf === undefined
-                      ? {}
-                      : {
-                          seriesChange: {
-                            bestOf,
-                            expectedRoundVersion: savedRoundVersion,
-                          },
-                        }),
                   }),
                 },
               );

@@ -12,6 +12,7 @@ export function RefereeStepEditor({
   categories,
   maps,
   defaultTiedAt,
+  tiedScoreReadOnly = false,
   onChange,
   onMove,
   onRemove,
@@ -22,6 +23,7 @@ export function RefereeStepEditor({
   categories: string[];
   maps: RefereeMap[];
   defaultTiedAt: number;
+  tiedScoreReadOnly?: boolean;
   onChange: (patch: Partial<Step>) => void;
   onMove: (direction: -1 | 1) => void;
   onRemove: () => void;
@@ -126,7 +128,8 @@ export function RefereeStepEditor({
             min={0}
             max={98}
             required
-            value={step.tiedAt ?? ""}
+            value={tiedScoreReadOnly ? defaultTiedAt : (step.tiedAt ?? "")}
+            readOnly={tiedScoreReadOnly}
             onChange={(event) =>
               onChange({
                 tiedAt:

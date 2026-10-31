@@ -357,7 +357,7 @@ test.describe("staff fixtures and referee assignments over HTTP", () => {
       await expect(
         rules.getByRole("combobox", { name: /^Series format/ }),
       ).toHaveCount(0);
-      await rules.getByLabel("Map wins required").fill("2");
+      await rules.getByLabel("Best of (BO)").fill("3");
       await expect(
         rules.getByRole("combobox", { name: /^Failed player scores/ }),
       ).toHaveCount(0);

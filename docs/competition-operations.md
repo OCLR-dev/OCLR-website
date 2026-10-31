@@ -193,15 +193,18 @@ pauses and EX conditions still require referee review
 under the published rules; the template does not automate these judgments.
 Other seasons and existing saved policies are never replaced by S11 defaults.
 
-The round referee form also exposes **Best of (BO)** (#574). BO is the existing
-first-to scoring series (`wins = (BO + 1) / 2`), not a second referee-only value.
-Saving a changed BO and its BP policy is atomic, checks the round version as
-well as the policy revision, and audits a new scoring release. Other scoring
-fields and standings remain unchanged. Configure complete first-to scoring
-first if it is currently missing; fixed-map formats are not silently converted.
-Unmodified S11 draft steps follow the edited BO. Saved/customized steps remain
-editable and must have a compatible Pick count and TB tied-score condition.
-Active recorded selections and completed-fixture history still block changes.
+Round competition rules expose the sole editable **Best of (BO)** (#603).
+Required map wins are read-only and derived as `(BO + 1) / 2`; the referee form
+has no second BO input. Saving a changed series updates the round scoring release
+and its existing BP policy in one transaction, with round-version and policy-
+revision checks. Normal Pick steps become `2 * (wins - 1)`, and the final TB uses
+`wins - 1` for both teams. Ban order, retained step restrictions, command settings
+and replay limits are preserved. Newly added Picks alternate; excess final Picks
+are removed, with the old policy preserved in audit history. First-to TB scores
+are read-only in the editor. Missing policies remain unsaved drafts until the
+Admin explicitly saves them; unrelated scoring fields retain their existing
+semantics. Active recorded selections and completed-policy history block a
+linked BP change rather than partially saving the BO.
 
 Repeated Ban presets are mutually exclusive: all categories may repeat, only
 NM/FM may repeat, or no category may repeat for the same team. Existing custom
