@@ -621,25 +621,6 @@
       "required": ["mods", "freemod"],
       "additionalProperties": false
     },
-    "Read297c4688e079": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "number": { "type": "number" },
-        "status": {
-          "anyOf": [
-            { "type": "string", "const": "pending" },
-            { "type": "string", "const": "completed" },
-            { "type": "string", "const": "tied" },
-            { "type": "string", "const": "aborted" },
-            { "type": "string", "const": "playing" }
-          ]
-        },
-        "winnerTeamId": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
-      },
-      "required": ["id", "number", "status", "winnerTeamId"],
-      "additionalProperties": false
-    },
     "Read2c425a16fc28": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Reade5acebf64e20" }]
     },
@@ -1175,10 +1156,6 @@
       "required": ["teamId", "wins", "losses", "mapsWon", "mapsLost"],
       "additionalProperties": false
     },
-    "Read53f8373ef5e4": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/Readfbed7a8cb9ca" }
-    },
     "Read55c1328962f0": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read6b1892d15a0a" }
@@ -1431,6 +1408,45 @@
     "Read60518843022d": {
       "type": "array",
       "items": { "$ref": "#/$defs/Readd849cc2edeb5" }
+    },
+    "Read6259f9d182fa": {
+      "type": "object",
+      "properties": {
+        "exMode": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "boolean", "const": false },
+            { "type": "boolean", "const": true }
+          ]
+        },
+        "id": { "type": "string" },
+        "stepIndex": { "type": "number" },
+        "kind": {
+          "anyOf": [
+            { "type": "string", "const": "pick" },
+            { "type": "string", "const": "ban" },
+            { "type": "string", "const": "tb" }
+          ]
+        },
+        "teamId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "entryId": { "type": "string" },
+        "beatmapId": { "type": "number" },
+        "category": { "type": "string" },
+        "attempts": { "$ref": "#/$defs/Readea7146449dc9" },
+        "voided": { "type": "boolean" }
+      },
+      "required": [
+        "id",
+        "stepIndex",
+        "kind",
+        "teamId",
+        "entryId",
+        "beatmapId",
+        "category",
+        "attempts",
+        "voided"
+      ],
+      "additionalProperties": false
     },
     "Read64eb16a8194e": {
       "type": "array",
@@ -1943,6 +1959,25 @@
     },
     "Read88d0cc0096e6": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readdfaf457548f6" }]
+    },
+    "Read897ffb1214dd": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "number": { "type": "number" },
+        "status": {
+          "anyOf": [
+            { "type": "string", "const": "pending" },
+            { "type": "string", "const": "tied" },
+            { "type": "string", "const": "completed" },
+            { "type": "string", "const": "aborted" },
+            { "type": "string", "const": "playing" }
+          ]
+        },
+        "winnerTeamId": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+      },
+      "required": ["id", "number", "status", "winnerTeamId"],
+      "additionalProperties": false
     },
     "Read89a66b51d3eb": {
       "type": "object",
@@ -2858,6 +2893,10 @@
       "required": ["username", "scores", "source"],
       "additionalProperties": false
     },
+    "Readc3467219ecb8": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Read6259f9d182fa" }
+    },
     "Readc4972a1f5491": {
       "type": "object",
       "properties": {
@@ -3268,10 +3307,6 @@
       ],
       "additionalProperties": false
     },
-    "Readdfb4bb110b7e": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/Read297c4688e079" }
-    },
     "Reade049eaf550b3": {
       "type": "object",
       "properties": {
@@ -3424,6 +3459,10 @@
     "Reade9ded503ae86": {
       "type": "array",
       "items": { "$ref": "#/$defs/Readde812f85e8fa" }
+    },
+    "Readea7146449dc9": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Read897ffb1214dd" }
     },
     "Readeb08c8daa7ee": {
       "anyOf": [
@@ -3868,45 +3907,6 @@
         { "type": "string", "const": "LSP" },
         { "type": "string", "const": "BDT" }
       ]
-    },
-    "Readfbed7a8cb9ca": {
-      "type": "object",
-      "properties": {
-        "exMode": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "boolean", "const": false },
-            { "type": "boolean", "const": true }
-          ]
-        },
-        "id": { "type": "string" },
-        "stepIndex": { "type": "number" },
-        "kind": {
-          "anyOf": [
-            { "type": "string", "const": "pick" },
-            { "type": "string", "const": "ban" },
-            { "type": "string", "const": "tb" }
-          ]
-        },
-        "teamId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "entryId": { "type": "string" },
-        "beatmapId": { "type": "number" },
-        "category": { "type": "string" },
-        "attempts": { "$ref": "#/$defs/Readdfb4bb110b7e" },
-        "voided": { "type": "boolean" }
-      },
-      "required": [
-        "id",
-        "stepIndex",
-        "kind",
-        "teamId",
-        "entryId",
-        "beatmapId",
-        "category",
-        "attempts",
-        "voided"
-      ],
-      "additionalProperties": false
     },
     "Readfbf98bdae6d4": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read6cac440a6cdd" }]
@@ -7994,8 +7994,8 @@
                       "attemptId": { "type": "string" },
                       "status": {
                         "anyOf": [
-                          { "type": "string", "const": "completed" },
                           { "type": "string", "const": "tied" },
+                          { "type": "string", "const": "completed" },
                           { "type": "string", "const": "aborted" }
                         ]
                       },
@@ -8073,8 +8073,8 @@
         "projection": {
           "type": "object",
           "properties": {
-            "selections": { "$ref": "#/$defs/Read53f8373ef5e4" },
-            "activeSelections": { "$ref": "#/$defs/Read53f8373ef5e4" },
+            "selections": { "$ref": "#/$defs/Readc3467219ecb8" },
+            "activeSelections": { "$ref": "#/$defs/Readc3467219ecb8" },
             "score": {
               "type": "object",
               "properties": {},
@@ -8201,8 +8201,8 @@
               "attemptStatus": {
                 "anyOf": [
                   { "type": "string", "const": "pending" },
-                  { "type": "string", "const": "completed" },
                   { "type": "string", "const": "tied" },
+                  { "type": "string", "const": "completed" },
                   { "type": "string", "const": "aborted" },
                   { "type": "string", "const": "playing" }
                 ]
