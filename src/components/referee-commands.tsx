@@ -1,15 +1,13 @@
 "use client";
 
-import { useId, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import styles from "./referee-commands.module.css";
 import { useAppTranslations } from "@/i18n/shared";
 import {
   copyRefereeCommand,
   refereeCommands,
-  refereeSettingsSchema,
   type RefereeCommand,
   type RefereeCommandInput,
-  type RefereeSettings,
 } from "@/lib/referee-commands";
 
 function CommandLine({
@@ -48,8 +46,8 @@ function CommandLine({
     "Configure the round rules and room size first.": tr(
       "Configure the round rules and room size first.",
     ),
-    "Enter a valid osu! username for the Streamer.": tr(
-      "Enter a valid osu! username for the Streamer.",
+    "Assign an active Streamer in this fixture’s streaming task.": tr(
+      "Assign an active Streamer in this fixture’s streaming task.",
     ),
     "This player's saved username is missing or invalid.": tr(
       "This player's saved username is missing or invalid.",
@@ -176,45 +174,26 @@ function CommandLine({
   );
 }
 
-/** Parent keys this editor by saved session revision after successful saves/reloads. */
+/** Command previews share the server-projected inherited settings. */
 export function RefereeCommands({
   settings,
   policy,
   rules,
   teams,
   selectedMap,
-  onSave,
-  canRecord,
-  busy = false,
   mapSelector,
   stage,
-  draft: controlledDraft,
-  onDraftChange,
   onPrepare,
   sentCommands = [],
 }: RefereeCommandInput & {
-  onSave: (settings: RefereeSettings) => void | Promise<void>;
-  canRecord: boolean;
-  busy?: boolean;
   mapSelector?: ReactNode;
   stage?: "preparation" | "play";
-  draft?: RefereeSettings;
-  onDraftChange?: (settings: RefereeSettings) => void;
   onPrepare?: (text: string) => void;
   sentCommands?: string[];
 }) {
   const tr = useAppTranslations();
-  const id = useId();
-  const [localDraft, setLocalDraft] = useState(settings);
-  const draft = controlledDraft ?? localDraft;
-  const setDraft = (value: RefereeSettings) => {
-    if (onDraftChange) onDraftChange(value);
-    else setLocalDraft(value);
-  };
-  const [error, setError] = useState("");
-  const changed = JSON.stringify(draft) !== JSON.stringify(settings);
   const commands = refereeCommands({
-    settings: draft,
+    settings,
     policy,
     rules,
     teams,
@@ -260,49 +239,6 @@ export function RefereeCommands({
       ),
     },
   ];
-  const integer = (value: string) => (value === "" ? null : Number(value));
-  const update = <K extends keyof RefereeSettings>(
-    key: K,
-    value: RefereeSettings[K],
-  ) => setDraft({ ...draft, [key]: value });
-  async function save() {
-    const parsed = refereeSettingsSchema.safeParse(draft);
-    if (!parsed.success) {
-      setError(
-        tr(
-          "Use single-line names, a room size from 1 to 16 and positive whole seconds.",
-        ),
-      );
-      return;
-    }
-    setError("");
-    try {
-      await onSave(parsed.data);
-    } catch {
-      setError(
-        tr("Command settings could not be saved. Your changes are still here."),
-      );
-    }
-  }
-  const numberField = (
-    key: "timerSeconds" | "startSeconds" | "roomSize",
-    label: string,
-    max?: number,
-  ) => (
-    <label className={styles.field} htmlFor={`${id}-${key}`}>
-      {label}
-      <input
-        id={`${id}-${key}`}
-        type="number"
-        min={1}
-        max={max}
-        step={1}
-        value={draft[key] ?? ""}
-        disabled={!canRecord || busy}
-        onChange={(event) => update(key, integer(event.target.value))}
-      />
-    </label>
-  );
   return (
     <section
       className={`panel ${styles.assistant}`}
@@ -369,30 +305,39 @@ export function RefereeCommands({
               ))}
           </div>
           <details className={styles.setupSettings}>
-            <summary>{tr("Edit room settings")}</summary>
+            <summary>{tr("Room settings")}</summary>
             <div className={styles.stack}>
-              <label className={styles.field} htmlFor={`${id}-room`}>
-                {tr("Room name")}
-                <input
-                  id={`${id}-room`}
-                  value={draft.roomName}
-                  maxLength={200}
-                  disabled={!canRecord || busy}
-                  onChange={(event) => update("roomName", event.target.value)}
-                />
-              </label>
               <p className="small muted">
                 {tr(
-                  "!mp make creates a new room. Send it to BanchoBot. To rename an existing room, use !mp name instead.",
+                  "Room settings use the saved round rules. The Streamer comes from this fixture's streaming task.",
                 )}
               </p>
-              {numberField("timerSeconds", tr("Timer seconds"))}
-              {numberField("startSeconds", tr("Start countdown seconds"))}
-              {numberField(
-                "roomSize",
-                tr("Room slots (not players per team)"),
-                16,
-              )}
+              <dl className={styles.settings}>
+                {[
+                  [tr("Room name"), settings.roomName || tr("Not set")],
+                  [
+                    tr("Preparation timer"),
+                    settings.timerSeconds ?? tr("Not set"),
+                  ],
+                  [
+                    tr("Start countdown seconds"),
+                    settings.startSeconds ?? tr("Not set"),
+                  ],
+                  [
+                    tr("Room slots (not players per team)"),
+                    settings.roomSize ?? tr("Not set"),
+                  ],
+                  [
+                    tr("Streamer osu! username"),
+                    settings.streamerUsername || tr("Not set"),
+                  ],
+                ].map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
               {rules && (
                 <p className="small muted">
                   {tr("Players per team: {value0}", {
@@ -405,23 +350,6 @@ export function RefereeCommands({
                   · {rules.scoringType === "scorev2" ? "Score V2" : "Score"}
                 </p>
               )}
-              <label className={styles.field} htmlFor={`${id}-streamer`}>
-                {tr("Streamer osu! username")}
-                <input
-                  id={`${id}-streamer`}
-                  value={draft.streamerUsername}
-                  maxLength={50}
-                  disabled={!canRecord || busy}
-                  onChange={(event) =>
-                    update("streamerUsername", event.target.value)
-                  }
-                />
-              </label>
-              <p className="small muted">
-                {tr(
-                  "Only the room creator can execute !mp addref. It grants osu! room controls and does not change website roles.",
-                )}
-              </p>
             </div>
           </details>
         </>
@@ -430,42 +358,6 @@ export function RefereeCommands({
       {stage !== "preparation" && (
         <>
           {mapSelector}
-          <div className={styles.timers}>
-            {numberField("timerSeconds", tr("Timer seconds"))}
-            {numberField("startSeconds", tr("Start countdown seconds"))}
-            <div className={`actions ${styles.presets}`}>
-              {(
-                [
-                  ["banSeconds", tr("Ban timer")],
-                  ["pickSeconds", tr("Pick timer")],
-                  ["prepareSeconds", tr("Preparation timer")],
-                ] as const
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  className="secondary"
-                  disabled={!canRecord || busy || !policy?.[key]}
-                  onClick={() => update("timerSeconds", policy?.[key] ?? null)}
-                >
-                  {label}
-                  {policy?.[key] ? ` · ${policy[key]}s` : ""}
-                </button>
-              ))}
-            </div>
-            <p className={`small muted ${styles.timerHint}`}>
-              {tr(
-                "The start countdown is independent of the Ban, Pick and preparation timers.",
-              )}
-            </p>
-          </div>
-          {changed && (
-            <p className="small" role="status">
-              {tr(
-                "Unsaved command settings. Command previews use the values shown here.",
-              )}
-            </p>
-          )}
           <div className={styles.stack}>
             {live.map((command) => (
               <CommandLine
@@ -475,29 +367,6 @@ export function RefereeCommands({
             ))}
           </div>
         </>
-      )}
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
-      {canRecord && (stage !== "preparation" || changed) && (
-        <div className="actions">
-          <button type="button" disabled={busy || !changed} onClick={save}>
-            {tr("Save command settings")}
-          </button>
-          <button
-            type="button"
-            className="secondary"
-            disabled={busy || !changed}
-            onClick={() => {
-              setDraft(settings);
-              setError("");
-            }}
-          >
-            {tr("Discard unsaved settings")}
-          </button>
-        </div>
       )}
     </section>
   );

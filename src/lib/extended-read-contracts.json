@@ -7814,28 +7814,7 @@
           "additionalProperties": false
         },
         "teams": { "$ref": "#/$defs/Readc9b1983a76f3" },
-        "defaultSettings": {
-          "type": "object",
-          "properties": {
-            "roomName": { "type": "string" },
-            "timerSeconds": {
-              "anyOf": [{ "type": "null" }, { "type": "number" }]
-            },
-            "startSeconds": {
-              "anyOf": [{ "type": "null" }, { "type": "number" }]
-            },
-            "roomSize": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-            "streamerUsername": { "type": "string" }
-          },
-          "required": [
-            "roomName",
-            "timerSeconds",
-            "startSeconds",
-            "roomSize",
-            "streamerUsername"
-          ],
-          "additionalProperties": false
-        },
+        "defaultSettings": { "$ref": "#/$defs/Read013e8c9616bd" },
         "maps": {
           "type": "array",
           "items": {

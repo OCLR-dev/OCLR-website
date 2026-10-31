@@ -11,7 +11,10 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import {
+  editionState,
   fixtureReferees,
+  fixtureStreams,
+  refereeRoundPolicies,
   fixtures,
   mappools,
   matchResults,
@@ -31,7 +34,10 @@ import {
   fixtureForReview,
   assignFixtureReferees,
 } from "../../src/lib/fixtures";
-import { emptyRefereeSettings } from "../../src/lib/referee-commands";
+import {
+  refereeCommands,
+  emptyRefereeSettings,
+} from "../../src/lib/referee-commands";
 import {
   seedRefereeFixture,
   refereeTestAdmin as admin,
@@ -219,22 +225,143 @@ describe.skipIf(!url)("private persistent referee workspace", () => {
     });
     expect(w.session?.settings.roomName).toBe(w.defaultSettings.roomName);
   });
-  it("preserves existing explicit session settings when configuring the round policy", async () => {
-    const settings = {
+  it("ignores historical session overrides without mutating their storage or events on read", async () => {
+    await configure();
+    const legacy = {
       ...emptyRefereeSettings,
-      roomName: "Synthetic manually configured room",
+      roomName: "Legacy",
+      streamerUsername: "Wrong",
+      roomSize: 4,
       timerSeconds: 30,
       startSeconds: 3,
-      roomSize: 4,
     };
-    await command({ action: "save_settings", settings });
-    await configure();
-    expect(w.session?.settings).toEqual(settings);
-    expect(w.defaultSettings).toMatchObject({
+    await db()
+      .update(refereeSessions)
+      .set({ settings: legacy })
+      .where(eq(refereeSessions.fixtureId, fixtureId));
+    const events = await db().select().from(refereeEvents);
+    const loaded = await refereeWorkspace(referee, "test-cup", fixtureId);
+    expect(loaded.session!.settings).toEqual(loaded.defaultSettings);
+    expect(loaded.defaultSettings).toMatchObject({
+      roomSize: 8,
       timerSeconds: 90,
       startSeconds: 5,
-      roomSize: 8,
+      streamerUsername: "",
     });
+    expect((await db().select().from(refereeSessions))[0].settings).toEqual(
+      legacy,
+    );
+    expect(await db().select().from(refereeEvents)).toEqual(events);
+    await expect(
+      command({ action: "save_settings", settings: legacy }),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(await db().select().from(refereeEvents)).toEqual(events);
+  });
+  it("inherits newly saved round settings for an existing session and leaves the BP dependency protection intact", async () => {
+    await configure();
+    const [saved] = await db().select().from(refereeRoundPolicies);
+    await db()
+      .update(refereeRoundPolicies)
+      .set({
+        revision: saved.revision + 1,
+        policy: {
+          ...saved.policy,
+          commands: {
+            ...saved.policy.commands!,
+            roomSize: 16,
+            prepareSeconds: 150,
+            startSeconds: null,
+          },
+        },
+      })
+      .where(eq(refereeRoundPolicies.roundId, w.round.id));
+    const loaded = await refereeWorkspace(referee, "test-cup", fixtureId);
+    expect(loaded.defaultSettings).toMatchObject({
+      roomSize: 16,
+      timerSeconds: 150,
+      startSeconds: null,
+    });
+    expect(loaded.session!.settings).toEqual(loaded.defaultSettings);
+    expect(loaded.session!.dependencyFingerprint).not.toBe(
+      loaded.dependencyFingerprint,
+    );
+  });
+  it("uses only this fixture's current eligible streamer, follows reassignment and revocation without changing BP", async () => {
+    await configure();
+    const initialFingerprint = w.dependencyFingerprint;
+    const insert = {
+      fixtureId,
+      userId: streamer.osuId,
+      assignedBy: admin.osuId,
+      source: "staff" as const,
+      confirmedTimeZone: "UTC",
+    };
+    await db().insert(fixtureStreams).values(insert);
+    const read = () => refereeWorkspace(referee, "test-cup", fixtureId);
+    let loaded = await read();
+    expect(loaded.defaultSettings.streamerUsername).toBe(streamer.username);
+    const addref = () =>
+      refereeCommands({
+        settings: loaded.defaultSettings,
+        rules: loaded.rules,
+        policy: loaded.policy!.commands!,
+        teams: loaded.teams,
+        selectedMap: null,
+      }).find((c) => c.kind === "addref")!.text;
+    expect(addref()).toBe("!mp addref Synthetic_Streamer");
+    expect(loaded.session!.settings).toEqual(loaded.defaultSettings);
+    expect(loaded.dependencyFingerprint).toBe(initialFingerprint);
+    await db()
+      .update(users)
+      .set({ username: "Renamed Streamer" })
+      .where(eq(users.osuId, streamer.osuId));
+    loaded = await read();
+    expect(addref()).toBe("!mp addref Renamed_Streamer");
+    await db()
+      .update(fixtureStreams)
+      .set({ userId: outsider.osuId })
+      .where(eq(fixtureStreams.fixtureId, fixtureId));
+    loaded = await read();
+    expect(addref()).toBeNull();
+    // A role in another edition is not sufficient.
+    await db().insert(editionState).values({ slug: "other-cup" });
+    await db().insert(staffRoles).values({
+      userId: outsider.osuId,
+      role: "streamer",
+      editionSlug: "other-cup",
+      grantedBy: admin.osuId,
+    });
+    loaded = await read();
+    expect(addref()).toBeNull();
+    await db()
+      .update(staffRoles)
+      .set({ editionSlug: null })
+      .where(
+        and(
+          eq(staffRoles.userId, outsider.osuId),
+          eq(staffRoles.role, "streamer"),
+        ),
+      );
+    loaded = await read();
+    expect(addref()).toBe("!mp addref Synthetic_outsider");
+    await db()
+      .update(staffRoles)
+      .set({ revokedAt: new Date() })
+      .where(
+        and(
+          eq(staffRoles.userId, outsider.osuId),
+          eq(staffRoles.role, "streamer"),
+        ),
+      );
+    loaded = await read();
+    expect(addref()).toBeNull();
+    await db()
+      .delete(fixtureStreams)
+      .where(eq(fixtureStreams.fixtureId, fixtureId));
+    loaded = await read();
+    expect(loaded.defaultSettings.streamerUsername).toBe("");
+    expect(loaded.projection).toEqual(w.projection);
+    expect(loaded.dependencyFingerprint).toBe(initialFingerprint);
   });
   it("requires edition roles and current assignment, while Developer reads never grant writes", async () => {
     await expect(
@@ -268,11 +395,11 @@ describe.skipIf(!url)("private persistent referee workspace", () => {
   it("persists settings across connection restart and hands off using existing assignment rules", async () => {
     await command({
       action: "save_settings",
-      settings: { ...emptyRefereeSettings, roomName: "Synthetic room" },
+      settings: w.defaultSettings,
     });
     await closeDb();
     const reloaded = await refereeWorkspace(referee, "test-cup", fixtureId);
-    expect(reloaded.session?.settings.roomName).toBe("Synthetic room");
+    expect(reloaded.session?.settings).toEqual(w.defaultSettings);
     await db().insert(staffRoles).values({
       userId: outsider.osuId,
       role: "referee",
@@ -297,11 +424,11 @@ describe.skipIf(!url)("private persistent referee workspace", () => {
   it("serializes competing revisions and replays the original receipt without duplicate events", async () => {
     const a = input({
       action: "save_settings",
-      settings: { ...emptyRefereeSettings, roomName: "A" },
+      settings: w.defaultSettings,
     });
     const b = input({
       action: "save_settings",
-      settings: { ...emptyRefereeSettings, roomName: "B" },
+      settings: w.defaultSettings,
     });
     const results = await Promise.allSettled([
       refereeCommand(referee, "test-cup", fixtureId, a),
@@ -446,7 +573,7 @@ describe.skipIf(!url)("private persistent referee workspace", () => {
     ).rejects.toMatchObject({ status: 400 });
     const c = input({
       action: "save_settings",
-      settings: emptyRefereeSettings,
+      settings: w.defaultSettings,
     });
     await refereeCommand(referee, "test-cup", fixtureId, c);
     await db()

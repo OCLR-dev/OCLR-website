@@ -12,6 +12,10 @@ export function refereeMessage(tr: AppTranslator, message: string): string {
       { steps: conflict[1] },
     );
   switch (message) {
+    case "Room settings inherit the saved round rules and streaming task. Reload the workspace.":
+      return tr(
+        "Room settings inherit the saved round rules and streaming task. Reload the workspace.",
+      );
     case "pending":
       return tr("Pending");
     case "playing":

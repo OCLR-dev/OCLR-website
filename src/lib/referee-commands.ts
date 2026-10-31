@@ -222,7 +222,7 @@ export function refereeCommands(input: RefereeCommandInput): RefereeCommand[] {
     command(
       "addref",
       username ? `!mp addref ${username}` : null,
-      "Enter a valid osu! username for the Streamer.",
+      "Assign an active Streamer in this fixture’s streaming task.",
     ),
     ...teams.flatMap((team) => {
       const players = team.members ?? [
