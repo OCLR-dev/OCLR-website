@@ -1,11 +1,15 @@
 import { db } from "@/db";
 import {
   editionState,
+  tournamentRounds,
+  tournamentStages,
+  mappoolCandidateRounds,
   mappoolCandidates,
   mappoolCandidateComments,
   mappoolEvents,
 } from "@/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
@@ -28,28 +32,72 @@ async function databaseSelectionWorkspace(actor: User, slug: string) {
   await assertReadCapability(actor, "select_mappools", slug);
   const edition = await getEdition(slug);
   if (!edition) throw new HttpError(404, "Edition not found.");
-  const candidates = await db()
-    .select({
-      id: mappoolCandidates.id,
-      beatmapId: mappoolCandidates.beatmapId,
-      category: mappoolCandidates.category,
-      metadata: mappoolCandidates.metadata,
-      metadataFetchedAt: mappoolCandidates.metadataFetchedAt,
-      authorId: mappoolCandidates.authorId,
-      authorName: mappoolCandidates.authorName,
-      createdAt: mappoolCandidates.createdAt,
-      commentCount: sql<number>`count(${mappoolCandidateComments.id})::int`,
-    })
-    .from(mappoolCandidates)
-    .leftJoin(
-      mappoolCandidateComments,
-      eq(mappoolCandidateComments.candidateId, mappoolCandidates.id),
-    )
-    .where(eq(mappoolCandidates.editionSlug, slug))
-    .groupBy(mappoolCandidates.id)
-    .orderBy(mappoolCandidates.createdAt, mappoolCandidates.id)
-    .limit(candidateLimit);
-  return { candidates, asOf: new Date(), archived: Boolean(edition.archive) };
+  return db().transaction(
+    async (tx) => {
+      const candidates = await tx
+        .select({
+          id: mappoolCandidates.id,
+          beatmapId: mappoolCandidates.beatmapId,
+          category: mappoolCandidates.category,
+          metadata: mappoolCandidates.metadata,
+          metadataFetchedAt: mappoolCandidates.metadataFetchedAt,
+          authorId: mappoolCandidates.authorId,
+          authorName: mappoolCandidates.authorName,
+          createdAt: mappoolCandidates.createdAt,
+          commentCount: sql<number>`count(${mappoolCandidateComments.id})::int`,
+        })
+        .from(mappoolCandidates)
+        .leftJoin(
+          mappoolCandidateComments,
+          eq(mappoolCandidateComments.candidateId, mappoolCandidates.id),
+        )
+        .where(eq(mappoolCandidates.editionSlug, slug))
+        .groupBy(mappoolCandidates.id)
+        .orderBy(mappoolCandidates.createdAt, mappoolCandidates.id)
+        .limit(candidateLimit);
+      const rounds = await tx
+        .select({
+          id: tournamentRounds.id,
+          name: tournamentRounds.name,
+          stage: tournamentStages.kind,
+          position: tournamentRounds.position,
+        })
+        .from(tournamentRounds)
+        .innerJoin(
+          tournamentStages,
+          eq(tournamentStages.id, tournamentRounds.stageId),
+        )
+        .where(eq(tournamentRounds.editionSlug, slug))
+        .orderBy(
+          tournamentStages.kind,
+          tournamentRounds.position,
+          tournamentRounds.id,
+        );
+      const links = await tx
+        .select({
+          candidateId: mappoolCandidateRounds.candidateId,
+          roundId: mappoolCandidateRounds.roundId,
+        })
+        .from(mappoolCandidateRounds)
+        .where(eq(mappoolCandidateRounds.editionSlug, slug));
+      const byCandidate = new Map<string, string[]>();
+      for (const link of links) {
+        const ids = byCandidate.get(link.candidateId) ?? [];
+        ids.push(link.roundId);
+        byCandidate.set(link.candidateId, ids);
+      }
+      return {
+        candidates: candidates.map((c) => ({
+          ...c,
+          roundIds: (byCandidate.get(c.id) ?? []).sort(),
+        })),
+        rounds,
+        asOf: new Date(),
+        archived: Boolean(edition.archive),
+      };
+    },
+    { isolationLevel: "repeatable read", accessMode: "read only" },
+  );
 }
 export async function selectionWorkspace(
   actor: User,
@@ -86,6 +134,7 @@ async function databaseCandidateComments(
       authorId: mappoolCandidateComments.authorId,
       authorName: mappoolCandidateComments.authorName,
       body: mappoolCandidateComments.body,
+      version: sql<string>`xmin::text`,
       createdAt: mappoolCandidateComments.createdAt,
     })
     .from(mappoolCandidateComments)
@@ -158,7 +207,36 @@ export async function previewCandidates(
   };
 }
 export type CandidatePreview = Awaited<ReturnType<typeof previewCandidates>>;
+const roundIdsSchema = z
+  .array(z.uuid())
+  .max(500)
+  .refine((ids) => new Set(ids).size === ids.length);
 const commandSchema = z.discriminatedUnion("action", [
+  z
+    .object({
+      action: z.literal("assign_rounds"),
+      candidateId: z.uuid(),
+      roundIds: roundIdsSchema,
+      expectedRoundIds: roundIdsSchema,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("comment_edit"),
+      candidateId: z.uuid(),
+      commentId: z.uuid(),
+      version: z.string().regex(/^\d+$/),
+      body: z.string().trim().min(1).max(commentLength),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("comment_delete"),
+      candidateId: z.uuid(),
+      commentId: z.uuid(),
+      version: z.string().regex(/^\d+$/),
+    })
+    .strict(),
   z
     .object({
       action: z.literal("classify"),
@@ -171,6 +249,7 @@ const commandSchema = z.discriminatedUnion("action", [
     .object({
       action: z.literal("add"),
       category: z.enum(candidateCategories).default("unassigned"),
+      roundIds: roundIdsSchema.default([]),
       rows: z
         .array(
           z
@@ -250,6 +329,22 @@ export async function selectionCommand(
       .for("update");
     await assertCapability(actor, "select_mappools", slug, tx);
     await assertOperationalEdition(slug, tx);
+    if (
+      (c.action === "add" || c.action === "assign_rounds") &&
+      c.roundIds.length
+    ) {
+      const rounds = await tx
+        .select({ id: tournamentRounds.id })
+        .from(tournamentRounds)
+        .where(
+          and(
+            eq(tournamentRounds.editionSlug, slug),
+            inArray(tournamentRounds.id, c.roundIds),
+          ),
+        );
+      if (rounds.length !== c.roundIds.length)
+        throw new HttpError(400, "Choose rounds from this edition.");
+    }
     if (c.action === "add") {
       const existing = await tx
         .select({
@@ -288,6 +383,14 @@ export async function selectionCommand(
             authorName: actor.username,
           })
           .returning({ id: mappoolCandidates.id });
+        if (c.roundIds.length)
+          await tx.insert(mappoolCandidateRounds).values(
+            c.roundIds.map((roundId) => ({
+              candidateId: candidate.id,
+              roundId,
+              editionSlug: slug,
+            })),
+          );
         await tx.insert(mappoolEvents).values({
           editionSlug: slug,
           actorId: actor.osuId,
@@ -296,6 +399,7 @@ export async function selectionCommand(
             candidateId: candidate.id,
             beatmapId: row.beatmapId,
             category: c.category,
+            roundIds: [...c.roundIds].sort(),
           },
         });
         added.push(row.beatmapId);
@@ -312,6 +416,43 @@ export async function selectionCommand(
         ),
       );
     if (!candidate) throw new HttpError(404, "Candidate not found.");
+    if (c.action === "assign_rounds") {
+      const links = await tx
+        .select({ roundId: mappoolCandidateRounds.roundId })
+        .from(mappoolCandidateRounds)
+        .where(eq(mappoolCandidateRounds.candidateId, candidate.id));
+      const current = links.map((l) => l.roundId).sort(),
+        next = [...c.roundIds].sort();
+      if (
+        JSON.stringify(current) !==
+        JSON.stringify([...c.expectedRoundIds].sort())
+      )
+        throw new HttpError(
+          409,
+          "Candidate rounds changed. Refresh the list before trying again.",
+        );
+      if (JSON.stringify(current) === JSON.stringify(next))
+        return { added: 0, skipped: 1 };
+      await tx
+        .delete(mappoolCandidateRounds)
+        .where(eq(mappoolCandidateRounds.candidateId, candidate.id));
+      if (next.length)
+        await tx.insert(mappoolCandidateRounds).values(
+          next.map((roundId) => ({
+            candidateId: candidate.id,
+            roundId,
+            editionSlug: slug,
+          })),
+        );
+      await tx.insert(mappoolEvents).values({
+        editionSlug: slug,
+        actorId: actor.osuId,
+        action: "candidate_assign_rounds",
+        before: { candidateId: candidate.id, roundIds: current },
+        after: { candidateId: candidate.id, roundIds: next },
+      });
+      return { added: 0, skipped: 0 };
+    }
     if (c.action === "classify") {
       if (candidate.category === c.category) return { added: 0, skipped: 1 };
       if (candidate.category !== c.expectedCategory)
@@ -347,6 +488,93 @@ export async function selectionCommand(
       });
       return { added: 0, skipped: 0 };
     }
+    const bodyHash = (body: string) =>
+      createHash("sha256").update(body).digest("hex");
+    async function originalBodyHash(requestId: string, fallbackBody: string) {
+      const [event] = await tx
+        .select({ after: mappoolEvents.after })
+        .from(mappoolEvents)
+        .where(
+          and(
+            eq(mappoolEvents.editionSlug, slug),
+            eq(mappoolEvents.actorId, actor.osuId),
+            inArray(mappoolEvents.action, [
+              "candidate_comment",
+              "candidate_comment_edit",
+              "candidate_comment_delete",
+            ]),
+            sql`${mappoolEvents.after}->>'candidateId' = ${candidate.id}`,
+            sql`${mappoolEvents.after}->>'requestId' = ${requestId}`,
+            sql`${mappoolEvents.after}->>'requestBodyHash' IS NOT NULL`,
+          ),
+        )
+        .limit(1);
+      // Pre-feature comments have no hash until their first edit/delete.
+      return typeof event?.after.requestBodyHash === "string"
+        ? event.after.requestBodyHash
+        : bodyHash(fallbackBody);
+    }
+    if (c.action === "comment_edit" || c.action === "comment_delete") {
+      const [current] = await tx
+        .select({
+          id: mappoolCandidateComments.id,
+          requestId: mappoolCandidateComments.requestId,
+          body: mappoolCandidateComments.body,
+          version: sql<string>`xmin::text`,
+        })
+        .from(mappoolCandidateComments)
+        .where(
+          and(
+            eq(mappoolCandidateComments.id, c.commentId),
+            eq(mappoolCandidateComments.candidateId, candidate.id),
+            eq(mappoolCandidateComments.editionSlug, slug),
+            eq(mappoolCandidateComments.authorId, actor.osuId),
+          ),
+        )
+        .for("update");
+      if (!current) throw new HttpError(404, "Comment not found.");
+      if (current.version !== c.version)
+        throw new HttpError(
+          409,
+          "This comment has changed. Cancel and refresh before trying again.",
+        );
+      const requestBodyHash = await originalBodyHash(
+        current.requestId,
+        current.body,
+      );
+      if (c.action === "comment_edit") {
+        await tx
+          .update(mappoolCandidateComments)
+          .set({ body: c.body })
+          .where(eq(mappoolCandidateComments.id, current.id));
+      } else {
+        await tx
+          .delete(mappoolCandidateComments)
+          .where(eq(mappoolCandidateComments.id, current.id));
+      }
+      await tx.insert(mappoolEvents).values({
+        editionSlug: slug,
+        actorId: actor.osuId,
+        action:
+          c.action === "comment_edit"
+            ? "candidate_comment_edit"
+            : "candidate_comment_delete",
+        before: {
+          candidateId: candidate.id,
+          commentId: current.id,
+          version: current.version,
+        },
+        // Retain the creation request identity so a lost-response retry cannot
+        // resurrect a deleted comment. Audit metadata contains no comment text.
+        after: {
+          candidateId: candidate.id,
+          commentId: current.id,
+          requestId: current.requestId,
+          requestBodyHash,
+        },
+      });
+      return { added: 0, skipped: 0 };
+    }
     const [prior] = await tx
       .select()
       .from(mappoolCandidateComments)
@@ -358,13 +586,34 @@ export async function selectionCommand(
         ),
       );
     if (prior) {
-      if (prior.candidateId !== c.candidateId || prior.body !== c.body)
+      if (
+        prior.candidateId !== c.candidateId ||
+        (await originalBodyHash(c.requestId, prior.body)) !== bodyHash(c.body)
+      )
         throw new HttpError(
           409,
           "This comment request was already used. Reload the comments.",
         );
       return { added: 0, skipped: 1 };
     }
+    const [deleted] = await tx
+      .select({ id: mappoolEvents.id })
+      .from(mappoolEvents)
+      .where(
+        and(
+          eq(mappoolEvents.editionSlug, slug),
+          eq(mappoolEvents.actorId, actor.osuId),
+          eq(mappoolEvents.action, "candidate_comment_delete"),
+          sql`${mappoolEvents.after}->>'candidateId' = ${candidate.id}`,
+          sql`${mappoolEvents.after}->>'requestId' = ${c.requestId}`,
+        ),
+      )
+      .limit(1);
+    if (deleted)
+      throw new HttpError(
+        409,
+        "This comment request was already used. Reload the comments.",
+      );
     const [count] = await tx
       .select({ value: sql<number>`count(*)::int` })
       .from(mappoolCandidateComments)
@@ -386,7 +635,12 @@ export async function selectionCommand(
       editionSlug: slug,
       actorId: actor.osuId,
       action: "candidate_comment",
-      after: { candidateId: candidate.id, commentId: comment.id },
+      after: {
+        candidateId: candidate.id,
+        commentId: comment.id,
+        requestId: c.requestId,
+        requestBodyHash: bodyHash(c.body),
+      },
     });
     return { added: 1, skipped: 0 };
   });

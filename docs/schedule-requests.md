@@ -35,7 +35,7 @@ captains under the edition lock shared with existing competition operations.
 There is no inferred deadline, maximum reschedule count, player-majority vote or
 automatic staffing commitment.
 
-Migration `0064_schedule_requests` adds private availability, requests and events.
+Migration `0065_schedule_requests` adds private availability, requests and events.
 Database triggers invalidate active requests when the official schedule,
 opponents, lineage, captain appointment/publication, team publication,
 edition protection, results or referee activity change. Saved referee settings alone do not start a match. Dependent fixture requests

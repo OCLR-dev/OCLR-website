@@ -1,5 +1,5 @@
 {
-  "id": "e662f89c-eb76-4e28-8946-47270720ad4c",
+  "id": "641c996f-ffba-4322-829d-81ca5260be2b",
   "prevId": "072fc6b5-8a5a-4c63-88c8-ddfc237f72cf",
   "version": "7",
   "dialect": "postgresql",
@@ -2349,6 +2349,92 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mappool_candidate_rounds": {
+      "name": "mappool_candidate_rounds",
+      "schema": "",
+      "columns": {
+        "candidate_id": {
+          "name": "candidate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "round_id": {
+          "name": "round_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "edition_slug": {
+          "name": "edition_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "candidate_round_target_idx": {
+          "name": "candidate_round_target_idx",
+          "columns": [
+            {
+              "expression": "round_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "mappool_candidate_rounds_candidate_id_edition_slug_mappool_candidates_id_edition_slug_fk": {
+          "name": "mappool_candidate_rounds_candidate_id_edition_slug_mappool_candidates_id_edition_slug_fk",
+          "tableFrom": "mappool_candidate_rounds",
+          "tableTo": "mappool_candidates",
+          "columnsFrom": [
+            "candidate_id",
+            "edition_slug"
+          ],
+          "columnsTo": [
+            "id",
+            "edition_slug"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "mappool_candidate_rounds_round_id_edition_slug_tournament_rounds_id_edition_slug_fk": {
+          "name": "mappool_candidate_rounds_round_id_edition_slug_tournament_rounds_id_edition_slug_fk",
+          "tableFrom": "mappool_candidate_rounds",
+          "tableTo": "tournament_rounds",
+          "columnsFrom": [
+            "round_id",
+            "edition_slug"
+          ],
+          "columnsTo": [
+            "id",
+            "edition_slug"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "mappool_candidate_rounds_candidate_id_round_id_pk": {
+          "name": "mappool_candidate_rounds_candidate_id_round_id_pk",
+          "columns": [
+            "candidate_id",
+            "round_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -5181,403 +5267,6 @@
         "result_approval_actor_pair": {
           "name": "result_approval_actor_pair",
           "value": "(\"result_revisions\".\"approved_at\" IS NULL AND \"result_revisions\".\"approved_by\" IS NULL) OR (\"result_revisions\".\"approved_at\" IS NOT NULL AND \"result_revisions\".\"approved_by\" IS NOT NULL)"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.schedule_availability": {
-      "name": "schedule_availability",
-      "schema": "",
-      "columns": {
-        "fixture_id": {
-          "name": "fixture_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "membership_id": {
-          "name": "membership_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "intervals": {
-          "name": "intervals",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "schedule_availability_fixture_id_fixtures_id_fk": {
-          "name": "schedule_availability_fixture_id_fixtures_id_fk",
-          "tableFrom": "schedule_availability",
-          "tableTo": "fixtures",
-          "columnsFrom": [
-            "fixture_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "schedule_availability_user_id_users_osu_id_fk": {
-          "name": "schedule_availability_user_id_users_osu_id_fk",
-          "tableFrom": "schedule_availability",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "osu_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "schedule_availability_membership_id_memberships_id_fk": {
-          "name": "schedule_availability_membership_id_memberships_id_fk",
-          "tableFrom": "schedule_availability",
-          "tableTo": "memberships",
-          "columnsFrom": [
-            "membership_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "schedule_availability_fixture_id_user_id_pk": {
-          "name": "schedule_availability_fixture_id_user_id_pk",
-          "columns": [
-            "fixture_id",
-            "user_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "schedule_availability_intervals": {
-          "name": "schedule_availability_intervals",
-          "value": "jsonb_typeof(\"schedule_availability\".\"intervals\") = 'array' AND jsonb_array_length(\"schedule_availability\".\"intervals\") <= 40"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.schedule_events": {
-      "name": "schedule_events",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "edition_slug": {
-          "name": "edition_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "request_id": {
-          "name": "request_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "actor_id": {
-          "name": "actor_id",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "request_key": {
-          "name": "request_key",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "request_hash": {
-          "name": "request_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "action": {
-          "name": "action",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "detail": {
-          "name": "detail",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "schedule_events_request": {
-          "name": "schedule_events_request",
-          "columns": [
-            {
-              "expression": "request_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "schedule_events_edition_slug_edition_state_slug_fk": {
-          "name": "schedule_events_edition_slug_edition_state_slug_fk",
-          "tableFrom": "schedule_events",
-          "tableTo": "edition_state",
-          "columnsFrom": [
-            "edition_slug"
-          ],
-          "columnsTo": [
-            "slug"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "schedule_events_request_id_schedule_requests_id_fk": {
-          "name": "schedule_events_request_id_schedule_requests_id_fk",
-          "tableFrom": "schedule_events",
-          "tableTo": "schedule_requests",
-          "columnsFrom": [
-            "request_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "schedule_events_actor_id_users_osu_id_fk": {
-          "name": "schedule_events_actor_id_users_osu_id_fk",
-          "tableFrom": "schedule_events",
-          "tableTo": "users",
-          "columnsFrom": [
-            "actor_id"
-          ],
-          "columnsTo": [
-            "osu_id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "schedule_event_request_key": {
-          "name": "schedule_event_request_key",
-          "nullsNotDistinct": false,
-          "columns": [
-            "edition_slug",
-            "actor_id",
-            "request_key"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.schedule_requests": {
-      "name": "schedule_requests",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "edition_slug": {
-          "name": "edition_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fixture_id": {
-          "name": "fixture_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "fixture_snapshot_id": {
-          "name": "fixture_snapshot_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "basis": {
-          "name": "basis",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "proposed_at": {
-          "name": "proposed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "proposer_id": {
-          "name": "proposer_id",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "decision_note": {
-          "name": "decision_note",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "schedule_one_active_request": {
-          "name": "schedule_one_active_request",
-          "columns": [
-            {
-              "expression": "fixture_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"schedule_requests\".\"status\" IN ('waiting', 'pending')",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "schedule_requests_edition": {
-          "name": "schedule_requests_edition",
-          "columns": [
-            {
-              "expression": "edition_slug",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "schedule_requests_edition_slug_edition_state_slug_fk": {
-          "name": "schedule_requests_edition_slug_edition_state_slug_fk",
-          "tableFrom": "schedule_requests",
-          "tableTo": "edition_state",
-          "columnsFrom": [
-            "edition_slug"
-          ],
-          "columnsTo": [
-            "slug"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "schedule_requests_fixture_id_fixtures_id_fk": {
-          "name": "schedule_requests_fixture_id_fixtures_id_fk",
-          "tableFrom": "schedule_requests",
-          "tableTo": "fixtures",
-          "columnsFrom": [
-            "fixture_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "schedule_requests_proposer_id_users_osu_id_fk": {
-          "name": "schedule_requests_proposer_id_users_osu_id_fk",
-          "tableFrom": "schedule_requests",
-          "tableTo": "users",
-          "columnsFrom": [
-            "proposer_id"
-          ],
-          "columnsTo": [
-            "osu_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "schedule_request_status": {
-          "name": "schedule_request_status",
-          "value": "\"schedule_requests\".\"status\" IN ('waiting','pending','approved','rejected','withdrawn','expired')"
         }
       },
       "isRLSEnabled": false

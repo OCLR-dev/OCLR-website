@@ -1936,3 +1936,102 @@ describe.skipIf(!base)("Streaming API upgrade (#540)", () => {
       }
     }));
 });
+
+describe.skipIf(!base)(
+  "Schedule upgrade after candidate round planning (#591)",
+  () => {
+    it("preserves main's 0064 round plans while installing and replaying schedule migration 0065", async () =>
+      isolated(async (pool) => {
+        const folder = mkdtempSync(
+          join(tmpdir(), "oclr-before-schedule-test-"),
+        );
+        try {
+          cpSync("drizzle", folder, { recursive: true });
+          const file = join(folder, "meta/_journal.json");
+          const journal = JSON.parse(readFileSync(file, "utf8"));
+          const predecessor = journal.entries.find(
+            (entry: { idx: number }) => entry.idx === 64,
+          );
+          const schedule = journal.entries.find(
+            (entry: { idx: number }) => entry.tag === "0065_schedule_requests",
+          );
+          expect(predecessor.tag).toBe("0064_mappool_candidate_rounds");
+          expect(schedule.when).toBeGreaterThan(predecessor.when);
+          const priorSnapshot = JSON.parse(
+            readFileSync("drizzle/meta/0064_snapshot.json", "utf8"),
+          );
+          const nextSnapshot = JSON.parse(
+            readFileSync("drizzle/meta/0065_snapshot.json", "utf8"),
+          );
+          expect(nextSnapshot.prevId).toBe(priorSnapshot.id);
+          expect(
+            nextSnapshot.tables["public.mappool_candidate_rounds"],
+          ).toEqual(priorSnapshot.tables["public.mappool_candidate_rounds"]);
+          journal.entries = journal.entries.filter(
+            (entry: { idx: number }) => entry.idx < 65,
+          );
+          writeFileSync(file, JSON.stringify(journal));
+          await migrate(drizzle(pool), { migrationsFolder: folder });
+          const { slug, ...configuration } = edition;
+          await pool.query(
+            "INSERT INTO edition_state (slug,configuration) VALUES ($1,$2)",
+            [slug, JSON.stringify(configuration)],
+          );
+          const stage = (
+            await pool.query(
+              "INSERT INTO tournament_stages (edition_slug,kind) VALUES ($1,'group') RETURNING id",
+              [slug],
+            )
+          ).rows[0];
+          const round = (
+            await pool.query(
+              "INSERT INTO tournament_rounds (edition_slug,stage_id,name,position) VALUES ($1,$2,'Synthetic round',1) RETURNING id",
+              [slug, stage.id],
+            )
+          ).rows[0];
+          const candidate = (
+            await pool.query(
+              "INSERT INTO mappool_candidates (edition_slug,beatmap_id,metadata,metadata_fetched_at,author_id,author_name) VALUES ($1,591001,'{}',now(),591001,'Synthetic migration author') RETURNING id",
+              [slug],
+            )
+          ).rows[0];
+          await pool.query(
+            "INSERT INTO mappool_candidate_rounds (candidate_id,round_id,edition_slug) VALUES ($1,$2,$3)",
+            [candidate.id, round.id, slug],
+          );
+          const before = (
+            await pool.query("SELECT * FROM mappool_candidate_rounds")
+          ).rows;
+          await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
+          expect(
+            (await pool.query("SELECT * FROM mappool_candidate_rounds")).rows,
+          ).toEqual(before);
+          expect(
+            (
+              await pool.query(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('schedule_availability','schedule_requests','schedule_events')",
+              )
+            ).rows,
+          ).toHaveLength(3);
+          const applied = (
+            await pool.query(
+              "SELECT * FROM drizzle.__drizzle_migrations ORDER BY id",
+            )
+          ).rows;
+          await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
+          expect(
+            (
+              await pool.query(
+                "SELECT * FROM drizzle.__drizzle_migrations ORDER BY id",
+              )
+            ).rows,
+          ).toEqual(applied);
+          expect(
+            (await pool.query("SELECT * FROM mappool_candidate_rounds")).rows,
+          ).toEqual(before);
+        } finally {
+          rmSync(folder, { recursive: true, force: true });
+        }
+      }));
+  },
+);

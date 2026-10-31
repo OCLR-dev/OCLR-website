@@ -39,6 +39,7 @@ export default function Page({
             slug={edition}
             initialData={data}
             writable={writable}
+            viewerId={actor.osuId}
             officialPools={officialPools}
           />
         </>

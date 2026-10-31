@@ -71,14 +71,34 @@ pool promotion sit below the card. Mode/status and snapshot details stay hidden;
 saved metadata is not a live lookup, and unknown fields stay unknown. Comment
 boxes remain visible below each card on desktop and mobile; history uses a
 bounded scrolling area inspired by player messages and loads near the viewport.
-Comments remain append-only and preserve author identity/name and UTC time.
+Comments preserve author identity/name and their original UTC posting time.
+Authors with a current edition-scoped write grant can edit or delete only their
+own comments; Admin/Pooler roles do not override authorship. Editing is inline
+and deletion requires confirmation. Both operations compare an opaque row version
+under the edition/row locks, reject stale edits/deletes and audit metadata in the
+same transaction. Conflicts retain the draft; cancel and refresh before starting
+a new edit against the reviewed text. Deleted comments disappear from the thread
+and count. Replaying a deleted comment's creation request is rejected rather than
+recreating it. No deleted comment text is copied into audit metadata.
+Candidate intent can include multiple existing rounds from the same edition, or
+remain unassigned. Set it for a new batch or edit an individual candidate. These
+are planning labels, independent of formal pool/slot assignment; adding an existing
+BID again never changes its saved round intent. Updates compare the expected round
+IDs under the edition lock and audit before/after IDs in the same transaction.
+Edition-scoped foreign keys reject cross-season links. Deleting an otherwise
+unused round removes its planning links, preserving candidates and discussion;
+existing formal pool/fixture/history deletion protections remain unchanged.
+
 Each candidate accepts up to 200 comments of 2,000 characters. A per-submission
 request UUID makes retries idempotent for the same author/candidate; reusing it
 with different text fails. Concurrent comments append rather than overwriting.
-There is no candidate removal or comment editing/deletion. Admin/Pooler users
+There is no candidate removal. Admin/Pooler users
 with `manage_mappools` can explicitly add a candidate to a selected official pool
+by explicitly selecting one target round, then an editable pool in that round,
 using the existing official entry form, provider preview, chosen category/slot and
-versioned command. Locked pools cannot be selected or written; existing FM,
+versioned command. Changing the target round clears the old pool and entry form.
+Planning labels do not automatically select a destination or constrain an
+otherwise authorized choice of target round. Locked pools cannot be selected or written; existing FM,
 completed-fixture, uniqueness, archive and transactional audit protections apply.
 Tester/Replayer and remote read-only users get no formal write control. Public
 pools show a warning that additions become visible immediately; draft pools stay
@@ -89,8 +109,10 @@ Candidate metadata, comments and authors remain private even after an edition
 or official pool is published. The browser-session API is
 `/api/admin/tournaments/{edition}/mappool-workbench`: GET saved candidates; POST
 `preview` (text/category), `add` (category and selected BID/fingerprint pairs),
-`classify` (candidate UUID, expected/new category), or `comment`
-(candidate UUID, request UUID and body). GET `/{candidateId}/comments` loads a
+`classify` (candidate UUID, expected/new category), `assign_rounds` (candidate UUID,
+new/expected round UUID arrays), or `comment`
+(candidate UUID, request UUID and body), `comment_edit` (candidate/comment UUIDs,
+version and body), or `comment_delete` (candidate/comment UUIDs and version). GET `/{candidateId}/comments` loads a
 thread. POST requires same-origin and fresh write authorization; no Bearer
 business writes are accepted. Reads never query osu! or mutate official pools.
 Historical archives are readable but cannot receive new candidates/comments.
@@ -100,7 +122,7 @@ Saved-read contract **1.8.0** added `selectionWorkspace` and `candidateComments`
 under `/api/v1/staff/tournaments/{edition}/mappool-workbench[/{id}/comments]`.
 Both require the private tournament read scope plus existing server read
 permission (or explicit Developer read access). The remote frontend supports
-these saved views through the same adapter, with preview/add/classify/comment and official pool writes disabled;
+these saved views through the same adapter, with all workbench/comment commands and official pool writes disabled;
 it grants no remote business-write transport. Older backends need the additive
 contract and migration `0062_mappool_workbench` to serve this workspace.
 
@@ -113,3 +135,17 @@ it does not change official pools or grant real staff roles. Apply through the
 normal reviewed migration/deployment process. New Chinese interface wording and
 actual organizer workflow acceptance remain review items distinct from local
 synthetic verification.
+
+Contract **1.11.0** adds an opaque string `version` to saved candidate comments
+for author edit/delete conflict checks. Updated remote backends must return this
+field; all remote views remain read-only. This uses the existing PostgreSQL row
+version and audit table, with no database migration.
+
+Contract **1.12.0** adds `selectionWorkspace.rounds` (minimal same-edition round
+identities) and `candidates[].roundIds`. Migration `0064_mappool_candidate_rounds`
+adds an initially empty relation table with composite edition-scoped foreign keys
+and cascade cleanup for deleted planning rounds. Apply via the normal reviewed
+migration workflow before this app version; no production migration was performed
+by this change. Older app versions can ignore the additive table; do not remove
+saved planning data or down-migrate. Remote backends need the new fields and
+migration, while frontend remote views remain read-only.

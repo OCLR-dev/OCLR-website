@@ -4,7 +4,7 @@ Implemented on `codex/591-schedule`, based on main `ae35868a`. No real fixture,
 role assignment, credentials or deployment was changed. The organizer's original
 checkout and its unrelated edits were preserved in place.
 
-## Local results
+## Original local results (`b5b45f21`)
 
 Node.js 24.22.2, npm lockfile, PostgreSQL 17, installed Chrome:
 
@@ -20,7 +20,7 @@ Node.js 24.22.2, npm lockfile, PostgreSQL 17, installed Chrome:
 - `npm run i18n:extract` and `npm run test:i18n` passed, with all three catalogs filled.
 - Final `npm run build` passed, including TypeScript and route generation.
 - `npm audit --omit=dev`: **0 vulnerabilities**.
-- Fresh migration of `0064_schedule_requests` passed against isolated test targets;
+- Fresh migration of the original `0064_schedule_requests` passed against isolated test targets;
   the full suite also exercises historical migration/upgrade/replay paths.
 - `git diff --check` passed.
 
@@ -72,3 +72,33 @@ Apply the additive migration through the normal approved deployment process
 before running the new application. Preserve the tables, events and invalidation
 triggers on application rollback. No production migration/deploy, grant or issue
 closure was performed.
+
+## Latest-main reconciliation — 2026-10-31
+
+The organizer requested CI review and merge. Original PR CI
+[run #1077](https://github.com/OCLR-dev/OCLR-website/actions/runs/41166929455)
+passed the configured core plan for `b5b45f216c131b1a8d512affdc8b150d80696b0c`;
+full/header/remote matrices were correctly skipped, not passed.
+
+Main subsequently reached `8e4cbbae` and already contained
+`0064_mappool_candidate_rounds`. The branch now preserves main's migration and
+snapshot verbatim, renumbers Schedule to **`0065_schedule_requests`**, and
+regenerates snapshot 0065 with snapshot 0064 as its predecessor. All three
+translation catalogs retain both features' entries. The Schedule SQL and
+invalidation triggers are unchanged apart from the migration filename.
+
+Post-reconciliation local results:
+
+- Fresh migration through both 0064 and 0065 passed.
+- Full unit/integration suite: **1,907 passed, 2 skipped**, 236 files.
+- New upgrade regression passed: start at main's 0064, save an actual candidate
+  round plan, apply 0065, verify that plan remains identical and all three
+  Schedule tables exist, then replay migrations without changing the plan or
+  migration history. Snapshot ancestry is checked in the same test.
+- Production build passed; contract/matrix generation checks passed.
+- The two real desktop/mobile Schedule flows passed again on the freshly
+  migrated isolated browser database using the same dedicated port setup.
+- Current CI evidence and the exact updated head are recorded in PR #599.
+
+This fixes integration with current main; it does not claim a full browser
+matrix, Chinese wording acceptance, or production deployment.

@@ -3556,6 +3556,18 @@
     "m459eac221db5": "Explain the rejected schedule request to both captains.",
     "m8c7a3b06d619": "Schedule requests",
     "m1a1f1053b2a7": "Review schedule requests",
-    "meec1c9dbd864": "Calendar time slots"
+    "meec1c9dbd864": "Calendar time slots",
+    "m4f346f7772f1": "Edit comment",
+    "m4d92d7c51643": "Delete this comment?",
+    "m38c665ba6542": "Comment not found.",
+    "m4649872ea6ad": "This comment has changed. Cancel and refresh before trying again.",
+    "m91343adcdcd1": "Intended rounds (multiple)",
+    "m9c4e0a4406de": "No rounds configured.",
+    "m2daf3247b8cb": "Intended rounds",
+    "mc0f210827eff": "Edit rounds",
+    "mce49ceccebf3": "Target round",
+    "m58e2949921f1": "Choose a round",
+    "ma72b0cddb08b": "Choose rounds from this edition.",
+    "mc273af850dd5": "Candidate rounds changed. Refresh the list before trying again."
   }
 }
