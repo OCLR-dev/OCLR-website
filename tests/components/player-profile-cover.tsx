@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { PlayerIdBadge } from "../../src/components/player-id-badge";
 import { ProfileLevel } from "../../src/components/profile-level";
 import { BwsSummary } from "../../src/components/bws-summary";
+import { RankChart } from "../../src/components/rank-chart";
 import { rankTierPalette } from "../../src/lib/rank-tier";
 import en from "../../messages/en.json";
 import styles from "../../src/app/players/[osuId]/profile.module.css";
@@ -34,9 +35,12 @@ const bws = {
   fetchedAt: "2026-08-14T00:00:00.000Z",
 };
 
+// A short rank history so the two-column profile body renders under the cover.
+const history = [24000, 21000, 19000, 18000, 15000, 12345];
+
 // The real cover branch of PlayerProfile: the player id pill and level chip
 // anchored to the card corners, with the identity heading overlaid on the
-// cover.
+// cover and the rank chart / statistics body below it.
 createRoot(document.getElementById("root")!).render(
   <NextIntlClientProvider locale="en" messages={en} timeZone="UTC">
     <main style={{ padding: 24 }}>
@@ -75,6 +79,26 @@ createRoot(document.getElementById("root")!).render(
                 oii={1.35}
               />
             </div>
+          </div>
+          <div className="profile-body">
+            <div className="rank-chart-card">
+              <RankChart data={history} globalRank={12345} />
+            </div>
+            <dl className="profile-statistics">
+              {[
+                ["Accuracy", "98.12%"],
+                ["Play count", "12,345"],
+                ["Total hits", "1,234,567"],
+                ["Play time", "12d 3h 4m 5s"],
+                ["Ranked score", "123,456,789"],
+                ["Total score", "234,567,891"],
+              ].map(([label, value]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </section>
       </div>

@@ -137,10 +137,20 @@
    start in the same corner as the absolutely positioned player id pill, which
    then covers the avatar. Reserve the pill's row above the heading; wider
    covers are bottom-aligned and already tall enough for the padding to be
-   absorbed without moving the heading. */
+   absorbed without moving the heading.
+
+   The stretched narrow heading would centre its content inside the stretched
+   box, which reads as a gap that no padding value can control, so it aligns to
+   the start instead. The heading already starts one inset below the cover's
+   top edge, so the reserve only adds the pill's block size to that inset: the
+   avatar then sits exactly 1.25rem below the pill. */
 @media (max-width: 48rem) {
   :global(.profile-cover-content) .heading {
-    padding-block-start: 2rem;
+    align-items: flex-start;
+    padding-block-start: calc(
+      var(--profile-cover-inset, 1.25rem) +
+        var(--profile-id-pill-block-size, 1.28rem)
+    );
   }
 }
 

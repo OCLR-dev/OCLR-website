@@ -200,7 +200,14 @@ async function ProfileContent({
       {typeof query.edition === "string" && (
         <RoundRatings data={ratingHistory} slug={query.edition} />
       )}
-      {competition && <PlayerCompetition record={competition} />}
+      {competition && (
+        <PlayerCompetition
+          record={competition}
+          resetHref={
+            typeof query.edition === "string" ? `/players/${osuId}` : null
+          }
+        />
+      )}
       {mapPerformance && <PlayerMapPerformance record={mapPerformance} />}
     </div>
   );

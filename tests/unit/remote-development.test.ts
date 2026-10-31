@@ -74,7 +74,8 @@ describe("explicit remote frontend boundaries", () => {
       expect(() =>
         remoteOperation("/staff/profiles/123", new URLSearchParams(query)),
       ).toThrow();
-    expect(remotePageSupported("/tournaments/s9/players/123")).toBe(true);
+    expect(remotePageSupported("/tournaments/s9/players/123")).toBe(false);
+    expect(remotePageSupported("/players/123")).toBe(true);
     expect(remotePageSupported("/tournaments/s9/mappools")).toBe(true);
     expect(remoteApiSupported("/api/teams/id/avatar")).toBe(false);
     expect(remoteApiSupported("/api/admin/tournaments/s11")).toBe(true);

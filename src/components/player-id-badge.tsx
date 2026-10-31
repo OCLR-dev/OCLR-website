@@ -10,9 +10,11 @@ import { useAppTranslations } from "@/i18n/shared";
 export function PlayerIdBadge({
   osuId,
   palette,
+  className,
 }: {
   osuId: number;
   palette: { from: string; to: string; ink: string } | null;
+  className?: string;
 }) {
   const tr = useAppTranslations();
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
@@ -42,6 +44,7 @@ export function PlayerIdBadge({
           "profile-id-badge",
           palette ? "profile-id-badge--tier" : "",
           copyState === "copied" ? "profile-id-badge--copied" : "",
+          className,
         ]
           .filter(Boolean)
           .join(" ")}

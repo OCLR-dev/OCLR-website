@@ -265,7 +265,7 @@ export function EventStatistics({
       const osuId = row[key === "Best player" ? "_bestOsuId" : "_osuId"];
       if (typeof osuId === "number")
         return (
-          <Link href={`/tournaments/${coverage.slug}/players/${osuId}`}>
+          <Link href={`/players/${osuId}?edition=${coverage.slug}`}>
             {value}
           </Link>
         );

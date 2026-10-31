@@ -268,9 +268,7 @@ export function StatisticsExplorer({
         >
           <div className="section-heading">
             <h2>{player.username}</h2>
-            <Link
-              href={"/tournaments/" + data.slug + "/players/" + player.osuId}
-            >
+            <Link href={`/players/${player.osuId}?edition=${data.slug}`}>
               {tr("Player profile")}
             </Link>
             <button

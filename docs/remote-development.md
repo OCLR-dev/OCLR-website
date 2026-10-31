@@ -80,9 +80,9 @@ The existing public, historical and private components are reused: public
 information/news/wiki/privacy, every tournament section, saved profiles/ratings,
 global administration and edition workspaces, the actual subject's dashboard,
 registration/team/Captain pages, and approved OBS/presenter snapshots. Historical
-statistics and MP reviews consume saved source evidence. Current edition profiles
-keep their existing `/players/{osuId}?edition=...` links; the nested historical
-profile and staff routes retain their original archive-only behavior.
+statistics and MP reviews consume saved source evidence. Current and archived
+edition profiles both use `/players/{osuId}?edition=...`; the historical archive
+and staff routes retain their original archive-only behavior.
 
 Missing, unreleased or unavailable records keep the existing empty/not-recorded
 or authorization state. A Captain room without an actual appointment remains

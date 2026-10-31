@@ -220,6 +220,13 @@ button:hover {
 .page-heading h1 {
   margin-bottom: 1rem;
 }
+/* The profile card is a banner plus body, not a normal content panel: its
+   first branch (the cover) sits flush against the card border, so the side
+   insets below it follow the cover's 1.25rem group inset instead of the
+   1.5rem panel padding. */
+.panel.profile-summary {
+  padding-inline: 1.25rem;
+}
 .panel {
   background: linear-gradient(120deg, #171b2d, #111523);
   border: 1px solid var(--color-border);
@@ -383,6 +390,11 @@ button:hover {
   }
   .panel {
     padding: 1.4rem;
+  }
+  /* Keep the profile banner flush with the card: it bleeds by the panel's real
+     block padding, which is 1.4rem at this width. */
+  .panel.profile-summary {
+    --profile-cover-bleed: 1.4rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2421,8 +2433,10 @@ body:has(.presenter-view) .site-footer,
 html[data-appearance] .themed-site .profile-summary button.profile-id-badge {
   position: absolute;
   z-index: 3;
-  inset-block-start: 0.75rem;
-  inset-inline-start: 0.75rem;
+  /* Same inset as the other groups overlaid on the profile cover; the cover
+     owns the token. */
+  inset-block-start: var(--profile-cover-inset, 1.25rem);
+  inset-inline-start: var(--profile-cover-inset, 1.25rem);
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -2514,8 +2528,9 @@ html[data-appearance]
   /* No z-index on purpose: the badge is a positioned element painted before
      the stats card, so the card and its open notes still cover it. */
   position: absolute;
-  inset-block-start: 0.75rem;
-  inset-inline-end: 0.75rem;
+  /* Same inset as .profile-cover-content; the cover owns the token. */
+  inset-block-start: var(--profile-cover-inset, 1.25rem);
+  inset-inline-end: var(--profile-cover-inset, 1.25rem);
   display: flex;
   align-items: center;
   gap: 0.55rem;
@@ -2623,10 +2638,24 @@ html[data-appearance]
   }
 }
 .profile-cover {
+  /* One inset for every group overlaid on the cover: the content row, the
+     level chip and the id pill. The panel's own padding is 1.5rem, but the
+     cover is a banner, not a content block, so its groups sit a step closer
+     to the artwork edges. */
+  --profile-cover-inset: 1.25rem;
+  /* The id pill's outer block size: 0.8rem at a 1.35 line height plus 0.1rem
+     of block padding. The narrow-screen heading reserve below adds it to the
+     cover inset so the avatar starts exactly one inset under the pill. */
+  --profile-id-pill-block-size: 1.28rem;
   position: relative;
   display: flex;
   align-items: flex-end;
-  margin: calc(-1 * var(--space-panel)) calc(-1 * var(--space-panel)) 1rem;
+  /* Bleed exactly the card's own padding so the banner is flush with the card
+     edges: the same 1.25rem inline inset the card is padded with, and the
+     panel's block padding, which the narrow breakpoint shrinks and therefore
+     owns through this variable instead of us assuming 1.5rem. */
+  margin-block: calc(-1 * var(--profile-cover-bleed, var(--space-panel))) 0;
+  margin-inline: calc(-1 * var(--profile-cover-inset));
   min-height: clamp(7rem, 18vw, 13rem);
   /* The cover stays unclipped so the overlaid BWS note can escape it; its own
      top corners are rounded here instead. */
@@ -2666,10 +2695,76 @@ html[data-appearance]
     rgb(0 0 0 / 0%) 92%
   );
 }
+/* Without banner artwork the cover keeps its size, layout and flush edges, so
+   a player whose osu! profile has no cover image gets the same card instead of
+   an older stacked one. The ring is then drawn from the card surface and
+   border tokens, which every appearance already provides. */
+.profile-cover--plain {
+  background: linear-gradient(
+    115deg,
+    var(--site-raised, var(--color-raised)) 0%,
+    color-mix(
+        in srgb,
+        var(--site-accent, var(--color-accent)) 14%,
+        var(--site-raised, var(--color-raised))
+      )
+      58%,
+    var(--site-raised, var(--color-raised)) 100%
+  );
+  box-shadow: inset 0 0 0 1px var(--site-border, var(--color-border));
+}
+/* The scrim only makes a photograph legible; on the plain ring it would dim
+   the heading tokens below. */
+.profile-cover--plain::after {
+  content: none;
+}
+/* Over the artwork the heading, the previous-name aliases and the level chip
+   read white through the scrim. The plain ring is a surface, so they use the
+   surface tokens instead. The heading classes are CSS-module hashes, so these
+   selectors match on the stable name suffix instead of repeating the hash. */
+.profile-summary--no-cover
+  .profile-cover-content
+  :is([class*="headingText"], [class*="previousNames"])
+  :is(h1, p) {
+  color: var(--site-foreground, var(--color-foreground));
+  text-shadow: none;
+}
+.profile-summary--no-cover .profile-cover-content [class*="previousNames"] {
+  color: var(--site-muted, var(--color-muted));
+}
+/* The previous-usernames trigger is a bare, grid-set button that appearance
+   rules otherwise fill with the primary button material. */
+.profile-summary--no-cover .profile-cover-content button.previousNamesTrigger {
+  grid-area: auto;
+  min-height: 1.4rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--site-border, var(--color-border));
+  background: var(--site-surface, var(--color-surface));
+  color: var(--site-muted, var(--color-muted));
+  box-shadow: none;
+}
+.profile-summary--no-cover .profile-level {
+  color: var(--site-foreground, var(--color-foreground));
+}
+.profile-summary--no-cover .profile-level-bar {
+  background-color: color-mix(
+    in srgb,
+    var(--site-foreground, var(--color-foreground)) 16%,
+    transparent
+  );
+  box-shadow: inset 0 0 0 1px var(--site-border, var(--color-border));
+}
+/* The dark-cover dimming assumes pale tier stops over the artwork's scrim. */
+html:not([data-theme="dark"])
+  .profile-summary--no-cover
+  > .bws-card
+  .bws-value--rank-tier {
+  filter: none;
+}
 .profile-cover-content {
   width: 100%;
   min-width: 0;
-  padding: 1rem var(--space-panel);
+  padding: var(--profile-cover-inset, 1.25rem);
   color: #fff;
   display: flex;
   flex-wrap: wrap;
@@ -2963,13 +3058,18 @@ html[data-appearance]
   grid-template-columns: minmax(0, 1.35fr) minmax(15rem, 1fr);
   gap: 1.25rem 2rem;
   align-items: start;
-  margin-block: 1rem;
+  /* The cover keeps no bottom margin; this is the body's own breathing room
+     above the chart and statistics, matching the cover's 1.25rem group inset
+     so the whole profile card keeps one vertical rhythm. */
+  margin-block: 1.25rem;
 }
 .profile-body--single {
   grid-template-columns: minmax(0, 1fr);
 }
 .rank-chart-card {
-  padding: 0.75rem 1rem 0.6rem;
+  /* One 0.75rem inset on all four sides; the chart's own 12px internal
+     margins sit inside it. */
+  padding: 0.75rem;
   border: 1px solid var(--site-border, var(--color-border));
   border-radius: 0.9rem;
   background: var(--site-raised, var(--color-raised));
@@ -3055,21 +3155,20 @@ html[data-appearance]
   flex-direction: column;
   margin: 0;
 }
+/* Every row keeps the same 0.5rem padding on all four sides, including the
+   first and last, so the column sits 8px inside its line box above, below and
+   beside the label/value text instead of starting flush against the card. */
 .profile-statistics > div {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 0.15rem 1rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
   border-bottom: 1px solid var(--site-border, var(--color-border));
-}
-.profile-statistics > div:first-child {
-  padding-top: 0;
 }
 .profile-statistics > div:last-child {
   border-bottom: 0;
-  padding-bottom: 0;
 }
 .profile-statistics dt {
   color: var(--muted, var(--color-muted));
@@ -3084,9 +3183,13 @@ html[data-appearance]
   text-align: right;
   overflow-wrap: anywhere;
 }
+/* Stacked, the two columns keep the same 1.25rem row gap as wide layouts;
+   there is no side gap left for the display font to make the chart look
+   further from the statistics than it is. */
 @media (max-width: 60rem) {
   .profile-body {
     grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
   }
 }
 .profile-summary time {
@@ -5267,6 +5370,7 @@ body:has([data-broadcast]) .site-shell {
   list-style: none;
 }
 .archive-player-card {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 1rem;
@@ -5275,11 +5379,128 @@ body:has([data-broadcast]) .site-shell {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+}
+.archive-player-card:is(:hover, :focus-within) {
+  border-color: var(--color-accent);
+}
+/* Match the archive overview cards: a small lift on hover and a pressed
+   scale while the stretched profile link is held down. */
+@media (hover: hover) {
+  .archive-player-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -18px
+      color-mix(in srgb, var(--color-accent) 55%, transparent);
+  }
+}
+.archive-player-card:has(.archive-player-card-link:active) {
+  transform: translateY(0) scale(0.99);
+  background: var(--color-raised);
+  box-shadow: 0 2px 8px -8px
+    color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+/* The whole card opens the OCLR profile; the avatar, username, id badge and
+   team links sit above this stretched target so they keep their own actions. */
+.archive-player-card-link {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: inherit;
+}
+.archive-player-card :is(a:not(.archive-player-card-link), button) {
+  position: relative;
+  z-index: 2;
+}
+.archive-player-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
 }
 .archive-player-card .avatar {
   width: 3.5rem;
   height: 3.5rem;
   flex-shrink: 0;
+}
+/* Compact copy of the profile id pill: the archive players have no current
+   rank tier, so the card tints it with the active appearance accent. The
+   mid-tone mix keeps the small text readable in both themes. */
+.archive-player-id {
+  --archive-id-gradient: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--color-accent) 55%, var(--color-raised)) 0%,
+    var(--color-raised) 50%,
+    color-mix(in srgb, var(--color-accent) 55%, var(--color-raised)) 100%
+  );
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 0;
+  max-width: 100%;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  border-radius: 999px;
+  background-color: var(--color-raised);
+  background-image: var(--archive-id-gradient);
+  color: var(--color-foreground);
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  white-space: nowrap;
+  box-shadow: 0 0.15rem 0.45rem rgb(0 0 0 / 20%);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    filter 0.15s ease;
+}
+.archive-player-id .profile-id-badge-icon {
+  width: 0.65rem;
+  height: 0.65rem;
+}
+/* The themed button reset sets a 44px height and a solid primary fill; keep
+   the compact copy pill instead. */
+.themed-site .archive-player-card .archive-player-id {
+  min-height: 0;
+  color: var(--color-foreground);
+  background: var(--archive-id-gradient);
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  box-shadow: 0 0.15rem 0.45rem rgb(0 0 0 / 20%);
+}
+.archive-player-id:is(:hover, :focus-visible) {
+  transform: none;
+  border-color: var(--color-accent);
+  filter: brightness(1.08);
+}
+.themed-site
+  .archive-player-card
+  .archive-player-id:is(:hover, :focus-visible) {
+  transform: none;
+  color: var(--color-foreground);
+  background: var(--archive-id-gradient);
+  border-color: var(--color-accent);
+}
+.archive-player-id:focus-visible {
+  outline: 2px solid var(--color-foreground);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .archive-player-card {
+    transition: border-color 0.18s ease;
+  }
+  .archive-player-card:hover,
+  .archive-player-card:has(.archive-player-card-link:active) {
+    transform: none;
+  }
 }
 .archive-player-copy {
   display: flex;
