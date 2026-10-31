@@ -15,8 +15,8 @@ import { BeatmapCover } from "./beatmap-cover";
 
 /**
  * Wide beatmap card: star-coloured rail, flush cover, then title, credits and
- * a compact stats row. Shared by the live pools and the historical archive so
- * both entry points keep the same hierarchy.
+ * a compact stats row. Shared by live pools, the historical archive and the
+ * private selection workbench to keep their beatmap hierarchy consistent.
  */
 export function MapCardBand({
   as: Tag = "article",
@@ -43,6 +43,8 @@ export function MapCardBand({
   headingLevel = 3,
   openLabel,
   onOpen,
+  openHref,
+  showMode = true,
   chips,
   note,
 }: {
@@ -69,10 +71,13 @@ export function MapCardBand({
   mode?: keyof typeof beatmapModeNames;
   headingLevel?: 2 | 3 | 4 | 5;
   openLabel: string;
-  onOpen: () => void;
+  showMode?: boolean;
   chips?: ReactNode;
   note?: ReactNode;
-}) {
+} & (
+  | { onOpen: () => void; openHref?: never }
+  | { onOpen?: never; openHref: string }
+)) {
   const tr = useAppTranslations();
   const Heading = `h${headingLevel}` as "h3";
   const art = beatmapCoverUrl(setId ?? originalSetId);
@@ -196,14 +201,26 @@ export function MapCardBand({
       <div className="map-card-copy">
         <div className="map-card-title-row">
           <Heading>
-            <button
-              className="map-open-button"
-              type="button"
-              aria-label={openLabel}
-              onClick={onOpen}
-            >
-              <span className="map-card-title">{title}</span>
-            </button>
+            {openHref ? (
+              <a
+                className="map-open-button"
+                href={openHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={openLabel}
+              >
+                <span className="map-card-title">{title}</span>
+              </a>
+            ) : (
+              <button
+                className="map-open-button"
+                type="button"
+                aria-label={openLabel}
+                onClick={onOpen}
+              >
+                <span className="map-card-title">{title}</span>
+              </button>
+            )}
           </Heading>
         </div>
         <p className="map-card-meta map-card-meta--artist">
@@ -281,7 +298,11 @@ export function MapCardBand({
             {chips}
           </div>
         </div>
-        <span className="map-card-mode">{beatmapModeNames[mode ?? "osu"]}</span>
+        {showMode && (
+          <span className="map-card-mode">
+            {beatmapModeNames[mode ?? "osu"]}
+          </span>
+        )}
         <BeatmapActions
           compact
           beatmapId={beatmapId}

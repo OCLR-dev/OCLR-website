@@ -186,12 +186,19 @@ test.describe("private Pooler/Tester selection workbench", () => {
       await page
         .getByRole("tab", { name: "Unassigned (2)", exact: true })
         .click();
-      const left = await candidate
-        .locator("a[href='https://osu.ppy.sh/beatmaps/123']")
+      const card = candidate.locator(".map-browse-card--band");
+      await expect(card).toBeVisible();
+      await expect(
+        card.getByRole("link", {
+          name: "Synthetic Artist — Synthetic Browser Song",
+        }),
+      ).toHaveAttribute("href", "https://osu.ppy.sh/beatmaps/123");
+      await expect(card.locator(".map-card-mode")).toHaveCount(0);
+      const mapBox = await card.boundingBox();
+      const commentBox = await candidate
+        .getByLabel("Your comment")
         .boundingBox();
-      const right = await candidate.getByLabel("Your comment").boundingBox();
-      if (!isMobile) expect(right!.x).toBeGreaterThan(left!.x + left!.width);
-      else expect(right!.y).toBeGreaterThan(left!.y);
+      expect(commentBox!.y).toBeGreaterThan(mapBox!.y + mapBox!.height);
       await expect(
         candidate.getByRole("button", {
           name: "Add to official pool",
