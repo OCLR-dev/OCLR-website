@@ -1054,10 +1054,31 @@ test.describe("historical archive browser workflow", () => {
     await expect(page.locator(".historical-archive")).not.toContainText(
       archive.players.find((p) => p.osuId === 91003)!.source,
     );
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto(`/tournaments/${slug}/players`);
+    const coachCard = page
+      .locator('.archive-player-card[data-role="coach"]')
+      .first();
+    await expect(coachCard).toContainText("Coach");
+    await expect(coachCard.locator(".archive-player-name a")).toHaveAttribute(
+      "href",
+      /^https:\/\/osu\.ppy\.sh\/users\/\d+\/osu$/,
+    );
     await expect(
-      page.locator('.archive-player-card[data-role="coach"]'),
-    ).toContainText("Coach");
+      coachCard.locator(".archive-player-avatar > a"),
+    ).toHaveAttribute("href", /^https:\/\/osu\.ppy\.sh\/users\/\d+\/osu$/);
+    const idBadge = coachCard.locator(".archive-player-id");
+    await expect(idBadge).toContainText(/#\d+/);
+    await expect(idBadge).toHaveJSProperty("tagName", "BUTTON");
+    await idBadge.click();
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toBe(String(archive.players.find((p) => p.role === "coach")!.osuId));
+    await expect(idBadge).toHaveClass(/profile-id-badge--copied/);
+    await expect(page).toHaveURL(new RegExp(`/tournaments/${slug}/players$`));
+    await expect(
+      coachCard.locator(".archive-player-card-link"),
+    ).toHaveAttribute("href", new RegExp(`/players/\\d+\\?edition=${slug}$`));
     await expect(
       page.locator(".archive-player-card img").first(),
     ).toHaveAttribute("src", /a\.ppy\.sh\/91001/);

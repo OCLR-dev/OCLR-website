@@ -36,8 +36,11 @@ function deciding(matches: CompetitionMatchRecord[], kind: "win" | "loss") {
 
 export function PlayerCompetition({
   record: summary,
+  resetHref,
 }: {
   record: PlayerCompetitionRecord;
+  /** Set when the profile is narrowed to one edition; links back to every season. */
+  resetHref?: string | null;
 }) {
   const tr = useAppTranslations();
   const date = (value: string | null) =>
@@ -60,7 +63,14 @@ export function PlayerCompetition({
   const unavailable = summary.editions.filter((e) => e.unavailable).length;
   return (
     <section className="spaced" aria-labelledby="competition-record">
-      <h2 id="competition-record">{tr("Competition record")}</h2>
+      <div className={styles.titleRow}>
+        <h2 id="competition-record">{tr("Competition record")}</h2>
+        {resetHref && (
+          <Link className={styles.showAll} href={resetHref}>
+            {tr("Show all seasons")}
+          </Link>
+        )}
+      </div>
       <p className="muted small">
         {tr(
           "Only published, confirmed results are counted. Team results are attributed to every listed player; bench appearances are not distinguished.",

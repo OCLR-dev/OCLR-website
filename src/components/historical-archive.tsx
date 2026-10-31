@@ -41,6 +41,7 @@ import { ArchiveMappools } from "./archive-mappools";
 import { ArchivePlayerSearch } from "./archive-player-search";
 import { ArchiveRosterSources } from "./archive-source-records";
 import { Avatar } from "./avatar";
+import { PlayerIdBadge } from "./player-id-badge";
 import { EventSchedule } from "./event-schedule";
 import { RulesHandbook } from "./rules-handbook";
 import { RulesSection } from "./rules-section";
@@ -152,12 +153,33 @@ export async function HistoricalArchiveView({
     showTeam = true,
   ) => (
     <li className="archive-player-card" key={p.osuId} data-role={p.role}>
-      <Link href={playerHref(p.osuId)} tabIndex={-1} aria-hidden="true">
-        <Avatar osuId={p.osuId} username={p.username} />
-      </Link>
+      {/* The card surface opens the shared OCLR profile, while the avatar,
+          username and team keep their own destinations above it. */}
+      <Link
+        className="archive-player-card-link"
+        href={playerHref(p.osuId)}
+        aria-label={`${tr("OCLR profile")}: ${p.username}`}
+      />
+      <div className="archive-player-avatar">
+        <a
+          href={`https://osu.ppy.sh/users/${p.osuId}/osu`}
+          rel="noreferrer"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <Avatar osuId={p.osuId} username={p.username} />
+        </a>
+        <PlayerIdBadge
+          osuId={p.osuId}
+          palette={null}
+          className="archive-player-id"
+        />
+      </div>
       <div className="archive-player-copy">
         <div className="archive-player-name">
-          {playerLink(p)}{" "}
+          <a href={`https://osu.ppy.sh/users/${p.osuId}/osu`} rel="noreferrer">
+            {p.username}
+          </a>{" "}
           <Badge>
             {role({
               ...p,
@@ -166,10 +188,6 @@ export async function HistoricalArchiveView({
             })}
           </Badge>
         </div>
-        <span className="muted small">
-          {tr("osu! ID ")}
-          {p.osuId}
-        </span>
         {showTeam && ("teamId" in p ? p.teamId : p.team?.id) && (
           <span className="archive-player-team">
             {teamLink(("teamId" in p ? p.teamId : p.team?.id)!)}
