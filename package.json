@@ -17,6 +17,8 @@
     "test": "vitest run",
     "i18n:extract": "node --import tsx scripts/i18n.ts",
     "test:i18n": "vitest run tests/unit/i18n.test.ts",
+    "read-api:generate": "node --import tsx scripts/generate-extended-contracts.ts && node --import tsx scripts/read-api-spec.ts && node --import tsx scripts/generate-remote-matrix.ts",
+    "read-api:check": "node --import tsx scripts/generate-extended-contracts.ts --check && node --import tsx scripts/generate-remote-matrix.ts --check && vitest run tests/unit/read-api.test.ts tests/unit/read-api-dx.test.ts",
     "format": "prettier --write .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

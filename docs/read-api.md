@@ -9,12 +9,10 @@ The machine-readable OpenAPI 3.1 document is served, without authentication or a
 DB connection, at `/api/v1/openapi.json`. It is a raw OpenAPI document; all business
 resources below use the standard envelope. The checked-in copy is
 [read-api.openapi.json](read-api.openapi.json). Each GET/HEAD/OPTIONS operation has
-a stable `operationId` and `x-oclr-issues`. Generate it after changing the shared
-schemas/registry:
-
-```sh
-node --import tsx scripts/read-api-spec.ts
-```
+a stable `operationId` and `x-oclr-issues`. The document is generated, never
+hand-edited; `npm run read-api:generate` refreshes it together with the other
+generated contracts, and `npm run read-api:check` verifies it before a push (see
+[generating and checking contracts](#generating-and-checking-contracts)).
 
 ## Resources and authorization
 
@@ -237,12 +235,42 @@ its own error instances. `developer-api-bundles.test.ts` reloads the module grap
 against the same exhausted counters and verifies HTTP 429, `RATE_LIMITED` and
 `Retry-After: 60`; route bundling must not turn throttling into an internal error.
 
+## Generating and checking contracts
+
+Three files are generated from source and checked in:
+
+| Generated file                         | Generator                                |
+| -------------------------------------- | ---------------------------------------- |
+| `src/lib/extended-read-contracts.json` | `scripts/generate-extended-contracts.ts` |
+| `docs/read-api.openapi.json`           | `scripts/read-api-spec.ts`               |
+| `docs/remote-coverage.json`            | `scripts/generate-remote-matrix.ts`      |
+
+Refresh all three with one command, then verify them without writing:
+
 ```sh
-node --import tsx scripts/generate-extended-contracts.ts
-node --import tsx scripts/read-api-spec.ts
-node --import tsx scripts/generate-remote-matrix.ts
-# CI/unit checks use --check for the generated contracts and inventory.
+npm run read-api:generate
+npm run read-api:check
 ```
+
+Run `read-api:generate` whenever you change a shared read schema or the resource
+registry (`src/lib/read-api-contract.ts`, `src/lib/read-api-operations.ts`,
+`src/lib/osu-profile-model.ts`, `scripts/extended-read-resources.json`), and
+whenever a rebase or merge of `main` changes those sources. Commit the regenerated
+files in the same commit as the source change. Do not hand-edit them and do not
+resolve a merge conflict in them by picking either side: let the rebase/merge
+finish, then regenerate and commit the result.
+
+Run `npm run read-api:check` before pushing. It needs no database or build and
+runs the same drift checks as CI: `node --import tsx scripts/generate-extended-contracts.ts --check`,
+`node --import tsx scripts/generate-remote-matrix.ts --check` (the OpenAPI
+document has no `--check` flag, so the unit tests compare it against the runtime
+specification) and `tests/unit/read-api.test.ts` plus `tests/unit/read-api-dx.test.ts`.
+A stale contract is not only a documentation problem: `src/lib/extended-read-resources.ts`
+uses the generated contract as the runtime response schema, so drift makes HTTP
+reads fail with `INTERNAL_ERROR` and shows up as failing `verify` and `e2e` jobs.
+When the change affects stored responses, also run
+`npx vitest run tests/integration/extended-read.test.ts` against an isolated
+`TEST_DATABASE_URL`.
 
 ## Browser Bearer and existing Next SSR/BFF examples
 
