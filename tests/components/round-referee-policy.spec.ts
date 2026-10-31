@@ -27,7 +27,7 @@ test("edits S11 defaults in round management before any fixture exists", async (
   ).toHaveValue("120");
   await expect(
     page.getByLabel("Require No Fail for every map", { exact: true }),
-  ).toBeChecked();
+  ).toHaveCount(0);
   await expect(
     page.getByLabel("Maximum replays per map", { exact: true }),
   ).toHaveValue("");
@@ -219,7 +219,7 @@ test("preserves saved settings and keeps the draft on a revision conflict", asyn
   ).toHaveValue("35");
   await expect(
     page.getByLabel("Require No Fail for every map", { exact: true }),
-  ).not.toBeChecked();
+  ).toHaveCount(0);
   await expect(
     page.getByLabel("Maximum replays per map", { exact: true }),
   ).toHaveValue("3");
@@ -346,12 +346,13 @@ test("updates BO and the unsaved S11 sequence together without NM override contr
     "13",
   );
 });
-test("normalizes a saved NM override on explicit save and keeps custom steps", async ({
+test("restores NF and standard Mods only after explicit choice and keeps custom steps", async ({
   page,
 }) => {
   let write!: {
     policy: {
       commands: {
+        noFail: boolean;
         categoryMods: Record<string, { mods: string[]; freemod: boolean }>;
       };
       steps: unknown[];
@@ -365,16 +366,17 @@ test("normalizes a saved NM override on explicit save and keeps custom steps", a
   await page
     .getByText("Configure round referee policy", { exact: true })
     .click();
-  await expect(
-    page.getByText(
-      "This saved policy overrides NM. Saving will restore NM to No Mod; existing referee history remains unchanged.",
-      { exact: true },
-    ),
-  ).toBeVisible();
+  await page.getByText("Saved custom Mod settings", { exact: true }).click();
+  await page
+    .getByLabel("Restore NF and standard category Mods on save", {
+      exact: true,
+    })
+    .check();
   await page
     .getByRole("button", { name: "Save round referee policy", exact: true })
     .click();
   await expect(page.getByRole("status")).toBeVisible();
+  expect(write.policy.commands.noFail).toBe(true);
   expect(write.policy.commands.categoryMods.NM).toEqual({
     mods: [],
     freemod: false,
@@ -439,4 +441,75 @@ test("preserves saved custom exceptions and edited steps when BO changes", async
   await expect(
     first.getByRole("button", { name: "HD", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
+});
+
+test("preserves saved custom Mods during an unrelated save without showing category inputs", async ({
+  page,
+}) => {
+  let written!: {
+    policy: {
+      commands: { noFail: boolean; categoryMods: Record<string, unknown> };
+    };
+  };
+  await page.route(route, async (r) => {
+    written = r.request().postDataJSON();
+    await r.fulfill({ json: { revision: 5, policy: written.policy } });
+  });
+  await page.goto("/round-referee-policy?saved&nm-override");
+  await page
+    .getByText("Configure round referee policy", { exact: true })
+    .click();
+  await expect(
+    page.getByText("Saved custom Mod settings", { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('input[placeholder="HD"]')).toHaveCount(0);
+  await page.getByLabel("Ban timer seconds", { exact: true }).fill("42");
+  await page
+    .getByRole("button", { name: "Save round referee policy", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toBeVisible();
+  expect(written.policy.commands.noFail).toBe(false);
+  expect(written.policy.commands.categoryMods.NM).toEqual({
+    mods: ["HD"],
+    freemod: true,
+  });
+});
+
+test("defaults to NF and all standard category Mods without an S11 template", async ({
+  page,
+}) => {
+  let written!: {
+    policy: {
+      commands: { noFail: boolean; categoryMods: Record<string, unknown> };
+    };
+  };
+  await page.route(route, async (r) => {
+    written = r.request().postDataJSON();
+    await r.fulfill({ json: { revision: 1, policy: written.policy } });
+  });
+  await page.goto("/round-referee-policy?other-season");
+  await page
+    .getByText("Configure round referee policy", { exact: true })
+    .click();
+  await page.getByRole("button", { name: "Add step", exact: true }).click();
+  await page
+    .getByLabel("Room size (separate from players per team)", { exact: true })
+    .fill("8");
+  await expect(
+    page.getByText("Saved custom Mod settings", { exact: true }),
+  ).toHaveCount(0);
+  await expect(page.locator('input[placeholder="HD"]')).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Save round referee policy", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toBeVisible();
+  expect(written.policy.commands.noFail).toBe(true);
+  expect(written.policy.commands.categoryMods).toEqual({
+    NM: { mods: [], freemod: false },
+    HD: { mods: ["HD"], freemod: false },
+    HR: { mods: ["HR"], freemod: false },
+    DT: { mods: ["DT"], freemod: false },
+    FM: { mods: [], freemod: true },
+    TB: { mods: [], freemod: true },
+  });
 });

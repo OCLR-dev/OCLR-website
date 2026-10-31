@@ -77,7 +77,7 @@ createRoot(document.getElementById("root")!).render(
             slug="synthetic"
             initialStage="group"
             initialRoundId={roundId}
-            season="11"
+            season={params.has("other-season") ? "12" : "11"}
             canManageRefereePolicy
             rounds={[
               {
