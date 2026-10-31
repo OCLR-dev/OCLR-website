@@ -609,7 +609,14 @@ export async function HistoricalArchiveView({
     );
   } else if (section === "teams" || section === "team") {
     const teams =
-      section === "team" ? a.teams.filter((t) => t.id === id) : a.teams;
+      section === "team"
+        ? a.teams.filter((t) => t.id === id)
+        : // Archive team identifiers are the organizer's draft letters (team-a,
+          // team-b, ...); list them by identifier rather than the imported
+          // team-table order.
+          [...a.teams].sort((x, y) =>
+            x.id.localeCompare(y.id, "en", { numeric: true }),
+          );
     if (!teams.length) notFound();
     title = section === "team" ? teams[0].name : tr("Teams");
     content = (

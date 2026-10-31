@@ -66,7 +66,7 @@ export function PlayerCompetition({
       <div className={styles.titleRow}>
         <h2 id="competition-record">{tr("Competition record")}</h2>
         {resetHref && (
-          <Link className={styles.showAll} href={resetHref}>
+          <Link className={`button ${styles.showAll}`} href={resetHref}>
             {tr("Show all seasons")}
           </Link>
         )}
