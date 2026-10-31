@@ -15,6 +15,7 @@ import {
   staffRoles,
   mappoolCandidates,
   mappoolCandidateComments,
+  mappoolCandidateRounds,
   mappoolEvents,
   mappools,
   editionState,
@@ -321,6 +322,188 @@ describe.skipIf(!url)("private selection collaboration", () => {
       status: 403,
     });
     expect(fetchBeatmaps).not.toHaveBeenCalled();
+  });
+  it("persists multi-round intent, rejects cross-edition links, serializes changes and cleans deleted rounds", async () => {
+    const makeRound = async (
+      editionSlug: string,
+      name: string,
+      position: number,
+    ) => {
+      const data = await mappoolCommand(admin, editionSlug, {
+        action: "round_create",
+        stage: "group",
+        name,
+        position,
+        confirmed: true,
+      });
+      return data.rounds.find((r) => r.name === name)!;
+    };
+    const one = await makeRound(slug, "Round One", 1),
+      two = await makeRound(slug, "Round Two", 2),
+      foreign = await makeRound("other-test-cup", "Foreign Round", 1);
+    await selectionCommand(tester, slug, {
+      ...add([75, 76]),
+      roundIds: [one.id, two.id],
+    });
+    let workspace = await selectionWorkspace(tester, slug);
+    expect(workspace.rounds.map((r) => r.id)).toEqual([one.id, two.id]);
+    expect(workspace.candidates.map((c) => c.roundIds)).toEqual([
+      [one.id, two.id].sort(),
+      [one.id, two.id].sort(),
+    ]);
+    const candidate = workspace.candidates[0];
+    for (const actor of [tester, pooler])
+      await selectionCommand(actor, slug, {
+        action: "comment",
+        candidateId: candidate.id,
+        requestId: randomUUID(),
+        body: "Retained discussion",
+      });
+    expect(
+      (await selectionWorkspace(tester, slug)).candidates[0].commentCount,
+    ).toBe(2);
+    const assign = {
+      action: "assign_rounds",
+      candidateId: candidate.id,
+      roundIds: [one.id],
+      expectedRoundIds: [one.id, two.id],
+    };
+    await selectionCommand(tester, slug, assign);
+    await expect(selectionCommand(tester, slug, assign)).rejects.toMatchObject({
+      status: 409,
+    });
+    await selectionCommand(tester, slug, {
+      ...add([75, 76]),
+      roundIds: [two.id],
+    });
+    expect(
+      (await selectionWorkspace(tester, slug)).candidates[0].roundIds,
+    ).toEqual([one.id]);
+    for (const roundIds of [[foreign.id], [one.id, one.id]]) {
+      await expect(
+        selectionCommand(tester, slug, {
+          ...assign,
+          roundIds,
+          expectedRoundIds: [one.id],
+        }),
+      ).rejects.toMatchObject({ status: 400 });
+      await expect(
+        selectionCommand(tester, slug, { ...add([77]), roundIds }),
+      ).rejects.toMatchObject({ status: 400 });
+    }
+    await expect(
+      db().insert(mappoolCandidateRounds).values({
+        candidateId: candidate.id,
+        roundId: foreign.id,
+        editionSlug: slug,
+      }),
+    ).rejects.toThrow();
+    await selectionCommand(tester, slug, {
+      ...assign,
+      roundIds: [],
+      expectedRoundIds: [one.id],
+    });
+    const race = await Promise.allSettled(
+      [one, two].map((round) =>
+        selectionCommand(tester, slug, {
+          ...assign,
+          roundIds: [round.id],
+          expectedRoundIds: [],
+        }),
+      ),
+    );
+    expect(race.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    expect(race.find((r) => r.status === "rejected")).toMatchObject({
+      reason: { status: 409 },
+    });
+    workspace = await selectionWorkspace(tester, slug);
+    const selected = workspace.candidates[0].roundIds[0];
+    const round = selected === one.id ? one : two;
+    await expect(
+      withReadChannel(() =>
+        selectionCommand(tester, slug, {
+          ...assign,
+          roundIds: [],
+          expectedRoundIds: [selected],
+        }),
+      ),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      selectionCommand(developer, slug, {
+        ...assign,
+        roundIds: [],
+        expectedRoundIds: [selected],
+      }),
+    ).rejects.toMatchObject({ status: 403 });
+    await db()
+      .update(staffRoles)
+      .set({ revokedAt: new Date() })
+      .where(eq(staffRoles.userId, tester.osuId));
+    await expect(
+      selectionCommand(tester, slug, {
+        ...assign,
+        roundIds: [],
+        expectedRoundIds: [selected],
+      }),
+    ).rejects.toMatchObject({ status: 403 });
+    await mappoolCommand(admin, slug, {
+      action: "round_delete",
+      roundId: round.id,
+      expectedVersion: round.version,
+      confirmed: true,
+    });
+    workspace = await selectionWorkspace(pooler, slug);
+    expect(workspace.candidates[0].roundIds).toEqual([]);
+    expect(workspace.candidates[0].commentCount).toBe(2);
+    expect(await db().select().from(mappools)).toHaveLength(0);
+    expect(
+      workspace.candidates.map((c) => c.beatmapId).sort((a, b) => a - b),
+    ).toEqual([75, 76]);
+    expect(
+      (await db().select().from(mappoolEvents)).some(
+        (e) => e.action === "candidate_assign_rounds",
+      ),
+    ).toBe(true);
+  });
+  it("rolls back candidate-round additions and assignment changes when audit fails", async () => {
+    const data = await mappoolCommand(admin, slug, {
+      action: "round_create",
+      stage: "group",
+      name: "Planning",
+      position: 1,
+      confirmed: true,
+    });
+    const roundId = data.rounds[0].id;
+    await selectionCommand(tester, slug, add());
+    const candidate = (await selectionWorkspace(tester, slug)).candidates[0];
+    await db().execute(
+      sql`CREATE FUNCTION oclr_test_round_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Synthetic audit failure'; END $$`,
+    );
+    try {
+      await db().execute(
+        sql`CREATE TRIGGER oclr_test_round_audit BEFORE INSERT ON mappool_events FOR EACH ROW EXECUTE FUNCTION oclr_test_round_audit()`,
+      );
+      await expect(
+        selectionCommand(tester, slug, { ...add([76]), roundIds: [roundId] }),
+      ).rejects.toThrow();
+      await expect(
+        selectionCommand(tester, slug, {
+          action: "assign_rounds",
+          candidateId: candidate.id,
+          roundIds: [roundId],
+          expectedRoundIds: [],
+        }),
+      ).rejects.toThrow();
+      expect((await selectionWorkspace(tester, slug)).candidates).toHaveLength(
+        1,
+      );
+      expect(await db().select().from(mappoolCandidateRounds)).toHaveLength(0);
+    } finally {
+      await db().execute(
+        sql`DROP TRIGGER IF EXISTS oclr_test_round_audit ON mappool_events`,
+      );
+      await db().execute(sql`DROP FUNCTION IF EXISTS oclr_test_round_audit()`);
+    }
   });
   it("lets only the author edit/delete current versions and never resurrects deleted comment requests", async () => {
     await selectionCommand(pooler, slug, add([75, 76]));

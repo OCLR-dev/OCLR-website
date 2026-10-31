@@ -151,12 +151,13 @@ function CommentItem({
   const deleteConfirmation = useRef<HTMLButtonElement>(null);
   const previousMode = useRef(mode);
   useEffect(() => {
+    if (busy) return;
     if (mode === "edit") editor.current?.focus();
     else if (mode === "delete") deleteConfirmation.current?.focus();
     else if (previousMode.current === "edit") editTrigger.current?.focus();
     else if (previousMode.current === "delete") deleteTrigger.current?.focus();
     previousMode.current = mode;
-  }, [mode]);
+  }, [mode, busy]);
   async function save(action: "comment_edit" | "comment_delete") {
     if (pending.current) return;
     pending.current = true;
@@ -478,6 +479,184 @@ function Comments({
     </section>
   );
 }
+function RoundChoices({
+  rounds,
+  value,
+  onChange,
+  disabled,
+}: {
+  rounds: SelectionWorkspace["rounds"];
+  value: string[];
+  onChange: (ids: string[]) => void;
+  disabled?: boolean;
+}) {
+  const tr = useAppTranslations();
+  return (
+    <fieldset className={styles.roundChoices} disabled={disabled}>
+      <legend>{tr("Intended rounds (multiple)")}</legend>
+      {!rounds.length && (
+        <p className="small muted">{tr("No rounds configured.")}</p>
+      )}
+      <div className={styles.roundOptions}>
+        {rounds.map((round) => (
+          <label key={round.id}>
+            <input
+              type="checkbox"
+              checked={value.includes(round.id)}
+              onChange={(event) =>
+                onChange(
+                  event.target.checked
+                    ? [...value, round.id]
+                    : value.filter((id) => id !== round.id),
+                )
+              }
+            />
+            <span>
+              {round.name}{" "}
+              <span className="small muted">
+                ·{" "}
+                {round.stage === "group"
+                  ? tr("Group stage")
+                  : tr("Knockout stage")}
+              </span>
+            </span>
+          </label>
+        ))}
+      </div>
+      {value.length > 0 && (
+        <button
+          className="secondary"
+          type="button"
+          onClick={() => onChange([])}
+        >
+          {tr("Clear selection")}
+        </button>
+      )}
+    </fieldset>
+  );
+}
+function CandidateRounds({
+  candidate,
+  rounds,
+  writable,
+  base,
+  onChange,
+}: {
+  candidate: SelectionWorkspace["candidates"][number];
+  rounds: SelectionWorkspace["rounds"];
+  writable: boolean;
+  base: string;
+  onChange: () => Promise<void>;
+}) {
+  const tr = useAppTranslations();
+  const [editing, setEditing] = useState(false),
+    [draft, setDraft] = useState(candidate.roundIds),
+    [expected, setExpected] = useState(candidate.roundIds);
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const pending = useRef(false);
+  const region = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const wasEditing = useRef(false);
+  useEffect(() => {
+    if (busy) return;
+    if (editing)
+      region.current?.querySelector<HTMLInputElement>("input")?.focus();
+    else if (wasEditing.current) trigger.current?.focus();
+    wasEditing.current = editing;
+  }, [editing, busy]);
+  return (
+    <div
+      role="group"
+      ref={region}
+      className={styles.candidateRounds}
+      aria-label={tr("Intended rounds")}
+    >
+      {editing ? (
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (pending.current) return;
+            pending.current = true;
+            setBusy(true);
+            setError("");
+            try {
+              await request(base, {
+                action: "assign_rounds",
+                candidateId: candidate.id,
+                roundIds: draft,
+                expectedRoundIds: expected,
+              });
+              setEditing(false);
+              await onChange();
+            } catch (e) {
+              setError((e as Error).message);
+            } finally {
+              pending.current = false;
+              setBusy(false);
+            }
+          }}
+        >
+          <RoundChoices
+            rounds={rounds}
+            value={draft}
+            onChange={setDraft}
+            disabled={busy}
+          />
+          <div className={styles.commentActions}>
+            <button disabled={busy}>{tr("Save")}</button>
+            <button
+              type="button"
+              className="secondary"
+              disabled={busy}
+              onClick={() => {
+                setEditing(false);
+                setError("");
+              }}
+            >
+              {tr("Cancel")}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className={styles.roundSummary}>
+          <p className="small">
+            <strong>{tr("Intended rounds")}</strong>
+            {" · "}
+            {candidate.roundIds.length
+              ? candidate.roundIds
+                  .map((id) => rounds.find((r) => r.id === id)?.name)
+                  .filter(Boolean)
+                  .join(" · ")
+              : tr("Unassigned")}
+          </p>
+          {writable && (
+            <button
+              type="button"
+              className="secondary"
+              disabled={busy}
+              ref={trigger}
+              onClick={() => {
+                setDraft(candidate.roundIds);
+                setExpected(candidate.roundIds);
+                setError("");
+                setEditing(true);
+              }}
+            >
+              {tr("Edit rounds")}
+            </button>
+          )}
+        </div>
+      )}
+      {busy && <p role="status">{tr("Working…")}</p>}
+      {error && (
+        <p className="error" role="alert">
+          {tr(error)}
+        </p>
+      )}
+    </div>
+  );
+}
 export function SelectionWorkbench({
   slug,
   initialData,
@@ -497,6 +676,7 @@ export function SelectionWorkbench({
   const [text, setText] = useState("");
   const [preview, setPreview] = useState<CandidatePreview | null>(null);
   const [selected, setSelected] = useState<number[]>([]);
+  const [importRoundIds, setImportRoundIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
   const [error, setError] = useState("");
@@ -603,6 +783,12 @@ export function SelectionWorkbench({
                   "One BID or official difficulty URL per line, up to 50 maps. Blank lines are ignored; set-only URLs are not supported.",
                 )}
               </p>
+              <RoundChoices
+                rounds={data.rounds}
+                value={importRoundIds}
+                onChange={setImportRoundIds}
+                disabled={busy}
+              />
               <button disabled={busy || !text.trim()}>
                 {tr("Preview candidates")}
               </button>
@@ -667,6 +853,7 @@ export function SelectionWorkbench({
                         skipped: number;
                       }>(base, {
                         action: "add",
+                        roundIds: importRoundIds,
                         category,
                         rows: chosen.map((r) => ({
                           beatmapId: r.beatmapId,
@@ -845,6 +1032,13 @@ export function SelectionWorkbench({
                       )}
                     </div>
                   </div>
+                  <CandidateRounds
+                    candidate={c}
+                    rounds={data.rounds}
+                    writable={writable}
+                    base={base}
+                    onChange={reload}
+                  />
                   <Comments
                     slug={slug}
                     id={c.id}
@@ -875,20 +1069,35 @@ function PromoteCandidate({
   const tr = useAppTranslations();
   const [open, setOpen] = useState(false);
   const [data, setData] = useState(initialPools);
+  const [roundId, setRoundId] = useState("");
   const [poolId, setPoolId] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const endpoint = `/api/admin/tournaments/${slug}/mappools`;
-  const pool = data.pools.find((p) => p.id === poolId);
+  const pool = data.pools.find((p) => p.id === poolId && p.roundId === roundId);
   const available = data.pools.filter(
-    (p) => !p.lockedAt && !p.selectionLockedAt,
+    (p) => p.roundId === roundId && !p.lockedAt && !p.selectionLockedAt,
   );
   async function refresh() {
     setBusy(true);
     setError("");
     try {
-      setData(await request<MappoolWorkspace>(endpoint));
+      const next = await request<MappoolWorkspace>(endpoint);
+      setData(next);
+      if (!next.rounds.some((r) => r.id === roundId)) {
+        setRoundId("");
+        setPoolId("");
+      } else if (
+        !next.pools.some(
+          (p) =>
+            p.id === poolId &&
+            p.roundId === roundId &&
+            !p.lockedAt &&
+            !p.selectionLockedAt,
+        )
+      )
+        setPoolId("");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -914,10 +1123,32 @@ function PromoteCandidate({
       {open && (
         <div className={styles.promotionForm}>
           <label className="field">
+            <span>{tr("Target round")}</span>
+            <select
+              value={roundId}
+              disabled={busy}
+              onChange={(event) => {
+                setRoundId(event.target.value);
+                setPoolId("");
+                setSaved(false);
+              }}
+            >
+              <option value="">{tr("Choose a round")}</option>
+              {data.rounds.map((round) => (
+                <option key={round.id} value={round.id}>
+                  {round.name} ·{" "}
+                  {round.stage === "group"
+                    ? tr("Group stage")
+                    : tr("Knockout stage")}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
             <span>{tr("Target pool")}</span>
             <select
               value={poolId}
-              disabled={busy}
+              disabled={busy || !roundId}
               onChange={(event) => {
                 setPoolId(event.target.value);
                 setSaved(false);
@@ -932,7 +1163,7 @@ function PromoteCandidate({
               ))}
             </select>
           </label>
-          {!available.length && (
+          {(roundId || !data.rounds.length) && !available.length && (
             <p className="muted small">
               {tr(
                 "No editable pools. Create a pool in mappool management first.",

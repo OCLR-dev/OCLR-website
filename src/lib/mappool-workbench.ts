@@ -1,6 +1,9 @@
 import { db } from "@/db";
 import {
   editionState,
+  tournamentRounds,
+  tournamentStages,
+  mappoolCandidateRounds,
   mappoolCandidates,
   mappoolCandidateComments,
   mappoolEvents,
@@ -29,28 +32,72 @@ async function databaseSelectionWorkspace(actor: User, slug: string) {
   await assertReadCapability(actor, "select_mappools", slug);
   const edition = await getEdition(slug);
   if (!edition) throw new HttpError(404, "Edition not found.");
-  const candidates = await db()
-    .select({
-      id: mappoolCandidates.id,
-      beatmapId: mappoolCandidates.beatmapId,
-      category: mappoolCandidates.category,
-      metadata: mappoolCandidates.metadata,
-      metadataFetchedAt: mappoolCandidates.metadataFetchedAt,
-      authorId: mappoolCandidates.authorId,
-      authorName: mappoolCandidates.authorName,
-      createdAt: mappoolCandidates.createdAt,
-      commentCount: sql<number>`count(${mappoolCandidateComments.id})::int`,
-    })
-    .from(mappoolCandidates)
-    .leftJoin(
-      mappoolCandidateComments,
-      eq(mappoolCandidateComments.candidateId, mappoolCandidates.id),
-    )
-    .where(eq(mappoolCandidates.editionSlug, slug))
-    .groupBy(mappoolCandidates.id)
-    .orderBy(mappoolCandidates.createdAt, mappoolCandidates.id)
-    .limit(candidateLimit);
-  return { candidates, asOf: new Date(), archived: Boolean(edition.archive) };
+  return db().transaction(
+    async (tx) => {
+      const candidates = await tx
+        .select({
+          id: mappoolCandidates.id,
+          beatmapId: mappoolCandidates.beatmapId,
+          category: mappoolCandidates.category,
+          metadata: mappoolCandidates.metadata,
+          metadataFetchedAt: mappoolCandidates.metadataFetchedAt,
+          authorId: mappoolCandidates.authorId,
+          authorName: mappoolCandidates.authorName,
+          createdAt: mappoolCandidates.createdAt,
+          commentCount: sql<number>`count(${mappoolCandidateComments.id})::int`,
+        })
+        .from(mappoolCandidates)
+        .leftJoin(
+          mappoolCandidateComments,
+          eq(mappoolCandidateComments.candidateId, mappoolCandidates.id),
+        )
+        .where(eq(mappoolCandidates.editionSlug, slug))
+        .groupBy(mappoolCandidates.id)
+        .orderBy(mappoolCandidates.createdAt, mappoolCandidates.id)
+        .limit(candidateLimit);
+      const rounds = await tx
+        .select({
+          id: tournamentRounds.id,
+          name: tournamentRounds.name,
+          stage: tournamentStages.kind,
+          position: tournamentRounds.position,
+        })
+        .from(tournamentRounds)
+        .innerJoin(
+          tournamentStages,
+          eq(tournamentStages.id, tournamentRounds.stageId),
+        )
+        .where(eq(tournamentRounds.editionSlug, slug))
+        .orderBy(
+          tournamentStages.kind,
+          tournamentRounds.position,
+          tournamentRounds.id,
+        );
+      const links = await tx
+        .select({
+          candidateId: mappoolCandidateRounds.candidateId,
+          roundId: mappoolCandidateRounds.roundId,
+        })
+        .from(mappoolCandidateRounds)
+        .where(eq(mappoolCandidateRounds.editionSlug, slug));
+      const byCandidate = new Map<string, string[]>();
+      for (const link of links) {
+        const ids = byCandidate.get(link.candidateId) ?? [];
+        ids.push(link.roundId);
+        byCandidate.set(link.candidateId, ids);
+      }
+      return {
+        candidates: candidates.map((c) => ({
+          ...c,
+          roundIds: (byCandidate.get(c.id) ?? []).sort(),
+        })),
+        rounds,
+        asOf: new Date(),
+        archived: Boolean(edition.archive),
+      };
+    },
+    { isolationLevel: "repeatable read", accessMode: "read only" },
+  );
 }
 export async function selectionWorkspace(
   actor: User,
@@ -160,7 +207,19 @@ export async function previewCandidates(
   };
 }
 export type CandidatePreview = Awaited<ReturnType<typeof previewCandidates>>;
+const roundIdsSchema = z
+  .array(z.uuid())
+  .max(500)
+  .refine((ids) => new Set(ids).size === ids.length);
 const commandSchema = z.discriminatedUnion("action", [
+  z
+    .object({
+      action: z.literal("assign_rounds"),
+      candidateId: z.uuid(),
+      roundIds: roundIdsSchema,
+      expectedRoundIds: roundIdsSchema,
+    })
+    .strict(),
   z
     .object({
       action: z.literal("comment_edit"),
@@ -190,6 +249,7 @@ const commandSchema = z.discriminatedUnion("action", [
     .object({
       action: z.literal("add"),
       category: z.enum(candidateCategories).default("unassigned"),
+      roundIds: roundIdsSchema.default([]),
       rows: z
         .array(
           z
@@ -269,6 +329,22 @@ export async function selectionCommand(
       .for("update");
     await assertCapability(actor, "select_mappools", slug, tx);
     await assertOperationalEdition(slug, tx);
+    if (
+      (c.action === "add" || c.action === "assign_rounds") &&
+      c.roundIds.length
+    ) {
+      const rounds = await tx
+        .select({ id: tournamentRounds.id })
+        .from(tournamentRounds)
+        .where(
+          and(
+            eq(tournamentRounds.editionSlug, slug),
+            inArray(tournamentRounds.id, c.roundIds),
+          ),
+        );
+      if (rounds.length !== c.roundIds.length)
+        throw new HttpError(400, "Choose rounds from this edition.");
+    }
     if (c.action === "add") {
       const existing = await tx
         .select({
@@ -307,6 +383,14 @@ export async function selectionCommand(
             authorName: actor.username,
           })
           .returning({ id: mappoolCandidates.id });
+        if (c.roundIds.length)
+          await tx.insert(mappoolCandidateRounds).values(
+            c.roundIds.map((roundId) => ({
+              candidateId: candidate.id,
+              roundId,
+              editionSlug: slug,
+            })),
+          );
         await tx.insert(mappoolEvents).values({
           editionSlug: slug,
           actorId: actor.osuId,
@@ -315,6 +399,7 @@ export async function selectionCommand(
             candidateId: candidate.id,
             beatmapId: row.beatmapId,
             category: c.category,
+            roundIds: [...c.roundIds].sort(),
           },
         });
         added.push(row.beatmapId);
@@ -331,6 +416,43 @@ export async function selectionCommand(
         ),
       );
     if (!candidate) throw new HttpError(404, "Candidate not found.");
+    if (c.action === "assign_rounds") {
+      const links = await tx
+        .select({ roundId: mappoolCandidateRounds.roundId })
+        .from(mappoolCandidateRounds)
+        .where(eq(mappoolCandidateRounds.candidateId, candidate.id));
+      const current = links.map((l) => l.roundId).sort(),
+        next = [...c.roundIds].sort();
+      if (
+        JSON.stringify(current) !==
+        JSON.stringify([...c.expectedRoundIds].sort())
+      )
+        throw new HttpError(
+          409,
+          "Candidate rounds changed. Refresh the list before trying again.",
+        );
+      if (JSON.stringify(current) === JSON.stringify(next))
+        return { added: 0, skipped: 1 };
+      await tx
+        .delete(mappoolCandidateRounds)
+        .where(eq(mappoolCandidateRounds.candidateId, candidate.id));
+      if (next.length)
+        await tx.insert(mappoolCandidateRounds).values(
+          next.map((roundId) => ({
+            candidateId: candidate.id,
+            roundId,
+            editionSlug: slug,
+          })),
+        );
+      await tx.insert(mappoolEvents).values({
+        editionSlug: slug,
+        actorId: actor.osuId,
+        action: "candidate_assign_rounds",
+        before: { candidateId: candidate.id, roundIds: current },
+        after: { candidateId: candidate.id, roundIds: next },
+      });
+      return { added: 0, skipped: 0 };
+    }
     if (c.action === "classify") {
       if (candidate.category === c.category) return { added: 0, skipped: 1 };
       if (candidate.category !== c.expectedCategory)

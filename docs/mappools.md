@@ -80,13 +80,25 @@ same transaction. Conflicts retain the draft; cancel and refresh before starting
 a new edit against the reviewed text. Deleted comments disappear from the thread
 and count. Replaying a deleted comment's creation request is rejected rather than
 recreating it. No deleted comment text is copied into audit metadata.
+Candidate intent can include multiple existing rounds from the same edition, or
+remain unassigned. Set it for a new batch or edit an individual candidate. These
+are planning labels, independent of formal pool/slot assignment; adding an existing
+BID again never changes its saved round intent. Updates compare the expected round
+IDs under the edition lock and audit before/after IDs in the same transaction.
+Edition-scoped foreign keys reject cross-season links. Deleting an otherwise
+unused round removes its planning links, preserving candidates and discussion;
+existing formal pool/fixture/history deletion protections remain unchanged.
+
 Each candidate accepts up to 200 comments of 2,000 characters. A per-submission
 request UUID makes retries idempotent for the same author/candidate; reusing it
 with different text fails. Concurrent comments append rather than overwriting.
 There is no candidate removal. Admin/Pooler users
 with `manage_mappools` can explicitly add a candidate to a selected official pool
+by explicitly selecting one target round, then an editable pool in that round,
 using the existing official entry form, provider preview, chosen category/slot and
-versioned command. Locked pools cannot be selected or written; existing FM,
+versioned command. Changing the target round clears the old pool and entry form.
+Planning labels do not automatically select a destination or constrain an
+otherwise authorized choice of target round. Locked pools cannot be selected or written; existing FM,
 completed-fixture, uniqueness, archive and transactional audit protections apply.
 Tester/Replayer and remote read-only users get no formal write control. Public
 pools show a warning that additions become visible immediately; draft pools stay
@@ -97,7 +109,8 @@ Candidate metadata, comments and authors remain private even after an edition
 or official pool is published. The browser-session API is
 `/api/admin/tournaments/{edition}/mappool-workbench`: GET saved candidates; POST
 `preview` (text/category), `add` (category and selected BID/fingerprint pairs),
-`classify` (candidate UUID, expected/new category), or `comment`
+`classify` (candidate UUID, expected/new category), `assign_rounds` (candidate UUID,
+new/expected round UUID arrays), or `comment`
 (candidate UUID, request UUID and body), `comment_edit` (candidate/comment UUIDs,
 version and body), or `comment_delete` (candidate/comment UUIDs and version). GET `/{candidateId}/comments` loads a
 thread. POST requires same-origin and fresh write authorization; no Bearer
@@ -127,3 +140,12 @@ Contract **1.11.0** adds an opaque string `version` to saved candidate comments
 for author edit/delete conflict checks. Updated remote backends must return this
 field; all remote views remain read-only. This uses the existing PostgreSQL row
 version and audit table, with no database migration.
+
+Contract **1.12.0** adds `selectionWorkspace.rounds` (minimal same-edition round
+identities) and `candidates[].roundIds`. Migration `0064_mappool_candidate_rounds`
+adds an initially empty relation table with composite edition-scoped foreign keys
+and cascade cleanup for deleted planning rounds. Apply via the normal reviewed
+migration workflow before this app version; no production migration was performed
+by this change. Older app versions can ignore the additive table; do not remove
+saved planning data or down-migrate. Remote backends need the new fields and
+migration, while frontend remote views remain read-only.

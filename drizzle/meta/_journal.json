@@ -449,6 +449,13 @@
       "when": 1793382826983,
       "tag": "0063_mappool_candidate_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1793418407916,
+      "tag": "0064_mappool_candidate_rounds",
+      "breakpoints": true
     }
   ]
 }

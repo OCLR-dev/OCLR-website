@@ -68,6 +68,35 @@ test.describe("private Pooler/Tester selection workbench", () => {
           )
         ).status(),
       ).toBe(403);
+      const formalApi = "/api/admin/tournaments/test-cup/mappools";
+      const currentRounds = await (await pooler.request.get(formalApi)).json();
+      const startPosition =
+        Math.max(
+          0,
+          ...currentRounds.rounds
+            .filter((r: { stage: string }) => r.stage === "group")
+            .map((r: { position: number }) => r.position),
+        ) + 1;
+      const plannedRounds: { id: string; name: string }[] = [];
+      for (let n = 0; n < 2; n++) {
+        const name = `Planned round ${testerId}-${Date.now()}-${n}`;
+        const response = await pooler.request.post(formalApi, {
+          headers: { Origin: origin },
+          data: {
+            action: "round_create",
+            stage: "group",
+            name,
+            position: startPosition + n,
+            confirmed: true,
+          },
+        });
+        expect(response.status()).toBe(200);
+        plannedRounds.push(
+          (await response.json()).rounds.find(
+            (r: { name: string }) => r.name === name,
+          ),
+        );
+      }
       await openTournamentTool(
         page,
         "test-cup",
@@ -77,6 +106,14 @@ test.describe("private Pooler/Tester selection workbench", () => {
       await page
         .getByLabel("Beatmap IDs or difficulty URLs")
         .fill("123\nnot-a-bid\nhttps://osu.ppy.sh/beatmaps/123\n456");
+      const batchRounds = page.getByRole("group", {
+        name: "Intended rounds (multiple)",
+        exact: true,
+      });
+      for (const round of plannedRounds)
+        await batchRounds
+          .getByRole("checkbox", { name: new RegExp(round.name) })
+          .check();
       await page
         .getByRole("button", { name: "Preview candidates", exact: true })
         .click();
@@ -103,6 +140,38 @@ test.describe("private Pooler/Tester selection workbench", () => {
       const id = workspace.candidates.find(
         (c: { beatmapId: number }) => c.beatmapId === 123,
       ).id;
+      expect(
+        workspace.candidates
+          .find((c: { beatmapId: number }) => c.beatmapId === 123)
+          .roundIds.sort(),
+      ).toEqual(plannedRounds.map((r) => r.id).sort());
+      const intent = candidate.getByRole("group", {
+        name: "Intended rounds",
+        exact: true,
+      });
+      for (const round of plannedRounds)
+        await expect(intent.getByText(new RegExp(round.name))).toBeVisible();
+      await intent
+        .getByRole("button", { name: "Edit rounds", exact: true })
+        .click();
+      await intent
+        .getByRole("checkbox", { name: new RegExp(plannedRounds[1].name) })
+        .uncheck();
+      await intent.getByRole("button", { name: "Save", exact: true }).click();
+      await expect(
+        intent.getByRole("button", { name: "Edit rounds", exact: true }),
+      ).toBeFocused();
+      await expect(
+        intent.getByText(new RegExp(plannedRounds[1].name)),
+      ).toHaveCount(0);
+      await page.reload();
+      await expect(
+        intent.getByText(new RegExp(plannedRounds[0].name)),
+      ).toBeVisible();
+      await expect(
+        intent.getByText(new RegExp(plannedRounds[1].name)),
+      ).toHaveCount(0);
+
       expect(
         (
           await pooler.request.post(endpoint, {
@@ -383,6 +452,25 @@ test.describe("private Pooler/Tester selection workbench", () => {
       await poolerRow
         .getByRole("button", { name: "Add to official pool", exact: true })
         .click();
+      await expect(poolerRow.getByLabel("Target pool")).toBeDisabled();
+      await poolerRow.getByLabel("Target round").selectOption(roundId);
+      await expect(
+        poolerRow
+          .getByLabel("Target pool")
+          .getByRole("option", { name: /Candidate destination/ }),
+      ).toHaveCount(1);
+      await poolerRow.getByLabel("Target pool").selectOption(targetPool.id);
+      await poolerRow
+        .getByLabel("Target round")
+        .selectOption(plannedRounds[0].id);
+      await expect(poolerRow.getByLabel("Target pool")).toHaveValue("");
+      await expect(
+        poolerRow
+          .getByLabel("Target pool")
+          .getByRole("option", { name: /Candidate destination/ }),
+      ).toHaveCount(0);
+      await expect(poolerRow.getByLabel("Beatmap URL or ID")).toHaveCount(0);
+      await poolerRow.getByLabel("Target round").selectOption(roundId);
       await poolerRow.getByLabel("Target pool").selectOption(targetPool.id);
       await expect(poolerRow.getByLabel("Beatmap URL or ID")).toHaveValue(
         "123",

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OCLR Read API",
-    "version": "1.11.0",
+    "version": "1.12.0",
     "description": "Versioned saved reads (#269–#272). Public projections remain public-only even with a token. Explicit invalid Authorization never falls back to anonymous/cookies. Reads never fetch providers or mutate business data. Later collection pages require version and restart on 409."
   },
   "servers": [{ "url": "/" }],
@@ -47,7 +47,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -230,7 +230,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -407,7 +407,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -574,7 +574,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               },
               "Content-Disposition": {
                 "description": "Replay attachment filename; CORS-exposed",
@@ -749,7 +749,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               },
               "Content-Disposition": {
                 "description": "Replay attachment filename; CORS-exposed",
@@ -917,7 +917,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -1077,7 +1077,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -1250,7 +1250,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -1431,7 +1431,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -1612,7 +1612,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -1783,7 +1783,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -1954,7 +1954,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -2125,7 +2125,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -2298,7 +2298,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -2471,7 +2471,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -2655,7 +2655,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -2847,7 +2847,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -3030,7 +3030,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -3215,7 +3215,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -3394,7 +3394,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -3567,7 +3567,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -3738,7 +3738,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -3909,7 +3909,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -4080,7 +4080,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -4251,7 +4251,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -4422,7 +4422,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -4606,7 +4606,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -4844,7 +4844,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -5075,7 +5075,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -5260,7 +5260,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -5443,7 +5443,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -5609,7 +5609,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -5758,7 +5758,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -5907,7 +5907,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -6105,7 +6105,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -6308,7 +6308,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -6565,7 +6565,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -6813,7 +6813,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -6962,7 +6962,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -7113,7 +7113,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -7273,7 +7273,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -7444,7 +7444,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -7617,7 +7617,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -7788,7 +7788,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -7959,7 +7959,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -8132,7 +8132,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -8303,7 +8303,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -8476,7 +8476,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -8649,7 +8649,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -8820,7 +8820,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -8997,7 +8997,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -9186,7 +9186,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -9369,7 +9369,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -9531,7 +9531,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -9682,7 +9682,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -9850,7 +9850,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -10035,7 +10035,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -10218,7 +10218,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -10407,7 +10407,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -10590,7 +10590,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -10769,7 +10769,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -10937,7 +10937,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -11086,7 +11086,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -11271,7 +11271,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -11469,7 +11469,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -11675,7 +11675,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -11897,7 +11897,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -12111,7 +12111,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -12309,7 +12309,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -12488,7 +12488,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -12675,7 +12675,7 @@
                 "schema": { "type": "string", "format": "uuid" }
               },
               "X-OCLR-Read-Contract": {
-                "schema": { "type": "string", "const": "1.11.0" }
+                "schema": { "type": "string", "const": "1.12.0" }
               }
             },
             "content": {
@@ -25602,6 +25602,7 @@
             "items": {
               "type": "object",
               "properties": {
+                "roundIds": { "type": "array", "items": { "type": "string" } },
                 "id": { "type": "string" },
                 "beatmapId": { "type": "number" },
                 "category": {
@@ -25631,6 +25632,7 @@
                 "commentCount": { "type": "number" }
               },
               "required": [
+                "roundIds",
                 "id",
                 "beatmapId",
                 "category",
@@ -25644,6 +25646,25 @@
               "additionalProperties": false
             }
           },
+          "rounds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "stage": {
+                  "anyOf": [
+                    { "type": "string", "const": "group" },
+                    { "type": "string", "const": "knockout" }
+                  ]
+                },
+                "position": { "type": "number" }
+              },
+              "required": ["id", "name", "stage", "position"],
+              "additionalProperties": false
+            }
+          },
           "asOf": {
             "type": "string",
             "format": "date-time",
@@ -25651,7 +25672,7 @@
           },
           "archived": { "type": "boolean" }
         },
-        "required": ["candidates", "asOf", "archived"],
+        "required": ["candidates", "rounds", "asOf", "archived"],
         "additionalProperties": false
       },
       "candidateComments": {
