@@ -8,15 +8,15 @@ on:
   workflow_dispatch:
     inputs:
       suite:
-        description: "Core smoke (default) or explicit full regression of this ref"
+        description: "Checks only (default), core E2E or full regression of this ref"
         type: choice
-        options: [core, full]
-        default: core
+        options: [checks, core, full]
+        default: checks
 permissions:
   contents: read
-# Supersede duplicate core runs on a ref; keep manual full separate.
+# Supersede duplicate runs of the same scope; keep scheduled/manual E2E separate.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.suite || 'core' }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.suite || (github.event_name == 'schedule' && 'core' || 'checks') }}
   cancel-in-progress: true
 jobs:
   plan:
@@ -26,6 +26,7 @@ jobs:
       json: ${{ steps.scope.outputs.json }}
       e2e_shards: ${{ steps.scope.outputs.e2e_shards }}
       full: ${{ steps.scope.outputs.full }}
+      e2e: ${{ steps.scope.outputs.e2e }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,7 +35,7 @@ jobs:
         with:
           node-version: 24
       - id: scope
-        name: Select core or explicit manual full coverage
+        name: Select checks, scheduled/manual core or explicit manual full coverage
         env:
           CI_EVENT: ${{ github.event_name }}
           CI_SUITE: ${{ inputs.suite }}
@@ -85,6 +86,7 @@ jobs:
       - run: npm audit --omit=dev
 
   build:
+    needs: [plan]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -111,8 +113,10 @@ jobs:
       - run: npm run db:migrate
       - run: npm run build
       - name: Package production build
+        if: needs.plan.outputs.e2e == 'true'
         run: tar --exclude='.next/cache' -czf /tmp/oclr-next-build.tgz .next
       - uses: actions/upload-artifact@v4
+        if: needs.plan.outputs.e2e == 'true'
         with:
           name: next-build
           path: /tmp/oclr-next-build.tgz
@@ -122,6 +126,7 @@ jobs:
 
   e2e:
     needs: [plan, build]
+    if: needs.plan.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
     container:
@@ -234,6 +239,7 @@ jobs:
 
   remote-e2e:
     needs: [plan, build]
+    if: needs.plan.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     # Playwright 1.64.1: keep in sync with package-lock.json (unit-checked).
     container:

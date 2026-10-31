@@ -1,16 +1,17 @@
 # CI coverage and acceptance
 
-Ordinary CI checks a fixed set of core workflows. It runs automatically and
+Push/PR CI runs checks and a production build without E2E. It runs automatically and
 reports real failures, but passing CI is not required for merging. The organizer
-requested this smaller default on 2026-10-27 after run 40466629592.
+requested this default on 2026-10-31 (#608), superseding the 2026-10-27
+per-commit core browser policy. Nightly CI still runs core E2E.
 
-| Lane          | Ordinary core CI                                                       | Explicit manual full CI                                                         |
+| Lane          | Push/PR and manual checks                                              | Explicit manual full CI                                                         |
 | ------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | verify        | Locked npm install, lint/types, all unit/integration, production audit | Same                                                                            |
-| build         | Production build, shared by browser jobs; parallel with verify         | Same                                                                            |
-| e2e           | Core allowlist, Chromium desktop/mobile, 2 isolated shards             | Every functional spec except header-overlap, 8 isolated shards                  |
+| build         | Production build; no browser artifact upload                           | Production build, packaged/shared with browser jobs                             |
+| e2e           | Skipped (nightly/manual core: 2 Chromium desktop/mobile shards)        | Every functional spec except header-overlap, 8 isolated shards                  |
 | header-e2e    | Skipped                                                                | Full language/appearance/light/dark/width and Firefox matrix, 4 isolated shards |
-| remote-e2e    | Remote connection, credentials, read-only and interaction specs        | Same, plus all appearances                                                      |
+| remote-e2e    | Skipped (nightly/manual core: remote permission smoke)                 | Remote smoke plus all appearances                                               |
 | remote-matrix | Skipped                                                                | Full-site saved-read page/GET matrix                                            |
 
 The functional core allowlist is defined in
@@ -33,19 +34,17 @@ allowlist decision. Full coverage is not claimed by a successful core run.
 
 ## Events and scope
 
-- Pushes to main, pull requests and the nightly 17:30 UTC (01:30 Asia/Taipei) run
-  the same fixed core suite.
-- Manual CI defaults to suite=core. Only workflow_dispatch with suite=full selects
-  full regression and produces full-check.
-- Source changes, CSS, assets, dependencies, workflows, migrations, unknown paths,
-  missing Git bases and shallow checkouts never promote ordinary CI to full.
-  Planning does not fetch history or classify changed files.
-- The aggregate check requires plan, verify, build, core/full functional E2E and
-  remote-e2e success. Full-only lanes must be skipped in core and successful in
-  full. Failures/cancellation cannot be reported as a pass. full-check requires a
-  successful complete run.
-- New core runs replace older core runs on the same ref across push, schedule
-  and manual triggers, avoiding duplicate work. Manual full uses a separate group.
+- Pushes to main and pull requests select `checks`: lint/types, all
+  unit/integration tests, production audit and build; all browser jobs skip.
+- The nightly 17:30 UTC (01:30 Asia/Taipei) schedule selects `core`, including
+  core functional and remote E2E. Manual CI defaults to `suite=checks`;
+  `suite=core` opts into core browsers, `suite=full` opts into all browser lanes.
+- File changes and missing Git bases never expand coverage automatically.
+- The aggregate check requires plan, verify and build success. Browser jobs must
+  succeed when selected and be skipped otherwise. Failures/cancellation cannot
+  be reported as a pass. `full-check` requires a successful complete full run.
+- New runs replace older runs of the same suite on the same ref. Scheduled core
+  and manual full use groups separate from per-commit checks.
 
 Run complete acceptance explicitly against the reviewed branch or tag:
 
@@ -62,9 +61,10 @@ The target for ordinary execution is under 20 minutes on the critical path,
 including build, container/setup, testing and upload. Runner queue time is reported
 separately. A pending/failed run does not establish that the target was met.
 
-Build and verify start independently. Browser lanes wait for plan and the shared
-build artifact, while the aggregate check waits for every selected lane. Each
-runner owns a separate isolated PostgreSQL service and remains workers=1; never
+Verify starts immediately; build waits only for the short coverage plan. Browser
+lanes wait for plan and the shared build artifact (packaged/uploaded only when
+E2E is selected), while the aggregate check waits for every selected lane.
+A checks-only pass does not establish browser or release acceptance. Each runner owns a separate isolated PostgreSQL service and remains workers=1; never
 run destructive fixtures concurrently against one database.
 
 Browser jobs use the official Playwright Noble image pinned to the locked

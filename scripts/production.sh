@@ -96,6 +96,8 @@ if [[ "$action" == setup || "$action" == prepare ]]; then
   else
     printf '%s\n' 'Preparation uses the operator-configured Node heap budget.'
   fi
+  # Installation/update preparation never runs E2E or installs browser binaries.
+  # Browser regression belongs to scheduled/manual CI against isolated test data.
   run 'npm ci --include=dev' npm ci --include=dev
   if [[ "$action" == setup ]]; then
     run 'npm run db:migrate' migrate
