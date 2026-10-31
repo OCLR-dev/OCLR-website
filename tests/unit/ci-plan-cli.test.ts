@@ -8,17 +8,19 @@ const script = fileURLToPath(
   new URL("../../scripts/ci-plan.ts", import.meta.url),
 );
 describe("native CI planning without changed-file expansion", () => {
-  for (const [event, suite, full] of [
-    ["push", "", false],
-    ["pull_request", "", false],
-    ["schedule", "", false],
-    ["push", "full", false],
-    ["workflow_dispatch", "core", false],
-    ["workflow_dispatch", "", false],
-    ["workflow_dispatch", "full", true],
-    ["unknown", "full", false],
+  for (const [event, suite, expectedSuite] of [
+    ["push", "", "checks"],
+    ["pull_request", "", "checks"],
+    ["schedule", "", "core"],
+    ["push", "full", "checks"],
+    ["pull_request", "core", "checks"],
+    ["workflow_dispatch", "checks", "checks"],
+    ["workflow_dispatch", "core", "core"],
+    ["workflow_dispatch", "", "checks"],
+    ["workflow_dispatch", "full", "full"],
+    ["unknown", "full", "checks"],
   ] as const)
-    it(`${event}/${suite} selects full=${full} even without a Git checkout`, () => {
+    it(`${event}/${suite} selects ${expectedSuite} even without a Git checkout`, () => {
       const cwd = mkdtempSync(join(tmpdir(), "oclr-ci-plan-test-"));
       try {
         const output = join(cwd, "outputs");
@@ -35,7 +37,9 @@ describe("native CI planning without changed-file expansion", () => {
           },
         });
         const plan = JSON.parse(stdout);
-        expect(plan.full).toBe(full);
+        expect(plan.suite).toBe(expectedSuite);
+        expect(plan.full).toBe(expectedSuite === "full");
+        expect(plan.e2e).toBe(expectedSuite !== "checks");
         const entries = Object.fromEntries(
           readFileSync(output, "utf8")
             .trim()
@@ -47,7 +51,8 @@ describe("native CI planning without changed-file expansion", () => {
         );
         expect(JSON.parse(entries.json)).toEqual(plan);
         expect(JSON.parse(entries.e2e_shards)).toEqual(plan.e2e_shards);
-        expect(entries.full).toBe(String(full));
+        expect(entries.full).toBe(String(plan.full));
+        expect(entries.e2e).toBe(String(plan.e2e));
       } finally {
         rmSync(cwd, { recursive: true, force: true });
       }

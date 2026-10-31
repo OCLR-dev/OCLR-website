@@ -1,44 +1,62 @@
 import { appendFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
+export type CiSuite = "checks" | "core" | "full";
+
 export type CiPlan = {
+  suite: CiSuite;
+  e2e: boolean;
   full: boolean;
   e2e_shards: number[];
   reason: string;
 };
 
-/** Ordinary CI always stays core; only an explicit manual full opts in. */
-export function planCi(full = false): CiPlan {
+/** Browser coverage is scheduled or explicitly requested, never per push/PR. */
+export function planCi(suite: CiSuite = "checks"): CiPlan {
+  const full = suite === "full";
   return {
+    suite,
+    e2e: suite !== "checks",
     full,
     e2e_shards: full ? [1, 2, 3, 4, 5, 6, 7, 8] : [1, 2],
     reason: full
       ? "explicit manual full acceptance"
-      : "fixed core smoke; full regression is manual",
+      : suite === "core"
+        ? "scheduled or explicit manual core smoke"
+        : "checks and build only; browser regression is scheduled or manual",
   };
+}
+
+export function selectCiSuite(event: string, suite: string): CiSuite {
+  if (event === "schedule") return "core";
+  if (event === "workflow_dispatch" && (suite === "core" || suite === "full"))
+    return suite;
+  return "checks";
 }
 
 type Need = { result: string; outputs?: Record<string, string> };
 export function assertCiGate(needs: Record<string, Need>): void {
-  for (const job of ["plan", "verify", "build", "e2e", "remote-e2e"])
+  for (const job of ["plan", "verify", "build"])
     if (needs[job]?.result !== "success")
       throw new Error("Selected job did not succeed: " + job);
   const raw = needs.plan.outputs?.json;
   if (!raw) throw new Error("Missing CI plan");
   const plan = JSON.parse(raw) as CiPlan;
   if (
-    typeof plan.full !== "boolean" ||
+    !["checks", "core", "full"].includes(plan.suite) ||
+    plan.full !== (plan.suite === "full") ||
+    plan.e2e !== (plan.suite !== "checks") ||
     JSON.stringify(plan.e2e_shards) !==
-      JSON.stringify(planCi(plan.full).e2e_shards)
+      JSON.stringify(planCi(plan.suite).e2e_shards)
   )
     throw new Error("Invalid CI plan");
-  for (const job of ["header-e2e", "remote-matrix"])
+  for (const job of ["e2e", "remote-e2e", "header-e2e", "remote-matrix"])
     if (
-      plan.full
+      (job === "e2e" || job === "remote-e2e" ? plan.e2e : plan.full)
         ? needs[job]?.result !== "success"
         : needs[job]?.result !== "skipped"
     )
-      throw new Error("Full-only job did not satisfy CI plan: " + job);
+      throw new Error("Browser job did not satisfy CI plan: " + job);
 }
 
 if (
@@ -50,8 +68,7 @@ if (
     console.log("All checks selected by the CI plan succeeded.");
   } else {
     const plan = planCi(
-      process.env.CI_EVENT === "workflow_dispatch" &&
-        process.env.CI_SUITE === "full",
+      selectCiSuite(process.env.CI_EVENT ?? "", process.env.CI_SUITE ?? ""),
     );
     console.log(JSON.stringify(plan, null, 2));
     if (process.env.GITHUB_OUTPUT)
@@ -59,6 +76,8 @@ if (
         process.env.GITHUB_OUTPUT,
         "json=" +
           JSON.stringify(plan) +
+          "\ne2e=" +
+          plan.e2e +
           "\nfull=" +
           plan.full +
           "\ne2e_shards=" +
