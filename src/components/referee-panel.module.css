@@ -394,6 +394,15 @@
   gap: 0.75rem;
   flex-wrap: wrap;
 }
+.summaryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.summaryActions button[aria-pressed="true"] {
+  background: var(--site-tint);
+  border-color: currentColor;
+}
 .summaryHeading button {
   min-height: 2.75rem;
   padding: 0.375rem 0.75rem;
