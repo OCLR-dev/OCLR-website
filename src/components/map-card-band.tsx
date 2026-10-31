@@ -48,6 +48,8 @@ export function MapCardBand({
   chips,
   note,
   footer,
+  side,
+  slotControl,
 }: {
   as?: "article" | "li";
   className?: string;
@@ -76,6 +78,8 @@ export function MapCardBand({
   chips?: ReactNode;
   note?: ReactNode;
   footer?: ReactNode;
+  side?: ReactNode;
+  slotControl?: ReactNode;
 } & (
   | { onOpen: () => void; openHref?: never }
   | { onOpen?: never; openHref: string }
@@ -127,9 +131,13 @@ export function MapCardBand({
         <BeatmapCover setId={setId} fallbackSetId={originalSetId} />
         <span
           className="map-slot-badge"
-          style={{ background: slotMod.bg, color: slotMod.color }}
+          style={{
+            background: slotMod.bg,
+            color: slotMod.color,
+            padding: slotControl ? 0 : undefined,
+          }}
         >
-          {slot}
+          {slotControl ?? slot}
         </span>
         {beatmapId ? (
           <button
@@ -315,6 +323,7 @@ export function MapCardBand({
           name={slot}
         />
       </div>
+      {side ? <div className="map-card-side">{side}</div> : null}
       {footer ? <div className="map-card-extension">{footer}</div> : null}
     </Tag>
   );
