@@ -190,6 +190,79 @@ test.describe("desktop browser authorization", () => {
     expect(panelBody.data.workspace.fixture.id).toBe(fixture.fixtureId);
     const relayPath = `/api/referee/v1/fixtures/${fixture.fixtureId}/relay`;
     const browserIrcPath = `/api/admin/tournaments/test-cup/matches/${fixture.fixtureId}/referee/irc`;
+    const receiver = await desktop.post(relayPath, {
+      headers,
+      data: {
+        action: "bind",
+        roomId: 0,
+        ircUsername: refereeTestUser.username.replace(/ /g, "_"),
+      },
+    });
+    expect(receiver.status()).toBe(200);
+    const receiverId = (await receiver.json()).data.connectionId;
+    const creationSync = {
+      action: "sync",
+      connectionId: receiverId,
+      sequence: 1,
+      projection: { status: "connected", messages: [] },
+      receipts: [],
+    };
+    expect(
+      (await desktop.post(relayPath, { headers, data: creationSync })).status(),
+    ).toBe(200);
+    const makeRequest = {
+      action: "queue",
+      requestKey: randomUUID(),
+      text: "!mp make Synthetic browser match",
+    };
+    expect(
+      (
+        await context.request.post(browserIrcPath, {
+          headers: { Origin: baseURL! },
+          data: makeRequest,
+        })
+      ).status(),
+    ).toBe(200);
+    expect(
+      (
+        await context.request.post(browserIrcPath, {
+          headers: { Origin: baseURL! },
+          data: makeRequest,
+        })
+      ).status(),
+    ).toBe(200);
+    const makeDispatch = await desktop.post(relayPath, {
+      headers,
+      data: { ...creationSync, sequence: 2 },
+    });
+    expect(makeDispatch.status()).toBe(200);
+    const make = (await makeDispatch.json()).data.command;
+    expect(make).toMatchObject({ text: makeRequest.text, target: "BanchoBot" });
+    expect(
+      (
+        await desktop.post(relayPath, {
+          headers,
+          data: { ...creationSync, sequence: 3 },
+        })
+      ).status(),
+    ).toBe(200);
+    expect(
+      (
+        await desktop.post(relayPath, {
+          headers,
+          data: {
+            ...creationSync,
+            sequence: 4,
+            roomId: 912344,
+            receipts: [{ commandId: make.id, status: "unknown" }],
+          },
+        })
+      ).status(),
+    ).toBe(200);
+    expect(
+      (await (await context.request.get(browserIrcPath)).json()).connection
+        .roomId,
+    ).toBe(912344);
     const roomId = 912345;
     const bound = await desktop.post(relayPath, {
       headers,

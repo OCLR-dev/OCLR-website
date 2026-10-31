@@ -260,4 +260,53 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
       (await refereeIrcView(referee, "test-cup", fixtureId)).commands[0].status,
     ).toBe("failed");
   });
+  it("queues make only for a creation receiver, dispatches once and moves to the observed room", async () => {
+    const bound = await refereeIrcRelay(actor, fixtureId, {
+      action: "bind",
+      roomId: 0,
+      ircUsername: actor.username,
+    });
+    connectionId = bound.connectionId;
+    seq = 0;
+    await sync();
+    await expect(
+      refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+        action: "queue",
+        requestKey: randomUUID(),
+        text: "!mp map 42",
+      }),
+    ).rejects.toThrow();
+    const request = {
+      action: "queue",
+      requestKey: randomUUID(),
+      text: "!mp make Synthetic match",
+    };
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, request);
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, request);
+    const first = await sync();
+    expect(first.command?.target).toBe("BanchoBot");
+    expect((await sync()).command).toBeNull();
+    await expect(
+      refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+        ...request,
+        requestKey: randomUUID(),
+      }),
+    ).rejects.toThrow();
+    await refereeIrcRelay(actor, fixtureId, {
+      action: "sync",
+      connectionId,
+      sequence: ++seq,
+      roomId: 123,
+      projection: { status: "connected", messages: [] },
+      receipts: [{ commandId: first.command!.id, status: "unknown" }],
+    });
+    const view = await refereeIrcView(referee, "test-cup", fixtureId);
+    expect(view.connection?.roomId).toBe(123);
+    await expect(
+      refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+        ...request,
+        requestKey: randomUUID(),
+      }),
+    ).rejects.toThrow();
+  });
 });

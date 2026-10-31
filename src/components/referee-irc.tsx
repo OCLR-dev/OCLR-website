@@ -243,7 +243,9 @@ export function RefereeIrc({
             <div className={styles.ircConnection}>
               <span className="small">
                 {relay.connection.ircUsername} ·{" "}
-                {`#mp_${relay.connection.roomId}`}
+                {relay.connection.roomId
+                  ? `#mp_${relay.connection.roomId}`
+                  : "BanchoBot"}
               </span>
               <button
                 type="button"
@@ -365,7 +367,10 @@ export function RefereeIrc({
             sending ||
             !draft.trim() ||
             (!simulation && !connected && !retry) ||
-            (!simulation && /^!mp make(?:\s|$)/i.test(draft))
+            (!simulation &&
+              (relay?.connection?.roomId === 0
+                ? !/^!mp make .+$/u.test(draft)
+                : /^!mp make(?:\s|$)/i.test(draft)))
           }
         >
           {sending
@@ -376,11 +381,13 @@ export function RefereeIrc({
                 ? tr("Simulate send")
                 : tr("Send to local IRC")}
         </button>
-        {!simulation && /^!mp make(?:\s|$)/i.test(draft) && (
-          <p className="small muted">
-            {tr("Create and join the room in oclr-irc first.")}
-          </p>
-        )}
+        {!simulation &&
+          /^!mp make(?:\s|$)/i.test(draft) &&
+          relay?.connection?.roomId !== 0 && (
+            <p className="small muted">
+              {tr("Create and join the room in oclr-irc first.")}
+            </p>
+          )}
         {error && (
           <p role="alert">
             {error === "load"

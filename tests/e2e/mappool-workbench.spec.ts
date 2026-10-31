@@ -383,6 +383,16 @@ test.describe("private Pooler/Tester selection workbench", () => {
         .click();
       const card = candidate.locator(".map-browse-card--band");
       await expect(card).toBeVisible();
+      const cardRounds = card.getByRole("group", {
+        name: "Intended rounds",
+        exact: true,
+      });
+      const cardCategory = card.getByRole("combobox", {
+        name: "Mod category",
+        exact: true,
+      });
+      await expect(cardRounds).toBeVisible();
+      await expect(cardCategory).toBeVisible();
       await expect(
         card.getByRole("link", {
           name: "Synthetic Artist — Synthetic Browser Song",
@@ -394,6 +404,16 @@ test.describe("private Pooler/Tester selection workbench", () => {
         .getByLabel("Your comment")
         .boundingBox();
       expect(commentBox!.y).toBeGreaterThan(mapBox!.y + mapBox!.height);
+      for (const control of [cardRounds, cardCategory]) {
+        const box = await control.boundingBox();
+        expect(box!.x).toBeGreaterThanOrEqual(mapBox!.x);
+        expect(box!.x + box!.width).toBeLessThanOrEqual(
+          mapBox!.x + mapBox!.width + 1,
+        );
+        expect(box!.y + box!.height).toBeLessThanOrEqual(
+          mapBox!.y + mapBox!.height,
+        );
+      }
       await expect(
         candidate.getByRole("button", {
           name: "Add to official pool",
@@ -449,9 +469,12 @@ test.describe("private Pooler/Tester selection workbench", () => {
         name: "BID 123",
         exact: true,
       });
-      await poolerRow
+      const poolerCard = poolerRow.locator(".map-browse-card--band");
+      await poolerCard
         .getByRole("button", { name: "Add to official pool", exact: true })
         .click();
+      await expect(poolerCard.getByLabel("Target round")).toBeVisible();
+      await expect(poolerCard.getByLabel("Target pool")).toBeVisible();
       await expect(poolerRow.getByLabel("Target pool")).toBeDisabled();
       await poolerRow.getByLabel("Target round").selectOption(roundId);
       await expect(
@@ -524,6 +547,26 @@ test.describe("private Pooler/Tester selection workbench", () => {
           })
         ).status(),
       ).toBe(403);
+      for (const theme of ["light", "dark"]) {
+        await pooler.addCookies([
+          { name: "oclr-locale", value: "zh-Hant", url: origin },
+          { name: "oclr-theme", value: theme, url: origin },
+        ]);
+        await poolerPage.reload();
+        const previewCard = poolerPage
+          .getByRole("article", { name: "BID 123", exact: true })
+          .locator(".map-browse-card--band");
+        if (!isMobile)
+          await previewCard.evaluate((card) => {
+            window.scrollTo(
+              0,
+              window.scrollY + card.getBoundingClientRect().top - 112,
+            );
+          });
+        await previewCard.screenshot({
+          path: `/tmp/oclr-workbench-card-${isMobile ? "mobile" : "desktop"}-${theme}.png`,
+        });
+      }
       await poolerPage.close();
       for (const theme of ["light", "dark"]) {
         await context.addCookies([
