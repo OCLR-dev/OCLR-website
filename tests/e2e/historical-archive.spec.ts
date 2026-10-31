@@ -115,7 +115,7 @@ test.describe("historical archive browser workflow", () => {
     expect(saved.archive.rosterReplacements).toBeUndefined();
     expect(saved.archive.matches).toEqual(historicalArchive.matches);
     await context.clearCookies();
-    await page.goto(`/tournaments/${slug}/players/91991`);
+    await page.goto(`/players/91991?edition=${slug}`);
     await expect(
       page.getByRole("heading", { name: "Synthetic substitute", exact: true }),
     ).toBeVisible();
@@ -218,7 +218,7 @@ test.describe("historical archive browser workflow", () => {
     await context.clearCookies();
     await page.goto(`/tournaments/${slug}/players`);
     await expect(
-      page.locator(`a[href="/tournaments/${slug}/players/91991"]`).first(),
+      page.locator(`a[href="/players/91991?edition=${slug}"]`).first(),
     ).toBeVisible();
     await expect(
       page.getByText("Synthetic organizer confirmation", { exact: true }),
@@ -1048,16 +1048,37 @@ test.describe("historical archive browser workflow", () => {
       .getByRole("link", { name: "Historical Player", exact: true })
       .click();
     await expect(page).toHaveURL(
-      new RegExp(`/tournaments/${slug}/players/91003$`),
+      new RegExp(`/players/91003\\?edition=${slug}$`),
     );
     await expect(page.getByText("Tier 1", { exact: true })).toBeVisible();
     await expect(page.locator(".historical-archive")).not.toContainText(
       archive.players.find((p) => p.osuId === 91003)!.source,
     );
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto(`/tournaments/${slug}/players`);
+    const coachCard = page
+      .locator('.archive-player-card[data-role="coach"]')
+      .first();
+    await expect(coachCard).toContainText("Coach");
+    await expect(coachCard.locator(".archive-player-name a")).toHaveAttribute(
+      "href",
+      /^https:\/\/osu\.ppy\.sh\/users\/\d+\/osu$/,
+    );
     await expect(
-      page.locator('.archive-player-card[data-role="coach"]'),
-    ).toContainText("Coach");
+      coachCard.locator(".archive-player-avatar > a"),
+    ).toHaveAttribute("href", /^https:\/\/osu\.ppy\.sh\/users\/\d+\/osu$/);
+    const idBadge = coachCard.locator(".archive-player-id");
+    await expect(idBadge).toContainText(/#\d+/);
+    await expect(idBadge).toHaveJSProperty("tagName", "BUTTON");
+    await idBadge.click();
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toBe(String(archive.players.find((p) => p.role === "coach")!.osuId));
+    await expect(idBadge).toHaveClass(/profile-id-badge--copied/);
+    await expect(page).toHaveURL(new RegExp(`/tournaments/${slug}/players$`));
+    await expect(
+      coachCard.locator(".archive-player-card-link"),
+    ).toHaveAttribute("href", new RegExp(`/players/\\d+\\?edition=${slug}$`));
     await expect(
       page.locator(".archive-player-card img").first(),
     ).toHaveAttribute("src", /a\.ppy\.sh\/91001/);
@@ -1142,7 +1163,6 @@ test.describe("historical archive browser workflow", () => {
     }
     for (const path of [
       "teams/missing",
-      "players/9999",
       "mappools/missing",
       "matches/missing",
       "matches/alternative",

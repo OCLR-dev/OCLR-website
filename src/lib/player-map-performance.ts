@@ -1,17 +1,48 @@
+import { and, eq } from "drizzle-orm";
+import { db } from "@/db";
+import {
+  fixtures,
+  mappoolEntries,
+  mappools,
+  tournamentRounds,
+  tournamentStages,
+} from "@/db/schema";
+import { approvedRatingGames } from "./approved-rating-games";
 import { publicArchiveStatistics } from "./archive-statistics";
-import type { StatisticsPlay } from "./archive-statistics-model";
+import { remoteMode } from "./data-source";
+import { HttpError } from "./http";
+import { slotLabel } from "./mappool-model";
 import type { PublishedPlayer } from "./players";
+import type { RatingGame } from "./yumu-rating";
 
 /**
  * Player map-performance DEMO model.
  *
- * Only published MP map scores reach this model: the loader reads the public
- * archive statistics projection, which already excludes unpublished snapshots,
- * review-pending imports and excluded scores. Deliberately absent from the
- * output are relative score, maximum combo, miss totals, pass rate, team score
- * share, failed-score counts and any score-system grouping; those are not
- * comparable across maps or seasons.
+ * Two public sources feed this model, both limited to reviewed or published
+ * results:
+ * - historical seasons read the published archive statistics projection
+ *   (unpublished snapshots, review-pending imports and excluded scores never
+ *   appear);
+ * - live seasons read the approved result revisions shared with ratings and
+ *   awards, so a published fixture result is enough.
+ *
+ * Deliberately absent from the output are relative score, maximum combo, miss
+ * totals, pass rate, team score share, failed-score counts and any score-system
+ * grouping; those are not comparable across maps or seasons.
  */
+
+/** The minimal per-map score shape shared by archive statistics and approved results. */
+export type MapPlay = {
+  fixtureId: string;
+  gameId: number;
+  stage: string;
+  title: string;
+  slot: string;
+  at: string | null;
+  osuId: number;
+  score: number;
+  accuracy: number | null;
+};
 
 export type PlayerMapRow = {
   fixtureId: string;
@@ -82,8 +113,8 @@ function placements(
  * field. A map whose mean score is zero or unusable contributes a placement
  * but never an effective rating.
  */
-export function mapPerformance(plays: StatisticsPlay[], osuId: number) {
-  const games = new Map<number, StatisticsPlay[]>();
+export function mapPerformance(plays: MapPlay[], osuId: number) {
+  const games = new Map<number, MapPlay[]>();
   for (const play of plays)
     games.set(play.gameId, [...(games.get(play.gameId) ?? []), play]);
   const rows: PlayerMapRow[] = [];
@@ -197,12 +228,107 @@ async function editionPerformance(
     ratedMaps: 0,
     unavailable: false,
   };
-  if (!roster.length) return base;
+  const osuId = roster[0]?.osuId ?? people[0]?.osuId;
+  if (osuId === undefined) return base;
   try {
     const statistics = await publicArchiveStatistics(slug);
+    return { ...base, ...mapPerformance(statistics.plays, osuId) };
+  } catch (error) {
+    // Archived seasons without a published statistics projection fall back to
+    // approved live results instead of hiding the season entirely.
+    if (!(error instanceof HttpError) || error.status !== 404)
+      return { ...base, unavailable: true };
+  }
+  return liveEditionPerformance(slug, base, osuId);
+}
+
+/** Approved live results (fixture → games → per-player scores) as map plays. */
+export function liveMapPlays(
+  games: RatingGame[],
+  stageByFixture: Map<string, string>,
+  slots: Map<string, string>,
+): MapPlay[] {
+  return games.flatMap((game) => {
+    if (game.problem || !game.at) return [];
+    const stage = stageByFixture.get(game.fixtureId) ?? "unknown";
+    const slot = slots.get(`${game.roundId}:${game.beatmapId}`) ?? "—";
+    const title =
+      [game.beatmap?.artist, game.beatmap?.title, game.beatmap?.difficulty]
+        .filter(Boolean)
+        .join(" - ") || `MP #${game.gameId}`;
+    return game.scores.map((score) => ({
+      fixtureId: game.fixtureId,
+      gameId: game.gameId,
+      stage,
+      title,
+      slot,
+      at: game.at,
+      osuId: score.userId,
+      score: score.total,
+      accuracy: score.accuracy ?? null,
+    }));
+  });
+}
+
+async function fixtureStages(slug: string) {
+  const rows = await db()
+    .select({ id: fixtures.id, kind: tournamentStages.kind })
+    .from(fixtures)
+    .innerJoin(
+      tournamentRounds,
+      and(
+        eq(tournamentRounds.id, fixtures.roundId),
+        eq(tournamentRounds.editionSlug, fixtures.editionSlug),
+      ),
+    )
+    .innerJoin(
+      tournamentStages,
+      and(
+        eq(tournamentStages.id, tournamentRounds.stageId),
+        eq(tournamentStages.editionSlug, fixtures.editionSlug),
+      ),
+    )
+    .where(eq(fixtures.editionSlug, slug));
+  return new Map(rows.map((row) => [row.id, row.kind]));
+}
+
+async function poolSlots(slug: string) {
+  const rows = await db()
+    .select({
+      roundId: mappools.roundId,
+      category: mappoolEntries.category,
+      position: mappoolEntries.position,
+      beatmapId: mappoolEntries.beatmapId,
+    })
+    .from(mappoolEntries)
+    .innerJoin(mappools, eq(mappoolEntries.poolId, mappools.id))
+    .where(eq(mappools.editionSlug, slug));
+  const slots = new Map<string, string>();
+  for (const row of rows) {
+    const key = `${row.roundId}:${row.beatmapId}`;
+    if (!slots.has(key)) slots.set(key, slotLabel(row.category, row.position));
+  }
+  return slots;
+}
+
+async function liveEditionPerformance(
+  slug: string,
+  base: PlayerMapEdition,
+  osuId: number,
+): Promise<PlayerMapEdition> {
+  // The remote read contract exposes per-player map scores only inside a single
+  // public fixture; there is no edition-wide resource yet, so a remote frontend
+  // stays archive-only instead of fanning out one request per fixture.
+  if (remoteMode()) return { ...base, unavailable: true };
+  try {
+    const [games, stages, slots] = await Promise.all([
+      approvedRatingGames(slug, db()),
+      fixtureStages(slug),
+      poolSlots(slug),
+    ]);
     return {
       ...base,
-      ...mapPerformance(statistics.plays, roster[0].osuId),
+      ...mapPerformance(liveMapPlays(games, stages, slots), osuId),
     };
   } catch {
     return { ...base, unavailable: true };

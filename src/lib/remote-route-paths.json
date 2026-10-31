@@ -50,7 +50,6 @@
     "/tournaments/[edition]/mappools",
     "/tournaments/[edition]/matches/[fixtureId]",
     "/tournaments/[edition]",
-    "/tournaments/[edition]/players/[osuId]",
     "/tournaments/[edition]/players",
     "/tournaments/[edition]/register",
     "/tournaments/[edition]/results/awards",

@@ -41,6 +41,7 @@ import { ArchiveMappools } from "./archive-mappools";
 import { ArchivePlayerSearch } from "./archive-player-search";
 import { ArchiveRosterSources } from "./archive-source-records";
 import { Avatar } from "./avatar";
+import { PlayerIdBadge } from "./player-id-badge";
 import { EventSchedule } from "./event-schedule";
 import { RulesHandbook } from "./rules-handbook";
 import { RulesSection } from "./rules-section";
@@ -115,13 +116,20 @@ export async function HistoricalArchiveView({
     preview
       ? `${base}?section=${section}${id ? `&id=${encodeURIComponent(id)}` : ""}`
       : `${base}/${section}${id ? `/${id}` : ""}`;
+  // Published archive cards open the shared OCLR profile directly. The private
+  // preview keeps its single-player archive section because the edition may
+  // still be unpublished.
+  const playerHref = (osuId: number) =>
+    preview
+      ? href("players", String(osuId))
+      : `/players/${osuId}?edition=${edition.slug}`;
   const team = (id: string) => a.teams.find((t) => t.id === id)!;
   const player = (id: number) => a.players.find((p) => p.osuId === id)!;
   const teamLink = (id: string) => (
     <Link href={href("teams", id)}>{team(id).name}</Link>
   );
   const playerLink = (p: Pick<PublicPlayer, "osuId" | "username">) => (
-    <Link href={href("players", String(p.osuId))}>{p.username}</Link>
+    <Link href={playerHref(p.osuId)}>{p.username}</Link>
   );
   const role = (
     p: Pick<
@@ -145,16 +153,33 @@ export async function HistoricalArchiveView({
     showTeam = true,
   ) => (
     <li className="archive-player-card" key={p.osuId} data-role={p.role}>
+      {/* The card surface opens the shared OCLR profile, while the avatar,
+          username and team keep their own destinations above it. */}
       <Link
-        href={href("players", String(p.osuId))}
-        tabIndex={-1}
-        aria-hidden="true"
-      >
-        <Avatar osuId={p.osuId} username={p.username} />
-      </Link>
+        className="archive-player-card-link"
+        href={playerHref(p.osuId)}
+        aria-label={`${tr("OCLR profile")}: ${p.username}`}
+      />
+      <div className="archive-player-avatar">
+        <a
+          href={`https://osu.ppy.sh/users/${p.osuId}/osu`}
+          rel="noreferrer"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <Avatar osuId={p.osuId} username={p.username} />
+        </a>
+        <PlayerIdBadge
+          osuId={p.osuId}
+          palette={null}
+          className="archive-player-id"
+        />
+      </div>
       <div className="archive-player-copy">
         <div className="archive-player-name">
-          {playerLink(p)}{" "}
+          <a href={`https://osu.ppy.sh/users/${p.osuId}/osu`} rel="noreferrer">
+            {p.username}
+          </a>{" "}
           <Badge>
             {role({
               ...p,
@@ -163,10 +188,6 @@ export async function HistoricalArchiveView({
             })}
           </Badge>
         </div>
-        <span className="muted small">
-          {tr("osu! ID ")}
-          {p.osuId}
-        </span>
         {showTeam && ("teamId" in p ? p.teamId : p.team?.id) && (
           <span className="archive-player-team">
             {teamLink(("teamId" in p ? p.teamId : p.team?.id)!)}
@@ -588,7 +609,14 @@ export async function HistoricalArchiveView({
     );
   } else if (section === "teams" || section === "team") {
     const teams =
-      section === "team" ? a.teams.filter((t) => t.id === id) : a.teams;
+      section === "team"
+        ? a.teams.filter((t) => t.id === id)
+        : // Archive team identifiers are the organizer's draft letters (team-a,
+          // team-b, ...); list them by identifier rather than the imported
+          // team-table order.
+          [...a.teams].sort((x, y) =>
+            x.id.localeCompare(y.id, "en", { numeric: true }),
+          );
     if (!teams.length) notFound();
     title = section === "team" ? teams[0].name : tr("Teams");
     content = (

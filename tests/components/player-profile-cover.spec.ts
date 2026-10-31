@@ -19,6 +19,12 @@ for (const viewport of [
     // The pill is pinned to the card corner, so the overlaid heading has to
     // start below it instead of sharing the corner.
     expect(avatarBox.y).toBeGreaterThanOrEqual(pillBox.y + pillBox.height);
+
+    // Narrow covers reserve the pill's row; that gap is the same 1.25rem the
+    // other cover groups keep from the artwork edges.
+    if (viewport.name === "phone") {
+      expect(avatarBox.y - (pillBox.y + pillBox.height)).toBeCloseTo(20, 0);
+    }
   });
 }
 

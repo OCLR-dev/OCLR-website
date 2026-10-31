@@ -57,19 +57,30 @@ export function PlayerProfile({
   const level = s.level?.current ?? null;
   return (
     <section
-      className="panel profile-summary"
+      // A profile without a banner keeps the same card layout: the heading and
+      // summary stay on the artless cover, so losing the artwork never falls
+      // back to the older stacked card.
+      className={
+        p.coverUrl
+          ? "panel profile-summary"
+          : "panel profile-summary profile-summary--no-cover"
+      }
       aria-label={tr("{value0} profile snapshot", {
         value0: "osu!",
       })}
     >
       <PlayerIdBadge osuId={p.osuId} palette={idPalette} />
-      {p.coverUrl ? (
-        <div className="profile-cover">
-          {/* Inside the cover so the card's open notes (later in the tree and
-              z-index 6) still paint above this badge. */}
-          {level !== null && (
-            <ProfileLevel level={level} progress={s.level?.progress ?? null} />
-          )}
+      <div
+        className={
+          p.coverUrl ? "profile-cover" : "profile-cover profile-cover--plain"
+        }
+      >
+        {/* Inside the cover so the card's open notes (later in the tree and
+            z-index 6) still paint above this badge. */}
+        {level !== null && (
+          <ProfileLevel level={level} progress={s.level?.progress ?? null} />
+        )}
+        {p.coverUrl && (
           <Image
             className="profile-cover-image"
             src={p.coverUrl}
@@ -78,38 +89,22 @@ export function PlayerProfile({
             height={300}
             unoptimized
           />
-          {(heading || bws) && (
-            <div className="profile-cover-content">
-              {heading}
-              {bws && (
-                <BwsSummary
-                  value={bws}
-                  variant="compact"
-                  countryRank={s.countryRank}
-                  globalRankPercent={s.globalRankPercent}
-                  oii={oii}
-                />
-              )}
-            </div>
-          )}
-        </div>
-      ) : (
-        <>
-          {level !== null && (
-            <ProfileLevel level={level} progress={s.level?.progress ?? null} />
-          )}
-          {heading}
-          {bws && (
-            <BwsSummary
-              value={bws}
-              variant="compact"
-              countryRank={s.countryRank}
-              globalRankPercent={s.globalRankPercent}
-              oii={oii}
-            />
-          )}
-        </>
-      )}
+        )}
+        {(heading || bws) && (
+          <div className="profile-cover-content">
+            {heading}
+            {bws && (
+              <BwsSummary
+                value={bws}
+                variant="compact"
+                countryRank={s.countryRank}
+                globalRankPercent={s.globalRankPercent}
+                oii={oii}
+              />
+            )}
+          </div>
+        )}
+      </div>
       <div
         className={
           history && history.length > 1

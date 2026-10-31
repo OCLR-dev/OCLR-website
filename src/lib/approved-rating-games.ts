@@ -159,6 +159,7 @@ export async function approvedRatingGames(
               proposal.data.rulesSnapshot.failedScorePolicy === "zero"
                 ? 0
                 : score.total,
+            accuracy: score.accuracy,
           });
         }
       }
@@ -166,6 +167,9 @@ export async function approvedRatingGames(
         ...common,
         gameId: reviewed.gameId,
         winnerTeamId: reviewed.winnerTeamId,
+        beatmapId: parsed.success ? parsed.data.beatmapId : null,
+        beatmap: parsed.success ? parsed.data.beatmap : null,
+        scoringType: parsed.success ? parsed.data.scoringType : null,
         scores: scores.sort((a, b) => a.userId - b.userId),
         ...(problem ? { problem } : {}),
       });

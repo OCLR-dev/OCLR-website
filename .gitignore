@@ -9,6 +9,7 @@ test-results/
 .env*
 !.env.example
 .DS_Store
+.idea
 
 # Local database storage and root-level exports (keep drizzle migrations tracked).
 /.local/

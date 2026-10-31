@@ -53,7 +53,7 @@ export function PlayerMapPerformance({
       <h2 id="map-performance">{tr("Map performance")}</h2>
       <p className="muted small">
         {tr(
-          "Only published MP map scores are counted. Effective rating is the player's score divided by that map's average score; maps with an unusable average are skipped. Relative score, combo, misses, pass rate, team share and failed-score counts are intentionally omitted.",
+          "Only published or approved MP map scores are counted: archived seasons use their published statistics, live seasons use reviewed results. Effective rating is the player's score divided by that map's average score; maps with an unusable average are skipped. Relative score, combo, misses, pass rate, team share and failed-score counts are intentionally omitted.",
         )}
       </p>
       {summary.mapsPlayed ? (
@@ -118,6 +118,12 @@ export function PlayerMapPerformance({
   );
 }
 
+function stageLabel(tr: ReturnType<typeof useAppTranslations>, stage: string) {
+  if (stage === "group") return tr("Group stage");
+  if (stage === "knockout") return tr("Knockout");
+  return stage || "—";
+}
+
 function MapTable({ edition }: { edition: PlayerMapEdition }) {
   const tr = useAppTranslations();
   const date = new Intl.DateTimeFormat(tr.locale, {
@@ -149,7 +155,7 @@ function MapTable({ edition }: { edition: PlayerMapEdition }) {
                     <span className="muted small"> · {row.slot}</span>
                   )}
                 </td>
-                <td>{row.stage}</td>
+                <td>{stageLabel(tr, row.stage)}</td>
                 <td>{row.at ? date.format(new Date(row.at)) : "—"}</td>
                 <td>{row.placement ?? "—"}</td>
                 <td>{share(row.accuracy)}</td>

@@ -82,9 +82,8 @@ describe("match-page presentation", () => {
       expect(html).toContain("300 / 100 / 50");
       expect(html).toContain("MRA");
       expect(html).toContain(data.rating!.players[0].mra.toFixed(4));
-      expect(html).toContain(
-        historical ? "/tournaments/s7/players/" : "/players/",
-      );
+      expect(html).toContain("/players/");
+      expect(html).not.toContain("/tournaments/s7/players/");
       for (const text of [
         "Failed-score policy",
         "MRA combines",

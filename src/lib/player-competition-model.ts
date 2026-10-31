@@ -1,4 +1,5 @@
 import type { PublishedPlayer } from "./players";
+import { compareTournamentSeasons } from "./tournament-order";
 
 /**
  * Player competition DEMO model.
@@ -25,6 +26,8 @@ export type CompetitionMatchRecord = {
 export type CompetitionEditionRecord = {
   editionSlug: string;
   editionName: string;
+  /** Stored season value; editions open in ascending season order. */
+  season: string | null;
   team: { id: string; name: string } | null;
   /** Teams this person coached in the edition, when the roster records a coach. */
   coachedTeams: { id: string; name: string }[];
@@ -100,18 +103,14 @@ export function summarizePlayerCompetition(
     worstPlacing: null,
     firstAt: null,
     lastAt: null,
-    editions: [...editions].sort((a, b) => {
-      const left = a.matches.map(timeOf).filter((n) => !Number.isNaN(n));
-      const right = b.matches.map(timeOf).filter((n) => !Number.isNaN(n));
-      const firstLeft = left.length ? Math.min(...left) : null;
-      const firstRight = right.length ? Math.min(...right) : null;
-      if (firstLeft === null && firstRight === null)
-        return a.editionName.localeCompare(b.editionName);
-      if (firstLeft === null) return 1;
-      if (firstRight === null) return -1;
-      if (firstLeft !== firstRight) return firstLeft - firstRight;
-      return a.editionName.localeCompare(b.editionName);
-    }),
+    // Newest tournament first: the stored season is the chronological marker
+    // because archived editions may not retain a usable start timestamp.
+    editions: [...editions].sort((a, b) =>
+      compareTournamentSeasons(
+        { season: a.season, slug: a.editionSlug },
+        { season: b.season, slug: b.editionSlug },
+      ),
+    ),
   };
   const decided: CompetitionMatchRecord[] = [];
   for (const edition of editions) {

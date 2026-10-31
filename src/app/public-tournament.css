@@ -153,6 +153,24 @@ html[data-theme="dark"] .themed-site {
   min-height: 65vh;
   padding: 1.5rem 0 4rem;
 }
+/* Player profiles keep the standard page column when an edition narrows the
+   profile. The wider tournament canvas is for event pages, so adding an
+   edition must not change the profile width. */
+.public-tournament.public-player-page {
+  width: min(1240px, calc(100% - 6rem));
+}
+@media (max-width: 760px) {
+  .public-tournament.public-player-page {
+    width: calc(100% - 2.5rem);
+  }
+}
+/* The context bar brings its own 0.75rem top inset, so the shell only needs
+   the other half of the 1.5rem page inset. Player pages have no context bar
+   and keep the full shell padding above. The bar centers its children, so do
+   not top-align the identity here. */
+.public-tournament:has(> .event-context) {
+  padding-block-start: 0.75rem;
+}
 .event-context {
   --tournament-navigation-font-size: 0.95rem;
   position: sticky;

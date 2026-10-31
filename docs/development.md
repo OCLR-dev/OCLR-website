@@ -80,6 +80,14 @@ Check the issues for commit-specific local results, actual CI and organizer revi
 
 `npm run check` runs ESLint, generated route types and TypeScript. `npm run build` creates the production build; `npm start` serves it on a conventional Node.js host. CI runs the same checks. No Vercel services are required.
 
+The read API contracts are generated files (`src/lib/extended-read-contracts.json`,
+`docs/read-api.openapi.json`, `docs/remote-coverage.json`). After changing a read
+schema or resource registry, and after any rebase or merge of `main`, run
+`npm run read-api:generate` and commit the regenerated files with the change.
+Run `npm run read-api:check` before pushing; it reproduces CI's drift checks
+without a database or build. Never hand-edit or conflict-resolve these files —
+regenerate them instead. See [read API](read-api.md#generating-and-checking-contracts).
+
 `npm run test:components` runs the player-message board's desktop/mobile browser
 regressions without PostgreSQL or a Next.js build. Install the configured
 Playwright Chromium first (`npx playwright install chromium`). The loopback-only

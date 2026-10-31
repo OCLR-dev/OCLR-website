@@ -127,22 +127,14 @@ test("renders the complete saved-read page and GET matrix without a frontend dat
     )
       edition = "s9";
     if (path.includes("/draft/captain")) edition = "remote-draft";
-    const historicalProfile = path === "/tournaments/[edition]/players/[osuId]";
-    if (historicalProfile || path === "/tournaments/[edition]/staff")
-      edition = "s9";
+    const historicalStaff = path === "/tournaments/[edition]/staff";
+    if (historicalStaff) edition = "s9";
     path = path
       .replace("[edition]", edition)
       .replace("[fixtureId]", fixture.fixtureId)
       .replace("[poolId]", fixture.poolId!)
       .replace("[teamId]", fixture.home.teamId)
-      .replace(
-        "[osuId]",
-        String(
-          historicalProfile
-            ? historicalArchive.players[0].osuId
-            : fixture.owner,
-        ),
-      )
+      .replace("[osuId]", String(fixture.owner))
       .replace("[id]", fixture.registrationId)
       .replace("[slug]", newsSlug)
       .replace(
@@ -184,7 +176,6 @@ test("renders the complete saved-read page and GET matrix without a frontend dat
     "results/awards",
     "staff",
     "statistics",
-    `players/${historicalArchive.players[0].osuId}`,
     `teams/${historicalArchive.teams[0].id}`,
     `mappools/${historicalArchive.pools[0].id}`,
     `matches/${historicalArchive.matches[0].id}`,
