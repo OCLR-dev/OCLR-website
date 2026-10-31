@@ -242,6 +242,21 @@ history exists. An identical save is a no-op. Other sessions retain their saved
 basis and require the existing dependency reconfirmation flow. Deleting an otherwise
 empty round removes only its unused policy and retains its policy/deletion audit.
 
+### Saved rosters in the private referee workspace (#623)
+
+BP and command invitations use the fixture's saved active teams and memberships.
+They do not require team/captain publication, roster publication or draft
+finalization. The workspace checks the existing edition-scoped referee/Admin
+capability and fixture appointment before loading these minimal identities.
+Former memberships are excluded; archived or unresolved teams remain unavailable.
+
+This removes the reporting-policy message from BP readiness. It does not publish
+private identities or memberships. Saved roster IDs remain part of the dependency
+fingerprint, so edits require the existing explicit recheck rather than silently
+changing recorded BP. Existing fingerprints keep their field layout when the
+saved roster is unchanged. MP result review/approval and public fixture/result
+publication continue through their existing services and policies.
+
 ### Inherited room settings (#620)
 
 The referee workspace uses the **saved round referee policy** for room capacity,
