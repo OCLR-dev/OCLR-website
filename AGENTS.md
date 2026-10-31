@@ -22,6 +22,14 @@ These instructions apply to contributors and coding agents. Maintainer/operator 
 - The registered appearances are `default`, `cute-pastel`, `swiss-minimal`, `claymorphism`, `manga-halftone`, `glassmorphism`, `esports-broadcast`, `retro-arcade`, `frutiger-aero`, `skyline-pop`, `glacier-blue`, `sakura-circuit`, `graphite-arena`, `orbital-pulse`, `prism-overture`, `azure-brush`, `verdant-prelude`, `chromatic-origins` and `frost-waltz`. Other [appearance proposals](docs/design/appearance-backlog/README.md) are design references, not enabled themes or approved tournament data. S10 Skyline Pop (#195), S9 Glacier Blue (#196), S8 Sakura Circuit (#197), S7 Graphite Arena (#198), S6 Orbital Pulse (#346), S5 Prism Overture (#345), S4 Azure Brush (#344), S2 Verdant Prelude (#416), S1 Chromatic Origins (#417) and S3 Frost Waltz (#343) are registered following the organizer’s explicit integration requests; existing defaults are unchanged.
 - The organizer-attested #10 rehearsal remains completed as recorded below. The development-tool maintenance exception has a separate review due **2026-11-05**; see [deployment evidence and maintenance notes](docs/deployment.md). Never substitute historical local results for current CI or deployment checks.
 
+## Writing and communication
+
+Use plain language over jargon, and reference technical details only to the degree that it helps illustrate an idea or your work to the user. Communicate complex concepts in a clear and cohesive manner, and calibrate your writing to the level of background knowledge assumed from the user's prompt and context.
+
+Avoid using slop words or phrases like "Bottom Line:" in conclusions, "delve," "foster," "leverage," "it's worth noting," "importantly," "Question? Answer." or "This isn't about X. It's about Y.", "genuinely" or hyphenated compound descriptions and adjectives. Do not use concluding summary statements such as "In short:..", "The simplest mental model is:...".
+
+State the intended action directly. Avoid adding what you won't do, what will remain unchanged, or how you'll separate or categorize results. Do not use contrastive framing such as "X, not Y" that introduces an unprompted alternative that the user didn't ask about. Avoid invented compound labels like "exact-head checks" and "editorial-row layouts", vague qualifiers, and canned transitions; use plain verbs and prepositions to state the actual relationship.
+
 ## Contributor setup and workflow
 
 - When creating or renaming an issue, follow the current repository title format: `[P0|P1|P2|P3][Module] Concise summary` (choose one priority, for example `[P2][Bracket] 修復 S8 歷史對陣圖顯示不完整與連線缺失`). Before submitting, inspect recent issues and related issues in the same module; reuse their module naming, language and summary style, and choose a priority appropriate to the scope and impact. Do not submit an unprefixed title.
