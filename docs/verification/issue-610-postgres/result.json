@@ -1,0 +1,426 @@
+{
+  "testedCommit": "dcf76ffa4cc53e1afac5f425c3f382c3d4d93684",
+  "date": "2026-10-31",
+  "timeZone": "Asia/Taipei",
+  "startedAt": "2026-10-31T18:04:50+08:00",
+  "nodeVersion": "v24.22.2",
+  "postgresVersion": "postgres (PostgreSQL) 17.11 (Homebrew)",
+  "database": {
+    "kind": "new disposable cluster",
+    "name": "oclr_610_test",
+    "role": "oclr610_test",
+    "host": "127.0.0.1",
+    "port": 56610,
+    "dataDirectory": "/private/tmp/oclr610-pg/data",
+    "migrations": "passed",
+    "stoppedAfterTests": true
+  },
+  "runner": "vitest run --reporter=verbose",
+  "testFilesPassed": 7,
+  "testsPassed": 64,
+  "testsFailed": 0,
+  "testsSkipped": 0,
+  "durationSeconds": 10.95,
+  "environmentRepair": {
+    "removedOrphanShmid": 983044,
+    "sizeBytes": 56,
+    "attachments": 0,
+    "lastPid": 0,
+    "creatorPid": 15254,
+    "creatorConfirmedAbsent": true,
+    "recheckedBeforeRemoval": true,
+    "systemLimitsChanged": false,
+    "existingDatabaseConnections": false,
+    "existingServicesChanged": false
+  },
+  "cases": [
+    {
+      "file": "tests/integration/archive-player-exchange.test.ts",
+      "test": "historical exchange transactions > preserves published plays, source, exclusions and publication time; newly attributable games stay unselected",
+      "durationMs": 185,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-player-exchange.test.ts",
+      "test": "historical exchange transactions > never blesses an already stale private draft or publishes it",
+      "durationMs": 110,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-player-exchange.test.ts",
+      "test": "historical exchange transactions > rolls back roster, statistics, revision and audit if an actual published participant would change teams",
+      "durationMs": 90,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-player-exchange.test.ts",
+      "test": "historical exchange transactions > preserves every published MP part of a multi-source fixture atomically",
+      "durationMs": 111,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-player-exchange.test.ts",
+      "test": "historical exchange transactions > does not revive an already stale published snapshot",
+      "durationMs": 90,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-player-exchange.test.ts",
+      "test": "historical exchange transactions > enforces scoped Admin authority, explicit preservation and strict input",
+      "durationMs": 74,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-player-exchange.test.ts",
+      "test": "historical exchange transactions > serializes concurrent exchanges and does not create a second exchange or release",
+      "durationMs": 74,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-player-exchange.test.ts",
+      "test": "historical exchange transactions > rejects unrelated archive edits in the preservation helper",
+      "durationMs": 67,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > s1 keeps review, release, scope and saved remote reads consistent",
+      "durationMs": 172,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > s2 keeps review, release, scope and saved remote reads consistent",
+      "durationMs": 109,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > s3 keeps review, release, scope and saved remote reads consistent",
+      "durationMs": 130,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > s4 keeps review, release, scope and saved remote reads consistent",
+      "durationMs": 105,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > s5 keeps review, release, scope and saved remote reads consistent",
+      "durationMs": 110,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > s6 keeps review, release, scope and saved remote reads consistent",
+      "durationMs": 107,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > adds a confirmed substitute atomically while preserving reviewed releases and stale drafts",
+      "durationMs": 119,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > rolls back roster, statistics, revision and audit when confirmation invalidates a published exclusion",
+      "durationMs": 90,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > serializes substitute confirmations and does not approve newly attributable games",
+      "durationMs": 87,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > requires a versioned review to exclude a zero-score occupant and publishes only retained scores",
+      "durationMs": 89,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > reserves exceptional reviews for Admin and retains audited immutable source facts",
+      "durationMs": 88,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > persists structured decisions with server-owned provenance, audited versions and private evidence",
+      "durationMs": 96,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > reads legacy published JSON without rewriting or fabricating review evidence",
+      "durationMs": 84,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > imports privately, publishes reviewed games atomically and preserves published data across draft edits",
+      "durationMs": 113,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > rates the same retained games across all approved rooms without counting technical points",
+      "durationMs": 97,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > enforces edition scope, source allowlists, review permissions and versions",
+      "durationMs": 80,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > retains reviewed repeated maps, refuses incomplete sources and survives provider failure",
+      "durationMs": 93,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > serializes concurrent review writes and performs no audit mutation on an identical refresh",
+      "durationMs": 84,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/archive-statistics.test.ts",
+      "test": "historical statistics transactions > hides unpublished editions and stale archive releases",
+      "durationMs": 87,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/directory-statistics.test.ts",
+      "test": "bounded public directory statistics > reads only the visible accepted page in one cache query with minimal output and no provider call",
+      "durationMs": 122,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/directory-statistics.test.ts",
+      "test": "bounded public directory statistics > labels last-good data stale on expiry/429/5xx and hides a deleted profile's saved values",
+      "durationMs": 78,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/directory-statistics.test.ts",
+      "test": "bounded public directory statistics > does not read a private applicant's cached stats through search or other statuses",
+      "durationMs": 95,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/directory-statistics.test.ts",
+      "test": "bounded public directory statistics > reads beyond 24, deduplicates IDs and avoids DB calls for an empty directory",
+      "durationMs": 74,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/directory-statistics.test.ts",
+      "test": "bounded public directory statistics > refreshes only two profiles sequentially and blocks concurrent page fan-out",
+      "durationMs": 127,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/directory-statistics.test.ts",
+      "test": "bounded public directory statistics > preserves cached values and records backoff when a bounded refresh fails",
+      "durationMs": 81,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/historical-archive.test.ts",
+      "test": "historical archive transactions > resolves one published source identity with scoped authority, optimistic revision and audit",
+      "durationMs": 152,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/historical-archive.test.ts",
+      "test": "historical archive transactions > imports privately, keeps source identities out of accounts, and publishes separately",
+      "durationMs": 92,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/historical-archive.test.ts",
+      "test": "historical archive transactions > approves saved historical reviews atomically with scope and revision checks while preserving publication and evidence",
+      "durationMs": 218,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/historical-archive.test.ts",
+      "test": "historical archive transactions > persists an approved draw privately and releases it only on publication",
+      "durationMs": 83,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/historical-archive.test.ts",
+      "test": "historical archive transactions > enforces edition scope, revision, source matching and complete rollback",
+      "durationMs": 74,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/historical-archive.test.ts",
+      "test": "historical archive transactions > prevents changing archive editions back into active competitions",
+      "durationMs": 82,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/historical-archive.test.ts",
+      "test": "historical archive transactions > round-trips source-only identities and pending scores privately without creating accounts",
+      "durationMs": 80,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/historical-archive.test.ts",
+      "test": "historical archive transactions > blocks operational pool creation after archive import",
+      "durationMs": 78,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/historical-archive.test.ts",
+      "test": "historical archive transactions > does not replace an edition that already has operational rounds",
+      "durationMs": 83,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/player-history.test.ts",
+      "test": "UID participation history and saved remote contract > shows every published historical season without any native registration and keeps earlier teams",
+      "durationMs": 138,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/player-history.test.ts",
+      "test": "UID participation history and saved remote contract > deduplicates imported/native registrations against authoritative historical facts",
+      "durationMs": 88,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/player-history.test.ts",
+      "test": "UID participation history and saved remote contract > projects all historical facts through the existing remote participation resource with no extra fields",
+      "durationMs": 114,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/players.test.ts",
+      "test": "public player directory publication boundaries > returns every accepted identity beyond the former 24-player page",
+      "durationMs": 138,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/players.test.ts",
+      "test": "public player directory publication boundaries > counts only accepted participants in a currently published edition",
+      "durationMs": 78,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/players.test.ts",
+      "test": "public player directory publication boundaries > exposes every accepted player, independently of role/roster release",
+      "durationMs": 72,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/players.test.ts",
+      "test": "public player directory publication boundaries > hides roster members when any required publication/finalization flag is removed",
+      "durationMs": 83,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/players.test.ts",
+      "test": "public player directory publication boundaries > honors withdrawn captain publication and unpublished editions at query time",
+      "durationMs": 78,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/players.test.ts",
+      "test": "public player directory publication boundaries > isolates editions and removes nonaccepted identities immediately without leaking private fields",
+      "durationMs": 94,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/players.test.ts",
+      "test": "public player directory publication boundaries > supports bounded search and legacy page links without exposing guessed private identities",
+      "durationMs": 90,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > projects published summaries and SSR overview through the same schema with no private fields",
+      "durationMs": 170,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > keeps public projections identical with a token and allows private configuration only with the matching live scope",
+      "durationMs": 120,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > delivers every accepted player and independently released coach, never pending identity or unreleased captain/team metadata",
+      "durationMs": 116,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > whitelists the expressly public introduction and preserves profile zero/missing/stale semantics",
+      "durationMs": 109,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > returns saved-only profiles across all explicit rulesets, sanitizes cache internals and preserves legacy lookup consumers",
+      "durationMs": 126,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > distinguishes missing provider snapshots from valid public membership and rejects cross-edition guesses",
+      "durationMs": 118,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > keeps historical identity, Captain and recorded Tiers separate from current cached statistics",
+      "durationMs": 89,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > uses only explicit released valid draft rounds, with unknown Tier for withheld or irregular sources",
+      "durationMs": 115,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > paginates the whole list consistently and detects mid-collection changes without truncating the SSR model",
+      "durationMs": 135,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > validates parameters and retains CORS on success, query errors, hidden resources and HEAD",
+      "durationMs": 104,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > performs no provider calls or database writes, and restores ordinary write behavior outside the read scope",
+      "durationMs": 159,
+      "status": "passed"
+    },
+    {
+      "file": "tests/integration/read-api.test.ts",
+      "test": "v1 public/private saved read projections > withdraws published identities on the next request and serves the raw OpenAPI document without a database",
+      "durationMs": 115,
+      "status": "passed"
+    }
+  ],
+  "limits": [
+    "Selected integration coverage only; no full application/browser regression, production import, deployment or release acceptance.",
+    "HTTP provider responses are mocked by existing fixtures; PostgreSQL transactions are real."
+  ]
+}

@@ -1,5 +1,7 @@
 # S5 私人匯入檢查點
 
+最新進度：2026-10-31 已完成四筆 UID 修正及 34 場統計核准發布，S5 維持公開；見[完整發布與回讀證據](s5-statistics-publication.md)。以下各節保留其原始日期的操作檢查點。
+
 2026-10-25，對應 [#288](https://github.com/OCLR-dev/OCLR-website/issues/288)。
 
 來源分析見 [S5 整理文件](s5-archive.md)。主辦者授權「開始整理並匯入」；名單以 MainSheet 為準。

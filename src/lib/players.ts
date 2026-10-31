@@ -1,3 +1,4 @@
+import { archiveTeamPlacement } from "./archive-placement";
 import { and, count, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -40,6 +41,7 @@ export type PublishedPlayer = {
   sourceRole?: "VICE";
   sourceReference?: string;
   placing?: number | null;
+  placingRange?: ReturnType<typeof archiveTeamPlacement>;
 } & Partial<
   Pick<
     import("./read-api-contract").PublicPlayer,
@@ -302,9 +304,15 @@ async function databasePublicPlayer(osuId: number, edition?: string) {
         tier: person.tier,
         sourceRole: person.sourceRole,
         sourceReference: person.source,
-        placing:
-          e.archive.standings.find((s) => s.teamId === person.teamId)?.rank ??
-          null,
+        placingRange: archiveTeamPlacement(e.archive, person.teamId),
+        placing: (() => {
+          const p = archiveTeamPlacement(e.archive!, person.teamId);
+          if (p) return p.start === p.end ? p.start : null;
+          const legacy = e.archive!.standings.find(
+            (s) => s.teamId === person.teamId,
+          );
+          return legacy && legacy.scope === undefined ? legacy.rank : null;
+        })(),
       });
     }
     byEdition.set(e.slug, [...facts.values()]);

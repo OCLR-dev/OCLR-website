@@ -1,3 +1,4 @@
+import { hasStatisticsAdjudication } from "./statistics-snapshot";
 import type { MatchGame, MatchScore, ReviewedResult } from "./match-model";
 import type { HistoricalArchive } from "./historical-archive";
 import {
@@ -43,6 +44,9 @@ export type MatchDetailGame = {
   modsKnown: boolean;
   included: boolean;
   rosterMapping: boolean;
+  excludedReason?: NonNullable<
+    StatisticsSnapshot["excludedGames"]
+  >[number]["reason"];
   scores: MatchDetailScore[];
   withheldScores: number;
   rawTotals: [number | null, number | null];
@@ -241,15 +245,24 @@ export function archiveMatchDetails(
           ),
         ];
       });
-      return detailGame(
-        g,
-        s.source.match.id,
-        revision,
-        included,
-        scores,
-        teamIds,
-        s.rosterTeamGames?.includes(g.id),
-      );
+      return {
+        ...detailGame(
+          g,
+          s.source.match.id,
+          revision,
+          included,
+          scores,
+          teamIds,
+          s.rosterTeamGames?.includes(g.id),
+        ),
+        ...(included
+          ? {}
+          : {
+              excludedReason:
+                s.excludedGames?.find((e) => e.gameId === g.id)?.reason ??
+                ("unknown" as const),
+            }),
+      };
     }),
   );
   return {
@@ -261,8 +274,8 @@ export function archiveMatchDetails(
     games: sortDetailGames(games),
     teamIds,
     failedScorePolicy: "include",
-    technicalAdjudication: snapshots.some(
-      (s) => s.snapshot.technicalAdjudication,
+    technicalAdjudication: snapshots.some((s) =>
+      hasStatisticsAdjudication(s.snapshot),
     ),
     rating: null,
   };

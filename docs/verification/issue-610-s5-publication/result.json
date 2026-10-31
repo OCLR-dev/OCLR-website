@@ -1,0 +1,1257 @@
+{
+  "kind": "s5-organizer-authorized-publication-receipt",
+  "verifiedAt": "2026-10-31T13:41:51.215865+00:00",
+  "issue": "https://github.com/OCLR-dev/OCLR-website/issues/610",
+  "method": "Native authenticated edition Admin UI for writes and JSON downloads; separate Firefox private window for unauthenticated public checks. No direct database connection or credential read.",
+  "authorization": [
+    "Correct Reecho and three captains using existing evidence; retain accepted B28/GF scores and raw differences; import, approve and publish S5 statistics.",
+    "Temporarily hide S5 solely to import corrected archive, then immediately restore publication."
+  ],
+  "archive": {
+    "beforeReechoRevision": 20,
+    "finalRevision": 23,
+    "published": true,
+    "validatedUploadEqualsSavedArchive": true,
+    "allOtherEditionFieldsPreserved": true,
+    "all34AcceptedScoresAndExistingApprovalObjectsPreserved": true,
+    "standingsPreserved": true,
+    "knownPlayers": 73,
+    "unresolvedPositions": 12,
+    "unresolvedRoles": {
+      "coach": 12
+    }
+  },
+  "identityCorrections": [
+    {
+      "username": "Reecho",
+      "teamId": "a",
+      "previousOsuId": 1262507,
+      "osuId": 12624507
+    },
+    {
+      "username": "Azureus",
+      "teamId": "c",
+      "previousUnresolvedId": "c-slot-1",
+      "osuId": 6938658
+    },
+    {
+      "username": "My_Suck_Aim",
+      "teamId": "j",
+      "previousUnresolvedId": "j-slot-1",
+      "osuId": 2361632
+    },
+    {
+      "username": "moe_nyannyan",
+      "teamId": "k",
+      "previousUnresolvedId": "k-slot-1",
+      "osuId": 4087427
+    }
+  ],
+  "publicCoverage": {
+    "reviewedFixtures": 34,
+    "totalFixtures": 34,
+    "scoringGames": 251,
+    "players": 72,
+    "scoreRecords": 1716,
+    "recordedAccuracy": 1716,
+    "recordedCombo": 1716
+  },
+  "offlineRosterCrossCheck": {
+    "retainedRecords": 1716,
+    "retainedZeroRecords": 217,
+    "excludedNonParticipantRecords": 291,
+    "excludedNonParticipantOsuIds": [
+      245276,
+      596803,
+      874891,
+      1371514,
+      3917377,
+      8501053,
+      8678381,
+      9580470,
+      9697769,
+      9755808,
+      10741620,
+      11237954
+    ],
+    "positiveExcludedRecords": [
+      {
+        "osuId": 9755808,
+        "score": 13
+      },
+      {
+        "osuId": 1371514,
+        "score": 3
+      }
+    ],
+    "retainedWhiteCookiesScore16059": true
+  },
+  "rosterTeamOverrideGames": {
+    "a7": [
+      369525150,
+      369526191
+    ],
+    "a8": [
+      369521497,
+      369522576
+    ],
+    "a10": [
+      369540902
+    ],
+    "a15": [
+      371547416,
+      371550964
+    ],
+    "a20": [
+      373779854
+    ],
+    "a21": [
+      373522355
+    ]
+  },
+  "adjudications": [
+    {
+      "fixtureId": "b28",
+      "acceptedScore": [
+        6,
+        2
+      ],
+      "rawScore": [
+        5,
+        3
+      ],
+      "archiveReviewNote": "比分依 MainSheet；紅藍隊由原始 MP 比賽圖池內完整對局的已知 UID 核對。rawScore 未重算，games 留空不代表原房無遊戲，逐局來源保留於獨立 MP 快照。此紀錄等待管理介面核准。 Organizer approval #610 (2026-10-31): retain accepted series score [6, 2]; raw completed pool-game totals imply [5, 3]. Publish actual player scores without inventing awarded points; technical reconciliation approved.",
+      "liveReviewTechnicalAdjudication": true,
+      "liveReviewUsesLegacyBoolean": true,
+      "selectedGameIds": [
+        375831038,
+        375832163,
+        375833696,
+        375834970,
+        375836502,
+        375838050,
+        375839034,
+        375840343
+      ],
+      "excludedScores": [
+        {
+          "gameId": 375831038,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 375832163,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 375833696,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 375834970,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 375836502,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 375838050,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 375839034,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 375840343,
+          "osuId": 3917377
+        }
+      ],
+      "sourceComplete": true,
+      "blockers": [],
+      "sourceScoreUidColorPassedAndNormalizedModsMatchOfflineSnapshot": true
+    },
+    {
+      "fixtureId": "gf",
+      "acceptedScore": [
+        7,
+        4
+      ],
+      "rawScore": [
+        8,
+        3
+      ],
+      "archiveReviewNote": "比分依 MainSheet；紅藍隊由原始 MP 比賽圖池內完整對局的已知 UID 核對。rawScore 未重算，games 留空不代表原房無遊戲，逐局來源保留於獨立 MP 快照。此紀錄等待管理介面核准。 Organizer approval #610 (2026-10-31): retain accepted series score [7, 4]; raw completed pool-game totals imply [8, 3]. Publish actual player scores without inventing awarded points; technical reconciliation approved.",
+      "liveReviewTechnicalAdjudication": true,
+      "liveReviewUsesLegacyBoolean": true,
+      "selectedGameIds": [
+        384403977,
+        384405479,
+        384408472,
+        384410218,
+        384411885,
+        384413038,
+        384414465,
+        384415997,
+        384417432,
+        384419406,
+        384421382
+      ],
+      "excludedScores": [
+        {
+          "gameId": 384403977,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384405479,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384408472,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384410218,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384411885,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384413038,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384414465,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384415997,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384417432,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384419406,
+          "osuId": 3917377
+        },
+        {
+          "gameId": 384421382,
+          "osuId": 3917377
+        }
+      ],
+      "sourceComplete": true,
+      "blockers": [],
+      "sourceScoreUidColorPassedAndNormalizedModsMatchOfflineSnapshot": true
+    }
+  ],
+  "fixtures": [
+    {
+      "fixtureId": "a1",
+      "mpId": 70214161,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        5,
+        1
+      ],
+      "auditedRawScore": [
+        5,
+        1
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        367534051,
+        367535209,
+        367536192,
+        367537588,
+        367538898,
+        367540657
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T12:59:54.728Z",
+      "publishedAt": "2026-10-31T13:03:33.499Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a2",
+      "mpId": 70217154,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        5,
+        2
+      ],
+      "auditedRawScore": [
+        5,
+        2
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        367549814,
+        367551519,
+        367553344,
+        367554902,
+        367557216,
+        367558835,
+        367561643
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T12:59:56.909Z",
+      "publishedAt": "2026-10-31T13:05:25.427Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a3",
+      "mpId": 70219167,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        3,
+        5
+      ],
+      "auditedRawScore": [
+        3,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        367556251,
+        367557705,
+        367559731,
+        367561298,
+        367562576,
+        367565227,
+        367567595,
+        367569605
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T12:59:58.003Z",
+      "publishedAt": "2026-10-31T13:05:55.086Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a4",
+      "mpId": 70211567,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        5,
+        1
+      ],
+      "auditedRawScore": [
+        5,
+        1
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        367521843,
+        367523448,
+        367524651,
+        367526024,
+        367527333,
+        367528481
+      ],
+      "version": 8,
+      "importedAt": "2026-10-31T13:00:00.190Z",
+      "publishedAt": "2026-10-31T13:06:06.948Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a5",
+      "mpId": 70216682,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        2,
+        5
+      ],
+      "auditedRawScore": [
+        2,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        367545447,
+        367547386,
+        367549492,
+        367551388,
+        367552891,
+        367554591,
+        367555887
+      ],
+      "version": 8,
+      "importedAt": "2026-10-31T13:00:01.339Z",
+      "publishedAt": "2026-10-31T13:06:40.431Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a6",
+      "mpId": 70279705,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        0,
+        5
+      ],
+      "auditedRawScore": [
+        0,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        367874371,
+        367875765,
+        367877262,
+        367878533,
+        367880350
+      ],
+      "version": 8,
+      "importedAt": "2026-10-31T13:00:02.488Z",
+      "publishedAt": "2026-10-31T13:06:52.025Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a7",
+      "mpId": 70607908,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        0,
+        5
+      ],
+      "auditedRawScore": [
+        0,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        369525150,
+        369526191,
+        369527242,
+        369528422,
+        369529919
+      ],
+      "version": 9,
+      "importedAt": "2026-10-31T13:00:03.547Z",
+      "publishedAt": "2026-10-31T13:10:52.452Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a8",
+      "mpId": 70607142,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        5,
+        1
+      ],
+      "auditedRawScore": [
+        5,
+        1
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        369521497,
+        369522576,
+        369523932,
+        369525042,
+        369526232,
+        369527595
+      ],
+      "version": 6,
+      "importedAt": "2026-10-31T13:00:04.670Z",
+      "publishedAt": "2026-10-31T13:14:04.927Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a9",
+      "mpId": 70611688,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        5,
+        1
+      ],
+      "auditedRawScore": [
+        5,
+        1
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        369546558,
+        369548097,
+        369549759,
+        369552118,
+        369554109,
+        369555784
+      ],
+      "version": 6,
+      "importedAt": "2026-10-31T13:00:05.753Z",
+      "publishedAt": "2026-10-31T13:16:16.669Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a10",
+      "mpId": 70610187,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        1,
+        5
+      ],
+      "auditedRawScore": [
+        1,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        369539452,
+        369540902,
+        369542533,
+        369544264,
+        369546202,
+        369548527
+      ],
+      "version": 8,
+      "importedAt": "2026-10-31T13:00:07.898Z",
+      "publishedAt": "2026-10-31T13:17:16.141Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a11",
+      "mpId": 70673286,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        5,
+        3
+      ],
+      "auditedRawScore": [
+        5,
+        3
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        369865541,
+        369867282,
+        369868811,
+        369869754,
+        369871294,
+        369872660,
+        369874030,
+        369875733
+      ],
+      "version": 8,
+      "importedAt": "2026-10-31T13:00:09.067Z",
+      "publishedAt": "2026-10-31T13:17:28.147Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a12",
+      "mpId": 70672935,
+      "poolId": "pool-1",
+      "acceptedScore": [
+        0,
+        5
+      ],
+      "auditedRawScore": [
+        0,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        369861159,
+        369862954,
+        369864533,
+        369866142,
+        369867541
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:10.105Z",
+      "publishedAt": "2026-10-31T13:17:52.697Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a13",
+      "mpId": 71008526,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        5,
+        2
+      ],
+      "auditedRawScore": [
+        5,
+        2
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        371520029,
+        371520875,
+        371521983,
+        371523110,
+        371524232,
+        371525165,
+        371526418
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:11.219Z",
+      "publishedAt": "2026-10-31T13:18:03.710Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a14",
+      "mpId": 71012162,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        4,
+        5
+      ],
+      "auditedRawScore": [
+        4,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        371538172,
+        371539357,
+        371540564,
+        371541768,
+        371543385,
+        371544581,
+        371546904,
+        371548358,
+        371549535
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:12.331Z",
+      "publishedAt": "2026-10-31T13:18:53.866Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a15",
+      "mpId": 71012247,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        1,
+        5
+      ],
+      "auditedRawScore": [
+        1,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        371542467,
+        371544167,
+        371545755,
+        371547416,
+        371549244,
+        371550964
+      ],
+      "version": 8,
+      "importedAt": "2026-10-31T13:00:14.691Z",
+      "publishedAt": "2026-10-31T13:19:05.647Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a16",
+      "mpId": 71083712,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        2,
+        5
+      ],
+      "auditedRawScore": [
+        2,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        371869336,
+        371871217,
+        371872793,
+        371874401,
+        371877221,
+        371879577,
+        371883303
+      ],
+      "version": 8,
+      "importedAt": "2026-10-31T13:00:16.706Z",
+      "publishedAt": "2026-10-31T13:19:32.495Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a17",
+      "mpId": 71079961,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        5,
+        0
+      ],
+      "auditedRawScore": [
+        5,
+        0
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        371858704,
+        371860219,
+        371861838,
+        371863182,
+        371866151
+      ],
+      "version": 6,
+      "importedAt": "2026-10-31T13:00:17.843Z",
+      "publishedAt": "2026-10-31T13:19:49.683Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a18",
+      "mpId": 71012199,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        5,
+        3
+      ],
+      "auditedRawScore": [
+        5,
+        3
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        371537375,
+        371538905,
+        371540344,
+        371542002,
+        371543606,
+        371545075,
+        371547613,
+        371549930
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:20.019Z",
+      "publishedAt": "2026-10-31T13:20:19.477Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a19",
+      "mpId": 71484949,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        4,
+        5
+      ],
+      "auditedRawScore": [
+        4,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        373841570,
+        373842834,
+        373844691,
+        373845771,
+        373846735,
+        373848668,
+        373850267,
+        373852527,
+        373853708
+      ],
+      "version": 6,
+      "importedAt": "2026-10-31T13:00:22.205Z",
+      "publishedAt": "2026-10-31T13:20:37.760Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a20",
+      "mpId": 71472736,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        2,
+        5
+      ],
+      "auditedRawScore": [
+        2,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        373775655,
+        373776882,
+        373778540,
+        373779854,
+        373781113,
+        373782470,
+        373783629
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:24.408Z",
+      "publishedAt": "2026-10-31T13:21:02.648Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a21",
+      "mpId": 71422298,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        0,
+        5
+      ],
+      "auditedRawScore": [
+        0,
+        5
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        373522355,
+        373523588,
+        373525048,
+        373526359,
+        373528382
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:25.559Z",
+      "publishedAt": "2026-10-31T13:21:14.416Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a22",
+      "mpId": 71421418,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        5,
+        1
+      ],
+      "auditedRawScore": [
+        5,
+        1
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        373515278,
+        373516367,
+        373517428,
+        373518802,
+        373520287,
+        373521930
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:26.628Z",
+      "publishedAt": "2026-10-31T13:21:40.750Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a23",
+      "mpId": 71419226,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        5,
+        4
+      ],
+      "auditedRawScore": [
+        5,
+        4
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        373505122,
+        373506237,
+        373507586,
+        373509009,
+        373510124,
+        373511450,
+        373512446,
+        373513471,
+        373514785
+      ],
+      "version": 6,
+      "importedAt": "2026-10-31T13:00:28.815Z",
+      "publishedAt": "2026-10-31T13:21:58.368Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a24",
+      "mpId": 71422840,
+      "poolId": "pool-2",
+      "acceptedScore": [
+        5,
+        2
+      ],
+      "auditedRawScore": [
+        5,
+        2
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        373524016,
+        373526336,
+        373528059,
+        373530014,
+        373532853,
+        373534794,
+        373537966
+      ],
+      "version": 8,
+      "importedAt": "2026-10-31T13:00:29.925Z",
+      "publishedAt": "2026-10-31T13:22:25.021Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a25",
+      "mpId": 71900819,
+      "poolId": "pool-3",
+      "acceptedScore": [
+        6,
+        0
+      ],
+      "auditedRawScore": [
+        6,
+        0
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        375835296,
+        375836156,
+        375837307,
+        375838426,
+        375839586,
+        375840807
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:31.033Z",
+      "publishedAt": "2026-10-31T13:22:36.448Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "a26",
+      "mpId": 71851009,
+      "poolId": "pool-3",
+      "acceptedScore": [
+        6,
+        4
+      ],
+      "auditedRawScore": [
+        6,
+        4
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        375595144,
+        375596827,
+        375598921,
+        375600682,
+        375602177,
+        375604187,
+        375605803,
+        375607503,
+        375608760,
+        375610572
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:33.206Z",
+      "publishedAt": "2026-10-31T13:23:05.588Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "b27",
+      "mpId": 71910710,
+      "poolId": "pool-3",
+      "acceptedScore": [
+        3,
+        6
+      ],
+      "auditedRawScore": [
+        3,
+        6
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        375888470,
+        375889401,
+        375890664,
+        375891834,
+        375893330,
+        375895295,
+        375896576,
+        375897833,
+        375898969
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:34.321Z",
+      "publishedAt": "2026-10-31T13:23:18.020Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "b28",
+      "mpId": 71900068,
+      "poolId": "pool-3",
+      "acceptedScore": [
+        6,
+        2
+      ],
+      "auditedRawScore": [
+        5,
+        3
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        375831038,
+        375832163,
+        375833696,
+        375834970,
+        375836502,
+        375838050,
+        375839034,
+        375840343
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:35.411Z",
+      "publishedAt": "2026-10-31T13:23:44.433Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "wf",
+      "mpId": 72198819,
+      "poolId": "pool-3",
+      "acceptedScore": [
+        2,
+        7
+      ],
+      "auditedRawScore": [
+        2,
+        7
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        377366374,
+        377367836,
+        377369644,
+        377371725,
+        377374200,
+        377375505,
+        377376649,
+        377378134,
+        377380298
+      ],
+      "version": 8,
+      "importedAt": "2026-10-31T13:00:37.604Z",
+      "publishedAt": "2026-10-31T13:23:56.790Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "b30",
+      "mpId": 72307852,
+      "poolId": "pool-3",
+      "acceptedScore": [
+        1,
+        6
+      ],
+      "auditedRawScore": [
+        1,
+        6
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        377934681,
+        377935570,
+        377937051,
+        377938390,
+        377939531,
+        377940897,
+        377942144
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:38.743Z",
+      "publishedAt": "2026-10-31T13:25:09.413Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "b31",
+      "mpId": 72304259,
+      "poolId": "pool-3",
+      "acceptedScore": [
+        6,
+        4
+      ],
+      "auditedRawScore": [
+        6,
+        4
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        377914687,
+        377916340,
+        377917723,
+        377918933,
+        377920290,
+        377921906,
+        377923199,
+        377924345,
+        377925810,
+        377927382
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:40.896Z",
+      "publishedAt": "2026-10-31T13:25:22.665Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "b32",
+      "mpId": 72596333,
+      "poolId": "pool-4",
+      "acceptedScore": [
+        6,
+        2
+      ],
+      "auditedRawScore": [
+        6,
+        2
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        379439378,
+        379440264,
+        379441482,
+        379442742,
+        379443912,
+        379445221,
+        379446266,
+        379446960
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:43.114Z",
+      "publishedAt": "2026-10-31T13:25:50.688Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "lf",
+      "mpId": 72703300,
+      "poolId": "pool-4",
+      "acceptedScore": [
+        6,
+        7
+      ],
+      "auditedRawScore": [
+        6,
+        7
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        380029396,
+        380030607,
+        380032375,
+        380033375,
+        380034751,
+        380036427,
+        380037788,
+        380039970,
+        380041180,
+        380042594,
+        380043530,
+        380045145,
+        380046898
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:45.321Z",
+      "publishedAt": "2026-10-31T13:26:04.113Z",
+      "changes": false,
+      "stale": false
+    },
+    {
+      "fixtureId": "gf",
+      "mpId": 73600572,
+      "poolId": "pool-4",
+      "acceptedScore": [
+        7,
+        4
+      ],
+      "auditedRawScore": [
+        8,
+        3
+      ],
+      "includedGameIdsVerifiedInNativeReview": [
+        384403977,
+        384405479,
+        384408472,
+        384410218,
+        384411885,
+        384413038,
+        384414465,
+        384415997,
+        384417432,
+        384419406,
+        384421382
+      ],
+      "version": 5,
+      "importedAt": "2026-10-31T13:00:47.511Z",
+      "publishedAt": "2026-10-31T13:26:37.762Z",
+      "changes": false,
+      "stale": false
+    }
+  ],
+  "publicChecks": [
+    {
+      "url": "https://oclr.org/tournaments/s5/statistics",
+      "unauthenticated": true,
+      "coverageMatches": true,
+      "all34CoverageEntriesPublished": true,
+      "correctedPlayerLinksVisible": true
+    },
+    {
+      "url": "https://oclr.org/tournaments/s5/matches/b28",
+      "unauthenticated": true,
+      "acceptedScore": [
+        6,
+        2
+      ],
+      "reviewedActualWins": [
+        5,
+        3
+      ],
+      "technicalNoticeVisible": true
+    },
+    {
+      "url": "https://oclr.org/tournaments/s5/matches/gf",
+      "unauthenticated": true,
+      "acceptedScore": [
+        7,
+        4
+      ],
+      "reviewedActualWins": [
+        8,
+        3
+      ],
+      "technicalNoticeVisible": true
+    }
+  ],
+  "localReadbacks": [
+    {
+      "filename": "s5-live-before-reecho-20261031.json",
+      "sha256": "b70c27fa428bb787423c04131bf082fcc446bd0dc4ac21e543b50989db52c870",
+      "committed": false
+    },
+    {
+      "filename": "s5-uid-statistics-approved-20261031.json",
+      "sha256": "c2a32fd385f80a80ae33d4afabb09d840c3e7d5b9b9e380f9b2ea8d6b28129dd",
+      "committed": false
+    },
+    {
+      "filename": "s5-live-after-publication-20261031.json",
+      "sha256": "27c61cbcb87e6a58497ee7a1457e3171d62a6d5ae28c9d2c4f0621b0f34d23d5",
+      "committed": false
+    },
+    {
+      "filename": "s5-statistics-live-published-20261031.json",
+      "sha256": "df6bc36327d60250b0161f174b52000cd38ef4b1067c987cb1fb82513e715f3d",
+      "committed": false
+    },
+    {
+      "filename": "s5-statistics-b28-published-20261031.json",
+      "sha256": "ddae907ffc9aaf15d37c00b02d9ae8c8bef764c9e7682a61794001e195c2daa6",
+      "committed": false
+    },
+    {
+      "filename": "s5-statistics-gf-published-20261031.json",
+      "sha256": "db80da0635ad812e9016e90bf3866ae4b60dda00e0d8d5f8b037d78537c43ca0",
+      "committed": false
+    }
+  ],
+  "limitations": [
+    "This receipt does not deploy or establish deployment of the structured StatisticsSnapshot changes on the feature branch. Live B28/GF review readbacks still use the legacy technicalAdjudication boolean.",
+    "Original full admin downloads remain local and are not copied into repository fixtures.",
+    "Unknown coach UIDs, official schedule time zone/dates and unresolved other-season evidence remain unknown.",
+    "Targeted native browser acceptance is not a full desktop/mobile E2E suite or CI pass."
+  ]
+}

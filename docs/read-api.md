@@ -370,3 +370,14 @@ choices marked `unpublished`, solely for authorized private configuration.
 Public fixture/result and group publication still require official finalized,
 published teams. Remote frontends need this backend contract for these controls;
 older backends do not supply the new setup behavior.
+
+
+## Historical metadata additions (v1.14.0, #610)
+
+Optional `placingRange` on public participation retains start/end, official and
+tied facts. Optional match-game `excludedReason` provides the reviewed enum (or
+unknown) without exposing reviewer evidence. Authorized statistics workspaces
+add optional structured adjudication, excludedGames, reviewedBy/reviewedAt and
+evidenceUrl. Existing technical notices stay boolean presentation flags; they are
+derived from structured snapshots. See [archive metadata](archive-metadata.md).
+These additions do not grant read tokens any business write capability.
