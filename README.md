@@ -119,9 +119,6 @@ Artwork and tournament dates shown in [design references](docs/design/) are exam
 - [Shi Thi](https://osu.ppy.sh/users/3094900)
 - [qi_e](https://osu.ppy.sh/users/6963321)
 - [\[SHK\]ShandenYMD](https://osu.ppy.sh/users/13413713)
-
-## Contributors
-
 - [Muziyami](https://osu.ppy.sh/users/7003013)
 
 S3 Frost Waltz (`frost-waltz`, #343) adds the approved crystalline snowflake waltz appearance. See [design and verification](docs/design/season-themes/s3/DESIGN.md) and [migration / update guidance](docs/deployment.md). Existing defaults are unchanged.
