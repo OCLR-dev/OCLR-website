@@ -11,6 +11,9 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import {
+  captains,
+  memberships,
+  teams,
   editionState,
   fixtureReferees,
   fixtureStreams,
@@ -215,6 +218,87 @@ describe.skipIf(!url)("private persistent referee workspace", () => {
     expect(read.readiness).toContain(
       "The round referee policy has not been configured.",
     );
+  });
+  it("allows private unfinalized teams to record BP and invite saved members without publishing them", async () => {
+    await db()
+      .update(teams)
+      .set({
+        identityPublished: false,
+        rosterPublished: false,
+        finalizedAt: null,
+      })
+      .where(eq(teams.editionSlug, "test-cup"));
+    await db()
+      .update(captains)
+      .set({ published: false })
+      .where(eq(captains.editionSlug, "test-cup"));
+    w = await refereeWorkspace(referee, "test-cup", fixtureId);
+    const protectedMessage =
+      "Both teams must have finalized published identities and rosters before reporting.";
+    expect(w.readiness).not.toContain(protectedMessage);
+    expect(w.teams.every((t) => t.members.length === 2)).toBe(true);
+    await configure();
+    expect(w.readiness).toEqual([]);
+    await command({
+      action: "record_selection",
+      entryId: w.maps.find((m) => m.category !== "TB")!.id,
+    });
+    expect(w.projection.activeSelections).toHaveLength(1);
+    const invites = refereeCommands({
+      settings: w.defaultSettings,
+      policy: w.policy!.commands,
+      rules: w.rules,
+      teams: w.teams,
+      selectedMap: null,
+    }).filter((c) => c.kind === "invite");
+    expect(invites.map((c) => c.playerName).sort()).toEqual(
+      w.teams.flatMap((t) => t.members.map((m) => m.username)).sort(),
+    );
+    expect(invites).toHaveLength(4);
+    expect(
+      (await db().select().from(teams)).every(
+        (t) =>
+          !t.identityPublished && !t.rosterPublished && t.finalizedAt === null,
+      ),
+    ).toBe(true);
+    expect(
+      (await db().select().from(captains)).every((c) => !c.published),
+    ).toBe(true);
+    await expect(
+      fixtureForReview(referee, "test-cup", fixtureId),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+  it("excludes former members, tracks saved roster edits, and does not expose archived or unresolved teams", async () => {
+    await configure();
+    const old = w;
+    const member = w.teams[0].members[0];
+    await db()
+      .update(memberships)
+      .set({ leftAt: new Date() })
+      .where(
+        and(
+          eq(memberships.teamId, w.teams[0].id),
+          eq(memberships.userId, member.osuId),
+        ),
+      );
+    w = await refereeWorkspace(referee, "test-cup", fixtureId);
+    expect(w.teams[0].members.some((m) => m.osuId === member.osuId)).toBe(
+      false,
+    );
+    expect(w.dependencyFingerprint).not.toBe(old.dependencyFingerprint);
+    await expect(
+      command({ action: "record_selection", entryId: w.maps[0].id }),
+    ).rejects.toMatchObject({ status: 409 });
+    await db()
+      .update(teams)
+      .set({ archivedAt: new Date() })
+      .where(eq(teams.id, w.teams[0].id));
+    w = await refereeWorkspace(referee, "test-cup", fixtureId);
+    expect(w.readiness).toContain("Both fixture teams must be resolved.");
+    expect(w.teams).toHaveLength(1);
+    await expect(
+      refereeWorkspace(outsider, "test-cup", fixtureId),
+    ).rejects.toMatchObject({ status: 403 });
   });
   it("initializes the first session with the newly configured command defaults", async () => {
     await configure();

@@ -242,6 +242,21 @@ history exists. An identical save is a no-op. Other sessions retain their saved
 basis and require the existing dependency reconfirmation flow. Deleting an otherwise
 empty round removes only its unused policy and retains its policy/deletion audit.
 
+### Saved rosters in the private referee workspace (#623)
+
+BP and command invitations use the fixture's saved active teams and memberships.
+They do not require team/captain publication, roster publication or draft
+finalization. The workspace checks the existing edition-scoped referee/Admin
+capability and fixture appointment before loading these minimal identities.
+Former memberships are excluded; archived or unresolved teams remain unavailable.
+
+This removes the reporting-policy message from BP readiness. It does not publish
+private identities or memberships. Saved roster IDs remain part of the dependency
+fingerprint, so edits require the existing explicit recheck rather than silently
+changing recorded BP. Existing fingerprints keep their field layout when the
+saved roster is unchanged. MP result review/approval and public fixture/result
+publication continue through their existing services and policies.
+
 ### Inherited room settings (#620)
 
 The referee workspace uses the **saved round referee policy** for room capacity,
@@ -308,6 +323,11 @@ Room capacity and players-per-team are distinct. The map mode comes from the
 round's scoring rules; Mods/NF/Freemod and timer defaults require explicit policy.
 `make` creates a new room through BanchoBot; `name` renames an existing room.
 `addref` requires the osu! room creator and grants room control, not a website role.
+Each team has an explicit **Invite captain** command using its saved captain UID
+and osu! username, even when the member list is empty (#626). Captains are listed
+first and deduplicated by UID against the team's remaining invite list. Missing or
+invalid saved identities keep that invitation unavailable; preparing/copying is
+still separate from sending the IRC command.
 Player invites include every member of both saved playing rosters, including
 captains and substitutes, resolving roster membership through saved UID relationships and
 using saved usernames (spaces converted to underscores) in invitation text. Each command

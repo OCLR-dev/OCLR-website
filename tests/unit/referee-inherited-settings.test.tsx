@@ -45,6 +45,23 @@ describe("inherited referee room settings", () => {
     ])
       expect(html).not.toContain(removed);
   });
+  it("shows explicit captain invitations even when saved member lists are empty", () => {
+    const data = workspace();
+    const html = renderToStaticMarkup(
+      <RefereeCommands
+        stage="preparation"
+        settings={data.defaultSettings}
+        policy={data.policy!.commands}
+        rules={data.rules}
+        teams={data.teams}
+        selectedMap={null}
+      />,
+    );
+    expect(html).toContain("Invite captain: {team}");
+    expect(html).toContain("!mp invite SyntheticBlue");
+    expect(html).toContain("!mp invite SyntheticRed");
+    expect(html.match(/!mp invite /g)).toHaveLength(2);
+  });
   it("leaves missing saved values unavailable rather than inventing room settings or a streamer", () => {
     const data = workspace();
     data.defaultSettings.roomSize = null;

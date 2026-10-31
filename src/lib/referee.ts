@@ -6,6 +6,7 @@ import {
   staffRoles,
   fixtures,
   mappoolEntries,
+  memberships,
   mappools,
   refereeEvents,
   refereeRoundPolicies,
@@ -31,7 +32,6 @@ import {
 import { scoringRulesSchema } from "./competition-model";
 import { remoteMode } from "./data-source";
 import { persistRoundRefereePolicy } from "./round-referee-policy";
-import { fixtureForReview } from "./fixtures";
 import { HttpError } from "./http";
 import {
   defaultRefereeRoomName,
@@ -179,7 +179,13 @@ export async function readRefereeWorkspace(
     ? await reader
         .select()
         .from(teams)
-        .where(and(eq(teams.editionSlug, slug), inArray(teams.id, ids)))
+        .where(
+          and(
+            eq(teams.editionSlug, slug),
+            inArray(teams.id, ids),
+            isNull(teams.archivedAt),
+          ),
+        )
     : [];
   const names = teamRows.length
     ? await reader
@@ -234,31 +240,30 @@ export async function readRefereeWorkspace(
   if (orderedTeams.length !== 2)
     readiness.push("Both fixture teams must be resolved.");
   else {
-    try {
-      // Reuse the finalized-team and appointment boundary; expose only saved playing identities.
-      const review = await fixtureForReview(
-        actor,
-        slug,
-        fixtureId,
-        reader,
-        true,
+    // This private workspace already checked edition and fixture appointment.
+    // BP and invitations use saved active memberships, including unpublished drafts.
+    const members = await reader
+      .select({
+        teamId: memberships.teamId,
+        osuId: users.osuId,
+        username: users.username,
+      })
+      .from(memberships)
+      .innerJoin(users, eq(users.osuId, memberships.userId))
+      .where(and(inArray(memberships.teamId, ids), isNull(memberships.leftAt)));
+    for (const team of orderedTeams)
+      commandRosters.set(
+        team.id,
+        members
+          .filter((m) => m.teamId === team.id)
+          .map(({ osuId, username }) => ({ osuId, username })),
       );
-      for (const team of review.teams)
-        commandRosters.set(
-          team.id,
-          team.members.map((member) => ({
-            osuId: member.osuId,
-            username: member.username,
-          })),
-        );
-      officialDependencies = review.teams.map((t) => ({
-        id: t.id,
-        members: t.members.map((m) => m.osuId).sort((a, b) => a - b),
-      }));
-    } catch (error) {
-      if (!(error instanceof HttpError) || error.status !== 409) throw error;
-      readiness.push(error.message);
-    }
+    officialDependencies = orderedTeams.map((team) => ({
+      id: team.id,
+      members: (commandRosters.get(team.id) ?? [])
+        .map((member) => member.osuId)
+        .sort((a, b) => a - b),
+    }));
   }
   if (!rules)
     readiness.push("The round scoring rules have not been configured.");
