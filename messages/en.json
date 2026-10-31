@@ -3592,6 +3592,16 @@
     "mb2cfe7c6cab4": "No matching BanchoBot reply was confirmed. Check the room before sending another command.",
     "m64ca0190bae5": "This command is not supported by the local IRC relay.",
     "m1cbb5bc84d57": "The local room or connection changed before this command could be sent.",
-    "mab655deee006": "The local app rejected this command before sending. Check operation records and room state in OCLR IRC."
+    "mab655deee006": "The local app rejected this command before sending. Check operation records and room state in OCLR IRC.",
+    "m5b035b0fc9fd": "Authorize this streaming console to read your assigned matches. Your match records will not be changed.",
+    "md8206ca64f2c": "Authorize and connect Overlay",
+    "mad27c5d4b827": "Start the connection from the streaming console. Manual token copying remains available.",
+    "m216cf34e491d": "Connecting to your streaming console…",
+    "m691577553db6": "Connected. Return to your streaming console.",
+    "mc56a59748695": "Copy token manually",
+    "m86e5755ed199": "Connect OCLR Overlay",
+    "m0c743ef0cf67": "Sign in with osu! to connect your streaming console. No token copying is needed.",
+    "m9be6906cd558": "The console did not confirm the connection. Copy the token or start again from the console.",
+    "mcdd06185b333": "Connection failed. Please try again."
   }
 }

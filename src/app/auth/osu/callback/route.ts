@@ -8,6 +8,8 @@ import { createSession, revokeSession } from "@/lib/auth/sessions";
 import { cookieOptions, sessionCookie, stateCookie } from "@/lib/auth/config";
 import { appUrl } from "@/lib/http";
 import { observeLoginNames } from "@/lib/player-identity";
+import { streamingOAuthReturn } from "@/lib/streaming-connect-model";
+import { streamingOrigins } from "@/lib/streaming-api";
 export async function GET(request: NextRequest) {
   const origin = appUrl();
   let response: NextResponse;
@@ -41,8 +43,18 @@ export async function GET(request: NextRequest) {
       await observeLoginNames(identity.id, identity.previous_usernames ?? []);
       const session = await createSession(identity.id);
       await revokeSession(request.cookies.get(sessionCookie())?.value);
+      const streamingCookie = request.cookies.get(
+        `${stateCookie()}_streaming`,
+      )?.value;
+      const streamingReturn = streamingCookie
+        ? streamingOAuthReturn(
+            streamingCookie,
+            consumed.stateHash,
+            streamingOrigins(),
+          )
+        : null;
       response = NextResponse.redirect(
-        `${origin}${consumed.desktopRequestId ? `/desktop/authorize?request_id=${consumed.desktopRequestId}` : "/dashboard"}`,
+        `${origin}${consumed.desktopRequestId ? `/desktop/authorize?request_id=${consumed.desktopRequestId}` : (streamingReturn ?? "/dashboard")}`,
         303,
       );
       response.cookies.set(sessionCookie(), session.token, {
@@ -54,6 +66,10 @@ export async function GET(request: NextRequest) {
     response = NextResponse.redirect(`${origin}/login?error=failed`, 303);
   }
   response.cookies.set(stateCookie(), "", { ...cookieOptions(), maxAge: 0 });
+  response.cookies.set(`${stateCookie()}_streaming`, "", {
+    ...cookieOptions(),
+    maxAge: 0,
+  });
   response.headers.set("Cache-Control", "no-store");
   response.headers.set("Referrer-Policy", "no-referrer");
   return response;

@@ -162,9 +162,10 @@ const rows = files.map((file) => {
     file.includes("/admin/backups/") ||
     file.endsWith("/backup-manager.tsx") ||
     file.includes("/api/streaming/") ||
-    file.includes("/streaming/[edition]/page") ||
+    file.includes("/streaming/[edition]/") ||
     file === "src/app/streaming/page.tsx" ||
     file.endsWith("/streaming-access.tsx") ||
+    file.endsWith("/streaming-connect.tsx") ||
     /\/api\/games\/|\/auth\/|\/api\/health\/|\/api\/developer\/|\/registrations\/export\//.test(
       file,
     );
@@ -268,7 +269,7 @@ const pages = files
   .filter(
     (p) =>
       p.endsWith("/page.tsx") &&
-      !p.includes("/streaming/[edition]/page") &&
+      !p.includes("/streaming/[edition]/") &&
       p !== "src/app/streaming/page.tsx" &&
       !p.includes("/admin/backups/") &&
       !p.includes("/schedule/requests/") &&
