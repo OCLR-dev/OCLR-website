@@ -256,12 +256,21 @@ control characters or injected extra command lines.
 
 ### During play
 
-Selecting a map prepares an IRC command without recording a selection. The browser
-queues it with the intended pool entry, expected revision and dependency fingerprint.
-The server validates intent before queueing and again when applying a matching IRC
-confirmation. Queued, sending, sent, failed and unknown statuses never advance BP;
-record_failed means IRC confirmation arrived but the authoritative ledger rejected
-the stale or conflicting intent. Review the current state before further action. The ledger
+Choosing a map in a selector only prepares a command. Pressing a team's Ban/Pick
+button saves `record_selection` immediately (#612), using the existing revision,
+dependency, permission and idempotency checks. On a successful save, the UI advances
+BP and prepares the independent map command. No IRC connection or receipt is needed
+to save BP. Failed/conflicting saves do not advance the displayed ledger; a lost
+response must be retried with the same request key.
+
+New UI queues contain command text without a deferred selection intent. Sending,
+confirmation, failure or an unknown IRC outcome neither adds a second BP event nor
+rolls back the saved decision. Pending IRC operations do not block further legal BP
+records. Command statuses still describe actual transport/room evidence, not BP save
+success. Simulation follows the same click-first behavior; simulated sending never
+records a second selection. Older API clients/queued commands carrying a selection
+intent keep their versioned confirmation workflow for compatibility; `record_failed`
+continues to describe those legacy stale/conflicting deferred intents. The ledger
 separates picking team from winner. Each pick has its own numbered attempts;
 replays preserve prior attempts and consume no new pick. An optional round
 `maxReplaysPerMap` caps additional attempts (two replays allow three attempts in

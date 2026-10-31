@@ -3583,6 +3583,8 @@
     "m00231e7f7512": "IRC credentials stay in the desktop app. The launch link does not sign you in or send commands.",
     "m9316a4c1346c": "Check the previous room creation in the local IRC app before reconnecting.",
     "m41cfae7a8d0a": "The IRC room binding changed.",
-    "mcf7f3858d20d": "No dispatched room creation."
+    "mcf7f3858d20d": "No dispatched room creation.",
+    "mccd5aed3aa4d": "Recorded: {value0}",
+    "m497921eda6bc": "Unable to send this command. Check its contents and try again."
   }
 }

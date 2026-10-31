@@ -75,8 +75,7 @@ export function RefereePanel({
   const [ircSelection, setIrcSelection] = useState<{
     entryId: string;
     text: string;
-    stepIndex: number;
-    teamId: string | null;
+    label: string;
   } | null>(null);
   const [sentCommands, setSentCommands] = useState<string[]>([]);
   function prepareCommand(text: string) {
@@ -94,6 +93,7 @@ export function RefereePanel({
   const [notice, setNotice] = useState("");
   const [uncertain, setUncertain] = useState(false);
   const pending = useRef<RefereeCommand | null>(null);
+  const writing = useRef(false);
   const endpoint = `/api/admin/tournaments/${slug}/matches/${data.fixture.id}/referee`;
   const teamName = (id: string | null, neutral = true) =>
     data.teams.find((t) => t.id === id)?.name ??
@@ -127,6 +127,33 @@ export function RefereePanel({
     setCommandDraft(next.session?.settings ?? next.defaultSettings);
     setFirstBan(next.session?.firstBanTeamId ?? "");
     setFirstPick(next.session?.firstPickTeamId ?? "");
+  }
+  function prepareRecordedSelection(
+    workspace: RefereeWorkspace,
+    entryId: string,
+    record?: Extract<RefereeEvent["payload"], { type: "selection_recorded" }>,
+  ) {
+    const chosen = workspace.maps.find((map) => map.id === entryId);
+    if (!chosen) return;
+    const text = refereeCommands({
+      settings: workspace.session?.settings ?? workspace.defaultSettings,
+      policy: workspace.policy?.commands ?? null,
+      rules: workspace.rules,
+      teams: workspace.teams,
+      selectedMap: chosen,
+    }).find((command) => command.kind === "map")?.text;
+    setSelected(entryId);
+    setIrcDraft(text ?? "");
+    setIrcSelection(
+      text && record
+        ? {
+            entryId,
+            text,
+            label: `${record.kind.toUpperCase()} · ${workspace.teams.find((team) => team.id === record.teamId)?.name ?? refereeMessage(tr, "Neutral tiebreaker")} · ${chosen.category}${chosen.position}`,
+          }
+        : null,
+    );
+    if (text) void navigator.clipboard?.writeText(text).catch(() => {});
   }
   async function refresh() {
     if (simulation) {
@@ -169,9 +196,13 @@ export function RefereePanel({
     }
   }
   async function send(action?: Action) {
-    if (busy) return false;
+    if (busy || writing.current) return false;
     if (simulation) {
-      if (!action || !data.canRecord) return false;
+      writing.current = true;
+      if (!action || !data.canRecord) {
+        writing.current = false;
+        return false;
+      }
       try {
         if (action.action === "save_settings") {
           setCommandDraft(action.settings);
@@ -180,6 +211,8 @@ export function RefereePanel({
         const parsed = refereeActionSchema.parse(action);
         const payload = validateRefereeAction(model, parsed);
         if (payload.type === "order_set") setSimulationOrders(payload);
+        if (payload.type === "selection_recorded")
+          prepareRecordedSelection(data, payload.entryId, payload);
         setSimulationEvents((events) => [
           ...events,
           {
@@ -202,8 +235,13 @@ export function RefereePanel({
           ),
         );
         return false;
+      } finally {
+        queueMicrotask(() => {
+          writing.current = false;
+        });
       }
     }
+    writing.current = true;
     setBusy(true);
     setError("");
     setNotice("");
@@ -216,6 +254,7 @@ export function RefereePanel({
         } as RefereeCommand)
       : pending.current;
     if (!payload) {
+      writing.current = false;
       setBusy(false);
       return;
     }
@@ -238,15 +277,30 @@ export function RefereePanel({
       pending.current = null;
       setUncertain(false);
       setNotice(tr("Referee record saved."));
+      if (payload.action === "record_selection") {
+        const record = (body.workspace as RefereeWorkspace).events.find(
+          (event) => event.id === body.receipt?.eventId,
+        )?.payload;
+        prepareRecordedSelection(
+          body.workspace,
+          payload.entryId,
+          record?.type === "selection_recorded" ? record : undefined,
+        );
+      }
+      return true;
     } catch (e) {
       if (pending.current) setUncertain(true);
       setError(
         refereeMessage(
           tr,
-          e instanceof Error ? e.message : "Unable to save the referee action.",
+          e instanceof Error && !(e instanceof TypeError)
+            ? e.message
+            : "Unable to save the referee action.",
         ),
       );
+      return false;
     } finally {
+      writing.current = false;
       setBusy(false);
     }
   }
@@ -801,25 +855,10 @@ export function RefereePanel({
                                           state.nextStep?.teamId !== team.id)
                                       }
                                       onClick={() => {
-                                        const text = refereeCommands({
-                                          settings: commandDraft,
-                                          policy: data.policy?.commands ?? null,
-                                          rules: data.rules,
-                                          teams: data.teams,
-                                          selectedMap: m,
-                                        }).find((c) => c.kind === "map")?.text;
-                                        if (!text || !state.nextStep) return;
-                                        setSelected(m.id);
-                                        setIrcDraft(text);
-                                        setIrcSelection({
+                                        void send({
+                                          action: "record_selection",
                                           entryId: m.id,
-                                          text,
-                                          stepIndex: state.nextStep.index,
-                                          teamId: state.nextStep.teamId,
                                         });
-                                        void navigator.clipboard
-                                          ?.writeText(text)
-                                          .catch(() => {});
                                       }}
                                     >
                                       {index === 0
@@ -1029,15 +1068,6 @@ export function RefereePanel({
         fixtureId={data.fixture.id}
         key={simulationEpoch}
         endpoint={`${endpoint}/irc`}
-        selection={
-          ircSelection && !dirtyOrder && ircDraft === ircSelection.text
-            ? {
-                entryId: ircSelection.entryId,
-                expectedRevision: data.session?.revision ?? 0,
-                dependencyFingerprint: data.dependencyFingerprint,
-              }
-            : null
-        }
         onWorkspace={(next) => {
           const incomingRevision = next.session?.revision ?? 0;
           const currentRevision = data.session?.revision ?? 0;
@@ -1063,7 +1093,7 @@ export function RefereePanel({
         }}
         draft={ircDraft}
         simulation={simulation}
-        disabled={disabled || stale || (!!ircSelection && dirtyOrder)}
+        disabled={disabled || stale}
         startSeconds={commandDraft.startSeconds ?? 5}
         selectedMods={
           refereeCommands({
@@ -1079,30 +1109,10 @@ export function RefereePanel({
           if (text !== ircSelection?.text) setIrcSelection(null);
         }}
         onPrepare={prepareCommand}
-        selectionLabel={
-          ircSelection && state.nextStep
-            ? `${state.nextStep.kind.toUpperCase()} · ${teamName(state.nextStep.teamId)} · ${map?.category}${map?.position}`
-            : null
-        }
+        recordedSelectionLabel={ircSelection?.label ?? null}
         onConfirm={async () => {
           if (!simulation || disabled || stale || !ircDraft.trim())
             return false;
-          if (ircSelection) {
-            if (
-              dirtyOrder ||
-              ircDraft !== ircSelection.text ||
-              state.nextStep?.index !== ircSelection.stepIndex ||
-              state.nextStep.teamId !== ircSelection.teamId
-            )
-              return false;
-            if (
-              !(await send({
-                action: "record_selection",
-                entryId: ircSelection.entryId,
-              }))
-            )
-              return false;
-          }
           setSentCommands((sent) => [...new Set([...sent, ircDraft])]);
           setIrcDraft("");
           setIrcSelection(null);

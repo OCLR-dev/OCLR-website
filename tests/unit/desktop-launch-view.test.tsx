@@ -12,14 +12,13 @@ const props = {
   disabled: false,
   startSeconds: 5,
   selectedMods: null,
-  selectionLabel: null,
+  recordedSelectionLabel: null,
   onChange() {},
   onPrepare() {},
   async onConfirm() {
     return true;
   },
   endpoint: "/synthetic/irc",
-  selection: null,
   onWorkspace() {},
   onQueued() {},
   onConfirmed() {},
