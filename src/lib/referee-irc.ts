@@ -20,6 +20,7 @@ import {
 import { validateRefereeAction } from "./referee-model";
 import {
   allowedIrcCommand,
+  allowedMakeCommand,
   confirmsIrcCommand,
   ircQueueSchema,
   normalizedIrcUsername,
@@ -180,6 +181,15 @@ export async function refereeIrcBrowserCommand(
         409,
         "Connect the local IRC app to this fixture first.",
       );
+    if (
+      c.roomId === 0 &&
+      (await tx.select().from(commands).where(eq(commands.connectionId, c.id)))
+        .length
+    )
+      throw new HttpError(
+        409,
+        "Check the previous room creation in the local IRC app before reconnecting.",
+      );
     await expire(tx, c.id);
     if (
       (
@@ -198,7 +208,11 @@ export async function refereeIrcBrowserCommand(
         409,
         "Wait for the current IRC command before sending another.",
       );
-    if (!allowedIrcCommand(action.text))
+    if (
+      !(c.roomId === 0
+        ? allowedMakeCommand(action.text) && !action.selection
+        : allowedIrcCommand(action.text))
+    )
       throw new HttpError(
         400,
         "This IRC command is not available for remote sending.",
@@ -259,7 +273,7 @@ export async function refereeIrcBrowserCommand(
       requestKey: action.requestKey,
       requestHash: digest(action),
       text: action.text,
-      target: `#mp_${c.roomId}`,
+      target: c.roomId === 0 ? "BanchoBot" : `#mp_${c.roomId}`,
       selection: action.selection ?? null,
     });
     return view(tx, actor, slug, fixtureId);
@@ -368,11 +382,35 @@ export async function refereeIrcRelay(
     }
     if (action.sequence <= c.sequence)
       return { connectionId: c.id, sequence: c.sequence, command: null };
+    if (
+      action.roomId !== undefined &&
+      c.roomId !== 0 &&
+      c.roomId !== action.roomId
+    )
+      throw new HttpError(409, "The IRC room binding changed.");
+    if (action.roomId !== undefined && c.roomId === 0) {
+      const [creation] = await tx
+        .select()
+        .from(commands)
+        .where(
+          and(
+            eq(commands.connectionId, c.id),
+            eq(commands.target, "BanchoBot"),
+          ),
+        );
+      if (
+        !creation ||
+        !allowedMakeCommand(creation.text) ||
+        !["sending", "sent", "unknown"].includes(creation.status)
+      )
+        throw new HttpError(409, "No dispatched room creation.");
+    }
     const messages = safeIrcMessages(action.projection.messages);
     await tx
       .update(connections)
       .set({
         sequence: action.sequence,
+        ...(action.roomId !== undefined ? { roomId: action.roomId } : {}),
         status: action.projection.status,
         messages,
         lastSeenAt: new Date(),
