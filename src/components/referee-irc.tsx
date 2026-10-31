@@ -44,6 +44,7 @@ export function RefereeIrc({
   simulation,
   disabled,
   startSeconds,
+  timers,
   selectedMods,
   recordedSelectionLabel,
   onChange,
@@ -58,7 +59,8 @@ export function RefereeIrc({
   fixtureId: string;
   simulation: boolean;
   disabled: boolean;
-  startSeconds: number;
+  startSeconds: number | null;
+  timers: readonly (number | null | undefined)[];
   selectedMods: string | null;
   recordedSelectionLabel: string | null;
   onChange: (text: string) => void;
@@ -448,7 +450,14 @@ export function RefereeIrc({
         )}
       </form>
       <footer className={styles.ircQuick} aria-label={tr("Quick commands")}>
-        {[30, 60, 120].map((seconds) => (
+        {[
+          ...new Set(
+            timers.filter(
+              (seconds): seconds is number =>
+                typeof seconds === "number" && seconds > 0,
+            ),
+          ),
+        ].map((seconds) => (
           <button
             key={seconds}
             type="button"
@@ -460,7 +469,7 @@ export function RefereeIrc({
           </button>
         ))}
         {[
-          `!mp start ${startSeconds}`,
+          ...(startSeconds ? [`!mp start ${startSeconds}`] : []),
           "!mp aborttimer",
           ...(selectedMods ? [selectedMods] : []),
           "!mp abort",

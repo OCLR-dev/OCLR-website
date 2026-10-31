@@ -242,6 +242,33 @@ history exists. An identical save is a no-op. Other sessions retain their saved
 basis and require the existing dependency reconfirmation flow. Deleting an otherwise
 empty round removes only its unused policy and retains its policy/deletion audit.
 
+### Inherited room settings (#620)
+
+The referee workspace uses the **saved round referee policy** for room capacity,
+Ban/Pick/preparation timers, start countdown and category Mods/NF/Freemod. Room
+names are generated from the configured season and resolved fixture teams. The
+room-settings disclosure is read-only, and the panel has no round-policy shortcut.
+Edit and save tournament rules in round management. Missing values remain
+unavailable; the IRC start shortcut does not invent a five-second fallback, and
+its timer shortcuts use the saved policy values rather than fixed durations.
+
+The Streamer username comes from this fixture's current streaming task and saved
+osu! identity, with an active global or edition-scoped Streamer role. No task,
+cancellation, or revoked/wrong-edition eligibility produces no `addref` command.
+Task/username changes update the panel through its normal refresh/IRC polling,
+without invalidating BP decisions merely because the Streamer changed. Task
+schedule reconfirmation remains in streaming management; inheriting an identity
+does not reconfirm a booking or change any role.
+
+Both `defaultSettings` and `session.settings` project these effective inherited
+values, including for desktop reads. GET does not rewrite legacy stored session
+settings or historical `settings_saved` events. New writes snapshot the inherited
+values; the legacy `save_settings` action rejects overrides, while its existing
+same-request receipt replay remains supported. Round-policy/dependency changes
+still use the existing history protection and explicit reconfirmation flow.
+The IRC text console remains an explicit room-command control, separate from
+website configuration storage; sending a command does not save a rule override.
+
 The command assistant supports `!mp make`, `!mp set`, `!mp addref`, `!mp invite`,
 `!mp timer`, `!mp map`, `!mp mods`, `!mp start`, and `!mp abort`.
 Room capacity and players-per-team are distinct. The map mode comes from the

@@ -2,6 +2,8 @@ import { db } from "@/db";
 import {
   editionState,
   fixtureReferees,
+  fixtureStreams,
+  staffRoles,
   fixtures,
   mappoolEntries,
   mappools,
@@ -13,7 +15,8 @@ import {
   tournamentRounds,
   users,
 } from "@/db/schema";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import { isDeepStrictEqual } from "node:util";
 import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
 import { assertOperationalEdition } from "./archive-guard";
@@ -154,6 +157,21 @@ export async function readRefereeWorkspace(
     .where(eq(refereeRoundPolicies.roundId, round.id));
   const parsedPolicy = refereePolicySchema.safeParse(savedPolicy?.policy);
   const policy = parsedPolicy.success ? parsedPolicy.data : null;
+  // Only the current task's saved identity is needed by the referee workspace.
+  const [streamer] = await reader
+    .select({ username: users.username })
+    .from(fixtureStreams)
+    .innerJoin(users, eq(users.osuId, fixtureStreams.userId))
+    .innerJoin(staffRoles, eq(staffRoles.userId, fixtureStreams.userId))
+    .where(
+      and(
+        eq(fixtureStreams.fixtureId, fixtureId),
+        eq(staffRoles.role, "streamer"),
+        isNull(staffRoles.revokedAt),
+        or(isNull(staffRoles.editionSlug), eq(staffRoles.editionSlug, slug)),
+      ),
+    )
+    .limit(1);
   const ids = [fixture.homeTeamId, fixture.awayTeamId].filter(
     (id): id is string => Boolean(id),
   );
@@ -329,6 +347,17 @@ export async function readRefereeWorkspace(
     orders,
     events,
   });
+  const inheritedSettings = {
+    ...emptyRefereeSettings,
+    roomName: defaultRefereeRoomName(
+      edition.configuration.season,
+      orderedTeams,
+    ),
+    streamerUsername: streamer?.username ?? "",
+    timerSeconds: policy?.commands?.prepareSeconds ?? null,
+    startSeconds: policy?.commands?.startSeconds ?? null,
+    roomSize: policy?.commands?.roomSize ?? null,
+  };
   return {
     fixture: {
       id: fixture.id,
@@ -348,16 +377,7 @@ export async function readRefereeWorkspace(
         names.find((n) => n.osuId === t.captainId)?.username ?? null,
       members: commandRosters.get(t.id) ?? [],
     })),
-    defaultSettings: {
-      ...emptyRefereeSettings,
-      roomName: defaultRefereeRoomName(
-        edition.configuration.season,
-        orderedTeams,
-      ),
-      timerSeconds: policy?.commands?.prepareSeconds ?? null,
-      startSeconds: policy?.commands?.startSeconds ?? null,
-      roomSize: policy?.commands?.roomSize ?? null,
-    },
+    defaultSettings: inheritedSettings,
     maps,
     rules,
     series: rules?.series ?? null,
@@ -368,7 +388,9 @@ export async function readRefereeWorkspace(
           revision: sessionRow.revision,
           firstBanTeamId: sessionRow.firstBanTeamId,
           firstPickTeamId: sessionRow.firstPickTeamId,
-          settings: sessionRow.settings,
+          // Effective settings always inherit current saved sources. Historical
+          // settings_saved events and stored session snapshots are left intact.
+          settings: inheritedSettings,
           dependencyFingerprint: sessionRow.dependencyFingerprint,
           basis: sessionRow.basis,
         }
@@ -511,7 +533,7 @@ export async function refereeCommand(
     let dependencyFingerprint =
       workspace.session?.dependencyFingerprint ??
       workspace.dependencyFingerprint;
-    let settings = workspace.session?.settings ?? workspace.defaultSettings;
+    let settings = workspace.defaultSettings;
     let firstBanTeamId = workspace.session?.firstBanTeamId ?? null;
     let firstPickTeamId = workspace.session?.firstPickTeamId ?? null;
     let payload: RefereeEventPayload;
@@ -525,9 +547,8 @@ export async function refereeCommand(
         command.policy,
       );
       const next = await readRefereeWorkspace(tx, actor, slug, fixtureId);
-      // The first session inherits the policy just saved, not the previous empty policy.
-      // Existing session settings are explicit saved choices and remain unchanged.
-      if (!workspace.session) settings = next.defaultSettings;
+      // Every session inherits the newly saved policy.
+      settings = next.defaultSettings;
       basis = { ...currentBasis, policy: command.policy };
       dependencyFingerprint = next.dependencyFingerprint;
       payload = {
@@ -536,7 +557,12 @@ export async function refereeCommand(
         revision: newRevision,
       };
     } else if (command.action === "save_settings") {
-      settings = command.settings;
+      // Retain the legacy action and idempotent receipts without allowing overrides.
+      if (!isDeepStrictEqual(command.settings, workspace.defaultSettings))
+        throw new HttpError(
+          409,
+          "Room settings inherit the saved round rules and streaming task. Reload the workspace.",
+        );
       payload = { type: "settings_saved", settings };
     } else if (command.action === "reconfirm_dependencies") {
       if (workspace.projection.activeSelections.length)

@@ -41,9 +41,6 @@ export function RefereePanel({
   const [firstPick, setFirstPick] = useState(
     initial.session?.firstPickTeamId ?? "",
   );
-  const [commandDraft, setCommandDraft] = useState(
-    initial.session?.settings ?? initial.defaultSettings,
-  );
   const [activeStage, setActiveStage] = useState("referee-preparation");
   useEffect(() => {
     const ids = ["referee-preparation", "referee-bp", "referee-post-match"];
@@ -124,7 +121,6 @@ export function RefereePanel({
   const map = data.maps.find((m) => m.id === selected) ?? null;
   function accept(next: RefereeWorkspace) {
     setData(next);
-    setCommandDraft(next.session?.settings ?? next.defaultSettings);
     setFirstBan(next.session?.firstBanTeamId ?? "");
     setFirstPick(next.session?.firstPickTeamId ?? "");
   }
@@ -136,7 +132,7 @@ export function RefereePanel({
     const chosen = workspace.maps.find((map) => map.id === entryId);
     if (!chosen) return;
     const text = refereeCommands({
-      settings: workspace.session?.settings ?? workspace.defaultSettings,
+      settings: workspace.defaultSettings,
       policy: workspace.policy?.commands ?? null,
       rules: workspace.rules,
       teams: workspace.teams,
@@ -205,8 +201,7 @@ export function RefereePanel({
       }
       try {
         if (action.action === "save_settings") {
-          setCommandDraft(action.settings);
-          return true;
+          return false;
         }
         const parsed = refereeActionSchema.parse(action);
         const payload = validateRefereeAction(model, parsed);
@@ -438,27 +433,12 @@ export function RefereePanel({
                 </select>
               </label>
             }
-            settings={data.session?.settings ?? data.defaultSettings}
-            draft={commandDraft}
-            onDraftChange={setCommandDraft}
+            settings={data.defaultSettings}
             policy={data.policy?.commands ?? null}
             rules={data.rules}
             teams={data.teams}
             selectedMap={map}
-            canRecord={data.canRecord && !stale && !uncertain}
-            busy={busy}
-            onSave={async (settings) => {
-              await send({ action: "save_settings", settings });
-            }}
           />
-          {data.canConfigure && !simulation && (
-            <Link
-              className="button secondary"
-              href={`/admin/tournaments/${slug}/rounds?round=${data.round.id}`}
-            >
-              {tr("Configure round referee policy")}
-            </Link>
-          )}
         </section>
         <section
           id="referee-bp"
@@ -1075,7 +1055,9 @@ export function RefereePanel({
             incomingRevision >= currentRevision &&
             (incomingRevision !== currentRevision ||
               next.dependencyFingerprint !== data.dependencyFingerprint ||
-              next.policyRevision !== data.policyRevision)
+              next.policyRevision !== data.policyRevision ||
+              JSON.stringify(next.defaultSettings) !==
+                JSON.stringify(data.defaultSettings))
           )
             accept(next);
         }}
@@ -1094,10 +1076,15 @@ export function RefereePanel({
         draft={ircDraft}
         simulation={simulation}
         disabled={disabled || stale}
-        startSeconds={commandDraft.startSeconds ?? 5}
+        startSeconds={data.defaultSettings.startSeconds}
+        timers={[
+          data.policy?.commands?.banSeconds,
+          data.policy?.commands?.pickSeconds,
+          data.policy?.commands?.prepareSeconds,
+        ]}
         selectedMods={
           refereeCommands({
-            settings: commandDraft,
+            settings: data.defaultSettings,
             policy: data.policy?.commands ?? null,
             rules: data.rules,
             teams: data.teams,

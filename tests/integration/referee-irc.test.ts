@@ -292,7 +292,7 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     const w = await refereeWorkspace(referee, "test-cup", fixtureId);
     await refereeCommand(referee, "test-cup", fixtureId, {
       action: "save_settings",
-      settings: { ...w.session!.settings, roomName: "Changed room" },
+      settings: w.defaultSettings,
       expectedRevision: w.session!.revision,
       dependencyFingerprint: w.dependencyFingerprint,
       requestKey: randomUUID(),

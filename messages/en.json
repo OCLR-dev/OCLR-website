@@ -3619,6 +3619,10 @@
     "m86e5755ed199": "Connect OCLR Overlay",
     "m0c743ef0cf67": "Sign in with osu! to connect your streaming console. No token copying is needed.",
     "m9be6906cd558": "The console did not confirm the connection. Copy the token or start again from the console.",
-    "mcdd06185b333": "Connection failed. Please try again."
+    "mcdd06185b333": "Connection failed. Please try again.",
+    "me0288660facf": "Assign an active Streamer in this fixture’s streaming task.",
+    "meb8482c5ca05": "Room settings",
+    "mc8cddf426389": "Room settings use the saved round rules. The Streamer comes from this fixture's streaming task.",
+    "m8214a0eb196b": "Room settings inherit the saved round rules and streaming task. Reload the workspace."
   }
 }
