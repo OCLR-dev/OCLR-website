@@ -60,31 +60,33 @@ function StreamingTask({
         : tr("Winner of {value0}", { value0: value.source })
       : tr("Team TBD"));
   return (
-    <article className={styles.task} aria-label={f.label}>
-      <div className={styles.identity}>
-        <p className="small muted">{f.roundName}</p>
-        <h2>
-          <Link
-            className="text-link"
-            href={`/admin/tournaments/${slug}/matches/${f.id}`}
-          >
-            {f.label}
-          </Link>
-        </h2>
-        <p className="streaming-pairing">
+    <article className={`panel ${styles.task}`} aria-label={f.label}>
+      <div className={styles.match}>
+        <div className={styles.matchHeading}>
+          <p className="small muted">{f.roundName}</p>
+          <h2>
+            <Link
+              className="text-link"
+              href={`/admin/tournaments/${slug}/matches/${f.id}`}
+            >
+              {f.label}
+            </Link>
+          </h2>
+        </div>
+        <p className={`streaming-pairing ${styles.pairing}`}>
           {slot(f.home)} {tr("vs")} {slot(f.away)}
         </p>
-      </div>
-      <div className={styles.schedule}>
-        <p>
-          {f.scheduledAt
-            ? formatDate(f.scheduledAt, f.timeZone, tr.locale)
-            : tr("Match time TBA")}
-        </p>
-        <p className="small muted">{f.timeZone}</p>
-        <span className="badge">
-          {f.completed ? tr("Completed") : tr(f.status)}
-        </span>
+        <div className={styles.schedule}>
+          <p>
+            {f.scheduledAt
+              ? formatDate(f.scheduledAt, f.timeZone, tr.locale)
+              : tr("Match time TBA")}
+          </p>
+          <p className="small muted">{f.timeZone}</p>
+          <span className="badge">
+            {f.completed ? tr("Completed") : tr(f.status)}
+          </span>
+        </div>
       </div>
       <div className={styles.assignment}>
         {f.assignment ? (
@@ -137,16 +139,8 @@ function StreamingTask({
         )}
       </div>
       <div className={styles.controls}>
-        {f.assignment && (data.canManage || (own && data.canSelect)) && (
-          <div className="actions">
-            {available &&
-              f.assignment.needsConfirmation &&
-              action("reconfirm", tr("Reconfirm booking"))}
-            {action("cancel", tr("Cancel streaming task"))}
-          </div>
-        )}
         {available && (data.canManage || (!f.assignment && data.canSelect)) && (
-          <>
+          <div className={styles.assignmentForm}>
             {data.canManage && (
               <label className="field">
                 <span>{tr("Assign Streamer")}</span>
@@ -184,7 +178,15 @@ function StreamingTask({
                 data.canSelect &&
                 action("select", tr("Stream this match"))}
             </div>
-          </>
+          </div>
+        )}
+        {f.assignment && (data.canManage || (own && data.canSelect)) && (
+          <div className="actions">
+            {available &&
+              f.assignment.needsConfirmation &&
+              action("reconfirm", tr("Reconfirm booking"))}
+            {action("cancel", tr("Cancel streaming task"))}
+          </div>
         )}
       </div>
     </article>
@@ -242,7 +244,7 @@ export function StreamingManager({
               </select>
             </label>
           </div>
-          <div className="actions">
+          <div className={`actions ${styles.filterActions}`}>
             <button type="submit">{tr("Apply filters")}</button>
             <Link
               className="button secondary"
