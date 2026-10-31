@@ -3634,6 +3634,8 @@
     "m0d86364e9581": "Choose a saved BP event from your current fixture.",
     "ma33ac1a41c29": "Update OCLR IRC and reconnect to use automatic BP sync.",
     "m39f949cfefd0": "Configure the saved map and Mods rules before automatic BP sync.",
-    "maa9620c38d3a": "Invite captain: {team}"
+    "maa9620c38d3a": "Invite captain: {team}",
+    "m7ea53b9e637e": "Cancel EX",
+    "md9254b6d2213": "Declare EX"
   }
 }

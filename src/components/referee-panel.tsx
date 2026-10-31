@@ -635,14 +635,40 @@ export function RefereePanel({
             >
               <div className={styles.summaryHeading}>
                 <span className="eyebrow">{tr("Series score")}</span>
-                <button
-                  type="button"
-                  className="secondary"
-                  disabled={disabled || !state.lastSelectionId}
-                  onClick={() => send({ action: "void_last" })}
-                >
-                  {tr("Withdraw last Ban / Pick")}
-                </button>
+                <div className={styles.summaryActions}>
+                  {exPick &&
+                    exPick.kind === "pick" &&
+                    exPick.category !== "TB" &&
+                    exPick.attempts.length === 1 &&
+                    exPick.attempts[0]?.status === "pending" && (
+                      <button
+                        type="button"
+                        className="secondary"
+                        aria-pressed={Boolean(exPick.exMode)}
+                        title={`${tr("BID")} ${exPick.beatmapId}`}
+                        disabled={
+                          disabled || stale || !data.rules?.exPlayersPerTeam
+                        }
+                        onClick={() =>
+                          void send({
+                            action: "declare_ex",
+                            pickId: exPick.id,
+                            enabled: !exPick.exMode,
+                          })
+                        }
+                      >
+                        {exPick.exMode ? tr("Cancel EX") : tr("Declare EX")}
+                      </button>
+                    )}
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={disabled || !state.lastSelectionId}
+                    onClick={() => send({ action: "void_last" })}
+                  >
+                    {tr("Withdraw last Ban / Pick")}
+                  </button>
+                </div>
               </div>
               <div className={styles.summaryScore}>
                 {data.teams.length === 2 ? (
@@ -745,32 +771,6 @@ export function RefereePanel({
               aria-labelledby="referee-pool"
             >
               <h2 id="referee-pool">{tr("Round mappool")}</h2>
-              {exPick &&
-                exPick.kind === "pick" &&
-                exPick.category !== "TB" &&
-                exPick.attempts.length === 1 &&
-                exPick.attempts[0]?.status === "pending" && (
-                  <label className="checkbox-row">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(exPick.exMode)}
-                      disabled={
-                        disabled || stale || !data.rules?.exPlayersPerTeam
-                      }
-                      onChange={(event) =>
-                        void send({
-                          action: "declare_ex",
-                          pickId: exPick.id,
-                          enabled: event.target.checked,
-                        })
-                      }
-                    />
-                    <span>
-                      {tr("Declare EX for this pick")} · {tr("BID")}{" "}
-                      {exPick.beatmapId}
-                    </span>
-                  </label>
-                )}
 
               <p role="status">
                 {state.nextStep
