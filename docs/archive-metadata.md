@@ -143,3 +143,45 @@ and exercise snapshot migration, invalid exclusions, source eligibility and
 public evidence filtering. Actual DB transaction coverage remains for CI or an
 isolated test environment. Full desktop/mobile browser acceptance and production
 data review/import/publication remain outstanding.
+
+
+## PostgreSQL integration acceptance — 2026-10-31
+
+The previous local database limitation is resolved for #610. Tested application
+commit `dcf76ffa4cc53e1afac5f425c3f382c3d4d93684` against a newly initialized,
+UTF-8 PostgreSQL 17.11 cluster, with Node 24.22.2. All migrations completed, and
+**7 integration files / 64 tests passed, zero failed or skipped** in 10.95 seconds.
+See [the per-test result record](verification/issue-610-postgres/result.json).
+
+Coverage includes `archive-statistics`, `historical-archive`, `player-history`,
+`players`, `read-api`, `archive-player-exchange` and `directory-statistics`.
+Both previously unexecuted #610 transaction cases passed: structured decisions
+with server-owned provenance, audited versions and private evidence; and legacy
+published JSON reads without rewriting or fabricating review evidence. The
+suite also checks edition permissions, stale versions, original source facts,
+review/publish/withdraw boundaries, published snapshot preservation, roster
+revalidation and public/remote read projections. Provider HTTP calls remain
+mocked by the existing synthetic fixtures; the database transactions are real.
+
+The host had 32 allocated System V shared-memory IDs, equal to its SHMMNI limit.
+Only one orphan was removed after two checks confirmed owner/creator `emik`,
+56 bytes, zero attachments, last attached PID zero and creator PID 15254 absent.
+That object (SHMID 983044) had never been attached. No attached IPC object,
+system limit, existing database directory or existing service was changed.
+PostgreSQL requires a small System V allocation even with mmap; see the
+[PostgreSQL kernel-resource documentation](https://www.postgresql.org/docs/17/kernel-resources.html).
+
+The new cluster used only `/private/tmp/oclr610-pg/data`, loopback port 56610,
+role `oclr610_test` and database `oclr_610_test`. `DATABASE_URL` and
+`TEST_DATABASE_URL` explicitly selected that same disposable target; the isolated
+checkout had no `.env.local`. No existing preview or production database was
+connected to. After the run, this session stopped only its own cluster and
+confirmed its IPC was released; the three pre-existing PostgreSQL server
+processes retained their original PIDs. Temporary synthetic files/logs remain
+under `/private/tmp/oclr610-pg/` for inspection; no test server is left running.
+
+This closes the selected #610 local PostgreSQL verification gap. It does not
+claim full-site browser acceptance, CI success, production import/publication,
+or resolution of missing official historical evidence. The prior DB-free and
+build results remain separately recorded above; only documentation/evidence
+changes were needed after this integration run.
