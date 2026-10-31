@@ -1093,6 +1093,10 @@ html[data-appearance]
   margin: 0;
   min-width: 0;
 }
+.map-browse-card--band a.map-open-button {
+  color: inherit;
+  text-decoration: none;
+}
 .map-browse-card--band .map-open-button {
   display: flex;
   align-items: flex-start;

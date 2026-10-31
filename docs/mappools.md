@@ -64,11 +64,13 @@ the whole selected batch. Successful retries skip already saved candidates even
 when the provider is unavailable. Candidate additions and their audit events
 commit together under the edition lock.
 
-Each row shows the official saved base parameters, mode/status where available,
-BID link, adder and time. Metadata is not a live lookup, and snapshots older than
-24 hours are identified. Unknown fields stay unknown. Comment boxes are always
-visible, beside the beatmap on desktop and below it on mobile; history uses a
-bounded scrolling area inspired by player messages. History loads near the viewport.
+Candidates reuse the historical mappool `MapCardBand`: cover, star-coloured rail,
+Mod category, title/artist/mapper, saved base parameters (including HP), copyable
+BID, official osu! link and osu!direct. Adder, time, category editing and official
+pool promotion sit below the card. Mode/status and snapshot details stay hidden;
+saved metadata is not a live lookup, and unknown fields stay unknown. Comment
+boxes remain visible below each card on desktop and mobile; history uses a
+bounded scrolling area inspired by player messages and loads near the viewport.
 Comments remain append-only and preserve author identity/name and UTC time.
 Each candidate accepts up to 200 comments of 2,000 characters. A per-submission
 request UUID makes retries idempotent for the same author/candidate; reusing it

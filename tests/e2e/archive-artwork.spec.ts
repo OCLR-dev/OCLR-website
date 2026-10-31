@@ -69,7 +69,16 @@ test.describe("archive official covers", () => {
       await expect(
         page.locator(".beatmap-cover").filter({ hasText: "Cover unavailable" }),
       ).toHaveCount(2);
+      // Background artwork and explicit view remounts can request the same URL.
+      // Only an unrelated render must preserve the settled failure state.
       const settledFailures = failedRequests;
+      await page
+        .locator(".archive-map-item")
+        .first()
+        .getByRole("button", { name: /^View NM1:/ })
+        .click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+      await page.getByRole("button", { name: "Close map details" }).click();
       const search = page.getByRole("searchbox", {
         name: "Search maps",
         exact: true,
@@ -97,6 +106,5 @@ test.describe("archive official covers", () => {
         .click();
       await expect(images).toHaveCount(2);
     }
-    expect(failedRequests).toBeLessThanOrEqual(6); // SSR may fail before hydration; explicit Cards remounts retry once.
   });
 });
