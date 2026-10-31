@@ -125,17 +125,186 @@ function Parameters({ m }: { m: BeatmapMetadata }) {
     </div>
   );
 }
+function CommentItem({
+  comment: c,
+  canManage,
+  base,
+  candidateId,
+  onChange,
+}: {
+  comment: CandidateComments[number];
+  canManage: boolean;
+  base: string;
+  candidateId: string;
+  onChange: (deleted: boolean) => Promise<void>;
+}) {
+  const tr = useAppTranslations();
+  const [mode, setMode] = useState<"edit" | "delete" | null>(null);
+  const [target, setTarget] = useState(c);
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const pending = useRef(false);
+  const editor = useRef<HTMLTextAreaElement>(null);
+  const editTrigger = useRef<HTMLButtonElement>(null);
+  const deleteTrigger = useRef<HTMLButtonElement>(null);
+  const deleteConfirmation = useRef<HTMLButtonElement>(null);
+  const previousMode = useRef(mode);
+  useEffect(() => {
+    if (mode === "edit") editor.current?.focus();
+    else if (mode === "delete") deleteConfirmation.current?.focus();
+    else if (previousMode.current === "edit") editTrigger.current?.focus();
+    else if (previousMode.current === "delete") deleteTrigger.current?.focus();
+    previousMode.current = mode;
+  }, [mode]);
+  async function save(action: "comment_edit" | "comment_delete") {
+    if (pending.current) return;
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      await request(base, {
+        action,
+        candidateId,
+        commentId: target.id,
+        version: target.version,
+        ...(action === "comment_edit" ? { body: draft.trim() } : {}),
+      });
+      setMode(null);
+      await onChange(action === "comment_delete");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
+  }
+  function begin(next: "edit" | "delete") {
+    setTarget(c);
+    setDraft(c.body);
+    setError("");
+    setMode(next);
+  }
+  return (
+    <li>
+      <p className="small">
+        <a
+          className="text-link"
+          href={`https://osu.ppy.sh/users/${c.authorId}`}
+        >
+          <strong>{c.authorName}</strong>
+        </a>{" "}
+        <span className="muted">
+          · <Stamp value={c.createdAt} />
+        </span>
+      </p>
+      {mode === "edit" ? (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void save("comment_edit");
+          }}
+        >
+          <label className="field">
+            <span>{tr("Edit comment")}</span>
+            <textarea
+              ref={editor}
+              value={draft}
+              disabled={busy}
+              onChange={(event) => setDraft(event.target.value)}
+              required
+              maxLength={commentLength}
+              rows={3}
+            />
+          </label>
+          <div className={styles.commentActions}>
+            <button disabled={busy || !draft.trim()}>{tr("Save")}</button>
+            <button
+              type="button"
+              className="secondary"
+              disabled={busy}
+              onClick={() => {
+                setMode(null);
+                setError("");
+              }}
+            >
+              {tr("Cancel")}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <p className={styles.commentBody}>{c.body}</p>
+      )}
+      {canManage && mode === null && (
+        <div className={styles.commentActions}>
+          <button
+            type="button"
+            className="secondary"
+            disabled={busy}
+            ref={editTrigger}
+            onClick={() => begin("edit")}
+          >
+            {tr("Edit")}
+          </button>
+          <button
+            type="button"
+            className="secondary"
+            disabled={busy}
+            ref={deleteTrigger}
+            onClick={() => begin("delete")}
+          >
+            {tr("Delete")}
+          </button>
+        </div>
+      )}
+      {mode === "delete" && (
+        <div role="group" aria-label={tr("Delete this comment?")}>
+          <p>{tr("Delete this comment?")}</p>
+          <div className={styles.commentActions}>
+            <button
+              type="button"
+              disabled={busy}
+              ref={deleteConfirmation}
+              onClick={() => void save("comment_delete")}
+            >
+              {tr("Confirm delete")}
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              disabled={busy}
+              onClick={() => {
+                setMode(null);
+                setError("");
+              }}
+            >
+              {tr("Cancel")}
+            </button>
+          </div>
+        </div>
+      )}
+      {busy && <p role="status">{tr("Working…")}</p>}
+      {error && (
+        <p className="error" role="alert">
+          {tr(error)}
+        </p>
+      )}
+    </li>
+  );
+}
 function Comments({
   slug,
   id,
   count,
   writable,
+  viewerId,
   onChange,
 }: {
   slug: string;
   id: string;
   count: number;
   writable: boolean;
+  viewerId: number;
   onChange: () => Promise<void>;
 }) {
   const tr = useAppTranslations();
@@ -144,6 +313,7 @@ function Comments({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const region = useRef<HTMLElement>(null);
+  const refreshTrigger = useRef<HTMLButtonElement>(null);
   const readGeneration = useRef(0);
   const pending = useRef(false);
   const submission = useRef<{ body: string; id: string } | null>(null);
@@ -208,6 +378,7 @@ function Comments({
           type="button"
           className="secondary"
           disabled={busy}
+          ref={refreshTrigger}
           onClick={() => void refresh()}
         >
           {tr("Refresh comments")}
@@ -226,20 +397,18 @@ function Comments({
           })}
         >
           {comments?.map((c) => (
-            <li key={c.id}>
-              <p className="small">
-                <a
-                  className="text-link"
-                  href={`https://osu.ppy.sh/users/${c.authorId}`}
-                >
-                  <strong>{c.authorName}</strong>
-                </a>{" "}
-                <span className="muted">
-                  · <Stamp value={c.createdAt} />
-                </span>
-              </p>
-              <p className={styles.commentBody}>{c.body}</p>
-            </li>
+            <CommentItem
+              key={c.id}
+              comment={c}
+              canManage={writable && viewerId === c.authorId}
+              base={base}
+              candidateId={id}
+              onChange={async (deleted) => {
+                await load();
+                await onChange();
+                if (deleted) refreshTrigger.current?.focus();
+              }}
+            />
           ))}
         </ol>
         {writable && (
@@ -313,12 +482,14 @@ export function SelectionWorkbench({
   slug,
   initialData,
   writable,
+  viewerId,
   officialPools,
 }: {
   slug: string;
   initialData: SelectionWorkspace;
   officialPools: MappoolWorkspace | null;
   writable: boolean;
+  viewerId: number;
 }) {
   const tr = useAppTranslations();
   const [data, setData] = useState(initialData);
@@ -679,6 +850,7 @@ export function SelectionWorkbench({
                     id={c.id}
                     count={c.commentCount}
                     writable={writable}
+                    viewerId={viewerId}
                     onChange={reload}
                   />
                 </article>

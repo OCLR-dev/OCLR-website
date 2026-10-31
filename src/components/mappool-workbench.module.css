@@ -218,3 +218,14 @@
 .attribution p {
   margin: 0 0 0.25rem;
 }
+
+.commentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.comments:has(textarea) {
+  max-height: 24rem;
+}

@@ -322,6 +322,192 @@ describe.skipIf(!url)("private selection collaboration", () => {
     });
     expect(fetchBeatmaps).not.toHaveBeenCalled();
   });
+  it("lets only the author edit/delete current versions and never resurrects deleted comment requests", async () => {
+    await selectionCommand(pooler, slug, add([75, 76]));
+    const [candidate, other] = (await selectionWorkspace(tester, slug))
+      .candidates;
+    const post = {
+      action: "comment",
+      candidateId: candidate.id,
+      requestId: randomUUID(),
+      body: "Original feedback",
+    };
+    await selectionCommand(tester, slug, post);
+    const [original] = await candidateComments(tester, slug, candidate.id);
+    // Existing comments predate immutable retry hashes; the first edit backfills
+    // audit metadata while preserving the original creation-request identity.
+    await db()
+      .update(mappoolEvents)
+      .set({ after: { candidateId: candidate.id, commentId: original.id } })
+      .where(eq(mappoolEvents.action, "candidate_comment"));
+    const edit = {
+      action: "comment_edit",
+      candidateId: candidate.id,
+      commentId: original.id,
+      version: original.version,
+      body: "Revised feedback",
+    };
+    for (const actor of [pooler, admin]) {
+      await expect(selectionCommand(actor, slug, edit)).rejects.toMatchObject({
+        status: 404,
+      });
+      await expect(
+        selectionCommand(actor, slug, {
+          action: "comment_delete",
+          candidateId: candidate.id,
+          commentId: original.id,
+          version: original.version,
+        }),
+      ).rejects.toMatchObject({ status: 404 });
+    }
+    await expect(
+      selectionCommand(tester, slug, { ...edit, candidateId: other.id }),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(
+      selectionCommand(admin, "other-test-cup", edit),
+    ).rejects.toMatchObject({ status: 404 });
+    for (const body of [" ", "x".repeat(2001)])
+      await expect(
+        selectionCommand(tester, slug, { ...edit, body }),
+      ).rejects.toMatchObject({ status: 400 });
+    await selectionCommand(tester, slug, edit);
+    const [saved] = await candidateComments(tester, slug, candidate.id);
+    expect(saved.body).toBe("Revised feedback");
+    expect(saved.authorId).toBe(original.authorId);
+    expect(saved.createdAt).toEqual(original.createdAt);
+    expect(saved.version).not.toBe(original.version);
+    await expect(selectionCommand(tester, slug, edit)).rejects.toMatchObject({
+      status: 409,
+    });
+    await expect(
+      selectionCommand(tester, slug, {
+        action: "comment_delete",
+        candidateId: candidate.id,
+        commentId: saved.id,
+        version: original.version,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(await selectionCommand(tester, slug, post)).toEqual({
+      added: 0,
+      skipped: 1,
+    });
+    expect((await candidateComments(tester, slug, candidate.id))[0].body).toBe(
+      "Revised feedback",
+    );
+    await expect(
+      selectionCommand(tester, slug, { ...post, body: "Revised feedback" }),
+    ).rejects.toMatchObject({ status: 409 });
+    await selectionCommand(tester, slug, {
+      action: "comment_delete",
+      candidateId: candidate.id,
+      commentId: saved.id,
+      version: saved.version,
+    });
+    expect(await candidateComments(tester, slug, candidate.id)).toEqual([]);
+    expect(
+      (await selectionWorkspace(tester, slug)).candidates.find(
+        (c) => c.id === candidate.id,
+      )?.commentCount,
+    ).toBe(0);
+    await expect(selectionCommand(tester, slug, post)).rejects.toMatchObject({
+      status: 409,
+    });
+    expect(await candidateComments(tester, slug, candidate.id)).toEqual([]);
+    const events = await db().select().from(mappoolEvents);
+    expect(
+      events.filter((e) => e.action === "candidate_comment_edit"),
+    ).toHaveLength(1);
+    expect(
+      events.filter((e) => e.action === "candidate_comment_delete"),
+    ).toHaveLength(1);
+    expect(JSON.stringify(events)).not.toContain("Revised feedback");
+  });
+  it("serializes competing edits and rechecks live grants and read-only channels", async () => {
+    await selectionCommand(pooler, slug, add());
+    const { id } = (await selectionWorkspace(tester, slug)).candidates[0];
+    await selectionCommand(tester, slug, {
+      action: "comment",
+      candidateId: id,
+      requestId: randomUUID(),
+      body: "Original",
+    });
+    const [comment] = await candidateComments(tester, slug, id);
+    const edit = {
+      action: "comment_edit",
+      candidateId: id,
+      commentId: comment.id,
+      version: comment.version,
+      body: "First",
+    };
+    const results = await Promise.allSettled([
+      selectionCommand(tester, slug, edit),
+      selectionCommand(tester, slug, { ...edit, body: "Second" }),
+    ]);
+    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    expect(results.find((r) => r.status === "rejected")).toMatchObject({
+      reason: { status: 409 },
+    });
+    const [latest] = await candidateComments(tester, slug, id);
+    expect(["First", "Second"]).toContain(latest.body);
+    await expect(
+      withReadChannel(() =>
+        selectionCommand(tester, slug, { ...edit, version: latest.version }),
+      ),
+    ).rejects.toMatchObject({ status: 403 });
+    await db()
+      .update(staffRoles)
+      .set({ revokedAt: new Date() })
+      .where(eq(staffRoles.userId, tester.osuId));
+    await expect(
+      selectionCommand(tester, slug, { ...edit, version: latest.version }),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      selectionCommand(tester, slug, {
+        action: "comment_delete",
+        candidateId: id,
+        commentId: latest.id,
+        version: latest.version,
+      }),
+    ).rejects.toMatchObject({ status: 403 });
+  });
+  it("rolls back comment edits and deletes when their audit insert fails", async () => {
+    await selectionCommand(pooler, slug, add());
+    const { id } = (await selectionWorkspace(tester, slug)).candidates[0];
+    await selectionCommand(tester, slug, {
+      action: "comment",
+      candidateId: id,
+      requestId: randomUUID(),
+      body: "Retained feedback",
+    });
+    const [comment] = await candidateComments(tester, slug, id);
+    await db().execute(
+      sql`CREATE FUNCTION oclr_test_comment_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Synthetic audit failure'; END $$`,
+    );
+    try {
+      await db().execute(
+        sql`CREATE TRIGGER oclr_test_comment_audit BEFORE INSERT ON mappool_events FOR EACH ROW EXECUTE FUNCTION oclr_test_comment_audit()`,
+      );
+      for (const action of ["comment_edit", "comment_delete"]) {
+        await expect(
+          selectionCommand(tester, slug, {
+            action,
+            candidateId: id,
+            commentId: comment.id,
+            version: comment.version,
+            ...(action === "comment_edit" ? { body: "Discarded" } : {}),
+          }),
+        ).rejects.toThrow();
+        expect(await candidateComments(tester, slug, id)).toEqual([comment]);
+      }
+    } finally {
+      await db().execute(
+        sql`DROP TRIGGER IF EXISTS oclr_test_comment_audit ON mappool_events`,
+      );
+      await db().execute(
+        sql`DROP FUNCTION IF EXISTS oclr_test_comment_audit()`,
+      );
+    }
+  });
   it("rolls back whole batches on stale metadata, lookup or audit failure", async () => {
     await expect(
       selectionCommand(pooler, slug, {

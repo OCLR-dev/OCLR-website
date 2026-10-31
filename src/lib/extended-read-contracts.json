@@ -8230,13 +8230,21 @@
           "authorId": { "type": "number" },
           "authorName": { "type": "string" },
           "body": { "type": "string" },
+          "version": { "type": "string" },
           "createdAt": {
             "type": "string",
             "format": "date-time",
             "x-oclr-date": true
           }
         },
-        "required": ["id", "authorId", "authorName", "body", "createdAt"],
+        "required": [
+          "id",
+          "authorId",
+          "authorName",
+          "body",
+          "version",
+          "createdAt"
+        ],
         "additionalProperties": false
       }
     }

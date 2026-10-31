@@ -124,7 +124,7 @@ test.describe("private Pooler/Tester selection workbench", () => {
       await expect(
         candidate.getByText("Synthetic Pooler feedback"),
       ).toBeVisible();
-      const feedback =
+      let feedback =
         "Synthetic Tester feedback <script>window.executed = true</script>";
       await candidate.getByLabel("Your comment").fill(feedback);
       await context.route(`**${endpoint}`, async (route) => {
@@ -162,6 +162,132 @@ test.describe("private Pooler/Tester selection workbench", () => {
           .from(mappoolCandidateComments)
           .where(eq(mappoolCandidateComments.candidateId, id)),
       ).toHaveLength(2);
+      // Only each author gets mutation controls. A stale edit keeps its draft.
+      const ownComment = candidate.getByRole("listitem").filter({
+        has: page.locator(`a[href="https://osu.ppy.sh/users/${testerId}"]`),
+      });
+      const otherComment = candidate.getByRole("listitem").filter({
+        has: page.locator(`a[href="https://osu.ppy.sh/users/${poolerId}"]`),
+      });
+      await expect(
+        otherComment.getByRole("button", { name: "Edit", exact: true }),
+      ).toHaveCount(0);
+      await expect(
+        otherComment.getByRole("button", { name: "Delete", exact: true }),
+      ).toHaveCount(0);
+      const commentsEndpoint = `${endpoint}/${id}/comments`;
+      const current = (
+        await (await context.request.get(commentsEndpoint)).json()
+      ).find((c: { authorId: number }) => c.authorId === testerId);
+      expect(
+        (
+          await pooler.request.post(endpoint, {
+            headers: { Origin: origin },
+            data: {
+              action: "comment_edit",
+              candidateId: id,
+              commentId: current.id,
+              version: current.version,
+              body: "Forged",
+            },
+          })
+        ).status(),
+      ).toBe(404);
+      expect(
+        (
+          await context.request.post(endpoint, {
+            headers: { Origin: "https://example.invalid" },
+            data: {
+              action: "comment_delete",
+              candidateId: id,
+              commentId: current.id,
+              version: current.version,
+            },
+          })
+        ).status(),
+      ).toBe(403);
+      await ownComment
+        .getByRole("button", { name: "Edit", exact: true })
+        .click();
+      const revised = `${feedback} revised`;
+      await ownComment.getByLabel("Edit comment").fill(revised);
+      expect(
+        (
+          await context.request.post(endpoint, {
+            headers: { Origin: origin },
+            data: {
+              action: "comment_edit",
+              candidateId: id,
+              commentId: current.id,
+              version: current.version,
+              body: "Other tab revision",
+            },
+          })
+        ).status(),
+      ).toBe(200);
+      await ownComment
+        .getByRole("button", { name: "Save", exact: true })
+        .click();
+      await expect(ownComment.getByRole("alert")).toContainText(
+        "This comment has changed",
+      );
+      await expect(ownComment.getByLabel("Edit comment")).toHaveValue(revised);
+      await ownComment
+        .getByRole("button", { name: "Cancel", exact: true })
+        .click();
+      await candidate
+        .getByRole("button", { name: "Refresh comments", exact: true })
+        .click();
+      await expect(
+        ownComment.getByText("Other tab revision", { exact: true }),
+      ).toBeVisible();
+      await ownComment
+        .getByRole("button", { name: "Edit", exact: true })
+        .click();
+      await ownComment.getByLabel("Edit comment").fill(revised);
+      await ownComment
+        .getByRole("button", { name: "Save", exact: true })
+        .click();
+      feedback = revised;
+      await expect(
+        ownComment.getByText(feedback, { exact: true }),
+      ).toBeVisible();
+      // Deletion requires confirmation, updates the count and leaves other authors intact.
+      await candidate
+        .getByLabel("Your comment")
+        .fill("Temporary deletion check");
+      await candidate
+        .getByRole("button", { name: "Post comment", exact: true })
+        .click();
+      const temporary = candidate
+        .getByRole("listitem")
+        .filter({ hasText: "Temporary deletion check" });
+      await temporary
+        .getByRole("button", { name: "Delete", exact: true })
+        .click();
+      await temporary
+        .getByRole("button", { name: "Cancel", exact: true })
+        .click();
+      await expect(temporary).toBeVisible();
+      await temporary
+        .getByRole("button", { name: "Delete", exact: true })
+        .click();
+      await temporary
+        .getByRole("button", { name: "Confirm delete", exact: true })
+        .click();
+      await expect(temporary).toHaveCount(0);
+      await expect(
+        candidate.getByRole("button", {
+          name: "Refresh comments",
+          exact: true,
+        }),
+      ).toBeFocused();
+      await expect(
+        candidate.getByText("Comments (2)", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        otherComment.getByText("Synthetic Pooler feedback", { exact: true }),
+      ).toBeVisible();
       // Drafts stay mounted while switching Mod tabs; comments are always visible.
       await candidate.getByLabel("Your comment").fill("Unsaved draft");
       await page.getByRole("tab", { name: "HD (0)", exact: true }).click();
