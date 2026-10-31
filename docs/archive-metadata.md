@@ -51,8 +51,11 @@ checked-in pending-review import package.
 
 ## Outstanding acceptance
 
-S5 statistics import/review/publication, the 15 unknown identities and official
-schedule time zone remain unresolved. `publication.timeZone` alone does not prove
+S5 statistics import/review/publication and four evidenced UID corrections were
+completed through the existing Admin UI on 2026-10-31. See the
+[publication receipt and unauthenticated public checks](s5-statistics-publication.md).
+The 12 remaining unknown identities are coach positions; the official
+schedule time zone remains unresolved. `publication.timeZone` alone does not prove
 that original schedule cells used that zone. S4/S7/S8 final-ranking approval,
 S9 cross-group placement, S10 unplayed fixtures and statistical exceptions,
 and official dates/stage windows for every season require authoritative evidence.

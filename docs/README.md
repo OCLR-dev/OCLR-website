@@ -57,3 +57,4 @@ real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
   lease, next fixture/pool/stage contract and future Overlay integration (#540).
 
 - [Structured historical metadata](archive-metadata.md) — typed placements, rounds, season dates and S5 review material (#610).
+- [S5 statistics publication](s5-statistics-publication.md) — four approved UID corrections, all 34 matches published, preserved B28/GF score differences and unauthenticated checks (#610).
