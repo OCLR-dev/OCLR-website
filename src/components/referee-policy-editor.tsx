@@ -7,8 +7,12 @@ import {
   type RefereePolicy,
   type RefereeMap,
 } from "@/lib/referee-model";
-import { commandMods, type RefereeCommandPolicy } from "@/lib/referee-commands";
-import { s11RefereeSteps, type RefereeDefaults } from "@/lib/referee-defaults";
+import { type RefereeCommandPolicy } from "@/lib/referee-commands";
+import {
+  standardRefereeCategoryMods,
+  s11RefereeSteps,
+  type RefereeDefaults,
+} from "@/lib/referee-defaults";
 import { RefereeStepEditor } from "./referee-step-editor";
 import styles from "./referee-step-editor.module.css";
 import type { ScoringRules } from "@/lib/competition-model";
@@ -25,20 +29,17 @@ export function RefereePolicyEditor({
   defaults?: RefereeDefaults | null;
   maps: RefereeMap[];
   busy: boolean;
-  onSave: (policy: RefereePolicy, bestOf?: number) => Promise<void>;
+  onSave: (policy: RefereePolicy) => Promise<void>;
   series: ScoringRules["series"] | null;
 }) {
   const tr = useAppTranslations();
   const initialPolicy = policy ?? defaults?.policy;
   const initialCommands = policy ? policy.commands : defaults?.commands;
-  const originalBestOf =
-    series?.type === "first_to" ? series.wins * 2 - 1 : null;
-  const [bestOf, setBestOf] = useState(originalBestOf?.toString() ?? "");
-  const wins = (Number(bestOf) + 1) / 2;
+  const wins =
+    series?.type === "first_to" ? series.wins : (defaults?.wins ?? 1);
   const [placement, setPlacement] = useState(
     defaults && !policy ? "split" : "",
   );
-  const generatedWins = useRef(defaults?.wins ?? 0);
   const nextStepKey = useRef(initialPolicy?.steps.length ?? 0);
   const [steps, setSteps] = useState(() =>
     (initialPolicy?.steps ?? []).map((step, key) => ({ key, step })),
@@ -53,29 +54,28 @@ export function RefereePolicyEditor({
   const [roomSize, setRoomSize] = useState(
     policy?.commands?.roomSize.toString() ?? "",
   );
-  const [noFail, setNoFail] = useState(initialCommands?.noFail ?? false);
+  const standardMods = standardRefereeCategoryMods();
+  const hasCustomMods = Boolean(
+    initialCommands &&
+    (!initialCommands.noFail ||
+      Object.entries(initialCommands.categoryMods).some(([category, value]) => {
+        const standard = standardMods[category];
+        return (
+          !standard ||
+          value.freemod !== standard.freemod ||
+          value.mods.length !== standard.mods.length ||
+          value.mods.some((mod, index) => mod !== standard.mods[index])
+        );
+      })),
+  );
+  const [restoreStandard, setRestoreStandard] = useState(false);
+  const keepSavedMods = hasCustomMods && !restoreStandard;
   const [durations, setDurations] = useState({
     banSeconds: initialCommands?.banSeconds?.toString() ?? "",
     pickSeconds: initialCommands?.pickSeconds?.toString() ?? "",
     prepareSeconds: initialCommands?.prepareSeconds?.toString() ?? "",
     startSeconds: initialCommands?.startSeconds?.toString() ?? "",
   });
-  const [mods, setMods] = useState<Record<string, string>>(
-    Object.fromEntries(
-      Object.entries(initialCommands?.categoryMods ?? {}).map(([k, v]) => [
-        k,
-        v.mods.join(" "),
-      ]),
-    ),
-  );
-  const [free, setFree] = useState<Record<string, boolean>>(
-    Object.fromEntries(
-      Object.entries(initialCommands?.categoryMods ?? {}).map(([k, v]) => [
-        k,
-        v.freemod,
-      ]),
-    ),
-  );
   const [maxReplays, setMaxReplays] = useState(
     policy?.maxReplaysPerMap?.toString() ?? "",
   );
@@ -99,29 +99,14 @@ export function RefereePolicyEditor({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (
-      originalBestOf !== null &&
-      (!Number.isInteger(wins) || wins < 1 || wins > 99)
-    ) {
-      setError(tr("BO must be an odd number between 1 and 197."));
-      return;
-    }
     const commands: RefereeCommandPolicy | null = roomSize
       ? {
           roomSize: Number(roomSize),
-          noFail,
-          categoryMods: Object.fromEntries(
-            categories.map((c) => [
-              c,
-              {
-                mods: (c === "NM" ? "" : (mods[c] ?? ""))
-                  .trim()
-                  .split(/\s+/)
-                  .filter(Boolean) as (typeof commandMods)[number][],
-                freemod: c === "NM" ? false : (free[c] ?? false),
-              },
-            ]),
-          ),
+          noFail: keepSavedMods ? initialCommands!.noFail : true,
+          categoryMods: {
+            ...standardMods,
+            ...(keepSavedMods ? initialCommands!.categoryMods : {}),
+          },
           ...(Object.fromEntries(
             Object.entries(durations).map(([k, v]) => [
               k,
@@ -134,7 +119,11 @@ export function RefereePolicyEditor({
         }
       : null;
     const parsed = refereePolicySchema.safeParse({
-      steps: steps.map((row) => row.step),
+      steps: steps.map(({ step }) =>
+        step.kind === "tb" && series?.type === "first_to"
+          ? { ...step, tiedAt: wins - 1 }
+          : step,
+      ),
       commands,
       ...(initialBanRules || !allowRepeatBan
         ? {
@@ -152,12 +141,7 @@ export function RefereePolicyEditor({
       );
       return;
     }
-    await onSave(
-      parsed.data,
-      originalBestOf !== null && Number(bestOf) !== originalBestOf
-        ? Number(bestOf)
-        : undefined,
-    );
+    await onSave(parsed.data);
   }
   return (
     <details className="panel">
@@ -169,53 +153,6 @@ export function RefereePolicyEditor({
           )}
         </p>
         <fieldset disabled={busy} className="staff-readonly-fields form-stack">
-          <label className="field">
-            <span>{tr("Best of (BO)")}</span>
-            <input
-              type="number"
-              min={1}
-              max={197}
-              step={2}
-              required={originalBestOf !== null}
-              disabled={originalBestOf === null}
-              value={bestOf}
-              onChange={(event) => {
-                setBestOf(event.target.value);
-                const nextWins = (Number(event.target.value) + 1) / 2;
-                if (
-                  placement &&
-                  Number.isInteger(nextWins) &&
-                  nextWins >= 1 &&
-                  nextWins <= 98
-                ) {
-                  const order = placement as "split" | "opening";
-                  if (
-                    JSON.stringify(steps.map(({ step }) => step)) ===
-                    JSON.stringify(
-                      s11RefereeSteps(generatedWins.current, order),
-                    )
-                  ) {
-                    setSteps(
-                      s11RefereeSteps(nextWins, order).map((step) => ({
-                        key: nextStepKey.current++,
-                        step,
-                      })),
-                    );
-                    generatedWins.current = nextWins;
-                  }
-                }
-              }}
-            />
-          </label>
-          <p className="muted small">
-            {originalBestOf === null
-              ? tr(
-                  "Configure first-to scoring in Fixtures & results before setting BO here. Fixed-map series are not BO matches.",
-                )
-              : tr(
-                  "BO uses the round's first-to scoring. Review the Pick count and tied-score condition before saving a changed BO.",
-                )}
-          </p>
           <label className="field">
             {tr("Maximum replays per map")}
             <input
@@ -236,7 +173,6 @@ export function RefereePolicyEditor({
                 required
                 onChange={(event) => {
                   setPlacement(event.target.value);
-                  generatedWins.current = wins;
                   const generated = event.target.value
                     ? s11RefereeSteps(
                         wins,
@@ -361,6 +297,7 @@ export function RefereePolicyEditor({
                 defaultTiedAt={
                   Number.isInteger(wins) && wins > 0 ? wins - 1 : 0
                 }
+                tiedScoreReadOnly={series?.type === "first_to"}
                 onChange={(patch) => update(index, patch)}
                 onMove={(direction) =>
                   setSteps((previous) => {
@@ -415,14 +352,48 @@ export function RefereePolicyEditor({
               onChange={(e) => setRoomSize(e.target.value)}
             />
           </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={noFail}
-              onChange={(e) => setNoFail(e.target.checked)}
-            />{" "}
-            {tr("Require No Fail for every map")}
-          </label>
+          {!keepSavedMods && (
+            <p className="muted small">
+              {tr("NF and standard category Mods are applied automatically.")}
+            </p>
+          )}
+          {hasCustomMods && (
+            <details>
+              <summary>{tr("Saved custom Mod settings")}</summary>
+              <p className="muted small">
+                {tr(
+                  "Existing custom Mod settings are preserved unless you restore the defaults.",
+                )}
+              </p>
+              <dl className="detail-list">
+                <div>
+                  <dt>NF</dt>
+                  <dd>{initialCommands!.noFail ? tr("Yes") : tr("No")}</dd>
+                </div>
+                {Object.entries(initialCommands!.categoryMods).map(
+                  ([category, value]) => (
+                    <div key={category}>
+                      <dt>{category}</dt>
+                      <dd>
+                        {[
+                          ...value.mods,
+                          ...(value.freemod ? ["Freemod"] : []),
+                        ].join(" ") || "None"}
+                      </dd>
+                    </div>
+                  ),
+                )}
+              </dl>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={restoreStandard}
+                  onChange={(event) => setRestoreStandard(event.target.checked)}
+                />
+                {tr("Restore NF and standard category Mods on save")}
+              </label>
+            </details>
+          )}
           {(
             [
               "banSeconds",
@@ -443,56 +414,6 @@ export function RefereePolicyEditor({
               />
             </label>
           ))}
-          <p className="muted small">
-            {tr(
-              "NM always clears Mods. No Fail is controlled separately above.",
-            )}
-          </p>
-          {Boolean(
-            initialCommands?.categoryMods.NM &&
-            (initialCommands.categoryMods.NM.mods.length ||
-              initialCommands.categoryMods.NM.freemod),
-          ) && (
-            <p className="notice">
-              {tr(
-                "This saved policy overrides NM. Saving will restore NM to No Mod; existing referee history remains unchanged.",
-              )}
-            </p>
-          )}
-          {categories
-            .filter((category) => category !== "NM")
-            .map((category) => (
-              <div className="form-stack" key={category}>
-                <label className="field">
-                  <span>
-                    {tr(
-                      "Mods for {category} (space separated; empty clears Mods)",
-                      { category },
-                    )}
-                  </span>
-                  <input
-                    value={mods[category] ?? ""}
-                    onChange={(e) =>
-                      setMods((m) => ({
-                        ...m,
-                        [category]: e.target.value.toUpperCase(),
-                      }))
-                    }
-                    placeholder="HD"
-                  />
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={free[category] ?? false}
-                    onChange={(e) =>
-                      setFree((f) => ({ ...f, [category]: e.target.checked }))
-                    }
-                  />{" "}
-                  {category} · {tr("Freemod")}
-                </label>
-              </div>
-            ))}
           <button type="submit">{tr("Save round referee policy")}</button>
         </fieldset>
         {error && <p role="alert">{error}</p>}

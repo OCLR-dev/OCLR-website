@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import type { FixtureWorkspace } from "../../src/lib/fixtures";
 import { createRoot } from "react-dom/client";
 import { NextIntlClientProvider } from "next-intl";
 import {
@@ -64,49 +66,116 @@ const entries = ["NM", "HD", "HR", "FM", "TB"].flatMap((category, index) =>
 const locale = params.get("locale") ?? "en";
 document.documentElement.dataset.theme = params.get("theme") ?? "light";
 document.documentElement.dataset.appearance = "default";
-createRoot(document.getElementById("root")!).render(
-  <AppRouterContext.Provider value={router}>
-    <NextIntlClientProvider
-      locale={locale}
-      messages={locale === "zh-Hant" ? hant : locale === "zh-Hans" ? hans : en}
-      timeZone="UTC"
-    >
-      <StaffReadOnlyContext value={params.has("readonly")}>
-        <main className="container themed-site private-site">
-          <RoundManager
-            slug="synthetic"
-            initialStage="group"
-            initialRoundId={roundId}
-            season="11"
-            canManageRefereePolicy
-            rounds={[
-              {
-                id: roundId,
-                name: "Synthetic S11 round",
-                stage: "group",
-                position: 1,
-                version: 0,
-              },
-            ]}
-            refereeData={{
-              pools: [{ id: poolId, roundId }] as RefereeData["pools"],
-              entries,
-              refereeRules: [
+router.refresh = () => window.dispatchEvent(new Event("synthetic-refresh"));
+function Harness() {
+  const [state, setState] = useState({
+    wins,
+    roundVersion: 0,
+    policyRevision: params.has("saved") ? 4 : 0,
+    policy: params.has("saved") ? savedPolicy : null,
+  });
+  useEffect(() => {
+    if (!params.has("linked")) return;
+    const refresh = () => {
+      void fetch("/synthetic-round-state")
+        .then((r) => r.json())
+        .then(setState)
+        .catch(() => {});
+    };
+    window.addEventListener("synthetic-refresh", refresh);
+    return () => window.removeEventListener("synthetic-refresh", refresh);
+  }, []);
+  return (
+    <AppRouterContext.Provider value={router}>
+      <NextIntlClientProvider
+        locale={locale}
+        messages={
+          locale === "zh-Hant" ? hant : locale === "zh-Hans" ? hans : en
+        }
+        timeZone="UTC"
+      >
+        <StaffReadOnlyContext value={params.has("readonly")}>
+          <main className="container themed-site private-site">
+            <RoundManager
+              slug="synthetic"
+              initialStage="group"
+              initialRoundId={roundId}
+              season={params.has("other-season") ? "12" : "11"}
+              canManageRefereePolicy
+              competitionData={
                 {
-                  roundId,
-                  revision: params.has("saved") ? 4 : 0,
-                  policy: params.has("saved") ? savedPolicy : null,
-                  series: params.has("no-scoring")
-                    ? null
-                    : params.has("fixed")
-                      ? { type: "fixed_maps", count: 6, allowDraw: true }
-                      : { type: "first_to", wins },
+                  canManage: !params.has("readonly"),
+                  rounds: [
+                    {
+                      stage: "group",
+                      round: {
+                        id: roundId,
+                        version: state.roundVersion,
+                        name: "Synthetic S11 round",
+                        scoringRules: params.has("no-scoring")
+                          ? null
+                          : {
+                              version: "synthetic",
+                              mode: "osu",
+                              teamType: "team-vs",
+                              scoringType: "scorev2",
+                              aggregation: "sum",
+                              playersPerTeam: 3,
+                              exPlayersPerTeam: null,
+                              series: params.has("fixed")
+                                ? {
+                                    type: "fixed_maps",
+                                    count: 6,
+                                    allowDraw: true,
+                                  }
+                                : { type: "first_to", wins: state.wins },
+                              allowSubstitutions: true,
+                              allowShortHanded: false,
+                              failedScorePolicy: "include",
+                              tiedMapPolicy: "require_replay",
+                            },
+                        standingsRules: {
+                          version: "synthetic",
+                          winPoints: 3,
+                          lossPoints: 0,
+                          drawPoints: null,
+                          tiebreakers: ["points", "map_difference"],
+                        },
+                      },
+                    },
+                  ],
+                } as FixtureWorkspace
+              }
+              rounds={[
+                {
+                  id: roundId,
+                  name: "Synthetic S11 round",
+                  stage: "group",
+                  position: 1,
+                  version: state.roundVersion,
                 },
-              ],
-            }}
-          />
-        </main>
-      </StaffReadOnlyContext>
-    </NextIntlClientProvider>
-  </AppRouterContext.Provider>,
-);
+              ]}
+              refereeData={{
+                pools: [{ id: poolId, roundId }] as RefereeData["pools"],
+                entries,
+                refereeRules: [
+                  {
+                    roundId,
+                    revision: state.policyRevision,
+                    policy: state.policy,
+                    series: params.has("no-scoring")
+                      ? null
+                      : params.has("fixed")
+                        ? { type: "fixed_maps", count: 6, allowDraw: true }
+                        : { type: "first_to", wins: state.wins },
+                  },
+                ],
+              }}
+            />
+          </main>
+        </StaffReadOnlyContext>
+      </NextIntlClientProvider>
+    </AppRouterContext.Provider>
+  );
+}
+createRoot(document.getElementById("root")!).render(<Harness />);

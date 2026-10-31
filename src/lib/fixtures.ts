@@ -11,6 +11,7 @@ import {
   matchResults,
   memberships,
   refereeSessions,
+  refereeRoundPolicies,
   refereeEvents,
   resultAuditEvents,
   resultRevisions,
@@ -57,6 +58,9 @@ import { getEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import { persistRoundRefereePolicy } from "./round-referee-policy";
+import { refereePolicyForWins } from "./referee-series";
+import { refereePolicySchema } from "./referee-model";
 const confirmation = {
   confirmed: z.literal(true),
 };
@@ -143,6 +147,7 @@ const commandSchema = z.discriminatedUnion("action", [
       action: z.literal("round_rules"),
       roundId: z.uuid(),
       expectedVersion: z.number().int().nonnegative(),
+      expectedRefereePolicyRevision: z.number().int().nonnegative().optional(),
       scoringRules: scoringRulesSchema.partial({ version: true }).nullable(),
       standingsRules: standingsRulesSchema
         .partial({ version: true })
@@ -728,7 +733,7 @@ export async function fixtureCommand(
   const c = parsed.data;
   try {
     await db().transaction(async (tx) => {
-      if (c.action === "force_delete")
+      if (c.action === "force_delete" || c.action === "round_rules")
         await tx.execute(sql`SELECT pg_advisory_xact_lock(17301)`);
       await tx.insert(editionState).values({ slug }).onConflictDoNothing();
       await tx
@@ -841,6 +846,25 @@ export async function fixtureCommand(
             "Round configuration changed. Refresh before continuing.",
           );
         const scoringRules = policyRelease(c.scoringRules, round.scoringRules);
+        const seriesChanged =
+          scoringRules?.series.type === "first_to" &&
+          (round.scoringRules?.series.type !== "first_to" ||
+            round.scoringRules.series.wins !== scoringRules.series.wins);
+        const [refereePolicy] = seriesChanged
+          ? await tx
+              .select()
+              .from(refereeRoundPolicies)
+              .where(eq(refereeRoundPolicies.roundId, round.id))
+          : [];
+        if (
+          seriesChanged &&
+          (refereePolicy || c.expectedRefereePolicyRevision !== undefined) &&
+          c.expectedRefereePolicyRevision !== (refereePolicy?.revision ?? 0)
+        )
+          throw new HttpError(
+            409,
+            "The round referee policy changed. Refresh before saving.",
+          );
         const standingsRules = policyRelease(
           c.standingsRules,
           round.standingsRules,
@@ -884,6 +908,31 @@ export async function fixtureCommand(
           })
           .where(eq(tournamentRounds.id, round.id))
           .returning();
+        if (seriesChanged && refereePolicy) {
+          const next = refereePolicySchema.safeParse(
+            refereePolicyForWins(
+              refereePolicy.policy,
+              scoringRules!.series.type === "first_to"
+                ? scoringRules!.series.wins
+                : 1,
+            ),
+          );
+          if (!next.success)
+            throw new HttpError(
+              400,
+              "Review the step order, tiebreak conditions and command settings.",
+            );
+          await persistRoundRefereePolicy(
+            tx,
+            actor,
+            slug,
+            round.id,
+            refereePolicy.revision,
+            next.data,
+            undefined,
+            true,
+          );
+        }
         // Round configuration is audited using the existing edition audit stream.
         await tx.insert(editionEvents).values({
           editionSlug: slug,

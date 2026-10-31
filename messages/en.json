@@ -3570,6 +3570,10 @@
     "mce49ceccebf3": "Target round",
     "m58e2949921f1": "Choose a round",
     "ma72b0cddb08b": "Choose rounds from this edition.",
-    "mc273af850dd5": "Candidate rounds changed. Refresh the list before trying again."
+    "mc273af850dd5": "Candidate rounds changed. Refresh the list before trying again.",
+    "m4f87ebd43848": "NF and standard category Mods are applied automatically.",
+    "m1a3eaa05fb0f": "Saved custom Mod settings",
+    "ma8103dbf3042": "Existing custom Mod settings are preserved unless you restore the defaults.",
+    "m853ad91592d2": "Restore NF and standard category Mods on save"
   }
 }
