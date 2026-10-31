@@ -5,7 +5,8 @@ import {
   mappoolCandidateComments,
   mappoolEvents,
 } from "@/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
@@ -86,6 +87,7 @@ async function databaseCandidateComments(
       authorId: mappoolCandidateComments.authorId,
       authorName: mappoolCandidateComments.authorName,
       body: mappoolCandidateComments.body,
+      version: sql<string>`xmin::text`,
       createdAt: mappoolCandidateComments.createdAt,
     })
     .from(mappoolCandidateComments)
@@ -159,6 +161,23 @@ export async function previewCandidates(
 }
 export type CandidatePreview = Awaited<ReturnType<typeof previewCandidates>>;
 const commandSchema = z.discriminatedUnion("action", [
+  z
+    .object({
+      action: z.literal("comment_edit"),
+      candidateId: z.uuid(),
+      commentId: z.uuid(),
+      version: z.string().regex(/^\d+$/),
+      body: z.string().trim().min(1).max(commentLength),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("comment_delete"),
+      candidateId: z.uuid(),
+      commentId: z.uuid(),
+      version: z.string().regex(/^\d+$/),
+    })
+    .strict(),
   z
     .object({
       action: z.literal("classify"),
@@ -347,6 +366,93 @@ export async function selectionCommand(
       });
       return { added: 0, skipped: 0 };
     }
+    const bodyHash = (body: string) =>
+      createHash("sha256").update(body).digest("hex");
+    async function originalBodyHash(requestId: string, fallbackBody: string) {
+      const [event] = await tx
+        .select({ after: mappoolEvents.after })
+        .from(mappoolEvents)
+        .where(
+          and(
+            eq(mappoolEvents.editionSlug, slug),
+            eq(mappoolEvents.actorId, actor.osuId),
+            inArray(mappoolEvents.action, [
+              "candidate_comment",
+              "candidate_comment_edit",
+              "candidate_comment_delete",
+            ]),
+            sql`${mappoolEvents.after}->>'candidateId' = ${candidate.id}`,
+            sql`${mappoolEvents.after}->>'requestId' = ${requestId}`,
+            sql`${mappoolEvents.after}->>'requestBodyHash' IS NOT NULL`,
+          ),
+        )
+        .limit(1);
+      // Pre-feature comments have no hash until their first edit/delete.
+      return typeof event?.after.requestBodyHash === "string"
+        ? event.after.requestBodyHash
+        : bodyHash(fallbackBody);
+    }
+    if (c.action === "comment_edit" || c.action === "comment_delete") {
+      const [current] = await tx
+        .select({
+          id: mappoolCandidateComments.id,
+          requestId: mappoolCandidateComments.requestId,
+          body: mappoolCandidateComments.body,
+          version: sql<string>`xmin::text`,
+        })
+        .from(mappoolCandidateComments)
+        .where(
+          and(
+            eq(mappoolCandidateComments.id, c.commentId),
+            eq(mappoolCandidateComments.candidateId, candidate.id),
+            eq(mappoolCandidateComments.editionSlug, slug),
+            eq(mappoolCandidateComments.authorId, actor.osuId),
+          ),
+        )
+        .for("update");
+      if (!current) throw new HttpError(404, "Comment not found.");
+      if (current.version !== c.version)
+        throw new HttpError(
+          409,
+          "This comment has changed. Cancel and refresh before trying again.",
+        );
+      const requestBodyHash = await originalBodyHash(
+        current.requestId,
+        current.body,
+      );
+      if (c.action === "comment_edit") {
+        await tx
+          .update(mappoolCandidateComments)
+          .set({ body: c.body })
+          .where(eq(mappoolCandidateComments.id, current.id));
+      } else {
+        await tx
+          .delete(mappoolCandidateComments)
+          .where(eq(mappoolCandidateComments.id, current.id));
+      }
+      await tx.insert(mappoolEvents).values({
+        editionSlug: slug,
+        actorId: actor.osuId,
+        action:
+          c.action === "comment_edit"
+            ? "candidate_comment_edit"
+            : "candidate_comment_delete",
+        before: {
+          candidateId: candidate.id,
+          commentId: current.id,
+          version: current.version,
+        },
+        // Retain the creation request identity so a lost-response retry cannot
+        // resurrect a deleted comment. Audit metadata contains no comment text.
+        after: {
+          candidateId: candidate.id,
+          commentId: current.id,
+          requestId: current.requestId,
+          requestBodyHash,
+        },
+      });
+      return { added: 0, skipped: 0 };
+    }
     const [prior] = await tx
       .select()
       .from(mappoolCandidateComments)
@@ -358,13 +464,34 @@ export async function selectionCommand(
         ),
       );
     if (prior) {
-      if (prior.candidateId !== c.candidateId || prior.body !== c.body)
+      if (
+        prior.candidateId !== c.candidateId ||
+        (await originalBodyHash(c.requestId, prior.body)) !== bodyHash(c.body)
+      )
         throw new HttpError(
           409,
           "This comment request was already used. Reload the comments.",
         );
       return { added: 0, skipped: 1 };
     }
+    const [deleted] = await tx
+      .select({ id: mappoolEvents.id })
+      .from(mappoolEvents)
+      .where(
+        and(
+          eq(mappoolEvents.editionSlug, slug),
+          eq(mappoolEvents.actorId, actor.osuId),
+          eq(mappoolEvents.action, "candidate_comment_delete"),
+          sql`${mappoolEvents.after}->>'candidateId' = ${candidate.id}`,
+          sql`${mappoolEvents.after}->>'requestId' = ${c.requestId}`,
+        ),
+      )
+      .limit(1);
+    if (deleted)
+      throw new HttpError(
+        409,
+        "This comment request was already used. Reload the comments.",
+      );
     const [count] = await tx
       .select({ value: sql<number>`count(*)::int` })
       .from(mappoolCandidateComments)
@@ -386,7 +513,12 @@ export async function selectionCommand(
       editionSlug: slug,
       actorId: actor.osuId,
       action: "candidate_comment",
-      after: { candidateId: candidate.id, commentId: comment.id },
+      after: {
+        candidateId: candidate.id,
+        commentId: comment.id,
+        requestId: c.requestId,
+        requestBodyHash: bodyHash(c.body),
+      },
     });
     return { added: 1, skipped: 0 };
   });

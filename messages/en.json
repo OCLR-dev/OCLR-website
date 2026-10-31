@@ -3494,6 +3494,10 @@
     "m1aea62e3dd00": "The roster capacity applies to every team and includes the captain.",
     "me1e4a499f9d3": "Change roster capacity in tournament settings.",
     "mdebedf9b72a9": "Roster capacity is locked for the draft.",
-    "m597d751e7f75": "Capacity cannot be smaller than the current roster or changed for finalized teams."
+    "m597d751e7f75": "Capacity cannot be smaller than the current roster or changed for finalized teams.",
+    "m4f346f7772f1": "Edit comment",
+    "m4d92d7c51643": "Delete this comment?",
+    "m38c665ba6542": "Comment not found.",
+    "m4649872ea6ad": "This comment has changed. Cancel and refresh before trying again."
   }
 }
