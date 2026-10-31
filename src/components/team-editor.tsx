@@ -14,12 +14,11 @@ export function TeamEditor({
   slug,
   version,
   team,
-  locked,
 }: {
   slug: string;
   version: number;
+  locked?: boolean;
   team: Awaited<ReturnType<typeof staffTeams>>["teams"][number];
-  locked: boolean;
 }) {
   const tr = useAppTranslations(),
     { refreshing, refresh } = usePendingRefresh(),
@@ -120,18 +119,6 @@ export function TeamEditor({
                 name="name"
                 maxLength={80}
                 defaultValue={team.name}
-              />
-            </label>
-            <label className="field">
-              <span>{tr("Roster capacity (optional)")}</span>
-              <input
-                disabled={pending}
-                name="capacity"
-                type="number"
-                min={team.members.length}
-                max={256}
-                readOnly={locked || !!team.finalizedAt}
-                defaultValue={team.capacity ?? ""}
               />
             </label>
             <div className="team-image-preview">

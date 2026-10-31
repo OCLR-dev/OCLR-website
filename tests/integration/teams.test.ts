@@ -30,6 +30,7 @@ import {
   publishedTeams,
 } from "../../src/lib/teams";
 import { edition } from "../fixtures/edition";
+import { tournamentCommand, readTournament } from "../../src/lib/tournaments";
 import { publicPlayers } from "../../src/lib/players";
 import { getOsuUserProfile } from "../../src/lib/osu-profiles";
 vi.mock("../../src/lib/osu-profiles", () => ({ getOsuUserProfile: vi.fn() }));
@@ -103,6 +104,76 @@ describe.skipIf(!url)(
         }),
       );
     }
+    it("creates a private captain team on appointment and applies tournament capacity to every team", async () => {
+      const initial = await staffTeams(staff, edition.slug);
+      expect(initial.teams).toHaveLength(2);
+      for (const team of initial.teams) {
+        expect(team.members.map((m) => m.osuId)).toEqual([team.captainId]);
+        expect(team.identityPublished).toBe(false);
+        expect(team.rosterPublished).toBe(false);
+      }
+      const saved = (await readTournament(edition.slug))!;
+      const e = saved.edition;
+      const general = (rosterCapacity: number | null) =>
+        tournamentCommand(staff, edition.slug, {
+          action: "general",
+          expectedRevision: saved.revision,
+          confirmed: true,
+          name: e.name,
+          season: e.season,
+          summary: e.summary,
+          status: e.status,
+          timeZone: e.timeZone,
+          branding: e.branding,
+          rosterCapacity,
+        });
+      const initialTeam = initial.teams[0];
+      await db()
+        .insert(memberships)
+        .values({
+          editionSlug: edition.slug,
+          teamId: initialTeam.id,
+          userId: player.osuId,
+          origin: "synthetic_test",
+        });
+      await expect(general(1)).rejects.toMatchObject({ status: 409 });
+      expect((await readTournament(edition.slug))!.revision).toBe(
+        saved.revision,
+      );
+      expect((await staffTeams(staff, edition.slug)).version).toBe(
+        initial.version,
+      );
+      await db()
+        .delete(memberships)
+        .where(eq(memberships.userId, player.osuId));
+      await general(2);
+      const configured = await staffTeams(staff, edition.slug);
+      expect(configured.teams.map((t) => t.capacity)).toEqual([2, 2]);
+      await expect(
+        updateTeams(
+          staff,
+          edition.slug,
+          command(configured.version, {
+            action: "edit",
+            teamId: configured.teams[0].id,
+            name: "Renamed",
+            capacity: 3,
+            avatarKey: null,
+          }),
+        ),
+      ).rejects.toMatchObject({ status: 400 });
+      await updateCaptains(
+        staff,
+        edition.slug,
+        command(configured.version, {
+          action: "appoint",
+          userId: player.osuId,
+        }),
+      );
+      expect(
+        (await staffTeams(staff, edition.slug)).teams.map((t) => t.capacity),
+      ).toEqual([2, 2, 2]);
+    });
     it("creates exactly one team per captain and prevents captain access to staff mutations", async () => {
       const data = await configure();
       expect(data.teams).toHaveLength(2);

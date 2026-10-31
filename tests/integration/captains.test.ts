@@ -196,12 +196,20 @@ describe.skipIf(!url)("captain setup, publication and eligibility", () => {
     expect(await db().select().from(registrations)).toEqual(
       originalApplications,
     );
-    const [archived] = await db().select().from(teams);
+    const [archived] = await db()
+      .select()
+      .from(teams)
+      .where(eq(teams.captainId, a.osuId));
     expect(archived.archivedAt).toBeInstanceOf(Date);
     expect(archived.identityPublished).toBe(false);
     expect(archived.rosterPublished).toBe(false);
-    const [member] = await db().select().from(memberships);
-    expect(member.id).toBe(originalMembers[0].id);
+    const [member] = await db()
+      .select()
+      .from(memberships)
+      .where(eq(memberships.userId, a.osuId));
+    expect(member.id).toBe(
+      originalMembers.find((m) => m.userId === a.osuId)!.id,
+    );
     expect(member.leftAt).toBeInstanceOf(Date);
     const events = await db().select().from(editionEvents);
     expect(events).toHaveLength(4);

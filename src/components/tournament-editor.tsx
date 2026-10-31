@@ -363,6 +363,9 @@ function General({ data, saved }: EditorProps) {
     branding: data.edition.branding,
   });
   const [status, setStatus] = useState(data.edition.status);
+  const [rosterCapacity, setRosterCapacity] = useState(
+    data.edition.rosterCapacity?.toString() ?? "",
+  );
   const [coachesEnabled, setCoachesEnabled] = useState(
     coachingEnabled(data.edition),
   );
@@ -396,7 +399,22 @@ function General({ data, saved }: EditorProps) {
           </label>
         </IdentityFields>
         <fieldset className="settings-card form-stack">
-          <legend>{tr("Team coaches")}</legend>
+          <legend>{tr("Teams")}</legend>
+          <label className="field">
+            <span>{tr("Roster capacity (optional)")}</span>
+            <input
+              type="number"
+              min={1}
+              max={256}
+              value={rosterCapacity}
+              onChange={(e) => setRosterCapacity(e.target.value)}
+            />
+          </label>
+          <p className="muted small">
+            {tr(
+              "The roster capacity applies to every team and includes the captain.",
+            )}
+          </p>
           <label className="checkbox-row">
             <input
               type="checkbox"
@@ -442,6 +460,12 @@ function General({ data, saved }: EditorProps) {
             ...value,
             status,
             coachesEnabled,
+            rosterCapacity:
+              rosterCapacity === ""
+                ? data.edition.rosterCapacity === undefined
+                  ? undefined
+                  : null
+                : Number(rosterCapacity),
             defaultAppearance: appearance === "site" ? null : appearance,
           }}
           label={tr("Save general settings")}

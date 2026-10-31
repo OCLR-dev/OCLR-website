@@ -3490,6 +3490,10 @@
     "m927b95c5bec3": "Bookings stay private and do not publish stream links. Conflict notices compare start times in this edition only and do not block booking.",
     "md7a4e24ada75": "An active Streamer grant is required.",
     "m49bea41b285a": "Choose a tournament to manage its streaming API access.",
-    "md9510f39bbfe": "No tournaments available."
+    "md9510f39bbfe": "No tournaments available.",
+    "m1aea62e3dd00": "The roster capacity applies to every team and includes the captain.",
+    "me1e4a499f9d3": "Change roster capacity in tournament settings.",
+    "mdebedf9b72a9": "Roster capacity is locked for the draft.",
+    "m597d751e7f75": "Capacity cannot be smaller than the current roster or changed for finalized teams."
   }
 }

@@ -41,70 +41,23 @@
   font-size: 0.875rem;
   padding: 0.4rem 0.75rem;
 }
-.configuration {
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-border);
-}
-.configuration summary {
-  cursor: pointer;
-  padding-block: 0.75rem;
-}
 .groups :global(.group-assignment-grid) {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 1rem;
+  align-items: start;
 }
 .groups :global(.group-assignment-card) {
-  display: grid;
-  grid-template-columns: minmax(8rem, 1fr) minmax(10rem, 1fr) minmax(12rem, 2fr);
-  align-items: start;
-  border: 0;
-  border-bottom: 1px solid var(--color-border);
-  border-radius: 0;
-  box-shadow: none;
-  background: transparent;
-  padding: 0.75rem 0;
-  gap: 0.75rem;
-}
-.groups :global(.group-team-list) {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-.groups :global(.group-team-card) {
-  padding: 0.5rem;
-  box-shadow: none;
-}
-.groups :global(.group-unassigned) {
-  border: 0;
-  padding: 0.75rem 0;
+  min-width: 0;
 }
 @media (max-width: 800px) {
-  .groups :global(.group-assignment-card) {
-    grid-template-columns: 1fr;
-  }
   .teams th,
   .teams td {
     padding: 0.5rem;
   }
 }
-
 .teams :global(.team-monogram img) {
   width: 40px;
   height: 40px;
   object-fit: cover;
-}
-.groups h3 {
-  font-size: 1rem;
-}
-
-@media (min-width: 801px) {
-  .groups :global(.group-assignment-card > .group-team-list) {
-    grid-column: 3;
-    grid-row: 1 / span 2;
-  }
-  .groups :global(.group-team-picker) {
-    grid-column: 2;
-  }
 }

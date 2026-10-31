@@ -358,7 +358,6 @@ are UI fixtures, not provider snapshots or approved tournament selections.
 
 审核布局进一步收敛：赛前准备仅保留开房、规则、人员邀请与房间设置；切图通过 BP 图池，Mods、中止与计时/开赛使用 IRC 控制台。图池每行四个队伍操作横排，手机缩小按钮。执裁摘要最大固定宽度 48rem（小屏不超过容器），滚动至其位置后吸附在页头下方，只显示比分、BP 过程、重赛记录及胜局状态；长记录在各行内横向滚动。原有赛况录入和纠正功能保留在图池后的“记录与修正赛况”折叠区，不进入吸顶摘要。
 
-
 ### Round scoring and EX declarations
 
 Competition rules live in **Rounds → Edit round → Competition configuration**.
@@ -394,7 +393,6 @@ and compares that snapshot so a changed declaration cannot silently approve the
 old proposal. Public results still require the existing reviewed/approved publish
 flow; changing a referee declaration does not change a published result.
 
-
 ### Streaming task list and API access
 
 Streaming tasks use compact rows: match/pairing, time/status, current assignment
@@ -414,3 +412,7 @@ grants only their edition, and revocation is checked on each request. Credential
 issuance/revocation and idle expiry remain unchanged. This is a live browser-session
 credential flow, unavailable in the remote read-only frontend; ordinary saved
 streaming workspaces remain remotely readable under their existing permissions.
+
+### Captain teams and tournament roster capacity
+
+Appointing or replacing a captain creates their private team and captain membership in the same versioned transaction. Team management contains teams and group cards; appointments and the player pool remain on the Captains page. Edit team changes the name and avatar. General tournament settings owns the optional roster capacity, including the captain, for every active team and future appointments. Saving it updates team capacities atomically and advances setup version; draft locks, finalized teams and existing roster sizes prevent unsafe changes. Existing saved capacities remain intact until an explicit tournament setting change. Publication remains a separate approval.

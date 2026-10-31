@@ -21,6 +21,9 @@ test("decodes PNG/JPEG/WebP under the actual CSP and releases previews on replac
   const response = await page.goto("/team-editor");
   expect(response!.headers()["content-security-policy"]).toContain("blob:");
   await page.getByRole("button", { name: "Edit team", exact: true }).click();
+  await expect(
+    page.getByLabel("Roster capacity (optional)", { exact: true }),
+  ).toHaveCount(0);
   const dialog = page.getByRole("dialog"),
     preview = dialog.getByAltText("Pending team image");
   const choose = async (format: "png" | "jpeg" | "webp") => {
@@ -29,13 +32,11 @@ test("decodes PNG/JPEG/WebP under the actual CSP and releases previews on replac
     })
       .toFormat(format)
       .toBuffer();
-    await dialog
-      .getByLabel("Team avatar", { exact: true })
-      .setInputFiles({
-        name: `synthetic.${format}`,
-        mimeType: `image/${format}`,
-        buffer,
-      });
+    await dialog.getByLabel("Team avatar", { exact: true }).setInputFiles({
+      name: `synthetic.${format}`,
+      mimeType: `image/${format}`,
+      buffer,
+    });
     await expect(preview).toHaveJSProperty("complete", true);
     await expect(preview).toHaveJSProperty("naturalWidth", 12);
   };

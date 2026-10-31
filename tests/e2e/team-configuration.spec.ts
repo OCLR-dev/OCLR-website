@@ -6,7 +6,7 @@ import { seedSession } from "./session";
 import { seedBrowserEditions } from "./setup";
 import { seedResultReview } from "../fixtures/results";
 import { assertTestDatabase } from "../database";
-const origin = "http://127.0.0.1:3100";
+const origin = process.env.OCLR_TEST_ORIGIN || "http://127.0.0.1:3100";
 test.describe("team configuration batch #543–#546", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.setTimeout(120000);
@@ -103,7 +103,7 @@ test.describe("team configuration batch #543–#546", () => {
         exact: true,
       }),
     ).toBeVisible();
-    await page.getByRole("tab", { name: "Schedule", exact: true }).click();
+    await page.goto("/admin/tournaments/test-cup/matches");
     await page
       .getByRole("button", { name: "Create a fixture", exact: true })
       .click();

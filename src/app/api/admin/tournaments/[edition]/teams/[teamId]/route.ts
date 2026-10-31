@@ -50,7 +50,6 @@ export async function PATCH(
       throw new HttpError(400, "Choose a JPEG, PNG or WebP image up to 5 MB.");
     if (image instanceof File && image.size)
       uploaded = await storeTeamImage(Buffer.from(await image.arrayBuffer()));
-    const value = form.get("capacity");
     const data = await updateTeams(
       actor,
       edition,
@@ -61,7 +60,7 @@ export async function PATCH(
           action: "edit",
           teamId,
           name: form.get("name"),
-          capacity: value === "" ? null : Number(value),
+          capacity: before.capacity,
           avatarKey:
             uploaded ??
             (form.get("removeAvatar") === "true" ? null : before.avatarKey),
