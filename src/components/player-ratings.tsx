@@ -93,11 +93,7 @@ export function PlayerRatings({
                     <th scope="row">
                       <Link
                         className="text-link"
-                        href={
-                          historical
-                            ? `/tournaments/${slug}/players/${p.userId}`
-                            : `/players/${p.userId}?edition=${slug}`
-                        }
+                        href={`/players/${p.userId}?edition=${slug}`}
                       >
                         {p.username}
                       </Link>

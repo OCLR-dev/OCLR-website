@@ -115,7 +115,7 @@ test.describe("historical archive browser workflow", () => {
     expect(saved.archive.rosterReplacements).toBeUndefined();
     expect(saved.archive.matches).toEqual(historicalArchive.matches);
     await context.clearCookies();
-    await page.goto(`/tournaments/${slug}/players/91991`);
+    await page.goto(`/players/91991?edition=${slug}`);
     await expect(
       page.getByRole("heading", { name: "Synthetic substitute", exact: true }),
     ).toBeVisible();
@@ -218,7 +218,7 @@ test.describe("historical archive browser workflow", () => {
     await context.clearCookies();
     await page.goto(`/tournaments/${slug}/players`);
     await expect(
-      page.locator(`a[href="/tournaments/${slug}/players/91991"]`).first(),
+      page.locator(`a[href="/players/91991?edition=${slug}"]`).first(),
     ).toBeVisible();
     await expect(
       page.getByText("Synthetic organizer confirmation", { exact: true }),
@@ -1048,7 +1048,7 @@ test.describe("historical archive browser workflow", () => {
       .getByRole("link", { name: "Historical Player", exact: true })
       .click();
     await expect(page).toHaveURL(
-      new RegExp(`/tournaments/${slug}/players/91003$`),
+      new RegExp(`/players/91003\\?edition=${slug}$`),
     );
     await expect(page.getByText("Tier 1", { exact: true })).toBeVisible();
     await expect(page.locator(".historical-archive")).not.toContainText(
@@ -1142,7 +1142,6 @@ test.describe("historical archive browser workflow", () => {
     }
     for (const path of [
       "teams/missing",
-      "players/9999",
       "mappools/missing",
       "matches/missing",
       "matches/alternative",

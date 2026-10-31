@@ -6,7 +6,7 @@ test("all six statistics views preserve identity and same-name team filters", as
   const rows = page.locator("tbody tr");
   const player = (id: number) =>
     rows.filter({
-      has: page.locator(`a[href='/tournaments/synthetic/players/${id}']`),
+      has: page.locator(`a[href='/players/${id}?edition=synthetic']`),
     });
   await expect(rows).toHaveCount(2);
   await expect(player(11)).toContainText("90");

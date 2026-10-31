@@ -409,7 +409,7 @@ test.describe("historical statistics review and public exploration", () => {
       .getByRole("button", { name: "Performance scores", exact: true })
       .click();
     await expect(
-      page.locator('a[href="/tournaments/s2/players/91001"]').first(),
+      page.locator('a[href="/players/91001?edition=s2"]').first(),
     ).toBeVisible();
     await page
       .getByRole("combobox", { name: "Team", exact: true })

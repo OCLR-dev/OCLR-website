@@ -3477,6 +3477,8 @@
     "m448d68c96649": "No published map scores are attributed to this player yet.",
     "m0971448d821f": "Map details",
     "m20a40d7963aa": "Effective rating",
+    "m5b043383f06c": "Only published or approved MP map scores are counted: archived seasons use their published statistics, live seasons use reviewed results. Effective rating is the player's score divided by that map's average score; maps with an unusable average are skipped. Relative score, combo, misses, pass rate, team share and failed-score counts are intentionally omitted.",
+    "m20a40d7963aa": "Effective rating",
     "mbb0b7424e2a8": "EX players per team per game",
     "mee16e115b011": "EX mode",
     "m422d90ee167f": "Normal mode",

@@ -339,7 +339,6 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
     "/tournaments/remote-history",
     "/tournaments/remote-history/rules",
     "/tournaments/remote-history/players",
-    `/tournaments/remote-history/players/${historicalArchive.players[0].osuId}`,
   ]) {
     await page.goto(path);
     await expect(

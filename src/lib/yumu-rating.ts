@@ -6,7 +6,19 @@
  */
 export const YUMU_POLICY = "yumu-mra-v1";
 export const ratingRound = (value: number) => Math.round(value * 1e9) / 1e9;
-export type RatingScore = { userId: number; total: number; teamId: string };
+export type RatingScore = {
+  userId: number;
+  total: number;
+  teamId: string;
+  /** Optional display fields; the rating formula ignores them. */
+  accuracy?: number | null;
+};
+export type RatingBeatmap = {
+  setId: number | null;
+  title: string | null;
+  artist: string | null;
+  difficulty: string | null;
+};
 export type RatingGame = {
   gameId: number;
   fixtureId: string;
@@ -18,6 +30,10 @@ export type RatingGame = {
   teamIds: string[];
   winnerTeamId: string | null;
   scores: RatingScore[];
+  /** Optional display fields; the rating formula ignores them. */
+  beatmapId?: number | null;
+  beatmap?: RatingBeatmap | null;
+  scoringType?: string | null;
   problem?: string;
 };
 export type PlayerRating = {

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { StatisticsPlay } from "../../src/lib/archive-statistics-model";
 import {
+  liveMapPlays,
   mapPerformance,
   summarizeMapPerformance,
   type PlayerMapEdition,
 } from "../../src/lib/player-map-performance";
+import type { RatingGame } from "../../src/lib/yumu-rating";
 
 function play(
   gameId: number,
@@ -134,5 +136,84 @@ describe("map performance", () => {
       "s2",
       "s1",
     ]);
+  });
+});
+
+describe("liveMapPlays", () => {
+  const game = (over: Partial<RatingGame> = {}): RatingGame => ({
+    gameId: 7,
+    fixtureId: "fixture",
+    revision: 1,
+    fingerprint: "fingerprint",
+    roundId: "round",
+    at: "2025-04-05T12:00:00Z",
+    teamIds: ["a", "b"],
+    winnerTeamId: "a",
+    scores: [{ userId: 1, total: 900_000, teamId: "a", accuracy: 0.98 }],
+    beatmapId: 42,
+    beatmap: {
+      setId: 1,
+      title: "Song",
+      artist: "Artist",
+      difficulty: "Insane",
+    },
+    ...over,
+  });
+  const stages = new Map([["fixture", "group"]]);
+  const slots = new Map([["round:42", "NM1"]]);
+
+  it("projects approved games into per-map plays", () => {
+    const [row] = liveMapPlays([game()], stages, slots);
+    expect(row).toMatchObject({
+      fixtureId: "fixture",
+      gameId: 7,
+      stage: "group",
+      title: "Artist - Song - Insane",
+      slot: "NM1",
+      osuId: 1,
+      score: 900_000,
+      accuracy: 0.98,
+    });
+    expect(row.at).toBe("2025-04-05T12:00:00Z");
+  });
+
+  it("keeps placeholders for missing stage, slot and beatmap metadata", () => {
+    const [row] = liveMapPlays(
+      [game({ beatmap: null, beatmapId: null, roundId: undefined })],
+      new Map(),
+      new Map(),
+    );
+    expect(row.stage).toBe("unknown");
+    expect(row.slot).toBe("—");
+    expect(row.title).toBe("MP #7");
+  });
+
+  it("skips games needing review or without a played-at time", () => {
+    expect(
+      liveMapPlays(
+        [game({ problem: "review" }), game({ at: null }), game({ gameId: 8 })],
+        stages,
+        slots,
+      ).map((row) => row.gameId),
+    ).toEqual([8]);
+  });
+
+  it("feeds the shared aggregation unchanged", () => {
+    const plays = liveMapPlays(
+      [
+        game({
+          scores: [
+            { userId: 1, total: 1_000, teamId: "a", accuracy: 0.9 },
+            { userId: 2, total: 500, teamId: "b", accuracy: 0.8 },
+          ],
+        }),
+      ],
+      stages,
+      slots,
+    );
+    const result = mapPerformance(plays, 1);
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0].placement).toBe(1);
+    expect(result.rows[0].effectiveRating).toBeCloseTo(1_000 / 750);
   });
 });

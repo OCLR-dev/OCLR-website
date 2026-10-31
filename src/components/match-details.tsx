@@ -202,11 +202,7 @@ export function MatchDetailsView({
                           <th scope="row">
                             <Link
                               className="text-link"
-                              href={
-                                historical
-                                  ? `/tournaments/${slug}/players/${s.osuId}`
-                                  : `/players/${s.osuId}?edition=${slug}`
-                              }
+                              href={`/players/${s.osuId}?edition=${slug}`}
                             >
                               {s.username}
                             </Link>

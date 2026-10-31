@@ -115,13 +115,20 @@ export async function HistoricalArchiveView({
     preview
       ? `${base}?section=${section}${id ? `&id=${encodeURIComponent(id)}` : ""}`
       : `${base}/${section}${id ? `/${id}` : ""}`;
+  // Published archive cards open the shared OCLR profile directly. The private
+  // preview keeps its single-player archive section because the edition may
+  // still be unpublished.
+  const playerHref = (osuId: number) =>
+    preview
+      ? href("players", String(osuId))
+      : `/players/${osuId}?edition=${edition.slug}`;
   const team = (id: string) => a.teams.find((t) => t.id === id)!;
   const player = (id: number) => a.players.find((p) => p.osuId === id)!;
   const teamLink = (id: string) => (
     <Link href={href("teams", id)}>{team(id).name}</Link>
   );
   const playerLink = (p: Pick<PublicPlayer, "osuId" | "username">) => (
-    <Link href={href("players", String(p.osuId))}>{p.username}</Link>
+    <Link href={playerHref(p.osuId)}>{p.username}</Link>
   );
   const role = (
     p: Pick<
@@ -145,11 +152,7 @@ export async function HistoricalArchiveView({
     showTeam = true,
   ) => (
     <li className="archive-player-card" key={p.osuId} data-role={p.role}>
-      <Link
-        href={href("players", String(p.osuId))}
-        tabIndex={-1}
-        aria-hidden="true"
-      >
+      <Link href={playerHref(p.osuId)} tabIndex={-1} aria-hidden="true">
         <Avatar osuId={p.osuId} username={p.username} />
       </Link>
       <div className="archive-player-copy">
