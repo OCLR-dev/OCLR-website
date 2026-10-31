@@ -416,3 +416,10 @@ streaming workspaces remain remotely readable under their existing permissions.
 ### Captain teams and tournament roster capacity
 
 Appointing or replacing a captain creates their private team and captain membership in the same versioned transaction. Team management contains teams and group cards; appointments and the player pool remain on the Captains page. Edit team changes the name and avatar. General tournament settings owns the optional roster capacity, including the captain, for every active team and future appointments. Saving it updates team capacities atomically and advances setup version; draft locks, finalized teams and existing roster sizes prevent unsafe changes. Existing saved capacities remain intact until an explicit tournament setting change. Publication remains a separate approval.
+
+## Schedule requests (#591)
+
+Players can record private availability and captains can negotiate a new start
+through the [Schedule request tool](schedule-requests.md). Both captains must
+agree to the same proposal before an independent edition Admin can approve it.
+Until approval, public schedule data retains the original official time.

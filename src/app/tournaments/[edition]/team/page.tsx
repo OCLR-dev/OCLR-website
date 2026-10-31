@@ -1,4 +1,4 @@
-import { EmptyState, PageHeading } from "@/components/ui";
+import { Action, EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { currentUser } from "@/lib/auth/user";
 import { remotePage } from "@/lib/remote-page";
@@ -33,6 +33,9 @@ async function Issue271Page({
       {team ? (
         <section className="panel">
           <h2>{team.name}</h2>
+          <Action href={`/tournaments/${edition}/schedule/requests`} secondary>
+            {tr("Schedule requests")}
+          </Action>
           <p className="muted">
             {team.finalizedAt
               ? tr("Finalized roster")

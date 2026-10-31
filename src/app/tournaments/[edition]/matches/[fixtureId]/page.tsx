@@ -47,6 +47,12 @@ async function Issue271Page({
             ? tr("Approved and published result")
             : tr("Awaiting published result")}
       </PageHeading>
+      <Link
+        className="button secondary"
+        href={`/tournaments/${slug}/schedule/requests`}
+      >
+        {tr("Schedule requests")}
+      </Link>
       <section className="panel stack">
         <div className="match-versus">
           <span>

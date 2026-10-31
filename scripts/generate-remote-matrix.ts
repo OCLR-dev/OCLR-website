@@ -156,6 +156,9 @@ const rows = files.map((file) => {
     );
   const denied =
     desktopLiveOnly ||
+    file.includes("/schedule/requests/") ||
+    file.includes("/matches/schedule-requests/") ||
+    file.endsWith("/schedule-manager.tsx") ||
     file.includes("/admin/backups/") ||
     file.endsWith("/backup-manager.tsx") ||
     file.includes("/api/streaming/") ||
@@ -267,7 +270,9 @@ const pages = files
       p.endsWith("/page.tsx") &&
       !p.includes("/streaming/[edition]/page") &&
       p !== "src/app/streaming/page.tsx" &&
-      !p.includes("/admin/backups/"),
+      !p.includes("/admin/backups/") &&
+      !p.includes("/schedule/requests/") &&
+      !p.includes("/matches/schedule-requests/"),
   )
   .map((p) => p.replace(/^src\/app/, "").replace(/\/page\.tsx$/, "") || "/");
 const reads = rows
