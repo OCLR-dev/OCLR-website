@@ -12,6 +12,7 @@ import {
   resolveRefereeActor,
   type RefereeEvent,
 } from "@/lib/referee-model";
+import { bpSyncSource } from "@/lib/referee-sync";
 import { refereeCommands } from "@/lib/referee-commands";
 import { RefereeIrc } from "./referee-irc";
 import { RefereeCommands } from "./referee-commands";
@@ -68,6 +69,21 @@ export function RefereePanel({
     firstBanTeamId: initial.session?.firstBanTeamId ?? null,
     firstPickTeamId: initial.session?.firstPickTeamId ?? null,
   });
+  const [syncEvents, setSyncEvents] = useState<{ id: string; text: string }[]>(
+    [],
+  );
+  function addSync(workspace: RefereeWorkspace, eventId: string) {
+    const source = bpSyncSource(workspace, eventId);
+    if (source)
+      setSyncEvents((current) => {
+        const pending = source.withdrawn
+          ? current.filter((e) => e.id !== source.selectionId)
+          : current;
+        return pending.some((e) => e.id === eventId)
+          ? pending
+          : [...pending, { id: eventId, text: source.text }];
+      });
+  }
   const [ircDraft, setIrcDraft] = useState("");
   const [ircSelection, setIrcSelection] = useState<{
     entryId: string;
@@ -127,30 +143,12 @@ export function RefereePanel({
   function prepareRecordedSelection(
     workspace: RefereeWorkspace,
     entryId: string,
-    record?: Extract<RefereeEvent["payload"], { type: "selection_recorded" }>,
   ) {
     const chosen = workspace.maps.find((map) => map.id === entryId);
     if (!chosen) return;
-    const text = refereeCommands({
-      settings: workspace.defaultSettings,
-      policy: workspace.policy?.commands ?? null,
-      rules: workspace.rules,
-      teams: workspace.teams,
-      selectedMap: chosen,
-    }).find((command) => command.kind === "map")?.text;
     setSelected(entryId);
-    setIrcDraft(text ?? "");
-    setIrcSelection(
-      text && record
-        ? {
-            entryId,
-            text,
-            label: `${record.kind.toUpperCase()} · ${workspace.teams.find((team) => team.id === record.teamId)?.name ?? refereeMessage(tr, "Neutral tiebreaker")} · ${chosen.category}${chosen.position}`,
-          }
-        : null,
-    );
-    if (text) void navigator.clipboard?.writeText(text).catch(() => {});
   }
+
   async function refresh() {
     if (simulation) {
       setSimulationEvents([]);
@@ -163,6 +161,7 @@ export function RefereePanel({
       setIrcDraft("");
       setIrcSelection(null);
       setSentCommands([]);
+      setSyncEvents([]);
       setError("");
       setSimulationEpoch((v) => v + 1);
       return;
@@ -207,17 +206,20 @@ export function RefereePanel({
         const payload = validateRefereeAction(model, parsed);
         if (payload.type === "order_set") setSimulationOrders(payload);
         if (payload.type === "selection_recorded")
-          prepareRecordedSelection(data, payload.entryId, payload);
-        setSimulationEvents((events) => [
-          ...events,
-          {
-            id: crypto.randomUUID(),
-            ordinal: data.events.length + events.length + 1,
-            actorId: 0,
-            createdAt: new Date().toISOString(),
-            payload,
-          },
-        ]);
+          prepareRecordedSelection(data, payload.entryId);
+        const event: RefereeEvent = {
+          id: crypto.randomUUID(),
+          ordinal: model.events.length + 1,
+          actorId: 0,
+          createdAt: new Date().toISOString(),
+          payload,
+        };
+        const events = [...model.events, event];
+        setSimulationEvents((current) => [...current, event]);
+        addSync(
+          { ...data, events, projection: projectReferee({ ...model, events }) },
+          event.id,
+        );
         setError("");
         return true;
       } catch (e) {
@@ -273,15 +275,9 @@ export function RefereePanel({
       setUncertain(false);
       setNotice(tr("Referee record saved."));
       if (payload.action === "record_selection") {
-        const record = (body.workspace as RefereeWorkspace).events.find(
-          (event) => event.id === body.receipt?.eventId,
-        )?.payload;
-        prepareRecordedSelection(
-          body.workspace,
-          payload.entryId,
-          record?.type === "selection_recorded" ? record : undefined,
-        );
+        prepareRecordedSelection(body.workspace, payload.entryId);
       }
+      if (body.receipt?.eventId) addSync(body.workspace, body.receipt.eventId);
       return true;
     } catch (e) {
       if (pending.current) setUncertain(true);
@@ -637,13 +633,35 @@ export function RefereePanel({
               className={`panel ${styles.pinnedSummary}`}
               aria-label={tr("Referee records")}
             >
+              <div className={styles.summaryHeading}>
+                <span className="eyebrow">{tr("Series score")}</span>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={disabled || !state.lastSelectionId}
+                  onClick={() => send({ action: "void_last" })}
+                >
+                  {tr("Withdraw last Ban / Pick")}
+                </button>
+              </div>
               <div className={styles.summaryScore}>
-                <span>{tr("Series score")}</span>
-                <strong>
-                  {data.teams
-                    .map((t) => `${t.name} ${state.score[t.id] ?? 0}`)
-                    .join(" — ")}
-                </strong>
+                {data.teams.length === 2 ? (
+                  <>
+                    <div className={styles.summaryTeam} data-team="blue">
+                      <span>{data.teams[0].name}</span>
+                      <strong>{state.score[data.teams[0].id] ?? 0}</strong>
+                    </div>
+                    <span className={styles.scoreDivider} aria-hidden="true">
+                      :
+                    </span>
+                    <div className={styles.summaryTeam} data-team="red">
+                      <span>{data.teams[1].name}</span>
+                      <strong>{state.score[data.teams[1].id] ?? 0}</strong>
+                    </div>
+                  </>
+                ) : (
+                  <span>{tr("Teams not resolved")}</span>
+                )}
               </div>
               <dl className={styles.summaryRows}>
                 <div>
@@ -663,38 +681,14 @@ export function RefereePanel({
                       : "—"}
                   </dd>
                 </div>
-                <div>
-                  <dt>{tr("Replay history")}</dt>
-                  <dd>
-                    {state.activeSelections.some((s) => s.attempts.length > 1)
-                      ? state.activeSelections
-                          .filter((s) => s.attempts.length > 1)
-                          .map((s) => (
-                            <span key={s.id}>
-                              {s.category}
-                              {
-                                data.maps.find((m) => m.id === s.entryId)
-                                  ?.position
-                              }{" "}
-                              ·{" "}
-                              {tr("Replays used: {used} / {limit}", {
-                                used: s.attempts.length - 1,
-                                limit: basis.policy?.maxReplaysPerMap ?? "—",
-                              })}
-                            </span>
-                          ))
-                      : "—"}
-                  </dd>
-                </div>
-                <div>
-                  <dt>{tr("Map outcomes")}</dt>
-                  <dd>
-                    {state.activeSelections.some((s) => s.kind !== "ban")
-                      ? state.activeSelections
-                          .filter((s) => s.kind !== "ban")
-                          .map((s) => {
-                            const attempt = s.attempts.at(-1);
-                            return (
+                {state.activeSelections.some((s) => s.attempts.length > 1) && (
+                  <div>
+                    <dt>{tr("Replay history")}</dt>
+                    <dd>
+                      {state.activeSelections.some((s) => s.attempts.length > 1)
+                        ? state.activeSelections
+                            .filter((s) => s.attempts.length > 1)
+                            .map((s) => (
                               <span key={s.id}>
                                 {s.category}
                                 {
@@ -702,20 +696,48 @@ export function RefereePanel({
                                     ?.position
                                 }{" "}
                                 ·{" "}
-                                {attempt?.winnerTeamId
-                                  ? tr("Winner: {team}", {
-                                      team: teamName(attempt.winnerTeamId),
-                                    })
-                                  : refereeMessage(
-                                      tr,
-                                      attempt?.status ?? "pending",
-                                    )}
+                                {tr("Replays used: {used} / {limit}", {
+                                  used: s.attempts.length - 1,
+                                  limit: basis.policy?.maxReplaysPerMap ?? "—",
+                                })}
                               </span>
-                            );
-                          })
-                      : "—"}
-                  </dd>
-                </div>
+                            ))
+                        : "—"}
+                    </dd>
+                  </div>
+                )}
+                {state.activeSelections.some((s) => s.kind !== "ban") && (
+                  <div>
+                    <dt>{tr("Map outcomes")}</dt>
+                    <dd>
+                      {state.activeSelections.some((s) => s.kind !== "ban")
+                        ? state.activeSelections
+                            .filter((s) => s.kind !== "ban")
+                            .map((s) => {
+                              const attempt = s.attempts.at(-1);
+                              return (
+                                <span key={s.id}>
+                                  {s.category}
+                                  {
+                                    data.maps.find((m) => m.id === s.entryId)
+                                      ?.position
+                                  }{" "}
+                                  ·{" "}
+                                  {attempt?.winnerTeamId
+                                    ? tr("Winner: {team}", {
+                                        team: teamName(attempt.winnerTeamId),
+                                      })
+                                    : refereeMessage(
+                                        tr,
+                                        attempt?.status ?? "pending",
+                                      )}
+                                </span>
+                              );
+                            })
+                        : "—"}
+                    </dd>
+                  </div>
+                )}
               </dl>
             </section>
             <section
@@ -991,13 +1013,6 @@ export function RefereePanel({
                   </article>
                 );
               })}
-              <button
-                className="secondary"
-                disabled={disabled || !state.lastSelectionId}
-                onClick={() => send({ action: "void_last" })}
-              >
-                {tr("Withdraw last Ban / Pick")}
-              </button>
               <details>
                 <summary>{tr("Full correction history")}</summary>
                 <ol className={styles.history}>
@@ -1045,6 +1060,10 @@ export function RefereePanel({
         </section>
       </div>
       <RefereeIrc
+        syncEvents={syncEvents}
+        onSynced={(id) =>
+          setSyncEvents((current) => current.filter((e) => e.id !== id))
+        }
         fixtureId={data.fixture.id}
         key={simulationEpoch}
         endpoint={`${endpoint}/irc`}

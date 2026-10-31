@@ -26,12 +26,14 @@ import {
 const url = process.env.TEST_DATABASE_URL;
 describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
   let fixtureId: string, connectionId: string, seq: number;
+  let bpSync = false;
   const actor = { ...referee, sessionId: randomUUID() };
   const sync = (receipts: unknown[] = [], messages: unknown[] = []) =>
     refereeIrcRelay(actor, fixtureId, {
       action: "sync",
       connectionId,
       sequence: ++seq,
+      ...(bpSync ? { bpSync: true as const } : {}),
       projection: { status: "connected", messages },
       receipts,
     });
@@ -61,6 +63,7 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     });
     connectionId = bind.connectionId;
     seq = 0;
+    bpSync = false;
     await sync();
   });
   afterAll(async () => {
@@ -83,6 +86,178 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, action);
     return action;
   }
+  async function saveSelection() {
+    const w = await refereeWorkspace(referee, "test-cup", fixtureId);
+    return refereeCommand(referee, "test-cup", fixtureId, {
+      action: "record_selection",
+      entryId: w.projection.activeSelections.length
+        ? w.maps.find((m) => m.beatmapId === 10002)!.id
+        : w.maps.find((m) => m.beatmapId === 10001)!.id,
+      expectedRevision: w.session!.revision,
+      dependencyFingerprint: w.dependencyFingerprint,
+      requestKey: randomUUID(),
+    });
+  }
+  async function autoPick() {
+    bpSync = true;
+    await sync();
+    await saveSelection();
+    const picked = await saveSelection();
+    const request = {
+      action: "sync_selection",
+      eventId: picked.receipt.eventId,
+    };
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, request);
+    return { picked, request };
+  }
+  it("queues one ordered notice/map/Mods plan per saved Pick and never records BP twice", async () => {
+    const { picked, request } = await autoPick();
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, request);
+    let state = await refereeIrcView(referee, "test-cup", fixtureId);
+    expect(state.commands.map((c) => c.text)).toEqual([
+      expect.stringMatching(/^\[OCLR BP #/),
+      "!mp map 10002 0",
+      "!mp mods NF",
+    ]);
+    const notice = (await sync()).command!;
+    const map = (await sync([{ commandId: notice.id, status: "notified" }]))
+      .command!;
+    expect(map.text).toBe("!mp map 10002 0");
+    const text = "Beatmap changed to https://osu.ppy.sh/b/10002";
+    const mods = (
+      await sync(
+        [
+          {
+            commandId: map.id,
+            status: "confirmed",
+            evidence: { sender: "BanchoBot", target: "#mp_123", text },
+          },
+        ],
+        [
+          {
+            id: "fresh-map",
+            sender: "BanchoBot",
+            text,
+            at: new Date().toISOString(),
+          },
+        ],
+      )
+    ).command!;
+    expect(mods.text).toBe("!mp mods NF");
+    const modText = "Enabled NoFail, disabled FreeMod";
+    expect(
+      (
+        await sync(
+          [
+            {
+              commandId: mods.id,
+              status: "confirmed",
+              evidence: {
+                sender: "BanchoBot",
+                target: "#mp_123",
+                text: modText,
+              },
+            },
+          ],
+          [
+            {
+              id: "fresh-mods",
+              sender: "BanchoBot",
+              text: modText,
+              at: new Date().toISOString(),
+            },
+          ],
+        )
+      ).command,
+    ).toBeNull();
+    state = await refereeIrcView(referee, "test-cup", fixtureId);
+    expect(state.commands.map((c) => c.status)).toEqual([
+      "notified",
+      "confirmed",
+      "confirmed",
+    ]);
+    expect(state.workspace.events).toEqual(picked.workspace.events);
+  });
+  it("announces a Ban without switching maps; accepts the next plan while an announcement is in flight", async () => {
+    bpSync = true;
+    await sync();
+    const ban = await saveSelection();
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+      action: "sync_selection",
+      eventId: ban.receipt.eventId,
+    });
+    const notice = (await sync()).command!;
+    expect(notice.text).toMatch(/ BAN NM1 /);
+    const picked = await saveSelection();
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+      action: "sync_selection",
+      eventId: picked.receipt.eventId,
+    });
+    expect(
+      (await refereeIrcView(referee, "test-cup", fixtureId)).commands,
+    ).toHaveLength(4);
+  });
+  it("stops Mods after failed map execution and does not roll back BP", async () => {
+    await autoPick();
+    const notice = (await sync()).command!;
+    const map = (await sync([{ commandId: notice.id, status: "notified" }]))
+      .command!;
+    expect(
+      (
+        await sync([
+          { commandId: map.id, status: "failed", reason: "local_rejected" },
+        ])
+      ).command,
+    ).toBeNull();
+    const state = await refereeIrcView(referee, "test-cup", fixtureId);
+    expect(state.commands.map((c) => c.status)).toEqual([
+      "notified",
+      "failed",
+      "failed",
+    ]);
+    expect(state.workspace.projection.activeSelections).toHaveLength(2);
+  });
+  it("does not dispatch a withdrawn Pick and announces its correction separately", async () => {
+    const { picked } = await autoPick();
+    const undone = await refereeCommand(referee, "test-cup", fixtureId, {
+      action: "void_last",
+      expectedRevision: picked.workspace.session!.revision,
+      dependencyFingerprint: picked.workspace.dependencyFingerprint,
+      requestKey: randomUUID(),
+    });
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+      action: "sync_selection",
+      eventId: undone.receipt.eventId,
+    });
+    for (let i = 0; i < 3; i++) expect((await sync()).command).toBeNull();
+    expect((await sync()).command!.text).toContain("WITHDRAW PICK NM2");
+  });
+  it("requires current-client capability, rejects forged notices and does not treat a notice receipt as a map receipt", async () => {
+    const ban = await saveSelection();
+    await expect(
+      refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+        action: "sync_selection",
+        eventId: ban.receipt.eventId,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+        action: "queue",
+        text: "[OCLR BP #1] BAN NM1 | Fake | https://osu.ppy.sh/b/10001",
+        requestKey: randomUUID(),
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+      action: "queue",
+      text: "!mp map 10001 0",
+      requestKey: randomUUID(),
+    });
+    const map = (await sync()).command!;
+    await sync([{ commandId: map.id, status: "notified" }]);
+    expect(
+      (await refereeIrcView(referee, "test-cup", fixtureId)).commands[0].status,
+    ).toBe("sending");
+  });
   it("keeps click-recorded BP independent from a later plain map confirmation", async () => {
     const record = async (bid: number) => {
       const w = await refereeWorkspace(referee, "test-cup", fixtureId);
@@ -336,6 +511,7 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     });
     connectionId = bound.connectionId;
     seq = 0;
+    bpSync = false;
     await sync();
     await expect(
       refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
@@ -364,6 +540,7 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
       action: "sync",
       connectionId,
       sequence: ++seq,
+      ...(bpSync ? { bpSync: true as const } : {}),
       roomId: 123,
       projection: { status: "connected", messages: [] },
       receipts: [{ commandId: first.command!.id, status: "unknown" }],

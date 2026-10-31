@@ -1,3 +1,4 @@
+import { bpSyncSource } from "../../src/lib/referee-sync";
 import { test, expect } from "@playwright/test";
 import { db, closeDb } from "../../src/db";
 import { eq } from "drizzle-orm";
@@ -325,21 +326,22 @@ test.describe("referee command workspace", () => {
       | undefined;
     await page.route(`**${api}/irc`, async (route) => {
       const request = route.request();
+      const workspace = await (await context.request.get(api)).json();
       if (request.method() === "POST") {
         const body = request.postDataJSON();
-        expect(body.action).toBe("queue");
+        expect(body.action).toBe("sync_selection");
+        const source = bpSyncSource(workspace, body.eventId)!;
         selection = body.selection;
         commands.push({
           id: crypto.randomUUID(),
-          requestKey: body.requestKey,
-          text: body.text,
+          requestKey: body.eventId,
+          text: source.text,
           target: "#mp_12345",
           status: "queued",
           recordError: null,
           createdAt: new Date().toISOString(),
         });
       }
-      const workspace = await (await context.request.get(api)).json();
       await route.fulfill({
         json: {
           connection: {
@@ -349,6 +351,7 @@ test.describe("referee command workspace", () => {
             status: "connected",
             lastSeenAt: new Date().toISOString(),
             connected: true,
+            bpSync: true,
           },
           messages: [],
           commands,
@@ -389,9 +392,6 @@ test.describe("referee command workspace", () => {
             .activeSelections.length,
       )
       .toBe(1);
-    await page
-      .getByRole("button", { name: "Send to local IRC", exact: true })
-      .click();
     await expect(
       page.getByText("Queued for local IRC", { exact: true }),
     ).toBeVisible();
@@ -402,9 +402,9 @@ test.describe("referee command workspace", () => {
       exact: true,
     });
     await expect(summary).toContainText("BAN NM1");
-    commands[0].status = "sent";
+    commands[0].status = "notified";
     await expect(
-      page.getByText("Sent; awaiting room confirmation", { exact: true }),
+      page.getByText("BP notification sent to local IRC", { exact: true }),
     ).toBeVisible();
     await expect(summary).toContainText("BAN NM1");
     expect(

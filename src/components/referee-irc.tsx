@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { RefereeWorkspace } from "@/lib/referee";
+import { refereeMessage } from "@/i18n/referee";
 import { desktopLaunchUrl } from "@/lib/desktop-launch";
 import styles from "./referee-panel.module.css";
 
@@ -13,6 +14,7 @@ type RelayView = {
     status: "connected" | "disconnected" | "revoked";
     lastSeenAt: string | null;
     connected: boolean;
+    bpSync?: boolean;
   };
   messages: { id: string; sender: string; text: string; at: string }[];
   commands: {
@@ -24,6 +26,7 @@ type RelayView = {
       | "queued"
       | "sending"
       | "sent"
+      | "notified"
       | "confirmed"
       | "failed"
       | "unknown"
@@ -39,6 +42,8 @@ type QueueRequest = {
   text: string;
 };
 export function RefereeIrc({
+  syncEvents = [],
+  onSynced,
   draft,
   fixtureId,
   simulation,
@@ -55,6 +60,8 @@ export function RefereeIrc({
   onQueued,
   onConfirmed,
 }: {
+  syncEvents?: readonly { id: string; text: string }[];
+  onSynced?: (eventId: string) => void;
   draft: string;
   fixtureId: string;
   simulation: boolean;
@@ -129,9 +136,85 @@ export function RefereeIrc({
       clearTimeout(timer);
     };
   }, [endpoint, simulation]);
+  const syncQueue = useRef(syncEvents);
+  syncQueue.current = syncEvents;
+  const syncDone = useRef(new Set<string>()),
+    syncBusy = useRef(false),
+    syncPaused = useRef(false);
+  const [syncError, setSyncError] = useState(false),
+    [syncRetry, setSyncRetry] = useState(0);
+  const [syncDetail, setSyncDetail] = useState("");
+  const syncCallback = useRef(onSynced);
+  syncCallback.current = onSynced;
+  useEffect(() => {
+    let active = true;
+    async function drain() {
+      if (syncBusy.current || syncPaused.current) return;
+      syncBusy.current = true;
+      try {
+        for (;;) {
+          const item = syncQueue.current.find(
+            (e) => !syncDone.current.has(e.id),
+          );
+          if (!item) break;
+          if (simulation) {
+            setHistory((current) => [
+              ...current,
+              {
+                text: item.text,
+                selection: null,
+                time: new Date().toLocaleTimeString(),
+              },
+            ]);
+          } else {
+            const response = await fetch(endpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "sync_selection",
+                eventId: item.id,
+              }),
+            });
+            if (!response.ok) {
+              const body = await response.json().catch(() => ({}));
+              throw new Error(
+                body.error ||
+                  "Unable to send this command. Check its contents and try again.",
+              );
+            }
+            const view = await response.json();
+            if (active) applyView(view);
+          }
+          syncDone.current.add(item.id);
+          syncCallback.current?.(item.id);
+        }
+        setSyncError(false);
+      } catch (error) {
+        setSyncDetail(
+          refereeMessage(
+            tr,
+            error instanceof Error && !(error instanceof TypeError)
+              ? error.message
+              : "Unable to send this command. Check its contents and try again.",
+          ),
+        );
+        syncPaused.current = true;
+        setSyncError(true);
+      } finally {
+        syncBusy.current = false;
+      }
+    }
+    void drain();
+    return () => {
+      active = false;
+    };
+    // Requests are generated only by successful BP saves; polling never replays history.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncEvents, endpoint, simulation, syncRetry]);
   const launchUrl = desktopLaunchUrl(fixtureId);
   const connected = !!relay?.connection?.connected;
   const statusLabels = {
+    notified: tr("BP notification sent to local IRC"),
     queued: tr("Queued for local IRC"),
     sending: tr("Sending to IRC"),
     sent: tr("Sent; awaiting room confirmation"),
@@ -141,6 +224,13 @@ export function RefereeIrc({
     record_failed: tr("IRC confirmed; referee record needs review"),
   };
   const failureReasons: Record<string, string> = {
+    "Automatic BP sync stopped. Check the saved BP event and preceding IRC step.":
+      tr(
+        "Automatic BP sync stopped. Check the saved BP event and preceding IRC step.",
+      ),
+    "The saved BP event changed. Reload before syncing.": tr(
+      "The saved BP event changed. Reload before syncing.",
+    ),
     "relay:local_rejected": tr(
       "The local app rejected this command before sending. Check operation records and room state in OCLR IRC.",
     ),
@@ -253,6 +343,38 @@ export function RefereeIrc({
               : tr("IRC not connected")}
         </span>
       </header>
+      <p className="small muted">
+        {tr(
+          "BP saves sync automatically: Ban announces; Pick announces, changes the map and applies saved Mods.",
+        )}
+      </p>
+      {syncEvents.length > 0 && (
+        <div role="status" className={styles.syncStatus}>
+          <span>
+            {syncError
+              ? tr(
+                  "BP saved. IRC sync is pending. Check the connection and retry safely.",
+                )
+              : tr("Syncing saved BP to IRC…")}
+          </span>
+          {syncError && syncDetail && (
+            <span className="small">{syncDetail}</span>
+          )}
+          {syncError && (
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => {
+                syncPaused.current = false;
+                setSyncError(false);
+                setSyncRetry((n) => n + 1);
+              }}
+            >
+              {tr("Retry IRC sync")}
+            </button>
+          )}
+        </div>
+      )}
       {simulation ? (
         <p className="small muted">
           {tr("No real IRC connection. Simulated sends do not reach osu!.")}

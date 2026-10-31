@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -27,6 +27,8 @@ import {
   relaySchema,
   safeIrcMessages,
 } from "./referee-irc-model";
+import { bpSyncSource, isBpNotice } from "./referee-sync";
+import { refereeCommands } from "./referee-commands";
 import { assertOperationalEdition } from "./archive-guard";
 type Tx = Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0];
 type DesktopActor = User & { sessionId: string };
@@ -94,6 +96,7 @@ async function view(tx: Tx, actor: User, slug: string, fixtureId: string) {
           status: c.status,
           lastSeenAt: c.lastSeenAt?.toISOString() ?? null,
           connected: isConnected(c),
+          bpSync: c.bpSync,
         }
       : null,
     messages: c?.messages ?? [],
@@ -104,6 +107,7 @@ async function view(tx: Tx, actor: User, slug: string, fixtureId: string) {
       target: r.target,
       status: r.status,
       recordError: r.recordError,
+      automation: r.automation,
       createdAt: r.createdAt.toISOString(),
     })),
     workspace,
@@ -155,6 +159,111 @@ export async function refereeIrcBrowserCommand(
               inArray(commands.status, ["queued", "sending", "sent"]),
             ),
           );
+      }
+      return view(tx, actor, slug, fixtureId);
+    }
+    if (action.action === "sync_selection") {
+      const w = await readRefereeWorkspace(tx, actor, slug, fixtureId);
+      const source = bpSyncSource(w, action.eventId);
+      if (!source || source.event.actorId !== actor.osuId)
+        throw new HttpError(
+          409,
+          "Choose a saved BP event from your current fixture.",
+        );
+      const prior = await tx
+        .select()
+        .from(commands)
+        .where(
+          and(
+            eq(commands.fixtureId, fixtureId),
+            eq(commands.actorId, actor.osuId),
+            eq(commands.requestKey, action.eventId),
+          ),
+        );
+      if (prior.length) {
+        if (
+          prior[0].automation?.eventId !== action.eventId ||
+          prior[0].automation?.step !== "notice"
+        )
+          throw new HttpError(
+            409,
+            "This request key was already used for a different operation.",
+          );
+        return view(tx, actor, slug, fixtureId);
+      }
+      if (!c || !isConnected(c) || !c.roomId)
+        throw new HttpError(
+          409,
+          "Connect the local IRC app to this fixture first.",
+        );
+      if (!c.bpSync)
+        throw new HttpError(
+          409,
+          "Update OCLR IRC and reconnect to use automatic BP sync.",
+        );
+      if (
+        !w.canRecord ||
+        source.selection.voided !== source.withdrawn ||
+        (w.session &&
+          w.session.dependencyFingerprint !== w.dependencyFingerprint)
+      )
+        throw new HttpError(
+          409,
+          "The saved BP event changed. Reload before syncing.",
+        );
+      const generated = refereeCommands({
+        settings: w.defaultSettings,
+        policy: w.policy?.commands ?? null,
+        rules: w.rules,
+        teams: w.teams,
+        selectedMap: source.map,
+      });
+      const plan: { step: "notice" | "map" | "mods"; text: string }[] = [
+        { step: "notice", text: source.text },
+      ];
+      if (!source.withdrawn && source.selection.kind !== "ban") {
+        for (const step of ["map", "mods"] as const) {
+          const text = generated.find((c) => c.kind === step)?.text;
+          if (!text || !allowedIrcCommand(text))
+            throw new HttpError(
+              409,
+              "Configure the saved map and Mods rules before automatic BP sync.",
+            );
+          plan.push({ step, text });
+        }
+      }
+      const [last] = await tx
+        .select({ createdAt: commands.createdAt })
+        .from(commands)
+        .where(eq(commands.connectionId, c.id))
+        .orderBy(desc(commands.createdAt))
+        .limit(1);
+      const baseTime = Math.max(
+        Date.now(),
+        (last?.createdAt.getTime() ?? 0) + 1,
+      );
+      let predecessorId: string | null = null;
+      for (const [index, item] of plan.entries()) {
+        const id = randomUUID();
+        await tx.insert(commands).values({
+          id,
+          fixtureId,
+          connectionId: c.id,
+          actorId: actor.osuId,
+          requestKey: index === 0 ? action.eventId : id,
+          requestHash: digest({ eventId: action.eventId, step: item.step }),
+          text: item.text,
+          target: `#mp_${c.roomId}`,
+          createdAt: new Date(baseTime + index),
+          automation: {
+            eventId: action.eventId,
+            selectionId: source.selectionId,
+            withdrawn: source.withdrawn,
+            step: item.step,
+            predecessorId,
+          },
+        });
+        predecessorId = id;
       }
       return view(tx, actor, slug, fixtureId);
     }
@@ -354,6 +463,7 @@ export async function refereeIrcRelay(
         sequence: 0,
         command: null,
         receiptReasons: true,
+        bpSync: true,
       };
     }
     const [c] = await tx
@@ -415,6 +525,7 @@ export async function refereeIrcRelay(
       .update(connections)
       .set({
         sequence: action.sequence,
+        bpSync: action.bpSync === true,
         ...(action.roomId !== undefined ? { roomId: action.roomId } : {}),
         status: action.projection.status,
         messages,
@@ -432,6 +543,19 @@ export async function refereeIrcRelay(
           ),
         );
       if (!command || !["sending", "sent"].includes(command.status)) continue;
+      if (receipt.status === "notified") {
+        if (
+          command.automation?.step !== "notice" ||
+          !isBpNotice(command.text) ||
+          command.selection
+        )
+          continue;
+        await tx
+          .update(commands)
+          .set({ status: "notified" })
+          .where(eq(commands.id, command.id));
+        continue;
+      }
       if (receipt.status === "confirmed") {
         if (
           !confirmsIrcCommand(command.text, command.target, receipt.evidence) ||
@@ -522,6 +646,48 @@ export async function refereeIrcRelay(
         try {
           if (!issuer) throw new HttpError(403, "Referee access has changed.");
           await assertRefereeAccess(tx, issuer, slug, fixtureId, true);
+          if (queued.automation) {
+            const w = await readRefereeWorkspace(tx, issuer, slug, fixtureId);
+            const a = queued.automation;
+            const source = bpSyncSource(w, a.eventId);
+            const [predecessor] = a.predecessorId
+              ? await tx
+                  .select()
+                  .from(commands)
+                  .where(eq(commands.id, a.predecessorId))
+              : [];
+            if (
+              !source ||
+              !w.canRecord ||
+              source.selection.voided !== a.withdrawn ||
+              (a.step !== "notice" &&
+                w.projection.lastSelectionId !== a.selectionId) ||
+              (w.session &&
+                w.session.dependencyFingerprint !== w.dependencyFingerprint) ||
+              (a.predecessorId &&
+                (!predecessor ||
+                  !["notified", "confirmed"].includes(predecessor.status)))
+            )
+              throw new HttpError(
+                409,
+                "Automatic BP sync stopped. Check the saved BP event and preceding IRC step.",
+              );
+            const text =
+              a.step === "notice"
+                ? source.text
+                : refereeCommands({
+                    settings: w.defaultSettings,
+                    policy: w.policy?.commands ?? null,
+                    rules: w.rules,
+                    teams: w.teams,
+                    selectedMap: source.map,
+                  }).find((c) => c.kind === a.step)?.text;
+            if (text !== queued.text)
+              throw new HttpError(
+                409,
+                "The saved BP event changed. Reload before syncing.",
+              );
+          }
           if (queued.selection) {
             const w = await readRefereeWorkspace(tx, issuer, slug, fixtureId);
             if (

@@ -1,5 +1,6 @@
 import {
   pgTable,
+  boolean,
   uuid,
   text,
   integer,
@@ -26,6 +27,7 @@ export const refereeIrcConnections = pgTable(
     roomId: bigint("room_id", { mode: "number" }).notNull(),
     ircUsername: text("irc_username").notNull(),
     status: text("status").notNull().default("disconnected"),
+    bpSync: boolean("bp_sync").notNull().default(false),
     sequence: integer("sequence").notNull().default(0),
     messages: jsonb("messages").$type<IrcMessage[]>().notNull().default([]),
     lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
@@ -56,6 +58,8 @@ export const refereeIrcCommands = pgTable(
       .$type<string[]>()
       .notNull()
       .default([]),
+    automation:
+      jsonb("automation").$type<import("../lib/referee-sync").BpSyncMetadata>(),
     selection: jsonb("selection").$type<IrcSelection>(),
     status: text("status").notNull().default("queued"),
     recordError: text("record_error"),
