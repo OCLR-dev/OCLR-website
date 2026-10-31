@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   allowedIrcCommand,
+  allowedMakeCommand,
   confirmsMap,
   confirmsIrcCommand,
   normalizedIrcUsername,
@@ -135,4 +136,20 @@ describe("IRC relay boundary", () => {
       }).success,
     ).toBe(false);
   });
+});
+
+it("separates creation receivers from room commands and rejects injected room titles", () => {
+  expect(
+    relaySchema.safeParse({ action: "bind", roomId: 0, ircUsername: "Ref" })
+      .success,
+  ).toBe(true);
+  expect(allowedMakeCommand("!mp make OCLR S11: (A) vs (B)")).toBe(true);
+  for (const text of [
+    "!mp make ",
+    "!mp make test\nQUIT",
+    "!mp make test\u202e",
+    "!mp map 42",
+    "!mp make " + "x".repeat(201),
+  ])
+    expect(allowedMakeCommand(text)).toBe(false);
 });

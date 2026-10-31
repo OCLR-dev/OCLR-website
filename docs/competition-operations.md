@@ -423,3 +423,9 @@ Players can record private availability and captains can negotiate a new start
 through the [Schedule request tool](schedule-requests.md). Both captains must
 agree to the same proposal before an independent edition Admin can approve it.
 Until approval, public schedule data retains the original official time.
+
+### 2026-10-31 網站直接建立 IRC 房間
+
+新版桌面可在正式授權、本人場次與帳號核對後，按「連接網站 IRC」建立尚無房間的開房接收連線。網站按傳送即可將 make 交給本機 BanchoBot 開房流程；不再要求先有 MP 房間。此狀態只接受一次 make，其他房內操作仍須已加入且核對的房間。完成 JOIN／History／裁判名單核對後轉為房間投影。未知結果不重送，開房 receipt 仍保守標示待人工核對；不得據此重建第二間房。
+
+relay wire 使用保留值 roomId 0 表示開房接收器，目標 BanchoBot；sync 可在已派送 make 後帶正整數 roomId 轉入已觀測房間。0 不代表合法 MP 房號，不需 DB migration。桌面與網站需一起更新；PKCE、scope、本人指派及暱稱人工配對保持有效。desktop panel 的 capturedAt／freshUntil 使用同一時鐘讀取，避免毫秒邊界超出 30 秒。

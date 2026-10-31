@@ -37,7 +37,7 @@ export const relaySchema = z.discriminatedUnion("action", [
   z
     .object({
       action: z.literal("bind"),
-      roomId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+      roomId: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
       ircUsername: line(50),
     })
     .strict(),
@@ -49,6 +49,12 @@ export const relaySchema = z.discriminatedUnion("action", [
       action: z.literal("sync"),
       connectionId: z.uuid(),
       sequence: z.number().int().positive().max(2147483647),
+      roomId: z
+        .number()
+        .int()
+        .positive()
+        .max(Number.MAX_SAFE_INTEGER)
+        .optional(),
       projection: z
         .object({
           status: z.enum(["connected", "disconnected"]),
@@ -132,4 +138,12 @@ export function confirmsIrcCommand(
       evidence.text,
     );
   return false;
+}
+
+/** roomId 0 is a creation-only receiver, never an IRC channel. */
+export function allowedMakeCommand(text: string) {
+  return (
+    /^!mp make .{1,200}$/u.test(text) &&
+    !/[\p{Cc}\p{Cf}\u2028\u2029]/u.test(text)
+  );
 }

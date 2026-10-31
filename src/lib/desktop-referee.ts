@@ -62,14 +62,15 @@ export async function desktopPanel(request: Request, id: string) {
       Buffer.byteLength(JSON.stringify(workspace)) > 490000
     )
       throw new DesktopError(413, "RESPONSE_TOO_LARGE");
+    const capturedAt = new Date();
     return {
       viewer: { osuId: actor.osuId, username: actor.username },
       edition: {
         slug: fixture.editionSlug,
         name: edition.configuration?.name ?? fixture.editionSlug,
       },
-      capturedAt: new Date().toISOString(),
-      freshUntil: new Date(Date.now() + 30000).toISOString(),
+      capturedAt: capturedAt.toISOString(),
+      freshUntil: new Date(capturedAt.getTime() + 30000).toISOString(),
       workspace,
     };
   });
