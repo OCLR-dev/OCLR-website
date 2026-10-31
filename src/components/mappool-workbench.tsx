@@ -945,99 +945,102 @@ export function SelectionWorkbench({
                   className={styles.candidateRow}
                   aria-label={`BID ${c.beatmapId}`}
                 >
-                  <div>
-                    <MapCardBand
-                      id={`candidate-map-${c.id}`}
-                      dataCategory={c.category}
-                      slot={
-                        c.category === "unassigned"
-                          ? tr("Unassigned")
-                          : c.category
-                      }
-                      title={c.metadata.title ?? `BID ${c.beatmapId}`}
-                      artist={c.metadata.artist}
-                      difficulty={c.metadata.difficulty}
-                      mapper={c.metadata.mapper}
-                      beatmapId={c.beatmapId}
-                      setId={c.metadata.setId}
-                      stars={c.metadata.stars}
-                      bpm={c.metadata.bpm}
-                      durationSeconds={c.metadata.duration}
-                      cs={c.metadata.cs}
-                      ar={c.metadata.ar}
-                      od={c.metadata.od}
-                      showMode={false}
-                      openHref={`https://osu.ppy.sh/beatmaps/${c.beatmapId}`}
-                      openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
-                      note={tr("★ base")}
-                      chips={
-                        <span>
-                          {tr("HP")} {formatBeatmapNumber(c.metadata.hp)}
-                        </span>
-                      }
-                    />
-                    <div className={styles.candidateTools}>
-                      <div className={`small muted ${styles.attribution}`}>
-                        <p>
-                          {tr("Added by")}{" "}
-                          <a
-                            className="text-link"
-                            href={`https://osu.ppy.sh/users/${c.authorId}`}
-                          >
-                            <strong>{c.authorName}</strong>
-                          </a>
-                        </p>
-                        <Stamp value={c.createdAt} />
-                      </div>
-                      {writable && (
-                        <label className={`field ${styles.categoryField}`}>
-                          <span>{tr("Mod category")}</span>
-                          <select
-                            value={c.category}
-                            disabled={busy}
-                            onChange={async (event) => {
-                              setBusy(true);
-                              setError("");
-                              try {
-                                await request(base, {
-                                  action: "classify",
-                                  candidateId: c.id,
-                                  category: event.target.value,
-                                  expectedCategory: c.category,
-                                });
-                                await reload();
-                              } catch (e) {
-                                setError((e as Error).message);
-                              } finally {
-                                setBusy(false);
-                              }
-                            }}
-                          >
-                            {candidateCategories.map((value) => (
-                              <option key={value} value={value}>
-                                {value === "unassigned"
-                                  ? tr("Unassigned")
-                                  : value}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                      )}
-                      {officialPools && (
-                        <PromoteCandidate
-                          slug={slug}
-                          candidate={c}
-                          initialPools={officialPools}
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <CandidateRounds
-                    candidate={c}
-                    rounds={data.rounds}
-                    writable={writable}
-                    base={base}
-                    onChange={reload}
+                  <MapCardBand
+                    className={styles.workbenchCard}
+                    id={`candidate-map-${c.id}`}
+                    dataCategory={c.category}
+                    slot={
+                      c.category === "unassigned"
+                        ? tr("Unassigned")
+                        : c.category
+                    }
+                    title={c.metadata.title ?? `BID ${c.beatmapId}`}
+                    artist={c.metadata.artist}
+                    difficulty={c.metadata.difficulty}
+                    mapper={c.metadata.mapper}
+                    beatmapId={c.beatmapId}
+                    setId={c.metadata.setId}
+                    stars={c.metadata.stars}
+                    bpm={c.metadata.bpm}
+                    durationSeconds={c.metadata.duration}
+                    cs={c.metadata.cs}
+                    ar={c.metadata.ar}
+                    od={c.metadata.od}
+                    showMode={false}
+                    openHref={`https://osu.ppy.sh/beatmaps/${c.beatmapId}`}
+                    openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
+                    note={tr("★ base")}
+                    chips={
+                      <span>
+                        {tr("HP")} {formatBeatmapNumber(c.metadata.hp)}
+                      </span>
+                    }
+                    footer={
+                      <>
+                        <div className={styles.candidateTools}>
+                          <CandidateRounds
+                            candidate={c}
+                            rounds={data.rounds}
+                            writable={writable}
+                            base={base}
+                            onChange={reload}
+                          />
+                          {writable && (
+                            <label className={`field ${styles.categoryField}`}>
+                              <span>{tr("Mod category")}</span>
+                              <select
+                                value={c.category}
+                                disabled={busy}
+                                onChange={async (event) => {
+                                  setBusy(true);
+                                  setError("");
+                                  try {
+                                    await request(base, {
+                                      action: "classify",
+                                      candidateId: c.id,
+                                      category: event.target.value,
+                                      expectedCategory: c.category,
+                                    });
+                                    await reload();
+                                  } catch (e) {
+                                    setError((e as Error).message);
+                                  } finally {
+                                    setBusy(false);
+                                  }
+                                }}
+                              >
+                                {candidateCategories.map((value) => (
+                                  <option key={value} value={value}>
+                                    {value === "unassigned"
+                                      ? tr("Unassigned")
+                                      : value}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          )}
+                          {officialPools && (
+                            <PromoteCandidate
+                              slug={slug}
+                              candidate={c}
+                              initialPools={officialPools}
+                            />
+                          )}
+                        </div>
+                        <div className={`small muted ${styles.attribution}`}>
+                          <p>
+                            {tr("Added by")}{" "}
+                            <a
+                              className="text-link"
+                              href={`https://osu.ppy.sh/users/${c.authorId}`}
+                            >
+                              <strong>{c.authorName}</strong>
+                            </a>
+                          </p>
+                          <Stamp value={c.createdAt} />
+                        </div>
+                      </>
+                    }
                   />
                   <Comments
                     slug={slug}

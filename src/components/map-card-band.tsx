@@ -47,6 +47,7 @@ export function MapCardBand({
   showMode = true,
   chips,
   note,
+  footer,
 }: {
   as?: "article" | "li";
   className?: string;
@@ -74,6 +75,7 @@ export function MapCardBand({
   showMode?: boolean;
   chips?: ReactNode;
   note?: ReactNode;
+  footer?: ReactNode;
 } & (
   | { onOpen: () => void; openHref?: never }
   | { onOpen?: never; openHref: string }
@@ -313,6 +315,7 @@ export function MapCardBand({
           name={slot}
         />
       </div>
+      {footer ? <div className="map-card-extension">{footer}</div> : null}
     </Tag>
   );
 }
