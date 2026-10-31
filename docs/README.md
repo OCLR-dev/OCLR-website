@@ -55,3 +55,5 @@ real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
 
 - [Streaming API](streaming-api.md) — edition-bound Streamer access, one-hour idle
   lease, next fixture/pool/stage contract and future Overlay integration (#540).
+
+- [Structured historical metadata](archive-metadata.md) — typed placements, rounds, season dates and S5 review material (#610).

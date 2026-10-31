@@ -1,3 +1,4 @@
+import { archiveEvidenceUrl } from "./archive-metadata";
 import { z } from "zod";
 
 const text = z.string().trim().min(1).max(300);
@@ -50,6 +51,8 @@ export const archiveMatchReview = z
     approval: z
       .object({
         approvedOn: z.iso.date(),
+        approvedBy: text.optional(),
+        evidenceUrl: archiveEvidenceUrl.optional(),
         source: note,
       })
       .strict()

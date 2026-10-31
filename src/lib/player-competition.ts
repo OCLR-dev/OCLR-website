@@ -81,7 +81,7 @@ async function editionRecord(
         const winner = archiveWinner(match);
         matches.push({
           outcome: winner === null ? "draw" : winner === side ? "win" : "loss",
-          stage: competitionStage(match.stage),
+          stage: competitionStage(match.stage, match.round),
           mapsWon: match.score ? match.score[side] : null,
           mapsLost: match.score ? match.score[side === 0 ? 1 : 0] : null,
           forfeit: match.forfeitWinner !== undefined,
@@ -93,7 +93,8 @@ async function editionRecord(
         });
       }
       const standing = edition.archive.standings.find(
-        (row) => teams.has(row.teamId) && row.rank !== null,
+        (row) =>
+          teams.has(row.teamId) && row.rank !== null && row.scope !== "final",
       );
       return {
         ...base,

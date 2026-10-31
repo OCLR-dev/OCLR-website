@@ -65,7 +65,16 @@ export type PlayerCompetitionRecord = {
 };
 
 /** Archive stage text is organizer-authored; only the documented group words map to group play. */
-export function competitionStage(stage: string | null | undefined) {
+export function competitionStage(
+  stage: string | null | undefined,
+  round?: { phase: "qualifier" | "group" | "swiss" | "knockout" | "final" },
+) {
+  if (round) {
+    if (round.phase === "group" || round.phase === "swiss")
+      return "group" as const;
+    if (round.phase === "qualifier") return "unknown" as const;
+    return "knockout" as const;
+  }
   if (!stage) return "unknown" as const;
   return /group|swiss|小组/i.test(stage)
     ? ("group" as const)

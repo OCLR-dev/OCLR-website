@@ -1,0 +1,4591 @@
+{
+  "kind": "historical-metadata-review-not-importable",
+  "editionSlug": "s5",
+  "basis": "s5-approved-standings.json; publication revision 9; accepted reconstruction",
+  "standings": [
+    {
+      "group": "最終排名（全賽事戰績）",
+      "teamId": "g",
+      "rank": 1,
+      "wins": 6,
+      "losses": 1,
+      "mapsWon": 37,
+      "mapsLost": 18,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 1,
+        "end": 1
+      },
+      "tied": false,
+      "qualified": true,
+      "official": false
+    },
+    {
+      "group": "最終排名（全賽事戰績）",
+      "teamId": "i",
+      "rank": 2,
+      "wins": 6,
+      "losses": 3,
+      "mapsWon": 42,
+      "mapsLost": 33,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 2,
+        "end": 2
+      },
+      "tied": false,
+      "qualified": true,
+      "official": false
+    },
+    {
+      "group": "最終排名（全賽事戰績）",
+      "teamId": "b",
+      "rank": 3,
+      "wins": 5,
+      "losses": 2,
+      "mapsWon": 34,
+      "mapsLost": 23,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 3,
+        "end": 3
+      },
+      "tied": false,
+      "qualified": true,
+      "official": false
+    },
+    {
+      "group": "最終排名（全賽事戰績）",
+      "teamId": "e",
+      "rank": 4,
+      "wins": 4,
+      "losses": 3,
+      "mapsWon": 25,
+      "mapsLost": 23,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 4,
+        "end": 4
+      },
+      "tied": false,
+      "qualified": true,
+      "official": false
+    },
+    {
+      "group": "最終排名（全賽事戰績）",
+      "teamId": "a",
+      "rank": 5,
+      "wins": 3,
+      "losses": 3,
+      "mapsWon": 21,
+      "mapsLost": 21,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 5,
+        "end": 6
+      },
+      "tied": true,
+      "qualified": true,
+      "official": false
+    },
+    {
+      "group": "最終排名（全賽事戰績）",
+      "teamId": "c",
+      "rank": 5,
+      "wins": 3,
+      "losses": 3,
+      "mapsWon": 23,
+      "mapsLost": 26,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 5,
+        "end": 6
+      },
+      "tied": true,
+      "qualified": true,
+      "official": false
+    },
+    {
+      "group": "最終排名（全賽事戰績）",
+      "teamId": "h",
+      "rank": 7,
+      "wins": 2,
+      "losses": 3,
+      "mapsWon": 19,
+      "mapsLost": 20,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 7,
+        "end": 8
+      },
+      "tied": true,
+      "qualified": true,
+      "official": false
+    },
+    {
+      "group": "最終排名（全賽事戰績）",
+      "teamId": "j",
+      "rank": 7,
+      "wins": 2,
+      "losses": 3,
+      "mapsWon": 18,
+      "mapsLost": 19,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 7,
+        "end": 8
+      },
+      "tied": true,
+      "qualified": true,
+      "official": false
+    },
+    {
+      "group": "未晉級（第9–12名未細分）",
+      "teamId": "d",
+      "rank": null,
+      "wins": 1,
+      "losses": 3,
+      "mapsWon": 10,
+      "mapsLost": 16,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 9,
+        "end": 12
+      },
+      "tied": false,
+      "qualified": false,
+      "official": false
+    },
+    {
+      "group": "未晉級（第9–12名未細分）",
+      "teamId": "k",
+      "rank": null,
+      "wins": 1,
+      "losses": 3,
+      "mapsWon": 12,
+      "mapsLost": 15,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 9,
+        "end": 12
+      },
+      "tied": false,
+      "qualified": false,
+      "official": false
+    },
+    {
+      "group": "未晉級（第9–12名未細分）",
+      "teamId": "l",
+      "rank": null,
+      "wins": 1,
+      "losses": 3,
+      "mapsWon": 7,
+      "mapsLost": 17,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 9,
+        "end": 12
+      },
+      "tied": false,
+      "qualified": false,
+      "official": false
+    },
+    {
+      "group": "未晉級（第9–12名未細分）",
+      "teamId": "f",
+      "rank": null,
+      "wins": 0,
+      "losses": 4,
+      "mapsWon": 3,
+      "mapsLost": 20,
+      "source": "MainSheet／34場MP；主辦者核准重建排名",
+      "scope": "final",
+      "placement": {
+        "start": 9,
+        "end": 12
+      },
+      "tied": false,
+      "qualified": false,
+      "official": false
+    }
+  ],
+  "finalPlacements": [
+    {
+      "teamId": "g",
+      "placement": {
+        "start": 1,
+        "end": 1
+      },
+      "tied": false,
+      "qualified": true,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "i",
+      "placement": {
+        "start": 2,
+        "end": 2
+      },
+      "tied": false,
+      "qualified": true,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "b",
+      "placement": {
+        "start": 3,
+        "end": 3
+      },
+      "tied": false,
+      "qualified": true,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "e",
+      "placement": {
+        "start": 4,
+        "end": 4
+      },
+      "tied": false,
+      "qualified": true,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "a",
+      "placement": {
+        "start": 5,
+        "end": 6
+      },
+      "tied": true,
+      "qualified": true,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "c",
+      "placement": {
+        "start": 5,
+        "end": 6
+      },
+      "tied": true,
+      "qualified": true,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "h",
+      "placement": {
+        "start": 7,
+        "end": 8
+      },
+      "tied": true,
+      "qualified": true,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "j",
+      "placement": {
+        "start": 7,
+        "end": 8
+      },
+      "tied": true,
+      "qualified": true,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "d",
+      "placement": {
+        "start": 9,
+        "end": 12
+      },
+      "tied": false,
+      "qualified": false,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "k",
+      "placement": {
+        "start": 9,
+        "end": 12
+      },
+      "tied": false,
+      "qualified": false,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "l",
+      "placement": {
+        "start": 9,
+        "end": 12
+      },
+      "tied": false,
+      "qualified": false,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    },
+    {
+      "teamId": "f",
+      "placement": {
+        "start": 9,
+        "end": 12
+      },
+      "tied": false,
+      "qualified": false,
+      "official": false,
+      "source": "MainSheet／34場MP；主辦者核准重建排名"
+    }
+  ],
+  "matches": [
+    {
+      "fixtureId": "a1",
+      "mpId": 70214161,
+      "games": [
+        {
+          "gameId": 367530871,
+          "beatmapId": 994310,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367532081,
+          "beatmapId": 367417,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367534051,
+          "beatmapId": 446261,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367535209,
+          "beatmapId": 2664535,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367536192,
+          "beatmapId": 1736935,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367537588,
+          "beatmapId": 2523311,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367538898,
+          "beatmapId": 2400965,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367540657,
+          "beatmapId": 2449773,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a2",
+      "mpId": 70217154,
+      "games": [
+        {
+          "gameId": 367545056,
+          "beatmapId": 2687337,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367546660,
+          "beatmapId": 2547328,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367549814,
+          "beatmapId": 446261,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367551519,
+          "beatmapId": 2664535,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367553344,
+          "beatmapId": 1559384,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367554902,
+          "beatmapId": 1636976,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367557216,
+          "beatmapId": 2116373,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367558835,
+          "beatmapId": 2588363,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367561446,
+          "beatmapId": 2610929,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367561643,
+          "beatmapId": 2610929,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a3",
+      "mpId": 70219167,
+      "games": [
+        {
+          "gameId": 367556251,
+          "beatmapId": 446261,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            2361632,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367557705,
+          "beatmapId": 1286416,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367559731,
+          "beatmapId": 1636976,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367561298,
+          "beatmapId": 2523311,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367562576,
+          "beatmapId": 2588363,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367565227,
+          "beatmapId": 2610929,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367567039,
+          "beatmapId": 1414553,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367567595,
+          "beatmapId": 1414553,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367569605,
+          "beatmapId": 1736935,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a4",
+      "mpId": 70211567,
+      "games": [
+        {
+          "gameId": 367518847,
+          "beatmapId": 2670818,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367519970,
+          "beatmapId": 2232127,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367521843,
+          "beatmapId": 2600667,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367523099,
+          "beatmapId": 2664535,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367523448,
+          "beatmapId": 2664535,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367524651,
+          "beatmapId": 1736935,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367526024,
+          "beatmapId": 1414553,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367527333,
+          "beatmapId": 2610929,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367528481,
+          "beatmapId": 2588363,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a5",
+      "mpId": 70216682,
+      "games": [
+        {
+          "gameId": 367541652,
+          "beatmapId": 179070,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            9697769,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367542691,
+          "beatmapId": 2335542,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            9697769,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367545447,
+          "beatmapId": 2588363,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9697769,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367547386,
+          "beatmapId": 1636976,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367549492,
+          "beatmapId": 2523311,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367551388,
+          "beatmapId": 2400965,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9697769,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367552891,
+          "beatmapId": 2600667,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9697769,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367554591,
+          "beatmapId": 2664535,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9697769,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367555887,
+          "beatmapId": 2116373,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9697769,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a6",
+      "mpId": 70279705,
+      "games": [
+        {
+          "gameId": 367871812,
+          "beatmapId": 1479007,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367874371,
+          "beatmapId": 1636976,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367875765,
+          "beatmapId": 1286416,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367877262,
+          "beatmapId": 2610929,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367878533,
+          "beatmapId": 2588363,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 367880350,
+          "beatmapId": 2664535,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a7",
+      "mpId": 70607908,
+      "games": [
+        {
+          "gameId": 369523019,
+          "beatmapId": 264090,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369523811,
+          "beatmapId": 1577423,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369525150,
+          "beatmapId": 1636976,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369526191,
+          "beatmapId": 2449773,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369527242,
+          "beatmapId": 446261,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369528422,
+          "beatmapId": 2588363,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369529919,
+          "beatmapId": 2664535,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a8",
+      "mpId": 70607142,
+      "games": [
+        {
+          "gameId": 369518589,
+          "beatmapId": 1232752,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369519604,
+          "beatmapId": 1741989,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369521497,
+          "beatmapId": 2588363,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369522576,
+          "beatmapId": 2600667,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369523932,
+          "beatmapId": 1636976,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369525042,
+          "beatmapId": 1414553,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369526232,
+          "beatmapId": 1736935,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369527595,
+          "beatmapId": 2523311,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a9",
+      "mpId": 70611688,
+      "games": [
+        {
+          "gameId": 369541509,
+          "beatmapId": 1368043,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369542773,
+          "beatmapId": 2686386,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369545528,
+          "beatmapId": 1286416,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369546558,
+          "beatmapId": 1286416,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369548097,
+          "beatmapId": 2400965,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369549759,
+          "beatmapId": 2523311,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369551542,
+          "beatmapId": 1414553,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369552118,
+          "beatmapId": 1414553,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369554109,
+          "beatmapId": 2664535,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369555784,
+          "beatmapId": 446261,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a10",
+      "mpId": 70610187,
+      "games": [
+        {
+          "gameId": 369534490,
+          "beatmapId": 2299810,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369536664,
+          "beatmapId": 244487,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369538974,
+          "beatmapId": 446261,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369539452,
+          "beatmapId": 446261,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369540902,
+          "beatmapId": 1559384,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369542533,
+          "beatmapId": 2600667,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369544264,
+          "beatmapId": 1636976,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369546202,
+          "beatmapId": 2523311,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369547550,
+          "beatmapId": 2664535,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369547981,
+          "beatmapId": 2664535,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369548527,
+          "beatmapId": 2664535,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9755808
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a11",
+      "mpId": 70673286,
+      "games": [
+        {
+          "gameId": 369861979,
+          "beatmapId": 2708981,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369863512,
+          "beatmapId": 1565244,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369865541,
+          "beatmapId": 1286416,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369867282,
+          "beatmapId": 1636976,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369868811,
+          "beatmapId": 2116373,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369869754,
+          "beatmapId": 446261,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369871294,
+          "beatmapId": 2523311,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369872660,
+          "beatmapId": 1736935,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369874030,
+          "beatmapId": 1559384,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369875733,
+          "beatmapId": 2610929,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a12",
+      "mpId": 70672935,
+      "games": [
+        {
+          "gameId": 369857685,
+          "beatmapId": 1348658,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369859083,
+          "beatmapId": 986233,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369861159,
+          "beatmapId": 446261,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            2361632,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369862630,
+          "beatmapId": 1636976,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369862954,
+          "beatmapId": 1636976,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369864533,
+          "beatmapId": 2610929,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369865887,
+          "beatmapId": 1736935,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369866142,
+          "beatmapId": 1736935,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            2361632,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 369867541,
+          "beatmapId": 1414553,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-1"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a13",
+      "mpId": 71008526,
+      "games": [
+        {
+          "gameId": 371517310,
+          "beatmapId": 2670759,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371518443,
+          "beatmapId": 2187624,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371520029,
+          "beatmapId": 2489794,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371520875,
+          "beatmapId": 1887384,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371521983,
+          "beatmapId": 2656918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371523110,
+          "beatmapId": 2567502,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371524232,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371525165,
+          "beatmapId": 2485990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371526418,
+          "beatmapId": 2043907,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a14",
+      "mpId": 71012162,
+      "games": [
+        {
+          "gameId": 371534861,
+          "beatmapId": 2476090,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371536565,
+          "beatmapId": 2156392,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371538172,
+          "beatmapId": 2656918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371539357,
+          "beatmapId": 2567502,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371540564,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371541768,
+          "beatmapId": 2720295,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371543385,
+          "beatmapId": 1887384,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371544581,
+          "beatmapId": 2686903,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371546378,
+          "beatmapId": 2273613,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371546904,
+          "beatmapId": 2273613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371548358,
+          "beatmapId": 2489794,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371549535,
+          "beatmapId": 1968486,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a15",
+      "mpId": 71012247,
+      "games": [
+        {
+          "gameId": 371534318,
+          "beatmapId": 947334,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371535903,
+          "beatmapId": 473210,
+          "completed": false,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371542467,
+          "beatmapId": 2116610,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371544167,
+          "beatmapId": 2656918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371545755,
+          "beatmapId": 2567502,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371547416,
+          "beatmapId": 2345617,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371549244,
+          "beatmapId": 2489794,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371550964,
+          "beatmapId": 2485990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a16",
+      "mpId": 71083712,
+      "games": [
+        {
+          "gameId": 371869336,
+          "beatmapId": 2686903,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371870711,
+          "beatmapId": 2043907,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371871217,
+          "beatmapId": 2043907,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371872793,
+          "beatmapId": 2485990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371874401,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371877221,
+          "beatmapId": 2455776,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371879577,
+          "beatmapId": 2116610,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371882200,
+          "beatmapId": 1887384,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371883303,
+          "beatmapId": 1887384,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a17",
+      "mpId": 71079961,
+      "games": [
+        {
+          "gameId": 371853682,
+          "beatmapId": 2124292,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371855587,
+          "beatmapId": 1920790,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371858704,
+          "beatmapId": 2489794,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371860219,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371861838,
+          "beatmapId": 2116610,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371863182,
+          "beatmapId": 2273613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371865517,
+          "beatmapId": 2720295,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371866151,
+          "beatmapId": 2720295,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a18",
+      "mpId": 71012199,
+      "games": [
+        {
+          "gameId": 371533415,
+          "beatmapId": 2722022,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371534594,
+          "beatmapId": 1408381,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371536692,
+          "beatmapId": 2116610,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371537375,
+          "beatmapId": 2116610,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371538905,
+          "beatmapId": 2656918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            874891,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371540344,
+          "beatmapId": 2489794,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            874891,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371542002,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            874891,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371543606,
+          "beatmapId": 2567502,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            874891,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371545075,
+          "beatmapId": 2686903,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            874891,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371547613,
+          "beatmapId": 2273613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 371549930,
+          "beatmapId": 2043907,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            874891,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a19",
+      "mpId": 71484949,
+      "games": [
+        {
+          "gameId": 373838822,
+          "beatmapId": 1043297,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373839606,
+          "beatmapId": 1297593,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373841570,
+          "beatmapId": 2455776,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373842834,
+          "beatmapId": 2656918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373844691,
+          "beatmapId": 2567502,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373845771,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373846735,
+          "beatmapId": 2686903,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373848668,
+          "beatmapId": 1887384,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373850267,
+          "beatmapId": 2273613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373852527,
+          "beatmapId": 2116610,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373853708,
+          "beatmapId": 1968486,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            8678381
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a20",
+      "mpId": 71472736,
+      "games": [
+        {
+          "gameId": 373772326,
+          "beatmapId": 1519914,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373773342,
+          "beatmapId": 2633136,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373775655,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373776882,
+          "beatmapId": 2686903,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373778540,
+          "beatmapId": 2658824,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373779854,
+          "beatmapId": 2485990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373781113,
+          "beatmapId": 2116610,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373782470,
+          "beatmapId": 2720295,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373783629,
+          "beatmapId": 2572132,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9580470
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a21",
+      "mpId": 71422298,
+      "games": [
+        {
+          "gameId": 373518857,
+          "beatmapId": 2689459,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373520061,
+          "beatmapId": 1762037,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373522355,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373523588,
+          "beatmapId": 2489794,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373525048,
+          "beatmapId": 2116610,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373526359,
+          "beatmapId": 2485990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373528382,
+          "beatmapId": 2656918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            1371514,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a22",
+      "mpId": 71421418,
+      "games": [
+        {
+          "gameId": 373513021,
+          "beatmapId": 2737312,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373513921,
+          "beatmapId": 2285947,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373515278,
+          "beatmapId": 2455776,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373516367,
+          "beatmapId": 2656918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373517428,
+          "beatmapId": 2485990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373518802,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373520287,
+          "beatmapId": 2043907,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373521930,
+          "beatmapId": 2658824,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            9755808
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a23",
+      "mpId": 71419226,
+      "games": [
+        {
+          "gameId": 373502286,
+          "beatmapId": 2332655,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373503636,
+          "beatmapId": 1803763,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373505122,
+          "beatmapId": 2619918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373506237,
+          "beatmapId": 2567502,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373507586,
+          "beatmapId": 2485990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373509009,
+          "beatmapId": 2116610,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373510124,
+          "beatmapId": 2656918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373511450,
+          "beatmapId": 2720295,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373512446,
+          "beatmapId": 2043907,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373513471,
+          "beatmapId": 2273613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373514785,
+          "beatmapId": 1968486,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            4087427,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a24",
+      "mpId": 71422840,
+      "games": [
+        {
+          "gameId": 373519921,
+          "beatmapId": 1561550,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373521285,
+          "beatmapId": 1207948,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373524016,
+          "beatmapId": 2485990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373526336,
+          "beatmapId": 2656918,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373528059,
+          "beatmapId": 2572132,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373530014,
+          "beatmapId": 2345617,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373532853,
+          "beatmapId": 2720295,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373534794,
+          "beatmapId": 2273613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 373537966,
+          "beatmapId": 2489794,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-2"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053,
+            9580470
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a25",
+      "mpId": 71900819,
+      "games": [
+        {
+          "gameId": 375832724,
+          "beatmapId": 1640995,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375833571,
+          "beatmapId": 1734403,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375835296,
+          "beatmapId": 249438,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375836156,
+          "beatmapId": 2615793,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375837307,
+          "beatmapId": 2018062,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375838426,
+          "beatmapId": 2173973,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375839586,
+          "beatmapId": 2730613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375840807,
+          "beatmapId": 2603702,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            245276
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "a26",
+      "mpId": 71851009,
+      "games": [
+        {
+          "gameId": 375591377,
+          "beatmapId": 1419149,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375591757,
+          "beatmapId": 1419149,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375593339,
+          "beatmapId": 1481328,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375595144,
+          "beatmapId": 1353521,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375596827,
+          "beatmapId": 2369074,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375598921,
+          "beatmapId": 2395518,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375600682,
+          "beatmapId": 249438,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375602177,
+          "beatmapId": 2615793,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375604187,
+          "beatmapId": 2018062,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375605803,
+          "beatmapId": 637477,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375607503,
+          "beatmapId": 2702294,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375608760,
+          "beatmapId": 2485108,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375610572,
+          "beatmapId": 2416428,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            10741620
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "b27",
+      "mpId": 71910710,
+      "games": [
+        {
+          "gameId": 375885570,
+          "beatmapId": 2596103,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375886858,
+          "beatmapId": 1910875,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375888470,
+          "beatmapId": 2615793,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375889401,
+          "beatmapId": 249438,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375890664,
+          "beatmapId": 637477,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375891834,
+          "beatmapId": 2719430,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375893330,
+          "beatmapId": 2018062,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375895295,
+          "beatmapId": 2173973,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375896576,
+          "beatmapId": 2603702,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375897833,
+          "beatmapId": 2485108,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            596803
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375898969,
+          "beatmapId": 2730613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            2361632,
+            596803
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "b28",
+      "mpId": 71900068,
+      "games": [
+        {
+          "gameId": 375827836,
+          "beatmapId": 323320,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375829226,
+          "beatmapId": 2651888,
+          "completed": false,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375829460,
+          "beatmapId": 2651888,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375831038,
+          "beatmapId": 2615793,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375832163,
+          "beatmapId": 2730613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375833696,
+          "beatmapId": 2173973,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375834970,
+          "beatmapId": 2018062,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375836502,
+          "beatmapId": 2744118,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375838050,
+          "beatmapId": 2719430,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375839034,
+          "beatmapId": 2702294,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 375840343,
+          "beatmapId": 2369074,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "wf",
+      "mpId": 72198819,
+      "games": [
+        {
+          "gameId": 377363524,
+          "beatmapId": 2245965,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377364439,
+          "beatmapId": 2759762,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377366374,
+          "beatmapId": 2173973,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377367836,
+          "beatmapId": 2018062,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377369644,
+          "beatmapId": 637477,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377371725,
+          "beatmapId": 2369074,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377374200,
+          "beatmapId": 2485108,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377375505,
+          "beatmapId": 249438,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377376649,
+          "beatmapId": 2416428,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377378134,
+          "beatmapId": 2702294,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377380298,
+          "beatmapId": 2395518,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "b30",
+      "mpId": 72307852,
+      "games": [
+        {
+          "gameId": 377932078,
+          "beatmapId": 1689909,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377933318,
+          "beatmapId": 2514114,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377934681,
+          "beatmapId": 2719430,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377935570,
+          "beatmapId": 1353521,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377937051,
+          "beatmapId": 2018062,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377938390,
+          "beatmapId": 2416428,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377939531,
+          "beatmapId": 2369074,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377940897,
+          "beatmapId": 2485108,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377942144,
+          "beatmapId": 2278245,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            6938658,
+            3917377
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "b31",
+      "mpId": 72304259,
+      "games": [
+        {
+          "gameId": 377912031,
+          "beatmapId": 1265613,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377913236,
+          "beatmapId": 2588481,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377914687,
+          "beatmapId": 2173973,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377916340,
+          "beatmapId": 2719430,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377917723,
+          "beatmapId": 2730613,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377918933,
+          "beatmapId": 2485108,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377920290,
+          "beatmapId": 2240700,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377921906,
+          "beatmapId": 2278245,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377923199,
+          "beatmapId": 249438,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377924345,
+          "beatmapId": 2018062,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377925810,
+          "beatmapId": 2744118,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            12624507,
+            8501053
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 377927382,
+          "beatmapId": 2615793,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            8501053
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "b32",
+      "mpId": 72596333,
+      "games": [
+        {
+          "gameId": 379436998,
+          "beatmapId": 307634,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 379437570,
+          "beatmapId": 657917,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 379439378,
+          "beatmapId": 2503454,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 379440264,
+          "beatmapId": 2240520,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 379441482,
+          "beatmapId": 2240700,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 379442742,
+          "beatmapId": 2610990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 379443912,
+          "beatmapId": 2278245,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 379445221,
+          "beatmapId": 2497195,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 379446266,
+          "beatmapId": 2233954,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 379446960,
+          "beatmapId": 1373031,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "lf",
+      "mpId": 72703300,
+      "games": [
+        {
+          "gameId": 380026359,
+          "beatmapId": 1802225,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380027370,
+          "beatmapId": 408378,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380029396,
+          "beatmapId": 2503454,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380030607,
+          "beatmapId": 757229,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380032375,
+          "beatmapId": 2233954,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380033375,
+          "beatmapId": 1839666,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380034751,
+          "beatmapId": 2240700,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380036427,
+          "beatmapId": 2497195,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380037788,
+          "beatmapId": 2610990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380039970,
+          "beatmapId": 1373031,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380041180,
+          "beatmapId": 2153590,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380042594,
+          "beatmapId": 556151,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380043530,
+          "beatmapId": 2293137,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380045145,
+          "beatmapId": 2649270,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 380046898,
+          "beatmapId": 2662780,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            11237954
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixtureId": "gf",
+      "mpId": 73600572,
+      "games": [
+        {
+          "gameId": 384400404,
+          "beatmapId": 1778453,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384401745,
+          "beatmapId": 2156392,
+          "completed": true,
+          "candidatePoolIds": [],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384403977,
+          "beatmapId": 2228784,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384405479,
+          "beatmapId": 2503454,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384407977,
+          "beatmapId": 2278245,
+          "completed": false,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384408472,
+          "beatmapId": 2278245,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384410218,
+          "beatmapId": 2610990,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384411885,
+          "beatmapId": 1373031,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384413038,
+          "beatmapId": 804801,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384414465,
+          "beatmapId": 757229,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384415997,
+          "beatmapId": 2497195,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384417432,
+          "beatmapId": 2240700,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-3",
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384419406,
+          "beatmapId": 2153590,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "gameId": 384421382,
+          "beatmapId": 2293137,
+          "completed": true,
+          "candidatePoolIds": [
+            "pool-4"
+          ],
+          "unresolvedOrOutsideRosterIds": [
+            3917377
+          ],
+          "reviewStatus": "pending"
+        }
+      ]
+    }
+  ],
+  "pending": [
+    "Confirm current saved archive revision before applying a metadata patch.",
+    "Review game selections, replay/warmup exclusions and every unresolved or outside-roster UID.",
+    "Fetch full normalized MP records through the existing statistics importer; this old snapshot lacks accuracy/combo/hit counts.",
+    "Approve and publish statistics through the edition Admin workflow.",
+    "Confirm official season dates and schedule time zone; capturedOn and MP room-open times are not schedule dates."
+  ]
+}
