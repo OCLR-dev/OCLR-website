@@ -216,7 +216,13 @@ export function PlayerCompetition({
                 </div>
                 <div>
                   <dt>{tr("Rank")}</dt>
-                  <dd>{edition.placing ?? "—"}</dd>
+                  <dd>
+                    {edition.placingRange
+                      ? edition.placingRange.start === edition.placingRange.end
+                        ? edition.placingRange.start
+                        : `${edition.placingRange.start}–${edition.placingRange.end}`
+                      : (edition.placing ?? "—")}
+                  </dd>
                 </div>
               </dl>
               {edition.unavailable && (

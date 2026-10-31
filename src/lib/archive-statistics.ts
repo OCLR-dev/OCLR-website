@@ -1,3 +1,12 @@
+import { archiveEvidenceUrl } from "./archive-metadata";
+import {
+  statisticsAdjudicationSchema,
+  statisticsExcludedGameSchema,
+  statisticsExcludedScoresSchema,
+  hasStatisticsAdjudication,
+  parseStatisticsSnapshot,
+  statisticsSnapshotSchema,
+} from "./statistics-snapshot";
 import { archiveMatchDetails } from "./match-details-model";
 import {
   archivePoolFixtures,
@@ -38,33 +47,9 @@ import {
   type HistoricalArchive,
 } from "./historical-archive";
 import { HttpError } from "./http";
-import { matchSourceSchema } from "./match-model";
 import { fetchMatchSource } from "./osu-matches";
 import { readTournament } from "./tournaments";
 
-const excludedScoresSchema = z
-  .array(
-    z
-      .object({
-        gameId: z.number().int().positive(),
-        osuId: z.number().int().positive(),
-        reason: z.literal("non-participant").optional(),
-      })
-      .strict(),
-  )
-  .max(32000);
-const snapshotSchema = z
-  .object({
-    archiveKey: z.string().regex(/^[a-f0-9]{64}$/),
-    source: matchSourceSchema,
-    poolId: z.string().max(80),
-    included: z.array(z.number().int().positive()).max(500),
-    allowUnlistedMaps: z.boolean().optional(),
-    excludedScores: excludedScoresSchema.optional(),
-    rosterTeamGames: z.array(z.number().int().positive()).max(500).optional(),
-    technicalAdjudication: z.boolean().optional(),
-  })
-  .strict();
 const integer = z.number().int().nonnegative();
 const commandSchema = z.discriminatedUnion("action", [
   z
@@ -82,9 +67,12 @@ const commandSchema = z.discriminatedUnion("action", [
       poolId: z.string().max(80),
       included: z.array(integer.positive()).max(500),
       allowUnlistedMaps: z.boolean().default(false),
-      excludedScores: excludedScoresSchema.default([]),
+      excludedScores: statisticsExcludedScoresSchema.default([]),
       rosterTeamGames: z.array(integer.positive()).max(500).default([]),
-      technicalAdjudication: z.boolean().default(false),
+      technicalAdjudication: z.boolean().optional(),
+      adjudication: statisticsAdjudicationSchema.nullable().optional(),
+      excludedGames: z.array(statisticsExcludedGameSchema).max(500).optional(),
+      evidenceUrl: archiveEvidenceUrl.nullable().optional(),
     })
     .strict(),
   z
@@ -165,8 +153,8 @@ async function stored(slug: string, reader: Reader = db()) {
     .where(where(slug));
   return rows.map((r) => ({
     ...r,
-    draft: snapshotSchema.parse(r.draft),
-    published: r.published ? snapshotSchema.parse(r.published) : null,
+    draft: parseStatisticsSnapshot(r.draft),
+    published: r.published ? parseStatisticsSnapshot(r.published) : null,
   }));
 }
 
@@ -352,7 +340,11 @@ async function databaseStatisticsWorkspace(
       r.published.allowUnlistedMaps !== r.draft.allowUnlistedMaps ||
       JSON.stringify(r.published.excludedScores ?? []) !==
         JSON.stringify(r.draft.excludedScores ?? []) ||
-      !!r.published.technicalAdjudication !== !!r.draft.technicalAdjudication ||
+      !isDeepStrictEqual(r.published.adjudication, r.draft.adjudication) ||
+      !isDeepStrictEqual(r.published.excludedGames, r.draft.excludedGames) ||
+      r.published.evidenceUrl !== r.draft.evidenceUrl ||
+      r.published.reviewedBy !== r.draft.reviewedBy ||
+      r.published.reviewedAt !== r.draft.reviewedAt ||
       JSON.stringify(r.published.rosterTeamGames ?? []) !==
         JSON.stringify(r.draft.rosterTeamGames ?? []) ||
       JSON.stringify(r.published.included) !== JSON.stringify(r.draft.included),
@@ -383,7 +375,14 @@ async function databaseStatisticsWorkspace(
         allowUnlistedMaps: r.draft.allowUnlistedMaps ?? false,
         excludedScores: r.draft.excludedScores ?? [],
         rosterTeamGames: r.draft.rosterTeamGames ?? [],
-        technicalAdjudication: r.draft.technicalAdjudication ?? false,
+        technicalAdjudication: hasStatisticsAdjudication(r.draft),
+        adjudication: r.draft
+          .adjudication as StatisticsSnapshot["adjudication"],
+        excludedGames: r.draft
+          .excludedGames as StatisticsSnapshot["excludedGames"],
+        reviewedBy: (r.draft.reviewedBy ?? null) as number | null | undefined,
+        reviewedAt: (r.draft.reviewedAt ?? null) as string | null | undefined,
+        evidenceUrl: (r.draft.evidenceUrl ?? null) as string | null | undefined,
         complete: r.draft.source.complete,
         fetchedAt: r.draft.source.fetchedAt,
         warnings: r.draft.source.warnings,
@@ -459,6 +458,7 @@ export async function statisticsCommand(
   if (
     c.action === "review" &&
     (c.technicalAdjudication ||
+      c.adjudication ||
       c.rosterTeamGames.length ||
       c.excludedScores.some((e) => e.reason === "non-participant"))
   )
@@ -505,6 +505,7 @@ export async function statisticsCommand(
     if (
       c.action === "review" &&
       (c.technicalAdjudication ||
+        c.adjudication ||
         c.rosterTeamGames.length ||
         c.excludedScores.some((e) => e.reason === "non-participant"))
     )
@@ -531,6 +532,7 @@ export async function statisticsCommand(
       selected.draft.archiveKey === key
     )
       throw new HttpError(409, "Archive changed. Reload before retrying.");
+    let reviewedSnapshot: StatisticsSnapshot | undefined;
     if (c.action === "import") {
       if (
         selected &&
@@ -559,16 +561,45 @@ export async function statisticsCommand(
     } else if (c.action === "review") {
       if (!selected || selected.draft.archiveKey !== key)
         throw new HttpError(409, "Import the current archive MP first.");
-      const draft = {
+      if (
+        c.adjudication !== undefined &&
+        c.technicalAdjudication !== undefined &&
+        Boolean(c.adjudication) !== c.technicalAdjudication
+      )
+        throw new HttpError(400, "Invalid statistics request.");
+      const adjudication =
+        c.adjudication !== undefined
+          ? c.adjudication
+          : c.technicalAdjudication
+            ? (selected.draft.adjudication ?? { kind: "technical" as const })
+            : null;
+      const draft: StatisticsSnapshot = {
         ...selected.draft,
         poolId: c.poolId,
         included: c.included,
         allowUnlistedMaps: c.allowUnlistedMaps,
         excludedScores: c.excludedScores,
         rosterTeamGames: c.rosterTeamGames,
-        technicalAdjudication: c.technicalAdjudication,
+        adjudication,
+        excludedGames:
+          c.excludedGames ??
+          selected.draft.source.games
+            .filter((g) => !c.included.includes(g.id))
+            .map(
+              (g) =>
+                selected.draft.excludedGames?.find(
+                  (e) => e.gameId === g.id,
+                ) ?? { gameId: g.id, reason: "unknown" as const },
+            ),
+        reviewedBy: actor.osuId,
+        reviewedAt: new Date().toISOString(),
+        evidenceUrl:
+          c.evidenceUrl === undefined
+            ? selected.draft.evidenceUrl
+            : (c.evidenceUrl ?? undefined),
       };
       if (
+        !statisticsSnapshotSchema.safeParse(draft).success ||
         !validStatisticsExclusions(draft, archive, fixture.id) ||
         new Set(c.rosterTeamGames).size !== c.rosterTeamGames.length ||
         c.rosterTeamGames.some(
@@ -597,6 +628,7 @@ export async function statisticsCommand(
           400,
           "Only eligible recorded games can be selected.",
         );
+      reviewedSnapshot = draft;
       await tx
         .update(historicalStatistics)
         .set({ draft, version: selected.version + 1, updatedAt: new Date() })
@@ -658,7 +690,12 @@ export async function statisticsCommand(
                     included: c.included,
                     excludedScores: c.excludedScores,
                     rosterTeamGames: c.rosterTeamGames,
-                    technicalAdjudication: c.technicalAdjudication,
+                    technicalAdjudication: hasStatisticsAdjudication(c),
+                    adjudication: reviewedSnapshot?.adjudication,
+                    excludedGames: reviewedSnapshot?.excludedGames,
+                    reviewedBy: reviewedSnapshot?.reviewedBy,
+                    reviewedAt: reviewedSnapshot?.reviewedAt,
+                    evidenceUrl: reviewedSnapshot?.evidenceUrl,
                   }
                 : {}),
             }
@@ -764,7 +801,10 @@ async function databasePublicArchiveStatistics(
           stage: m.stage,
           covered: published.some((r) => r.fixtureId === m.id),
           technicalAdjudication: published.some(
-            (r) => r.fixtureId === m.id && r.published?.technicalAdjudication,
+            (r) =>
+              r.fixtureId === m.id &&
+              !!r.published &&
+              hasStatisticsAdjudication(r.published),
           ),
           score: m.score,
         })),

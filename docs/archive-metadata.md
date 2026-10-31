@@ -56,14 +56,12 @@ schedule time zone remain unresolved. `publication.timeZone` alone does not prov
 that original schedule cells used that zone. S4/S7/S8 final-ranking approval,
 S9 cross-group placement, S10 unplayed fixtures and statistical exceptions,
 and official dates/stage windows for every season require authoritative evidence.
-No missing dates, UIDs, score decisions or approvals are fabricated here. The
-statistics snapshot exception model is unchanged; a future structured replacement
-needs explicit migration and command/release validation, not merely a type field.
+No missing dates, UIDs, score decisions or approvals are fabricated here. The structured statistics snapshot implementation is described below.
 
-This is the contract/preparation portion of #610. The issue must remain open until
+This implements the metadata and statistics program portion of #610. The issue must remain open until
 reviewed data is applied and the public season/match/player acceptance checks pass.
 
-## Verification — 2026-10-31
+## Initial verification — 2026-10-31 (99fd5814)
 
 Node 24.22.2 and `npm ci` were used in an isolated checkout based on main
 `3e92a17c`. The full DB-free test run passed 1,371 tests, with 646 skipped
@@ -75,3 +73,73 @@ full run hit deployment/listener/lock failures; the normal-permission rerun abov
 passed. No isolated test database was configured, so database integration and
 full desktop/mobile application E2E were not performed. These results do not
 establish production import, publication, organizer acceptance or CI success.
+
+
+## Structured statistics review snapshots
+
+`statistics-snapshot.ts` owns the runtime schema shared by storage reads, command
+validation and publication/public-read checks. New reviews persist an optional
+`adjudication: { kind: "technical", note?, evidenceUrl? }` or `null`, rather than a
+boolean. Only the existing technical exception is supported; this cannot award
+player scores or turn forfeits/unplayed matches into player appearances. Every
+MP source in an adjudicated fixture must retain its explicit decision, and all
+existing roster, complete-history, game eligibility and selected-count checks
+still run. Edition Admin authority is checked both before and inside the locked
+transaction. Optimistic versions and transactional audit are preserved.
+
+`excludedGames` lists every unselected source game exactly once, with one of
+`warmup`, `aborted`, `superseded-replay`, `post-match`, `outside-pool`, `other` or
+`unknown`. Selected, duplicate and nonexistent IDs are rejected. Reason labels
+are reviewer claims, never inferred from map identity, score or lobby membership.
+For legacy callers that send only selected IDs, the server retains existing
+reasons for still-excluded games and records new omissions as `unknown`.
+
+The server stamps `reviewedBy` (authenticated osu! ID) and `reviewedAt` on each
+successful review; clients cannot submit them. Optional snapshot `evidenceUrl`
+and adjudication evidence must use HTTPS without credentials. Omitted evidence
+is preserved on an existing draft; explicit `evidenceUrl: null` clears it.
+Evidence is not required when unknown. These fields and the complete decision
+are retained in the automatic review audit. Reviewer/evidence data is available
+only in the existing authorized staff workspace; public match projections expose
+only the enum exclusion reason and the existing technical notice, with raw score
+facts and privacy filtering unchanged.
+
+Storage remains JSONB. No SQL migration or bulk data rewrite is needed: a read
+adapter converts legacy `technicalAdjudication: true` to `{ kind: "technical" }`
+and fills missing excluded-game reasons with `unknown`, in memory. It never
+invents a past reviewer, timestamp, note or evidence URL and never writes during
+a GET. A subsequent normal review/publish writes the canonical representation.
+Legacy request flags are still accepted for the existing manager; contradictory
+structured/legacy decisions are rejected. Existing controls preserve richer
+adjudication notes and exclusion reasons when saving through the old payload.
+Published data remains separate from draft edits.
+
+The saved-read contract is now additive v1.13.0. New staff metadata, public
+`placingRange` and match `excludedReason` fields are optional on the wire so older
+backends remain readable. Player cards show explicit placement intervals as
+intervals (for example `9–12`); those intervals do not become precise best/worst
+finish values. Unknown placement still renders `—`. No new Chinese wording or
+historical data has been approved by this implementation.
+
+## Follow-up verification — 2026-10-31
+
+The complete DB-free suite passed 1,385 tests, with 648 skipped. After correcting
+one missing field in the new synthetic test fixture and including reviewer
+provenance in unpublished-change detection, the six affected unit test files
+passed all 43 tests. Final `npm run check`, `npm run build` and
+`npm run read-api:check` passed; generated contracts are synchronized. Production
+dependency audit reported zero vulnerabilities; documentation links and
+`git diff --check` passed. No locale catalogs or authored Chinese messages changed.
+
+Two new real-PostgreSQL integration cases cover structured writes, server-owned
+provenance, version conflicts, automatic audit, old-client resaves, private
+publication boundaries and legacy JSON reads without write-back. They were not
+executed here: this session's isolated initdb failed because the host's SysV
+shared-memory IDs were exhausted, including with an attempted mmap configuration;
+Docker's daemon was also unavailable. No existing database or service was reused
+or altered. DB-free tests separately verify exception authorization before the
+transaction and after taking the edition lock, reject forged reviewer fields,
+and exercise snapshot migration, invalid exclusions, source eligibility and
+public evidence filtering. Actual DB transaction coverage remains for CI or an
+isolated test environment. Full desktop/mobile browser acceptance and production
+data review/import/publication remain outstanding.

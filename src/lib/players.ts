@@ -41,6 +41,7 @@ export type PublishedPlayer = {
   sourceRole?: "VICE";
   sourceReference?: string;
   placing?: number | null;
+  placingRange?: ReturnType<typeof archiveTeamPlacement>;
 } & Partial<
   Pick<
     import("./read-api-contract").PublicPlayer,
@@ -303,6 +304,7 @@ async function databasePublicPlayer(osuId: number, edition?: string) {
         tier: person.tier,
         sourceRole: person.sourceRole,
         sourceReference: person.source,
+        placingRange: archiveTeamPlacement(e.archive, person.teamId),
         placing: (() => {
           const p = archiveTeamPlacement(e.archive!, person.teamId);
           if (p) return p.start === p.end ? p.start : null;

@@ -36,6 +36,7 @@ export type CompetitionEditionRecord = {
   tier: number | null;
   captain: boolean;
   placing: number | null;
+  placingRange?: PublishedPlayer["placingRange"];
   /** Recorded group-table position, when the edition archived a standings table. */
   groupRank: { group: string | null; rank: number } | null;
   matches: CompetitionMatchRecord[];

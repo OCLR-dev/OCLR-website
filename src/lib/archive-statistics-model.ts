@@ -17,20 +17,12 @@ export const statisticsSeasons = [
 export function supportsArchiveStatistics(slug: string) {
   return (statisticsSeasons as readonly string[]).includes(slug);
 }
-export type StatisticsSnapshot = {
-  archiveKey: string;
-  source: MatchSource;
-  poolId: string;
-  included: number[];
-  allowUnlistedMaps?: boolean;
-  excludedScores?: {
-    gameId: number;
-    osuId: number;
-    reason?: "non-participant";
-  }[];
-  rosterTeamGames?: number[];
-  technicalAdjudication?: boolean;
-};
+export type { StatisticsSnapshot } from "./statistics-snapshot";
+import {
+  statisticsSnapshotSchema,
+  hasStatisticsAdjudication,
+  type StatisticsSnapshot,
+} from "./statistics-snapshot";
 // Zero-score lobby occupants require an explicit review decision. A failed
 // player's zero remains a real appearance unless the reviewer excludes it.
 export function canExcludeStatisticsScore(score: MatchScore) {
@@ -282,6 +274,8 @@ export function fixtureStatisticsIssues(
   const wins = [0, 0];
   const issues: string[] = [];
   for (const s of snapshots) {
+    if (!statisticsSnapshotSchema.safeParse(s).success)
+      issues.push("Only eligible recorded games can be selected.");
     if (!validStatisticsExclusions(s, archive, fixtureId))
       issues.push("Invalid score exclusions.");
     const rosterGames = s.rosterTeamGames ?? [];
@@ -332,7 +326,7 @@ export function fixtureStatisticsIssues(
     }
   }
   const adjudicated =
-    snapshots.length > 0 && snapshots.every((s) => s.technicalAdjudication);
+    snapshots.length > 0 && snapshots.every(hasStatisticsAdjudication);
   // An adjudicated point may have no MP score. Never fabricate that appearance
   // or relabel a raw map winner; retain the accepted series result separately.
   if (

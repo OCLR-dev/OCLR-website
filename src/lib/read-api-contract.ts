@@ -1,3 +1,4 @@
+import { archivePlacement } from "./archive-metadata";
 import { z } from "zod";
 import { editionSchema } from "./editions";
 import { appearances } from "./preferences";
@@ -455,6 +456,10 @@ export const oclrParticipationSchema = z
     sourceRole: z.literal("VICE").optional(),
     sourceReference: text.optional(),
     placing: z.number().int().positive().nullable().optional(),
+    placingRange: archivePlacement
+      .safeExtend({ official: z.boolean(), tied: z.boolean() })
+      .nullable()
+      .optional(),
   })
   .strict();
 export const oclrIdentitySchema = z

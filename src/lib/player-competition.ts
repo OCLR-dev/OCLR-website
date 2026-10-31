@@ -57,6 +57,8 @@ async function editionRecord(
     tier: first.tier ?? null,
     captain: first.captain,
     placing: people.find((p) => p.placing != null)?.placing ?? null,
+    placingRange:
+      people.find((p) => p.placingRange != null)?.placingRange ?? null,
     groupRank: null,
     matches: [],
     unavailable: false,

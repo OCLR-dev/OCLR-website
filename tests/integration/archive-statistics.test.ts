@@ -145,14 +145,12 @@ describe.skipIf(!url)("historical statistics transactions", () => {
         archive,
       };
       await seedEditions([configuration]);
-      await db()
-        .insert(staffRoles)
-        .values({
-          userId: referee.osuId,
-          role: "referee",
-          editionSlug: slug,
-          grantedBy: admin.osuId,
-        });
+      await db().insert(staffRoles).values({
+        userId: referee.osuId,
+        role: "referee",
+        editionSlug: slug,
+        grantedBy: admin.osuId,
+      });
       expect(
         tournamentLinks([{ role: "referee", editionSlug: slug }], slug),
       ).toContainEqual(
@@ -448,6 +446,119 @@ describe.skipIf(!url)("historical statistics transactions", () => {
       rosterTeamGames: [1],
       excludedScores: exceptions.excludedScores,
     });
+  });
+  it("persists structured decisions with server-owned provenance, audited versions and private evidence", async () => {
+    await statisticsCommand(referee, "s7", imported);
+    const structured = {
+      ...reviewed,
+      adjudication: {
+        kind: "technical",
+        note: "Synthetic approved exception",
+        evidenceUrl: "https://example.com/decision",
+      },
+      excludedGames: [
+        { gameId: 3, reason: "warmup" },
+        { gameId: 4, reason: "superseded-replay" },
+      ],
+      evidenceUrl: "https://example.com/review",
+    };
+    await expect(
+      statisticsCommand(referee, "s7", structured),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      statisticsCommand(other, "s7", structured),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      statisticsCommand(admin, "s7", {
+        ...structured,
+        reviewedBy: referee.osuId,
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      statisticsCommand(admin, "s7", {
+        ...structured,
+        technicalAdjudication: false,
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      statisticsCommand(admin, "s7", {
+        ...structured,
+        excludedGames: [{ gameId: 1, reason: "warmup" }],
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    const before = Date.now();
+    await statisticsCommand(admin, "s7", structured);
+    const row = (await db().select().from(historicalStatistics))[0];
+    expect(row.version).toBe(2);
+    expect(row.draft).not.toHaveProperty("technicalAdjudication");
+    expect(row.draft).toMatchObject({
+      adjudication: structured.adjudication,
+      excludedGames: structured.excludedGames,
+      reviewedBy: admin.osuId,
+      evidenceUrl: structured.evidenceUrl,
+    });
+    expect(Date.parse(row.draft.reviewedAt!)).toBeGreaterThanOrEqual(before);
+    expect(row.draft.source).toEqual(statisticsSource());
+    await expect(
+      statisticsCommand(admin, "s7", structured),
+    ).rejects.toMatchObject({ status: 409 });
+    await statisticsCommand(admin, "s7", publish);
+    const published = await publicArchiveStatistics("s7", "one");
+    expect(
+      published.matchDetails[0].details.games.find((g) => g.gameId === 3)
+        ?.excludedReason,
+    ).toBe("warmup");
+    expect(published.matchDetails[0].details.technicalAdjudication).toBe(true);
+    expect(JSON.stringify(published)).not.toContain("example.com/review");
+    expect(JSON.stringify(published)).not.toContain("reviewedBy");
+    // An old UI resave preserves richer evidence and reasons rather than erasing them.
+    await statisticsCommand(admin, "s7", {
+      ...reviewed,
+      expectedVersion: 3,
+      technicalAdjudication: true,
+    });
+    const refreshed = await statisticsWorkspace(admin, "s7", "one");
+    expect(refreshed.summaries[0].changes).toBe(true);
+    const saved = refreshed.reviews[0];
+    expect(saved.adjudication).toEqual(structured.adjudication);
+    expect(saved.excludedGames).toEqual(structured.excludedGames);
+    const audit = (await db().select().from(editionEvents)).find(
+      (e) => e.kind === "statistics_review",
+    );
+    expect(audit?.detail).toMatchObject({
+      adjudication: structured.adjudication,
+      excludedGames: structured.excludedGames,
+      reviewedBy: admin.osuId,
+    });
+  });
+  it("reads legacy published JSON without rewriting or fabricating review evidence", async () => {
+    await statisticsCommand(referee, "s7", imported);
+    await statisticsCommand(admin, "s7", {
+      ...reviewed,
+      technicalAdjudication: true,
+    });
+    await statisticsCommand(admin, "s7", publish);
+    const row = (await db().select().from(historicalStatistics))[0];
+    const legacy = { ...row.draft, technicalAdjudication: true };
+    delete legacy.adjudication;
+    delete legacy.excludedGames;
+    delete legacy.reviewedBy;
+    delete legacy.reviewedAt;
+    await db()
+      .update(historicalStatistics)
+      .set({ draft: legacy, published: legacy });
+    const workspace = (await statisticsWorkspace(admin, "s7", "one"))
+      .reviews[0];
+    expect(workspace.adjudication).toEqual({ kind: "technical" });
+    expect(workspace.reviewedBy).toBeNull();
+    expect(workspace.reviewedAt).toBeNull();
+    expect(workspace.excludedGames?.every((g) => g.reason === "unknown")).toBe(
+      true,
+    );
+    expect((await publicArchiveStatistics("s7", "one")).plays).toHaveLength(8);
+    expect(
+      (await db().select().from(historicalStatistics))[0].published,
+    ).toEqual(legacy);
   });
   it("imports privately, publishes reviewed games atomically and preserves published data across draft edits", async () => {
     await statisticsCommand(referee, "s7", imported);
