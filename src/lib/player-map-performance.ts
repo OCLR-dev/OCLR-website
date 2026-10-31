@@ -113,7 +113,16 @@ function placements(
  * field. A map whose mean score is zero or unusable contributes a placement
  * but never an effective rating.
  */
-export function mapPerformance(plays: MapPlay[], osuId: number) {
+/** The per-edition fields a ranked play set produces; callers add identity. */
+export type MapPerformanceFields = Omit<
+  PlayerMapEdition,
+  "editionSlug" | "editionName" | "unavailable"
+>;
+
+export function mapPerformance(
+  plays: MapPlay[],
+  osuId: number,
+): MapPerformanceFields {
   const games = new Map<number, MapPlay[]>();
   for (const play of plays)
     games.set(play.gameId, [...(games.get(play.gameId) ?? []), play]);
@@ -149,7 +158,7 @@ export function mapPerformance(plays: MapPlay[], osuId: number) {
   );
   const rated = rows.filter((row) => finite(row.effectiveRating));
   return {
-    rows,
+    maps: rows,
     averagePlacement: mean(
       rows.flatMap((row) => (row.placement === null ? [] : [row.placement])),
     ),

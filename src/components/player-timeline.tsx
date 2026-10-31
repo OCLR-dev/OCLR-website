@@ -19,6 +19,7 @@ import {
   type TimelineSpan,
 } from "@/lib/player-timeline";
 import { seasonAccentPair } from "@/lib/season-accent";
+import { seasonArtworkPair, type SeasonArtwork } from "@/lib/season-artwork";
 import styles from "./player-timeline.module.css";
 
 /**
@@ -120,11 +121,13 @@ export function PlayerTimeline({ timeline }: { timeline: PlayerTimeline }) {
   for (const span of timeline.spans) details.set(span.key, spanDetail(span));
   const activeText = active ? details.get(active) : undefined;
 
-  // The span's edition supplies a key visual that tints the detail bubble.
-  const visuals = new Map<string, string>();
-  for (const span of timeline.spans)
-    if (span.keyVisual) visuals.set(span.key, span.keyVisual);
-  const activeVisual = active ? visuals.get(active) : undefined;
+  // The span paints its season's page-heading artwork into the detail bubble.
+  const artworks = new Map<string, SeasonArtwork>();
+  for (const span of timeline.spans) {
+    const artwork = seasonArtworkPair(span.appearance);
+    if (artwork) artworks.set(span.key, artwork);
+  }
+  const activeArtwork = active ? artworks.get(active) : undefined;
 
   // Both scales are rendered as custom properties, so the media query picks one
   // without a hydration mismatch. The capsule is centred on the true midpoint,
@@ -342,11 +345,16 @@ export function PlayerTimeline({ timeline }: { timeline: PlayerTimeline }) {
             role="note"
             style={tipLeft === null ? undefined : { left: tipLeft }}
           >
-            {activeVisual ? (
+            {activeArtwork ? (
               <span
                 className={styles.tipVisual}
                 aria-hidden="true"
-                style={{ backgroundImage: `url(${activeVisual})` }}
+                style={
+                  {
+                    "--tip-art-light": `url("${activeArtwork.light}")`,
+                    "--tip-art-dark": `url("${activeArtwork.dark}")`,
+                  } as CSSProperties
+                }
               />
             ) : null}
             <span className={styles.tipText}>{activeText}</span>

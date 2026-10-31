@@ -71,9 +71,9 @@ describe("map performance", () => {
       ],
       3,
     );
-    expect(result.rows[0].placement).toBe(2);
+    expect(result.maps[0].placement).toBe(2);
     expect(
-      mapPerformance([play(2, 1, 900), play(2, 2, 1_000)], 1).rows[0].placement,
+      mapPerformance([play(2, 1, 900), play(2, 2, 1_000)], 1).maps[0].placement,
     ).toBe(2);
   });
 
@@ -83,8 +83,8 @@ describe("map performance", () => {
       1,
     );
     // Mean = 800,000; own score = 1,000,000 → 1.25.
-    expect(result.rows).toHaveLength(1);
-    expect(result.rows[0].effectiveRating).toBeCloseTo(1.25);
+    expect(result.maps).toHaveLength(1);
+    expect(result.maps[0].effectiveRating).toBeCloseTo(1.25);
     expect(result.averageEffectiveRating).toBeCloseTo(1.25);
     expect(result.ratedMaps).toBe(1);
   });
@@ -94,7 +94,7 @@ describe("map performance", () => {
       [play(1, 1, 0), play(1, 2, 0), play(2, 3, 500), play(2, 1, 1_000)],
       1,
     );
-    const zeroMap = result.rows.find((row) => row.gameId === 1)!;
+    const zeroMap = result.maps.find((row) => row.gameId === 1)!;
     expect(zeroMap.placement).toBe(1);
     expect(zeroMap.effectiveRating).toBeNull();
     // Mean of map 2 is 750, so only that map contributes 1.333…
@@ -114,19 +114,19 @@ describe("map performance", () => {
       ],
       1,
     );
-    expect(result.rows).toHaveLength(3);
+    expect(result.maps).toHaveLength(3);
     expect(result.averagePlacement).toBeCloseTo((1 + 2 + 1) / 3);
     expect(result.firstPlaces).toBe(2);
     expect(result.averageAccuracy).toBeCloseTo((0.98 + 0.9) / 2);
     // Rows are newest first.
-    expect(result.rows.map((row) => row.gameId)).toEqual([3, 2, 1]);
+    expect(result.maps.map((row) => row.gameId)).toEqual([3, 2, 1]);
   });
 
   it("summarizes editions and ignores empty or unavailable seasons", () => {
     const first = mapPerformance([play(1, 1, 1_000), play(1, 2, 1_000)], 1);
     const summary = summarizeMapPerformance([
       edition("s2", []),
-      edition("s1", first.rows),
+      edition("s1", first.maps),
     ]);
     expect(summary.mapsPlayed).toBe(1);
     expect(summary.firstPlaces).toBe(1);
@@ -136,6 +136,17 @@ describe("map performance", () => {
       "s2",
       "s1",
     ]);
+  });
+
+  it("keeps the ranked rows when they are merged into an edition", () => {
+    // Regression: the fields used to be returned as `rows` while an edition
+    // reads `maps`, so every profile showed an empty section despite plays.
+    const merged: PlayerMapEdition = {
+      ...blank("s1"),
+      ...mapPerformance([play(1, 1, 1_000_000), play(1, 2, 800_000)], 1),
+    };
+    expect(merged.maps).toHaveLength(1);
+    expect(summarizeMapPerformance([merged]).mapsPlayed).toBe(1);
   });
 });
 
@@ -212,8 +223,8 @@ describe("liveMapPlays", () => {
       slots,
     );
     const result = mapPerformance(plays, 1);
-    expect(result.rows).toHaveLength(1);
-    expect(result.rows[0].placement).toBe(1);
-    expect(result.rows[0].effectiveRating).toBeCloseTo(1_000 / 750);
+    expect(result.maps).toHaveLength(1);
+    expect(result.maps[0].placement).toBe(1);
+    expect(result.maps[0].effectiveRating).toBeCloseTo(1_000 / 750);
   });
 });

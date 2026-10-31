@@ -126,8 +126,6 @@ export type TimelineSpan = {
   editionName: string | null;
   /** Published edition of that season, so the span can open its page. */
   editionSlug: string | null;
-  /** That edition's key visual, shown faintly behind the hover detail. */
-  keyVisual?: string;
   start: string;
   end: string;
   /** A single confirmed instant (an open season window) instead of a range. */
@@ -155,8 +153,6 @@ export type TimelineEdition = {
 export type TimelineEditionRef = {
   season: string | number | null;
   slug: string;
-  /** Its key visual, when the edition has artwork configured. */
-  keyVisual?: string | null;
 };
 
 const configuredWindows = readSeasonWindows(content);
@@ -207,12 +203,6 @@ export function buildPlayerTimeline({
       publishedSlug.set(season, edition.slug);
   }
 
-  // Artwork follows the published edition, so a season the player skipped still
-  // shows its banner in the detail for that span.
-  const visualBySlug = new Map<string, string>();
-  for (const edition of editionPool)
-    if (edition.keyVisual) visualBySlug.set(edition.slug, edition.keyVisual);
-
   const bySeason = new Map<number, TimelineEdition[]>();
   for (const edition of editions) {
     const season = seasonNumber(edition.season);
@@ -233,14 +223,12 @@ export function buildPlayerTimeline({
     const editionName = participants[0]?.editionName ?? null;
     const editionSlug =
       participants[0]?.editionSlug ?? publishedSlug.get(window.season) ?? null;
-    const keyVisual = editionSlug ? visualBySlug.get(editionSlug) : undefined;
     const base = {
       key: `season-${window.season}`,
       season: window.season,
       appearance: window.appearance,
       editionName,
       editionSlug,
-      ...(keyVisual ? { keyVisual } : {}),
       participated,
     };
     if (start !== null && finish !== null && finish > start) {
@@ -284,14 +272,12 @@ export function buildPlayerTimeline({
     if (recorded === null) continue;
     const editionSlug =
       participants[0]?.editionSlug ?? publishedSlug.get(season) ?? null;
-    const keyVisual = editionSlug ? visualBySlug.get(editionSlug) : undefined;
     spans.push({
       key: `season-${season}`,
       season,
       appearance: null,
       editionName: participants[0]?.editionName ?? null,
       editionSlug,
-      ...(keyVisual ? { keyVisual } : {}),
       start: new Date(recorded.first).toISOString(),
       end: new Date(recorded.last).toISOString(),
       point: false,

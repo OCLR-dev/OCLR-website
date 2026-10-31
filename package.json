@@ -29,6 +29,7 @@
     "db:cleanup": "tsx scripts/cleanup.ts",
     "release:check": "tsx scripts/check-release.ts",
     "db:import-editions": "tsx scripts/import-editions.ts",
+    "db:backfill-statistics": "tsx scripts/backfill-statistics.ts",
     "production:setup": "bash scripts/production.sh setup",
     "production:start": "bash scripts/production.sh start",
     "production:update": "bash scripts/update.sh",

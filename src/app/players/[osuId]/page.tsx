@@ -8,7 +8,6 @@ import { playerCompetitionRecord } from "@/lib/player-competition";
 import { playerMapPerformance } from "@/lib/player-map-performance";
 import { buildPlayerTimeline } from "@/lib/player-timeline";
 import { getPublicEditions } from "@/lib/content";
-import { archiveKeyVisual } from "@/lib/archive-key-visual";
 import { RoundRatings } from "@/components/round-ratings";
 import { getAppTranslations } from "@/i18n/server";
 import { frontendProfile } from "@/lib/frontend-data";
@@ -164,25 +163,12 @@ async function ProfileContent({
     // Seasons the player never entered still link to their public edition page.
     getPublicEditions(),
   ]);
-  // An edition's key visual tints the hover detail of its span; the archive
-  // supplies one when the edition itself has no artwork configured.
-  const keyVisualBySlug = new Map<string, string>();
-  for (const edition of publishedEditions) {
-    const keyVisual =
-      (edition.archive
-        ? archiveKeyVisual(edition.archive, edition.branding.keyVisual)?.src
-        : null) ??
-      edition.branding.keyVisual ??
-      null;
-    if (keyVisual) keyVisualBySlug.set(edition.slug, keyVisual);
-  }
   // Built on the server so the axis end, and every placed mark, stay stable.
   const timeline = buildPlayerTimeline({
     editions: competition?.editions ?? [],
     editionPool: publishedEditions.map(({ slug, season }) => ({
       slug,
       season,
-      keyVisual: keyVisualBySlug.get(slug) ?? null,
     })),
     joinedAt: profile?.joinedAt,
     lastSeenAt: profile?.lastSeenAt,

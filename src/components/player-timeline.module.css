@@ -177,15 +177,20 @@
   pointer-events: none;
 }
 
-/* The edition's key visual tints the bubble at a flat, readable opacity. */
+/* The season's page-heading artwork tints the bubble at a readable opacity. */
 .tipVisual {
   position: absolute;
   inset: 0;
+  background-image: var(--tip-art-light);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   opacity: 0.4;
   pointer-events: none;
+}
+
+:global(html[data-theme="dark"]) .tipVisual {
+  background-image: var(--tip-art-dark, var(--tip-art-light));
 }
 
 .tipText {
