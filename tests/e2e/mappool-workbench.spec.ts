@@ -399,11 +399,36 @@ test.describe("private Pooler/Tester selection workbench", () => {
         }),
       ).toHaveAttribute("href", "https://osu.ppy.sh/beatmaps/123");
       await expect(card.locator(".map-card-mode")).toHaveCount(0);
+      await expect(
+        card
+          .locator(".map-slot-badge")
+          .getByRole("combobox", { name: "Mod category", exact: true }),
+      ).toHaveCount(1);
+      await expect(
+        card
+          .locator(".map-card-side")
+          .getByRole("group", { name: "Intended rounds", exact: true }),
+      ).toHaveCount(1);
       const mapBox = await card.boundingBox();
       const commentBox = await candidate
         .getByLabel("Your comment")
         .boundingBox();
       expect(commentBox!.y).toBeGreaterThan(mapBox!.y + mapBox!.height);
+      const coverBox = await card.locator(".map-card-cover").boundingBox();
+      const categoryBox = await cardCategory.boundingBox();
+      const roundBox = await cardRounds.boundingBox();
+      expect(categoryBox!.x).toBeLessThan(coverBox!.x + coverBox!.width / 2);
+      expect(categoryBox!.y).toBeLessThan(coverBox!.y + coverBox!.height / 2);
+      if (!isMobile) {
+        expect(roundBox!.x).toBeGreaterThan(mapBox!.x + mapBox!.width * 0.65);
+        expect(roundBox!.y).toBeLessThan(coverBox!.y + coverBox!.height);
+      } else {
+        const copyBox = await card.locator(".map-card-copy").boundingBox();
+        expect(roundBox!.y).toBeGreaterThanOrEqual(
+          copyBox!.y + copyBox!.height,
+        );
+      }
+
       for (const control of [cardRounds, cardCategory]) {
         const box = await control.boundingBox();
         expect(box!.x).toBeGreaterThanOrEqual(mapBox!.x);
@@ -413,6 +438,20 @@ test.describe("private Pooler/Tester selection workbench", () => {
         expect(box!.y + box!.height).toBeLessThanOrEqual(
           mapBox!.y + mapBox!.height,
         );
+      }
+      // The right-side planning panel must not intercept the map action links.
+      for (const action of await card.locator(".beatmap-actions a").all()) {
+        expect(
+          await action.evaluate((link) => {
+            link.scrollIntoView({ block: "center", behavior: "instant" });
+            const box = link.getBoundingClientRect();
+            const hit = document.elementFromPoint(
+              box.x + box.width / 2,
+              box.y + box.height / 2,
+            );
+            return hit !== null && link.contains(hit);
+          }),
+        ).toBe(true);
       }
       await expect(
         candidate.getByRole("button", {
@@ -564,6 +603,7 @@ test.describe("private Pooler/Tester selection workbench", () => {
             );
           });
         await previewCard.screenshot({
+          style: "header { visibility: hidden !important; }",
           path: `/tmp/oclr-workbench-card-${isMobile ? "mobile" : "desktop"}-${theme}.png`,
         });
       }

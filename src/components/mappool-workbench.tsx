@@ -975,58 +975,69 @@ export function SelectionWorkbench({
                         {tr("HP")} {formatBeatmapNumber(c.metadata.hp)}
                       </span>
                     }
-                    footer={
-                      <>
-                        <div className={styles.candidateTools}>
-                          <CandidateRounds
-                            candidate={c}
-                            rounds={data.rounds}
-                            writable={writable}
-                            base={base}
-                            onChange={reload}
-                          />
-                          {writable && (
-                            <label className={`field ${styles.categoryField}`}>
-                              <span>{tr("Mod category")}</span>
-                              <select
-                                value={c.category}
-                                disabled={busy}
-                                onChange={async (event) => {
-                                  setBusy(true);
-                                  setError("");
-                                  try {
-                                    await request(base, {
-                                      action: "classify",
-                                      candidateId: c.id,
-                                      category: event.target.value,
-                                      expectedCategory: c.category,
-                                    });
-                                    await reload();
-                                  } catch (e) {
-                                    setError((e as Error).message);
-                                  } finally {
-                                    setBusy(false);
-                                  }
-                                }}
-                              >
-                                {candidateCategories.map((value) => (
-                                  <option key={value} value={value}>
-                                    {value === "unassigned"
-                                      ? tr("Unassigned")
-                                      : value}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
-                          )}
-                          {officialPools && (
-                            <PromoteCandidate
-                              slug={slug}
-                              candidate={c}
-                              initialPools={officialPools}
+                    slotControl={
+                      writable ? (
+                        <>
+                          <select
+                            aria-label={tr("Mod category")}
+                            className={styles.modSelector}
+                            value={c.category}
+                            disabled={busy}
+                            onChange={async (event) => {
+                              setBusy(true);
+                              setError("");
+                              try {
+                                await request(base, {
+                                  action: "classify",
+                                  candidateId: c.id,
+                                  category: event.target.value,
+                                  expectedCategory: c.category,
+                                });
+                                await reload();
+                              } catch (e) {
+                                setError((e as Error).message);
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          >
+                            {candidateCategories.map((value) => (
+                              <option key={value} value={value}>
+                                {value === "unassigned"
+                                  ? tr("Unassigned")
+                                  : value}
+                              </option>
+                            ))}
+                          </select>
+                          <svg
+                            className={styles.modCaret}
+                            viewBox="0 0 12 12"
+                            aria-hidden="true"
+                            focusable="false"
+                          >
+                            <path
+                              d="m3 4.5 3 3 3-3"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
                             />
-                          )}
-                        </div>
+                          </svg>
+                        </>
+                      ) : undefined
+                    }
+                    side={
+                      <CandidateRounds
+                        candidate={c}
+                        rounds={data.rounds}
+                        writable={writable}
+                        base={base}
+                        onChange={reload}
+                      />
+                    }
+                    footer={
+                      <div className={styles.candidateTools}>
                         <div className={`small muted ${styles.attribution}`}>
                           <p>
                             {tr("Added by")}{" "}
@@ -1038,8 +1049,15 @@ export function SelectionWorkbench({
                             </a>
                           </p>
                           <Stamp value={c.createdAt} />
-                        </div>
-                      </>
+                        </div>{" "}
+                        {officialPools && (
+                          <PromoteCandidate
+                            slug={slug}
+                            candidate={c}
+                            initialPools={officialPools}
+                          />
+                        )}
+                      </div>
                     }
                   />
                   <Comments
