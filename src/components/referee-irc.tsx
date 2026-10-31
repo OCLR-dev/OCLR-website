@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { RefereeWorkspace } from "@/lib/referee";
 import { refereeMessage } from "@/i18n/referee";
-import { desktopLaunchUrl } from "@/lib/desktop-launch";
+import { desktopLaunchUrl, desktopRoomJoinUrl } from "@/lib/desktop-launch";
 import styles from "./referee-panel.module.css";
 
 type RelayView = {
@@ -212,6 +212,7 @@ export function RefereeIrc({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [syncEvents, endpoint, simulation, syncRetry]);
   const launchUrl = desktopLaunchUrl(fixtureId);
+  const rejoinUrl = desktopRoomJoinUrl(relay?.connection?.roomId);
   const connected = !!relay?.connection?.connected;
   const statusLabels = {
     notified: tr("BP notification sent to local IRC"),
@@ -391,14 +392,21 @@ export function RefereeIrc({
                   ? `#mp_${relay.connection.roomId}`
                   : "BanchoBot"}
               </span>
-              <button
-                type="button"
-                className="secondary"
-                disabled={disabled || sending}
-                onClick={() => void disconnect()}
-              >
-                {tr("Disconnect relay")}
-              </button>
+              <div className={styles.ircConnectionActions}>
+                {rejoinUrl && (
+                  <a className="button secondary" href={rejoinUrl}>
+                    {tr("Rejoin room")}
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={disabled || sending}
+                  onClick={() => void disconnect()}
+                >
+                  {tr("Disconnect relay")}
+                </button>
+              </div>
             </div>
           )}
           <details className={styles.ircHelp}>

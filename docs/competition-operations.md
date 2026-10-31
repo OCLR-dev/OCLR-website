@@ -442,6 +442,8 @@ are UI fixtures, not provider snapshots or approved tournament selections.
 
 ### 本地 IRC 与网站同步
 
+房间信息旁的「重新加入房间」通过 `oclr-irc://join?room=<MP ID>` 唤起新版 OCLR IRC。已有 IRC 登录时直接加入或切回已有房间；未登录时先登录再加入。此入口只进行普通房间导航，不授权 OCLR 场次或自动启用同步；需要同时更新网站和桌面端，浏览器可能要求允许打开本机程序。
+
 右侧固定 IRC 控制台显示本地 oclr-irc（仓库 OCLR-dev/OCLR-ref-tools）投影的房间消息与指令状态。osu! IRC 专用密码和 socket 始终留在 Electron Main；网站 osu! OAuth 只用于 OCLR 身份授权，不能代替 IRC 登录。真实网络接口已实现，仍需用户本人授权并实测 Bancho 房间，合成测试不代表这一步通过。
 
 1. 启动网站开发预览，再按桌面项目说明启动 oclr-irc。开发时使用 `OCLR_SERVER_ORIGIN=http://localhost:3001 npm run dev`，网站 `APP_URL` 必须使用完全相同的 origin；不读取或复制已有运行凭据。
