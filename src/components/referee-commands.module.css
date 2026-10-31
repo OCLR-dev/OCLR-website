@@ -211,3 +211,28 @@ details > .stack {
   border: 0;
   padding: 0;
 }
+
+.settings {
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+.settings > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 0.75rem;
+}
+.settings dt {
+  color: var(--site-muted);
+  font-size: 0.875rem;
+}
+.settings dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 480px) {
+  .settings > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+}

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { bpSyncSource } from "../../src/lib/referee-sync";
 import { workspace, id } from "./referee-panel-data";
 import { validateRefereeAction } from "../../src/lib/referee-model";
 const api = "**/api/admin/tournaments/synthetic/matches/*/referee";
@@ -6,14 +7,15 @@ async function setup(
   page: Page,
   options: {
     connected?: boolean;
-    failure?: "lost" | "conflict";
+    failure?: "lost" | "conflict" | "syncLost";
     delay?: boolean;
   } = {},
 ) {
   let current = workspace();
-  const initial = workspace();
+  let syncLost = false;
   const writes: Record<string, unknown>[] = [],
-    queues: Record<string, unknown>[] = [];
+    queues: Record<string, unknown>[] = [],
+    autos: string[] = [];
   const receipts = new Map<string, { eventId: string; requestKey: string }>();
   const commands: {
     id: string;
@@ -33,16 +35,44 @@ async function setup(
   await page.route(`${api}/irc`, async (r) => {
     if (r.request().method() === "POST") {
       const body = r.request().postDataJSON();
-      queues.push(body);
-      commands.push({
-        id: id(500),
-        requestKey: body.requestKey,
-        text: body.text,
-        target: "#mp_123",
-        status: "queued",
-        recordError: null,
-        createdAt: new Date().toISOString(),
-      });
+      if (body.action === "sync_selection") {
+        if (!options.connected) {
+          await r.fulfill({
+            status: 409,
+            json: { error: "Connect the local IRC app to this fixture first." },
+          });
+          return;
+        }
+        if (!autos.includes(body.eventId)) {
+          autos.push(body.eventId);
+          const source = bpSyncSource(current, body.eventId)!;
+          commands.push({
+            id: id(2000 + commands.length),
+            requestKey: body.eventId,
+            text: source.text,
+            target: "#mp_123",
+            status: "queued",
+            recordError: null,
+            createdAt: new Date().toISOString(),
+          });
+        }
+        if (options.failure === "syncLost" && !syncLost) {
+          syncLost = true;
+          await r.abort("failed");
+          return;
+        }
+      } else {
+        queues.push(body);
+        commands.push({
+          id: id(500),
+          requestKey: body.requestKey,
+          text: body.text,
+          target: "#mp_123",
+          status: "queued",
+          recordError: null,
+          createdAt: new Date().toISOString(),
+        });
+      }
     }
     await r.fulfill({
       json: {
@@ -53,12 +83,13 @@ async function setup(
               ircUsername: "SyntheticRef",
               status: "connected",
               connected: true,
+              bpSync: true,
               lastSeenAt: new Date().toISOString(),
             }
           : null,
         messages: [],
         commands,
-        workspace: initial,
+        workspace: current,
       },
     });
   });
@@ -106,7 +137,7 @@ async function setup(
     }
     await r.fulfill({ json: { receipt, workspace: current } });
   });
-  return { writes, queues, commands, current: () => current };
+  return { writes, queues, autos, commands, current: () => current };
 }
 function pool(page: Page) {
   return page.getByRole("region", { name: "Round mappool", exact: true });
@@ -124,9 +155,7 @@ test("records Ban and Pick without an IRC connection or queue request", async ({
     .first()
     .click();
   await expect(records(page)).toContainText("BAN NM1");
-  await expect(page.getByLabel("IRC command", { exact: true })).toHaveValue(
-    "!mp map 10001 0",
-  );
+  await expect(page.getByLabel("IRC command", { exact: true })).toHaveValue("");
   await expect(
     page.getByRole("button", { name: "Send to local IRC", exact: true }),
   ).toBeDisabled();
@@ -153,13 +182,11 @@ test("keeps queued commands and late IRC receipts independent from already recor
     .first()
     .click();
   await expect(records(page)).toContainText("BAN NM1");
-  await page
-    .getByRole("button", { name: "Send to local IRC", exact: true })
-    .click();
+  await expect.poll(() => state.autos.length).toBe(1);
   await expect(
     page.getByText("Queued for local IRC", { exact: true }),
   ).toBeVisible();
-  expect(state.queues[0]).not.toHaveProperty("selection");
+  expect(state.queues).toHaveLength(0);
   await pool(page)
     .getByRole("button", { name: "Blue team PICK", exact: true })
     .first()
@@ -209,9 +236,7 @@ test("retries a lost save response with the same key and one selection", async (
   expect(state.writes).toHaveLength(2);
   expect(state.writes[0]).toEqual(state.writes[1]);
   expect(state.current().projection.activeSelections).toHaveLength(1);
-  await expect(page.getByLabel("IRC command", { exact: true })).toHaveValue(
-    "!mp map 10001 0",
-  );
+  await expect(page.getByLabel("IRC command", { exact: true })).toHaveValue("");
 });
 test("blocks a second rapid click while the record is saving", async ({
   page,
@@ -241,11 +266,10 @@ test("simulation records on click and simulated sending does not record twice", 
       button.click();
     });
   await expect(records(page)).toContainText("BAN NM1");
-  await page
-    .getByRole("button", { name: "Simulate send", exact: true })
-    .click();
   await expect(
-    page.getByText("Simulation confirmed", { exact: false }),
+    page.getByText("[OCLR BP #2] BAN NM1 | Blue | https://osu.ppy.sh/b/10001", {
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(records(page)).toContainText("BAN NM1");
   await expect(
@@ -309,7 +333,9 @@ for (const locale of ["en", "zh-Hans", "zh-Hant"]) {
         .click();
       await expect(
         page.getByText(
-          text("Recorded: {value0}").replace("{value0}", "BAN · Blue · NM1"),
+          text(
+            "BP saved. IRC sync is pending. Check the connection and retry safely.",
+          ),
           { exact: true },
         ),
       ).toBeVisible();
@@ -325,3 +351,69 @@ for (const locale of ["en", "zh-Hans", "zh-Hant"]) {
     }
   });
 }
+
+test("withdraw stays outside collapsed details and score floats only within BP", async ({
+  page,
+}, info) => {
+  const state = await setup(page, { connected: true });
+  await page.goto("/referee-panel");
+  const summary = records(page),
+    undo = summary.getByRole("button", {
+      name: "Withdraw last Ban / Pick",
+      exact: true,
+    });
+  await expect(undo).toBeVisible();
+  expect(await undo.evaluate((el) => !!el.closest("details:not([open])"))).toBe(
+    false,
+  );
+  await pool(page)
+    .getByRole("button", { name: "Blue team BAN", exact: true })
+    .first()
+    .click();
+  await expect(undo).toBeEnabled();
+  await expect.poll(() => state.autos.length).toBe(1);
+  await page.evaluate(() =>
+    document.getElementById("referee-pool")!.scrollIntoView(),
+  );
+  expect(await summary.evaluate((el) => getComputedStyle(el).position)).toBe(
+    "sticky",
+  );
+  const box = await summary.boundingBox();
+  expect(box!.y).toBeGreaterThanOrEqual(95);
+  expect(box!.y).toBeLessThanOrEqual(97);
+  await summary.screenshot({ path: info.outputPath("scoreboard.png") });
+  await undo.click();
+  await expect
+    .poll(() => state.current().projection.activeSelections.length)
+    .toBe(0);
+  await expect.poll(() => state.autos.length).toBe(2);
+  await expect(undo).toBeDisabled();
+  await page.evaluate(() => {
+    const post = document.getElementById("referee-post-match")!;
+    post.style.minHeight = "1200px";
+    post.scrollIntoView();
+  });
+  const post = await page.locator("#referee-post-match").boundingBox();
+  const released = await summary.boundingBox();
+  expect(released!.y + released!.height).toBeLessThanOrEqual(post!.y);
+});
+
+test("retrying an accepted automatic sync uses the same event and never duplicates BP or its announcement", async ({
+  page,
+}) => {
+  const state = await setup(page, { connected: true, failure: "syncLost" });
+  await page.goto("/referee-panel");
+  await pool(page)
+    .getByRole("button", { name: "Blue team BAN", exact: true })
+    .first()
+    .click();
+  await page
+    .getByRole("button", { name: "Retry IRC sync", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Retry IRC sync", exact: true }),
+  ).toHaveCount(0);
+  expect(state.autos).toHaveLength(1);
+  expect(state.commands).toHaveLength(1);
+  expect(state.current().projection.activeSelections).toHaveLength(1);
+});

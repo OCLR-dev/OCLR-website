@@ -11,6 +11,7 @@ const props = {
   simulation: false,
   disabled: false,
   startSeconds: 5,
+  timers: [60, 90, 120],
   selectedMods: null,
   recordedSelectionLabel: null,
   onChange() {},

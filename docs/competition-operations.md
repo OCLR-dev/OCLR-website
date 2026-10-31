@@ -242,6 +242,66 @@ history exists. An identical save is a no-op. Other sessions retain their saved
 basis and require the existing dependency reconfirmation flow. Deleting an otherwise
 empty round removes only its unused policy and retains its policy/deletion audit.
 
+### Inherited room settings (#620)
+
+The referee workspace uses the **saved round referee policy** for room capacity,
+Ban/Pick/preparation timers, start countdown and category Mods/NF/Freemod. Room
+names are generated from the configured season and resolved fixture teams. The
+room-settings disclosure is read-only, and the panel has no round-policy shortcut.
+Edit and save tournament rules in round management. Missing values remain
+unavailable; the IRC start shortcut does not invent a five-second fallback, and
+its timer shortcuts use the saved policy values rather than fixed durations.
+
+The Streamer username comes from this fixture's current streaming task and saved
+osu! identity, with an active global or edition-scoped Streamer role. No task,
+cancellation, or revoked/wrong-edition eligibility produces no `addref` command.
+Task/username changes update the panel through its normal refresh/IRC polling,
+without invalidating BP decisions merely because the Streamer changed. Task
+schedule reconfirmation remains in streaming management; inheriting an identity
+does not reconfirm a booking or change any role.
+
+Both `defaultSettings` and `session.settings` project these effective inherited
+values, including for desktop reads. GET does not rewrite legacy stored session
+settings or historical `settings_saved` events. New writes snapshot the inherited
+values; the legacy `save_settings` action rejects overrides, while its existing
+same-request receipt replay remains supported. Round-policy/dependency changes
+still use the existing history protection and explicit reconfirmation flow.
+The IRC text console remains an explicit room-command control, separate from
+website configuration storage; sending a command does not save a rule override.
+
+### BP score and automatic IRC sync (#621)
+
+The blue/red score summary stays sticky inside the BP section only; the undo
+button is always visible in that summary, outside the collapsed outcome editor.
+Empty replay/outcome rows are omitted to keep the floating panel compact on phones.
+
+After a successful BP save, the browser queues a server-derived sync plan for its
+receipt event: Ban sends a bounded `[OCLR BP #ordinal]` room notification; Pick/TB
+sends the notification, then the selected map, then the saved category Mods/NF.
+Withdrawals announce a correction and invalidate unsent actions for that selection.
+Saving BP remains independent from IRC and never waits for room execution.
+
+Migration `0066_bp_irc_sync` adds a default-false connection capability and optional
+queue-step metadata. Both website and OCLR IRC require the matching update. New
+servers advertise support on bind; new clients acknowledge it on sync. Older
+clients remain valid for manual commands but cannot accept automatic BP plans.
+The dedicated sync action accepts a saved event UUID, never client-authored chat or
+map/Mods text. It checks the event author, fixture, current access and saved rules.
+
+Plan rows are inserted transactionally and deduplicated by the saved event. Each
+step depends on the preceding successful step. A notification's `notified` state
+means it was handed to the local IRC transport, not a Bancho room-effect receipt.
+Map/Mods need matching new scoped BanchoBot evidence; Mods require the exact Mod
+set and Freemod state in the supported enabled/disabled reply. Failed/unknown,
+withdrawn, outdated or unauthorized steps stop dependent execution. No start or
+abort action is added by BP sync. Existing raw-room-command controls remain explicit.
+
+Offline/unknown queue responses show BP as saved with sync pending. The explicit
+retry uses the same event and cannot enqueue another copy of an accepted plan.
+There is no history broadcast on page load or replay of room-changing operations
+after a connection generation changes. A queued plan's terminal failures remain
+visible in the IRC console for review rather than silently resending commands.
+
 The command assistant supports `!mp make`, `!mp set`, `!mp addref`, `!mp invite`,
 `!mp timer`, `!mp map`, `!mp mods`, `!mp start`, and `!mp abort`.
 Room capacity and players-per-team are distinct. The map mode comes from the

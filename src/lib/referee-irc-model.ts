@@ -31,6 +31,7 @@ export const ircQueueSchema = z.discriminatedUnion("action", [
       selection: ircSelectionSchema.optional(),
     })
     .strict(),
+  z.object({ action: z.literal("sync_selection"), eventId: z.uuid() }).strict(),
   z.object({ action: z.literal("disconnect") }).strict(),
 ]);
 export const relaySchema = z.discriminatedUnion("action", [
@@ -55,6 +56,7 @@ export const relaySchema = z.discriminatedUnion("action", [
         .positive()
         .max(Number.MAX_SAFE_INTEGER)
         .optional(),
+      bpSync: z.literal(true).optional(),
       projection: z
         .object({
           status: z.enum(["connected", "disconnected"]),
@@ -66,7 +68,13 @@ export const relaySchema = z.discriminatedUnion("action", [
           z
             .object({
               commandId: z.uuid(),
-              status: z.enum(["sent", "confirmed", "failed", "unknown"]),
+              status: z.enum([
+                "sent",
+                "notified",
+                "confirmed",
+                "failed",
+                "unknown",
+              ]),
               reason: z
                 .enum([
                   "pending_operation",
@@ -142,6 +150,7 @@ export function confirmsIrcCommand(
     evidence.target.toLowerCase() !== target.toLowerCase()
   )
     return false;
+  if (confirmsMods(text, evidence.text)) return true;
   const timer = /^!mp timer ([1-9]\d{0,3})$/.exec(text);
   const countdown =
     /^Countdown ends in (\d{1,4}) (minute|second)s?(?: and (\d{1,2}) seconds?)?$/.exec(
@@ -179,5 +188,51 @@ export function allowedMakeCommand(text: string) {
   return (
     /^!mp make .{1,200}$/u.test(text) &&
     !/[\p{Cc}\p{Cf}\u2028\u2029]/u.test(text)
+  );
+}
+
+export function confirmsMods(command: string, reply: string): boolean {
+  const requested = /^!mp mods (.+)$/.exec(command);
+  const observed =
+    /^(?:Enabled (.+)|Disabled all mods), (enabled|disabled) FreeMod\.?$/i.exec(
+      reply,
+    );
+  if (!requested || !observed) return false;
+  const aliases: Record<string, string | undefined> = {
+    NOFAIL: "NF",
+    EASY: "EZ",
+    HIDDEN: "HD",
+    HARDROCK: "HR",
+    DOUBLETIME: "DT",
+    HALFTIME: "HT",
+    NIGHTCORE: "NC",
+    FLASHLIGHT: "FL",
+    FADEIN: "FI",
+    SUDDENDEATH: "SD",
+    PERFECT: "PF",
+    SPUNOUT: "SO",
+    MIRROR: "MR",
+  };
+  const normalize = (value: string) => {
+    const name = value.replace(/[ -]/g, "").toUpperCase();
+    return (
+      aliases[name] ??
+      (/^(?:NF|EZ|HD|HR|DT|HT|NC|FL|FI|SD|PF|SO|MR|[1-9]K)$/.test(name)
+        ? name
+        : null)
+    );
+  };
+  const words = requested[1].split(" ");
+  const freemod = words.includes("Freemod");
+  if (freemod !== (observed[2].toLowerCase() === "enabled")) return false;
+  const desired = words
+    .filter((m) => !["None", "Freemod"].includes(m))
+    .map(normalize);
+  const actual = observed[1] ? observed[1].split(/,\s*/).map(normalize) : [];
+  return (
+    !desired.includes(null) &&
+    !actual.includes(null) &&
+    new Set(actual).size === actual.length &&
+    desired.sort().join(",") === actual.sort().join(",")
   );
 }
