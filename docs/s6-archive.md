@@ -1,5 +1,21 @@
 # S6 surviving historical sources (#289)
 
+## Team K roster correction (#629, 2026-11-01)
+
+[Issue #629](https://github.com/OCLR-dev/OCLR-website/issues/629) supersedes the
+2026-10-25 interpretation of `队伍表!J43`: Name-Less- (8425774) and
+PhantoMPainN (14947596) are both regular Tier 4 players for Team K. Neither is a
+substitute or a replaced player. The import packages now contain 72 numeric-UID
+roster identities, 13 unresolved identities and no replacement slot (85 people).
+The schema also normalizes the exact legacy S6 replacement entry on read, so
+already saved imports receive the correction without reimporting or changing
+publication, approved results, or audit history. Other sources and replacement
+entries retain their existing meaning. No production data operation is included.
+
+The original source-review snapshot and preparation script remain historical
+evidence of the earlier interpretation. References below to K's replacement
+history describe that superseded checkpoint; they are not the current roster.
+
 The organizer supplied `OsuChineseLeagueR Season6 MainSheet.xlsx` and the original
 S6 key visual in the [#289](https://github.com/OCLR-dev/OCLR-website/issues/289)
 preparation chat on 2026-10-25. This is **OCLR S6**, not β/S5. The issue URL is the

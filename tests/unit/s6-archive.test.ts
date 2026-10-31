@@ -37,8 +37,8 @@ it("reproduces the import package without network or private workbook reads", ()
   });
 });
 
-it("retains unknown identities, VICE and replacements without fabricated UID or membership", () => {
-  expect(archive.players).toHaveLength(70);
+it("retains unknown identities and VICE while correcting the two regular Team K T4s", () => {
+  expect(archive.players).toHaveLength(72);
   expect(archive.unresolvedPlayers).toHaveLength(13);
   expect(
     archive.unresolvedPlayers!.filter((p) => p.role === "captain"),
@@ -57,14 +57,21 @@ it("retains unknown identities, VICE and replacements without fabricated UID or 
       .filter((p) => p.sourceRole === "VICE")
       .every((p) => p.tier === null),
   ).toBe(true);
-  expect(archive.rosterReplacements).toHaveLength(1);
-  expect(archive.rosterReplacements![0].people.map((p) => p.osuId)).toEqual([
-    8425774, 14947596,
-  ]);
+  expect(archive.rosterReplacements).toEqual([]);
   expect(
-    archive.players.some((p) => [8425774, 14947596].includes(p.osuId)),
-  ).toBe(false);
-  expect(archive.rosterReplacements![0].replacedAt).toBeNull();
+    archive.players.filter((p) => p.teamId === "team-k" && p.tier === 4),
+  ).toEqual([
+    expect.objectContaining({
+      osuId: 8425774,
+      username: "Name-Less-",
+      role: "player",
+    }),
+    expect.objectContaining({
+      osuId: 14947596,
+      username: "PhantoMPainN",
+      role: "player",
+    }),
+  ]);
 });
 
 it("keeps both pending interpretations and every source game without approving results", () => {
@@ -162,7 +169,19 @@ it.each([
     a.players.find((p) => p.sourceRole === "VICE")!.tier = 1;
   },
   (a: typeof archive) => {
-    a.rosterReplacements![0].people[0].osuId = a.players[0].osuId;
+    a.rosterReplacements!.push({
+      id: "conflicting-history",
+      teamId: "team-a",
+      tier: 4,
+      replacedAt: null,
+      source: "test",
+      note: "conflicting membership",
+      people: a.players.slice(0, 2).map((p) => ({
+        osuId: p.osuId,
+        username: p.username,
+        source: p.source,
+      })),
+    });
   },
   (a: typeof archive) => {
     a.qualifiers![0].records[0].scores[0].slot = "NM99";

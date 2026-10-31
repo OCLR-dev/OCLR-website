@@ -451,6 +451,56 @@ export const historicalArchiveSchema = z
         p.maps.map((m) => m.slot),
         "pool slot",
       );
+  })
+  .transform((archive): typeof archive => {
+    // #629 supersedes the old #289 interpretation of this exact source cell.
+    // Normalize saved imports as well as new uploads without rewriting evidence.
+    if (
+      archive.formatVersion !== 2 ||
+      archive.editionSlug !== "s6" ||
+      archive.sourceUrl !==
+        "https://github.com/OCLR-dev/OCLR-website/issues/289"
+    )
+      return archive;
+    const legacy = archive.rosterReplacements?.find(
+      (r) =>
+        r.id === "team-k-tier-4-history" &&
+        r.teamId === "team-k" &&
+        r.tier === 4 &&
+        r.replacedAt === null &&
+        r.source === "队伍表!J43" &&
+        r.people.length === 2 &&
+        r.people.some(
+          (p) =>
+            p.osuId === 8425774 &&
+            p.username === "Name-Less-" &&
+            p.source === "测试表!C32:D32",
+        ) &&
+        r.people.some(
+          (p) =>
+            p.osuId === 14947596 &&
+            p.username === "PhantoMPainN" &&
+            p.source === "测试表!C65:D65",
+        ),
+    );
+    if (!legacy) return archive;
+    return {
+      ...archive,
+      players: [
+        ...archive.players,
+        ...legacy.people.map((p) => ({
+          osuId: p.osuId!,
+          username: p.username,
+          teamId: legacy.teamId,
+          role: "player" as const,
+          tier: 4,
+          source: `${legacy.source}; ${p.source}; #629`,
+        })),
+      ],
+      rosterReplacements: archive.rosterReplacements!.filter(
+        (r) => r !== legacy,
+      ),
+    };
   });
 export type HistoricalArchive = z.infer<typeof historicalArchiveSchema>;
 

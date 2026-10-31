@@ -41,7 +41,7 @@ def build():
             "S6 私人覆核草稿：所有重建比分尚未批准，正式排名留空。",
             "D–I 暫按 3:5，最後 TB 暫列賽後娛樂；原始整房 3:6 保留，待確認。",
             "C–F 實打 2:5；HD2 可能缺失 F 勝點、實際可能為 2:6，待確認，不補造勝點。",
-            "未知 UID、VICE、無日期替換歷史及未知譜面標題保留原始狀態。",
+            "未知 UID、VICE 及未知譜面標題保留原始狀態。",
             "資格賽只保存原始單圖分數；空白不是零，快取 RANK/SUM 不是正式排名。隱藏表來源尚未授權公開。",
             "四輪瑞士輪而非兩組循環；G–J 勝者決賽只有結構推導，不建立虛構對局。",
             "比賽時間以 UTC+8 顯示。scheduledAt 僅使用工作簿排程；MP 開房時間另存 review.startedAt。",
@@ -60,12 +60,14 @@ def build():
                                source=t["source"] + ("; " + observed[0]["sources"][0] if observed else "; 隊名未知，僅保留來源字母")))
         for index, p in enumerate(t["members"]):
             if "replacementHistory" in p:
-                a["rosterReplacements"].append(dict(
-                    id=t["id"] + "-tier-4-history", teamId=t["id"], tier=p["tier"],
-                    replacedAt=None, source=p["source"],
-                    note="主辦者確認這是替換前後名單；日期與先後順序未知，不表示兩人同時在隊或任何一人為現役名單。",
-                    people=[dict(osuId=h["osuId"], username=h["name"], source=h["identitySource"]) for h in p["replacementHistory"]],
-                ))
+                # #629 corrects the earlier source-review interpretation.
+                # Preserve the original source snapshot; both are regular T4s.
+                if t["id"] != "team-k" or p["source"] != "队伍表!J43" or {h["osuId"] for h in p["replacementHistory"]} != {8425774, 14947596}:
+                    raise ValueError("Unreviewed multi-person roster cell")
+                for h in p["replacementHistory"]:
+                    a["players"].append(dict(osuId=h["osuId"], username=h["name"],
+                        teamId=t["id"], role="player", tier=4,
+                        source=p["source"] + "; " + h["identitySource"] + "; #629"))
                 continue
             member = dict(username=p["name"], teamId=t["id"],
                           role="player" if p["role"] == "vice" else p["role"],
@@ -116,7 +118,7 @@ def build():
     def fact(category, label, text, source):
         a["sourceFacts"].append(dict(category=category, label=label, text=text, source=source))
     fact("provenance", "來源與私人資料界線", "原工作簿只讀競賽欄位白名單；未匯入申請答案、聯絡方式、簡介或評語。原檔 SHA-256：" + s["sourceSha256"], "#289／來源整理")
-    fact("provenance", "主辦者確認", "UTC+8；Inverse Lu Yang＝lnverse Lu Yang（3753204）；Re_CYCLE＝re_cyclc（9043058）；K Tier 4 為替換歷史。", "主辦者 2026-10-25 chat")
+    fact("provenance", "主辦者確認", "UTC+8；Inverse Lu Yang＝lnverse Lu Yang（3753204）；Re_CYCLE＝re_cyclc（9043058）。K Tier 4 原替換推論由 #629 更正：兩人均為正式隊員。", "主辦者 2026-10-25 chat；2026-11-01 #629")
     fact("provenance", "圖池未知欄位", "S6GS 與原表相符；S6ES／S6FS 各 19 張的槽位及 BID 已確認，自動抓取失敗的歷史標題及屬性維持 null。", "S6GS／S6ES／S6FS")
     fact("schedule", "原表里程碑", "；".join(p["label"] + "：" + p["date"] for p in s["milestones"]), "Cover!B21:E22")
     rule_source = r["ruleSource"]["sourceUrl"]
