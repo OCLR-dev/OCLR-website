@@ -73,7 +73,7 @@ export function PlayerCompetition({
       </div>
       <p className="muted small">
         {tr(
-          "Only published, confirmed results are counted. Team results are attributed to every listed player; bench appearances are not distinguished.",
+          "Only published, confirmed results are counted. Team results are attributed to every listed player; bench appearances are not distinguished. Championships, runner-up and third place follow the deciding knockout series; a 3-4 finish without a placement series counts both semifinal losers as third place.",
         )}
       </p>
       {summary.matches ? (
@@ -81,6 +81,18 @@ export function PlayerCompetition({
           <div>
             <dt>{tr("Seasons")}</dt>
             <dd>{summary.seasons}</dd>
+          </div>
+          <div>
+            <dt>{tr("Championships")}</dt>
+            <dd>{summary.championships}</dd>
+          </div>
+          <div>
+            <dt>{tr("Runner-up finishes")}</dt>
+            <dd>{summary.runnerUps}</dd>
+          </div>
+          <div>
+            <dt>{tr("Third-place finishes")}</dt>
+            <dd>{summary.thirdPlaces}</dd>
           </div>
           <div>
             <dt>{tr("Matches played")}</dt>
@@ -158,6 +170,21 @@ export function PlayerCompetition({
                   </Link>
                 </h3>
                 <span className="badge">{role(edition)}</span>
+                {edition.champion && (
+                  <span className={`badge ${styles.champion}`}>
+                    {tr("Champion")}
+                  </span>
+                )}
+                {edition.runnerUp && (
+                  <span className={`badge ${styles.runnerUp}`}>
+                    {tr("Runner-up")}
+                  </span>
+                )}
+                {edition.thirdPlace && (
+                  <span className={`badge ${styles.third}`}>
+                    {tr("Third place")}
+                  </span>
+                )}
                 {edition.team ? (
                   <Link
                     className="context-link"
@@ -207,16 +234,20 @@ export function PlayerCompetition({
                   <dd>{totals.lost}</dd>
                 </div>
                 <div>
-                  <dt>{tr("Group rank")}</dt>
+                  <dt>
+                    {edition.finish
+                      ? edition.finish.derived
+                        ? tr("Derived placement")
+                        : tr("Final placement")
+                      : tr("Group rank")}
+                  </dt>
                   <dd>
-                    {edition.groupRank
-                      ? `${edition.groupRank.group ? `${edition.groupRank.group} · ` : ""}${edition.groupRank.rank}`
-                      : "—"}
+                    {edition.finish
+                      ? edition.finish.label
+                      : edition.groupRank
+                        ? `${edition.groupRank.group ? `${edition.groupRank.group} · ` : ""}${edition.groupRank.rank}`
+                        : "—"}
                   </dd>
-                </div>
-                <div>
-                  <dt>{tr("Rank")}</dt>
-                  <dd>{edition.placing ?? "—"}</dd>
                 </div>
               </dl>
               {edition.unavailable && (

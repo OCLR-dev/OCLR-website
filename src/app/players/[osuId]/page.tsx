@@ -1,10 +1,14 @@
 import { PlayerCompetition } from "@/components/player-competition";
 import { PlayerMapPerformance } from "@/components/player-map-performance";
 import { PlayerProfile } from "@/components/player-profile";
+import { PlayerTimeline } from "@/components/player-timeline";
 import { Avatar } from "@/components/avatar";
 import { collapseAliases, previousUsernames } from "@/lib/player-aliases";
 import { playerCompetitionRecord } from "@/lib/player-competition";
 import { playerMapPerformance } from "@/lib/player-map-performance";
+import { buildPlayerTimeline } from "@/lib/player-timeline";
+import { getPublicEditions } from "@/lib/content";
+import { archiveKeyVisual } from "@/lib/archive-key-visual";
 import { RoundRatings } from "@/components/round-ratings";
 import { getAppTranslations } from "@/i18n/server";
 import { frontendProfile } from "@/lib/frontend-data";
@@ -152,12 +156,37 @@ async function ProfileContent({
       </div>
     </header>
   );
-  const [competition, mapPerformance] = data.participation.length
-    ? await Promise.all([
-        playerCompetitionRecord(data.participation),
-        playerMapPerformance(data.participation),
-      ])
-    : [null, null];
+  const [competition, mapPerformance, publishedEditions] = await Promise.all([
+    data.participation.length
+      ? playerCompetitionRecord(data.participation)
+      : null,
+    data.participation.length ? playerMapPerformance(data.participation) : null,
+    // Seasons the player never entered still link to their public edition page.
+    getPublicEditions(),
+  ]);
+  // An edition's key visual tints the hover detail of its span; the archive
+  // supplies one when the edition itself has no artwork configured.
+  const keyVisualBySlug = new Map<string, string>();
+  for (const edition of publishedEditions) {
+    const keyVisual =
+      (edition.archive
+        ? archiveKeyVisual(edition.archive, edition.branding.keyVisual)?.src
+        : null) ??
+      edition.branding.keyVisual ??
+      null;
+    if (keyVisual) keyVisualBySlug.set(edition.slug, keyVisual);
+  }
+  // Built on the server so the axis end, and every placed mark, stay stable.
+  const timeline = buildPlayerTimeline({
+    editions: competition?.editions ?? [],
+    editionPool: publishedEditions.map(({ slug, season }) => ({
+      slug,
+      season,
+      keyVisual: keyVisualBySlug.get(slug) ?? null,
+    })),
+    joinedAt: profile?.joinedAt,
+    lastSeenAt: profile?.lastSeenAt,
+  });
   return (
     <div
       className={
@@ -199,6 +228,9 @@ async function ProfileContent({
       )}
       {typeof query.edition === "string" && (
         <RoundRatings data={ratingHistory} slug={query.edition} />
+      )}
+      {(timeline.marks.length > 0 || timeline.spans.length > 0) && (
+        <PlayerTimeline timeline={timeline} />
       )}
       {competition && (
         <PlayerCompetition

@@ -230,9 +230,6 @@
       "required": ["id", "name", "source", "maps"],
       "additionalProperties": false
     },
-    "Read0a60fec28bec": {
-      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Reade07d01b5820b" }]
-    },
     "Read0a76f20d9fea": {
       "anyOf": [
         { "type": "null", "x-oclr-undefined": true },
@@ -1187,16 +1184,6 @@
       "required": ["team", "label", "sourceId", "outcome"],
       "additionalProperties": false
     },
-    "Read5fabeed827b0": {
-      "type": "object",
-      "properties": {
-        "profile": { "$ref": "#/$defs/Read6df7552a0424" },
-        "stale": { "type": "boolean" },
-        "notice": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
-      },
-      "required": ["profile", "stale", "notice"],
-      "additionalProperties": false
-    },
     "Read60518843022d": {
       "type": "array",
       "items": { "$ref": "#/$defs/Readd849cc2edeb5" }
@@ -1479,6 +1466,10 @@
       ],
       "additionalProperties": false
     },
+    "Read6cac440a6cdd": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Read86f6cce8378d" }
+    },
     "Read6d85e14c021d": {
       "type": "object",
       "properties": {
@@ -1537,79 +1528,6 @@
     },
     "Read6ddaa661c1b0": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readc89a5cdbe35d" }]
-    },
-    "Read6df7552a0424": {
-      "type": "object",
-      "properties": {
-        "osuId": { "type": "number" },
-        "username": { "type": "string" },
-        "canonicalUrl": { "type": "string" },
-        "avatarUrl": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "coverUrl": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "countryCode": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "countryName": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "defaultRuleset": {
-          "anyOf": [
-            { "type": "null" },
-            { "type": "string", "const": "osu" },
-            { "type": "string", "const": "taiko" },
-            { "type": "string", "const": "fruits" },
-            { "type": "string", "const": "mania" }
-          ]
-        },
-        "joinedAt": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "lastSeenAt": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "previousUsernames": { "type": "array", "items": { "type": "string" } },
-        "active": {
-          "anyOf": [
-            { "type": "null" },
-            { "type": "boolean", "const": false },
-            { "type": "boolean", "const": true }
-          ]
-        },
-        "bot": {
-          "anyOf": [
-            { "type": "null" },
-            { "type": "boolean", "const": false },
-            { "type": "boolean", "const": true }
-          ]
-        },
-        "ruleset": {
-          "anyOf": [
-            { "type": "string", "const": "osu" },
-            { "type": "string", "const": "taiko" },
-            { "type": "string", "const": "fruits" },
-            { "type": "string", "const": "mania" }
-          ]
-        },
-        "fetchedAt": { "type": "string" },
-        "source": { "type": "string", "const": "osu! API v2" },
-        "badges": { "$ref": "#/$defs/Read0a60fec28bec" },
-        "rankHistory": { "$ref": "#/$defs/Read3f9addcbb70f" },
-        "statistics": { "$ref": "#/$defs/Readd00f2a636625" }
-      },
-      "required": [
-        "osuId",
-        "username",
-        "canonicalUrl",
-        "avatarUrl",
-        "coverUrl",
-        "countryCode",
-        "countryName",
-        "defaultRuleset",
-        "joinedAt",
-        "lastSeenAt",
-        "previousUsernames",
-        "active",
-        "bot",
-        "ruleset",
-        "fetchedAt",
-        "source",
-        "badges",
-        "rankHistory",
-        "statistics"
-      ],
-      "additionalProperties": false
     },
     "Read6eda757ae46e": {
       "type": "object",
@@ -1725,16 +1643,6 @@
         { "type": "string", "const": "/archive/s1/key-visual.webp" },
         { "type": "string", "const": "/oclr-s11-key-visual.webp" }
       ]
-    },
-    "Read7826dd702831": {
-      "type": "object",
-      "properties": {
-        "description": { "type": "string" },
-        "awardedAt": { "type": "string" },
-        "url": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
-      },
-      "required": ["description", "awardedAt", "url"],
-      "additionalProperties": false
     },
     "Read78574e137c82": {
       "type": "object",
@@ -1871,6 +1779,18 @@
         { "$ref": "#/$defs/Readf4627ef6821d" },
         { "$ref": "#/$defs/Readef11600d1620" }
       ]
+    },
+    "Read86f6cce8378d": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "awardedAt": { "type": "string" },
+        "url": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "imageUrl": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "image2xUrl": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+      },
+      "required": ["description", "awardedAt", "url", "imageUrl", "image2xUrl"],
+      "additionalProperties": false
     },
     "Read8710a34fed90": {
       "type": "object",
@@ -3278,10 +3198,6 @@
       ],
       "additionalProperties": false
     },
-    "Reade07d01b5820b": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/Read7826dd702831" }
-    },
     "Reade12c71607f77": {
       "type": "object",
       "properties": {
@@ -3373,6 +3289,79 @@
     },
     "Reade30a93ef38fd": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read0bc99bcee51a" }]
+    },
+    "Reade31034943ee8": {
+      "type": "object",
+      "properties": {
+        "osuId": { "type": "number" },
+        "username": { "type": "string" },
+        "canonicalUrl": { "type": "string" },
+        "avatarUrl": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "coverUrl": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "countryCode": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "countryName": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "defaultRuleset": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "const": "osu" },
+            { "type": "string", "const": "taiko" },
+            { "type": "string", "const": "fruits" },
+            { "type": "string", "const": "mania" }
+          ]
+        },
+        "joinedAt": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "lastSeenAt": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "previousUsernames": { "type": "array", "items": { "type": "string" } },
+        "active": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "boolean", "const": false },
+            { "type": "boolean", "const": true }
+          ]
+        },
+        "bot": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "boolean", "const": false },
+            { "type": "boolean", "const": true }
+          ]
+        },
+        "ruleset": {
+          "anyOf": [
+            { "type": "string", "const": "osu" },
+            { "type": "string", "const": "taiko" },
+            { "type": "string", "const": "fruits" },
+            { "type": "string", "const": "mania" }
+          ]
+        },
+        "fetchedAt": { "type": "string" },
+        "source": { "type": "string", "const": "osu! API v2" },
+        "badges": { "$ref": "#/$defs/Readfbf98bdae6d4" },
+        "rankHistory": { "$ref": "#/$defs/Read3f9addcbb70f" },
+        "statistics": { "$ref": "#/$defs/Readd00f2a636625" }
+      },
+      "required": [
+        "osuId",
+        "username",
+        "canonicalUrl",
+        "avatarUrl",
+        "coverUrl",
+        "countryCode",
+        "countryName",
+        "defaultRuleset",
+        "joinedAt",
+        "lastSeenAt",
+        "previousUsernames",
+        "active",
+        "bot",
+        "ruleset",
+        "fetchedAt",
+        "source",
+        "badges",
+        "rankHistory",
+        "statistics"
+      ],
+      "additionalProperties": false
     },
     "Reade3879a8f03ac": {
       "anyOf": [
@@ -3519,6 +3508,16 @@
         "maxRank": { "anyOf": [{ "type": "null" }, { "type": "number" }] }
       },
       "required": ["minPp", "maxPp", "minRank", "maxRank"],
+      "additionalProperties": false
+    },
+    "Readf2137768624e": {
+      "type": "object",
+      "properties": {
+        "profile": { "$ref": "#/$defs/Reade31034943ee8" },
+        "stale": { "type": "boolean" },
+        "notice": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+      },
+      "required": ["profile", "stale", "notice"],
       "additionalProperties": false
     },
     "Readf25d5821cb15": {
@@ -3694,6 +3693,9 @@
         { "type": "string", "const": "LSP" },
         { "type": "string", "const": "BDT" }
       ]
+    },
+    "Readfbf98bdae6d4": {
+      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read6cac440a6cdd" }]
     },
     "Readfe79813fec5d": {
       "type": "array",
@@ -7153,14 +7155,14 @@
       ]
     },
     "ownSavedProfile": {
-      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read5fabeed827b0" }]
+      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readf2137768624e" }]
     },
     "ownEligibility": { "$ref": "#/$defs/Readae1bdb242375" },
     "fixtureForReview": { "$ref": "#/$defs/Read9e17f1f3125d" },
     "staffBws": {
       "type": "object",
       "properties": {
-        "snapshot": { "$ref": "#/$defs/Read5fabeed827b0" },
+        "snapshot": { "$ref": "#/$defs/Readf2137768624e" },
         "fingerprint": { "type": "string" },
         "version": { "type": "number" },
         "classifications": {

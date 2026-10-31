@@ -90,4 +90,51 @@ describe("shared public and staff BWS display", () => {
     expect(html).not.toContain("BW-PP");
     expect(html).toContain("Badge eligibility pending staff review");
   });
+  it("shows the provider badge count and artwork left of OII", () => {
+    const profile = normalizeOsuProfile(
+      {
+        id: 1,
+        username: "Synthetic",
+        badges: [
+          {
+            description: "Synthetic tournament",
+            awarded_at: "2026-01-01T00:00:00Z",
+            url: "https://osu.ppy.sh/wiki/en/Tournaments",
+            image_url: "https://assets.ppy.sh/profile-badges/synthetic.png",
+            "image@2x_url":
+              "https://assets.ppy.sh/profile-badges/synthetic@2x.png",
+          },
+          {
+            description: "Synthetic contributor",
+            awarded_at: "2025-01-01T00:00:00Z",
+          },
+        ],
+        statistics: { global_rank: 10000, pp: 1000 },
+      },
+      1,
+      "osu",
+      "2026-10-24T00:00:00Z",
+    );
+    const html = renderToStaticMarkup(
+      <NextIntlClientProvider locale="en" messages={messages} timeZone="UTC">
+        <BwsSummary
+          variant="compact"
+          countryRank={321}
+          globalRankPercent={0.01}
+          oii={1.35}
+          badges={profile.badges}
+          value={summarizeBws(
+            { profile, stale: false, notice: null },
+            ["osu", "other"],
+          )}
+        />
+      </NextIntlClientProvider>,
+    );
+    expect(html).toContain(">Badges<");
+    expect(html).toContain('<strong class="bws-value">2</strong>');
+    expect(html).toContain("synthetic@2x.png");
+    expect(html).toContain("Synthetic tournament");
+    expect(html).toContain("Synthetic contributor");
+    expect(html.indexOf(">Badges<")).toBeLessThan(html.indexOf(">OII<"));
+  });
 });

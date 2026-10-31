@@ -102,7 +102,6 @@ test.describe("published osu! profiles", () => {
     await expect(
       page.getByText("9,007,199,254,740,993", { exact: true }),
     ).toBeVisible();
-    await expect(page.getByText(/Last updated/)).toBeVisible();
     expect(
       (
         await new AxeBuilder({ page })

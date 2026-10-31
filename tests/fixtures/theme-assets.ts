@@ -14,6 +14,8 @@ export const bundledSeasonThemes = [
   { appearance: "frost-waltz", stylesheet: "frost-theme.css" },
 ].map(({ appearance, stylesheet }) => ({
   appearance,
+  // Kept so tests can re-read the very stylesheet the theme ships.
+  stylesheet,
   assets: [
     ...new Set(
       Array.from(

@@ -53,6 +53,8 @@ const badge = z.object({
   description: z.string().trim().min(1).max(500),
   awarded_at: z.iso.datetime({ offset: true }),
   url: z.string().max(2048).optional(),
+  image_url: z.string().max(2048).optional(),
+  "image@2x_url": z.string().max(2048).optional(),
 });
 function publicBadgeLink(value: string | undefined) {
   if (!value) return null;
@@ -73,6 +75,9 @@ function profileBadges(value: unknown) {
     description: b.description,
     awardedAt: b.awarded_at,
     url: publicBadgeLink(b.url),
+    // Badge ribbons are provider artwork; only the osu! asset host is trusted.
+    imageUrl: imageUrl(b.image_url, "assets.ppy.sh"),
+    image2xUrl: imageUrl(b["image@2x_url"], "assets.ppy.sh"),
   }));
 }
 // JSON numbers beyond MAX_SAFE_INTEGER have already lost precision. Omit those;
@@ -259,6 +264,7 @@ export function normalizeOsuProfile(
   };
 }
 export type OsuUserProfile = ReturnType<typeof normalizeOsuProfile>;
+export type ProfileBadge = NonNullable<OsuUserProfile["badges"]>[number];
 export type ProfileSnapshot = {
   profile: OsuUserProfile;
   stale: boolean;

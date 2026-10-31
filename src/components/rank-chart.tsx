@@ -7,7 +7,9 @@ import { useAppTranslations } from "@/i18n/shared";
  * a five-digit rank, mirroring the osu! profile rank chart. */
 type RankPoint = { day: number; rank: number };
 
-const HEIGHT = 184;
+/** The chart fills its card, which the profile grid stretches to the height
+ * of the statistics column; this is the floor before that measurement lands. */
+const MIN_HEIGHT = 184;
 const PAD = { top: 5, right: 10, bottom: 6, left: 10 };
 /** Share of the rank span kept as breathing room above and below the line, so
  * the best and worst samples never sit flush against the frame edges. Scaling
@@ -57,6 +59,7 @@ export function RankChart({
   const gradientId = useId();
   const hostRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(MIN_HEIGHT);
   const [active, setActive] = useState<{ index: number; at: number } | null>(
     null,
   );
@@ -65,11 +68,15 @@ export function RankChart({
     const host = hostRef.current;
     if (!host) return;
     const observer = new ResizeObserver((entries) => {
-      const next = entries[0]?.contentRect.width ?? host.clientWidth;
-      setWidth(Math.max(0, Math.floor(next)));
+      const rect = entries[0]?.contentRect;
+      const nextWidth = rect?.width ?? host.clientWidth;
+      const nextHeight = rect?.height ?? host.clientHeight;
+      setWidth(Math.max(0, Math.floor(nextWidth)));
+      setHeight(Math.max(MIN_HEIGHT, Math.floor(nextHeight)));
     });
     observer.observe(host);
     setWidth(host.clientWidth);
+    setHeight(Math.max(MIN_HEIGHT, host.clientHeight));
     return () => observer.disconnect();
   }, []);
 
@@ -88,7 +95,7 @@ export function RankChart({
     const minDay = points[0].day;
     const span = minDay === 0 ? -1 : minDay;
     const innerWidth = width - PAD.left - PAD.right;
-    const innerHeight = HEIGHT - PAD.top - PAD.bottom;
+    const innerHeight = height - PAD.top - PAD.bottom;
     const toX = (day: number) =>
       PAD.left + ((day - minDay) / (0 - span)) * innerWidth;
     const toY = (rank: number) => {
@@ -112,7 +119,7 @@ export function RankChart({
       ticks: tickRanks(lo, hi),
       minDay,
     };
-  }, [points, width]);
+  }, [points, width, height]);
 
   const number = (value: number) =>
     new Intl.NumberFormat(tr.locale, { maximumFractionDigits: 0 }).format(
@@ -168,9 +175,9 @@ export function RankChart({
       {geometry ? (
         <svg
           className="rank-chart-svg"
-          viewBox={`0 0 ${width} ${HEIGHT}`}
+          viewBox={`0 0 ${width} ${height}`}
           width={width}
-          height={HEIGHT}
+          height={height}
           role="img"
           aria-label={`${tr("Global rank")}: #${number(points[points.length - 1].rank)}`}
           onPointerMove={(event) => pick(event.clientX)}
@@ -211,7 +218,7 @@ export function RankChart({
                 x1={geometry.toX(activePoint.day)}
                 x2={geometry.toX(activePoint.day)}
                 y1={PAD.top}
-                y2={HEIGHT - PAD.bottom}
+                y2={height - PAD.bottom}
               />
               <circle
                 className="rank-chart-dot"
