@@ -3574,6 +3574,15 @@
     "m4f87ebd43848": "NF and standard category Mods are applied automatically.",
     "m1a3eaa05fb0f": "Saved custom Mod settings",
     "ma8103dbf3042": "Existing custom Mod settings are preserved unless you restore the defaults.",
-    "m853ad91592d2": "Restore NF and standard category Mods on save"
+    "m853ad91592d2": "Restore NF and standard category Mods on save",
+    "m9ce0e71c9d8c": "Open OCLR IRC",
+    "m5f4b78cf2c64": "If the app does not open, install the latest OCLR IRC and launch it once, then try again.",
+    "m6f6e42e21f0f": "Get OCLR IRC",
+    "mc983c1f0f8c1": "Open OCLR IRC to continue connecting this match. Sign in and confirm the connection in the desktop app.",
+    "mc5e34ad5b3c3": "Confirm the accounts and enable website IRC. You can then create a room from this page.",
+    "m00231e7f7512": "IRC credentials stay in the desktop app. The launch link does not sign you in or send commands.",
+    "m9316a4c1346c": "Check the previous room creation in the local IRC app before reconnecting.",
+    "m41cfae7a8d0a": "The IRC room binding changed.",
+    "mcf7f3858d20d": "No dispatched room creation."
   }
 }
