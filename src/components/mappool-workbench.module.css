@@ -229,3 +229,58 @@
 .comments:has(textarea) {
   max-height: 24rem;
 }
+
+.roundChoices {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+.roundChoices legend {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.roundOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+.roundOptions label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.roundOptions input {
+  width: auto;
+  flex-shrink: 0;
+}
+.roundChoices > button {
+  margin-top: 0.75rem;
+}
+.candidateRounds {
+  min-width: 0;
+}
+.candidateRounds form {
+  display: grid;
+  gap: 0.75rem;
+}
+.roundSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+}
+.roundSummary p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.roundSummary button,
+.candidateRounds button {
+  min-height: 32px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}

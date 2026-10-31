@@ -1496,6 +1496,26 @@ export const mappoolCandidates = pgTable(
     unique("candidate_id_edition_unique").on(t.id, t.editionSlug),
   ],
 );
+export const mappoolCandidateRounds = pgTable(
+  "mappool_candidate_rounds",
+  {
+    candidateId: uuid("candidate_id").notNull(),
+    roundId: uuid("round_id").notNull(),
+    editionSlug: text("edition_slug").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.candidateId, t.roundId] }),
+    foreignKey({
+      columns: [t.candidateId, t.editionSlug],
+      foreignColumns: [mappoolCandidates.id, mappoolCandidates.editionSlug],
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [t.roundId, t.editionSlug],
+      foreignColumns: [tournamentRounds.id, tournamentRounds.editionSlug],
+    }).onDelete("cascade"),
+    index("candidate_round_target_idx").on(t.roundId),
+  ],
+);
 export const mappoolCandidateComments = pgTable(
   "mappool_candidate_comments",
   {
