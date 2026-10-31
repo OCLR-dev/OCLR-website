@@ -1953,7 +1953,7 @@ describe.skipIf(!base)(
             (entry: { idx: number }) => entry.idx === 64,
           );
           const schedule = journal.entries.find(
-            (entry: { idx: number }) => entry.tag === "0065_schedule_requests",
+            (entry: { tag: string }) => entry.tag === "0065_schedule_requests",
           );
           expect(predecessor.tag).toBe("0064_mappool_candidate_rounds");
           expect(schedule.when).toBeGreaterThan(predecessor.when);
