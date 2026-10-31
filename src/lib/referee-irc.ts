@@ -349,7 +349,12 @@ export async function refereeIrcRelay(
           ircUsername: action.ircUsername,
         })
         .returning();
-      return { connectionId: c.id, sequence: 0, command: null };
+      return {
+        connectionId: c.id,
+        sequence: 0,
+        command: null,
+        receiptReasons: true,
+      };
     }
     const [c] = await tx
       .select()
@@ -477,7 +482,12 @@ export async function refereeIrcRelay(
       } else
         await tx
           .update(commands)
-          .set({ status: receipt.status })
+          .set({
+            status: receipt.status,
+            ...(["failed", "unknown"].includes(receipt.status) && receipt.reason
+              ? { recordError: `relay:${receipt.reason}` }
+              : {}),
+          })
           .where(eq(commands.id, command.id));
     }
     await expire(tx, c.id);

@@ -3585,6 +3585,13 @@
     "m41cfae7a8d0a": "The IRC room binding changed.",
     "mcf7f3858d20d": "No dispatched room creation.",
     "mccd5aed3aa4d": "Recorded: {value0}",
-    "m497921eda6bc": "Unable to send this command. Check its contents and try again."
+    "m497921eda6bc": "Unable to send this command. Check its contents and try again.",
+    "mfc879a5c718f": "A previous room operation needs review in OCLR IRC before sending another command.",
+    "m4d0ce32cd78a": "The local app could not verify current room settings or referee access. Refresh them in OCLR IRC.",
+    "me478f7f485fc": "BanchoBot rejected this command. Check the room reply in OCLR IRC.",
+    "mb2cfe7c6cab4": "No matching BanchoBot reply was confirmed. Check the room before sending another command.",
+    "m64ca0190bae5": "This command is not supported by the local IRC relay.",
+    "m1cbb5bc84d57": "The local room or connection changed before this command could be sent.",
+    "mab655deee006": "The local app rejected this command before sending. Check operation records and room state in OCLR IRC."
   }
 }
