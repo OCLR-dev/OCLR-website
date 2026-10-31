@@ -2695,6 +2695,72 @@ html[data-appearance]
     rgb(0 0 0 / 0%) 92%
   );
 }
+/* Without banner artwork the cover keeps its size, layout and flush edges, so
+   a player whose osu! profile has no cover image gets the same card instead of
+   an older stacked one. The ring is then drawn from the card surface and
+   border tokens, which every appearance already provides. */
+.profile-cover--plain {
+  background: linear-gradient(
+    115deg,
+    var(--site-raised, var(--color-raised)) 0%,
+    color-mix(
+        in srgb,
+        var(--site-accent, var(--color-accent)) 14%,
+        var(--site-raised, var(--color-raised))
+      )
+      58%,
+    var(--site-raised, var(--color-raised)) 100%
+  );
+  box-shadow: inset 0 0 0 1px var(--site-border, var(--color-border));
+}
+/* The scrim only makes a photograph legible; on the plain ring it would dim
+   the heading tokens below. */
+.profile-cover--plain::after {
+  content: none;
+}
+/* Over the artwork the heading, the previous-name aliases and the level chip
+   read white through the scrim. The plain ring is a surface, so they use the
+   surface tokens instead. The heading classes are CSS-module hashes, so these
+   selectors match on the stable name suffix instead of repeating the hash. */
+.profile-summary--no-cover
+  .profile-cover-content
+  :is([class*="headingText"], [class*="previousNames"])
+  :is(h1, p) {
+  color: var(--site-foreground, var(--color-foreground));
+  text-shadow: none;
+}
+.profile-summary--no-cover .profile-cover-content [class*="previousNames"] {
+  color: var(--site-muted, var(--color-muted));
+}
+/* The previous-usernames trigger is a bare, grid-set button that appearance
+   rules otherwise fill with the primary button material. */
+.profile-summary--no-cover .profile-cover-content button.previousNamesTrigger {
+  grid-area: auto;
+  min-height: 1.4rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--site-border, var(--color-border));
+  background: var(--site-surface, var(--color-surface));
+  color: var(--site-muted, var(--color-muted));
+  box-shadow: none;
+}
+.profile-summary--no-cover .profile-level {
+  color: var(--site-foreground, var(--color-foreground));
+}
+.profile-summary--no-cover .profile-level-bar {
+  background-color: color-mix(
+    in srgb,
+    var(--site-foreground, var(--color-foreground)) 16%,
+    transparent
+  );
+  box-shadow: inset 0 0 0 1px var(--site-border, var(--color-border));
+}
+/* The dark-cover dimming assumes pale tier stops over the artwork's scrim. */
+html:not([data-theme="dark"])
+  .profile-summary--no-cover
+  > .bws-card
+  .bws-value--rank-tier {
+  filter: none;
+}
 .profile-cover-content {
   width: 100%;
   min-width: 0;
