@@ -3681,6 +3681,21 @@
     "m7e5fb8fbfb69": "Original BID",
     "mde90b11376a4": "No historical records found.",
     "commentator": "Commentator",
-    "mapper": "Mapper"
+    "mapper": "Mapper",
+    "m57ee1c23bccf": "Referee / streaming / commentary assignments",
+    "m4e1bea653f0c": "Commentator access was revoked. Attribution is retained; cancel or replace this task.",
+    "mccb946915823": "No Commentators assigned",
+    "m7f630f70cc0b": "Cancel commentary task",
+    "m8aada9ba56ba": "Assign Commentator",
+    "ma668713b7642": "Choose Commentator",
+    "mfae3974a37ea": "Commentate this match",
+    "mbb4e4856bbea": "My broadcast tasks",
+    "mda298571ea9a": "Cancel commentary tasks before deleting this fixture.",
+    "m6d27f31a1357": "Only assignment or an individual commentary change accepts a target user.",
+    "m244e274498f4": "Choose an active Commentator authorized for this edition.",
+    "ma012cd5143f5": "This Commentator already has a task for this fixture.",
+    "m3dcc2894b88e": "Schedule changed — this commentary booking needs reconfirmation.",
+    "m633f2837e579": "Confirm commentary task change?",
+    "mb2d0a53c01a0": "Reconfirm commentary booking"
   }
 }

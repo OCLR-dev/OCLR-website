@@ -5,6 +5,7 @@ import {
   editionState,
   fixtureReferees,
   fixtureStreams,
+  fixtureCommentators,
   fixtures,
   mappoolEntries,
   mappools,
@@ -1040,6 +1041,16 @@ export async function fixtureCommand(
             throw new HttpError(
               409,
               "Cancel the streaming task before deleting this fixture.",
+            );
+          const [commentary] = await tx
+            .select({ id: fixtureCommentators.fixtureId })
+            .from(fixtureCommentators)
+            .where(eq(fixtureCommentators.fixtureId, before!.id))
+            .limit(1);
+          if (commentary)
+            throw new HttpError(
+              409,
+              "Cancel commentary tasks before deleting this fixture.",
             );
           const [refereeRecord] = await tx
             .select({ id: refereeSessions.fixtureId })

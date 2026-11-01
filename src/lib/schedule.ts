@@ -8,6 +8,7 @@ import {
   editionState,
   fixtureReferees,
   fixtureStreams,
+  fixtureCommentators,
   fixtures,
   matchResults,
   memberships,
@@ -238,6 +239,23 @@ export async function scheduleWorkspace(actor: User, slug: string) {
             .innerJoin(fixtures, eq(fixtures.id, fixtureStreams.fixtureId))
             .where(eq(fixtures.editionSlug, slug))
         : [];
+      const commentaryRows = c.admin
+        ? await tx
+            .select({
+              userId: fixtureCommentators.userId,
+              fixtureId: fixtureCommentators.fixtureId,
+            })
+            .from(fixtureCommentators)
+            .innerJoin(fixtures, eq(fixtures.id, fixtureCommentators.fixtureId))
+            .where(eq(fixtures.editionSlug, slug))
+        : [];
+      const broadcastBookings = [
+        ...streamRows.map((row) => ({
+          fixtureId: row.fixture_streams.fixtureId,
+          userId: row.fixture_streams.userId,
+        })),
+        ...commentaryRows,
+      ];
       const name = (id: number) =>
         c.memberRows.find((m) => m.membership.userId === id)?.username ??
         String(id);
@@ -317,14 +335,13 @@ export async function scheduleWorkspace(actor: User, slug: string) {
                               r.fixture_referees.userId,
                         ),
                     ) ||
-                    streamRows.some(
-                      (r) =>
-                        r.fixture_streams.fixtureId === f.id &&
-                        streamRows.some(
-                          (o) =>
-                            o.fixture_streams.fixtureId === v.fixture.id &&
-                            o.fixture_streams.userId ===
-                              r.fixture_streams.userId,
+                    broadcastBookings.some(
+                      (booking) =>
+                        booking.fixtureId === f.id &&
+                        broadcastBookings.some(
+                          (other) =>
+                            other.fixtureId === v.fixture.id &&
+                            other.userId === booking.userId,
                         ),
                     )),
               )
@@ -332,6 +349,9 @@ export async function scheduleWorkspace(actor: User, slug: string) {
             referees: refereeRows
               .filter((r) => r.fixture_referees.fixtureId === f.id)
               .map((r) => r.fixture_referees.userId),
+            commentators: commentaryRows
+              .filter((row) => row.fixtureId === f.id)
+              .map((row) => row.userId),
             streamer:
               streamRows.find((r) => r.fixture_streams.fixtureId === f.id)
                 ?.fixture_streams.userId ?? null,

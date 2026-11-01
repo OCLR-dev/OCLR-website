@@ -180,8 +180,8 @@ export function ForceFixtureDelete({
                   `${preview.counts.connections} / ${preview.counts.commands}`,
                 ],
                 [
-                  tr("Referee / streaming assignments"),
-                  `${preview.counts.referees} / ${preview.counts.streams}`,
+                  tr("Referee / streaming / commentary assignments"),
+                  `${preview.counts.referees} / ${preview.counts.streams} / ${preview.counts.commentators}`,
                 ],
                 [tr("Statistics drafts"), preview.counts.statistics],
               ].map(([label, value]) => (

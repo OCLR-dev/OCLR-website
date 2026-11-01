@@ -484,6 +484,13 @@
       "when": 1793527282881,
       "tag": "0068_commentator_mapper_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1793529508941,
+      "tag": "0069_commentator_tasks",
+      "breakpoints": true
     }
   ]
 }

@@ -2106,3 +2106,80 @@ describe.skipIf(!base)("Commentator and Mapper upgrade (#661)", () => {
       }
     }));
 });
+
+describe.skipIf(!base)("Multiple commentary task upgrade (#667)", () => {
+  it("preserves the existing Streamer and fixture while adding independent multi-person commentary", async () =>
+    isolated(async (pool) => {
+      const folder = mkdtempSync(
+        join(tmpdir(), "oclr-commentary-upgrade-test-"),
+      );
+      try {
+        cpSync("drizzle", folder, { recursive: true });
+        const file = join(folder, "meta/_journal.json");
+        const journal = JSON.parse(readFileSync(file, "utf8"));
+        journal.entries = journal.entries.filter(
+          (entry: { idx: number }) => entry.idx < 69,
+        );
+        writeFileSync(file, JSON.stringify(journal));
+        await migrate(drizzle(pool), { migrationsFolder: folder });
+        const { slug, ...configuration } = edition;
+        await pool.query(
+          "INSERT INTO users (osu_id,username) VALUES (667001,'Synthetic Streamer'),(667002,'Synthetic Commentator 1'),(667003,'Synthetic Commentator 2')",
+        );
+        await pool.query(
+          "INSERT INTO edition_state (slug,configuration) VALUES ($1,$2)",
+          [slug, JSON.stringify(configuration)],
+        );
+        const stage = (
+          await pool.query(
+            "INSERT INTO tournament_stages (edition_slug,kind) VALUES ($1,'knockout') RETURNING id",
+            [slug],
+          )
+        ).rows[0];
+        const round = (
+          await pool.query(
+            "INSERT INTO tournament_rounds (edition_slug,stage_id,name,position) VALUES ($1,$2,'Synthetic round',1) RETURNING id",
+            [slug, stage.id],
+          )
+        ).rows[0];
+        const fixture = (
+          await pool.query(
+            "INSERT INTO fixtures (edition_slug,round_id,label,position,time_zone) VALUES ($1,$2,'Synthetic match',1,'UTC') RETURNING *",
+            [slug, round.id],
+          )
+        ).rows[0];
+        const stream = (
+          await pool.query(
+            "INSERT INTO fixture_streams (fixture_id,user_id,source,assigned_by,confirmed_time_zone) VALUES ($1,667001,'self',667001,'UTC') RETURNING *",
+            [fixture.id],
+          )
+        ).rows;
+        await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
+        expect((await pool.query("SELECT * FROM fixtures")).rows).toEqual([
+          fixture,
+        ]);
+        expect(
+          (await pool.query("SELECT * FROM fixture_streams")).rows,
+        ).toEqual(stream);
+        await pool.query(
+          "INSERT INTO fixture_commentators (fixture_id,user_id,source,assigned_by,confirmed_time_zone) VALUES ($1,667002,'self',667002,'UTC'),($1,667003,'staff',667001,'UTC')",
+          [fixture.id],
+        );
+        await expect(
+          pool.query(
+            "INSERT INTO fixture_commentators (fixture_id,user_id,source,assigned_by,confirmed_time_zone) VALUES ($1,667002,'self',667002,'UTC')",
+            [fixture.id],
+          ),
+        ).rejects.toMatchObject({ code: "23505" });
+        await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
+        expect(
+          (await pool.query("SELECT * FROM fixture_commentators")).rows,
+        ).toHaveLength(2);
+        expect(
+          (await pool.query("SELECT * FROM fixture_streams")).rows,
+        ).toEqual(stream);
+      } finally {
+        rmSync(folder, { recursive: true, force: true });
+      }
+    }));
+});
