@@ -1,5 +1,6 @@
 "use client";
 import { coachingEnabled } from "@/lib/editions";
+import { milestonePayload } from "@/lib/milestone-payload";
 
 import { InfoNote } from "@/components/info-note";
 
@@ -1090,6 +1091,28 @@ function Schedule({ data, saved }: EditorProps) {
                 <option value="knockout">{tr("Knockout stage")}</option>
               </select>
             </label>
+            <label className="field">
+              <span>{tr("Date precision")}</span>
+              <select
+                aria-label={tr("Date precision")}
+                value={s.precision ?? "instant"}
+                onChange={(e) =>
+                  setSchedule(
+                    schedule.map((v, j) =>
+                      j === i
+                        ? {
+                            ...v,
+                            precision: e.target.value as "day" | "instant",
+                          }
+                        : v,
+                    ),
+                  )
+                }
+              >
+                <option value="instant">{tr("Date and time")}</option>
+                <option value="day">{tr("Date only")}</option>
+              </select>
+            </label>
             <ZonedDateInput
               label={
                 s.kind
@@ -1184,11 +1207,7 @@ function Schedule({ data, saved }: EditorProps) {
           saved={saved}
           action="schedule"
           fields={{
-            schedule: schedule.map((s) => ({
-              label: s.label,
-              at: s.at,
-              ...(s.kind ? { kind: s.kind, endAt: s.endAt ?? null } : {}),
-            })),
+            schedule: milestonePayload(schedule),
           }}
           disabled={schedule.some(
             (s) =>

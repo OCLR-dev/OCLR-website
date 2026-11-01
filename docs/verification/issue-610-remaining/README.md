@@ -45,6 +45,24 @@ used.
 
 ## Reproduction and application guards
 
+### Native milestone editor follow-up
+
+Branch `codex/610-milestone-precision-editor`, based on merged `e9e61494`, adds
+the native precision selector and retains its value in the save payload. Its
+two serializer tests verify null boundaries, unchanged instants, legacy payload
+compatibility and removal of local row IDs. Related serializer/timeline/i18n
+checks passed 10 tests; final `npm run check`, `npm run build`, read-contract
+check (eight tests), formatting and diff checks passed. No schema or dependency
+change required a new DB rehearsal. E2E was not run under the ordinary-work rule.
+The three additional Chinese selector labels are separately submitted for review.
+
+The original feature SHA `0d70bac3` and merged `e9e61494` both completed CI
+successfully: [feature run](https://github.com/OCLR-dev/OCLR-website/actions/runs/41286485258),
+[merge run](https://github.com/OCLR-dev/OCLR-website/actions/runs/41286516619).
+Those passes do not establish deployment or the later editor follow-up's CI.
+
+### Data preparation
+
 `node --import tsx scripts/prepare-remaining-archive-metadata.ts INPUT_DIR OUTPUT_REVIEW_JSON`
 reads explicit local Admin downloads named `s1.json` through `s10.json`. A third
 absolute output-directory argument prepares full native-import files locally;

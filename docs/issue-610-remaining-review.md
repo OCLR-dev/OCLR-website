@@ -202,6 +202,22 @@ Existing labels for Aborted, Unknown, Derived placement and Final placement are
 reused. The organizer accepted the listed Traditional and Simplified Chinese
 labels explicitly in this session on 2026-11-01.
 
+## Native milestone precision follow-up
+
+The native milestone editor now exposes date precision and retains it in the
+save payload together with unknown boundaries. Existing instants are preserved;
+only its local row IDs are stripped. This is required for applying the three
+prepared phase windows through the existing Admin UI and for later edits to
+retain their calendar-date meaning.
+
+Additional labels submitted for organizer review:
+
+| English        | zh-Hans    | zh-Hant    |
+| -------------- | ---------- | ---------- |
+| Date precision | 日期精度   | 日期精度   |
+| Date only      | 仅日期     | 僅日期     |
+| Date and time  | 日期与时间 | 日期與時間 |
+
 ## Sources
 
 - Current unauthenticated [public read API](https://oclr.org/api/v1/tournaments),
