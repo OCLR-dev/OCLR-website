@@ -103,6 +103,10 @@ export function PlayerTimetable({
         official={null}
         initialDate={data.intervals[0]?.start}
         intervals={intervals}
+        selection={
+          startValid && endValid && start && end ? { start, end } : null
+        }
+        editingIndex={editing}
         summary={[]}
         editable={!disabled}
         availabilityLabel={
@@ -180,7 +184,7 @@ export function PlayerTimetable({
             >
               {editing === null ? tr("Add time slot") : tr("Update time slot")}
             </button>
-            {editing !== null && (
+            {(editing !== null || start !== null || end !== null) && (
               <button
                 type="button"
                 className="secondary"

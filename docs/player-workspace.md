@@ -32,7 +32,10 @@ silently transfer a score to a new slot.
 for the whole season, independently of teams and fixtures. It reuses Schedule's
 calendar, timezone-aware date/time controls and interval validation. Calendar
 selection and date/time fields both fill the slot editor; add/update slots,
-then save the timetable. Times are normalized to UTC and rendered in the
+then save the timetable. The selected range stays visible as a calendar block
+while its date/time fields are edited. Adding it converts the preview to a slot;
+cancelling removes the preview. Editing a slot temporarily replaces its block,
+and cancelling restores the original range. Times are normalized to UTC and rendered in the
 tournament timezone, including explicit clock-change offsets.
 
 Only the player writes their own timetable. The player and their currently
