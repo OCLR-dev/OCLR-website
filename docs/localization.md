@@ -1,5 +1,13 @@
 # Interface languages and tournament appearance
 
+On phones up to 760px, the header shows the logo, account action and navigation
+toggle. Appearance, color mode and language controls sit below the navigation
+links in the dropdown, with their current values visible. Choices expand within
+the scrollable panel for short screens. Escape closes an active preference menu
+first, then the navigation; outside taps and leaving focus dismiss navigation.
+Wider layouts retain their existing header controls. All layouts reuse the same
+preference controls, cookies and server-rendered authorization boundaries.
+
 Interface language follows a valid manual `oclr-locale` preference first, then the browser's `Accept-Language`, with organizer-selected Simplified Chinese (`zh-Hans`) as the final fallback (#330). English (`en`) and Traditional Chinese (`zh-Hant`) are available in the header on public, player and staff pages. The header uses a compact custom language menu with native language names, a checked active option and keyboard/touch controls. Arrow keys, Home/End, Escape and outside-click dismissal follow the account-menu pattern; changing language refreshes the current route and blocks repeat activation while pending. Selecting even the currently detected language saves an explicit preference. The cookie lasts up to one year, is same-site and uses Secure over HTTPS. This cookie carries no identity or permission; every existing server authorization/publication check remains required.
 
 Missing or invalid cookies allow environment detection. Supported language ranges are matched in descending `q` weight (default 1), with header order breaking ties; malformed ranges/weights, `q=0`, wildcards and unsupported languages are skipped. English region variants map to `en`. Chinese `Hans`/`Hant` scripts take precedence over region; without a script, TW/HK/MO map to `zh-Hant` and other Chinese regions or bare `zh` map to `zh-Hans`. Other explicit Chinese scripts are unsupported. Missing headers or no supported match fall back to `zh-Hans`. Detection reads the request only and never writes a preference cookie, so later requests can follow a changed environment until the visitor makes a manual selection. No client-side language detection or geolocation is used.

@@ -132,6 +132,12 @@ export function AppearanceControl({
           <circle cx="11" cy="7" r=".8" />
           <circle cx="15.5" cy="8" r=".8" />
         </svg>
+        <span className="mobile-preference-label" aria-hidden="true">
+          {tr("Appearance")}
+        </span>
+        <span className="mobile-preference-value" aria-hidden="true">
+          {name(appearance)}
+        </span>
       </button>
       {open && (
         <div

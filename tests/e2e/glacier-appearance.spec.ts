@@ -1,3 +1,7 @@
+import {
+  expectPreferenceMenuFits,
+  openHeaderPreferences,
+} from "./header-preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";
@@ -176,6 +180,7 @@ test.describe("S9 Glacier Blue appearance", () => {
         );
         expect((await page.goto("/tournaments/s9"))?.status()).toBe(200);
         await expect(page.locator(".glacier-attribution")).toBeVisible();
+        await openHeaderPreferences(page);
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
         const menu = page.locator('.appearance-control [role="menu"]');
@@ -187,8 +192,7 @@ test.describe("S9 Glacier Blue appearance", () => {
         const option = menu.getByRole("menuitemradio").first();
         await expect(option).toBeFocused();
         const box = (await menu.boundingBox())!;
-        expect(box.y).toBeGreaterThanOrEqual(0);
-        expect(box.y + box.height).toBeLessThanOrEqual(568);
+        await expectPreferenceMenuFits(page, menu);
         expect(box.x).toBeGreaterThanOrEqual(0);
         expect(box.x + box.width).toBeLessThanOrEqual(
           page.viewportSize()!.width,

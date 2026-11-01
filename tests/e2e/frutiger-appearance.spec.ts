@@ -1,3 +1,4 @@
+import { openHeaderPreferences } from "./header-preferences";
 import { test, expect, type BrowserContext } from "@playwright/test";
 import { sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
@@ -122,6 +123,7 @@ test.describe("Frutiger Aero material fallbacks", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     const reducedResponse = await page.goto(base);
     expect(reducedResponse?.status()).toBe(200);
+    await openHeaderPreferences(page);
     const trigger = page.locator(".appearance-trigger");
     await expect(trigger).toBeVisible();
     const styles = await trigger.evaluate((element) => {

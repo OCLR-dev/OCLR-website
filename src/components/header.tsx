@@ -237,11 +237,14 @@ export function Header({
   const [open, setOpen] = useState(false);
   const path = usePathname();
   const menuTrigger = useRef<HTMLButtonElement>(null);
-  const navigation = useRef<HTMLElement>(null);
+  const navigation = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
+    if (navigation.current) navigation.current.scrollTop = 0;
     function outside(event: PointerEvent) {
       const target = event.target as Node;
+      if (target instanceof Element && target.closest(".mobile-menu-backdrop"))
+        return;
       if (
         !navigation.current?.contains(target) &&
         !menuTrigger.current?.contains(target)
@@ -250,6 +253,12 @@ export function Header({
     }
     function escape(event: globalThis.KeyboardEvent) {
       if (event.key !== "Escape") return;
+      if (
+        navigation.current?.querySelector(
+          '[aria-haspopup="menu"][aria-expanded="true"]',
+        )
+      )
+        return;
       event.preventDefault();
       setOpen(false);
       menuTrigger.current?.focus();
@@ -273,7 +282,7 @@ export function Header({
           className="menu-toggle secondary"
           aria-label={open ? tr("Close") : tr("Menu")}
           aria-expanded={open}
-          aria-controls="main-navigation"
+          aria-controls="header-menu-panel"
           onClick={() => setOpen(!open)}
         >
           <svg
@@ -291,54 +300,89 @@ export function Header({
             />
           </svg>
         </button>
-        <nav
-          id="main-navigation"
+        {open && (
+          <button
+            type="button"
+            className="mobile-menu-backdrop"
+            aria-label={tr("Close")}
+            tabIndex={-1}
+            onClick={() => {
+              setOpen(false);
+              menuTrigger.current?.focus();
+            }}
+          />
+        )}
+        <div
+          id="header-menu-panel"
+          className={open ? "header-menu-panel open" : "header-menu-panel"}
           ref={navigation}
-          aria-label={tr("Main navigation")}
-          className={open ? "main-nav open" : "main-nav"}
+          onBlur={(event) => {
+            if (
+              window.matchMedia("(max-width: 760px)").matches &&
+              event.relatedTarget &&
+              !event.currentTarget.contains(event.relatedTarget) &&
+              !menuTrigger.current?.contains(event.relatedTarget)
+            )
+              setOpen(false);
+          }}
         >
-          {links.map(({ href, label }) =>
-            href === null ? (
-              <a
-                key={label}
-                role="link"
-                aria-disabled="true"
-                className="nav-unavailable"
-              >
-                {label}
-              </a>
-            ) : (
-              <Link
-                key={href}
-                href={href}
-                aria-current={
-                  (
-                    href === "/"
-                      ? path === "/"
-                      : path === href || path.startsWith(`${href}/`)
-                  )
-                    ? "page"
-                    : undefined
-                }
-                onClick={() => setOpen(false)}
-              >
-                {label}
-              </Link>
-            ),
-          )}
-        </nav>
-        <div className="site-preferences" onFocusCapture={() => setOpen(false)}>
-          <AppearanceControl
-            key={`${defaultAppearance}:${appearancePreference ?? "site"}`}
-            initialAppearance={appearance}
-            defaultAppearance={defaultAppearance}
-            initialPreference={appearancePreference}
-          />
-          <ThemeControl
-            initialPreference={themePreference}
-            initialSystemTheme={systemTheme}
-          />
-          <LanguageControl />
+          <nav
+            id="main-navigation"
+            aria-label={tr("Main navigation")}
+            className={open ? "main-nav open" : "main-nav"}
+          >
+            {links.map(({ href, label }) =>
+              href === null ? (
+                <a
+                  key={label}
+                  role="link"
+                  aria-disabled="true"
+                  className="nav-unavailable"
+                >
+                  {label}
+                </a>
+              ) : (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={
+                    (
+                      href === "/"
+                        ? path === "/"
+                        : path === href || path.startsWith(`${href}/`)
+                    )
+                      ? "page"
+                      : undefined
+                  }
+                  onClick={() => setOpen(false)}
+                >
+                  {label}
+                </Link>
+              ),
+            )}
+          </nav>
+          <div
+            className="site-preferences"
+            role="group"
+            aria-label={tr("Settings")}
+            onFocusCapture={() => {
+              if (!window.matchMedia("(max-width: 760px)").matches)
+                setOpen(false);
+            }}
+          >
+            <p className="mobile-preference-heading">{tr("Settings")}</p>
+            <AppearanceControl
+              key={`${defaultAppearance}:${appearancePreference ?? "site"}`}
+              initialAppearance={appearance}
+              defaultAppearance={defaultAppearance}
+              initialPreference={appearancePreference}
+            />
+            <ThemeControl
+              initialPreference={themePreference}
+              initialSystemTheme={systemTheme}
+            />
+            <LanguageControl />
+          </div>
         </div>
         <div
           className="nav-actions"

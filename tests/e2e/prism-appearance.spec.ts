@@ -1,3 +1,7 @@
+import {
+  expectPreferenceMenuFits,
+  openHeaderPreferences,
+} from "./header-preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";
@@ -66,6 +70,7 @@ test.describe("S5 Prism Overture appearance", () => {
         );
         await page.goto("/tournaments/s5");
         await page.waitForLoadState("networkidle");
+        await openHeaderPreferences(page);
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
         const menu = page.locator('.appearance-control [role="menu"]');
@@ -76,11 +81,7 @@ test.describe("S5 Prism Overture appearance", () => {
         await page.keyboard.press("Home");
         const option = menu.getByRole("menuitemradio").first();
         await expect(option).toBeFocused();
-        const box = (await menu.boundingBox())!;
-        expect(box.y).toBeGreaterThanOrEqual(0);
-        expect(box.y + box.height).toBeLessThanOrEqual(
-          page.viewportSize()!.height,
-        );
+        await expectPreferenceMenuFits(page, menu);
         await page.keyboard.press("Enter");
         await expect(trigger).toBeFocused();
         const response = await page.reload();

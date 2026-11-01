@@ -1,3 +1,7 @@
+import {
+  closeHeaderPreferences,
+  openHeaderPreferences,
+} from "./header-preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { closeDb } from "../../src/db";
@@ -82,9 +86,11 @@ test.describe("appearance and language preferences", () => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     for (const locale of ["zh-Hans", "zh-Hant", "en"]) {
+      await openHeaderPreferences(page);
       await page.locator(".language-control > button").click();
       await page.locator(`.language-control [data-locale="${locale}"]`).click();
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      await closeHeaderPreferences(page);
       if (locale !== "en")
         expect(
           await page
@@ -125,13 +131,19 @@ test.describe("appearance and language preferences", () => {
             await expect(page.locator(".rules-article")).toContainText(
               "Organizer text remains literal. <script>literal</script>",
             );
-          const headerBox = (await page.locator(".site-header").boundingBox())!;
-          const preferenceBox = (await page
-            .locator(".site-preferences")
-            .boundingBox())!;
-          expect(preferenceBox.y + preferenceBox.height).toBeLessThanOrEqual(
-            headerBox.y + headerBox.height,
-          );
+          if (page.viewportSize()!.width <= 760) {
+            await expect(page.locator(".site-preferences")).toBeHidden();
+          } else {
+            const headerBox = (await page
+              .locator(".site-header")
+              .boundingBox())!;
+            const preferenceBox = (await page
+              .locator(".site-preferences")
+              .boundingBox())!;
+            expect(preferenceBox.y + preferenceBox.height).toBeLessThanOrEqual(
+              headerBox.y + headerBox.height,
+            );
+          }
           await page.screenshot({
             path: info.outputPath(
               `${locale}-${theme}-${path.slice(1) || "overview"}.png`,
@@ -197,6 +209,7 @@ test.describe("appearance and language preferences", () => {
       ["zh-Hant", "管理概覽", "選手控制檯"],
       ["en", "Administration overview", "Player dashboard"],
     ]) {
+      await openHeaderPreferences(page);
       await page.locator(".language-control > button").click();
       await page.locator(`.language-control [data-locale="${locale}"]`).click();
       await expect(page.locator("html")).toHaveAttribute("lang", locale);

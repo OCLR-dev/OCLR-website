@@ -176,6 +176,12 @@ export function ThemeControl({
         }}
       >
         <ThemeIcon value={preference} />
+        <span className="mobile-preference-label" aria-hidden="true">
+          {tr("Color mode")}
+        </span>
+        <span className="mobile-preference-value" aria-hidden="true">
+          {name(preference)}
+        </span>
       </button>
       {open && (
         <div

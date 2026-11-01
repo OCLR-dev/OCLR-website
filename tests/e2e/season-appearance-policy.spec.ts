@@ -1,3 +1,4 @@
+import { openHeaderPreferences } from "./header-preferences";
 import { test, expect } from "@playwright/test";
 import { sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
@@ -73,6 +74,7 @@ test.describe("Admin-only season theme policy", () => {
           "skyline-pop",
         );
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+        await openHeaderPreferences(page);
         await page.locator(".appearance-trigger").click();
         const menu = page.locator('.appearance-control [role="menu"]');
         await expect(menu.getByRole("menuitemradio")).toHaveCount(
@@ -111,6 +113,7 @@ test.describe("Admin-only season theme policy", () => {
       "data-appearance",
       "glacier-blue",
     );
+    await openHeaderPreferences(page);
     await page.locator(".appearance-trigger").click();
     await page.locator('[data-appearance-option="cute-pastel"]').click();
     await expect(page.locator("html")).toHaveAttribute(
@@ -122,6 +125,7 @@ test.describe("Admin-only season theme policy", () => {
       "data-appearance",
       "cute-pastel",
     );
+    await openHeaderPreferences(page);
     await page.locator(".appearance-trigger").click();
     await page.locator('[data-appearance-option="site"]').click();
     await expect(page.locator("html")).toHaveAttribute(

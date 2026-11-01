@@ -39,6 +39,7 @@ import "./verdant-theme.css";
 import "./chromatic-theme.css";
 import "./frost-theme.css";
 import "./archive-counts.css";
+import "./header-mobile.css";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";
 import { tournamentAppearanceScopes } from "@/lib/tournaments";

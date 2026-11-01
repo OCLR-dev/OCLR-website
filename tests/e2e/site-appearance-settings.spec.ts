@@ -1,3 +1,4 @@
+import { openHeaderPreferences } from "./header-preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";
@@ -108,6 +109,7 @@ test.describe("Admin default and visitor appearance overrides", () => {
           (cookie) => cookie.name === "oclr-appearance",
         ),
       ).toBeUndefined();
+      await openHeaderPreferences(visitor);
       await visitor.locator(".appearance-trigger").click();
       await expect(
         visitor.getByRole("menuitemradio", { name: "Use site default" }),
@@ -156,6 +158,7 @@ test.describe("Admin default and visitor appearance overrides", () => {
           "default",
         );
       }
+      await openHeaderPreferences(visitor);
       await visitor.locator(".appearance-trigger").click();
       await visitor
         .getByRole("menuitemradio", { name: "Use site default" })
@@ -185,6 +188,7 @@ test.describe("Admin default and visitor appearance overrides", () => {
         "data-appearance",
         "default",
       );
+      await openHeaderPreferences(visitor);
       await visitor.locator(".appearance-trigger").click();
       await visitor.getByRole("menuitemradio", { name: "Cute pastel" }).click();
       await visitor.reload();
