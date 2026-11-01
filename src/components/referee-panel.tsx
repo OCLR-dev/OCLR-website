@@ -1,4 +1,6 @@
 "use client";
+import { RefereeMp } from "./referee-mp";
+import { useStaffReadOnly } from "./staff-read-only";
 import Link from "next/link";
 import { refereeMessage } from "@/i18n/referee";
 import { useEffect, useId, useRef, useState } from "react";
@@ -34,6 +36,8 @@ export function RefereePanel({
   simulation?: boolean;
 }) {
   const tr = useAppTranslations();
+  const readOnly = useStaffReadOnly();
+  const newestRevision = useRef(initial.session?.revision ?? 0);
   const controlId = useId();
   const [data, setData] = useState(initial);
   const [firstBan, setFirstBan] = useState(
@@ -136,6 +140,8 @@ export function RefereePanel({
   });
   const map = data.maps.find((m) => m.id === selected) ?? null;
   function accept(next: RefereeWorkspace) {
+    if ((next.session?.revision ?? 0) < newestRevision.current) return;
+    newestRevision.current = next.session?.revision ?? 0;
     setData(next);
     setFirstBan(next.session?.firstBanTeamId ?? "");
     setFirstPick(next.session?.firstPickTeamId ?? "");
@@ -628,6 +634,19 @@ export function RefereePanel({
               </div>
             )}
           </div>
+          {!simulation && data.canRecord && !readOnly && (
+            <RefereeMp
+              endpoint={`${endpoint}/mp`}
+              workspace={data}
+              disabled={disabled}
+              onWorkspace={(next) => {
+                if ((next.session?.revision ?? 0) < newestRevision.current)
+                  return;
+                newestRevision.current = next.session?.revision ?? 0;
+                setData(next);
+              }}
+            />
+          )}
           <div className={styles.columns}>
             <section
               className={`panel ${styles.pinnedSummary}`}
@@ -886,7 +905,10 @@ export function RefereePanel({
                 </p>
               ))}
             </section>
-            <details className={`panel ${styles.recordControls}`}>
+            <details
+              id="referee-record-editor"
+              className={`panel ${styles.recordControls}`}
+            >
               <summary>{tr("Record and correct outcomes")}</summary>
               {!state.activeSelections.length && (
                 <p className="muted">{tr("No Ban or Pick recorded yet.")}</p>

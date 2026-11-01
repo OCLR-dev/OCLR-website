@@ -58,3 +58,5 @@ real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
 
 - [Structured historical metadata](archive-metadata.md) — typed placements, rounds, season dates and S5 review material (#610).
 - [S5 statistics publication](s5-statistics-publication.md) — four approved UID corrections, all 34 matches published, preserved B28/GF score differences and unauthenticated checks (#610).
+
+- [裁判面板 MP 比分同步](referee-mp-sync.md) — MP 綁定、逐局自動暫記、重賽與來源變更人工核對、輪詢及交易邊界。

@@ -1638,3 +1638,5 @@ export const scheduleEvents = pgTable(
     index("schedule_events_request").on(t.requestId),
   ],
 );
+
+export { refereeMpBindings, refereeMpScores } from "./referee-mp-schema";

@@ -470,6 +470,13 @@
       "when": 1793450359838,
       "tag": "0066_bp_irc_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1793497829230,
+      "tag": "0067_referee_mp_auto_score",
+      "breakpoints": true
     }
   ]
 }

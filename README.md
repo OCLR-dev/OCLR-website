@@ -11,7 +11,7 @@ One Next.js App Router application built with TypeScript, React, Tailwind CSS, n
 - Individual registration, configurable questions and eligibility, staff review and staff-assisted enrollment.
 - Captain/team setup, live drafting, spectator/OBS views and separately published rosters.
 - Mappool editing and official beatmap metadata, private Pooler/Tester candidate selection and comments, plus private staff Replay attachments with a selection lock and Showcase deadline.
-- Fixtures, multiplayer imports, reviewed and approved results, brackets, standings, statistics and weekly player awards.
+- Fixtures, multiplayer imports, automatic provisional referee scores from a bound MP link, reviewed and approved results, brackets, standings, statistics and weekly player awards.
 - Tournament archives, news, accepted-player directories, osu! profile snapshots and community information pages.
 - Simplified Chinese (default), Traditional Chinese and English; independent light/dark and default, cute-pastel or swiss-minimal appearance choices.
 
