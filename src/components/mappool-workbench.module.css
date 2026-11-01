@@ -343,7 +343,7 @@
   z-index: 2;
 }
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-title-row) {
-  padding-right: 7rem;
+  padding-right: 14rem;
 }
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-values) {
   flex-wrap: nowrap;
@@ -462,4 +462,44 @@
   .promotion > button {
     width: 100%;
   }
+}
+
+.workbenchCard:global(.map-browse-card--band) .historyTrigger {
+  width: auto;
+  min-height: 32px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+.historyDialog:global(.map-dialog) {
+  padding: 1.25rem;
+  overflow-wrap: anywhere;
+}
+.historyHeading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+.historyHeading h3,
+.historyHeading p {
+  margin: 0;
+}
+.historyHeading button {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: start;
+}
+.historyMatches {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.historyMatches li + li {
+  border-top: 1px solid var(--site-border);
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+}
+.historyMatches p {
+  margin: 0.25rem 0 0;
 }

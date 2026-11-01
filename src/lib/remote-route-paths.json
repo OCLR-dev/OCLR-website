@@ -75,6 +75,7 @@
     "/api/admin/tournaments/[edition]/captains",
     "/api/admin/tournaments/[edition]/draft",
     "/api/admin/tournaments/[edition]/mappool-workbench/[candidateId]/comments",
+    "/api/admin/tournaments/[edition]/mappool-workbench/[candidateId]/history",
     "/api/admin/tournaments/[edition]/mappool-workbench",
     "/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]",
     "/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays",

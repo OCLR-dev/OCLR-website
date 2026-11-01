@@ -8582,6 +8582,48 @@
         ],
         "additionalProperties": false
       }
+    },
+    "candidateHistory": {
+      "type": "object",
+      "properties": {
+        "beatmapId": { "type": "number" },
+        "matches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "editionSlug": { "type": "string" },
+              "editionName": { "type": "string" },
+              "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+              "poolId": { "type": "string" },
+              "poolName": { "type": "string" },
+              "roundName": {
+                "anyOf": [{ "type": "null" }, { "type": "string" }]
+              },
+              "slot": { "type": "string" },
+              "matchedBy": {
+                "anyOf": [
+                  { "type": "string", "const": "beatmap" },
+                  { "type": "string", "const": "original" }
+                ]
+              }
+            },
+            "required": [
+              "editionSlug",
+              "editionName",
+              "season",
+              "poolId",
+              "poolName",
+              "roundName",
+              "slot",
+              "matchedBy"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["beatmapId", "matches"],
+      "additionalProperties": false
     }
   }
 }

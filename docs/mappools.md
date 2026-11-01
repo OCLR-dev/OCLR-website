@@ -98,6 +98,17 @@ Edition-scoped foreign keys reject cross-season links. Deleting an otherwise
 unused round removes its planning links, preserving candidates and discussion;
 existing formal pool/fixture/history deletion protections remain unchanged.
 
+**Check history** opens an on-demand lookup for the candidate's exact BID across
+other published historical archives or completed editions' published official
+pools. Archive original IDs also match; a different difficulty in the same set
+does not. Results identify the edition, round/pool and slot with a public pool
+link. This is pool inclusion, not evidence that the map was played in a match.
+Unpublished editions/pools, live editions and candidate lists are excluded.
+An empty result says no historical records; failures provide retry instead.
+The GET validates the current selection read grant and candidate's edition,
+uses saved data only, and is available through the versioned read API as
+`candidateHistory` (contract 1.16.0). No candidate or official pool is changed.
+
 Each candidate accepts up to 200 comments of 2,000 characters. A per-submission
 request UUID makes retries idempotent for the same author/candidate; reusing it
 with different text fails. Concurrent comments append rather than overwriting.

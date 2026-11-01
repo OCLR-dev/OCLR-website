@@ -3671,6 +3671,14 @@
     "mf97e9da0e3b8": "Other",
     "m1ac020fb3ee0": "Date precision",
     "ma079c3bbe23a": "Date and time",
-    "m3280b0a1d436": "Date only"
+    "m3280b0a1d436": "Date only",
+    "m779411c55f45": "Could not check historical mappool usage.",
+    "m091780502894": "Check history",
+    "m3b94bd71f065": "Historical mappool usage",
+    "mcf19be99998f": "Published historical mappools only.",
+    "m6b36feae636d": "Checking history…",
+    "m942087cc2d41": "Retry",
+    "m7e5fb8fbfb69": "Original BID",
+    "mde90b11376a4": "No historical records found."
   }
 }

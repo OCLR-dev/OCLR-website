@@ -798,6 +798,23 @@
       "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
     },
     {
+      "file": "src/app/api/admin/tournaments/[edition]/mappool-workbench/[candidateId]/history/route.ts",
+      "kind": "read-route",
+      "authority": "saved-read",
+      "operations": ["candidateHistory", "getApiIdentity"],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/mappool-history.ts#candidateHistory"
+      ],
+      "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
+      "authorization": "Live Developer + private scope; write controls disabled",
+      "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Public beatmap cover assets; private candidates and comments",
+      "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
+    },
+    {
       "file": "src/app/api/admin/tournaments/[edition]/mappool-workbench/route.ts",
       "kind": "read-route",
       "authority": "saved-read",
@@ -2421,6 +2438,20 @@
       "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
       "authorization": "Existing publication/subject boundaries",
       "adapter": "shared service wrapper → fixed v1 resource",
+      "media": "Existing public assets",
+      "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/candidate-history.tsx",
+      "kind": "client",
+      "authority": "static-or-local-interaction",
+      "operations": [],
+      "commands": "Denied in remote mode; connection management and preference cookies remain separate",
+      "metadata": "Inherited or static",
+      "services": [],
+      "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
+      "authorization": "Existing publication/subject boundaries",
+      "adapter": "no database; repository content/navigation/preferences",
       "media": "Existing public assets",
       "requiredVerification": "Browser interaction/polling + API snapshot immutability"
     },

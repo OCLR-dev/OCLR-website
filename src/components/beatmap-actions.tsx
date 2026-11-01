@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { beatmapLinks } from "@/lib/beatmap-links";
 
@@ -44,6 +45,7 @@ export function BeatmapActions({
   compact = false,
   showWeb = true,
   name,
+  extra,
 }: {
   beatmapId: number | null | undefined;
   setId: number | null | undefined;
@@ -53,6 +55,7 @@ export function BeatmapActions({
   compact?: boolean;
   showWeb?: boolean;
   name?: string;
+  extra?: ReactNode;
 }) {
   const tr = useAppTranslations();
   const originalLinks = beatmapLinks(originalBeatmapId, originalSetId);
@@ -78,6 +81,7 @@ export function BeatmapActions({
     <div
       className={`beatmap-actions${compact ? " beatmap-actions-compact" : ""}`}
     >
+      {extra}
       {(["direct", "web"] as const).map(
         (kind) =>
           links[kind] &&

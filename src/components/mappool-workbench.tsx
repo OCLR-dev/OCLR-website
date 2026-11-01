@@ -21,6 +21,7 @@ import {
 import type { MappoolWorkspace } from "@/lib/mappools";
 import { EntryForm } from "./mappool-editor";
 import { WorkspaceTabs } from "./workspace-tabs";
+import { CandidateHistory } from "./candidate-history";
 import { MapCardBand } from "./map-card-band";
 import { BeatmapCover } from "./beatmap-cover";
 import { BeatmapActions } from "./beatmap-actions";
@@ -1035,6 +1036,13 @@ export function SelectionWorkbench({
                     openHref={`https://osu.ppy.sh/beatmaps/${c.beatmapId}`}
                     openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
                     note={tr("★ base")}
+                    actions={
+                      <CandidateHistory
+                        slug={slug}
+                        candidateId={c.id}
+                        beatmapId={c.beatmapId}
+                      />
+                    }
                     chips={
                       <span>
                         {tr("HP")} {formatBeatmapNumber(c.metadata.hp)}
