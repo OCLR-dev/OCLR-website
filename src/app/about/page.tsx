@@ -56,6 +56,18 @@ async function Issue271Page() {
       roles: ["referee"],
     },
     {
+      id: "commentator",
+      title: tr("Commentator"),
+      names: [],
+      roles: ["commentator"],
+    },
+    {
+      id: "mapper",
+      title: tr("mapper"),
+      names: [],
+      roles: ["mapper"],
+    },
+    {
       id: "designer",
       title: tr("Designer"),
       names: [],

@@ -95,6 +95,8 @@ test.describe("staff assignment interface (#357)", () => {
     await group
       .getByRole("checkbox", { name: "Designer", exact: true })
       .check();
+    for (const name of ["Commentator", "Mapper"])
+      await group.getByRole("checkbox", { name, exact: true }).check();
     await expect(group.locator(".staff-saved-roles")).toContainText("Referee");
     await expect(group.locator(".staff-role-status")).toContainText(
       "Unsaved changes.",
@@ -124,6 +126,8 @@ test.describe("staff assignment interface (#357)", () => {
       "Roles saved.",
     );
     await expect(group.locator(".staff-saved-roles")).toContainText("Designer");
+    for (const name of ["Commentator", "Mapper"])
+      await expect(group.locator(".staff-saved-roles")).toContainText(name);
     await expect(save).toBeDisabled();
     await page.reload();
     await group.locator(".staff-role-editor > summary").click();
@@ -133,6 +137,10 @@ test.describe("staff assignment interface (#357)", () => {
     await expect(
       group.getByRole("checkbox", { name: "Designer", exact: true }),
     ).toBeChecked();
+    for (const name of ["Commentator", "Mapper"])
+      await expect(
+        group.getByRole("checkbox", { name, exact: true }),
+      ).toBeChecked();
     await expect(
       group.getByRole("checkbox", { name: "Referee", exact: true }),
     ).not.toBeChecked();
@@ -241,7 +249,14 @@ test.describe("staff assignment interface (#357)", () => {
         confirmed: true,
         userId: target,
         editionSlug: null,
-        roles: ["mappooler", "referee", "developer", "admin"],
+        roles: [
+          "mappooler",
+          "referee",
+          "commentator",
+          "mapper",
+          "developer",
+          "admin",
+        ],
         expectedGrantIds: [],
       },
     );
@@ -274,6 +289,16 @@ test.describe("staff assignment interface (#357)", () => {
               .locator(".staff-role-form"),
           );
           await expect(forms).toHaveCount(2);
+          const newRoles =
+            locale === "en"
+              ? ["Commentator", "Mapper"]
+              : locale === "zh-Hans"
+                ? ["解说", "作图"]
+                : ["解說", "作圖"];
+          for (const name of newRoles)
+            await expect(
+              forms.getByRole("checkbox", { name, exact: true }),
+            ).toHaveCount(2);
           for (const width of isMobile ? [320, 390] : [1440]) {
             await page.setViewportSize({ width, height: 1000 });
             expect(

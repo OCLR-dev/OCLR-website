@@ -12,7 +12,13 @@ import { changeStaffRole } from "../../src/lib/staff-roles";
 test.describe("approved public About roster", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.afterAll(async () => closeDb());
-  for (const role of ["mappooler", "developer", "designer"] as const) {
+  for (const role of [
+    "mappooler",
+    "developer",
+    "designer",
+    "commentator",
+    "mapper",
+  ] as const) {
     test(`Admin publishes, hides and revokes ${role}, while private grants remain hidden`, async ({
       page,
       browser,
@@ -110,9 +116,9 @@ test.describe("approved public About roster", () => {
         const section = page.locator(
           role === "developer"
             ? "#developer"
-            : role === "designer"
-              ? "#designer"
-              : "#pooler",
+            : role === "mappooler"
+              ? "#pooler"
+              : `#${role}`,
         );
         await expect(section.getByRole("heading")).toBeVisible();
         await expect(section.locator(".public-staff-list")).toHaveCount(0);
@@ -121,9 +127,9 @@ test.describe("approved public About roster", () => {
         const roleName =
           role === "developer"
             ? /^Developer$/
-            : role === "designer"
-              ? /^Designer$/
-              : /^Mappooler$/;
+            : role === "mappooler"
+              ? /^Mappooler$/
+              : new RegExp(`^${role[0].toUpperCase()}${role.slice(1)}$`);
         const group = operator
           .locator(".staff-role-group")
           .filter({
@@ -166,7 +172,11 @@ test.describe("approved public About roster", () => {
         ).toBeVisible();
         await expect(
           page.locator(".public-staff-list .staff-role-name"),
-        ).toHaveText(role === "designer" ? "Designer" : role);
+        ).toHaveText(
+          ["designer", "commentator", "mapper"].includes(role)
+            ? role[0].toUpperCase() + role.slice(1)
+            : role,
+        );
         await expect(page.locator(".public-staff-list")).toContainText(
           role === "developer" ? "All editions" : "Synthetic test edition",
         );

@@ -2035,3 +2035,74 @@ describe.skipIf(!base)(
       }));
   },
 );
+
+describe.skipIf(!base)("Commentator and Mapper upgrade (#661)", () => {
+  it("adds both roles while preserving assignments and audit history on repeat migrations", async () =>
+    isolated(async (pool) => {
+      const folder = mkdtempSync(
+        join(tmpdir(), "oclr-staff-roles-upgrade-test-"),
+      );
+      try {
+        cpSync("drizzle", folder, { recursive: true });
+        const file = join(folder, "meta/_journal.json");
+        const journal = JSON.parse(readFileSync(file, "utf8"));
+        journal.entries = journal.entries.filter(
+          (entry: { idx: number }) => entry.idx < 68,
+        );
+        writeFileSync(file, JSON.stringify(journal));
+        await migrate(drizzle(pool), { migrationsFolder: folder });
+        await pool.query(
+          "INSERT INTO users (osu_id,username) VALUES (661001,'Synthetic migration staff')",
+        );
+        const legacy = (
+          await pool.query(
+            "INSERT INTO staff_roles (user_id,role,granted_by,about_published) VALUES (661001,'designer',661001,true) RETURNING *",
+          )
+        ).rows;
+        await pool.query(
+          "INSERT INTO staff_role_events (grant_id,actor_id,target_id,role,action) VALUES ($1,661001,661001,'designer','grant')",
+          [legacy[0].id],
+        );
+        const history = (await pool.query("SELECT * FROM staff_role_events"))
+          .rows;
+        await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
+        expect((await pool.query("SELECT * FROM staff_roles")).rows).toEqual(
+          legacy,
+        );
+        expect(
+          (await pool.query("SELECT * FROM staff_role_events")).rows,
+        ).toEqual(history);
+        const labels = (
+          await pool.query(
+            "SELECT unnest(enum_range(NULL::staff_role))::text AS role",
+          )
+        ).rows.map((row) => row.role);
+        expect(labels.slice(-2)).toEqual(["commentator", "mapper"]);
+        for (const role of ["commentator", "mapper"]) {
+          const grant = (
+            await pool.query(
+              "INSERT INTO staff_roles (user_id,role,granted_by) VALUES (661001,$1,661001) RETURNING id",
+              [role],
+            )
+          ).rows[0];
+          await pool.query(
+            "INSERT INTO staff_role_events (grant_id,actor_id,target_id,role,action) VALUES ($1,661001,661001,$2,'grant')",
+            [grant.id, role],
+          );
+        }
+        const beforeRepeat = (
+          await pool.query("SELECT * FROM staff_role_events ORDER BY role")
+        ).rows;
+        await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
+        expect(
+          (await pool.query("SELECT * FROM staff_role_events ORDER BY role"))
+            .rows,
+        ).toEqual(beforeRepeat);
+        expect(
+          (await pool.query("SELECT * FROM staff_roles")).rows,
+        ).toHaveLength(3);
+      } finally {
+        rmSync(folder, { recursive: true, force: true });
+      }
+    }));
+});
