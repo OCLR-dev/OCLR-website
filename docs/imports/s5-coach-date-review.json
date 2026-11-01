@@ -3,6 +3,7 @@
   "importable": false,
   "timeZoneAuthorization": "Organizer chat, 2026-11-01: UTC+8; match dates from MP links",
   "datePolicy": "MP local calendar date + MainSheet scheduled wall time; room creation stays separate",
+  "statisticsImpact": "Current statisticsArchiveKey includes coach identities and scheduledAt. Applying these edits invalidates existing published statistics until they are explicitly revalidated and republished. Original archive restoration restores the prior key.",
   "coaches": [
     {
       "unresolvedId": "a-slot-3",

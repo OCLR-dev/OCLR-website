@@ -76,6 +76,7 @@ def reconcile(source, evidence):
     return {"kind": "s5-coach-date-review", "importable": False,
             "timeZoneAuthorization": "Organizer chat, 2026-11-01: UTC+8; match dates from MP links",
             "datePolicy": "MP local calendar date + MainSheet scheduled wall time; room creation stays separate",
+            "statisticsImpact": "Current statisticsArchiveKey includes coach identities and scheduledAt. Applying these edits invalidates existing published statistics until they are explicitly revalidated and republished. Original archive restoration restores the prior key.",
             "coaches": coaches, "matches": matches}
 
 
@@ -140,6 +141,8 @@ def main():
         archive = saved["edition"]["archive"] if "edition" in saved else saved
         args.output.write_text(json.dumps(prepare_archive(archive, review), ensure_ascii=False, indent=2) + "\n")
     print("12 coach identities, 34 UTC+8 schedules, one year correction verified")
+    if args.archive:
+        print("WARNING: This changes the statistics archive key; published statistics require explicit revalidation before release.")
 
 
 if __name__ == "__main__":
