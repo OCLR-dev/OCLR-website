@@ -76,7 +76,7 @@ function matchesRoute(path: string, template: string, api = false) {
 }
 export function remotePageSupported(path: string) {
   if (
-    /^\/(?:admin\/)?tournaments\/[^/]+\/(?:schedule\/requests|matches\/schedule-requests)(?:\/|$)/.test(
+    /^\/(?:admin\/)?tournaments\/[^/]+\/(?:schedule\/requests|matches\/schedule-requests|player\/(?:practice|availability))(?:\/|$)/.test(
       path,
     )
   )

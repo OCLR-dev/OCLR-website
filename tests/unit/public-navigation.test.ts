@@ -3,6 +3,7 @@ import {
   isPublicPage,
   isBroadcastPage,
   captainWorkspaceSection,
+  playerWorkspaceSection,
   publicTournamentSection,
 } from "../../src/lib/public-navigation";
 describe("public edition navigation", () => {
@@ -19,11 +20,27 @@ describe("public edition navigation", () => {
     ["/team", null],
     ["/draft/captain", null],
     ["/schedule/requests", null],
+    ["/player/practice", null],
+    ["/player/availability", null],
   ])("selects one destination for %s", (suffix, section) => {
     expect(publicTournamentSection(base + suffix, base)).toBe(section);
   });
   it("does not select a similarly prefixed edition", () => {
     expect(publicTournamentSection(base + "-other/mappools", base)).toBeNull();
+  });
+  it("selects personal player tools only within their route boundaries", () => {
+    expect(playerWorkspaceSection(`${base}/player/practice`, base)).toBe(
+      "player/practice",
+    );
+    expect(playerWorkspaceSection(`${base}/player/availability`, base)).toBe(
+      "player/availability",
+    );
+    expect(
+      playerWorkspaceSection(`${base}/player/practice-other`, base),
+    ).toBeNull();
+    expect(
+      playerWorkspaceSection(`${base}-other/player/practice`, base),
+    ).toBeNull();
   });
   it("keeps private tool destinations separate with segment boundaries", () => {
     expect(captainWorkspaceSection(`${base}/team`, base)).toBe("team");
@@ -68,6 +85,8 @@ describe("public route context", () => {
     "/tournaments/s11/draft/overlay",
     "/tournaments/s11/schedule/requests",
     "/tournaments/s11/schedule/requests/request",
+    "/tournaments/s11/player/practice",
+    "/tournaments/s11/player/availability",
   ])("identifies private page %s", (path) =>
     expect(isPublicPage(path)).toBe(false),
   );

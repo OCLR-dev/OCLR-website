@@ -10,6 +10,11 @@ import { publicDraft } from "../../src/lib/draft";
 import { frontendTournament } from "../../src/lib/frontend-data";
 import { edition } from "../fixtures/edition";
 import { english } from "../../src/i18n/translate";
+import { playerWorkspaceEligible } from "../../src/lib/player-workspace";
+
+vi.mock("../../src/lib/player-workspace", () => ({
+  playerWorkspaceEligible: vi.fn(),
+}));
 
 vi.mock("../../src/i18n/server", () => ({
   getAppTranslations: async () => english,
@@ -46,6 +51,10 @@ describe("edition-scoped captain navigation", () => {
     vi.clearAllMocks();
     vi.mocked(remoteMode).mockReturnValue(false);
     vi.mocked(currentUser).mockResolvedValue(actor);
+    vi.mocked(playerWorkspaceEligible).mockResolvedValue({
+      eligible: false,
+      appointed: false,
+    });
     // The saved query explicitly returns null when no appointment exists.
     vi.mocked(captainAppointment).mockResolvedValue(
       null as unknown as Awaited<ReturnType<typeof captainAppointment>>,
@@ -99,6 +108,32 @@ describe("edition-scoped captain navigation", () => {
     vi.mocked(captainAppointment).mockResolvedValue(appointment);
     expect((await props()).captainWorkspace).toEqual({
       scheduleRequests: false,
+    });
+    expect((await props()).playerWorkspace).toBe(false);
+    expect(playerWorkspaceEligible).not.toHaveBeenCalled();
+  });
+  it("shows player tools for an accepted player without a captain appointment", async () => {
+    vi.mocked(playerWorkspaceEligible).mockResolvedValue({
+      eligible: true,
+      appointed: false,
+    });
+    const result = await props();
+    expect(result.playerWorkspace).toBe(true);
+    expect(result.captainWorkspace).toBeUndefined();
+    expect(playerWorkspaceEligible).toHaveBeenCalledExactlyOnceWith(
+      actor,
+      edition.slug,
+    );
+  });
+  it("shows both sets of tools for an actual captain", async () => {
+    vi.mocked(captainAppointment).mockResolvedValue(appointment);
+    vi.mocked(playerWorkspaceEligible).mockResolvedValue({
+      eligible: true,
+      appointed: true,
+    });
+    expect(await props()).toMatchObject({
+      playerWorkspace: true,
+      captainWorkspace: { scheduleRequests: true },
     });
   });
 });

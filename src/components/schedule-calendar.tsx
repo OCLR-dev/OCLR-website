@@ -19,6 +19,8 @@ export default function ScheduleCalendar({
   summary,
   editable,
   onSelect,
+  initialDate,
+  availabilityLabel,
 }: {
   timeZone: string;
   official: string | null;
@@ -27,6 +29,8 @@ export default function ScheduleCalendar({
   summary: { start: string; end: string; count: number }[];
   editable: boolean;
   onSelect: (start: string, end: string) => void;
+  initialDate?: string;
+  availabilityLabel?: string;
 }) {
   const tr = useAppTranslations();
   const [mobile, setMobile] = useState(false);
@@ -76,7 +80,7 @@ export default function ScheduleCalendar({
         key={mobile ? "day" : "week"}
         plugins={[classic, timeGrid, interaction]}
         initialView={mobile ? "timeGridDay" : "timeGridWeek"}
-        initialDate={proposed ?? official ?? undefined}
+        initialDate={proposed ?? official ?? initialDate ?? undefined}
         timeZone={timeZone}
         locale={
           tr.locale === "zh-Hans" ? zhCn : tr.locale === "zh-Hant" ? zhTw : "en"
@@ -92,7 +96,7 @@ export default function ScheduleCalendar({
         toolbarTitleClass="schedule-calendar-title"
         toolbarClass="schedule-calendar-toolbar"
         height={560}
-        scrollTime={`${String(Math.max(0, Number(localDateTime(proposed ?? official ?? new Date().toISOString(), timeZone).slice(11, 13)) - 2)).padStart(2, "0")}:00:00`}
+        scrollTime={`${String(Math.max(0, Number(localDateTime(proposed ?? official ?? initialDate ?? new Date().toISOString(), timeZone).slice(11, 13)) - 2)).padStart(2, "0")}:00:00`}
         allDaySlot={false}
         editable={false}
         selectable={editable}
@@ -107,7 +111,7 @@ export default function ScheduleCalendar({
           ...intervals.map((i, index) => ({
             ...i,
             id: `own-${index}`,
-            title: tr("My availability"),
+            title: availabilityLabel ?? tr("My availability"),
             extendedProps: { own: true },
             class: "schedule-own",
           })),

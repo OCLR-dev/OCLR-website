@@ -156,6 +156,10 @@ const rows = files.map((file) => {
     );
   const denied =
     desktopLiveOnly ||
+    /\/tournaments\/\[edition\]\/player\//.test(file) ||
+    /\/components\/player-(?:practice|timetable|workspace-save)\.tsx?$/.test(
+      file,
+    ) ||
     file.includes("/schedule/requests/") ||
     file.includes("/matches/schedule-requests/") ||
     file.endsWith("/schedule-manager.tsx") ||
@@ -273,7 +277,8 @@ const pages = files
       p !== "src/app/streaming/page.tsx" &&
       !p.includes("/admin/backups/") &&
       !p.includes("/schedule/requests/") &&
-      !p.includes("/matches/schedule-requests/"),
+      !p.includes("/matches/schedule-requests/") &&
+      !/\/tournaments\/\[edition\]\/player\//.test(p),
   )
   .map((p) => p.replace(/^src\/app/, "").replace(/\/page\.tsx$/, "") || "/");
 const reads = rows

@@ -8,9 +8,19 @@ export function captainWorkspaceSection(path: string, base: string) {
   );
 }
 
+export function playerWorkspaceSection(path: string, base: string) {
+  return (
+    (["player/practice", "player/availability"] as const).find(
+      (section) =>
+        path === `${base}/${section}` || path.startsWith(`${base}/${section}/`),
+    ) ?? null
+  );
+}
+
 /** One selected public destination, including its detail routes. */
 export function publicTournamentSection(path: string, base: string) {
-  if (captainWorkspaceSection(path, base)) return null;
+  if (captainWorkspaceSection(path, base) || playerWorkspaceSection(path, base))
+    return null;
   const suffix =
     path === base
       ? ""
@@ -29,7 +39,7 @@ export function isPublicPage(path: string, presenter = false) {
   if (/^\/(admin|dashboard|developer|login|auth|api)(?:\/|$)/.test(path))
     return false;
   if (
-    /^\/tournaments\/[^/]+\/(team(?:\/|$)|draft\/(captain|overlay)(?:\/|$)|schedule\/requests(?:\/|$))/.test(
+    /^\/tournaments\/[^/]+\/(team(?:\/|$)|draft\/(captain|overlay)(?:\/|$)|schedule\/requests(?:\/|$)|player\/(practice|availability)(?:\/|$))/.test(
       path,
     )
   )

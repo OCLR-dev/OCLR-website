@@ -14,6 +14,7 @@ import {
 } from "react";
 import {
   captainWorkspaceSection,
+  playerWorkspaceSection,
   publicTournamentSection,
 } from "@/lib/public-navigation";
 import { supportsArchiveStatistics } from "@/lib/archive-statistics-model";
@@ -143,6 +144,7 @@ export function TournamentShell({
   liveDraft,
   archived = false,
   captainWorkspace,
+  playerWorkspace = false,
   children,
 }: {
   slug: string;
@@ -150,6 +152,7 @@ export function TournamentShell({
   liveDraft: boolean;
   archived?: boolean;
   captainWorkspace?: { scheduleRequests: boolean };
+  playerWorkspace?: boolean;
   children: ReactNode;
 }) {
   const tr = useAppTranslations();
@@ -158,9 +161,11 @@ export function TournamentShell({
   const search = useSearchParams();
   const base = `/tournaments/${slug}`;
   const captainSection = captainWorkspaceSection(path, base);
+  const playerSection = playerWorkspaceSection(path, base);
   const privateView =
     (path === `${base}/draft` && search.get("presenter") === "1") ||
     captainSection !== null ||
+    playerSection !== null ||
     path.includes("/draft/overlay");
   const shell = useRef<HTMLDivElement>(null);
   const context = useRef<HTMLDivElement>(null);
@@ -209,7 +214,7 @@ export function TournamentShell({
             liveDraft={liveDraft}
             archived={archived}
           />
-          {captainWorkspace && captainSection && (
+          {captainWorkspace && (captainSection || playerSection) && (
             <section
               className={styles.captainSection}
               aria-labelledby="captain-workspace-heading"
@@ -250,6 +255,34 @@ export function TournamentShell({
               </nav>
             </section>
           )}
+          {playerWorkspace && (captainSection || playerSection) && (
+            <section
+              className={styles.captainSection}
+              aria-labelledby="player-workspace-heading"
+            >
+              <h3 id="player-workspace-heading" className="eyebrow">
+                {tr("PLAYER WORKSPACE")}
+              </h3>
+              <nav className={styles.links} aria-label={tr("PLAYER WORKSPACE")}>
+                <Link
+                  href={`${base}/player/practice`}
+                  aria-current={
+                    playerSection === "player/practice" ? "page" : undefined
+                  }
+                >
+                  {tr("Practice sheet")}
+                </Link>
+                <Link
+                  href={`${base}/player/availability`}
+                  aria-current={
+                    playerSection === "player/availability" ? "page" : undefined
+                  }
+                >
+                  {tr("Season timetable")}
+                </Link>
+              </nav>
+            </section>
+          )}
         </aside>
         <div className="workspace-main">{children}</div>
       </div>
@@ -272,6 +305,14 @@ export function TournamentShell({
           archived={archived}
           mobileMenu
         />
+        {(captainWorkspace || playerWorkspace) && (
+          <Link
+            className="button secondary"
+            href={playerWorkspace ? `${base}/player/practice` : `${base}/team`}
+          >
+            {playerWorkspace ? tr("PLAYER WORKSPACE") : tr("CAPTAIN WORKSPACE")}
+          </Link>
+        )}
       </div>
       <div className="event-content">{children}</div>
     </div>

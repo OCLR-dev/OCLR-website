@@ -10,16 +10,25 @@ import { getPublicEdition } from "@/lib/content";
 import { informationPreview } from "@/lib/tournament-information";
 import { currentUser } from "@/lib/auth/user";
 import { captainAppointment } from "@/lib/captains";
+import { playerWorkspaceEligible } from "@/lib/player-workspace";
 export const dynamic = "force-dynamic";
 
-async function captainNavigation(slug: string) {
+async function workspaceNavigation(slug: string) {
   try {
     const user = await currentUser();
-    if (!user || !(await captainAppointment(user.osuId, slug))) return;
-    return { scheduleRequests: !remoteMode() };
+    if (!user) return {};
+    const captain = await captainAppointment(user.osuId, slug);
+    const player =
+      !remoteMode() && (await playerWorkspaceEligible(user, slug)).eligible;
+    return {
+      captainWorkspace: captain
+        ? { scheduleRequests: !remoteMode() }
+        : undefined,
+      playerWorkspace: player,
+    };
   } catch {
     // Optional navigation must not block public pages or substitute for page authorization.
-    return;
+    return {};
   }
 }
 
@@ -43,11 +52,9 @@ export default async function EditionLayout({
             Boolean(edition.overview.draft)
           }
           archived={edition.source.kind === "historical_archive"}
-          captainWorkspace={
-            edition.source.kind === "historical_archive"
-              ? undefined
-              : await captainNavigation(slug)
-          }
+          {...(edition.source.kind === "historical_archive"
+            ? {}
+            : await workspaceNavigation(slug))}
         >
           {children}
         </TournamentShell>
@@ -77,7 +84,7 @@ export default async function EditionLayout({
       slug={slug}
       name={informationPreview(slug)?.name ?? edition.name}
       liveDraft={Boolean(draft)}
-      captainWorkspace={await captainNavigation(slug)}
+      {...await workspaceNavigation(slug)}
     >
       {liveUnavailable && (
         <p className="notice" role="status">

@@ -84,6 +84,10 @@ statistics and MP reviews consume saved source evidence. Current and archived
 edition profiles both use `/players/{osuId}?edition=...`; the historical archive
 and staff routes retain their original archive-only behavior.
 
+The [Player workspace](player-workspace.md) practice sheet and season timetable
+contain personal team records and availability. They require a direct browser
+session and are excluded from remote pages and saved-read resources.
+
 Missing, unreleased or unavailable records keep the existing empty/not-recorded
 or authorization state. A Captain room without an actual appointment remains
 denied. No read creates records, setup state, locks, imports, cached provider
@@ -152,8 +156,7 @@ This is resource caching, not a delta-sync or ETag/304 protocol.
 Visible mounted pages check the connection on focus, restoration and every 15
 seconds. Checks do not overlap, and focus cannot bypass the minimum interval or
 backoff. Transient failures hide page content conservatively but do not refresh the
-whole route repeatedly; checks back off to 60 seconds, or honor `Retry-After` for
-429. Recovery refreshes once to clear server-rendered errors. Individual page read
+whole route repeatedly; checks back off to 60 seconds, or honor `Retry-After` for 429. Recovery refreshes once to clear server-rendered errors. Individual page read
 errors also provide **Try again**. On 401/403, checks hide content and stop until
 reconnection; protected resource reads still enforce their existing authorization.
 
