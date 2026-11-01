@@ -43,7 +43,11 @@ const bundle = await build({
 // Resolve theme declarations where tests measure actual control geometry.
 const themedStyles = new Map(
   await Promise.all(
-    ["mappool-actions.css", "practice-records.css"].map(async (name) => {
+    [
+      "mappool-actions.css",
+      "practice-records.css",
+      "schedule-selection.css",
+    ].map(async (name) => {
       const file = bundle.outputFiles.find(
         (file) => basename(file.path) === name,
       )!;

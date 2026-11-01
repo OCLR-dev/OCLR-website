@@ -85,7 +85,8 @@
   --fc-classic-background-event-opacity: 20%;
   --fc-classic-background-event-foreground-opacity: 100%;
   --fc-classic-highlight: var(--site-selection);
-  --fc-classic-today: var(--site-raised);
+  /* Day lanes sit above the time grid; a translucent tint preserves its rules. */
+  --fc-classic-today: color-mix(in srgb, var(--site-primary) 12%, transparent);
   --fc-classic-now: var(--site-danger);
   --fc-classic-faint: var(--site-raised);
   --fc-classic-muted: var(--site-tint);
