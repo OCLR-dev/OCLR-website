@@ -318,6 +318,28 @@ test.describe("private Pooler/Tester selection workbench", () => {
       await roundPicker
         .getByRole("button", { name: "Clear selection", exact: true })
         .click();
+      const clearSelection = roundPicker.getByRole("button", {
+        name: "Clear selection",
+        exact: true,
+      });
+      await expect(clearSelection).toBeDisabled();
+      await expect(clearSelection.locator("svg")).toHaveCount(1);
+      await expect(clearSelection).toHaveText("");
+      await expect(clearSelection).toHaveAttribute("title", "Clear selection");
+      await expect(
+        roundPicker.getByRole("checkbox", { checked: true }),
+      ).toHaveCount(0);
+      const clearBox = await clearSelection.boundingBox();
+      const saveBox = await roundPicker
+        .getByRole("button", { name: "Save", exact: true })
+        .boundingBox();
+      expect(clearBox!.x + clearBox!.width).toBeLessThan(saveBox!.x);
+      expect(
+        Math.abs(
+          clearBox!.y + clearBox!.height / 2 - saveBox!.y - saveBox!.height / 2,
+        ),
+      ).toBeLessThan(2);
+
       await roundPicker
         .getByRole("button", { name: "Cancel", exact: true })
         .click();

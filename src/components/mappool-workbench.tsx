@@ -486,11 +486,13 @@ function RoundChoices({
   value,
   onChange,
   disabled,
+  showClear = true,
 }: {
   rounds: SelectionWorkspace["rounds"];
   value: string[];
   onChange: (ids: string[]) => void;
   disabled?: boolean;
+  showClear?: boolean;
 }) {
   const tr = useAppTranslations();
   return (
@@ -525,7 +527,7 @@ function RoundChoices({
           </label>
         ))}
       </div>
-      {value.length > 0 && (
+      {showClear && value.length > 0 && (
         <button
           className="secondary"
           type="button"
@@ -677,9 +679,20 @@ function CandidateRounds({
                     value={draft}
                     onChange={setDraft}
                     disabled={busy}
+                    showClear={false}
                   />
                 </div>
                 <div className={styles.commentActions}>
+                  <button
+                    type="button"
+                    className={`secondary ${styles.iconButton} ${styles.clearSelection}`}
+                    aria-label={tr("Clear selection")}
+                    title={tr("Clear selection")}
+                    disabled={busy || !draft.length}
+                    onClick={() => setDraft([])}
+                  >
+                    <WorkbenchActionIcon kind="clear" />
+                  </button>
                   <button disabled={busy}>{tr("Save")}</button>
                   <button
                     type="button"

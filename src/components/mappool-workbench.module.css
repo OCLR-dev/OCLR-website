@@ -309,6 +309,10 @@
   background: var(--site-surface);
 }
 
+.roundPopover .clearSelection {
+  margin-inline-end: auto;
+}
+
 /* Workbench-only controls share the beatmap's parameter row. */
 .workbenchCard:global(.map-browse-card--band) {
   grid-template-columns: clamp(160px, 19%, 240px) minmax(0, 1fr);
