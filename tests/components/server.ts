@@ -4,6 +4,8 @@ import { proxy } from "../../src/proxy";
 import { build } from "esbuild";
 import { createServer } from "node:http";
 import { basename, resolve } from "node:path";
+import postcss from "postcss";
+import tailwind from "@tailwindcss/postcss";
 
 const bundle = await build({
   entryPoints: [
@@ -14,6 +16,7 @@ const bundle = await build({
     "tests/components/force-fixture-delete.tsx",
     "tests/components/round-referee-policy.tsx",
     "tests/components/info-note.tsx",
+    "tests/components/mappool-actions.tsx",
     "tests/components/stage-groups.tsx",
     "tests/components/archive-bracket.tsx",
     "tests/components/ocl-chess.tsx",
@@ -37,6 +40,13 @@ const bundle = await build({
   platform: "browser",
   define: { "process.env.NODE_ENV": '"development"', "process.env": "{}" },
 });
+// Resolve Tailwind's theme declarations for faithful mappool control geometry.
+const mappoolCss = bundle.outputFiles.find(
+  (file) => basename(file.path) === "mappool-actions.css",
+)!;
+const mappoolStyles = await postcss([tailwind()]).process(mappoolCss.text, {
+  from: mappoolCss.path,
+});
 createServer((request, response) => {
   const file = bundle.outputFiles.find(
     (output) => `/${basename(output.path)}` === request.url,
@@ -48,7 +58,7 @@ createServer((request, response) => {
         ? "text/css; charset=utf-8"
         : "text/javascript; charset=utf-8",
     );
-    response.end(file.contents);
+    response.end(file === mappoolCss ? mappoolStyles.css : file.contents);
   } else if (request.url?.startsWith("/api/")) {
     response.writeHead(404).end();
   } else {
@@ -111,7 +121,11 @@ createServer((request, response) => {
                                                 "/practice-records",
                                               )
                                             ? "practice-records"
-                                            : "player-message-board";
+                                            : request.url?.startsWith(
+                                                  "/mappool-actions",
+                                                )
+                                              ? "mappool-actions"
+                                              : "player-message-board";
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${entry}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${entry}.js"></script></body></html>`,
     );
