@@ -16,10 +16,21 @@ export function tournamentTimeline(
   locale: string,
 ) {
   const base = `/tournaments/${edition.slug}`;
-  const date = (at?: string | null) =>
-    at ? formatDate(at, edition.timeZone, locale) : tr("TBA");
-  const range = (at?: string | null, end?: string | null) =>
-    `${tr("Start time")}: ${date(at)} · ${tr("End time")}: ${date(end)}`;
+  const date = (at?: string | null, precision?: "day" | "instant") =>
+    at
+      ? precision === "day"
+        ? new Intl.DateTimeFormat(locale, {
+            dateStyle: "medium",
+            timeZone: edition.timeZone,
+          }).format(new Date(at))
+        : formatDate(at, edition.timeZone, locale)
+      : tr("TBA");
+  const range = (
+    at?: string | null,
+    end?: string | null,
+    precision?: "day" | "instant",
+  ) =>
+    `${tr("Start time")}: ${date(at, precision)} · ${tr("End time")}: ${date(end, precision)}`;
   const rows: {
     event: string;
     date: string;
@@ -56,7 +67,9 @@ export function tournamentTimeline(
     });
   }
   edition.schedule.forEach((event, index) => {
-    const detail = event.kind ? range(event.at, event.endAt) : date(event.at);
+    const detail = event.kind
+      ? range(event.at, event.endAt, event.precision)
+      : date(event.at, event.precision);
     // Exact event identity only; authored labels are never interpreted as phase types.
     // Suppress repeated rows at render time without mutating stored milestones.
     if (

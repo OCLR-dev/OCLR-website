@@ -13,6 +13,25 @@ const phase = {
   endAt: end,
 };
 describe("competition timeline", () => {
+  it("shows day-precision history without inventing midnight start or end times", () => {
+    const schedule = editionSchema.shape.schedule.parse([
+      {
+        ...phase,
+        at: "2025-03-14T00:00:00+08:00",
+        endAt: "2025-05-10T23:59:59+08:00",
+        precision: "day",
+      },
+    ]);
+    const model = tournamentTimeline(
+      { ...edition, registration: null, schedule },
+      tr,
+      "en",
+    );
+    expect(model.schedule[0].date).toContain("Mar 14, 2025");
+    expect(model.schedule[0].date).toContain("May 10, 2025");
+    expect(model.schedule[0].date).not.toMatch(/00:00|23:59|AM|PM/);
+    expect(model.stages[0].at).toBe(schedule[0].at);
+  });
   it("validates instants, ordering and fixed phase kinds while retaining old milestones", () => {
     const schema = editionSchema.shape.schedule;
     expect(schema.parse([...edition.schedule, phase])).toEqual([

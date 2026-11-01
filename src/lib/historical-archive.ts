@@ -2,6 +2,7 @@ import {
   archivePlacement,
   archiveAdjudication,
   archiveRound,
+  archiveMatchFormat,
   archiveSeason,
   archiveStandingMetadata,
   archiveTimeZone,
@@ -137,14 +138,7 @@ export const historicalArchiveSchema = z
             label: text,
             stage: text,
             round: archiveRound.optional(),
-            format: z
-              .object({
-                bestOf: id
-                  .max(99)
-                  .refine((value) => value % 2 === 1, "Best-of must be odd."),
-              })
-              .strict()
-              .optional(),
+            format: archiveMatchFormat.optional(),
             timeZone: archiveTimeZone.optional(),
             adjudication: archiveAdjudication.optional(),
             poolId: key.nullable().optional(),

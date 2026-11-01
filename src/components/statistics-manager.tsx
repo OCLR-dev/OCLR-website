@@ -8,7 +8,8 @@ import type { StatisticsWorkspace } from "@/lib/archive-statistics";
 import { canExcludeStatisticsScore } from "@/lib/archive-statistics-model";
 import { ConfirmMutation } from "./confirm-mutation";
 type Review = StatisticsWorkspace["reviews"][number];
-function SourceReview({
+type ExclusionReason = NonNullable<Review["excludedGames"]>[number]["reason"];
+export function SourceReview({
   review,
   pools,
   busy,
@@ -37,6 +38,18 @@ function SourceReview({
   );
   const [technicalAdjudication, setTechnicalAdjudication] = useState(
     review.technicalAdjudication,
+  );
+  const [reasons, setReasons] = useState<Record<number, ExclusionReason>>(
+    Object.fromEntries(
+      (review.excludedGames ?? []).map((g) => [g.gameId, g.reason]),
+    ),
+  );
+  const [evidenceUrl, setEvidenceUrl] = useState(review.evidenceUrl ?? "");
+  const [adjudicationNote, setAdjudicationNote] = useState(
+    review.adjudication?.note ?? "",
+  );
+  const [adjudicationEvidence, setAdjudicationEvidence] = useState(
+    review.adjudication?.evidenceUrl ?? "",
   );
   const exclusionsChanged =
     JSON.stringify(excludedScores) !== JSON.stringify(review.excludedScores);
@@ -115,6 +128,36 @@ function SourceReview({
             )}
           </label>
         )}
+        <label className="field">
+          <span>{tr("Evidence URL")}</span>
+          <input
+            type="url"
+            value={evidenceUrl}
+            disabled={busy}
+            onChange={(e) => setEvidenceUrl(e.target.value)}
+          />
+        </label>
+        {technicalAdjudication && (
+          <>
+            <label className="field">
+              <span>{tr("Adjudication note")}</span>
+              <textarea
+                value={adjudicationNote}
+                disabled={busy || !canReviewExceptions}
+                onChange={(e) => setAdjudicationNote(e.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span>{tr("Adjudication evidence URL")}</span>
+              <input
+                type="url"
+                value={adjudicationEvidence}
+                disabled={busy || !canReviewExceptions}
+                onChange={(e) => setAdjudicationEvidence(e.target.value)}
+              />
+            </label>
+          </>
+        )}
         {poolChanged && (
           <p role="status">
             {tr("Save review settings before choosing games.")}
@@ -186,6 +229,36 @@ function SourceReview({
                         )
                       }
                     />
+                    {!included.includes(game.id) && (
+                      <label className="field">
+                        <span>{tr("Exclusion reason")}</span>
+                        <select
+                          aria-label={tr("Exclusion reason") + " " + game.id}
+                          value={reasons[game.id] ?? "unknown"}
+                          disabled={busy}
+                          onChange={(e) =>
+                            setReasons({
+                              ...reasons,
+                              [game.id]: e.target.value as ExclusionReason,
+                            })
+                          }
+                        >
+                          <option value="unknown">{tr("Unknown")}</option>
+                          <option value="warmup">{tr("Warmup")}</option>
+                          <option value="aborted">{tr("Aborted")}</option>
+                          <option value="superseded-replay">
+                            {tr("Superseded replay")}
+                          </option>
+                          <option value="post-match">
+                            {tr("Post-match game")}
+                          </option>
+                          <option value="outside-pool">
+                            {tr("Outside mappool")}
+                          </option>
+                          <option value="other">{tr("Other")}</option>
+                        </select>
+                      </label>
+                    )}
                   </td>
                   <td>
                     {game.id}
@@ -324,7 +397,24 @@ function SourceReview({
               allowUnlistedMaps,
               excludedScores,
               rosterTeamGames,
-              technicalAdjudication,
+              adjudication: technicalAdjudication
+                ? {
+                    kind: "technical",
+                    ...(adjudicationNote.trim()
+                      ? { note: adjudicationNote.trim() }
+                      : {}),
+                    ...(adjudicationEvidence.trim()
+                      ? { evidenceUrl: adjudicationEvidence.trim() }
+                      : {}),
+                  }
+                : null,
+              evidenceUrl: evidenceUrl.trim() || null,
+              excludedGames: review.games
+                .filter(({ game }) => !included.includes(game.id))
+                .map(({ game }) => ({
+                  gameId: game.id,
+                  reason: reasons[game.id] ?? "unknown",
+                })),
             })
           }
         >

@@ -25,6 +25,24 @@ const metadata = () => ({
   ],
 });
 describe("structured archive metadata", () => {
+  it("retains unknown boundaries and explicit day precision", () => {
+    const a = metadata();
+    const parsed = historicalArchiveSchema.parse({
+      ...a,
+      season: { ...a.season, endsAt: null, precision: "day" },
+    });
+    expect(publicHistoricalArchive(parsed).season).toEqual({
+      ...a.season,
+      endsAt: null,
+      precision: "day",
+    });
+    expect(
+      historicalArchiveSchema.safeParse({
+        ...a,
+        season: { ...a.season, startsAt: null, endsAt: null },
+      }).success,
+    ).toBe(false);
+  });
   it("retains provenance dates separately and survives public projection", () => {
     const a = historicalArchiveSchema.parse(metadata());
     expect(a.capturedOn).toBe(historicalArchive.capturedOn);
@@ -157,4 +175,32 @@ it("keeps approval provenance private and validates typed match metadata", async
   });
   a.matches[0].format = { bestOf: 10 };
   expect(historicalArchiveSchema.safeParse(a).success).toBe(false);
+});
+
+it("records capped early-season formats without inventing an odd best-of", () => {
+  for (const format of [
+    { maxGames: 8, winsRequired: 5 },
+    { maxGames: 10, winsRequired: 6 },
+  ]) {
+    const a = {
+      ...structuredClone(historicalArchive),
+      formatVersion: 2,
+    };
+    Object.assign(a.matches[0], { format });
+    const parsed = historicalArchiveSchema.parse(a);
+    expect(publicHistoricalArchive(parsed).matches[0].format).toEqual(format);
+  }
+  for (const format of [
+    { maxGames: 8, winsRequired: 4 },
+    { maxGames: 8, winsRequired: 9 },
+    { maxGames: 0, winsRequired: 1 },
+    { bestOf: 11, maxGames: 10, winsRequired: 6 },
+  ])
+    expect(
+      historicalArchiveSchema.safeParse({
+        ...historicalArchive,
+        formatVersion: 2,
+        matches: [{ ...historicalArchive.matches[0], format }],
+      }).success,
+    ).toBe(false);
 });

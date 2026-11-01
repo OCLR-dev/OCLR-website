@@ -1,0 +1,138 @@
+{
+  "kind": "historical-statistics-exception-review-not-importable",
+  "source": "Actual read-only Admin workspace and unauthenticated public statistics, 2026-11-01",
+  "preservation": "All existing included games, score exclusions, raw scores and series decisions stay unchanged; no historical reviewer is invented.",
+  "fixtures": [
+    {
+      "fixtureId": "match-3",
+      "mpId": 117499366,
+      "inputSha256": "4c3d53aade02dadd3bb49ceda0989a2d62d0709255200f0aa70d4efb45d0acbc",
+      "version": 4,
+      "publishedAt": "2026-10-24T06:35:06.277Z",
+      "changes": false,
+      "stale": false,
+      "sourceComplete": true,
+      "blockers": [],
+      "includedGameIds": [
+        613453723, 613454209, 613454818, 613455288, 613455795, 613456234,
+        613456748, 613457120
+      ],
+      "publicPlays": 63,
+      "publicZeroScores": 0,
+      "excludedScoreCount": 9,
+      "rosterTeamGameIds": [],
+      "existingAdjudication": null,
+      "existingReviewedBy": null,
+      "existingReviewedAt": null,
+      "existingEvidenceUrl": null,
+      "proposedExcludedGames": [
+        {
+          "gameId": 613454993,
+          "reason": "aborted"
+        }
+      ],
+      "proposedEvidenceUrl": "https://osu.ppy.sh/community/matches/117499366",
+      "reviewStatus": "pending-native-admin-review-after-deployment"
+    },
+    {
+      "fixtureId": "match-18",
+      "mpId": 117642682,
+      "inputSha256": "34f0b10f3e6f9f0264b19fe0e445224f2f3b48d0fcb21a38b1357fffd7037281",
+      "version": 4,
+      "publishedAt": "2026-10-24T06:44:24.010Z",
+      "changes": false,
+      "stale": false,
+      "sourceComplete": true,
+      "blockers": [],
+      "includedGameIds": [
+        614390500, 614390916, 614391433, 614391795, 614392144, 614392732,
+        614393213, 614394061, 614394786
+      ],
+      "publicPlays": 72,
+      "publicZeroScores": 0,
+      "excludedScoreCount": 9,
+      "rosterTeamGameIds": [],
+      "existingAdjudication": null,
+      "existingReviewedBy": null,
+      "existingReviewedAt": null,
+      "existingEvidenceUrl": null,
+      "proposedExcludedGames": [
+        {
+          "gameId": 614394514,
+          "reason": "superseded-replay"
+        }
+      ],
+      "proposedEvidenceUrl": "https://osu.ppy.sh/community/matches/117642682",
+      "reviewStatus": "pending-native-admin-review-after-deployment"
+    },
+    {
+      "fixtureId": "match-26",
+      "mpId": 117829761,
+      "inputSha256": "cf6a5515d1287d27aabcb278ba53c2bc7ae304fc5885d9914e031b591b3a13d7",
+      "version": 5,
+      "publishedAt": "2026-10-24T07:47:00.640Z",
+      "changes": false,
+      "stale": false,
+      "sourceComplete": true,
+      "blockers": [],
+      "includedGameIds": [
+        615602087, 615602611, 615603140, 615603492, 615603919, 615604323,
+        615604748, 615605291, 615605816, 615606444, 615607256, 615608158,
+        615608666
+      ],
+      "publicPlays": 102,
+      "publicZeroScores": 0,
+      "excludedScoreCount": 13,
+      "rosterTeamGameIds": [],
+      "existingAdjudication": {
+        "kind": "technical"
+      },
+      "existingReviewedBy": null,
+      "existingReviewedAt": null,
+      "existingEvidenceUrl": null,
+      "proposedExcludedGames": [
+        {
+          "gameId": 615606378,
+          "reason": "aborted"
+        }
+      ],
+      "proposedEvidenceUrl": "https://osu.ppy.sh/community/matches/117829761",
+      "reviewStatus": "pending-native-admin-review-after-deployment"
+    },
+    {
+      "fixtureId": "match-30",
+      "mpId": 118049997,
+      "inputSha256": "373202cfad4d5e79f78770ee8ef919721a77fdc81d2a1a9d1ed0550ece1250b0",
+      "version": 4,
+      "publishedAt": "2026-10-24T07:49:20.247Z",
+      "changes": false,
+      "stale": false,
+      "sourceComplete": true,
+      "blockers": [],
+      "includedGameIds": [
+        617062899, 617063575, 617064156, 617064814, 617065288, 617066040,
+        617066588, 617067017, 617067577
+      ],
+      "publicPlays": 72,
+      "publicZeroScores": 0,
+      "excludedScoreCount": 9,
+      "rosterTeamGameIds": [],
+      "existingAdjudication": null,
+      "existingReviewedBy": null,
+      "existingReviewedAt": null,
+      "existingEvidenceUrl": null,
+      "proposedExcludedGames": [
+        {
+          "gameId": 617063413,
+          "reason": "aborted"
+        },
+        {
+          "gameId": 617068065,
+          "reason": "post-match"
+        }
+      ],
+      "proposedEvidenceUrl": "https://osu.ppy.sh/community/matches/118049997",
+      "reviewStatus": "pending-native-admin-review-after-deployment"
+    }
+  ]
+}

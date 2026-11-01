@@ -32,8 +32,20 @@ it("shows a structured placement range without turning it into a precise finish"
   const summary = summarizePlayerCompetition([record]);
   const html = renderToStaticMarkup(<PlayerCompetition record={summary} />);
   expect(html).toContain("9–12");
-  expect(html).toContain("Final placement");
-  expect(html).not.toContain("Derived placement");
+  expect(html).toContain("Derived placement");
+  expect(html).not.toContain("Final placement");
+  const official = renderToStaticMarkup(
+    <PlayerCompetition
+      record={summarizePlayerCompetition([
+        {
+          ...record,
+          placingRange: { ...record.placingRange!, official: true },
+        },
+      ])}
+    />,
+  );
+  expect(official).toContain("Final placement");
+  expect(official).not.toContain("Derived placement");
   expect(summary.bestPlacing).toBeNull();
   expect(summary.worstPlacing).toBeNull();
   const unknown = renderToStaticMarkup(

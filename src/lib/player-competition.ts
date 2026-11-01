@@ -5,6 +5,7 @@ import {
   finalStandingsFinish,
   knockoutFinishBands,
   competitionStage,
+  isFinalStandings,
   summarizePlayerCompetition,
   type CompetitionEditionRecord,
   type CompetitionMatchRecord,
@@ -45,6 +46,7 @@ async function editionRecord(
   for (const person of roster)
     if (person.team) teams.set(person.team.id, person.team);
   const first = roster[0] ?? people[0];
+  const placementPeople = roster.length ? roster : people;
   const base: CompetitionEditionRecord = {
     editionSlug: slug,
     editionName: first.editionName,
@@ -59,9 +61,9 @@ async function editionRecord(
     sourceRole: first.sourceRole ?? null,
     tier: first.tier ?? null,
     captain: first.captain,
-    placing: people.find((p) => p.placing != null)?.placing ?? null,
+    placing: placementPeople.find((p) => p.placing != null)?.placing ?? null,
     placingRange:
-      people.find((p) => p.placingRange != null)?.placingRange ?? null,
+      placementPeople.find((p) => p.placingRange != null)?.placingRange ?? null,
     groupRank: null,
     finish: null,
     champion: false,
@@ -103,12 +105,19 @@ async function editionRecord(
       }
       const standing = edition.archive.standings.find(
         (row) =>
-          teams.has(row.teamId) && row.rank !== null && row.scope !== "final",
+          teams.has(row.teamId) &&
+          (row.rank !== null ||
+            (row.placement?.start === row.placement?.end &&
+              row.placement !== undefined)) &&
+          (row.scope === "group" ||
+            (row.scope === undefined &&
+              !isFinalStandings(edition.archive!.standings))),
       );
       const series = recorded.map((match) => {
         const winner = archiveWinner(match);
         return {
           label: match.stage,
+          round: match.round,
           at:
             match.scheduledAt ??
             match.roomOpenedAt ??
@@ -132,6 +141,15 @@ async function editionRecord(
       ];
       const bands = knockoutFinishBands(series, teamIds);
       const finish =
+        (base.placingRange
+          ? {
+              label:
+                base.placingRange.start === base.placingRange.end
+                  ? String(base.placingRange.start)
+                  : `${base.placingRange.start}–${base.placingRange.end}`,
+              derived: !base.placingRange.official,
+            }
+          : null) ??
         finalStandingsFinish(
           edition.archive.standings,
           candidates,
@@ -142,15 +160,24 @@ async function editionRecord(
       return {
         ...base,
         groupRank:
-          standing?.rank != null
-            ? { group: standing.group || null, rank: standing.rank }
+          standing && (standing.rank ?? standing.placement?.start) != null
+            ? {
+                group: standing.group || null,
+                rank: standing.rank ?? standing.placement!.start,
+              }
             : null,
         finish,
-        champion:
-          placements.champion !== null && teams.has(placements.champion),
-        runnerUp:
-          placements.runnerUp !== null && teams.has(placements.runnerUp),
-        thirdPlace: placements.third.some((team) => teams.has(team)),
+        champion: base.placingRange
+          ? base.placingRange.start === 1 && base.placingRange.end === 1
+          : placements.champion !== null && teams.has(placements.champion),
+        runnerUp: base.placingRange
+          ? base.placingRange.start === 2 && base.placingRange.end === 2
+          : placements.runnerUp !== null && teams.has(placements.runnerUp),
+        thirdPlace: base.placingRange
+          ? base.placingRange.start === 3 &&
+            (base.placingRange.end === 3 ||
+              (base.placingRange.end === 4 && base.placingRange.tied))
+          : placements.third.some((team) => teams.has(team)),
         matches,
       };
     }

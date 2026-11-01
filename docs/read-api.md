@@ -371,8 +371,14 @@ Public fixture/result and group publication still require official finalized,
 published teams. Remote frontends need this backend contract for these controls;
 older backends do not supply the new setup behavior.
 
-
 ## Historical metadata additions (v1.14.0, #610)
+
+The v1.15.0 follow-up exposes optional `publicTournament.seasonWindow` from the
+saved archive, including a nullable unknown boundary and optional `precision`
+(`day` or `instant`). It does not use `capturedOn` or infer registration dates.
+Archive match formats additionally accept capped series
+`{ maxGames, winsRequired }`, preserving the draw-capable BO8/BO10 sources.
+Older response payloads without the new optional fields remain readable.
 
 Optional `placingRange` on public participation retains start/end, official and
 tied facts. Optional match-game `excludedReason` provides the reviewed enum (or

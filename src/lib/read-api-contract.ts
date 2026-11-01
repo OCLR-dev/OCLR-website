@@ -1,4 +1,4 @@
-import { archivePlacement } from "./archive-metadata";
+import { archivePlacement, archiveSeason } from "./archive-metadata";
 import { z } from "zod";
 import { editionSchema } from "./editions";
 import { appearances } from "./preferences";
@@ -221,6 +221,7 @@ export const publicTournamentSchema = publicTournamentSummarySchema
       .nullable(),
     rankGraceRange: editionSchema.shape.rankGraceRange.unwrap().nullable(),
     schedule: editionSchema.shape.schedule,
+    seasonWindow: archiveSeason.nullable().optional(),
     overview: z.discriminatedUnion("kind", [
       historicalOverviewSchema,
       liveOverviewSchema,

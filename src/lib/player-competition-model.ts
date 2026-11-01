@@ -110,10 +110,17 @@ export type SeriesResult = {
   at: string | null;
   winnerTeamId: string | null;
   loserTeamId: string | null;
+  round?: {
+    phase: "qualifier" | "group" | "swiss" | "knockout" | "final";
+    index: number;
+  };
 };
 
 /** The minimal shape needed to find the deciding series. */
-export type DecisiveMatch = Pick<SeriesResult, "label" | "at" | "winnerTeamId">;
+export type DecisiveMatch = Pick<
+  SeriesResult,
+  "label" | "at" | "winnerTeamId" | "round"
+>;
 
 // A lower-bracket, consolation or early round is never the deciding series,
 // even when its label contains "final" (lower bracket final, semifinal, ...).
@@ -145,16 +152,28 @@ function seriesTime(match: DecisiveMatch) {
     : null;
 }
 
+function knockoutSeries(match: Pick<SeriesResult, "label" | "round">) {
+  const stage = competitionStage(match.label, match.round);
+  return match.round ? stage === "knockout" : stage !== "group";
+}
+
 /** Latest final-like knockout series; null when the source cannot order them. */
 export function decidingSeries<T extends DecisiveMatch>(
   matches: T[],
 ): T | null {
   const knockout = matches.filter(
-    (match) => match.winnerTeamId && competitionStage(match.label) !== "group",
+    (match) => match.winnerTeamId && knockoutSeries(match),
   );
   if (!knockout.length) return null;
   const ranked = knockout
-    .map((match) => ({ match, rank: finalRoundRank(match.label) }))
+    .map((match) => ({
+      match,
+      rank: match.round
+        ? match.round.phase === "final"
+          ? 2
+          : 0
+        : finalRoundRank(match.label),
+    }))
     .filter((entry) => entry.rank > 0);
   const best = ranked.length ? Math.max(...ranked.map((e) => e.rank)) : 0;
   const candidates = ranked.length
@@ -200,10 +219,7 @@ export function tournamentPlacements(
   matches: SeriesResult[],
 ): TournamentPlacements {
   const decided = matches.filter(
-    (match) =>
-      match.winnerTeamId &&
-      match.loserTeamId &&
-      competitionStage(match.label) !== "group",
+    (match) => match.winnerTeamId && match.loserTeamId && knockoutSeries(match),
   );
   const deciding = decidingSeries(decided);
   if (!deciding) return { champion: null, runnerUp: null, third: [] };
@@ -251,6 +267,9 @@ export type StandingsRow = {
   group: string | null;
   teamId: string;
   rank: number | null;
+  scope?: "group" | "final";
+  placement?: { start: number; end: number };
+  official?: boolean;
 };
 
 function placementBand(start: number, end: number) {
@@ -269,6 +288,8 @@ function dayOf(value: string | null) {
  * marks a group table, not a final placement.
  */
 export function isFinalStandings(standings: StandingsRow[]): boolean {
+  if (standings.some((row) => row.scope !== undefined))
+    return standings.some((row) => row.scope === "final");
   const ranked = standings.filter((row) => row.rank !== null);
   if (!ranked.length) return false;
   const owner = new Map<number, string>();
@@ -283,8 +304,8 @@ export function isFinalStandings(standings: StandingsRow[]): boolean {
 
 /**
  * Read a team's final placement from an archived final standings table.
- * Ties become a band ("5–6") and organizers' residual group ("第9–12名未細分")
- * or the unranked tail becomes its own band. Group tables return null.
+ * Structured bounds take precedence. Legacy ties become a band ("5–6") and
+ * the unranked tail becomes its own band. Group tables return null.
  */
 export function finalStandingsFinish(
   standings: StandingsRow[],
@@ -293,6 +314,20 @@ export function finalStandingsFinish(
 ): TournamentFinish | null {
   if (!isFinalStandings(standings)) return null;
   const teams = new Set(teamIds);
+  if (standings.some((row) => row.scope !== undefined)) {
+    const row = standings.find(
+      (row) => teams.has(row.teamId) && row.scope === "final",
+    );
+    const place = row?.placement;
+    return place
+      ? {
+          label: placementBand(place.start, place.end),
+          derived: row.official === false,
+        }
+      : row?.rank != null
+        ? { label: String(row.rank), derived: row.official === false }
+        : null;
+  }
   const ranked = standings.filter((row) => row.rank !== null);
   const own =
     standings.find((row) => teams.has(row.teamId) && row.rank !== null) ??
@@ -305,14 +340,8 @@ export function finalStandingsFinish(
       derived: false,
     };
   }
-  // The organizer-authored residual label can name the band outright.
-  const named = /(\d{1,3})\s*[–—\-~～至]\s*(\d{1,3})/.exec(own.group ?? "");
-  if (named)
-    return {
-      label: placementBand(Number(named[1]), Number(named[2])),
-      derived: false,
-    };
-  // Otherwise the unranked rows occupy the tail after every ranked position.
+  // Legacy unranked rows occupy the tail after every ranked position.
+  // Never interpret an authored label as placement evidence.
   const counts = new Map<number, number>();
   for (const row of ranked)
     counts.set(row.rank!, (counts.get(row.rank!) ?? 0) + 1);
@@ -348,20 +377,20 @@ export function knockoutFinishBands(
   teams: string[],
 ): Map<string, TournamentFinish> | null {
   const decided = matches.filter(
-    (match) =>
-      match.winnerTeamId &&
-      match.loserTeamId &&
-      competitionStage(match.label) !== "group",
+    (match) => match.winnerTeamId && match.loserTeamId && knockoutSeries(match),
   );
   if (!decided.length) return null;
   if (decided.some((match) => seriesTime(match) === null)) return null;
   const deciding = decidingSeries(decided);
   if (!deciding?.winnerTeamId || !deciding.loserTeamId) return null;
-  const decidingLabel = (deciding.label ?? "").trim();
+  const identity = (match: SeriesResult) =>
+    match.round
+      ? `${match.round.phase}:${match.round.index}`
+      : (match.label ?? "").trim();
+  const decidingLabel = identity(deciding);
   if (
     decidingLabel &&
-    decided.filter((match) => (match.label ?? "").trim() === decidingLabel)
-      .length > 1
+    decided.filter((match) => identity(match) === decidingLabel).length > 1
   )
     return null;
   const playoff = new Set<string>();
@@ -383,8 +412,9 @@ export function knockoutFinishBands(
   for (const team of eliminated) {
     const match = last.get(team)!;
     const label = (match.label ?? "").trim();
-    const key =
-      genericRound.test(label) && !namedRound.test(label)
+    const key = match.round
+      ? identity(match)
+      : genericRound.test(label) && !namedRound.test(label)
         ? `${label}|${dayOf(match.at) ?? ""}`
         : label;
     const entry = rounds.get(key) ?? { teams: [], at: 0 };

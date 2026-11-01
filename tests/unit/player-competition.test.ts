@@ -343,7 +343,6 @@ describe("player competition summary", () => {
   });
 });
 
-
 describe("final placement from an archived table", () => {
   const rankedGroup = "最終排名（全賽事戰績）";
   const residualGroup = "未晉級（第9–12名未細分）";
@@ -402,6 +401,44 @@ describe("final placement from an archived table", () => {
     ];
     expect(finalStandingsFinish(tail, ["d"], 12)?.label).toBe("9–12");
   });
+  it("uses explicit scope and bounds regardless of misleading authored labels", () => {
+    const rows = [
+      {
+        group: "最終排名 第1名",
+        teamId: "a",
+        rank: 1,
+        scope: "group" as const,
+      },
+      {
+        group: "小组赛 第99–100名",
+        teamId: "b",
+        rank: null,
+        scope: "final" as const,
+        placement: { start: 5, end: 6 },
+        official: false,
+      },
+    ];
+    expect(finalStandingsFinish(rows, ["a"], 8)).toBeNull();
+    expect(finalStandingsFinish(rows, ["b"], 8)).toEqual({
+      label: "5–6",
+      derived: true,
+    });
+    expect(isFinalStandings([rows[0]])).toBe(false);
+    expect(
+      finalStandingsFinish(
+        rows.map((r) => ({ ...r, group: "arbitrary translation" })),
+        ["b"],
+        8,
+      ),
+    ).toEqual({ label: "5–6", derived: true });
+  });
+  it("ignores a fabricated interval in a legacy free-text label", () => {
+    const misleading = rows.map((r) => ({
+      ...r,
+      group: r.rank === null ? "第1–2名" : r.group,
+    }));
+    expect(finalStandingsFinish(misleading, ["d"], 12)?.label).toBe("9–12");
+  });
 });
 
 describe("derived knockout placement bands", () => {
@@ -413,9 +450,7 @@ describe("derived knockout placement bands", () => {
   ) => ({ label, at, winnerTeamId, loserTeamId });
 
   it("groups a named elimination round by its label and fills the tail", () => {
-    const teams = [
-      "e", "b", "c", "i", "l", "k", "h", "d", "a", "f", "g", "j",
-    ];
+    const teams = ["e", "b", "c", "i", "l", "k", "h", "d", "a", "f", "g", "j"];
     const series = [
       ko("胜者组半决赛", "2020-07-04T21:00:00+08:00", "e", "b"),
       ko("胜者组半决赛", "2020-07-05T22:30:00+08:00", "c", "k"),
@@ -470,5 +505,27 @@ describe("derived knockout placement bands", () => {
       ko("GF", "2023-12-10T22:00:00+08:00", "h", "b"),
     ];
     expect(knockoutFinishBands(series, teams)).toBeNull();
+  });
+  it("uses typed rounds when pool-week labels repeat or translations mislead", () => {
+    const series = [
+      {
+        ...ko("总决赛", "2024-01-01T20:00:00+08:00", "a", "d"),
+        round: { phase: "knockout" as const, index: 1 },
+      },
+      {
+        ...ko("总决赛", "2024-01-01T21:00:00+08:00", "b", "c"),
+        round: { phase: "knockout" as const, index: 1 },
+      },
+      {
+        ...ko("小组赛", "2024-01-02T20:00:00+08:00", "a", "b"),
+        round: { phase: "final" as const, index: 1 },
+      },
+    ];
+    const bands = knockoutFinishBands(series, ["a", "b", "c", "d"]);
+    expect(bands?.get("a")).toEqual({ label: "1", derived: true });
+    expect(bands?.get("b")?.label).toBe("2");
+    expect(bands?.get("c")?.label).toBe("3–4");
+    expect(bands?.get("d")?.label).toBe("3–4");
+    expect(championTeamId(series)).toBe("a");
   });
 });
