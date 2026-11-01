@@ -51,6 +51,7 @@ export function MapCardBand({
   side,
   sidePlacement = "panel",
   slotControl,
+  actions,
 }: {
   as?: "article" | "li";
   className?: string;
@@ -82,6 +83,7 @@ export function MapCardBand({
   side?: ReactNode;
   sidePlacement?: "panel" | "values";
   slotControl?: ReactNode;
+  actions?: ReactNode;
 } & (
   | { onOpen: () => void; openHref?: never }
   | { onOpen?: never; openHref: string }
@@ -319,6 +321,7 @@ export function MapCardBand({
           </span>
         )}
         <BeatmapActions
+          extra={actions}
           compact
           beatmapId={beatmapId}
           setId={setId}

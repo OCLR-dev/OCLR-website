@@ -18,6 +18,9 @@ import {
   mappoolCandidateRounds,
   mappoolEvents,
   mappools,
+  mappoolEntries,
+  tournamentStages,
+  tournamentRounds,
   editionState,
 } from "../../src/db/schema";
 import {
@@ -26,6 +29,7 @@ import {
   selectionCommand,
   candidateComments,
 } from "../../src/lib/mappool-workbench";
+import { candidateHistory } from "../../src/lib/mappool-history";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { fetchBeatmaps } from "../../src/lib/osu-beatmaps";
 import { HttpError } from "../../src/lib/http";
@@ -103,6 +107,147 @@ describe.skipIf(!url)("private selection collaboration", () => {
   afterAll(async () => {
     await closeDb();
     vi.unstubAllEnvs();
+  });
+  it("finds exact and original BIDs only in other published historical pools, without provider calls or writes", async () => {
+    await selectionCommand(tester, slug, add([75, 77]));
+    const candidates = (await selectionWorkspace(tester, slug)).candidates;
+    const candidate = candidates.find((c) => c.beatmapId === 75)!;
+    const archive = {
+      ...structuredClone(statisticsArchive),
+      editionSlug: "history-public",
+      pools: [
+        {
+          ...statisticsArchive.pools[0],
+          maps: [
+            {
+              ...statisticsArchive.pools[0].maps[0],
+              slot: "NM1",
+              beatmapId: 75,
+            },
+            {
+              ...statisticsArchive.pools[0].maps[0],
+              slot: "HD1",
+              beatmapId: null,
+              originalId: 75,
+            },
+          ],
+        },
+      ],
+    };
+    await seedEditions([
+      {
+        ...edition,
+        slug: "history-public",
+        name: "Synthetic public archive",
+        registration: null,
+        status: "completed",
+        season: "9",
+        archive,
+      },
+      {
+        ...edition,
+        slug: "history-hidden",
+        registration: null,
+        published: false,
+        status: "completed",
+        archive: { ...archive, editionSlug: "history-hidden" },
+      },
+      ...["history-live", "history-completed", "history-unpublished"].map(
+        (slug) => ({
+          ...edition,
+          slug,
+          status: slug === "history-live" ? "live" : "completed",
+          published: slug !== "history-unpublished",
+        }),
+      ),
+    ]);
+    for (const editionSlug of [
+      "history-live",
+      "history-completed",
+      "history-unpublished",
+    ]) {
+      const [stage] = await db()
+        .insert(tournamentStages)
+        .values({ editionSlug, kind: "group" })
+        .returning();
+      const [round] = await db()
+        .insert(tournamentRounds)
+        .values({
+          editionSlug,
+          stageId: stage.id,
+          name: "Synthetic round",
+          position: 1,
+        })
+        .returning();
+      const pools = await db()
+        .insert(mappools)
+        .values([
+          {
+            editionSlug,
+            roundId: round.id,
+            name: "Synthetic released pool",
+            publishedAt: new Date(),
+          },
+          { editionSlug, roundId: round.id, name: "Synthetic draft pool" },
+        ])
+        .returning();
+      await db()
+        .insert(mappoolEntries)
+        .values(
+          pools.map((pool) => ({
+            poolId: pool.id,
+            category: "NM" as const,
+            position: 1,
+            beatmapId: 75,
+            metadata,
+          })),
+        );
+    }
+    vi.mocked(fetchBeatmaps).mockClear();
+    const eventsBefore = await db().select().from(mappoolEvents);
+    const result = await candidateHistory(tester, slug, candidate.id);
+    expect(result.beatmapId).toBe(75);
+    expect(result.matches).toHaveLength(3);
+    expect(
+      result.matches.map((m) => [m.editionSlug, m.slot, m.matchedBy]),
+    ).toEqual([
+      ["history-public", "NM1", "beatmap"],
+      ["history-public", "HD1", "original"],
+      ["history-completed", "NM1", "beatmap"],
+    ]);
+    expect(result.matches.every((m) => !m.poolName.includes("draft"))).toBe(
+      true,
+    );
+    expect(
+      (
+        await candidateHistory(
+          tester,
+          slug,
+          candidates.find((c) => c.beatmapId === 77)!.id,
+        )
+      ).matches,
+    ).toEqual([]);
+    expect(
+      (await candidateHistory(developer, slug, candidate.id)).matches,
+    ).toEqual(result.matches);
+    await expect(
+      candidateHistory(admin, "other-test-cup", candidate.id),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(candidateHistory(tester, slug, "bad")).rejects.toMatchObject({
+      status: 400,
+    });
+    await expect(
+      candidateHistory(tester, slug, randomUUID()),
+    ).rejects.toMatchObject({ status: 404 });
+    await db()
+      .update(staffRoles)
+      .set({ revokedAt: new Date() })
+      .where(eq(staffRoles.userId, tester.osuId));
+    await expect(
+      candidateHistory(tester, slug, candidate.id),
+    ).rejects.toMatchObject({ status: 403 });
+    expect(fetchBeatmaps).not.toHaveBeenCalled();
+    expect(await db().select().from(mappoolEvents)).toEqual(eventsBefore);
   });
   it("previews row failures and existing duplicates, then lets Tester add valid candidates without touching official pools", async () => {
     await selectionCommand(pooler, slug, add());

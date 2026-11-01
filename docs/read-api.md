@@ -387,3 +387,10 @@ add optional structured adjudication, excludedGames, reviewedBy/reviewedAt and
 evidenceUrl. Existing technical notices stay boolean presentation flags; they are
 derived from structured snapshots. See [archive metadata](archive-metadata.md).
 These additions do not grant read tokens any business write capability.
+
+The v1.16.0 follow-up adds `candidateHistory` at
+`/api/v1/staff/tournaments/{edition}/mappool-workbench/{id}/history`.
+It requires the existing private tournament read scope and current selection
+read capability for the candidate's edition. The saved-only lookup returns the
+candidate BID and minimal matching public historical pool identities/slots;
+unpublished data and other candidates are excluded. Existing responses are unchanged.

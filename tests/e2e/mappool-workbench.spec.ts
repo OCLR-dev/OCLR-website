@@ -8,6 +8,9 @@ import {
   mappoolCandidateComments,
 } from "../../src/db/schema";
 import { seedSession } from "./session";
+import { seedEditions } from "../fixtures/editions";
+import { edition } from "../fixtures/edition";
+import { historicalArchive } from "../fixtures/historical-archive";
 import { openTournamentTool } from "./navigation";
 const origin = process.env.OCLR_TEST_ORIGIN || "http://127.0.0.1:3100";
 const endpoint = "/api/admin/tournaments/test-cup/mappool-workbench";
@@ -44,6 +47,26 @@ test.describe("private Pooler/Tester selection workbench", () => {
       ]);
     await context.addCookies([cookie]);
     await context.route("https://assets.ppy.sh/**", (route) => route.abort());
+    await seedEditions([
+      {
+        ...edition,
+        slug: "test-map-history",
+        name: "Synthetic historical cup",
+        registration: null,
+        season: "0",
+        status: "completed",
+        archive: {
+          ...structuredClone(historicalArchive),
+          editionSlug: "test-map-history",
+          pools: [
+            {
+              ...historicalArchive.pools[0],
+              maps: [{ ...historicalArchive.pools[0].maps[0], beatmapId: 123 }],
+            },
+          ],
+        },
+      },
+    ]);
     const guest = await browser.newContext({ baseURL: origin });
     const pooler = await browser.newContext({ baseURL: origin });
     await pooler.addCookies([
@@ -145,6 +168,90 @@ test.describe("private Pooler/Tester selection workbench", () => {
           .find((c: { beatmapId: number }) => c.beatmapId === 123)
           .roundIds.sort(),
       ).toEqual(plannedRounds.map((r) => r.id).sort());
+      const historyEndpoint = `${endpoint}/${id}/history`;
+      expect((await guest.request.get(historyEndpoint)).status()).toBe(401);
+      const checkHistory = candidate.getByRole("button", {
+        name: "Check history",
+        exact: true,
+      });
+      await context.route(
+        `**${historyEndpoint}`,
+        async (route) => {
+          await new Promise((resolve) => setTimeout(resolve, 750));
+          await route.continue();
+        },
+        { times: 1 },
+      );
+      await checkHistory.click();
+      const historyDialog = candidate.getByRole("dialog", {
+        name: "Historical mappool usage",
+        exact: true,
+      });
+      await expect(
+        historyDialog.getByText("Checking history…", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        historyDialog.getByRole("link", {
+          name: "Synthetic historical cup",
+          exact: true,
+        }),
+      ).toHaveAttribute("href", "/tournaments/test-map-history/mappools/final");
+      await expect(
+        historyDialog.getByText("NM1", { exact: true }),
+      ).toBeVisible();
+      expect(
+        (await new AxeBuilder({ page }).include("dialog[open]").analyze())
+          .violations,
+      ).toEqual([]);
+      await page.keyboard.press("Escape");
+      await expect(historyDialog).toHaveCount(0);
+      await expect(checkHistory).toBeFocused();
+      const unused = page.getByRole("article", {
+        name: "BID 456",
+        exact: true,
+      });
+      await unused
+        .getByRole("button", { name: "Check history", exact: true })
+        .click();
+      const emptyHistory = unused.getByRole("dialog", {
+        name: "Historical mappool usage",
+        exact: true,
+      });
+      await expect(
+        emptyHistory.getByText("No historical records found.", { exact: true }),
+      ).toBeVisible();
+      await emptyHistory
+        .getByRole("button", { name: "Close", exact: true })
+        .click();
+      await context.route(`**${historyEndpoint}`, (route) =>
+        route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({
+            error: "Could not check historical mappool usage.",
+          }),
+        }),
+      );
+      await checkHistory.click();
+      await expect(historyDialog.getByRole("alert")).toBeVisible();
+      await expect(
+        historyDialog.getByText("No historical records found.", {
+          exact: true,
+        }),
+      ).toHaveCount(0);
+      await context.unroute(`**${historyEndpoint}`);
+      await historyDialog
+        .getByRole("button", { name: "Retry", exact: true })
+        .click();
+      await expect(
+        historyDialog.getByRole("link", {
+          name: "Synthetic historical cup",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await historyDialog
+        .getByRole("button", { name: "Close", exact: true })
+        .click();
       const intent = candidate.getByRole("group", {
         name: "Intended rounds",
         exact: true,
@@ -727,6 +834,30 @@ test.describe("private Pooler/Tester selection workbench", () => {
         await previewPicker
           .getByRole("button", { name: "取消", exact: true })
           .click();
+        await previewCard
+          .getByRole("button", { name: "查詢歷史", exact: true })
+          .click();
+        const historyPreview = previewCard.getByRole("dialog", {
+          name: "歷史圖池使用紀錄",
+          exact: true,
+        });
+        await expect(
+          historyPreview.getByRole("link", {
+            name: "Synthetic historical cup",
+            exact: true,
+          }),
+        ).toBeVisible();
+        const historyBox = await historyPreview.boundingBox();
+        expect(historyBox!.x).toBeGreaterThanOrEqual(0);
+        expect(historyBox!.x + historyBox!.width).toBeLessThanOrEqual(
+          poolerPage.viewportSize()!.width,
+        );
+        await historyPreview.screenshot({
+          path: `/tmp/oclr-map-history-${isMobile ? "mobile" : "desktop"}-${theme}.png`,
+        });
+        await historyPreview
+          .getByRole("button", { name: "關閉", exact: true })
+          .click();
       }
       await poolerPage.close();
       for (const theme of ["light", "dark"]) {
@@ -770,6 +901,7 @@ test.describe("private Pooler/Tester selection workbench", () => {
         .set({ revokedAt: new Date() })
         .where(eq(staffRoles.userId, testerId));
       expect((await context.request.get(endpoint)).status()).toBe(403);
+      expect((await context.request.get(historyEndpoint)).status()).toBe(403);
       expect(
         (await context.request.get(`${endpoint}/${id}/comments`)).status(),
       ).toBe(403);

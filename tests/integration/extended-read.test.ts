@@ -94,14 +94,13 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
         )
       )
         edition = "remote-draft";
-      const id =
-        resource.id === "candidateComments"
-          ? fixture.candidateId
-          : ["applicationDetails", "staffBws"].includes(resource.id)
-            ? fixture.registrationId
-            : resource.id === "replayList"
-              ? fixture.entryId
-              : fixture.fixtureId;
+      const id = ["candidateComments", "candidateHistory"].includes(resource.id)
+        ? fixture.candidateId
+        : ["applicationDetails", "staffBws"].includes(resource.id)
+          ? fixture.registrationId
+          : resource.id === "replayList"
+            ? fixture.entryId
+            : fixture.fixtureId;
       const path = resource.path
         .replace("{edition}", edition)
         .replace("{id}", id)

@@ -91,6 +91,12 @@ export async function extendedRead(
         actor!,
         slug,
       );
+    case "candidateHistory":
+      return (await import("./mappool-history")).candidateHistory(
+        actor!,
+        slug,
+        target,
+      );
     case "candidateComments":
       return (await import("./mappool-workbench")).candidateComments(
         actor!,

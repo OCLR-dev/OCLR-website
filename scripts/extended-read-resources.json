@@ -567,5 +567,15 @@
     "public": false,
     "query": [],
     "scope": "tournaments:private:read"
+  },
+  {
+    "module": "mappool-history",
+    "fn": "candidateHistory",
+    "id": "candidateHistory",
+    "path": "/staff/tournaments/{edition}/mappool-workbench/{id}/history",
+    "args": ["actor", "slug", "id"],
+    "public": false,
+    "query": [],
+    "scope": "tournaments:private:read"
   }
 ]
