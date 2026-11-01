@@ -44,7 +44,9 @@ export function canExcludeStatisticsScore(score: MatchScore) {
   );
 }
 // An explicit Admin review may exclude a lobby occupant with a nonzero score,
-// but never an actual member of either recorded team. Raw provider data stays intact.
+// but never a recorded player/captain of either team. Resolving a coach's UID
+// does not establish that they played: Admin must still review each exclusion.
+// Raw provider data stays intact.
 export function canExcludeNonParticipantScore(
   archive: HistoricalArchive,
   fixtureId: string,
@@ -57,7 +59,8 @@ export function canExcludeNonParticipantScore(
     score.osuId !== null &&
     score.total !== null &&
     score.problems.length === 0 &&
-    ![fixture.teamA, fixture.teamB].includes(player?.teamId ?? "")
+    (player?.role === "coach" ||
+      ![fixture.teamA, fixture.teamB].includes(player?.teamId ?? ""))
   );
 }
 // S2's organizer-supplied rules specify 3v3. Other supported editions retain

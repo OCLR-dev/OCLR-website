@@ -1,0 +1,602 @@
+{
+  "kind": "s5-coach-date-authorized-update-receipt",
+  "verifiedAt": "2026-11-01T06:22:40.039286+00:00",
+  "issue": "https://github.com/OCLR-dev/OCLR-website/issues/610",
+  "pullRequest": "https://github.com/OCLR-dev/OCLR-website/pull/652",
+  "authorization": [
+    "Organizer explicitly authorized restoration, all coach UID/date corrections, necessary statistics reviews/publication and temporary unpublish/republish.",
+    "Organizer explicitly requested PR and merge, and chose to update production themselves."
+  ],
+  "method": "Native authenticated Admin UI writes and JSON downloads; unauthenticated public v1 reads. No direct production DB connection or runtime credential access.",
+  "archive": {
+    "restoredRevision": 27,
+    "restoredEditionEqualsOriginalRevision23": true,
+    "finalRevision": 30,
+    "published": true,
+    "finalArchiveEqualsPreparedFile": true,
+    "otherEditionFieldsPreserved": true,
+    "all34ScoresReviewsAndApprovalsPreserved": true,
+    "knownIdentities": 85,
+    "coaches": 12,
+    "unresolvedPositions": 0,
+    "scheduledMatches": 34,
+    "timeZone": "Asia/Shanghai",
+    "b32ScheduledAt": "2021-01-01T20:30:00+08:00"
+  },
+  "publicCoverage": {
+    "covered": 33,
+    "total": 34,
+    "games": 246,
+    "players": 72,
+    "scores": 1678,
+    "recordedAccuracy": 1678,
+    "recordedCombo": 1678,
+    "retainedZeroScores": 209,
+    "allPublishedUidScoreTuplesEqualOriginalRawEvidence": true
+  },
+  "pending": {
+    "fixtureId": "a21",
+    "reason": "Production canExcludeNonParticipantScore protects same-team coach UID 1371514, preventing the prior approved 3-point exclusion. Fix awaits organizer deployment.",
+    "targetAdditionalGames": 5,
+    "targetAdditionalScores": 38,
+    "targetAdditionalZeroScores": 8
+  },
+  "fixtures": [
+    {
+      "mpId": 70214161,
+      "fixtureId": "a1",
+      "version": 10,
+      "importedAt": "2026-11-01T05:41:33.678Z",
+      "publishedAt": "2026-11-01T05:48:39.503Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        367534051, 367535209, 367536192, 367537588, 367538898, 367540657
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 12
+    },
+    {
+      "mpId": 70217154,
+      "fixtureId": "a2",
+      "version": 9,
+      "importedAt": "2026-11-01T05:41:35.877Z",
+      "publishedAt": "2026-11-01T05:50:03.846Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        367549814, 367551519, 367553344, 367554902, 367557216, 367558835,
+        367561643
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 7
+    },
+    {
+      "mpId": 70219167,
+      "fixtureId": "a3",
+      "version": 9,
+      "importedAt": "2026-11-01T05:41:36.963Z",
+      "publishedAt": "2026-11-01T05:51:28.555Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        367556251, 367557705, 367559731, 367561298, 367562576, 367565227,
+        367567595, 367569605
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 8
+    },
+    {
+      "mpId": 70211567,
+      "fixtureId": "a4",
+      "version": 12,
+      "importedAt": "2026-11-01T05:41:39.162Z",
+      "publishedAt": "2026-11-01T05:53:05.605Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        367521843, 367523448, 367524651, 367526024, 367527333, 367528481
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 10
+    },
+    {
+      "mpId": 70216682,
+      "fixtureId": "a5",
+      "version": 12,
+      "importedAt": "2026-11-01T05:41:40.295Z",
+      "publishedAt": "2026-11-01T05:53:30.460Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        367545447, 367547386, 367549492, 367551388, 367552891, 367554591,
+        367555887
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 12
+    },
+    {
+      "mpId": 70279705,
+      "fixtureId": "a6",
+      "version": 12,
+      "importedAt": "2026-11-01T05:41:41.364Z",
+      "publishedAt": "2026-11-01T05:53:42.667Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        367874371, 367875765, 367877262, 367878533, 367880350
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 5
+    },
+    {
+      "mpId": 70607908,
+      "fixtureId": "a7",
+      "version": 13,
+      "importedAt": "2026-11-01T05:41:42.484Z",
+      "publishedAt": "2026-11-01T05:54:56.810Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        369525150, 369526191, 369527242, 369528422, 369529919
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 5
+    },
+    {
+      "mpId": 70607142,
+      "fixtureId": "a8",
+      "version": 10,
+      "importedAt": "2026-11-01T05:41:43.582Z",
+      "publishedAt": "2026-11-01T05:55:10.486Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        369521497, 369522576, 369523932, 369525042, 369526232, 369527595
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 6
+    },
+    {
+      "mpId": 70611688,
+      "fixtureId": "a9",
+      "version": 10,
+      "importedAt": "2026-11-01T05:41:44.699Z",
+      "publishedAt": "2026-11-01T05:55:38.041Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        369546558, 369548097, 369549759, 369552118, 369554109, 369555784
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 12
+    },
+    {
+      "mpId": 70610187,
+      "fixtureId": "a10",
+      "version": 12,
+      "importedAt": "2026-11-01T05:41:47.003Z",
+      "publishedAt": "2026-11-01T05:55:52.554Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        369539452, 369540902, 369542533, 369544264, 369546202, 369548527
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 8
+    },
+    {
+      "mpId": 70673286,
+      "fixtureId": "a11",
+      "version": 12,
+      "importedAt": "2026-11-01T05:41:47.996Z",
+      "publishedAt": "2026-11-01T05:56:21.177Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        369865541, 369867282, 369868811, 369869754, 369871294, 369872660,
+        369874030, 369875733
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 8
+    },
+    {
+      "mpId": 70672935,
+      "fixtureId": "a12",
+      "version": 9,
+      "importedAt": "2026-11-01T05:41:49.054Z",
+      "publishedAt": "2026-11-01T05:56:47.755Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        369861159, 369862954, 369864533, 369866142, 369867541
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 5
+    },
+    {
+      "mpId": 71008526,
+      "fixtureId": "a13",
+      "version": 9,
+      "importedAt": "2026-11-01T05:41:50.218Z",
+      "publishedAt": "2026-11-01T05:57:01.527Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        371520029, 371520875, 371521983, 371523110, 371524232, 371525165,
+        371526418
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 7
+    },
+    {
+      "mpId": 71012162,
+      "fixtureId": "a14",
+      "version": 9,
+      "importedAt": "2026-11-01T05:41:51.265Z",
+      "publishedAt": "2026-11-01T05:57:32.269Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        371538172, 371539357, 371540564, 371541768, 371543385, 371544581,
+        371546904, 371548358, 371549535
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 9
+    },
+    {
+      "mpId": 71012247,
+      "fixtureId": "a15",
+      "version": 12,
+      "importedAt": "2026-11-01T05:41:53.440Z",
+      "publishedAt": "2026-11-01T05:57:57.466Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        371542467, 371544167, 371545755, 371547416, 371549244, 371550964
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 6
+    },
+    {
+      "mpId": 71083712,
+      "fixtureId": "a16",
+      "version": 12,
+      "importedAt": "2026-11-01T05:41:55.651Z",
+      "publishedAt": "2026-11-01T05:58:11.007Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        371869336, 371871217, 371872793, 371874401, 371877221, 371879577,
+        371883303
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 7
+    },
+    {
+      "mpId": 71079961,
+      "fixtureId": "a17",
+      "version": 10,
+      "importedAt": "2026-11-01T05:41:56.772Z",
+      "publishedAt": "2026-11-01T05:58:35.153Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        371858704, 371860219, 371861838, 371863182, 371866151
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 5
+    },
+    {
+      "mpId": 71012199,
+      "fixtureId": "a18",
+      "version": 9,
+      "importedAt": "2026-11-01T05:41:58.956Z",
+      "publishedAt": "2026-11-01T05:59:21.515Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        371537375, 371538905, 371540344, 371542002, 371543606, 371545075,
+        371547613, 371549930
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 14
+    },
+    {
+      "mpId": 71484949,
+      "fixtureId": "a19",
+      "version": 10,
+      "importedAt": "2026-11-01T05:42:01.146Z",
+      "publishedAt": "2026-11-01T05:59:35.968Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        373841570, 373842834, 373844691, 373845771, 373846735, 373848668,
+        373850267, 373852527, 373853708
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 9
+    },
+    {
+      "mpId": 71472736,
+      "fixtureId": "a20",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:03.364Z",
+      "publishedAt": "2026-11-01T06:00:02.879Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        373775655, 373776882, 373778540, 373779854, 373781113, 373782470,
+        373783629
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 7
+    },
+    {
+      "mpId": 71422298,
+      "fixtureId": "a21",
+      "version": 6,
+      "importedAt": "2026-11-01T05:42:04.501Z",
+      "publishedAt": null,
+      "changes": true,
+      "stale": false,
+      "expectedGameIds": [
+        373522355, 373523588, 373525048, 373526359, 373528382
+      ],
+      "selectionVerifiedInNativeUI": false,
+      "excludedScoresVerifiedInNativeUI": null
+    },
+    {
+      "mpId": 71421418,
+      "fixtureId": "a22",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:05.595Z",
+      "publishedAt": "2026-11-01T06:04:47.169Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        373515278, 373516367, 373517428, 373518802, 373520287, 373521930
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 6
+    },
+    {
+      "mpId": 71419226,
+      "fixtureId": "a23",
+      "version": 10,
+      "importedAt": "2026-11-01T05:42:07.757Z",
+      "publishedAt": "2026-11-01T06:05:02.456Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        373505122, 373506237, 373507586, 373509009, 373510124, 373511450,
+        373512446, 373513471, 373514785
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 9
+    },
+    {
+      "mpId": 71422840,
+      "fixtureId": "a24",
+      "version": 12,
+      "importedAt": "2026-11-01T05:42:08.868Z",
+      "publishedAt": "2026-11-01T06:06:02.900Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        373524016, 373526336, 373528059, 373530014, 373532853, 373534794,
+        373537966
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 14
+    },
+    {
+      "mpId": 71900819,
+      "fixtureId": "a25",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:10.284Z",
+      "publishedAt": "2026-11-01T06:06:17.256Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        375835296, 375836156, 375837307, 375838426, 375839586, 375840807
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 6
+    },
+    {
+      "mpId": 71851009,
+      "fixtureId": "a26",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:12.152Z",
+      "publishedAt": "2026-11-01T06:07:48.976Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        375595144, 375596827, 375598921, 375600682, 375602177, 375604187,
+        375605803, 375607503, 375608760, 375610572
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 10
+    },
+    {
+      "mpId": 71910710,
+      "fixtureId": "b27",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:13.283Z",
+      "publishedAt": "2026-11-01T06:08:04.648Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        375888470, 375889401, 375890664, 375891834, 375893330, 375895295,
+        375896576, 375897833, 375898969
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 9
+    },
+    {
+      "mpId": 71900068,
+      "fixtureId": "b28",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:14.381Z",
+      "publishedAt": "2026-11-01T06:09:11.923Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        375831038, 375832163, 375833696, 375834970, 375836502, 375838050,
+        375839034, 375840343
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 8
+    },
+    {
+      "mpId": 72198819,
+      "fixtureId": "wf",
+      "version": 12,
+      "importedAt": "2026-11-01T05:42:16.566Z",
+      "publishedAt": "2026-11-01T06:10:19.589Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        377366374, 377367836, 377369644, 377371725, 377374200, 377375505,
+        377376649, 377378134, 377380298
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 9
+    },
+    {
+      "mpId": 72307852,
+      "fixtureId": "b30",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:17.665Z",
+      "publishedAt": "2026-11-01T06:11:42.117Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        377934681, 377935570, 377937051, 377938390, 377939531, 377940897,
+        377942144
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 7
+    },
+    {
+      "mpId": 72304259,
+      "fixtureId": "b31",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:19.855Z",
+      "publishedAt": "2026-11-01T06:11:59.742Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        377914687, 377916340, 377917723, 377918933, 377920290, 377921906,
+        377923199, 377924345, 377925810, 377927382
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 10
+    },
+    {
+      "mpId": 72596333,
+      "fixtureId": "b32",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:22.052Z",
+      "publishedAt": "2026-11-01T06:14:24.367Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        379439378, 379440264, 379441482, 379442742, 379443912, 379445221,
+        379446266, 379446960
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 8
+    },
+    {
+      "mpId": 72703300,
+      "fixtureId": "lf",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:24.270Z",
+      "publishedAt": "2026-11-01T06:15:40.855Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        380029396, 380030607, 380032375, 380033375, 380034751, 380036427,
+        380037788, 380039970, 380041180, 380042594, 380043530, 380045145,
+        380046898
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 13
+    },
+    {
+      "mpId": 73600572,
+      "fixtureId": "gf",
+      "version": 9,
+      "importedAt": "2026-11-01T05:42:26.483Z",
+      "publishedAt": "2026-11-01T06:15:57.505Z",
+      "changes": false,
+      "stale": false,
+      "expectedGameIds": [
+        384403977, 384405479, 384408472, 384410218, 384411885, 384413038,
+        384414465, 384415997, 384417432, 384419406, 384421382
+      ],
+      "selectionVerifiedInNativeUI": true,
+      "excludedScoresVerifiedInNativeUI": 11
+    }
+  ],
+  "adjudications": [
+    {
+      "fixtureId": "b28",
+      "acceptedScore": [6, 2],
+      "rawScore": [5, 3],
+      "publicTechnicalAdjudication": true,
+      "publicRatingIssues": []
+    },
+    {
+      "fixtureId": "gf",
+      "acceptedScore": [7, 4],
+      "rawScore": [8, 3],
+      "publicTechnicalAdjudication": true,
+      "publicRatingIssues": []
+    }
+  ],
+  "checks": {
+    "node": "24.22.2",
+    "unitDbFree": {
+      "passed": 1467,
+      "skipped": 670
+    },
+    "postgresStatisticsTests": {
+      "passed": 20,
+      "failed": 0,
+      "database": "oclr_610_test",
+      "host": "127.0.0.1",
+      "port": 56610,
+      "temporaryClusterStopped": true
+    },
+    "affectedUnitTests": 17,
+    "readApiTests": 8,
+    "pythonSourceTests": 13,
+    "check": "passed",
+    "build": "passed",
+    "auditProductionVulnerabilities": 0,
+    "afterMergingMainDa53d1b0": {
+      "readArtifactsRegeneratedWithoutDrift": true,
+      "readApiTests": 8,
+      "affectedUnitTests": 17
+    },
+    "fullE2E": "not run (ordinary development policy: too slow)"
+  },
+  "localReadbackSha256": {
+    "oclr610-before-20261101.json": "27c61cbcb87e6a58497ee7a1457e3171d62a6d5ae28c9d2c4f0621b0f34d23d5",
+    "oclr610-restored-revision27-20261101.json": "bea5292bf71b8066a95f35dcac614c482884d36b030365b00e82a0ed864f80c3",
+    "oclr610-final-revision30-20261101.json": "8bc1b6e35a00afffd0ab9e071616534cbca8432bfacab9fb70dfafa796638f65",
+    "oclr610-final-coach-dates-import.json": "d936cbba2b9938b72c51b7275772ebc06665f79e4ab83e664509d879adfd5057",
+    "oclr610-statistics-33-published-20261101.json": "86fead16c2fbc106a2982eb92e7a192d7f139baec892cc6501585f07bc7c07e1",
+    "oclr610-public-statistics-33-20261101.json": "6421bc41184f842a31df4704b046ee3281130ac45cd65bdbd92f3fdced6ee481",
+    "oclr610-public-b28-20261101.json": "0ce1bad82e89cd0a9a986f631c4147d23bb77142857a6be8745dacad40997abd",
+    "oclr610-public-gf-20261101.json": "aa0139f7f961286239df60d95f6a106ba82c4573be7a236ee3133a8720a7ae4d"
+  },
+  "limitations": [
+    "Not all #610 acceptance criteria are complete.",
+    "Production application fix is not yet deployed; A21 remains unpublished.",
+    "No CI pass is inferred from local checks."
+  ]
+}

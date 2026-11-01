@@ -447,6 +447,50 @@ describe.skipIf(!url)("historical statistics transactions", () => {
       excludedScores: exceptions.excludedScores,
     });
   });
+  it("requires Admin to reapprove a resolved coach's nonzero lobby exclusion", async () => {
+    const archive = structuredClone(statisticsArchive);
+    archive.players.push({
+      ...archive.players[0],
+      osuId: 91991,
+      username: "Synthetic resolved coach",
+      role: "coach",
+      tier: null,
+    });
+    await seedEditions([
+      {
+        ...edition,
+        slug: "s7",
+        status: "completed",
+        registration: null,
+        published: true,
+        archive,
+      },
+    ]);
+    const source = statisticsSource();
+    source.games[0].scores.push({
+      ...structuredClone(source.games[0].scores[0]),
+      osuId: 91991,
+      total: 3,
+    });
+    vi.mocked(fetchMatchSource).mockResolvedValue(source);
+    await statisticsCommand(referee, "s7", imported);
+    const decision = {
+      ...reviewed,
+      excludedScores: [{ gameId: 1, osuId: 91991, reason: "non-participant" }],
+    };
+    await expect(
+      statisticsCommand(referee, "s7", decision),
+    ).rejects.toMatchObject({ status: 403 });
+    await statisticsCommand(admin, "s7", decision);
+    await statisticsCommand(admin, "s7", publish);
+    const publicData = await publicArchiveStatistics("s7", "one");
+    expect(publicData.plays).toHaveLength(8);
+    expect(publicData.plays.some((p) => p.osuId === 91991)).toBe(false);
+    const saved = await statisticsWorkspace(admin, "s7", "one");
+    expect(saved.reviews[0].games[0].game.scores.at(-1)?.total).toBe(3);
+    expect(saved.reviews[0].excludedScores).toEqual(decision.excludedScores);
+    expect(saved.summaries[0].publishedAt).toBeTruthy();
+  });
   it("persists structured decisions with server-owned provenance, audited versions and private evidence", async () => {
     await statisticsCommand(referee, "s7", imported);
     const structured = {

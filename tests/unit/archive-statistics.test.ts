@@ -14,6 +14,7 @@ import {
   suggestStatisticsPool,
   validStatisticsExclusions,
   canExcludeStatisticsScore,
+  canExcludeNonParticipantScore,
   canExcludeStatisticsBenchScore,
   statisticsSeasons,
   supportsArchiveStatistics,
@@ -246,6 +247,43 @@ describe("historical MP statistics", () => {
     expect(validStatisticsExclusions(s, a, "one")).toBe(false);
     s.excludedScores[0].osuId = 99999;
     expect(validStatisticsExclusions(s, a, "one")).toBe(false);
+  });
+  it("keeps an explicitly reviewed coach lobby record excludable after UID resolution", () => {
+    const archive = structuredClone(a),
+      s = snapshot(),
+      game = s.source.games[0];
+    const coach = {
+      ...archive.players[0],
+      osuId: 91991,
+      username: "Synthetic resolved coach",
+      role: "coach" as const,
+      tier: null,
+    };
+    const score = {
+      ...structuredClone(game.scores[0]),
+      osuId: coach.osuId,
+      total: 3,
+    };
+    game.scores.push(score);
+    s.excludedScores = [
+      { gameId: game.id, osuId: coach.osuId, reason: "non-participant" },
+    ];
+    expect(validStatisticsExclusions(s, archive, "one")).toBe(true);
+    archive.players.push(coach);
+    expect(canExcludeNonParticipantScore(archive, "one", score)).toBe(true);
+    expect(validStatisticsExclusions(s, archive, "one")).toBe(true);
+    expect(fixtureStatisticsIssues(archive, "one", [s])).toEqual([]);
+    expect(projectStatistics(archive, "one", s)).toHaveLength(8);
+    expect(game.scores.at(-1)?.total).toBe(3);
+    // Coach identity resolution alone never excludes a source score.
+    expect(
+      projectStatistics(archive, "one", { ...s, excludedScores: [] }),
+    ).toHaveLength(9);
+    for (const role of ["captain", "player"] as const) {
+      archive.players.at(-1)!.role = role;
+      expect(canExcludeNonParticipantScore(archive, "one", score)).toBe(false);
+      expect(validStatisticsExclusions(s, archive, "one")).toBe(false);
+    }
   });
   it("permits only explicitly reviewed bench records beyond four retained teammates", () => {
     const archive = structuredClone(a),
