@@ -86,6 +86,60 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, action);
     return action;
   }
+  it("projects expired unclaimed commands on read without writing or waiting for another desktop poll", async () => {
+    const request = await queue();
+    await db()
+      .update(refereeIrcCommands)
+      .set({ createdAt: new Date(Date.now() - 31000) })
+      .where(eq(refereeIrcCommands.requestKey, request.requestKey));
+    const view = await refereeIrcView(referee, "test-cup", fixtureId);
+    expect(view.commands.at(-1)?.status).toBe("failed");
+    const [stored] = await db()
+      .select()
+      .from(refereeIrcCommands)
+      .where(eq(refereeIrcCommands.requestKey, request.requestKey));
+    expect(stored.status).toBe("queued");
+    expect((await sync()).command).toBeNull();
+  });
+  it.each(["sending", "sent"])(
+    "does not revive an overdue %s command or record legacy BP from a late exact receipt",
+    async (status) => {
+      await queue();
+      const dispatched = (await sync()).command!;
+      await db()
+        .update(refereeIrcCommands)
+        .set({ status, dispatchedAt: new Date(Date.now() - 46000) })
+        .where(eq(refereeIrcCommands.id, dispatched.id));
+      const before = await refereeWorkspace(referee, "test-cup", fixtureId);
+      expect(
+        (await refereeIrcView(referee, "test-cup", fixtureId)).commands.at(-1)
+          ?.status,
+      ).toBe("unknown");
+      const evidence = {
+        sender: "BanchoBot",
+        target: "#mp_123",
+        text: "Beatmap changed to: https://osu.ppy.sh/b/10001 Synthetic map",
+      };
+      await sync(
+        [{ commandId: dispatched.id, status: "confirmed", evidence }],
+        [
+          {
+            id: randomUUID(),
+            sender: evidence.sender,
+            text: evidence.text,
+            at: new Date().toISOString(),
+          },
+        ],
+      );
+      expect(
+        (await refereeIrcView(referee, "test-cup", fixtureId)).commands.at(-1)
+          ?.status,
+      ).toBe("unknown");
+      const after = await refereeWorkspace(referee, "test-cup", fixtureId);
+      expect(after.events).toEqual(before.events);
+      expect(after.projection.score).toEqual(before.projection.score);
+    },
+  );
   async function saveSelection() {
     const w = await refereeWorkspace(referee, "test-cup", fixtureId);
     return refereeCommand(referee, "test-cup", fixtureId, {
