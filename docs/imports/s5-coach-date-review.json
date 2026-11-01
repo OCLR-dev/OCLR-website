@@ -1,0 +1,979 @@
+{
+  "kind": "s5-coach-date-review",
+  "importable": false,
+  "timeZoneAuthorization": "Organizer chat, 2026-11-01: UTC+8; match dates from MP links",
+  "datePolicy": "MP local calendar date + MainSheet scheduled wall time; room creation stays separate",
+  "coaches": [
+    {
+      "unresolvedId": "a-slot-3",
+      "username": "davidqu2",
+      "teamId": "a",
+      "role": "coach",
+      "tier": null,
+      "osuId": 6090175,
+      "source": "队伍表!E3",
+      "profileUrl": "https://osu.ppy.sh/users/6090175",
+      "matchType": "previous",
+      "currentUsername": "lolol235",
+      "qualifierProof": []
+    },
+    {
+      "unresolvedId": "b-slot-3",
+      "username": "im_a_burger_fox",
+      "teamId": "b",
+      "role": "coach",
+      "tier": null,
+      "osuId": 5791401,
+      "source": "队伍表!E7",
+      "profileUrl": "https://osu.ppy.sh/users/5791401",
+      "matchType": "previous",
+      "currentUsername": "lolol234",
+      "qualifierProof": []
+    },
+    {
+      "unresolvedId": "c-slot-3",
+      "username": "Old k",
+      "teamId": "c",
+      "role": "coach",
+      "tier": null,
+      "osuId": 2385405,
+      "source": "队伍表!E11",
+      "profileUrl": "https://osu.ppy.sh/users/2385405",
+      "matchType": "current",
+      "currentUsername": "Old K",
+      "qualifierProof": [
+        {
+          "mpId": 69815174,
+          "gameId": 365531357,
+          "beatmapId": 792500,
+          "score": 409134,
+          "source": "教练赛积分!F8"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365532191,
+          "beatmapId": 2629183,
+          "score": 227441,
+          "source": "教练赛积分!H8"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365533123,
+          "beatmapId": 2557524,
+          "score": 297250,
+          "source": "教练赛积分!J8"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365533724,
+          "beatmapId": 2332941,
+          "score": 431939,
+          "source": "教练赛积分!L8"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365534164,
+          "beatmapId": 2097442,
+          "score": 290569,
+          "source": "教练赛积分!N8"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365534860,
+          "beatmapId": 1919502,
+          "score": 271735,
+          "source": "教练赛积分!P8"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365535695,
+          "beatmapId": 2247591,
+          "score": 524290,
+          "source": "教练赛积分!R8"
+        }
+      ]
+    },
+    {
+      "unresolvedId": "d-slot-3",
+      "username": "buhei",
+      "teamId": "d",
+      "role": "coach",
+      "tier": null,
+      "osuId": 1371514,
+      "source": "队伍表!E15",
+      "profileUrl": "https://osu.ppy.sh/users/1371514",
+      "matchType": "current",
+      "currentUsername": "buhei",
+      "qualifierProof": [
+        {
+          "mpId": 69829754,
+          "gameId": 365606273,
+          "beatmapId": 792500,
+          "score": 442186,
+          "source": "教练赛积分!F19"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365607732,
+          "beatmapId": 2629183,
+          "score": 212715,
+          "source": "教练赛积分!H19"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365609444,
+          "beatmapId": 2557524,
+          "score": 181092,
+          "source": "教练赛积分!J19"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365611048,
+          "beatmapId": 2332941,
+          "score": 375404,
+          "source": "教练赛积分!L19"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365611890,
+          "beatmapId": 2097442,
+          "score": 367140,
+          "source": "教练赛积分!N19"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365613562,
+          "beatmapId": 1919502,
+          "score": 256016,
+          "source": "教练赛积分!P19"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365615099,
+          "beatmapId": 2247591,
+          "score": 467193,
+          "source": "教练赛积分!R19"
+        }
+      ]
+    },
+    {
+      "unresolvedId": "e-slot-3",
+      "username": "TiRa",
+      "teamId": "e",
+      "role": "coach",
+      "tier": null,
+      "osuId": 9697769,
+      "source": "队伍表!E19",
+      "profileUrl": "https://osu.ppy.sh/users/9697769",
+      "matchType": "current",
+      "currentUsername": "TiRa",
+      "qualifierProof": []
+    },
+    {
+      "unresolvedId": "f-slot-3",
+      "username": "[Kaffu Chile]",
+      "teamId": "f",
+      "role": "coach",
+      "tier": null,
+      "osuId": 10681880,
+      "source": "队伍表!E23",
+      "profileUrl": "https://osu.ppy.sh/users/10681880",
+      "matchType": "previous",
+      "currentUsername": "Kaffu-",
+      "qualifierProof": [
+        {
+          "mpId": 69812829,
+          "gameId": 365517581,
+          "beatmapId": 792500,
+          "score": 364569,
+          "source": "教练赛积分!F6"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365518584,
+          "beatmapId": 2629183,
+          "score": 270339,
+          "source": "教练赛积分!H6"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365519686,
+          "beatmapId": 2557524,
+          "score": 345922,
+          "source": "教练赛积分!J6"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365520900,
+          "beatmapId": 2332941,
+          "score": 648449,
+          "source": "教练赛积分!L6"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365521604,
+          "beatmapId": 2097442,
+          "score": 325736,
+          "source": "教练赛积分!N6"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365522809,
+          "beatmapId": 1919502,
+          "score": 370334,
+          "source": "教练赛积分!P6"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365523843,
+          "beatmapId": 2247591,
+          "score": 522343,
+          "source": "教练赛积分!R6"
+        }
+      ]
+    },
+    {
+      "unresolvedId": "g-slot-3",
+      "username": "milk-tea",
+      "teamId": "g",
+      "role": "coach",
+      "tier": null,
+      "osuId": 11375105,
+      "source": "队伍表!E27",
+      "profileUrl": "https://osu.ppy.sh/users/11375105",
+      "matchType": "previous",
+      "currentUsername": "4k110sh1",
+      "qualifierProof": [
+        {
+          "mpId": 69812829,
+          "gameId": 365517581,
+          "beatmapId": 792500,
+          "score": 758484,
+          "source": "教练赛积分!F4"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365518584,
+          "beatmapId": 2629183,
+          "score": 411404,
+          "source": "教练赛积分!H4"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365519686,
+          "beatmapId": 2557524,
+          "score": 675160,
+          "source": "教练赛积分!J4"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365520900,
+          "beatmapId": 2332941,
+          "score": 645182,
+          "source": "教练赛积分!L4"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365521604,
+          "beatmapId": 2097442,
+          "score": 312045,
+          "source": "教练赛积分!N4"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365522809,
+          "beatmapId": 1919502,
+          "score": 611524,
+          "source": "教练赛积分!P4"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365523843,
+          "beatmapId": 2247591,
+          "score": 675243,
+          "source": "教练赛积分!R4"
+        }
+      ]
+    },
+    {
+      "unresolvedId": "h-slot-3",
+      "username": "Crystal",
+      "teamId": "h",
+      "role": "coach",
+      "tier": null,
+      "osuId": 1646397,
+      "source": "队伍表!E31",
+      "profileUrl": "https://osu.ppy.sh/users/1646397",
+      "matchType": "current",
+      "currentUsername": "Crystal",
+      "qualifierProof": []
+    },
+    {
+      "unresolvedId": "i-slot-3",
+      "username": "NekoKamui",
+      "teamId": "i",
+      "role": "coach",
+      "tier": null,
+      "osuId": 7172340,
+      "source": "队伍表!E35",
+      "profileUrl": "https://osu.ppy.sh/users/7172340",
+      "matchType": "previous",
+      "currentUsername": "KiryuMiya",
+      "qualifierProof": [
+        {
+          "mpId": 69829754,
+          "gameId": 365606273,
+          "beatmapId": 792500,
+          "score": 977795,
+          "source": "教练赛积分!F20"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365607732,
+          "beatmapId": 2629183,
+          "score": 460908,
+          "source": "教练赛积分!H20"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365609444,
+          "beatmapId": 2557524,
+          "score": 932675,
+          "source": "教练赛积分!J20"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365611048,
+          "beatmapId": 2332941,
+          "score": 507255,
+          "source": "教练赛积分!L20"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365611890,
+          "beatmapId": 2097442,
+          "score": 525966,
+          "source": "教练赛积分!N20"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365613562,
+          "beatmapId": 1919502,
+          "score": 335775,
+          "source": "教练赛积分!P20"
+        },
+        {
+          "mpId": 69829754,
+          "gameId": 365615099,
+          "beatmapId": 2247591,
+          "score": 628884,
+          "source": "教练赛积分!R20"
+        }
+      ]
+    },
+    {
+      "unresolvedId": "j-slot-3",
+      "username": "Kishin Sagume",
+      "teamId": "j",
+      "role": "coach",
+      "tier": null,
+      "osuId": 596803,
+      "source": "队伍表!E39",
+      "profileUrl": "https://osu.ppy.sh/users/596803",
+      "matchType": "current",
+      "currentUsername": "Kishin Sagume",
+      "qualifierProof": [
+        {
+          "mpId": 69812829,
+          "gameId": 365517581,
+          "beatmapId": 792500,
+          "score": 339928,
+          "source": "教练赛积分!F3"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365518584,
+          "beatmapId": 2629183,
+          "score": 202016,
+          "source": "教练赛积分!H3"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365519686,
+          "beatmapId": 2557524,
+          "score": 205546,
+          "source": "教练赛积分!J3"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365520900,
+          "beatmapId": 2332941,
+          "score": 291302,
+          "source": "教练赛积分!L3"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365521604,
+          "beatmapId": 2097442,
+          "score": 311461,
+          "source": "教练赛积分!N3"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365522809,
+          "beatmapId": 1919502,
+          "score": 153537,
+          "source": "教练赛积分!P3"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365523843,
+          "beatmapId": 2247591,
+          "score": 379263,
+          "source": "教练赛积分!R3"
+        }
+      ]
+    },
+    {
+      "unresolvedId": "k-slot-3",
+      "username": "Manasoy",
+      "teamId": "k",
+      "role": "coach",
+      "tier": null,
+      "osuId": 760389,
+      "source": "队伍表!E43",
+      "profileUrl": "https://osu.ppy.sh/users/760389",
+      "matchType": "current",
+      "currentUsername": "Manasoy",
+      "qualifierProof": [
+        {
+          "mpId": 69812829,
+          "gameId": 365517581,
+          "beatmapId": 792500,
+          "score": 744582,
+          "source": "教练赛积分!F5"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365518584,
+          "beatmapId": 2629183,
+          "score": 240402,
+          "source": "教练赛积分!H5"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365519686,
+          "beatmapId": 2557524,
+          "score": 399406,
+          "source": "教练赛积分!J5"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365520900,
+          "beatmapId": 2332941,
+          "score": 815051,
+          "source": "教练赛积分!L5"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365521604,
+          "beatmapId": 2097442,
+          "score": 206745,
+          "source": "教练赛积分!N5"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365522809,
+          "beatmapId": 1919502,
+          "score": 562064,
+          "source": "教练赛积分!P5"
+        },
+        {
+          "mpId": 69812829,
+          "gameId": 365523843,
+          "beatmapId": 2247591,
+          "score": 815258,
+          "source": "教练赛积分!R5"
+        }
+      ]
+    },
+    {
+      "unresolvedId": "l-slot-3",
+      "username": "demisemiquaver",
+      "teamId": "l",
+      "role": "coach",
+      "tier": null,
+      "osuId": 8501053,
+      "source": "队伍表!E47",
+      "profileUrl": "https://osu.ppy.sh/users/8501053",
+      "matchType": "previous",
+      "currentUsername": "ShaBae",
+      "qualifierProof": [
+        {
+          "mpId": 69815174,
+          "gameId": 365531357,
+          "beatmapId": 792500,
+          "score": 437299,
+          "source": "教练赛积分!F9"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365532191,
+          "beatmapId": 2629183,
+          "score": 196451,
+          "source": "教练赛积分!H9"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365533123,
+          "beatmapId": 2557524,
+          "score": 235967,
+          "source": "教练赛积分!J9"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365533724,
+          "beatmapId": 2332941,
+          "score": 301881,
+          "source": "教练赛积分!L9"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365534164,
+          "beatmapId": 2097442,
+          "score": 289436,
+          "source": "教练赛积分!N9"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365534860,
+          "beatmapId": 1919502,
+          "score": 261701,
+          "source": "教练赛积分!P9"
+        },
+        {
+          "mpId": 69815174,
+          "gameId": 365535695,
+          "beatmapId": 2247591,
+          "score": 588664,
+          "source": "教练赛积分!R9"
+        }
+      ]
+    }
+  ],
+  "matches": [
+    {
+      "id": "a1",
+      "source": "对阵表!A2:L2",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70214161",
+      "dateAsStored": "2020-11-21",
+      "timeAsStored": "20:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-21T12:03:01Z",
+      "roomOpenedAtLocal": "2020-11-21T20:03:01+08:00",
+      "scheduledAt": "2020-11-21T20:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a2",
+      "source": "对阵表!A3:L3",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70217154",
+      "dateAsStored": "2020-11-21",
+      "timeAsStored": "21:15",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-21T13:09:55Z",
+      "roomOpenedAtLocal": "2020-11-21T21:09:55+08:00",
+      "scheduledAt": "2020-11-21T21:15:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a3",
+      "source": "对阵表!A4:L4",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70219167",
+      "dateAsStored": "2020-11-21",
+      "timeAsStored": "21:30",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-21T13:54:03Z",
+      "roomOpenedAtLocal": "2020-11-21T21:54:03+08:00",
+      "scheduledAt": "2020-11-21T21:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a4",
+      "source": "对阵表!A5:L5",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70211567",
+      "dateAsStored": "2020-11-21",
+      "timeAsStored": "19:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-21T10:46:49Z",
+      "roomOpenedAtLocal": "2020-11-21T18:46:49+08:00",
+      "scheduledAt": "2020-11-21T19:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a5",
+      "source": "对阵表!A6:L6",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70216682",
+      "dateAsStored": "2020-11-21",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-21T12:59:23Z",
+      "roomOpenedAtLocal": "2020-11-21T20:59:23+08:00",
+      "scheduledAt": "2020-11-21T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a6",
+      "source": "对阵表!A7:L7",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70279705",
+      "dateAsStored": "2020-11-22",
+      "timeAsStored": "21:30",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-22T13:23:42Z",
+      "roomOpenedAtLocal": "2020-11-22T21:23:42+08:00",
+      "scheduledAt": "2020-11-22T21:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a7",
+      "source": "对阵表!A8:L8",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70607908",
+      "dateAsStored": "2020-11-28",
+      "timeAsStored": "19:30",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-28T11:18:43Z",
+      "roomOpenedAtLocal": "2020-11-28T19:18:43+08:00",
+      "scheduledAt": "2020-11-28T19:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a8",
+      "source": "对阵表!A9:L9",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70607142",
+      "dateAsStored": "2020-11-28",
+      "timeAsStored": "19:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-28T10:53:33Z",
+      "roomOpenedAtLocal": "2020-11-28T18:53:33+08:00",
+      "scheduledAt": "2020-11-28T19:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a9",
+      "source": "对阵表!A10:L10",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70611688",
+      "dateAsStored": "2020-11-28",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-28T12:57:14Z",
+      "roomOpenedAtLocal": "2020-11-28T20:57:14+08:00",
+      "scheduledAt": "2020-11-28T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a10",
+      "source": "对阵表!A11:L11",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70610187",
+      "dateAsStored": "2020-11-28",
+      "timeAsStored": "20:30",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-28T12:22:19Z",
+      "roomOpenedAtLocal": "2020-11-28T20:22:19+08:00",
+      "scheduledAt": "2020-11-28T20:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a11",
+      "source": "对阵表!A12:L12",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70673286",
+      "dateAsStored": "2020-11-29",
+      "timeAsStored": "21:15",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-29T13:06:15Z",
+      "roomOpenedAtLocal": "2020-11-29T21:06:15+08:00",
+      "scheduledAt": "2020-11-29T21:15:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a12",
+      "source": "对阵表!A13:L13",
+      "mpUrl": "https://osu.ppy.sh/community/matches/70672935",
+      "dateAsStored": "2020-11-29",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-11-29T12:57:19Z",
+      "roomOpenedAtLocal": "2020-11-29T20:57:19+08:00",
+      "scheduledAt": "2020-11-29T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a13",
+      "source": "对阵表!A14:L14",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71008526",
+      "dateAsStored": "2020-12-05",
+      "timeAsStored": "19:30",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-05T11:23:20Z",
+      "roomOpenedAtLocal": "2020-12-05T19:23:20+08:00",
+      "scheduledAt": "2020-12-05T19:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a14",
+      "source": "对阵表!A15:L15",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71012162",
+      "dateAsStored": "2020-12-05",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-05T12:56:36Z",
+      "roomOpenedAtLocal": "2020-12-05T20:56:36+08:00",
+      "scheduledAt": "2020-12-05T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a15",
+      "source": "对阵表!A16:L16",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71012247",
+      "dateAsStored": "2020-12-05",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-05T12:58:35Z",
+      "roomOpenedAtLocal": "2020-12-05T20:58:35+08:00",
+      "scheduledAt": "2020-12-05T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a16",
+      "source": "对阵表!A17:L17",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71083712",
+      "dateAsStored": "2020-12-06",
+      "timeAsStored": "22:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-06T14:10:56Z",
+      "roomOpenedAtLocal": "2020-12-06T22:10:56+08:00",
+      "scheduledAt": "2020-12-06T22:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a17",
+      "source": "对阵表!A18:L18",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71079961",
+      "dateAsStored": "2020-12-06",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-06T12:49:53Z",
+      "roomOpenedAtLocal": "2020-12-06T20:49:53+08:00",
+      "scheduledAt": "2020-12-06T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a18",
+      "source": "对阵表!A19:L19",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71012199",
+      "dateAsStored": "2020-12-05",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-05T12:57:34Z",
+      "roomOpenedAtLocal": "2020-12-05T20:57:34+08:00",
+      "scheduledAt": "2020-12-05T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a19",
+      "source": "对阵表!A20:L20",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71484949",
+      "dateAsStored": "2020-12-13",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-13T12:53:58Z",
+      "roomOpenedAtLocal": "2020-12-13T20:53:58+08:00",
+      "scheduledAt": "2020-12-13T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a20",
+      "source": "对阵表!A21:L21",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71472736",
+      "dateAsStored": "2020-12-13",
+      "timeAsStored": "14:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-13T06:06:30Z",
+      "roomOpenedAtLocal": "2020-12-13T14:06:30+08:00",
+      "scheduledAt": "2020-12-13T14:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a21",
+      "source": "对阵表!A22:L22",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71422298",
+      "dateAsStored": "2020-12-12",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-12T12:44:42Z",
+      "roomOpenedAtLocal": "2020-12-12T20:44:42+08:00",
+      "scheduledAt": "2020-12-12T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a22",
+      "source": "对阵表!A23:L23",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71421418",
+      "dateAsStored": "2020-12-12",
+      "timeAsStored": "20:30",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-12T12:23:16Z",
+      "roomOpenedAtLocal": "2020-12-12T20:23:16+08:00",
+      "scheduledAt": "2020-12-12T20:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a23",
+      "source": "对阵表!A24:L24",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71419226",
+      "dateAsStored": "2020-12-12",
+      "timeAsStored": "19:30",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-12T11:28:32Z",
+      "roomOpenedAtLocal": "2020-12-12T19:28:32+08:00",
+      "scheduledAt": "2020-12-12T19:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a24",
+      "source": "对阵表!A25:L25",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71422840",
+      "dateAsStored": "2020-12-12",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-12T12:56:12Z",
+      "roomOpenedAtLocal": "2020-12-12T20:56:12+08:00",
+      "scheduledAt": "2020-12-12T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a25",
+      "source": "对阵表!A26:L26",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71900819",
+      "dateAsStored": "2020-12-20",
+      "timeAsStored": "14:30",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-20T06:18:35Z",
+      "roomOpenedAtLocal": "2020-12-20T14:18:35+08:00",
+      "scheduledAt": "2020-12-20T14:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "a26",
+      "source": "对阵表!A27:L27",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71851009",
+      "dateAsStored": "2020-12-19",
+      "timeAsStored": "22:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-19T13:53:24Z",
+      "roomOpenedAtLocal": "2020-12-19T21:53:24+08:00",
+      "scheduledAt": "2020-12-19T22:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "b27",
+      "source": "对阵表!A28:L28",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71910710",
+      "dateAsStored": "2020-12-20",
+      "timeAsStored": "20:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-20T12:10:45Z",
+      "roomOpenedAtLocal": "2020-12-20T20:10:45+08:00",
+      "scheduledAt": "2020-12-20T20:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "b28",
+      "source": "对阵表!A29:L29",
+      "mpUrl": "https://osu.ppy.sh/community/matches/71900068",
+      "dateAsStored": "2020-12-20",
+      "timeAsStored": "14:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-20T05:55:44Z",
+      "roomOpenedAtLocal": "2020-12-20T13:55:44+08:00",
+      "scheduledAt": "2020-12-20T14:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "wf",
+      "source": "对阵表!A30:L30",
+      "mpUrl": "https://osu.ppy.sh/community/matches/72198819",
+      "dateAsStored": "2020-12-25",
+      "timeAsStored": "22:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-25T13:55:43Z",
+      "roomOpenedAtLocal": "2020-12-25T21:55:43+08:00",
+      "scheduledAt": "2020-12-25T22:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "b30",
+      "source": "对阵表!A31:L31",
+      "mpUrl": "https://osu.ppy.sh/community/matches/72307852",
+      "dateAsStored": "2020-12-27",
+      "timeAsStored": "21:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-27T12:51:39Z",
+      "roomOpenedAtLocal": "2020-12-27T20:51:39+08:00",
+      "scheduledAt": "2020-12-27T21:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "b31",
+      "source": "对阵表!A32:L32",
+      "mpUrl": "https://osu.ppy.sh/community/matches/72304259",
+      "dateAsStored": "2020-12-27",
+      "timeAsStored": "19:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2020-12-27T10:58:22Z",
+      "roomOpenedAtLocal": "2020-12-27T18:58:22+08:00",
+      "scheduledAt": "2020-12-27T19:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "b32",
+      "source": "对阵表!A33:L33",
+      "mpUrl": "https://osu.ppy.sh/community/matches/72596333",
+      "dateAsStored": "2020-01-01",
+      "timeAsStored": "20:30",
+      "yearCorrected": true,
+      "roomOpenedAt": "2021-01-01T12:27:41Z",
+      "roomOpenedAtLocal": "2021-01-01T20:27:41+08:00",
+      "scheduledAt": "2021-01-01T20:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "lf",
+      "source": "对阵表!A34:L34",
+      "mpUrl": "https://osu.ppy.sh/community/matches/72703300",
+      "dateAsStored": "2021-01-03",
+      "timeAsStored": "20:30",
+      "yearCorrected": false,
+      "roomOpenedAt": "2021-01-03T12:21:38Z",
+      "roomOpenedAtLocal": "2021-01-03T20:21:38+08:00",
+      "scheduledAt": "2021-01-03T20:30:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    },
+    {
+      "id": "gf",
+      "source": "对阵表!A35:L35",
+      "mpUrl": "https://osu.ppy.sh/community/matches/73600572",
+      "dateAsStored": "2021-01-17",
+      "timeAsStored": "20:00",
+      "yearCorrected": false,
+      "roomOpenedAt": "2021-01-17T11:53:07Z",
+      "roomOpenedAtLocal": "2021-01-17T19:53:07+08:00",
+      "scheduledAt": "2021-01-17T20:00:00+08:00",
+      "timeZone": "Asia/Shanghai"
+    }
+  ],
+  "inputSha256": {
+    "s5-source-records.json": "ccf3f9fe23aac1406846b40ae8976d7cf5024ca1352697e3039cca95b84a2ce9",
+    "s5-reviewed-import.json": "f168e5222728f245dcf31080a60a090b4a4c81afda6ce7ec7a6c9594abaf8c0c",
+    "s5-coach-date-sources.json": "2f5288da64251ad27b0ad15f2b210dab7239cfaa9e29ee008ecd98aebd33d26e"
+  }
+}
