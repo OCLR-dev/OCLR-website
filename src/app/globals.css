@@ -2817,6 +2817,12 @@ html:not([data-theme="dark"])
   font-size: 0.72em;
   font-weight: 550;
 }
+.bws-card .bws-value-total {
+  color: var(--bws-hash-color, var(--site-muted, var(--color-muted)));
+  font-size: 0.72em;
+  font-weight: 550;
+  margin-inline-start: 0.06em;
+}
 /* Rank tiers: osu! describes a standing by the share of the leaderboard above
    it, so the number carries a gradient instead of the plain value colour. */
 .bws-card .bws-value--rank-tier {
@@ -2906,46 +2912,6 @@ html:not([data-theme="dark"])
 .bws-card-state {
   font-size: 0.8rem;
   max-width: 15rem;
-}
-/* Badge artwork and award metadata inside the badges note panel. */
-.bws-card-badge-list {
-  display: grid;
-  gap: 0.45rem;
-  margin: 0.6rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-.bws-card-badge-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
-}
-.bws-card-badge-image {
-  flex: none;
-  width: 4rem;
-  height: 1.5rem;
-  border-radius: 0.2rem;
-  object-fit: contain;
-  object-position: left center;
-}
-.bws-card-badge-image--empty {
-  border: 1px dashed var(--site-border, var(--color-border));
-  opacity: 0.45;
-}
-.bws-card-badge-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  min-width: 0;
-}
-.bws-card-badge-description {
-  font-size: 0.78rem;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-.bws-card-badge-meta {
-  color: var(--site-muted, var(--color-muted));
-  font-size: 0.72rem;
 }
 .bws-card-divider {
   width: 1px;
@@ -3104,6 +3070,121 @@ html[data-appearance]
 }
 .profile-body--single {
   grid-template-columns: minmax(0, 1fr);
+}
+/* The player's badge ribbons own the full row above the chart and statistics,
+   so the chart keeps the width it had in the two-column body. */
+.profile-badges {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  margin: -0.6rem -0.5rem;
+  /* Room for the focus ring, outline and glow inside the scroll viewport;
+     the matching negative margins keep the row's alignment. */
+  padding: 0.8rem 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  list-style: none;
+}
+.profile-badges li {
+  flex: none;
+}
+.profile-badge {
+  display: block;
+  border-radius: 0.35rem;
+  outline-offset: 2px;
+  text-decoration: none;
+}
+.profile-badge:focus-visible {
+  outline: 2px solid var(--site-accent, var(--color-accent));
+}
+/* Gameplay ribbons carry a #ffcc22 outline over the artwork and a soft halo
+   of the same colour behind the frame. */
+.profile-badge--gameplay {
+  position: relative;
+  isolation: isolate;
+}
+.profile-badge--gameplay::before {
+  content: "";
+  position: absolute;
+  inset: -0.55rem -0.45rem;
+  z-index: -1;
+  border-radius: 999px;
+  background: radial-gradient(
+    55% 65% at 50% 50%,
+    rgb(255 204 34 / 72%),
+    rgb(255 204 34 / 32%) 52%,
+    transparent 78%
+  );
+  filter: blur(6px);
+  pointer-events: none;
+}
+.profile-badge--gameplay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid #ffcc22;
+  border-radius: inherit;
+  pointer-events: none;
+}
+/* Portal panel: same material as the BWS card note panel, with fixed
+   coordinates from the hovered ribbon's rect so the badge row's horizontal
+   scroll container never clips it. */
+.profile-badge-tip {
+  position: fixed;
+  z-index: 60;
+  display: grid;
+  gap: 0.25rem;
+  max-width: 16rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--site-border, var(--color-border));
+  border-radius: 0.75rem;
+  background: var(--site-surface, var(--color-surface));
+  box-shadow: 0 0.6rem 1.6rem rgb(0 0 0 / 45%);
+  color: var(--site-foreground, var(--color-foreground));
+  font-size: 0.8rem;
+  line-height: 1.4;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  animation: profile-badge-tip-in 0.15s ease;
+}
+.profile-badge-tip--below {
+  transform: translate(-50%, 0);
+}
+@keyframes profile-badge-tip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.profile-badge-tip strong {
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.profile-badge-tip time {
+  color: var(--site-muted, var(--color-muted));
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+.profile-badge-tip-note {
+  color: var(--site-muted, var(--color-muted));
+  font-size: 0.72rem;
+}
+/* Each ribbon keeps the provider's 85×40 frame and never scales with the view. */
+.profile-badge-image {
+  display: block;
+  width: 85px;
+  height: 40px;
+  border-radius: 0.35rem;
+  object-fit: cover;
+  object-position: left center;
+}
+.profile-badge-image--empty {
+  border: 1px dashed var(--site-border, var(--color-border));
+  opacity: 0.45;
 }
 .rank-chart-card {
   /* One 0.75rem inset on all four sides; the chart's own 12px internal

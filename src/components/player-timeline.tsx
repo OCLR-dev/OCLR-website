@@ -106,17 +106,18 @@ export function PlayerTimeline({ timeline }: { timeline: PlayerTimeline }) {
       : (span.editionName ?? `S${span.season}`);
 
   const spanDetail = (span: TimelineSpan) =>
-    `${seasonTitle(span)} · ${
-      span.point ? day(span.start) : `${day(span.start)} – ${day(span.end)}`
-    } · ${span.participated ? tr("Participated") : tr("Did not participate")}${
-      span.provisional ? ` · ${tr("Inferred from recorded matches")}` : ""
-    }`;
+    [
+      seasonTitle(span),
+      span.point ? day(span.start) : `${day(span.start)} – ${day(span.end)}`,
+      span.participated ? tr("Participated") : tr("Did not participate"),
+      ...(span.provisional ? [tr("Inferred from recorded matches")] : []),
+    ].join("\n");
 
   const details = new Map<string, string>();
   for (const mark of timeline.marks)
     details.set(
       `mark-${mark.kind}`,
-      `${markLabel(mark.kind, tr)} · ${day(mark.at)}`,
+      `${markLabel(mark.kind, tr)}\n${day(mark.at)}`,
     );
   for (const span of timeline.spans) details.set(span.key, spanDetail(span));
   const activeText = active ? details.get(active) : undefined;

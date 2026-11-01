@@ -195,6 +195,7 @@
 
 .tipText {
   position: relative;
+  white-space: pre-line;
 }
 
 /* On narrow screens the whole axis switches to the log scale computed inline. */

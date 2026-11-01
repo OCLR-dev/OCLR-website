@@ -4,6 +4,7 @@ import { RankChart } from "./rank-chart";
 import { rankTierPalette } from "@/lib/rank-tier";
 import { PlayerIdBadge } from "./player-id-badge";
 import { ProfileLevel } from "./profile-level";
+import { ProfileBadges } from "./profile-badges";
 import type { BwsSummary as BwsData } from "@/lib/bws-model";
 import Image from "next/image";
 import type { ReactNode } from "react";
@@ -47,6 +48,7 @@ export function PlayerProfile({
   };
 
   const p = snapshot.profile;
+  const badges = p.badges?.length ? p.badges : null;
   const s = p.statistics;
   const history = p.rankHistory?.data ?? null;
   // The improvement index describes the ruleset the rank history belongs to.
@@ -113,6 +115,7 @@ export function PlayerProfile({
             : "profile-body profile-body--single"
         }
       >
+        {badges && <ProfileBadges badges={badges} />}
         {history && history.length > 1 && (
           <div className="rank-chart-card">
             <RankChart data={history} globalRank={s.globalRank} />

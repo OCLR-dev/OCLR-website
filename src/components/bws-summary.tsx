@@ -1,21 +1,34 @@
-import Image from "next/image";
 import { ProfileInfo } from "./profile-info";
 import { useAppTranslations } from "@/i18n/shared";
-import type { BwsSummary as Summary } from "@/lib/bws-model";
+import {
+  calculateBadgeWeightedPp,
+  calculateBws,
+  type BwsSummary as Summary,
+} from "@/lib/bws-model";
 import type { ProfileBadge } from "@/lib/osu-profile-model";
-import { formatDate } from "@/lib/editions";
+import { isGameplayBadge } from "@/lib/badge-activity";
 import { globalRankTier, type GlobalRankTier } from "@/lib/rank-tier";
 
-function BwsNote({ value }: { value: Summary }) {
+const BWS_PP_FORMULA = "pp^(1.0063^(badges^2)/1)";
+
+function BwsNote({
+  value,
+  includePpFormula = true,
+}: {
+  value: Summary;
+  includePpFormula?: boolean;
+}) {
   const tr = useAppTranslations();
   return (
     <>
       <p className="small muted">
         <code>{"globalRank ^ (0.9937 ^ (badges ^ 2))"}</code>
       </p>
-      <p className="small muted">
-        <code>{"pp^(1.0063^(badges^2)/1)"}</code>
-      </p>
+      {includePpFormula && (
+        <p className="small muted">
+          <code>{BWS_PP_FORMULA}</code>
+        </p>
+      )}
       <p className="small muted">
         {value.badgeCount === null
           ? tr("Badge eligibility pending staff review")
@@ -34,19 +47,16 @@ function BwsNote({ value }: { value: Summary }) {
           {tr("BWS formula")}
         </a>
       </p>
-      <p className="small muted">
-        {value.reviewedAt
-          ? tr("Staff-reviewed badge classification")
-          : value.badgeCount === 0
-            ? tr("Provider returned no profile badges")
-            : tr("Tournament badge types are not supplied by osu!")}
-        {value.reviewedAt && (
-          <>
-            {" "}
-            · <time dateTime={value.reviewedAt}>{value.reviewedAt}</time>
-          </>
-        )}
-      </p>
+      {value.reviewedAt ? (
+        <p className="small muted">
+          {tr("Staff-reviewed badge classification")} ·{" "}
+          <time dateTime={value.reviewedAt}>{value.reviewedAt}</time>
+        </p>
+      ) : value.badgeCount === 0 ? (
+        <p className="small muted">
+          {tr("Provider returned no profile badges")}
+        </p>
+      ) : null}
       <p className="small muted">
         {tr("Profile updated")}{" "}
         <time dateTime={value.fetchedAt}>{value.fetchedAt}</time>
@@ -68,62 +78,14 @@ function BadgeNote({ badges }: { badges: ProfileBadge[] | null }) {
     return (
       <p className="small muted">{tr("Provider returned no profile badges")}</p>
     );
+  // The ribbons themselves live in the profile body, so the note only explains
+  // what the published count means for BWS.
   return (
-    <>
-      <p className="small muted">
-        {tr(
-          "Total badges published on the osu! profile. BWS counts only staff-reviewed tournament badges.",
-        )}
-      </p>
-      <ul className="bws-card-badge-list">
-        {badges.map((badge, index) => {
-          // The 2x ribbon is the same artwork with more detail on dense screens.
-          const artwork = badge.image2xUrl ?? badge.imageUrl;
-          return (
-            <li key={`${badge.awardedAt}-${index}`}>
-              {artwork ? (
-                <Image
-                  className="bws-card-badge-image"
-                  src={artwork}
-                  alt=""
-                  width={64}
-                  height={24}
-                  unoptimized
-                />
-              ) : (
-                <span
-                  className="bws-card-badge-image bws-card-badge-image--empty"
-                  aria-hidden="true"
-                />
-              )}
-              <div className="bws-card-badge-copy">
-                <span className="bws-card-badge-description">
-                  {badge.description}
-                </span>
-                <span className="bws-card-badge-meta">
-                  <time dateTime={badge.awardedAt}>
-                    {formatDate(badge.awardedAt, "UTC", tr.locale)}
-                  </time>
-                  {badge.url && (
-                    <>
-                      {" · "}
-                      <a
-                        className="text-link"
-                        href={badge.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {tr("Badge source")}
-                      </a>
-                    </>
-                  )}
-                </span>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </>
+    <p className="small muted">
+      {tr(
+        "Total badges published on the osu! profile. BWS counts only staff-reviewed tournament badges.",
+      )}
+    </p>
   );
 }
 
@@ -212,6 +174,11 @@ function CompactBwsSummary({
         ? " bws-value--oii-down"
         : "";
   const tier = globalRankTier(globalRankPercent);
+  // The leading number counts gameplay results; the total follows after a slash.
+  const gameplayBadgeCount =
+    badges === null
+      ? null
+      : badges.filter((badge) => isGameplayBadge(badge.description)).length;
   const tr = useAppTranslations();
   const number = (v: number, digits: number) =>
     new Intl.NumberFormat(tr.locale, {
@@ -219,8 +186,20 @@ function CompactBwsSummary({
       notation: v >= 1e12 ? "scientific" : "standard",
     }).format(v);
   // Until staff review badges the weighting is unknown, so the card shows the
-  // plain rank and pp instead of a badge-review placeholder.
-  const pending = value.status === "pending";
+  // plain rank and pp instead of a badge-review placeholder. If the profile
+  // still carries tournament ribbons, use that automatic count for the
+  // weighted values rather than ignoring them.
+  const usesAutomaticBadges =
+    value.badgeCount === null &&
+    gameplayBadgeCount !== null &&
+    gameplayBadgeCount > 0;
+  const weightedPp = usesAutomaticBadges
+    ? calculateBadgeWeightedPp(value.rawPp, gameplayBadgeCount)
+    : value.adjustedPp;
+  const weightedRank = usesAutomaticBadges
+    ? calculateBws(value.globalRank, gameplayBadgeCount)
+    : value.value;
+  const pending = value.status === "pending" && !usesAutomaticBadges;
   return (
     <section
       className="bws-card"
@@ -230,21 +209,24 @@ function CompactBwsSummary({
       <div className="bws-card-metric">
         <div className="bws-card-label-row">
           <span className="bws-card-label">{pending ? "pp" : tr("BW-PP")}</span>
-          {value.rawPp !== null && (
-            <div className="bws-card-note">
-              <InfoTrigger onOpenLabel={tr("Explanation")} />
-              <div className="bws-card-note-panel" role="note">
+          <div className="bws-card-note">
+            <InfoTrigger onOpenLabel={tr("Explanation")} />
+            <div className="bws-card-note-panel" role="note">
+              {value.rawPp !== null && (
                 <p className="small muted">
                   {tr("Original pp")}: {number(value.rawPp, 2)}
                 </p>
-              </div>
+              )}
+              <p className="small muted">
+                <code>{BWS_PP_FORMULA}</code>
+              </p>
             </div>
-          )}
+          </div>
         </div>
         <div className="bws-card-value-row">
-          {value.adjustedPp !== null ? (
+          {weightedPp !== null ? (
             <strong className="bws-value">
-              {number(Math.floor(value.adjustedPp), 0)}
+              {number(Math.floor(weightedPp), 0)}
             </strong>
           ) : pending && value.rawPp !== null ? (
             <strong className="bws-value">
@@ -252,7 +234,7 @@ function CompactBwsSummary({
             </strong>
           ) : (
             <span className="bws-card-state">
-              {value.ppStatus === "pending"
+              {value.ppStatus === "pending" && !usesAutomaticBadges
                 ? tr("Badge eligibility pending staff review")
                 : tr("Weighted pp unavailable (missing data or numeric limit)")}
             </span>
@@ -268,13 +250,13 @@ function CompactBwsSummary({
           <div className="bws-card-note">
             <InfoTrigger onOpenLabel={tr("Explanation")} />
             <div className="bws-card-note-panel" role="note">
-              <BwsNote value={value} />
+              <BwsNote value={value} includePpFormula={false} />
             </div>
           </div>
         </div>
         <div className="bws-card-value-row">
-          {value.value !== null ? (
-            <RankValue value={number(value.value, 0)} tier={tier} />
+          {weightedRank !== null ? (
+            <RankValue value={number(weightedRank, 0)} tier={tier} />
           ) : pending && value.globalRank !== null ? (
             <RankValue value={number(value.globalRank, 0)} tier={tier} />
           ) : (
@@ -302,7 +284,9 @@ function CompactBwsSummary({
       <span className="bws-card-divider" aria-hidden="true" />
       <div className="bws-card-metric">
         <div className="bws-card-label-row">
-          <span className="bws-card-label">{tr("Badges")}</span>
+          <span className="bws-card-label">
+            {gameplayBadgeCount ? tr("Weighted badge") : tr("Badges")}
+          </span>
           <div className="bws-card-note">
             <InfoTrigger onOpenLabel={tr("Explanation")} />
             <div className="bws-card-note-panel" role="note">
@@ -311,8 +295,13 @@ function CompactBwsSummary({
           </div>
         </div>
         <div className="bws-card-value-row">
-          {badges !== null ? (
-            <strong className="bws-value">{number(badges.length, 0)}</strong>
+          {badges !== null && gameplayBadgeCount !== null ? (
+            <strong className="bws-value">
+              {number(gameplayBadgeCount, 0)}
+              <span className="bws-value-total">
+                /{number(badges.length, 0)}
+              </span>
+            </strong>
           ) : (
             <span className="bws-card-state" role="status">
               —
