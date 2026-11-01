@@ -6051,6 +6051,19 @@
         "actorId": { "type": "number" },
         "canManage": { "type": "boolean" },
         "canSelect": { "type": "boolean" },
+        "canSelectCommentary": { "type": "boolean" },
+        "commentaryCandidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "osuId": { "type": "number" },
+              "username": { "type": "string" }
+            },
+            "required": ["osuId", "username"],
+            "additionalProperties": false
+          }
+        },
         "operational": { "type": "boolean" },
         "candidates": {
           "type": "array",
@@ -6174,6 +6187,51 @@
                     "additionalProperties": false
                   }
                 ]
+              },
+              "commentators": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "conflicts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "label": { "type": "string" }
+                        },
+                        "required": ["id", "label"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "userId": { "type": "number" },
+                    "username": { "type": "string" },
+                    "source": {
+                      "anyOf": [
+                        { "type": "string", "const": "staff" },
+                        { "type": "string", "const": "self" }
+                      ]
+                    },
+                    "assignedBy": { "type": "number" },
+                    "assignedByName": { "type": "string" },
+                    "assignedAt": { "type": "string" },
+                    "eligible": { "type": "boolean" },
+                    "needsConfirmation": { "type": "boolean" }
+                  },
+                  "required": [
+                    "conflicts",
+                    "userId",
+                    "username",
+                    "source",
+                    "assignedBy",
+                    "assignedByName",
+                    "assignedAt",
+                    "eligible",
+                    "needsConfirmation"
+                  ],
+                  "additionalProperties": false
+                }
               }
             },
             "required": [
@@ -6191,7 +6249,8 @@
               "away",
               "conflicts",
               "sameStartBookings",
-              "assignment"
+              "assignment",
+              "commentators"
             ],
             "additionalProperties": false
           }
@@ -6222,6 +6281,8 @@
         "actorId",
         "canManage",
         "canSelect",
+        "canSelectCommentary",
+        "commentaryCandidates",
         "operational",
         "candidates",
         "filters",

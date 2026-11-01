@@ -1017,6 +1017,35 @@ export const fixtureStreams = pgTable(
   ],
 );
 
+// Multiple commentators may book one fixture independently of its Streamer.
+export const fixtureCommentators = pgTable(
+  "fixture_commentators",
+  {
+    fixtureId: uuid("fixture_id")
+      .notNull()
+      .references(() => fixtures.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId),
+    source: text("source").$type<"self" | "staff">().notNull(),
+    assignedBy: bigint("assigned_by", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId),
+    assignedAt: timestamp("assigned_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    confirmedScheduledAt: timestamp("confirmed_scheduled_at", {
+      withTimezone: true,
+    }),
+    confirmedTimeZone: text("confirmed_time_zone").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.fixtureId, t.userId] }),
+    index("fixture_commentators_user_idx").on(t.userId),
+    check("fixture_commentators_source", sql`${t.source} IN ('self', 'staff')`),
+  ],
+);
+
 export const matchImports = pgTable(
   "match_imports",
   {

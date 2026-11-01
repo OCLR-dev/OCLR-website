@@ -5,6 +5,7 @@ import {
   editionEvents,
   editionState,
   fixtureStreams,
+  fixtureCommentators,
   fixtures,
   matchResults,
   resultRevisions,
@@ -46,14 +47,18 @@ async function assertView(actor: User, slug: string, reader?: Reader) {
   if (!canViewStreaming(await staffAccess(actor, reader), slug))
     throw new HttpError(403, "Streaming access is required for this edition.");
 }
-export async function eligibleStreamers(reader: Reader, slug: string) {
+export async function eligibleBroadcastStaff(
+  reader: Reader,
+  slug: string,
+  role: "streamer" | "commentator",
+) {
   return reader
     .select({ osuId: users.osuId, username: users.username })
     .from(users)
     .innerJoin(staffRoles, eq(staffRoles.userId, users.osuId))
     .where(
       and(
-        eq(staffRoles.role, "streamer"),
+        eq(staffRoles.role, role),
         isNull(staffRoles.revokedAt),
         or(isNull(staffRoles.editionSlug), eq(staffRoles.editionSlug, slug)),
       ),
@@ -83,7 +88,18 @@ async function databaseStreamingWorkspace(
       if (!state?.configuration)
         throw new HttpError(404, "Tournament not found.");
       const grants = await staffAccess(actor, tx);
-      const candidates = await eligibleStreamers(tx, slug);
+      const candidates = await eligibleBroadcastStaff(tx, slug, "streamer");
+      const commentaryCandidates = await eligibleBroadcastStaff(
+        tx,
+        slug,
+        "commentator",
+      );
+      const commentaryRows = await tx
+        .select({ task: fixtureCommentators })
+        .from(fixtureCommentators)
+        .innerJoin(fixtures, eq(fixtures.id, fixtureCommentators.fixtureId))
+        .where(eq(fixtures.editionSlug, slug));
+      const commentary = commentaryRows.map((row) => row.task);
       const rows = await tx
         .select({
           id: fixtures.id,
@@ -122,9 +138,12 @@ async function databaseStreamingWorkspace(
             isNotNull(resultRevisions.approvedAt),
           ),
         );
-      const identityIds = rows.flatMap((r) =>
-        r.assignment ? [r.assignment.userId, r.assignment.assignedBy] : [],
-      );
+      const identityIds = [
+        ...rows.flatMap((r) =>
+          r.assignment ? [r.assignment.userId, r.assignment.assignedBy] : [],
+        ),
+        ...commentary.flatMap((task) => [task.userId, task.assignedBy]),
+      ];
       const names = identityIds.length
         ? await tx
             .select({ osuId: users.osuId, username: users.username })
@@ -149,19 +168,44 @@ async function databaseStreamingWorkspace(
         };
         const task = f.assignment;
         const done = completed.some((r) => r.id === f.id);
-        const conflicts =
-          task && f.scheduledAt && f.status !== "cancelled" && !done
-            ? rows
-                .filter(
-                  (other) =>
-                    other.id !== f.id &&
-                    other.status !== "cancelled" &&
-                    !completed.some((r) => r.id === other.id) &&
-                    other.assignment?.userId === task.userId &&
-                    other.scheduledAt?.getTime() === f.scheduledAt?.getTime(),
-                )
-                .map((r) => ({ id: r.id, label: r.label }))
+        const otherBookings = f.scheduledAt
+          ? rows.filter(
+              (other) =>
+                other.id !== f.id &&
+                other.status !== "cancelled" &&
+                !completed.some((r) => r.id === other.id) &&
+                other.scheduledAt?.getTime() === f.scheduledAt?.getTime(),
+            )
+          : [];
+        const bookedUsers = (id: string) => [
+          ...rows
+            .filter((row) => row.id === id && row.assignment)
+            .map((row) => row.assignment!.userId),
+          ...commentary
+            .filter((row) => row.fixtureId === id)
+            .map((row) => row.userId),
+        ];
+        const conflictsFor = (userId: number) =>
+          f.status !== "cancelled" && !done
+            ? otherBookings
+                .filter((other) => bookedUsers(other.id).includes(userId))
+                .map((other) => ({ id: other.id, label: other.label }))
             : [];
+        const assignment = (
+          task: typeof fixtureStreams.$inferSelect,
+          eligible: { osuId: number }[],
+        ) => ({
+          userId: task.userId,
+          username: name(task.userId),
+          source: task.source,
+          assignedBy: task.assignedBy,
+          assignedByName: name(task.assignedBy),
+          assignedAt: task.assignedAt.toISOString(),
+          eligible: eligible.some((u) => u.osuId === task.userId),
+          needsConfirmation:
+            task.confirmedScheduledAt?.getTime() !== f.scheduledAt?.getTime() ||
+            task.confirmedTimeZone !== f.timeZone,
+        });
         return {
           id: f.id,
           label: f.label,
@@ -175,37 +219,20 @@ async function databaseStreamingWorkspace(
           streamRevision: f.streamRevision,
           home: slot("home"),
           away: slot("away"),
-          conflicts,
-          sameStartBookings: f.scheduledAt
-            ? rows
-                .filter(
-                  (other) =>
-                    other.id !== f.id &&
-                    other.assignment &&
-                    other.status !== "cancelled" &&
-                    !completed.some((r) => r.id === other.id) &&
-                    other.scheduledAt?.getTime() === f.scheduledAt?.getTime(),
-                )
-                .map((other) => ({
-                  userId: other.assignment!.userId,
-                  label: other.label,
-                }))
-            : [],
-          assignment: task
-            ? {
-                userId: task.userId,
-                username: name(task.userId),
-                source: task.source,
-                assignedBy: task.assignedBy,
-                assignedByName: name(task.assignedBy),
-                assignedAt: task.assignedAt.toISOString(),
-                eligible: candidates.some((u) => u.osuId === task.userId),
-                needsConfirmation:
-                  task.confirmedScheduledAt?.getTime() !==
-                    f.scheduledAt?.getTime() ||
-                  task.confirmedTimeZone !== f.timeZone,
-              }
-            : null,
+          conflicts: task ? conflictsFor(task.userId) : [],
+          sameStartBookings: otherBookings.flatMap((other) =>
+            [...new Set(bookedUsers(other.id))].map((userId) => ({
+              userId,
+              label: other.label,
+            })),
+          ),
+          assignment: task ? assignment(task, candidates) : null,
+          commentators: commentary
+            .filter((task) => task.fixtureId === f.id)
+            .map((task) => ({
+              ...assignment(task, commentaryCandidates),
+              conflicts: conflictsFor(task.userId),
+            })),
         };
       });
       const selected = workspace.filter(
@@ -220,9 +247,20 @@ async function databaseStreamingWorkspace(
                 month: "2-digit",
                 day: "2-digit",
               }).format(new Date(f.scheduledAt)) === filters.date)) &&
-          (filters.view !== "mine" || f.assignment?.userId === actor.osuId) &&
+          (filters.view !== "mine" ||
+            f.assignment?.userId === actor.osuId ||
+            f.commentators.some((task) => task.userId === actor.osuId)) &&
           (filters.view !== "unassigned" ||
-            (!f.assignment && f.status === "scheduled" && !f.completed)),
+            (((!f.assignment &&
+              candidates.some((user) => user.osuId === actor.osuId)) ||
+              (!f.commentators.length &&
+                commentaryCandidates.some(
+                  (user) => user.osuId === actor.osuId,
+                )) ||
+              (permits(grants, "manage_streaming", slug) &&
+                (!f.assignment || !f.commentators.length))) &&
+              f.status === "scheduled" &&
+              !f.completed)),
       );
       if (fixtureId && !selected.length)
         throw new HttpError(404, "Fixture not found.");
@@ -251,6 +289,12 @@ async function databaseStreamingWorkspace(
         canSelect:
           permits(grants, "select_streaming", slug) &&
           candidates.some((u) => u.osuId === actor.osuId),
+        canSelectCommentary:
+          permits(grants, "select_streaming", slug) &&
+          commentaryCandidates.some((u) => u.osuId === actor.osuId),
+        commentaryCandidates: permits(grants, "manage_streaming", slug)
+          ? commentaryCandidates
+          : [],
         operational:
           !state.configuration.archive &&
           state.configuration.status !== "completed",
@@ -289,6 +333,7 @@ export async function streamingWorkspace(
 const commandSchema = z
   .object({
     action: z.enum(["select", "assign", "cancel", "reconfirm"]),
+    task: z.literal("commentary").optional(),
     userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).optional(),
     requestKey: z.uuid(),
     expectedRevision: z.number().int().nonnegative(),
@@ -312,10 +357,17 @@ export async function streamingCommand(
   if (!parsed.success || !z.uuid().safeParse(fixtureId).success)
     throw new HttpError(400, "Confirm a valid streaming task change.");
   const c = parsed.data;
-  if ((c.action === "assign") !== (c.userId !== undefined))
+  const commentaryTask = c.task === "commentary";
+  const table = commentaryTask ? fixtureCommentators : fixtureStreams;
+  if (
+    (c.action === "assign" && c.userId === undefined) ||
+    (c.userId !== undefined &&
+      c.action !== "assign" &&
+      !(commentaryTask && (c.action === "cancel" || c.action === "reconfirm")))
+  )
     throw new HttpError(
       400,
-      "Only staff assignment accepts a target Streamer.",
+      "Only assignment or an individual commentary change accepts a target user.",
     );
   await assertCapability(
     actor,
@@ -373,13 +425,28 @@ export async function streamingCommand(
     if (!fixture) throw new HttpError(404, "Fixture not found.");
     const [before] = await tx
       .select()
-      .from(fixtureStreams)
-      .where(eq(fixtureStreams.fixtureId, fixtureId));
+      .from(table)
+      .where(
+        and(
+          eq(table.fixtureId, fixtureId),
+          commentaryTask
+            ? eq(table.userId, c.userId ?? actor.osuId)
+            : undefined,
+        ),
+      );
     const grants = await staffAccess(actor, tx);
     const manager = permits(grants, "manage_streaming", slug);
     if ((c.action === "cancel" || c.action === "reconfirm") && !manager) {
       await assertCapability(actor, "select_streaming", slug, tx);
-      if (before?.userId !== actor.osuId)
+      const eligible = await eligibleBroadcastStaff(
+        tx,
+        slug,
+        commentaryTask ? "commentator" : "streamer",
+      );
+      if (
+        before?.userId !== actor.osuId ||
+        !eligible.some((user) => user.osuId === actor.osuId)
+      )
         throw new HttpError(
           403,
           "You may change only your own streaming task.",
@@ -426,27 +493,45 @@ export async function streamingCommand(
             : actor.osuId;
       if (
         !target ||
-        !(await eligibleStreamers(tx, slug)).some((u) => u.osuId === target)
+        !(
+          await eligibleBroadcastStaff(
+            tx,
+            slug,
+            commentaryTask ? "commentator" : "streamer",
+          )
+        ).some((u) => u.osuId === target)
       )
         throw new HttpError(
           400,
-          "Choose an active Streamer authorized for this edition.",
+          commentaryTask
+            ? "Choose an active Commentator authorized for this edition."
+            : "Choose an active Streamer authorized for this edition.",
         );
-      if (c.action === "select" && before)
+      if (
+        before &&
+        (c.action === "select" || (commentaryTask && c.action === "assign"))
+      )
         throw new HttpError(
           409,
-          "This fixture already has a Streamer. Self-selection cannot replace a booking.",
+          commentaryTask
+            ? "This Commentator already has a task for this fixture."
+            : "This fixture already has a Streamer. Self-selection cannot replace a booking.",
         );
       if (c.action === "reconfirm" && !before)
         throw new HttpError(409, "There is no streaming task to reconfirm.");
       if (c.action === "reconfirm") {
         await tx
-          .update(fixtureStreams)
+          .update(table)
           .set({
             confirmedScheduledAt: fixture.scheduledAt,
             confirmedTimeZone: fixture.timeZone,
           })
-          .where(eq(fixtureStreams.fixtureId, fixtureId));
+          .where(
+            and(
+              eq(table.fixtureId, fixtureId),
+              eq(table.userId, before!.userId),
+            ),
+          );
       } else {
         const values = {
           fixtureId,
@@ -458,17 +543,21 @@ export async function streamingCommand(
           confirmedScheduledAt: fixture.scheduledAt,
           confirmedTimeZone: fixture.timeZone,
         };
-        await tx.insert(fixtureStreams).values(values).onConflictDoUpdate({
-          target: fixtureStreams.fixtureId,
-          set: values,
-        });
+        if (commentaryTask) await tx.insert(fixtureCommentators).values(values);
+        else
+          await tx.insert(fixtureStreams).values(values).onConflictDoUpdate({
+            target: fixtureStreams.fixtureId,
+            set: values,
+          });
       }
     } else {
       if (!before)
         throw new HttpError(409, "There is no streaming task to cancel.");
       await tx
-        .delete(fixtureStreams)
-        .where(eq(fixtureStreams.fixtureId, fixtureId));
+        .delete(table)
+        .where(
+          and(eq(table.fixtureId, fixtureId), eq(table.userId, before.userId)),
+        );
     }
     await tx
       .update(fixtures)
@@ -476,8 +565,15 @@ export async function streamingCommand(
       .where(eq(fixtures.id, fixtureId));
     const [after] = await tx
       .select()
-      .from(fixtureStreams)
-      .where(eq(fixtureStreams.fixtureId, fixtureId));
+      .from(table)
+      .where(
+        and(
+          eq(table.fixtureId, fixtureId),
+          commentaryTask
+            ? eq(table.userId, c.userId ?? actor.osuId)
+            : undefined,
+        ),
+      );
     await tx.insert(editionEvents).values({
       id: c.requestKey,
       editionSlug: slug,

@@ -64,7 +64,7 @@ describe.skipIf(!url)("atomic staff role sets", () => {
       [null, "test-cup"].map((scope) => ({ role, scope })),
     ),
   )(
-    "manages $role in scope $scope without granting capabilities",
+    "manages $role in scope $scope with only its defined capabilities",
     async ({ role, scope }) => {
       const actor = scope ? scoped : admin;
       const { grants } = await changeStaffRoleSet(
@@ -84,8 +84,11 @@ describe.skipIf(!url)("atomic staff role sets", () => {
       const access = await staffAccess(member);
       expect(extendedSchemas.staffAccess.safeParse(access).success).toBe(true);
       for (const capability of capabilities) {
-        expect(permits(access, capability, "test-cup")).toBe(false);
-        expect(canRead(access, capability, "test-cup")).toBe(false);
+        const allowed =
+          role === "commentator" &&
+          ["view_streaming", "select_streaming"].includes(capability);
+        expect(permits(access, capability, "test-cup")).toBe(allowed);
+        expect(canRead(access, capability, "test-cup")).toBe(allowed);
       }
       await expect(
         changeStaffRoleSet(member, command(["admin"], [grant.id], scope)),
