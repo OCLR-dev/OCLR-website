@@ -47,17 +47,17 @@ describe("homepage registration banner", () => {
     vi.mocked(frontendTournaments).mockResolvedValue([summary("open")]);
   });
   afterEach(() => vi.unstubAllGlobals());
-  it("offers responsive WebP sources without preloading full-size fallbacks", async () => {
+  it("offers Liru as responsive WebP sources without preloading the full size", async () => {
     const html = await render();
-    const pictures = html.match(/<picture>.*?<\/picture>/g) ?? [];
-    expect(pictures).toHaveLength(3);
-    for (const picture of pictures) {
-      expect(picture).toContain('type="image/webp"');
-      expect(picture).not.toContain(".png");
-      expect(picture).toMatch(/srcSet="[^"]+ \d+w, [^"]+ \d+w/);
-      expect(picture).toMatch(/sizes="(?:103|95|54)vw"/);
-    }
-    expect(html).not.toMatch(/<link[^>]+as="image"[^>]+home-s11/);
+    const pictures = html.match(/<picture[^>]*>.*?<\/picture>/g) ?? [];
+    expect(pictures).toHaveLength(1);
+    const [liru] = pictures;
+    expect(liru).toContain('class="home-hero-character"');
+    expect(liru).toContain('type="image/webp"');
+    expect(liru).not.toContain(".png");
+    expect(liru).toMatch(/srcSet="[^"]+ 480w, [^"]+ 800w, [^"]+ 1111w"/);
+    expect(liru).toContain('sizes="(max-width: 760px) 86vw, 390px"');
+    expect(html).not.toMatch(/<link[^>]+as="image"[^>]+home-hero/);
   });
   it("uses the featured edition's configured closing time and registration URL when open", async () => {
     vi.mocked(frontendTournaments).mockResolvedValue([summary("open")]);

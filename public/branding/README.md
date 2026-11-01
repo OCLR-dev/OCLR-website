@@ -48,3 +48,22 @@ background raster layers were re-encoded to WebP at their original dimensions
 (alpha preserved where present); the retired `.png` URLs for those layers no
 longer resolve. SVG wordmarks, fonts and the PNG Apple Touch Icon are unchanged.
 The older swirl wordmark and the source studies remain historical alternatives.
+
+
+## Layered homepage hero — 2026-10-31 (#233)
+
+`home-hero/` holds the artwork for the layered homepage hero in
+`src/app/page.tsx` and `src/app/home.css`. The logo still uses the unchanged
+`home-s11/oclr-layer.svg`, `season-layer.svg` and `katu-cropped.svg`; the glow,
+the S11 colour and the sparkle are CSS over those files.
+
+| File | Use | Source |
+| --- | --- | --- |
+| `nebula-v2-1600.webp`, `nebula-v2-2560.webp` | Hero background (CSS) | Generated with Grok by JerrYamada (1168×784), enlarged with Lanczos. |
+| `liru-cn-v3-480.webp`, `liru-cn-v3-800.webp`, `liru-cn-v3-1111.webp` | Liru, `<picture>` with `srcset` | Liru in her Chinese-style outfit, generated with Grok by JerrYamada and cut out by hand (1333×2000 PNG). The white left between the loose strands right of the tassel was removed with difference matting against the same image on black and on a checkerboard; cropped to 1111×1986. |
+| `ink-mist.webp` | Ink mist at 12 % opacity | Generated locally with DreamShaper XL Lightning (CreativeML Open RAIL++-M) and keyed to transparency. |
+
+Liru is **CC BY 4.0, "Liru by JerrYamada"**, AI-assisted (Grok) and retouched,
+like the existing material in `public/mascot/liru/`. The previous hero layers in
+`home-s11/` (`nebula-only`, `foreground`, `liru-refined-v2`, `liru`) are no
+longer used by the homepage and stay as the earlier S11 asset family.
