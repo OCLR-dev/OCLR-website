@@ -1,4 +1,5 @@
 import { Avatar } from "@/components/avatar";
+import { CountryFlag } from "@/components/country-flag";
 import { ConfirmMutation } from "@/components/confirm-mutation";
 import { PlayerHistory } from "@/components/player-history";
 import { Action, EmptyState, PageHeading } from "@/components/ui";
@@ -47,11 +48,6 @@ async function Issue271Page({
   ]);
   const profile = snapshot?.profile;
   const country = profile?.countryCode;
-  const flag = country
-    ? String.fromCodePoint(
-        ...[...country].map((letter) => letter.charCodeAt(0) + 127397),
-      )
-    : null;
   const stats = profile?.statistics;
   const number = new Intl.NumberFormat(tr.locale, { maximumFractionDigits: 2 });
   const params = await searchParams;
@@ -115,14 +111,7 @@ async function Issue271Page({
             </p>
             {country && (
               <p className="small">
-                <span
-                  role="img"
-                  aria-label={tr("{value0} flag", {
-                    value0: profile?.countryName ?? country,
-                  })}
-                >
-                  {flag}
-                </span>{" "}
+                <CountryFlag code={country} decorative />{" "}
                 {profile?.countryName ?? country}
               </p>
             )}

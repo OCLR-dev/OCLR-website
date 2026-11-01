@@ -5,6 +5,8 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "./avatar";
+import { CountryFlag } from "./country-flag";
+import { countryFlagData } from "@/lib/country-flag";
 export type CaptainIdentity = {
   avatarUrl: string | null;
   countryCode: string | null;
@@ -75,12 +77,7 @@ export function CaptainPlayerCard({
     };
   }, [userId, identity?.countryCode, readOnly]);
   const country = profile?.countryCode;
-  const flag =
-    country && /^[A-Z]{2}$/.test(country)
-      ? String.fromCodePoint(
-          ...[...country].map((c) => 127397 + c.charCodeAt(0)),
-        )
-      : null;
+  const flag = countryFlagData(country, tr.locale);
   return (
     <div className="captain-player-identity" ref={root}>
       <Avatar
@@ -104,15 +101,8 @@ export function CaptainPlayerCard({
         <p className="captain-player-country small">
           {flag ? (
             <>
-              <span
-                role="img"
-                aria-label={tr("{value0} flag", {
-                  value0: profile?.countryName ?? country ?? "",
-                })}
-              >
-                {flag}
-              </span>{" "}
-              {profile?.countryName ?? country}
+              <CountryFlag code={country} decorative />
+              {profile?.countryName ?? flag.name}
             </>
           ) : (
             <span className="muted">

@@ -93,10 +93,14 @@ describe("OBS overlay source", () => {
 });
 describe("cached country flags", () => {
   it("provides localized accessible names", () => {
-    expect(countryFlagData("TW", "en")).toEqual({ flag: "🇹🇼", name: "Taiwan" });
+    expect(countryFlagData("TW", "en")).toMatchObject({
+      code: "TW",
+      name: "Taiwan",
+      src: "/flags/twemoji/1f1f9-1f1fc.svg",
+    });
     expect(countryFlagData("JP", "zh-Hant")?.name).toBe("日本");
   });
-  it.each([null, undefined, "", "ZZ", "XX", "tw", "<script>"])(
+  it.each([null, undefined, "", "ZZ", "XX", "<script>"])(
     "omits invalid or missing country %s",
     (code) => expect(countryFlagData(code, "en")).toBeNull(),
   );

@@ -1,22 +1,34 @@
-/** Use cached official country codes only; unknown regions have no flag. */
+import assets from "./country-flag-assets.json";
+
+/** Only pinned local Twemoji flags are supported, including EU, UN and XK.
+ * Never derive an asset URL from unchecked profile data. */
 export function countryFlagData(
   code: string | null | undefined,
   locale: string,
 ) {
-  if (!code || !/^[A-Z]{2}$/.test(code) || code === "ZZ") return null;
+  const input = code?.trim();
+  if (!input || !/^[a-z]{2}$/i.test(input)) return null;
+  const normalized = input.toUpperCase();
+  if (!Object.hasOwn(assets, normalized)) return null;
+  const asset = assets[normalized as keyof typeof assets];
+  let name = normalized;
   try {
-    const name = new Intl.DisplayNames([locale], {
-      type: "region",
-      fallback: "none",
-    }).of(code);
-    if (!name || name === code) return null;
-    return {
-      name,
-      flag: String.fromCodePoint(
-        ...[...code].map((letter) => 127397 + letter.charCodeAt(0)),
-      ),
-    };
+    name =
+      new Intl.DisplayNames([locale, "en"], {
+        type: "region",
+        fallback: "none",
+      }).of(normalized) ?? normalized;
   } catch {
-    return null;
+    // A malformed locale must not break identity rendering.
+    name =
+      new Intl.DisplayNames(["en"], { type: "region" }).of(normalized) ??
+      normalized;
   }
+  return {
+    code: normalized,
+    name,
+    src: `/flags/twemoji/${asset.file}`,
+    width: asset.width,
+    height: asset.height,
+  };
 }

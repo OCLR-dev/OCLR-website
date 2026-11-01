@@ -193,6 +193,7 @@ describe("explicit remote frontend boundaries", () => {
           "/archive/s6/key-visual.webp",
           "/branding/oclr-mark.svg",
           "/fonts/local.woff2",
+          "/flags/twemoji/1f1e8-1f1f3.svg",
         ]) {
           const response = proxy(
             new NextRequest(`http://localhost:3000${path}`, {
@@ -230,6 +231,7 @@ describe("explicit remote frontend boundaries", () => {
       });
   it.each([
     "/mascot/liru/sheet-main.webp",
+    "/flags/twemoji/1f1e8-1f1f3.svg",
     ...bundledSeasonThemes.flatMap((theme) => theme.assets),
   ])("keeps remote security checks on bundled asset %s", (path) => {
     for (const method of ["POST", "PUT", "DELETE"])
