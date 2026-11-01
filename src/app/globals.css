@@ -4970,7 +4970,6 @@ html:lang(zh-Hant) .eyebrow {
   background: var(--color-surface);
 }
 .mappool-workbench .mappool-round-bar {
-  border-top: 1px solid var(--color-border);
   margin-top: 0.4rem;
 }
 .mappool-workbench .mappool-rounds button,
@@ -6387,12 +6386,6 @@ body:has([data-broadcast]) .site-shell {
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
     align-items: start;
   }
-}
-.replay-window {
-  margin-block: 16px;
-}
-.replay-window h3 {
-  margin: 0;
 }
 .replay-list {
   list-style: none;

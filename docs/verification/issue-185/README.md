@@ -1,5 +1,9 @@
 # Issue #185 — private mappool replay workflow
 
+> Policy update: #692 supersedes the selection-lock and Showcase timing rules
+> described in this historical record. Authorized staff can manage replays at any
+> time in operational editions. See the [current workflow](../../mappools.md#internal-replay-workflow-185-updated-by-692).
+
 Verified locally on 2026-10-24 in an isolated worktree based on `origin/main` at `69c4f77`, then fast-forwarded to `b427e2f` before submission. That upstream advance added design-reference documentation only; application/test sources were unchanged. All accounts, maps, replay bytes and provider responses used in tests are synthetic. No demo/production database, service, OAuth credential or real player replay was used or modified.
 
 ## Final behavior

@@ -62,15 +62,6 @@ const commandSchema = z.discriminatedUnion("action", [
     .object({
       ...confirmation,
       ...versioned,
-      action: z.literal("replay_window"),
-      showcaseAt: z.iso.datetime({ offset: true }),
-      lockSelection: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
       action: z.literal("batch_import"),
       text: z.string().max(16000),
       category: z.enum(categories),
@@ -812,39 +803,12 @@ export async function mappoolCommand(
       if (pool.selectionLockedAt && c.action !== "pool_publish")
         throw new HttpError(
           409,
-          "Map selection is locked. Create a new pool to change maps or the Showcase deadline.",
+          "Map selection is locked. Create a new pool to change maps.",
         );
       const entries = await tx
         .select()
         .from(mappoolEntries)
         .where(eq(mappoolEntries.poolId, pool.id));
-      if (c.action === "replay_window") {
-        const showcaseAt = new Date(c.showcaseAt);
-        if (showcaseAt.getTime() <= Date.now() || !entries.length)
-          throw new HttpError(
-            400,
-            "Choose a future Showcase deadline and add maps before locking selection.",
-          );
-        const [updated] = await tx
-          .update(mappools)
-          .set({
-            showcaseAt,
-            selectionLockedAt: c.lockSelection ? new Date() : null,
-            version: pool.version + 1,
-            updatedAt: new Date(),
-          })
-          .where(eq(mappools.id, pool.id))
-          .returning();
-        await tx.insert(mappoolEvents).values({
-          editionSlug: slug,
-          poolId: pool.id,
-          actorId: actor.osuId,
-          action: c.lockSelection ? "selection_lock" : "showcase_schedule",
-          before: { pool },
-          after: { pool: updated },
-        });
-        return;
-      }
       // Stable entry IDs retain attachments through moves. Removal/replacement requires explicit attachment cleanup.
       const attachments = entries.length
         ? await tx

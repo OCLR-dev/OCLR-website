@@ -26,7 +26,7 @@ import { ConfirmMutation } from "./confirm-mutation";
 import { MappoolOrder } from "./mappool-order";
 import { MappoolBatch } from "./mappool-batch";
 import { BeatmapPreview } from "./beatmap-preview";
-import { MappoolReplays, ReplayWindow } from "./mappool-replays";
+import { MappoolReplays } from "./mappool-replays";
 import { MappoolActionIcon } from "./mappool-action-icon";
 type Pool = MappoolWorkspace["pools"][number];
 type Entry = MappoolWorkspace["entries"][number];
@@ -690,12 +690,6 @@ function MappoolEditorContent({
               </p>
             )
           )}
-          <ReplayWindow
-            key={`${pool.id}-${pool.version}`}
-            pool={pool}
-            url={change.url}
-            hasMaps={poolEntries.length > 0}
-          />
           <WorkspaceTabs
             appearance="line"
             id={`${id}-task`}

@@ -16,98 +16,8 @@ import type { MappoolWorkspace } from "@/lib/mappools";
 import type { ReplayItem } from "@/lib/mappool-replays";
 import { REPLAY_MAX_BYTES, REPLAY_ENTRY_LIMIT } from "@/lib/replay-model";
 import { slotLabel } from "@/lib/mappool-model";
-import { useStaffReadOnly } from "./staff-read-only";
-import { ConfirmMutation } from "./confirm-mutation";
 type Pool = MappoolWorkspace["pools"][number];
 type Entry = MappoolWorkspace["entries"][number];
-export function ReplayWindow({
-  pool,
-  url,
-  hasMaps,
-}: {
-  pool: Pool;
-  url: string;
-  hasMaps: boolean;
-}) {
-  const tr = useAppTranslations();
-  const readOnly = useStaffReadOnly();
-  const [deadline, setDeadline] = useState("");
-  const date = deadline ? new Date(deadline) : null;
-  const valid = date && Number.isFinite(date.getTime());
-  const payload = {
-    action: "replay_window",
-    poolId: pool.id,
-    expectedVersion: pool.version,
-    showcaseAt: valid ? date.toISOString() : "",
-    confirmed: true,
-  };
-  return (
-    <section
-      className="replay-window panel form-stack"
-      aria-label={tr("Replay upload window")}
-    >
-      <h3>{tr("Replay upload window")}</h3>
-      <p className="muted small">
-        {tr(
-          "Internal staff only. Lock map selection to open replay uploads. Uploads and deletions close at the Showcase deadline; downloads remain available.",
-        )}
-      </p>
-      {pool.showcaseAt && (
-        <p>
-          {tr("Showcase deadline")}:{" "}
-          <time dateTime={new Date(pool.showcaseAt).toISOString()}>
-            {new Date(pool.showcaseAt).toISOString()}
-          </time>
-        </p>
-      )}
-      {pool.selectionLockedAt ? (
-        <p className="notice">
-          {tr(
-            "Map selection locked. Maps and the Showcase deadline can no longer be changed.",
-          )}
-        </p>
-      ) : pool.lockedAt ? (
-        <p className="notice">
-          {tr(
-            "Completed-fixture protection prevents configuring a new replay window.",
-          )}
-        </p>
-      ) : readOnly ? null : (
-        <>
-          <label className="field">
-            <span>{tr("Showcase deadline (your local time)")}</span>
-            <input
-              type="datetime-local"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-            />
-          </label>
-          {valid && <p className="small muted">{date.toISOString()}</p>}
-          <div className="actions">
-            <ConfirmMutation
-              label={tr("Save Showcase deadline")}
-              title={tr("Save Showcase deadline")}
-              url={url}
-              payload={{ ...payload, lockSelection: false }}
-              requireConfirmation={false}
-              disabled={!valid || !hasMaps}
-            />
-            <ConfirmMutation
-              label={tr("Lock map selection")}
-              title={tr("Lock map selection?")}
-              description={tr(
-                "This freezes map selection and the Showcase deadline, and opens replay uploads until that deadline. To change maps later, create a new pool.",
-              )}
-              url={url}
-              payload={{ ...payload, lockSelection: true }}
-              disabled={!valid || !hasMaps}
-            />
-          </div>
-        </>
-      )}
-    </section>
-  );
-}
 export function MappoolReplays({
   slug,
   pool,
@@ -139,29 +49,16 @@ export function MappoolReplays({
   const [error, setError] = useState(""),
     [status, setStatus] = useState("");
   const [deleting, setDeleting] = useState<ReplayItem | null>(null);
-  const [now, setNow] = useState(() => Date.now());
   const input = useRef<HTMLInputElement>(null),
     summary = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDialogElement>(null),
     reload = useRef<HTMLButtonElement>(null);
   const request = useRef<XMLHttpRequest | null>(null),
     dialog = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const interval = expanded
-      ? setInterval(() => setNow(Date.now()), 1000)
-      : undefined;
-    return () => {
-      clearInterval(interval);
-      request.current?.abort();
-    };
-  }, [expanded]);
+  useEffect(() => () => request.current?.abort(), []);
   const [knownVersion, setKnownVersion] = useState(pool.version);
   const version = Math.max(knownVersion, pool.version);
-  const open =
-    !!pool.selectionLockedAt &&
-    !!pool.showcaseAt &&
-    now < new Date(pool.showcaseAt).getTime();
-  const writable = canManage && open;
+  const writable = canManage;
   async function load() {
     setLoading(true);
     try {
@@ -312,7 +209,6 @@ export function MappoolReplays({
           aria-expanded={expanded}
           aria-controls={`${id}-panel`}
           onClick={() => {
-            setNow(Date.now());
             setExpanded(true);
             panel.current?.showModal();
             void load();
@@ -358,13 +254,6 @@ export function MappoolReplays({
           </button>
         </header>
         <div className="replay-content">
-          {!open && (
-            <p className="small muted">
-              {tr(
-                "Replay changes are allowed only after map selection is locked and before the Showcase deadline.",
-              )}
-            </p>
-          )}
           <div className="replay-toolbar">
             <span className="small muted">
               {items.length} / {REPLAY_ENTRY_LIMIT}
