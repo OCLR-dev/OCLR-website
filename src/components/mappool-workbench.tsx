@@ -971,9 +971,20 @@ export function SelectionWorkbench({
                     openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
                     note={tr("★ base")}
                     chips={
-                      <span>
-                        {tr("HP")} {formatBeatmapNumber(c.metadata.hp)}
-                      </span>
+                      <>
+                        <span>
+                          {tr("HP")} {formatBeatmapNumber(c.metadata.hp)}
+                        </span>
+                        <span className={`small muted ${styles.attribution}`}>
+                          {tr("Added by")}{" "}
+                          <a
+                            className="text-link"
+                            href={`https://osu.ppy.sh/users/${c.authorId}`}
+                          >
+                            <strong>{c.authorName}</strong>
+                          </a>
+                        </span>
+                      </>
                     }
                     slotControl={
                       writable ? (
@@ -1028,28 +1039,14 @@ export function SelectionWorkbench({
                       ) : undefined
                     }
                     side={
-                      <CandidateRounds
-                        candidate={c}
-                        rounds={data.rounds}
-                        writable={writable}
-                        base={base}
-                        onChange={reload}
-                      />
-                    }
-                    footer={
-                      <div className={styles.candidateTools}>
-                        <div className={`small muted ${styles.attribution}`}>
-                          <p>
-                            {tr("Added by")}{" "}
-                            <a
-                              className="text-link"
-                              href={`https://osu.ppy.sh/users/${c.authorId}`}
-                            >
-                              <strong>{c.authorName}</strong>
-                            </a>
-                          </p>
-                          <Stamp value={c.createdAt} />
-                        </div>{" "}
+                      <>
+                        <CandidateRounds
+                          candidate={c}
+                          rounds={data.rounds}
+                          writable={writable}
+                          base={base}
+                          onChange={reload}
+                        />
                         {officialPools && (
                           <PromoteCandidate
                             slug={slug}
@@ -1057,7 +1054,7 @@ export function SelectionWorkbench({
                             initialPools={officialPools}
                           />
                         )}
-                      </div>
+                      </>
                     }
                   />
                   <Comments
