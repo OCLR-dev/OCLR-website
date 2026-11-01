@@ -367,6 +367,17 @@ earlier pick can be corrected. Refresh or a legitimate referee handoff resumes p
 state and reloads the current room projection. The normal development and production
 page both use the real relay contract; development mode no longer silently enables a mock.
 
+### Automatic provisional MP scores
+
+The referee workspace can bind an official MP link and poll while the panel is
+open (foreground 30 seconds, background 60). Complete, uniquely matched first
+plays with verified saved roster/rule/Mods evidence update the private ledger and
+scoreboard automatically. Replays, ties, Free Mod verification, changed sources
+and other uncertain results remain for manual review. Only owned automatic
+outcomes can be withdrawn when evidence changes; manual decisions are preserved.
+This does not submit, approve or publish an official result. See
+[MP sync workflow and consistency](referee-mp-sync.md), including migration 0067.
+
 ### After play
 
 **Post-match reconciliation** reads already saved MP imports; it does not refresh

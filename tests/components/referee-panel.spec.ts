@@ -26,6 +26,9 @@ async function setup(
     recordError: null;
     createdAt: string;
   }[] = [];
+  await page.route(`${api}/mp`, (r) =>
+    r.fulfill({ json: { binding: null, workspace: current } }),
+  );
   await page.route(`${api}/reconciliation`, (r) =>
     r.fulfill({
       status: 409,
@@ -416,4 +419,126 @@ test("retrying an accepted automatic sync uses the same event and never duplicat
   expect(state.autos).toHaveLength(1);
   expect(state.commands).toHaveLength(1);
   expect(state.current().projection.activeSelections).toHaveLength(1);
+});
+
+test("bound MP sync updates the red-left scoreboard, fences stale IRC reads and opens manual review", async ({
+  page,
+}) => {
+  const state = await setup(page);
+  let binding: null | {
+    matchId: number;
+    revision: number;
+    enabled: boolean;
+    nextPollAt: string;
+    lastCheckedAt: null;
+    error: null;
+    issues: { gameId: number; beatmapId: number; reason: string }[];
+    issueCount: number;
+    syncing: boolean;
+  } = null;
+  let synced: ReturnType<typeof workspace> | null = null,
+    syncs = 0,
+    ircReads = 0;
+  page.on("response", (response) => {
+    if (response.url().endsWith("/irc")) ircReads++;
+  });
+  await page.route(`${api}/mp`, async (r) => {
+    const c = r.request().postDataJSON();
+    if (c.action === "bind")
+      binding = {
+        matchId: 880001,
+        revision: 1,
+        enabled: true,
+        nextPollAt: new Date(0).toISOString(),
+        lastCheckedAt: null,
+        error: null,
+        issues: [],
+        issueCount: 0,
+        syncing: false,
+      };
+    if (c.action === "sync") {
+      syncs++;
+      const before = state.current(),
+        pick = before.projection.activeSelections.find(
+          (s) => s.kind !== "ban",
+        )!;
+      const win = {
+        id: id(7000),
+        ordinal: before.events.length + 1,
+        actorId: 1,
+        createdAt: new Date().toISOString(),
+        payload: {
+          type: "attempt_resolved" as const,
+          pickId: pick.id,
+          attemptId: pick.attempts[0].id,
+          status: "completed" as const,
+          winnerTeamId: before.teams[0].id,
+        },
+      };
+      synced = workspace([
+        ...before.events,
+        win,
+        ...(syncs > 1
+          ? [
+              {
+                ...win,
+                id: id(7001),
+                ordinal: win.ordinal + 1,
+                payload: {
+                  ...win.payload,
+                  status: "aborted" as const,
+                  winnerTeamId: null,
+                },
+              },
+            ]
+          : []),
+      ]);
+      if (syncs > 1) {
+        binding!.issues = [
+          { gameId: 880001, beatmapId: pick.beatmapId, reason: "replay" },
+        ];
+        binding!.issueCount = 1;
+      }
+    }
+    await r.fulfill({
+      json: { binding, workspace: synced ?? state.current() },
+    });
+  });
+  await page.goto("/referee-panel");
+  await pool(page)
+    .getByRole("button", { name: "Blue team BAN", exact: true })
+    .first()
+    .click();
+  await pool(page)
+    .getByRole("button", { name: "Blue team PICK", exact: true })
+    .first()
+    .click();
+  await page.getByText("MP result sync", { exact: true }).click();
+  await page
+    .getByLabel("MP link", { exact: true })
+    .fill("https://osu.ppy.sh/community/matches/880001");
+  await page.getByRole("button", { name: "Bind MP link", exact: true }).click();
+  await expect.poll(() => syncs).toBeGreaterThan(0);
+  await expect(records(page).locator("strong")).toHaveText(["0", "1"]);
+  const count = ircReads;
+  await expect.poll(() => ircReads).toBeGreaterThan(count);
+  if (syncs < 2)
+    await expect(records(page).locator("strong")).toHaveText(["0", "1"]);
+  await expect(
+    page.getByText("Replay or repeated beatmap", { exact: true }),
+  ).toBeHidden();
+  await page
+    .getByText("Manual review required: 1", { exact: true })
+    .last()
+    .click();
+  await expect(
+    page.getByText("Replay or repeated beatmap", { exact: false }),
+  ).toBeVisible();
+  await expect(records(page).locator("strong")).toHaveText(["0", "0"]);
+  await page
+    .getByRole("link", { name: "Review referee records", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Record win: Blue", exact: true }),
+  ).toBeVisible();
 });
