@@ -557,6 +557,12 @@ function CandidateRounds({
   const pending = useRef(false);
   const region = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const roundNames = candidate.roundIds.length
+    ? candidate.roundIds
+        .map((id) => rounds.find((r) => r.id === id)?.name)
+        .filter(Boolean)
+        .join(" · ")
+    : tr("Unassigned");
   const wasEditing = useRef(false);
   useEffect(() => {
     if (busy) return;
@@ -620,15 +626,10 @@ function CandidateRounds({
         </form>
       ) : (
         <div className={styles.roundSummary}>
-          <p className="small">
+          <p className="small" title={roundNames}>
             <strong>{tr("Intended rounds")}</strong>
             {" · "}
-            {candidate.roundIds.length
-              ? candidate.roundIds
-                  .map((id) => rounds.find((r) => r.id === id)?.name)
-                  .filter(Boolean)
-                  .join(" · ")
-              : tr("Unassigned")}
+            {roundNames}
           </p>
           {writable && (
             <button
@@ -1027,6 +1028,7 @@ export function SelectionWorkbench({
                         </>
                       ) : undefined
                     }
+                    sidePlacement="values"
                     side={
                       <>
                         <span className={`small muted ${styles.attribution}`}>
@@ -1034,6 +1036,7 @@ export function SelectionWorkbench({
                           <a
                             className="text-link"
                             href={`https://osu.ppy.sh/users/${c.authorId}`}
+                            title={c.authorName}
                           >
                             <strong>{c.authorName}</strong>
                           </a>

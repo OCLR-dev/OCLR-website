@@ -429,10 +429,11 @@ test.describe("private Pooler/Tester selection workbench", () => {
           coverBox!.y + coverBox!.height,
         );
       } else {
-        const copyBox = await card.locator(".map-card-copy").boundingBox();
-        expect(roundBox!.y).toBeGreaterThanOrEqual(
-          copyBox!.y + copyBox!.height,
-        );
+        const hpBox = await card
+          .locator(".map-card-values > span")
+          .last()
+          .boundingBox();
+        expect(roundBox!.y).toBeGreaterThanOrEqual(hpBox!.y + hpBox!.height);
       }
 
       for (const control of [cardRounds, cardCategory]) {
@@ -616,18 +617,23 @@ test.describe("private Pooler/Tester selection workbench", () => {
             exact: true,
           });
           const boxes = await Promise.all(
-            [addedBy, rounds, promotion].map((control) =>
-              control.boundingBox(),
-            ),
+            [
+              previewCard.locator(".map-card-values > span").first(),
+              addedBy,
+              rounds,
+              promotion,
+            ].map((control) => control.boundingBox()),
           );
           const centers = boxes.map((box) => box!.y + box!.height / 2);
           expect(Math.max(...centers) - Math.min(...centers)).toBeLessThan(2);
-          expect(boxes[0]!.x + boxes[0]!.width).toBeLessThanOrEqual(
-            boxes[1]!.x,
-          );
-          expect(boxes[1]!.x + boxes[1]!.width).toBeLessThanOrEqual(
-            boxes[2]!.x,
-          );
+          for (let i = 1; i < boxes.length; i++) {
+            expect(boxes[i - 1]!.x + boxes[i - 1]!.width).toBeLessThanOrEqual(
+              boxes[i]!.x,
+            );
+          }
+          await expect(
+            previewCard.locator(":scope > .map-card-side"),
+          ).toHaveCount(0);
         }
         if (!isMobile)
           await previewCard.evaluate((card) => {
