@@ -399,6 +399,13 @@ test.describe("private Pooler/Tester selection workbench", () => {
         }),
       ).toHaveAttribute("href", "https://osu.ppy.sh/beatmaps/123");
       await expect(card.locator(".map-card-mode")).toHaveCount(0);
+      await expect(card.locator(".map-card-extension")).toHaveCount(0);
+      await expect(card.locator("time")).toHaveCount(0);
+      await expect(
+        card
+          .locator(".map-card-values")
+          .getByText("Added by", { exact: false }),
+      ).toBeVisible();
       await expect(
         card
           .locator(".map-slot-badge")
@@ -595,6 +602,22 @@ test.describe("private Pooler/Tester selection workbench", () => {
         const previewCard = poolerPage
           .getByRole("article", { name: "BID 123", exact: true })
           .locator(".map-browse-card--band");
+        const promotion = previewCard.getByRole("button", {
+          name: "加入正式圖池",
+          exact: true,
+        });
+        await expect(promotion).toBeVisible();
+        await expect(previewCard.locator(".map-card-extension")).toHaveCount(0);
+        await expect(previewCard.locator("time")).toHaveCount(0);
+        if (!isMobile) {
+          const cover = await previewCard
+            .locator(".map-card-cover")
+            .boundingBox();
+          const button = await promotion.boundingBox();
+          expect(button!.y + button!.height).toBeLessThanOrEqual(
+            cover!.y + cover!.height + 1,
+          );
+        }
         if (!isMobile)
           await previewCard.evaluate((card) => {
             window.scrollTo(

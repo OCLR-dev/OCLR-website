@@ -200,22 +200,13 @@
   gap: 0.75rem;
   margin-top: 0.75rem;
 }
-.candidateTools {
-  display: flex;
-  align-items: end;
-  flex-wrap: wrap;
-  gap: 1rem 1.5rem;
-}
 .attribution {
-  display: flex;
-  flex: 1 1 20rem;
+  display: inline-flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 0.25rem 1rem;
-}
-.attribution p {
-  margin: 0;
+  gap: 0.25rem;
+  margin-inline-start: auto;
+  overflow-wrap: anywhere;
 }
 
 .commentActions {
@@ -307,6 +298,9 @@
   position: relative;
   z-index: 1;
   min-width: 0;
+  display: grid;
+  align-content: end;
+  gap: 0.75rem;
   padding: 4.25rem 1.1rem 0.85rem;
   border-inline-start: 1px solid var(--site-border);
 }
@@ -323,25 +317,25 @@
   justify-self: start;
 }
 .workbenchCard:global(.map-browse-card--band)
-  > :global(.map-card-side):has(form) {
+  > :global(.map-card-side):has(form, .promotionForm) {
   grid-column: 1 / -1;
   padding: 1rem 1.1rem;
   border-inline-start: 0;
   border-top: 1px solid var(--site-border);
 }
-.workbenchCard:global(.map-browse-card--band):has(.candidateRounds form)
+.workbenchCard:global(.map-browse-card--band):has(
+    :global(.map-card-side) form,
+    .promotionForm
+  )
   > :global(.map-card-copy) {
   grid-column: 2 / -1;
   padding-right: 8rem;
 }
-.workbenchCard:global(.map-browse-card--band) > :global(.map-card-extension) {
-  grid-column: 1 / -1;
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  padding: 0.85rem 1.1rem;
-  border-top: 1px solid var(--site-border);
-  background: var(--site-raised);
+.workbenchCard:global(.map-browse-card--band) .promotion {
+  justify-self: end;
+}
+.workbenchCard:global(.map-browse-card--band) .promotion:has(.promotionForm) {
+  width: 100%;
 }
 .workbenchCard:global(.map-browse-card--band)
   :global(.map-slot-badge)
@@ -409,7 +403,10 @@
     min-height: 0;
   }
   .workbenchCard:global(.map-browse-card--band) > :global(.map-card-copy),
-  .workbenchCard:global(.map-browse-card--band):has(.candidateRounds form)
+  .workbenchCard:global(.map-browse-card--band):has(
+      :global(.map-card-side) form,
+      .promotionForm
+    )
     > :global(.map-card-copy) {
     grid-column: 1 / -1;
     padding-right: 0.9rem;
@@ -417,12 +414,13 @@
   .workbenchCard:global(.map-browse-card--band) :global(.map-card-title-row) {
     padding-right: 0;
   }
-  .workbenchCard:global(.map-browse-card--band) > :global(.map-card-side),
-  .workbenchCard:global(.map-browse-card--band) > :global(.map-card-extension) {
+  .workbenchCard:global(.map-browse-card--band) > :global(.map-card-side) {
     padding: 0.85rem 0.9rem;
   }
-  .candidateTools > .promotion {
-    flex-basis: 100%;
+  .attribution {
+    margin-inline-start: 0;
+  }
+  .workbenchCard:global(.map-browse-card--band) .promotion {
     width: 100%;
   }
   .promotion > button {
