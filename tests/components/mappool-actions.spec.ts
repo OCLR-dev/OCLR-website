@@ -125,6 +125,75 @@ test("sorting disables edits and leaves replays accessible", async ({
   await expect(replay).toHaveAccessibleName("Replays (0)");
 });
 
+test("editing hides preview details while retaining verified save data", async ({
+  page,
+}) => {
+  const writes: Record<string, unknown>[] = [];
+  let releaseLookup!: () => void;
+  const pendingLookup = new Promise<void>((resolve) => {
+    releaseLookup = resolve;
+  });
+  await page.route(
+    "**/api/admin/tournaments/synthetic/mappools/preview",
+    async (route) => {
+      await pendingLookup;
+      await route.fulfill({
+        json: {
+          beatmapId: 101,
+          fingerprint: "a".repeat(64),
+          fetchedAt: "2026-01-01T00:00:00Z",
+          metadata: {
+            setId: 0,
+            artist: "Synthetic artist",
+            title: "Synthetic map 1",
+            difficulty: "Extra",
+            mapper: "Synthetic mapper",
+            stars: 6.01,
+            bpm: 185,
+            duration: 295,
+          },
+        },
+      });
+    },
+  );
+  await page.route(
+    "**/api/admin/tournaments/synthetic/mappools",
+    async (route) => {
+      writes.push(route.request().postDataJSON());
+      await route.fulfill({ json: {} });
+    },
+  );
+  await page.goto("/mappool-actions");
+  await page
+    .getByRole("button", { name: "Edit or replace NM1", exact: true })
+    .click();
+  const editor = page.getByRole("region", {
+    name: "Edit or replace NM1",
+    exact: true,
+  });
+  const save = editor.getByRole("button", {
+    name: "Save map slot",
+    exact: true,
+  });
+  await expect(save).toBeDisabled();
+  releaseLookup();
+  await expect(save).toBeEnabled();
+  await expect(
+    editor.getByLabel("Beatmap preview", { exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    editor.getByRole("button", { name: "Refresh preview", exact: true }),
+  ).toHaveCount(0);
+  await save.click();
+  await expect.poll(() => writes.length).toBe(1);
+  expect(writes[0]).toMatchObject({
+    action: "entry_save",
+    entryId: "entry-1",
+    expectedVersion: 7,
+    expectedMetadataFingerprint: "a".repeat(64),
+  });
+});
+
 for (const state of ["locked", "readonly"]) {
   test(`${state} pool retains replay access without map actions`, async ({
     page,
