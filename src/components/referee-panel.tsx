@@ -673,16 +673,16 @@ export function RefereePanel({
               <div className={styles.summaryScore}>
                 {data.teams.length === 2 ? (
                   <>
-                    <div className={styles.summaryTeam} data-team="blue">
-                      <span>{data.teams[0].name}</span>
-                      <strong>{state.score[data.teams[0].id] ?? 0}</strong>
+                    <div className={styles.summaryTeam} data-team="red">
+                      <span>{data.teams[1].name}</span>
+                      <strong>{state.score[data.teams[1].id] ?? 0}</strong>
                     </div>
                     <span className={styles.scoreDivider} aria-hidden="true">
                       :
                     </span>
-                    <div className={styles.summaryTeam} data-team="red">
-                      <span>{data.teams[1].name}</span>
-                      <strong>{state.score[data.teams[1].id] ?? 0}</strong>
+                    <div className={styles.summaryTeam} data-team="blue">
+                      <span>{data.teams[0].name}</span>
+                      <strong>{state.score[data.teams[0].id] ?? 0}</strong>
                     </div>
                   </>
                 ) : (
@@ -839,36 +839,38 @@ export function RefereePanel({
                             ) : (
                               <div className={styles.poolActions}>
                                 {(["ban", "pick"] as const).flatMap((kind) =>
-                                  data.teams.map((team, index) => (
-                                    <button
-                                      key={`${kind}-${team.id}`}
-                                      type="button"
-                                      className="secondary"
-                                      data-team={index === 0 ? "blue" : "red"}
-                                      disabled={
-                                        disabled ||
-                                        stale ||
-                                        dirtyOrder ||
-                                        !allowed ||
-                                        (state.nextStep?.kind === "tb"
-                                          ? kind !== "pick"
-                                          : state.nextStep?.kind !== kind) ||
-                                        (state.nextStep?.teamId !== null &&
-                                          state.nextStep?.teamId !== team.id)
-                                      }
-                                      onClick={() => {
-                                        void send({
-                                          action: "record_selection",
-                                          entryId: m.id,
-                                        });
-                                      }}
-                                    >
-                                      {index === 0
-                                        ? tr("Blue team")
-                                        : tr("Red team")}{" "}
-                                      {kind.toUpperCase()}
-                                    </button>
-                                  )),
+                                  data.teams
+                                    .map((team, index) => (
+                                      <button
+                                        key={`${kind}-${team.id}`}
+                                        type="button"
+                                        className="secondary"
+                                        data-team={index === 0 ? "blue" : "red"}
+                                        disabled={
+                                          disabled ||
+                                          stale ||
+                                          dirtyOrder ||
+                                          !allowed ||
+                                          (state.nextStep?.kind === "tb"
+                                            ? kind !== "pick"
+                                            : state.nextStep?.kind !== kind) ||
+                                          (state.nextStep?.teamId !== null &&
+                                            state.nextStep?.teamId !== team.id)
+                                        }
+                                        onClick={() => {
+                                          void send({
+                                            action: "record_selection",
+                                            entryId: m.id,
+                                          });
+                                        }}
+                                      >
+                                        {index === 0
+                                          ? tr("Blue team")
+                                          : tr("Red team")}{" "}
+                                        {kind.toUpperCase()}
+                                      </button>
+                                    ))
+                                    .toReversed(),
                                 )}
                               </div>
                             )}

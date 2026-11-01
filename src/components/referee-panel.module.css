@@ -620,7 +620,7 @@
   border-block-start: 2px solid var(--site-accent);
 }
 
-.summaryTeam[data-team="red"] {
+.summaryTeam[data-team="blue"] {
   flex-direction: row-reverse;
   border-inline-start: 0;
   border-inline-end: 3px solid currentColor;
@@ -633,7 +633,7 @@
   .workspace .columns > .pinnedSummary {
     padding: 0.5rem 0.625rem;
   }
-  .summaryTeam[data-team="red"] {
+  .summaryTeam[data-team="blue"] {
     padding-inline-end: 0.375rem;
   }
 }
