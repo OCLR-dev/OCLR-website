@@ -6,6 +6,9 @@ section for **Practice sheet** and **Season timetable**. Captains also retain
 their Captain workspace section. Navigation visibility is optional; each page,
 API read and command rechecks the current edition, identity and saved eligibility.
 Staff roles alone do not grant access to personal workspace data.
+The dashboard also links each eligible registration card directly to that
+edition's practice sheet. This entry is hidden for archived/unpublished editions,
+ineligible applicants and delegated remote sessions.
 
 ## Practice sheet
 
