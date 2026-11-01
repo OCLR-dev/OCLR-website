@@ -200,6 +200,12 @@ function CompactBwsSummary({
     ? calculateBws(value.globalRank, gameplayBadgeCount)
     : value.value;
   const pending = value.status === "pending" && !usesAutomaticBadges;
+  // Zero effective badges make the weighting an identity, so show the plain
+  // labels even when staff already confirmed a zero count.
+  const unweighted =
+    gameplayBadgeCount === 0 &&
+    (value.badgeCount === null || value.badgeCount === 0);
+  const plainLabels = pending || unweighted;
   return (
     <section
       className="bws-card"
@@ -208,7 +214,9 @@ function CompactBwsSummary({
     >
       <div className="bws-card-metric">
         <div className="bws-card-label-row">
-          <span className="bws-card-label">{pending ? "pp" : tr("BW-PP")}</span>
+          <span className="bws-card-label">
+            {plainLabels ? "pp" : tr("BW-PP")}
+          </span>
           <div className="bws-card-note">
             <InfoTrigger onOpenLabel={tr("Explanation")} />
             <div className="bws-card-note-panel" role="note">
@@ -245,7 +253,7 @@ function CompactBwsSummary({
       <div className="bws-card-metric">
         <div className="bws-card-label-row">
           <span className="bws-card-label">
-            {pending ? tr("Global rank") : tr("BW-rank")}
+            {plainLabels ? tr("Global rank") : tr("BW-rank")}
           </span>
           <div className="bws-card-note">
             <InfoTrigger onOpenLabel={tr("Explanation")} />
@@ -296,7 +304,9 @@ function CompactBwsSummary({
         </div>
         <div className="bws-card-value-row">
           {badges !== null && gameplayBadgeCount !== null ? (
-            <strong className="bws-value">
+            <strong
+              className={`bws-value${gameplayBadgeCount === 0 ? " bws-value--empty" : ""}`}
+            >
               {number(gameplayBadgeCount, 0)}
               <span className="bws-value-total">
                 /{number(badges.length, 0)}

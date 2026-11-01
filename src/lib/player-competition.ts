@@ -1,4 +1,5 @@
 import { getPublicEdition } from "./content";
+import { seasonAppearanceFor } from "./player-timeline";
 import { archiveWinner, recordedArchiveMatch } from "./historical-archive";
 import {
   tournamentPlacements,
@@ -50,6 +51,7 @@ async function editionRecord(
   const base: CompetitionEditionRecord = {
     editionSlug: slug,
     editionName: first.editionName,
+    defaultAppearance: null,
     season: null,
     team: teams.values().next().value ?? null,
     coachedTeams: [
@@ -76,6 +78,9 @@ async function editionRecord(
     // The edition's stored season orders the player's tournaments newest first.
     const edition = await getPublicEdition(slug);
     base.season = edition?.season ?? null;
+    base.defaultAppearance =
+      edition?.defaultAppearance ??
+      (edition?.season ? seasonAppearanceFor(edition.season) : null);
     if (!teams.size) return base;
     if (edition?.archive) {
       const recorded = edition.archive.matches.filter(recordedArchiveMatch);

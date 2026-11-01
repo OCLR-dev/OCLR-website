@@ -1,4 +1,7 @@
-import { PlayerCompetition } from "@/components/player-competition";
+import {
+  PlayerCompetition,
+  PlayerTeamRecord,
+} from "@/components/player-competition";
 import { PlayerMapPerformance } from "@/components/player-map-performance";
 import { PlayerProfile } from "@/components/player-profile";
 import { PlayerTimeline } from "@/components/player-timeline";
@@ -221,12 +224,14 @@ async function ProfileContent({
       {competition && (
         <PlayerCompetition
           record={competition}
+          mapRecord={mapPerformance}
           resetHref={
             typeof query.edition === "string" ? `/players/${osuId}` : null
           }
         />
       )}
       {mapPerformance && <PlayerMapPerformance record={mapPerformance} />}
+      {competition && <PlayerTeamRecord record={competition} />}
     </div>
   );
 }

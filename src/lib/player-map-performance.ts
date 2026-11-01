@@ -40,6 +40,10 @@ export type MapPlay = {
   slot: string;
   at: string | null;
   osuId: number;
+  /** Team the score belongs to, when the source records one. */
+  teamId: string;
+  /** Winning team for this map, when the source already resolved it. */
+  winnerTeamId?: string | null;
   score: number;
   accuracy: number | null;
 };
@@ -54,6 +58,16 @@ export type PlayerMapRow = {
   /** Competition rank on this map (1, 1, 3 for tied scores); null when unknown. */
   placement: number | null;
   accuracy: number | null;
+  /**
+   * Result of the map for this player's team. Null when the source does not
+   * establish a winner or the player's team is unknown.
+   */
+  result: "win" | "loss" | "tie" | null;
+  /**
+   * Team size inferred from the map's score count: seven or more scores are a
+   * 4v4 map, five or six are a 3v3 map. Null when the map cannot be classified.
+   */
+  teamSize: 3 | 4 | null;
   /**
    * Effective rating: own score ÷ that map's mean score across every recorded
    * player. Null when the map mean is missing, zero or otherwise unusable.
@@ -71,6 +85,10 @@ export type PlayerMapEdition = {
   averageEffectiveRating: number | null;
   /** Maps that produced a usable effective rating (map mean > 0). */
   ratedMaps: number;
+  /** Personal map record for maps with a known team result. */
+  mapsWon: number;
+  mapsLost: number;
+  mapsTied: number;
   /** The edition's public statistics projection could not be read. */
   unavailable: boolean;
 };
@@ -78,12 +96,26 @@ export type PlayerMapEdition = {
 export type PlayerMapPerformance = {
   mapsPlayed: number;
   averagePlacement: number | null;
+  /** Average competition placement on maps with five or six scores (3v3). */
+  averagePlacement3v3: number | null;
+  /** Average competition placement on maps with seven or more scores (4v4). */
+  averagePlacement4v4: number | null;
   firstPlaces: number;
   averageAccuracy: number | null;
   averageEffectiveRating: number | null;
   ratedMaps: number;
+  /** Personal map record across every edition. */
+  mapsWon: number;
+  mapsLost: number;
+  mapsTied: number;
   editions: PlayerMapEdition[];
 };
+
+/** The part of the map record the career summary needs. */
+export type PersonalMapRecord = Pick<
+  PlayerMapPerformance,
+  "mapsPlayed" | "mapsWon" | "mapsLost" | "mapsTied"
+>;
 
 const mean = (values: number[]) =>
   values.length
@@ -92,6 +124,16 @@ const mean = (values: number[]) =>
 
 const finite = (value: number | null): value is number =>
   value !== null && Number.isFinite(value);
+
+const placementAverage = (rows: PlayerMapRow[]) =>
+  mean(rows.flatMap((row) => (row.placement === null ? [] : [row.placement])));
+
+/** A map with at least seven scores is 4v4; five or six scores is 3v3. */
+function mapTeamSize(scoreCount: number): 3 | 4 | null {
+  if (scoreCount >= 7) return 4;
+  if (scoreCount >= 5) return 3;
+  return null;
+}
 
 /** Competition ranking (1, 1, 3), matching standings and the statistics views. */
 function placements(
@@ -106,6 +148,22 @@ function placements(
     result.set(score.osuId, rank);
   }
   return result;
+}
+
+/**
+ * Resolves a map's winning team. Approved live results carry the winner;
+ * published archive snapshots are compared by team score totals.
+ */
+function mapResult(game: MapPlay[], teamId: string): PlayerMapRow["result"] {
+  const totals = new Map<string, number>();
+  for (const play of game)
+    totals.set(play.teamId, (totals.get(play.teamId) ?? 0) + play.score);
+  if (totals.size < 2) return null;
+  const explicit = game.find((play) => play.winnerTeamId)?.winnerTeamId;
+  if (explicit) return explicit === teamId ? "win" : "loss";
+  const ranked = [...totals].sort((a, b) => b[1] - a[1]);
+  if (ranked[0][1] === ranked[1][1]) return "tie";
+  return ranked[0][0] === teamId ? "win" : "loss";
 }
 
 /**
@@ -137,6 +195,7 @@ export function mapPerformance(
     const average = mean(totals.map((total) => total.total));
     const usableAverage =
       average !== null && Number.isFinite(average) && average > 0;
+    const teamSize = mapTeamSize(game.length);
     for (const play of game) {
       if (play.osuId !== osuId) continue;
       const ratio = usableAverage ? play.score / average! : null;
@@ -149,7 +208,9 @@ export function mapPerformance(
         at: play.at,
         placement: ranks.get(play.osuId) ?? null,
         accuracy: play.accuracy,
+        result: mapResult(game, play.teamId),
         effectiveRating: finite(ratio) ? ratio : null,
+        teamSize,
       });
     }
   }
@@ -159,15 +220,16 @@ export function mapPerformance(
   const rated = rows.filter((row) => finite(row.effectiveRating));
   return {
     maps: rows,
-    averagePlacement: mean(
-      rows.flatMap((row) => (row.placement === null ? [] : [row.placement])),
-    ),
+    averagePlacement: placementAverage(rows),
     firstPlaces: rows.filter((row) => row.placement === 1).length,
     averageAccuracy: mean(
       rows.flatMap((row) => (row.accuracy === null ? [] : [row.accuracy])),
     ),
     averageEffectiveRating: mean(rated.map((row) => row.effectiveRating!)),
     ratedMaps: rated.length,
+    mapsWon: rows.filter((row) => row.result === "win").length,
+    mapsLost: rows.filter((row) => row.result === "loss").length,
+    mapsTied: rows.filter((row) => row.result === "tie").length,
   };
 }
 
@@ -185,8 +247,12 @@ export function summarizeMapPerformance(
   const rated = rows.filter((row) => finite(row.effectiveRating));
   return {
     mapsPlayed: rows.length,
-    averagePlacement: mean(
-      rows.flatMap((row) => (row.placement === null ? [] : [row.placement])),
+    averagePlacement: placementAverage(rows),
+    averagePlacement3v3: placementAverage(
+      rows.filter((row) => row.teamSize === 3),
+    ),
+    averagePlacement4v4: placementAverage(
+      rows.filter((row) => row.teamSize === 4),
     ),
     firstPlaces: rows.filter((row) => row.placement === 1).length,
     averageAccuracy: mean(
@@ -194,6 +260,9 @@ export function summarizeMapPerformance(
     ),
     averageEffectiveRating: mean(rated.map((row) => row.effectiveRating!)),
     ratedMaps: rated.length,
+    mapsWon: rows.filter((row) => row.result === "win").length,
+    mapsLost: rows.filter((row) => row.result === "loss").length,
+    mapsTied: rows.filter((row) => row.result === "tie").length,
     editions: sorted,
   };
 }
@@ -235,6 +304,9 @@ async function editionPerformance(
     averageAccuracy: null,
     averageEffectiveRating: null,
     ratedMaps: 0,
+    mapsWon: 0,
+    mapsLost: 0,
+    mapsTied: 0,
     unavailable: false,
   };
   const osuId = roster[0]?.osuId ?? people[0]?.osuId;
@@ -273,6 +345,8 @@ export function liveMapPlays(
       slot,
       at: game.at,
       osuId: score.userId,
+      teamId: score.teamId,
+      winnerTeamId: game.winnerTeamId,
       score: score.total,
       accuracy: score.accuracy ?? null,
     }));

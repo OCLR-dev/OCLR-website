@@ -2823,6 +2823,10 @@ html:not([data-theme="dark"])
   font-weight: 550;
   margin-inline-start: 0.06em;
 }
+/* A zero count reads as an inactive metric, so the whole fraction stays muted. */
+.bws-card .bws-value--empty {
+  color: var(--bws-hash-color, var(--site-muted, var(--color-muted)));
+}
 /* Rank tiers: osu! describes a standing by the share of the leaderboard above
    it, so the number carries a gradient instead of the plain value colour. */
 .bws-card .bws-value--rank-tier {

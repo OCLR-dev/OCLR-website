@@ -157,6 +157,18 @@ export type TimelineEditionRef = {
 
 const configuredWindows = readSeasonWindows(content);
 
+/** The season theme configured in the same file the profile timeline reads. */
+export function seasonAppearanceFor(
+  season: string | number | null | undefined,
+): SeasonAppearance | null {
+  const number = seasonNumber(season);
+  if (number === null) return null;
+  return (
+    configuredWindows.find((window) => window.season === number)?.appearance ??
+    null
+  );
+}
+
 function instant(value: string | null | undefined) {
   if (!value) return null;
   const time = Date.parse(value);

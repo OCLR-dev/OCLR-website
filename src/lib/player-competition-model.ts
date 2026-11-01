@@ -1,3 +1,4 @@
+import type { Appearance } from "./preferences";
 import type { PublishedPlayer } from "./players";
 import { compareTournamentSeasons } from "./tournament-order";
 
@@ -33,6 +34,8 @@ export type TournamentFinish = {
 export type CompetitionEditionRecord = {
   editionSlug: string;
   editionName: string;
+  /** The edition's configured visual theme, when it has one. */
+  defaultAppearance?: Appearance | null;
   /** Stored season value; editions open in ascending season order. */
   season: string | null;
   team: { id: string; name: string } | null;

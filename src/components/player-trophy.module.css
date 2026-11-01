@@ -1,0 +1,290 @@
+.card {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem 2rem;
+  margin: 0;
+  overflow: hidden;
+}
+
+.card[data-tier="champion"] {
+  --aura-strong: #e0c952;
+  --aura-soft: #f0e4a8;
+  border-color: color-mix(
+    in srgb,
+    #f3c33f 45%,
+    var(--site-border, var(--color-border))
+  );
+}
+
+.card[data-tier="runnerUp"] {
+  --aura-strong: #a3a3c2;
+  --aura-soft: #e0e0eb;
+  border-color: color-mix(
+    in srgb,
+    #c8d2dc 45%,
+    var(--site-border, var(--color-border))
+  );
+}
+
+.card[data-tier="third"] {
+  --aura-strong: #855c47;
+  --aura-soft: #b88f7a;
+  border-color: color-mix(
+    in srgb,
+    #c9834a 45%,
+    var(--site-border, var(--color-border))
+  );
+}
+
+.trophyColumn {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  width: 200px;
+  max-width: 100%;
+}
+
+.trophy {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 200px;
+  height: 200px;
+}
+
+.aura {
+  position: absolute;
+  inset: -22px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 20deg,
+    var(--aura-soft) 52deg,
+    var(--aura-strong) 82deg,
+    transparent 118deg,
+    transparent 360deg
+  );
+  filter: blur(4px) saturate(1.18);
+  opacity: 0.9;
+  pointer-events: none;
+  -webkit-mask: url("/lighting.png") center / contain no-repeat;
+  mask: url("/lighting.png") center / contain no-repeat;
+  animation: aura-spin 12s linear infinite;
+  will-change: transform;
+}
+
+/* A steady tint under the moving beam keeps the halo readable as it turns. */
+.aura::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--aura-strong);
+  opacity: 0.22;
+}
+
+.art {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 200px;
+  height: 200px;
+  filter: drop-shadow(0 10px 16px rgb(0 0 0 / 22%));
+}
+
+@keyframes aura-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aura {
+    animation: none;
+  }
+}
+
+.card[data-tier="none"] .art {
+  color: var(--site-muted, var(--color-muted));
+  filter: none;
+  opacity: 0.8;
+}
+
+.captionRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  width: 100%;
+  align-items: center;
+  max-width: 100%;
+  margin: 0;
+}
+
+.caption {
+  grid-column: 2;
+  max-width: 100%;
+  color: var(--site-muted, var(--color-muted));
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.more {
+  position: relative;
+  display: inline-flex;
+  grid-column: 3;
+  justify-self: start;
+  margin-inline-start: 0.35rem;
+}
+
+/* Keep the tooltip open while the pointer crosses the gap above the button. */
+.more::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 0.35rem;
+}
+
+.captionRow .moreButton {
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--site-border, var(--color-border));
+  border-radius: 999px;
+  background: var(--site-surface, var(--color-panel));
+  color: var(--site-muted, var(--color-muted));
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: help;
+}
+
+.captionRow .moreButton:hover,
+.captionRow .moreButton:focus-visible {
+  border-color: var(--site-accent, var(--color-accent));
+  background: var(--site-surface, var(--color-panel));
+  color: var(--site-foreground, var(--color-text));
+}
+
+.morePanel {
+  position: absolute;
+  z-index: 5;
+  bottom: calc(100% + 0.35rem);
+  left: 50%;
+  display: none;
+  width: max-content;
+  max-width: 12rem;
+  max-height: 8rem;
+  overflow-y: auto;
+  padding: 0.4rem 0.55rem;
+  transform: translateX(-50%);
+  border: 1px solid var(--site-border, var(--color-border));
+  border-radius: 0.55rem;
+  background: var(--site-surface, var(--color-panel));
+  box-shadow: 0 8px 20px var(--site-panel-shadow, rgb(0 0 0 / 22%));
+  color: var(--site-foreground, var(--color-text));
+  font-size: 0.75rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.more:hover .morePanel,
+.more:focus-within .morePanel {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.moreEntry {
+  white-space: nowrap;
+}
+
+.stats {
+  display: grid;
+  align-self: end;
+  width: 100%;
+  margin: 0;
+}
+
+.stats > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--site-border, var(--color-border));
+}
+
+.stats > div:first-child {
+  padding-block-start: 0;
+}
+
+.stats > div:last-child {
+  padding-block-end: 0;
+  border-bottom: 0;
+}
+
+.stats dt {
+  margin: 0;
+  color: var(--site-muted, var(--color-muted));
+  font-size: 0.85rem;
+}
+
+.stats dd {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+.medalValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.medalIcon {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 14%));
+}
+
+.medalIcon[data-tier="champion"] {
+  color: #c99a1a;
+}
+
+.medalIcon[data-tier="runnerUp"] {
+  color: #8f9bab;
+}
+
+.medalIcon[data-tier="third"] {
+  color: #a76a42;
+}
+
+@media (max-width: 560px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .stats {
+    max-width: 24rem;
+  }
+
+  .stats > div {
+    padding: 0.55rem 0;
+  }
+
+  .stats dd {
+    font-size: 1.2rem;
+  }
+}

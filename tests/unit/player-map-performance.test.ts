@@ -14,6 +14,7 @@ function play(
   score: number,
   accuracy: number | null = 0.95,
   at = "2024-01-05T00:00:00Z",
+  teamId = "a",
 ): StatisticsPlay {
   return {
     fixtureId: "fixture",
@@ -25,7 +26,7 @@ function play(
     slot: `NM${gameId}`,
     at,
     osuId,
-    teamId: "a",
+    teamId,
     score,
     scoringType: "score",
     accuracy,
@@ -56,6 +57,9 @@ function blank(slug: string): PlayerMapEdition {
     averageAccuracy: null,
     averageEffectiveRating: null,
     ratedMaps: 0,
+    mapsWon: 0,
+    mapsLost: 0,
+    mapsTied: 0,
     unavailable: false,
   };
 }
@@ -75,6 +79,28 @@ describe("map performance", () => {
     expect(
       mapPerformance([play(2, 1, 900), play(2, 2, 1_000)], 1).maps[0].placement,
     ).toBe(2);
+  });
+
+  it("records personal map wins, losses and ties from the team scores", () => {
+    const result = mapPerformance(
+      [
+        play(1, 1, 1_000_000),
+        play(1, 2, 800_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+        play(2, 1, 800_000),
+        play(2, 2, 1_000_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+        play(3, 1, 900_000),
+        play(3, 2, 900_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+      ],
+      1,
+    );
+    expect(result.maps.map((row) => row.result)).toEqual([
+      "tie",
+      "loss",
+      "win",
+    ]);
+    expect(result.mapsWon).toBe(1);
+    expect(result.mapsLost).toBe(1);
+    expect(result.mapsTied).toBe(1);
   });
 
   it("computes effective rating as own score over the map mean", () => {
@@ -120,6 +146,24 @@ describe("map performance", () => {
     expect(result.averageAccuracy).toBeCloseTo((0.98 + 0.9) / 2);
     // Rows are newest first.
     expect(result.maps.map((row) => row.gameId)).toEqual([3, 2, 1]);
+  });
+
+  it("splits average placement by the score count of each map", () => {
+    const threeVThree = [1, 2, 3, 4, 5].map((osuId, index) =>
+      play(1, osuId, 1_000 - index * 100, 0.95, "2024-01-05T00:00:00Z"),
+    );
+    const fourVFour = [500, 1_000, 900, 800, 700, 600, 400].map(
+      (score, index) => play(2, index + 1, score, 0.95, "2024-01-12T00:00:00Z"),
+    );
+    const summary = summarizeMapPerformance([
+      {
+        ...blank("s1"),
+        ...mapPerformance([...threeVThree, ...fourVFour], 1),
+      },
+    ]);
+    expect(summary.averagePlacement).toBeCloseTo((1 + 6) / 2);
+    expect(summary.averagePlacement3v3).toBe(1);
+    expect(summary.averagePlacement4v4).toBe(6);
   });
 
   it("summarizes editions and ignores empty or unavailable seasons", () => {
@@ -184,6 +228,8 @@ describe("liveMapPlays", () => {
       osuId: 1,
       score: 900_000,
       accuracy: 0.98,
+      teamId: "a",
+      winnerTeamId: "a",
     });
     expect(row.at).toBe("2025-04-05T12:00:00Z");
   });

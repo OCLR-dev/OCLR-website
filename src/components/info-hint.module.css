@@ -1,0 +1,85 @@
+.hint {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  vertical-align: middle;
+}
+
+.trigger {
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid var(--site-border, var(--color-border));
+  border-radius: 50%;
+  background: var(--site-surface, var(--color-panel));
+  color: var(--site-muted, var(--color-muted));
+  cursor: help;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.75rem;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+}
+
+.trigger:hover,
+.hint:focus-within .trigger {
+  border-color: var(--site-accent, var(--color-accent));
+  color: var(--site-foreground, var(--color-text));
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--site-accent, var(--color-accent));
+  outline-offset: 2px;
+}
+
+/* Fixed so the panel can follow the pointer without being clipped by the page. */
+.panel {
+  position: fixed;
+  z-index: 60;
+  width: min(30rem, calc(100vw - 3rem));
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--site-border, var(--color-border));
+  border-radius: 0.75rem;
+  background: var(--site-surface, var(--color-panel));
+  box-shadow: 0 14px 34px var(--site-panel-shadow, rgb(0 0 0 / 28%));
+  color: var(--site-muted, var(--color-muted));
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: left;
+  white-space: normal;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -12px);
+  transition: opacity 120ms ease;
+}
+
+.panel.above {
+  transform: translate(-50%, calc(-100% - 12px));
+}
+
+.panel.below {
+  transform: translate(-50%, 12px);
+}
+
+.panel.open {
+  visibility: visible;
+  opacity: 1;
+}
+
+.panel > :first-child {
+  margin-top: 0;
+}
+
+.panel > :last-child {
+  margin-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+  }
+}

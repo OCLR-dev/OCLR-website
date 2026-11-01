@@ -1,0 +1,456 @@
+.card {
+  --stat-label-size: 0.85rem;
+  --stat-value-size: 1.35rem;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.sections {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.bars {
+  display: grid;
+  flex: 1;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 14px;
+  min-height: 0;
+}
+
+.bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 3.5rem;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #0e1220;
+  box-shadow:
+    inset 0 2px 5px rgb(0 0 0 / 45%),
+    inset 0 -1px 0 rgb(255 255 255 / 8%),
+    0 2px 5px rgb(0 0 0 / 20%);
+  isolation: isolate;
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.winFill {
+  left: 0;
+  width: var(--win-share);
+  background: linear-gradient(
+    90deg,
+    #5edc5b 0%,
+    #caf881 25%,
+    #5edc5b 50%,
+    #caf881 75%,
+    #5edc5b 100%
+  );
+  background-size: 400% 100%;
+  animation: win-flow 7s linear infinite;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 25%),
+    inset 0 -6px 12px rgb(0 60 30 / 25%),
+    inset -8px 0 12px rgb(0 0 0 / 12%);
+}
+
+.lossFill {
+  right: 0;
+  left: var(--win-share);
+  background: linear-gradient(
+    90deg,
+    #fd5392 0%,
+    #d32f2f 25%,
+    #fd5392 50%,
+    #d32f2f 75%,
+    #fd5392 100%
+  );
+  background-size: 400% 100%;
+  animation: loss-flow 7s linear infinite;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 18%),
+    inset 0 -6px 12px rgb(60 0 0 / 25%),
+    inset 8px 0 12px rgb(0 0 0 / 14%);
+}
+
+/* 微弱气泡：四层不同步的半透明气泡在进度条内缓慢上浮 */
+.bubbles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    radial-gradient(
+      circle 7.8px at 58% 64%,
+      transparent 0 24%,
+      rgb(255 255 255 / 44%) 34% 58%,
+      rgb(255 255 255 / 12%) 76%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 5.7px at 21% 38%,
+      rgb(255 255 255 / 52%) 0 38%,
+      rgb(255 255 255 / 16%) 70%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 6.6px at 82% 78%,
+      transparent 0 28%,
+      rgb(255 255 255 / 40%) 38% 62%,
+      rgb(255 255 255 / 10%) 80%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 4.5px at 46% 46%,
+      rgb(255 255 255 / 46%) 0 48%,
+      rgb(255 255 255 / 14%) 78%,
+      transparent 100%
+    );
+  background-repeat: repeat;
+  background-position:
+    23px 0,
+    97px 18px,
+    41px 36px,
+    181px 54px;
+  background-size:
+    379px 72px,
+    311px 72px,
+    251px 72px,
+    211px 72px;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  pointer-events: none;
+  animation: bubble-rise 20s linear infinite;
+}
+
+@keyframes bubble-rise {
+  from {
+    background-position:
+      23px 0,
+      97px 18px,
+      41px 36px,
+      181px 54px;
+  }
+
+  to {
+    background-position:
+      23px -288px,
+      97px -270px,
+      41px -252px,
+      181px -234px;
+  }
+}
+
+@keyframes win-flow {
+  from {
+    background-position: 66.6667% 50%;
+  }
+
+  to {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes loss-flow {
+  from {
+    background-position: 0% 50%;
+  }
+
+  to {
+    background-position: 66.6667% 50%;
+  }
+}
+
+/* 湮灭接缝：绿红交界处的高亮核心、光晕与迸溅粒子 */
+.seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--win-share);
+  z-index: 1;
+  width: 0;
+  pointer-events: none;
+}
+
+.seam::before {
+  content: "";
+  position: absolute;
+  top: -4%;
+  bottom: -4%;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    #fff 10%,
+    #fff 90%,
+    transparent 100%
+  );
+  border-radius: 999px;
+  box-shadow:
+    0 0 4px #fff,
+    0 0 10px rgb(255 255 255 / 90%),
+    0 0 20px rgb(255 244 214 / 70%),
+    0 0 38px rgb(255 255 255 / 35%);
+  transform: translateX(-50%);
+  animation: seam-flare 2.6s ease-in-out infinite;
+}
+
+.seam::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 64px;
+  height: 165%;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 255 255 / 55%) 0%,
+    rgb(255 250 236 / 26%) 38%,
+    rgb(255 255 255 / 8%) 62%,
+    transparent 78%
+  );
+  filter: blur(4px);
+  mix-blend-mode: screen;
+  transform: translate(-50%, -50%);
+  animation: seam-bloom 3.4s ease-in-out infinite;
+}
+
+.spark {
+  position: absolute;
+  bottom: 34%;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow:
+    0 0 5px #fff,
+    0 0 11px rgb(255 232 184 / 85%);
+  opacity: 0;
+  transform: translate(-50%, 8px) scale(0.5);
+  animation: seam-spark var(--spark-duration, 2.8s) ease-out infinite;
+  animation-delay: var(--spark-delay, 0s);
+}
+
+.spark:nth-child(1) {
+  --spark-x: -14px;
+  --spark-delay: 0s;
+  --spark-duration: 2.8s;
+
+  bottom: 38%;
+}
+
+.spark:nth-child(2) {
+  --spark-x: 9px;
+  --spark-delay: 0.7s;
+  --spark-duration: 3.2s;
+
+  bottom: 26%;
+}
+
+.spark:nth-child(3) {
+  --spark-x: -6px;
+  --spark-delay: 1.4s;
+  --spark-duration: 2.5s;
+
+  bottom: 44%;
+}
+
+.spark:nth-child(4) {
+  --spark-x: 15px;
+  --spark-delay: 2.1s;
+  --spark-duration: 3.6s;
+
+  bottom: 20%;
+}
+
+@keyframes seam-flare {
+  0%,
+  100% {
+    opacity: 0.72;
+    filter: brightness(1);
+  }
+
+  38% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+
+  52% {
+    opacity: 0.86;
+    filter: brightness(1.05);
+  }
+
+  68% {
+    opacity: 1;
+    filter: brightness(1.22);
+  }
+}
+
+@keyframes seam-bloom {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+
+  50% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+@keyframes seam-spark {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 8px) scale(0.5);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 0.75;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--spark-x, 0px)), -32px) scale(0.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .winFill,
+  .lossFill {
+    animation: none;
+  }
+
+  .bubbles {
+    animation: none;
+  }
+
+  .seam::before,
+  .seam::after {
+    animation: none;
+  }
+
+  .spark {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.edge {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  gap: 0.05rem;
+  color: #fff;
+  transform: translateY(-50%);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 40%);
+  white-space: nowrap;
+}
+
+.edgeStart {
+  left: 0.8rem;
+  text-align: left;
+}
+
+.edgeEnd {
+  right: 0.8rem;
+  text-align: right;
+}
+
+.edge small {
+  font-size: var(--stat-label-size);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  opacity: 0.82;
+}
+
+.edge strong {
+  font-size: var(--stat-value-size);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+.rate {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: grid;
+  min-width: 3.2rem;
+  padding: 0.2rem 0.55rem;
+  color: #fff;
+  background: rgb(8 12 22 / 72%);
+  border-radius: 999px;
+  box-shadow:
+    0 2px 7px rgb(0 0 0 / 35%),
+    inset 0 1px 0 rgb(255 255 255 / 14%);
+  font-size: 1.45rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  line-height: 1;
+  place-items: center;
+  transform: translate(-50%, -50%);
+}
+
+.list {
+  display: grid;
+  flex: none;
+  width: 100%;
+  margin: 0;
+}
+
+.list > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--site-border, var(--color-border));
+}
+
+.list > div:first-child {
+  padding-block-start: 0;
+}
+
+.list > div:last-child {
+  padding-block-end: 0;
+  border-bottom: 0;
+}
+
+.list dt {
+  margin: 0;
+  color: var(--site-muted, var(--color-muted));
+  font-size: var(--stat-label-size);
+}
+
+.list dd {
+  margin: 0;
+  font-size: var(--stat-value-size);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+@media (max-width: 560px) {
+  .card {
+    --stat-value-size: 1.2rem;
+  }
+
+  .list > div {
+    padding: 0.55rem 0;
+  }
+}
