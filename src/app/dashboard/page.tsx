@@ -275,6 +275,17 @@ async function Issue271Page({
                             {tr("Apply again")}
                           </Action>
                         )}
+                        {edition?.published &&
+                          !edition.archive &&
+                          !remoteMode() &&
+                          (r.status === "accepted" || captainAssigned) && (
+                            <Action
+                              href={`/tournaments/${edition.slug}/player/practice`}
+                              secondary={captainAssigned}
+                            >
+                              {tr("PLAYER WORKSPACE")}
+                            </Action>
+                          )}
                         {edition && captainAssigned && (
                           <>
                             <Action

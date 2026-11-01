@@ -86,11 +86,11 @@
   overflow-wrap: anywhere;
 }
 .practiceForm {
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   display: grid;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  container-type: inline-size;
 }
-.formHeading,
 .recordHeading {
   display: flex;
   justify-content: space-between;
@@ -98,23 +98,33 @@
   flex-wrap: wrap;
   gap: 0.5rem;
 }
-.formHeading h3 {
-  margin: 0;
-  font-size: 1rem;
-}
 .recordHeading strong {
   min-width: 0;
   flex: 1;
   overflow-wrap: anywhere;
 }
-.practiceValues {
+.practiceRow {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(8rem, 1fr) minmax(0, 2fr);
-  gap: 1rem;
+  grid-template-columns: minmax(5.5rem, 7rem) max-content minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.practiceRow :global(.field) {
+  margin: 0;
+  min-width: 0;
+}
+.practiceRow input[type="number"],
+.practiceRow textarea {
+  padding: 0.5rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
 }
 .practiceForm .practiceComment textarea {
   min-height: 2.75rem;
   height: 2.75rem;
+  white-space: pre;
   resize: vertical;
 }
 .practiceToolbar {
@@ -159,13 +169,11 @@
   min-width: 0;
 }
 .rating legend {
-  font-size: 0.875rem;
-  margin-bottom: 0.4rem;
-  font-weight: 600;
+  margin: 0;
 }
 .stars {
   display: flex;
-  gap: 0.25rem;
+  gap: 0;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -197,8 +205,51 @@
   outline-offset: 3px;
   border-radius: 0.2rem;
 }
-.stars button {
-  margin-left: 0.5rem;
+.practiceForm .iconButton {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+}
+.practiceForm .ratingToggle {
+  display: none;
+}
+@container (max-width: 36rem) {
+  .practiceRow {
+    grid-template-columns: 6rem 3rem minmax(0, 1fr) auto;
+    gap: 0.375rem;
+  }
+  .practiceForm .ratingToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+  .rating .stars {
+    display: none;
+    position: absolute;
+    z-index: 3;
+    top: calc(100% + 0.375rem);
+    inset-inline-start: 0;
+    width: max-content;
+    max-width: 100%;
+    padding: 0.25rem;
+    background: var(--site-surface);
+    border: 1px solid var(--site-control-border);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 16px var(--site-soft-shadow);
+  }
+  .rating[data-open="true"] .stars {
+    display: flex;
+  }
 }
 .saveRow {
   display: flex;
@@ -299,11 +350,12 @@
     flex-basis: 100%;
     justify-content: flex-end;
   }
-  .practiceForm,
   .teamRecords {
     padding: 1rem;
   }
-  .practiceValues,
+  .practiceForm {
+    padding: 0.75rem;
+  }
   .slotFields {
     grid-template-columns: 1fr;
   }

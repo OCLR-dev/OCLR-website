@@ -102,10 +102,32 @@ function PracticeEntry({
   const [exists, setExists] = useState(Boolean(own));
   const [stale, setStale] = useState(Boolean(own?.stale));
   const [validation, setValidation] = useState("");
+  const [ratingOpen, setRatingOpen] = useState(false);
+  const ratingRoot = useRef<HTMLFieldSetElement>(null);
+  const ratingToggle = useRef<HTMLButtonElement>(null);
   const { save, busy, message, failed } = useWorkspaceSave(
     `/api/tournaments/${slug}/player/practice`,
   );
   const dirty = JSON.stringify(value) !== JSON.stringify(saved);
+  useEffect(() => {
+    if (!ratingOpen) return;
+    const close = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !ratingRoot.current?.contains(event.target)
+      )
+        setRatingOpen(false);
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [ratingOpen]);
+  const chooseRating = (rating: number | null) => {
+    setValue({ ...value, rating });
+    if (ratingOpen) {
+      setRatingOpen(false);
+      ratingToggle.current?.focus();
+    }
+  };
   useEffect(() => {
     onDirty(entry.id, dirty || busy);
     return () => onDirty(entry.id, false);
@@ -156,6 +178,7 @@ function PracticeEntry({
       </header>
       <form
         className={styles.practiceForm}
+        aria-label={`${tr("My practice")}: ${label}`}
         onSubmit={async (event) => {
           event.preventDefault();
           setValidation("");
@@ -180,12 +203,6 @@ function PracticeEntry({
           }
         }}
       >
-        <div className={styles.formHeading}>
-          <h3>{tr("My practice")}</h3>
-          <span className="muted small">
-            {tr("Visible to your current team")}
-          </span>
-        </div>
         {stale && (
           <p className="notice small">
             {tr(
@@ -193,15 +210,16 @@ function PracticeEntry({
             )}
           </p>
         )}
-        <div className={styles.practiceValues}>
+        <div className={styles.practiceRow}>
           <label className="field">
-            <span>{tr("Practice score")}</span>
+            <span className="sr-only">{tr("Practice score")}</span>
             <input
               type="number"
               inputMode="numeric"
               min={0}
               max={Number.MAX_SAFE_INTEGER}
               step={1}
+              placeholder={tr("Practice score")}
               value={value.score ?? ""}
               disabled={disabled}
               onChange={(event) =>
@@ -215,9 +233,39 @@ function PracticeEntry({
               }
             />
           </label>
-          <fieldset className={styles.rating} disabled={disabled}>
-            <legend>{tr("Practice rating")}</legend>
-            <div className={styles.stars}>
+          <fieldset
+            ref={ratingRoot}
+            className={styles.rating}
+            disabled={disabled}
+            data-open={ratingOpen}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget))
+                setRatingOpen(false);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && ratingOpen) {
+                event.preventDefault();
+                setRatingOpen(false);
+                ratingToggle.current?.focus();
+              }
+            }}
+          >
+            <legend className="sr-only">{tr("Practice rating")}</legend>
+            <button
+              ref={ratingToggle}
+              type="button"
+              className={`secondary ${styles.ratingToggle}`}
+              aria-label={`${tr("Practice rating")}${value.rating === null ? "" : `: ${tr("{value0} out of 5 stars", { value0: value.rating })}`}`}
+              title={tr("Practice rating")}
+              aria-expanded={ratingOpen}
+              aria-controls={`practice-rating-${entry.id}`}
+              onClick={() => setRatingOpen(!ratingOpen)}
+            >
+              <span aria-hidden="true">
+                {value.rating === null ? "☆" : `★ ${value.rating}`}
+              </span>
+            </button>
+            <div className={styles.stars} id={`practice-rating-${entry.id}`}>
               {[1, 2, 3, 4, 5].map((rating) => (
                 <label
                   key={rating}
@@ -228,7 +276,7 @@ function PracticeEntry({
                     name={`rating-${entry.id}`}
                     value={rating}
                     checked={value.rating === rating}
-                    onChange={() => setValue({ ...value, rating })}
+                    onChange={() => chooseRating(rating)}
                   />
                   <span
                     className={
@@ -246,38 +294,66 @@ function PracticeEntry({
                 </label>
               ))}
               <button
-                className="secondary"
+                className={`secondary ${styles.iconButton}`}
                 type="button"
+                aria-label={tr("Clear rating")}
+                title={tr("Clear rating")}
                 disabled={disabled || value.rating === null}
-                onClick={() => setValue({ ...value, rating: null })}
+                onClick={() => chooseRating(null)}
               >
-                {tr("Clear rating")}
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path d="m6 6 12 12M6 18 18 6" />
+                </svg>
               </button>
             </div>
           </fieldset>
-        </div>
-        <label className={`field ${styles.practiceComment}`}>
-          <span>{tr("Practice comment")}</span>
-          <textarea
-            maxLength={2000}
-            rows={1}
-            value={value.comment}
-            disabled={disabled}
-            onChange={(event) =>
-              setValue({ ...value, comment: event.target.value })
-            }
-          />
-        </label>
-        {!data.readOnly && (
-          <div className={styles.saveRow}>
-            <button type="submit" disabled={busy || !dirty}>
-              {busy ? tr("Saving…") : tr("Save practice")}
+          <label className={`field ${styles.practiceComment}`}>
+            <span className="sr-only">{tr("Practice comment")}</span>
+            <textarea
+              maxLength={2000}
+              rows={1}
+              placeholder={tr("Practice comment")}
+              value={value.comment}
+              disabled={disabled}
+              onChange={(event) =>
+                setValue({ ...value, comment: event.target.value })
+              }
+            />
+          </label>
+          {!data.readOnly && (
+            <button
+              className={styles.iconButton}
+              type="submit"
+              disabled={busy || !dirty}
+              aria-label={busy ? tr("Saving…") : tr("Save practice")}
+              title={busy ? tr("Saving…") : tr("Save practice")}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12l4 4v12a2 2 0 0 1-2 2Z" />
+                <path d="M7 3v6h10V3M7 21v-8h10v8" />
+              </svg>
             </button>
-            <span className="muted small">
-              {dirty ? tr("Unsaved changes") : ""}
-            </span>
-          </div>
-        )}
+          )}
+        </div>
+        <span className="sr-only">{dirty ? tr("Unsaved changes") : ""}</span>
         {(validation || message) && (
           <p
             role={validation || failed ? "alert" : "status"}
