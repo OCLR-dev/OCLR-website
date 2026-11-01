@@ -79,7 +79,7 @@ try {
     sql`SELECT 1 FROM staff_role_events, tournament_stages, tournament_rounds, mappools, mappool_entries, mappool_events LIMIT 0`,
   );
   await db().execute(
-    sql`SELECT 1 FROM fixtures, fixture_referees, match_imports, match_games, match_results, result_revisions, result_audit_events, result_game_claims LIMIT 0`,
+    sql`SELECT 1 FROM fixtures, fixture_referees, fixture_commentators, match_imports, match_games, match_results, result_revisions, result_audit_events, result_game_claims LIMIT 0`,
   );
   await db().execute(sql`SELECT assignment_revision FROM fixtures LIMIT 0`);
   await db().execute(

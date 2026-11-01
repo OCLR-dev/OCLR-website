@@ -42,7 +42,7 @@ export const roles = [
 export type StaffRole = (typeof roles)[number];
 const roleCapabilities: Record<StaffRole, readonly Capability[]> = {
   designer: [],
-  commentator: [],
+  commentator: ["view_streaming", "select_streaming"],
   mapper: [],
   developer: [],
   admin: capabilities,

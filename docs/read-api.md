@@ -394,3 +394,9 @@ It requires the existing private tournament read scope and current selection
 read capability for the candidate's edition. The saved-only lookup returns the
 candidate BID and minimal matching public historical pool identities/slots;
 unpublished data and other candidates are excluded. Existing responses are unchanged.
+
+The v1.17.0 follow-up adds multiple private commentary bookings to
+`streamingWorkspace`, with role-specific candidates/self-service flags, individual
+reconfirmation and conflicts across broadcast roles. Schedule review includes
+commentary conflicts. Streamer-only API credentials and public fixture projections
+retain their existing authorization. See [commentary tasks](streaming.md#commentary-tasks-667).

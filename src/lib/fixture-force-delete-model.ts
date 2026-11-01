@@ -55,6 +55,7 @@ export type FixtureForceDeletePreview = {
     | "commands"
     | "referees"
     | "streams"
+    | "commentators"
     | "statistics",
     number
   >;

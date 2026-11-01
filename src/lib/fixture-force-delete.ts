@@ -60,6 +60,9 @@ export async function fixtureDeletionSnapshot(tx: Tx, fixture: Fixture) {
     referees: await rows(
       sql`SELECT * FROM fixture_referees WHERE fixture_id=${id} ORDER BY user_id`,
     ),
+    commentators: await rows(
+      sql`SELECT * FROM fixture_commentators WHERE fixture_id=${id} ORDER BY user_id`,
+    ),
     streams: await rows(
       sql`SELECT * FROM fixture_streams WHERE fixture_id=${id}`,
     ),
@@ -84,6 +87,7 @@ export async function fixtureDeletionSnapshot(tx: Tx, fixture: Fixture) {
       "commands",
       "referees",
       "streams",
+      "commentators",
       "statistics",
     ].map((key) => [
       key,
@@ -189,6 +193,9 @@ export async function forceDeleteFixtureRecords(
   );
   await tx.execute(sql`DELETE FROM match_imports WHERE fixture_id=${id}`);
   await tx.execute(sql`DELETE FROM fixture_streams WHERE fixture_id=${id}`);
+  await tx.execute(
+    sql`DELETE FROM fixture_commentators WHERE fixture_id=${id}`,
+  );
   await tx.execute(
     sql`DELETE FROM historical_statistics WHERE fixture_id=${id} AND edition_slug=${slug}`,
   );

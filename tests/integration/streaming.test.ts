@@ -14,6 +14,7 @@ import {
   editionEvents,
   fixtureReferees,
   fixtureStreams,
+  fixtureCommentators,
   fixtures,
   mappools,
   matchImports,
@@ -29,6 +30,8 @@ import { fixtureCommand, staffFixtures } from "../../src/lib/fixtures";
 import { importFixtureMatch } from "../../src/lib/results";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { changeStaffRole } from "../../src/lib/staff-roles";
+import { hasStreamingAccess } from "../../src/lib/streaming-api";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { publicFixture } from "../../src/lib/public-competition";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
@@ -40,6 +43,8 @@ const other = { osuId: 187003, username: "Second Streamer" };
 const outsider = { osuId: 187004, username: "Outsider" };
 const referee = { osuId: 187005, username: "Referee" };
 const developer = { osuId: 187006, username: "Read-only Developer" };
+const commentator = { osuId: 187007, username: "First Commentator" };
+const secondCommentator = { osuId: 187008, username: "Second Commentator" };
 const slug = "test-cup";
 describe.skipIf(!url)("authoritative edition streaming tasks", () => {
   let id: string, secondId: string, roundId: string;
@@ -53,7 +58,16 @@ describe.skipIf(!url)("authoritative edition streaming tasks", () => {
     await seedEditions([edition, { ...edition, slug: "other-test-cup" }]);
     await db()
       .insert(users)
-      .values([admin, streamer, other, outsider, referee, developer]);
+      .values([
+        admin,
+        streamer,
+        other,
+        outsider,
+        referee,
+        developer,
+        commentator,
+        secondCommentator,
+      ]);
     await db()
       .insert(staffRoles)
       .values(
@@ -64,20 +78,28 @@ describe.skipIf(!url)("authoritative edition streaming tasks", () => {
           grantedBy: admin.osuId,
         })),
       );
+    await db()
+      .insert(staffRoles)
+      .values(
+        [commentator, secondCommentator].map((user) => ({
+          userId: user.osuId,
+          role: "commentator" as const,
+          editionSlug: slug,
+          grantedBy: admin.osuId,
+        })),
+      );
     await db().insert(staffRoles).values({
       userId: referee.osuId,
       role: "referee",
       editionSlug: slug,
       grantedBy: admin.osuId,
     });
-    await db()
-      .insert(staffRoles)
-      .values({
-        userId: developer.osuId,
-        role: "developer",
-        editionSlug: null,
-        grantedBy: admin.osuId,
-      });
+    await db().insert(staffRoles).values({
+      userId: developer.osuId,
+      role: "developer",
+      editionSlug: null,
+      grantedBy: admin.osuId,
+    });
     const [stage] = await db()
       .insert(tournamentStages)
       .values({ editionSlug: slug, kind: "knockout" })
@@ -493,5 +515,295 @@ describe.skipIf(!url)("authoritative edition streaming tasks", () => {
     await expect(
       streamingWorkspace(streamer, slug, {}, id),
     ).rejects.toMatchObject({ status: 404 });
+  });
+  it("keeps one Streamer and multiple Commentators, with role-specific eligibility and saved reads", async () => {
+    await streamingCommand(streamer, slug, id, command());
+    const claim = command("select", 1, { task: "commentary" });
+    await streamingCommand(commentator, slug, id, claim);
+    await streamingCommand(
+      secondCommentator,
+      slug,
+      id,
+      command("select", 2, { task: "commentary" }),
+    );
+    expect(await streamingCommand(commentator, slug, id, claim)).toMatchObject({
+      replayed: true,
+    });
+    const data = await streamingWorkspace(commentator, slug, { view: "mine" });
+    expect(data.fixtures).toHaveLength(1);
+    expect(data.fixtures[0].assignment?.userId).toBe(streamer.osuId);
+    expect(
+      data.fixtures[0].commentators.map((task) => task.userId).sort(),
+    ).toEqual([commentator.osuId, secondCommentator.osuId]);
+    expect(data.canSelect).toBe(false);
+    expect(data.canSelectCommentary).toBe(true);
+    expect(data.commentaryCandidates).toEqual([]);
+    expect(extendedSchemas.streamingWorkspace.safeParse(data).success).toBe(
+      true,
+    );
+    expect(await hasStreamingAccess(commentator.osuId, slug)).toBe(false);
+    const manager = await streamingWorkspace(admin, slug);
+    expect(manager.candidates.map((u) => u.osuId)).not.toContain(
+      commentator.osuId,
+    );
+    expect(manager.commentaryCandidates.map((u) => u.osuId)).toContain(
+      commentator.osuId,
+    );
+    expect(manager.commentaryCandidates.map((u) => u.osuId)).not.toContain(
+      streamer.osuId,
+    );
+    for (const [actor, task] of [
+      [commentator, undefined],
+      [streamer, "commentary"],
+    ] as const)
+      await expect(
+        streamingCommand(
+          actor,
+          slug,
+          secondId,
+          command("select", 0, task ? { task } : {}),
+        ),
+      ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      streamingWorkspace(commentator, "other-test-cup"),
+    ).rejects.toMatchObject({ status: 403 });
+    expect(await db().select().from(fixtureStreams)).toHaveLength(1);
+    expect(await db().select().from(fixtureCommentators)).toHaveLength(2);
+  });
+  it("assigns individual commentators and permits only owners or managers to cancel them", async () => {
+    await streamingCommand(
+      admin,
+      slug,
+      id,
+      command("assign", 0, { task: "commentary", userId: commentator.osuId }),
+    );
+    await streamingCommand(
+      admin,
+      slug,
+      id,
+      command("assign", 1, {
+        task: "commentary",
+        userId: secondCommentator.osuId,
+      }),
+    );
+    for (const action of ["cancel", "reconfirm", "assign"]) {
+      await expect(
+        streamingCommand(
+          commentator,
+          slug,
+          id,
+          command(action, 2, {
+            task: "commentary",
+            userId: secondCommentator.osuId,
+          }),
+        ),
+      ).rejects.toMatchObject({ status: 403 });
+    }
+    await expect(
+      streamingCommand(
+        commentator,
+        slug,
+        id,
+        command("select", 2, { task: "commentary" }),
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    await streamingCommand(
+      commentator,
+      slug,
+      id,
+      command("cancel", 2, { task: "commentary" }),
+    );
+    expect(
+      (
+        await streamingWorkspace(admin, slug, {}, id)
+      ).fixtures[0].commentators.map((task) => task.userId),
+    ).toEqual([secondCommentator.osuId]);
+    await streamingCommand(
+      admin,
+      slug,
+      id,
+      command("cancel", 3, {
+        task: "commentary",
+        userId: secondCommentator.osuId,
+      }),
+    );
+    expect(await db().select().from(fixtureCommentators)).toEqual([]);
+    expect(
+      (await streamingWorkspace(admin, slug, {}, id)).history,
+    ).toHaveLength(4);
+  });
+  it("serializes commentary retries and accepts a second commentator after refreshing the shared revision", async () => {
+    const claim = command("select", 0, { task: "commentary" });
+    const duplicate = await Promise.all([
+      streamingCommand(commentator, slug, id, claim),
+      streamingCommand(commentator, slug, id, claim),
+    ]);
+    expect(duplicate.filter((result) => result.replayed)).toHaveLength(1);
+    await expect(
+      streamingCommand(
+        secondCommentator,
+        slug,
+        id,
+        command("select", 0, { task: "commentary" }),
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    await streamingCommand(
+      secondCommentator,
+      slug,
+      id,
+      command("select", 1, { task: "commentary" }),
+    );
+    expect(await db().select().from(fixtureCommentators)).toHaveLength(2);
+    expect(await db().select().from(editionEvents)).toHaveLength(2);
+  });
+  it("requires each commentator to reconfirm a changed schedule and keeps cancellation available", async () => {
+    await streamingCommand(
+      commentator,
+      slug,
+      id,
+      command("select", 0, { task: "commentary" }),
+    );
+    await streamingCommand(
+      secondCommentator,
+      slug,
+      id,
+      command("select", 1, { task: "commentary" }),
+    );
+    await db()
+      .update(fixtures)
+      .set({ scheduledAt: new Date("2030-02-03T12:00:00Z"), version: 1 })
+      .where(eq(fixtures.id, id));
+    let tasks = (await streamingWorkspace(commentator, slug, {}, id))
+      .fixtures[0].commentators;
+    expect(tasks.every((task) => task.needsConfirmation)).toBe(true);
+    await streamingCommand(
+      commentator,
+      slug,
+      id,
+      command("reconfirm", 2, {
+        task: "commentary",
+        expectedFixtureVersion: 1,
+      }),
+    );
+    tasks = (await streamingWorkspace(commentator, slug, {}, id)).fixtures[0]
+      .commentators;
+    expect(
+      tasks.find((task) => task.userId === commentator.osuId)
+        ?.needsConfirmation,
+    ).toBe(false);
+    expect(
+      tasks.find((task) => task.userId === secondCommentator.osuId)
+        ?.needsConfirmation,
+    ).toBe(true);
+    await db()
+      .update(fixtures)
+      .set({ status: "cancelled", version: 2 })
+      .where(eq(fixtures.id, id));
+    await expect(
+      streamingCommand(
+        secondCommentator,
+        slug,
+        id,
+        command("reconfirm", 3, {
+          task: "commentary",
+          expectedFixtureVersion: 2,
+        }),
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    await streamingCommand(
+      secondCommentator,
+      slug,
+      id,
+      command("cancel", 3, { task: "commentary", expectedFixtureVersion: 2 }),
+    );
+    expect(await db().select().from(fixtureCommentators)).toHaveLength(1);
+  });
+  it("checks commentary revocation even with another live role, preserving attribution for managers", async () => {
+    await streamingCommand(
+      commentator,
+      slug,
+      id,
+      command("select", 0, { task: "commentary" }),
+    );
+    await changeStaffRole(admin, {
+      action: "grant",
+      confirmed: true,
+      userId: commentator.osuId,
+      role: "streamer",
+      editionSlug: slug,
+    });
+    await db()
+      .update(staffRoles)
+      .set({ revokedAt: new Date() })
+      .where(eq(staffRoles.role, "commentator"));
+    expect(
+      (await streamingWorkspace(admin, slug, {}, id)).fixtures[0]
+        .commentators[0].eligible,
+    ).toBe(false);
+    for (const action of ["cancel", "reconfirm"])
+      await expect(
+        streamingCommand(
+          commentator,
+          slug,
+          id,
+          command(action, 1, { task: "commentary" }),
+        ),
+      ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      streamingCommand(
+        admin,
+        slug,
+        secondId,
+        command("assign", 0, { task: "commentary", userId: commentator.osuId }),
+      ),
+    ).rejects.toMatchObject({ status: 400 });
+    await streamingCommand(
+      admin,
+      slug,
+      id,
+      command("cancel", 1, { task: "commentary", userId: commentator.osuId }),
+    );
+    expect(await db().select().from(fixtureCommentators)).toEqual([]);
+  });
+  it("includes cross-role same-start warnings and protects booked deletion without publishing identities", async () => {
+    await changeStaffRole(admin, {
+      action: "grant",
+      confirmed: true,
+      userId: streamer.osuId,
+      role: "commentator",
+      editionSlug: slug,
+    });
+    await streamingCommand(streamer, slug, id, command());
+    await streamingCommand(
+      streamer,
+      slug,
+      secondId,
+      command("select", 0, { task: "commentary" }),
+    );
+    const data = await streamingWorkspace(streamer, slug);
+    expect(
+      data.fixtures.find((f) => f.id === id)?.conflicts.map((f) => f.id),
+    ).toEqual([secondId]);
+    expect(
+      data.fixtures
+        .find((f) => f.id === secondId)
+        ?.commentators[0].conflicts.map((f) => f.id),
+    ).toEqual([id]);
+    await expect(
+      fixtureCommand(admin, slug, {
+        action: "delete",
+        fixtureId: secondId,
+        expectedVersion: 0,
+        expectedAssignmentRevision: 0,
+        confirmed: true,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    await db()
+      .update(fixtures)
+      .set({ publishedAt: new Date() })
+      .where(eq(fixtures.id, secondId));
+    const publicData = await publicFixture(slug, secondId);
+    expect(JSON.stringify(publicData)).not.toContain("commentator");
+    expect(publicData).not.toHaveProperty("commentators");
   });
 });

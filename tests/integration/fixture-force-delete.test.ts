@@ -12,6 +12,7 @@ import { eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import {
   fixtures,
+  fixtureCommentators,
   editionEvents,
   matchImports,
   matchResults,
@@ -106,6 +107,17 @@ describe.skipIf(!url)(
       await db().execute(
         sql`INSERT INTO fixture_streams (fixture_id,user_id,source,assigned_by,confirmed_time_zone) VALUES (${id},${admin.osuId},'staff',${admin.osuId},'UTC')`,
       );
+      await db()
+        .insert(fixtureCommentators)
+        .values(
+          [admin, referee].map((user) => ({
+            fixtureId: id,
+            userId: user.osuId,
+            source: "staff" as const,
+            assignedBy: admin.osuId,
+            confirmedTimeZone: "UTC",
+          })),
+        );
       await db().execute(
         sql`INSERT INTO historical_statistics (edition_slug,mp_id,fixture_id,draft) VALUES ('test-cup',9999917,${id},'{"synthetic":true}'::jsonb)`,
       );
@@ -133,6 +145,7 @@ describe.skipIf(!url)(
       ).rejects.toMatchObject({ status: 409 });
       await fixtureCommand(admin, "test-cup", request);
       expect(await db().select().from(fixtures)).toHaveLength(0);
+      expect(await db().select().from(fixtureCommentators)).toHaveLength(0);
       expect(await db().select().from(refereeSessions)).toHaveLength(0);
       expect(await db().select().from(refereeEvents)).toHaveLength(0);
       expect(await db().select().from(matchImports)).toHaveLength(0);
@@ -153,9 +166,14 @@ describe.skipIf(!url)(
           connections: 1,
           commands: 1,
           statistics: 1,
+          commentators: 2,
         },
       });
       expect(audit.detail.archivedRecords).toMatchObject({
+        commentators: expect.arrayContaining([
+          expect.objectContaining({ user_id: String(admin.osuId) }),
+          expect.objectContaining({ user_id: String(referee.osuId) }),
+        ]),
         refereeEvents: expect.any(Array),
         resultRevisions: expect.any(Array),
       });
