@@ -260,6 +260,7 @@ export async function publicTournamentModel(slug: string) {
     automaticEligibility: publicFields.automaticEligibility,
     rankGraceRange: publicFields.rankGraceRange,
     schedule: publicFields.schedule,
+    seasonWindow: row.edition.archive?.season ?? null,
     overview,
   });
 }

@@ -218,6 +218,7 @@ export const editionSchema = z
             at: instant.nullable(),
             kind: z.enum(["group", "knockout"]).optional(),
             endAt: instant.nullable().optional(),
+            precision: z.enum(["day", "instant"]).optional(),
           })
           .strict()
           .refine(

@@ -164,7 +164,7 @@ export function PlayerCompetition({
                   edition.placingRange.start === edition.placingRange.end
                     ? String(edition.placingRange.start)
                     : `${edition.placingRange.start}–${edition.placingRange.end}`,
-                derived: false,
+                derived: !edition.placingRange.official,
               }
             : edition.finish;
           return (

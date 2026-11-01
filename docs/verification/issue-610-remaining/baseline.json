@@ -1,0 +1,141 @@
+{
+  "kind": "pre-application-public-baseline",
+  "checkedOn": "2026-11-01",
+  "endpointPattern": "https://oclr.org/api/v1/tournaments/{slug}/statistics",
+  "factFields": [
+    "fixtureId",
+    "mpId",
+    "gameId",
+    "osuId",
+    "teamId",
+    "score",
+    "accuracy",
+    "combo",
+    "passed",
+    "mods",
+    "hits"
+  ],
+  "serialization": "Sort rows by fixtureId/gameId/osuId; Python JSON ensure_ascii=False, sort_keys=True, compact separators; SHA-256 UTF-8. No excluded or private review facts.",
+  "seasons": [
+    {
+      "slug": "s1",
+      "archiveKey": "52398c08db8a507f7cbc2f692270340cb7c2ea9cd1394bdbb1af2b86cbefb507",
+      "coveredFixtures": 19,
+      "eligibleFixtures": 40,
+      "games": 109,
+      "plays": 654,
+      "players": 66,
+      "zeroScores": 0,
+      "publicDownloadSha256": "2bb0c537987c02e46e307d28dad874e2cb63baa7b6982761490611ffee222b2c",
+      "scoreFactsSha256": "bd08acaac7341d9f537be54a2acc7e85bc74a9aae10e712d13234f632bd7bf37"
+    },
+    {
+      "slug": "s2",
+      "archiveKey": "0f56931853970c63d1078a14df81d100c4a7ad2f824c43b3265b05d116f4dd96",
+      "coveredFixtures": 18,
+      "eligibleFixtures": 29,
+      "games": 134,
+      "plays": 793,
+      "players": 60,
+      "zeroScores": 0,
+      "publicDownloadSha256": "42d1e847e9b640c9ea3e35ff1e7ce4eb244874801a75a39622d4ed675f85c989",
+      "scoreFactsSha256": "177cc4611e75aa91bdca937d55d07f8510a0e1c5f203bd5fbf30ef3f8ae4a097"
+    },
+    {
+      "slug": "s3",
+      "archiveKey": "f63ac9b03baa99f97651e02ca42a700680ca0ff295a411741212d73b001eccd1",
+      "coveredFixtures": 13,
+      "eligibleFixtures": 30,
+      "games": 120,
+      "plays": 720,
+      "players": 54,
+      "zeroScores": 0,
+      "publicDownloadSha256": "8e439283b696328b55628af9f5f5d1e5483b3c0f33241ef52131452ad14ca64c",
+      "scoreFactsSha256": "b024dccc6e63330f6b5f75108ced06f5570965877c7d3aa990fa347be5609f51"
+    },
+    {
+      "slug": "s4",
+      "archiveKey": "e105a2d37b65c73b4a1e42e917c2fe8fdb200d92d8882b50a565ed937403432a",
+      "coveredFixtures": 17,
+      "eligibleFixtures": 33,
+      "games": 147,
+      "plays": 882,
+      "players": 64,
+      "zeroScores": 2,
+      "publicDownloadSha256": "d392d7612193350d530e6c19509df058a12c74ff8736088611997ff894fc1e96",
+      "scoreFactsSha256": "32620da9e18f9e16c12ec223815de5a907a3a871a1090240033a2c0685bfc715"
+    },
+    {
+      "slug": "s5",
+      "archiveKey": "193e1c0646febe47118bd8026ba4c488ea447836dfc418b36e956df42d4bb3c0",
+      "coveredFixtures": 34,
+      "eligibleFixtures": 34,
+      "games": 251,
+      "plays": 1716,
+      "players": 72,
+      "zeroScores": 217,
+      "publicDownloadSha256": "1fab0cb2f83f08bf65580dc490dd6d50e3564ed35855d9aa7cd0c8486cfc5377",
+      "scoreFactsSha256": "e40806de7e72a02139f790bc75a35252256cdcb01d2a64637d3338f0eb9ff538"
+    },
+    {
+      "slug": "s6",
+      "archiveKey": "cc819ac01c8ce36d548a6b5a1e3f0ee0a88e74a2c48cf9656e5303cd9d7b190c",
+      "coveredFixtures": 0,
+      "eligibleFixtures": 34,
+      "games": 0,
+      "plays": 0,
+      "players": 0,
+      "zeroScores": 0,
+      "publicDownloadSha256": "d32a0af3a61c0b1e18f662d94d77e04628c547c889af4d3a1e52bc3f29349fb8",
+      "scoreFactsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "slug": "s7",
+      "archiveKey": "0f55aa74554d9b5681071f722516ddf12ba6fe8a5eeb8370ed695151cea28c08",
+      "coveredFixtures": 21,
+      "eligibleFixtures": 21,
+      "games": 174,
+      "plays": 1384,
+      "players": 56,
+      "zeroScores": 1,
+      "publicDownloadSha256": "fda791a23426b6a8be0623f16315b58e11cc7abcaae0c1497e315b9f12df94b2",
+      "scoreFactsSha256": "0ee7f13790e2a57ba6514e3eb1bbdcae88bc0237dff53121400807b0be1c2da2"
+    },
+    {
+      "slug": "s8",
+      "archiveKey": "4497d5181f5a633f72aaf2e6186c6239c73b00324d435b7e46c1da32f1427d9a",
+      "coveredFixtures": 38,
+      "eligibleFixtures": 38,
+      "games": 355,
+      "plays": 2834,
+      "players": 111,
+      "zeroScores": 0,
+      "publicDownloadSha256": "eb46feb37cac166e52db53b4654942b180f2fa290be6d30380bb0e8c205a57db",
+      "scoreFactsSha256": "47dee5787d282203f6e22a444352c2fafcac369aca8a56557f8e7057df0271e5"
+    },
+    {
+      "slug": "s9",
+      "archiveKey": "0003f2c3649335508c8832afa395f8514fb0be6777e3ff7d8b8201d27efe50be",
+      "coveredFixtures": 22,
+      "eligibleFixtures": 22,
+      "games": 213,
+      "plays": 1704,
+      "players": 64,
+      "zeroScores": 0,
+      "publicDownloadSha256": "9140a2b7d340fd7632e75e67098aebe7b3704899748659eeb596a84ed5192643",
+      "scoreFactsSha256": "0a190a489260325e0da89c05a8fa742e9937ddb885f500409888456f096876d9"
+    },
+    {
+      "slug": "s10",
+      "archiveKey": "748a1e4cbbba7f7d8fdd3267c0aab17dae5c9e156659a0a32930cb62d651a858",
+      "coveredFixtures": 30,
+      "eligibleFixtures": 30,
+      "games": 265,
+      "plays": 2113,
+      "players": 78,
+      "zeroScores": 0,
+      "publicDownloadSha256": "da4cd38a40acfdfc8bf31282b64b92b0ef56a93893bdb1aa46b63b53a3eb24df",
+      "scoreFactsSha256": "920ac75675c87b2e70063855ec24a5f32ac05f31ae21adadc797c2d728fb98b1"
+    }
+  ]
+}

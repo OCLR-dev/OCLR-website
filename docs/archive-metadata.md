@@ -1,8 +1,10 @@
 # Structured historical metadata (#610)
 
-Archive format 2 accepts optional `season: { startsAt, endsAt, timeZone }`.
-Both instants require explicit UTC offsets, start must precede end, and the
-zone must be recognized by Intl. `capturedOn` remains the capture/import date;
+Archive format 2 accepts optional `season: { startsAt, endsAt, timeZone, precision? }`.
+Known instants require explicit UTC offsets, start must precede end when both
+are known, and the zone must be recognized by Intl. One boundary can be null;
+an entirely unknown window stays absent. `precision: day` identifies local-day
+boundaries, not invented scheduled minutes. `capturedOn` remains the capture/import date;
 it must never supply a missing season date or scheduled match time.
 
 Standings may record `scope: group|final`, `placement: { start, end }`,
@@ -19,6 +21,8 @@ Matches may supply `round: { phase, index }` (qualifier/group/swiss/knockout/fin
 These describe evidence, not permission to approve results, invent player scores
 or treat an unplayed match as played. Structured phase takes precedence in player
 competition classification. Legacy stage classification remains for older data.
+Draw-capable early formats use `format: { maxGames, winsRequired }`: S2 records
+8/5 and S3/S4 record 10/6, rather than fabricating an odd best-of or a tiebreak.
 
 Review approval may retain `approvedBy` and an HTTPS `evidenceUrl`. The existing
 public projection strips the entire review, including these fields. Adding this
@@ -49,17 +53,33 @@ never automatically excludes them. Confirm the current saved revision before
 applying standings metadata; do not replace a live approved archive with the
 checked-in pending-review import package.
 
-## Outstanding acceptance
+## Current acceptance — 2026-11-01
 
-S5 statistics import/review/publication and four evidenced UID corrections were
-completed through the existing Admin UI on 2026-10-31. See the
-[publication receipt and unauthenticated public checks](s5-statistics-publication.md).
-The 12 remaining unknown identities are coach positions; the official
-schedule time zone remains unresolved. `publication.timeZone` alone does not prove
-that original schedule cells used that zone. S4/S7/S8 final-ranking approval,
-S9 cross-group placement, S10 unplayed fixtures and statistical exceptions,
-and official dates/stage windows for every season require authoritative evidence.
-No missing dates, UIDs, score decisions or approvals are fabricated here. The structured statistics snapshot implementation is described below.
+S5's 12 coach identities, all UTC+8 dates and all 34 published statistics
+fixtures are completed; see [the final deployment receipt](s5-coach-dates.md).
+The earlier unresolved-coach/timezone descriptions are superseded.
+
+The organizer accepted the [remaining-season review](issue-610-remaining-review.md)
+and confirmed S6 has no reset, with UTC+8 actual competition windows and unknown
+dates retained. The [confirmation record](https://github.com/OCLR-dev/OCLR-website/issues/610#issuecomment-6555006692)
+does not establish that these new metadata records have been saved or deployed.
+The [offline proposal](imports/remaining-metadata-review.json) covers ten seasons,
+326 source schedule rows and 110 reconstructed/previously accepted placements.
+All ten statistics source keys remain unchanged. Complete local Admin download
+bodies stay outside the repository; only public competition facts and input
+hashes are retained. [S10's four existing published reviews](imports/s10-exception-review.json)
+preserve selected IDs, exclusions and decisions pending a normal native review.
+
+New code adds staff reason/evidence controls, typed-round and explicit-placement
+consumption, removes free-text interval parsing, and exposes optional public
+`seasonWindow`. Reconstructed records use the existing translated “Derived
+placement” label; a place band does not create a precise finish or award a podium
+position unless an exact place or explicit tied-third decision supports it.
+S2's final date and unsupported historical identities/metadata remain unknown.
+The organizer also accepted the new Chinese staff labels on 2026-11-01.
+Deployment, native application and public readback remain separate gates. No missing dates, UIDs, score decisions
+or historical reviewers are fabricated. The structured snapshot implementation
+is described below.
 
 This implements the metadata and statistics program portion of #610. The issue must remain open until
 reviewed data is applied and the public season/match/player acceptance checks pass.
@@ -76,7 +96,6 @@ full run hit deployment/listener/lock failures; the normal-permission rerun abov
 passed. No isolated test database was configured, so database integration and
 full desktop/mobile application E2E were not performed. These results do not
 establish production import, publication, organizer acceptance or CI success.
-
 
 ## Structured statistics review snapshots
 
@@ -146,7 +165,6 @@ and exercise snapshot migration, invalid exclusions, source eligibility and
 public evidence filtering. Actual DB transaction coverage remains for CI or an
 isolated test environment. Full desktop/mobile browser acceptance and production
 data review/import/publication remain outstanding.
-
 
 ## PostgreSQL integration acceptance — 2026-10-31
 

@@ -1,0 +1,579 @@
+{
+  "capturedAt": "2026-11-01T07:13:38.346200+00:00",
+  "transport": "Unauthenticated official public match JSON; headers only, no complete-game-history claim",
+  "matches": [
+    {
+      "mpId": 47359658,
+      "url": "https://osu.ppy.sh/community/matches/47359658",
+      "references": [
+        {
+          "season": "s1",
+          "fixtureId": "gs-b6"
+        }
+      ],
+      "name": "OCLR S1: (K (恶 龙 咆 哮)) vs (F (白菜))",
+      "roomOpenedAt": "2018-11-11T13:24:00Z",
+      "roomClosedAt": "2018-11-11T14:25:48Z",
+      "responseSha256": "1ed8d9f183a117345ca730e3666bb252b6945389a801aab26047ec3c052e9053"
+    },
+    {
+      "mpId": 47643552,
+      "url": "https://osu.ppy.sh/community/matches/47643552",
+      "references": [
+        {
+          "season": "s1",
+          "fixtureId": "gs-a14"
+        }
+      ],
+      "name": "OCLR S1: (正常点) vs (日卡古鸭)",
+      "roomOpenedAt": "2018-11-24T12:19:40Z",
+      "roomClosedAt": "2018-11-24T13:11:16Z",
+      "responseSha256": "ee5dcd3ae84ef3fb6c29cab6c3e51b647198ee53b625431e76399505b43792d2"
+    },
+    {
+      "mpId": 52633792,
+      "url": "https://osu.ppy.sh/community/matches/52633792",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-a1"
+        }
+      ],
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "mpId": 52636219,
+      "url": "https://osu.ppy.sh/community/matches/52636219",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-b2"
+        }
+      ],
+      "name": "OCLR: (C) vs (我打你们队)",
+      "roomOpenedAt": "2019-06-15T11:55:45Z",
+      "roomClosedAt": "2019-06-15T13:06:30Z",
+      "responseSha256": "9a55cc19315c930d61a1a495b7ac77dfa05388a3903f0dd0fc2c0cacb733c4e8"
+    },
+    {
+      "mpId": 52637326,
+      "url": "https://osu.ppy.sh/community/matches/52637326",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-a2"
+        }
+      ],
+      "name": "OCLR: (A 脑袋对折) vs (G)",
+      "roomOpenedAt": "2019-06-15T12:44:21Z",
+      "roomClosedAt": "2019-06-15T14:19:34Z",
+      "responseSha256": "365491b9596f4ee8a5892117cbd9aaf39dcdcc0cdfc0c2f3504c3f281fb09c8f"
+    },
+    {
+      "mpId": 52637948,
+      "url": "https://osu.ppy.sh/community/matches/52637948",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-b3"
+        }
+      ],
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "mpId": 52638629,
+      "url": "https://osu.ppy.sh/community/matches/52638629",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-a3"
+        }
+      ],
+      "name": "OCLR: (Team1) vs (Team2)",
+      "roomOpenedAt": "2019-06-15T13:36:15Z",
+      "roomClosedAt": "2019-06-15T15:54:25Z",
+      "responseSha256": "343de6559ade2d76ed2ef32a407e33779e62ac9f64c94d664601d40007647db4"
+    },
+    {
+      "mpId": 52665967,
+      "url": "https://osu.ppy.sh/community/matches/52665967",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-b5"
+        }
+      ],
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "mpId": 52818603,
+      "url": "https://osu.ppy.sh/community/matches/52818603",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-a7"
+        }
+      ],
+      "name": "OCLR: (D ) vs (G 全员呆瓜)",
+      "roomOpenedAt": "2019-06-22T12:20:55Z",
+      "roomClosedAt": "2019-06-22T14:02:46Z",
+      "responseSha256": "53c7cc048fffe204bc0f9266fa54e9200ca4691c839670c9604b919d0182974a"
+    },
+    {
+      "mpId": 52821125,
+      "url": "https://osu.ppy.sh/community/matches/52821125",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-a8"
+        }
+      ],
+      "name": "OCLR S2 : (E) vs (J)",
+      "roomOpenedAt": "2019-06-22T14:04:47Z",
+      "roomClosedAt": "2019-06-22T15:51:00Z",
+      "responseSha256": "86fef82e85e330edf75d776967a64665c1964354ce4f2d0306854e33894759db"
+    },
+    {
+      "mpId": 52841992,
+      "url": "https://osu.ppy.sh/community/matches/52841992",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-a10"
+        }
+      ],
+      "error": "HTTP Error 401: Unauthorized"
+    },
+    {
+      "mpId": 52842604,
+      "url": "https://osu.ppy.sh/community/matches/52842604",
+      "references": [
+        {
+          "season": "s2",
+          "fixtureId": "gs-a10"
+        }
+      ],
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "mpId": 57309485,
+      "url": "https://osu.ppy.sh/community/matches/57309485",
+      "references": [
+        {
+          "season": "s3",
+          "fixtureId": "ko-b9"
+        }
+      ],
+      "name": "OCLR S3: (J) vs (H)",
+      "roomOpenedAt": "2019-12-28T12:02:29Z",
+      "roomClosedAt": "2019-12-28T13:48:33Z",
+      "responseSha256": "766e975af50297f642024fc90cfb7d099e7fa44be5479bd904b835fec2765dd2"
+    },
+    {
+      "mpId": 57336748,
+      "url": "https://osu.ppy.sh/community/matches/57336748",
+      "references": [
+        {
+          "season": "s3",
+          "fixtureId": "ko-a10"
+        }
+      ],
+      "name": "OCLR S3: (A 《呐喊》) vs (H 《围城》)",
+      "roomOpenedAt": "2019-12-29T12:55:53Z",
+      "roomClosedAt": "2019-12-29T14:17:41Z",
+      "responseSha256": "8bc0219ca09502742291dd0d3f92d293bb522decbdbbb148fde4d7414ccd742e"
+    },
+    {
+      "mpId": 83303988,
+      "url": "https://osu.ppy.sh/community/matches/83303988",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-83303988"
+        }
+      ],
+      "name": "OCLR:(E)vs(F)",
+      "roomOpenedAt": "2021-05-14T11:55:49Z",
+      "roomClosedAt": "2021-05-14T13:24:00Z",
+      "responseSha256": "e02aefa04adac14079d30ceab014417db0caab0543b9ab01331191e0a17417dc"
+    },
+    {
+      "mpId": 83393789,
+      "url": "https://osu.ppy.sh/community/matches/83393789",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-83393789"
+        }
+      ],
+      "name": "OCLR:(超级敏感)vs(不练傻逼图)",
+      "roomOpenedAt": "2021-05-15T11:24:41Z",
+      "roomClosedAt": "2021-05-15T13:05:58Z",
+      "responseSha256": "dea95f3b428f1dd33cf5972468e867dc4476af45f0a11e0dec00a429e924e69f"
+    },
+    {
+      "mpId": 83394664,
+      "url": "https://osu.ppy.sh/community/matches/83394664",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-83394664"
+        }
+      ],
+      "name": "OCLR: (只练二次元图) vs (猫娘别演了)",
+      "roomOpenedAt": "2021-05-15T11:45:55Z",
+      "roomClosedAt": "2021-05-15T13:30:15Z",
+      "responseSha256": "daafee57076acd6aa8545529ae49a9b5c9a8cfb20cad01219559a4e239cef854"
+    },
+    {
+      "mpId": 83398093,
+      "url": "https://osu.ppy.sh/community/matches/83398093",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-83398093"
+        }
+      ],
+      "name": "OCLR:(A)vs(J)",
+      "roomOpenedAt": "2021-05-15T12:51:41Z",
+      "roomClosedAt": "2021-05-15T14:14:44Z",
+      "responseSha256": "b61ae870c47ec689b68ce6ddc8e2405a295b2f7eba207f7b12a13bceeec409da"
+    },
+    {
+      "mpId": 83398400,
+      "url": "https://osu.ppy.sh/community/matches/83398400",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-83398400"
+        }
+      ],
+      "name": "OCLR: (H 你寄吧谁) vs (K 我只会心疼白果果)",
+      "roomOpenedAt": "2021-05-15T12:57:12Z",
+      "roomClosedAt": "2021-05-15T14:52:13Z",
+      "responseSha256": "c59ac4866b423ee14a7ba0ac3796e70bd2d39f5f397cbcbe45a916399d545299"
+    },
+    {
+      "mpId": 83477715,
+      "url": "https://osu.ppy.sh/community/matches/83477715",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-83477715"
+        }
+      ],
+      "name": "OCLR: (B) vs (I)",
+      "roomOpenedAt": "2021-05-16T11:48:37Z",
+      "roomClosedAt": "2021-05-16T13:18:43Z",
+      "responseSha256": "e974ea1ef39a4e71b0437774a44fb9506d01b97b853007456b9c4c32fb52630c"
+    },
+    {
+      "mpId": 83947345,
+      "url": "https://osu.ppy.sh/community/matches/83947345",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-83947345"
+        }
+      ],
+      "name": "OCLR: (H) vs (B)",
+      "roomOpenedAt": "2021-05-22T11:44:48Z",
+      "roomClosedAt": "2021-05-22T12:59:44Z",
+      "responseSha256": "002d2fec764d6f209bf4ea27d57a1e09b9d786c928d3365e6afc7034865a12be"
+    },
+    {
+      "mpId": 83950720,
+      "url": "https://osu.ppy.sh/community/matches/83950720",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-83950720"
+        }
+      ],
+      "name": "OCLR:(L)vs(I)",
+      "roomOpenedAt": "2021-05-22T12:49:39Z",
+      "roomClosedAt": "2021-05-22T14:30:34Z",
+      "responseSha256": "945bf4d63b00b7e59244bffe2cfc7e4940f5bf2ddbce1ce38b77d1ae1a564795"
+    },
+    {
+      "mpId": 83950883,
+      "url": "https://osu.ppy.sh/community/matches/83950883",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-83950883"
+        }
+      ],
+      "name": "OCLR:(猫娘别演了) vs (饮茶先啦)",
+      "roomOpenedAt": "2021-05-22T12:51:56Z",
+      "roomClosedAt": "2021-05-22T14:08:00Z",
+      "responseSha256": "4fa8e000acfb5b46b7e857827c67f9117c92aaf06b32c576e3c22f4e3c7e22fb"
+    },
+    {
+      "mpId": 84030371,
+      "url": "https://osu.ppy.sh/community/matches/84030371",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84030371"
+        }
+      ],
+      "name": "OCLR:(D)vs(G)",
+      "roomOpenedAt": "2021-05-23T11:55:04Z",
+      "roomClosedAt": "2021-05-23T13:02:33Z",
+      "responseSha256": "db497a93646d98537a25a5114409026f7b9b46753c5e0c6f2cc63fdae1a80ef7"
+    },
+    {
+      "mpId": 84033167,
+      "url": "https://osu.ppy.sh/community/matches/84033167",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84033167"
+        }
+      ],
+      "name": "OCLR: (E) vs (J)",
+      "roomOpenedAt": "2021-05-23T12:54:35Z",
+      "roomClosedAt": "2021-05-23T14:04:41Z",
+      "responseSha256": "98a38f18dfca9f931dd2d812035aaf7f86e5dbb442c77441ef3da1a756e6a606"
+    },
+    {
+      "mpId": 84102904,
+      "url": "https://osu.ppy.sh/community/matches/84102904",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84102904"
+        }
+      ],
+      "name": "OCLR:(aoi被圣遗物气晕) vs (我只会心疼白果果)",
+      "roomOpenedAt": "2021-05-24T11:50:31Z",
+      "roomClosedAt": "2021-05-24T13:28:04Z",
+      "responseSha256": "3cf271e8b971ffbd71076e33ac1f7489c0fc5b9776a38a0643379318c4afe93d"
+    },
+    {
+      "mpId": 84398168,
+      "url": "https://osu.ppy.sh/community/matches/84398168",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84398168"
+        }
+      ],
+      "name": "OCLR: (D) vs (I)",
+      "roomOpenedAt": "2021-05-28T11:49:43Z",
+      "roomClosedAt": "2021-05-28T13:36:47Z",
+      "responseSha256": "897bb01433f71394e8d2f493200371d68acd0fc0826b718bdebd0bc1e9c66590"
+    },
+    {
+      "mpId": 84482290,
+      "url": "https://osu.ppy.sh/community/matches/84482290",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84482290"
+        }
+      ],
+      "name": "OCLR: (A 饮茶先啦) vs (K 我只会心疼白果果)",
+      "roomOpenedAt": "2021-05-29T12:25:38Z",
+      "roomClosedAt": "2021-05-29T13:35:57Z",
+      "responseSha256": "926640a594df3d0c0b9d8ba7408a08a4fe75fbdc405744dc837d5ccb6e32d622"
+    },
+    {
+      "mpId": 84483533,
+      "url": "https://osu.ppy.sh/community/matches/84483533",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84483533"
+        }
+      ],
+      "name": "OCLR: (J) vs (C)",
+      "roomOpenedAt": "2021-05-29T12:50:05Z",
+      "roomClosedAt": "2021-05-29T14:12:05Z",
+      "responseSha256": "b96efa2ddfee02055e0384f53b818af80f1c5baed01d8db9f06f01fc023bd45c"
+    },
+    {
+      "mpId": 84554110,
+      "url": "https://osu.ppy.sh/community/matches/84554110",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84554110"
+        }
+      ],
+      "name": "OCLR: (E) vs (B)",
+      "roomOpenedAt": "2021-05-30T11:47:38Z",
+      "roomClosedAt": "2021-05-30T13:34:27Z",
+      "responseSha256": "eabf3fc494b5cf351961c302f26eaa2c35d5988cfad6b25488b967e5ec1e2d7c"
+    },
+    {
+      "mpId": 84554459,
+      "url": "https://osu.ppy.sh/community/matches/84554459",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84554459"
+        }
+      ],
+      "name": "OCLR:(aoi被圣遗物气晕) vs (超级敏感)",
+      "roomOpenedAt": "2021-05-30T11:55:19Z",
+      "roomClosedAt": "2021-05-30T13:33:50Z",
+      "responseSha256": "678e9b9cb20b0e14bc3394ae0239d865369cd8929d45d82d33337f93ad25fe74"
+    },
+    {
+      "mpId": 84686450,
+      "url": "https://osu.ppy.sh/community/matches/84686450",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84686450"
+        }
+      ],
+      "name": "OCLR: (H) vs (L)",
+      "roomOpenedAt": "2021-06-01T12:50:56Z",
+      "roomClosedAt": "2021-06-01T14:29:55Z",
+      "responseSha256": "326d6c364a5548613d09444ee9490bcbbf3911f29ae827f84d041bc185a39ce1"
+    },
+    {
+      "mpId": 84896923,
+      "url": "https://osu.ppy.sh/community/matches/84896923",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84896923"
+        }
+      ],
+      "name": "OCLR: (A) vs (F)",
+      "roomOpenedAt": "2021-06-04T12:53:01Z",
+      "roomClosedAt": "2021-06-04T14:32:42Z",
+      "responseSha256": "979efe9fd66f4c4b3148f970521d0bc012fcf54327129b3b35f9c4e0ced670e2"
+    },
+    {
+      "mpId": 84972689,
+      "url": "https://osu.ppy.sh/community/matches/84972689",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-84972689"
+        }
+      ],
+      "name": "OCLR: (B) vs (G)",
+      "roomOpenedAt": "2021-06-05T11:52:42Z",
+      "roomClosedAt": "2021-06-05T13:29:46Z",
+      "responseSha256": "9c267d5f44fd4d4dd6cc76893fd24ef86060eb7f843b3481851cb37664080c57"
+    },
+    {
+      "mpId": 85044339,
+      "url": "https://osu.ppy.sh/community/matches/85044339",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-85044339"
+        }
+      ],
+      "name": "OCLR: (E 爆炸奶油面包V2) vs (H 你寄吧谁)",
+      "roomOpenedAt": "2021-06-06T12:07:22Z",
+      "roomClosedAt": "2021-06-06T13:46:36Z",
+      "responseSha256": "b828fc6e3231fc84a3f57713ae46087811df50eadcd311ed179830c2de9874aa"
+    },
+    {
+      "mpId": 85172398,
+      "url": "https://osu.ppy.sh/community/matches/85172398",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-85172398"
+        }
+      ],
+      "name": "OCLR: (J) vs (C)",
+      "roomOpenedAt": "2021-06-08T12:47:08Z",
+      "roomClosedAt": "2021-06-08T14:13:43Z",
+      "responseSha256": "863fd6dab4710d846dee98cfd83eca007fe30acfde1f8d15d6314a5b9babd3f0"
+    },
+    {
+      "mpId": 85439390,
+      "url": "https://osu.ppy.sh/community/matches/85439390",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-85439390"
+        }
+      ],
+      "name": "OCLR: (B) vs (E)",
+      "roomOpenedAt": "2021-06-12T12:45:32Z",
+      "roomClosedAt": "2021-06-12T14:55:20Z",
+      "responseSha256": "d77c16787a4f28fb88ead41a671e92d0d020b1f56106c61434c63b59f9364a29"
+    },
+    {
+      "mpId": 85501582,
+      "url": "https://osu.ppy.sh/community/matches/85501582",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-85501582"
+        }
+      ],
+      "name": "OCLRS6:(J) vs (G)",
+      "roomOpenedAt": "2021-06-13T11:54:17Z",
+      "roomClosedAt": "2021-06-13T13:41:39Z",
+      "responseSha256": "0e721d2025f375c6ffa365b285aa3c47e836601f70b0d59266a83b7b7a458daf"
+    },
+    {
+      "mpId": 85503945,
+      "url": "https://osu.ppy.sh/community/matches/85503945",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-85503945"
+        }
+      ],
+      "name": "OCLR:(C)vs(F)",
+      "roomOpenedAt": "2021-06-13T12:51:16Z",
+      "roomClosedAt": "2021-06-13T14:22:33Z",
+      "responseSha256": "2e30aeeda101340bc6c00edbfc04345cdb4a2b5381a92b4604a1bc7d9ec9fcc6"
+    },
+    {
+      "mpId": 85546490,
+      "url": "https://osu.ppy.sh/community/matches/85546490",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-85546490"
+        }
+      ],
+      "name": "OCLR:(队长是隐形播放器) vs (aoi被圣遗物气晕)",
+      "roomOpenedAt": "2021-06-14T03:55:39Z",
+      "roomClosedAt": "2021-06-14T05:21:21Z",
+      "responseSha256": "472042a3140d00c19eb164419b200ea4f84ad6a4b45f6f34edb3ecc522569ad8"
+    },
+    {
+      "mpId": 86302764,
+      "url": "https://osu.ppy.sh/community/matches/86302764",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-86302764"
+        }
+      ],
+      "name": "OCLR: (J) vs (B)",
+      "roomOpenedAt": "2021-06-26T11:39:15Z",
+      "roomClosedAt": "2021-06-26T13:29:39Z",
+      "responseSha256": "7a23fcdddb289657fb189a1782f219feec06607483fb978f6c0d8d267cee8d04"
+    },
+    {
+      "mpId": 86362224,
+      "url": "https://osu.ppy.sh/community/matches/86362224",
+      "references": [
+        {
+          "season": "s6",
+          "fixtureId": "mp-86362224"
+        }
+      ],
+      "name": "OCLR:(G)vs(B)",
+      "roomOpenedAt": "2021-06-27T12:01:59Z",
+      "roomClosedAt": "2021-06-27T14:12:33Z",
+      "responseSha256": "12841ab793d22a5d21043a456e8b6fbba0a40e358d4bdd2004dd76822116d5e7"
+    }
+  ]
+}

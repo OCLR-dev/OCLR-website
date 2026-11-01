@@ -3659,6 +3659,15 @@
     "m780346bc2b61": "The MP source did not match the bound room.",
     "m42d164df593e": "Review referee records",
     "m94c23b20ffc8": "Liru, the OCLR mascot, in her Chinese-style outfit holding a folding fan",
-    "m57a746254194": "Set roles for osu! ID {userId} in {scope} to: {roles}. New roles will be public on About. Edition-scoped roles appear only while that tournament is public. Other scopes and retained roles’ public visibility stay unchanged."
+    "m57a746254194": "Set roles for osu! ID {userId} in {scope} to: {roles}. New roles will be public on About. Edition-scoped roles appear only while that tournament is public. Other scopes and retained roles’ public visibility stay unchanged.",
+    "m132f890143c5": "Evidence URL",
+    "m6838b1a847ab": "Adjudication note",
+    "mb5f4c0d6eaa1": "Adjudication evidence URL",
+    "mf9c67eec5fbb": "Exclusion reason",
+    "m111a4d2e2ef3": "Warmup",
+    "medd91ba3331a": "Superseded replay",
+    "m304007cd1c3d": "Post-match game",
+    "m6d5b777296f0": "Outside mappool",
+    "mf97e9da0e3b8": "Other"
   }
 }

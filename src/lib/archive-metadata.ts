@@ -22,14 +22,22 @@ export const archivePlacement = z
   );
 export const archiveSeason = z
   .object({
-    startsAt: z.iso.datetime({ offset: true }),
-    endsAt: z.iso.datetime({ offset: true }),
+    startsAt: z.iso.datetime({ offset: true }).nullable(),
+    endsAt: z.iso.datetime({ offset: true }).nullable(),
     timeZone: archiveTimeZone,
+    precision: z.enum(["day", "instant"]).optional(),
   })
   .strict()
   .refine(
-    (value) => Date.parse(value.startsAt) < Date.parse(value.endsAt),
+    (value) =>
+      !value.startsAt ||
+      !value.endsAt ||
+      Date.parse(value.startsAt) < Date.parse(value.endsAt),
     "Season start must precede end.",
+  )
+  .refine(
+    (value) => Boolean(value.startsAt || value.endsAt),
+    "Record at least one known boundary.",
   );
 export const archiveRound = z
   .object({
@@ -37,6 +45,30 @@ export const archiveRound = z
     index: z.number().int().min(1).max(128),
   })
   .strict();
+// Some early seasons call a capped, draw-capable series BO8/BO10.
+// Do not turn those into an odd best-of or manufacture a tiebreaker.
+export const archiveMatchFormat = z.union([
+  z
+    .object({
+      bestOf: z
+        .number()
+        .int()
+        .min(1)
+        .max(99)
+        .refine((v) => v % 2 === 1),
+    })
+    .strict(),
+  z
+    .object({
+      maxGames: z.number().int().min(1).max(99),
+      winsRequired: z.number().int().min(1).max(99),
+    })
+    .strict()
+    .refine(
+      (v) => v.winsRequired > v.maxGames / 2 && v.winsRequired <= v.maxGames,
+      "The winning target must exceed half of the maximum games.",
+    ),
+]);
 export const archiveEvidenceUrl = z
   .url()
   .max(2000)
