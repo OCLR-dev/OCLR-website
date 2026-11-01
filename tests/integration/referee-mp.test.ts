@@ -19,6 +19,7 @@ import {
   fixtureReferees,
   matchResults,
   resultRevisions,
+  resultAuditEvents,
   refereeReconciliations,
 } from "../../src/db/schema";
 import {
@@ -114,6 +115,12 @@ describe.skipIf(!url)("MP binding and atomic provisional scores", () => {
     ).toBe(1);
     expect((await db().select().from(matchResults))[0]).toEqual(before);
     expect(await db().select().from(resultRevisions)).toHaveLength(0);
+    expect(
+      await db()
+        .select()
+        .from(resultAuditEvents)
+        .where(eq(resultAuditEvents.action, "referee_mp_source_imported")),
+    ).toHaveLength(1);
     expect(await db().select().from(refereeReconciliations)).toHaveLength(0);
   });
   it("moves changed or replayed automatic results to human review and never automatically restores them", async () => {

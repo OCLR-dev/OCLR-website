@@ -392,6 +392,20 @@ export async function refereeMpCommand(
             data: game,
           })),
         );
+      await tx
+        .insert(resultAuditEvents)
+        .values({
+          fixtureId,
+          actorId: actor.osuId,
+          action: "referee_mp_source_imported",
+          detail: {
+            importId: saved.id,
+            matchId: source.match.id,
+            fingerprint: source.fingerprint,
+            complete: source.complete,
+            gameCount: source.games.length,
+          },
+        });
     }
     const claimed = source.games.length
       ? await tx
