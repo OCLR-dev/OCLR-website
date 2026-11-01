@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 import type { RefereeWorkspace } from "./referee";
-import type { MatchGame, MatchSource } from "./match-model";
+import {
+  OPEN_MATCH_WARNING,
+  type MatchGame,
+  type MatchSource,
+} from "./match-model";
 import { previewMatch } from "./match-scoring";
 import { refereeCommands } from "./referee-commands";
 
@@ -64,7 +68,9 @@ export function planMpResults(
       .map((s) => ({ id: s.id, beatmapId: s.beatmapId, exMode: !!s.exMode })),
   };
   const previews = previewMatch(source, context).games;
-  const safeSource = source.complete && !source.warnings.length;
+  const safeSource =
+    source.complete &&
+    source.warnings.every((warning) => warning === OPEN_MATCH_WARNING);
   for (const selection of w.projection.activeSelections.filter(
     (s) => s.kind !== "ban",
   )) {
@@ -75,6 +81,15 @@ export function planMpResults(
     const outcome = lastAttemptOutcome(w, attempt.id);
     // A human resolution owns its outcome, even when it disagrees with the provider.
     if (outcome && outcome.id !== receipt?.eventId) continue;
+    if (receipt && !safeSource) {
+      // Incomplete live pagination is not evidence that a saved finished game changed.
+      issues.push({
+        gameId: receipt.gameId,
+        beatmapId: selection.beatmapId,
+        reason: "incomplete",
+      });
+      continue;
+    }
     const games = source.games.filter(
       (g) => g.beatmapId === selection.beatmapId,
     );
@@ -89,7 +104,8 @@ export function planMpResults(
     else if (!game.endTime) {
       if (receipt) reason = "source_changed";
       else continue;
-    } else if (
+    } else if (source.currentGameId === game.id) reason = "incomplete";
+    else if (
       !game.startTime ||
       Date.parse(game.startTime) >= Date.parse(game.endTime) ||
       Date.parse(game.endTime) > Date.parse(source.fetchedAt)
@@ -196,7 +212,9 @@ export function planMpResults(
   const awaitingReview = receipts.some(
     (r) =>
       r.review &&
-      w.projection.activeSelections.some((s) => s.id === r.pickId) &&
+      w.projection.activeSelections.some(
+        (s) => s.id === r.pickId && s.attempts.at(-1)?.id === r.attemptId,
+      ) &&
       lastAttemptOutcome(w, r.attemptId)?.id === r.eventId,
   );
   return {

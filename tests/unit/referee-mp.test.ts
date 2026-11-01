@@ -45,6 +45,18 @@ describe("automatic MP result plan", () => {
     expect(plan.score[0].winnerTeamId).toBe(w.teams[0].id);
     expect(plan.issues).toEqual([]);
   });
+  it("counts an ended game in an open lobby but rejects genuine source warnings or an active game", () => {
+    const w = prepared(),
+      source = mpSource(w);
+    expect(source.match.endTime).toBeNull();
+    expect(source.warnings.length).toBe(1);
+    expect(planMpResults(w, source, [], new Set()).score).toHaveLength(1);
+    source.currentGameId = source.games[0].id;
+    expect(planMpResults(w, source, [], new Set()).score).toHaveLength(0);
+    source.currentGameId = null;
+    source.warnings.push("Conflicting duplicate events were returned by osu!.");
+    expect(planMpResults(w, source, [], new Set()).score).toHaveLength(0);
+  });
   for (const scenario of [
     "replay",
     "tie",
@@ -107,6 +119,12 @@ describe("automatic MP result plan", () => {
       orders: w.session!,
       events: w.events,
     });
+    s.complete = false;
+    expect(planMpResults(w, s, [receipt], new Set()).invalidate).toEqual([]);
+    expect(planMpResults(w, s, [receipt], new Set()).issues[0].reason).toBe(
+      "incomplete",
+    );
+    s.complete = true;
     s.games[0].scores[1].total = 1000;
     expect(planMpResults(w, s, [receipt], new Set()).invalidate).toEqual([
       receipt,
@@ -117,6 +135,65 @@ describe("automatic MP result plan", () => {
     ]);
     w.events.push({ ...event, id: id(2001), ordinal: 5 });
     expect(planMpResults(w, s, [receipt], new Set()).invalidate).toEqual([]);
+  });
+  it("resumes later automatic games after a replay is resolved manually", () => {
+    const w = prepared(),
+      first = w.projection.activeSelections[1],
+      aborted = id(3000),
+      replay = id(3001),
+      manual = id(3002),
+      next = id(3003);
+    const source = mpSource(w);
+    const row: MpReceipt = {
+      attemptId: first.id,
+      pickId: first.id,
+      matchId: source.match.id,
+      gameId: source.games[0].id,
+      gameHash: gameHash(source.games[0]),
+      eventId: aborted,
+      review: true,
+    };
+    const add = (eventId: string, payload: RefereeEvent["payload"]) =>
+      w.events.push({
+        id: eventId,
+        ordinal: w.events.length + 1,
+        actorId: 1,
+        createdAt: "2026-10-31T00:00:00.000Z",
+        payload,
+      });
+    add(aborted, {
+      type: "attempt_resolved",
+      pickId: first.id,
+      attemptId: first.id,
+      status: "aborted",
+      winnerTeamId: null,
+    });
+    add(replay, { type: "attempt_replayed", pickId: first.id });
+    add(manual, {
+      type: "attempt_resolved",
+      pickId: first.id,
+      attemptId: replay,
+      status: "completed",
+      winnerTeamId: w.teams[0].id,
+    });
+    add(next, {
+      type: "selection_recorded",
+      stepIndex: 2,
+      kind: "pick",
+      teamId: w.teams[1].id,
+      entryId: w.maps[2].id,
+      beatmapId: w.maps[2].beatmapId,
+      category: w.maps[2].category,
+    });
+    w.projection = projectReferee({
+      ...w.session!.basis,
+      orders: w.session!,
+      events: w.events,
+    });
+    const later = mpSource(w, { gameId: 880010 });
+    expect(
+      planMpResults(w, later, [row], new Set()).score.map((s) => s.pickId),
+    ).toEqual([next]);
   });
   it("rejects reused games and explicit replay attempts while keeping unrelated games for review", () => {
     const w = prepared(),

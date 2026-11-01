@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
 import type { RefereeWorkspace } from "../../src/lib/referee";
-import type { MatchSource } from "../../src/lib/match-model";
+import {
+  OPEN_MATCH_WARNING,
+  type MatchSource,
+} from "../../src/lib/match-model";
 export function mpSource(
   w: RefereeWorkspace,
   options: { gameId?: number; matchId?: number; tie?: boolean } = {},
@@ -17,20 +20,18 @@ export function mpSource(
     scoringType: w.rules!.scoringType,
     mods: ["NF"],
     scores: w.teams.flatMap((team, index) =>
-      team
-        .members!.slice(0, w.rules!.playersPerTeam)
-        .map((p, slot) => ({
-          osuId: p.osuId,
-          total: index === 0 || options.tie ? 900 : 500,
-          team: index === 0 ? ("blue" as const) : ("red" as const),
-          slot: index * 8 + slot,
-          passed: true,
-          mods: [],
-          accuracy: 1,
-          combo: 100,
-          providerFields: {},
-          problems: [],
-        })),
+      team.members!.slice(0, w.rules!.playersPerTeam).map((p, slot) => ({
+        osuId: p.osuId,
+        total: index === 0 || options.tie ? 900 : 500,
+        team: index === 0 ? ("blue" as const) : ("red" as const),
+        slot: index * 8 + slot,
+        passed: true,
+        mods: [],
+        accuracy: 1,
+        combo: 100,
+        providerFields: {},
+        problems: [],
+      })),
     ),
     problems: [],
     beatmap: null,
@@ -51,7 +52,7 @@ export function mpSource(
     currentGameId: null,
     pages: 1,
     complete: true,
-    warnings: [],
+    warnings: [OPEN_MATCH_WARNING],
     events: [
       {
         id: 1,

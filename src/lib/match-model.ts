@@ -1,3 +1,5 @@
+export const OPEN_MATCH_WARNING =
+  "The lobby is still open. Review incomplete and extra games explicitly.";
 import { z } from "zod";
 import { scoringRulesSchema } from "./competition-model";
 const id = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
