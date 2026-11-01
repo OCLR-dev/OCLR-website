@@ -3,6 +3,7 @@ import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
+import { redirect } from "next/navigation";
 import {
   assertDirectPlayerWorkspace,
   playerTimetableWorkspace,
@@ -33,6 +34,8 @@ export default async function Page({
       edition,
       player === undefined ? actor.osuId : Number(player),
     );
+    if (player !== undefined)
+      redirect(`/tournaments/${edition}/player/availability`);
     return (
       <>
         <PageHeading

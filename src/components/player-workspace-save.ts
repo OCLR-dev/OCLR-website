@@ -10,7 +10,10 @@ export function useWorkspaceSave(url: string) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [failed, setFailed] = useState(false);
-  async function save(input: Record<string, unknown>) {
+  async function save(
+    input: Record<string, unknown>,
+    successMessage = tr("Saved"),
+  ) {
     if (running.current) return;
     const payload = JSON.stringify(input);
     if (receipt.current?.payload !== payload)
@@ -35,7 +38,7 @@ export function useWorkspaceSave(url: string) {
       }
       if (!Number.isSafeInteger(result.version)) throw new Error();
       receipt.current = null;
-      setMessage(tr("Saved"));
+      setMessage(successMessage);
       return result.version as number;
     } catch {
       setFailed(true);

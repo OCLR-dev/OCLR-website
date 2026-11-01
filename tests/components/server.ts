@@ -11,6 +11,7 @@ const bundle = await build({
   entryPoints: [
     "tests/components/header.tsx",
     "tests/components/schedule-selection.tsx",
+    "tests/components/practice-records.tsx",
     "tests/components/referee-panel.tsx",
     "tests/components/force-fixture-delete.tsx",
     "tests/components/round-referee-policy.tsx",
@@ -117,10 +118,14 @@ createServer((request, response) => {
                                             )
                                           ? "schedule-selection"
                                           : request.url?.startsWith(
-                                                "/mappool-actions",
+                                                "/practice-records",
                                               )
-                                            ? "mappool-actions"
-                                            : "player-message-board";
+                                            ? "practice-records"
+                                            : request.url?.startsWith(
+                                                  "/mappool-actions",
+                                                )
+                                              ? "mappool-actions"
+                                              : "player-message-board";
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${entry}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${entry}.js"></script></body></html>`,
     );

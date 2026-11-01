@@ -5626,6 +5626,7 @@ body:has([data-broadcast]) .site-shell {
   flex-direction: column;
   gap: 0.3rem;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 .archive-player-name {
   display: flex;

@@ -101,6 +101,26 @@
 .schedule-calendar .schedule-official {
   font-weight: 700;
 }
+.schedule-calendar .schedule-teammate {
+  background: color-mix(in srgb, var(--site-primary) 12%, var(--site-surface));
+  color: var(--site-foreground);
+  border-color: var(--site-accent);
+  border-inline-start-width: 3px;
+}
+.schedule-player-slot {
+  min-width: 0;
+  overflow: hidden;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.schedule-player-slot > * {
+  display: block;
+}
+.schedule-player-slot > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .schedule-calendar .schedule-proposal {
   border-style: dashed;
 }

@@ -223,12 +223,15 @@ export async function playerPracticeWorkspace(
               return {
                 ...e,
                 context: key,
+                ownVersion:
+                  records.find(
+                    (r) => r.entryId === e.id && r.userId === actor.osuId,
+                  )?.version ?? 0,
                 records: records
-                  .filter((r) => r.entryId === e.id)
+                  .filter((r) => r.entryId === e.id && !r.deletedAt)
                   .map((r) => ({
                     userId: r.userId,
                     score: r.score,
-                    accuracy: r.accuracy,
                     rating: r.rating,
                     comment: r.comment,
                     version: r.version,
@@ -262,19 +265,32 @@ export async function playerTimetableWorkspace(
         403,
         "You may only view your own timetable or your current team's timetable as captain.",
       );
-    const [row] = await db()
+    const rows = await db()
       .select()
       .from(playerSeasonAvailability)
       .where(
         and(
           eq(playerSeasonAvailability.editionSlug, slug),
-          eq(playerSeasonAvailability.userId, ownerId),
+          inArray(
+            playerSeasonAvailability.userId,
+            visible.map((player) => player.osuId),
+          ),
         ),
       );
+    const row = rows.find((value) => value.userId === ownerId);
     return {
       actorId: actor.osuId,
       owner,
       players: visible,
+      teamAvailability: c.captain
+        ? visible.map((player) => ({
+            userId: player.osuId,
+            username: player.username,
+            intervals:
+              rows.find((value) => value.userId === player.osuId)?.intervals ??
+              [],
+          }))
+        : [],
       timeZone: c.state.configuration!.timeZone,
       canEdit: ownerId === actor.osuId && !(await readOnly(actor, c, db())),
       intervals: row?.intervals ?? [],
@@ -365,11 +381,14 @@ export async function playerPracticeCommand(
         409,
         "Practice records changed. Reload before saving.",
       );
+    if (p.action === "delete_practice" && (!before || before.deletedAt))
+      throw new HttpError(404, "Practice record not found.");
     const values = {
-      score: p.score,
-      accuracy: p.accuracy,
-      rating: p.rating,
-      comment: p.comment,
+      ...(p.action === "save_practice"
+        ? { score: p.score, rating: p.rating, comment: p.comment }
+        : { score: null, rating: null, comment: "" }),
+      accuracy: null,
+      deletedAt: p.action === "delete_practice" ? new Date() : null,
       beatmapId: entry.entry.beatmapId,
       contextKey: key,
       version: p.expectedVersion + 1,

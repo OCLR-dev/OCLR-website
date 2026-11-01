@@ -1,6 +1,6 @@
 import { useAppTranslations } from "@/i18n/shared";
 import type { ownTeam } from "@/lib/teams";
-import { PublicPlayerIdentity } from "./public-player-identity";
+import { PlayerCard } from "./player-card";
 import styles from "./own-team.module.css";
 
 type Team = Pick<
@@ -22,21 +22,19 @@ export function OwnTeam({ team, edition }: { team: Team; edition: string }) {
           </p>
         </div>
       </header>
-      <ul
-        className={`public-roster-grid ${styles.roster}`}
-        aria-label={tr("My team roster")}
-      >
+      <ul className="archive-player-grid" aria-label={tr("My team roster")}>
         {team.members.map((member) => (
-          <li className={`panel ${styles.player}`} key={member.osuId}>
-            <PublicPlayerIdentity
-              osuId={member.osuId}
-              username={member.username}
-              edition={edition}
-            />
-            {member.osuId === team.captainId && (
-              <span className="badge">{tr("Captain")}</span>
-            )}
-          </li>
+          <PlayerCard
+            key={member.osuId}
+            osuId={member.osuId}
+            username={member.username}
+            profileHref={`/players/${member.osuId}?edition=${edition}`}
+            roleLabel={
+              member.osuId === team.captainId ? tr("Captain") : undefined
+            }
+            roleCode={member.osuId === team.captainId ? "captain" : "player"}
+            prefetch={false}
+          />
         ))}
       </ul>
     </section>

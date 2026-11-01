@@ -1690,10 +1690,13 @@ export const playerPracticeRecords = pgTable(
     beatmapId: bigint("beatmap_id", { mode: "number" }).notNull(),
     contextKey: text("context_key").notNull(),
     score: bigint("score", { mode: "number" }),
+    // Legacy storage only; current practice commands and projections omit ACC.
     accuracy: doublePrecision("accuracy"),
     rating: integer("rating"),
     comment: text("comment").notNull().default(""),
     version: integer("version").notNull().default(1),
+    // Retain the version after deletion so stale pages cannot recreate/overwrite a record.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

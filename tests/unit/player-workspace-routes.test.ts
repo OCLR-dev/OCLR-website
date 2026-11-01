@@ -52,6 +52,7 @@ describe("personal workspace API transport", () => {
       actorId: actor.osuId,
       owner: actor,
       players: [actor],
+      teamAvailability: [],
       timeZone: "Asia/Taipei",
       canEdit: true,
       intervals: [],
