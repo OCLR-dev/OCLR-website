@@ -49,6 +49,7 @@ export function MapCardBand({
   note,
   footer,
   side,
+  sidePlacement = "panel",
   slotControl,
 }: {
   as?: "article" | "li";
@@ -79,6 +80,7 @@ export function MapCardBand({
   note?: ReactNode;
   footer?: ReactNode;
   side?: ReactNode;
+  sidePlacement?: "panel" | "values";
   slotControl?: ReactNode;
 } & (
   | { onOpen: () => void; openHref?: never }
@@ -306,6 +308,9 @@ export function MapCardBand({
               {tr("OD")} {formatBeatmapNumber(od, 1)}
             </span>
             {chips}
+            {side && sidePlacement === "values" ? (
+              <div className="map-card-side">{side}</div>
+            ) : null}
           </div>
         </div>
         {showMode && (
@@ -323,7 +328,9 @@ export function MapCardBand({
           name={slot}
         />
       </div>
-      {side ? <div className="map-card-side">{side}</div> : null}
+      {side && sidePlacement === "panel" ? (
+        <div className="map-card-side">{side}</div>
+      ) : null}
       {footer ? <div className="map-card-extension">{footer}</div> : null}
     </Tag>
   );

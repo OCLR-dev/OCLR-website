@@ -68,9 +68,10 @@ Candidates reuse the historical mappool `MapCardBand`: cover, star-coloured rail
 Mod category, title/artist/mapper, saved base parameters (including HP), copyable
 BID, official osu! link and osu!direct. The workbench reuses the cover's top-left
 Mod badge as the category selector. Adder, intended rounds/edit action and
-formal pool promotion share a single right-aligned control row inside the card.
-Narrow screens wrap the row, and expanded round/promotion forms use the available
-width. Candidate creation time and the separate footer stay hidden.
+formal pool promotion sit to the right of the beatmap parameters on the same
+row; there is no separate control row. Long names use ellipsis at desktop widths,
+while narrow screens wrap the row and show the full text. Expanded round/promotion
+forms use the available width. Candidate creation time and the separate footer stay hidden.
 Mode/status and snapshot details stay hidden; saved metadata is not a live lookup,
 and unknown fields stay unknown. Comment
 boxes remain visible below each card on desktop and mobile; history uses a

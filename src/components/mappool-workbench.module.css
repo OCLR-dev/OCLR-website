@@ -274,65 +274,73 @@
   font-size: 0.875rem;
 }
 
-/* Workbench-only header controls, extending the historical map band. */
+/* Workbench-only controls share the beatmap's parameter row. */
 .workbenchCard:global(.map-browse-card--band) {
   grid-template-columns: clamp(160px, 19%, 240px) minmax(0, 1fr);
 }
-.workbenchCard:global(.map-browse-card--band) > :global(.map-card-cover) {
-  grid-row: 1 / 3;
-}
 .workbenchCard:global(.map-browse-card--band) > :global(.map-card-copy) {
-  grid-column: 2;
   min-height: 9.75rem;
   position: static;
   z-index: 2;
-  padding-bottom: 0;
 }
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-title-row) {
   padding-right: 7rem;
 }
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-values) {
+  flex-wrap: nowrap;
+  align-items: center;
   padding-right: 0;
 }
-.workbenchCard:global(.map-browse-card--band) > :global(.map-card-side) {
-  grid-column: 2;
-  position: relative;
-  z-index: 1;
+.workbenchCard:global(.map-browse-card--band) :global(.map-card-values) > span {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.workbenchCard:global(.map-browse-card--band) :global(.map-card-side) {
+  flex: 1 1 auto;
   min-width: 0;
   display: flex;
   align-items: center;
   justify-content: end;
-  gap: 1rem;
-  padding: 0.75rem 1.1rem 0.85rem;
+  gap: 0.75rem;
 }
 .workbenchCard:global(.map-browse-card--band) .attribution {
-  flex-shrink: 0;
+  flex: 0 1 auto;
+  flex-wrap: nowrap;
+  min-width: 0;
+  max-width: 10rem;
+  white-space: nowrap;
 }
-.workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-side)
-  .roundSummary {
+.workbenchCard:global(.map-browse-card--band) .attribution a {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.workbenchCard:global(.map-browse-card--band) .candidateRounds {
+  flex: 0 1 auto;
+}
+.workbenchCard:global(.map-browse-card--band) .roundSummary {
   flex-wrap: nowrap;
   align-items: center;
   gap: 0.5rem;
+}
+.workbenchCard:global(.map-browse-card--band) .roundSummary p {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .workbenchCard:global(.map-browse-card--band) .roundSummary button,
 .workbenchCard:global(.map-browse-card--band) .promotion {
   flex-shrink: 0;
 }
 .workbenchCard:global(.map-browse-card--band)
-  > :global(.map-card-side):has(form, .promotionForm) {
-  grid-column: 1 / -1;
+  :global(.map-card-values):has(form, .promotionForm),
+.workbenchCard:global(.map-browse-card--band)
+  :global(.map-card-side):has(form, .promotionForm) {
   flex-wrap: wrap;
-  align-items: start;
-  border-top: 1px solid var(--site-border);
 }
-.workbenchCard:global(.map-browse-card--band):has(
-    :global(.map-card-side) form,
-    .promotionForm
-  )
-  > :global(.map-card-cover) {
-  grid-row: auto;
-}
+.workbenchCard:global(.map-browse-card--band)
+  :global(.map-card-side):has(form, .promotionForm),
 .workbenchCard:global(.map-browse-card--band) .candidateRounds:has(form),
 .workbenchCard:global(.map-browse-card--band) .promotion:has(.promotionForm) {
   flex-basis: 100%;
@@ -375,12 +383,12 @@
   pointer-events: none;
 }
 @media (max-width: 1100px) {
-  .workbenchCard:global(.map-browse-card--band) > :global(.map-card-cover) {
-    grid-row: auto;
-  }
-  .workbenchCard:global(.map-browse-card--band) > :global(.map-card-side) {
-    grid-column: 1 / -1;
+  .workbenchCard:global(.map-browse-card--band) :global(.map-card-values),
+  .workbenchCard:global(.map-browse-card--band) :global(.map-card-side) {
     flex-wrap: wrap;
+  }
+  .workbenchCard:global(.map-browse-card--band) :global(.map-card-side) {
+    flex-basis: 100%;
   }
 }
 @media (max-width: 640px) {
@@ -388,22 +396,26 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .workbenchCard:global(.map-browse-card--band) > :global(.map-card-copy) {
-    grid-column: 1;
     min-height: 0;
     padding-right: 0.9rem;
   }
   .workbenchCard:global(.map-browse-card--band) :global(.map-card-title-row) {
     padding-right: 0;
   }
-  .workbenchCard:global(.map-browse-card--band) > :global(.map-card-side) {
+  .workbenchCard:global(.map-browse-card--band) :global(.map-card-side) {
     justify-content: start;
-    padding: 0.85rem 0.9rem;
   }
   .workbenchCard:global(.map-browse-card--band) .attribution {
-    flex-shrink: 1;
+    max-width: 100%;
+    flex-wrap: wrap;
+    white-space: normal;
   }
   .workbenchCard:global(.map-browse-card--band) .roundSummary {
     flex-wrap: wrap;
+  }
+  .workbenchCard:global(.map-browse-card--band) .roundSummary p {
+    white-space: normal;
+    overflow: visible;
   }
   .workbenchCard:global(.map-browse-card--band) .promotion {
     width: 100%;
