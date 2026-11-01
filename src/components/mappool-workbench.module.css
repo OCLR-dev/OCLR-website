@@ -192,13 +192,9 @@
   flex: 0 1 auto;
   min-width: 0;
 }
-.promotion:has(.promotionForm) {
-  flex-basis: 100%;
-}
 .promotionForm {
   display: grid;
   gap: 0.75rem;
-  margin-top: 0.75rem;
 }
 .attribution {
   display: inline-flex;
@@ -365,17 +361,6 @@
   flex-shrink: 0;
 }
 .workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-values):has(.promotionForm),
-.workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-side):has(.promotionForm) {
-  flex-wrap: wrap;
-}
-.workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-side):has(.promotionForm),
-.workbenchCard:global(.map-browse-card--band) .promotion:has(.promotionForm) {
-  flex-basis: 100%;
-}
-.workbenchCard:global(.map-browse-card--band)
   :global(.map-slot-badge)
   .modSelector {
   appearance: none;
@@ -441,9 +426,6 @@
     flex-wrap: wrap;
     white-space: normal;
   }
-  .workbenchCard:global(.map-browse-card--band) .promotion:has(.promotionForm) {
-    width: 100%;
-  }
 }
 
 .workbenchCard:global(.map-browse-card--band) .iconButton {
@@ -489,4 +471,46 @@
 }
 .historyMatches p {
   margin: 0.25rem 0 0;
+}
+
+.promotionPopover {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--site-border);
+  border-radius: 0.75rem;
+  color: var(--site-foreground);
+  background: var(--site-surface);
+  box-shadow: 0 0.75rem 2rem var(--site-shadow);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.promotionHeading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  position: sticky;
+  top: 0;
+  padding: 1rem;
+  border-bottom: 1px solid var(--site-border);
+  background: var(--site-surface);
+  z-index: 1;
+}
+.promotionHeading h3 {
+  margin: 0;
+}
+.promotionHeading button {
+  flex: none;
+}
+.promotionPopover input,
+.promotionPopover select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.promotionContent {
+  padding: 1rem;
 }
