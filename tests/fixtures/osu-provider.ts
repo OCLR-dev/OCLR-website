@@ -3,10 +3,15 @@ import { syntheticApiGame, syntheticEvent, syntheticPage } from "./match";
 import { profileResponse } from "./osu-profile";
 import { assertTestDatabase } from "../database";
 import { statisticsApiGames } from "./archive-statistics";
+import { readFileSync } from "node:fs";
 assertTestDatabase(process.env.TEST_DATABASE_URL);
 if (
   process.env.DATABASE_URL !== process.env.TEST_DATABASE_URL ||
-  process.env.APP_URL !== "http://127.0.0.1:3100" ||
+  !(
+    process.env.APP_URL === "http://127.0.0.1:3100" ||
+    (process.env.OCLR_REFEREE_PROVIDER_FILE &&
+      process.env.APP_URL === "http://127.0.0.1:31475")
+  ) ||
   process.env.OSU_CLIENT_SECRET !== "synthetic-browser-provider-secret"
 )
   throw new Error("Provider fixtures require the isolated browser-test server");
@@ -14,6 +19,17 @@ const originalFetch = globalThis.fetch;
 globalThis.fetch = async (input, init) => {
   const url = new URL(input instanceof Request ? input.url : String(input));
   if (url.origin !== "https://osu.ppy.sh") return originalFetch(input, init);
+  // Private test-process input, never an application provider/host option.
+  if (
+    /^\/api\/v2\/matches\/99952[56]$/.test(url.pathname) &&
+    process.env.OCLR_REFEREE_PROVIDER_FILE
+  ) {
+    const snapshots = JSON.parse(
+      readFileSync(process.env.OCLR_REFEREE_PROVIDER_FILE, "utf8"),
+    );
+    const page = snapshots[url.pathname.split("/").at(-1)!];
+    return page ? Response.json(page) : new Response(null, { status: 404 });
+  }
   if (
     url.pathname === "/oauth/token" &&
     new URLSearchParams(String(init?.body)).get("grant_type") ===

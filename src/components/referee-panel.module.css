@@ -194,7 +194,7 @@
   }
 }
 
-/* The console has its own scroll area; only the left workflow scrolls. */
+/* Desktop keeps the console beside the workflow with its own message scroll. */
 .workspace {
   grid-template-columns: 8rem minmax(0, 1fr);
   gap: 1rem;
@@ -343,14 +343,12 @@
 @media (max-width: 700px) {
   .workspace {
     padding-right: 0;
-    padding-bottom: calc(min(28rem, 60dvh) + 2rem);
+    padding-bottom: 0;
   }
   .irc {
-    top: auto;
-    left: 0.5rem;
-    right: 0.5rem;
-    bottom: 0.5rem;
-    width: auto;
+    position: static;
+    grid-row: 2;
+    width: 100%;
     height: min(28rem, 60dvh);
     padding: 0.75rem;
     gap: 0.375rem;

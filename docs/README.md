@@ -60,3 +60,4 @@ real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
 - [S5 statistics publication](s5-statistics-publication.md) — four approved UID corrections, all 34 matches published, preserved B28/GF score differences and unauthenticated checks (#610).
 
 - [裁判面板 MP 比分同步](referee-mp-sync.md) — MP 綁定、逐局自動暫記、重賽與來源變更人工核對、輪詢及交易邊界。
+- [Referee match and recovery acceptance](referee-acceptance.md) — explicit isolated BO9 rehearsal, pinned desktop Main, real HTTP/TCP, fault/revocation/handoff matrix and evidence limits (#525/#526).
