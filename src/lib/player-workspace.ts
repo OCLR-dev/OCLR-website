@@ -265,19 +265,32 @@ export async function playerTimetableWorkspace(
         403,
         "You may only view your own timetable or your current team's timetable as captain.",
       );
-    const [row] = await db()
+    const rows = await db()
       .select()
       .from(playerSeasonAvailability)
       .where(
         and(
           eq(playerSeasonAvailability.editionSlug, slug),
-          eq(playerSeasonAvailability.userId, ownerId),
+          inArray(
+            playerSeasonAvailability.userId,
+            visible.map((player) => player.osuId),
+          ),
         ),
       );
+    const row = rows.find((value) => value.userId === ownerId);
     return {
       actorId: actor.osuId,
       owner,
       players: visible,
+      teamAvailability: c.captain
+        ? visible.map((player) => ({
+            userId: player.osuId,
+            username: player.username,
+            intervals:
+              rows.find((value) => value.userId === player.osuId)?.intervals ??
+              [],
+          }))
+        : [],
       timeZone: c.state.configuration!.timeZone,
       canEdit: ownerId === actor.osuId && !(await readOnly(actor, c, db())),
       intervals: row?.intervals ?? [],

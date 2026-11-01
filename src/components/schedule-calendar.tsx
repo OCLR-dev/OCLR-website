@@ -26,6 +26,7 @@ export default function ScheduleCalendar({
   availabilityLabel,
   selection,
   editingIndex,
+  teammates = [],
 }: {
   timeZone: string;
   official: string | null;
@@ -38,6 +39,11 @@ export default function ScheduleCalendar({
   availabilityLabel?: string;
   selection?: AvailabilityInterval | null;
   editingIndex?: number | null;
+  teammates?: {
+    userId: number;
+    username: string;
+    intervals: AvailabilityInterval[];
+  }[];
 }) {
   const tr = useAppTranslations();
   const [mobile, setMobile] = useState(false);
@@ -91,6 +97,20 @@ export default function ScheduleCalendar({
         initialView={mobile ? "timeGridDay" : "timeGridWeek"}
         initialDate={proposed ?? official ?? initialDate ?? undefined}
         timeZone={timeZone}
+        slotEventOverlap={teammates.length ? false : undefined}
+        eventContent={
+          teammates.length
+            ? (info) => (
+                <div
+                  className="schedule-player-slot"
+                  title={`${info.event.title} · ${info.timeText}`}
+                >
+                  <strong>{info.event.title}</strong>
+                  <span>{info.timeText}</span>
+                </div>
+              )
+            : undefined
+        }
         locale={
           tr.locale === "zh-Hans" ? zhCn : tr.locale === "zh-Hant" ? zhTw : "en"
         }
@@ -118,6 +138,16 @@ export default function ScheduleCalendar({
           info.view.calendar.unselect();
         }}
         events={[
+          ...teammates.flatMap((person) =>
+            person.intervals.map((interval, index) => ({
+              ...interval,
+              id: `player-${person.userId}-${index}`,
+              title: person.username,
+              contrastColor: "var(--site-foreground)",
+              class: "schedule-teammate",
+              extendedProps: { userId: person.userId },
+            })),
+          ),
           ...intervals.flatMap((i, index) =>
             preview && index === editingIndex
               ? []

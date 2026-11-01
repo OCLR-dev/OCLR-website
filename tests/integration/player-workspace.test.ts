@@ -545,6 +545,107 @@ describe.skipIf(!url)("private player workspace #671", () => {
       playerTimetableWorkspace(a, slug, p.osuId),
     ).rejects.toMatchObject({ status: 403 });
   });
+  it("returns every current teammate's availability together only for the actual captain", async () => {
+    await playerTimetableCommand(p, slug, timetable());
+    await playerTimetableCommand(
+      b,
+      slug,
+      timetable({
+        intervals: [
+          { start: "2090-02-01T10:00:00Z", end: "2090-02-01T11:00:00Z" },
+        ],
+      }),
+    );
+    const view = await playerTimetableWorkspace(a, slug);
+    expect(view).toMatchObject({
+      owner: a,
+      canEdit: true,
+      version: 0,
+      intervals: [],
+    });
+    expect(view.teamAvailability.map((person) => person.userId).sort()).toEqual(
+      [a.osuId, p.osuId, q.osuId].sort(),
+    );
+    expect(
+      view.teamAvailability.find((person) => person.userId === p.osuId)
+        ?.intervals,
+    ).toEqual([
+      { start: "2090-01-01T10:00:00.000Z", end: "2090-01-01T12:00:00.000Z" },
+    ]);
+    expect(
+      view.teamAvailability.find((person) => person.userId === q.osuId)
+        ?.intervals,
+    ).toEqual([]);
+    expect(
+      view.teamAvailability.some((person) => person.userId === b.osuId),
+    ).toBe(false);
+    expect((await playerTimetableWorkspace(p, slug)).teamAvailability).toEqual(
+      [],
+    );
+    expect(
+      (await playerTimetableWorkspace(unassigned, slug)).teamAvailability,
+    ).toEqual([]);
+    await db().insert(registrations).values({
+      editionSlug: slug,
+      userId: admin.osuId,
+      status: "accepted",
+      answers: {},
+    });
+    await db().insert(memberships).values({
+      editionSlug: slug,
+      teamId: ta,
+      userId: admin.osuId,
+      origin: "captain",
+    });
+    expect(
+      (await playerTimetableWorkspace(admin, slug)).teamAvailability,
+    ).toEqual([]);
+  });
+  it("refreshes aggregate visibility after transfers, withdrawals and captain revocation", async () => {
+    await playerTimetableCommand(p, slug, timetable());
+    await db()
+      .update(memberships)
+      .set({ leftAt: new Date() })
+      .where(eq(memberships.userId, p.osuId));
+    await db().insert(memberships).values({
+      editionSlug: slug,
+      teamId: tb,
+      userId: p.osuId,
+      origin: "captain",
+    });
+    expect(
+      (await playerTimetableWorkspace(a, slug)).teamAvailability.some(
+        (person) => person.userId === p.osuId,
+      ),
+    ).toBe(false);
+    expect(
+      (await playerTimetableWorkspace(b, slug)).teamAvailability.find(
+        (person) => person.userId === p.osuId,
+      )?.intervals,
+    ).toHaveLength(1);
+    await db()
+      .update(registrations)
+      .set({ status: "withdrawn" })
+      .where(eq(registrations.userId, p.osuId));
+    expect(
+      (await playerTimetableWorkspace(b, slug)).teamAvailability.some(
+        (person) => person.userId === p.osuId,
+      ),
+    ).toBe(false);
+    await db().insert(registrations).values({
+      editionSlug: slug,
+      userId: a.osuId,
+      status: "accepted",
+      answers: {},
+    });
+    await db().delete(captains).where(eq(captains.userId, a.osuId));
+    expect((await playerTimetableWorkspace(a, slug)).teamAvailability).toEqual(
+      [],
+    );
+    await expect(
+      playerTimetableWorkspace(a, slug, q.osuId),
+    ).rejects.toMatchObject({ status: 403 });
+  });
   it("rejects stale timetable writes and permits clearing all slots with a versioned audit", async () => {
     const cmd = timetable();
     await playerTimetableCommand(p, slug, cmd);

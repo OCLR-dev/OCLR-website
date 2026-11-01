@@ -3,6 +3,35 @@
   gap: 1.5rem;
   min-width: 0;
 }
+.teamAvailability h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+}
+.teamAvailability ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.teamAvailability li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.4rem 0.75rem;
+  background: color-mix(in srgb, var(--site-primary) 12%, var(--site-surface));
+  border: 1px solid var(--site-accent);
+  border-radius: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.teamAvailability li.teamOwn {
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  border-color: var(--site-primary);
+}
 .toolbar {
   display: flex;
   align-items: end;

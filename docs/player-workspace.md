@@ -51,8 +51,13 @@ tournament timezone, including explicit clock-change offsets.
 
 Only the player writes their own timetable. The player and their currently
 appointed team captain may read it. Teammates, other captains, coaches and staff
-have no extra timetable access. The captain's player selector uses the current
-active eligible roster and becomes read-only when viewing another player.
+have no extra timetable access. Captains see all current eligible team members'
+slots together on one calendar, labelled with their names, without a player
+selector. The roster also lists members who have not submitted any slots. The
+captain can still add, edit and save only their own slots; teammate blocks are
+read-only. Transfers, withdrawals and appointment revocation are reflected in
+the next authorized read. Authorized legacy `?player=` page links redirect to
+the combined view; the API keeps its existing owner-specific read compatibility.
 Per-fixture Schedule reports and rescheduling requests retain their own workflow.
 
 ## Persistence and access

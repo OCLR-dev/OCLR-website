@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
 import type { TimetableWorkspace } from "@/lib/player-workspace";
 import {
@@ -22,8 +21,7 @@ export function PlayerTimetable({
   slug: string;
   data: TimetableWorkspace;
 }) {
-  const tr = useAppTranslations(),
-    router = useRouter();
+  const tr = useAppTranslations();
   const [intervals, setIntervals] = useState(data.intervals);
   const [saved, setSaved] = useState(data.intervals);
   const [version, setVersion] = useState(data.version);
@@ -39,6 +37,15 @@ export function PlayerTimetable({
   const dirty = JSON.stringify(intervals) !== JSON.stringify(saved);
   useUnsavedWorkspace(dirty);
   const disabled = !data.canEdit || busy;
+  const people = data.teamAvailability.map((person) =>
+    person.userId === data.owner.osuId
+      ? { ...person, intervals: saved }
+      : person,
+  );
+  const teamView = people.length > 0;
+  const teammates = people.filter(
+    (person) => person.userId !== data.owner.osuId,
+  );
   const time = (value: string) =>
     new Intl.DateTimeFormat(tr.locale, {
       timeZone: data.timeZone,
@@ -55,25 +62,6 @@ export function PlayerTimetable({
   return (
     <div className={styles.workspace}>
       <div className={styles.toolbar}>
-        <label className="field">
-          <span>{tr("Player")}</span>
-          <select
-            value={data.owner.osuId}
-            disabled={data.players.length < 2 || busy}
-            onChange={(event) => {
-              if (!dirty || window.confirm(tr("Discard your unsaved changes?")))
-                router.push(
-                  `/tournaments/${slug}/player/availability?player=${event.target.value}`,
-                );
-            }}
-          >
-            {data.players.map((player) => (
-              <option key={player.osuId} value={player.osuId}>
-                {player.username}
-              </option>
-            ))}
-          </select>
-        </label>
         <p className="muted small">{data.timeZone}</p>
         <button
           type="button"
@@ -85,9 +73,13 @@ export function PlayerTimetable({
         </button>
       </div>
       <p className="muted small">
-        {tr(
-          "Your timetable is visible to you and your current captain. Saved slots apply to the whole season.",
-        )}
+        {teamView
+          ? tr(
+              "Your team's availability is shown together. You can only edit your own time slots.",
+            )
+          : tr(
+              "Your timetable is visible to you and your current captain. Saved slots apply to the whole season.",
+            )}
       </p>
       {!data.canEdit && (
         <p className="notice">
@@ -98,11 +90,40 @@ export function PlayerTimetable({
             : tr("This player workspace is read-only.")}
         </p>
       )}
+      {teamView && (
+        <section
+          aria-labelledby="team-availability-heading"
+          className={styles.teamAvailability}
+        >
+          <h2 id="team-availability-heading">{tr("Team availability")}</h2>
+          <ul>
+            {people.map((person) => (
+              <li
+                key={person.userId}
+                className={
+                  person.userId === data.owner.osuId
+                    ? styles.teamOwn
+                    : undefined
+                }
+              >
+                <strong>{person.username}</strong>
+                {!person.intervals.length && (
+                  <span className="small">{tr("Not submitted")}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <Calendar
         timeZone={data.timeZone}
         official={null}
-        initialDate={data.intervals[0]?.start}
+        initialDate={
+          data.intervals[0]?.start ??
+          teammates.flatMap((person) => person.intervals)[0]?.start
+        }
         intervals={intervals}
+        teammates={teammates}
         selection={
           startValid && endValid && start && end ? { start, end } : null
         }
@@ -110,9 +131,11 @@ export function PlayerTimetable({
         summary={[]}
         editable={!disabled}
         availabilityLabel={
-          data.owner.osuId === data.actorId
-            ? tr("My availability")
-            : tr("Player availability")
+          teamView
+            ? data.owner.username
+            : data.owner.osuId === data.actorId
+              ? tr("My availability")
+              : tr("Player availability")
         }
         onSelect={(a, b) => {
           setStart(a);
@@ -207,7 +230,9 @@ export function PlayerTimetable({
         className={styles.slotList}
         aria-labelledby="season-slots-heading"
       >
-        <h2 id="season-slots-heading">{tr("Season availability")}</h2>
+        <h2 id="season-slots-heading">
+          {teamView ? tr("My availability") : tr("Season availability")}
+        </h2>
         {!intervals.length ? (
           <p className="muted">{tr("No available time slots saved yet.")}</p>
         ) : (
