@@ -15,7 +15,10 @@ Changing Mod keeps each map's unsaved inputs mounted; changing pools asks before
 discarding drafts. Hidden pools and historical archives are unavailable.
 Each map has optional manually entered
 score, a 1–5 star rating and a compact, vertically resizable comment field (up to
-2,000 characters). Team records are expanded by default.
+2,000 characters). Score, rating, comment and the save action share one compact
+row. Narrow containers show the current rating in a button that opens the same
+five-star controls; choosing a value, clearing it, Escape or leaving the control
+closes the picker. Team records are expanded by default.
 
 Each player edits only their own record. Current active teammates can read each
 other's records; an unassigned player can save and view their own records.

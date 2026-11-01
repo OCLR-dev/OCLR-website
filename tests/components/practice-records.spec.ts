@@ -1,5 +1,99 @@
 import { test, expect } from "@playwright/test";
 for (const theme of ["light", "dark"]) {
+  test(`${theme}: score, rating, comment and save stay on one row at 719px and 320px`, async ({
+    page,
+  }) => {
+    const writes: Record<string, unknown>[] = [];
+    await page.route(
+      "**/api/tournaments/synthetic/player/practice",
+      async (route) => {
+        writes.push(route.request().postDataJSON());
+        await route.fulfill({ json: { saved: true, version: 2 } });
+      },
+    );
+    for (const width of [719, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/practice-records?theme=${theme}`);
+      const own = page.getByRole("article", {
+        name: "Synthetic Artist — NM Signal",
+        exact: true,
+      });
+      const form = own.getByRole("form", {
+        name: "My practice: NM1",
+        exact: true,
+      });
+      const score = form.getByRole("spinbutton", {
+        name: "Practice score",
+        exact: true,
+      });
+      const rating = form.getByRole("group", {
+        name: "Practice rating",
+        exact: true,
+      });
+      const comment = form.getByRole("textbox", {
+        name: "Practice comment",
+        exact: true,
+      });
+      const save = form.getByRole("button", {
+        name: "Save practice",
+        exact: true,
+      });
+      const boxes = await Promise.all(
+        [score, rating, comment, save].map((control) => control.boundingBox()),
+      );
+      expect(boxes.every((box) => box !== null)).toBe(true);
+      expect(
+        Math.max(...boxes.map((box) => box!.y)) -
+          Math.min(...boxes.map((box) => box!.y)),
+      ).toBeLessThan(2);
+      expect((await form.boundingBox())!.height).toBeLessThan(90);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      const toggle = rating.getByRole("button", { name: /^Practice rating/ });
+      const compact = await toggle.isVisible();
+      if (compact) {
+        await toggle.click();
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+        await page.keyboard.press("Tab");
+        await expect(
+          rating.getByRole("radio", { name: "3 out of 5 stars", exact: true }),
+        ).toBeFocused();
+        await page.keyboard.press("Escape");
+        await expect(toggle).toBeFocused();
+        await expect(toggle).toHaveAttribute("aria-expanded", "false");
+        await toggle.click();
+        await score.click();
+        await expect(toggle).toHaveAttribute("aria-expanded", "false");
+        await toggle.click();
+      }
+      await rating
+        .getByRole("radio", { name: "5 out of 5 stars", exact: true })
+        .check();
+      if (compact) {
+        await expect(toggle).toHaveAccessibleName(
+          "Practice rating: 5 out of 5 stars",
+        );
+        await expect(toggle).toHaveAttribute("aria-expanded", "false");
+        await toggle.click();
+      }
+      await rating
+        .getByRole("button", { name: "Clear rating", exact: true })
+        .click();
+      await comment.fill("Single-row practice note");
+      await save.click();
+      await expect(form.getByRole("status")).toHaveText("Saved");
+      expect(writes.at(-1)).toMatchObject({
+        action: "save_practice",
+        rating: null,
+        score: 900000,
+        comment: "Single-row practice note",
+        expectedVersion: 1,
+      });
+    }
+  });
   test(`${theme}: compact practice, expanded team records and keyboard tabs retain drafts`, async ({
     page,
   }, info) => {

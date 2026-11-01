@@ -40,13 +40,20 @@ const bundle = await build({
   platform: "browser",
   define: { "process.env.NODE_ENV": '"development"', "process.env": "{}" },
 });
-// Resolve Tailwind's theme declarations for faithful mappool control geometry.
-const mappoolCss = bundle.outputFiles.find(
-  (file) => basename(file.path) === "mappool-actions.css",
-)!;
-const mappoolStyles = await postcss([tailwind()]).process(mappoolCss.text, {
-  from: mappoolCss.path,
-});
+// Resolve theme declarations where tests measure actual control geometry.
+const themedStyles = new Map(
+  await Promise.all(
+    ["mappool-actions.css", "practice-records.css"].map(async (name) => {
+      const file = bundle.outputFiles.find(
+        (file) => basename(file.path) === name,
+      )!;
+      const result = await postcss([tailwind()]).process(file.text, {
+        from: file.path,
+      });
+      return [file, result.css] as const;
+    }),
+  ),
+);
 createServer((request, response) => {
   const file = bundle.outputFiles.find(
     (output) => `/${basename(output.path)}` === request.url,
@@ -58,7 +65,7 @@ createServer((request, response) => {
         ? "text/css; charset=utf-8"
         : "text/javascript; charset=utf-8",
     );
-    response.end(file === mappoolCss ? mappoolStyles.css : file.contents);
+    response.end(themedStyles.get(file) ?? file.contents);
   } else if (request.url?.startsWith("/api/")) {
     response.writeHead(404).end();
   } else {
