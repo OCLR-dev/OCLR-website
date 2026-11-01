@@ -85,6 +85,8 @@ export type PlayerMapEdition = {
   averageEffectiveRating: number | null;
   /** Maps that produced a usable effective rating (map mean > 0). */
   ratedMaps: number;
+  /** Maps the player's team(s) appeared in during the edition. */
+  teamMaps: number;
   /** Personal map record for maps with a known team result. */
   mapsWon: number;
   mapsLost: number;
@@ -104,6 +106,8 @@ export type PlayerMapPerformance = {
   averageAccuracy: number | null;
   averageEffectiveRating: number | null;
   ratedMaps: number;
+  /** Maps the player's team(s) appeared in across every edition. */
+  teamMaps: number;
   /** Personal map record across every edition. */
   mapsWon: number;
   mapsLost: number;
@@ -180,13 +184,16 @@ export type MapPerformanceFields = Omit<
 export function mapPerformance(
   plays: MapPlay[],
   osuId: number,
+  rosterTeams: Iterable<string> = [],
 ): MapPerformanceFields {
   const games = new Map<number, MapPlay[]>();
   for (const play of plays)
     games.set(play.gameId, [...(games.get(play.gameId) ?? []), play]);
   const rows: PlayerMapRow[] = [];
+  const teamIds = new Set<string>(rosterTeams);
   for (const [gameId, game] of games) {
     if (!game.some((play) => play.osuId === osuId)) continue;
+    for (const play of game) if (play.osuId === osuId) teamIds.add(play.teamId);
     const totals = game.map((play) => ({
       osuId: play.osuId,
       total: play.score,
@@ -218,6 +225,9 @@ export function mapPerformance(
     (a, b) => (b.at ?? "").localeCompare(a.at ?? "") || b.gameId - a.gameId,
   );
   const rated = rows.filter((row) => finite(row.effectiveRating));
+  let teamMaps = 0;
+  for (const game of games.values())
+    if (game.some((play) => teamIds.has(play.teamId))) teamMaps++;
   return {
     maps: rows,
     averagePlacement: placementAverage(rows),
@@ -227,6 +237,7 @@ export function mapPerformance(
     ),
     averageEffectiveRating: mean(rated.map((row) => row.effectiveRating!)),
     ratedMaps: rated.length,
+    teamMaps,
     mapsWon: rows.filter((row) => row.result === "win").length,
     mapsLost: rows.filter((row) => row.result === "loss").length,
     mapsTied: rows.filter((row) => row.result === "tie").length,
@@ -260,6 +271,7 @@ export function summarizeMapPerformance(
     ),
     averageEffectiveRating: mean(rated.map((row) => row.effectiveRating!)),
     ratedMaps: rated.length,
+    teamMaps: sorted.reduce((total, edition) => total + edition.teamMaps, 0),
     mapsWon: rows.filter((row) => row.result === "win").length,
     mapsLost: rows.filter((row) => row.result === "loss").length,
     mapsTied: rows.filter((row) => row.result === "tie").length,
@@ -304,6 +316,7 @@ async function editionPerformance(
     averageAccuracy: null,
     averageEffectiveRating: null,
     ratedMaps: 0,
+    teamMaps: 0,
     mapsWon: 0,
     mapsLost: 0,
     mapsTied: 0,
@@ -311,16 +324,22 @@ async function editionPerformance(
   };
   const osuId = roster[0]?.osuId ?? people[0]?.osuId;
   if (osuId === undefined) return base;
+  const rosterTeams = [
+    ...new Set(roster.flatMap((p) => (p.team ? [p.team.id] : []))),
+  ];
   try {
     const statistics = await publicArchiveStatistics(slug);
-    return { ...base, ...mapPerformance(statistics.plays, osuId) };
+    return {
+      ...base,
+      ...mapPerformance(statistics.plays, osuId, rosterTeams),
+    };
   } catch (error) {
     // Archived seasons without a published statistics projection fall back to
     // approved live results instead of hiding the season entirely.
     if (!(error instanceof HttpError) || error.status !== 404)
       return { ...base, unavailable: true };
   }
-  return liveEditionPerformance(slug, base, osuId);
+  return liveEditionPerformance(slug, base, osuId, rosterTeams);
 }
 
 /** Approved live results (fixture → games → per-player scores) as map plays. */
@@ -398,6 +417,7 @@ async function liveEditionPerformance(
   slug: string,
   base: PlayerMapEdition,
   osuId: number,
+  rosterTeams: string[],
 ): Promise<PlayerMapEdition> {
   // The remote read contract exposes per-player map scores only inside a single
   // public fixture; there is no edition-wide resource yet, so a remote frontend
@@ -411,7 +431,7 @@ async function liveEditionPerformance(
     ]);
     return {
       ...base,
-      ...mapPerformance(liveMapPlays(games, stages, slots), osuId),
+      ...mapPerformance(liveMapPlays(games, stages, slots), osuId, rosterTeams),
     };
   } catch {
     return { ...base, unavailable: true };

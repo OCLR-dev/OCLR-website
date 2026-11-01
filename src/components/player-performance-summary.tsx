@@ -1,7 +1,10 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { PlayerMapPerformance } from "@/lib/player-map-performance";
 import styles from "./player-performance-summary.module.css";
+import { useAnimatedNumber } from "./use-animated-number";
 
 const share = (value: number | null) =>
   value === null ? "—" : `${(value * 100).toFixed(2)}%`;
@@ -42,11 +45,6 @@ function ringColors(value: number | null): readonly [string, string] {
   return RING_COLORS.cyan;
 }
 
-function score(value: number | null) {
-  if (value === null) return null;
-  return value.toFixed(2);
-}
-
 /**
  * A three-quarter gauge with the gap at the bottom: 0 at the lower-left end,
  * 1 at the top and 2 at the lower-right end. The accent arc follows the
@@ -59,21 +57,25 @@ function EfficiencyRing({
   value: number | null;
   label: string;
 }) {
-  const visible = score(value);
-  // Pin the arc to the 0–2 scale so values near either end cannot overrun the
-  // track or slide past the lower-right cap.
-  const fraction =
-    value === null || !Number.isFinite(value)
-      ? 0
-      : Math.min(Math.max(value / 2, 0), 1);
-  const [from, to] = ringColors(value);
+  // The arc follows the previous edition's rating until the new one settles, so
+  // switching a season reads as a sweep instead of a jump. Pin it to the 0–2
+  // scale so values near either end cannot overrun the track.
+  const target =
+    typeof value === "number" && Number.isFinite(value) ? value : 0;
+  const animated = useAnimatedNumber(target);
+  const fraction = Math.min(Math.max(animated / 2, 0), 1);
+  const [from, to] = ringColors(animated);
   const arcStart = pointOnRing(RING_START_ANGLE);
   const arcEnd = pointOnRing(RING_START_ANGLE + fraction * 270);
   return (
     <div
       className={styles.ring}
       role="img"
-      aria-label={`${label}: ${visible ?? "—"} / 2`}
+      aria-label={`${label}: ${
+        typeof value === "number" && Number.isFinite(value)
+          ? value.toFixed(2)
+          : "—"
+      } / 2`}
       style={
         {
           "--ring-from": from,
@@ -105,7 +107,7 @@ function EfficiencyRing({
           textAnchor="middle"
           dominantBaseline="central"
         >
-          {visible ?? "—"}
+          {value === null || !Number.isFinite(value) ? "—" : value.toFixed(2)}
         </text>
       </svg>
       {fraction > 0 && (
@@ -147,7 +149,11 @@ export function PlayerPerformanceSummary({
           <dt>{tr("Maps played")}</dt>
           <dd>
             {record.mapsPlayed}
-            <span className={styles.ratioDenominator}>/{record.ratedMaps}</span>
+            {record.teamMaps > 0 && (
+              <span className={styles.ratioDenominator}>
+                /{record.teamMaps}
+              </span>
+            )}
           </dd>
         </div>
         <div>

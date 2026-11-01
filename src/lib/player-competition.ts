@@ -1,5 +1,5 @@
 import { getPublicEdition } from "./content";
-import { seasonAppearanceFor } from "./player-timeline";
+import { seasonAppearanceFor, seasonNumber } from "./player-timeline";
 import { archiveWinner, recordedArchiveMatch } from "./historical-archive";
 import {
   tournamentPlacements,
@@ -14,6 +14,56 @@ import {
 } from "./player-competition-model";
 import type { PublishedPlayer } from "./players";
 import { publicCompetition } from "./public-competition";
+
+/** The fields the participated-tournament strip needs from a public edition. */
+export type ParticipatedTournamentEdition = {
+  editionSlug: string;
+  editionName: string;
+  defaultAppearance: CompetitionEditionRecord["defaultAppearance"];
+  season: string | null;
+};
+
+/**
+ * Every edition this person appears in, newest season first. Published edition
+ * metadata supplies the theme; a participation whose edition is no longer
+ * public still keeps its authored name as a readable fallback.
+ */
+export function participatedTournamentEditions(
+  participation: readonly PublishedPlayer[],
+  editions: readonly {
+    slug: string;
+    name: string;
+    season?: string | null;
+    defaultAppearance?: CompetitionEditionRecord["defaultAppearance"];
+  }[],
+): ParticipatedTournamentEdition[] {
+  const published = new Map(editions.map((edition) => [edition.slug, edition]));
+  const names = new Map<string, string>();
+  for (const person of participation)
+    names.set(person.editionSlug, person.editionName);
+  return [...names]
+    .map(([slug, name]) => {
+      const edition = published.get(slug);
+      return {
+        editionSlug: slug,
+        editionName: edition?.name ?? name,
+        defaultAppearance:
+          edition?.defaultAppearance ??
+          seasonAppearanceFor(edition?.season ?? null),
+        season: edition?.season ?? null,
+      };
+    })
+    .sort((a, b) => {
+      const left = seasonNumber(a.season);
+      const right = seasonNumber(b.season);
+      if (left !== right) {
+        if (left === null) return 1;
+        if (right === null) return -1;
+        return right - left;
+      }
+      return a.editionSlug.localeCompare(b.editionSlug, "en");
+    });
+}
 
 /**
  * DEMO: reads only the public tournament/archive projections that a visitor can

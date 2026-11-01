@@ -3687,7 +3687,7 @@
     "m30daf7f58975": "Participation trophy",
     "m18413fd0f740": "Tournament appearances",
     "m4b5a0a7aa521": "Win score",
-    "m0e2ac8586b43": "Lose score",
+    "m0e2ac8586b43": "Loss score",
     "m1e0576e343db": "Other tournaments",
     "mfdeac90032ff": "Team record",
     "m732863fa5c61": "Career",
@@ -3783,6 +3783,9 @@
     "m8623658d2114": "Delete practice record",
     "m7c016e9a09a3": "No practice records yet.",
     "mb3b4b6e6f1dc": "Practice record not found.",
-    "m3a5b25877c06": "Your team's availability is shown together. You can only edit your own time slots."
+    "m3a5b25877c06": "Your team's availability is shown together. You can only edit your own time slots.",
+    "m9e6d3a5a65b3": "Participated tournaments",
+    "m6766c1a581bb": "You are viewing this player's data for a single tournament. To view all data, click here.",
+    "mabba84dab595": "Season record"
   }
 }

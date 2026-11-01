@@ -3,6 +3,7 @@ import { useAppTranslations } from "@/i18n/shared";
 import type { PlayerCompetitionRecord } from "@/lib/player-competition-model";
 import type { PersonalMapRecord } from "@/lib/player-map-performance";
 import styles from "./player-match-stats.module.css";
+import { useAnimatedNumber } from "./use-animated-number";
 
 function percent(wins: number, losses: number) {
   const total = wins + losses;
@@ -23,14 +24,16 @@ function MatchBar({
   lossLabel: string;
 }) {
   const total = wins + losses;
-  const share = total > 0 ? (wins / total) * 100 : 50;
-  const value = rate === null ? "—" : `${rate}%`;
+  const targetShare = total > 0 ? (wins / total) * 100 : 50;
+  const share = useAnimatedNumber(targetShare);
+  const value = rate === null ? "—" : `${Math.round(share)}%`;
+  const finalValue = rate === null ? "—" : `${rate}%`;
   return (
     <div
       className={styles.bar}
       style={{ "--win-share": `${share}%` } as CSSProperties}
       role="img"
-      aria-label={`${winLabel} ${wins}, ${lossLabel} ${losses}, ${value}`}
+      aria-label={`${winLabel} ${wins}, ${lossLabel} ${losses}, ${finalValue}`}
     >
       <span className={`${styles.fill} ${styles.winFill}`} aria-hidden="true" />
       <span

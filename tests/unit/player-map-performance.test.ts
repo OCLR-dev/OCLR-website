@@ -57,6 +57,7 @@ function blank(slug: string): PlayerMapEdition {
     averageAccuracy: null,
     averageEffectiveRating: null,
     ratedMaps: 0,
+    teamMaps: 0,
     mapsWon: 0,
     mapsLost: 0,
     mapsTied: 0,
@@ -113,6 +114,42 @@ describe("map performance", () => {
     expect(result.maps[0].effectiveRating).toBeCloseTo(1.25);
     expect(result.averageEffectiveRating).toBeCloseTo(1.25);
     expect(result.ratedMaps).toBe(1);
+  });
+
+  it("counts every map the player's team appeared in, not just their own", () => {
+    const result = mapPerformance(
+      [
+        // The player (1) only plays map 1; team-mate 3 plays map 2 for them.
+        play(1, 1, 1_000_000),
+        play(1, 2, 800_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+        play(1, 3, 600_000),
+        play(2, 3, 1_000_000),
+        play(2, 2, 800_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+        // Map 3 is another team's map and must not be counted.
+        play(3, 4, 1_000_000, 0.95, "2024-01-12T00:00:00Z", "c"),
+        play(3, 2, 800_000, 0.95, "2024-01-12T00:00:00Z", "b"),
+      ],
+      1,
+    );
+    expect(result.maps).toHaveLength(1);
+    expect(result.teamMaps).toBe(2);
+  });
+
+  it("counts roster team maps even when the player has no score on them", () => {
+    // A benched player has no plays of their own, but the roster still names
+    // the team, so the team's maps remain the denominator.
+    const result = mapPerformance(
+      [
+        play(1, 3, 1_000_000),
+        play(1, 2, 800_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+        play(2, 3, 1_000_000),
+        play(2, 2, 800_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+      ],
+      1,
+      ["a"],
+    );
+    expect(result.maps).toHaveLength(0);
+    expect(result.teamMaps).toBe(2);
   });
 
   it("skips effective ratings when the map mean is zero or unusable", () => {
