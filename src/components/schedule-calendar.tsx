@@ -10,7 +10,10 @@ import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/classic/theme.css";
 import { localDateTime } from "@/lib/edition-time";
 import { useAppTranslations } from "@/i18n/shared";
-import type { AvailabilityInterval } from "@/lib/schedule-model";
+import {
+  availabilitySchema,
+  type AvailabilityInterval,
+} from "@/lib/schedule-model";
 export default function ScheduleCalendar({
   timeZone,
   official,
@@ -21,6 +24,8 @@ export default function ScheduleCalendar({
   onSelect,
   initialDate,
   availabilityLabel,
+  selection,
+  editingIndex,
 }: {
   timeZone: string;
   official: string | null;
@@ -31,12 +36,16 @@ export default function ScheduleCalendar({
   onSelect: (start: string, end: string) => void;
   initialDate?: string;
   availabilityLabel?: string;
+  selection?: AvailabilityInterval | null;
+  editingIndex?: number | null;
 }) {
   const tr = useAppTranslations();
   const [mobile, setMobile] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
   const label = tr("Calendar time slots");
+  const parsedSelection = availabilitySchema.element.safeParse(selection);
+  const preview = parsedSelection.success ? parsedSelection.data : null;
   // The calendar's internal scroll viewport needs its own keyboard stop in Safari.
   // Inspect overflow rather than depending on FullCalendar's generated CSS names.
   const enableKeyboardScroll = useCallback(() => {
@@ -105,16 +114,33 @@ export default function ScheduleCalendar({
         selectMirror
         select={(info) => {
           onSelect(info.start.toISOString(), info.end.toISOString());
+          // The parent's editable range is rendered below, including after form focus.
           info.view.calendar.unselect();
         }}
         events={[
-          ...intervals.map((i, index) => ({
-            ...i,
-            id: `own-${index}`,
-            title: availabilityLabel ?? tr("My availability"),
-            extendedProps: { own: true },
-            class: "schedule-own",
-          })),
+          ...intervals.flatMap((i, index) =>
+            preview && index === editingIndex
+              ? []
+              : [
+                  {
+                    ...i,
+                    id: `own-${index}`,
+                    title: availabilityLabel ?? tr("My availability"),
+                    extendedProps: { own: true },
+                    class: "schedule-own",
+                  },
+                ],
+          ),
+          ...(preview
+            ? [
+                {
+                  ...preview,
+                  id: "selection",
+                  title: availabilityLabel ?? tr("My availability"),
+                  class: "schedule-selection",
+                },
+              ]
+            : []),
           ...summary.map((i, index) => ({
             ...i,
             id: `summary-${index}`,

@@ -8,6 +8,7 @@ import { basename, resolve } from "node:path";
 const bundle = await build({
   entryPoints: [
     "tests/components/header.tsx",
+    "tests/components/schedule-selection.tsx",
     "tests/components/referee-panel.tsx",
     "tests/components/force-fixture-delete.tsx",
     "tests/components/round-referee-policy.tsx",
@@ -101,7 +102,11 @@ createServer((request, response) => {
                                       ? "player-profile-no-cover"
                                       : request.url?.startsWith("/rank-chart")
                                         ? "rank-chart"
-                                        : "player-message-board";
+                                        : request.url?.startsWith(
+                                              "/schedule-selection",
+                                            )
+                                          ? "schedule-selection"
+                                          : "player-message-board";
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${entry}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${entry}.js"></script></body></html>`,
     );

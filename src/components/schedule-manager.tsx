@@ -55,6 +55,13 @@ function FixtureEditor({
   const [proposal, setProposal] = useState<string | null>(null),
     [proposalValid, setProposalValid] = useState(false);
   const [note, setNote] = useState("");
+  const clearSelection = () => {
+    setStart(null);
+    setEnd(null);
+    setStartValid(false);
+    setEndValid(false);
+    setEditing(null);
+  };
   const request = data.requests.findLast(
     (r) => r.fixtureId === f.id && activeSchedule(r.status),
   );
@@ -172,17 +179,19 @@ function FixtureEditor({
         official={f.scheduledAt}
         proposed={request?.proposedAt}
         intervals={f.participant ? intervals : []}
+        selection={
+          startValid && endValid && start && end ? { start, end } : null
+        }
+        editingIndex={editing}
         summary={f.summary}
         editable={f.participant && f.eligible && intervals.length < 40}
         onSelect={(a, b) => {
-          setEditing(null);
           setIntervals((previous) =>
             previous.length < 40
               ? [...previous, { start: a, end: b }]
               : previous,
           );
-          setStart(null);
-          setEnd(null);
+          clearSelection();
           setProposal(a);
           setProposalValid(true);
         }}
@@ -229,14 +238,21 @@ function FixtureEditor({
                           n === editing ? { start, end } : i,
                         ),
                   );
-                  setStart(null);
-                  setEnd(null);
-                  setEditing(null);
+                  clearSelection();
                 }
               }}
             >
               {editing === null ? tr("Add time slot") : tr("Update time slot")}
             </button>
+            {(editing !== null || start !== null || end !== null) && (
+              <button
+                className="secondary"
+                type="button"
+                onClick={clearSelection}
+              >
+                {tr("Cancel")}
+              </button>
+            )}
             <ul className="schedule-slots">
               {intervals.map((i, n) => (
                 <li key={n}>
@@ -260,7 +276,7 @@ function FixtureEditor({
                         setIntervals(
                           intervals.filter((_, index) => n !== index),
                         );
-                        setEditing(null);
+                        clearSelection();
                       }}
                     >
                       {tr("Remove")}

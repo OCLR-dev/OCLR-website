@@ -12,6 +12,11 @@ mean that a player is available. Only the player and their current captain can
 read individual intervals. Leaving a team removes access; a later membership
 does not inherit the old membership's availability.
 
+Dragging a range adds a local slot immediately. Manual entry and editing show a
+calendar preview that follows the date/time fields until Add/Update or Cancel.
+Cancelling an edit restores the original local slot. Availability is persisted
+only by Save availability.
+
 Current captains propose one new start time per active request. Proposing means
 the author agrees; only the opposing captain can confirm it. A counterproposal
 creates another version and requires the other captain's fresh agreement.
