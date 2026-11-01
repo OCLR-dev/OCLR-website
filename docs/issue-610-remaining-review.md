@@ -1,15 +1,20 @@
 # #610 remaining historical-data review — 2026-11-01
 
-This is a review proposal, not an import receipt or an official standings table.
-The current production archives were downloaded read-only through the existing
-Admin UI. No production changes have been made in this follow-up.
+This is the accepted review proposal, not an official standings table. The
+production archives used to prepare it were downloaded through the existing
+Admin UI; the table below records those pre-application revisions.
 
 The organizer accepted this proposal on 2026-11-01, confirmed S6 has no reset,
 and chose UTC+8 actual competition dates with missing dates left unknown.
 [Recorded acceptance](https://github.com/OCLR-dev/OCLR-website/issues/610#issuecomment-6555006692).
-Native application and public readback await deployment of the compatible build.
+Native application and public readback were completed after the organizer
+deployed `eaea425e1d910479d378990837b18e206a4ac652`. All 110 placements and
+30 phase milestones are saved and public; all 12,800 previously published
+score facts and ten statistics source keys are unchanged. See the separate
+[production acceptance record](verification/issue-610-remaining/README.md#production-application-and-public-readback)
+for actual revisions, coverage and the four S10 reviews.
 
-## Current saved evidence
+## Pre-application saved evidence
 
 | Season | Saved revision | Teams |                         Series | Published statistics coverage | Remaining date gaps                                                    |
 | ------ | -------------: | ----: | -----------------------------: | ----------------------------: | ---------------------------------------------------------------------- |
@@ -210,7 +215,9 @@ only its local row IDs are stripped. This is required for applying the three
 prepared phase windows through the existing Admin UI and for later edits to
 retain their calendar-date meaning.
 
-Additional labels submitted for organizer review:
+The organizer explicitly accepted these additional Traditional and Simplified
+Chinese labels on 2026-11-01; the acceptance is recorded in
+[the issue](https://github.com/OCLR-dev/OCLR-website/issues/610#issuecomment-6555466690).
 
 | English        | zh-Hans    | zh-Hant    |
 | -------------- | ---------- | ---------- |
