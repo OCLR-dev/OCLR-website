@@ -1,3 +1,7 @@
+import {
+  closeHeaderPreferences,
+  openHeaderPreferences,
+} from "./header-preferences";
 import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";
@@ -381,6 +385,7 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
             // WebKit reports cancelled in-flight reads as access-control errors.
             await page.waitForLoadState("networkidle");
           }
+          await openHeaderPreferences(page);
           await page.locator(".appearance-trigger").click();
           await expect(
             page.locator(".appearance-control [aria-checked=true]"),
@@ -393,9 +398,11 @@ for (const appearance of Object.keys(optional) as (keyof typeof optional)[]) {
       for (const width of isMobile ? [320, 390] : [768, 1024, 1600]) {
         await page.setViewportSize({ width, height: 900 });
         await page.goto("/admin/tournaments/test-cup/settings");
+        await openHeaderPreferences(page);
         await page.locator(".appearance-trigger").click();
         await noOverflow(page);
-        // Click the footer padding, outside the menu and away from footer links.
+        // Close the phone panel before clicking the underlying footer.
+        await closeHeaderPreferences(page);
         await page.locator(".site-footer").click({ position: { x: 4, y: 4 } });
         await expect(
           page.locator(".appearance-control [role=menu]"),

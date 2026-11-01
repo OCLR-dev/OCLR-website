@@ -904,3 +904,19 @@ html[data-theme="dark"]
     bottom: 30%;
   }
 }
+
+/* Keep the phone's registration entry to its phase label. */
+@media (max-width: 760px) {
+  .home-feature .home-registration-label {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .home-feature .home-registration-label > span:first-child {
+    white-space: nowrap;
+  }
+
+  .home-feature .home-registration-label > span:not(:first-child) {
+    display: none;
+  }
+}

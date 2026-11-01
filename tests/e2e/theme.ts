@@ -4,8 +4,11 @@ import { expect, type Page } from "@playwright/test";
 export async function chooseTheme(page: Page, mode: string, tap = false) {
   const activate = (selector: string) =>
     tap ? page.locator(selector).tap() : page.locator(selector).click();
+  const openedMobileMenu = !(await page.locator(".theme-control").isVisible());
+  if (openedMobileMenu) await activate(".menu-toggle");
   await activate(".theme-control");
   await activate(`.theme-menu [data-theme-option="${mode}"]`);
+  if (openedMobileMenu) await activate(".menu-toggle");
   await expect(page.locator("html")).toHaveAttribute(
     "data-theme-preference",
     mode,

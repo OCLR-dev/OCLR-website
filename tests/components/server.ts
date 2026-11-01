@@ -7,6 +7,7 @@ import { basename, resolve } from "node:path";
 
 const bundle = await build({
   entryPoints: [
+    "tests/components/header.tsx",
     "tests/components/referee-panel.tsx",
     "tests/components/force-fixture-delete.tsx",
     "tests/components/round-referee-policy.tsx",
@@ -27,7 +28,7 @@ const bundle = await build({
     "tests/components/player-profile-no-cover.tsx",
   ],
   alias: { "next/image": resolve("tests/components/next-image.ts") },
-  external: ["/rookie-stage.svg"],
+  external: ["/rookie-stage.svg", "/themes/*", "/fonts/*"],
   bundle: true,
   write: false,
   outdir: "component-bundle",
@@ -60,45 +61,47 @@ createServer((request, response) => {
       response.setHeader("Content-Security-Policy", policy);
       nonce = /'nonce-([^']+)'/.exec(policy)![1];
     }
-    const entry = request.url?.startsWith("/referee-panel")
-      ? "referee-panel"
-      : request.url?.startsWith("/force-fixture-delete")
-        ? "force-fixture-delete"
-        : request.url?.startsWith("/round-referee-policy")
-          ? "round-referee-policy"
-          : request.url?.startsWith("/stage-groups")
-            ? "stage-groups"
-            : request.url?.startsWith("/info-note")
-              ? "info-note"
-              : request.url?.startsWith("/s5-bracket")
-                ? "s5-bracket"
-                : request.url?.startsWith("/s3-bracket")
-                  ? "s3-bracket"
-                  : request.url?.startsWith("/archive-bracket")
-                    ? "archive-bracket"
-                    : request.url?.startsWith("/ocl-chess")
-                      ? "ocl-chess"
-                      : request.url?.startsWith("/statistics-manager")
-                        ? "statistics-manager"
-                        : request.url?.startsWith("/team-editor")
-                          ? "team-editor"
-                          : request.url?.startsWith("/event-statistics")
-                            ? "event-statistics"
-                            : request.url?.startsWith("/statistics-explorer")
-                              ? "statistics-explorer"
-                              : request.url?.startsWith("/player-id-badge")
-                                ? "player-id-badge"
-                                : request.url?.startsWith(
-                                      "/player-profile-cover",
-                                    )
-                                  ? "player-profile-cover"
+    const entry = request.url?.startsWith("/header")
+      ? "header"
+      : request.url?.startsWith("/referee-panel")
+        ? "referee-panel"
+        : request.url?.startsWith("/force-fixture-delete")
+          ? "force-fixture-delete"
+          : request.url?.startsWith("/round-referee-policy")
+            ? "round-referee-policy"
+            : request.url?.startsWith("/stage-groups")
+              ? "stage-groups"
+              : request.url?.startsWith("/info-note")
+                ? "info-note"
+                : request.url?.startsWith("/s5-bracket")
+                  ? "s5-bracket"
+                  : request.url?.startsWith("/s3-bracket")
+                    ? "s3-bracket"
+                    : request.url?.startsWith("/archive-bracket")
+                      ? "archive-bracket"
+                      : request.url?.startsWith("/ocl-chess")
+                        ? "ocl-chess"
+                        : request.url?.startsWith("/statistics-manager")
+                          ? "statistics-manager"
+                          : request.url?.startsWith("/team-editor")
+                            ? "team-editor"
+                            : request.url?.startsWith("/event-statistics")
+                              ? "event-statistics"
+                              : request.url?.startsWith("/statistics-explorer")
+                                ? "statistics-explorer"
+                                : request.url?.startsWith("/player-id-badge")
+                                  ? "player-id-badge"
                                   : request.url?.startsWith(
-                                        "/player-profile-no-cover",
+                                        "/player-profile-cover",
                                       )
-                                    ? "player-profile-no-cover"
-                                    : request.url?.startsWith("/rank-chart")
-                                      ? "rank-chart"
-                                      : "player-message-board";
+                                    ? "player-profile-cover"
+                                    : request.url?.startsWith(
+                                          "/player-profile-no-cover",
+                                        )
+                                      ? "player-profile-no-cover"
+                                      : request.url?.startsWith("/rank-chart")
+                                        ? "rank-chart"
+                                        : "player-message-board";
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${entry}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${entry}.js"></script></body></html>`,
     );

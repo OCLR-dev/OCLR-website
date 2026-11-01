@@ -1,3 +1,7 @@
+import {
+  expectPreferenceMenuFits,
+  openHeaderPreferences,
+} from "./header-preferences";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";
@@ -47,6 +51,7 @@ test.describe("S3 Frost Waltz appearance", () => {
         );
         await page.goto("/tournaments/s3");
         await page.waitForLoadState("networkidle");
+        await openHeaderPreferences(page);
         const trigger = page.locator(".appearance-trigger");
         await trigger.click();
         const menu = page.locator('.appearance-control [role="menu"]');
@@ -56,11 +61,7 @@ test.describe("S3 Frost Waltz appearance", () => {
         ).toHaveCount(0);
         await page.keyboard.press("Home");
         await expect(menu.getByRole("menuitemradio").first()).toBeFocused();
-        const box = (await menu.boundingBox())!;
-        expect(box.y).toBeGreaterThanOrEqual(0);
-        expect(box.y + box.height).toBeLessThanOrEqual(
-          page.viewportSize()!.height,
-        );
+        await expectPreferenceMenuFits(page, menu);
         await page.keyboard.press("Enter");
         await expect(trigger).toBeFocused();
         const response = await page.reload();
@@ -129,7 +130,11 @@ test.describe("S3 Frost Waltz appearance", () => {
   }) => {
     test.setTimeout(180000);
     await seedEditions([
-      { ...frostPreview, defaultAppearance: "frost-waltz", name: "S3 · 合成長名稱外觀測試 ".repeat(5) },
+      {
+        ...frostPreview,
+        defaultAppearance: "frost-waltz",
+        name: "S3 · 合成長名稱外觀測試 ".repeat(5),
+      },
     ]);
     await page.emulateMedia({ reducedMotion: "reduce" });
     for (const theme of ["light", "dark"])

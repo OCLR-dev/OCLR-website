@@ -27,6 +27,7 @@ test.afterAll(closeDb);
 async function unobstructed(items: Locator) {
   for (const item of await items.all()) {
     await expect(item).toBeVisible();
+    await item.scrollIntoViewIfNeeded();
     expect(
       await item.evaluate((node) => {
         const box = node.getBoundingClientRect();
@@ -59,10 +60,17 @@ async function withinViewport(page: Page, menu: Locator, width: number) {
 
 const mobileWidths = compactHeaderWidths(matrixMode);
 
-async function compactHeader(page: Page, width: number, locale: string) {
+async function compactHeader(
+  page: Page,
+  width: number,
+  locale: "zh-Hans" | "zh-Hant" | "en",
+) {
   const header = page.locator(".site-header");
+  const toggle = header.locator(".menu-toggle");
+  if ((await toggle.getAttribute("aria-expanded")) === "true")
+    await toggle.click();
   const controls = header.locator(
-    ".brand, .menu-toggle, .account-control, .nav-login, .site-preferences > button, .site-preferences > div > button",
+    ".brand, .menu-toggle, .account-control, .nav-login",
   );
   const boxes = await controls.evaluateAll((nodes) =>
     nodes.map((node) => {
@@ -73,7 +81,7 @@ async function compactHeader(page: Page, width: number, locale: string) {
   // Count visual rows, including the logo and every preference control.
   expect(
     new Set(boxes.map((box) => Math.round(box.y + box.height / 2))).size,
-  ).toBeLessThanOrEqual(2);
+  ).toBe(1);
   for (const box of boxes) {
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(width);
@@ -85,9 +93,13 @@ async function compactHeader(page: Page, width: number, locale: string) {
   await unobstructed(controls);
   await expect(header.locator(".menu-toggle")).toHaveText("");
   const language = header.locator(".language-control > button");
-  expect((await language.innerText()).trim()).toBe(
-    { "zh-Hans": "简", "zh-Hant": "繁", en: "EN" }[locale],
+  await expect(language).toBeHidden();
+  await toggle.click();
+  await expect(language).toContainText(
+    { "zh-Hans": "简体中文", "zh-Hant": "繁體中文", en: "English" }[locale],
   );
+  await expect(header.locator(".site-preferences")).toBeVisible();
+  await toggle.click();
   await withinViewport(page, header, width);
 }
 
@@ -132,7 +144,9 @@ for (const { locale, theme, appearance } of headerMatrix(
         expect((await account.boundingBox())!.width).toBeLessThan(76);
         await expect(account.locator(".avatar")).toBeVisible();
       }
-      await unobstructed(header.locator("button:visible"));
+      await unobstructed(
+        header.locator("button:visible:not(.mobile-menu-backdrop)"),
+      );
       if (width <= 950) {
         const toggle = await header.locator(".menu-toggle").boundingBox();
         const actions = await header.locator(".nav-actions").boundingBox();
@@ -175,6 +189,7 @@ for (const { locale, theme, appearance } of headerMatrix(
 
       // Opening another control dismisses the previous menu through the
       // existing outside-pointer/focus handlers, including keyboard use.
+      if (width <= 760) await activate(header.locator(".menu-toggle"));
       await activate(appearanceTrigger);
       const appearanceMenu = header.locator(
         '.appearance-control [role="menu"]',
@@ -190,6 +205,7 @@ for (const { locale, theme, appearance } of headerMatrix(
       await expect(languageMenu).toBeHidden();
       await unobstructed(menu.getByRole("menuitem"));
       await page.keyboard.press("Escape");
+      if (width <= 760) await activate(header.locator(".menu-toggle"));
       await language.focus();
       await language.press("ArrowDown");
       await expect(
@@ -226,7 +242,9 @@ for (const { locale, theme, appearance } of headerMatrix(
       await page.setViewportSize({ width, height: 900 });
       await compactHeader(page, width, locale);
     }
-    await unobstructed(header.locator("button:visible, .nav-login"));
+    await unobstructed(
+      header.locator("button:visible:not(.mobile-menu-backdrop), .nav-login"),
+    );
     const signedOutToggle = await header.locator(".menu-toggle").boundingBox();
     const login = await header.locator(".nav-login").boundingBox();
     expect(signedOutToggle!.x).toBeGreaterThanOrEqual(login!.x + login!.width);
@@ -239,6 +257,8 @@ for (const { locale, theme, appearance } of headerMatrix(
     await expect(header.locator(".menu-toggle")).toBeFocused();
     await activate(header.locator(".menu-toggle"));
     await language.focus();
-    await expect(header.locator(".main-nav")).toBeHidden();
+    if (page.viewportSize()!.width <= 760)
+      await expect(header.locator(".main-nav")).toBeVisible();
+    else await expect(header.locator(".main-nav")).toBeHidden();
   });
 }

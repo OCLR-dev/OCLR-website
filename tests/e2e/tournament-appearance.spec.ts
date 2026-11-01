@@ -1,3 +1,4 @@
+import { openHeaderPreferences } from "./header-preferences";
 import { test, expect } from "@playwright/test";
 import { sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
@@ -80,6 +81,7 @@ test.describe("tournament appearance inheritance", () => {
         new RegExp(`<html[^>]*data-appearance="${appearance}"`),
       );
       await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+      await openHeaderPreferences(page);
       await page.locator(".appearance-trigger").click();
       await expect(
         page.getByRole("menuitemradio", {
@@ -94,6 +96,7 @@ test.describe("tournament appearance inheritance", () => {
         "data-appearance",
         "default",
       );
+      await openHeaderPreferences(page);
       await page.locator(".appearance-trigger").click();
       await page
         .getByRole("menuitemradio", { name: "Use tournament/site default" })

@@ -103,10 +103,17 @@ export function LanguageControl() {
           setOpen(true);
         }}
       >
-        <span lang={locale} className={styles.fullName}>
+        <span className="mobile-preference-label" aria-hidden="true">
+          {tr("Language")}
+        </span>
+        <span lang={locale} className={`${styles.fullName} language-full-name`}>
           {names[locale]}
         </span>
-        <span lang={locale} className={styles.shortName} aria-hidden="true">
+        <span
+          lang={locale}
+          className={`${styles.shortName} language-short-name`}
+          aria-hidden="true"
+        >
           {shortNames[locale]}
         </span>
         <svg
