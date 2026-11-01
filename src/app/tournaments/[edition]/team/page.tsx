@@ -1,4 +1,5 @@
 import { Action, EmptyState, PageHeading } from "@/components/ui";
+import { OwnTeam } from "@/components/own-team";
 import { getAppTranslations } from "@/i18n/server";
 import { currentUser } from "@/lib/auth/user";
 import { remotePage } from "@/lib/remote-page";
@@ -31,29 +32,18 @@ async function Issue271Page({
         )}
       </PageHeading>
       {team ? (
-        <section className="panel">
-          <h2>{team.name}</h2>
-          <Action href={`/tournaments/${edition}/schedule/requests`} secondary>
-            {tr("Schedule requests")}
-          </Action>
-          <p className="muted">
-            {team.finalizedAt
-              ? tr("Finalized roster")
-              : tr("Draft roster in progress")}
-          </p>
-          <ul>
-            {team.members.map((m) => (
-              <li key={m.osuId}>
-                <a
-                  className="text-link"
-                  href={`https://osu.ppy.sh/users/${m.osuId}`}
-                >
-                  {m.username}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <OwnTeam
+          team={team}
+          edition={edition}
+          actions={
+            <Action
+              href={`/tournaments/${edition}/schedule/requests`}
+              secondary
+            >
+              {tr("Schedule requests")}
+            </Action>
+          }
+        />
       ) : (
         <EmptyState title={tr("No captain team assigned")}>
           {tr(
