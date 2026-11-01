@@ -4946,26 +4946,17 @@ html:lang(zh-Hant) .eyebrow {
 .mappool-workbench .beatmap-parameters {
   font-variant-numeric: tabular-nums;
 }
-.mappool-workbench .mappool-entry-actions {
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--color-border);
-}
-.mappool-workbench .mappool-entry-action-row {
+.mappool-workbench :is(.mappool-entry-action-row, .mappool-entry-actions) {
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 0.45rem;
 }
-.mappool-workbench
-  :is(.mappool-entry-action-row, .mappool-pool-actions)
-  > :is(button, .button) {
+.mappool-workbench .mappool-pool-actions > :is(button, .button) {
   flex: 0 0 auto;
   align-self: start;
   width: auto;
   min-height: 44px;
-}
-.mappool-edit-action {
-  border-color: #a778c1;
 }
 .mappool-inline-editor {
   max-width: 44rem;

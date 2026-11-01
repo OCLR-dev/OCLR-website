@@ -10,7 +10,7 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import Link from "next/link";
 import { WorkspaceTabs } from "./workspace-tabs";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { MappoolWorkspace } from "@/lib/mappools";
 import {
   categories,
@@ -27,6 +27,7 @@ import { MappoolOrder } from "./mappool-order";
 import { MappoolBatch } from "./mappool-batch";
 import { BeatmapPreview } from "./beatmap-preview";
 import { MappoolReplays, ReplayWindow } from "./mappool-replays";
+import { MappoolActionIcon } from "./mappool-action-icon";
 type Pool = MappoolWorkspace["pools"][number];
 type Entry = MappoolWorkspace["entries"][number];
 type Change = { url: string };
@@ -35,6 +36,7 @@ function Save({
   label,
   description,
   className,
+  icon,
   payload,
   disabled = false,
   onSuccess,
@@ -43,6 +45,7 @@ function Save({
   label: string;
   description?: string;
   className?: string;
+  icon?: ReactNode;
   payload: Record<string, unknown>;
   disabled?: boolean;
   onSuccess?: () => void;
@@ -50,6 +53,7 @@ function Save({
   return (
     <ConfirmMutation
       className={className}
+      icon={icon}
       disabled={disabled}
       onSuccess={onSuccess}
       requireConfirmation={["pool_publish", "entry_remove"].includes(
@@ -316,6 +320,8 @@ function EntryEditor({
   open,
   onOpen,
   onClose,
+  disabled,
+  replayTrigger,
 }: {
   change: Change;
   pool: Pool;
@@ -324,6 +330,8 @@ function EntryEditor({
   open: boolean;
   onOpen: () => void;
   onClose: () => void;
+  disabled: boolean;
+  replayTrigger: ReactNode;
 }) {
   const tr = useAppTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -336,62 +344,76 @@ function EntryEditor({
   return (
     <>
       <div className="mappool-entry-action-row">
-        <button
-          type="button"
-          className="secondary mappool-edit-action"
-          ref={trigger}
-          aria-expanded={open}
-          aria-controls={open ? id : undefined}
-          onClick={() => (open ? close() : onOpen())}
+        <fieldset
+          className="mappool-entry-actions"
+          aria-label={tr("Map actions for {value0}", { value0: slot })}
+          disabled={disabled}
         >
-          {tr("Edit or replace {slot}", { slot })}
-        </button>
-        <Save
-          change={change}
-          label={tr("Refresh {slot} metadata", { slot })}
-          payload={{
-            action: "entry_refresh",
-            poolId: pool.id,
-            expectedVersion: pool.version,
-            entryId: entry.id,
-          }}
-        />
-        <Save
-          change={change}
-          className="secondary destructive-action"
-          label={tr("Remove {slot}", { slot })}
-          description={tr(
-            "Remove this map slot. Published pools update immediately; history is retained.",
-          )}
-          payload={{
-            action: "entry_remove",
-            poolId: pool.id,
-            expectedVersion: pool.version,
-            entryId: entry.id,
-          }}
-          onSuccess={onClose}
-        />
+          <button
+            type="button"
+            className="secondary mappool-icon-action"
+            ref={trigger}
+            aria-label={tr("Edit or replace {slot}", { slot })}
+            title={tr("Edit or replace {slot}", { slot })}
+            aria-expanded={open}
+            aria-controls={open ? id : undefined}
+            onClick={() => (open ? close() : onOpen())}
+          >
+            <MappoolActionIcon kind="edit" />
+          </button>
+          <Save
+            change={change}
+            label={tr("Refresh {slot} metadata", { slot })}
+            className="secondary mappool-icon-action"
+            icon={<MappoolActionIcon kind="refresh" />}
+            payload={{
+              action: "entry_refresh",
+              poolId: pool.id,
+              expectedVersion: pool.version,
+              entryId: entry.id,
+            }}
+          />
+          <Save
+            change={change}
+            className="secondary destructive-action mappool-icon-action"
+            icon={<MappoolActionIcon kind="remove" />}
+            label={tr("Remove {slot}", { slot })}
+            description={tr(
+              "Remove this map slot. Published pools update immediately; history is retained.",
+            )}
+            payload={{
+              action: "entry_remove",
+              poolId: pool.id,
+              expectedVersion: pool.version,
+              entryId: entry.id,
+            }}
+            onSuccess={onClose}
+          />
+        </fieldset>
+        {replayTrigger}
       </div>
       {open && (
-        <section
-          className="mappool-inline-editor"
-          id={id}
-          aria-label={tr("Edit or replace {slot}", { slot })}
-        >
-          <div className="mappool-inline-heading">
-            <h4>{tr("Edit or replace {slot}", { slot })}</h4>
-            <button type="button" className="secondary" onClick={close}>
-              {tr("Cancel")}
-            </button>
-          </div>
-          <EntryForm
-            change={change}
-            pool={pool}
-            category={category}
-            entry={entry}
-            onSuccess={close}
-          />
-        </section>
+        <fieldset className="staff-readonly-fields" disabled={disabled}>
+          <section
+            className="mappool-inline-editor"
+            id={id}
+            aria-label={tr("Edit or replace {slot}", { slot })}
+          >
+            <div className="mappool-inline-heading">
+              <h4>{tr("Edit or replace {slot}", { slot })}</h4>
+              <button type="button" className="secondary" onClick={close}>
+                {tr("Cancel")}
+              </button>
+            </div>
+            <EntryForm
+              change={change}
+              pool={pool}
+              category={category}
+              entry={entry}
+              onSuccess={close}
+            />
+          </section>
+        </fieldset>
       )}
     </>
   );
@@ -738,25 +760,31 @@ function MappoolEditorContent({
                           entries={entries}
                           editable={editable && !readOnly}
                           onFeedback={setFeedback}
-                          renderAttachments={(entry) => (
+                          renderActions={(entry, disabled) => (
                             <MappoolReplays
                               key={entry.id}
                               slug={slug}
                               pool={pool}
                               entry={entry}
                               canManage={canManageReplays}
-                            />
-                          )}
-                          renderActions={(entry) => (
-                            <EntryEditor
-                              key={`${entry.id}-${pool.version}`}
-                              change={change}
-                              pool={pool}
-                              category={category}
-                              entry={entry}
-                              open={editingEntry === entry.id}
-                              onOpen={() => setEditingEntry(entry.id)}
-                              onClose={() => setEditingEntry(null)}
+                              renderTrigger={(replayTrigger) =>
+                                editable && !readOnly ? (
+                                  <EntryEditor
+                                    key={`${entry.id}-${pool.version}`}
+                                    change={change}
+                                    pool={pool}
+                                    category={category}
+                                    entry={entry}
+                                    open={editingEntry === entry.id}
+                                    onOpen={() => setEditingEntry(entry.id)}
+                                    onClose={() => setEditingEntry(null)}
+                                    disabled={disabled}
+                                    replayTrigger={replayTrigger}
+                                  />
+                                ) : (
+                                  replayTrigger
+                                )
+                              }
                             />
                           )}
                         />

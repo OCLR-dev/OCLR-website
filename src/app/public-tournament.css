@@ -1411,7 +1411,8 @@ html[data-appearance]
   gap: 0.5rem;
   min-width: 0;
 }
-.beatmap-actions a.button {
+.beatmap-actions a.button,
+.mappool-icon-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1426,9 +1427,14 @@ html[data-appearance]
   gap: 0.25rem;
   margin-top: 0.5rem;
 }
-.themed-site .beatmap-actions-compact a.button {
+.themed-site .beatmap-actions-compact a.button,
+.themed-site .mappool-icon-action {
   width: 44px;
   padding: 0.5rem;
+}
+.themed-site .mappool-icon-action {
+  height: 44px;
+  flex: 0 0 44px;
 }
 .archive-map-thumbnail {
   align-self: center;
