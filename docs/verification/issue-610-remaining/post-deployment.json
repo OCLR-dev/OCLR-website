@@ -1,0 +1,2033 @@
+{
+  "kind": "production-application-public-readback",
+  "checkedOn": "2026-11-01",
+  "release": "eaea425e1d910479d378990837b18e206a4ac652",
+  "healthStatus": "ok",
+  "deploymentPerformedBy": "organizer",
+  "productionWrites": "Existing native Admin UI only; draft, preview, saved readback and publication",
+  "organizerAcceptance": "https://github.com/OCLR-dev/OCLR-website/issues/610#issuecomment-6555006692",
+  "milestoneWordingAcceptance": "https://github.com/OCLR-dev/OCLR-website/issues/610#issuecomment-6555466690",
+  "totalFinalPlacements": 110,
+  "totalPhaseMilestones": 30,
+  "publicPlaysUnchanged": 12800,
+  "factHashSerialization": "Rows are arrays in baseline.factFields order; sort by fixtureId/gameId/osuId; Python JSON ensure_ascii=False, sort_keys=True, compact separators; SHA-256 UTF-8.",
+  "seasonWindowImportExact": true,
+  "phaseDateComparison": "UTC+8 calendar days; native minute controls serialize end-of-day 23:59, precision day",
+  "seasons": [
+    {
+      "slug": "s1",
+      "revision": 40,
+      "updatedAt": "2026-11-01T09:23:00.887Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2018-11-09T00:00:00+08:00",
+        "endsAt": "2018-12-15T23:59:59+08:00",
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "小组赛",
+          "at": "2018-11-08T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2018-11-25T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2018-11-29T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2018-12-15T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": "2018-12-14T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2018-12-15T15:59:00.000Z",
+          "precision": "day"
+        }
+      ],
+      "placementCount": 12,
+      "typedRoundCount": 40,
+      "retainedNotPlayedIds": [],
+      "statistics": {
+        "archiveKey": "52398c08db8a507f7cbc2f692270340cb7c2ea9cd1394bdbb1af2b86cbefb507",
+        "coveredFixtures": 19,
+        "eligibleFixtures": 40,
+        "games": 109,
+        "plays": 654,
+        "players": 66,
+        "zeroScores": 0,
+        "scoreFactsSha256": "bd08acaac7341d9f537be54a2acc7e85bc74a9aae10e712d13234f632bd7bf37",
+        "mpUrlCount": 38,
+        "allRawFactsUnchanged": true
+      }
+    },
+    {
+      "slug": "s2",
+      "revision": 16,
+      "updatedAt": "2026-11-01T09:20:23.240Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2019-06-14T00:00:00+08:00",
+        "endsAt": null,
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "小组赛",
+          "at": "2019-06-13T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2019-06-23T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2019-07-05T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2019-07-20T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": null,
+          "kind": "knockout",
+          "endAt": null,
+          "precision": "day"
+        }
+      ],
+      "placementCount": 10,
+      "typedRoundCount": 30,
+      "retainedNotPlayedIds": [],
+      "statistics": {
+        "archiveKey": "0f56931853970c63d1078a14df81d100c4a7ad2f824c43b3265b05d116f4dd96",
+        "coveredFixtures": 18,
+        "eligibleFixtures": 29,
+        "games": 134,
+        "plays": 793,
+        "players": 60,
+        "zeroScores": 0,
+        "scoreFactsSha256": "177cc4611e75aa91bdca937d55d07f8510a0e1c5f203bd5fbf30ef3f8ae4a097",
+        "mpUrlCount": 23,
+        "allRawFactsUnchanged": true
+      }
+    },
+    {
+      "slug": "s3",
+      "revision": 13,
+      "updatedAt": "2026-11-01T09:18:12.178Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2019-11-23T00:00:00+08:00",
+        "endsAt": "2019-12-29T23:59:59+08:00",
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "小组赛",
+          "at": "2019-11-22T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2019-12-08T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2019-12-13T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2019-12-28T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": "2019-12-28T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2019-12-29T15:59:00.000Z",
+          "precision": "day"
+        }
+      ],
+      "placementCount": 10,
+      "typedRoundCount": 30,
+      "retainedNotPlayedIds": [],
+      "statistics": {
+        "archiveKey": "f63ac9b03baa99f97651e02ca42a700680ca0ff295a411741212d73b001eccd1",
+        "coveredFixtures": 13,
+        "eligibleFixtures": 30,
+        "games": 120,
+        "plays": 720,
+        "players": 54,
+        "zeroScores": 0,
+        "scoreFactsSha256": "b024dccc6e63330f6b5f75108ced06f5570965877c7d3aa990fa347be5609f51",
+        "mpUrlCount": 30,
+        "allRawFactsUnchanged": true
+      }
+    },
+    {
+      "slug": "s4",
+      "revision": 18,
+      "updatedAt": "2026-11-01T09:15:40.260Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2020-06-05T00:00:00+08:00",
+        "endsAt": "2020-07-19T23:59:59+08:00",
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "小组赛",
+          "at": "2020-06-04T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2020-06-27T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2020-07-03T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2020-07-18T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": "2020-07-18T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2020-07-19T15:59:00.000Z",
+          "precision": "day"
+        }
+      ],
+      "placementCount": 12,
+      "typedRoundCount": 34,
+      "retainedNotPlayedIds": [],
+      "statistics": {
+        "archiveKey": "e105a2d37b65c73b4a1e42e917c2fe8fdb200d92d8882b50a565ed937403432a",
+        "coveredFixtures": 17,
+        "eligibleFixtures": 33,
+        "games": 147,
+        "plays": 882,
+        "players": 64,
+        "zeroScores": 2,
+        "scoreFactsSha256": "32620da9e18f9e16c12ec223815de5a907a3a871a1090240033a2c0685bfc715",
+        "mpUrlCount": 33,
+        "allRawFactsUnchanged": true
+      }
+    },
+    {
+      "slug": "s5",
+      "revision": 34,
+      "updatedAt": "2026-11-01T09:12:55.143Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2020-11-21T00:00:00+08:00",
+        "endsAt": "2021-01-17T23:59:59+08:00",
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "小组赛",
+          "at": "2020-11-20T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2020-12-13T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2020-12-18T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2021-01-03T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": "2021-01-16T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2021-01-17T15:59:00.000Z",
+          "precision": "day"
+        }
+      ],
+      "placementCount": 12,
+      "typedRoundCount": 34,
+      "retainedNotPlayedIds": [],
+      "statistics": {
+        "archiveKey": "193e1c0646febe47118bd8026ba4c488ea447836dfc418b36e956df42d4bb3c0",
+        "coveredFixtures": 34,
+        "eligibleFixtures": 34,
+        "games": 251,
+        "plays": 1716,
+        "players": 72,
+        "zeroScores": 217,
+        "scoreFactsSha256": "e40806de7e72a02139f790bc75a35252256cdcb01d2a64637d3338f0eb9ff538",
+        "mpUrlCount": 34,
+        "allRawFactsUnchanged": true
+      }
+    },
+    {
+      "slug": "s6",
+      "revision": 46,
+      "updatedAt": "2026-11-01T09:10:06.511Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2021-05-08T00:00:00+08:00",
+        "endsAt": "2021-06-27T23:59:59+08:00",
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "瑞士轮",
+          "at": "2021-05-07T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2021-06-01T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2021-06-03T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2021-06-26T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": "2021-06-26T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2021-06-27T15:59:00.000Z",
+          "precision": "day"
+        }
+      ],
+      "placementCount": 12,
+      "typedRoundCount": 34,
+      "retainedNotPlayedIds": [],
+      "statistics": {
+        "archiveKey": "cc819ac01c8ce36d548a6b5a1e3f0ee0a88e74a2c48cf9656e5303cd9d7b190c",
+        "coveredFixtures": 0,
+        "eligibleFixtures": 34,
+        "games": 0,
+        "plays": 0,
+        "players": 0,
+        "zeroScores": 0,
+        "scoreFactsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "mpUrlCount": 34,
+        "allRawFactsUnchanged": true
+      }
+    },
+    {
+      "slug": "s7",
+      "revision": 15,
+      "updatedAt": "2026-11-01T09:05:26.403Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2021-12-25T00:00:00+08:00",
+        "endsAt": "2022-03-05T23:59:59+08:00",
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "小组赛",
+          "at": "2021-12-24T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2022-01-09T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2022-01-14T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2022-02-05T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": "2022-03-04T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2022-03-05T15:59:00.000Z",
+          "precision": "day"
+        }
+      ],
+      "placementCount": 8,
+      "typedRoundCount": 22,
+      "retainedNotPlayedIds": [],
+      "statistics": {
+        "archiveKey": "0f55aa74554d9b5681071f722516ddf12ba6fe8a5eeb8370ed695151cea28c08",
+        "coveredFixtures": 21,
+        "eligibleFixtures": 21,
+        "games": 174,
+        "plays": 1384,
+        "players": 56,
+        "zeroScores": 1,
+        "scoreFactsSha256": "0ee7f13790e2a57ba6514e3eb1bbdcae88bc0237dff53121400807b0be1c2da2",
+        "mpUrlCount": 21,
+        "allRawFactsUnchanged": true
+      }
+    },
+    {
+      "slug": "s8",
+      "revision": 9,
+      "updatedAt": "2026-11-01T09:02:53.463Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2023-02-25T00:00:00+08:00",
+        "endsAt": "2023-04-09T23:59:59+08:00",
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "小组赛",
+          "at": "2023-02-24T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2023-03-12T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2023-03-16T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2023-04-01T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": "2023-04-08T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2023-04-09T15:59:00.000Z",
+          "precision": "day"
+        }
+      ],
+      "placementCount": 16,
+      "typedRoundCount": 38,
+      "retainedNotPlayedIds": [],
+      "statistics": {
+        "archiveKey": "4497d5181f5a633f72aaf2e6186c6239c73b00324d435b7e46c1da32f1427d9a",
+        "coveredFixtures": 38,
+        "eligibleFixtures": 38,
+        "games": 355,
+        "plays": 2834,
+        "players": 111,
+        "zeroScores": 0,
+        "scoreFactsSha256": "47dee5787d282203f6e22a444352c2fafcac369aca8a56557f8e7057df0271e5",
+        "mpUrlCount": 38,
+        "allRawFactsUnchanged": true
+      }
+    },
+    {
+      "slug": "s9",
+      "revision": 9,
+      "updatedAt": "2026-11-01T09:00:09.948Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2023-11-04T00:00:00+08:00",
+        "endsAt": "2023-12-10T23:59:59+08:00",
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "小组赛",
+          "at": "2023-11-03T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2023-11-19T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2023-11-23T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2023-12-09T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": "2023-12-09T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2023-12-10T15:59:00.000Z",
+          "precision": "day"
+        }
+      ],
+      "placementCount": 8,
+      "typedRoundCount": 28,
+      "retainedNotPlayedIds": [
+        "match-20a",
+        "match-20b",
+        "match-20c",
+        "match-20d",
+        "match-22a",
+        "match-22b"
+      ],
+      "statistics": {
+        "archiveKey": "0003f2c3649335508c8832afa395f8514fb0be6777e3ff7d8b8201d27efe50be",
+        "coveredFixtures": 22,
+        "eligibleFixtures": 22,
+        "games": 213,
+        "plays": 1704,
+        "players": 64,
+        "zeroScores": 0,
+        "scoreFactsSha256": "0a190a489260325e0da89c05a8fa742e9937ddb885f500409888456f096876d9",
+        "mpUrlCount": 22,
+        "allRawFactsUnchanged": true
+      }
+    },
+    {
+      "slug": "s10",
+      "revision": 10,
+      "updatedAt": "2026-11-01T08:56:32.055Z",
+      "published": true,
+      "archiveEqualsApprovedImport": true,
+      "otherEditionFieldsUnchanged": true,
+      "scheduleDayPrecisionAndUTC8DatesVerified": true,
+      "seasonWindow": {
+        "startsAt": "2025-03-14T00:00:00+08:00",
+        "endsAt": "2025-05-10T23:59:59+08:00",
+        "timeZone": "Asia/Shanghai",
+        "precision": "day"
+      },
+      "schedule": [
+        {
+          "label": "小组赛",
+          "at": "2025-03-13T16:00:00.000Z",
+          "kind": "group",
+          "endAt": "2025-04-06T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "淘汰赛",
+          "at": "2025-04-11T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2025-04-26T15:59:00.000Z",
+          "precision": "day"
+        },
+        {
+          "label": "总决赛",
+          "at": "2025-05-09T16:00:00.000Z",
+          "kind": "knockout",
+          "endAt": "2025-05-10T15:59:00.000Z",
+          "precision": "day"
+        }
+      ],
+      "placementCount": 10,
+      "typedRoundCount": 36,
+      "retainedNotPlayedIds": [
+        "match-28a",
+        "match-28b",
+        "match-28c",
+        "match-28d",
+        "match-30a",
+        "match-30b"
+      ],
+      "statistics": {
+        "archiveKey": "748a1e4cbbba7f7d8fdd3267c0aab17dae5c9e156659a0a32930cb62d651a858",
+        "coveredFixtures": 30,
+        "eligibleFixtures": 30,
+        "games": 265,
+        "plays": 2113,
+        "players": 78,
+        "zeroScores": 0,
+        "scoreFactsSha256": "920ac75675c87b2e70063855ec24a5f32ac05f31ae21adadc797c2d728fb98b1",
+        "mpUrlCount": 30,
+        "allRawFactsUnchanged": true
+      }
+    }
+  ],
+  "publicPlacementRepresentatives": [
+    {
+      "slug": "s1",
+      "teamId": "c",
+      "osuId": 7812692,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "h",
+      "osuId": 8399692,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "b",
+      "osuId": 4464845,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "f",
+      "osuId": 8547222,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "e",
+      "osuId": 8398166,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "k",
+      "osuId": 8501053,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "a",
+      "osuId": 377473,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "l",
+      "osuId": 6032394,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "d",
+      "osuId": 10057811,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "g",
+      "osuId": 3668072,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "i",
+      "osuId": 6963321,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s1",
+      "teamId": "j",
+      "osuId": 4853885,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "e",
+      "osuId": 6840200,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "j",
+      "osuId": 10616248,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "g",
+      "osuId": 9229702,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "c",
+      "osuId": 3835266,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "b",
+      "osuId": 377473,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "d",
+      "osuId": 9569188,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "f",
+      "osuId": 9314367,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "h",
+      "osuId": 6963321,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "a",
+      "osuId": 3665920,
+      "placingRange": {
+        "start": 9,
+        "end": 10,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s2",
+      "teamId": "i",
+      "osuId": 4524921,
+      "placingRange": {
+        "start": 9,
+        "end": 10,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "h",
+      "osuId": 3315647,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "a",
+      "osuId": 10636530,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "j",
+      "osuId": 2946716,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "f",
+      "osuId": 8535398,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "b",
+      "osuId": 6963321,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "i",
+      "osuId": 2927918,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "e",
+      "osuId": 3668072,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "g",
+      "osuId": 5179557,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "c",
+      "osuId": 7597918,
+      "placingRange": {
+        "start": 9,
+        "end": 10,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s3",
+      "teamId": "d",
+      "osuId": 15067840,
+      "placingRange": {
+        "start": 9,
+        "end": 10,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "e",
+      "osuId": 6854920,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "b",
+      "osuId": 874891,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "c",
+      "osuId": 5179557,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "i",
+      "osuId": 3665920,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "k",
+      "osuId": 9207457,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "l",
+      "osuId": 11396041,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "d",
+      "osuId": 8678381,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "h",
+      "osuId": 431594,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "a",
+      "osuId": 6963321,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "f",
+      "osuId": 2361632,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "g",
+      "osuId": 8281276,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s4",
+      "teamId": "j",
+      "osuId": 7686319,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "g",
+      "osuId": 7799707,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "i",
+      "osuId": 4734497,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "b",
+      "osuId": 8012734,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "e",
+      "osuId": 8751122,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "a",
+      "osuId": 5936405,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "c",
+      "osuId": 6938658,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "h",
+      "osuId": 11396041,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "j",
+      "osuId": 2361632,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": true
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "d",
+      "osuId": 12764539,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "k",
+      "osuId": 4087427,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "l",
+      "osuId": 12039046,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s5",
+      "teamId": "f",
+      "osuId": 5568835,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-b",
+      "osuId": 14406132,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-g",
+      "osuId": 8947019,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-j",
+      "osuId": 11396041,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-f",
+      "osuId": 9755808,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-e",
+      "osuId": 4341197,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-c",
+      "osuId": 12938898,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-a",
+      "osuId": 6938658,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-h",
+      "osuId": 384729,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-d",
+      "osuId": 8877531,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-i",
+      "osuId": 8742486,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-k",
+      "osuId": 7003013,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s6",
+      "teamId": "team-l",
+      "osuId": 4086593,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s7",
+      "teamId": "team-f",
+      "osuId": 1405856,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s7",
+      "teamId": "team-h",
+      "osuId": 9314367,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s7",
+      "teamId": "team-e",
+      "osuId": 16191222,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s7",
+      "teamId": "team-c",
+      "osuId": 12624507,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s7",
+      "teamId": "team-a",
+      "osuId": 15174317,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s7",
+      "teamId": "team-g",
+      "osuId": 4733339,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s7",
+      "teamId": "team-d",
+      "osuId": 2927918,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s7",
+      "teamId": "team-b",
+      "osuId": 9755808,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-13291701",
+      "osuId": 13291701,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-13795588",
+      "osuId": 13795588,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-9984860",
+      "osuId": 9984860,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-8186536",
+      "osuId": 8186536,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-15184992",
+      "osuId": 15184992,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-9062731",
+      "osuId": 9062731,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-7166953",
+      "osuId": 7166953,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-6938658",
+      "osuId": 6938658,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-1176704",
+      "osuId": 1176704,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-8762031",
+      "osuId": 8762031,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-1294891",
+      "osuId": 1294891,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-10500832",
+      "osuId": 10500832,
+      "placingRange": {
+        "start": 9,
+        "end": 12,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-874891",
+      "osuId": 874891,
+      "placingRange": {
+        "start": 13,
+        "end": 16,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-2385405",
+      "osuId": 2385405,
+      "placingRange": {
+        "start": 13,
+        "end": 16,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-5179557",
+      "osuId": 5179557,
+      "placingRange": {
+        "start": 13,
+        "end": 16,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s8",
+      "teamId": "team-7175234",
+      "osuId": 7175234,
+      "placingRange": {
+        "start": 13,
+        "end": 16,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s9",
+      "teamId": "team-h",
+      "osuId": 12567023,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s9",
+      "teamId": "team-b",
+      "osuId": 1294891,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s9",
+      "teamId": "team-f",
+      "osuId": 12749779,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s9",
+      "teamId": "team-d",
+      "osuId": 11396041,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s9",
+      "teamId": "team-a",
+      "osuId": 9697708,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s9",
+      "teamId": "team-e",
+      "osuId": 14129921,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s9",
+      "teamId": "team-g",
+      "osuId": 15044350,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s9",
+      "teamId": "team-c",
+      "osuId": 29250968,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-c",
+      "osuId": 14533605,
+      "placingRange": {
+        "start": 1,
+        "end": 1,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-i",
+      "osuId": 20971891,
+      "placingRange": {
+        "start": 2,
+        "end": 2,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-e",
+      "osuId": 11923800,
+      "placingRange": {
+        "start": 3,
+        "end": 3,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-f",
+      "osuId": 13795588,
+      "placingRange": {
+        "start": 4,
+        "end": 4,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-g",
+      "osuId": 3367476,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-d",
+      "osuId": 3339073,
+      "placingRange": {
+        "start": 5,
+        "end": 6,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-j",
+      "osuId": 9984860,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-a",
+      "osuId": 19476222,
+      "placingRange": {
+        "start": 7,
+        "end": 8,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-h",
+      "osuId": 18579521,
+      "placingRange": {
+        "start": 9,
+        "end": 10,
+        "official": false,
+        "tied": false
+      }
+    },
+    {
+      "slug": "s10",
+      "teamId": "team-b",
+      "osuId": 33418980,
+      "placingRange": {
+        "start": 9,
+        "end": 10,
+        "official": false,
+        "tied": false
+      }
+    }
+  ],
+  "nativePublicCardChecks": [
+    {
+      "slug": "s1",
+      "osuId": 7812692,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s2",
+      "osuId": 6840200,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s3",
+      "osuId": 3315647,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s4",
+      "osuId": 6854920,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s5",
+      "osuId": 7799707,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s6",
+      "osuId": 14406132,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s7",
+      "osuId": 1405856,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s8",
+      "osuId": 13291701,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s9",
+      "osuId": 12567023,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s10",
+      "osuId": 14533605,
+      "label": "推算名次",
+      "placement": "1"
+    },
+    {
+      "slug": "s4",
+      "osuId": 9207457,
+      "label": "推算名次",
+      "placement": "5–6",
+      "thirdPlaceBadge": false
+    },
+    {
+      "slug": "s8",
+      "osuId": 15184992,
+      "label": "推算名次",
+      "placement": "5–6",
+      "thirdPlaceBadge": false
+    },
+    {
+      "slug": "s10",
+      "osuId": 3367476,
+      "label": "推算名次",
+      "placement": "5–6",
+      "thirdPlaceBadge": false
+    }
+  ],
+  "statisticsSummaryChecks": [
+    {
+      "slug": "s5",
+      "reviewCount": 34,
+      "allPublished": true,
+      "anyStale": false,
+      "anyChanges": false
+    },
+    {
+      "slug": "s10",
+      "reviewCount": 30,
+      "allPublished": true,
+      "anyStale": false,
+      "anyChanges": false
+    }
+  ],
+  "s10NativeReviews": [
+    {
+      "fixtureId": "match-3",
+      "version": 6,
+      "publishedAt": "2026-11-01T08:27:50.053Z",
+      "includedGameIds": [
+        613453723, 613454209, 613454818, 613455288, 613455795, 613456234,
+        613456748, 613457120
+      ],
+      "excludedGames": [
+        {
+          "gameId": 613454993,
+          "reason": "aborted"
+        }
+      ],
+      "rawGamesAndScoresUnchanged": true,
+      "scoreExclusionsUnchanged": true,
+      "serverReviewStampPresent": true,
+      "reviewedAt": "2026-11-01T08:26:10.923Z",
+      "changes": false,
+      "stale": false,
+      "blockers": [],
+      "downloadSha256": "79e921fc2cafcd3f63a32e12da7c0b0904d2721c4645a9562b03d7f6bf5be0a6",
+      "finalReviewDownloadSha256": "c4ee1e3070a2bf704e8a17f82e99db73636a7e52af3169815c5a9c3847bbbb69",
+      "evidenceUrl": "https://osu.ppy.sh/community/matches/117499366",
+      "publicPlays": 63,
+      "publicSelectedGameIdsUnchanged": true,
+      "publicExcludedGameIdsUnchanged": true,
+      "ratingIssues": [],
+      "postMetadataStillPublishedAndCurrent": true
+    },
+    {
+      "fixtureId": "match-18",
+      "version": 6,
+      "publishedAt": "2026-11-01T08:35:35.165Z",
+      "includedGameIds": [
+        614390500, 614390916, 614391433, 614391795, 614392144, 614392732,
+        614393213, 614394061, 614394786
+      ],
+      "excludedGames": [
+        {
+          "gameId": 614394514,
+          "reason": "superseded-replay"
+        }
+      ],
+      "rawGamesAndScoresUnchanged": true,
+      "scoreExclusionsUnchanged": true,
+      "serverReviewStampPresent": true,
+      "reviewedAt": "2026-11-01T08:35:18.534Z",
+      "changes": false,
+      "stale": false,
+      "blockers": [],
+      "downloadSha256": "0a7e511fb1d843e17c212253365ee7cc3164c9ea1c77ba40eb2a3b816deb185a",
+      "finalReviewDownloadSha256": "0a7e511fb1d843e17c212253365ee7cc3164c9ea1c77ba40eb2a3b816deb185a",
+      "evidenceUrl": "https://osu.ppy.sh/community/matches/117642682",
+      "publicPlays": 72,
+      "publicSelectedGameIdsUnchanged": true,
+      "publicExcludedGameIdsUnchanged": true,
+      "ratingIssues": [],
+      "postMetadataStillPublishedAndCurrent": true
+    },
+    {
+      "fixtureId": "match-26",
+      "version": 7,
+      "publishedAt": "2026-11-01T08:37:12.418Z",
+      "includedGameIds": [
+        615602087, 615602611, 615603140, 615603492, 615603919, 615604323,
+        615604748, 615605291, 615605816, 615606444, 615607256, 615608158,
+        615608666
+      ],
+      "excludedGames": [
+        {
+          "gameId": 615606378,
+          "reason": "aborted"
+        }
+      ],
+      "rawGamesAndScoresUnchanged": true,
+      "scoreExclusionsUnchanged": true,
+      "serverReviewStampPresent": true,
+      "reviewedAt": "2026-11-01T08:36:54.510Z",
+      "changes": false,
+      "stale": false,
+      "blockers": [],
+      "downloadSha256": "ff42007a4e38db1d4a0bfe99e039b610035a863a5ad3a2b0b01b5227e79f4002",
+      "finalReviewDownloadSha256": "ff42007a4e38db1d4a0bfe99e039b610035a863a5ad3a2b0b01b5227e79f4002",
+      "evidenceUrl": "https://osu.ppy.sh/community/matches/117829761",
+      "publicPlays": 102,
+      "publicSelectedGameIdsUnchanged": true,
+      "publicExcludedGameIdsUnchanged": true,
+      "ratingIssues": [],
+      "postMetadataStillPublishedAndCurrent": true,
+      "adjudication": {
+        "kind": "technical",
+        "note": "Existing published technical adjudication retained: official series 7:6; selected raw-game wins 8:5. The underlying cause is not established. No player score is added or changed.",
+        "evidenceUrl": "https://osu.ppy.sh/community/matches/117829761"
+      }
+    },
+    {
+      "fixtureId": "match-30",
+      "version": 6,
+      "publishedAt": "2026-11-01T08:37:56.105Z",
+      "includedGameIds": [
+        617062899, 617063575, 617064156, 617064814, 617065288, 617066040,
+        617066588, 617067017, 617067577
+      ],
+      "excludedGames": [
+        {
+          "gameId": 617063413,
+          "reason": "aborted"
+        },
+        {
+          "gameId": 617068065,
+          "reason": "post-match"
+        }
+      ],
+      "rawGamesAndScoresUnchanged": true,
+      "scoreExclusionsUnchanged": true,
+      "serverReviewStampPresent": true,
+      "reviewedAt": "2026-11-01T08:37:53.152Z",
+      "changes": false,
+      "stale": false,
+      "blockers": [],
+      "downloadSha256": "e3aae284aeac81a249f8b3881271e9940556d40c9368ea7c8eb08c4a44ac47b2",
+      "finalReviewDownloadSha256": "e3aae284aeac81a249f8b3881271e9940556d40c9368ea7c8eb08c4a44ac47b2",
+      "evidenceUrl": "https://osu.ppy.sh/community/matches/118049997",
+      "publicPlays": 72,
+      "publicSelectedGameIdsUnchanged": true,
+      "publicExcludedGameIdsUnchanged": true,
+      "ratingIssues": [],
+      "postMetadataStillPublishedAndCurrent": true
+    }
+  ],
+  "sourceLimits": [
+    "S1-S4 statistics remain partial; S6 has zero published plays.",
+    "S2 final and season end dates remain null.",
+    "S3 two conflicting final formats remain unspecified.",
+    "Unavailable MP sources and unsupported identities/map titles remain unknown."
+  ],
+  "runtimeCi": [
+    {
+      "sha": "0d70bac34a5657f5c34895d5f2b165071af38ce1",
+      "run": 41286485258,
+      "conclusion": "success"
+    },
+    {
+      "sha": "e9e614942cd1d04deda49a4fb4f2b790819a7078",
+      "run": 41286516619,
+      "conclusion": "success"
+    },
+    {
+      "sha": "dacaeba0d30941890e029d58698d3ebccbbc57e4",
+      "run": 41287838236,
+      "conclusion": "success"
+    },
+    {
+      "sha": "eaea425e1d910479d378990837b18e206a4ac652",
+      "run": 41287867191,
+      "conclusion": "success"
+    }
+  ]
+}

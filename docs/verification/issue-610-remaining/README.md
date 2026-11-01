@@ -5,9 +5,9 @@ rows, UTC+8 actual competition dates, S6 no-reset conclusion and new Chinese
 staff labels. [Acceptance record](https://github.com/OCLR-dev/OCLR-website/issues/610#issuecomment-6555006692);
 [review and wording table](../../issue-610-remaining-review.md).
 
-This records program/preparation checks, not deployment or production data
-application. The issue stays open until native Admin application and public
-readback. Source base: main `a451747f48c10db8012cc7435995dd2eb65500ca`;
+The first sections record program/preparation checks; the final section records
+the completed native production application and public readback separately.
+Source base: main `a451747f48c10db8012cc7435995dd2eb65500ca`;
 branch `codex/610-remaining-archive-review`. Actual commit and CI are recorded
 in the PR/issue handoff.
 
@@ -54,12 +54,16 @@ compatibility and removal of local row IDs. Related serializer/timeline/i18n
 checks passed 10 tests; final `npm run check`, `npm run build`, read-contract
 check (eight tests), formatting and diff checks passed. No schema or dependency
 change required a new DB rehearsal. E2E was not run under the ordinary-work rule.
-The three additional Chinese selector labels are separately submitted for review.
+The organizer explicitly accepted the three additional Chinese selector labels
+on 2026-11-01, recorded in [the issue](https://github.com/OCLR-dev/OCLR-website/issues/610#issuecomment-6555466690).
 
 The original feature SHA `0d70bac3` and merged `e9e61494` both completed CI
 successfully: [feature run](https://github.com/OCLR-dev/OCLR-website/actions/runs/41286485258),
 [merge run](https://github.com/OCLR-dev/OCLR-website/actions/runs/41286516619).
 Those passes do not establish deployment or the later editor follow-up's CI.
+The follow-up feature `dacaeba0` and merged `eaea425e` subsequently completed CI
+successfully: [feature run](https://github.com/OCLR-dev/OCLR-website/actions/runs/41287838236),
+[merge run](https://github.com/OCLR-dev/OCLR-website/actions/runs/41287867191).
 
 ### Data preparation
 
@@ -91,3 +95,87 @@ approve/publish normally. Server-side actor/time stamps must be current; no
 historical reviewer is invented. S2's final date remains null, S3's two
 conflicting final BO formats stay unspecified, and unsupported identities/map
 titles stay unknown.
+
+## Production application and public readback
+
+The organizer reported deployment of PR #655. Unauthenticated `/api/health`
+returned `eaea425e1d910479d378990837b18e206a4ac652`, including the final
+readback on 2026-11-01. This is the deployed program; newer unrelated main
+commits are not described as deployed. The organizer performed deployment.
+
+All production writes used the existing authenticated native Admin UI. Before
+each import the freshly downloaded whole edition/revision matched the prepared
+base. One edition at a time was temporarily unpublished, validated, saved as a
+draft, opened in private preview and read back. Each saved archive exactly
+matched its approved import, with other edition fields preserved, before it was
+republished. Three milestones per edition were entered through the native
+settings form and saved with `precision: "day"`. Native minute controls save
+end-of-day as 23:59; the UTC+8 calendar dates match the approved windows. The
+archive season windows retain their exact approved boundaries.
+
+| Season | Final revision | Covered / eligible fixtures | Published plays |
+| ------ | -------------: | --------------------------: | --------------: |
+| S1     |             40 |                       19/40 |             654 |
+| S2     |             16 |                       18/29 |             793 |
+| S3     |             13 |                       13/30 |             720 |
+| S4     |             18 |                       17/33 |             882 |
+| S5     |             34 |                       34/34 |           1,716 |
+| S6     |             46 |                        0/34 |               0 |
+| S7     |             15 |                       21/21 |           1,384 |
+| S8     |              9 |                       38/38 |           2,834 |
+| S9     |              9 |                       22/22 |           1,704 |
+| S10    |             10 |                       30/30 |           2,113 |
+
+All ten final editions are published. Unauthenticated tournament API results
+match their final revisions, season windows and three saved phase milestones.
+All 110 final placement rows match the accepted review; a playing-roster
+representative for every team was independently read from the public
+participation API and matches its exact range, `official` and `tied` values.
+Native public player cards were checked for all ten seasons, with additional
+5–6 band checks in S4/S8/S10. They display the accepted derived placement;
+those bands do not create a third-place badge. The existing unit checks cover
+the explicit “—” fallback and typed metadata without free-text rank parsing.
+
+All **12,800** previously published plays match their pre-application raw facts
+and canonical hashes, and all ten statistics source keys remain identical.
+Games, distinct players and zero counts also match. S5 retains 251 games,
+72 players, 1,716 plays and 217 real zero scores. The table's denominator is
+the eligible fixture count: S1 and S2 respectively have only 38 and 23 MP URLs,
+while their eligible fixture counts are 40 and 29; both values are unchanged.
+This application does not import missing early-season statistics.
+
+S9 and S10 each retain all six conditional source rows with an explicit
+`not-played` adjudication, null score and no MP URLs. S10 match-3/18/26/30
+were saved and approved/published with the existing 39 selected games and
+309 public plays. The five excluded games now have explicit aborted,
+superseded-replay or post-match reasons and MP evidence. Raw games, player
+scores, nonparticipant exclusions and roster decisions remain unchanged.
+Match-26 retains its existing technical adjudication: official 7:6, selected
+raw-game wins 8:5, underlying cause not established. Its explanation does not
+invent player technical points. All four public detail reads have no rating
+issues; the selected/excluded game IDs match the accepted plan. Current server
+review stamps are recorded without publishing reviewer identities.
+
+S6's June 27 final/no-reset confirmation is saved. S2's final date and season
+end remain null; S3's two conflicting final formats, unresolved identities,
+unsupported map titles and unavailable MP sources remain explicit unknowns as
+accepted. No historical reviewer, scheduled instant or player score was inferred.
+
+Firefox's JSON viewer Save reused an earlier response for one repeated URL;
+the S7 verification initially encountered revision 13 instead of the saved
+revision 15. A distinct read-only checkpoint URL returned the current result,
+which matched the native publication page and unauthenticated public API.
+Subsequent snapshots used distinct URLs. No duplicate production write was
+performed to compensate for the stale download.
+
+The [sanitized production receipt](post-deployment.json) records revisions,
+dates, hashes, public placement/card checks and S10 review receipts. Whole Admin
+responses and full import files remain local. No production DB access, runtime
+credential access, direct write request or agent-run deployment was used.
+
+The receipt branch starts from main `df42d6e4`. After that fast-forward,
+`read-api:generate` produced no drift and `read-api:check` passed (57 contracts,
+176 coverage rows, eight tests). The placement display/metadata checks passed
+four tests. Receipt totals, final edition comparisons, local documentation
+links, private-field review, Prettier and `git diff --check` passed. This final
+commit changes documentation only; no new application build or E2E was run.

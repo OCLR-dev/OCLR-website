@@ -15,7 +15,7 @@
     "mods",
     "hits"
   ],
-  "serialization": "Sort rows by fixtureId/gameId/osuId; Python JSON ensure_ascii=False, sort_keys=True, compact separators; SHA-256 UTF-8. No excluded or private review facts.",
+  "serialization": "Each row is an array of values in factFields order. Sort rows by fixtureId/gameId/osuId; Python JSON ensure_ascii=False, sort_keys=True, compact separators; SHA-256 UTF-8. No excluded or private review facts.",
   "seasons": [
     {
       "slug": "s1",
