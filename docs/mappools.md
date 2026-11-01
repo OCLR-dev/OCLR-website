@@ -76,7 +76,9 @@ and success feedback; opening it or completing an addition does not grow the car
 accessible names and hover hints; the round hint retains the saved selection.
 The round selector opens a checkbox dropdown in
 the browser's top layer, with Save/Cancel and Escape/outside dismissal; opening
-it does not add a card row. Cancel/dismiss drops the unsaved selection, while
+it does not add a card row. A clear-selection icon stays at the bottom-left of
+the dropdown footer, with Save/Cancel on the right; clearing changes only the
+unsaved selection. Cancel/dismiss drops the unsaved selection, while
 conflicts keep the draft open for review. Read-only viewers see the saved rounds.
 Candidate creation time and the separate footer stay hidden.
 Mode/status and snapshot details stay hidden; saved metadata is not a live lookup,
