@@ -21,6 +21,7 @@ import {
 import type { MappoolWorkspace } from "@/lib/mappools";
 import { EntryForm } from "./mappool-editor";
 import { WorkspaceTabs } from "./workspace-tabs";
+import { WorkbenchActionIcon } from "./workbench-action-icon";
 import { CandidateHistory } from "./candidate-history";
 import { MapCardBand } from "./map-card-band";
 import { BeatmapCover } from "./beatmap-cover";
@@ -617,13 +618,13 @@ function CandidateRounds({
           <button
             ref={trigger}
             type="button"
-            className={styles.roundSelectTrigger}
+            className={`secondary ${styles.iconButton}`}
             popoverTarget={pickerId}
             aria-label={`${tr("Intended rounds")}: ${roundNames}`}
             aria-haspopup="dialog"
             aria-expanded={editing}
             aria-controls={pickerId}
-            title={roundNames}
+            title={`${tr("Intended rounds")}: ${roundNames}`}
             disabled={busy}
             onClick={() => {
               if (picker.current?.matches(":popover-open")) return;
@@ -632,23 +633,7 @@ function CandidateRounds({
               setError("");
             }}
           >
-            <span>{roundNames}</span>
-            <svg
-              viewBox="0 0 12 12"
-              width="12"
-              height="12"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                d="m3 4.5 3 3 3-3"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <WorkbenchActionIcon kind="rounds" />
           </button>
           <div
             ref={picker}
@@ -1199,14 +1184,16 @@ function PromoteCandidate({
     <div className={styles.promotion}>
       <button
         type="button"
-        className="secondary"
+        className={`secondary ${styles.iconButton}`}
+        aria-label={tr("Add to official pool")}
+        title={tr("Add to official pool")}
         aria-expanded={open}
         onClick={() => {
           setOpen(!open);
           if (!open) void refresh();
         }}
       >
-        {tr("Add to official pool")}
+        <WorkbenchActionIcon kind="pool" />
       </button>
       {saved && (
         <p role="status">{tr("Candidate added to the official pool.")}</p>

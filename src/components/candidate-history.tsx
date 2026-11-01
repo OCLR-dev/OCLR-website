@@ -2,6 +2,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { CandidateHistory as History } from "@/lib/mappool-history";
+import { WorkbenchActionIcon } from "./workbench-action-icon";
 import styles from "./mappool-workbench.module.css";
 
 export function CandidateHistory({
@@ -68,10 +69,12 @@ export function CandidateHistory({
       <button
         ref={trigger}
         type="button"
-        className={`secondary ${styles.historyTrigger}`}
+        className={`secondary ${styles.iconButton}`}
+        aria-label={tr("Check history")}
+        title={tr("Check history")}
         onClick={() => void search()}
       >
-        {tr("Check history")}
+        <WorkbenchActionIcon kind="history" />
       </button>
       {open && (
         <dialog

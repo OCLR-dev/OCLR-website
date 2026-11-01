@@ -262,26 +262,6 @@
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
 }
-.workbenchCard:global(.map-browse-card--band) .roundSelectTrigger {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  max-width: 100%;
-  border: 1px solid var(--site-border);
-  border-radius: 0.5rem;
-  color: var(--site-foreground);
-  background: var(--site-surface);
-  box-shadow: none;
-}
-.roundSelectTrigger > span {
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.roundSelectTrigger > svg {
-  flex: none;
-}
 .roundPopover {
   position: fixed;
   inset: auto;
@@ -343,7 +323,7 @@
   z-index: 2;
 }
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-title-row) {
-  padding-right: 14rem;
+  padding-right: 11rem;
 }
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-values) {
   flex-wrap: nowrap;
@@ -376,6 +356,10 @@
 }
 .workbenchCard:global(.map-browse-card--band) .candidateRounds {
   flex: 0 1 auto;
+}
+.workbenchCard:global(.map-browse-card--band)
+  .candidateRounds:has(.iconButton) {
+  flex: none;
 }
 .workbenchCard:global(.map-browse-card--band) .promotion {
   flex-shrink: 0;
@@ -450,26 +434,29 @@
   }
   .workbenchCard:global(.map-browse-card--band) :global(.map-card-side) {
     justify-content: start;
+    flex-wrap: nowrap;
   }
   .workbenchCard:global(.map-browse-card--band) .attribution {
     max-width: 100%;
     flex-wrap: wrap;
     white-space: normal;
   }
-  .workbenchCard:global(.map-browse-card--band) .promotion {
-    width: 100%;
-  }
-  .promotion > button {
+  .workbenchCard:global(.map-browse-card--band) .promotion:has(.promotionForm) {
     width: 100%;
   }
 }
 
-.workbenchCard:global(.map-browse-card--band) .historyTrigger {
-  width: auto;
-  min-height: 32px;
-  padding: 0.25rem 0.65rem;
-  font-size: 0.875rem;
-  white-space: nowrap;
+.workbenchCard:global(.map-browse-card--band) .iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0.5rem;
+  border-radius: 999px;
 }
 .historyDialog:global(.map-dialog) {
   padding: 1.25rem;
