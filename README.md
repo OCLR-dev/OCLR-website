@@ -124,3 +124,7 @@ Artwork and tournament dates shown in [design references](docs/design/) are exam
 ## License
 
 Project code is licensed under the [MIT License](LICENSE). Adapted yumu-bot components retain their [Apache-2.0 license](LICENSES/yumu-bot-Apache-2.0.txt) and [attribution](docs/yumu-rating.md).
+
+Country flag artwork: [Twemoji](https://github.com/discord/twemoji) by Twitter and
+other contributors, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+The SVGs are used without modification; see [source, licenses and asset inventory](docs/country-flags.md).

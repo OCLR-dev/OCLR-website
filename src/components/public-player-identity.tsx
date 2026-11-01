@@ -32,7 +32,8 @@ export function PublicPlayerIdentity({
         </p>
         {flag && (
           <p className="small">
-            <CountryFlag code={countryCode} /> {countryName ?? countryCode}
+            <CountryFlag code={countryCode} decorative />{" "}
+            {countryName ?? flag.name}
           </p>
         )}
         {edition && (

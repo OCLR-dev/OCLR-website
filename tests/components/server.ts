@@ -4,11 +4,13 @@ import { proxy } from "../../src/proxy";
 import { build } from "esbuild";
 import { createServer } from "node:http";
 import { basename, resolve } from "node:path";
+import { readFileSync } from "node:fs";
 import postcss from "postcss";
 import tailwind from "@tailwindcss/postcss";
 
 const bundle = await build({
   entryPoints: [
+    "tests/components/country-flags.tsx",
     "tests/components/header.tsx",
     "tests/components/schedule-selection.tsx",
     "tests/components/practice-records.tsx",
@@ -45,6 +47,7 @@ const themedStyles = new Map(
   await Promise.all(
     [
       "mappool-actions.css",
+      "country-flags.css",
       "practice-records.css",
       "schedule-selection.css",
     ].map(async (name) => {
@@ -70,6 +73,13 @@ createServer((request, response) => {
         : "text/javascript; charset=utf-8",
     );
     response.end(themedStyles.get(file) ?? file.contents);
+  } else if (
+    /^\/flags\/twemoji\/1f1[e-f][\da-f]-1f1[e-f][\da-f]\.svg$/.test(
+      request.url ?? "",
+    )
+  ) {
+    response.setHeader("Content-Type", "image/svg+xml");
+    response.end(readFileSync(resolve("public", `.${request.url}`)));
   } else if (request.url?.startsWith("/api/")) {
     response.writeHead(404).end();
   } else {
@@ -137,8 +147,11 @@ createServer((request, response) => {
                                                 )
                                               ? "mappool-actions"
                                               : "player-message-board";
+    const fixture = request.url?.startsWith("/country-flags")
+      ? "country-flags"
+      : entry;
     response.end(
-      `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${entry}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${entry}.js"></script></body></html>`,
+      `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${fixture}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${fixture}.js"></script></body></html>`,
     );
   }
 }).listen(

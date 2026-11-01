@@ -1,5 +1,6 @@
 import { PlayerEditionView } from "@/components/player-edition-view";
 import { Avatar } from "@/components/avatar";
+import { CountryFlag } from "@/components/country-flag";
 import { collapseAliases, previousUsernames } from "@/lib/player-aliases";
 import {
   participatedTournamentEditions,
@@ -143,6 +144,10 @@ async function ProfileContent({
             ))}
         </div>
         <p className="muted">
+          <CountryFlag
+            code={profile?.countryCode}
+            decorative={Boolean(country)}
+          />{" "}
           {country}
           {profile?.countryName && profile.countryCode
             ? ` (${profile.countryCode})`
