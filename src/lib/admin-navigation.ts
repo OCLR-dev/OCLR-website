@@ -77,16 +77,16 @@ export const tournamentNavigation: readonly {
         capabilities: ["manage_registrations"],
       },
       {
-        path: "teams",
-        label: "Players & teams",
-        capabilities: ["manage_teams"],
-      },
-      {
         path: "captains",
         label: "Captains",
         capabilities: ["manage_captains"],
       },
       { path: "draft", label: "Live draft", capabilities: ["manage_draft"] },
+      {
+        path: "teams",
+        label: "Players & teams",
+        capabilities: ["manage_teams"],
+      },
     ],
   },
   {
