@@ -103,3 +103,23 @@ normal clicks, never forced clicks or script activation to bypass an overlay.
 The rehearsal result and exact tested website commit are recorded in the PR and
 issues; current CI status is separate. The parent #312/#317 retain their remaining
 real-provider, platform and complete appearance/review gates.
+
+## Recorded local rehearsal — 2026-11-01 (Asia/Taipei)
+
+- Desktop source: `4e5afac132b3ad70ab70acb926664227c7d57bd5`, clean Main/shared.
+- Website feature commits: `9ccacd36` (harness/mobile fix) and `ed2caf5d`
+  (expiry fix/regressions), integrated with main's independent #642 update.
+  The PR/issue evidence records the final full website SHA.
+- Node 24, PostgreSQL 17, macOS; real local HTTP/TCP and SQLite.
+- Cross-process Chromium desktop/mobile: **14 passed** in 7.5 minutes,
+  including all twelve invitations exactly once in each match scenario.
+- Full unit/isolated-DB suite: **252 files, 2133 passed, 2 skipped**.
+- New read-only expiry/late legacy receipt regressions are included in that suite.
+- The explicit mobile workspace screenshot was inspected: Apply order is visible,
+  pointer clicks succeed and there is no horizontal page overflow.
+- No live osu! consent/Bancho room, native Electron UI, Windows/Linux recovery,
+  complete appearance matrix or production deployment was performed.
+
+These results are agent-performed controlled rehearsals. They do not replace
+the separate organizer/live-provider acceptance still tracked by #498 and IRC
+#2/#3, or the remaining #312/#317 review gates.
