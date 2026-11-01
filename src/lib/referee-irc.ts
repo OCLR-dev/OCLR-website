@@ -63,18 +63,28 @@ async function expire(tx: Tx, connectionId: string) {
       ),
     );
   for (const command of rows) {
-    const stale =
-      command.status === "queued"
-        ? Date.now() - command.createdAt.getTime() > 30_000
-        : ["sending", "sent"].includes(command.status) &&
-          command.dispatchedAt &&
-          Date.now() - command.dispatchedAt.getTime() > 45_000;
-    if (stale)
+    const status = observedCommandStatus(command);
+    if (status !== command.status)
       await tx
         .update(commands)
-        .set({ status: command.status === "queued" ? "failed" : "unknown" })
+        .set({ status })
         .where(eq(commands.id, command.id));
   }
+}
+/** Derive expiry on saved-only reads even when the desktop never polls again. */
+function observedCommandStatus(command: typeof commands.$inferSelect) {
+  if (
+    command.status === "queued" &&
+    Date.now() - command.createdAt.getTime() > 30_000
+  )
+    return "failed";
+  if (
+    ["sending", "sent"].includes(command.status) &&
+    command.dispatchedAt &&
+    Date.now() - command.dispatchedAt.getTime() > 45_000
+  )
+    return "unknown";
+  return command.status;
 }
 async function view(tx: Tx, actor: User, slug: string, fixtureId: string) {
   const workspace = await readRefereeWorkspace(tx, actor, slug, fixtureId);
@@ -105,7 +115,7 @@ async function view(tx: Tx, actor: User, slug: string, fixtureId: string) {
       requestKey: r.requestKey,
       text: r.text,
       target: r.target,
-      status: r.status,
+      status: observedCommandStatus(r),
       recordError: r.recordError,
       automation: r.automation,
       createdAt: r.createdAt.toISOString(),
@@ -532,6 +542,9 @@ export async function refereeIrcRelay(
         lastSeenAt: new Date(),
       })
       .where(eq(connections.id, c.id));
+    // Expire before processing receipts: a late reply cannot revive an expired
+    // command or finalize a legacy BP intent after the ambiguity deadline.
+    await expire(tx, c.id);
     for (const receipt of action.receipts) {
       const [command] = await tx
         .select()
@@ -614,7 +627,6 @@ export async function refereeIrcRelay(
           })
           .where(eq(commands.id, command.id));
     }
-    await expire(tx, c.id);
     let command: null | { id: string; text: string; target: string } = null;
     if (
       action.projection.status === "connected" &&
