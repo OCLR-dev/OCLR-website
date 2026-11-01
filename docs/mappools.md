@@ -70,8 +70,9 @@ BID, official osu! link and osu!direct. The workbench reuses the cover's top-lef
 Mod badge as the category selector. Adder, intended-round multi-select and
 formal pool promotion sit to the right of the beatmap parameters on the same
 row; there is no separate control row. Long names use ellipsis at desktop widths,
-while narrow screens wrap the row and show the full text. Expanded promotion
-forms use the available width. Pool promotion, round selection and history use compact 44px icon buttons with
+while narrow screens wrap the row and show the full text. Pool promotion opens
+in a scrollable popover containing round/pool selection, the guarded entry form
+and success feedback; opening it or completing an addition does not grow the card. Pool promotion, round selection and history use compact 44px icon buttons with
 accessible names and hover hints; the round hint retains the saved selection.
 The round selector opens a checkbox dropdown in
 the browser's top layer, with Save/Cancel and Escape/outside dismissal; opening

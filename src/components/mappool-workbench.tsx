@@ -1143,6 +1143,11 @@ function PromoteCandidate({
   initialPools: MappoolWorkspace;
 }) {
   const tr = useAppTranslations();
+  const pickerId = useId();
+  const picker = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const refreshing = useRef(false);
   const [open, setOpen] = useState(false);
   const [data, setData] = useState(initialPools);
   const [roundId, setRoundId] = useState("");
@@ -1155,7 +1160,54 @@ function PromoteCandidate({
   const available = data.pools.filter(
     (p) => p.roundId === roundId && !p.lockedAt && !p.selectionLockedAt,
   );
+  useEffect(() => {
+    if (!open) return;
+    function position() {
+      const panel = picker.current;
+      const button = trigger.current;
+      if (!panel || !button || !panel.matches(":popover-open")) return;
+      const rect = button.getBoundingClientRect();
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      panel.style.width = `${Math.min(520, width - 24)}px`;
+      panel.style.left = `${Math.max(12, Math.min(rect.right - panel.offsetWidth, width - panel.offsetWidth - 12))}px`;
+      const below = height - rect.bottom - 12;
+      const above = rect.top - 12;
+      const opensBelow =
+        below >= Math.min(panel.scrollHeight, 640) || below >= above;
+      panel.style.maxHeight = `${Math.max(0, Math.min(640, height - 24, opensBelow ? below : above))}px`;
+      const top = opensBelow
+        ? rect.bottom + 4
+        : rect.top - panel.offsetHeight - 4;
+      panel.style.top = `${Math.max(12, Math.min(top, height - panel.offsetHeight - 12))}px`;
+    }
+    position();
+    const observer = new ResizeObserver(position);
+    if (picker.current) observer.observe(picker.current);
+    window.addEventListener("resize", position);
+    window.addEventListener("scroll", position);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", position);
+      window.removeEventListener("scroll", position);
+    };
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    if (saved || busy) closeButton.current?.focus({ preventScroll: true });
+    else
+      picker.current
+        ?.querySelector<HTMLSelectElement>("select")
+        ?.focus({ preventScroll: true });
+  }, [open, busy, saved]);
+  function close() {
+    picker.current?.hidePopover();
+    setOpen(false);
+    trigger.current?.focus({ preventScroll: true });
+  }
   async function refresh() {
+    if (refreshing.current) return;
+    refreshing.current = true;
     setBusy(true);
     setError("");
     try {
@@ -1177,120 +1229,163 @@ function PromoteCandidate({
     } catch (e) {
       setError((e as Error).message);
     } finally {
+      refreshing.current = false;
       setBusy(false);
     }
   }
   return (
     <div className={styles.promotion}>
       <button
+        ref={trigger}
         type="button"
         className={`secondary ${styles.iconButton}`}
         aria-label={tr("Add to official pool")}
         title={tr("Add to official pool")}
+        popoverTarget={pickerId}
+        aria-haspopup="dialog"
+        aria-controls={pickerId}
         aria-expanded={open}
         onClick={() => {
-          setOpen(!open);
-          if (!open) void refresh();
+          if (picker.current?.matches(":popover-open")) return;
+          setSaved(false);
+          void refresh();
         }}
       >
         <WorkbenchActionIcon kind="pool" />
       </button>
-      {saved && (
-        <p role="status">{tr("Candidate added to the official pool.")}</p>
-      )}
-      {open && (
-        <div className={styles.promotionForm}>
-          <label className="field">
-            <span>{tr("Target round")}</span>
-            <select
-              value={roundId}
-              disabled={busy}
-              onChange={(event) => {
-                setRoundId(event.target.value);
-                setPoolId("");
-                setSaved(false);
-              }}
-            >
-              <option value="">{tr("Choose a round")}</option>
-              {data.rounds.map((round) => (
-                <option key={round.id} value={round.id}>
-                  {round.name} ·{" "}
-                  {round.stage === "group"
-                    ? tr("Group stage")
-                    : tr("Knockout stage")}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>{tr("Target pool")}</span>
-            <select
-              value={poolId}
-              disabled={busy || !roundId}
-              onChange={(event) => {
-                setPoolId(event.target.value);
-                setSaved(false);
-              }}
-            >
-              <option value="">{tr("Choose a pool")}</option>
-              {available.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {data.rounds.find((r) => r.id === p.roundId)?.name} · {p.name}
-                  {p.publishedAt ? ` · ${tr("Published")}` : ""}
-                </option>
-              ))}
-            </select>
-          </label>
-          {(roundId || !data.rounds.length) && !available.length && (
-            <p className="muted small">
-              {tr(
-                "No editable pools. Create a pool in mappool management first.",
-              )}
-            </p>
-          )}
-          <button
-            type="button"
-            className="secondary"
-            disabled={busy}
-            onClick={() => void refresh()}
-          >
-            {tr("Refresh list")}
-          </button>
-          {error && (
-            <p role="alert" className="error">
-              {tr(error)}
-            </p>
-          )}
-          {!busy && pool && !pool.lockedAt && !pool.selectionLockedAt && (
-            <>
-              {pool.publishedAt && (
-                <p className="notice">
-                  {tr(
-                    "This pool is public. Added maps will be visible immediately.",
-                  )}
+      <div
+        ref={picker}
+        id={pickerId}
+        popover="auto"
+        role="dialog"
+        aria-labelledby={`${pickerId}-title`}
+        className={styles.promotionPopover}
+        onToggle={(event) =>
+          setOpen(event.currentTarget.matches(":popover-open"))
+        }
+      >
+        {open && (
+          <>
+            <div className={styles.promotionHeading}>
+              <h3 id={`${pickerId}-title`}>{tr("Add to official pool")}</h3>
+              <button
+                ref={closeButton}
+                type="button"
+                className="secondary"
+                onClick={close}
+              >
+                {tr("Close")}
+              </button>
+            </div>
+            <div className={styles.promotionContent}>
+              {saved && (
+                <p role="status">
+                  {tr("Candidate added to the official pool.")}
                 </p>
               )}
-              <EntryForm
-                key={`${pool.id}-${pool.version}-${candidate.category}`}
-                change={{ url: endpoint }}
-                pool={pool}
-                category={
-                  candidate.category === "unassigned"
-                    ? "NM"
-                    : candidate.category
-                }
-                candidateBeatmapId={candidate.beatmapId}
-                entries={data.entries.filter((e) => e.poolId === pool.id)}
-                onSuccess={() => {
-                  setSaved(true);
-                  setOpen(false);
-                  void refresh();
-                }}
-              />
-            </>
-          )}
-        </div>
-      )}
+              {busy && <p role="status">{tr("Working…")}</p>}
+              <div className={styles.promotionForm}>
+                <label className="field">
+                  <span>{tr("Target round")}</span>
+                  <select
+                    value={roundId}
+                    disabled={busy}
+                    onChange={(event) => {
+                      setRoundId(event.target.value);
+                      setPoolId("");
+                      setSaved(false);
+                    }}
+                  >
+                    <option value="">{tr("Choose a round")}</option>
+                    {data.rounds.map((round) => (
+                      <option key={round.id} value={round.id}>
+                        {round.name} ·{" "}
+                        {round.stage === "group"
+                          ? tr("Group stage")
+                          : tr("Knockout stage")}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field">
+                  <span>{tr("Target pool")}</span>
+                  <select
+                    value={poolId}
+                    disabled={busy || !roundId}
+                    onChange={(event) => {
+                      setPoolId(event.target.value);
+                      setSaved(false);
+                    }}
+                  >
+                    <option value="">{tr("Choose a pool")}</option>
+                    {available.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {data.rounds.find((r) => r.id === p.roundId)?.name} ·{" "}
+                        {p.name}
+                        {p.publishedAt ? ` · ${tr("Published")}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {(roundId || !data.rounds.length) && !available.length && (
+                  <p className="muted small">
+                    {tr(
+                      "No editable pools. Create a pool in mappool management first.",
+                    )}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={busy}
+                  onClick={() => void refresh()}
+                >
+                  {tr("Refresh list")}
+                </button>
+                {error && (
+                  <p role="alert" className="error">
+                    {tr(error)}
+                  </p>
+                )}
+                {!busy &&
+                  !error &&
+                  !saved &&
+                  pool &&
+                  !pool.lockedAt &&
+                  !pool.selectionLockedAt && (
+                    <>
+                      {pool.publishedAt && (
+                        <p className="notice">
+                          {tr(
+                            "This pool is public. Added maps will be visible immediately.",
+                          )}
+                        </p>
+                      )}
+                      <EntryForm
+                        key={`${pool.id}-${pool.version}-${candidate.category}`}
+                        change={{ url: endpoint }}
+                        pool={pool}
+                        category={
+                          candidate.category === "unassigned"
+                            ? "NM"
+                            : candidate.category
+                        }
+                        candidateBeatmapId={candidate.beatmapId}
+                        entries={data.entries.filter(
+                          (e) => e.poolId === pool.id,
+                        )}
+                        onSuccess={() => {
+                          setSaved(true);
+                          void refresh();
+                        }}
+                      />
+                    </>
+                  )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

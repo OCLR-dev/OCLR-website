@@ -682,9 +682,30 @@ test.describe("private Pooler/Tester selection workbench", () => {
         exact: true,
       });
       const poolerCard = poolerRow.locator(".map-browse-card--band");
+      const promotionHeight = (await poolerCard.boundingBox())!.height;
       await poolerCard
         .getByRole("button", { name: "Add to official pool", exact: true })
         .click();
+      const promotionPanel = poolerRow.getByRole("dialog", {
+        name: "Add to official pool",
+        exact: true,
+      });
+      await expect(promotionPanel).toBeVisible();
+      await expect(promotionPanel.getByLabel("Target round")).toBeEnabled();
+      await expect(promotionPanel.getByLabel("Target round")).toBeFocused();
+      expect((await poolerCard.boundingBox())!.height).toBe(promotionHeight);
+      await poolerPage.keyboard.press("Escape");
+      await expect(promotionPanel).not.toBeVisible();
+      await expect(
+        poolerRow.getByRole("button", {
+          name: "Add to official pool",
+          exact: true,
+        }),
+      ).toBeFocused();
+      await poolerRow
+        .getByRole("button", { name: "Add to official pool", exact: true })
+        .click();
+      await expect(promotionPanel.getByLabel("Target round")).toBeEnabled();
       await expect(poolerCard.getByLabel("Target round")).toBeVisible();
       await expect(poolerCard.getByLabel("Target pool")).toBeVisible();
       await expect(poolerRow.getByLabel("Target pool")).toBeDisabled();
@@ -714,6 +735,27 @@ test.describe("private Pooler/Tester selection workbench", () => {
         "readonly",
         "",
       );
+      const promotionBox = await promotionPanel.boundingBox();
+      expect(promotionBox!.x).toBeGreaterThanOrEqual(0);
+      expect(promotionBox!.y).toBeGreaterThanOrEqual(0);
+      expect(promotionBox!.x + promotionBox!.width).toBeLessThanOrEqual(
+        poolerPage.viewportSize()!.width,
+      );
+      expect(promotionBox!.y + promotionBox!.height).toBeLessThanOrEqual(
+        poolerPage.viewportSize()!.height,
+      );
+      expect((await poolerCard.boundingBox())!.height).toBe(promotionHeight);
+      expect(
+        (
+          await new AxeBuilder({ page: poolerPage })
+            .include("[popover]:popover-open")
+            .analyze()
+        ).violations,
+      ).toEqual([]);
+      await promotionPanel.screenshot({
+        path: `/tmp/oclr-promotion-${isMobile ? "mobile" : "desktop"}.png`,
+      });
+
       await poolerRow
         .getByRole("button", { name: "Add beatmap", exact: true })
         .click();
@@ -722,6 +764,18 @@ test.describe("private Pooler/Tester selection workbench", () => {
           .getByRole("status")
           .filter({ hasText: "Candidate added to the official pool." }),
       ).toBeVisible();
+      expect((await poolerCard.boundingBox())!.height).toBe(promotionHeight);
+      await expect(promotionPanel).toBeVisible();
+      await promotionPanel
+        .getByRole("button", { name: "Close", exact: true })
+        .click();
+      await expect(promotionPanel).not.toBeVisible();
+      await expect(
+        poolerRow.getByRole("button", {
+          name: "Add to official pool",
+          exact: true,
+        }),
+      ).toBeFocused();
       formal = await (await pooler.request.get(formalEndpoint)).json();
       expect(
         formal.entries.filter(
@@ -876,6 +930,25 @@ test.describe("private Pooler/Tester selection workbench", () => {
           path: `/tmp/oclr-map-history-${isMobile ? "mobile" : "desktop"}-${theme}.png`,
         });
         await historyPreview
+          .getByRole("button", { name: "關閉", exact: true })
+          .click();
+        await promotion.click();
+        const promotionPreview = previewCard.getByRole("dialog", {
+          name: "加入正式圖池",
+          exact: true,
+        });
+        await expect(promotionPreview.getByLabel("目標輪次")).toBeEnabled();
+        await promotionPreview.getByLabel("目標輪次").selectOption(roundId);
+        await promotionPreview
+          .getByLabel("目標圖池")
+          .selectOption(targetPool.id);
+        await expect(
+          promotionPreview.getByLabel("譜面連結或 ID"),
+        ).toBeVisible();
+        await promotionPreview.screenshot({
+          path: `/tmp/oclr-promotion-${isMobile ? "mobile" : "desktop"}-${theme}.png`,
+        });
+        await promotionPreview
           .getByRole("button", { name: "關閉", exact: true })
           .click();
       }
