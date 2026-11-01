@@ -297,13 +297,13 @@ async function HomeContent() {
               </Link>
             </div>
           </div>
-          {/* Liru artwork, shown from the head to the waist: the box crops
-           * it, so another Liru image can be dropped in unchanged. */}
+          {/* Liru artwork: the box crops it per breakpoint (home.css), so
+           * another Liru image can be dropped in unchanged. */}
           <picture className="home-hero-character">
             <source
               type="image/webp"
               srcSet="/branding/home-hero/liru-cn-v3-480.webp 480w, /branding/home-hero/liru-cn-v3-800.webp 800w, /branding/home-hero/liru-cn-v3-1111.webp 1111w"
-              sizes="(max-width: 760px) 165px, 390px"
+              sizes="(max-width: 760px) 86vw, 390px"
             />
             <Image
               src="/branding/home-hero/liru-cn-v3-800.webp"
