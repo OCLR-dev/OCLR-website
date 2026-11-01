@@ -240,7 +240,7 @@ function StaffRoleFields({
             existing ? tr("Update staff roles?") : tr("Grant staff access?")
           }
           description={tr(
-            "Set roles for osu! ID {userId} in {scope} to: {roles}. Other scopes and retained roles’ public visibility stay unchanged.",
+            "Set roles for osu! ID {userId} in {scope} to: {roles}. New roles will be public on About. Edition-scoped roles appear only while that tournament is public. Other scopes and retained roles’ public visibility stay unchanged.",
             {
               userId,
               scope: scopeName,

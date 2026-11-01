@@ -49,6 +49,7 @@ test.describe("staff assignment interface (#357)", () => {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toContainText("Global — all editions");
     await expect(dialog).toContainText("Mappooler / Referee");
+    await expect(dialog).toContainText("New roles will be public on About.");
     await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
     const group = page
       .locator(".staff-role-group")
@@ -140,6 +141,11 @@ test.describe("staff assignment interface (#357)", () => {
     const map = group
       .locator(".staff-role-row")
       .filter({ has: page.getByText("Mappooler", { exact: true }) });
+    await expect(map).toContainText("About: Public");
+    await map
+      .getByRole("button", { name: "Hide from About", exact: true })
+      .click();
+    await expect(map).toContainText("About: Private");
     await map
       .getByRole("button", { name: "Show on About", exact: true })
       .click();
@@ -206,14 +212,14 @@ test.describe("staff assignment interface (#357)", () => {
     await expect(
       global.getByRole("checkbox", { name: "Mappooler", exact: true }),
     ).toBeChecked();
+    const editionGroup = group.filter({
+      has: page.locator(".staff-role-scope", {
+        hasText: "Synthetic test edition",
+      }),
+    });
+    await editionGroup.locator(".staff-role-editor > summary").click();
     await expect(
-      group
-        .filter({
-          has: page.locator(".staff-role-scope", {
-            hasText: "Synthetic test edition",
-          }),
-        })
-        .getByRole("checkbox", { name: "Streamer", exact: true }),
+      editionGroup.getByRole("checkbox", { name: "Streamer", exact: true }),
     ).toBeChecked();
   });
 

@@ -3658,6 +3658,7 @@
     "mebd3b420beac": "Bind an MP link before syncing results.",
     "m780346bc2b61": "The MP source did not match the bound room.",
     "m42d164df593e": "Review referee records",
-    "m94c23b20ffc8": "Liru, the OCLR mascot, in her Chinese-style outfit holding a folding fan"
+    "m94c23b20ffc8": "Liru, the OCLR mascot, in her Chinese-style outfit holding a folding fan",
+    "m57a746254194": "Set roles for osu! ID {userId} in {scope} to: {roles}. New roles will be public on About. Edition-scoped roles appear only while that tournament is public. Other scopes and retained roles’ public visibility stay unchanged."
   }
 }
