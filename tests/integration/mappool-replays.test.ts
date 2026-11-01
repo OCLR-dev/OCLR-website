@@ -168,27 +168,23 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     await rm(root, { recursive: true, force: true });
     vi.unstubAllEnvs();
   });
-  async function lock() {
-    return mappoolCommand(mapper, edition.slug, {
-      action: "replay_window",
-      poolId,
-      showcaseAt: new Date(Date.now() + 3600000).toISOString(),
-      lockSelection: true,
-      ...(await command()),
-    });
-  }
-  it("opens only after selection lock, freezes maps/deadline, keeps publication independent, closes exactly at Showcase", async () => {
-    await expect(upload()).rejects.toMatchObject({ status: 409 });
-    await expect(
-      mappoolCommand(tester, edition.slug, {
-        action: "replay_window",
-        poolId,
-        showcaseAt: new Date(Date.now() + 3600000).toISOString(),
-        lockSelection: true,
-        ...(await command()),
-      }),
-    ).rejects.toMatchObject({ status: 403 });
-    await lock();
+  it("allows uploads and deletions without a window and after legacy deadlines", async () => {
+    const initial = await upload();
+    expect(
+      (
+        await deleteMappoolReplay(
+          tester,
+          edition.slug,
+          entryId,
+          initial.id,
+          await command(),
+        )
+      ).removed,
+    ).toBe(true);
+    await db()
+      .update(mappools)
+      .set({ selectionLockedAt: new Date(), showcaseAt: new Date(0) })
+      .where(eq(mappools.id, poolId));
     const result = await upload();
     expect(
       (await downloadMappoolReplay(tester, edition.slug, entryId, result.id))
@@ -208,11 +204,6 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
         category: "NM",
         position: 1,
       },
-      {
-        action: "replay_window",
-        lockSelection: false,
-        showcaseAt: new Date(Date.now() + 7200000).toISOString(),
-      },
     ])
       await expect(
         mappoolCommand(mapper, edition.slug, {
@@ -230,33 +221,38 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     expect(JSON.stringify(await publicMappools(edition.slug))).not.toMatch(
       /replay|uploader|sha256|showcase|selectionLocked/i,
     );
-    // A completed fixture does not unlock maps or end the explicit tester window early.
     await db()
       .update(mappools)
       .set({ lockedAt: new Date() })
       .where(eq(mappools.id, poolId));
     await upload(tester, syntheticReplay({ player: "Another literal player" }));
-    await db()
-      .update(mappools)
-      .set({ showcaseAt: new Date() })
-      .where(eq(mappools.id, poolId));
-    await expect(upload()).rejects.toMatchObject({ status: 409 });
-    await expect(
-      deleteMappoolReplay(
-        tester,
-        edition.slug,
-        entryId,
-        result.id,
-        await command(),
-      ),
-    ).rejects.toMatchObject({ status: 409 });
     expect(
-      (await downloadMappoolReplay(tester, edition.slug, entryId, result.id))
-        .bytes,
-    ).toEqual(syntheticReplay());
+      (
+        await deleteMappoolReplay(
+          tester,
+          edition.slug,
+          entryId,
+          result.id,
+          await command(),
+        )
+      ).removed,
+    ).toBe(true);
+  });
+  it("rejects the retired window-setting command without creating another selection lock", async () => {
+    await expect(
+      mappoolCommand(mapper, edition.slug, {
+        action: "replay_window",
+        poolId,
+        showcaseAt: new Date(Date.now() + 3600000).toISOString(),
+        lockSelection: true,
+        ...(await command()),
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    expect(
+      (await db().select().from(mappools).where(eq(mappools.id, poolId)))[0],
+    ).toMatchObject({ selectionLockedAt: null, showcaseAt: null, version: 1 });
   });
   it("separates scoped Tester writes from Developer reads, rejects cross-edition IDs and applies revocation", async () => {
-    await lock();
     const r = await upload(admin);
     await db().insert(staffRoles).values({
       userId: outsider.osuId,
@@ -308,7 +304,6 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     await expect(upload()).rejects.toMatchObject({ status: 403 });
   });
   it("deduplicates concurrent retries and audits every actual change once", async () => {
-    await lock();
     const input = await command(),
       bytes = syntheticReplay();
     const results = await Promise.all([
@@ -350,7 +345,6 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     ).toHaveLength(1);
   });
   it("rejects mismatches, stale concurrent edits, excess count and bad filenames without writes", async () => {
-    await lock();
     await expect(
       upload(tester, syntheticReplay({ md5: "c".repeat(32) })),
     ).rejects.toMatchObject({ status: 409 });
@@ -389,7 +383,6 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
       .update(mappoolEntries)
       .set({ metadata: { ...metadata, checksum: null } })
       .where(eq(mappoolEntries.id, entryId));
-    await lock();
     await upload(tester, syntheticReplay({ player: admin.username }));
     expect((await replayList(tester, edition.slug, entryId))[0]).toMatchObject({
       verification: "unverified",
@@ -401,7 +394,6 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     ).toBe(tester.username);
   });
   it("rolls back metadata/audit failures, detects missing files, retains files across releases and restores backups", async () => {
-    await lock();
     const bytes = syntheticReplay();
     await db().execute(
       sql`CREATE FUNCTION oclr_test_fail_replay() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Synthetic audit failure'; END $$`,
@@ -442,13 +434,7 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     expect(await readFile(file)).toEqual(bytes);
   });
   it("blocks silent reassociation after slot moves, replacement or removal and protects archived writes", async () => {
-    await lock();
     await upload();
-    // Simulate a legacy/imported attachment on an unlocked pool to exercise structural guards.
-    await db()
-      .update(mappools)
-      .set({ selectionLockedAt: null })
-      .where(eq(mappools.id, poolId));
     for (const action of [
       { action: "entry_remove", entryId },
       { action: "batch_remove", entryIds: [entryId] },
@@ -489,10 +475,6 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
         },
       })
       .where(eq(editionState.slug, edition.slug));
-    await db()
-      .update(mappools)
-      .set({ selectionLockedAt: new Date() })
-      .where(eq(mappools.id, poolId));
     await expect(upload()).rejects.toMatchObject({ status: 409 });
   });
 });

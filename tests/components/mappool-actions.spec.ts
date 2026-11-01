@@ -230,9 +230,7 @@ test("replay dialog keeps the map row compact and restores focus", async ({
   await expect(dialog).toBeVisible();
   expect((await entry.boundingBox())!.height).toBe(before.height);
   await expect(dialog.getByRole("note")).toHaveCount(0);
-  await expect(
-    dialog.getByLabel("Replay file", { exact: true }),
-  ).toBeDisabled();
+  await expect(dialog.getByLabel("Replay file", { exact: true })).toBeEnabled();
   await expect(
     dialog.getByText("No replays attached.", { exact: true }),
   ).toBeVisible();

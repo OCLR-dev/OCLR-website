@@ -65,48 +65,20 @@ test.describe("private replay workflow", () => {
   test.setTimeout(180000);
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
   test.afterAll(async () => closeDb());
-  test("locks selection, lets Tester upload/download/delete and closes writes at Showcase", async ({
+  test("lets Tester upload and delete immediately and after legacy Showcase deadlines", async ({
     page,
     context,
     browser,
     isMobile,
   }, info) => {
     const { poolId, entryId, cookie, url } = await prepare(context, isMobile);
-    await page.goto("/admin/tournaments/test-cup/mappools");
-    await page.getByRole("button", { name: "Replays", exact: true }).click();
-    await expect(
-      page.getByLabel("Replay file", { exact: true }),
-    ).toBeDisabled();
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.screenshot({
-      path: info.outputPath("replay-before-selection-lock.png"),
-      fullPage: true,
-    });
-    await page
-      .getByRole("dialog", { name: "Replays for NM1", exact: true })
-      .getByRole("button", { name: "Close", exact: true })
-      .click();
-    await page
-      .getByLabel("Showcase deadline (your local time)", { exact: true })
-      .fill("2030-01-01T12:00");
-    await page
-      .getByRole("button", { name: "Lock map selection", exact: true })
-      .click();
-    const lock = page.getByRole("dialog", { name: "Lock map selection?" });
-    await lock.getByRole("button", { name: "Confirm", exact: true }).click();
-    await expect(lock).not.toBeVisible();
-    await expect(
-      page.getByText(
-        "Map selection locked. Maps and the Showcase deadline can no longer be changed.",
-      ),
-    ).toBeVisible();
     await context.addCookies([cookie]);
-    await page.reload();
+    await page.goto("/admin/tournaments/test-cup/mappools");
     await expect(
-      page.getByRole("button", { name: "Publish pool", exact: true }),
-    ).toBeDisabled();
-    if (!(await page.locator(".replay-content").isVisible()))
-      await page.getByRole("button", { name: /^Replays/ }).click();
+      page.getByRole("heading", { name: "Replay upload window", exact: true }),
+    ).toHaveCount(0);
+    await page.getByRole("button", { name: "Replays", exact: true }).click();
+    await expect(page.getByLabel("Replay file", { exact: true })).toBeEnabled();
     const bytes = syntheticReplay(),
       filename = "示范-" + "Long filename ".repeat(10) + ".osr";
     await page
@@ -213,12 +185,10 @@ test.describe("private replay workflow", () => {
       .where(eq(mappools.id, poolId));
     await page.reload();
     await page.getByRole("button", { name: /^Replays/ }).click();
-    await expect(
-      page.getByLabel("Replay file", { exact: true }),
-    ).toBeDisabled();
+    await expect(page.getByLabel("Replay file", { exact: true })).toBeEnabled();
     await expect(
       page.getByRole("button", { name: "Delete replay", exact: true }),
-    ).toHaveCount(0);
+    ).toHaveCount(1);
     await expect(
       page.getByRole("link", { name: "Download replay", exact: true }),
     ).toBeVisible();
@@ -229,29 +199,31 @@ test.describe("private replay workflow", () => {
           data: { confirmed: true, expectedVersion: 5 },
         })
       ).status(),
-    ).toBe(409);
+    ).toBe(200);
+    await page
+      .getByRole("button", { name: "Delete replay", exact: true })
+      .click();
+    await page
+      .getByRole("dialog", { name: "Delete replay?", exact: true })
+      .getByRole("button", { name: "Delete replay", exact: true })
+      .click();
+    await expect(page.locator(".replay-item")).toHaveCount(0);
+    await page.getByLabel("Replay file", { exact: true }).setInputFiles({
+      name: "after-deadline.osr",
+      mimeType: "application/octet-stream",
+      buffer: bytes,
+    });
+    await page
+      .getByRole("button", { name: "Upload replay", exact: true })
+      .click();
+    await expect(page.locator(".replay-item")).toHaveCount(1);
   });
   test("retries a committed upload with a lost response without duplicate associations", async ({
     page,
     context,
     isMobile,
   }) => {
-    const { poolId, cookie, url } = await prepare(context, isMobile);
-    expect(
-      (
-        await context.request.post(base, {
-          headers,
-          data: {
-            action: "replay_window",
-            confirmed: true,
-            poolId,
-            expectedVersion: 1,
-            showcaseAt: "2030-01-01T00:00:00Z",
-            lockSelection: true,
-          },
-        })
-      ).ok(),
-    ).toBe(true);
+    const { cookie, url } = await prepare(context, isMobile);
     await context.addCookies([cookie]);
     await page.goto("/admin/tournaments/test-cup/mappools");
     await page.getByRole("button", { name: "Replays", exact: true }).click();
@@ -298,22 +270,7 @@ test.describe("private replay workflow", () => {
     context,
     isMobile,
   }, info) => {
-    const { poolId, entryId, cookie, url } = await prepare(context, isMobile);
-    expect(
-      (
-        await context.request.post(base, {
-          headers,
-          data: {
-            action: "replay_window",
-            confirmed: true,
-            poolId,
-            expectedVersion: 1,
-            showcaseAt: "2030-01-01T00:00:00Z",
-            lockSelection: true,
-          },
-        })
-      ).ok(),
-    ).toBe(true);
+    const { entryId, cookie, url } = await prepare(context, isMobile);
     await context.addCookies([cookie]);
     expect(
       (
@@ -326,7 +283,7 @@ test.describe("private replay workflow", () => {
               buffer: syntheticReplay(),
             },
             description: "Synthetic note",
-            expectedVersion: "2",
+            expectedVersion: "1",
             confirmed: "true",
           },
         })

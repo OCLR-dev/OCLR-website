@@ -57,17 +57,6 @@ function validateMatch(
       "Replay does not match this beatmap checksum or ruleset. Choose the correct map.",
     );
 }
-function windowOpen(pool: typeof mappools.$inferSelect) {
-  if (
-    !pool.selectionLockedAt ||
-    !pool.showcaseAt ||
-    Date.now() >= pool.showcaseAt.getTime()
-  )
-    throw new HttpError(
-      409,
-      "Replay changes are allowed only after map selection is locked and before the Showcase deadline.",
-    );
-}
 const command = z
   .object({
     expectedVersion: z.number().int().nonnegative(),
@@ -112,8 +101,7 @@ export async function authorizeReplayUpload(
   entryId: string,
 ) {
   await assertCapability(actor, "manage_replays", slug);
-  const { pool } = await target(actor, slug, entryId);
-  windowOpen(pool);
+  await target(actor, slug, entryId);
 }
 export async function uploadMappoolReplay(
   actor: User,
@@ -161,7 +149,6 @@ export async function uploadMappoolReplay(
       await assertCapability(actor, "manage_replays", slug, tx);
       await assertOperationalEdition(slug, tx);
       const { pool, entry } = await target(actor, slug, entryId, tx);
-      windowOpen(pool);
       validateMatch(summary, entry.metadata);
       const existing = await tx
         .select()
@@ -184,8 +171,6 @@ export async function uploadMappoolReplay(
         );
       await storeReplay(key, bytes);
       wrote = true;
-      // Check the real clock after validation and file IO as well as before it.
-      windowOpen(pool);
       const [row] = await tx
         .insert(mappoolReplays)
         .values({
@@ -280,7 +265,6 @@ export async function deleteMappoolReplay(
     await assertCapability(actor, "manage_replays", slug, tx);
     await assertOperationalEdition(slug, tx);
     const { pool, entry } = await target(actor, slug, entryId, tx);
-    windowOpen(pool);
     const [row] = await tx
       .select()
       .from(mappoolReplays)
