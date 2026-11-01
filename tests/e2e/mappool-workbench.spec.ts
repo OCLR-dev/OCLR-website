@@ -402,9 +402,7 @@ test.describe("private Pooler/Tester selection workbench", () => {
       await expect(card.locator(".map-card-extension")).toHaveCount(0);
       await expect(card.locator("time")).toHaveCount(0);
       await expect(
-        card
-          .locator(".map-card-values")
-          .getByText("Added by", { exact: false }),
+        card.locator(".map-card-side").getByText("Added by", { exact: false }),
       ).toBeVisible();
       await expect(
         card
@@ -427,8 +425,9 @@ test.describe("private Pooler/Tester selection workbench", () => {
       expect(categoryBox!.x).toBeLessThan(coverBox!.x + coverBox!.width / 2);
       expect(categoryBox!.y).toBeLessThan(coverBox!.y + coverBox!.height / 2);
       if (!isMobile) {
-        expect(roundBox!.x).toBeGreaterThan(mapBox!.x + mapBox!.width * 0.65);
-        expect(roundBox!.y).toBeLessThan(coverBox!.y + coverBox!.height);
+        expect(roundBox!.y + roundBox!.height).toBeLessThanOrEqual(
+          coverBox!.y + coverBox!.height,
+        );
       } else {
         const copyBox = await card.locator(".map-card-copy").boundingBox();
         expect(roundBox!.y).toBeGreaterThanOrEqual(
@@ -610,12 +609,24 @@ test.describe("private Pooler/Tester selection workbench", () => {
         await expect(previewCard.locator(".map-card-extension")).toHaveCount(0);
         await expect(previewCard.locator("time")).toHaveCount(0);
         if (!isMobile) {
-          const cover = await previewCard
-            .locator(".map-card-cover")
-            .boundingBox();
-          const button = await promotion.boundingBox();
-          expect(button!.y + button!.height).toBeLessThanOrEqual(
-            cover!.y + cover!.height + 1,
+          const controls = previewCard.locator(".map-card-side");
+          const addedBy = controls.getByText("新增者", { exact: false });
+          const rounds = controls.getByRole("group", {
+            name: "指定輪次",
+            exact: true,
+          });
+          const boxes = await Promise.all(
+            [addedBy, rounds, promotion].map((control) =>
+              control.boundingBox(),
+            ),
+          );
+          const centers = boxes.map((box) => box!.y + box!.height / 2);
+          expect(Math.max(...centers) - Math.min(...centers)).toBeLessThan(2);
+          expect(boxes[0]!.x + boxes[0]!.width).toBeLessThanOrEqual(
+            boxes[1]!.x,
+          );
+          expect(boxes[1]!.x + boxes[1]!.width).toBeLessThanOrEqual(
+            boxes[2]!.x,
           );
         }
         if (!isMobile)

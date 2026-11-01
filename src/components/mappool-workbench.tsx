@@ -971,20 +971,9 @@ export function SelectionWorkbench({
                     openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
                     note={tr("★ base")}
                     chips={
-                      <>
-                        <span>
-                          {tr("HP")} {formatBeatmapNumber(c.metadata.hp)}
-                        </span>
-                        <span className={`small muted ${styles.attribution}`}>
-                          {tr("Added by")}{" "}
-                          <a
-                            className="text-link"
-                            href={`https://osu.ppy.sh/users/${c.authorId}`}
-                          >
-                            <strong>{c.authorName}</strong>
-                          </a>
-                        </span>
-                      </>
+                      <span>
+                        {tr("HP")} {formatBeatmapNumber(c.metadata.hp)}
+                      </span>
                     }
                     slotControl={
                       writable ? (
@@ -1040,6 +1029,15 @@ export function SelectionWorkbench({
                     }
                     side={
                       <>
+                        <span className={`small muted ${styles.attribution}`}>
+                          {tr("Added by")}{" "}
+                          <a
+                            className="text-link"
+                            href={`https://osu.ppy.sh/users/${c.authorId}`}
+                          >
+                            <strong>{c.authorName}</strong>
+                          </a>
+                        </span>
                         <CandidateRounds
                           candidate={c}
                           rounds={data.rounds}

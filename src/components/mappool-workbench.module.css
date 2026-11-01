@@ -205,7 +205,6 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.25rem;
-  margin-inline-start: auto;
   overflow-wrap: anywhere;
 }
 
@@ -277,65 +276,66 @@
 
 /* Workbench-only header controls, extending the historical map band. */
 .workbenchCard:global(.map-browse-card--band) {
-  grid-template-columns: clamp(160px, 19%, 240px) minmax(0, 1fr) minmax(
-      12rem,
-      23%
-    );
+  grid-template-columns: clamp(160px, 19%, 240px) minmax(0, 1fr);
 }
-.workbenchCard:global(.map-browse-card--band) > :global(.map-card-cover),
+.workbenchCard:global(.map-browse-card--band) > :global(.map-card-cover) {
+  grid-row: 1 / 3;
+}
 .workbenchCard:global(.map-browse-card--band) > :global(.map-card-copy) {
+  grid-column: 2;
   min-height: 9.75rem;
-}
-.workbenchCard:global(.map-browse-card--band) > :global(.map-card-copy) {
   position: static;
   z-index: 2;
+  padding-bottom: 0;
 }
-.workbenchCard:global(.map-browse-card--band) :global(.map-card-title-row),
+.workbenchCard:global(.map-browse-card--band) :global(.map-card-title-row) {
+  padding-right: 7rem;
+}
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-values) {
   padding-right: 0;
 }
 .workbenchCard:global(.map-browse-card--band) > :global(.map-card-side) {
+  grid-column: 2;
   position: relative;
   z-index: 1;
   min-width: 0;
-  display: grid;
-  align-content: end;
-  gap: 0.75rem;
-  padding: 4.25rem 1.1rem 0.85rem;
-  border-inline-start: 1px solid var(--site-border);
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 1rem;
+  padding: 0.75rem 1.1rem 0.85rem;
+}
+.workbenchCard:global(.map-browse-card--band) .attribution {
+  flex-shrink: 0;
 }
 .workbenchCard:global(.map-browse-card--band)
   :global(.map-card-side)
   .roundSummary {
-  display: grid;
-  align-items: start;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.5rem;
 }
-.workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-side)
-  .roundSummary
-  button {
-  justify-self: start;
+.workbenchCard:global(.map-browse-card--band) .roundSummary button,
+.workbenchCard:global(.map-browse-card--band) .promotion {
+  flex-shrink: 0;
 }
 .workbenchCard:global(.map-browse-card--band)
   > :global(.map-card-side):has(form, .promotionForm) {
   grid-column: 1 / -1;
-  padding: 1rem 1.1rem;
-  border-inline-start: 0;
+  flex-wrap: wrap;
+  align-items: start;
   border-top: 1px solid var(--site-border);
 }
 .workbenchCard:global(.map-browse-card--band):has(
     :global(.map-card-side) form,
     .promotionForm
   )
-  > :global(.map-card-copy) {
-  grid-column: 2 / -1;
-  padding-right: 8rem;
+  > :global(.map-card-cover) {
+  grid-row: auto;
 }
-.workbenchCard:global(.map-browse-card--band) .promotion {
-  justify-self: end;
-}
+.workbenchCard:global(.map-browse-card--band) .candidateRounds:has(form),
 .workbenchCard:global(.map-browse-card--band) .promotion:has(.promotionForm) {
-  width: 100%;
+  flex-basis: 100%;
 }
 .workbenchCard:global(.map-browse-card--band)
   :global(.map-slot-badge)
@@ -375,50 +375,35 @@
   pointer-events: none;
 }
 @media (max-width: 1100px) {
-  .workbenchCard:global(.map-browse-card--band) {
-    grid-template-columns: clamp(160px, 24%, 220px) minmax(0, 1fr);
+  .workbenchCard:global(.map-browse-card--band) > :global(.map-card-cover) {
+    grid-row: auto;
   }
   .workbenchCard:global(.map-browse-card--band) > :global(.map-card-side) {
     grid-column: 1 / -1;
-    padding: 0.85rem 1.1rem;
-    border-inline-start: 0;
-    border-top: 1px solid var(--site-border);
-  }
-  .workbenchCard:global(.map-browse-card--band)
-    :global(.map-card-side)
-    .roundSummary {
-    display: flex;
-    align-items: center;
-  }
-  .workbenchCard:global(.map-browse-card--band) :global(.map-card-title-row) {
-    padding-right: 7rem;
+    flex-wrap: wrap;
   }
 }
 @media (max-width: 640px) {
   .workbenchCard:global(.map-browse-card--band) {
     grid-template-columns: minmax(0, 1fr);
   }
-  .workbenchCard:global(.map-browse-card--band) > :global(.map-card-cover),
   .workbenchCard:global(.map-browse-card--band) > :global(.map-card-copy) {
+    grid-column: 1;
     min-height: 0;
-  }
-  .workbenchCard:global(.map-browse-card--band) > :global(.map-card-copy),
-  .workbenchCard:global(.map-browse-card--band):has(
-      :global(.map-card-side) form,
-      .promotionForm
-    )
-    > :global(.map-card-copy) {
-    grid-column: 1 / -1;
     padding-right: 0.9rem;
   }
   .workbenchCard:global(.map-browse-card--band) :global(.map-card-title-row) {
     padding-right: 0;
   }
   .workbenchCard:global(.map-browse-card--band) > :global(.map-card-side) {
+    justify-content: start;
     padding: 0.85rem 0.9rem;
   }
-  .attribution {
-    margin-inline-start: 0;
+  .workbenchCard:global(.map-browse-card--band) .attribution {
+    flex-shrink: 1;
+  }
+  .workbenchCard:global(.map-browse-card--band) .roundSummary {
+    flex-wrap: wrap;
   }
   .workbenchCard:global(.map-browse-card--band) .promotion {
     width: 100%;

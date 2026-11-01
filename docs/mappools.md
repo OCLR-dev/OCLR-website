@@ -67,11 +67,10 @@ commit together under the edition lock.
 Candidates reuse the historical mappool `MapCardBand`: cover, star-coloured rail,
 Mod category, title/artist/mapper, saved base parameters (including HP), copyable
 BID, official osu! link and osu!direct. The workbench reuses the cover's top-left
-Mod badge as the category selector and places round intent in the upper-right
-of the beatmap band, with official pool promotion below the round controls.
-The adder appears at the end of the beatmap parameter row; candidate creation
-time and the separate footer are hidden. Expanded round and promotion forms
-use a full row; narrow screens stack controls below the beatmap details.
+Mod badge as the category selector. Adder, intended rounds/edit action and
+formal pool promotion share a single right-aligned control row inside the card.
+Narrow screens wrap the row, and expanded round/promotion forms use the available
+width. Candidate creation time and the separate footer stay hidden.
 Mode/status and snapshot details stay hidden; saved metadata is not a live lookup,
 and unknown fields stay unknown. Comment
 boxes remain visible below each card on desktop and mobile; history uses a
