@@ -1,5 +1,12 @@
 # #674 — Compact mappool entry actions
 
+The 2026-11-02 follow-up moves replay management into a compact modal:
+see [replay dialog verification](replay-dialog.md). The screenshots below document
+the original toolbar implementation.
+
+The later [edit-form preview follow-up](edit-preview.md) removes the repeated
+preview from existing-map editors while retaining background lookup verification.
+
 Local verification on 2026-11-01 (Asia/Taipei), using Node.js 24.22.2.
 
 The entry footer now groups edit, metadata refresh, confirmed removal and replay

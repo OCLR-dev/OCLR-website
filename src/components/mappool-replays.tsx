@@ -1,7 +1,5 @@
 "use client";
 
-import { InfoNote } from "@/components/info-note";
-
 import { LoadingRegion } from "./loading-region";
 import {
   useEffect,
@@ -144,6 +142,8 @@ export function MappoolReplays({
   const [now, setNow] = useState(() => Date.now());
   const input = useRef<HTMLInputElement>(null),
     summary = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDialogElement>(null),
+    reload = useRef<HTMLButtonElement>(null);
   const request = useRef<XMLHttpRequest | null>(null),
     dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -277,7 +277,6 @@ export function MappoolReplays({
       setKnownVersion(data.version);
       dialog.current?.close();
       setDeleting(null);
-      summary.current?.focus();
       setStatus(tr("Replay deleted."));
     } catch (err) {
       setError(
@@ -287,11 +286,11 @@ export function MappoolReplays({
       );
       dialog.current?.close();
       setDeleting(null);
-      summary.current?.focus();
     } finally {
       await load();
       refresh();
       setPending(false);
+      requestAnimationFrame(() => reload.current?.focus());
     }
   }
   return (
@@ -309,221 +308,250 @@ export function MappoolReplays({
           className="secondary mappool-icon-action"
           aria-label={`${tr("Replays")}${loaded ? ` (${items.length})` : ""}`}
           title={`${tr("Replays")}${loaded ? ` (${items.length})` : ""}`}
+          aria-haspopup="dialog"
           aria-expanded={expanded}
           aria-controls={`${id}-panel`}
           onClick={() => {
-            const next = !expanded;
-            setExpanded(next);
-            if (next) void load();
+            setNow(Date.now());
+            setExpanded(true);
+            panel.current?.showModal();
+            void load();
           }}
         >
           <MappoolActionIcon kind="replays" />
         </button>,
       )}
-      <div
+      <dialog
+        ref={panel}
         id={`${id}-panel`}
-        hidden={!expanded}
-        className="replay-content form-stack"
+        className="replay-dialog"
+        aria-labelledby={`${id}-title`}
+        aria-describedby={`${id}-map`}
+        onCancel={(event) => {
+          if (pending) event.preventDefault();
+        }}
+        onClose={() => {
+          setExpanded(false);
+          summary.current?.focus();
+        }}
       >
-        <p className="small muted">
-          {slotLabel(entry.category, entry.position)} · {tr("Beatmap ID")}{" "}
-          {entry.beatmapId}
+        <header className="replay-dialog-heading">
+          <div>
+            <h3 id={`${id}-title`}>
+              {tr("Replays for {value0}", {
+                value0: slotLabel(entry.category, entry.position),
+              })}
+            </h3>
+            <p id={`${id}-map`} className="small muted">
+              {tr("Beatmap ID")} {entry.beatmapId}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="secondary mappool-icon-action"
+            aria-label={tr("Close")}
+            title={tr("Close")}
+            disabled={pending}
+            onClick={() => panel.current?.close()}
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        <div className="replay-content">
+          {!open && (
+            <p className="small muted">
+              {tr(
+                "Replay changes are allowed only after map selection is locked and before the Showcase deadline.",
+              )}
+            </p>
+          )}
+          <div className="replay-toolbar">
+            <span className="small muted">
+              {items.length} / {REPLAY_ENTRY_LIMIT}
+            </span>
+            <button
+              type="button"
+              ref={reload}
+              className="secondary mappool-icon-action"
+              aria-label={tr("Reload replay list")}
+              title={tr("Reload replay list")}
+              aria-busy={loading}
+              onClick={() => {
+                setError("");
+                void load();
+              }}
+              disabled={loading}
+            >
+              <MappoolActionIcon kind="refresh" />
+            </button>
+          </div>
+          {loaded && !items.length && (
+            <p className="small muted">{tr("No replays attached.")}</p>
+          )}
+          {!!items.length && (
+            <ul className="replay-list">
+              {items.map((item) => (
+                <li key={item.id} className="replay-item">
+                  <div>
+                    <strong className="replay-filename">{item.filename}</strong>
+                    <p className="muted small">
+                      {`${(item.size / 1024).toFixed(1)} KiB`} ·{" "}
+                      {item.uploaderName} (ID {item.uploaderId}) ·{" "}
+                      <time dateTime={new Date(item.createdAt).toISOString()}>
+                        {new Date(item.createdAt).toISOString()}
+                      </time>
+                    </p>
+                  </div>
+                  {item.description && <p>{item.description}</p>}
+                  <p className="small">
+                    {tr("Player name in file")}:{" "}
+                    <bdi>{item.summary.playerName}</bdi> · {item.summary.mode} ·{" "}
+                    {tr("Mods")} {item.summary.mods} ·{" "}
+                    {`stable ${item.summary.version}`}
+                  </p>
+                  <p className="small">
+                    {item.verification === "matched"
+                      ? tr("Beatmap checksum matched")
+                      : tr("Unverified: official beatmap checksum unavailable")}
+                  </p>
+                  <code className="small replay-filename">
+                    MD5 {item.summary.beatmapMd5}
+                  </code>
+                  <div className="actions">
+                    <a className="button secondary" href={`${url}/${item.id}`}>
+                      {tr("Download replay")}
+                    </a>
+                    {writable && (
+                      <button
+                        type="button"
+                        className="secondary"
+                        disabled={pending}
+                        onClick={() => {
+                          setError("");
+                          setDeleting(item);
+                          dialog.current?.showModal();
+                        }}
+                      >
+                        {tr("Delete replay")}
+                      </button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          {canManage && (
+            <form
+              onSubmit={upload}
+              className="replay-upload"
+              aria-busy={pending}
+            >
+              <p id={`${id}-help`} className="small muted replay-upload-help">
+                {tr("Choose a stable .osr replay up to 8 MiB.")}
+              </p>
+              <label className="field">
+                <span>{tr("Replay file")}</span>
+                <input
+                  ref={input}
+                  type="file"
+                  accept=".osr"
+                  aria-describedby={`${id}-help${error && !deleting ? ` ${id}-error` : ""}`}
+                  disabled={!writable || pending}
+                  onChange={(e) => {
+                    setFile(e.target.files?.[0] ?? null);
+                    setError("");
+                  }}
+                />
+              </label>
+              <label className="field">
+                <span>{tr("Replay description (optional)")}</span>
+                <input
+                  value={description}
+                  maxLength={500}
+                  disabled={!writable || pending}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </label>
+              <div className="actions">
+                <button type="submit" disabled={!writable || !file || pending}>
+                  {uploading
+                    ? progress === 100
+                      ? tr("Validating and saving…")
+                      : tr("Uploading…")
+                    : tr("Upload replay")}
+                </button>
+                {uploading && (
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => request.current?.abort()}
+                  >
+                    {tr("Cancel upload")}
+                  </button>
+                )}
+              </div>
+              {uploading && (
+                <progress
+                  aria-label={tr("Replay upload progress")}
+                  max={100}
+                  value={progress}
+                />
+              )}
+            </form>
+          )}
+          {status && <p role="status">{tr(status)}</p>}
+          {error && !deleting && (
+            <p id={`${id}-error`} role="alert" className="error-text">
+              {tr(error)}
+            </p>
+          )}
+        </div>
+      </dialog>
+      <dialog
+        ref={dialog}
+        className="replay-delete-dialog"
+        aria-labelledby={`${id}-delete-title`}
+        onCancel={(event) => {
+          if (pending) event.preventDefault();
+          else setDeleting(null);
+        }}
+        onClose={() => reload.current?.focus()}
+      >
+        {pending && deleting && operation === "delete" && <LoadingRegion />}
+        <h3 id={`${id}-delete-title`}>{tr("Delete replay?")}</h3>
+        <p className="replay-filename">{deleting?.filename}</p>
+        <p>
+          {tr(
+            "This removes the staff attachment. It does not change the beatmap or any result.",
+          )}
         </p>
-        <InfoNote>
-          <p className="notice small">
-            {tr(
-              "Replay player names are file contents, not verified account identities. Replays do not change registrations, Tiers or results.",
-            )}
-          </p>
-        </InfoNote>
-        {!open && (
-          <p className="notice">
-            {tr(
-              "Replay changes are allowed only after map selection is locked and before the Showcase deadline.",
-            )}
+        {deleting && error && (
+          <p role="alert" className="error-text">
+            {tr(error)}
           </p>
         )}
         <div className="actions">
           <button
             type="button"
             className="secondary"
+            disabled={pending}
             onClick={() => {
-              setError("");
-              void load();
+              dialog.current?.close();
+              setDeleting(null);
             }}
-            disabled={loading}
           >
-            {loading ? tr("Loading…") : tr("Reload replay list")}
+            {tr("Cancel")}
           </button>
-          <span className="small muted">
-            {items.length} / {REPLAY_ENTRY_LIMIT}
-          </span>
+          <button
+            type="button"
+            disabled={pending || !writable}
+            aria-busy={pending && operation === "delete"}
+            onClick={() => void remove()}
+          >
+            {tr("Delete replay")}
+          </button>
         </div>
-        {loaded && !items.length && (
-          <p className="muted">{tr("No replays attached.")}</p>
-        )}
-        <ul className="replay-list">
-          {items.map((item) => (
-            <li key={item.id} className="replay-item">
-              <div>
-                <strong className="replay-filename">{item.filename}</strong>
-                <p className="muted small">
-                  {`${(item.size / 1024).toFixed(1)} KiB`} · {item.uploaderName}{" "}
-                  (ID {item.uploaderId}) ·{" "}
-                  <time dateTime={new Date(item.createdAt).toISOString()}>
-                    {new Date(item.createdAt).toISOString()}
-                  </time>
-                </p>
-              </div>
-              {item.description && <p>{item.description}</p>}
-              <p className="small">
-                {tr("Player name in file")}:{" "}
-                <bdi>{item.summary.playerName}</bdi> · {item.summary.mode} ·{" "}
-                {tr("Mods")} {item.summary.mods} ·{" "}
-                {`stable ${item.summary.version}`}
-              </p>
-              <p className="small">
-                {item.verification === "matched"
-                  ? tr("Beatmap checksum matched")
-                  : tr("Unverified: official beatmap checksum unavailable")}
-              </p>
-              <code className="small replay-filename">
-                MD5 {item.summary.beatmapMd5}
-              </code>
-              <div className="actions">
-                <a className="button secondary" href={`${url}/${item.id}`}>
-                  {tr("Download replay")}
-                </a>
-                {writable && (
-                  <button
-                    type="button"
-                    className="secondary"
-                    disabled={pending}
-                    onClick={() => {
-                      setError("");
-                      setDeleting(item);
-                      dialog.current?.showModal();
-                    }}
-                  >
-                    {tr("Delete replay")}
-                  </button>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-        {canManage && (
-          <form onSubmit={upload} className="form-stack" aria-busy={pending}>
-            <InfoNote>
-              <p id={`${id}-help`} className="small muted">
-                {tr(
-                  "Stable .osr only (version 20140721 or later; no lazer). Up to 8 MiB per file and 10 files per map. Upload one file at a time.",
-                )}
-              </p>
-            </InfoNote>
-            <label className="field">
-              <span>{tr("Replay file")}</span>
-              <input
-                ref={input}
-                type="file"
-                accept=".osr"
-                aria-describedby={`${id}-help ${id}-error`}
-                disabled={!writable || pending}
-                onChange={(e) => {
-                  setFile(e.target.files?.[0] ?? null);
-                  setError("");
-                }}
-              />
-            </label>
-            <label className="field">
-              <span>{tr("Replay description (optional)")}</span>
-              <input
-                value={description}
-                maxLength={500}
-                disabled={!writable || pending}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </label>
-            <div className="actions">
-              <button type="submit" disabled={!writable || !file || pending}>
-                {uploading
-                  ? progress === 100
-                    ? tr("Validating and saving…")
-                    : tr("Uploading…")
-                  : tr("Upload replay")}
-              </button>
-              {uploading && (
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() => request.current?.abort()}
-                >
-                  {tr("Cancel upload")}
-                </button>
-              )}
-            </div>
-            {uploading && (
-              <progress
-                aria-label={tr("Replay upload progress")}
-                max={100}
-                value={progress}
-              />
-            )}
-          </form>
-        )}
-        {status && <p role="status">{tr(status)}</p>}
-        <p
-          id={`${id}-error`}
-          role={error ? "alert" : undefined}
-          className="error-text"
-        >
-          {error && !deleting && tr(error)}
-        </p>
-        <dialog
-          ref={dialog}
-          aria-labelledby={`${id}-delete-title`}
-          onCancel={(event) => {
-            if (pending) event.preventDefault();
-            else setDeleting(null);
-          }}
-          onClose={() => summary.current?.focus()}
-        >
-          {pending && deleting && operation === "delete" && <LoadingRegion />}
-          <h3 id={`${id}-delete-title`}>{tr("Delete replay?")}</h3>
-          <p className="replay-filename">{deleting?.filename}</p>
-          <p>
-            {tr(
-              "This removes the staff attachment. It does not change the beatmap or any result.",
-            )}
-          </p>
-          {deleting && error && (
-            <p role="alert" className="error-text">
-              {tr(error)}
-            </p>
-          )}
-          <div className="actions">
-            <button
-              type="button"
-              className="secondary"
-              disabled={pending}
-              onClick={() => {
-                dialog.current?.close();
-                setDeleting(null);
-              }}
-            >
-              {tr("Cancel")}
-            </button>
-            <button
-              type="button"
-              disabled={pending || !writable}
-              aria-busy={pending && operation === "delete"}
-              onClick={() => void remove()}
-            >
-              {tr("Delete replay")}
-            </button>
-          </div>
-        </dialog>
-      </div>
+      </dialog>
     </section>
   );
 }

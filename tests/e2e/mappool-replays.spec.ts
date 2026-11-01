@@ -83,6 +83,10 @@ test.describe("private replay workflow", () => {
       fullPage: true,
     });
     await page
+      .getByRole("dialog", { name: "Replays for NM1", exact: true })
+      .getByRole("button", { name: "Close", exact: true })
+      .click();
+    await page
       .getByLabel("Showcase deadline (your local time)", { exact: true })
       .fill("2030-01-01T12:00");
     await page
@@ -162,7 +166,9 @@ test.describe("private replay workflow", () => {
     await expect(dialog).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(dialog).not.toBeVisible();
-    await expect(page.getByRole("button", { name: /^Replays/ })).toBeFocused();
+    await expect(
+      page.getByRole("button", { name: "Reload replay list", exact: true }),
+    ).toBeFocused();
     await page
       .getByRole("button", { name: "Delete replay", exact: true })
       .click();
@@ -377,9 +383,9 @@ test.describe("private replay workflow", () => {
             ).violations,
           ).toEqual([]);
           await page.locator(".replay-item button").click();
-          await expect(page.locator(".replay-content dialog")).toBeVisible();
+          await expect(page.locator(".replay-delete-dialog")).toBeVisible();
           await page.keyboard.press("Escape");
-          await expect(trigger).toBeFocused();
+          await expect(page.locator(".replay-toolbar button")).toBeFocused();
           if (locale === "zh-Hans") {
             await page.evaluate(() => window.scrollTo(0, 0));
             await page.screenshot({
