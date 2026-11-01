@@ -260,6 +260,7 @@ export function EntryForm({
           <BeatmapPreview
             key={`${id}-${difficultyConfiguration}`}
             difficultyConfiguration={difficultyConfiguration}
+            showDetails={!entry}
             id={id}
             url={`${change.url}/preview`}
             onReady={setPreview}

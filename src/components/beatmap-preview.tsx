@@ -15,9 +15,11 @@ export function BeatmapPreview({
   url,
   onReady,
   difficultyConfiguration = null,
+  showDetails = true,
 }: {
   id: number;
   difficultyConfiguration?: DifficultyConfiguration | null;
+  showDetails?: boolean;
   url: string;
   onReady: (snapshot: BeatmapSnapshot | null) => void;
 }) {
@@ -71,6 +73,7 @@ export function BeatmapPreview({
       controller.abort();
     };
   }, [id, url, attempt, onReady, difficultyConfiguration]);
+  if (result?.snapshot && !showDetails) return null;
   return (
     <div
       aria-label={tr("Beatmap preview")}
