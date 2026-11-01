@@ -446,7 +446,8 @@ html[data-theme="dark"]
   box-shadow:
     inset 0 1px 6px #ffe4ff70,
     inset 0 -1px 5px #efb0f060,
-    0 3px 14px #b86be826;
+    0 0 12px #c79bff55,
+    0 6px 18px #b86be840;
 }
 .home-feature
   .home-entry-links
@@ -462,99 +463,444 @@ html[data-theme="dark"]
   }
 }
 
-/* Homepage uses the approved character composition, independent of the edition banner. */
-.home-person-feature::after {
-  display: none;
+/* Layered hero (direction C): base colour, nebula, ink mist and stars span the
+ * full width; the logo, entries and Liru sit in the page container, each
+ * positioned on its own so any artwork file can be replaced. */
+.home-layered-hero {
+  /* grows with the window, but leaves the next section on the first screen
+   * (#587) */
+  --home-hero-h: clamp(440px, calc(100svh - 210px), 560px);
+  --home-hero-fade: 72px;
+  background: #100d20;
 }
-/* The hero is 2:1 on wide screens, capped so the header, the entries and the
- * start of the next section share the first screen. The artwork is laid out on
- * a 2:1 stage that scales with the hero; when the cap applies, the stage keeps
- * the logo aligned with the page container and the sky fills the full width. */
-.home-person-feature {
-  --home-hero-h: min(50vw, max(26rem, 100svh - 16rem));
+.home-layered-hero::after {
+  /* bottom transition into the section below */
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 0;
+  height: var(--home-hero-fade);
+  background: linear-gradient(transparent, var(--color-background));
+  pointer-events: none;
 }
-.home-composition {
+.home-hero-backdrop {
   position: absolute;
   inset: 0;
+  z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  --home-stage-w: min(100%, 2 * var(--home-hero-h));
-  --home-stage-x: clamp(
-    0px,
-    max(3rem, (100% - 1240px) / 2) - 0.043788 * var(--home-stage-w),
-    100% - var(--home-stage-w)
-  );
 }
-.home-composition .home-layer {
+.home-hero-sky {
   position: absolute;
-  height: auto;
-  max-width: none;
+  /* margin covers the 18px drift plus the 1.2% breathing scale */
+  inset: -36px;
+  background: url("/branding/home-hero/nebula-v2-1600.webp") 70% 32% / cover
+    no-repeat;
+  animation: home-hero-drift 45s ease-in-out infinite alternate;
+  will-change: transform;
 }
-.home-layer-sky {
-  left: -0.701879%;
-  top: -1.89539%;
-  width: 102.632%;
-  filter: saturate(0.78) brightness(1.8);
+@media (min-width: 1601px) {
+  .home-hero-sky {
+    background-image: url("/branding/home-hero/nebula-v2-2560.webp");
+  }
 }
-.home-layer-ground {
-  left: calc(var(--home-stage-x) - 0.291 * var(--home-stage-w));
-  top: calc(0.892 * var(--home-hero-h));
-  width: calc(0.944 * var(--home-stage-w));
-}
-.home-composition-shade {
+.home-hero-sky::after {
+  /* keep the text side dark and calm */
+  content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
     90deg,
-    #0c0a1b 0%,
-    #0c0a1b99 43%,
-    transparent 100%
+    #100d20e6 0%,
+    #100d20b3 38%,
+    #100d2033 64%,
+    transparent 82%
   );
 }
-.home-layer-person {
-  left: calc(var(--home-stage-x) + 0.63 * var(--home-stage-w));
-  top: calc(0.28 * var(--home-hero-h));
-  width: calc(0.5397609 * var(--home-stage-w));
-  transform: perspective(1200px) rotateY(12deg);
+.home-hero-ink {
+  position: absolute;
+  right: -4%;
+  bottom: 4%;
+  width: min(62%, 980px);
+  height: auto;
+  opacity: 0.12;
 }
-.home-layer-logo {
-  left: calc(var(--home-stage-x) + 0.043788 * var(--home-stage-w));
-  top: calc(0.144727 * var(--home-hero-h));
-  width: calc(0.464545 * var(--home-stage-w));
+.home-hero-stars span,
+.home-hero-logo-stars span {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size, 2px);
+  height: var(--size, 2px);
+  border-radius: 50%;
+  background: #f1e8ff;
+  box-shadow: 0 0 5px #c4a8ff;
+  opacity: var(--tw-lo, 0.3);
+  animation: home-hero-twinkle var(--period, 6s) ease-in-out var(--delay)
+    infinite;
 }
-.home-layer-season {
-  left: calc(var(--home-stage-x) - 0.320428 * var(--home-stage-w));
-  top: calc(-0.0797239 * var(--home-hero-h));
-  width: calc(0.905268 * var(--home-stage-w));
-}
-.home-layer-katu {
-  left: calc(var(--home-stage-x) + 0.414881 * var(--home-stage-w));
-  top: calc(0.220044 * var(--home-hero-h));
-  width: calc(0.0468417 * var(--home-stage-w));
-}
-.home-person-feature .home-feature-inner {
+.home-layered-hero .home-feature-inner {
   position: relative;
+  z-index: 1;
   min-height: var(--home-hero-h);
-  align-items: end;
-  padding-block: 0 calc(0.08 * var(--home-hero-h));
+  display: flex;
+  align-items: center;
+  padding-block: 2.25rem calc(var(--home-hero-fade) - 0.5rem);
 }
-.home-person-feature .home-feature-left {
-  width: 40%;
+.home-layered-hero .home-feature-left {
+  width: 55%;
+  /* sits half a button lower than centred */
+  margin-top: 2rem;
   padding: 0;
+  gap: 1.5rem;
 }
-@media (max-width: 1000px) {
-  /* Narrow screens stack the full-width artwork above the entries. */
-  .home-person-feature .home-composition {
-    position: relative;
-    aspect-ratio: 2 / 1;
-    container-type: inline-size;
-    --home-hero-h: 50cqw;
+.home-hero-logo {
+  /* The OCLR, S11 and katu SVGs share one 1200x490 canvas; this box crops it
+   * to the artwork (x 0-1180, y 60-490) so the logo sizes like an image. */
+  position: relative;
+  width: min(100%, 480px);
+  aspect-ratio: 1180 / 430;
+  margin: 0;
+}
+.home-hero-logo-layer {
+  position: absolute;
+  top: -13.953%;
+  left: 0;
+  width: 101.695%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 1200 / 490;
+}
+/* Logo accents, lit from the upper right like Liru. The SVG files are
+ * untouched: OCLR keeps its own gradient and gets a thin neon edge; the
+ * sheen and the S11 colour use the SVGs' shapes as masks. */
+.home-hero-logo-oclr {
+  filter: drop-shadow(1.5px -1.5px 0 #ffffff38) drop-shadow(0 0 1px #e4cdffb3)
+    drop-shadow(0 0 8px #9b6cff55);
+}
+.home-hero-logo-sheen {
+  -webkit-mask: url("/branding/home-s11/oclr-layer.svg") 0 0 / 100% 100%
+    no-repeat;
+  mask: url("/branding/home-s11/oclr-layer.svg") 0 0 / 100% 100% no-repeat;
+  background: linear-gradient(
+    215deg,
+    #ffffff8c 0%,
+    #f1e6ff40 22%,
+    transparent 48%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  animation: home-hero-breathe 10s ease-in-out infinite;
+}
+.home-hero-logo-season {
+  filter: drop-shadow(1px -1px 0 #ffffff59) drop-shadow(0 0 1px #efe4ffcc)
+    drop-shadow(0 0 9px #a57bff80);
+}
+.home-hero-logo-season > span {
+  position: absolute;
+  inset: 0;
+  -webkit-mask: url("/branding/home-s11/season-layer.svg") 0 0 / 100% 100%
+    no-repeat;
+  mask: url("/branding/home-s11/season-layer.svg") 0 0 / 100% 100% no-repeat;
+  /* the gradient spans only the S11 glyphs (x 83.3-97.8 %, y 60.4-78.8 %
+   * of the canvas) */
+  background: linear-gradient(135deg, #f4eeff, #e6dbff 35%, #b89cff) 97.4% 74% /
+    14.5% 18.4% no-repeat;
+}
+.home-hero-logo-sparkle {
+  /* four-point star on the upper right of S11 */
+  position: absolute;
+  left: 98.5%;
+  top: 54%;
+  width: clamp(10px, 3.2%, 16px);
+  aspect-ratio: 1;
+  clip-path: polygon(
+    50% 0,
+    58% 42%,
+    100% 50%,
+    58% 58%,
+    50% 100%,
+    42% 58%,
+    0 50%,
+    42% 42%
+  );
+  background: radial-gradient(#fff 20%, #e3d2ff 55%, #b89cff);
+  opacity: 0.25;
+  transform: translate(-50%, -50%) scale(0.6);
+  animation: home-hero-sparkle 8s ease-in-out 2s infinite;
+}
+.home-hero-logo-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.home-hero-logo-stars span {
+  --size: 2px;
+  --period: 7s;
+  --tw-lo: 0.15;
+  --tw-hi: 0.6;
+}
+.home-hero-logo-katu {
+  position: absolute;
+  top: 2.326%;
+  left: 78.81%;
+  width: 8.475%;
+  height: auto;
+}
+.home-layered-hero .home-entry-links {
+  max-width: 500px;
+}
+.home-layered-hero .home-registration-label {
+  /* the narrower entry column must not split Chinese words (报名阶/段);
+   * English still wraps between words */
+  word-break: keep-all;
+}
+.home-hero-character {
+  /* A window onto the artwork: the image is taller than the hero, so only
+   * the head down to the hand on the fan (66 % of the image) shows above the
+   * 72px fade at the bottom. */
+  --home-liru-top: 34px;
+  --home-liru-float: 7px;
+  --home-liru-headroom: calc(var(--home-liru-float) + 6px);
+  --home-liru-h: calc(
+    (var(--home-hero-h) - var(--home-liru-top) - 72px) / 0.66
+  );
+  position: absolute;
+  /* the window starts a float height (plus a little) above the image so the
+   * ahoge and sprout are not clipped at the top of the float */
+  top: calc(var(--home-liru-top) - var(--home-liru-headroom));
+  padding-top: var(--home-liru-headroom);
+  bottom: 0;
+  right: 7%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 72px), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 72px), transparent);
+}
+.home-hero-character img {
+  display: block;
+  width: auto;
+  height: var(--home-liru-h);
+  aspect-ratio: 800 / 1430;
+  object-fit: contain;
+  object-position: top;
+  animation: home-hero-float 5.5s ease-in-out infinite;
+}
+.home-feature .home-entry-links :is(.home-contact, .home-registration-link) {
+  transition: transform 0.2s ease;
+}
+.home-feature
+  .home-entry-links
+  :is(.home-contact, .home-registration-link):is(:hover, :focus-visible) {
+  transform: translateY(-2px);
+}
+@keyframes home-hero-drift {
+  from {
+    transform: translate3d(-18px, -10px, 0) scale(1);
   }
-  .home-person-feature .home-feature-inner {
+  to {
+    transform: translate3d(18px, 10px, 0) scale(1.012);
+  }
+}
+@keyframes home-hero-float {
+  50% {
+    transform: translateY(calc(-1 * var(--home-liru-float)));
+  }
+}
+@keyframes home-hero-twinkle {
+  50% {
+    opacity: var(--tw-hi, 1);
+  }
+}
+@keyframes home-hero-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes home-hero-sparkle {
+  0%,
+  76%,
+  100% {
+    opacity: 0.25;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  86% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-sky,
+  .home-hero-stars span,
+  .home-hero-logo-stars span,
+  .home-hero-logo-sheen,
+  .home-hero-logo-sparkle,
+  .home-hero-character img {
+    animation: none;
+  }
+  .home-feature .home-entry-links :is(.home-contact, .home-registration-link) {
+    transition: none;
+    transform: none;
+  }
+}
+@media (max-width: 1439px) {
+  .home-layered-hero {
+    --home-hero-h: clamp(420px, calc(100svh - 210px), 540px);
+  }
+}
+@media (max-width: 1279px) {
+  .home-hero-character {
+    right: 1%;
+  }
+}
+@media (max-width: 1023px) {
+  .home-layered-hero {
+    --home-hero-h: 380px;
+  }
+  .home-layered-hero .home-feature-left {
+    /* leaves room for Liru's box on the right */
+    width: 56%;
+  }
+  .home-hero-character {
+    --home-liru-h: calc(var(--home-hero-h) * 1.3);
+    right: 0;
+  }
+}
+@media (max-width: 760px) {
+  /* Phones, figure-led: a light logo top left, Liru large from just below it
+   * to the bottom, and the entries stacked in the free space left of her
+   * head, ending just above the fan. Positions follow from Liru's size and
+   * two points in the artwork: her hair never reaches left of 37 % of the
+   * image width, and the fan starts at 41 % of its height. */
+  .home-layered-hero {
+    --home-hero-fade: 48px;
+    /* 75-80 % of the screen, but the next section stays on the first
+     * screen under the two-row phone header (#587) */
+    --home-phone-h: clamp(440px, min(80svh, calc(100svh - 240px)), 680px);
+    --home-phone-logo-w: min(50vw, 200px);
+    --home-phone-logo-bottom: calc(20px + var(--home-phone-logo-w) * 0.3644);
+    --home-phone-liru-h: clamp(500px, 154vw, 680px);
+    /* ahoge level with the logo's bottom edge */
+    --home-phone-liru-top: calc(
+      var(--home-phone-logo-bottom) + 26px - var(--home-phone-liru-h) * 0.02
+    );
+    /* her body (66 % across the image) at 72 % of the container width */
+    --home-phone-liru-x: calc(
+      (100vw - 40px) * 0.72 - var(--home-phone-liru-h) * 0.369
+    );
+  }
+  .home-layered-hero::after {
+    /* the older phone rule above hides .home-feature::after; this hero
+     * keeps its bottom fade */
+    display: block;
+  }
+  .home-layered-hero .home-feature-inner {
+    display: block;
     min-height: 0;
-    padding-block: 1.25rem 1.75rem;
+    height: var(--home-phone-h);
+    padding: 0;
   }
-  .home-person-feature .home-feature-left {
-    width: 100%;
+  .home-layered-hero .home-feature-left {
+    display: contents;
+  }
+  .home-hero-logo {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    z-index: 2;
+    width: var(--home-phone-logo-w);
+    opacity: 0.88;
+  }
+  /* S11 as a small badge: scaled from its own top-left corner */
+  .home-hero-logo-season {
+    transform: scale(0.72);
+    transform-origin: 83.3% 60.4%;
+  }
+  .home-hero-logo-sparkle {
+    left: 95.5%;
+  }
+  .home-hero-character {
+    --home-liru-h: var(--home-phone-liru-h);
+    --home-liru-float: 4px;
+    position: absolute;
+    top: calc(var(--home-phone-liru-top) - var(--home-liru-headroom));
+    right: -20px;
+    bottom: 0;
+    left: var(--home-phone-liru-x);
+    -webkit-mask-image: linear-gradient(#000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(#000 calc(100% - 56px), transparent);
+  }
+  .home-layered-hero .home-entry-links {
+    position: absolute;
+    left: 0;
+    /* ends 16px above the fan */
+    bottom: calc(
+      var(--home-phone-h) - var(--home-phone-liru-top) -
+        var(--home-phone-liru-h) * 0.41 + 16px
+    );
+    z-index: 2;
+    /* stops 14px short of her hair */
+    width: calc(
+      var(--home-phone-liru-x) + var(--home-phone-liru-h) * 0.207 - 14px
+    );
+    max-width: none;
+    gap: 0.4rem;
+  }
+  .home-layered-hero .home-contact-bar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+  }
+  /* compact, rounder, more translucent buttons without the arrow column */
+  .home-feature .home-entry-links :is(.home-contact, .home-registration-link) {
+    min-height: 30px;
+    padding: 0.2rem 0.6rem;
+    gap: 0.45rem;
+    font-size: 0.74rem;
+    line-height: 1.2;
+  }
+  .home-feature
+    .home-entry-links
+    :is(.home-contact, .home-registration-link)::before {
+    transform: skewX(-10deg);
+    border-radius: 9px;
+    background: linear-gradient(120deg, #d8a5ec30, #2720352a 40%, #ca95d724);
+  }
+  .home-feature
+    .home-entry-links
+    :is(.home-contact, .home-registration-link)
+    > span:last-child {
+    display: none;
+  }
+  .home-layered-hero .home-entry-icon {
+    flex-basis: 0.95rem;
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+  .home-layered-hero .home-registration-label {
+    /* the deadline goes on its own line in the narrow button */
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .home-layered-hero .home-registration-divider {
+    display: none;
+  }
+  .home-layered-hero
+    .home-registration-label
+    > span:last-child:not(:first-child) {
+    font-size: 0.66rem;
+    font-weight: 500;
+    opacity: 0.85;
+  }
+  .home-hero-sky {
+    background-position: 74% 30%;
+  }
+  .home-hero-ink {
+    width: 140%;
+    right: -40%;
+    bottom: 30%;
   }
 }
