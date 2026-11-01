@@ -90,7 +90,7 @@ describe("shared public and staff BWS display", () => {
     expect(html).not.toContain("BW-PP");
     expect(html).toContain("Badge eligibility pending staff review");
   });
-  it("shows the provider badge count and artwork left of OII", () => {
+  it("shows the weighted badge count and total left of OII", () => {
     const profile = normalizeOsuProfile(
       {
         id: 1,
@@ -130,11 +130,16 @@ describe("shared public and staff BWS display", () => {
         />
       </NextIntlClientProvider>,
     );
-    expect(html).toContain(">Badges<");
-    expect(html).toContain('<strong class="bws-value">2</strong>');
-    expect(html).toContain("synthetic@2x.png");
-    expect(html).toContain("Synthetic tournament");
-    expect(html).toContain("Synthetic contributor");
-    expect(html.indexOf(">Badges<")).toBeLessThan(html.indexOf(">OII<"));
+    expect(html).toContain(">Weighted badge<");
+    expect(html).toContain(
+      '<strong class="bws-value">1<span class="bws-value-total">/2</span></strong>',
+    );
+    // The ribbons moved to the profile body; the card no longer repeats them.
+    expect(html).not.toContain("synthetic@2x.png");
+    expect(html).not.toContain("Synthetic tournament");
+    expect(html).not.toContain("Synthetic contributor");
+    expect(html.indexOf(">Weighted badge<")).toBeLessThan(
+      html.indexOf(">OII<"),
+    );
   });
 });
