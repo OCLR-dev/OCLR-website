@@ -27,6 +27,8 @@ async function Issue271Page({
     replayer: tr("Replayer"),
     referee: tr("Referee"),
     streamer: tr("Streamer"),
+    commentator: tr("Commentator"),
+    mapper: tr("mapper"),
     designer: tr("Designer"),
     developer: tr("Developer"),
   };

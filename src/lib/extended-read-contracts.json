@@ -230,6 +230,20 @@
       "required": ["id", "name", "source", "maps"],
       "additionalProperties": false
     },
+    "Read0639a6baef8c": {
+      "anyOf": [
+        { "type": "string", "const": "referee" },
+        { "type": "string", "const": "streamer" },
+        { "type": "string", "const": "mapper" },
+        { "type": "string", "const": "admin" },
+        { "type": "string", "const": "mappooler" },
+        { "type": "string", "const": "developer" },
+        { "type": "string", "const": "tester" },
+        { "type": "string", "const": "replayer" },
+        { "type": "string", "const": "designer" },
+        { "type": "string", "const": "commentator" }
+      ]
+    },
     "Read06dce12cb120": {
       "anyOf": [
         { "type": "null", "x-oclr-undefined": true },
@@ -3526,18 +3540,6 @@
       "type": "array",
       "items": { "$ref": "#/$defs/Read897ffb1214dd" }
     },
-    "Readeb08c8daa7ee": {
-      "anyOf": [
-        { "type": "string", "const": "referee" },
-        { "type": "string", "const": "streamer" },
-        { "type": "string", "const": "admin" },
-        { "type": "string", "const": "mappooler" },
-        { "type": "string", "const": "developer" },
-        { "type": "string", "const": "tester" },
-        { "type": "string", "const": "replayer" },
-        { "type": "string", "const": "designer" }
-      ]
-    },
     "Readed79fffe39ce": {
       "type": "object",
       "properties": {
@@ -6789,7 +6791,7 @@
                   "editionSlug": {
                     "anyOf": [{ "type": "null" }, { "type": "string" }]
                   },
-                  "role": { "$ref": "#/$defs/Readeb08c8daa7ee" },
+                  "role": { "$ref": "#/$defs/Read0639a6baef8c" },
                   "grantedBy": { "type": "number" },
                   "grantedAt": {
                     "type": "string",
@@ -7164,7 +7166,7 @@
       "items": {
         "type": "object",
         "properties": {
-          "role": { "$ref": "#/$defs/Readeb08c8daa7ee" },
+          "role": { "$ref": "#/$defs/Read0639a6baef8c" },
           "editionSlug": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
         },
         "required": ["role", "editionSlug"],

@@ -12,6 +12,7 @@ import {
   staffAccess,
   permits,
 } from "../../src/lib/auth/staff";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { publicStaff } from "../../src/lib/public-staff";
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 496001, username: "Synthetic Admin" };
@@ -58,50 +59,55 @@ describe.skipIf(!url)("atomic staff role sets", () => {
     await closeDb();
     vi.unstubAllEnvs();
   });
-  it.each([null, "test-cup"])(
-    "manages Designer in scope %s without granting capabilities",
-    async (scope) => {
+  it.each(
+    ["designer", "commentator", "mapper"].flatMap((role) =>
+      [null, "test-cup"].map((scope) => ({ role, scope })),
+    ),
+  )(
+    "manages $role in scope $scope without granting capabilities",
+    async ({ role, scope }) => {
       const actor = scope ? scoped : admin;
       const { grants } = await changeStaffRoleSet(
         actor,
-        command(["designer"], [], scope),
+        command([role], [], scope),
       );
-      const designer = grants[0];
-      expect(designer).toMatchObject({
-        role: "designer",
+      const grant = grants[0];
+      expect(grant).toMatchObject({
+        role,
         editionSlug: scope,
         aboutPublished: true,
       });
       expect((await publicStaff())[0].roles[0]).toMatchObject({
-        role: "designer",
+        role,
         edition: scope ? { slug: scope } : null,
       });
       const access = await staffAccess(member);
+      expect(extendedSchemas.staffAccess.safeParse(access).success).toBe(true);
       for (const capability of capabilities) {
         expect(permits(access, capability, "test-cup")).toBe(false);
         expect(canRead(access, capability, "test-cup")).toBe(false);
       }
       await expect(
-        changeStaffRoleSet(member, command(["admin"], [designer.id], scope)),
+        changeStaffRoleSet(member, command(["admin"], [grant.id], scope)),
       ).rejects.toMatchObject({ status: 403 });
       await changeStaffRole(actor, {
         action: "visibility",
         confirmed: true,
-        grantId: designer.id,
+        grantId: grant.id,
         expectedPublished: true,
         published: false,
       });
       expect(await publicStaff()).toEqual([]);
       const updated = await changeStaffRoleSet(
         actor,
-        command(["designer", "referee"], [designer.id], scope),
+        command([role, "referee"], [grant.id], scope),
       );
-      expect(updated.grants.find((g) => g.role === "designer")).toMatchObject({
-        id: designer.id,
+      expect(updated.grants.find((g) => g.role === role)).toMatchObject({
+        id: grant.id,
         aboutPublished: false,
       });
       await expect(
-        changeStaffRoleSet(actor, command([], [designer.id], scope)),
+        changeStaffRoleSet(actor, command([], [grant.id], scope)),
       ).rejects.toMatchObject({ status: 409 });
       await changeStaffRoleSet(
         actor,
@@ -122,7 +128,7 @@ describe.skipIf(!url)("atomic staff role sets", () => {
         .from(staffRoleEvents)
         .where(eq(staffRoleEvents.targetId, member.osuId));
       expect(
-        events.filter((e) => e.role === "designer").map((e) => e.action),
+        events.filter((e) => e.role === role).map((e) => e.action),
       ).toEqual(["grant", "hide_profile", "revoke"]);
       expect(events.find((e) => e.action === "grant")?.after).toMatchObject({
         aboutPublished: true,
@@ -130,30 +136,33 @@ describe.skipIf(!url)("atomic staff role sets", () => {
       expect(events.every((e) => e.actorId === actor.osuId)).toBe(true);
     },
   );
-  it("denies cross-edition and global Designer assignments by scoped Admins", async () => {
-    for (const scope of [null, "other-test"])
-      await expect(
-        changeStaffRoleSet(scoped, command(["designer"], [], scope)),
-      ).rejects.toMatchObject({ status: 403 });
-    const grant = await changeStaffRole(admin, {
-      action: "grant",
-      confirmed: true,
-      userId: member.osuId,
-      role: "designer",
-      editionSlug: "other-test",
-    });
-    await expect(
-      changeStaffRole(scoped, {
-        action: "revoke",
+  it.each(["designer", "commentator", "mapper"])(
+    "denies cross-edition and global %s assignments by scoped Admins",
+    async (role) => {
+      for (const scope of [null, "other-test"])
+        await expect(
+          changeStaffRoleSet(scoped, command([role], [], scope)),
+        ).rejects.toMatchObject({ status: 403 });
+      const grant = await changeStaffRole(admin, {
+        action: "grant",
         confirmed: true,
-        grantId: grant.id,
-      }),
-    ).rejects.toMatchObject({ status: 403 });
-    expect((await staffAccess(member))[0]).toMatchObject({
-      role: "designer",
-      editionSlug: "other-test",
-    });
-  });
+        userId: member.osuId,
+        role,
+        editionSlug: "other-test",
+      });
+      await expect(
+        changeStaffRole(scoped, {
+          action: "revoke",
+          confirmed: true,
+          grantId: grant.id,
+        }),
+      ).rejects.toMatchObject({ status: 403 });
+      expect((await staffAccess(member))[0]).toMatchObject({
+        role,
+        editionSlug: "other-test",
+      });
+    },
+  );
   it("adds multiple roles, edits one scope, preserves retained visibility and revokes live access", async () => {
     const initial = await changeStaffRoleSet(
       scoped,

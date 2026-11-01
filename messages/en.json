@@ -3679,6 +3679,8 @@
     "m6b36feae636d": "Checking history…",
     "m942087cc2d41": "Retry",
     "m7e5fb8fbfb69": "Original BID",
-    "mde90b11376a4": "No historical records found."
+    "mde90b11376a4": "No historical records found.",
+    "commentator": "Commentator",
+    "mapper": "Mapper"
   }
 }

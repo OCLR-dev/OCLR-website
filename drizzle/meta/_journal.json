@@ -477,6 +477,13 @@
       "when": 1793497829230,
       "tag": "0067_referee_mp_auto_score",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1793527282881,
+      "tag": "0068_commentator_mapper_roles",
+      "breakpoints": true
     }
   ]
 }
