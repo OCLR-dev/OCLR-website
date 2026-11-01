@@ -56,12 +56,19 @@ export function TournamentOverviewContents({
     const context = tournament?.querySelector<HTMLElement>(".event-context");
     if (header) observer.observe(header);
     if (context) observer.observe(context);
+    const visibility = new MutationObserver(scheduleUpdate);
+    if (header)
+      visibility.observe(header, {
+        attributes: true,
+        attributeFilter: ["data-scroll-hidden"],
+      });
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("resize", scheduleUpdate);
     scheduleUpdate();
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      visibility.disconnect();
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
     };

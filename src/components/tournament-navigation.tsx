@@ -166,7 +166,10 @@ export function TournamentShell({
     // Header controls can wrap with locale, appearance or viewport changes.
     // Share the measured stack with anchors, the rule index and mobile menu.
     const update = () => {
-      const headerHeight = header.getBoundingClientRect().height;
+      const hidden =
+        window.matchMedia("(max-width: 760px)").matches &&
+        header.dataset.scrollHidden === "true";
+      const headerHeight = hidden ? 0 : header.getBoundingClientRect().height;
       node.style.setProperty("--tournament-header-height", `${headerHeight}px`);
       node.style.setProperty(
         "--tournament-scroll-offset",
@@ -177,7 +180,15 @@ export function TournamentShell({
     const observer = new ResizeObserver(update);
     observer.observe(header);
     observer.observe(bar);
-    return () => observer.disconnect();
+    const visibility = new MutationObserver(update);
+    visibility.observe(header, {
+      attributes: true,
+      attributeFilter: ["data-scroll-hidden"],
+    });
+    return () => {
+      observer.disconnect();
+      visibility.disconnect();
+    };
   }, [privateView]);
   if (privateView)
     return (

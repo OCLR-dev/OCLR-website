@@ -12,6 +12,16 @@
   display: none;
 }
 @media (max-width: 760px) {
+  .site-header {
+    transition: transform 180ms ease-out;
+  }
+  .site-header[data-scroll-hidden="true"] {
+    transform: translateY(calc(-100% - 1px));
+    pointer-events: none;
+  }
+  .public-tournament .event-context {
+    transition: top 180ms ease-out;
+  }
   .site-header .nav-wrap,
   html[data-appearance] .themed-site .site-header .nav-wrap {
     position: relative;
@@ -161,5 +171,12 @@
     background: #0004;
     box-shadow: none;
     transform: none;
+  }
+}
+
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) {
+  .site-header,
+  .public-tournament .event-context {
+    transition: none;
   }
 }
