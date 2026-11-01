@@ -132,6 +132,7 @@ export async function changeStaffRole(actor: User, input: unknown) {
           role: c.role,
           editionSlug: c.editionSlug,
           grantedBy: actor.osuId,
+          aboutPublished: true,
         })
         .returning();
       await tx.insert(staffRoleEvents).values({
@@ -227,7 +228,7 @@ const roleSetCommand = z
   })
   .strict();
 
-/** Replace one user's roles in one scope, never their visibility or other scopes. */
+/** New roles are public; retained roles keep their visibility within this scope. */
 export async function changeStaffRoleSet(actor: User, input: unknown) {
   await capabilityScope(actor, "manage_staff");
   const parsed = roleSetCommand.safeParse(input);
@@ -309,6 +310,7 @@ export async function changeStaffRoleSet(actor: User, input: unknown) {
           role,
           editionSlug: c.editionSlug,
           grantedBy: actor.osuId,
+          aboutPublished: true,
         })
         .returning();
       await tx.insert(staffRoleEvents).values({

@@ -23,6 +23,9 @@ test.describe("staff multi-role editing (#260)", () => {
       .getByRole("checkbox", { name: "Referee", exact: true })
       .check();
     await page.getByRole("button", { name: "Review role grant" }).click();
+    await expect(page.getByRole("dialog")).toContainText(
+      "New roles will be public on About.",
+    );
     await page.getByRole("button", { name: "Confirm", exact: true }).click();
     const group = page.locator(".staff-role-group").filter({
       has: page.getByRole("heading", {
@@ -31,6 +34,27 @@ test.describe("staff multi-role editing (#260)", () => {
       }),
     });
     await expect(group).toHaveCount(1);
+    await group.locator(".staff-role-publication > summary").click();
+    await expect(
+      group.getByRole("button", { name: "Hide from About", exact: true }),
+    ).toHaveCount(2);
+    const publicPage = await context.newPage();
+    await publicPage.goto("/about");
+    const publicProfile = (section: string) =>
+      publicPage.locator(`${section} .public-staff-list`).getByRole("link", {
+        name: `Synthetic Player ${target}`,
+        exact: true,
+      });
+    await expect(publicProfile("#pooler")).toBeVisible();
+    await expect(publicProfile("#referee")).toBeVisible();
+    await group
+      .locator(".staff-role-row")
+      .filter({ has: page.locator("strong", { hasText: /^Mappooler$/ }) })
+      .getByRole("button", { name: "Hide from About", exact: true })
+      .click();
+    await expect(
+      group.getByRole("button", { name: "Show on About", exact: true }),
+    ).toHaveCount(1);
     await expect(group.locator(".staff-role-editor")).not.toHaveAttribute(
       "open",
       "",
@@ -55,6 +79,11 @@ test.describe("staff multi-role editing (#260)", () => {
     await page.getByRole("button", { name: "Confirm", exact: true }).click();
     await expect(page.getByRole("dialog")).not.toBeVisible();
     await expect(group.locator(".staff-saved-roles")).toContainText("Tester");
+    await publicPage.reload();
+    await expect(publicProfile("#pooler")).toHaveCount(0);
+    await expect(publicProfile("#referee")).toHaveCount(0);
+    await expect(publicProfile("#tester")).toBeVisible();
+    await publicPage.close();
     await page.reload();
     await group.locator(".staff-role-editor > summary").click();
     await expect(

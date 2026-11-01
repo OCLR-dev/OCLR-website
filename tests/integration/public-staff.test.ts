@@ -38,7 +38,7 @@ function visibility(
     confirmed: true,
   };
 }
-describe.skipIf(!url)("explicit public Staff visibility", () => {
+describe.skipIf(!url)("public Staff visibility", () => {
   beforeEach(async () => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
@@ -59,14 +59,14 @@ describe.skipIf(!url)("explicit public Staff visibility", () => {
     await closeDb();
     vi.unstubAllEnvs();
   });
-  it("defaults private, deduplicates only approved active grants and withholds unpublished scopes", async () => {
+  it("defaults public, deduplicates active grants and withholds hidden or unpublished scopes", async () => {
     const map = await grant(member.osuId, "mappooler");
     const ref = await grant(member.osuId, "referee");
     const hidden = await grant(member.osuId, "admin", "private-cup");
-    expect(map.aboutPublished).toBe(false);
-    expect(await publicStaff()).toEqual([]);
-    await changeStaffRole(admin, visibility(map.id, true));
-    await changeStaffRole(admin, visibility(hidden.id, true));
+    expect(map.aboutPublished).toBe(true);
+    expect(hidden.aboutPublished).toBe(true);
+    expect((await publicStaff())[0].roles).toHaveLength(2);
+    await changeStaffRole(admin, visibility(ref.id, false));
     expect(await publicStaff()).toEqual([
       {
         ...member,
@@ -99,18 +99,14 @@ describe.skipIf(!url)("explicit public Staff visibility", () => {
       countryCode: "TW",
       privateContact: "NEVER_PUBLIC",
     } as unknown as import("../../src/lib/osu-profile-model").OsuUserProfile;
-    await db()
-      .insert(userProfileCache)
-      .values({
-        osuId: member.osuId,
-        mode: "osu",
-        profile,
-        attemptedAt: new Date(),
-        retryAt: new Date(),
-      });
-    const map = await grant(member.osuId, "mappooler");
-    expect(await publicStaff()).toEqual([]);
-    await changeStaffRole(admin, visibility(map.id, true));
+    await db().insert(userProfileCache).values({
+      osuId: member.osuId,
+      mode: "osu",
+      profile,
+      attemptedAt: new Date(),
+      retryAt: new Date(),
+    });
+    await grant(member.osuId, "mappooler");
     expect((await publicStaff())[0].countryCode).toBe("TW");
     expect(JSON.stringify(await publicStaff())).not.toContain("NEVER_PUBLIC");
     await db().execute(sql`UPDATE user_profile_cache SET error_status=404`);
@@ -119,6 +115,7 @@ describe.skipIf(!url)("explicit public Staff visibility", () => {
   it("enforces permission scope, conflicts and atomic server-derived audit events", async () => {
     await grant(scoped.osuId, "admin", "private-cup");
     const map = await grant(member.osuId, "mappooler");
+    await changeStaffRole(admin, visibility(map.id, false));
     for (const actor of [scoped, member, player])
       await expect(
         changeStaffRole(actor, visibility(map.id, true)),
