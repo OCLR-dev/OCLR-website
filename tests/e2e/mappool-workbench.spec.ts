@@ -150,27 +150,86 @@ test.describe("private Pooler/Tester selection workbench", () => {
         exact: true,
       });
       for (const round of plannedRounds)
-        await expect(intent.getByText(new RegExp(round.name))).toBeVisible();
-      await intent
-        .getByRole("button", { name: "Edit rounds", exact: true })
-        .click();
-      await intent
+        await expect(
+          intent.getByRole("button", { name: /^Intended rounds:/ }),
+        ).toContainText(round.name);
+      const compactCard = candidate.locator(".map-browse-card--band");
+      const compactHeight = (await compactCard.boundingBox())!.height;
+      await intent.getByRole("button", { name: /^Intended rounds:/ }).click();
+      const roundPicker = intent.getByRole("dialog", {
+        name: "Intended rounds (multiple)",
+        exact: true,
+      });
+      await expect(roundPicker).toBeVisible();
+      expect((await compactCard.boundingBox())!.height).toBe(compactHeight);
+      expect(
+        (
+          await new AxeBuilder({ page })
+            .include("[popover]:popover-open")
+            .analyze()
+        ).violations,
+      ).toEqual([]);
+      await expect(roundPicker.getByRole("checkbox").first()).toBeFocused();
+      const pickerBox = await roundPicker.boundingBox();
+      expect(pickerBox!.x).toBeGreaterThanOrEqual(0);
+      expect(pickerBox!.x + pickerBox!.width).toBeLessThanOrEqual(
+        page.viewportSize()!.width,
+      );
+      expect(pickerBox!.y + pickerBox!.height).toBeLessThanOrEqual(
+        page.viewportSize()!.height,
+      );
+      for (const name of ["Save", "Cancel"]) {
+        const actionBox = await roundPicker
+          .getByRole("button", { name, exact: true })
+          .boundingBox();
+        expect(actionBox!.y + actionBox!.height).toBeLessThanOrEqual(
+          pickerBox!.y + pickerBox!.height,
+        );
+      }
+      await roundPicker
+        .getByRole("checkbox", { name: new RegExp(plannedRounds[1].name) })
+        .uncheck();
+      await page.keyboard.press("Escape");
+      await expect(roundPicker).not.toBeVisible();
+      await intent.getByRole("button", { name: /^Intended rounds:/ }).click();
+      await expect(
+        roundPicker.getByRole("checkbox", {
+          name: new RegExp(plannedRounds[1].name),
+        }),
+      ).toBeChecked();
+      await roundPicker
         .getByRole("checkbox", { name: new RegExp(plannedRounds[1].name) })
         .uncheck();
       await intent.getByRole("button", { name: "Save", exact: true }).click();
       await expect(
-        intent.getByRole("button", { name: "Edit rounds", exact: true }),
+        intent.getByRole("button", { name: /^Intended rounds:/ }),
       ).toBeFocused();
       await expect(
-        intent.getByText(new RegExp(plannedRounds[1].name)),
-      ).toHaveCount(0);
+        intent.getByRole("button", { name: /^Intended rounds:/ }),
+      ).not.toContainText(plannedRounds[1].name);
+      await intent.getByRole("button", { name: /^Intended rounds:/ }).click();
+      await roundPicker
+        .getByRole("button", { name: "Clear selection", exact: true })
+        .click();
+      await roundPicker
+        .getByRole("button", { name: "Cancel", exact: true })
+        .click();
+      await expect(roundPicker).not.toBeVisible();
+      await intent.getByRole("button", { name: /^Intended rounds:/ }).click();
+      await expect(
+        roundPicker.getByRole("checkbox", {
+          name: new RegExp(plannedRounds[0].name),
+        }),
+      ).toBeChecked();
+      await page.mouse.click(2, 2);
+      await expect(roundPicker).not.toBeVisible();
       await page.reload();
       await expect(
-        intent.getByText(new RegExp(plannedRounds[0].name)),
-      ).toBeVisible();
+        intent.getByRole("button", { name: /^Intended rounds:/ }),
+      ).toContainText(plannedRounds[0].name);
       await expect(
-        intent.getByText(new RegExp(plannedRounds[1].name)),
-      ).toHaveCount(0);
+        intent.getByRole("button", { name: /^Intended rounds:/ }),
+      ).not.toContainText(plannedRounds[1].name);
 
       expect(
         (
@@ -646,6 +705,28 @@ test.describe("private Pooler/Tester selection workbench", () => {
           style: "header { visibility: hidden !important; }",
           path: `/tmp/oclr-workbench-card-${isMobile ? "mobile" : "desktop"}-${theme}.png`,
         });
+        await previewCard.getByRole("button", { name: /^指定輪次:/ }).click();
+        const previewPicker = previewCard.getByRole("dialog");
+        await expect(previewPicker).toBeVisible();
+        await expect(
+          previewPicker.getByRole("button", { name: "儲存", exact: true }),
+        ).toBeVisible();
+        const optionsBox = await previewPicker
+          .locator("fieldset")
+          .locator("..")
+          .boundingBox();
+        const saveBox = await previewPicker
+          .getByRole("button", { name: "儲存", exact: true })
+          .boundingBox();
+        expect(optionsBox!.y + optionsBox!.height).toBeLessThanOrEqual(
+          saveBox!.y,
+        );
+        await previewPicker.screenshot({
+          path: `/tmp/oclr-rounds-dropdown-${isMobile ? "mobile" : "desktop"}-${theme}.png`,
+        });
+        await previewPicker
+          .getByRole("button", { name: "取消", exact: true })
+          .click();
       }
       await poolerPage.close();
       for (const theme of ["light", "dark"]) {

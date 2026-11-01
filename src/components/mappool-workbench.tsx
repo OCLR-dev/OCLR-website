@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type {
   CandidateComments,
@@ -549,13 +549,15 @@ function CandidateRounds({
   onChange: () => Promise<void>;
 }) {
   const tr = useAppTranslations();
+  const pickerId = useId();
   const [editing, setEditing] = useState(false),
     [draft, setDraft] = useState(candidate.roundIds),
     [expected, setExpected] = useState(candidate.roundIds);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const pending = useRef(false);
-  const region = useRef<HTMLDivElement>(null);
+  const restoreFocus = useRef(false);
+  const picker = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const roundNames = candidate.roundIds.length
     ? candidate.roundIds
@@ -563,97 +565,159 @@ function CandidateRounds({
         .filter(Boolean)
         .join(" · ")
     : tr("Unassigned");
-  const wasEditing = useRef(false);
   useEffect(() => {
-    if (busy) return;
-    if (editing)
-      region.current?.querySelector<HTMLInputElement>("input")?.focus();
-    else if (wasEditing.current) trigger.current?.focus();
-    wasEditing.current = editing;
+    if (!editing) return;
+    function position() {
+      const panel = picker.current;
+      const button = trigger.current;
+      if (!panel || !button) return;
+      const rect = button.getBoundingClientRect();
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      panel.style.width = `${Math.min(360, width - 24)}px`;
+      panel.style.left = `${Math.max(12, Math.min(rect.left, width - panel.offsetWidth - 12))}px`;
+      const below = height - rect.bottom - 12;
+      const above = rect.top - 12;
+      const opensBelow =
+        below >= Math.min(panel.scrollHeight, 240) || below >= above;
+      panel.style.maxHeight = `${Math.max(0, Math.min(360, opensBelow ? below : above))}px`;
+      panel.style.top = `${opensBelow ? rect.bottom + 4 : Math.max(12, rect.top - panel.offsetHeight - 4)}px`;
+    }
+    position();
+    picker.current
+      ?.querySelector<HTMLElement>("input, button")
+      ?.focus({ preventScroll: true });
+    window.addEventListener("resize", position);
+    window.addEventListener("scroll", position);
+    return () => {
+      window.removeEventListener("resize", position);
+      window.removeEventListener("scroll", position);
+    };
+  }, [editing]);
+  useEffect(() => {
+    if (!editing && !busy && restoreFocus.current) {
+      trigger.current?.focus({ preventScroll: true });
+      restoreFocus.current = false;
+    }
   }, [editing, busy]);
+  function close() {
+    restoreFocus.current = true;
+    picker.current?.hidePopover();
+    setEditing(false);
+  }
   return (
     <div
       role="group"
-      ref={region}
       className={styles.candidateRounds}
       aria-label={tr("Intended rounds")}
     >
-      {editing ? (
-        <form
-          onSubmit={async (event) => {
-            event.preventDefault();
-            if (pending.current) return;
-            pending.current = true;
-            setBusy(true);
-            setError("");
-            try {
-              await request(base, {
-                action: "assign_rounds",
-                candidateId: candidate.id,
-                roundIds: draft,
-                expectedRoundIds: expected,
-              });
-              setEditing(false);
-              await onChange();
-            } catch (e) {
-              setError((e as Error).message);
-            } finally {
-              pending.current = false;
-              setBusy(false);
-            }
-          }}
-        >
-          <RoundChoices
-            rounds={rounds}
-            value={draft}
-            onChange={setDraft}
+      {writable ? (
+        <>
+          <button
+            ref={trigger}
+            type="button"
+            className={styles.roundSelectTrigger}
+            popoverTarget={pickerId}
+            aria-label={`${tr("Intended rounds")}: ${roundNames}`}
+            aria-haspopup="dialog"
+            aria-expanded={editing}
+            aria-controls={pickerId}
+            title={roundNames}
             disabled={busy}
-          />
-          <div className={styles.commentActions}>
-            <button disabled={busy}>{tr("Save")}</button>
-            <button
-              type="button"
-              className="secondary"
-              disabled={busy}
-              onClick={() => {
-                setEditing(false);
-                setError("");
-              }}
+            onClick={() => {
+              if (picker.current?.matches(":popover-open")) return;
+              setDraft(candidate.roundIds);
+              setExpected(candidate.roundIds);
+              setError("");
+            }}
+          >
+            <span>{roundNames}</span>
+            <svg
+              viewBox="0 0 12 12"
+              width="12"
+              height="12"
+              aria-hidden="true"
+              focusable="false"
             >
-              {tr("Cancel")}
-            </button>
+              <path
+                d="m3 4.5 3 3 3-3"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <div
+            ref={picker}
+            id={pickerId}
+            popover="auto"
+            role="dialog"
+            aria-label={tr("Intended rounds (multiple)")}
+            className={styles.roundPopover}
+            onToggle={(event) =>
+              setEditing(event.currentTarget.matches(":popover-open"))
+            }
+          >
+            {editing && (
+              <form
+                onSubmit={async (event) => {
+                  event.preventDefault();
+                  if (pending.current) return;
+                  pending.current = true;
+                  setBusy(true);
+                  setError("");
+                  try {
+                    await request(base, {
+                      action: "assign_rounds",
+                      candidateId: candidate.id,
+                      roundIds: draft,
+                      expectedRoundIds: expected,
+                    });
+                    await onChange();
+                    close();
+                  } catch (e) {
+                    setError((e as Error).message);
+                  } finally {
+                    pending.current = false;
+                    setBusy(false);
+                  }
+                }}
+              >
+                <div className={styles.roundPopoverOptions}>
+                  <RoundChoices
+                    rounds={rounds}
+                    value={draft}
+                    onChange={setDraft}
+                    disabled={busy}
+                  />
+                </div>
+                <div className={styles.commentActions}>
+                  <button disabled={busy}>{tr("Save")}</button>
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={busy}
+                    onClick={close}
+                  >
+                    {tr("Cancel")}
+                  </button>
+                </div>
+                {busy && <p role="status">{tr("Working…")}</p>}
+                {error && (
+                  <p className="error" role="alert">
+                    {tr(error)}
+                  </p>
+                )}
+              </form>
+            )}
           </div>
-        </form>
+        </>
       ) : (
-        <div className={styles.roundSummary}>
-          <p className="small" title={roundNames}>
-            <strong>{tr("Intended rounds")}</strong>
-            {" · "}
-            {roundNames}
-          </p>
-          {writable && (
-            <button
-              type="button"
-              className="secondary"
-              disabled={busy}
-              ref={trigger}
-              onClick={() => {
-                setDraft(candidate.roundIds);
-                setExpected(candidate.roundIds);
-                setError("");
-                setEditing(true);
-              }}
-            >
-              {tr("Edit rounds")}
-            </button>
-          )}
-        </div>
-      )}
-      {busy && <p role="status">{tr("Working…")}</p>}
-      {error && (
-        <p className="error" role="alert">
-          {tr(error)}
-        </p>
+        <span className="small" title={roundNames}>
+          {roundNames}
+        </span>
       )}
     </div>
   );

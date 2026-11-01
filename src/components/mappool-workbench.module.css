@@ -257,21 +257,80 @@
   display: grid;
   gap: 0.75rem;
 }
-.roundSummary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  align-items: baseline;
-}
-.roundSummary p {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-.roundSummary button,
 .candidateRounds button {
   min-height: 32px;
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
+}
+.workbenchCard:global(.map-browse-card--band) .roundSelectTrigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 100%;
+  border: 1px solid var(--site-border);
+  border-radius: 0.5rem;
+  color: var(--site-foreground);
+  background: var(--site-surface);
+  box-shadow: none;
+}
+.roundSelectTrigger > span {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.roundSelectTrigger > svg {
+  flex: none;
+}
+.roundPopover {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 0.85rem;
+  overflow: hidden;
+  border: 1px solid var(--site-border);
+  border-radius: 0.75rem;
+  background: var(--site-surface);
+  color: var(--site-foreground);
+  box-shadow: 0 0.75rem 2rem var(--site-shadow);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.roundPopover:popover-open {
+  display: flex;
+  flex-direction: column;
+}
+.roundPopover form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.roundPopoverOptions {
+  min-height: 0;
+  overflow-y: auto;
+}
+.roundPopover .roundChoices {
+  padding: 0;
+  border: 0;
+}
+.roundPopover .roundOptions {
+  display: grid;
+  max-height: none;
+  gap: 0.75rem;
+}
+.roundPopover .roundOptions label {
+  align-items: start;
+}
+.roundPopover .roundOptions input {
+  margin-top: 0.25rem;
+}
+.roundPopover .commentActions {
+  flex-shrink: 0;
+  justify-content: end;
+  margin-top: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--site-border);
+  background: var(--site-surface);
 }
 
 /* Workbench-only controls share the beatmap's parameter row. */
@@ -318,30 +377,17 @@
 .workbenchCard:global(.map-browse-card--band) .candidateRounds {
   flex: 0 1 auto;
 }
-.workbenchCard:global(.map-browse-card--band) .roundSummary {
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-.workbenchCard:global(.map-browse-card--band) .roundSummary p {
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.workbenchCard:global(.map-browse-card--band) .roundSummary button,
 .workbenchCard:global(.map-browse-card--band) .promotion {
   flex-shrink: 0;
 }
 .workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-values):has(form, .promotionForm),
+  :global(.map-card-values):has(.promotionForm),
 .workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-side):has(form, .promotionForm) {
+  :global(.map-card-side):has(.promotionForm) {
   flex-wrap: wrap;
 }
 .workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-side):has(form, .promotionForm),
-.workbenchCard:global(.map-browse-card--band) .candidateRounds:has(form),
+  :global(.map-card-side):has(.promotionForm),
 .workbenchCard:global(.map-browse-card--band) .promotion:has(.promotionForm) {
   flex-basis: 100%;
 }
@@ -409,13 +455,6 @@
     max-width: 100%;
     flex-wrap: wrap;
     white-space: normal;
-  }
-  .workbenchCard:global(.map-browse-card--band) .roundSummary {
-    flex-wrap: wrap;
-  }
-  .workbenchCard:global(.map-browse-card--band) .roundSummary p {
-    white-space: normal;
-    overflow: visible;
   }
   .workbenchCard:global(.map-browse-card--band) .promotion {
     width: 100%;
