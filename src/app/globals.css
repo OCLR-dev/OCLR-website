@@ -5037,6 +5037,16 @@ html:lang(zh-Hant) .eyebrow {
   flex-wrap: wrap;
   gap: 0.45rem;
 }
+.mappool-entry-feedback {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.mappool-entry-feedback:empty {
+  display: none;
+}
+.mappool-entry-feedback > .notice {
+  margin: 0.5rem 0 0;
+}
 .mappool-workbench .mappool-pool-actions > :is(button, .button) {
   flex: 0 0 auto;
   align-self: start;
