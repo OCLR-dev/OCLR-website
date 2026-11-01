@@ -71,7 +71,9 @@ Mod badge as the category selector. Adder, intended-round multi-select and
 formal pool promotion sit to the right of the beatmap parameters on the same
 row; there is no separate control row. Long names use ellipsis at desktop widths,
 while narrow screens wrap the row and show the full text. Expanded promotion
-forms use the available width. The round selector opens a checkbox dropdown in
+forms use the available width. Pool promotion, round selection and history use compact 44px icon buttons with
+accessible names and hover hints; the round hint retains the saved selection.
+The round selector opens a checkbox dropdown in
 the browser's top layer, with Save/Cancel and Escape/outside dismissal; opening
 it does not add a card row. Cancel/dismiss drops the unsaved selection, while
 conflicts keep the draft open for review. Read-only viewers see the saved rounds.

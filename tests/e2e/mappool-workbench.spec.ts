@@ -259,7 +259,7 @@ test.describe("private Pooler/Tester selection workbench", () => {
       for (const round of plannedRounds)
         await expect(
           intent.getByRole("button", { name: /^Intended rounds:/ }),
-        ).toContainText(round.name);
+        ).toHaveAttribute("aria-label", new RegExp(round.name));
       const compactCard = candidate.locator(".map-browse-card--band");
       const compactHeight = (await compactCard.boundingBox())!.height;
       await intent.getByRole("button", { name: /^Intended rounds:/ }).click();
@@ -313,7 +313,7 @@ test.describe("private Pooler/Tester selection workbench", () => {
       ).toBeFocused();
       await expect(
         intent.getByRole("button", { name: /^Intended rounds:/ }),
-      ).not.toContainText(plannedRounds[1].name);
+      ).not.toHaveAttribute("aria-label", new RegExp(plannedRounds[1].name));
       await intent.getByRole("button", { name: /^Intended rounds:/ }).click();
       await roundPicker
         .getByRole("button", { name: "Clear selection", exact: true })
@@ -333,10 +333,10 @@ test.describe("private Pooler/Tester selection workbench", () => {
       await page.reload();
       await expect(
         intent.getByRole("button", { name: /^Intended rounds:/ }),
-      ).toContainText(plannedRounds[0].name);
+      ).toHaveAttribute("aria-label", new RegExp(plannedRounds[0].name));
       await expect(
         intent.getByRole("button", { name: /^Intended rounds:/ }),
-      ).not.toContainText(plannedRounds[1].name);
+      ).not.toHaveAttribute("aria-label", new RegExp(plannedRounds[1].name));
 
       expect(
         (
@@ -773,6 +773,26 @@ test.describe("private Pooler/Tester selection workbench", () => {
           exact: true,
         });
         await expect(promotion).toBeVisible();
+        for (const control of [
+          promotion,
+          previewCard.getByRole("button", { name: /^指定輪次:/ }),
+          previewCard.getByRole("button", { name: "查詢歷史", exact: true }),
+        ]) {
+          await expect(control.locator("svg")).toHaveCount(1);
+          await expect(control).toHaveText("");
+          await expect(control).toHaveAttribute("title", /.+/);
+          const iconBox = await control.boundingBox();
+          expect(iconBox!.width).toBe(44);
+          expect(iconBox!.height).toBe(44);
+        }
+
+        if (isMobile) {
+          const roundIcon = await previewCard
+            .getByRole("button", { name: /^指定輪次:/ })
+            .boundingBox();
+          const poolIcon = await promotion.boundingBox();
+          expect(Math.abs(roundIcon!.y - poolIcon!.y)).toBeLessThan(2);
+        }
         await expect(previewCard.locator(".map-card-extension")).toHaveCount(0);
         await expect(previewCard.locator("time")).toHaveCount(0);
         if (!isMobile) {
