@@ -39,12 +39,19 @@ describe.skipIf(!url)("atomic staff role sets", () => {
     await db().execute(sql`TRUNCATE edition_state, users CASCADE`);
     await seedEditions([edition, { ...edition, slug: "other-test" }]);
     await db().insert(users).values([admin, scoped, member]);
-    await changeStaffRole(admin, {
+    const scopedGrant = await changeStaffRole(admin, {
       action: "grant",
       confirmed: true,
       userId: scoped.osuId,
       role: "admin",
       editionSlug: "test-cup",
+    });
+    await changeStaffRole(admin, {
+      action: "visibility",
+      confirmed: true,
+      grantId: scopedGrant.id,
+      expectedPublished: true,
+      published: false,
     });
   });
   afterAll(async () => {
@@ -63,9 +70,12 @@ describe.skipIf(!url)("atomic staff role sets", () => {
       expect(designer).toMatchObject({
         role: "designer",
         editionSlug: scope,
-        aboutPublished: false,
+        aboutPublished: true,
       });
-      expect(await publicStaff()).toEqual([]);
+      expect((await publicStaff())[0].roles[0]).toMatchObject({
+        role: "designer",
+        edition: scope ? { slug: scope } : null,
+      });
       const access = await staffAccess(member);
       for (const capability of capabilities) {
         expect(permits(access, capability, "test-cup")).toBe(false);
@@ -78,20 +88,17 @@ describe.skipIf(!url)("atomic staff role sets", () => {
         action: "visibility",
         confirmed: true,
         grantId: designer.id,
-        expectedPublished: false,
-        published: true,
+        expectedPublished: true,
+        published: false,
       });
-      expect((await publicStaff())[0].roles[0]).toMatchObject({
-        role: "designer",
-        edition: scope ? { slug: scope } : null,
-      });
+      expect(await publicStaff()).toEqual([]);
       const updated = await changeStaffRoleSet(
         actor,
         command(["designer", "referee"], [designer.id], scope),
       );
       expect(updated.grants.find((g) => g.role === "designer")).toMatchObject({
         id: designer.id,
-        aboutPublished: true,
+        aboutPublished: false,
       });
       await expect(
         changeStaffRoleSet(actor, command([], [designer.id], scope)),
@@ -107,14 +114,19 @@ describe.skipIf(!url)("atomic staff role sets", () => {
       expect((await staffAccess(member)).map((g) => g.role)).toEqual([
         "referee",
       ]);
-      expect(await publicStaff()).toEqual([]);
+      expect((await publicStaff())[0].roles.map((g) => g.role)).toEqual([
+        "referee",
+      ]);
       const events = await db()
         .select()
         .from(staffRoleEvents)
         .where(eq(staffRoleEvents.targetId, member.osuId));
       expect(
         events.filter((e) => e.role === "designer").map((e) => e.action),
-      ).toEqual(["grant", "publish_profile", "revoke"]);
+      ).toEqual(["grant", "hide_profile", "revoke"]);
+      expect(events.find((e) => e.action === "grant")?.after).toMatchObject({
+        aboutPublished: true,
+      });
       expect(events.every((e) => e.actorId === actor.osuId)).toBe(true);
     },
   );
@@ -148,14 +160,14 @@ describe.skipIf(!url)("atomic staff role sets", () => {
       command(["mappooler", "referee"]),
     );
     expect(initial.grants).toHaveLength(2);
-    expect(initial.grants.every((g) => !g.aboutPublished)).toBe(true);
+    expect(initial.grants.every((g) => g.aboutPublished)).toBe(true);
     const map = initial.grants.find((g) => g.role === "mappooler")!;
     await changeStaffRole(admin, {
       action: "visibility",
       confirmed: true,
       grantId: map.id,
-      expectedPublished: false,
-      published: true,
+      expectedPublished: true,
+      published: false,
     });
     await changeStaffRoleSet(admin, command(["streamer"], [], "other-test"));
     const updated = await changeStaffRoleSet(
@@ -167,11 +179,11 @@ describe.skipIf(!url)("atomic staff role sets", () => {
     );
     expect(updated.grants.find((g) => g.role === "mappooler")).toMatchObject({
       id: map.id,
-      aboutPublished: true,
+      aboutPublished: false,
     });
     expect(
       updated.grants.find((g) => g.role === "tester")?.aboutPublished,
-    ).toBe(false);
+    ).toBe(true);
     const access = await staffAccess(member);
     expect(permits(access, "manage_mappools", "test-cup")).toBe(true);
     expect(permits(access, "manage_replays", "test-cup")).toBe(true);
@@ -182,6 +194,11 @@ describe.skipIf(!url)("atomic staff role sets", () => {
       .from(staffRoleEvents)
       .where(eq(staffRoleEvents.targetId, member.osuId));
     expect(events.filter((e) => e.action === "grant")).toHaveLength(4);
+    expect(
+      events
+        .filter((e) => e.action === "grant")
+        .every((e) => (e.after as { aboutPublished: boolean }).aboutPublished),
+    ).toBe(true);
     expect(events.filter((e) => e.action === "revoke")).toHaveLength(1);
     expect(events.find((e) => e.action === "revoke")?.before).toBeTruthy();
     await changeStaffRoleSet(

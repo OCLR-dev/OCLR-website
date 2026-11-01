@@ -35,13 +35,22 @@ test.describe("approved public About roster", () => {
         editionSlug: role === "developer" ? null : "test-cup",
         confirmed: true,
       });
-      await changeStaffRole(actor, {
+      const hidden = await changeStaffRole(actor, {
         action: "grant",
         userId: targetId,
         role: "referee",
         editionSlug: "test-cup",
         confirmed: true,
       });
+      // Exercise explicit republishing independently of the new public default.
+      for (const grant of [map, hidden])
+        await changeStaffRole(actor, {
+          action: "visibility",
+          grantId: grant.id,
+          published: false,
+          expectedPublished: true,
+          confirmed: true,
+        });
       await page.route("https://a.ppy.sh/**", (route) =>
         route.fulfill({
           contentType: "image/svg+xml",
@@ -109,7 +118,13 @@ test.describe("approved public About roster", () => {
         await expect(section.locator(".public-staff-list")).toHaveCount(0);
         const operator = await admin.newPage();
         await operator.goto("/admin/staff");
-        const row = operator
+        const roleName =
+          role === "developer"
+            ? /^Developer$/
+            : role === "designer"
+              ? /^Designer$/
+              : /^Mappooler$/;
+        const group = operator
           .locator(".staff-role-group")
           .filter({
             has: operator.getByRole("heading", {
@@ -117,17 +132,15 @@ test.describe("approved public About roster", () => {
               exact: true,
             }),
           })
-          .locator(".staff-role-row")
           .filter({
-            has: operator.locator("strong").filter({
-              hasText:
-                role === "developer"
-                  ? /^Developer$/
-                  : role === "designer"
-                    ? /^Designer$/
-                    : /^Mappooler$/,
+            has: operator.locator(".staff-role-row strong", {
+              hasText: roleName,
             }),
           });
+        await group.locator(".staff-role-publication > summary").click();
+        const row = group.locator(".staff-role-row").filter({
+          has: operator.locator("strong", { hasText: roleName }),
+        });
         await row
           .getByRole("button", { name: "Show on About", exact: true })
           .click();
