@@ -30,17 +30,15 @@ describe("localized Wiki navigation guidance", () => {
       const community = article.sections.find(
         (section) => section.id === "community",
       )!.paragraphs!;
-      const sentence = (
-        community[1] as (string | { label: string; href: string })[]
-      ).at(-1) as string;
+      const sentence = community[2] as string;
       expect(item).toContain(tr("Information page"));
       expect(sentence).toContain(tr("Information page"));
       expect(item + sentence).not.toContain("{informationPage}");
       if (locale !== "en")
         expect(item + sentence).not.toContain("Information page");
-      expect(community[0]).toBe("QQ群 926872640");
+      expect(community[0]).toBe("QQ群：926872640");
       expect((community[1] as unknown[])[1]).toEqual({
-        label: "OCL Series",
+        label: "https://discord.gg/graS4RJHjM",
         href: "https://discord.gg/graS4RJHjM",
       });
       expect(article.title).toBe("认识 OCLR");
