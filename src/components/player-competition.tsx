@@ -1,17 +1,21 @@
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
+import { InfoHint } from "@/components/info-hint";
+import { PlayerMatchStats } from "@/components/player-match-stats";
+import { PlayerTrophy } from "@/components/player-trophy";
 import type {
   CompetitionEditionRecord,
   CompetitionMatchRecord,
   PlayerCompetitionRecord,
 } from "@/lib/player-competition-model";
+import type { PersonalMapRecord } from "@/lib/player-map-performance";
 import styles from "./player-competition.module.css";
 
 function record(wins: number, losses: number) {
   return wins + losses ? `${wins}–${losses}` : "—";
 }
 
-function maps(edition: CompetitionEditionRecord) {
+function teamMaps(edition: CompetitionEditionRecord) {
   const won = edition.matches.reduce(
     (total, match) => total + (match.mapsWon ?? 0),
     0,
@@ -36,113 +40,38 @@ function deciding(matches: CompetitionMatchRecord[], kind: "win" | "loss") {
 
 export function PlayerCompetition({
   record: summary,
+  mapRecord,
   resetHref,
 }: {
   record: PlayerCompetitionRecord;
+  mapRecord: PersonalMapRecord | null;
   /** Set when the profile is narrowed to one edition; links back to every season. */
   resetHref?: string | null;
 }) {
   const tr = useAppTranslations();
-  const date = (value: string | null) =>
-    value
-      ? new Intl.DateTimeFormat(tr.locale, {
-          year: "numeric",
-          month: "short",
-        }).format(new Date(value))
-      : "—";
-  const role = (edition: CompetitionEditionRecord) =>
-    edition.role === "coach"
-      ? tr("Coach")
-      : edition.captain
-        ? tr("Captain")
-        : edition.sourceRole === "VICE"
-          ? "VICE"
-          : edition.tier != null && edition.tier > 0
-            ? `Tier ${edition.tier}`
-            : tr("Player");
   const unavailable = summary.editions.filter((e) => e.unavailable).length;
   return (
     <section className="spaced" aria-labelledby="competition-record">
       <div className={styles.titleRow}>
-        <h2 id="competition-record">{tr("Competition record")}</h2>
+        <div className={styles.title}>
+          <h2 id="competition-record">{tr("Career")}</h2>
+          <InfoHint label={tr("Explanation")}>
+            {tr(
+              "Only published, confirmed results are counted. Match results follow the team's series result and are attributed to every listed player; bench appearances are not distinguished. Map results count only maps where this player has a recorded score. Championships, runner-up and third place follow the deciding knockout series; a 3-4 finish without a placement series counts both semifinal losers as third place.",
+            )}
+          </InfoHint>
+        </div>
         {resetHref && (
           <Link className={`button ${styles.showAll}`} href={resetHref}>
             {tr("Show all seasons")}
           </Link>
         )}
       </div>
-      <p className="muted small">
-        {tr(
-          "Only published, confirmed results are counted. Team results are attributed to every listed player; bench appearances are not distinguished. Championships, runner-up and third place follow the deciding knockout series; a 3-4 finish without a placement series counts both semifinal losers as third place.",
-        )}
-      </p>
       {summary.matches ? (
-        <dl className={styles.summary}>
-          <div>
-            <dt>{tr("Seasons")}</dt>
-            <dd>{summary.seasons}</dd>
-          </div>
-          <div>
-            <dt>{tr("Championships")}</dt>
-            <dd>{summary.championships}</dd>
-          </div>
-          <div>
-            <dt>{tr("Runner-up finishes")}</dt>
-            <dd>{summary.runnerUps}</dd>
-          </div>
-          <div>
-            <dt>{tr("Third-place finishes")}</dt>
-            <dd>{summary.thirdPlaces}</dd>
-          </div>
-          <div>
-            <dt>{tr("Matches played")}</dt>
-            <dd>{summary.matches}</dd>
-          </div>
-          <div>
-            <dt>{tr("Wins")}</dt>
-            <dd>{summary.wins}</dd>
-          </div>
-          <div>
-            <dt>{tr("Losses")}</dt>
-            <dd>{summary.losses}</dd>
-          </div>
-          <div>
-            <dt>{tr("Win rate")}</dt>
-            <dd>
-              {summary.winRate === null
-                ? "—"
-                : `${Math.round(summary.winRate * 100)}%`}
-            </dd>
-          </div>
-          <div>
-            <dt>{tr("Maps won")}</dt>
-            <dd>{summary.mapsWon}</dd>
-          </div>
-          <div>
-            <dt>{tr("Maps lost")}</dt>
-            <dd>{summary.mapsLost}</dd>
-          </div>
-          <div>
-            <dt>{tr("Best finish")}</dt>
-            <dd>{summary.bestPlacing ?? "—"}</dd>
-          </div>
-          <div>
-            <dt>{tr("Longest win streak")}</dt>
-            <dd>{summary.longestWinStreak}</dd>
-          </div>
-          <div>
-            <dt>{tr("Forfeits")}</dt>
-            <dd>{summary.forfeits}</dd>
-          </div>
-          <div>
-            <dt>{tr("First appearance")}</dt>
-            <dd className={styles.when}>{date(summary.firstAt)}</dd>
-          </div>
-          <div>
-            <dt>{tr("Latest appearance")}</dt>
-            <dd className={styles.when}>{date(summary.lastAt)}</dd>
-          </div>
-        </dl>
+        <div className={styles.highlights}>
+          <PlayerTrophy record={summary} />
+          <PlayerMatchStats record={summary} maps={mapRecord} />
+        </div>
       ) : (
         <p className="notice">
           {tr("No published match results are attributed to this player.")}
@@ -153,11 +82,43 @@ export function PlayerCompetition({
           {tr("Some tournament records are temporarily unavailable.")}
         </p>
       )}
+    </section>
+  );
+}
+
+export function PlayerTeamRecord({
+  record: summary,
+}: {
+  record: PlayerCompetitionRecord;
+}) {
+  const tr = useAppTranslations();
+  const role = (edition: CompetitionEditionRecord) =>
+    edition.role === "coach"
+      ? tr("Coach")
+      : edition.captain
+        ? tr("Captain")
+        : edition.sourceRole === "VICE"
+          ? "VICE"
+          : edition.tier != null && edition.tier > 0
+            ? `Tier ${edition.tier}`
+            : tr("Player");
+  return (
+    <section className="spaced" aria-labelledby="team-record">
+      <div className={styles.titleRow}>
+        <div className={styles.title}>
+          <h2 id="team-record">{tr("Team record")}</h2>
+          <InfoHint label={tr("Explanation")}>
+            {tr(
+              "Team map wins and losses follow each series' recorded map score, including matches this player did not appear in.",
+            )}
+          </InfoHint>
+        </div>
+      </div>
       <ul className={`panel ${styles.editions}`}>
         {summary.editions.map((edition) => {
           const group = stage(edition.matches, "group");
           const knockout = stage(edition.matches, "knockout");
-          const totals = maps(edition);
+          const totals = teamMaps(edition);
           const finish = edition.placingRange
             ? {
                 label:
@@ -235,11 +196,11 @@ export function PlayerCompetition({
                   </dd>
                 </div>
                 <div>
-                  <dt>{tr("Maps won")}</dt>
+                  <dt>{tr("Team map wins")}</dt>
                   <dd>{totals.won}</dd>
                 </div>
                 <div>
-                  <dt>{tr("Maps lost")}</dt>
+                  <dt>{tr("Team map losses")}</dt>
                   <dd>{totals.lost}</dd>
                 </div>
                 <div>

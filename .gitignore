@@ -21,3 +21,4 @@ test-results/
 
 # Generated only in versioned deployment releases.
 .oclr-release
+AGENTS.local.md

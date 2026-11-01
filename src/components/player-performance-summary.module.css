@@ -1,0 +1,263 @@
+.card {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem 2rem;
+  margin: 1rem 0 0;
+  overflow: hidden;
+}
+
+.ringColumn {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  width: 200px;
+  max-width: 100%;
+}
+
+.ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 200px;
+  height: 200px;
+}
+
+.ringSvg {
+  display: block;
+  width: 200px;
+  height: 200px;
+  filter: drop-shadow(0 10px 16px rgb(0 0 0 / 18%));
+}
+
+.track {
+  fill: none;
+  stroke: var(--site-border, var(--color-border));
+  opacity: 0.6;
+}
+
+/* The gauge runs clockwise from the lower-left end (225deg) to the
+   lower-right end (495deg), so the conic gradient follows the same sweep. */
+.ringArc {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 225deg,
+    var(--ring-from) 0deg,
+    var(--ring-to) var(--ring-angle),
+    transparent var(--ring-angle)
+  );
+  filter: drop-shadow(
+    0 0 6px color-mix(in srgb, var(--ring-to) 35%, transparent)
+  );
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent 69px,
+    #000 70px 90px,
+    transparent 91px
+  );
+  mask: radial-gradient(
+    circle,
+    transparent 69px,
+    #000 70px 90px,
+    transparent 91px
+  );
+  pointer-events: none;
+}
+
+/* Solid caps cover the track's rounded ends so the gradient owns the full arc. */
+.ringCaps {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* The outer mask limits bubbles to the filled part of the arc; the inner one
+   keeps them inside the ring band. */
+.ringBubbles {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  -webkit-mask: conic-gradient(
+    from 225deg,
+    #000 0deg var(--ring-angle),
+    transparent var(--ring-angle)
+  );
+  mask: conic-gradient(
+    from 225deg,
+    #000 0deg var(--ring-angle),
+    transparent var(--ring-angle)
+  );
+  pointer-events: none;
+}
+
+.ringBubbles::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(
+      circle 4.2px at 58% 64%,
+      transparent 0 24%,
+      rgb(255 255 255 / 44%) 34% 58%,
+      rgb(255 255 255 / 12%) 76%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 3.4px at 21% 38%,
+      rgb(255 255 255 / 52%) 0 38%,
+      rgb(255 255 255 / 16%) 70%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 3.8px at 82% 78%,
+      transparent 0 28%,
+      rgb(255 255 255 / 40%) 38% 62%,
+      rgb(255 255 255 / 10%) 80%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 2.8px at 46% 46%,
+      rgb(255 255 255 / 46%) 0 48%,
+      rgb(255 255 255 / 14%) 78%,
+      transparent 100%
+    );
+  background-repeat: repeat;
+  background-position:
+    21px 0,
+    83px 12px,
+    37px 24px,
+    151px 30px;
+  background-size:
+    168px 36px,
+    144px 36px,
+    120px 36px,
+    96px 36px;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent 69px,
+    #000 70px 90px,
+    transparent 91px
+  );
+  mask: radial-gradient(
+    circle,
+    transparent 69px,
+    #000 70px 90px,
+    transparent 91px
+  );
+  animation: ring-bubble-rise 18s linear infinite;
+}
+
+@keyframes ring-bubble-rise {
+  from {
+    background-position:
+      21px 0,
+      83px 12px,
+      37px 24px,
+      151px 30px;
+  }
+
+  to {
+    background-position:
+      21px -180px,
+      83px -132px,
+      37px -84px,
+      151px -42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ringBubbles::before {
+    animation: none;
+  }
+}
+
+.ringValue {
+  fill: var(--site-foreground, var(--color-text));
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.caption {
+  max-width: 100%;
+  color: var(--site-muted, var(--color-muted));
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.stats {
+  display: grid;
+  align-self: end;
+  width: 100%;
+  margin: 0;
+}
+
+.stats > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--site-border, var(--color-border));
+}
+
+.stats > div:first-child {
+  padding-block-start: 0;
+}
+
+.stats > div:last-child {
+  padding-block-end: 0;
+  border-bottom: 0;
+}
+
+.stats dt {
+  margin: 0;
+  color: var(--site-muted, var(--color-muted));
+  font-size: 0.85rem;
+}
+
+.stats dd {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+/* Only the denominator of a slash fraction is secondary detail; it keeps the
+   value colour and fades back through opacity. */
+.stats dd .ratioDenominator {
+  opacity: 0.2;
+}
+
+@media (max-width: 560px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .stats {
+    max-width: 24rem;
+  }
+
+  .stats > div {
+    padding: 0.55rem 0;
+  }
+
+  .stats dd {
+    font-size: 1.2rem;
+  }
+}

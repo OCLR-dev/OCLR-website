@@ -7,7 +7,7 @@ import {
   type CompetitionEditionRecord,
 } from "../../src/lib/player-competition-model";
 vi.mock("../../src/i18n/shared", () => ({ useAppTranslations: () => english }));
-import { PlayerCompetition } from "../../src/components/player-competition";
+import { PlayerTeamRecord } from "../../src/components/player-competition";
 it("shows a structured placement range without turning it into a precise finish", () => {
   const record: CompetitionEditionRecord = {
     editionSlug: "s5",
@@ -30,12 +30,12 @@ it("shows a structured placement range without turning it into a precise finish"
     unavailable: false,
   };
   const summary = summarizePlayerCompetition([record]);
-  const html = renderToStaticMarkup(<PlayerCompetition record={summary} />);
+  const html = renderToStaticMarkup(<PlayerTeamRecord record={summary} />);
   expect(html).toContain("9–12");
   expect(html).toContain("Derived placement");
   expect(html).not.toContain("Final placement");
   const official = renderToStaticMarkup(
-    <PlayerCompetition
+    <PlayerTeamRecord
       record={summarizePlayerCompetition([
         {
           ...record,
@@ -49,7 +49,7 @@ it("shows a structured placement range without turning it into a precise finish"
   expect(summary.bestPlacing).toBeNull();
   expect(summary.worstPlacing).toBeNull();
   const unknown = renderToStaticMarkup(
-    <PlayerCompetition
+    <PlayerTeamRecord
       record={summarizePlayerCompetition([
         { ...record, placingRange: null, finish: null },
       ])}

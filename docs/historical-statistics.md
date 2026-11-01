@@ -80,3 +80,19 @@ Current live checkpoint: S9 22/22 released (213 scoring games / 64 played UIDs);
 Organizer-confirmed S7 A10 follow-up: a rostered bench occupant left 0/50-point lobby records while four teammates already had positive scores. Explicit Admin non-participant review now also permits a bench record only when at least four other distinct, positive, valid same-team records remain after **all** exclusions. Multiple exclusions cannot reduce that lineup below four. No record is automatically removed, and raw source facts remain intact. This requires a normal deployment without migration or re-import; S7 A10 remains draft until applied and checked through the UI.
 
 Bench follow-up verification: all 24 affected model/transaction/i18n checks passed; lint/types/build passed. The four existing desktop/mobile statistical workflows passed; the two new bench workflows passed after correcting synthetic player roles and removing unsupported synthetic Tiers. No application workaround was used for fixture-validation failures. Latest anonymous production coverage before deployment: S7 20/21, S8 38/38 (355 maps), S9 22/22 (213 maps), S10 30/30 (265 maps). Only confirmed S7 A10 bench cleanup remains.
+
+## Operator backfill for saved archives
+
+`scripts/backfill-statistics.ts` (npm alias `npm run db:backfill-statistics`) walks the `mpUrls` already stored in each saved archive, imports the official match through the same `fetchMatchSource` client the Admin importer uses, and writes a reviewable draft per fixture. It is an operator tool for local or approved maintenance runs where no Admin session is available; it never invents scores and never calls a provider from a visitor request.
+
+```
+npm run db:backfill-statistics -- s4 s5 s7 s8      # drafts only (default)
+npm run db:backfill-statistics -- s9 --publish     # validate, then release
+npm run db:backfill-statistics -- s7 --dry-run     # report without writing
+```
+
+Draft-first is the default. Existing published sources with the same archive key are skipped, an unchanged source reuses its saved draft without another provider call, and `--refresh` forces a re-fetch. A deleted or rate-limited MP leaves the fixture's saved data untouched and stops that fixture; later fixtures continue.
+
+The script only proposes a review it can prove: it excludes confirmed non-participant lobby records (`reason: "non-participant"`, or a zero-fingerprint record when that reason does not apply), can relax the pool check for an organizer-confirmed incomplete pool, drops superseded replays and empty-team games, and trims to the shortest chronological game window that reproduces the recorded series score. A candidate is accepted only when `fixtureStatisticsIssues` reports no problems and exactly one candidate reconciles; otherwise the import stays a draft.
+
+`--publish` re-runs the same validation inside the write and appends a `statistics_backfill` event with a null actor plus the fixture, MP and applied rules. It is the explicit operational step; drafts remain private. Fixtures whose MP evidence contradicts the recorded series score stay drafts for an edition Admin to adjudicate through the normal Approve & publish flow — the archive result is never rewritten. `--dry-run` prints the same decisions without writing.

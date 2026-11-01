@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
+import { InfoHint } from "@/components/info-hint";
+import { PlayerPerformanceSummary } from "@/components/player-performance-summary";
 import type {
   PlayerMapEdition,
   PlayerMapPerformance,
@@ -50,24 +52,16 @@ export function PlayerMapPerformance({
   const unavailable = summary.editions.filter((e) => e.unavailable).length;
   return (
     <section className="spaced" aria-labelledby="map-performance">
-      <h2 id="map-performance">{tr("Map performance")}</h2>
-      <p className="muted small">
-        {tr(
-          "Only published or approved MP map scores are counted: archived seasons use their published statistics, live seasons use reviewed results. Effective rating is the player's score divided by that map's average score; maps with an unusable average are skipped. Relative score, combo, misses, pass rate, team share and failed-score counts are intentionally omitted.",
-        )}
-      </p>
+      <div className={styles.heading}>
+        <h2 id="map-performance">{tr("Performance")}</h2>
+        <InfoHint label={tr("Explanation")}>
+          {tr(
+            "Only published or approved MP map scores are counted: archived seasons use their published statistics, live seasons use reviewed results. Effective rating is the player's score divided by that map's average score; maps with an unusable average are skipped. Relative score, combo, misses, pass rate, team share and failed-score counts are intentionally omitted.",
+          )}
+        </InfoHint>
+      </div>
       {summary.mapsPlayed ? (
-        <dl className={styles.summary}>
-          {totals(tr, {
-            ...summary,
-            maps: summary.mapsPlayed,
-          }).map((item) => (
-            <div key={item.label}>
-              <dt>{item.label}</dt>
-              <dd>{item.value}</dd>
-            </div>
-          ))}
-        </dl>
+        <PlayerPerformanceSummary record={summary} />
       ) : (
         <p className="notice">
           {tr("No published map scores are attributed to this player yet.")}

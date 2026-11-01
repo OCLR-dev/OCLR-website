@@ -125,9 +125,7 @@ test.describe("published osu! profiles", () => {
     await expect(
       page.getByRole("link", { name: "← Tournament players", exact: true }),
     ).toHaveAttribute("href", "/tournaments/test-cup/players");
-    await expect(
-      page.getByRole("heading", { name: "Competition record" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Career" })).toBeVisible();
     const operator = await browser.newContext({
       storageState: englishStorage,
       baseURL: "http://127.0.0.1:3100",
