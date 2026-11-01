@@ -3668,6 +3668,9 @@
     "medd91ba3331a": "Superseded replay",
     "m304007cd1c3d": "Post-match game",
     "m6d5b777296f0": "Outside mappool",
-    "mf97e9da0e3b8": "Other"
+    "mf97e9da0e3b8": "Other",
+    "m1ac020fb3ee0": "Date precision",
+    "ma079c3bbe23a": "Date and time",
+    "m3280b0a1d436": "Date only"
   }
 }
