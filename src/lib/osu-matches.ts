@@ -5,6 +5,7 @@ import { osuApi } from "./osu-api";
 import { HttpError } from "./http";
 import {
   matchSourceSchema,
+  OPEN_MATCH_WARNING,
   type MatchGame,
   type MatchScore,
   type MatchSource,
@@ -378,9 +379,7 @@ export async function fetchMatchSource(matchId: number): Promise<MatchSource> {
     warnings.add("The current game is missing from the retrieved history.");
   }
   if (!first.match.end_time || first.current_game_id)
-    warnings.add(
-      "The lobby is still open. Review incomplete and extra games explicitly.",
-    );
+    warnings.add(OPEN_MATCH_WARNING);
   const facts = {
     schemaVersion: 1 as const,
     apiVersion: "20220705" as const,

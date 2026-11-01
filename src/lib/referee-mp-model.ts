@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 import type { RefereeWorkspace } from "./referee";
-import type { MatchGame, MatchSource } from "./match-model";
+import {
+  OPEN_MATCH_WARNING,
+  type MatchGame,
+  type MatchSource,
+} from "./match-model";
 import { previewMatch } from "./match-scoring";
 import { refereeCommands } from "./referee-commands";
 
@@ -64,7 +68,9 @@ export function planMpResults(
       .map((s) => ({ id: s.id, beatmapId: s.beatmapId, exMode: !!s.exMode })),
   };
   const previews = previewMatch(source, context).games;
-  const safeSource = source.complete && !source.warnings.length;
+  const safeSource =
+    source.complete &&
+    source.warnings.every((warning) => warning === OPEN_MATCH_WARNING);
   for (const selection of w.projection.activeSelections.filter(
     (s) => s.kind !== "ban",
   )) {
@@ -89,7 +95,8 @@ export function planMpResults(
     else if (!game.endTime) {
       if (receipt) reason = "source_changed";
       else continue;
-    } else if (
+    } else if (source.currentGameId === game.id) reason = "incomplete";
+    else if (
       !game.startTime ||
       Date.parse(game.startTime) >= Date.parse(game.endTime) ||
       Date.parse(game.endTime) > Date.parse(source.fetchedAt)

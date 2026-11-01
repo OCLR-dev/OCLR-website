@@ -45,6 +45,18 @@ describe("automatic MP result plan", () => {
     expect(plan.score[0].winnerTeamId).toBe(w.teams[0].id);
     expect(plan.issues).toEqual([]);
   });
+  it("counts an ended game in an open lobby but rejects genuine source warnings or an active game", () => {
+    const w = prepared(),
+      source = mpSource(w);
+    expect(source.match.endTime).toBeNull();
+    expect(source.warnings.length).toBe(1);
+    expect(planMpResults(w, source, [], new Set()).score).toHaveLength(1);
+    source.currentGameId = source.games[0].id;
+    expect(planMpResults(w, source, [], new Set()).score).toHaveLength(0);
+    source.currentGameId = null;
+    source.warnings.push("Conflicting duplicate events were returned by osu!.");
+    expect(planMpResults(w, source, [], new Set()).score).toHaveLength(0);
+  });
   for (const scenario of [
     "replay",
     "tie",
