@@ -90,6 +90,7 @@ createRoot(document.getElementById("root")!).render(
           slug="synthetic"
           data={data}
           readOnlyMaps={params.has("readonly")}
+          canManageReplays={params.has("manage")}
         />
       </main>
     </NextIntlClientProvider>

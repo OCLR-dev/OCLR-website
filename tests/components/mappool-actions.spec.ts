@@ -119,7 +119,9 @@ test("sorting disables edits and leaves replays accessible", async ({
   const replay = entry.getByRole("button", { name: /^Replays/ });
   await expect(replay).toBeEnabled();
   await replay.click();
-  await expect(entry.locator(".replay-content")).toBeVisible();
+  await expect(
+    entry.getByRole("dialog", { name: "Replays for NM1", exact: true }),
+  ).toBeVisible();
   await expect(replay).toHaveAccessibleName("Replays (0)");
 });
 
@@ -135,7 +137,45 @@ for (const state of ["locked", "readonly"]) {
       .getByRole("button", { name: "Replays", exact: true })
       .first()
       .click();
-    await expect(page.locator(".replay-content").first()).toBeVisible();
+    await expect(
+      page.getByRole("dialog", { name: "Replays for NM1", exact: true }),
+    ).toBeVisible();
     await expect(page.locator(".mappool-entry-actions")).toHaveCount(0);
   });
 }
+
+test("replay dialog keeps the map row compact and restores focus", async ({
+  page,
+  isMobile,
+}) => {
+  if (isMobile) await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto("/mappool-actions?manage=1");
+  const entry = page.locator('[data-map-entry="entry-1"]');
+  const trigger = entry.getByRole("button", { name: /^Replays/ });
+  const before = (await entry.boundingBox())!;
+  await trigger.click();
+  const dialog = entry.getByRole("dialog", {
+    name: "Replays for NM1",
+    exact: true,
+  });
+  await expect(dialog).toBeVisible();
+  expect((await entry.boundingBox())!.height).toBe(before.height);
+  await expect(dialog.getByRole("note")).toHaveCount(0);
+  await expect(
+    dialog.getByLabel("Replay file", { exact: true }),
+  ).toBeDisabled();
+  await expect(
+    dialog.getByText("No replays attached.", { exact: true }),
+  ).toBeVisible();
+  const box = (await dialog.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  expect(box.height).toBeLessThanOrEqual(page.viewportSize()!.height - 32);
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+});
