@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { ownTeam } from "@/lib/teams";
 import { PublicPlayerIdentity } from "./public-player-identity";
@@ -9,15 +8,7 @@ type Team = Pick<
   "name" | "captainId" | "finalizedAt" | "members"
 >;
 
-export function OwnTeam({
-  team,
-  edition,
-  actions,
-}: {
-  team: Team;
-  edition: string;
-  actions?: ReactNode;
-}) {
+export function OwnTeam({ team, edition }: { team: Team; edition: string }) {
   const tr = useAppTranslations();
   return (
     <section className={styles.team} aria-labelledby="own-team-heading">
@@ -30,7 +21,6 @@ export function OwnTeam({
               : tr("Draft roster in progress")}
           </p>
         </div>
-        {actions && <div className={styles.actions}>{actions}</div>}
       </header>
       <ul
         className={`public-roster-grid ${styles.roster}`}

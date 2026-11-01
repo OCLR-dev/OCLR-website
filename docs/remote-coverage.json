@@ -1974,13 +1974,21 @@
       "file": "src/app/tournaments/[edition]/layout.tsx",
       "kind": "layout",
       "authority": "saved-read",
-      "operations": ["getPublicTournament", "publicDraft", "publicEnrollment"],
+      "operations": [
+        "captainAppointment",
+        "getApiIdentity",
+        "getPublicTournament",
+        "publicDraft",
+        "publicEnrollment"
+      ],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getPublicTournament)",
         "src/lib/draft.ts#publicDraft",
-        "src/lib/frontend-read-models.ts#publicEnrollment"
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
+        "src/lib/captains.ts#captainAppointment"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",

@@ -1,4 +1,4 @@
-import { Action, EmptyState, PageHeading } from "@/components/ui";
+import { EmptyState, PageHeading } from "@/components/ui";
 import { OwnTeam } from "@/components/own-team";
 import { getAppTranslations } from "@/i18n/server";
 import { currentUser } from "@/lib/auth/user";
@@ -32,18 +32,7 @@ async function Issue271Page({
         )}
       </PageHeading>
       {team ? (
-        <OwnTeam
-          team={team}
-          edition={edition}
-          actions={
-            <Action
-              href={`/tournaments/${edition}/schedule/requests`}
-              secondary
-            >
-              {tr("Schedule requests")}
-            </Action>
-          }
-        />
+        <OwnTeam team={team} edition={edition} />
       ) : (
         <EmptyState title={tr("No captain team assigned")}>
           {tr(

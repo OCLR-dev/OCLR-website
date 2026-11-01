@@ -8,7 +8,21 @@ import { notFound } from "next/navigation";
 import { publicDraft } from "@/lib/draft";
 import { getPublicEdition } from "@/lib/content";
 import { informationPreview } from "@/lib/tournament-information";
+import { currentUser } from "@/lib/auth/user";
+import { captainAppointment } from "@/lib/captains";
 export const dynamic = "force-dynamic";
+
+async function captainNavigation(slug: string) {
+  try {
+    const user = await currentUser();
+    if (!user || !(await captainAppointment(user.osuId, slug))) return;
+    return { scheduleRequests: !remoteMode() };
+  } catch {
+    // Optional navigation must not block public pages or substitute for page authorization.
+    return;
+  }
+}
+
 export default async function EditionLayout({
   children,
   params,
@@ -29,6 +43,11 @@ export default async function EditionLayout({
             Boolean(edition.overview.draft)
           }
           archived={edition.source.kind === "historical_archive"}
+          captainWorkspace={
+            edition.source.kind === "historical_archive"
+              ? undefined
+              : await captainNavigation(slug)
+          }
         >
           {children}
         </TournamentShell>
@@ -58,6 +77,7 @@ export default async function EditionLayout({
       slug={slug}
       name={informationPreview(slug)?.name ?? edition.name}
       liveDraft={Boolean(draft)}
+      captainWorkspace={await captainNavigation(slug)}
     >
       {liveUnavailable && (
         <p className="notice" role="status">

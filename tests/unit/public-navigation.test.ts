@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   isPublicPage,
   isBroadcastPage,
+  captainWorkspaceSection,
   publicTournamentSection,
 } from "../../src/lib/public-navigation";
 describe("public edition navigation", () => {
@@ -15,12 +16,32 @@ describe("public edition navigation", () => {
     ["/rules", ""],
     ["/bracket", "bracket"],
     ["/players", "players"],
-    ["/team", "teams"],
+    ["/team", null],
+    ["/draft/captain", null],
+    ["/schedule/requests", null],
   ])("selects one destination for %s", (suffix, section) => {
     expect(publicTournamentSection(base + suffix, base)).toBe(section);
   });
   it("does not select a similarly prefixed edition", () => {
     expect(publicTournamentSection(base + "-other/mappools", base)).toBeNull();
+  });
+  it("keeps private tool destinations separate with segment boundaries", () => {
+    expect(captainWorkspaceSection(`${base}/team`, base)).toBe("team");
+    expect(captainWorkspaceSection(`${base}/draft/captain`, base)).toBe(
+      "draft/captain",
+    );
+    expect(
+      captainWorkspaceSection(`${base}/schedule/requests/request`, base),
+    ).toBe("schedule/requests");
+    for (const suffix of [
+      "/teams",
+      "/team-other",
+      "/draft/captain-other",
+      "/schedule/requests-other",
+    ])
+      expect(captainWorkspaceSection(base + suffix, base)).toBeNull();
+    expect(captainWorkspaceSection(`${base}-other/team`, base)).toBeNull();
+    expect(publicTournamentSection(`${base}/schedule`, base)).toBe("schedule");
   });
 });
 
@@ -45,6 +66,8 @@ describe("public route context", () => {
     "/tournaments/s11/team",
     "/tournaments/s11/draft/captain",
     "/tournaments/s11/draft/overlay",
+    "/tournaments/s11/schedule/requests",
+    "/tournaments/s11/schedule/requests/request",
   ])("identifies private page %s", (path) =>
     expect(isPublicPage(path)).toBe(false),
   );
@@ -59,6 +82,7 @@ describe("broadcast appearance boundary", () => {
     "/admin",
     "/login",
     "/tournaments/s11/team",
+    "/tournaments/s11/schedule/requests",
     "/tournaments/s11/draft/captain",
     "/tournaments/s11/draft",
   ])("shares site appearance for %s", (path) => {

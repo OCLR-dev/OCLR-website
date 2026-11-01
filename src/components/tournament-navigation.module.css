@@ -1,0 +1,35 @@
+.captainSection {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--site-border);
+}
+
+.captainSection h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+}
+
+.sidebar .captainSection .links {
+  display: grid;
+  gap: 0.25rem;
+  overflow: visible;
+  padding: 0;
+}
+
+.sidebar .captainSection .links a {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .sidebar .captainSection .links {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .sidebar .captainSection .links a {
+    flex: 1 1 auto;
+    max-width: 100%;
+  }
+}
