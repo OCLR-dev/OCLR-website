@@ -3,7 +3,15 @@
 import { InfoNote } from "@/components/info-note";
 
 import { LoadingRegion } from "./loading-region";
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
+import { MappoolActionIcon } from "./mappool-action-icon";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { useAppTranslations } from "@/i18n/shared";
 import type { MappoolWorkspace } from "@/lib/mappools";
@@ -107,11 +115,13 @@ export function MappoolReplays({
   pool,
   entry,
   canManage,
+  renderTrigger = (trigger) => trigger,
 }: {
   slug: string;
   pool: Pool;
   entry: Entry;
   canManage: boolean;
+  renderTrigger?: (trigger: ReactNode) => ReactNode;
 }) {
   const tr = useAppTranslations(),
     { refreshing, refresh } = usePendingRefresh(),
@@ -292,21 +302,24 @@ export function MappoolReplays({
       })}
     >
       {pending && !deleting && operation === "delete" && <LoadingRegion />}
-      <button
-        type="button"
-        ref={summary}
-        className="secondary"
-        aria-expanded={expanded}
-        aria-controls={`${id}-panel`}
-        onClick={() => {
-          const next = !expanded;
-          setExpanded(next);
-          if (next) void load();
-        }}
-      >
-        {tr("Replays")}
-        {loaded ? ` (${items.length})` : ""}
-      </button>
+      {renderTrigger(
+        <button
+          type="button"
+          ref={summary}
+          className="secondary mappool-icon-action"
+          aria-label={`${tr("Replays")}${loaded ? ` (${items.length})` : ""}`}
+          title={`${tr("Replays")}${loaded ? ` (${items.length})` : ""}`}
+          aria-expanded={expanded}
+          aria-controls={`${id}-panel`}
+          onClick={() => {
+            const next = !expanded;
+            setExpanded(next);
+            if (next) void load();
+          }}
+        >
+          <MappoolActionIcon kind="replays" />
+        </button>,
+      )}
       <div
         id={`${id}-panel`}
         hidden={!expanded}

@@ -26,7 +26,6 @@ export function MappoolOrder({
   editable,
   onFeedback,
   renderActions,
-  renderAttachments,
 }: {
   url: string;
   pool: MappoolWorkspace["pools"][number];
@@ -34,8 +33,7 @@ export function MappoolOrder({
   entries: Entry[];
   editable: boolean;
   onFeedback: (message: string, failed?: boolean) => void;
-  renderActions: (entry: Entry) => ReactNode;
-  renderAttachments?: (entry: Entry) => ReactNode;
+  renderActions: (entry: Entry, disabled: boolean) => ReactNode;
 }) {
   const tr = useAppTranslations();
 
@@ -351,16 +349,7 @@ export function MappoolOrder({
                 label={editable ? undefined : label}
                 category={category}
               />
-              {editable && (
-                <fieldset
-                  className="mappool-entry-actions"
-                  aria-label={tr("Map actions for {value0}", { value0: label })}
-                  disabled={changed || busy || !!dragging}
-                >
-                  {renderActions(entry)}
-                </fieldset>
-              )}
-              {renderAttachments?.(entry)}
+              {renderActions(entry, changed || busy || !!dragging)}
             </li>
           );
         })}

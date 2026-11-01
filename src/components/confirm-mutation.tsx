@@ -19,6 +19,7 @@ export function ConfirmMutation({
   requireConfirmation = true,
   canConfirm = true,
   disabled = false,
+  icon,
   children,
 }: {
   label: string;
@@ -32,6 +33,7 @@ export function ConfirmMutation({
   requireConfirmation?: boolean;
   canConfirm?: boolean;
   disabled?: boolean;
+  icon?: ReactNode;
   children?: ReactNode;
 }) {
   const readOnly = useStaffReadOnly();
@@ -84,6 +86,8 @@ export function ConfirmMutation({
       <button
         type="button"
         aria-busy={pending}
+        aria-label={icon ? tr(label) : undefined}
+        title={icon ? tr(label) : undefined}
         className={className}
         disabled={
           readOnly ||
@@ -97,7 +101,7 @@ export function ConfirmMutation({
           else void confirm();
         }}
       >
-        {tr(label)}
+        {icon ?? tr(label)}
       </button>
       {!requireConfirmation && error && (
         <p role="alert" className="notice error-text">
