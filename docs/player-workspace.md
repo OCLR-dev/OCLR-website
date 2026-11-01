@@ -1,5 +1,8 @@
 # Player workspace (#671)
 
+The Chinese interface name is **選手專區** (`zh-Hant`) / **选手专区** (`zh-Hans`),
+shared by dashboard entries, navigation, page eyebrows and access notices.
+
 Accepted players and appointed captains can enter the **Player workspace** from
 the tournament context bar. Private tournament pages have a separate sidebar
 section for **Practice sheet** and **Season timetable**. Captains also retain
