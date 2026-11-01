@@ -212,7 +212,9 @@ export function planMpResults(
   const awaitingReview = receipts.some(
     (r) =>
       r.review &&
-      w.projection.activeSelections.some((s) => s.id === r.pickId) &&
+      w.projection.activeSelections.some(
+        (s) => s.id === r.pickId && s.attempts.at(-1)?.id === r.attemptId,
+      ) &&
       lastAttemptOutcome(w, r.attemptId)?.id === r.eventId,
   );
   return {
