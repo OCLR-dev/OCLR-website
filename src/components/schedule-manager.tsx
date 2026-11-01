@@ -437,7 +437,7 @@ export function ScheduleManager({
   const f = listed.find((f) => f.id === selected) ?? listed[0];
   return (
     <div className="schedule-tool">
-      <div className="actions">
+      <div className="actions schedule-filters">
         <label className="field">
           <span>{tr("Round")}</span>
           <select

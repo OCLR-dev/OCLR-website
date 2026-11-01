@@ -207,3 +207,36 @@ full-only CI lanes remain unverified, as already disclosed; the organizer's
 fixed core-CI policy is unchanged. This audit authorizes no production migration,
 role/credential change or deployment. Issue closure is recorded on #591 after
 publishing this verification checkpoint.
+
+## Filter button alignment follow-up — 2026-11-01
+
+The organizer supplied a screenshot of the Schedule review filter row: the
+Reload schedule button stretched to the full label-plus-select height. The
+shared `.actions` flex row defaults to stretch. A dedicated `schedule-filters`
+class now bottom-aligns only this row, retaining the normal MainSheet button
+height, palette, radius and keyboard focus treatment.
+
+Verified on main base `d0f4be8697ffff3c77e43683c55e2c37bdee4317` plus this patch:
+
+- Node 24 locked `npm ci` passed; local Next.js CSS guidance and the Refactoring
+  UI hierarchy/spacing guidance were applied.
+- Actual ScheduleManager and FullCalendar components in an isolated DB-free
+  browser host passed **18 layouts**: 1280/390/320px × light/dark ×
+  zh-Hans/zh-Hant/en. The host applies the same base CSS variables emitted by
+  the production CSS pipeline. Keyboard focus, horizontal containment and
+  desktop select/button bottom alignment were checked.
+- Restoring the old flex stretch in that host reproduces a **74.42px** button;
+  the corrected row yields **44px** in every checked layout. The empty pending
+  list matches the reported state. Selecting All requests renders the actual
+  FullCalendar for the synthetic fixture; no live fixture or role is used.
+- `npm run check`: passed (ESLint, generated route types and TypeScript).
+- `npm test` without database configuration: **1,466 passed, 669 skipped** (181 passed files, 71 skipped files). Database-backed
+  integration and authenticated full E2E were not rerun for this CSS fix.
+- `npm run build`: passed (production compilation, TypeScript and route generation).
+- `npm run read-api:check`: passed (56 contracts, 174 coverage rows, **8 tests**).
+- Production dependency audit and `git diff --check`: passed; **0 vulnerabilities**.
+
+Visual evidence (default appearance; not a full appearance matrix):
+[reproduced before](filter-button-before.png),
+[desktop after](filter-button-after-desktop.png),
+[320px mobile after](filter-button-after-mobile.png).
