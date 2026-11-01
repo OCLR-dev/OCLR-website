@@ -5,6 +5,7 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import { useEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { LoadingRegion } from "./loading-region";
 export function ConfirmMutation({
@@ -20,6 +21,7 @@ export function ConfirmMutation({
   canConfirm = true,
   disabled = false,
   icon,
+  errorTarget,
   children,
 }: {
   label: string;
@@ -34,6 +36,7 @@ export function ConfirmMutation({
   canConfirm?: boolean;
   disabled?: boolean;
   icon?: ReactNode;
+  errorTarget?: HTMLElement | null;
   children?: ReactNode;
 }) {
   const readOnly = useStaffReadOnly();
@@ -78,6 +81,12 @@ export function ConfirmMutation({
       setPending(false);
     }
   }
+  const feedback =
+    !requireConfirmation && error ? (
+      <p role="alert" className="notice error-text">
+        {tr(error)}
+      </p>
+    ) : null;
   return (
     <>
       {pending && (!requireConfirmation || (refreshing && !error)) && (
@@ -103,11 +112,8 @@ export function ConfirmMutation({
       >
         {icon ?? tr(label)}
       </button>
-      {!requireConfirmation && error && (
-        <p role="alert" className="notice error-text">
-          {tr(error)}
-        </p>
-      )}
+      {feedback &&
+        (errorTarget ? createPortal(feedback, errorTarget) : feedback)}
       {requireConfirmation && (
         <dialog
           ref={dialog}

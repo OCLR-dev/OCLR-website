@@ -7,6 +7,19 @@ the original toolbar implementation.
 The later [edit-form preview follow-up](edit-preview.md) removes the repeated
 preview from existing-map editors while retaining background lookup verification.
 
+## Action feedback placement follow-up — 2026-11-02
+
+Based on main `a90b729f`, metadata-refresh errors now appear below the entire
+four-icon action row. The existing error lifecycle renders into the entry's
+feedback container; long messages wrap, and an empty container takes no space.
+The alert text and retry clearing retain their existing behavior.
+
+Verification with Node.js 24.22.2: `npm run check`, `npm run build` and
+`git diff --check` passed; `npm test` passed 1527 tests with 705 skipped;
+`npm run read-api:check` checked 57 contracts / 181 rows and passed 8 tests;
+`npm audit --omit=dev` reported 0 vulnerabilities. E2E and component browser suites
+were not run, per the organizer's instruction. No live visual check is claimed.
+
 Local verification on 2026-11-01 (Asia/Taipei), using Node.js 24.22.2.
 
 The entry footer now groups edit, metadata refresh, confirmed removal and replay

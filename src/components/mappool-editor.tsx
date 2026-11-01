@@ -37,6 +37,7 @@ function Save({
   description,
   className,
   icon,
+  errorTarget,
   payload,
   disabled = false,
   onSuccess,
@@ -46,6 +47,7 @@ function Save({
   description?: string;
   className?: string;
   icon?: ReactNode;
+  errorTarget?: HTMLElement | null;
   payload: Record<string, unknown>;
   disabled?: boolean;
   onSuccess?: () => void;
@@ -54,6 +56,7 @@ function Save({
     <ConfirmMutation
       className={className}
       icon={icon}
+      errorTarget={errorTarget}
       disabled={disabled}
       onSuccess={onSuccess}
       requireConfirmation={["pool_publish", "entry_remove"].includes(
@@ -338,6 +341,7 @@ function EntryEditor({
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
   const slot = slotLabel(entry.category, entry.position);
+  const [errorTarget, setErrorTarget] = useState<HTMLDivElement | null>(null);
   function close() {
     onClose();
     requestAnimationFrame(() => trigger.current?.focus());
@@ -367,6 +371,7 @@ function EntryEditor({
             label={tr("Refresh {slot} metadata", { slot })}
             className="secondary mappool-icon-action"
             icon={<MappoolActionIcon kind="refresh" />}
+            errorTarget={errorTarget}
             payload={{
               action: "entry_refresh",
               poolId: pool.id,
@@ -393,6 +398,7 @@ function EntryEditor({
         </fieldset>
         {replayTrigger}
       </div>
+      <div ref={setErrorTarget} className="mappool-entry-feedback" />
       {open && (
         <fieldset className="staff-readonly-fields" disabled={disabled}>
           <section
