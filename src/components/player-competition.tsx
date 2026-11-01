@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
 import { InfoHint } from "@/components/info-hint";

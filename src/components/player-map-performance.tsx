@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
 import { InfoHint } from "@/components/info-hint";
@@ -73,40 +75,45 @@ export function PlayerMapPerformance({
         </p>
       )}
       {summary.mapsPlayed > 0 && (
-        <ul className={`panel ${styles.editions}`}>
-          {summary.editions
-            .filter((edition) => edition.maps.length > 0)
-            .map((edition) => (
-              <li className={styles.edition} key={edition.editionSlug}>
-                <div className={styles.head}>
-                  <h3>
-                    <Link
-                      className="context-link"
-                      href={`/tournaments/${edition.editionSlug}`}
-                    >
-                      {edition.editionName}
-                    </Link>
-                  </h3>
-                </div>
-                <dl className={styles.facts}>
-                  {totals(tr, {
-                    maps: edition.maps.length,
-                    averagePlacement: edition.averagePlacement,
-                    firstPlaces: edition.firstPlaces,
-                    averageAccuracy: edition.averageAccuracy,
-                    averageEffectiveRating: edition.averageEffectiveRating,
-                    ratedMaps: edition.ratedMaps,
-                  }).map((item) => (
-                    <div key={item.label}>
-                      <dt>{item.label}</dt>
-                      <dd>{item.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-                {edition.maps.length > 0 && <MapTable edition={edition} />}
-              </li>
-            ))}
-        </ul>
+        <>
+          <div className="section-title">
+            <h2 id="season-record">{tr("Season record")}</h2>
+          </div>
+          <ul className={`panel ${styles.editions}`}>
+            {summary.editions
+              .filter((edition) => edition.maps.length > 0)
+              .map((edition) => (
+                <li className={styles.edition} key={edition.editionSlug}>
+                  <div className={styles.head}>
+                    <h3>
+                      <Link
+                        className="context-link"
+                        href={`/tournaments/${edition.editionSlug}`}
+                      >
+                        {edition.editionName}
+                      </Link>
+                    </h3>
+                  </div>
+                  <dl className={styles.facts}>
+                    {totals(tr, {
+                      maps: edition.maps.length,
+                      averagePlacement: edition.averagePlacement,
+                      firstPlaces: edition.firstPlaces,
+                      averageAccuracy: edition.averageAccuracy,
+                      averageEffectiveRating: edition.averageEffectiveRating,
+                      ratedMaps: edition.ratedMaps,
+                    }).map((item) => (
+                      <div key={item.label}>
+                        <dt>{item.label}</dt>
+                        <dd>{item.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  {edition.maps.length > 0 && <MapTable edition={edition} />}
+                </li>
+              ))}
+          </ul>
+        </>
       )}
     </section>
   );

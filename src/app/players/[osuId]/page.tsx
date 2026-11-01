@@ -1,22 +1,26 @@
-import {
-  PlayerCompetition,
-  PlayerTeamRecord,
-} from "@/components/player-competition";
-import { PlayerMapPerformance } from "@/components/player-map-performance";
-import { PlayerProfile } from "@/components/player-profile";
-import { PlayerTimeline } from "@/components/player-timeline";
+import { PlayerEditionView } from "@/components/player-edition-view";
 import { Avatar } from "@/components/avatar";
 import { collapseAliases, previousUsernames } from "@/lib/player-aliases";
-import { playerCompetitionRecord } from "@/lib/player-competition";
-import { playerMapPerformance } from "@/lib/player-map-performance";
-import { buildPlayerTimeline } from "@/lib/player-timeline";
+import {
+  participatedTournamentEditions,
+  playerCompetitionRecord,
+} from "@/lib/player-competition";
+import {
+  playerMapPerformance,
+  summarizeMapPerformance,
+  type PlayerMapPerformance,
+} from "@/lib/player-map-performance";
+import {
+  buildPlayerTimeline,
+  type PlayerTimeline,
+} from "@/lib/player-timeline";
 import { getPublicEditions } from "@/lib/content";
-import { RoundRatings } from "@/components/round-ratings";
 import { getAppTranslations } from "@/i18n/server";
 import { frontendProfile } from "@/lib/frontend-data";
+import { remoteMode } from "@/lib/data-source";
+import { profileBws } from "@/lib/bws";
 import { publicRoundRatings } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import styles from "./profile.module.css";
 
@@ -44,31 +48,20 @@ async function ProfileContent({
         !/^[a-z0-9-]+$/.test(query.edition)))
   )
     notFound();
-  let data;
+  const edition = typeof query.edition === "string" ? query.edition : null;
+  let data: Awaited<ReturnType<typeof frontendProfile>>;
+  let publishedEditions: Awaited<ReturnType<typeof getPublicEditions>>;
   try {
-    data = await frontendProfile(osuId, query.edition as string | undefined);
+    [data, publishedEditions] = await Promise.all([
+      frontendProfile(osuId),
+      getPublicEditions(),
+    ]);
   } catch (e) {
     if (e instanceof HttpError && [400, 404].includes(e.status)) notFound();
     throw e;
   }
   const profile = data.snapshot?.profile;
   const country = profile?.countryName ?? profile?.countryCode;
-  const ratingHistory =
-    typeof query.edition === "string"
-      ? (await publicRoundRatings(query.edition))
-          .filter((r) =>
-            r.report.players.some((p) => p.userId === Number(osuId)),
-          )
-          .map((r) => ({
-            ...r,
-            report: {
-              ...r.report,
-              players: r.report.players.filter(
-                (p) => p.userId === Number(osuId),
-              ),
-            },
-          }))
-      : [];
   // osu! supplies the aliases on the fetched profile; roster/archive names add to them.
   const aliases = previousUsernames(
     profile?.previousUsernames ?? [],
@@ -158,81 +151,144 @@ async function ProfileContent({
       </div>
     </header>
   );
-  const [competition, mapPerformance, publishedEditions] = await Promise.all([
-    data.participation.length
-      ? playerCompetitionRecord(data.participation)
-      : null,
-    data.participation.length ? playerMapPerformance(data.participation) : null,
-    // Seasons the player never entered still link to their public edition page.
-    getPublicEditions(),
+  const participation = data.participation;
+  const participatedEditions = participatedTournamentEditions(
+    participation,
+    publishedEditions,
+  );
+  const publishedSlugs = new Set(
+    publishedEditions.map((published) => published.slug),
+  );
+  const selectableEditions = participatedEditions.filter((entry) =>
+    publishedSlugs.has(entry.editionSlug),
+  );
+  // Keep the old filtered URLs bounded to a published edition this person
+  // appears in; the strip may still show an unpublished fallback name.
+  if (
+    edition &&
+    !selectableEditions.some((entry) => entry.editionSlug === edition)
+  )
+    notFound();
+
+  const [competition, mapPerformance, ratingsByEdition] = await Promise.all([
+    participation.length ? playerCompetitionRecord(participation) : null,
+    participation.length ? playerMapPerformance(participation) : null,
+    Promise.all(
+      selectableEditions.map(async (entry) => {
+        const playerId = Number(osuId);
+        const rows = (await publicRoundRatings(entry.editionSlug))
+          .filter((rating) =>
+            rating.report.players.some((person) => person.userId === playerId),
+          )
+          .map((rating) => ({
+            ...rating,
+            report: {
+              ...rating.report,
+              players: rating.report.players.filter(
+                (person) => person.userId === playerId,
+              ),
+            },
+          }));
+        return [entry.editionSlug, rows] as const;
+      }),
+    ).then(
+      (entries) =>
+        Object.fromEntries(entries) as Record<
+          string,
+          Awaited<ReturnType<typeof publicRoundRatings>>
+        >,
+    ),
   ]);
-  // Built on the server so the axis end, and every placed mark, stay stable.
-  const timeline = buildPlayerTimeline({
-    editions: competition?.editions ?? [],
-    editionPool: publishedEditions.map(({ slug, season }) => ({
-      slug,
-      season,
-    })),
+
+  // BWS review is edition-scoped, so each panel needs its own computation.
+  // The remote adapter has no public badge-review resource; it keeps the
+  // profile-wide value rather than issuing one full profile read per edition.
+  const bwsByEdition: Record<string, Awaited<ReturnType<typeof profileBws>>> =
+    {};
+  if (data.snapshot) {
+    if (remoteMode()) {
+      for (const entry of selectableEditions)
+        bwsByEdition[entry.editionSlug] = data.bws;
+    } else {
+      await Promise.all(
+        selectableEditions.map(async (entry) => {
+          bwsByEdition[entry.editionSlug] = await profileBws(
+            data.snapshot!,
+            entry.editionSlug,
+          );
+        }),
+      );
+    }
+  }
+
+  const mapByEdition: Record<string, PlayerMapPerformance> = {};
+  if (mapPerformance) {
+    for (const entry of selectableEditions) {
+      mapByEdition[entry.editionSlug] = summarizeMapPerformance(
+        mapPerformance.editions.filter(
+          (season) => season.editionSlug === entry.editionSlug,
+        ),
+      );
+    }
+  }
+
+  const editionPool = publishedEditions.map(({ slug, season }) => ({
+    slug,
+    season,
+  }));
+  const timelineInput = {
+    editionPool,
     joinedAt: profile?.joinedAt,
     lastSeenAt: profile?.lastSeenAt,
+  };
+  const allTimeline = buildPlayerTimeline({
+    editions: competition?.editions ?? [],
+    ...timelineInput,
   });
-  return (
-    <div
-      className={
-        query.edition
-          ? "public-tournament public-player-page"
-          : "container page"
+  // The filtered timeline keeps every participated season's accent colour but
+  // draws only the selected edition's match marks.
+  const timelines: Record<string, PlayerTimeline> = {};
+  for (const entry of selectableEditions) {
+    const matches =
+      competition?.editions.find(
+        (record) => record.editionSlug === entry.editionSlug,
+      )?.matches ?? [];
+    timelines[entry.editionSlug] = buildPlayerTimeline({
+      editions: participatedEditions.map((season) => ({
+        ...season,
+        matches: season.editionSlug === entry.editionSlug ? matches : [],
+      })),
+      ...timelineInput,
+    });
+  }
+
+  const snapshot = data.snapshot
+    ? {
+        ...data.snapshot,
+        profile: {
+          ...data.snapshot.profile,
+          username: data.identity.username,
+          previousUsernames: aliases,
+        },
       }
-    >
-      <Link
-        className="context-link"
-        href={
-          query.edition
-            ? `/tournaments/${query.edition}/players`
-            : "/tournaments"
-        }
-      >
-        {query.edition ? tr("← Tournament players") : tr("← Tournaments")}
-      </Link>
-      {data.snapshot ? (
-        <PlayerProfile
-          heading={heading}
-          snapshot={{
-            ...data.snapshot,
-            profile: {
-              ...data.snapshot.profile,
-              username: data.identity.username,
-              previousUsernames: aliases,
-            },
-          }}
-          bws={data.bws}
-        />
-      ) : (
-        <>
-          {heading}
-          <p className="notice" role="status">
-            {tr("osu! statistics are temporarily unavailable.")}
-          </p>
-        </>
-      )}
-      {typeof query.edition === "string" && (
-        <RoundRatings data={ratingHistory} slug={query.edition} />
-      )}
-      {(timeline.marks.length > 0 || timeline.spans.length > 0) && (
-        <PlayerTimeline timeline={timeline} />
-      )}
-      {competition && (
-        <PlayerCompetition
-          record={competition}
-          mapRecord={mapPerformance}
-          resetHref={
-            typeof query.edition === "string" ? `/players/${osuId}` : null
-          }
-        />
-      )}
-      {mapPerformance && <PlayerMapPerformance record={mapPerformance} />}
-      {competition && <PlayerTeamRecord record={competition} />}
-    </div>
+    : null;
+
+  return (
+    <PlayerEditionView
+      osuId={osuId}
+      editions={participatedEditions}
+      initial={edition}
+      snapshot={snapshot}
+      heading={heading}
+      bws={data.bws}
+      bwsByEdition={bwsByEdition}
+      competition={competition}
+      mapPerformance={mapPerformance}
+      mapByEdition={mapByEdition}
+      timelines={timelines}
+      allTimeline={allTimeline}
+      ratingsByEdition={ratingsByEdition}
+    />
   );
 }
 

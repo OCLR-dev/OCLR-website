@@ -1,3 +1,5 @@
+"use client";
+
 import { useAppTranslations } from "@/i18n/shared";
 import { BwsSummary } from "./bws-summary";
 import { RankChart } from "./rank-chart";

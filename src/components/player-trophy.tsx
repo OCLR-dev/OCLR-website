@@ -50,7 +50,10 @@ const palette: Record<
 
 /** A season theme label such as "S10 · 晴空未来城", or the season alone. */
 export function trophyEditionLabel(
-  edition: CompetitionEditionRecord,
+  edition: Pick<
+    CompetitionEditionRecord,
+    "defaultAppearance" | "season" | "editionName"
+  >,
   tr: (message: string) => string,
 ) {
   const theme = edition.defaultAppearance

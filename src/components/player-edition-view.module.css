@@ -1,0 +1,38 @@
+.filterNotice {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline: 0;
+  z-index: 0;
+  display: block;
+  width: min(1240px, calc(100% - 6rem));
+  margin: 0.5rem auto 0;
+  border-left-color: var(--site-accent, #ba79e4);
+  color: #f4eefc;
+  text-decoration: none;
+  box-shadow: 0 0.75rem 2rem #00000059;
+  animation: filterNoticeIn 180ms ease-out;
+}
+
+.filterNotice:is(:hover, :focus-visible) {
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+@keyframes filterNoticeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+  }
+}
+
+@media (max-width: 760px) {
+  .filterNotice {
+    width: calc(100% - 2.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filterNotice {
+    animation: none;
+  }
+}
