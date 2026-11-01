@@ -21,6 +21,8 @@ import "../../src/app/chromatic-theme.css";
 import "../../src/app/frost-theme.css";
 import "../../src/app/archive-counts.css";
 import "../../src/app/header-mobile.css";
+import { useState } from "react";
+import { TournamentShell } from "../../src/components/tournament-navigation";
 import { createRoot } from "react-dom/client";
 import { NextIntlClientProvider } from "next-intl";
 import {
@@ -55,38 +57,60 @@ const router: AppRouterInstance = {
   prefetch() {},
   bfcacheId: "synthetic",
 };
-createRoot(document.getElementById("root")!).render(
-  <AppRouterContext.Provider value={router}>
-    <PathnameContext.Provider value="/">
-      <SearchParamsContext.Provider value={params}>
-        <NextIntlClientProvider
-          locale={locale}
-          messages={{ en, "zh-Hans": hans, "zh-Hant": hant }[locale]}
-          timeZone="UTC"
-        >
-          <div className="themed-site public-site">
-            <Header
-              user={
-                user
-                  ? {
-                      osuId: 1,
-                      username: "Synthetic Staff",
-                      staff: user === "staff",
-                    }
-                  : null
-              }
-              remote={params.has("remote")}
-              themePreference={theme}
-              systemTheme={theme}
-              appearance={appearance}
-            />
-            <main style={{ minHeight: 1000, padding: 24 }}>
-              <h1>Synthetic header preview</h1>
-              <a href="#content">Page content</a>
-            </main>
-          </div>
-        </NextIntlClientProvider>
-      </SearchParamsContext.Provider>
-    </PathnameContext.Provider>
-  </AppRouterContext.Provider>,
-);
+function Harness() {
+  const [path, setPath] = useState(
+    params.has("tournament") ? "/tournaments/synthetic" : "/",
+  );
+  const content = (
+    <main style={{ minHeight: 2600, padding: 24 }}>
+      <h1>Synthetic header preview</h1>
+      <a href="#content">Page content</a>
+      <button type="button" data-route-change onClick={() => setPath("/news")}>
+        Synthetic route change
+      </button>
+    </main>
+  );
+  return (
+    <AppRouterContext.Provider value={router}>
+      <PathnameContext.Provider value={path}>
+        <SearchParamsContext.Provider value={params}>
+          <NextIntlClientProvider
+            locale={locale}
+            messages={{ en, "zh-Hans": hans, "zh-Hant": hant }[locale]}
+            timeZone="UTC"
+          >
+            <div className="themed-site public-site">
+              <Header
+                user={
+                  user
+                    ? {
+                        osuId: 1,
+                        username: "Synthetic Staff",
+                        staff: user === "staff",
+                      }
+                    : null
+                }
+                remote={params.has("remote")}
+                themePreference={theme}
+                systemTheme={theme}
+                appearance={appearance}
+              />
+              {params.has("tournament") ? (
+                <TournamentShell
+                  slug="synthetic"
+                  name="Synthetic Cup"
+                  liveDraft={false}
+                >
+                  {content}
+                </TournamentShell>
+              ) : (
+                content
+              )}
+            </div>
+          </NextIntlClientProvider>
+        </SearchParamsContext.Provider>
+      </PathnameContext.Provider>
+    </AppRouterContext.Provider>
+  );
+}
+createRoot(document.getElementById("root")!).render(<Harness />);

@@ -11,6 +11,7 @@ import { ThemeControl } from "./theme-control";
 import type { Theme, ThemePreference, Appearance } from "@/lib/preferences";
 import { AppearanceControl } from "./appearance-control";
 import { LanguageControl } from "./language-control";
+import { useMobileHeaderScroll } from "./use-mobile-header-scroll";
 type Account = {
   osuId: number;
   username: string;
@@ -236,6 +237,8 @@ export function Header({
   ];
   const [open, setOpen] = useState(false);
   const path = usePathname();
+  const header = useRef<HTMLElement>(null);
+  const scrollHidden = useMobileHeaderScroll(header, open, path);
   const menuTrigger = useRef<HTMLButtonElement>(null);
   const navigation = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -271,7 +274,11 @@ export function Header({
     };
   }, [open]);
   return (
-    <header className="site-header">
+    <header
+      className="site-header"
+      ref={header}
+      data-scroll-hidden={scrollHidden && !open}
+    >
       <div className="nav-wrap">
         <Link href="/" className="brand" aria-label={tr("OCLR home")}>
           <OclrLogo />
