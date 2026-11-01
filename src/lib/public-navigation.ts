@@ -1,5 +1,26 @@
+/** Personal tools have their own destinations, separate from public sections. */
+export function captainWorkspaceSection(path: string, base: string) {
+  return (
+    (["team", "draft/captain", "schedule/requests"] as const).find(
+      (section) =>
+        path === `${base}/${section}` || path.startsWith(`${base}/${section}/`),
+    ) ?? null
+  );
+}
+
+export function playerWorkspaceSection(path: string, base: string) {
+  return (
+    (["player/practice", "player/availability"] as const).find(
+      (section) =>
+        path === `${base}/${section}` || path.startsWith(`${base}/${section}/`),
+    ) ?? null
+  );
+}
+
 /** One selected public destination, including its detail routes. */
 export function publicTournamentSection(path: string, base: string) {
+  if (captainWorkspaceSection(path, base) || playerWorkspaceSection(path, base))
+    return null;
   const suffix =
     path === base
       ? ""
@@ -10,7 +31,6 @@ export function publicTournamentSection(path: string, base: string) {
   if (suffix === "participants") return "players";
   if (suffix === "matches") return "schedule";
   if (["register", "rules"].includes(suffix)) return "";
-  if (suffix === "team") return "teams";
   return suffix;
 }
 
@@ -19,7 +39,7 @@ export function isPublicPage(path: string, presenter = false) {
   if (/^\/(admin|dashboard|developer|login|auth|api)(?:\/|$)/.test(path))
     return false;
   if (
-    /^\/tournaments\/[^/]+\/(team(?:\/|$)|draft\/(captain|overlay)(?:\/|$))/.test(
+    /^\/tournaments\/[^/]+\/(team(?:\/|$)|draft\/(captain|overlay)(?:\/|$)|schedule\/requests(?:\/|$)|player\/(practice|availability)(?:\/|$))/.test(
       path,
     )
   )

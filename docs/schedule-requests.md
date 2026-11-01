@@ -1,6 +1,9 @@
 # Schedule requests (#591)
 
-The edition Schedule links to `/tournaments/[edition]/schedule/requests`.
+Captains open **Schedule requests** from the separate **Captain workspace**
+section in the left sidebar, alongside **My team** and **Captain draft room**.
+The tool keeps its protected URL,
+`/tournaments/[edition]/schedule/requests`.
 Current players can save up to 40 availability intervals for each published,
 confirmed fixture involving their team. Each interval is an explicit start/end
 instant in the fixture's IANA time zone; stored data uses UTC. Overlapping slots

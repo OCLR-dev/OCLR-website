@@ -491,6 +491,13 @@
       "when": 1793529508941,
       "tag": "0069_commentator_tasks",
       "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "7",
+      "when": 1793533464521,
+      "tag": "0070_player_workspace",
+      "breakpoints": true
     }
   ]
 }

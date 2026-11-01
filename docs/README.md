@@ -8,6 +8,7 @@ The repository root README ([English](../README.md) / [简体中文](../README.z
 | [Tournament administration](tournament-management.md)            | Edition settings, registration lifecycle, roles, staff reviews and audits                    |
 | [Competition workflows](competition-operations.md)               | Captains, teams, draft engine, fixtures, multiplayer import and result review                |
 | [Mappools](mappools.md)                                          | Beatmap metadata, slot/order management, publication rules and private staff Replays         |
+| [Player workspace](player-workspace.md)                          | Team practice records and private season-wide player availability                            |
 | [Public features](public-features.md)                            | News, About, players, published profiles, bracket and standings                              |
 | [Rating model](yumu-rating.md)                                   | yumu-bot attribution, formulas and OCLR adaptations                                          |
 | [Localization and appearance](localization.md)                   | Locale messages, Simplified/Traditional Chinese and appearance preferences                   |

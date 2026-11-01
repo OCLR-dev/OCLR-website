@@ -77,35 +77,25 @@ export const tournamentNavigation: readonly {
         capabilities: ["manage_registrations"],
       },
       {
-        path: "teams",
-        label: "Players & teams",
-        capabilities: ["manage_teams"],
-      },
-      {
         path: "captains",
         label: "Captains",
         capabilities: ["manage_captains"],
       },
       { path: "draft", label: "Live draft", capabilities: ["manage_draft"] },
+      {
+        path: "teams",
+        label: "Players & teams",
+        capabilities: ["manage_teams"],
+      },
     ],
   },
   {
     label: "Competition",
     items: [
       {
-        path: "streaming",
-        label: "Streaming tasks",
-        capabilities: ["view_streaming"],
-      },
-      {
         path: "rounds",
         label: "Rounds",
         capabilities: ["manage_mappools"],
-      },
-      {
-        path: "awards",
-        label: "Weekly awards",
-        capabilities: ["approve_results"],
       },
       {
         path: "mappool-workbench",
@@ -121,6 +111,16 @@ export const tournamentNavigation: readonly {
         path: "matches",
         label: "Fixtures & results",
         capabilities: ["manage_fixtures", "record_results", "view_streaming"],
+      },
+      {
+        path: "streaming",
+        label: "Streaming tasks",
+        capabilities: ["view_streaming"],
+      },
+      {
+        path: "awards",
+        label: "Weekly awards",
+        capabilities: ["approve_results"],
       },
     ],
   },

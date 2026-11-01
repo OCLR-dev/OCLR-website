@@ -3,6 +3,7 @@ import {
   pgEnum,
   check,
   integer,
+  doublePrecision,
   boolean,
   primaryKey,
   foreignKey,
@@ -16,6 +17,7 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+
 export const users = pgTable("users", {
   osuId: bigint("osu_id", { mode: "number" }).primaryKey(),
   username: text("username").notNull(),
@@ -1671,3 +1673,112 @@ export const scheduleEvents = pgTable(
 );
 
 export { refereeMpBindings, refereeMpScores } from "./referee-mp-schema";
+
+// Personal workspace data is private and has no public result/publication role.
+export const playerPracticeRecords = pgTable(
+  "player_practice_records",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    editionSlug: text("edition_slug")
+      .notNull()
+      .references(() => editionState.slug),
+    userId: bigint("user_id", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId, { onDelete: "cascade" }),
+    // Keep the original context if an organizer replaces/removes a map slot.
+    entryId: uuid("entry_id").notNull(),
+    beatmapId: bigint("beatmap_id", { mode: "number" }).notNull(),
+    contextKey: text("context_key").notNull(),
+    score: bigint("score", { mode: "number" }),
+    accuracy: doublePrecision("accuracy"),
+    rating: integer("rating"),
+    comment: text("comment").notNull().default(""),
+    version: integer("version").notNull().default(1),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("player_practice_owner_entry_unique").on(
+      t.editionSlug,
+      t.userId,
+      t.entryId,
+    ),
+    index("player_practice_entry_idx").on(t.editionSlug, t.entryId),
+    check(
+      "player_practice_score_valid",
+      sql`${t.score} IS NULL OR ${t.score} BETWEEN 0 AND 9007199254740991`,
+    ),
+    check(
+      "player_practice_accuracy_valid",
+      sql`${t.accuracy} IS NULL OR ${t.accuracy} BETWEEN 0 AND 100`,
+    ),
+    check(
+      "player_practice_rating_valid",
+      sql`${t.rating} IS NULL OR ${t.rating} BETWEEN 1 AND 5`,
+    ),
+    check("player_practice_comment_bounded", sql`length(${t.comment}) <= 2000`),
+    check("player_practice_version_valid", sql`${t.version} > 0`),
+  ],
+);
+
+export const playerSeasonAvailability = pgTable(
+  "player_season_availability",
+  {
+    editionSlug: text("edition_slug")
+      .notNull()
+      .references(() => editionState.slug),
+    userId: bigint("user_id", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId, { onDelete: "cascade" }),
+    intervals: jsonb("intervals")
+      .$type<import("@/lib/schedule-model").AvailabilityInterval[]>()
+      .notNull(),
+    version: integer("version").notNull().default(1),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.editionSlug, t.userId] }),
+    check(
+      "player_season_availability_bounded",
+      sql`jsonb_typeof(${t.intervals}) = 'array' AND jsonb_array_length(${t.intervals}) <= 200`,
+    ),
+    check("player_season_availability_version_valid", sql`${t.version} > 0`),
+  ],
+);
+
+// Kept outside generic staff audit projections because notes and slots are personal.
+export const playerWorkspaceEvents = pgTable(
+  "player_workspace_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    editionSlug: text("edition_slug")
+      .notNull()
+      .references(() => editionState.slug),
+    actorId: bigint("actor_id", { mode: "number" }).notNull(),
+    resource: text("resource").$type<"practice" | "availability">().notNull(),
+    entityId: text("entity_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    payloadHash: text("payload_hash").notNull(),
+    before: jsonb("before").$type<unknown>(),
+    after: jsonb("after")
+      .$type<{ version: number } & Record<string, unknown>>()
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("player_workspace_request_unique").on(
+      t.editionSlug,
+      t.actorId,
+      t.requestKey,
+    ),
+    check(
+      "player_workspace_resource_valid",
+      sql`${t.resource} IN ('practice','availability')`,
+    ),
+  ],
+);
