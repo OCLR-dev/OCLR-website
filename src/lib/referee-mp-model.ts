@@ -81,6 +81,15 @@ export function planMpResults(
     const outcome = lastAttemptOutcome(w, attempt.id);
     // A human resolution owns its outcome, even when it disagrees with the provider.
     if (outcome && outcome.id !== receipt?.eventId) continue;
+    if (receipt && !safeSource) {
+      // Incomplete live pagination is not evidence that a saved finished game changed.
+      issues.push({
+        gameId: receipt.gameId,
+        beatmapId: selection.beatmapId,
+        reason: "incomplete",
+      });
+      continue;
+    }
     const games = source.games.filter(
       (g) => g.beatmapId === selection.beatmapId,
     );

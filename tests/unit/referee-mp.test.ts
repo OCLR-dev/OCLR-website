@@ -119,6 +119,12 @@ describe("automatic MP result plan", () => {
       orders: w.session!,
       events: w.events,
     });
+    s.complete = false;
+    expect(planMpResults(w, s, [receipt], new Set()).invalidate).toEqual([]);
+    expect(planMpResults(w, s, [receipt], new Set()).issues[0].reason).toBe(
+      "incomplete",
+    );
+    s.complete = true;
     s.games[0].scores[1].total = 1000;
     expect(planMpResults(w, s, [receipt], new Set()).invalidate).toEqual([
       receipt,
