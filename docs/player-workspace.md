@@ -10,15 +10,26 @@ Staff roles alone do not grant access to personal workspace data.
 ## Practice sheet
 
 `/tournaments/[edition]/player/practice` automatically selects the most recently
-published mappool, with a selector for other published pools. Hidden pools and
-historical archives are unavailable. Each map has optional manually entered
-score, accuracy, a 1–5 star rating and a comment (up to 2,000 characters).
+published mappool, with tabs for other published pools and each available Mod.
+Changing Mod keeps each map's unsaved inputs mounted; changing pools asks before
+discarding drafts. Hidden pools and historical archives are unavailable.
+Each map has optional manually entered
+score, a 1–5 star rating and a compact, vertically resizable comment field (up to
+2,000 characters). Team records are expanded by default.
 
 Each player edits only their own record. Current active teammates can read each
 other's records; an unassigned player can save and view their own records.
 Sharing follows the current active roster and accepted registration/captain
 appointment, including after roster or eligibility changes. Practice records
 never appear in public mappool responses or competition results.
+
+Only the owner may delete a practice record, after confirmation. It disappears
+from every teammate's next read. Migration `0071_practice_record_deletion.sql`
+retains a deletion marker and monotonically increasing owner/entry version;
+recreating a record cannot reset its version and allow stale pages to overwrite
+it. Deletion and its private before/after audit commit together. The old ACC
+column remains legacy storage, omitted from current commands and read models;
+new saves and deletions clear it.
 
 A record belongs to an edition, owner and pool entry. The saved chart ID,
 checksum, category and mod configuration identify its map context. A replacement

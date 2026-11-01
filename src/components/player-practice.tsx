@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
 import type { PracticeWorkspace } from "@/lib/player-workspace";
@@ -7,7 +7,7 @@ import {
   practiceValueSchema,
   type PracticeValue,
 } from "@/lib/player-workspace-model";
-import { slotLabel, fmPolicyName } from "@/lib/mappool-model";
+import { categories, slotLabel, fmPolicyName } from "@/lib/mappool-model";
 import { BeatmapCover } from "./beatmap-cover";
 import { BeatmapActions } from "./beatmap-actions";
 import { EmptyState } from "./ui";
@@ -15,12 +15,70 @@ import { useUnsavedWorkspace, useWorkspaceSave } from "./player-workspace-save";
 import styles from "./player-workspace.module.css";
 
 type Entry = NonNullable<PracticeWorkspace["pool"]>["entries"][number];
-const empty: PracticeValue = {
-  score: null,
-  accuracy: null,
-  rating: null,
-  comment: "",
-};
+const empty: PracticeValue = { score: null, rating: null, comment: "" };
+
+function PracticeTabs({
+  id,
+  label,
+  items,
+  value,
+  panel,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  items: { id: string; label: string }[];
+  value: string;
+  panel: (id: string) => string;
+  onChange: (id: string) => void;
+}) {
+  const root = useRef<HTMLDivElement>(null);
+  return (
+    <div
+      ref={root}
+      className={`workspace-tabs ${styles.practiceTabs}`}
+      role="tablist"
+      aria-label={label}
+      onKeyDown={(event) => {
+        const tabs = [
+          ...root.current!.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+        ];
+        const index = tabs.indexOf(event.target as HTMLButtonElement);
+        if (index < 0) return;
+        const next =
+          event.key === "ArrowRight"
+            ? (index + 1) % tabs.length
+            : event.key === "ArrowLeft"
+              ? (index + tabs.length - 1) % tabs.length
+              : event.key === "Home"
+                ? 0
+                : event.key === "End"
+                  ? tabs.length - 1
+                  : null;
+        if (next !== null) {
+          event.preventDefault();
+          tabs[next].focus();
+        }
+      }}
+    >
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          role="tab"
+          id={`${id}-${item.id}`}
+          aria-selected={value === item.id}
+          aria-controls={panel(item.id)}
+          tabIndex={value === item.id ? 0 : -1}
+          onClick={() => onChange(item.id)}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function PracticeEntry({
   entry,
   data,
@@ -36,16 +94,12 @@ function PracticeEntry({
   const own = entry.records.find((record) => record.userId === data.actorId);
   const initial =
     own && !own.stale
-      ? {
-          score: own.score,
-          accuracy: own.accuracy,
-          rating: own.rating,
-          comment: own.comment,
-        }
+      ? { score: own.score, rating: own.rating, comment: own.comment }
       : empty;
-  const [value, setValue] = useState(initial);
-  const [saved, setSaved] = useState(initial);
-  const [version, setVersion] = useState(own?.version ?? 0);
+  const [value, setValue] = useState(initial),
+    [saved, setSaved] = useState(initial);
+  const [version, setVersion] = useState(entry.ownVersion);
+  const [exists, setExists] = useState(Boolean(own));
   const [stale, setStale] = useState(Boolean(own?.stale));
   const [validation, setValidation] = useState("");
   const { save, busy, message, failed } = useWorkspaceSave(
@@ -53,42 +107,27 @@ function PracticeEntry({
   );
   const dirty = JSON.stringify(value) !== JSON.stringify(saved);
   useEffect(() => {
-    onDirty(entry.id, dirty);
+    onDirty(entry.id, dirty || busy);
     return () => onDirty(entry.id, false);
-  }, [entry.id, dirty, onDirty]);
+  }, [entry.id, dirty, busy, onDirty]);
   const label = slotLabel(entry.category, entry.position);
   const disabled = data.readOnly || busy;
   const players = new Map(
     data.participants.map((player) => [player.osuId, player.username]),
   );
-  const visibleRecords =
-    version > 0 && !stale
-      ? [
-          ...entry.records.filter((record) => record.userId !== data.actorId),
-          { ...saved, userId: data.actorId, version, stale: false },
-        ]
-      : entry.records;
-  const field = (key: "score" | "accuracy", text: string) => (
-    <label className="field">
-      <span>{text}</span>
-      <input
-        type="number"
-        inputMode={key === "score" ? "numeric" : "decimal"}
-        min={0}
-        max={key === "accuracy" ? 100 : Number.MAX_SAFE_INTEGER}
-        step={key === "score" ? 1 : "any"}
-        value={value[key] ?? ""}
-        disabled={disabled}
-        onChange={(event) =>
-          setValue({
-            ...value,
-            [key]:
-              event.target.value === "" ? null : Number(event.target.value),
-          })
-        }
-      />
-    </label>
-  );
+  const visibleRecords = [
+    ...entry.records.filter((record) => record.userId !== data.actorId),
+    ...(exists
+      ? stale && own
+        ? [own]
+        : [{ ...saved, userId: data.actorId, version, stale: false }]
+      : []),
+  ];
+  const target = {
+    entryId: entry.id,
+    expectedContext: entry.context,
+    expectedVersion: version,
+  };
   return (
     <article className={styles.map} aria-labelledby={`map-${entry.id}`}>
       <header className={styles.mapHeading}>
@@ -129,16 +168,15 @@ function PracticeEntry({
           }
           const next = await save({
             ...parsed.data,
+            ...target,
             action: "save_practice",
-            entryId: entry.id,
-            expectedContext: entry.context,
-            expectedVersion: version,
           });
           if (next !== undefined) {
             setVersion(next);
             setValue(parsed.data);
             setSaved(parsed.data);
             setStale(false);
+            setExists(true);
           }
         }}
       >
@@ -155,55 +193,74 @@ function PracticeEntry({
             )}
           </p>
         )}
-        <div className={styles.scoreFields}>
-          {field("score", tr("Practice score"))}
-          {field("accuracy", tr("Accuracy (%)"))}
-        </div>
-        <fieldset className={styles.rating} disabled={disabled}>
-          <legend>{tr("Practice rating")}</legend>
-          <div className={styles.stars}>
-            {[1, 2, 3, 4, 5].map((rating) => (
-              <label
-                key={rating}
-                title={tr("{value0} out of 5 stars", { value0: rating })}
-              >
-                <input
-                  type="radio"
-                  name={`rating-${entry.id}`}
-                  value={rating}
-                  checked={value.rating === rating}
-                  onChange={() => setValue({ ...value, rating })}
-                />
-                <span
-                  className={
-                    value.rating !== null && rating <= value.rating
-                      ? styles.starSelected
-                      : undefined
-                  }
-                  aria-hidden="true"
+        <div className={styles.practiceValues}>
+          <label className="field">
+            <span>{tr("Practice score")}</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={Number.MAX_SAFE_INTEGER}
+              step={1}
+              value={value.score ?? ""}
+              disabled={disabled}
+              onChange={(event) =>
+                setValue({
+                  ...value,
+                  score:
+                    event.target.value === ""
+                      ? null
+                      : Number(event.target.value),
+                })
+              }
+            />
+          </label>
+          <fieldset className={styles.rating} disabled={disabled}>
+            <legend>{tr("Practice rating")}</legend>
+            <div className={styles.stars}>
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <label
+                  key={rating}
+                  title={tr("{value0} out of 5 stars", { value0: rating })}
                 >
-                  ★
-                </span>
-                <span className="sr-only">
-                  {tr("{value0} out of 5 stars", { value0: rating })}
-                </span>
-              </label>
-            ))}
-            <button
-              className="secondary"
-              type="button"
-              disabled={disabled || value.rating === null}
-              onClick={() => setValue({ ...value, rating: null })}
-            >
-              {tr("Clear rating")}
-            </button>
-          </div>
-        </fieldset>
-        <label className="field">
+                  <input
+                    type="radio"
+                    name={`rating-${entry.id}`}
+                    value={rating}
+                    checked={value.rating === rating}
+                    onChange={() => setValue({ ...value, rating })}
+                  />
+                  <span
+                    className={
+                      value.rating !== null && rating <= value.rating
+                        ? styles.starSelected
+                        : undefined
+                    }
+                    aria-hidden="true"
+                  >
+                    ★
+                  </span>
+                  <span className="sr-only">
+                    {tr("{value0} out of 5 stars", { value0: rating })}
+                  </span>
+                </label>
+              ))}
+              <button
+                className="secondary"
+                type="button"
+                disabled={disabled || value.rating === null}
+                onClick={() => setValue({ ...value, rating: null })}
+              >
+                {tr("Clear rating")}
+              </button>
+            </div>
+          </fieldset>
+        </div>
+        <label className={`field ${styles.practiceComment}`}>
           <span>{tr("Practice comment")}</span>
           <textarea
             maxLength={2000}
-            rows={2}
+            rows={1}
             value={value.comment}
             disabled={disabled}
             onChange={(event) =>
@@ -232,12 +289,12 @@ function PracticeEntry({
           </p>
         )}
       </form>
-      {visibleRecords.length > 0 && (
-        <details className={styles.teamRecords}>
-          <summary>
-            {tr("Team practice records")}{" "}
-            <span className="muted small">({visibleRecords.length})</span>
-          </summary>
+      <details open className={styles.teamRecords}>
+        <summary>
+          {tr("Team practice records")}{" "}
+          <span className="muted small">({visibleRecords.length})</span>
+        </summary>
+        {visibleRecords.length ? (
           <ul>
             {visibleRecords.map((record) => (
               <li key={record.userId}>
@@ -246,15 +303,36 @@ function PracticeEntry({
                   {record.stale && (
                     <span className="badge">{tr("Previous map context")}</span>
                   )}
+                  {record.userId === data.actorId && !data.readOnly && (
+                    <button
+                      type="button"
+                      className="secondary destructive-action"
+                      disabled={busy}
+                      onClick={async () => {
+                        if (!window.confirm(tr("Delete your practice record?")))
+                          return;
+                        setValidation("");
+                        const next = await save(
+                          { ...target, action: "delete_practice" },
+                          tr("Practice record deleted."),
+                        );
+                        if (next !== undefined) {
+                          setVersion(next);
+                          setExists(false);
+                          setStale(false);
+                          setValue(empty);
+                          setSaved(empty);
+                        }
+                      }}
+                    >
+                      {tr("Delete practice record")}
+                    </button>
+                  )}
                 </div>
                 <dl className={styles.recordValues}>
                   <div>
                     <dt>{tr("Practice score")}</dt>
                     <dd>{record.score?.toLocaleString(tr.locale) ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>{tr("Accuracy (%)")}</dt>
-                    <dd>{record.accuracy ?? "—"}</dd>
                   </div>
                   <div>
                     <dt>{tr("Practice rating")}</dt>
@@ -269,8 +347,10 @@ function PracticeEntry({
               </li>
             ))}
           </ul>
-        </details>
-      )}
+        ) : (
+          <p className="muted small">{tr("No practice records yet.")}</p>
+        )}
+      </details>
     </article>
   );
 }
@@ -299,32 +379,41 @@ export function PlayerPractice({
   useUnsavedWorkspace(dirty);
   const proceed = () =>
     !dirty || window.confirm(tr("Discard your unsaved changes?"));
+  const mods = categories.filter((category) =>
+    data.pool?.entries.some((entry) => entry.category === category),
+  );
+  const [selectedMod, setSelectedMod] = useState<string>(mods[0] ?? "");
+  const mod = mods.includes(selectedMod as (typeof mods)[number])
+    ? selectedMod
+    : mods[0];
   return (
     <div className={styles.workspace}>
-      <div className={styles.toolbar}>
-        <label className="field">
-          <span>{tr("Published mappool")}</span>
-          <select
-            value={data.pool?.id ?? ""}
-            disabled={!data.pools.length}
-            onChange={(event) => {
-              if (proceed())
-                router.push(
-                  `/tournaments/${slug}/player/practice?pool=${event.target.value}`,
-                );
-            }}
-          >
-            {!data.pools.length && (
-              <option value="">{tr("No published mappools yet")}</option>
-            )}
-            {data.pools.map((pool) => (
-              <option value={pool.id} key={pool.id}>
-                {pool.roundName ? `${pool.roundName} · ` : ""}
-                {pool.name}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className={styles.practiceToolbar}>
+        <div className={styles.poolTabs}>
+          {data.pools.length ? (
+            <PracticeTabs
+              id="practice-pool-tab"
+              label={tr("Published mappool")}
+              items={data.pools.map((pool) => ({
+                id: pool.id,
+                label:
+                  pool.roundName && pool.roundName !== pool.name
+                    ? `${pool.roundName} · ${pool.name}`
+                    : pool.name,
+              }))}
+              value={data.pool?.id ?? ""}
+              panel={() => "practice-pool-panel"}
+              onChange={(id) => {
+                if (id !== data.pool?.id && proceed())
+                  router.push(
+                    `/tournaments/${slug}/player/practice?pool=${id}`,
+                  );
+              }}
+            />
+          ) : (
+            <p className="muted small">{tr("No published mappools yet")}</p>
+          )}
+        </div>
         <button
           type="button"
           className="secondary"
@@ -346,15 +435,43 @@ export function PlayerPractice({
         <p className="notice">{tr("This player workspace is read-only.")}</p>
       )}
       {data.pool?.entries.length ? (
-        data.pool.entries.map((entry) => (
-          <PracticeEntry
-            key={`${entry.id}-${entry.context}-${entry.records.find((record) => record.userId === data.actorId)?.version ?? 0}`}
-            slug={slug}
-            data={data}
-            entry={entry}
-            onDirty={onDirty}
+        <section
+          id="practice-pool-panel"
+          role="tabpanel"
+          aria-labelledby={`practice-pool-tab-${data.pool.id}`}
+          className={styles.practicePool}
+        >
+          <PracticeTabs
+            id="practice-mod-tab"
+            label={tr("Mods")}
+            items={mods.map((category) => ({ id: category, label: category }))}
+            value={mod}
+            panel={(category) => `practice-mod-panel-${category}`}
+            onChange={setSelectedMod}
           />
-        ))
+          {mods.map((category) => (
+            <div
+              key={category}
+              id={`practice-mod-panel-${category}`}
+              role="tabpanel"
+              aria-labelledby={`practice-mod-tab-${category}`}
+              hidden={category !== mod}
+              className={styles.modPanel}
+            >
+              {data
+                .pool!.entries.filter((entry) => entry.category === category)
+                .map((entry) => (
+                  <PracticeEntry
+                    key={`${entry.id}-${entry.context}-${entry.ownVersion}`}
+                    slug={slug}
+                    data={data}
+                    entry={entry}
+                    onDirty={onDirty}
+                  />
+                ))}
+            </div>
+          ))}
+        </section>
       ) : (
         <EmptyState title={tr("No practice maps yet")}>
           {tr("Published mappool entries will appear here automatically.")}

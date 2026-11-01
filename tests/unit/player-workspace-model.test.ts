@@ -13,7 +13,6 @@ describe("player workspace values", () => {
   it("requires bounded scores, ratings and comments", () => {
     const value = {
       score: 0,
-      accuracy: 100,
       rating: 5,
       comment: "  Team note  ",
     };
@@ -24,6 +23,7 @@ describe("player workspace values", () => {
       { score: Number.MAX_SAFE_INTEGER + 1 },
       { accuracy: NaN },
       { accuracy: 101 },
+      { accuracy: null },
       { rating: 0 },
       { rating: 6 },
       { comment: "x".repeat(2001) },

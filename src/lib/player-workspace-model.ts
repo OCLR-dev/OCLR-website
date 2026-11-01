@@ -9,21 +9,28 @@ export const seasonAvailabilitySchema = z
 export const practiceValueSchema = z
   .object({
     score: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).nullable(),
-    accuracy: z.number().finite().min(0).max(100).nullable(),
     rating: z.number().int().min(1).max(5).nullable(),
     comment: z.string().trim().max(2000),
   })
   .strict();
 export type PracticeValue = z.infer<typeof practiceValueSchema>;
-export const practiceCommandSchema = practiceValueSchema
-  .extend({
-    action: z.literal("save_practice"),
-    entryId: z.uuid(),
-    expectedContext: z.string().regex(/^[a-f0-9]{64}$/),
-    expectedVersion: z.number().int().min(0),
-    requestKey: z.uuid(),
-  })
-  .strict();
+const practiceTarget = {
+  entryId: z.uuid(),
+  expectedContext: z.string().regex(/^[a-f0-9]{64}$/),
+  expectedVersion: z.number().int().min(0),
+  requestKey: z.uuid(),
+};
+export const practiceCommandSchema = z.discriminatedUnion("action", [
+  practiceValueSchema
+    .extend({
+      ...practiceTarget,
+      action: z.literal("save_practice"),
+    })
+    .strict(),
+  z
+    .object({ ...practiceTarget, action: z.literal("delete_practice") })
+    .strict(),
+]);
 export const timetableCommandSchema = z
   .object({
     action: z.literal("save_availability"),

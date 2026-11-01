@@ -168,9 +168,20 @@ describe.skipIf(!url)("private player workspace #671", () => {
       expectedVersion: 0,
       requestKey: randomUUID(),
       score: 900000,
-      accuracy: 98.5,
       rating: 4,
       comment: "Team note",
+      ...extra,
+    };
+  }
+  async function removePractice(actor = p, extra = {}) {
+    const e = (await playerPracticeWorkspace(actor, slug, pool)).pool!
+      .entries[0];
+    return {
+      action: "delete_practice",
+      entryId: e.id,
+      expectedContext: e.context,
+      expectedVersion: e.ownVersion,
+      requestKey: randomUUID(),
       ...extra,
     };
   }
@@ -326,6 +337,123 @@ describe.skipIf(!url)("private player workspace #671", () => {
     expect(await db().select().from(playerPracticeRecords)).toHaveLength(1);
     expect(await db().select().from(playerWorkspaceEvents)).toHaveLength(1);
   });
+  it("deletes only the owner's visible record, records one receipt and retains the version", async () => {
+    await playerPracticeCommand(p, slug, await practice());
+    await playerPracticeCommand(
+      q,
+      slug,
+      await practice(q, { comment: "Teammate note" }),
+    );
+    const command = await removePractice();
+    expect(await playerPracticeCommand(p, slug, command)).toEqual({
+      saved: true,
+      version: 2,
+    });
+    expect(await playerPracticeCommand(p, slug, command)).toEqual({
+      saved: true,
+      version: 2,
+    });
+    const own = (await playerPracticeWorkspace(p, slug)).pool!.entries[0];
+    expect(own.ownVersion).toBe(2);
+    expect(own.records.map((record) => record.userId)).toEqual([q.osuId]);
+    expect(own.records[0]).not.toHaveProperty("accuracy");
+    const teammate = (await playerPracticeWorkspace(q, slug)).pool!.entries[0];
+    expect(teammate.records.map((record) => record.userId)).toEqual([q.osuId]);
+    expect(teammate.ownVersion).toBe(1);
+    const [deleted] = await db()
+      .select()
+      .from(playerPracticeRecords)
+      .where(eq(playerPracticeRecords.userId, p.osuId));
+    expect(deleted).toMatchObject({
+      version: 2,
+      score: null,
+      rating: null,
+      accuracy: null,
+      comment: "",
+    });
+    expect(deleted.deletedAt).toBeInstanceOf(Date);
+    const events = await db()
+      .select()
+      .from(playerWorkspaceEvents)
+      .where(eq(playerWorkspaceEvents.actorId, p.osuId));
+    expect(events).toHaveLength(2);
+    expect(
+      events.find((event) => event.requestKey === command.requestKey),
+    ).toMatchObject({
+      before: { comment: "Team note", version: 1 },
+      after: { version: 2, comment: "" },
+    });
+  });
+  it("does not let old pages overwrite or delete a record after deletion and recreation", async () => {
+    const original = await practice();
+    await playerPracticeCommand(p, slug, original);
+    const remove = await removePractice();
+    await playerPracticeCommand(p, slug, remove);
+    await expect(
+      playerPracticeCommand(p, slug, await practice()),
+    ).rejects.toMatchObject({ status: 409 });
+    await playerPracticeCommand(
+      p,
+      slug,
+      await practice(p, { expectedVersion: 2, comment: "Recreated" }),
+    );
+    await expect(
+      playerPracticeCommand(p, slug, {
+        ...original,
+        expectedVersion: 1,
+        requestKey: randomUUID(),
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      playerPracticeCommand(p, slug, { ...remove, requestKey: randomUUID() }),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(await playerPracticeCommand(p, slug, remove)).toEqual({
+      saved: true,
+      version: 2,
+    });
+    const current = (await playerPracticeWorkspace(p, slug)).pool!.entries[0];
+    expect(current.ownVersion).toBe(3);
+    expect(current.records[0]).toMatchObject({
+      comment: "Recreated",
+      version: 3,
+    });
+  });
+  it("rejects deleting another player's record, missing records and mismatched request keys", async () => {
+    await playerPracticeCommand(p, slug, await practice());
+    const remove = await removePractice();
+    await expect(
+      playerPracticeCommand(a, slug, { ...remove, userId: p.osuId }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      playerPracticeCommand(a, slug, await removePractice(a)),
+    ).rejects.toMatchObject({ status: 404 });
+    await playerPracticeCommand(p, slug, remove);
+    await expect(
+      playerPracticeCommand(p, slug, { ...remove, expectedVersion: 2 }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      playerPracticeCommand(p, slug, await removePractice()),
+    ).rejects.toMatchObject({ status: 404 });
+  });
+  it("serializes concurrent deletes and rechecks eligibility on retries", async () => {
+    await playerPracticeCommand(p, slug, await practice());
+    const remove = await removePractice();
+    const results = await Promise.allSettled([
+      playerPracticeCommand(p, slug, remove),
+      playerPracticeCommand(p, slug, { ...remove, requestKey: randomUUID() }),
+    ]);
+    expect(
+      results.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
+    expect(await db().select().from(playerWorkspaceEvents)).toHaveLength(2);
+    await db()
+      .update(registrations)
+      .set({ status: "withdrawn" })
+      .where(eq(registrations.userId, p.osuId));
+    await expect(playerPracticeCommand(p, slug, remove)).rejects.toMatchObject({
+      status: 403,
+    });
+  });
   it("marks changed map/mod contexts and requires the current context to replace a record", async () => {
     const cmd = await practice();
     await playerPracticeCommand(p, slug, cmd);
@@ -438,7 +566,7 @@ describe.skipIf(!url)("private player workspace #671", () => {
   });
   it("enforces the schema and leaves no partial data on invalid commands", async () => {
     await expect(
-      playerPracticeCommand(p, slug, await practice(p, { accuracy: 101 })),
+      playerPracticeCommand(p, slug, await practice(p, { score: -1 })),
     ).rejects.toMatchObject({ status: 400 });
     await expect(
       playerTimetableCommand(
