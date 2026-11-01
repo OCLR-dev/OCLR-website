@@ -44,7 +44,7 @@ export function OwnTeam({
               edition={edition}
             />
             {member.osuId === team.captainId && (
-              <span className="badge">Captain</span>
+              <span className="badge">{tr("Captain")}</span>
             )}
           </li>
         ))}
