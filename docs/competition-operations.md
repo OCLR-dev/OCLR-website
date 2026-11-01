@@ -286,7 +286,10 @@ website configuration storage; sending a command does not save a rule override.
 
 ### BP score and automatic IRC sync (#621)
 
-The blue/red score summary stays sticky inside the BP section only; the undo
+The score summary displays the red team on the left and blue team on the right,
+including each team’s saved score. Ban/Pick controls follow the same red-first
+visual order without changing team identities or the recorded BP sequence.
+The score summary stays sticky inside the BP section only; the undo
 button is always visible in that summary, outside the collapsed outcome editor.
 Empty replay/outcome rows are omitted to keep the floating panel compact on phones.
 
