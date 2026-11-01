@@ -7,9 +7,36 @@ import { remoteMode } from "@/lib/data-source";
 import { remotePage } from "@/lib/remote-page";
 
 import { formatDate } from "@/lib/editions";
+import type { CSSProperties } from "react";
 import "./home.css";
 
 export const dynamic = "force-dynamic";
+
+// Stars over the hero: [x %, y %, twinkle delay s, period s, size px].
+const HERO_STARS: [number, number, number, number, number][] = [
+  [4, 22, 0, 5, 2],
+  [12, 64, 1.2, 6.5, 2],
+  [21, 10, 2.8, 4.5, 3],
+  [33, 80, 4.5, 6, 2],
+  [44, 18, 0.6, 7, 2],
+  [53, 58, 3.6, 5.5, 3],
+  [60, 8, 5.4, 4, 2],
+  [66, 72, 2, 6.5, 2],
+  [74, 30, 0.3, 5, 2],
+  [83, 12, 4, 6, 3],
+  [91, 52, 1.8, 4.5, 2],
+  [97, 26, 3.2, 7, 2],
+];
+
+// Faint stars around the logo, mostly on its upper right (Liru's lit side):
+// [x %, y %, twinkle delay s] of the logo box.
+const LOGO_STARS: [number, number, number][] = [
+  [34, 5, 0.8],
+  [58, 7, 3.1],
+  [93, 16, 1.9],
+  [101, 42, 4.6],
+  [95, 90, 2.5],
+];
 
 function EntryIcon({ kind }: { kind: "discord" | "qq" | "info" | "calendar" }) {
   return (
@@ -129,87 +156,89 @@ async function HomeContent() {
   return (
     <div className="home-redesign">
       <section
-        className="home-feature home-person-feature"
+        className="home-feature home-layered-hero"
         aria-labelledby="hero-title"
       >
-        <div className="home-composition" aria-hidden="true">
-          <picture>
-            <source
-              type="image/webp"
-              srcSet="/branding/home-s11/nebula-only-480.webp 480w, /branding/home-s11/nebula-only-960.webp 960w, /branding/home-s11/nebula-only-1600.webp 1600w, /branding/home-s11/nebula-only.webp 2048w"
-              sizes="103vw"
-            />
-            <Image
-              src="/branding/home-s11/nebula-only.webp"
-              unoptimized
-              alt=""
-              width={2048}
-              height={1024}
-              loading="eager"
-              className="home-layer home-layer-sky"
-            />
-          </picture>
-          <picture>
-            <source
-              type="image/webp"
-              srcSet="/branding/home-s11/foreground-480.webp 480w, /branding/home-s11/foreground-960.webp 960w, /branding/home-s11/foreground-1600.webp 1600w, /branding/home-s11/foreground.webp 1774w"
-              sizes="95vw"
-            />
-            <Image
-              src="/branding/home-s11/foreground.webp"
-              unoptimized
-              alt=""
-              width={1774}
-              height={887}
-              className="home-layer home-layer-ground"
-            />
-          </picture>
-          <div className="home-composition-shade" />
-          <picture>
-            <source
-              type="image/webp"
-              srcSet="/branding/home-s11/liru-refined-v2-320.webp 320w, /branding/home-s11/liru-refined-v2-640.webp 640w, /branding/home-s11/liru-refined-v2.webp 1024w"
-              sizes="54vw"
-            />
-            <Image
-              src="/branding/home-s11/liru-refined-v2.webp"
-              unoptimized
-              alt=""
-              width={1024}
-              height={1536}
-              loading="eager"
-              className="home-layer home-layer-person"
-            />
-          </picture>
+        {/* Layers: base colour (CSS), nebula, ink mist and stars, then the
+         * logo, entries and Liru in the page container. Each artwork file
+         * can be swapped without touching the layout. */}
+        <div className="home-hero-backdrop" aria-hidden="true">
+          <div className="home-hero-sky" />
           <Image
-            src="/branding/home-s11/oclr-layer.svg"
+            src="/branding/home-hero/ink-mist.webp"
             alt=""
-            width={1200}
-            height={490}
+            width={1536}
+            height={640}
             unoptimized
-            className="home-layer home-layer-logo"
+            className="home-hero-ink"
           />
-          <Image
-            src="/branding/home-s11/season-layer.svg"
-            alt=""
-            width={1200}
-            height={490}
-            unoptimized
-            className="home-layer home-layer-season"
-          />
-          <Image
-            src="/branding/home-s11/katu-cropped.svg"
-            alt=""
-            width={100}
-            height={100}
-            unoptimized
-            className="home-layer home-layer-katu"
-          />
+          <div className="home-hero-stars">
+            {HERO_STARS.map(([x, y, delay, period, size], i) => (
+              <span
+                key={i}
+                style={
+                  {
+                    "--x": `${x}%`,
+                    "--y": `${y}%`,
+                    "--delay": `${delay}s`,
+                    "--period": `${period}s`,
+                    "--size": `${size}px`,
+                  } as CSSProperties
+                }
+              />
+            ))}
+          </div>
         </div>
         <div className="container home-feature-inner">
           <div className="home-feature-left">
-            <h1 id="hero-title" className="sr-only">
-              <span>osu! Chinese League Rookie</span> — S11
+            <h1 id="hero-title" className="home-hero-logo">
+              <span className="sr-only">
+                <span>osu! Chinese League Rookie</span> — S11
+              </span>
+              <Image
+                src="/branding/home-s11/oclr-layer.svg"
+                alt=""
+                width={1200}
+                height={490}
+                unoptimized
+                className="home-hero-logo-layer home-hero-logo-oclr"
+              />
+              {/* CSS-only accents over the unchanged SVGs: a breathing
+               * top-right sheen inside OCLR, and S11 recoloured through its
+               * own shape as a mask. */}
+              <span
+                className="home-hero-logo-layer home-hero-logo-sheen"
+                aria-hidden="true"
+              />
+              <span
+                className="home-hero-logo-layer home-hero-logo-season"
+                aria-hidden="true"
+              >
+                <span />
+              </span>
+              <span className="home-hero-logo-sparkle" aria-hidden="true" />
+              <Image
+                src="/branding/home-s11/katu-cropped.svg"
+                alt=""
+                width={100}
+                height={100}
+                unoptimized
+                className="home-hero-logo-katu"
+              />
+              <span className="home-hero-logo-stars" aria-hidden="true">
+                {LOGO_STARS.map(([x, y, delay], i) => (
+                  <span
+                    key={i}
+                    style={
+                      {
+                        "--x": `${x}%`,
+                        "--y": `${y}%`,
+                        "--delay": `${delay}s`,
+                      } as CSSProperties
+                    }
+                  />
+                ))}
+              </span>
             </h1>
             <div className="home-entry-links">
               <div className="home-contact-bar" aria-label={tr("Contact")}>
@@ -268,6 +297,25 @@ async function HomeContent() {
               </Link>
             </div>
           </div>
+          {/* Liru artwork: the box crops it per breakpoint (home.css), so
+           * another Liru image can be dropped in unchanged. */}
+          <picture className="home-hero-character">
+            <source
+              type="image/webp"
+              srcSet="/branding/home-hero/liru-cn-v3-480.webp 480w, /branding/home-hero/liru-cn-v3-800.webp 800w, /branding/home-hero/liru-cn-v3-1111.webp 1111w"
+              sizes="(max-width: 760px) 86vw, 390px"
+            />
+            <Image
+              src="/branding/home-hero/liru-cn-v3-800.webp"
+              unoptimized
+              alt={tr(
+                "Liru, the OCLR mascot, in her Chinese-style outfit holding a folding fan",
+              )}
+              width={800}
+              height={1430}
+              loading="eager"
+            />
+          </picture>
         </div>
       </section>
       <div className="container home-archive-section" id="past-seasons">
