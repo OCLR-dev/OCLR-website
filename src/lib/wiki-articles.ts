@@ -32,16 +32,8 @@ export function wikiArticles(tr: AppTranslator): WikiArticle[] {
       title: "认识 OCLR",
       category: "赛事入门",
       intro:
-        "osu! Chinese League Rookie（OCLR）是一项面向中文 osu! 社区的新秀团体赛事。选手通过个人报名与队长选秀组成队伍，在共同训练和比赛中认识队友、积累经验，体验团队竞技的乐趣。",
+        "osu! Chinese League Rookie（OCLR）是一项面向中文 osu! 社区新秀玩家的团体赛事，迄今为止已成功举办10届。选手通过个人报名与队长选秀组成队伍，在共同训练和比赛中认识队友、积累经验，体验团队竞技的乐趣。",
       sections: [
-        {
-          id: "about",
-          title: "OCLR 是什么",
-          paragraphs: [
-            "个人成绩之外，团体赛还有另一种乐趣：有人擅长稳定发挥，有人善于处理复杂节奏，也有人能在关键时刻接下自己熟悉的图。OCLR 希望让不同能力与风格的选手都能在队伍中找到位置。",
-            "比赛围绕选秀、训练、选图与正式对局展开。队长负责协调阵容，队员共同准备图池；一次胜利往往来自几个人的配合，而不仅是某一位选手的高分。",
-          ],
-        },
         {
           id: "journey",
           title: "从报名到上场",
@@ -51,9 +43,9 @@ export function wikiArticles(tr: AppTranslator): WikiArticle[] {
               { informationPage: tr("Information page") },
             ),
             "完成个人报名，加入赛事 QQ 群或 Discord，留意名单与阶段更新。",
-            "选秀后与队友建立联系，沟通可参赛时间和擅长的图型。",
-            "围绕已公布图池进行训练，安排选图、禁图与上场阵容。",
-            "按约定时间进入比赛房间，配合裁判完成对局。",
+            "选秀后与队友建立联系，沟通可参赛时间和擅长的谱面类型。",
+            "与队友围绕已公布图池进行训练，安排选图、禁图与上场阵容。",
+            "按约定时间进入比赛房间，遵循裁判指示完成比赛。",
           ],
         },
         {
@@ -62,12 +54,8 @@ export function wikiArticles(tr: AppTranslator): WikiArticle[] {
           table: {
             headers: ["角色", "在队伍中的作用"],
             rows: [
-              ["Captain", "组织训练、沟通赛程、协调选图与出场安排。"],
-              ["队员", "根据自己的特长准备图池，与队友协作完成比赛。"],
-              [
-                "后排选手",
-                "通过适合自己的图型与出场机会，为队伍提供稳定贡献。",
-              ],
+              ["队长", "组织训练，沟通赛程，协调选图、禁图与出场安排。"],
+              ["队员", "练习赛图，与队友协作完成比赛。"],
             ],
           },
         },
@@ -75,23 +63,26 @@ export function wikiArticles(tr: AppTranslator): WikiArticle[] {
           id: "prepare",
           title: "第一次参赛，可以先做什么",
           paragraphs: [
-            "先把自己能够稳定发挥的图型、常用 Mods 和可参赛时间告诉队长。练图时记录容易失误的位置，比单纯追求一次最高分更方便队伍判断阵容。",
-            "比赛中遇到问题，及时向裁判和队长说明情况。尊重对手、遵守约定时间、保持沟通，也是团队比赛的一部分。",
+            "先把自己能够稳定发挥的谱面类型、擅长的 Mods 和可参赛时间告诉队长。练图时记录容易失误的位置，比单纯追求一次最高分更方便队伍判断阵容。",
+            "比赛中遇到问题，请及时向裁判和队长说明情况。尊重对手、遵守约定时间、保持沟通，也是团队比赛的一部分。",
           ],
         },
         {
           id: "community",
           title: "找到赛事社区",
           paragraphs: [
-            "QQ群 926872640",
+            "QQ群：926872640",
             [
               "Discord：",
-              { label: "OCL Series", href: "https://discord.gg/graS4RJHjM" },
-              tr(
-                ". The community shares tournament announcements, team discussions and multiplayer sessions. Open {informationPage} in the header for this season's registration and stages.",
-                { informationPage: tr("Information page") },
-              ),
+              {
+                label: "https://discord.gg/graS4RJHjM",
+                href: "https://discord.gg/graS4RJHjM",
+              },
             ],
+            tr(
+              "The community shares tournament announcements, team discussions and everyday chat. Open the {informationPage} at the top of the page for this season's registration and stages.",
+              { informationPage: tr("Information page") },
+            ),
           ],
         },
       ],
