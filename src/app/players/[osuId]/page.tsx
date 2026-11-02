@@ -18,12 +18,15 @@ import {
 import { getPublicEditions } from "@/lib/content";
 import { archiveKeyVisual } from "@/lib/archive-key-visual";
 import { getAppTranslations } from "@/i18n/server";
-import { frontendProfile } from "@/lib/frontend-data";
+import {
+  frontendProfile,
+  frontendUsernameOwner,
+} from "@/lib/frontend-data";
 import { remoteMode } from "@/lib/data-source";
 import { profileBws, profileBwsMany } from "@/lib/bws";
 import { publicRoundRatings } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import styles from "./profile.module.css";
 
 import { HttpError } from "@/lib/http";
@@ -51,6 +54,23 @@ async function ProfileContent({
   )
     notFound();
   const edition = typeof query.edition === "string" ? query.edition : null;
+  // A numeric segment is the canonical UID; any other segment is resolved as a
+  // released username and redirected to the UID it uniquely identifies.
+  if (!/^[1-9]\d*$/.test(osuId) || !Number.isSafeInteger(Number(osuId))) {
+    // Route params arrive percent-encoded; the name itself is what the
+    // directory records, so decode before looking it up.
+    let name = osuId;
+    try {
+      name = decodeURIComponent(osuId);
+    } catch {
+      // A malformed escape cannot name a released player.
+    }
+    const owner = await frontendUsernameOwner(name);
+    if (!owner) notFound();
+    redirect(
+      `/players/${owner.osuId}${edition ? `?edition=${edition}` : ""}`,
+    );
+  }
   let data: Awaited<ReturnType<typeof frontendProfile>>;
   let publishedEditions: Awaited<ReturnType<typeof getPublicEditions>>;
   try {

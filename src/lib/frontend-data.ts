@@ -14,6 +14,7 @@ import {
   publicTournamentSummarySchema,
   publicPlayerSchema,
   publicPlayerProfileSchema,
+  usernameOwnerSchema,
   oclrProfileSchema,
   type OclrProfile,
   privateTournamentSchema,
@@ -142,6 +143,19 @@ export const frontendSite = cache(async () =>
   remoteMode()
     ? siteSchema.parse((await frontendRemoteRead("/site")).data)
     : (await import("./public-read-models")).publicSiteModel(),
+);
+/** Latest canonical name evidence for a released participant, or null. */
+export const frontendUsernameOwner = cache(async (name: string) =>
+  remoteMode()
+    ? usernameOwnerSchema.parse(
+        (
+          await frontendRemoteRead(
+            "/players/by-username",
+            new URLSearchParams({ name }),
+          )
+        ).data,
+      )
+    : (await import("./player-username")).databaseUsernameOwner(name),
 );
 export const frontendTournaments = cache(async () =>
   remoteMode()

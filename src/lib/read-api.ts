@@ -2,6 +2,7 @@ import { collectionQuery, readQuerySchema } from "./read-api-queries";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { DeveloperApiError } from "./developer-api";
+import { addressableUsername } from "./player-username";
 import {
   missingDeveloperResource,
   readDataResponse,
@@ -20,6 +21,7 @@ import {
   publicTournamentModel,
   savedProfileModel,
 } from "./public-read-models";
+import { usernameOwnerSchema } from "./read-api-contract";
 import type { ReadPayload } from "./read-api-contract";
 import { readApiSpecification } from "./read-api-openapi";
 import { readOperations, readSchemas } from "./read-api-operations";
@@ -303,6 +305,22 @@ export function readApiRoute(request: Request) {
           return {
             data: await privateTournamentModel(edition(params.edition)),
           };
+        case "getUsernamePlayer": {
+          const name = String(query.get("name") ?? "");
+          const owner = addressableUsername(name)
+            ? await (await import("./player-username")).databaseUsernameOwner(
+                name,
+              )
+            : null;
+          // Unknown, ambiguous and unaddressable names are all "no such player".
+          if (!owner)
+            throw new DeveloperApiError(
+              404,
+              "NOT_FOUND",
+              "No published player uses this name.",
+            );
+          return { data: usernameOwnerSchema.parse(owner) };
+        }
         case "getSavedProfile":
           return {
             data: await savedProfileModel(osuId(params.osuId), mode(query)),

@@ -42,14 +42,20 @@ export function readApiSpecification() {
                 ? { type: "string", pattern: "^[1-9][0-9]*$" }
                 : { type: "string", format: "uuid" },
         });
-    const querySchema = z.toJSONSchema(
-      readQuerySchema(operation.id, operation.query),
+    const schema = readQuerySchema(operation.id, operation.query);
+    const querySchema = z.toJSONSchema(schema);
+    // Defaults and optionals accept an absent value; only a real requirement
+    // is documented as required.
+    const requiredQuery = new Set<string>(
+      operation.query.filter(
+        (key) => !schema.safeParse({ [key]: undefined }).success,
+      ),
     );
     for (const key of operation.query)
       parameters.push({
         name: key,
         in: "query",
-        required: false,
+        required: requiredQuery.has(key),
         description:
           key === "version"
             ? "Pass collectionVersion from page 1 on subsequent pages; restart the entire collection after 409."

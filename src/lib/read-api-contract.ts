@@ -22,6 +22,15 @@ export const dataSourceSchema = z
   })
   .strict();
 export type ReadDataSource = z.infer<typeof dataSourceSchema>;
+
+/** Addresses a public profile by a released name; only public identity. */
+export const usernameOwnerSchema = z
+  .object({
+    osuId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+    username: z.string().trim().min(1).max(64),
+  })
+  .strict();
+export type UsernameOwner = z.infer<typeof usernameOwnerSchema>;
 export const registrationStateSchema = z.enum([
   "not_configured",
   "unannounced",

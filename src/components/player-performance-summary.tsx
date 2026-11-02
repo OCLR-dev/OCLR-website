@@ -32,17 +32,21 @@ const pointOnRing = (degrees: number) => {
   };
 };
 
-/** Red, cyan and green pairs borrowed from the match statistics bar fills. */
+/**
+ * Red, blue and green pairs borrowed from the match statistics bar fills.
+ * Each pair runs from its lower-lightness shade to its higher-lightness shade,
+ * so the arc brightens clockwise whether the rating is low, mid or high.
+ */
 const RING_COLORS = {
-  red: ["#fd5392", "#d32f2f"],
-  cyan: ["#4facfe", "#00f2fe"],
+  red: ["#d32f2f", "#fd5392"],
+  blue: ["#00f2fe", "#4facfe"],
   green: ["#5edc5b", "#caf881"],
 } as const;
 
 function ringColors(value: number | null): readonly [string, string] {
   if (value !== null && value < 0.9) return RING_COLORS.red;
   if (value !== null && value > 1.1) return RING_COLORS.green;
-  return RING_COLORS.cyan;
+  return RING_COLORS.blue;
 }
 
 /**
