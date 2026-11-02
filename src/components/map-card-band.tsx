@@ -45,6 +45,7 @@ export function MapCardBand({
   onOpen,
   openHref,
   showMode = true,
+  showArtwork = true,
   chips,
   note,
   footer,
@@ -77,6 +78,7 @@ export function MapCardBand({
   headingLevel?: 2 | 3 | 4 | 5;
   openLabel: string;
   showMode?: boolean;
+  showArtwork?: boolean;
   chips?: ReactNode;
   note?: ReactNode;
   footer?: ReactNode;
@@ -126,13 +128,17 @@ export function MapCardBand({
         } as CSSProperties
       }
     >
-      <div
-        className="map-card-art"
-        aria-hidden="true"
-        style={art ? { backgroundImage: `url("${art}")` } : undefined}
-      />
+      {showArtwork && (
+        <div
+          className="map-card-art"
+          aria-hidden="true"
+          style={art ? { backgroundImage: `url("${art}")` } : undefined}
+        />
+      )}
       <div className="map-card-cover">
-        <BeatmapCover setId={setId} fallbackSetId={originalSetId} />
+        {showArtwork && (
+          <BeatmapCover setId={setId} fallbackSetId={originalSetId} />
+        )}
         <span
           className="map-slot-badge"
           style={{

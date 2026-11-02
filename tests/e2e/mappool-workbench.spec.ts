@@ -613,22 +613,19 @@ test.describe("private Pooler/Tester selection workbench", () => {
       } else {
         expect(commentBox!.y).toBeGreaterThan(mapBox!.y + mapBox!.height);
       }
-      const coverBox = await card.locator(".map-card-cover").boundingBox();
+      await expect(card.locator("img, .map-card-art")).toHaveCount(0);
+      const headerBox = await card.locator(".map-card-cover").boundingBox();
       const categoryBox = await cardCategory.boundingBox();
+      expect(categoryBox!.y).toBeGreaterThanOrEqual(headerBox!.y);
+      expect(categoryBox!.y + categoryBox!.height).toBeLessThanOrEqual(
+        headerBox!.y + headerBox!.height,
+      );
       const roundBox = await cardRounds.boundingBox();
-      expect(categoryBox!.x).toBeLessThan(coverBox!.x + coverBox!.width / 2);
-      expect(categoryBox!.y).toBeLessThan(coverBox!.y + coverBox!.height / 2);
-      if (!isMobile) {
-        expect(roundBox!.y + roundBox!.height).toBeLessThanOrEqual(
-          coverBox!.y + coverBox!.height,
-        );
-      } else {
-        const hpBox = await card
-          .locator(".map-card-values > span")
-          .last()
-          .boundingBox();
-        expect(roundBox!.y).toBeGreaterThanOrEqual(hpBox!.y + hpBox!.height);
-      }
+      const hpBox = await card
+        .locator(".map-card-values > span")
+        .last()
+        .boundingBox();
+      expect(roundBox!.y).toBeGreaterThanOrEqual(hpBox!.y + hpBox!.height);
 
       for (const control of [cardRounds, cardCategory]) {
         const box = await control.boundingBox();

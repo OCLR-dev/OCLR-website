@@ -25,6 +25,26 @@ for (const theme of ["light", "dark"]) {
       });
       await row.scrollIntoViewIfNeeded();
       const card = row.locator(".map-browse-card--band");
+      await expect(
+        card.locator("img, .beatmap-cover, .map-card-art"),
+      ).toHaveCount(0);
+      const header = card.locator(".map-card-cover");
+      const mod = header.getByRole("combobox", {
+        name: "模組類別",
+        exact: true,
+      });
+      const bid = header.getByRole("button", {
+        name: "複製譜面 ID: 5722291",
+        exact: true,
+      });
+      await expect(mod).toBeVisible();
+      await expect(bid).toBeVisible();
+      const modBox = (await mod.boundingBox())!;
+      const bidBox = (await bid.boundingBox())!;
+      expect(
+        Math.abs(modBox.y + modBox.height / 2 - bidBox.y - bidBox.height / 2),
+      ).toBeLessThan(2);
+      expect(bidBox.x).toBeGreaterThan(modBox.x + modBox.width);
       const discussion = row.getByRole("region", {
         name: "評論（0）",
         exact: true,

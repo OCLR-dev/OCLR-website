@@ -1040,6 +1040,7 @@ export function SelectionWorkbench({
                     ar={c.metadata.ar}
                     od={c.metadata.od}
                     showMode={false}
+                    showArtwork={false}
                     openHref={`https://osu.ppy.sh/beatmaps/${c.beatmapId}`}
                     openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
                     note={tr("★ base")}
