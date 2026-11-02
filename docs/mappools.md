@@ -69,13 +69,15 @@ the whole selected batch. Successful retries skip already saved candidates even
 when the provider is unavailable. Candidate additions and their audit events
 commit together under the edition lock.
 
-Candidates reuse the historical mappool `MapCardBand`: cover, star-coloured rail,
-Mod category, title/artist/mapper, saved base parameters (including HP), copyable
-BID, official osu! link and osu!direct. A dense workbench-only variant reduces
-cover width, title size and spacing. At a list width of 56rem or more, each row
+Candidates reuse the historical mappool `MapCardBand` with artwork disabled:
+no cover image, placeholder or decorative background is rendered. A flat tinted
+surface and narrow star-coloured rail frame the Mod category, title/artist/mapper,
+saved base parameters (including HP), copyable BID, official osu! link and
+osu!direct. The Mod selector and BID copy button share a compact card header;
+metadata and actions use the full card width. At a list width of 56rem or more, each row
 places the map on the left and always-visible comments on the right, separated
 by a vertical rule. Narrower lists stack comments below the map. The workbench
-reuses the cover's top-left Mod badge as the category selector; the adder follows
+retains the Mod badge as the category selector in the card header; the adder follows
 the parameters. Round selection, pool promotion, history, download and official
 link share a wrapping icon toolbar, keeping long titles clear of controls. Pool promotion opens
 in a scrollable popover containing round/pool selection, the guarded entry form
