@@ -375,8 +375,10 @@ function Comments({
         count: comments?.length ?? count,
       })}
     >
-      <h3>{tr("Comments ({count})", { count: comments?.length ?? count })}</h3>
-      <div className={styles.thread}>
+      <div className={styles.discussionHeading}>
+        <h3>
+          {tr("Comments ({count})", { count: comments?.length ?? count })}
+        </h3>
         <button
           type="button"
           className="secondary"
@@ -386,6 +388,8 @@ function Comments({
         >
           {tr("Refresh comments")}
         </button>
+      </div>
+      <div className={styles.thread}>
         {comments === null && !error && (
           <p className="muted small">{tr("Loading…")}</p>
         )}
@@ -449,7 +453,7 @@ function Comments({
               }
             }}
           >
-            <label className="field">
+            <label className={`field ${styles.composerField}`}>
               <span>{tr("Your comment")}</span>
               <textarea
                 value={body}
@@ -457,18 +461,20 @@ function Comments({
                 onChange={(event) => setBody(event.target.value)}
                 required
                 maxLength={commentLength}
-                rows={3}
+                rows={2}
               />
             </label>
-            <p className="small muted">
-              {tr(
-                "Up to {count} characters per comment; {limit} comments per map.",
-                { count: commentLength, limit: commentLimit },
-              )}
-            </p>
-            <button disabled={busy || !body.trim()}>
-              {busy ? tr("Working…") : tr("Post comment")}
-            </button>
+            <div className={styles.composerFooter}>
+              <p className="small muted">
+                {tr(
+                  "Up to {count} characters per comment; {limit} comments per map.",
+                  { count: commentLength, limit: commentLimit },
+                )}
+              </p>
+              <button disabled={busy || !body.trim()}>
+                {busy ? tr("Working…") : tr("Post comment")}
+              </button>
+            </div>
           </form>
         )}
         {busy && <p role="status">{tr("Working…")}</p>}
@@ -1035,11 +1041,27 @@ export function SelectionWorkbench({
                     openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
                     note={tr("★ base")}
                     actions={
-                      <CandidateHistory
-                        slug={slug}
-                        candidateId={c.id}
-                        beatmapId={c.beatmapId}
-                      />
+                      <>
+                        <CandidateHistory
+                          slug={slug}
+                          candidateId={c.id}
+                          beatmapId={c.beatmapId}
+                        />
+                        <CandidateRounds
+                          candidate={c}
+                          rounds={data.rounds}
+                          writable={writable}
+                          base={base}
+                          onChange={reload}
+                        />
+                        {officialPools && (
+                          <PromoteCandidate
+                            slug={slug}
+                            candidate={c}
+                            initialPools={officialPools}
+                          />
+                        )}
+                      </>
                     }
                     chips={
                       <span>
@@ -1111,20 +1133,6 @@ export function SelectionWorkbench({
                             <strong>{c.authorName}</strong>
                           </a>
                         </span>
-                        <CandidateRounds
-                          candidate={c}
-                          rounds={data.rounds}
-                          writable={writable}
-                          base={base}
-                          onChange={reload}
-                        />
-                        {officialPools && (
-                          <PromoteCandidate
-                            slug={slug}
-                            candidate={c}
-                            initialPools={officialPools}
-                          />
-                        )}
                       </>
                     }
                   />
@@ -1290,13 +1298,12 @@ function PromoteCandidate({
                 {tr("Close")}
               </button>
             </div>
-            <div className={styles.promotionContent}>
+            <div className={styles.promotionContent} aria-busy={busy}>
               {saved && (
                 <p role="status">
                   {tr("Candidate added to the official pool.")}
                 </p>
               )}
-              {busy && <p role="status">{tr("Working…")}</p>}
               <div className={styles.promotionForm}>
                 <label className="field">
                   <span>{tr("Target round")}</span>

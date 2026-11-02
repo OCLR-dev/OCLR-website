@@ -35,3 +35,12 @@ E2E and the full appearance/browser matrix were not run.
 The final commit and actual CI status are recorded on
 [#705](https://github.com/OCLR-dev/OCLR-website/issues/705). Implementation and
 local checks do not establish a deployment or release acceptance.
+
+## PR integration
+
+Integrated main `995aa0d0` before merging PR #708. The only conflict was the
+DB-free browser host's fixture routing; both the sidebar fixture and main's new
+compact workbench fixture are preserved. Their combined desktop/mobile run
+passed all 14 tests. The resolved host passed ESLint, Prettier and diff checks.
+Read API artifacts were regenerated after integration without producing changes;
+the required contract check is recorded in the PR.
