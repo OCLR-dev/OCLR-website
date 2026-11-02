@@ -177,8 +177,8 @@ test.describe("one MainSheet appearance across dashboards", () => {
         await page.goto("/admin/tournaments/test-cup/settings");
         await layout(page, "light");
         if (width <= 760) {
-          await page.locator(".admin-menu-toggle").click();
-          await expect(page.locator(".admin-menu")).toHaveClass(/is-open/);
+          await page.locator(".admin-menu-toggle:visible").click();
+          await expect(page.locator("#admin-sidebar")).toHaveClass(/is-open/);
           await page.keyboard.press("Escape");
         }
         await page.screenshot({

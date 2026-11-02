@@ -444,6 +444,10 @@ test.describe("role-aware header actions and compact tournament context", () => 
       await page.keyboard.press("Escape");
     }
     await page.setViewportSize({ width: isMobile ? 390 : 1440, height: 900 });
+    if (isMobile)
+      await page
+        .getByRole("button", { name: "Open administration menu", exact: true })
+        .click();
     const sidebar = page.locator(".sidebar");
     await expect(sidebar.getByLabel("Selected tournament")).toHaveValue("s11");
     await expect(sidebar.locator('option[value=""]')).toHaveCount(0);
