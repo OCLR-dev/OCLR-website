@@ -305,12 +305,9 @@ export function TournamentShell({
           archived={archived}
           mobileMenu
         />
-        {(captainWorkspace || playerWorkspace) && (
-          <Link
-            className="button secondary"
-            href={playerWorkspace ? `${base}/player/practice` : `${base}/team`}
-          >
-            {playerWorkspace ? tr("PLAYER WORKSPACE") : tr("CAPTAIN WORKSPACE")}
+        {captainWorkspace && !playerWorkspace && (
+          <Link className="button secondary" href={`${base}/team`}>
+            {tr("CAPTAIN WORKSPACE")}
           </Link>
         )}
       </div>
