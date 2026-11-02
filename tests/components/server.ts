@@ -19,6 +19,7 @@ const bundle = await build({
     "tests/components/round-referee-policy.tsx",
     "tests/components/info-note.tsx",
     "tests/components/mappool-actions.tsx",
+    "tests/components/workbench-compact.tsx",
     "tests/components/stage-groups.tsx",
     "tests/components/archive-bracket.tsx",
     "tests/components/ocl-chess.tsx",
@@ -47,6 +48,7 @@ const themedStyles = new Map(
   await Promise.all(
     [
       "mappool-actions.css",
+      "workbench-compact.css",
       "country-flags.css",
       "practice-records.css",
       "schedule-selection.css",
@@ -147,9 +149,11 @@ createServer((request, response) => {
                                                 )
                                               ? "mappool-actions"
                                               : "player-message-board";
-    const fixture = request.url?.startsWith("/country-flags")
-      ? "country-flags"
-      : entry;
+    const fixture = request.url?.startsWith("/workbench-compact")
+      ? "workbench-compact"
+      : request.url?.startsWith("/country-flags")
+        ? "country-flags"
+        : entry;
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${fixture}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${fixture}.js"></script></body></html>`,
     );

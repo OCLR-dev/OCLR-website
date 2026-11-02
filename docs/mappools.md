@@ -71,11 +71,13 @@ commit together under the edition lock.
 
 Candidates reuse the historical mappool `MapCardBand`: cover, star-coloured rail,
 Mod category, title/artist/mapper, saved base parameters (including HP), copyable
-BID, official osu! link and osu!direct. The workbench reuses the cover's top-left
-Mod badge as the category selector. Adder, intended-round multi-select and
-formal pool promotion sit to the right of the beatmap parameters on the same
-row; there is no separate control row. Long names use ellipsis at desktop widths,
-while narrow screens wrap the row and show the full text. Pool promotion opens
+BID, official osu! link and osu!direct. A dense workbench-only variant reduces
+cover width, title size and spacing. At a list width of 56rem or more, each row
+places the map on the left and always-visible comments on the right, separated
+by a vertical rule. Narrower lists stack comments below the map. The workbench
+reuses the cover's top-left Mod badge as the category selector; the adder follows
+the parameters. Round selection, pool promotion, history, download and official
+link share a wrapping icon toolbar, keeping long titles clear of controls. Pool promotion opens
 in a scrollable popover containing round/pool selection, the guarded entry form
 and success feedback; opening it or completing an addition does not grow the card. Pool promotion, round selection and history use compact 44px icon buttons with
 accessible names and hover hints; the round hint retains the saved selection.
@@ -87,9 +89,10 @@ unsaved selection. Cancel/dismiss drops the unsaved selection, while
 conflicts keep the draft open for review. Read-only viewers see the saved rounds.
 Candidate creation time and the separate footer stay hidden.
 Mode/status and snapshot details stay hidden; saved metadata is not a live lookup,
-and unknown fields stay unknown. Comment
-boxes remain visible below each card on desktop and mobile; history uses a
-bounded scrolling area inspired by player messages and loads near the viewport.
+and unknown fields stay unknown. Comment headings and refresh actions share one
+line, with a compact visible composer and limits/send controls below it. Comment
+history uses a bounded scrolling area inspired by player messages and loads near
+the viewport.
 Comments preserve author identity/name and their original UTC posting time.
 Authors with a current edition-scoped write grant can edit or delete only their
 own comments; Admin/Pooler roles do not override authorship. Editing is inline

@@ -599,14 +599,20 @@ test.describe("private Pooler/Tester selection workbench", () => {
       ).toHaveCount(1);
       await expect(
         card
-          .locator(".map-card-side")
+          .locator(".beatmap-actions")
           .getByRole("group", { name: "Intended rounds", exact: true }),
       ).toHaveCount(1);
       const mapBox = await card.boundingBox();
       const commentBox = await candidate
         .getByLabel("Your comment")
         .boundingBox();
-      expect(commentBox!.y).toBeGreaterThan(mapBox!.y + mapBox!.height);
+      const rowWidth = (await candidate.boundingBox())!.width;
+      if (rowWidth >= 896) {
+        expect(commentBox!.x).toBeGreaterThan(mapBox!.x + mapBox!.width);
+        expect(commentBox!.y).toBeLessThan(mapBox!.y + mapBox!.height);
+      } else {
+        expect(commentBox!.y).toBeGreaterThan(mapBox!.y + mapBox!.height);
+      }
       const coverBox = await card.locator(".map-card-cover").boundingBox();
       const categoryBox = await cardCategory.boundingBox();
       const roundBox = await cardRounds.boundingBox();
@@ -871,32 +877,14 @@ test.describe("private Pooler/Tester selection workbench", () => {
         }
         await expect(previewCard.locator(".map-card-extension")).toHaveCount(0);
         await expect(previewCard.locator("time")).toHaveCount(0);
-        if (!isMobile) {
-          const controls = previewCard.locator(".map-card-side");
-          const addedBy = controls.getByText("新增者", { exact: false });
-          const rounds = controls.getByRole("group", {
-            name: "指定輪次",
-            exact: true,
-          });
-          const boxes = await Promise.all(
-            [
-              previewCard.locator(".map-card-values > span").first(),
-              addedBy,
-              rounds,
-              promotion,
-            ].map((control) => control.boundingBox()),
-          );
-          const centers = boxes.map((box) => box!.y + box!.height / 2);
-          expect(Math.max(...centers) - Math.min(...centers)).toBeLessThan(2);
-          for (let i = 1; i < boxes.length; i++) {
-            expect(boxes[i - 1]!.x + boxes[i - 1]!.width).toBeLessThanOrEqual(
-              boxes[i]!.x,
-            );
-          }
-          await expect(
-            previewCard.locator(":scope > .map-card-side"),
-          ).toHaveCount(0);
-        }
+        const toolbar = previewCard.locator(".beatmap-actions");
+        await expect(
+          toolbar.getByRole("group", { name: "指定輪次", exact: true }),
+        ).toHaveCount(1);
+        await expect(
+          toolbar.getByRole("button", { name: "加入正式圖池", exact: true }),
+        ).toHaveCount(1);
+
         if (!isMobile)
           await previewCard.evaluate((card) => {
             window.scrollTo(
