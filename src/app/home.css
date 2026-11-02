@@ -921,3 +921,218 @@ html[data-theme="dark"]
     display: none;
   }
 }
+
+/* Liru's character-sheet card (#638). Only the hit area over her head and
+ * body reacts; the transparent rest of the artwork lets the pointer through.
+ * With a mouse the card opens on hover or focus and stays while the pointer
+ * is on Liru or on the card; after leaving it waits 250ms, so the pointer can
+ * cross the gap between them. On touch screens the first tap asks first. */
+.home-liru {
+  display: contents;
+}
+.home-hero-character,
+.home-hero-character img {
+  pointer-events: none;
+}
+.home-liru-art {
+  position: relative;
+  width: max-content;
+}
+.home-liru-art picture {
+  display: block;
+}
+.home-layered-hero .home-liru .home-liru-hit {
+  /* an invisible area, so none of the site's link or button styling (the
+   * global button is a purple pill) */
+  all: unset;
+  /* head to waist, right of the fan: x 33-95 %, y 0-62 % of the artwork */
+  position: absolute;
+  top: 0;
+  left: 33%;
+  width: 62%;
+  height: 62%;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.home-layered-hero .home-liru .home-liru-hit:focus-visible {
+  outline: 2px solid #e9d8ff;
+  outline-offset: 4px;
+  border-radius: 40% 40% 24px 24px;
+}
+.home-layered-hero .home-liru .home-liru-tap {
+  display: none;
+}
+.home-liru-card {
+  display: none;
+}
+.home-liru-bubble {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  padding: 0.8rem 1.1rem 0.75rem;
+  border: 3px solid #c4a8f5;
+  border-radius: 20px;
+  background: #f5eefff2;
+  color: #4a3478;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: 0 6px 18px #0b071b55;
+}
+.home-liru-bubble > span:first-child {
+  /* longer translations (English) wrap instead of pushing the card into the
+   * logo */
+  max-width: 10em;
+  text-wrap: balance;
+}
+.home-liru-bubble::after {
+  /* tail pointing right, at Liru */
+  content: "";
+  position: absolute;
+  top: calc(50% - 10px);
+  right: -14px;
+  width: 16px;
+  height: 18px;
+  background: inherit;
+  border: 3px solid #c4a8f5;
+  border-left: 0;
+  clip-path: polygon(0 0, 100% 55%, 0 100%);
+}
+.home-liru-go {
+  padding: 0.1rem 1.4rem;
+  border-radius: 8px;
+  background: #9b78d6;
+  color: #fff;
+  font-size: 0.85rem;
+  transition: background-color 0.15s ease;
+}
+.home-liru-chibi {
+  display: block;
+  width: auto;
+  height: 100%;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-hero-character {
+    transform-origin: 50% 100%;
+    transition:
+      transform 0.2s ease,
+      filter 0.2s ease;
+  }
+  .home-liru:is(:hover, :focus-within) .home-hero-character {
+    transform: scale(1.03);
+    filter: brightness(1.06);
+  }
+}
+/* the card needs the room left of Liru's head, so only from 1280px */
+@media (hover: hover) and (pointer: fine) and (min-width: 1280px) {
+  .home-liru-card {
+    /* Liru's artwork width as in .home-hero-character: height from the hero
+     * height, 34px top, 72px fade, hand at 66 %; width 0.559 of the height */
+    --home-liru-card-art: calc((var(--home-hero-h) - 106px) / 0.66 * 0.559);
+    position: absolute;
+    z-index: 3;
+    /* right edge just short of her hair (37 % across the artwork) */
+    right: calc(7% + var(--home-liru-card-art) * 0.63 + 6px);
+    top: calc(34px + var(--home-liru-card-art) * 0.06);
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    height: 170px;
+    color: inherit;
+    text-decoration: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition:
+      opacity 0.18s ease 0.25s,
+      transform 0.18s ease 0.25s,
+      visibility 0s linear 0.43s;
+  }
+  .home-liru-card .home-liru-bubble {
+    margin-top: -24px;
+  }
+  .home-liru:is(:hover, :focus-within) .home-liru-card {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease,
+      visibility 0s;
+  }
+  .home-liru-card:hover .home-liru-go {
+    background: #8660cc;
+  }
+}
+
+/* touch screens: tap Liru, then tap the card (native popover, light dismiss) */
+@media (hover: none), (pointer: coarse) {
+  .home-layered-hero .home-liru .home-liru-link {
+    display: none;
+  }
+  .home-layered-hero .home-liru .home-liru-tap {
+    display: block;
+    anchor-name: --home-liru;
+  }
+  .home-layered-hero .home-entry-links {
+    anchor-name: --home-entries;
+  }
+}
+.home-liru-ask {
+  position: fixed;
+  inset: auto auto 24px 50%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  width: max-content;
+  translate: -50% 0;
+}
+@supports (position-anchor: --home-liru) {
+  .home-liru-ask {
+    /* just below the entry buttons (over her waist and the fan, under her
+     * face), right edge on the tap area's right edge, at least 12px from the
+     * screen edge */
+    position-anchor: --home-liru;
+    inset: calc(anchor(--home-entries bottom) + 8px)
+      max(12px, anchor(--home-liru right)) auto auto;
+    translate: none;
+  }
+}
+.home-liru-ask::backdrop {
+  background: transparent;
+}
+.home-liru-ask-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 104px;
+  color: inherit;
+  text-decoration: none;
+}
+.home-liru-ask .home-liru-bubble {
+  margin-top: -16px;
+  font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* no movement: the card appears at once and still waits 250ms to go */
+  .home-hero-character,
+  .home-liru:is(:hover, :focus-within) .home-hero-character {
+    transform: none;
+  }
+  .home-liru-card {
+    transform: none;
+    transition:
+      opacity 0s linear 0.25s,
+      visibility 0s linear 0.25s;
+  }
+  .home-liru:is(:hover, :focus-within) .home-liru-card {
+    transition: none;
+  }
+}

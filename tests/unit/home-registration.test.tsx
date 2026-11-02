@@ -52,12 +52,29 @@ describe("homepage registration banner", () => {
     const pictures = html.match(/<picture[^>]*>.*?<\/picture>/g) ?? [];
     expect(pictures).toHaveLength(1);
     const [liru] = pictures;
-    expect(liru).toContain('class="home-hero-character"');
+    expect(html).toMatch(
+      /<div class="home-hero-character"><div class="home-liru-art"><picture>/,
+    );
     expect(liru).toContain('type="image/webp"');
     expect(liru).not.toContain(".png");
     expect(liru).toMatch(/srcSet="[^"]+ 480w, [^"]+ 800w, [^"]+ 1111w"/);
     expect(liru).toContain('sizes="(max-width: 760px) 86vw, 390px"');
     expect(html).not.toMatch(/<link[^>]+as="image"[^>]+home-hero/);
+  });
+  it("links Liru to her character sheet, asking first on touch screens (#638)", async () => {
+    const html = await render();
+    expect(html).toContain(
+      '<a class="home-liru-hit home-liru-link" aria-label="View Liru&#x27;s character sheet" href="/wiki/liru">',
+    );
+    expect(html).toMatch(
+      /<button type="button" class="home-liru-hit home-liru-tap" popoverTarget="home-liru-ask"|<button type="button" class="home-liru-hit home-liru-tap" popovertarget="home-liru-ask"/,
+    );
+    expect(html).toMatch(/<div id="home-liru-ask" popover="auto"/);
+    expect(html).toContain("Go to Liru&#x27;s character page?");
+    // the hover card repeats the link for mouse users only
+    expect(html).toMatch(
+      /<a class="home-liru-card" tabindex="-1" aria-hidden="true" href="\/wiki\/liru">/,
+    );
   });
   it("uses the featured edition's configured closing time and registration URL when open", async () => {
     vi.mocked(frontendTournaments).mockResolvedValue([summary("open")]);
