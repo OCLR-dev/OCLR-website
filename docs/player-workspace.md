@@ -3,13 +3,13 @@
 The Chinese interface name is **選手專區** (`zh-Hant`) / **选手专区** (`zh-Hans`),
 shared by dashboard entries, navigation, page eyebrows and access notices.
 
-Accepted players and appointed captains can enter the **Player workspace** from
-the tournament context bar. Private tournament pages have a separate sidebar
+Accepted players and appointed captains can use the **Player workspace**.
+Private tournament pages have a separate sidebar
 section for **Practice sheet** and **Season timetable**. Captains also retain
 their Captain workspace section. Navigation visibility is optional; each page,
 API read and command rechecks the current edition, identity and saved eligibility.
 Staff roles alone do not grant access to personal workspace data.
-The dashboard also links each eligible registration card directly to that
+The dashboard links each eligible registration card directly to that
 edition's practice sheet. This entry is hidden for archived/unpublished editions,
 ineligible applicants and delegated remote sessions.
 
