@@ -75,6 +75,25 @@ test("the layered hero keeps logo, entries and Liru apart and the next section o
       expect(entries.y + entries.height).toBeLessThanOrEqual(
         art.y + art.height * 0.41,
       );
+      // all four buttons keep one size, and stay inside the column (#698)
+      const buttons = await page
+        .locator(".home-entry-links a")
+        .evaluateAll((nodes) =>
+          nodes.map((node) => {
+            const rect = node.getBoundingClientRect();
+            return {
+              right: rect.right,
+              width: rect.width,
+              height: rect.height,
+            };
+          }),
+        );
+      expect(buttons).toHaveLength(4);
+      for (const button of buttons) {
+        expect(button.width).toBeCloseTo(buttons[0].width, 0);
+        expect(button.height).toBeCloseTo(buttons[0].height, 0);
+        expect(button.right).toBeLessThanOrEqual(entries.x + entries.width + 1);
+      }
     }
     expect(
       await page
