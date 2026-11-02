@@ -1,8 +1,8 @@
 # #638 Liru character-sheet card
 
-Homepage hero on the local test database, default theme,
-`prefers-reduced-motion: reduce` for the still frames. Simplified Chinese unless
-the file name ends in `-en`.
+Homepage hero on the local test database, default theme. The idle frames use
+`prefers-reduced-motion: reduce`; the card frames are taken after the card's
+opening transition. Simplified Chinese unless the file name ends in `-en`.
 
 |                                         | Idle                        | Card open                                        |
 | --------------------------------------- | --------------------------- | ------------------------------------------------ |
