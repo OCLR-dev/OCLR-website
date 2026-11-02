@@ -778,8 +778,8 @@ html[data-theme="dark"]
   .home-layered-hero {
     --home-hero-fade: 48px;
     /* 75-80 % of the screen, but the next section stays on the first
-     * screen under the two-row phone header (#587) */
-    --home-phone-h: clamp(440px, min(80svh, calc(100svh - 240px)), 680px);
+     * screen under the one-row phone header (#587, #641) */
+    --home-phone-h: clamp(440px, min(80svh, calc(100svh - 200px)), 680px);
     --home-phone-logo-w: min(50vw, 200px);
     --home-phone-logo-bottom: calc(20px + var(--home-phone-logo-w) * 0.3644);
     --home-phone-liru-h: clamp(500px, 154vw, 680px);
@@ -847,6 +847,8 @@ html[data-theme="dark"]
       var(--home-phone-liru-x) + var(--home-phone-liru-h) * 0.207 - 14px
     );
     max-width: none;
+    /* the column keeps its width whatever the labels say (#698) */
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.4rem;
   }
   .home-layered-hero .home-contact-bar {
@@ -879,21 +881,20 @@ html[data-theme="dark"]
     width: 0.95rem;
     height: 0.95rem;
   }
+  /* all four buttons keep the same size: a label longer than the button
+   * (English registration states) stays on one line and ends in "…" (#698) */
+  .home-feature .home-entry-links :is(.home-contact, .home-registration-link),
   .home-layered-hero .home-registration-label {
-    /* the deadline goes on its own line in the narrow button */
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-  }
-  .home-layered-hero .home-registration-divider {
-    display: none;
+    min-width: 0;
   }
   .home-layered-hero
-    .home-registration-label
-    > span:last-child:not(:first-child) {
-    font-size: 0.66rem;
-    font-weight: 500;
-    opacity: 0.85;
+    .home-entry-links
+    :is(.home-contact, .home-registration-link)
+    > span:nth-child(2),
+  .home-layered-hero .home-registration-label > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .home-hero-sky {
     background-position: 74% 30%;
