@@ -1,5 +1,7 @@
 # S6 — Orbital Pulse / 星環脈衝
 
+2026-11-02（[#696](https://github.com/OCLR-dev/OCLR-website/issues/696)）：電路與頻譜已整理為共用的明／暗背景素材，賽季主題與選手生涯時間軸引用同一組 SVG。見[素材與再生成方式](../../../../public/themes/orbital-pulse/README.md)及[本輪驗證](../../../verification/issue-696/README.md)；下列分層結構及舊圖庫結果保留為歷史記錄。
+
 2026-10-29，依主辦方對 [#346](https://github.com/OCLR-dev/OCLR-website/issues/346) 的「banner增加電路信號紋理並更精緻，提交新PR」要求，從已合併 [#419](https://github.com/OCLR-dev/OCLR-website/pull/419) 的 main `9ca1e182d1f585d340a69849c6a6d57ee2e2a71b` 精修既有 `orbital-pulse`。本輪新PR供審閱，尚未合併或部署。
 
 ## 方向與畫面
@@ -40,7 +42,7 @@
 
 ## 素材與資料來源
 
-- [原圖](../../../../public/archive/s6/key-visual.jpg)：原有 1920×1080 JPEG，完整呈現，不裁切、重繪、調色或改字；原圖歷史英文保留原樣。
+- [主視覺](../../../../public/archive/s6/key-visual.webp)：原有 1920×1080 主視覺的現行 WebP 素材，完整呈現；原圖歷史英文保留原樣。
 - [music-spectrum.svg](music-spectrum.svg)：32 根分段柱的高度來自音樂片段的實際頻域分析，取消手工安排的四組尖峰及峰值帽。保留左紅→右藍漸變與克制的微光；作為靜態頻譜快照，不取代原主視覺。
 - 音樂樣本為 MDN 官方範例的 [Outfoxing the Fox](https://github.com/mdn/webaudio-examples/blob/main/audio-basics/outfoxing.mp3)，作者 Kevin MacLeod，署名依 [MDN 範例原始碼](https://github.com/mdn/webaudio-examples/blob/main/audio-basics/index.html)。僅供頻譜造型分析，不是 S6 賽事音樂；音檔只下載至暫存目錄，不加入 repository 或產品。
 - [spectrum-data.json](spectrum-data.json) 記錄來源 URL／SHA-256、取樣時間、頻段邊界、能量與亮格數。使用瀏覽器原生 Web Audio `AnalyserNode`，FFT 8192；取約12.8–13.2秒五個快照，40Hz–16kHz分成32個對數頻段，先加總各頻段FFT bin功率，再對五幀平均。以固定−80至−20dB範圍映射至0–24格，各柱均使用同一刻度，沒有逐柱手工調高或製造規律尖峰。分析方法參考 [MDN Web Audio 頻譜指南](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API)。

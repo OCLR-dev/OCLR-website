@@ -39,7 +39,7 @@ const sourceCss = await readFile(
   "utf8",
 );
 const textureAssets = await Promise.all(
-  ["circuit-light.svg", "circuit-dark.svg"].map(async (file) => ({
+  ["circuit-light.svg", "circuit-dark.svg", "orbital-field-light.svg", "orbital-field-dark.svg"].map(async (file) => ({
     file,
     sha256: createHash("sha256")
       .update(
@@ -54,7 +54,7 @@ const textureAssets = await Promise.all(
   })),
 );
 const sourceArtwork = await readFile(
-  new URL("../../../../public/archive/s6/key-visual.jpg", import.meta.url),
+  new URL("../../../../public/archive/s6/key-visual.webp", import.meta.url),
 );
 const cases = [],
   screenshots = [],
@@ -206,7 +206,7 @@ try {
               fit: getComputedStyle(n).objectFit,
             }));
           if (
-            image.src !== "/archive/s6/key-visual.jpg" ||
+            image.src !== "/archive/s6/key-visual.webp" ||
             image.width !== 1920 ||
             image.height !== 1080 ||
             image.fit !== "contain"
@@ -317,13 +317,10 @@ try {
       const heading = detailPage.locator(".historical-archive > .page-heading");
       const geometry = await heading.evaluate((n) => {
         const box = n.getBoundingClientRect(),
-          style = getComputedStyle(n, "::before");
-        const left =
-          box.right - parseFloat(style.right) - parseFloat(style.width);
+          style = getComputedStyle(n);
         return {
           width: box.width,
-          insert: style.display,
-          left,
+          textRight: box.right - parseFloat(style.paddingRight),
           text: [...n.querySelectorAll("h1,p")].map((el) => ({
             right: el.getBoundingClientRect().right,
             fits: el.scrollWidth <= el.clientWidth,
@@ -332,9 +329,7 @@ try {
       });
       if (
         geometry.text.some(
-          (t) =>
-            !t.fits ||
-            (geometry.insert !== "none" && t.right > geometry.left - 16),
+          (t) => !t.fits || t.right > geometry.textRight + 1,
         )
       )
         throw new Error("Heading text overlaps the music spectrum");

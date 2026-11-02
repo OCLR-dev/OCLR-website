@@ -106,24 +106,19 @@ test.describe("S6 Orbital Pulse appearance", () => {
           "background-color",
           theme === "light" ? "rgb(244, 246, 252)" : "rgb(12, 20, 40)",
         );
-        expect(
-          await page
-            .locator(".page-heading")
-            .evaluate((n) => getComputedStyle(n, "::before").backgroundImage),
-        ).toContain("/themes/orbital-pulse/music-spectrum.svg");
-        const circuit = `/themes/orbital-pulse/circuit-${theme}.svg`;
+        const field = `/themes/orbital-pulse/orbital-field-${theme}.svg`;
         expect(
           await page
             .locator(".page-heading")
             .evaluate((n) => getComputedStyle(n).backgroundImage),
-        ).toContain(circuit);
+        ).toContain(field);
         expect(
           await page.evaluate(async (src) => {
             const image = new Image();
             image.src = src;
             await image.decode();
             return image.naturalWidth > 0 && image.naturalHeight > 0;
-          }, circuit),
+          }, field),
         ).toBe(true);
         const original = page.locator(".archive-key-visual img");
         await expect(original).toHaveAttribute(
