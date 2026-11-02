@@ -1298,13 +1298,12 @@ function PromoteCandidate({
                 {tr("Close")}
               </button>
             </div>
-            <div className={styles.promotionContent}>
+            <div className={styles.promotionContent} aria-busy={busy}>
               {saved && (
                 <p role="status">
                   {tr("Candidate added to the official pool.")}
                 </p>
               )}
-              {busy && <p role="status">{tr("Working…")}</p>}
               <div className={styles.promotionForm}>
                 <label className="field">
                   <span>{tr("Target round")}</span>
