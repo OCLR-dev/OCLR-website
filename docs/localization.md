@@ -37,6 +37,13 @@ Public News categories use the exhaustive `publicNewsKind` mapping in `src/lib/p
 
 Standard osu! mod names are non-translatable domain labels in every locale: NM — No Mod, HD — Hidden, DT — Double Time, HR — Hard Rock, FM — FM / Free Mod / Force Mod, TB — Tie Breaker. Render them from `categoryNames` / `fmModeNames`; translate surrounding help and errors. Preserve these names inside catalog sentences too. This organizer-approved terminology update is #83; it does not change gameplay settings or the 图池 / 圖池 and 选手池 / 選手池 glossary.
 
+## Review and audit terminology
+
+The organizer selected 審核 for all Traditional Chinese review and audit wording
+on 2026-11-02 (#718), including registration, results, records and related
+notices. Keep this wording consistent in `messages/zh-Hant.json` and the
+Traditional Chinese README.
+
 ## Staff role terminology
 
 The organizer confirmed the following Chinese role labels on 2026-10-29:

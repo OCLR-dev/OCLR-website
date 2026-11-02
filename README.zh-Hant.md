@@ -70,7 +70,7 @@ npm run dev
 npm run check        # ESLint 與 TypeScript
 npm run test:i18n    # 介面翻譯檢查
 npm run build        # 正式環境建置
-npm audit --omit=dev # 正式環境依賴套件稽核
+npm audit --omit=dev # 正式環境依賴套件審核
 ```
 
 執行單元／整合測試及桌面／行動版 Playwright 測試前，請明確匯出 `TEST_DATABASE_URL`，指向可拋棄的獨立資料庫。資料庫名稱須包含獨立的 `test` 區段，例如 `oclr_test`。請勿使用示範或正式環境資料庫：
@@ -91,7 +91,7 @@ Playwright 會在本機回送位址的 3100 連接埠啟動正式建置。若要
 
 - [文件索引](docs/README.md) — 所有指南與設計參考
 - [開發指南](docs/development.md) — 本機設定、檢查、OAuth、PostgreSQL 與設計說明
-- [賽事管理](docs/tournament-management.md) — 屆次設定、報名、工作人員角色與稽核
+- [賽事管理](docs/tournament-management.md) — 屆次設定、報名、工作人員角色與審核
 - [競賽工作流程](docs/competition-operations.md) — 隊長、隊伍、選秀引擎、賽程、多人遊戲匯入與賽果審核
 - [圖池](docs/mappools.md) — 圖譜資料、Mod 欄位、發布、編輯與私人 Replay
 - [公開功能](docs/public-features.md) — 新聞、選手目錄／個人資料、積分榜與公開頁面
