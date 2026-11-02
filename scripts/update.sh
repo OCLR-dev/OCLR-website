@@ -29,6 +29,7 @@ if "$dry_run"; then
     "Acquire environment lock at $install_dir/.update.lock" \
     'Fetch and verify the reviewed commit on origin/main; leave the running checkout untouched.' \
     "Prepare a new versioned directory under $install_dir/releases (npm ci, check, build)." \
+    'Compare runtime schema definitions; require migrations for runtime changes, allow type-only edits.' \
     'Verify runtime/migration targets and applied migration hashes; show pending migrations.' \
     "Stop $service; create and fully decode a private pg_dump archive under $backup_root." \
     'Apply only pending committed migrations under a PostgreSQL advisory lock.' \
@@ -139,16 +140,17 @@ git -C "$source_dir" archive "$sha" | tar -x -C "$release"
 for name in .env .env.local .env.production .env.production.local; do
   [[ ! -e "$release/$name" ]] || fail 'Production secrets must stay outside the release.'
 done
-if ! "$initial" && ! git -C "$source_dir" diff --quiet "$old_sha" "$sha" -- src/db/schema.ts; then
-  old_count=$(git -C "$source_dir" show "$old_sha:drizzle/meta/_journal.json" | node -e 'let s="";process.stdin.on("data",x=>s+=x).on("end",()=>console.log(JSON.parse(s).entries.length))')
-  new_count=$(node -p 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).entries.length' "$release/drizzle/meta/_journal.json")
-  (( new_count > old_count )) || fail 'Database schema source changed without a new committed migration. Reconcile the schema before deploying.'
-fi
 printf '%s\n' "$sha" > "$release/.oclr-release"
 cd -- "$release"
 log 'Preparing the new release while the old service stays online.'
 phase='building and checking the new release'
 run bash scripts/production.sh prepare --apply
+phase='checking schema changes against committed migrations'
+# Preparation installs the locked TypeScript parser in the candidate release.
+# This comparison never loads schema/config modules and runs before maintenance.
+if ! "$initial"; then
+  run node --import tsx scripts/check-schema-migration.ts "$source_dir" "$old_sha" "$sha"
+fi
 bash "$source_dir/scripts/backup-release-access.sh" "$install_dir" "$release"
 phase='checking database target and migration history'
 run database inspect

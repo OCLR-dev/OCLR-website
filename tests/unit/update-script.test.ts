@@ -65,6 +65,10 @@ if (name === 'git') {
  else log('git '+args.join(' '));
 } else if (name === 'node') {
  if (a[0] === '--version') console.log(process.version);
+ else if (a[2] === 'scripts/check-schema-migration.ts') {
+  log('schema check migration='+Boolean(env.MIGRATION_DATABASE_URL));
+  if (fail === 'schema') process.exit(7);
+ }
  else {
   const mode = a[3];
   log('db '+mode+' migration='+Boolean(env.MIGRATION_DATABASE_URL));
@@ -195,6 +199,12 @@ describe("Bash site updates", () => {
     expect(run.oldPreserved).toBe(true);
     const calls = run.calls;
     expect(calls.indexOf("npm run build migration=false")).toBeLessThan(
+      calls.indexOf("schema check migration=false"),
+    );
+    expect(calls.indexOf("schema check migration=false")).toBeLessThan(
+      calls.indexOf("db inspect migration=true"),
+    );
+    expect(calls.indexOf("schema check migration=false")).toBeLessThan(
       calls.indexOf("service stop"),
     );
     expect(calls.indexOf("service stop")).toBeLessThan(
@@ -214,6 +224,7 @@ describe("Bash site updates", () => {
     expect(run.active).toBe("yes");
     expect(run.switched).toBe(true);
     expect(run.previousLink).toBe(false);
+    expect(run.calls).not.toContain("schema check migration=false");
     expect(run.calls).toContain("db apply migration=true");
     expect(run.calls.at(-1)).toBe("db health migration=false");
   });
@@ -268,7 +279,7 @@ describe("Bash site updates", () => {
       ),
     ).toBe(false);
   });
-  it.each(["build", "inspect", "lock", "dirty"])(
+  it.each(["build", "schema", "inspect", "lock", "dirty"])(
     "leaves the existing release online when %s fails before maintenance",
     (failure) => {
       const run = rehearsal(failure);
@@ -276,6 +287,13 @@ describe("Bash site updates", () => {
       expect(run.active).toBe("yes");
       expect(run.switched).toBe(false);
       expect(run.calls).not.toContain("service stop");
+      if (failure === "schema") {
+        expect(run.calls).not.toContain("db inspect migration=true");
+        expect(run.calls).not.toContain("db apply migration=true");
+        expect(run.result.stdout).toContain(
+          "checking schema changes against committed migrations (exit 7)",
+        );
+      }
     },
   );
   it("restarts the unchanged release if backup fails before any migration", () => {
