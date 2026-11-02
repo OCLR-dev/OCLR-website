@@ -22,6 +22,7 @@ import type { MappoolWorkspace } from "@/lib/mappools";
 import { EntryForm } from "./mappool-editor";
 import { WorkspaceTabs } from "./workspace-tabs";
 import { WorkbenchActionIcon } from "./workbench-action-icon";
+import { MappoolActionIcon } from "./mappool-action-icon";
 import { CandidateHistory } from "./candidate-history";
 import { MapCardBand } from "./map-card-band";
 import { BeatmapCover } from "./beatmap-cover";
@@ -381,12 +382,14 @@ function Comments({
         </h3>
         <button
           type="button"
-          className="secondary"
+          className="secondary mappool-icon-action"
+          aria-label={tr("Refresh comments")}
+          title={tr("Refresh comments")}
           disabled={busy}
           ref={refreshTrigger}
           onClick={() => void refresh()}
         >
-          {tr("Refresh comments")}
+          <MappoolActionIcon kind="refresh" />
         </button>
       </div>
       <div className={styles.thread}>

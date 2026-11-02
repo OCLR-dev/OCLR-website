@@ -114,15 +114,10 @@
 }
 .discussionHeading {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-}
-.discussionHeading button {
-  min-height: 32px;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.8125rem;
 }
 .thread {
   margin-top: 0.5rem;
