@@ -11,7 +11,7 @@ import {
 } from "../../src/db/schema";
 import { assertTestDatabase } from "../database";
 import { seedResultReview } from "../fixtures/results";
-import { publicNews } from "../../src/lib/public-news";
+import { publicNews, publicNewsItem } from "../../src/lib/public-news";
 import { matchReview, resultCommand } from "../../src/lib/results";
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 481001, username: "Synthetic News Admin" };
@@ -92,6 +92,25 @@ describe.skipIf(!url)("published News sources and retraction", () => {
     expect(item.source?.url).toBe(
       `/tournaments/test-cup/matches/${seed.fixtureId}`,
     );
+    await db()
+      .update(editionState)
+      .set({
+        configuration: sql`jsonb_set(configuration, '{season}', '"10"'::jsonb)`,
+      })
+      .where(eq(editionState.slug, "test-cup"));
+    expect(await publicNewsItem(item.slug, now)).toBeUndefined();
+    expect(
+      (await publicNews(now)).some((entry) =>
+        entry.source?.url.startsWith("/tournaments/test-cup/"),
+      ),
+    ).toBe(false);
+    await db()
+      .update(editionState)
+      .set({
+        configuration: sql`jsonb_set(configuration, '{season}', '"11"'::jsonb)`,
+      })
+      .where(eq(editionState.slug, "test-cup"));
+    expect(await publicNewsItem(item.slug, now)).toEqual(item);
     await command({
       action: "submit",
       importId: seed.importId,

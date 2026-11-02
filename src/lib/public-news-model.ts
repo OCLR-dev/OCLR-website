@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { enrollmentState, formatDate, type Edition } from "./editions";
 import type { announcementsSchema } from "./announcements";
 import type { z } from "zod";
+import { seasonNumber } from "./player-timeline";
 export type PublicNewsItem = {
   slug: string;
   title: string;
@@ -46,6 +47,13 @@ export type OfficialNewsEvent = {
   at: string;
   url: string;
 };
+/** OCLR news retention starts at S11, including after that season is archived. */
+export function publishesTournamentNews(
+  edition: Pick<Edition, "slug" | "season" | "archive">,
+) {
+  const season = seasonNumber(edition.season) ?? seasonNumber(edition.slug);
+  return season === null ? !edition.archive : season >= 11;
+}
 function eventSlug(edition: string, kind: string, id: string) {
   return `event-${createHash("sha256")
     .update(JSON.stringify([edition, kind, id]))
@@ -80,7 +88,7 @@ export function projectPublicNews(
       source: null,
     }));
   for (const { edition: e, registrationPaused } of editions.filter(
-    (r) => r.edition.published,
+    (r) => r.edition.published && publishesTournamentNews(r.edition),
   )) {
     function add(
       kind: PublicNewsItem["kind"],

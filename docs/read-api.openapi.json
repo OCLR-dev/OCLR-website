@@ -544,6 +544,169 @@
         }
       }
     },
+    "/api/v1/players/by-username": {
+      "get": {
+        "operationId": "getUsernamePlayer",
+        "description": "Public evidence maps a participant's current, historical or joined name to one UID. Names claimed by two participants, private applications and withdrawn publications return NOT_FOUND.",
+        "x-oclr-issues": [269, 272],
+        "x-oclr-scopes": ["tournaments:read"],
+        "x-oclr-query-model": "UsernameOwner",
+        "x-oclr-coverage": "docs/remote-coverage.json",
+        "x-oclr-read-only": true,
+        "x-response-size-limit": 2097152,
+        "security": [{}, { "DeveloperBearer": [] }],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "minLength": 1, "maxLength": 64 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved read projection; no provider work or business writes",
+            "headers": {
+              "Cache-Control": {
+                "schema": { "type": "string", "const": "no-store" }
+              },
+              "X-Request-Id": {
+                "schema": { "type": "string", "format": "uuid" }
+              },
+              "X-OCLR-Read-Contract": {
+                "schema": { "type": "string", "const": "1.17.0" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/UsernameOwner" },
+                    "meta": { "$ref": "#/components/schemas/ReadMeta" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "401": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "403": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "404": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "409": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "413": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "429": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "headers": {
+              "Retry-After": {
+                "description": "Wait this many seconds before a new request; no automatic replay",
+                "schema": { "type": "integer", "minimum": 1 }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "503": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "getUsernamePlayerHead",
+        "description": "Identical authorization, status and headers; no response body.",
+        "x-oclr-issues": [269, 272],
+        "security": [{}, { "DeveloperBearer": [] }],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "minLength": 1, "maxLength": 64 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Identical GET status and headers; no body" },
+          "400": { "description": "Identical GET status and headers; no body" },
+          "401": { "description": "Identical GET status and headers; no body" },
+          "403": { "description": "Identical GET status and headers; no body" },
+          "404": { "description": "Identical GET status and headers; no body" },
+          "409": { "description": "Identical GET status and headers; no body" },
+          "413": { "description": "Identical GET status and headers; no body" },
+          "429": { "description": "Identical GET status and headers; no body" },
+          "500": { "description": "Identical GET status and headers; no body" },
+          "503": { "description": "Identical GET status and headers; no body" }
+        }
+      },
+      "options": {
+        "operationId": "getUsernamePlayerPreflight",
+        "x-oclr-issues": [269, 272],
+        "security": [],
+        "responses": {
+          "204": { "description": "Read-only preflight, no private data" },
+          "403": { "description": "Origin, method or headers denied" }
+        }
+      }
+    },
     "/api/v1/media/teams/{id}/avatar": {
       "get": {
         "operationId": "getTeamAvatar",
@@ -17404,6 +17567,19 @@
           }
         },
         "required": ["identity", "participation", "snapshot", "bws", "error"],
+        "additionalProperties": false
+      },
+      "UsernameOwner": {
+        "type": "object",
+        "properties": {
+          "osuId": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "username": { "type": "string", "minLength": 1, "maxLength": 64 }
+        },
+        "required": ["osuId", "username"],
         "additionalProperties": false
       },
       "Read013e8c9616bd": {

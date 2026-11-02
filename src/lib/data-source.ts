@@ -51,7 +51,12 @@ function matchesRoute(path: string, template: string, api = false) {
     parts.every((part, index) => {
       if (part === "[...path]") return actual.length > index;
       if (part.startsWith("[")) {
-        const value = actual[index] ?? "";
+        let value = actual[index] ?? "";
+        try {
+          value = decodeURIComponent(value);
+        } catch {
+          return false;
+        }
         if (
           api &&
           [
@@ -63,10 +68,15 @@ function matchesRoute(path: string, template: string, api = false) {
           ].includes(part)
         )
           return /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(value);
+        // The player page also accepts a released username and redirects to
+        // the UID, while the API keeps numeric-only ids.
         if (part === "[osuId]")
-          return (
-            /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value))
-          );
+          return api
+            ? /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value))
+            : value.length > 0 &&
+                value.length <= 64 &&
+                value.trim() === value &&
+                /^[^/\\?#%]+$/.test(value);
         return /^[a-zA-Z0-9_-]+$/.test(value);
       }
       return actual[index] === part;

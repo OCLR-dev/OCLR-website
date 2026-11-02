@@ -19,6 +19,28 @@ for (const theme of ["light", "dark"]) {
     for (const width of widths) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`/workbench-compact?theme=${theme}`);
+      const listHeading = page.locator("#candidate-list-heading");
+      const listRefresh = listHeading
+        .locator("..")
+        .getByRole("button", { name: "重新整理列表", exact: true });
+      await expect(listRefresh).toHaveText("");
+      await expect(listRefresh).toHaveAttribute("title", "重新整理列表");
+      await expect(listRefresh.locator("svg")).toHaveCount(1);
+      const titleBounds = (await listHeading.boundingBox())!;
+      const refreshBounds = (await listRefresh.boundingBox())!;
+      expect(refreshBounds.width).toBe(44);
+      expect(refreshBounds.height).toBe(44);
+      expect(refreshBounds.x).toBeGreaterThan(
+        titleBounds.x + titleBounds.width,
+      );
+      expect(
+        Math.abs(
+          titleBounds.y +
+            titleBounds.height / 2 -
+            refreshBounds.y -
+            refreshBounds.height / 2,
+        ),
+      ).toBeLessThan(2);
       const row = page.getByRole("article", {
         name: "BID 5722291",
         exact: true,

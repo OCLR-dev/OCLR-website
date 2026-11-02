@@ -62,10 +62,14 @@
 }
 .listHeading {
   display: flex;
-  gap: 1rem;
-  align-items: baseline;
+  gap: 0.5rem;
+  align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+.listHeading h2 {
+  min-width: 0;
+  margin: 0;
 }
 .candidates > li {
   padding: 1rem 0;

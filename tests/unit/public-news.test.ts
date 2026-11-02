@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   projectPublicNews,
+  publishesTournamentNews,
   type NewsEdition,
 } from "../../src/lib/public-news-model";
 import { edition } from "../fixtures/edition";
 import { announcements } from "../fixtures/announcements";
+import { historicalArchive } from "../fixtures/historical-archive";
 const now = new Date("2026-10-20T12:00:00Z");
 const record: NewsEdition = {
   edition: {
@@ -17,6 +19,76 @@ const record: NewsEdition = {
   registrationPaused: false,
 };
 describe("read-only deterministic public News", () => {
+  it("excludes S1–S10 across every generated news kind, even after recent publication", () => {
+    const editions = Array.from({ length: 12 }, (_, index) => ({
+      ...record,
+      edition: {
+        ...record.edition,
+        slug: `edition-${index + 1}`,
+        season: `${index % 2 ? "S" : "Season "}${index + 1}`,
+      },
+    }));
+    const events = editions.flatMap(({ edition: e }) =>
+      (["mappool", "fixture", "result"] as const).map((kind) => ({
+        editionSlug: e.slug,
+        kind,
+        id: `${kind}-1`,
+        title: "Synthetic published event",
+        summary: "Synthetic public content",
+        at: "2026-10-20T11:00:00Z",
+        url: `/tournaments/${e.slug}/results`,
+      })),
+    );
+    const items = projectPublicNews(editions, events, announcements, true, now);
+    expect(items.filter((item) => item.source)).toHaveLength(14);
+    for (const item of items.filter((item) => item.source))
+      expect(item.source!.url).toMatch(/^\/tournaments\/edition-1[12]\//);
+    expect(new Set(items.map((item) => item.kind))).toEqual(
+      new Set([
+        "announcement",
+        "registration",
+        "schedule",
+        "mappool",
+        "fixture",
+        "result",
+      ]),
+    );
+    expect(items.some((item) => item.slug === "synthetic-announcement")).toBe(
+      true,
+    );
+  });
+  it("uses saved season metadata and canonical slugs while retaining S11+ archives", () => {
+    expect(publishesTournamentNews({ ...edition, slug: "s10" })).toBe(false);
+    expect(publishesTournamentNews({ ...edition, slug: "s11" })).toBe(true);
+    expect(
+      publishesTournamentNews({ ...edition, slug: "s11", season: "10" }),
+    ).toBe(false);
+    expect(publishesTournamentNews(edition)).toBe(true);
+    expect(
+      publishesTournamentNews({ ...edition, archive: historicalArchive }),
+    ).toBe(false);
+    const archived = {
+      ...record,
+      edition: {
+        ...record.edition,
+        slug: "history-test",
+        season: "11",
+        status: "completed" as const,
+        registration: null,
+        archive: historicalArchive,
+      },
+    };
+    expect(projectPublicNews([archived], [], [], true, now)).toHaveLength(1);
+    expect(
+      projectPublicNews(
+        [{ ...archived, edition: { ...archived.edition, season: "10" } }],
+        [],
+        [],
+        true,
+        now,
+      ),
+    ).toEqual([]);
+  });
   it("deduplicates stable event URLs across reads and schedule reordering, keeping manual news", () => {
     const items = projectPublicNews([record], [], announcements, true, now);
     expect(new Set(items.map((i) => i.slug)).size).toBe(items.length);
@@ -185,9 +257,7 @@ describe("localized News categories", () => {
             ? "轮次「1」的图池「test」已发布"
             : "輪次「1」的圖池「test」已發布",
         );
-        expect(tr("Mappooler")).toBe(
-          locale === "zh-Hans" ? "选图" : "選圖",
-        );
+        expect(tr("Mappooler")).toBe(locale === "zh-Hans" ? "选图" : "選圖");
         expect(tr("Player pool")).toBe(
           locale === "zh-Hans" ? "选手池" : "選手池",
         );

@@ -15,6 +15,17 @@ Published news, tournament participant information, edition-scoped player listin
 
 Routine News is projected on server reads from published registration windows, dated schedule entries, released mappools, public fixtures and approved published results. Stable event URLs are deterministic; future dates stay labelled as plans, and passing a scheduled date never proves completion. Withdrawn publication and result corrections appear on the next request. Home shares this request-scoped projection, shows at most three updates and the nearest confirmed future milestone. No cron, provider API calls, writes on GET or additional News store is involved. Captain/draft snapshots without a reliable publication timestamp are not assigned invented announcement dates.
 
+Tournament news retention starts at S11 (#721). S1–S10 registration, schedule,
+mappool, fixture and result updates are excluded from the shared projection,
+including their old News detail URLs. S11 and later seasons retain News when
+completed or archived. The saved season is authoritative, with the canonical
+season slug used when a season value is unavailable; historical archives without
+a recognized season do not generate News. Independent editorial announcements
+and non-season tournaments retain their existing publication rules. Tournament
+archives, public results and operation records remain available through their
+existing pages. This policy takes effect when the updated application is deployed;
+there are no stored generated News rows to delete or migrate.
+
 Optional approved editorial content lives in `src/content/announcements.json` (or mounted `OCLR_ANNOUNCEMENTS_FILE`). Each entry has a unique slug, title, summary, publication flag/time and plain-text heading/body sections. Set `published: false` while drafting; published entries require a date and future-dated entries stay hidden until that time. Text is escaped, not executed as HTML. Add/review content in Git and redeploy, or atomically replace the approved mounted file; there is no CMS or separate editorial service. Production content starts empty. Synthetic announcements are restricted to tests.
 
 About lists active persistent staff grants with public visibility in `/admin/staff`. Newly assigned roles default to public when the Admin confirms the grant (#650); the grant audit records that visibility. Admins can hide or show saved roles separately, with scope authorization and automatic audit events. Editing a role set preserves retained roles’ visibility. Existing grants keep their saved state. Unpublished edition assignments and bootstrap environment accounts never become an automatic public roster; revoked roles disappear on the next read. Public fields are limited to username, osu! profile/avatar and published role/scope. About and Privacy use the same explicitly approved `PRIVACY_CONTACT_OSU_ID`; no separate contact identity is configured in source. Do not infer organizer identity from repository ownership. Participant pages show explicitly published captain identities and finalized published team rosters; they never enumerate individual applications or automatically announce accepted/unpicked players. Public pool disclosure remains a separately approved draft-board setting. Privacy/correction/removal requests use the approved privacy contact.

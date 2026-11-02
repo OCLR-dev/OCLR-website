@@ -1,4 +1,3 @@
-import { InfoNote } from "@/components/info-note";
 import { useAppTranslations } from "@/i18n/shared";
 import type { publicMappools } from "@/lib/mappools";
 import {
@@ -214,15 +213,6 @@ export function MappoolView({
           ))}
         </nav>
       )}
-      <InfoNote>
-        <p id={`${prefix}-values`} className="mappool-values muted small">
-          {populated.every((category) => category === "NM")
-            ? tr("NM uses Base SR and unmodified map stats.")
-            : tr(
-                "Base stats are unmodified. Mod SR is calculated for the shown mods.",
-              )}
-        </p>
-      </InfoNote>
       {populated.map((category) => {
         const entries = pool.entries.filter(
           (entry) => entry.category === category,
@@ -240,15 +230,12 @@ export function MappoolView({
             key={category}
             aria-labelledby={`${prefix}-maps-${category}-title`}
           >
-            <div className="mappool-category-heading">
-              <Heading id={`${prefix}-maps-${category}-title`}>
-                <strong>{category}</strong>
-                <span>{name}</span>
-              </Heading>
-              <span className="muted small">
-                {entries.length} {entries.length === 1 ? tr("map") : tr("maps")}
-              </span>
-            </div>
+            <Heading
+              id={`${prefix}-maps-${category}-title`}
+              className="sr-only"
+            >
+              {category} {tr(name)}
+            </Heading>
             {category === "FM" && (
               <p className="mappool-fm-note muted small">
                 {name}:{" "}
@@ -265,10 +252,7 @@ export function MappoolView({
               })}
               tabIndex={0}
             >
-              <table
-                className="mappool-sheet"
-                aria-describedby={`${prefix}-values`}
-              >
+              <table className="mappool-sheet">
                 <caption
                   id={`${prefix}-maps-${category}-caption`}
                   className="sr-only"

@@ -9,12 +9,19 @@ import { remoteMode } from "./data-source";
 import { formatDate } from "./editions";
 import { frontendResource } from "./frontend-resource";
 import { publicCompetition } from "./public-competition";
-import { projectPublicNews, type OfficialNewsEvent } from "./public-news-model";
+import {
+  projectPublicNews,
+  publishesTournamentNews,
+  type OfficialNewsEvent,
+} from "./public-news-model";
 import { readTournaments } from "./tournaments";
 async function loadNews(now: Date, tr: AppTranslator) {
   const editions = await readTournaments(true);
+  const newsEditions = editions.filter((r) =>
+    publishesTournamentNews(r.edition),
+  );
   const events: OfficialNewsEvent[] = [];
-  if (editions.length) {
+  if (newsEditions.length) {
     const pools = await db()
       .select({
         id: mappools.id,
@@ -30,7 +37,7 @@ async function loadNews(now: Date, tr: AppTranslator) {
           isNotNull(mappools.publishedAt),
           inArray(
             mappools.editionSlug,
-            editions.map((r) => r.edition.slug),
+            newsEditions.map((r) => r.edition.slug),
           ),
         ),
       );
@@ -53,7 +60,7 @@ async function loadNews(now: Date, tr: AppTranslator) {
       slug: string;
       data: Awaited<ReturnType<typeof publicCompetition>>;
     }[] = [];
-    for (const { edition } of editions)
+    for (const { edition } of newsEditions)
       competitions.push({
         slug: edition.slug,
         data: await publicCompetition(edition.slug),

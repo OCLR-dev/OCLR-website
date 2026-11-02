@@ -15,6 +15,7 @@ import {
   savedProfileSchema,
   siteSchema,
   oclrProfileSchema,
+  usernameOwnerSchema,
 } from "./read-api-contract";
 export const apiIdentitySchema = z
   .object({
@@ -45,6 +46,7 @@ export const readSchemas: Record<string, z.ZodType> = {
   Pagination: paginationSchema,
   ApiIdentity: apiIdentitySchema,
   OclrProfile: oclrProfileSchema,
+  UsernameOwner: usernameOwnerSchema,
 };
 export type ReadOperation = {
   id: string;
@@ -93,6 +95,17 @@ export const readOperations: readonly ReadOperation[] = [
     issues: [269, 271, 360],
     description:
       "Actual token subject's known identity and private name evidence, including zero participation. Participation stays publication-filtered; no applications or provider I/O.",
+  },
+  {
+    id: "getUsernamePlayer",
+    path: "/players/by-username",
+    schema: "UsernameOwner",
+    public: true,
+    scope: "tournaments:read",
+    query: ["name"],
+    issues: [269, 272],
+    description:
+      "Public evidence maps a participant's current, historical or joined name to one UID. Names claimed by two participants, private applications and withdrawn publications return NOT_FOUND.",
   },
   {
     id: "getTeamAvatar",

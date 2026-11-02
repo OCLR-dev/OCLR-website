@@ -1001,7 +1001,9 @@ export function SelectionWorkbench({
             </h2>
             <button
               type="button"
-              className="secondary"
+              className="secondary mappool-icon-action"
+              aria-label={tr("Refresh list")}
+              title={tr("Refresh list")}
               disabled={busy}
               onClick={async () => {
                 setBusy(true);
@@ -1015,7 +1017,7 @@ export function SelectionWorkbench({
                 }
               }}
             >
-              {tr("Refresh list")}
+              <MappoolActionIcon kind="refresh" />
             </button>
           </div>
           <p className="small muted">

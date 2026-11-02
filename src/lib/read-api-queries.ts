@@ -96,6 +96,8 @@ export function readQuerySchema(id: string, keys: readonly string[]) {
       .strict();
   if (id === "nextStreamingRead")
     return z.object({ afterFixtureId: z.uuid().optional() }).strict();
+  if (id === "getUsernamePlayer")
+    return z.object({ name: z.string().trim().min(1).max(64) }).strict();
   if (id === "publicPlayerParticipation")
     return z.object({ edition: editionSchema.shape.slug.optional() }).strict();
   if (
