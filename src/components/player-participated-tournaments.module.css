@@ -70,6 +70,16 @@
   pointer-events: none;
 }
 
+/* An edition's own cover art is already a picture: keep it sharp and only
+   darken it under the label, so the tournament is recognisable at card size. */
+.cover {
+  z-index: 0;
+  object-fit: cover;
+  opacity: 0.7;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
 :global(html[data-theme="dark"]) .art {
   background-image: var(--card-art-dark, var(--card-art-light));
 }
@@ -110,6 +120,10 @@
 
 .row[data-filtered] .card:not(.selected):hover {
   opacity: 0.8;
+}
+
+.row[data-filtered] .card:not(.selected) .cover {
+  opacity: 0.55;
 }
 
 .showAll {

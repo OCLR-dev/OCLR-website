@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { userProfileCache, users } from "@/db/schema";
 import { and, eq, inArray, sql } from "drizzle-orm";
+import { after } from "next/server";
 import { randomUUID } from "node:crypto";
 import { remoteMode } from "./data-source";
 import { HttpError } from "./http";
@@ -149,7 +150,13 @@ export async function refreshDirectoryStatistics(osuIds: number[]) {
     }
   }
 }
-const pending = new Map<string, Promise<ProfileSnapshot>>();
+type LoadedProfile = ProfileSnapshot & { revalidate?: boolean };
+type ProfileClaim = {
+  snapshot: ProfileSnapshot | null;
+  token?: string;
+  revalidate?: boolean;
+};
+const pending = new Map<string, Promise<LoadedProfile>>();
 function saved(
   row: typeof userProfileCache.$inferSelect,
 ): ProfileSnapshot | null {
@@ -220,12 +227,13 @@ async function load(
   osuId: number,
   mode: ProfileMode,
   refresh: boolean,
-): Promise<ProfileSnapshot> {
+  staleWhileRevalidate: boolean,
+): Promise<LoadedProfile> {
   if (!process.env.DATABASE_URL) throw unavailable(503);
   const now = new Date();
   // Short global lock bounds the shared cache and claims work across Node processes.
   // Provider I/O happens outside the transaction. A token guards late responses.
-  const claim = await db().transaction(async (tx) => {
+  const claim: ProfileClaim = await db().transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(713026)`);
     const [row] = await tx
       .select()
@@ -249,6 +257,11 @@ async function load(
         };
       throw unavailable(row.errorStatus ?? 429);
     }
+    // Public pages prefer a timely saved snapshot over waiting for osu!. The
+    // caller schedules one refresh after this response; failures keep the
+    // existing error status/backoff behaviour on the next request.
+    if (snapshot && staleWhileRevalidate && !refresh && !row.errorStatus)
+      return { snapshot: { ...snapshot, stale: true }, revalidate: true };
     const token = randomUUID();
     if (!row) {
       // Evict oldest attempts, including negative lookups. At most 1,000 keys.
@@ -275,7 +288,10 @@ async function load(
       });
     return { token, snapshot };
   });
-  if (!claim.token) return claim.snapshot!;
+  if (!claim.token)
+    return claim.revalidate
+      ? { ...claim.snapshot!, revalidate: true }
+      : claim.snapshot!;
   try {
     const profile = normalizeOsuProfile(
       await osuApi(`/users/${osuId}/${mode}?key=id`),
@@ -331,11 +347,61 @@ async function load(
     throw unavailable(status);
   }
 }
+const revalidating = new Set<string>();
+// Last stale snapshot handed to a public request while its refresh runs, so
+// concurrent page loads do not wait for the provider I/O they just triggered.
+const servedWhileRevalidating = new Map<string, ProfileSnapshot>();
+/** Refresh after the response when a request scope exists; stay blocking elsewhere. */
+async function revalidateProfile(osuId: number, mode: ProfileMode) {
+  const key = `${osuId}:${mode}`;
+  if (revalidating.has(key)) return;
+  revalidating.add(key);
+  const done = () => {
+    revalidating.delete(key);
+    servedWhileRevalidating.delete(key);
+  };
+  const run = () =>
+    getOsuUserProfile(osuId, mode, { refresh: true }).catch(() => {});
+  try {
+    after(() => {
+      void run().finally(done);
+    });
+  } catch {
+    // Scripts and tests have no request scope; keep the previous behaviour.
+    try {
+      await run();
+    } finally {
+      done();
+    }
+  }
+}
+async function settle(
+  request: Promise<LoadedProfile>,
+  key: string,
+  osuId: number,
+  mode: ProfileMode,
+): Promise<ProfileSnapshot> {
+  let result: LoadedProfile;
+  try {
+    result = await request;
+  } finally {
+    pending.delete(key);
+  }
+  if (!result.revalidate) return result;
+  const snapshot: ProfileSnapshot = {
+    profile: result.profile,
+    stale: result.stale,
+    notice: result.notice,
+  };
+  servedWhileRevalidating.set(key, snapshot);
+  await revalidateProfile(osuId, mode);
+  return snapshot;
+}
 /** Credentials stay server-side. Callers must enforce participant/staff visibility. */
 export async function getOsuUserProfile(
   osuId: number,
   mode: ProfileMode = "osu",
-  options: { refresh?: boolean } = {},
+  options: { refresh?: boolean; staleWhileRevalidate?: boolean } = {},
 ): Promise<ProfileSnapshot> {
   if (remoteMode() || inReadChannel()) {
     const snapshot = await cachedOsuUserProfile(osuId, mode);
@@ -345,15 +411,23 @@ export async function getOsuUserProfile(
   parseOsuProfile(String(osuId), mode);
   const key = `${osuId}:${mode}`;
   const existing = pending.get(key);
-  if (existing) return existing;
-  if (pending.size >= 32) throw unavailable(429);
-  const request = load(osuId, mode, options.refresh === true);
-  pending.set(key, request);
-  try {
-    return await request;
-  } finally {
-    pending.delete(key);
+  if (existing) {
+    const served =
+      options.staleWhileRevalidate && !options.refresh
+        ? servedWhileRevalidating.get(key)
+        : undefined;
+    if (served) return served;
+    return settle(existing, key, osuId, mode);
   }
+  if (pending.size >= 32) throw unavailable(429);
+  const request = load(
+    osuId,
+    mode,
+    options.refresh === true,
+    options.staleWhileRevalidate === true,
+  );
+  pending.set(key, request);
+  return settle(request, key, osuId, mode);
 }
 
 // Short, bounded resolution cache. The authoritative ID profile still uses the

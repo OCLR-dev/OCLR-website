@@ -78,7 +78,8 @@ describe("map performance", () => {
     );
     expect(result.maps[0].placement).toBe(2);
     expect(
-      mapPerformance([play(2, 1, 900), play(2, 2, 1_000)], 1).maps[0].placement,
+      mapPerformance([play(2, 1, 900_000), play(2, 2, 1_000_000)], 1).maps[0]
+        .placement,
     ).toBe(2);
   });
 
@@ -152,17 +153,31 @@ describe("map performance", () => {
     expect(result.teamMaps).toBe(2);
   });
 
-  it("skips effective ratings when the map mean is zero or unusable", () => {
+  it("excludes lobby placeholders from the map mean and team size", () => {
+    // Seven records were stored, but 1,999 is a lobby occupant, not a play:
+    // the map is a 3v3 and its mean only covers the six real scores.
     const result = mapPerformance(
-      [play(1, 1, 0), play(1, 2, 0), play(2, 3, 500), play(2, 1, 1_000)],
+      [
+        play(1, 1, 900_000),
+        play(1, 2, 600_000),
+        play(1, 3, 600_000),
+        play(1, 4, 600_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+        play(1, 5, 600_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+        play(1, 6, 600_000, 0.95, "2024-01-05T00:00:00Z", "b"),
+        play(1, 7, 1_999, 0.2, "2024-01-05T00:00:00Z", "b"),
+      ],
       1,
     );
-    const zeroMap = result.maps.find((row) => row.gameId === 1)!;
-    expect(zeroMap.placement).toBe(1);
-    expect(zeroMap.effectiveRating).toBeNull();
-    // Mean of map 2 is 750, so only that map contributes 1.333…
-    expect(result.averageEffectiveRating).toBeCloseTo(1_000 / 750);
-    expect(result.ratedMaps).toBe(1);
+    expect(result.maps[0].placement).toBe(1);
+    expect(result.maps[0].teamSize).toBe(3);
+    expect(result.maps[0].effectiveRating).toBeCloseTo(900_000 / 650_000);
+  });
+
+  it("drops a player whose only scores are placeholders", () => {
+    const result = mapPerformance([play(1, 1, 1_999), play(1, 2, 900_000)], 1);
+    expect(result.maps).toHaveLength(0);
+    expect(result.averageEffectiveRating).toBeNull();
+    expect(result.ratedMaps).toBe(0);
   });
 
   it("averages placements, first places and accuracy over recorded maps", () => {
@@ -187,10 +202,12 @@ describe("map performance", () => {
 
   it("splits average placement by the score count of each map", () => {
     const threeVThree = [1, 2, 3, 4, 5].map((osuId, index) =>
-      play(1, osuId, 1_000 - index * 100, 0.95, "2024-01-05T00:00:00Z"),
+      play(1, osuId, 1_000_000 - index * 100_000, 0.95, "2024-01-05T00:00:00Z"),
     );
-    const fourVFour = [500, 1_000, 900, 800, 700, 600, 400].map(
-      (score, index) => play(2, index + 1, score, 0.95, "2024-01-12T00:00:00Z"),
+    const fourVFour = [
+      500_000, 1_000_000, 900_000, 800_000, 700_000, 600_000, 400_000,
+    ].map((score, index) =>
+      play(2, index + 1, score, 0.95, "2024-01-12T00:00:00Z"),
     );
     const summary = summarizeMapPerformance([
       {
@@ -204,7 +221,10 @@ describe("map performance", () => {
   });
 
   it("summarizes editions and ignores empty or unavailable seasons", () => {
-    const first = mapPerformance([play(1, 1, 1_000), play(1, 2, 1_000)], 1);
+    const first = mapPerformance(
+      [play(1, 1, 1_000_000), play(1, 2, 1_000_000)],
+      1,
+    );
     const summary = summarizeMapPerformance([
       edition("s2", []),
       edition("s1", first.maps),
@@ -297,8 +317,8 @@ describe("liveMapPlays", () => {
       [
         game({
           scores: [
-            { userId: 1, total: 1_000, teamId: "a", accuracy: 0.9 },
-            { userId: 2, total: 500, teamId: "b", accuracy: 0.8 },
+            { userId: 1, total: 1_000_000, teamId: "a", accuracy: 0.9 },
+            { userId: 2, total: 500_000, teamId: "b", accuracy: 0.8 },
           ],
         }),
       ],
@@ -308,6 +328,6 @@ describe("liveMapPlays", () => {
     const result = mapPerformance(plays, 1);
     expect(result.maps).toHaveLength(1);
     expect(result.maps[0].placement).toBe(1);
-    expect(result.maps[0].effectiveRating).toBeCloseTo(1_000 / 750);
+    expect(result.maps[0].effectiveRating).toBeCloseTo(1_000_000 / 750_000);
   });
 });

@@ -8,7 +8,7 @@ import {
   permits,
   assertReadCapability,
 } from "./auth/staff";
-import { publicPlayer } from "./players";
+import { publicPlayer, publicPlayerStillListed } from "./players";
 import { cachedOsuUserProfile, getOsuUserProfile } from "./osu-profiles";
 import { parseOsuProfile } from "./osu-profile-model";
 import { HttpError } from "./http";
@@ -57,10 +57,11 @@ export async function publishedPlayerProfile(
   let error = null;
   try {
     snapshot = projectSavedPlayerProfile(
-      await (savedOnly ? cachedOsuUserProfile : getOsuUserProfile)(
-        identity.osuId,
-        identity.mode,
-      ),
+      await (savedOnly
+        ? cachedOsuUserProfile(identity.osuId, identity.mode)
+        : getOsuUserProfile(identity.osuId, identity.mode, {
+            staleWhileRevalidate: true,
+          })),
       identity.osuId,
       identity.mode,
     );
@@ -69,13 +70,15 @@ export async function publishedPlayerProfile(
     error = { status: e.status, message: e.message };
   }
   // Check again after provider I/O: publication may have been withdrawn meanwhile.
-  const current = await publicPlayer(identity.osuId, edition);
-  const currentPlayer = await knownPlayerIdentity(
-    identity.osuId,
-    current,
-    selfId,
-    authorizedEdition,
-  );
+  // Self/account-only access has no public listing to withdraw, so only re-check
+  // identities that were just read from public participation.
+  if (
+    participation.length > 0 &&
+    selfId !== identity.osuId &&
+    !authorizedEdition &&
+    !(await publicPlayerStillListed(identity.osuId, edition))
+  )
+    throw new HttpError(404, "Known player not found.");
   if (
     edition &&
     !authorizedEdition &&
@@ -85,12 +88,12 @@ export async function publishedPlayerProfile(
   const bws =
     snapshot &&
     identity.mode === "osu" &&
-    (!edition || current.length > 0 || authorizedEdition)
+    (!edition || participation.length > 0 || authorizedEdition)
       ? await profileBws(snapshot, edition)
       : null;
   return {
-    identity: { ...identity, ...player, ...currentPlayer },
-    participation: current,
+    identity: { ...identity, ...player },
+    participation,
     snapshot,
     error,
     bws,

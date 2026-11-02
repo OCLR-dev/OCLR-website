@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   useCallback,
   useLayoutEffect,
@@ -122,13 +123,17 @@ export function PlayerTimeline({ timeline }: { timeline: PlayerTimeline }) {
   for (const span of timeline.spans) details.set(span.key, spanDetail(span));
   const activeText = active ? details.get(active) : undefined;
 
-  // The span paints its season's page-heading artwork into the detail bubble.
+  // The span paints the tournament's cover art into the detail bubble and falls
+  // back to its season's page-heading artwork when that edition has no cover.
+  const covers = new Map<string, string>();
   const artworks = new Map<string, SeasonArtwork>();
   for (const span of timeline.spans) {
     const artwork = seasonArtworkPair(span.appearance);
-    if (artwork) artworks.set(span.key, artwork);
+    if (span.artwork) covers.set(span.key, span.artwork);
+    else if (artwork) artworks.set(span.key, artwork);
   }
-  const activeArtwork = active ? artworks.get(active) : undefined;
+  const activeCover = active ? covers.get(active) : undefined;
+  const activeArtwork = active && !activeCover ? artworks.get(active) : undefined;
 
   // Both scales are rendered as custom properties, so the media query picks one
   // without a hydration mismatch. The capsule is centred on the true midpoint,
@@ -346,7 +351,17 @@ export function PlayerTimeline({ timeline }: { timeline: PlayerTimeline }) {
             role="note"
             style={tipLeft === null ? undefined : { left: tipLeft }}
           >
-            {activeArtwork ? (
+            {activeCover ? (
+              <Image
+                className={styles.tipCover}
+                src={activeCover}
+                alt=""
+                aria-hidden="true"
+                fill
+                unoptimized
+                sizes="260px"
+              />
+            ) : activeArtwork ? (
               <span
                 className={styles.tipVisual}
                 aria-hidden="true"
@@ -358,7 +373,11 @@ export function PlayerTimeline({ timeline }: { timeline: PlayerTimeline }) {
                 }
               />
             ) : null}
-            <span className={styles.tipText}>{activeText}</span>
+            <span
+              className={`${styles.tipText}${activeCover ? ` ${styles.tipForeground}` : ""}`}
+            >
+              {activeText}
+            </span>
           </div>
         ) : null}
       </div>

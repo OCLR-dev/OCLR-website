@@ -1,7 +1,7 @@
 import { frontendResource, assertRemoteSubject } from "./frontend-resource";
 import { remoteMode } from "./data-source";
 import { createHash } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import {
@@ -20,6 +20,7 @@ import {
 } from "./auth/staff";
 import type { User } from "./auth/sessions";
 import { badgeClassifications, summarizeBws } from "./bws-model";
+import type { BwsSummary } from "./bws-model";
 import { cachedOsuUserProfile, getOsuUserProfile } from "./osu-profiles";
 import { type ProfileSnapshot } from "./osu-profile-model";
 import { HttpError } from "./http";
@@ -43,25 +44,50 @@ const key = (slug: string, userId: number, mode: string) =>
     eq(badgeReviews.userId, userId),
     eq(badgeReviews.mode, mode as ProfileSnapshot["profile"]["ruleset"]),
   );
+/** Edition-scoped BWS for several panels; one badge-review read per profile. */
+export async function profileBwsMany(
+  snapshot: ProfileSnapshot,
+  editions: string[],
+): Promise<Record<string, BwsSummary | null>> {
+  const slugs = [...new Set(editions)];
+  const result: Record<string, BwsSummary | null> = {};
+  if (!slugs.length) return result;
+  if (snapshot.profile.ruleset !== "osu") {
+    for (const slug of slugs) result[slug] = null;
+    return result;
+  }
+  const reviews = await db()
+    .select()
+    .from(badgeReviews)
+    .where(
+      and(
+        inArray(badgeReviews.editionSlug, slugs),
+        eq(badgeReviews.userId, snapshot.profile.osuId),
+        eq(badgeReviews.mode, snapshot.profile.ruleset),
+      ),
+    );
+  const bySlug = new Map(reviews.map((review) => [review.editionSlug, review]));
+  const fingerprint = badgeFingerprint(snapshot);
+  for (const slug of slugs) {
+    const review = bySlug.get(slug);
+    const parsed = choices.safeParse(review?.classifications);
+    result[slug] = summarizeBws(
+      snapshot,
+      review?.fingerprint === fingerprint && parsed.success
+        ? parsed.data
+        : null,
+      review?.fingerprint === fingerprint
+        ? review.reviewedAt.toISOString()
+        : null,
+    );
+  }
+  return result;
+}
 /** Only aggregate calculation inputs leave this service in public responses. */
 export async function profileBws(snapshot: ProfileSnapshot, edition?: string) {
   if (snapshot.profile.ruleset !== "osu") return null;
-  const [review] = edition
-    ? await db()
-        .select()
-        .from(badgeReviews)
-        .where(key(edition, snapshot.profile.osuId, snapshot.profile.ruleset))
-    : [];
-  const parsed = choices.safeParse(review?.classifications);
-  return summarizeBws(
-    snapshot,
-    review?.fingerprint === badgeFingerprint(snapshot) && parsed.success
-      ? parsed.data
-      : null,
-    review?.fingerprint === badgeFingerprint(snapshot)
-      ? review.reviewedAt.toISOString()
-      : null,
-  );
+  if (!edition) return summarizeBws(snapshot, null, null);
+  return (await profileBwsMany(snapshot, [edition]))[edition] ?? null;
 }
 async function applicant(
   actor: User,

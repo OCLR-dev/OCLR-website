@@ -650,7 +650,15 @@ export async function HistoricalArchiveView({
                   .filter((n) => n.osuId === p.osuId)
                   .map((n) => n.username),
               ),
-              card: rosterCard(p),
+              roleLabel: role({
+                ...p,
+                sourceRole: a.players.find((s) => s.osuId === p.osuId)
+                  ?.sourceRole,
+              }),
+              roleCode: p.role,
+              profileHref: playerHref(p.osuId),
+              teamName: p.team?.name,
+              teamHref: p.team ? href("teams", p.team.id) : undefined,
             }))}
           />
         ) : (

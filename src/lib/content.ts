@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db } from "@/db";
 import { remoteMode } from "./data-source";
 import { readTournament, readTournaments } from "./tournaments";
@@ -27,7 +28,8 @@ export async function getEditionChoices() {
     published,
   }));
 }
-export async function getPublicEditions() {
+/** Request-scoped: several public modules share one edition_state read. */
+export const getPublicEditions = cache(async () => {
   if (remoteMode()) {
     const { frontendTournaments } = await import("./frontend-data");
     const { publicEnrollment } = await import("./frontend-read-models");
@@ -39,7 +41,7 @@ export async function getPublicEditions() {
     return records;
   }
   return (await readTournaments(true)).map((row) => row.edition);
-}
+});
 export async function getEdition(slug: string) {
   if (remoteMode())
     return (
@@ -50,11 +52,11 @@ export async function getEdition(slug: string) {
   if (!process.env.DATABASE_URL) return undefined;
   return (await readTournament(slug))?.edition;
 }
-export async function getPublicEdition(slug: string) {
+export const getPublicEdition = cache(async (slug: string) => {
   if (remoteMode())
     return (
       await (await import("./frontend-read-models")).publicEnrollment(slug)
     )?.edition;
   if (!process.env.DATABASE_URL) return undefined;
   return (await readTournament(slug, db(), true))?.edition;
-}
+});

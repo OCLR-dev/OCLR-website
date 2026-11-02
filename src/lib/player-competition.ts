@@ -14,6 +14,7 @@ import {
 } from "./player-competition-model";
 import type { PublishedPlayer } from "./players";
 import { publicCompetition } from "./public-competition";
+import { archiveKeyVisual } from "./archive-key-visual";
 
 /** The fields the participated-tournament strip needs from a public edition. */
 export type ParticipatedTournamentEdition = {
@@ -21,6 +22,8 @@ export type ParticipatedTournamentEdition = {
   editionName: string;
   defaultAppearance: CompetitionEditionRecord["defaultAppearance"];
   season: string | null;
+  /** The edition's cover art: its own branding, else the archived key visual. */
+  artwork: string | null;
 };
 
 /**
@@ -35,6 +38,8 @@ export function participatedTournamentEditions(
     name: string;
     season?: string | null;
     defaultAppearance?: CompetitionEditionRecord["defaultAppearance"];
+    branding?: { logo?: string | null } | null;
+    archive?: { sourceUrl: string } | null;
   }[],
 ): ParticipatedTournamentEdition[] {
   const published = new Map(editions.map((edition) => [edition.slug, edition]));
@@ -51,6 +56,13 @@ export function participatedTournamentEditions(
           edition?.defaultAppearance ??
           seasonAppearanceFor(edition?.season ?? null),
         season: edition?.season ?? null,
+        // Same precedence as the tournament directory card: an authored logo,
+        // then the archived key visual that belongs to that edition alone.
+        artwork:
+          edition?.branding?.logo ||
+          (edition?.archive
+            ? (archiveKeyVisual(edition.archive, null)?.src ?? null)
+            : null),
       };
     })
     .sort((a, b) => {

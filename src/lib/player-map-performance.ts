@@ -171,7 +171,14 @@ function mapResult(game: MapPlay[], teamId: string): PlayerMapRow["result"] {
 }
 
 /**
- * Ranks each recorded map and measures every participant against that map's
+ * A player who was in the lobby but never played still leaves a negligible
+ * recorded total. That is not a result: it must not become a map row, enter a
+ * map's average for effective rating, or inflate the 3v3/4v4 inference.
+ */
+export const minimumCountedScore = 2000;
+
+/**
+ * Ranks each counted map and measures every participant against that map's
  * field. A map whose mean score is zero or unusable contributes a placement
  * but never an effective rating.
  */
@@ -187,8 +194,10 @@ export function mapPerformance(
   rosterTeams: Iterable<string> = [],
 ): MapPerformanceFields {
   const games = new Map<number, MapPlay[]>();
-  for (const play of plays)
+  for (const play of plays) {
+    if (play.score < minimumCountedScore) continue;
     games.set(play.gameId, [...(games.get(play.gameId) ?? []), play]);
+  }
   const rows: PlayerMapRow[] = [];
   const teamIds = new Set<string>(rosterTeams);
   for (const [gameId, game] of games) {

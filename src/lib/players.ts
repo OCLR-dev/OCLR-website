@@ -319,6 +319,75 @@ async function databasePublicPlayer(osuId: number, edition?: string) {
   }
   return [...byEdition.values()].flat();
 }
+/** Publication can be withdrawn while provider I/O runs. Re-check only whether
+ * the same public listing still exists, without rebuilding the full record.
+ * Mirrors the identity sources in `publicPlayers`: accepted registrations,
+ * archived people, or a published team's coach. Captains and roster members
+ * only augment identities that already exist and cannot create one. */
+export async function publicPlayerStillListed(
+  osuId: number,
+  edition?: string,
+): Promise<boolean> {
+  if (remoteMode())
+    return (await publicPlayer(osuId, edition)).length > 0;
+  const editions = (await getPublicEditions()).filter(
+    (e) => !edition || e.slug === edition,
+  );
+  if (!editions.length) return false;
+  const archived = editions.some(
+    (e) =>
+      e.archive &&
+      (e.archive.players.some((p) => p.osuId === osuId) ||
+        (e.archive.rosterReplacements ?? []).some((r) =>
+          r.people.some((p) => p.osuId === osuId),
+        )),
+  );
+  if (archived) return true;
+  const slugs = editions.map((e) => e.slug);
+  return db().transaction(
+    async (tx) => {
+      const [accepted] = await tx
+        .select({ osuId: registrations.userId })
+        .from(registrations)
+        .innerJoin(users, eq(users.osuId, registrations.userId))
+        .where(
+          and(
+            inArray(registrations.editionSlug, slugs),
+            eq(registrations.status, "accepted"),
+            eq(registrations.userId, osuId),
+          ),
+        )
+        .limit(1);
+      if (accepted) return true;
+      const [coach] = await tx
+        .select({ osuId: teamCoaches.userId })
+        .from(teamCoaches)
+        .innerJoin(users, eq(users.osuId, teamCoaches.userId))
+        .innerJoin(teams, eq(teams.id, teamCoaches.teamId))
+        .innerJoin(
+          captains,
+          and(
+            eq(captains.editionSlug, teams.editionSlug),
+            eq(captains.userId, teams.captainId),
+            eq(captains.published, true),
+          ),
+        )
+        .where(
+          and(
+            inArray(teams.editionSlug, slugs),
+            eq(teams.identityPublished, true),
+            eq(teams.rosterPublished, true),
+            isNotNull(teams.finalizedAt),
+            isNull(teams.archivedAt),
+            eq(teamCoaches.userId, osuId),
+          ),
+        )
+        .limit(1);
+      return Boolean(coach);
+    },
+    { isolationLevel: "repeatable read" },
+  );
+}
 export async function publicPlayer(
   osuId: number,
   edition?: string,

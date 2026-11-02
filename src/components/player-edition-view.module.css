@@ -11,6 +11,10 @@
   text-decoration: none;
   box-shadow: 0 0.75rem 2rem #00000059;
   animation: filterNoticeIn 180ms ease-out;
+  /* The notice is portaled into the site header, which sets
+     pointer-events: none while it is scrolled away on mobile. Opting back in
+     keeps the link tappable when the header itself has left the screen. */
+  pointer-events: auto;
 }
 
 .filterNotice:is(:hover, :focus-visible) {

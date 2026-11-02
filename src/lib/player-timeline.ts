@@ -126,6 +126,8 @@ export type TimelineSpan = {
   editionName: string | null;
   /** Published edition of that season, so the span can open its page. */
   editionSlug: string | null;
+  /** That edition's cover art, when the published directory supplies one. */
+  artwork: string | null;
   start: string;
   end: string;
   /** A single confirmed instant (an open season window) instead of a range. */
@@ -153,6 +155,8 @@ export type TimelineEdition = {
 export type TimelineEditionRef = {
   season: string | number | null;
   slug: string;
+  /** The edition's cover art, as the tournament directory shows it. */
+  artwork?: string | null;
 };
 
 const configuredWindows = readSeasonWindows(content);
@@ -209,10 +213,12 @@ export function buildPlayerTimeline({
   const end = Math.max(timelineOrigin + DAY, now.getTime());
 
   const publishedSlug = new Map<number, string>();
+  const publishedArtwork = new Map<number, string>();
   for (const edition of editionPool) {
     const season = seasonNumber(edition.season);
-    if (season !== null && !publishedSlug.has(season))
-      publishedSlug.set(season, edition.slug);
+    if (season === null || publishedSlug.has(season)) continue;
+    publishedSlug.set(season, edition.slug);
+    if (edition.artwork) publishedArtwork.set(season, edition.artwork);
   }
 
   const bySeason = new Map<number, TimelineEdition[]>();
@@ -241,6 +247,7 @@ export function buildPlayerTimeline({
       appearance: window.appearance,
       editionName,
       editionSlug,
+      artwork: publishedArtwork.get(window.season) ?? null,
       participated,
     };
     if (start !== null && finish !== null && finish > start) {
@@ -290,6 +297,7 @@ export function buildPlayerTimeline({
       appearance: null,
       editionName: participants[0]?.editionName ?? null,
       editionSlug,
+      artwork: publishedArtwork.get(season) ?? null,
       start: new Date(recorded.first).toISOString(),
       end: new Date(recorded.last).toISOString(),
       point: false,

@@ -193,6 +193,21 @@
   background-image: var(--tip-art-dark, var(--tip-art-light));
 }
 
+/* A tournament's own cover is already a picture, so it stays sharp under a
+   scrim; the text over it keeps its own shadow for legibility. */
+.tipCover {
+  z-index: 0;
+  object-fit: cover;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.tipForeground {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 60%);
+}
+
 .tipText {
   position: relative;
   white-space: pre-line;

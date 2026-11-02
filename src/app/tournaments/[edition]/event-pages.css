@@ -47,6 +47,11 @@
 .event-player-group {
   margin: 2rem 0;
 }
+.event-player-more {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
 .event-player-group h2 {
   font-size: 1.1rem;
   overflow-wrap: anywhere;

@@ -16,10 +16,11 @@ import {
   type PlayerTimeline,
 } from "@/lib/player-timeline";
 import { getPublicEditions } from "@/lib/content";
+import { archiveKeyVisual } from "@/lib/archive-key-visual";
 import { getAppTranslations } from "@/i18n/server";
 import { frontendProfile } from "@/lib/frontend-data";
 import { remoteMode } from "@/lib/data-source";
-import { profileBws } from "@/lib/bws";
+import { profileBws, profileBwsMany } from "@/lib/bws";
 import { publicRoundRatings } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";
 import { notFound } from "next/navigation";
@@ -215,13 +216,12 @@ async function ProfileContent({
       for (const entry of selectableEditions)
         bwsByEdition[entry.editionSlug] = data.bws;
     } else {
-      await Promise.all(
-        selectableEditions.map(async (entry) => {
-          bwsByEdition[entry.editionSlug] = await profileBws(
-            data.snapshot!,
-            entry.editionSlug,
-          );
-        }),
+      Object.assign(
+        bwsByEdition,
+        await profileBwsMany(
+          data.snapshot,
+          selectableEditions.map((entry) => entry.editionSlug),
+        ),
       );
     }
   }
@@ -237,10 +237,16 @@ async function ProfileContent({
     }
   }
 
-  const editionPool = publishedEditions.map(({ slug, season }) => ({
-    slug,
-    season,
-  }));
+  const editionPool = publishedEditions.map(
+    ({ slug, season, branding, archive }) => ({
+      slug,
+      season,
+      // Same cover the directory card shows: authored logo, else key visual.
+      artwork:
+        branding?.logo ||
+        (archive ? (archiveKeyVisual(archive, null)?.src ?? null) : null),
+    }),
+  );
   const timelineInput = {
     editionPool,
     joinedAt: profile?.joinedAt,

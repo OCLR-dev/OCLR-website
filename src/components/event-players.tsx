@@ -3,7 +3,7 @@ import { useAppTranslations } from "@/i18n/shared";
 import type { EventPlayer } from "@/lib/event-preview";
 import type { DirectoryPlayer } from "@/lib/player-directory";
 import Link from "./pending-link";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import {
   PlayerDirectoryTools,
   usePlayerDirectory,
@@ -11,6 +11,7 @@ import {
 import { Avatar } from "./avatar";
 import { PlayerMessageBoard } from "./player-message-board";
 import { PlayerReactions } from "./player-reactions";
+const PAGE_SIZE = 40;
 export function EventPlayers({
   players,
   edition,
@@ -40,6 +41,17 @@ export function EventPlayers({
   );
   const { rows } = directory;
   const byTeam = directory.state.group === "team";
+  // Keep the first paint bounded for large directories; filters reset the window.
+  const pageSize = preview ? Number.MAX_SAFE_INTEGER : PAGE_SIZE;
+  const [limit, setLimit] = useState(pageSize);
+  const filterKey = JSON.stringify(directory.state);
+  const [windowFilter, setWindowFilter] = useState(filterKey);
+  // Adjust during render, as React recommends for a reset caused by new props.
+  if (windowFilter !== filterKey) {
+    setWindowFilter(filterKey);
+    setLimit(pageSize);
+  }
+  const visible = rows.slice(0, limit);
   return (
     <section className="event-players">
       <PlayerDirectoryTools
@@ -47,7 +59,7 @@ export function EventPlayers({
         grouping={preview || grouped}
       />
       <div className="event-player-group">
-        {rows.map((p, index) => (
+        {visible.map((p, index) => (
           <Fragment key={p.id}>
             {byTeam &&
               (index === 0 ||
@@ -149,6 +161,16 @@ export function EventPlayers({
           </Fragment>
         ))}
       </div>
+      {!preview && rows.length > visible.length && (
+        <div className="event-player-more">
+          <button
+            type="button"
+            onClick={() => setLimit((current) => current + PAGE_SIZE)}
+          >
+            {tr("Show more players")}
+          </button>
+        </div>
+      )}
     </section>
   );
 }
