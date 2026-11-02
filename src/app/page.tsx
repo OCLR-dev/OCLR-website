@@ -7,6 +7,7 @@ import { remoteMode } from "@/lib/data-source";
 import { remotePage } from "@/lib/remote-page";
 
 import { formatDate } from "@/lib/editions";
+import { wikiHref } from "@/lib/wiki-articles";
 import type { CSSProperties } from "react";
 import "./home.css";
 
@@ -297,25 +298,83 @@ async function HomeContent() {
               </Link>
             </div>
           </div>
-          {/* Liru artwork: the box crops it per breakpoint (home.css), so
-           * another Liru image can be dropped in unchanged. */}
-          <picture className="home-hero-character">
-            <source
-              type="image/webp"
-              srcSet="/branding/home-hero/liru-cn-v3-480.webp 480w, /branding/home-hero/liru-cn-v3-800.webp 800w, /branding/home-hero/liru-cn-v3-1111.webp 1111w"
-              sizes="(max-width: 760px) 86vw, 390px"
-            />
+          {/* Liru and her character-sheet card (#638). The wrapper has no box
+           * (display: contents), so hovering or focusing either the hit area
+           * or the card keeps the card open. */}
+          <div className="home-liru">
+            {/* Liru artwork: the box crops it per breakpoint (home.css), so
+             * another Liru image can be dropped in unchanged. */}
+            <div className="home-hero-character">
+              <div className="home-liru-art">
+                <picture>
+                  <source
+                    type="image/webp"
+                    srcSet="/branding/home-hero/liru-cn-v3-480.webp 480w, /branding/home-hero/liru-cn-v3-800.webp 800w, /branding/home-hero/liru-cn-v3-1111.webp 1111w"
+                    sizes="(max-width: 760px) 86vw, 390px"
+                  />
+                  <Image
+                    src="/branding/home-hero/liru-cn-v3-800.webp"
+                    unoptimized
+                    alt={tr(
+                      "Liru, the OCLR mascot, in her Chinese-style outfit holding a folding fan",
+                    )}
+                    width={800}
+                    height={1430}
+                    loading="eager"
+                  />
+                </picture>
+                {/* Hit area over her head and body only, not the fan or the
+                 * empty sky: a link with a mouse, a button that asks first on
+                 * touch screens. */}
+                <Link
+                  className="home-liru-hit home-liru-link"
+                  href={wikiHref("liru")}
+                  aria-label={tr("View Liru's character sheet")}
+                />
+                <button
+                  type="button"
+                  className="home-liru-hit home-liru-tap"
+                  popoverTarget="home-liru-ask"
+                  aria-label={tr("View Liru's character sheet")}
+                />
+              </div>
+            </div>
+            <Link
+              className="home-liru-card"
+              href={wikiHref("liru")}
+              tabIndex={-1}
+              aria-hidden="true"
+            >
+              <span className="home-liru-bubble">
+                <span>{tr("View Liru's character sheet")}</span>
+                <span className="home-liru-go">→</span>
+              </span>
+              <Image
+                src="/branding/home-hero/liru-chibi-wave-400.webp"
+                unoptimized
+                alt=""
+                width={282}
+                height={400}
+                className="home-liru-chibi"
+              />
+            </Link>
+          </div>
+        </div>
+        <div id="home-liru-ask" popover="auto" className="home-liru-ask">
+          <Link href={wikiHref("liru")} className="home-liru-ask-card">
+            <span className="home-liru-bubble">
+              <span>{tr("Go to Liru's character page?")}</span>
+              <span className="home-liru-go">{tr("Go")} →</span>
+            </span>
             <Image
-              src="/branding/home-hero/liru-cn-v3-800.webp"
+              src="/branding/home-hero/liru-chibi-wave-400.webp"
               unoptimized
-              alt={tr(
-                "Liru, the OCLR mascot, in her Chinese-style outfit holding a folding fan",
-              )}
-              width={800}
-              height={1430}
-              loading="eager"
+              alt=""
+              width={282}
+              height={400}
+              className="home-liru-chibi"
             />
-          </picture>
+          </Link>
         </div>
       </section>
       <div className="container home-archive-section" id="past-seasons">
