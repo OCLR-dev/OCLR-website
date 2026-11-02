@@ -7,9 +7,15 @@ import { basename, resolve } from "node:path";
 import { readFileSync } from "node:fs";
 import postcss from "postcss";
 import tailwind from "@tailwindcss/postcss";
+import { bundledSeasonThemes } from "../fixtures/theme-assets";
+
+const themeAssets = new Set(
+  bundledSeasonThemes.flatMap((theme) => theme.assets),
+);
 
 const bundle = await build({
   entryPoints: [
+    "tests/components/player-timeline.tsx",
     "tests/components/staff-navigation.tsx",
     "tests/components/country-flags.tsx",
     "tests/components/header.tsx",
@@ -77,6 +83,12 @@ createServer((request, response) => {
         : "text/javascript; charset=utf-8",
     );
     response.end(themedStyles.get(file) ?? file.contents);
+  } else if (themeAssets.has(request.url ?? "")) {
+    response.setHeader(
+      "Content-Type",
+      request.url!.endsWith(".svg") ? "image/svg+xml" : "image/webp",
+    );
+    response.end(readFileSync(resolve("public", `.${request.url}`)));
   } else if (
     /^\/flags\/twemoji\/1f1[e-f][\da-f]-1f1[e-f][\da-f]\.svg$/.test(
       request.url ?? "",
@@ -153,11 +165,13 @@ createServer((request, response) => {
                                               : "player-message-board";
     const fixture = request.url?.startsWith("/staff-navigation")
       ? "staff-navigation"
-      : request.url?.startsWith("/workbench-compact")
-        ? "workbench-compact"
-        : request.url?.startsWith("/country-flags")
-          ? "country-flags"
-          : entry;
+      : request.url?.startsWith("/player-timeline")
+        ? "player-timeline"
+        : request.url?.startsWith("/workbench-compact")
+          ? "workbench-compact"
+          : request.url?.startsWith("/country-flags")
+            ? "country-flags"
+            : entry;
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${fixture}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${fixture}.js"></script></body></html>`,
     );

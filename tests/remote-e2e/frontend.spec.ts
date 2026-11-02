@@ -519,8 +519,11 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
       }
       const background = await page
         .locator(".page-heading")
-        .evaluate(
-          (heading) => getComputedStyle(heading, "::before").backgroundImage,
+        .evaluate((heading) =>
+          [
+            getComputedStyle(heading).backgroundImage,
+            getComputedStyle(heading, "::before").backgroundImage,
+          ].join(","),
         );
       expect(theme.assets.some((asset) => background.includes(asset))).toBe(
         true,

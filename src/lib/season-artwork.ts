@@ -32,8 +32,8 @@ export const seasonArtwork: Record<SeasonAppearance, SeasonArtwork> = {
     dark: "/themes/prism-overture/prism-field-dark.svg",
   },
   "orbital-pulse": {
-    light: "/themes/orbital-pulse/circuit-light.svg",
-    dark: "/themes/orbital-pulse/circuit-dark.svg",
+    light: "/themes/orbital-pulse/orbital-field-light.svg",
+    dark: "/themes/orbital-pulse/orbital-field-dark.svg",
   },
   "graphite-arena": {
     light: "/themes/graphite-arena/honeycomb.svg",
