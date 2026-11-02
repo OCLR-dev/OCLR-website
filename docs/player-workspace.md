@@ -24,7 +24,13 @@ score, a 1–5 star rating and a compact, vertically resizable comment field (up
 2,000 characters). Score, rating, comment and the save action share one compact
 row. Narrow containers show the current rating in a button that opens the same
 five-star controls; choosing a value, clearing it, Escape or leaving the control
-closes the picker. Team records are expanded by default.
+closes the picker. Team records use a map-by-player comparison table with fixed map and player
+headers. Scores, ratings and comments are visible together, and the current
+context's highest saved score is emphasized (ties share the emphasis). Missing
+scores and outdated map contexts never enter that comparison. Each map retains
+its compact personal form below the comparison row; updates and deletions
+immediately update that map's comparison. The table scrolls horizontally while
+the editor stays within the visible container.
 
 Each player edits only their own record. Current active teammates can read each
 other's records; an unassigned player can save and view their own records.

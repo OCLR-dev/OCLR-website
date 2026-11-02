@@ -14,7 +14,7 @@ for (const theme of ["light", "dark"]) {
     for (const width of [719, 320]) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`/practice-records?theme=${theme}`);
-      const own = page.getByRole("article", {
+      const own = page.getByRole("rowgroup", {
         name: "Synthetic Artist — NM Signal",
         exact: true,
       });
@@ -94,7 +94,7 @@ for (const theme of ["light", "dark"]) {
       });
     }
   });
-  test(`${theme}: compact practice, expanded team records and keyboard tabs retain drafts`, async ({
+  test(`${theme}: aligned team comparison and keyboard tabs retain drafts`, async ({
     page,
   }, info) => {
     await page.goto(`/practice-records?theme=${theme}&long`);
@@ -103,13 +103,12 @@ for (const theme of ["light", "dark"]) {
       exact: true,
     });
     const mods = page.getByRole("tablist", { name: "Mods", exact: true });
-    const own = page.getByRole("article", {
+    const own = page.getByRole("rowgroup", {
       name: "Synthetic Artist — NM Signal",
       exact: true,
     });
     await expect(own.getByText("Visible teammate comment")).toHaveCount(0);
     await expect(own.getByText(/合成測試評論WithALong/)).toBeVisible();
-    await expect(own.locator("details")).toHaveAttribute("open", "");
     await expect(page.getByText("Accuracy (%)", { exact: true })).toHaveCount(
       0,
     );
@@ -121,9 +120,31 @@ for (const theme of ["light", "dark"]) {
         .getByRole("textbox", { name: "Practice comment", exact: true })
         .boundingBox())!.height,
     ).toBeLessThan(80);
+    const comparison = page.getByRole("region", {
+      name: "Team practice records · NM",
+      exact: true,
+    });
+    const mapHeading = comparison.getByRole("columnheader", {
+      name: "Beatmap",
+      exact: true,
+    });
+    const before = (await mapHeading.boundingBox())!.x;
+    const formBefore = (await own.getByRole("form").boundingBox())!.x;
+    await comparison.evaluate((element) => {
+      element.scrollLeft = element.scrollWidth;
+    });
+    expect(Math.abs((await mapHeading.boundingBox())!.x - before)).toBeLessThan(
+      2,
+    );
+    expect(
+      Math.abs((await own.getByRole("form").boundingBox())!.x - formBefore),
+    ).toBeLessThan(2);
+    await comparison.evaluate((element) => {
+      element.scrollLeft = 0;
+    });
     await own.getByLabel("Practice score", { exact: true }).fill("920000");
     await mods.getByRole("tab", { name: "HD", exact: true }).click();
-    const hd = page.getByRole("article", {
+    const hd = page.getByRole("rowgroup", {
       name: "Synthetic Artist — HD Signal",
       exact: true,
     });
@@ -168,7 +189,7 @@ for (const theme of ["light", "dark"]) {
       mods.getByRole("tab", { name: "HR", exact: true }),
     ).toHaveAttribute("aria-selected", "true");
     await expect(
-      page.getByRole("article", {
+      page.getByRole("rowgroup", {
         name: "Synthetic Artist — HR Signal",
         exact: true,
       }),
@@ -195,7 +216,7 @@ for (const theme of ["light", "dark"]) {
       },
     );
     await page.goto(`/practice-records?theme=${theme}`);
-    const own = page.getByRole("article", {
+    const own = page.getByRole("rowgroup", {
       name: "Synthetic Artist — NM Signal",
       exact: true,
     });
@@ -203,8 +224,8 @@ for (const theme of ["light", "dark"]) {
       own.getByRole("button", { name: "Delete practice record", exact: true }),
     ).toHaveCount(1);
     const teammate = own
-      .locator("li")
-      .filter({ has: page.getByText("Synthetic Teammate", { exact: true }) });
+      .locator("td")
+      .filter({ hasText: "Visible teammate comment" });
     await expect(
       teammate.getByRole("button", {
         name: "Delete practice record",
