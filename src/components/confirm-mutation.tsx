@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { LoadingRegion } from "./loading-region";
+import { Spinner } from "./spinner";
 export function ConfirmMutation({
   label,
   className = "secondary",
@@ -48,6 +49,7 @@ export function ConfirmMutation({
   const [requestPending, setPending] = useState(false);
   const [error, setError] = useState("");
   const pending = requestPending || refreshing;
+  const inlineLoading = !!icon && !requireConfirmation;
   useEffect(() => {
     if (readOnly || disabled) dialog.current?.close();
   }, [readOnly, disabled]);
@@ -89,9 +91,9 @@ export function ConfirmMutation({
     ) : null;
   return (
     <>
-      {pending && (!requireConfirmation || (refreshing && !error)) && (
-        <LoadingRegion />
-      )}
+      {pending &&
+        !inlineLoading &&
+        (!requireConfirmation || (refreshing && !error)) && <LoadingRegion />}
       <button
         type="button"
         aria-busy={pending}
@@ -110,7 +112,7 @@ export function ConfirmMutation({
           else void confirm();
         }}
       >
-        {icon ?? tr(label)}
+        {pending && inlineLoading ? <Spinner compact /> : (icon ?? tr(label))}
       </button>
       {feedback &&
         (errorTarget ? createPortal(feedback, errorTarget) : feedback)}

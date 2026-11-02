@@ -11,6 +11,11 @@
     loading-spin 800ms linear infinite,
     loading-reveal 0s 150ms forwards;
 }
+.compact {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-width: 2px;
+}
 .artwork {
   position: relative;
   display: inline-block;
