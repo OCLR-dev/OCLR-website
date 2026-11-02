@@ -10,17 +10,29 @@ import styles from "./spinner.module.css";
 const transparentStill =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1'%20height='1'/%3E";
 
-function Ring({ marker = false }: { marker?: boolean }) {
+function Ring({
+  marker = false,
+  compact = false,
+}: {
+  marker?: boolean;
+  compact?: boolean;
+}) {
   return (
     <span
-      className={styles.spinner}
+      className={`${styles.spinner}${compact ? ` ${styles.compact}` : ""}`}
       aria-hidden="true"
       data-spinner={marker ? "" : undefined}
     />
   );
 }
 
-function ArtworkSpinner({ artwork }: { artwork: SpinnerArtwork }) {
+function ArtworkSpinner({
+  artwork,
+  compact,
+}: {
+  artwork: SpinnerArtwork;
+  compact: boolean;
+}) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const animated =
@@ -31,7 +43,11 @@ function ArtworkSpinner({ artwork }: { artwork: SpinnerArtwork }) {
   return (
     <span
       className={styles.artwork}
-      style={{ width: artwork.width, height: artwork.height }}
+      style={
+        compact
+          ? { width: "1.25rem", height: "1.25rem" }
+          : { width: artwork.width, height: artwork.height }
+      }
       aria-hidden="true"
       data-spinner=""
       data-spinner-artwork=""
@@ -39,7 +55,7 @@ function ArtworkSpinner({ artwork }: { artwork: SpinnerArtwork }) {
       data-reduced-fallback={reducedFallback ? "" : undefined}
     >
       <span className={styles.fallback}>
-        <Ring />
+        <Ring compact={compact} />
       </span>
       <picture className={styles.picture}>
         <source media="(forced-colors: active)" srcSet={transparentStill} />
@@ -68,12 +84,12 @@ function ArtworkSpinner({ artwork }: { artwork: SpinnerArtwork }) {
 }
 
 /** Shared behavior; optional artwork follows the existing resolved theme. */
-export function Spinner() {
+export function Spinner({ compact = false }: { compact?: boolean } = {}) {
   const appearance = useAppearanceScope()?.appearance ?? "default";
   const artwork = spinnerArtwork[appearance];
   return artwork ? (
-    <ArtworkSpinner key={appearance} artwork={artwork} />
+    <ArtworkSpinner key={appearance} artwork={artwork} compact={compact} />
   ) : (
-    <Ring marker />
+    <Ring marker compact={compact} />
   );
 }
