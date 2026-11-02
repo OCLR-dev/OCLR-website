@@ -74,13 +74,13 @@ test.describe("S7 Graphite Arena appearance", () => {
             200,
           );
           await page.waitForLoadState("networkidle");
-          const toggle = page.locator(".admin-menu-toggle");
+          const toggle = page.locator(".admin-menu-toggle:visible");
           if (width <= 760) {
-            await expect(page.locator("#admin-menu")).toBeHidden();
+            await expect(page.locator("#admin-sidebar")).toBeHidden();
             await toggle.click();
             await expect(toggle).toHaveAttribute("aria-expanded", "true");
           }
-          const group = page.locator("#admin-menu .admin-nav-group").first();
+          const group = page.locator("#admin-sidebar .admin-nav-group").first();
           const links = group.locator("a");
           await expect(links).toHaveCount(4);
           const expected = ["", "/archive", "/statistics", "/settings"];
@@ -135,7 +135,9 @@ test.describe("S7 Graphite Arena appearance", () => {
               await expect(toggle).toHaveAttribute("aria-expanded", "false");
               await toggle.click();
             }
-            const selected = page.locator('#admin-menu a[aria-current="page"]');
+            const selected = page.locator(
+              '#admin-sidebar a[aria-current="page"]',
+            );
             await expect(selected).toHaveCount(1);
             await expect(selected).toHaveAttribute(
               "href",

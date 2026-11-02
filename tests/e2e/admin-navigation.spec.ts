@@ -23,13 +23,13 @@ test.describe("tournament-centered administration", () => {
     await db().execute(sql`TRUNCATE edition_state, users CASCADE`);
     await context.addCookies([await seedSession(adminId)]);
     async function menu(target: Page) {
-      if (isMobile)
-        await target
-          .getByRole("button", {
-            name: "Open administration menu",
-            exact: true,
-          })
-          .click();
+      if (isMobile) {
+        const toggle = target.getByRole("button", {
+          name: "Open administration menu",
+          exact: true,
+        });
+        if (await toggle.isVisible()) await toggle.click();
+      }
     }
     await page.goto("/admin");
     await expect(
@@ -63,6 +63,7 @@ test.describe("tournament-centered administration", () => {
         exact: true,
       })
       .click();
+    await menu(page);
     await expect(page.getByLabel("Selected tournament")).toHaveValue("s11");
     const selector = page.getByLabel("Selected tournament");
     await expect(selector.locator('option[value=""]')).toHaveCount(0);
@@ -133,6 +134,7 @@ test.describe("tournament-centered administration", () => {
       ).toBeVisible();
       await expect(page.getByLabel("Selected tournament")).toHaveValue("s11");
     }
+    await menu(page);
     await page.getByLabel("Selected tournament").selectOption("test-cup");
     await expect(page).toHaveURL(/\/test-cup$/);
     await expect(
@@ -252,6 +254,7 @@ test.describe("tournament-centered administration", () => {
           operator.getByRole("link", { name: /Review applications/ }),
         ).toHaveCount(0);
         await operator.goto("/admin/tournaments/test-cup");
+        await menu(operator);
         await expect(
           operator.getByLabel("Selected tournament").locator("option"),
         ).toHaveCount(1);

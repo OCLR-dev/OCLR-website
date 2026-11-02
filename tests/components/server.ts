@@ -10,6 +10,7 @@ import tailwind from "@tailwindcss/postcss";
 
 const bundle = await build({
   entryPoints: [
+    "tests/components/staff-navigation.tsx",
     "tests/components/country-flags.tsx",
     "tests/components/header.tsx",
     "tests/components/schedule-selection.tsx",
@@ -47,6 +48,7 @@ const bundle = await build({
 const themedStyles = new Map(
   await Promise.all(
     [
+      "staff-navigation.css",
       "mappool-actions.css",
       "workbench-compact.css",
       "country-flags.css",
@@ -149,11 +151,13 @@ createServer((request, response) => {
                                                 )
                                               ? "mappool-actions"
                                               : "player-message-board";
-    const fixture = request.url?.startsWith("/workbench-compact")
-      ? "workbench-compact"
-      : request.url?.startsWith("/country-flags")
-        ? "country-flags"
-        : entry;
+    const fixture = request.url?.startsWith("/staff-navigation")
+      ? "staff-navigation"
+      : request.url?.startsWith("/workbench-compact")
+        ? "workbench-compact"
+        : request.url?.startsWith("/country-flags")
+          ? "country-flags"
+          : entry;
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${fixture}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${fixture}.js"></script></body></html>`,
     );
