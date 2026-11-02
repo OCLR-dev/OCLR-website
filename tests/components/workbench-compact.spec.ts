@@ -63,9 +63,17 @@ for (const theme of ["light", "dark"]) {
         discussion.getByRole("button", { name: "發表評論", exact: true }),
       ).toBeEnabled();
       const heading = (await discussion.getByRole("heading").boundingBox())!;
-      const refresh = (await discussion
-        .getByRole("button", { name: "重新整理評論", exact: true })
-        .boundingBox())!;
+      const refreshButton = discussion.getByRole("button", {
+        name: "重新整理評論",
+        exact: true,
+      });
+      await expect(refreshButton).toHaveAttribute("title", "重新整理評論");
+      await expect(refreshButton).toHaveText("");
+      await expect(refreshButton.locator("svg")).toHaveCount(1);
+      const refresh = (await refreshButton.boundingBox())!;
+      expect(refresh.width).toBe(44);
+      expect(refresh.height).toBe(44);
+      expect(refresh.x).toBeGreaterThan(heading.x + heading.width);
       expect(
         Math.abs(
           heading.y + heading.height / 2 - refresh.y - refresh.height / 2,
