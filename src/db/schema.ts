@@ -1735,7 +1735,9 @@ export const playerSeasonAvailability = pgTable(
       .notNull()
       .references(() => users.osuId, { onDelete: "cascade" }),
     intervals: jsonb("intervals")
-      .$type<import("@/lib/schedule-model").AvailabilityInterval[]>()
+      .$type<
+        import("@/lib/player-workspace-model").SeasonAvailabilityInterval[]
+      >()
       .notNull(),
     version: integer("version").notNull().default(1),
     updatedAt: timestamp("updated_at", { withTimezone: true })

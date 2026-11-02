@@ -49,21 +49,35 @@ silently transfer a score to a new slot.
 ## Season timetable
 
 `/tournaments/[edition]/player/availability` stores up to 200 dated time ranges
-for the whole season, independently of teams and fixtures. It reuses Schedule's
-calendar, timezone-aware date/time controls and interval validation. Calendar
-selection and date/time fields both fill the slot editor; add/update slots,
-then save the timetable. The selected range stays visible as a calendar block
-while its date/time fields are edited. Adding it converts the preview to a slot;
-cancelling removes the preview. Editing a slot temporarily replaces its block,
-and cancelling restores the original range. Times are normalized to UTC and rendered in the
-tournament timezone, including explicit clock-change offsets.
+for the whole season, independently of teams and fixtures. The horizontal sheet
+groups real dates within the selected week, with a shared half-hour axis and one
+row per authorized player. Names stay visible during horizontal scrolling.
+The initial view scrolls to the selected date/time; date and previous/next-week
+controls keep the full calendar date in context.
+
+Clicking a cell cycles available → unsure → unavailable → unfilled. Dragging
+copies the starting cell's existing state across the continuous range, including
+when moving backwards or over mixed states. Starting from an empty or partial
+cell paints available. Cancelled pointer gestures restore their original data.
+Each stroke is one undo step (up to 50), and all edits save together with the
+existing optimistic version and idempotent retry key. A saved-range disclosure
+also permits removing an exact old interval without rounding its boundaries.
+Partial or mixed old cells are striped and described separately.
+
+The default zone is the device's IANA timezone, with a UTC+0 toggle shared by
+editing, rows and date headings. Only the presentation changes: UTC instants stay
+authoritative. Every date shows its actual offset; missing clock-change hours
+have no cells, and repeated hours have distinct UTC offsets and instants. Existing
+legacy ranges without `status` remain available. Optional `unsure`/`unavailable`
+values use the same private interval JSON; absence means unfilled. Validation
+rejects overlaps with different states. No database DDL is required.
 
 Only the player writes their own timetable. The player and their currently
 appointed team captain may read it. Teammates, other captains, coaches and staff
 have no extra timetable access. Captains see all current eligible team members'
-slots together on one calendar, labelled with their names, without a player
+slots together in the horizontal sheet, labelled with their names, without a player
 selector. The roster also lists members who have not submitted any slots. The
-captain can still add, edit and save only their own slots; teammate blocks are
+captain can still add, edit and save only their own slots; teammate cells are
 read-only. Transfers, withdrawals and appointment revocation are reflected in
 the next authorized read. Authorized legacy `?player=` page links redirect to
 the combined view; the API keeps its existing owner-specific read compatibility.

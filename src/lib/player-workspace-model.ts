@@ -3,9 +3,33 @@ import { availabilitySchema } from "./schedule-model";
 import type { BeatmapMetadata } from "./mappool-model";
 
 export const seasonIntervalLimit = 200;
+export const availabilityStates = [
+  "available",
+  "unsure",
+  "unavailable",
+] as const;
+export type AvailabilityState = (typeof availabilityStates)[number];
+const seasonIntervalSchema = availabilitySchema.element.safeExtend({
+  status: z.enum(availabilityStates).optional(),
+});
+export type SeasonAvailabilityInterval = z.infer<typeof seasonIntervalSchema>;
 export const seasonAvailabilitySchema = z
-  .array(availabilitySchema.element)
-  .max(seasonIntervalLimit);
+  .array(seasonIntervalSchema)
+  .max(seasonIntervalLimit)
+  .refine(
+    (intervals) =>
+      !intervals.some((a, index) =>
+        intervals
+          .slice(index + 1)
+          .some(
+            (b) =>
+              (a.status ?? "available") !== (b.status ?? "available") &&
+              Date.parse(a.start) < Date.parse(b.end) &&
+              Date.parse(b.start) < Date.parse(a.end),
+          ),
+      ),
+    "Conflicting availability states",
+  );
 export const practiceValueSchema = z
   .object({
     score: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).nullable(),
@@ -59,9 +83,10 @@ export function practiceContextValue(map: {
 }
 export function normalizeSeasonAvailability(
   intervals: z.infer<typeof seasonAvailabilitySchema>,
-) {
+): SeasonAvailabilityInterval[] {
   return intervals
-    .map(({ start, end }) => ({
+    .map(({ start, end, status }) => ({
+      ...(status && status !== "available" ? { status } : {}),
       start: new Date(start).toISOString(),
       end: new Date(end).toISOString(),
     }))
@@ -72,6 +97,7 @@ export function normalizeSeasonAvailability(
       (value, index, all) =>
         index === 0 ||
         value.start !== all[index - 1].start ||
-        value.end !== all[index - 1].end,
+        value.end !== all[index - 1].end ||
+        value.status !== all[index - 1].status,
     );
 }

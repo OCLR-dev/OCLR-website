@@ -47,57 +47,6 @@ async function fillRange(page: Page, end = "22:00") {
     .fill(end);
 }
 for (const theme of ["light", "dark"]) {
-  test(`${theme}: season selection survives release and form focus; add, edit and cancel keep one block`, async ({
-    page,
-    isMobile,
-  }, info) => {
-    const writes: unknown[] = [];
-    await page.route("**/api/**", async (route) => {
-      if (route.request().method() === "POST")
-        writes.push(route.request().postDataJSON());
-      await route.fulfill({ json: { saved: true, version: 2 } });
-    });
-    await page.goto(`/schedule-selection?theme=${theme}`);
-    await expect(page.locator(".schedule-own")).toHaveCount(1);
-    await selectRange(page, isMobile);
-    const preview = page.locator(".schedule-selection");
-    await expect(preview).toHaveCount(1);
-    await page
-      .getByLabel("Available until: time (HH:mm)", { exact: true })
-      .focus();
-    await expect(preview).toHaveCount(1);
-    await fillRange(page);
-    await expect(preview).toContainText("10:00");
-    expect(
-      await preview.evaluate((node) => getComputedStyle(node).backgroundColor),
-    ).not.toBe("rgba(0, 0, 0, 0)");
-    await page
-      .locator(".schedule-calendar")
-      .screenshot({ path: info.outputPath(`selected-${theme}.png`) });
-    await page.getByRole("button", { name: "Cancel", exact: true }).click();
-    await expect(preview).toHaveCount(0);
-    await expect(page.locator(".schedule-own")).toHaveCount(1);
-    await fillRange(page);
-    await page
-      .getByRole("button", { name: "Add time slot", exact: true })
-      .click();
-    await expect(preview).toHaveCount(0);
-    await expect(page.locator(".schedule-own")).toHaveCount(2);
-    await page
-      .getByRole("button", { name: /^Edit / })
-      .first()
-      .click();
-    await expect(preview).toHaveCount(1);
-    await expect(page.locator(".schedule-own")).toHaveCount(1);
-    await page
-      .getByLabel("Available until: time (HH:mm)", { exact: true })
-      .fill("17:00");
-    await expect(preview).toHaveCount(0);
-    await expect(page.locator(".schedule-own")).toHaveCount(2);
-    await page.getByRole("button", { name: "Cancel", exact: true }).click();
-    await expect(preview).toHaveCount(0);
-    expect(writes).toHaveLength(0);
-  });
   test(`${theme}: fixture selection and edited ranges stay visible without saving`, async ({
     page,
     isMobile,

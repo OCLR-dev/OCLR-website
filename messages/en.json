@@ -3791,6 +3791,17 @@
     "m8613d75f87f2": "View Liru's character sheet",
     "mf17943429d26": "Go to Liru's character page?",
     "m6cc8519b9158": "Go",
-    "m7615eaf365b5": "Show more players"
+    "m7615eaf365b5": "Show more players",
+    "mdf18af6ba484": "Unsure",
+    "me5d2cbdff039": "Not filled in",
+    "mf2da1966c1f5": "Partly filled or mixed states",
+    "mdf046940d403": "Week containing",
+    "m21fbde19cfb0": "Next week",
+    "m2b065c7c9ce4": "Today",
+    "m2397ec601845": "Local time",
+    "m65d89cab687c": "Availability states",
+    "ma8283ade3185": "Undo",
+    "m9b8e19500c42": "Click a cell to cycle its state. Drag from a filled cell to copy its state. Scroll across the hours; use arrow keys and Space on your row.",
+    "meacdaa1303db": "UTC+0"
   }
 }

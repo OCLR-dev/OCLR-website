@@ -9,6 +9,7 @@ import { ScheduleManager } from "../../src/components/schedule-manager";
 import type { TimetableWorkspace } from "../../src/lib/player-workspace";
 import type { ScheduleWorkspace } from "../../src/lib/schedule";
 import en from "../../messages/en.json";
+import zhHans from "../../messages/zh-Hans.json";
 import zhHant from "../../messages/zh-Hant.json";
 import "../../src/app/globals.css";
 import "../../src/app/public-tournament.css";
@@ -93,8 +94,16 @@ const schedule: ScheduleWorkspace = {
 createRoot(document.getElementById("root")!).render(
   <AppRouterContext.Provider value={router}>
     <NextIntlClientProvider
-      locale={params.has("zh-Hant") ? "zh-Hant" : "en"}
-      messages={params.has("zh-Hant") ? zhHant : en}
+      locale={
+        params.has("zh-Hant")
+          ? "zh-Hant"
+          : params.has("zh-Hans")
+            ? "zh-Hans"
+            : "en"
+      }
+      messages={
+        params.has("zh-Hant") ? zhHant : params.has("zh-Hans") ? zhHans : en
+      }
       timeZone="UTC"
     >
       <main

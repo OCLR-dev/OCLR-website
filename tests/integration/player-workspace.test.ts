@@ -646,6 +646,44 @@ describe.skipIf(!url)("private player workspace #671", () => {
       playerTimetableWorkspace(a, slug, q.osuId),
     ).rejects.toMatchObject({ status: 403 });
   });
+  it("persists explicit season states with the existing audit, retry and captain scope", async () => {
+    const cmd = timetable({
+      intervals: [
+        {
+          start: "2090-01-01T10:00:00Z",
+          end: "2090-01-01T11:00:00Z",
+          status: "unsure",
+        },
+        {
+          start: "2090-01-01T11:00:00Z",
+          end: "2090-01-01T12:00:00Z",
+          status: "unavailable",
+        },
+      ],
+    });
+    expect(await playerTimetableCommand(p, slug, cmd)).toEqual({
+      saved: true,
+      version: 1,
+    });
+    expect(await playerTimetableCommand(p, slug, cmd)).toEqual({
+      saved: true,
+      version: 1,
+    });
+    const own = await playerTimetableWorkspace(p, slug);
+    expect(own.intervals.map((slot) => slot.status)).toEqual([
+      "unsure",
+      "unavailable",
+    ]);
+    const team = await playerTimetableWorkspace(a, slug);
+    expect(
+      team.teamAvailability.find((person) => person.userId === p.osuId)
+        ?.intervals,
+    ).toEqual(own.intervals);
+    await expect(
+      playerTimetableWorkspace(b, slug, p.osuId),
+    ).rejects.toMatchObject({ status: 403 });
+    expect(await db().select().from(playerWorkspaceEvents)).toHaveLength(1);
+  });
   it("rejects stale timetable writes and permits clearing all slots with a versioned audit", async () => {
     const cmd = timetable();
     await playerTimetableCommand(p, slug, cmd);
