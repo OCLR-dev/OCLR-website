@@ -12,6 +12,21 @@
   flex-wrap: wrap;
   align-items: baseline;
 }
+.dependencyCheck {
+  display: grid;
+  gap: 0.75rem;
+  scroll-margin-top: 10rem;
+}
+.dependencyCheck p {
+  margin: 0;
+}
+.dependencyCheck button {
+  justify-self: start;
+}
+.dependencyCheck:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
 .score {
   font-size: 1.5rem;
   font-weight: 700;

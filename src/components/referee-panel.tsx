@@ -21,6 +21,9 @@ import { RefereeCommands } from "./referee-commands";
 import { RefereeReconciliation } from "./referee-reconciliation";
 import styles from "./referee-panel.module.css";
 
+const dependencyChangedMessage =
+  "Fixture dependencies changed. Withdraw affected steps and recheck the saved configuration.";
+
 type Action = RefereeCommand extends infer C
   ? C extends RefereeCommand
     ? Omit<C, "requestKey" | "expectedRevision" | "dependencyFingerprint">
@@ -108,6 +111,20 @@ export function RefereePanel({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [dependencyTargeted, setDependencyTargeted] = useState(false);
+  const dependencyCheck = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const target = () =>
+      setDependencyTargeted(window.location.hash === "#referee-dependencies");
+    target();
+    window.addEventListener("hashchange", target);
+    return () => window.removeEventListener("hashchange", target);
+  }, []);
+  useEffect(() => {
+    if (!dependencyTargeted) return;
+    dependencyCheck.current?.scrollIntoView({ block: "start" });
+    dependencyCheck.current?.focus({ preventScroll: true });
+  }, [dependencyTargeted]);
   const [uncertain, setUncertain] = useState(false);
   const pending = useRef<RefereeCommand | null>(null);
   const writing = useRef(false);
@@ -121,6 +138,9 @@ export function RefereePanel({
   const stale = Boolean(
     data.session &&
     data.session.dependencyFingerprint !== data.dependencyFingerprint,
+  );
+  const readiness = data.readiness.filter(
+    (message) => message !== dependencyChangedMessage,
   );
   const basis = data.session?.basis ?? {
     policy: data.policy,
@@ -198,6 +218,11 @@ export function RefereePanel({
   }
   async function send(action?: Action) {
     if (busy || writing.current) return false;
+    if (
+      action?.action === "reconfirm_dependencies" &&
+      (uncertain || readOnly || !data.canRecord || simulation)
+    )
+      return false;
     if (simulation) {
       writing.current = true;
       if (!action || !data.canRecord) {
@@ -248,21 +273,39 @@ export function RefereePanel({
     setBusy(true);
     setError("");
     setNotice("");
-    const payload = action
-      ? ({
-          ...action,
-          requestKey: crypto.randomUUID(),
-          expectedRevision: data.session?.revision ?? 0,
-          dependencyFingerprint: data.dependencyFingerprint,
-        } as RefereeCommand)
-      : pending.current;
-    if (!payload) {
-      writing.current = false;
-      setBusy(false);
-      return;
-    }
-    pending.current = payload;
     try {
+      let latest = data;
+      if (action?.action === "reconfirm_dependencies") {
+        const response = await fetch(endpoint, { cache: "no-store" });
+        const body = await response.json();
+        if (!response.ok)
+          throw new Error(
+            body.error ?? "Unable to reload the referee workspace.",
+          );
+        latest = body as RefereeWorkspace;
+        accept(latest);
+        if (
+          !latest.session ||
+          latest.session.dependencyFingerprint === latest.dependencyFingerprint
+        ) {
+          setNotice(tr("Reloaded saved referee state."));
+          return true;
+        }
+        if (latest.projection.activeSelections.length)
+          throw new Error(
+            "Withdraw recorded steps before confirming changed dependencies.",
+          );
+      }
+      const payload = action
+        ? ({
+            ...action,
+            requestKey: crypto.randomUUID(),
+            expectedRevision: latest.session?.revision ?? 0,
+            dependencyFingerprint: latest.dependencyFingerprint,
+          } as RefereeCommand)
+        : pending.current;
+      if (!payload) return false;
+      pending.current = payload;
       const response = await fetch(endpoint, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -398,6 +441,52 @@ export function RefereePanel({
           </button>
         </div>
 
+        {(stale || dependencyTargeted) && (
+          <section
+            id="referee-dependencies"
+            ref={dependencyCheck}
+            tabIndex={-1}
+            aria-label={tr("Recheck fixture dependencies")}
+            className={`notice ${styles.dependencyCheck}`}
+          >
+            {stale ? (
+              <>
+                <p>{refereeMessage(tr, dependencyChangedMessage)}</p>
+                <button
+                  type="button"
+                  disabled={
+                    disabled ||
+                    readOnly ||
+                    simulation ||
+                    state.activeSelections.length > 0
+                  }
+                  onClick={() => {
+                    setDependencyTargeted(true);
+                    void send({ action: "reconfirm_dependencies" });
+                  }}
+                >
+                  {tr("Recheck fixture dependencies")}
+                </button>
+                {state.activeSelections.length > 0 && (
+                  <p>
+                    {refereeMessage(
+                      tr,
+                      "Withdraw recorded steps before confirming changed dependencies.",
+                    )}
+                  </p>
+                )}
+                {(!data.canRecord || readOnly) && (
+                  <p>
+                    {tr("Read-only access. Referee records cannot be changed.")}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p role="status">{tr("Reloaded saved referee state.")}</p>
+            )}
+          </section>
+        )}
+
         <section
           id="referee-preparation"
           className={styles.stage}
@@ -479,22 +568,12 @@ export function RefereePanel({
                 {tr("Read-only access. Referee records cannot be changed.")}
               </p>
             )}
-            {data.readiness.length > 0 && (
+            {readiness.length > 0 && (
               <ul className="notice">
-                {data.readiness.map((message, i) => (
+                {readiness.map((message, i) => (
                   <li key={i}>{refereeMessage(tr, message)}</li>
                 ))}
               </ul>
-            )}
-            {stale && (
-              <button
-                type="button"
-                className="secondary"
-                disabled={disabled || state.activeSelections.length > 0}
-                onClick={() => send({ action: "reconfirm_dependencies" })}
-              >
-                {tr("Recheck fixture dependencies")}
-              </button>
             )}
             <div className={styles.orders}>
               <label className="field" htmlFor={`${controlId}-first-ban`}>

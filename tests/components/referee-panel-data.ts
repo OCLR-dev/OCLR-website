@@ -7,6 +7,33 @@ import {
 import { emptyRefereeSettings } from "../../src/lib/referee-commands";
 export const id = (n: number) =>
   `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+export function changedWorkspace(recorded = false): RefereeWorkspace {
+  let data = workspace();
+  if (recorded)
+    data = workspace([
+      ...data.events,
+      {
+        id: id(999),
+        ordinal: 2,
+        actorId: 1,
+        createdAt: "2026-10-31T00:01:00.000Z",
+        payload: {
+          type: "selection_recorded",
+          stepIndex: 0,
+          kind: "ban",
+          teamId: id(10),
+          entryId: id(100),
+          beatmapId: 10001,
+          category: "NM",
+        },
+      },
+    ]);
+  data.session!.dependencyFingerprint = "b".repeat(64);
+  data.readiness = [
+    "Fixture dependencies changed. Withdraw affected steps and recheck the saved configuration.",
+  ];
+  return data;
+}
 export function workspace(events?: RefereeEvent[]): RefereeWorkspace {
   const maps = Array.from({ length: 5 }, (_, i) => ({
     id: id(100 + i),

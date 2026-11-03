@@ -123,3 +123,11 @@ real-provider, platform and complete appearance/review gates.
 These results are agent-performed controlled rehearsals. They do not replace
 the separate organizer/live-provider acceptance still tracked by #498 and IRC
 #2/#3, or the remaining #312/#317 review gates.
+
+## 配置依賴一鍵核對（#766）
+
+當圖池、規則或隊伍依賴與已保存的執裁配置不同時，執裁面板在賽前準備上方提供「重新確認對局配置」。入口亦接受固定 `#referee-dependencies` 錨點，供 OCLR IRC 導頁並將焦點移到核對區；載入或跳轉本身不寫入。
+
+點擊後先以 no-store 取得目前工作區，再使用最新 revision／dependencyFingerprint 呼叫既有 `reconfirm_dependencies`。依賴已相符時只更新畫面，不新增核對事件。已有生效的選禁步驟時保留記錄並提示先撤銷，沒有批次撤銷或覆寫。只讀／模擬／不確定儲存結果時停用；未知結果沿用同一 requestKey 重試，版本衝突仍由伺服器拒絕。
+
+沿用現有三語訊息及 MainSheet 明暗外觀。合成互動、隔離資料庫及畫面證據見 [#766 驗證](verification/issue-766/README.md)。真實網站部署／桌面瀏覽器聯調另行驗收。
