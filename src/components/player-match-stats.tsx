@@ -2,6 +2,8 @@ import type { CSSProperties } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { PlayerCompetitionRecord } from "@/lib/player-competition-model";
 import type { PersonalMapRecord } from "@/lib/player-map-performance";
+import { accentForScore, averageOf } from "@/lib/panel-accent";
+import accentStyles from "./panel-accent.module.css";
 import styles from "./player-match-stats.module.css";
 import { useAnimatedNumber } from "./use-animated-number";
 
@@ -73,8 +75,16 @@ export function PlayerMatchStats({
   const matchRate =
     record.winRate === null ? null : Math.round(record.winRate * 100);
   const mapRate = maps ? percent(maps.mapsWon, maps.mapsLost) : null;
+  const mapWinRate =
+    maps && maps.mapsWon + maps.mapsLost > 0
+      ? maps.mapsWon / (maps.mapsWon + maps.mapsLost)
+      : null;
+  const accent = accentForScore(averageOf([record.winRate, mapWinRate]));
   return (
-    <div className={`panel ${styles.card}`}>
+    <div
+      className={`panel ${styles.card} ${accent ? accentStyles.border : ""}`}
+      style={accent}
+    >
       <div className={styles.sections}>
         <div className={styles.bars}>
           <MatchBar

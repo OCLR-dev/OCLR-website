@@ -12,6 +12,7 @@ export type RatingScore = {
   teamId: string;
   /** Optional display fields; the rating formula ignores them. */
   accuracy?: number | null;
+  mods?: string[];
 };
 export type RatingBeatmap = {
   setId: number | null;

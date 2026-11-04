@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
+import { Avatar } from "@/components/avatar";
 import { InfoHint } from "@/components/info-hint";
 import { PlayerMatchStats } from "@/components/player-match-stats";
 import { PlayerTrophy } from "@/components/player-trophy";
 import type {
   CompetitionEditionRecord,
   CompetitionMatchRecord,
+  CompetitionRosterMember,
   PlayerCompetitionRecord,
 } from "@/lib/player-competition-model";
 import type { PersonalMapRecord } from "@/lib/player-map-performance";
@@ -88,6 +90,19 @@ export function PlayerCompetition({
   );
 }
 
+function SquadAvatar({ member }: { member: CompetitionRosterMember }) {
+  return (
+    <Link
+      className={styles.squadAvatar}
+      href={`/players/${member.osuId}`}
+      title={member.username}
+      aria-label={member.username}
+    >
+      <Avatar osuId={member.osuId} username={member.username} />
+    </Link>
+  );
+}
+
 export function PlayerTeamRecord({
   record: summary,
 }: {
@@ -130,6 +145,9 @@ export function PlayerTeamRecord({
                 derived: !edition.placingRange.official,
               }
             : edition.finish;
+          const squad = edition.team ? (edition.roster ?? []) : [];
+          const squadMembers = squad.filter((member) => !member.captain);
+          const squadCaptains = squad.filter((member) => member.captain);
           return (
             <li className={styles.edition} key={edition.editionSlug}>
               <div className={styles.head}>
@@ -176,6 +194,30 @@ export function PlayerTeamRecord({
                     {team.name}
                   </Link>
                 ))}
+                {squad.length > 0 && (
+                  <div className={styles.squad}>
+                    {squadMembers.length > 0 && (
+                      <span className={styles.squadGroup}>
+                        <span className={styles.squadLabel}>
+                          {tr("Members: ")}
+                        </span>
+                        {squadMembers.map((member) => (
+                          <SquadAvatar key={member.osuId} member={member} />
+                        ))}
+                      </span>
+                    )}
+                    {squadCaptains.length > 0 && (
+                      <span className={styles.squadGroup}>
+                        <span className={styles.squadLabel}>
+                          {tr("Captain: ")}
+                        </span>
+                        {squadCaptains.map((member) => (
+                          <SquadAvatar key={member.osuId} member={member} />
+                        ))}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
               <dl className={styles.facts}>
                 <div>

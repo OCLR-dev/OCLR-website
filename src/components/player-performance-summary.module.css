@@ -1,6 +1,6 @@
 .card {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
+  grid-template-columns: repeat(3, 200px) minmax(0, 1fr);
   align-items: center;
   gap: 1.5rem 2rem;
   margin: 1rem 0 1.5rem;
@@ -241,7 +241,26 @@
   opacity: 0.2;
 }
 
-@media (max-width: 560px) {
+.medalValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+@media (max-width: 1100px) {
+  .card {
+    grid-template-columns: repeat(3, 200px);
+    justify-content: center;
+  }
+
+  .stats {
+    grid-column: 1 / -1;
+    justify-self: center;
+    max-width: 40rem;
+  }
+}
+
+@media (max-width: 720px) {
   .card {
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
@@ -250,6 +269,7 @@
   }
 
   .stats {
+    grid-column: auto;
     max-width: 24rem;
   }
 

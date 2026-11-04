@@ -3,20 +3,15 @@
 import type { CSSProperties } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { PlayerMapPerformance } from "@/lib/player-map-performance";
+import { RATING_COLORS, ratingColors } from "@/lib/rating-colors";
+import { accentForScore, averageOf } from "@/lib/panel-accent";
+import accentStyles from "./panel-accent.module.css";
 import styles from "./player-performance-summary.module.css";
+import { PlacementTrophy } from "./player-trophy";
 import { useAnimatedNumber } from "./use-animated-number";
 
 const share = (value: number | null) =>
   value === null ? "—" : `${(value * 100).toFixed(2)}%`;
-
-const placement = (value: number | null, fieldSize: number) => (
-  <>
-    {value === null ? "—" : value.toFixed(2)}
-    {value !== null && (
-      <span className={styles.ratioDenominator}>/{fieldSize}</span>
-    )}
-  </>
-);
 
 const RING_RADIUS = 80;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -24,67 +19,73 @@ const RING_SWEEP = 0.75;
 const RING_LENGTH = RING_CIRCUMFERENCE * RING_SWEEP;
 const RING_START_ANGLE = 135;
 
+const roundCoordinate = (value: number) => Math.round(value * 1000) / 1000;
+
 const pointOnRing = (degrees: number) => {
   const radians = (degrees * Math.PI) / 180;
   return {
-    x: 100 + RING_RADIUS * Math.cos(radians),
-    y: 100 + RING_RADIUS * Math.sin(radians),
+    x: roundCoordinate(100 + RING_RADIUS * Math.cos(radians)),
+    y: roundCoordinate(100 + RING_RADIUS * Math.sin(radians)),
   };
 };
 
-/**
- * Red, blue and green pairs borrowed from the match statistics bar fills.
- * Each pair runs from its lower-lightness shade to its higher-lightness shade,
- * so the arc brightens clockwise whether the rating is low, mid or high.
- */
-const RING_COLORS = {
-  red: ["#d32f2f", "#fd5392"],
-  blue: ["#00f2fe", "#4facfe"],
-  green: ["#5edc5b", "#caf881"],
-} as const;
+const clampFraction = (value: number, min: number, max: number) =>
+  Math.min(Math.max((value - min) / (max - min), 0), 1);
 
-function ringColors(value: number | null): readonly [string, string] {
-  if (value !== null && value < 0.9) return RING_COLORS.red;
-  if (value !== null && value > 1.1) return RING_COLORS.green;
-  return RING_COLORS.blue;
-}
+const placementColors = (
+  value: number,
+  greenBelow: number,
+  redAbove: number,
+) =>
+  value < greenBelow
+    ? RATING_COLORS.green
+    : value > redAbove
+      ? RATING_COLORS.red
+      : RATING_COLORS.blue;
 
 /**
- * A three-quarter gauge with the gap at the bottom: 0 at the lower-left end,
- * 1 at the top and 2 at the lower-right end. The accent arc follows the
- * average effective rating, clamped to the 0–2 scale.
+ * A three-quarter gauge with the gap at the bottom. Values run from `min` at
+ * the lower-left end to `max` at the lower-right end; the accent arc follows
+ * the animated value inside that range.
  */
-function EfficiencyRing({
+function GaugeRing({
   value,
+  min,
+  max,
+  colors,
   label,
+  ariaScale,
 }: {
   value: number | null;
+  min: number;
+  max: number;
+  colors: (value: number) => readonly [string, string];
   label: string;
+  ariaScale?: string;
 }) {
-  // The arc follows the previous edition's rating until the new one settles, so
-  // switching a season reads as a sweep instead of a jump. Pin it to the 0–2
-  // scale so values near either end cannot overrun the track.
+  // The arc follows the previous value until the new one settles, so switching
+  // an edition reads as a sweep instead of a jump.
   const target =
-    typeof value === "number" && Number.isFinite(value) ? value : 0;
+    typeof value === "number" && Number.isFinite(value) ? value : min;
   const animated = useAnimatedNumber(target);
-  const fraction = Math.min(Math.max(animated / 2, 0), 1);
-  const [from, to] = ringColors(animated);
+  const fraction = clampFraction(animated, min, max);
+  const [from, to] = colors(animated);
+  const display =
+    typeof value === "number" && Number.isFinite(value)
+      ? value.toFixed(2)
+      : "—";
   const arcStart = pointOnRing(RING_START_ANGLE);
   const arcEnd = pointOnRing(RING_START_ANGLE + fraction * 270);
   return (
     <div
       className={styles.ring}
       role="img"
-      aria-label={`${label}: ${
-        typeof value === "number" && Number.isFinite(value)
-          ? value.toFixed(2)
-          : "—"
-      } / 2`}
+      aria-label={`${label}: ${display}${ariaScale ? ` ${ariaScale}` : ""}`}
       style={
         {
           "--ring-from": from,
           "--ring-to": to,
-          "--ring-angle": `${fraction * 270}deg`,
+          "--ring-angle": `${(fraction * 270).toFixed(2)}deg`,
         } as CSSProperties
       }
     >
@@ -111,7 +112,7 @@ function EfficiencyRing({
           textAnchor="middle"
           dominantBaseline="central"
         >
-          {value === null || !Number.isFinite(value) ? "—" : value.toFixed(2)}
+          {display}
         </text>
       </svg>
       {fraction > 0 && (
@@ -139,16 +140,79 @@ export function PlayerPerformanceSummary({
   record: PlayerMapPerformance;
 }) {
   const tr = useAppTranslations();
+  const ratingLabel = tr("Average effective rating");
+  const placement3Label = `3v3 · ${tr("Average placement")}`;
+  const placement4Label = `4v4 · ${tr("Average placement")}`;
+  const performanceScore = averageOf([
+    record.averageEffectiveRating === null
+      ? null
+      : Math.min(Math.max(record.averageEffectiveRating, 0), 2) / 2,
+    record.averagePlacement3v3 === null
+      ? null
+      : 1 - (record.averagePlacement3v3 - 1) / 5,
+    record.averagePlacement4v4 === null
+      ? null
+      : 1 - (record.averagePlacement4v4 - 1) / 7,
+  ]);
+  const accent = accentForScore(performanceScore);
   return (
-    <div className={`panel ${styles.card}`}>
+    <div
+      className={`panel ${styles.card} ${accent ? accentStyles.border : ""}`}
+      style={accent}
+    >
       <div className={styles.ringColumn}>
-        <EfficiencyRing
+        <GaugeRing
           value={record.averageEffectiveRating}
-          label={tr("Average effective rating")}
+          min={0}
+          max={2}
+          colors={ratingColors}
+          label={ratingLabel}
+          ariaScale="/ 2"
         />
-        <span className={styles.caption}>{tr("Average effective rating")}</span>
+        <span className={styles.caption}>{ratingLabel}</span>
+      </div>
+      <div className={styles.ringColumn}>
+        <GaugeRing
+          value={record.averagePlacement3v3}
+          min={6}
+          max={1}
+          colors={(value) => placementColors(value, 3, 4)}
+          label={placement3Label}
+        />
+        <span className={styles.caption}>{placement3Label}</span>
+      </div>
+      <div className={styles.ringColumn}>
+        <GaugeRing
+          value={record.averagePlacement4v4}
+          min={8}
+          max={1}
+          colors={(value) => placementColors(value, 3.8, 5.2)}
+          label={placement4Label}
+        />
+        <span className={styles.caption}>{placement4Label}</span>
       </div>
       <dl className={styles.stats}>
+        <div>
+          <dt>{tr("First-place map count")}</dt>
+          <dd className={styles.medalValue}>
+            <PlacementTrophy tier="champion" />
+            <span>{record.firstPlaces}</span>
+          </dd>
+        </div>
+        <div>
+          <dt>{tr("Second-place map count")}</dt>
+          <dd className={styles.medalValue}>
+            <PlacementTrophy tier="runnerUp" />
+            <span>{record.secondPlaces}</span>
+          </dd>
+        </div>
+        <div>
+          <dt>{tr("Third-place map count")}</dt>
+          <dd className={styles.medalValue}>
+            <PlacementTrophy tier="third" />
+            <span>{record.thirdPlaces}</span>
+          </dd>
+        </div>
         <div>
           <dt>{tr("Maps played")}</dt>
           <dd>
@@ -159,18 +223,6 @@ export function PlayerPerformanceSummary({
               </span>
             )}
           </dd>
-        </div>
-        <div>
-          <dt>3v3 · {tr("Average placement")}</dt>
-          <dd>{placement(record.averagePlacement3v3, 6)}</dd>
-        </div>
-        <div>
-          <dt>4v4 · {tr("Average placement")}</dt>
-          <dd>{placement(record.averagePlacement4v4, 8)}</dd>
-        </div>
-        <div>
-          <dt>{tr("First-place maps")}</dt>
-          <dd>{record.firstPlaces}</dd>
         </div>
         <div>
           <dt>{tr("Average accuracy")}</dt>

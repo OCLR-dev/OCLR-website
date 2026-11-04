@@ -11,7 +11,7 @@ import { approvedRatingGames } from "./approved-rating-games";
 import { publicArchiveStatistics } from "./archive-statistics";
 import { remoteMode } from "./data-source";
 import { HttpError } from "./http";
-import { slotLabel } from "./mappool-model";
+import { slotCategory, slotLabel, type MappoolCategory } from "./mappool-model";
 import type { PublishedPlayer } from "./players";
 import type { RatingGame } from "./yumu-rating";
 
@@ -46,6 +46,8 @@ export type MapPlay = {
   winnerTeamId?: string | null;
   score: number;
   accuracy: number | null;
+  /** Mods recorded for this score; merged with lobby mods where available. */
+  mods?: string[];
 };
 
 export type PlayerMapRow = {
@@ -68,6 +70,10 @@ export type PlayerMapRow = {
    * 4v4 map, five or six are a 3v3 map. Null when the map cannot be classified.
    */
   teamSize: 3 | 4 | null;
+  /** Mappool category the slot belongs to; null when the slot is unknown. */
+  category: MappoolCategory | null;
+  /** Mods recorded for this score, with NF and CL retained for callers to filter. */
+  mods: string[];
   /**
    * Effective rating: own score ÷ that map's mean score across every recorded
    * player. Null when the map mean is missing, zero or otherwise unusable.
@@ -81,6 +87,8 @@ export type PlayerMapEdition = {
   maps: PlayerMapRow[];
   averagePlacement: number | null;
   firstPlaces: number;
+  secondPlaces: number;
+  thirdPlaces: number;
   averageAccuracy: number | null;
   averageEffectiveRating: number | null;
   /** Maps that produced a usable effective rating (map mean > 0). */
@@ -103,6 +111,8 @@ export type PlayerMapPerformance = {
   /** Average competition placement on maps with seven or more scores (4v4). */
   averagePlacement4v4: number | null;
   firstPlaces: number;
+  secondPlaces: number;
+  thirdPlaces: number;
   averageAccuracy: number | null;
   averageEffectiveRating: number | null;
   ratedMaps: number;
@@ -227,6 +237,8 @@ export function mapPerformance(
         result: mapResult(game, play.teamId),
         effectiveRating: finite(ratio) ? ratio : null,
         teamSize,
+        category: slotCategory(play.slot),
+        mods: [...new Set(play.mods ?? [])].sort(),
       });
     }
   }
@@ -241,6 +253,8 @@ export function mapPerformance(
     maps: rows,
     averagePlacement: placementAverage(rows),
     firstPlaces: rows.filter((row) => row.placement === 1).length,
+    secondPlaces: rows.filter((row) => row.placement === 2).length,
+    thirdPlaces: rows.filter((row) => row.placement === 3).length,
     averageAccuracy: mean(
       rows.flatMap((row) => (row.accuracy === null ? [] : [row.accuracy])),
     ),
@@ -275,6 +289,8 @@ export function summarizeMapPerformance(
       rows.filter((row) => row.teamSize === 4),
     ),
     firstPlaces: rows.filter((row) => row.placement === 1).length,
+    secondPlaces: rows.filter((row) => row.placement === 2).length,
+    thirdPlaces: rows.filter((row) => row.placement === 3).length,
     averageAccuracy: mean(
       rows.flatMap((row) => (row.accuracy === null ? [] : [row.accuracy])),
     ),
@@ -322,6 +338,8 @@ async function editionPerformance(
     maps: [],
     averagePlacement: null,
     firstPlaces: 0,
+    secondPlaces: 0,
+    thirdPlaces: 0,
     averageAccuracy: null,
     averageEffectiveRating: null,
     ratedMaps: 0,
@@ -377,6 +395,7 @@ export function liveMapPlays(
       winnerTeamId: game.winnerTeamId,
       score: score.total,
       accuracy: score.accuracy ?? null,
+      mods: score.mods ?? [],
     }));
   });
 }

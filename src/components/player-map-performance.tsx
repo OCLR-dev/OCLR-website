@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
 import { InfoHint } from "@/components/info-hint";
+import { PlayerMappoolAppearances } from "@/components/player-mappool-appearances";
+import { PlayerModUsage } from "@/components/player-mod-usage";
 import { PlayerPerformanceSummary } from "@/components/player-performance-summary";
 import type {
   PlayerMapEdition,
@@ -63,7 +65,9 @@ export function PlayerMapPerformance({
         </InfoHint>
       </div>
       {summary.mapsPlayed ? (
-        <PlayerPerformanceSummary record={summary} />
+        <div className={styles.summaryGrid}>
+          <PlayerPerformanceSummary record={summary} />
+        </div>
       ) : (
         <p className="notice">
           {tr("No published map scores are attributed to this player yet.")}
@@ -73,6 +77,17 @@ export function PlayerMapPerformance({
         <p className="notice">
           {tr("Some tournament records are temporarily unavailable.")}
         </p>
+      )}
+      {summary.mapsPlayed > 0 && (
+        <section aria-labelledby="player-mods">
+          <h2 className={styles.modsTitle} id="player-mods">
+            {tr("Mods overview")}
+          </h2>
+          <div className={styles.usageGrid}>
+            <PlayerModUsage record={summary} />
+            <PlayerMappoolAppearances record={summary} />
+          </div>
+        </section>
       )}
       {summary.mapsPlayed > 0 && (
         <>

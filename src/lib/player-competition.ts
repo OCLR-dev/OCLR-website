@@ -13,6 +13,7 @@ import {
   type PlayerCompetitionRecord,
 } from "./player-competition-model";
 import type { PublishedPlayer } from "./players";
+import { publishedTeams } from "./teams";
 import { publicCompetition } from "./public-competition";
 import { archiveKeyVisual } from "./archive-key-visual";
 
@@ -143,6 +144,37 @@ async function editionRecord(
     base.defaultAppearance =
       edition?.defaultAppearance ??
       (edition?.season ? seasonAppearanceFor(edition.season) : null);
+    if (base.team) {
+      try {
+        const team = (await publishedTeams(slug)).find(
+          (entry) => entry.id === base.team!.id,
+        );
+        // `members` is null until staff finalize and publish the roster.
+        if (team?.members)
+          base.roster = team.members.map((member) => ({
+            osuId: member.osuId,
+            username: member.username,
+            captain: member.osuId === team.captainId,
+          }));
+      } catch {
+        // A missing roster only drops the avatars; the record stays readable.
+      }
+      // Archived seasons never create live teams or accounts, so their roster
+      // comes from the archive instead. Coaches are not part of it.
+      if (!base.roster && edition?.archive) {
+        const archived = edition.archive.players.filter(
+          (person) =>
+            person.teamId === base.team!.id &&
+            (person.role === "captain" || person.role === "player"),
+        );
+        if (archived.length)
+          base.roster = archived.map((person) => ({
+            osuId: person.osuId,
+            username: person.username,
+            captain: person.role === "captain",
+          }));
+      }
+    }
     if (!teams.size) return base;
     if (edition?.archive) {
       const recorded = edition.archive.matches.filter(recordedArchiveMatch);

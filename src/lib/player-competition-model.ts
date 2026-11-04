@@ -24,6 +24,14 @@ export type CompetitionMatchRecord = {
   at: string | null;
 };
 
+/** One member of a published playing roster; staff and coaches never appear. */
+export type CompetitionRosterMember = {
+  osuId: number;
+  username: string;
+  /** Appointed captain of this team, as published with the roster. */
+  captain: boolean;
+};
+
 /** A tournament placement, exact or banded (e.g. "3–4", "9–12"). */
 export type TournamentFinish = {
   label: string;
@@ -39,6 +47,8 @@ export type CompetitionEditionRecord = {
   /** Stored season value; editions open in ascending season order. */
   season: string | null;
   team: { id: string; name: string } | null;
+  /** Published roster of `team`; absent until the roster is released. */
+  roster?: CompetitionRosterMember[];
   /** Teams this person coached in the edition, when the roster records a coach. */
   coachedTeams: { id: string; name: string }[];
   role: PublishedPlayer["role"] | null;

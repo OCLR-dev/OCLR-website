@@ -30,6 +30,15 @@ export function fmPolicyName(mode: string | null | undefined) {
 export function slotLabel(category: string, position: number) {
   return category === "TB" && position === 1 ? "TB" : `${category}${position}`;
 }
+
+/** Reads the mappool category from a slot label such as `NM2` or `TB`. */
+export function slotCategory(slot: string): MappoolCategory | null {
+  const prefix = slot.trim().toUpperCase().replace(/\d+$/, "");
+  return (categories as readonly string[]).includes(prefix)
+    ? (prefix as MappoolCategory)
+    : null;
+}
+
 export function formatBeatmapNumber(
   value: number | null | undefined,
   digits?: number,

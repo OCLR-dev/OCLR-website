@@ -127,6 +127,45 @@
   color: var(--site-muted, var(--color-muted));
 }
 
+.squad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem 0.9rem;
+  margin-left: auto;
+}
+
+.squadGroup {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.squadLabel {
+  font-size: var(--text-label);
+  color: var(--site-muted, var(--color-muted));
+  white-space: nowrap;
+}
+
+.squadAvatar {
+  display: inline-flex;
+}
+
+.squadAvatar :global(.avatar) {
+  width: 1.75rem;
+  height: 1.75rem;
+  min-width: 1.75rem;
+  border-radius: var(--radius-panel);
+  font-size: var(--text-label);
+}
+
+.squadAvatar:focus-visible {
+  outline: 2px solid var(--site-accent, var(--color-accent));
+  outline-offset: 2px;
+}
+
 @media (max-width: 640px) {
   .edition {
     padding: 1rem;

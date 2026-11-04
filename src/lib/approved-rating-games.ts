@@ -168,6 +168,7 @@ export async function approvedRatingGames(
                 ? 0
                 : score.total,
             accuracy: score.accuracy,
+            mods: [...new Set([...game.mods, ...score.mods])].sort(),
           });
         }
       }

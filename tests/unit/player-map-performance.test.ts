@@ -54,6 +54,8 @@ function blank(slug: string): PlayerMapEdition {
     maps: [],
     averagePlacement: null,
     firstPlaces: 0,
+    secondPlaces: 0,
+    thirdPlaces: 0,
     averageAccuracy: null,
     averageEffectiveRating: null,
     ratedMaps: 0,

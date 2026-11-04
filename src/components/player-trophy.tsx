@@ -227,7 +227,7 @@ function TrophyArt({ tier }: { tier: TrophyTier }) {
   );
 }
 
-function PlacementTrophy({
+export function PlacementTrophy({
   tier,
 }: {
   tier: "champion" | "runnerUp" | "third";

@@ -1,0 +1,36 @@
+/* A one-pixel gradient stroke: the light tone runs along the top edge and the
+   darker tone along the bottom, echoing the aura around the career trophy. */
+.border {
+  position: relative;
+  border-color: transparent;
+}
+
+.border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    color-mix(
+      in srgb,
+      var(--accent-top) 60%,
+      var(--site-border, var(--color-border))
+    ),
+    color-mix(
+      in srgb,
+      var(--accent-bottom) 60%,
+      var(--site-border, var(--color-border))
+    )
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
