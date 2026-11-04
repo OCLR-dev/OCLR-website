@@ -103,6 +103,41 @@ async function compactHeader(
   await withinViewport(page, header, width);
 }
 
+// The matrix above signs in, whose account control is narrower than the
+// anonymous login button. Check the unsigned header at the widths where the
+// full English navigation competes with the login control for room.
+test("unsigned English header fits the viewport", async ({ page, context }) => {
+  await page.route("https://a.ppy.sh/**", (route) => route.abort());
+  await context.addCookies([
+    { name: "oclr-locale", value: "en", url: "http://127.0.0.1:3100" },
+  ]);
+  const widths = [951, 1000, 1024, 1060, 1100, 1160, 1200];
+  const appearances = [
+    "default",
+    "cute-pastel",
+    "claymorphism",
+    "manga-halftone",
+  ];
+  for (const appearance of appearances) {
+    await context.addCookies([
+      {
+        name: "oclr-appearance",
+        value: appearance,
+        url: "http://127.0.0.1:3100",
+      },
+    ]);
+    for (const width of appearance === "default" ? widths : [951, 1024, 1100]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+      await expect(page.locator(".nav-login")).toBeVisible();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+        `${appearance} at ${width}px keeps the unsigned header inside the viewport`,
+      ).toBeLessThanOrEqual(width);
+    }
+  }
+});
+
 for (const { locale, theme, appearance } of headerMatrix(
   matrixMode,
   process.env.OCLR_HEADER_APPEARANCES,

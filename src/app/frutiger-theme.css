@@ -291,6 +291,12 @@ html[data-appearance="frutiger-aero"] .themed-site .main-nav > a[aria-current] {
     padding-inline: 1rem;
   }
 }
+/* English labels overflow 1101-1200px while the desktop header is shown. */
+@media (min-width: 1101px) and (max-width: 1200px) {
+  html[data-appearance="frutiger-aero"] .themed-site .main-nav > a {
+    padding-inline: 0.6rem;
+  }
+}
 
 /* Full-bleed footer: no bounded painted rectangle, no exposed side gaps. */
 html[data-appearance="frutiger-aero"] .themed-site .site-footer {

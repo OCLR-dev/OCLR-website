@@ -618,16 +618,21 @@ html[data-appearance="manga-halftone"]
   }
 }
 /* Keep English navigation and preference menus inside intermediate widths. */
-@media (min-width: 951px) and (max-width: 1100px) {
+@media (min-width: 951px) and (max-width: 1200px) {
   html[data-appearance="manga-halftone"] .themed-site .nav-wrap {
-    padding-inline: 1rem;
+    padding-inline: 0.7rem;
     gap: 0.75rem;
   }
   html[data-appearance="manga-halftone"] .themed-site .main-nav {
     gap: 0.1rem;
   }
   html[data-appearance="manga-halftone"] .themed-site .main-nav > a {
-    padding-inline: 0.3rem;
+    padding-inline: 0.18rem;
+  }
+}
+@media (min-width: 951px) and (max-width: 1000px) {
+  html[data-appearance="manga-halftone"] .themed-site .main-nav > a {
+    font-size: 0.78rem;
   }
 }
 @media (max-width: 950px) {

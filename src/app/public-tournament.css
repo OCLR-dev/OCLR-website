@@ -93,6 +93,39 @@ html[data-theme="dark"] .themed-site {
   padding-inline: clamp(1rem, 3.5vw, 3rem);
   height: 68px;
 }
+/* English navigation is wider than the 950px collapse point assumes. Tighten
+ * the header between the tablet and desktop layouts so the full navigation,
+ * preferences and login control stay inside the viewport (951–1200px). */
+@media (min-width: 951px) and (max-width: 1200px) {
+  .themed-site .nav-wrap {
+    padding-inline: clamp(0.75rem, 2vw, 2rem);
+    gap: 0.75rem;
+  }
+  .main-nav {
+    gap: clamp(0.45rem, 0.9vw, 1rem);
+  }
+  .site-header .brand .oclr-wordmark {
+    width: clamp(104px, 11vw, 132px);
+  }
+}
+@media (min-width: 951px) and (max-width: 1000px) {
+  .themed-site .nav-wrap {
+    padding-inline: 0.6rem;
+    gap: 0.5rem;
+  }
+  .main-nav {
+    gap: 0.4rem;
+  }
+  .main-nav > a {
+    font-size: 0.8rem;
+  }
+  .site-preferences {
+    gap: 0.15rem;
+  }
+  .nav-login {
+    padding-inline: 0.5rem;
+  }
+}
 .themed-site .main-nav > a {
   color: var(--site-secondary-text);
 }
@@ -740,8 +773,8 @@ html[data-theme="dark"] .themed-site {
   color: var(--site-secondary-text);
 }
 .public-tournament
-.mappool-sheet
-:is(.mappool-map-title, .mappool-base-sr, .mappool-slot) {
+  .mappool-sheet
+  :is(.mappool-map-title, .mappool-base-sr, .mappool-slot) {
   color: var(--site-accent);
 }
 .public-tournament
