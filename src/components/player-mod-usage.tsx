@@ -27,7 +27,21 @@ function ModPie({
   label: string;
 }) {
   const gap = mods.length > 1 ? 1.2 : 0;
-  let offset = 0;
+  // Cumulative offsets are computed before rendering so no variable is
+  // reassigned while the slices are built.
+  const slices = mods.reduce<{ mod: ModUsage; value: number; offset: number }[]>(
+    (list, mod) => {
+      const value = total ? (mod.count / total) * 100 : 0;
+      const previous = list[list.length - 1];
+      list.push({
+        mod,
+        value,
+        offset: previous ? previous.offset + previous.value : 0,
+      });
+      return list;
+    },
+    [],
+  );
   return (
     <svg
       className={styles.pie}
@@ -46,10 +60,9 @@ function ModPie({
         fill="none"
       />
       <g className={styles.pieSlices}>
-        {mods.map((mod) => {
-          const value = total ? (mod.count / total) * 100 : 0;
+        {slices.map(({ mod, value, offset }) => {
           const visible = Math.max(value - gap, 0);
-          const circle = (
+          return (
             <circle
               key={mod.mod}
               cx="50"
@@ -65,8 +78,6 @@ function ModPie({
               transform="rotate(-90 50 50)"
             />
           );
-          offset += value;
-          return circle;
         })}
       </g>
       <text
