@@ -290,6 +290,7 @@ export function RevokeRole({
   return (
     <ConfirmMutation
       className="secondary role-revoke"
+      loadingFeedback="button"
       label={tr("Revoke role")}
       title={tr("Revoke staff access?")}
       description={tr(
@@ -319,6 +320,7 @@ export function StaffPublicVisibility({
 
   return (
     <ConfirmMutation
+      loadingFeedback="button"
       label={published ? tr("Hide from About") : tr("Show on About")}
       title={tr("Show staff profile on About?")}
       description={tr(

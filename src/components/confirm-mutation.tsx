@@ -10,6 +10,7 @@ import { usePendingRefresh } from "./use-pending-refresh";
 import { LoadingRegion } from "./loading-region";
 import { Spinner } from "./spinner";
 import { PublicationSwitch } from "./publication-switch";
+import styles from "./confirm-mutation.module.css";
 export function ConfirmMutation({
   label,
   className = "secondary",
@@ -128,7 +129,7 @@ export function ConfirmMutation({
             icon ? (
               <Spinner compact />
             ) : (
-              <span className="inline-flex items-center gap-2">
+              <span className={styles.pendingLabel}>
                 <Spinner compact />
                 {tr(label)}
               </span>

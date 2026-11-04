@@ -1,0 +1,332 @@
+[
+  {
+    "file": "src/components/archive-importer.tsx",
+    "line": 57,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/archive-importer.tsx",
+    "line": 179,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/archive-importer.tsx",
+    "line": 304,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/archive-player-exchange.tsx",
+    "line": 80,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/archive-staff-resolver.tsx",
+    "line": 165,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/archive-substitute.tsx",
+    "line": 85,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/audit-module-tabs.tsx",
+    "line": 24,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/award-manager.tsx",
+    "line": 90,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/award-manager.tsx",
+    "line": 214,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/bws-review.tsx",
+    "line": 64,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/captain-manager.tsx",
+    "line": 198,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/captain-manager.tsx",
+    "line": 308,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/captain-manager.tsx",
+    "line": 494,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/captain-manager.tsx",
+    "line": 605,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/competition-settings.tsx",
+    "line": 214,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/confirm-mutation.tsx",
+    "line": 110,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/confirm-mutation.tsx",
+    "line": 153,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/developer-access.tsx",
+    "line": 107,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/draft-order-editor.tsx",
+    "line": 237,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/draft-order-editor.tsx",
+    "line": 254,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/fixture-manager.tsx",
+    "line": 300,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/fixture-manager.tsx",
+    "line": 491,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/fixture-manager.tsx",
+    "line": 659,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/fixture-manager.tsx",
+    "line": 706,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/mappool-batch.tsx",
+    "line": 265,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/mappool-batch.tsx",
+    "line": 399,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/mappool-batch.tsx",
+    "line": 420,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/mappool-batch.tsx",
+    "line": 435,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/mappool-editor.tsx",
+    "line": 55,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/mappool-editor.tsx",
+    "line": 642,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/mappool-order.tsx",
+    "line": 196,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/mappool-replays.tsx",
+    "line": 200,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/mappool-replays.tsx",
+    "line": 409,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/match-review.tsx",
+    "line": 41,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/match-review.tsx",
+    "line": 522,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/match-source-completion.tsx",
+    "line": 269,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/player-message-board.tsx",
+    "line": 343,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/referee-assignment.tsx",
+    "line": 120,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/referee-assignment.tsx",
+    "line": 143,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/registration-removal.tsx",
+    "line": 35,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/remote-development.tsx",
+    "line": 149,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/review-form.tsx",
+    "line": 64,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/round-manager.tsx",
+    "line": 59,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/round-manager.tsx",
+    "line": 232,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/schedule-manager.tsx",
+    "line": 15,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/staff-draft.tsx",
+    "line": 84,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/staff-role-form.tsx",
+    "line": 238,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/staff-role-form.tsx",
+    "line": 291,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/staff-role-form.tsx",
+    "line": 322,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/stage-groups.tsx",
+    "line": 483,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/statistics-manager.tsx",
+    "line": 536,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/statistics-manager.tsx",
+    "line": 685,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/statistics-manager.tsx",
+    "line": 712,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/streaming-access.tsx",
+    "line": 102,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/streaming-manager.tsx",
+    "line": 16,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/team-coach-manager.tsx",
+    "line": 73,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/team-editor.tsx",
+    "line": 77,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/team-editor.tsx",
+    "line": 105,
+    "tag": "LoadingRegion"
+  },
+  {
+    "file": "src/components/team-manager.tsx",
+    "line": 97,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/tournament-editor.tsx",
+    "line": 332,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/tournament-editor.tsx",
+    "line": 772,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/tournament-editor.tsx",
+    "line": 1249,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/components/tournament-editor.tsx",
+    "line": 1282,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/app/dashboard/page.tsx",
+    "line": 302,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/app/admin/tournaments/[edition]/teams/page.tsx",
+    "line": 155,
+    "tag": "ConfirmMutation"
+  },
+  {
+    "file": "src/app/admin/tournaments/[edition]/teams/page.tsx",
+    "line": 179,
+    "tag": "ConfirmMutation"
+  }
+]
