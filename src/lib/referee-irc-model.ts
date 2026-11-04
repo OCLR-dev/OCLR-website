@@ -150,7 +150,11 @@ export function confirmsIrcCommand(
     evidence.target.toLowerCase() !== target.toLowerCase()
   )
     return false;
-  if (confirmsMods(text, evidence.text)) return true;
+  if (
+    confirmsMods(text, evidence.text) ||
+    confirmsSettings(text, evidence.text)
+  )
+    return true;
   const timer = /^!mp timer ([1-9]\d{0,3})$/.exec(text);
   const countdown =
     /^Countdown ends in (\d{1,4}) (minute|second)s?(?: and (\d{1,2}) seconds?)?$/.exec(
@@ -234,5 +238,24 @@ export function confirmsMods(command: string, reply: string): boolean {
     !actual.includes(null) &&
     new Set(actual).size === actual.length &&
     desired.sort().join(",") === actual.sort().join(",")
+  );
+}
+
+/** Match every requested setting; occupied player count never proves room capacity. */
+export function confirmsSettings(command: string, reply: string): boolean {
+  const requested = /^!mp set ([0-3]) ([0-3])(?: (1[0-6]|[1-9]))?$/.exec(
+    command,
+  );
+  const observed =
+    /^Changed match settings to (?:(\d{1,2}) slots, )?(HeadToHead|TagCoop|TeamVs|TagTeamVs)(?:, (Score|Accuracy|Combo|ScoreV2))?\.?$/.exec(
+      reply,
+    );
+  if (!requested || !observed) return false;
+  const teams = ["HeadToHead", "TagCoop", "TeamVs", "TagTeamVs"],
+    scores = ["Score", "Accuracy", "Combo", "ScoreV2"];
+  return (
+    observed[2] === teams[Number(requested[1])] &&
+    observed[3] === scores[Number(requested[2])] &&
+    (!requested[3] || Number(observed[1]) === Number(requested[3]))
   );
 }

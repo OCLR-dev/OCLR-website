@@ -380,6 +380,58 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
         .activeSelections,
     ).toHaveLength(1);
   });
+  it("confirms complete room settings once, rejects incomplete proof and permits a new intent after unknown", async () => {
+    const queueSettings = () =>
+      refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+        action: "queue",
+        requestKey: randomUUID(),
+        text: "!mp set 2 3 16",
+      });
+    await queueSettings();
+    const first = (await sync()).command!;
+    const evidence = {
+      sender: "BanchoBot",
+      target: "#mp_123",
+      text: "Changed match settings to TeamVs, ScoreV2",
+    };
+    const message = {
+      id: "settings-incomplete",
+      sender: "BanchoBot",
+      text: evidence.text,
+      at: new Date().toISOString(),
+    };
+    await sync(
+      [{ commandId: first.id, status: "confirmed", evidence }],
+      [message],
+    );
+    expect(
+      (await refereeIrcView(referee, "test-cup", fixtureId)).commands.at(-1)
+        ?.status,
+    ).toBe("sending");
+    await sync([{ commandId: first.id, status: "unknown" }]);
+    await queueSettings();
+    const next = (await sync()).command!;
+    expect(next.id).not.toBe(first.id);
+    evidence.text = "Changed match settings to 16 slots, TeamVs, ScoreV2";
+    message.id = "settings-complete";
+    message.text = evidence.text;
+    await sync(
+      [{ commandId: next.id, status: "confirmed", evidence }],
+      [message],
+    );
+    await sync(
+      [{ commandId: next.id, status: "confirmed", evidence }],
+      [message],
+    );
+    const view = await refereeIrcView(referee, "test-cup", fixtureId);
+    expect(view.commands.find((c) => c.id === first.id)?.status).toBe(
+      "unknown",
+    );
+    expect(view.commands.find((c) => c.id === next.id)?.status).toBe(
+      "confirmed",
+    );
+    expect((await sync()).command).toBeNull();
+  });
   it.each([
     "Beatmap changed to Test (https://osu.ppy.sh/b/10001)",
     "Changed beatmap to https://osu.ppy.sh/b/10001 Synthetic",

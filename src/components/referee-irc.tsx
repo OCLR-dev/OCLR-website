@@ -256,7 +256,7 @@ export function RefereeIrc({
     sent: tr("Sent; awaiting room confirmation"),
     confirmed: tr("Confirmed by IRC"),
     failed: tr("Command failed"),
-    unknown: tr("Outcome unknown; check the room"),
+    unknown: tr("Outcome unknown"),
     record_failed: tr("IRC confirmed; referee record needs review"),
   };
   const failureReasons: Record<string, string> = {
@@ -271,16 +271,16 @@ export function RefereeIrc({
       "The local app rejected this command before sending. Check operation records and room state in OCLR IRC.",
     ),
     "relay:pending_operation": tr(
-      "A previous room operation needs review in OCLR IRC before sending another command.",
+      "The previous room command is still waiting for a reply. OCLR IRC will check it automatically.",
     ),
     "relay:room_checks": tr(
-      "The local app could not verify current room settings or referee access. Refresh them in OCLR IRC.",
+      "The local app could not verify room settings or referee access. Check the connection and room permissions.",
     ),
     "relay:bancho_rejected": tr(
       "BanchoBot rejected this command. Check the room reply in OCLR IRC.",
     ),
     "relay:reply_timeout": tr(
-      "No matching BanchoBot reply was confirmed. Check the room before sending another command.",
+      "No matching BanchoBot reply was confirmed. The result remains unknown; this command will not be resent automatically.",
     ),
     "relay:invalid_command": tr(
       "This command is not supported by the local IRC relay.",

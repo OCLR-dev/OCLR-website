@@ -3824,6 +3824,10 @@
     "maf7890cd5f8d": "Skillset Tags",
     "m93aa8c8fe6bf": "Tags saved, but the list could not refresh. Reload this page.",
     "m23a71272299e": "Automatic sync",
-    "mcadfaac7241e": "Manage connections"
+    "mcadfaac7241e": "Manage connections",
+    "m1ace548f9767": "The previous room command is still waiting for a reply. OCLR IRC will check it automatically.",
+    "m342ce461b460": "The local app could not verify room settings or referee access. Check the connection and room permissions.",
+    "m0f9375450b44": "No matching BanchoBot reply was confirmed. The result remains unknown; this command will not be resent automatically.",
+    "m164557364fc9": "Outcome unknown"
   }
 }

@@ -209,3 +209,35 @@ it("accepts only bounded receipt reason codes", () => {
   value.receipts[0].reason = "private raw error";
   expect(relaySchema.safeParse(value).success).toBe(false);
 });
+
+it("confirms every requested room setting and never guesses capacity from an incomplete reply", () => {
+  const evidence = {
+    sender: "BanchoBot",
+    target: "#mp_123",
+    text: "Changed match settings to 16 slots, TeamVs, ScoreV2",
+  };
+  expect(confirmsIrcCommand("!mp set 2 3 16", "#mp_123", evidence)).toBe(true);
+  for (const text of [
+    "Changed match settings to TeamVs, ScoreV2",
+    "Changed match settings to 8 slots, TeamVs, ScoreV2",
+    "Changed match settings to 16 slots, HeadToHead, ScoreV2",
+    "Changed match settings to 16 slots, TeamVs, Score",
+    "prefix " + evidence.text,
+  ])
+    expect(
+      confirmsIrcCommand("!mp set 2 3 16", "#mp_123", { ...evidence, text }),
+    ).toBe(false);
+  expect(confirmsIrcCommand("!mp set 2 3 16", "#mp_124", evidence)).toBe(false);
+  expect(
+    confirmsIrcCommand("!mp set 2 3 16", "#mp_123", {
+      ...evidence,
+      sender: "Player",
+    }),
+  ).toBe(false);
+  expect(
+    confirmsIrcCommand("!mp set 2 3", "#mp_123", {
+      ...evidence,
+      text: "Changed match settings to TeamVs, ScoreV2",
+    }),
+  ).toBe(true);
+});
