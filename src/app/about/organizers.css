@@ -98,7 +98,7 @@
   border: 0;
   min-width: 0;
 }
-.organizer-people h4 {
+.organizer-people :is(h3, h4) {
   color: var(--site-accent);
   font-size: 1.05rem;
   font-weight: 600;
@@ -242,7 +242,7 @@
   height: 100%;
   object-fit: contain;
 }
-.organizer-page .organizer-people h4 {
+.organizer-page .organizer-people :is(h3, h4) {
   line-height: 1.4;
   margin-bottom: 0.35rem;
 }

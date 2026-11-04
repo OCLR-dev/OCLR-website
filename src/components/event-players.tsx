@@ -59,6 +59,7 @@ export function EventPlayers({
         grouping={preview || grouped}
       />
       <div className="event-player-group">
+        {!byTeam && <h2 className="sr-only">{tr("Players")}</h2>}
         {visible.map((p, index) => (
           <Fragment key={p.id}>
             {byTeam &&
@@ -133,7 +134,7 @@ export function EventPlayers({
               </div>
               <div className="event-player-bio">
                 <h4>{tr("Self introduction")}</h4>
-                <p>{p.bio ?? "—"}</p>
+                <p tabIndex={0}>{p.bio ?? "—"}</p>
               </div>
               <div className="event-player-messages">
                 <h4>{tr("Message board")}</h4>

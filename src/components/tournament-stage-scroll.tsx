@@ -199,7 +199,7 @@ export function TournamentStageScroll({
             }
           }}
           tabIndex={0}
-          role="region"
+          role="group"
           aria-label={labels.title}
         >
           <ol>
@@ -215,7 +215,7 @@ export function TournamentStageScroll({
                   </span>
                   <div className="stage-scroll-copy">
                     <div className="stage-scroll-title">
-                      <h3>{stage.label}</h3>
+                      <h2>{stage.label}</h2>
                       <span className="stage-scroll-status">
                         {labels[stage.state]}
                       </span>

@@ -74,7 +74,8 @@ async function Issue271Page() {
       roles: ["designer"],
     },
   ];
-  function people(names: readonly string[], roles: string[]) {
+  function people(names: readonly string[], roles: string[], level: 3 | 4 = 3) {
+    const Heading = level === 3 ? "h3" : "h4";
     const published = staff.flatMap((person) => {
       const grants = person.roles.filter((grant) => roles.includes(grant.role));
       return grants.length ? [{ ...person, roles: grants }] : [];
@@ -85,12 +86,12 @@ async function Issue271Page() {
           <li key={person.osuId}>
             <Avatar osuId={person.osuId} username={person.username} />
             <div>
-              <h4>
+              <Heading>
                 <a href={`https://osu.ppy.sh/users/${person.osuId}`}>
                   {person.username}
                 </a>{" "}
                 <CountryFlag code={person.countryCode} />
-              </h4>
+              </Heading>
               {person.roles.map((grant) => (
                 <p key={`${grant.role}-${grant.edition?.slug ?? "global"}`}>
                   <span className="staff-role-name">{tr(grant.role)}</span> ·{" "}
@@ -107,7 +108,7 @@ async function Issue271Page() {
           <li key={name}>
             <span className="organizer-portrait" aria-hidden="true" />
             <div>
-              <h4>{name}</h4>
+              <Heading>{name}</Heading>
               <p>osu! Chinese League Rookie</p>
             </div>
           </li>
@@ -172,7 +173,7 @@ async function Issue271Page() {
                 aria-labelledby={`${group.id}-title`}
               >
                 <h3 id={`${group.id}-title`}>{group.title}</h3>
-                {people(group.names, group.roles)}
+                {people(group.names, group.roles, 4)}
               </section>
             ))}
           </section>
@@ -188,11 +189,11 @@ async function Issue271Page() {
                   <li key={person.osuId}>
                     <Avatar osuId={person.osuId} username={person.name} />
                     <div>
-                      <h4>
+                      <h3>
                         <a href={`https://osu.ppy.sh/users/${person.osuId}`}>
                           {person.name}
                         </a>
-                      </h4>
+                      </h3>
                     </div>
                   </li>
                 ))}

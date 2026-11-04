@@ -147,7 +147,7 @@ test.describe("compact operational UI in both designs and brightness modes", () 
           await expect(cards.locator(".country-flag")).toHaveCount(2);
           const first = cards.first();
           const avatar = await first.locator(".avatar").boundingBox(),
-            name = await first.locator("h4 a").boundingBox();
+            name = await first.locator(":is(h3, h4) a").boundingBox();
           expect(Math.abs(avatar!.y - name!.y)).toBeLessThan(5);
         }
         expect(

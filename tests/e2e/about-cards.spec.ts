@@ -118,7 +118,7 @@ test.describe("compact About organizer cards", () => {
             .first()
             .locator(".staff-role-name"),
         ).toHaveCount(1);
-        const link = page.locator(".public-staff-list h4 a").first();
+        const link = page.locator(".public-staff-list :is(h3, h4) a").first();
         await link.focus();
         await expect(link).toBeFocused();
         expect(

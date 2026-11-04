@@ -148,7 +148,7 @@
   gap: 0.8rem;
   flex-wrap: wrap;
 }
-.stage-scroll-title h3 {
+.stage-scroll-title h2 {
   margin: 0;
   font-size: 1.05rem;
   font-weight: 650;
@@ -208,7 +208,7 @@ html[data-appearance="swiss-minimal"]
   .stage-scroll-title {
     gap: 0.3rem 0.6rem;
   }
-  .stage-scroll-title h3 {
+  .stage-scroll-title h2 {
     font-size: 0.95rem;
   }
   .stage-scroll-action {

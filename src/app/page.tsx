@@ -242,7 +242,11 @@ async function HomeContent() {
               </span>
             </h1>
             <div className="home-entry-links">
-              <div className="home-contact-bar" aria-label={tr("Contact")}>
+              <div
+                className="home-contact-bar"
+                role="group"
+                aria-label={tr("Contact")}
+              >
                 <a
                   href="https://discord.gg/graS4RJHjM"
                   className="home-contact"
