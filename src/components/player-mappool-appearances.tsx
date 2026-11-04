@@ -36,7 +36,7 @@ export function PlayerMappoolAppearances({
           aria-labelledby="player-mappool-appearances"
         >
           <h3 className={styles.sectionTitle} id="player-mappool-appearances">
-            {tr("Mappool slot count")}
+            {tr("Slot count")}
           </h3>
           {breakdown.topSlots.length ? (
             <ol className={styles.list}>
