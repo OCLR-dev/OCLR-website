@@ -188,6 +188,10 @@
 .home-archive-grid .edition-card {
   grid-template-columns: 128px minmax(0, 1fr);
   min-width: 0;
+  /* The home route skips pages.css, so repeat its themed card surface here;
+   * without it the dark base card keeps the light theme's dark text. */
+  background: var(--site-surface);
+  border-color: var(--site-border);
 }
 .home-other-current {
   display: grid;
