@@ -24,7 +24,8 @@ export function TeamEditor({
   const tr = useAppTranslations(),
     { refreshing, refresh } = usePendingRefresh(),
     dialog = useRef<HTMLDialogElement>(null),
-    imageInput = useRef<HTMLInputElement>(null);
+    imageInput = useRef<HTMLInputElement>(null),
+    refreshOnClose = useRef(false);
   const [image, setImage] = useState<File | null>(null),
     [preview, setPreview] = useState<string | null>(null),
     [remove, setRemove] = useState(false),
@@ -59,8 +60,9 @@ export function TeamEditor({
       });
       const data = await r.json();
       if (!r.ok) {
-        // Load the current team so the form is not resubmitted with stale data.
-        refresh();
+        // A refresh can remount this editor. Keep the error and draft visible
+        // until dismissed, then load current data before a new editing session.
+        refreshOnClose.current = true;
         throw new Error(data.error);
       }
       dialog.current?.close();
@@ -99,6 +101,10 @@ export function TeamEditor({
         onClose={() => {
           chooseImage(null);
           setRemove(false);
+          if (refreshOnClose.current) {
+            refreshOnClose.current = false;
+            refresh();
+          }
         }}
         onCancel={(e) => {
           if (pending) e.preventDefault();

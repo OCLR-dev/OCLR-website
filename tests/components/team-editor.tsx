@@ -26,12 +26,24 @@ const team = {
 } as unknown as Parameters<typeof TeamEditor>[0]["team"];
 function Harness() {
   const [show, setShow] = useState(true);
+  const [data, setData] = useState({ version: 1, team });
+  const testRouter: AppRouterInstance = {
+    ...router,
+    refresh: () =>
+      setData({ version: 2, team: { ...team, name: "Latest saved team" } }),
+  };
   return (
-    <AppRouterContext.Provider value={router}>
+    <AppRouterContext.Provider value={testRouter}>
       <NextIntlClientProvider locale="en" messages={en} timeZone="UTC">
         <button onClick={() => setShow(false)}>Unmount editor</button>
         {show && (
-          <TeamEditor slug="synthetic" version={1} team={team} locked={false} />
+          <TeamEditor
+            key={`${team.id}:${data.version}`}
+            slug="synthetic"
+            version={data.version}
+            team={data.team}
+            locked={false}
+          />
         )}
       </NextIntlClientProvider>
     </AppRouterContext.Provider>
