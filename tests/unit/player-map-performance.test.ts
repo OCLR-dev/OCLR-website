@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import type { StatisticsPlay } from "../../src/lib/archive-statistics-model";
+import {
+  fixtureStatisticsIssues,
+  projectStatistics,
+  type StatisticsPlay,
+} from "../../src/lib/archive-statistics-model";
+import {
+  statisticsArchive,
+  statisticsSource,
+} from "../fixtures/archive-statistics";
 import {
   liveMapPlays,
   mapPerformance,
@@ -68,6 +76,50 @@ function blank(slug: string): PlayerMapEdition {
 }
 
 describe("map performance", () => {
+  it.each([2000, 1999, 1500])(
+    "keeps reconciled archive wins when a teammate scores %i",
+    (lowScore) => {
+      const source = statisticsSource();
+      for (const game of source.games) {
+        game.scores[0].total = 250_500 - lowScore;
+        game.scores[1].total = lowScore;
+        game.scores[2].total = 125_000;
+        game.scores[3].total = 125_000;
+        // Scaling changes personal ranks, never the raw team-score winner.
+        game.scores[2].mods = ["EZ"];
+      }
+      const snapshot = {
+        source,
+        archiveKey: "a".repeat(64),
+        poolId: "final",
+        included: [1, 2],
+      };
+      expect(
+        fixtureStatisticsIssues(statisticsArchive, "one", [snapshot]),
+      ).toEqual([]);
+      const plays = projectStatistics(statisticsArchive, "one", snapshot, 3);
+      expect(mapPerformance(plays, 91001)).toMatchObject({
+        mapsWon: 2,
+        mapsLost: 0,
+      });
+      expect(mapPerformance(plays, 91002)).toMatchObject({
+        mapsWon: 0,
+        mapsLost: 2,
+      });
+      expect(mapPerformance(plays, 91003).maps).toHaveLength(
+        lowScore >= 2000 ? 2 : 0,
+      );
+      const personal = mapPerformance(plays, 91001).maps[0];
+      expect(personal.placement).toBe(2);
+      const counted = plays.filter(
+        (p) => p.gameId === personal.gameId && p.rawScore! >= 2000,
+      );
+      expect(personal.effectiveRating).toBeCloseTo(
+        (250_500 - lowScore) /
+          (counted.reduce((sum, p) => sum + p.score, 0) / counted.length),
+      );
+    },
+  );
   it("ranks each map with competition ranking and keeps ties shared", () => {
     const result = mapPerformance(
       [
@@ -265,6 +317,7 @@ describe("liveMapPlays", () => {
     winnerTeamId: "a",
     scores: [{ userId: 1, total: 900_000, teamId: "a", accuracy: 0.98 }],
     beatmapId: 42,
+    slot: "NM1",
     beatmap: {
       setId: 1,
       title: "Song",
@@ -274,12 +327,11 @@ describe("liveMapPlays", () => {
     ...over,
   });
   const stages = new Map([["fixture", "group"]]);
-  const slots = new Map([["round:42", "NM1"]]);
 
   it("uses actual play time for unscheduled maps and ahead of a planned fixture time", () => {
     const playedAt = "2025-04-06T12:00:00Z";
     for (const at of [null, "2025-04-05T12:00:00Z"])
-      expect(liveMapPlays([game({ at, playedAt })], stages, slots)[0].at).toBe(
+      expect(liveMapPlays([game({ at, playedAt })], stages)[0].at).toBe(
         playedAt,
       );
   });
@@ -297,7 +349,6 @@ describe("liveMapPlays", () => {
           }),
         ],
         stages,
-        slots,
       );
       const result = mapPerformance(plays, 1, ["a"]);
       expect(result.maps).toHaveLength(1);
@@ -323,14 +374,13 @@ describe("liveMapPlays", () => {
           }),
         ],
         stages,
-        slots,
       );
       expect(mapPerformance(plays, 1).maps[0].result).toBeNull();
     },
   );
 
   it("projects approved games into per-map plays", () => {
-    const [row] = liveMapPlays([game()], stages, slots);
+    const [row] = liveMapPlays([game()], stages);
     expect(row).toMatchObject({
       fixtureId: "fixture",
       gameId: 7,
@@ -348,8 +398,14 @@ describe("liveMapPlays", () => {
 
   it("keeps placeholders for missing stage, slot and beatmap metadata", () => {
     const [row] = liveMapPlays(
-      [game({ beatmap: null, beatmapId: null, roundId: undefined })],
-      new Map(),
+      [
+        game({
+          beatmap: null,
+          beatmapId: null,
+          roundId: undefined,
+          slot: null,
+        }),
+      ],
       new Map(),
     );
     expect(row.stage).toBe("unknown");
@@ -362,7 +418,6 @@ describe("liveMapPlays", () => {
       liveMapPlays(
         [game({ problem: "review" }), game({ at: null }), game({ gameId: 8 })],
         stages,
-        slots,
       ).map((row) => row.gameId),
     ).toEqual([8]);
   });
@@ -378,7 +433,6 @@ describe("liveMapPlays", () => {
         }),
       ],
       stages,
-      slots,
     );
     const result = mapPerformance(plays, 1);
     expect(result.maps).toHaveLength(1);

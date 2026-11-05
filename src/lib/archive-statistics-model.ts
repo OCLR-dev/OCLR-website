@@ -355,6 +355,8 @@ export type StatisticsPlay = {
   at: string;
   osuId: number;
   teamId: string;
+  /** Raw team-score winner, resolved before personal appearance filtering. */
+  winnerTeamId?: string;
   score: number;
   rawScore?: number;
   scoreMultiplier?: number;
@@ -377,6 +379,23 @@ export function projectStatistics(
   return selectedStatisticsGames(snapshot).flatMap((g) => {
     const map = pool?.maps.find((m) => m.beatmapId === g.beatmapId);
     const scores = statisticsScores(g, snapshot.excludedScores);
+    const teamTotals = [fixture.teamA, fixture.teamB].map((teamId) =>
+      scores.reduce(
+        (sum, score) =>
+          sum +
+          (archive.players.find((p) => p.osuId === score.osuId)?.teamId ===
+          teamId
+            ? (score.total ?? 0)
+            : 0),
+        0,
+      ),
+    );
+    const winnerTeamId =
+      teamTotals[0] === teamTotals[1]
+        ? undefined
+        : teamTotals[0] > teamTotals[1]
+          ? fixture.teamA
+          : fixture.teamB;
     const adjusted = scores.map((s) =>
       statisticsScore(s.total!, [...g.mods, ...s.mods], ezScoreMultiplier),
     );
@@ -397,6 +416,7 @@ export function projectStatistics(
       at: g.startTime!,
       osuId: s.osuId!,
       teamId: archive.players.find((p) => p.osuId === s.osuId)!.teamId!,
+      ...(winnerTeamId ? { winnerTeamId } : {}),
       ...adjusted[index],
       scoringType: g.scoringType!,
       accuracy: s.accuracy,

@@ -315,6 +315,83 @@ describe.skipIf(!url)(
       );
     });
 
+    it("keeps each fixture's reviewed slots when two same-round pools share beatmaps", async () => {
+      const uid = source.games[0].scores[0].osuId!;
+      const firstFixtureId = fixtureId;
+      const secondPoolId = randomUUID();
+      await db()
+        .insert(mappools)
+        .values({
+          id: secondPoolId,
+          editionSlug: "test-cup",
+          roundId: fixtureBody.roundId as string,
+          name: "Synthetic second pool",
+        });
+      await db()
+        .insert(mappoolEntries)
+        .values(
+          [1, 2, 3].map((position) => ({
+            poolId: secondPoolId,
+            category: "HD" as const,
+            position: position + 6,
+            beatmapId: 10000 + position,
+            metadata: {
+              setId: 42,
+              artist: "Synthetic Artist",
+              title: "Synthetic Map",
+              difficulty: "Synthetic Difficulty",
+              mapper: "Synthetic Mapper",
+              stars: 4,
+              bpm: 180,
+              duration: 90,
+            },
+          })),
+        );
+      for (const second of [false, true]) {
+        if (second) {
+          const board = await fixtureCommand(admin, "test-cup", {
+            ...fixtureBody,
+            label: "Synthetic second fixture",
+            position: 2,
+            mappoolId: secondPoolId,
+          });
+          fixtureId = board.fixtures.find((f) => f.id !== firstFixtureId)!.id;
+          source = await makeSource(false, 100);
+          // HD is the reviewed slot category; keep the actual MP mods compliant.
+          for (const game of source.games) game.mods = ["HD"];
+        }
+        for (const game of source.games)
+          for (const score of game.scores) score.total! *= 10_000;
+        vi.mocked(fetchMatchSource).mockResolvedValue(source);
+        let view = await imported();
+        view = (
+          await resultCommand(referee, "test-cup", fixtureId, submission(view))
+        ).review;
+        await published(await approved(view));
+      }
+      // Editing current pool rows must not relabel the published revision.
+      await db()
+        .update(mappoolEntries)
+        .set({ category: "HR" })
+        .where(eq(mappoolEntries.poolId, secondPoolId));
+      const performance = await playerMapPerformance(await publicPlayer(uid));
+      expect(performance.mapsPlayed).toBe(6);
+      const maps = performance.editions[0].maps;
+      expect(
+        maps
+          .filter((m) => m.fixtureId === firstFixtureId)
+          .map((m) => m.slot)
+          .sort(),
+      ).toEqual(["NM1", "NM2", "NM3"]);
+      expect(
+        maps
+          .filter((m) => m.fixtureId === fixtureId)
+          .map((m) => m.slot)
+          .sort(),
+      ).toEqual(["HD7", "HD8", "HD9"]);
+      expect(maps.filter((m) => m.category === "HD")).toHaveLength(3);
+    });
+
     it("uses the edition EZ multiplier for approved statistics while preserving raw and reviewed results", async () => {
       source.games[0].scores[0].mods = ["EZ"];
       let view = await imported();

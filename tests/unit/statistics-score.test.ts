@@ -150,7 +150,6 @@ describe("edition EZ statistics scores", () => {
         },
       ],
       new Map(),
-      new Map(),
     );
     expect(mapPerformance(plays, 1).maps).toEqual([]);
   });

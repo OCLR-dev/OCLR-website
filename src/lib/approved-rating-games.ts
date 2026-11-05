@@ -15,6 +15,7 @@ import { matchGameSchema, reviewedResultSchema } from "./match-model";
 import type { RatingGame } from "./yumu-rating";
 import { readTournament } from "./tournaments";
 import { statisticsScore } from "./statistics-score";
+import { slotLabel } from "./mappool-model";
 export type RatingReader = Pick<ReturnType<typeof db>, "select">;
 /** One authoritative adapter shared by ratings and awards. No imports/latest-pointer reads. */
 export async function approvedRatingGames(
@@ -187,9 +188,13 @@ export async function approvedRatingGames(
           });
         }
       }
+      const entry = proposal.data.poolSnapshot?.entries.find(
+        (entry) => parsed.success && entry.beatmapId === parsed.data.beatmapId,
+      );
       games.push({
         ...common,
         gameId: reviewed.gameId,
+        slot: entry ? slotLabel(entry.category, entry.position) : null,
         playedAt: parsed.success
           ? (parsed.data.startTime ?? parsed.data.endTime)
           : null,

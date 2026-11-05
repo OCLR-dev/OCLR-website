@@ -22494,6 +22494,12 @@
                 "at": { "type": "string" },
                 "osuId": { "type": "number" },
                 "teamId": { "type": "string" },
+                "winnerTeamId": {
+                  "anyOf": [
+                    { "type": "null", "x-oclr-undefined": true },
+                    { "type": "string" }
+                  ]
+                },
                 "score": { "type": "number" },
                 "rawScore": {
                   "anyOf": [

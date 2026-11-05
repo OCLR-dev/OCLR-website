@@ -40,6 +40,8 @@ export type RatingGame = {
   /** Optional display fields; the rating formula ignores them. */
   beatmapId?: number | null;
   beatmap?: RatingBeatmap | null;
+  /** Slot from this result revision's reviewed pool snapshot. */
+  slot?: string | null;
   scoringType?: string | null;
   problem?: string;
   ezScoreMultiplier?: number;

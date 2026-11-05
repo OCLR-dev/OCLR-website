@@ -89,3 +89,16 @@ name changes do not split one identity. Pool fixture projections add optional
 `teamIds` and ban-side `teamId` fields for identity-safe filtering. Older remote
 backends without those fields retain unfiltered pool coverage; selecting a team
 leaves its pool coverage unknown rather than matching ambiguous names (#439).
+
+Personal map history uses the slot saved in each live result revision's reviewed
+pool snapshot, so same-round pools sharing a beatmap retain their own categories
+and positions. Missing snapshot entries remain unknown; current pool edits do not
+relabel already published plays (#867).
+
+Published archive plays include an optional `winnerTeamId`, calculated from all
+review-retained raw scores using the same team totals as series reconciliation.
+The personal-history threshold of 2,000 still filters appearances, placements,
+team-size inference and averages, but cannot reverse that winner. Statistical EZ
+scaling does not change raw map results. Remote frontends need an updated backend
+to receive this winner; older responses remain readable with the existing fallback
+(#871). This changes derived reads only and requires no migration or reimport.

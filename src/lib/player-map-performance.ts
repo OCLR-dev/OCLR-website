@@ -1,17 +1,11 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import {
-  fixtures,
-  mappoolEntries,
-  mappools,
-  tournamentRounds,
-  tournamentStages,
-} from "@/db/schema";
+import { fixtures, tournamentRounds, tournamentStages } from "@/db/schema";
 import { approvedRatingGames } from "./approved-rating-games";
 import { publicArchiveStatistics } from "./archive-statistics";
 import { remoteMode } from "./data-source";
 import { HttpError } from "./http";
-import { slotCategory, slotLabel, type MappoolCategory } from "./mappool-model";
+import { slotCategory, type MappoolCategory } from "./mappool-model";
 import type { PublishedPlayer } from "./players";
 import type { RatingGame } from "./yumu-rating";
 
@@ -378,13 +372,12 @@ async function editionPerformance(
 export function liveMapPlays(
   games: RatingGame[],
   stageByFixture: Map<string, string>,
-  slots: Map<string, string>,
 ): MapPlay[] {
   return games.flatMap((game) => {
     const at = game.playedAt ?? game.at;
     if (game.problem || !at) return [];
     const stage = stageByFixture.get(game.fixtureId) ?? "unknown";
-    const slot = slots.get(`${game.roundId}:${game.beatmapId}`) ?? "—";
+    const slot = game.slot ?? "—";
     const title =
       [game.beatmap?.artist, game.beatmap?.title, game.beatmap?.difficulty]
         .filter(Boolean)
@@ -430,25 +423,6 @@ async function fixtureStages(slug: string) {
   return new Map(rows.map((row) => [row.id, row.kind]));
 }
 
-async function poolSlots(slug: string) {
-  const rows = await db()
-    .select({
-      roundId: mappools.roundId,
-      category: mappoolEntries.category,
-      position: mappoolEntries.position,
-      beatmapId: mappoolEntries.beatmapId,
-    })
-    .from(mappoolEntries)
-    .innerJoin(mappools, eq(mappoolEntries.poolId, mappools.id))
-    .where(eq(mappools.editionSlug, slug));
-  const slots = new Map<string, string>();
-  for (const row of rows) {
-    const key = `${row.roundId}:${row.beatmapId}`;
-    if (!slots.has(key)) slots.set(key, slotLabel(row.category, row.position));
-  }
-  return slots;
-}
-
 async function liveEditionPerformance(
   slug: string,
   base: PlayerMapEdition,
@@ -460,14 +434,13 @@ async function liveEditionPerformance(
   // stays archive-only instead of fanning out one request per fixture.
   if (remoteMode()) return { ...base, unavailable: true };
   try {
-    const [games, stages, slots] = await Promise.all([
+    const [games, stages] = await Promise.all([
       approvedRatingGames(slug, db()),
       fixtureStages(slug),
-      poolSlots(slug),
     ]);
     return {
       ...base,
-      ...mapPerformance(liveMapPlays(games, stages, slots), osuId, rosterTeams),
+      ...mapPerformance(liveMapPlays(games, stages), osuId, rosterTeams),
     };
   } catch {
     return { ...base, unavailable: true };
