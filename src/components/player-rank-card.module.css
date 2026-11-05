@@ -304,12 +304,11 @@
   position: absolute;
   inset-block-end: calc(100% + 0.25rem);
   inset-inline: 0;
-  width: max-content;
-  margin-inline: auto;
   color: rgb(255 255 255 / 78%);
   font-size: 0.5625rem;
   font-weight: 700;
   line-height: 1;
+  text-align: center;
   text-shadow: 0 1px 6px rgb(0 0 0 / 55%);
   white-space: nowrap;
 }

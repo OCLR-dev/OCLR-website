@@ -128,7 +128,7 @@ export function PlayerLeaderboardTable({
     { key: "pp", label: tr("pp") },
     { key: "mra", label: tr("MRA v4") },
     { key: "rws", label: tr("RWS") },
-    { key: "type", label: tr("Player type") },
+    { key: "type", label: tr("type") },
     { key: "wins", label: tr("Wins") },
     { key: "losses", label: tr("Losses") },
     { key: "appearances", label: tr("Appearances") },
