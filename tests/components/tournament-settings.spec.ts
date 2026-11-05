@@ -1,5 +1,69 @@
 import { expect, test } from "@playwright/test";
 
+test("conflict refresh retains the name draft and adopts the saved coaching setting", async ({
+  page,
+}) => {
+  const writes: Record<string, unknown>[] = [];
+  await page.route("**/api/admin/tournaments/test-cup", async (route) => {
+    const body = route.request().postDataJSON();
+    writes.push(body);
+    await page.evaluate(
+      (fields) =>
+        window.dispatchEvent(
+          new CustomEvent("synthetic-settings-saved", { detail: fields }),
+        ),
+      writes.length === 1
+        ? { ...body, name: "Synthetic test edition", coachesEnabled: true }
+        : body,
+    );
+    await route.fulfill(
+      writes.length === 1
+        ? { status: 409, json: { error: "The action could not be completed." } }
+        : { json: {} },
+    );
+  });
+  await page.goto("/tournament-settings");
+  const general = page.locator(".general-settings");
+  const name = general.getByLabel("Tournament name", { exact: true });
+  const coaches = general.getByLabel("Enable coaches for this tournament", {
+    exact: true,
+  });
+  const save = general.getByRole("button", {
+    name: "Save general settings",
+    exact: true,
+  });
+  await expect(coaches).not.toBeChecked();
+  await name.fill("My name draft");
+  await save.click();
+  await expect(general.getByRole("alert")).toHaveText(
+    "The action could not be completed.",
+  );
+  await expect(name).toHaveValue("My name draft");
+  await expect(coaches).toBeChecked();
+  await save.click();
+  await expect(general.getByRole("alert")).toHaveCount(0);
+  expect(writes).toHaveLength(2);
+  expect(writes[0]).toMatchObject({
+    expectedRevision: 4,
+    name: "My name draft",
+    coachesEnabled: false,
+  });
+  expect(writes[1]).toMatchObject({
+    expectedRevision: 5,
+    name: "My name draft",
+    coachesEnabled: true,
+  });
+  // A later deliberate coaching edit must still be submitted.
+  await coaches.uncheck();
+  await save.click();
+  await expect(save).toBeEnabled();
+  await expect(coaches).not.toBeChecked();
+  expect(writes[2]).toMatchObject({
+    expectedRevision: 6,
+    coachesEnabled: false,
+  });
+});
+
 test("save row aligns status and action across locales, themes and appearances", async ({
   page,
   isMobile,

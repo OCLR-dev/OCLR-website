@@ -370,9 +370,16 @@ function General({ data, saved }: EditorProps) {
   const [rosterCapacity, setRosterCapacity] = useState(
     data.edition.rosterCapacity?.toString() ?? "",
   );
-  const [coachesEnabled, setCoachesEnabled] = useState(
-    coachingEnabled(data.edition),
-  );
+  const savedCoachesEnabled = coachingEnabled(data.edition);
+  const [coachesEnabled, setCoachesEnabled] = useState(savedCoachesEnabled);
+  const [previousCoachesEnabled, setPreviousCoachesEnabled] =
+    useState(savedCoachesEnabled);
+  // A conflict refresh can change this setting without remounting General.
+  // Adopt the saved switch while retaining unrelated drafts such as the name.
+  if (previousCoachesEnabled !== savedCoachesEnabled) {
+    setPreviousCoachesEnabled(savedCoachesEnabled);
+    setCoachesEnabled(savedCoachesEnabled);
+  }
   const [ezMultiplier, setEzMultiplier] = useState(
     data.edition.ezScoreMultiplier?.toString() ?? "",
   );

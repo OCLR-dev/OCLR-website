@@ -28,6 +28,7 @@ document.documentElement.dataset.appearance =
 const initial: Workspace = {
   edition: {
     ...edition,
+    coachesEnabled: false,
     branding: {
       logo: "/oclr-s11-square-logo.webp",
       background: "/oclr-s11-website-background.webp",
@@ -43,7 +44,7 @@ function Fixture() {
   const [data, setData] = useState(initial);
   const saved = useRef<Pick<
     Workspace["edition"],
-    "name" | "branding" | "ezScoreMultiplier"
+    "name" | "branding" | "ezScoreMultiplier" | "coachesEnabled"
   > | null>(null);
   useEffect(() => {
     const receive = (event: Event) => {
@@ -52,6 +53,7 @@ function Fixture() {
         name: fields.name,
         branding: fields.branding,
         ezScoreMultiplier: fields.ezScoreMultiplier,
+        coachesEnabled: fields.coachesEnabled,
       };
     };
     window.addEventListener("synthetic-settings-saved", receive);
