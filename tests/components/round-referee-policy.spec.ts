@@ -1,5 +1,43 @@
 import { test, expect } from "@playwright/test";
 const route = "**/api/admin/tournaments/synthetic/rounds/*/referee-policy";
+
+test("changing group points preserves the approved failed-score policy", async ({
+  page,
+}) => {
+  const writes: Record<string, unknown>[] = [];
+  await page.route(
+    "**/api/admin/tournaments/synthetic/matches",
+    async (route) => {
+      writes.push(route.request().postDataJSON());
+      await route.fulfill({ json: {} });
+    },
+  );
+  for (const policy of ["zero", "include"]) {
+    await page.goto(
+      `/round-referee-policy${policy === "zero" ? "?failed-zero" : ""}`,
+    );
+    await page.getByLabel("Points for a win", { exact: true }).fill("4");
+    await page
+      .getByRole("button", { name: "Save approved round rules", exact: true })
+      .click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Confirm", exact: true })
+      .click();
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+    expect(writes.at(-1)).toMatchObject({
+      action: "round_rules",
+      expectedVersion: 0,
+      scoringRules: {
+        failedScorePolicy: policy,
+        tiedMapPolicy: "require_replay",
+        allowSubstitutions: true,
+      },
+      standingsRules: { winPoints: 4 },
+    });
+  }
+  expect(writes).toHaveLength(2);
+});
 test("edits S11 defaults in round management before any fixture exists", async ({
   page,
 }) => {

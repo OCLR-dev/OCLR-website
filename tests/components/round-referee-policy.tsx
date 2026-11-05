@@ -131,7 +131,9 @@ function Harness() {
                                 : { type: "first_to", wins: state.wins },
                               allowSubstitutions: true,
                               allowShortHanded: false,
-                              failedScorePolicy: "include",
+                              failedScorePolicy: params.has("failed-zero")
+                                ? "zero"
+                                : "include",
                               tiedMapPolicy: "require_replay",
                             },
                         standingsRules: {

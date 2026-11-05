@@ -243,7 +243,7 @@ export function RoundRules({
                   series: { type: "first_to", wins: (Number(bestOf) + 1) / 2 },
                   allowSubstitutions: rules?.allowSubstitutions ?? false,
                   allowShortHanded: rules?.allowShortHanded ?? false,
-                  failedScorePolicy: "include",
+                  failedScorePolicy: rules?.failedScorePolicy ?? "include",
                   tiedMapPolicy: "require_replay",
                 }
               : null,
