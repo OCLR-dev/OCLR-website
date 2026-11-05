@@ -44,6 +44,13 @@ for (const [fn, id] of Object.entries({
 }))
   known.set(fn, id);
 const componentOps: Record<string, string[]> = {
+  // Server service: the page imports one function, but it reads public
+  // editions, published archive statistics and public player directories.
+  playerLeaderboard: [
+    "listPublicTournaments",
+    "publicArchiveStatistics",
+    "listPublicPlayers",
+  ],
   RegistrationList: ["listApplications", "listStaffTournaments", "staffAccess"],
   EventPlayers: ["publicPlayerMessages"],
   PlayerMessageBoard: ["publicPlayerMessages"],

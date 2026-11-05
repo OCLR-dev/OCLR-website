@@ -136,17 +136,20 @@ function GaugeRing({
 
 export function PlayerPerformanceSummary({
   record,
+  mra,
+  career,
 }: {
   record: PlayerMapPerformance;
+  mra: number | null;
+  career: boolean;
 }) {
   const tr = useAppTranslations();
-  const ratingLabel = tr("Average effective rating");
+  const ratingLabel = career ? tr("MRA v4") : tr("Average effective rating");
+  const ratingValue = career ? mra : record.averageEffectiveRating;
   const placement3Label = `3v3 · ${tr("Average placement")}`;
   const placement4Label = `4v4 · ${tr("Average placement")}`;
   const performanceScore = averageOf([
-    record.averageEffectiveRating === null
-      ? null
-      : Math.min(Math.max(record.averageEffectiveRating, 0), 2) / 2,
+    ratingValue === null ? null : Math.min(Math.max(ratingValue, 0), 2) / 2,
     record.averagePlacement3v3 === null
       ? null
       : 1 - (record.averagePlacement3v3 - 1) / 5,
@@ -162,7 +165,7 @@ export function PlayerPerformanceSummary({
     >
       <div className={styles.ringColumn}>
         <GaugeRing
-          value={record.averageEffectiveRating}
+          value={ratingValue}
           min={0}
           max={2}
           colors={ratingColors}

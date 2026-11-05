@@ -49,8 +49,12 @@ function totals(tr: ReturnType<typeof useAppTranslations>, value: Totals) {
 
 export function PlayerMapPerformance({
   record: summary,
+  mra,
+  career,
 }: {
   record: PlayerMapPerformance;
+  mra: number | null;
+  career: boolean;
 }) {
   const tr = useAppTranslations();
   const unavailable = summary.editions.filter((e) => e.unavailable).length;
@@ -66,7 +70,11 @@ export function PlayerMapPerformance({
       </div>
       {summary.mapsPlayed ? (
         <div className={styles.summaryGrid}>
-          <PlayerPerformanceSummary record={summary} />
+          <PlayerPerformanceSummary
+            record={summary}
+            mra={mra}
+            career={career}
+          />
         </div>
       ) : (
         <p className="notice">

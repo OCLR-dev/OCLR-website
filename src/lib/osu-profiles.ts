@@ -22,6 +22,11 @@ export type DirectoryStatistics = {
   fetchedAt: string;
   stale: boolean;
 };
+/** Saved osu! artwork for directory/card surfaces. No provider I/O. */
+export type DirectoryArt = {
+  avatarUrl: string | null;
+  coverUrl: string | null;
+};
 export type ExportStatistics = {
   globalRank: number | null;
   pp: number | null;
@@ -90,8 +95,9 @@ export async function cachedDirectoryStatistics(osuIds: number[]) {
   const ids = [...new Set(osuIds)];
   for (const id of ids) parseOsuProfile(String(id), "osu");
   const statistics = new Map<number, DirectoryStatistics>();
+  const art = new Map<number, DirectoryArt>();
   if (!ids.length || !process.env.DATABASE_URL)
-    return { statistics, refreshIds: [] as number[] };
+    return { statistics, refreshIds: [] as number[], art };
   const rows: (typeof userProfileCache.$inferSelect)[] = [];
   for (let offset = 0; offset < ids.length; offset += 500) {
     rows.push(
@@ -119,6 +125,10 @@ export async function cachedDirectoryStatistics(osuIds: number[]) {
         row.errorStatus !== null ||
         now - Date.parse(profile.fetchedAt) >= PROFILE_TTL_MS,
     });
+    art.set(row.osuId, {
+      avatarUrl: profile.avatarUrl ?? null,
+      coverUrl: profile.coverUrl ?? null,
+    });
   }
   // Oldest attempts first so repeated visits progressively fill the page.
   const refreshIds = ids
@@ -134,7 +144,7 @@ export async function cachedDirectoryStatistics(osuIds: number[]) {
         (byId.get(a)?.attemptedAt.getTime() ?? 0) -
         (byId.get(b)?.attemptedAt.getTime() ?? 0),
     );
-  return { statistics, refreshIds };
+  return { statistics, refreshIds, art };
 }
 let directoryRefreshAfter = 0;
 /** Post-response only: at most two sequential lookups per 10s per Node process.

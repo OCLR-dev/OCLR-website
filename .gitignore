@@ -26,3 +26,4 @@ AGENTS.local.md
 # Minified appearance styles are rebuilt from src/app during prepare/dev/build.
 /public/appearance-styles/
 /src/app/shell.generated.css
+/.agents/

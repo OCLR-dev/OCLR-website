@@ -40,6 +40,7 @@
     "/players/[osuId]",
     "/players",
     "/privacy",
+    "/ranking",
     "/remote",
     "/remote/unsupported",
     "/tournaments/[edition]/bracket",

@@ -70,8 +70,12 @@ export function playerClassV2(
     policy: PLAYER_CLASS_POLICY,
   };
 }
+export type ClassifiablePlayer = Pick<
+  PlayerRating,
+  "appearances" | "eraIndex" | "draIndex" | "rwsIndex"
+>;
 export function classifyPlayer(
-  p: PlayerRating,
+  p: ClassifiablePlayer,
   playerCount: number,
 ): PlayerClass | null {
   if (

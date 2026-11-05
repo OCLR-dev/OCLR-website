@@ -11,6 +11,7 @@ import {
   summarizeMapPerformance,
   type PlayerMapPerformance,
 } from "@/lib/player-map-performance";
+import { playerLeaderboard } from "@/lib/player-leaderboard";
 import {
   buildPlayerTimeline,
   type PlayerTimeline,
@@ -196,35 +197,45 @@ async function ProfileContent({
   )
     notFound();
 
-  const [competition, mapPerformance, ratingsByEdition] = await Promise.all([
-    participation.length ? playerCompetitionRecord(participation) : null,
-    participation.length ? playerMapPerformance(participation) : null,
-    Promise.all(
-      selectableEditions.map(async (entry) => {
-        const playerId = Number(osuId);
-        const rows = (await publicRoundRatings(entry.editionSlug))
-          .filter((rating) =>
-            rating.report.players.some((person) => person.userId === playerId),
-          )
-          .map((rating) => ({
-            ...rating,
-            report: {
-              ...rating.report,
-              players: rating.report.players.filter(
+  const [competition, mapPerformance, leaderboard, ratingsByEdition] =
+    await Promise.all([
+      participation.length ? playerCompetitionRecord(participation) : null,
+      participation.length ? playerMapPerformance(participation) : null,
+      participation.length
+        ? playerLeaderboard().catch(() => null)
+        : Promise.resolve(null),
+      Promise.all(
+        selectableEditions.map(async (entry) => {
+          const playerId = Number(osuId);
+          const rows = (await publicRoundRatings(entry.editionSlug))
+            .filter((rating) =>
+              rating.report.players.some(
                 (person) => person.userId === playerId,
               ),
-            },
-          }));
-        return [entry.editionSlug, rows] as const;
-      }),
-    ).then(
-      (entries) =>
-        Object.fromEntries(entries) as Record<
-          string,
-          Awaited<ReturnType<typeof publicRoundRatings>>
-        >,
-    ),
-  ]);
+            )
+            .map((rating) => ({
+              ...rating,
+              report: {
+                ...rating.report,
+                players: rating.report.players.filter(
+                  (person) => person.userId === playerId,
+                ),
+              },
+            }));
+          return [entry.editionSlug, rows] as const;
+        }),
+      ).then(
+        (entries) =>
+          Object.fromEntries(entries) as Record<
+            string,
+            Awaited<ReturnType<typeof publicRoundRatings>>
+          >,
+      ),
+    ]);
+
+  const mra =
+    leaderboard?.players.find((row) => row.osuId === Number(osuId))?.mra ??
+    null;
 
   // BWS review is edition-scoped, so each panel needs its own computation.
   // The remote adapter has no public badge-review resource; it keeps the
@@ -316,6 +327,7 @@ async function ProfileContent({
       competition={competition}
       mapPerformance={mapPerformance}
       mapByEdition={mapByEdition}
+      mra={mra}
       timelines={timelines}
       allTimeline={allTimeline}
       ratingsByEdition={ratingsByEdition}

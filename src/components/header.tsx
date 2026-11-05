@@ -230,6 +230,7 @@ export function Header({
   const links = [
     { href: "/", label: tr("navigation_home") },
     { href: "/tournaments", label: tr("Tournaments") },
+    { href: "/ranking", label: tr("Ranking") },
     { href: "/news", label: tr("Announcements") },
     { href: "/wiki", label: tr("Handbook") },
     { href: "/games/ocl-chess", label: tr("Chess") },

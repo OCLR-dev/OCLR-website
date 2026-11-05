@@ -41,6 +41,7 @@ export function PlayerEditionView({
   competition,
   mapPerformance,
   mapByEdition,
+  mra,
   timelines,
   allTimeline,
   ratingsByEdition,
@@ -55,6 +56,7 @@ export function PlayerEditionView({
   competition: PlayerCompetitionRecord | null;
   mapPerformance: PlayerMapPerformance | null;
   mapByEdition: Record<string, PlayerMapPerformance>;
+  mra: number | null;
   timelines: Record<string, PlayerTimeline>;
   allTimeline: PlayerTimeline;
   ratingsByEdition: Record<string, RatingHistory>;
@@ -185,7 +187,11 @@ export function PlayerEditionView({
           />
         )}
         {selectedMapPerformance && (
-          <PlayerMapPerformanceView record={selectedMapPerformance} />
+          <PlayerMapPerformanceView
+            record={selectedMapPerformance}
+            mra={mra}
+            career={!selected}
+          />
         )}
         {selectedCompetition && (
           <PlayerTeamRecord record={selectedCompetition} />

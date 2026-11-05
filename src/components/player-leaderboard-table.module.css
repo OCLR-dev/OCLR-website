@@ -1,0 +1,52 @@
+.table {
+  width: 100%;
+}
+
+.table th,
+.table td {
+  padding-inline: 0.6rem;
+}
+
+/* Scoped through the table so the shared themed button material
+   (.themed-site :is(button, .button)) does not turn headers into pills. */
+.table th > .sortButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-align: left;
+  text-transform: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.table th > .sortButton:hover,
+.table th > .sortButton:focus-visible {
+  color: var(--color-accent, #c566ed);
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.indicator {
+  opacity: 0.3;
+  font-size: 0.75em;
+}
+
+.indicator[data-active] {
+  opacity: 1;
+  color: var(--color-accent, #c566ed);
+}

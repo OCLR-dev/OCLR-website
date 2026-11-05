@@ -1,0 +1,388 @@
+.card {
+  position: relative;
+  width: 100%;
+  min-height: 80px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  /* An inset ring instead of a border keeps the avatar flush with the card. */
+  box-shadow: inset 0 0 0 1px var(--site-border, var(--color-border));
+  background:
+    radial-gradient(
+      ellipse at right,
+      color-mix(
+          in srgb,
+          var(--site-accent, var(--color-accent)) 24%,
+          transparent
+        )
+        0%,
+      transparent 62%
+    ),
+    linear-gradient(
+      115deg,
+      var(--site-raised, var(--color-raised)) 0%,
+      var(--site-surface, var(--color-surface)) 100%
+    );
+  isolation: isolate;
+}
+
+.banner {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+/* Darken the artwork so the name and avatar stay legible on any cover. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 67%) 0%,
+    rgb(0 0 0 / 54%) 30%,
+    rgb(0 0 0 / 42%) 62%,
+    rgb(0 0 0 / 60%) 100%
+  );
+}
+
+.typeBand {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 135px;
+  border-radius: inherit;
+  background: var(--rank-type-color, var(--site-muted, var(--color-muted)));
+}
+
+/* Player-class identity colours. */
+.card[data-category="BC"] {
+  --rank-type-color: #fff100;
+}
+
+.card[data-category="CA"] {
+  --rank-type-color: #ff9800;
+}
+
+.card[data-category="MF"] {
+  --rank-type-color: #22ac38;
+}
+
+.card[data-category="SP"] {
+  --rank-type-color: #b3d465;
+}
+
+.card[data-category="WF"] {
+  --rank-type-color: #0068b7;
+}
+
+.card[data-category="GE"] {
+  --rank-type-color: #bdbdbd;
+}
+
+.card[data-category="GU"] {
+  --rank-type-color: #00a0e9;
+}
+
+.card[data-category="SU"] {
+  --rank-type-color: #9922ee;
+}
+
+.card[data-category="SG"] {
+  --rank-type-color: #e4007f;
+}
+
+.card[data-category="NO"] {
+  --rank-type-color: #eb6877;
+}
+
+.card[data-category="FU"] {
+  --rank-type-color: #d32f2f;
+}
+
+.avatarFrame {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 15px;
+  width: 120px;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #663f80;
+  z-index: 1;
+}
+
+.avatarFrame :global(.avatar) {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  font-size: var(--text-display);
+}
+
+.avatarFrame :global(.avatar img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-start: 147px;
+  inset-inline-end: calc(100% - 303px);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-width: 0;
+  color: #fff;
+}
+
+.identity {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.rank {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-start: 23px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.25rem;
+  padding-inline: 0.35rem;
+  border-radius: 5px;
+  background: rgb(0 0 0 / 55%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 18%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+.pp {
+  position: relative;
+  inset-block-start: -2px;
+  overflow: hidden;
+  max-width: 100%;
+  color: rgb(255 255 255 / 92%);
+  font-size: var(--text-support);
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 10px rgb(0 0 0 / 55%);
+  white-space: nowrap;
+}
+
+.nameViewport {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.nameTrack {
+  display: inline-flex;
+  align-items: baseline;
+  max-width: none;
+}
+
+.nameTrack[data-marquee="true"] {
+  animation: name-marquee var(--marquee-duration, 8s) linear infinite;
+  will-change: transform;
+}
+
+.name,
+.nameClone {
+  display: inline-block;
+  flex: none;
+  margin-inline-end: 2.5rem;
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+  text-shadow: 0 1px 14px rgb(0 0 0 / 58%);
+  white-space: nowrap;
+}
+
+@keyframes name-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nameTrack[data-marquee="true"] {
+    animation: none;
+  }
+}
+
+.name:hover,
+.name:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.18rem;
+}
+
+.type {
+  overflow: hidden;
+  max-width: 100%;
+  color: rgb(255 255 255 / 84%);
+  font-size: var(--text-small);
+  font-weight: 600;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 10px rgb(0 0 0 / 55%);
+  white-space: nowrap;
+}
+
+.mraBox {
+  display: grid;
+  width: 100%;
+  place-items: center;
+  height: 34px;
+  border-radius: 5px;
+  color: #fff;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.mraValue {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.mraInteger {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.mraFraction {
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+.stats {
+  position: relative;
+  /* In flow so wrapped rows grow the card and the avatar with it. */
+  margin-block: 15px;
+  margin-inline: 315px 12px;
+  padding-block-start: 0.9375rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 12px;
+  justify-content: space-between;
+}
+
+.statItem {
+  position: relative;
+  flex: none;
+}
+
+.statLabel {
+  position: absolute;
+  inset-block-end: calc(100% + 0.25rem);
+  inset-inline: 0;
+  width: max-content;
+  margin-inline: auto;
+  color: rgb(255 255 255 / 78%);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 1px 6px rgb(0 0 0 / 55%);
+  white-space: nowrap;
+}
+
+.mraLabel {
+  color: #fff;
+  font-size: 0.625rem;
+  letter-spacing: 0.02em;
+}
+
+.stat {
+  display: grid;
+  width: 100%;
+  place-items: center;
+  height: 34px;
+  overflow: hidden;
+  border-radius: 5px;
+  color: #fff;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.statValue {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.statInteger {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.statFraction {
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .info {
+    inset-inline-start: 143px;
+    inset-block-start: 8px;
+    inset-inline-end: 70px;
+  }
+
+  /* Keep the avatar and colour band at the top; the stats move below them. */
+  .avatarFrame,
+  .typeBand {
+    inset-block-end: auto;
+    height: 80px;
+  }
+
+  .stats {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    justify-content: space-between;
+    /* Leave a gap below the avatar instead of resting on its bottom edge. */
+    margin: 92px 15px 15px;
+    gap: 18px 10px;
+  }
+
+  /* Keep MRA v4 alone at the right, at the same height as in the wide card. */
+  .stats > .statItem:first-child {
+    position: absolute;
+    inset-block-start: 30px;
+    inset-inline-end: 12px;
+  }
+}
+
+/* With 11 boxes, six columns read as 6 + 5 (two even rows). */
+@media (min-width: 500px) and (max-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(6, auto);
+  }
+}

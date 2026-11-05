@@ -26,6 +26,9 @@
 .badge[data-category="SG"] {
   border-color: var(--site-accent-strong);
 }
+.static {
+  cursor: default;
+}
 .explanation {
   display: grid;
   gap: 0.5rem;
