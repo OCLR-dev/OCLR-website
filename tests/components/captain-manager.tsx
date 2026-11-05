@@ -36,18 +36,19 @@ const initial: Setup = {
   locked: params.has("locked"),
   availabilityLocked: params.has("locked"),
   poolPublished: params.has("publication"),
-  captains: params.has("publication")
-    ? [
-        {
-          userId: 399999999,
-          username: "Synthetic Captain",
-          position: 1,
-          published: false,
-          teamId: null,
-          teamName: null,
-        },
-      ]
-    : [],
+  captains:
+    params.has("publication") || params.has("unappoint")
+      ? [
+          {
+            userId: 399999999,
+            username: "Synthetic Captain",
+            position: 1,
+            published: false,
+            teamId: params.has("team") ? "synthetic-team" : null,
+            teamName: params.has("team") ? "Synthetic team" : null,
+          },
+        ]
+      : [],
   candidates,
   pool: candidates,
 };

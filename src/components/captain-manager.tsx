@@ -316,7 +316,9 @@ export function CaptainManager({
                           {
                             value0: c.username,
                             value1: c.teamId
-                              ? " Their empty captain team will be archived. Teams with other players or finalized rosters cannot be removed here."
+                              ? tr(
+                                  " Their empty captain team will be archived. Teams with other players or finalized rosters cannot be removed here.",
+                                )
                               : "",
                           },
                         )}
