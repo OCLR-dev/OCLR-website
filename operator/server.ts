@@ -136,7 +136,11 @@ createServer(async (req, res) => {
       )
         throw Error();
       const existing = jobs().find(
-        (j) => j.action === "restore" && j.source === source,
+        (j) =>
+          j.action === "restore" &&
+          j.source === source &&
+          // A safely failed attempt must not hide a newer active/completed retry.
+          !(j.state === "failed" && j.recovery === "original-preserved"),
       );
       if (action === "restore" && existing) {
         res.statusCode = 202;

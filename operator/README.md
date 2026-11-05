@@ -146,6 +146,14 @@ private job recovery record. Never automatically drop recovery databases or
 restore over an active database. Audit records survive package expiry and old
 snapshot restoration. Back them up separately with restricted access.
 
+When a restore fails with `original-preserved` (including a denied deployment
+lock), the Admin may confirm the same validated upload again with REPLACE. This
+queues a new job and retains the failed attempt and its audit history. Existing
+active or completed restores of that upload remain deduplicated; a failure with
+`operator-required` still blocks new jobs pending operator recovery. This retry
+fix requires a separately reviewed operator upgrade; updating only the website
+does not replace the daemon.
+
 ## First installation after a website-only update
 
 A normal `sudo oclr update` installs the application; it does **not** create the
