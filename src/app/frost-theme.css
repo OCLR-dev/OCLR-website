@@ -312,7 +312,6 @@ html[data-appearance="frost-waltz"] .themed-site button.map-open-button:hover {
   text-underline-offset: 0.2em;
 }
 html[data-appearance="frost-waltz"] .themed-site .sidebar {
-  border-color: var(--site-border);
   background: transparent;
 }
 html[data-appearance="frost-waltz"] .themed-site .sidebar nav a {

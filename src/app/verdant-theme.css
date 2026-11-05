@@ -329,7 +329,6 @@ html[data-appearance="verdant-prelude"]
   text-underline-offset: 0.2em;
 }
 html[data-appearance="verdant-prelude"] .themed-site .sidebar {
-  border-color: var(--site-border);
   background: var(--site-background);
 }
 html[data-appearance="verdant-prelude"] .themed-site .sidebar nav a {

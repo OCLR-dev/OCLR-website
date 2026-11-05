@@ -47,9 +47,6 @@
   width: min(1400px, calc(100% - clamp(2rem, 7vw, 6rem)));
   padding-top: 1.5rem;
 }
-.themed-site.private-site .sidebar {
-  border-color: var(--site-border);
-}
 .themed-site.private-site .sidebar nav a {
   color: var(--site-muted);
   border-radius: 999px;

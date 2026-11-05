@@ -328,7 +328,6 @@ html[data-appearance="chromatic-origins"]
   text-underline-offset: 0.2em;
 }
 html[data-appearance="chromatic-origins"] .themed-site .sidebar {
-  border-color: var(--site-border);
   background: var(--site-background);
 }
 html[data-appearance="chromatic-origins"] .themed-site .sidebar nav a {

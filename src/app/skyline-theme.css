@@ -228,7 +228,6 @@ html[data-appearance="skyline-pop"] .themed-site .map-slot-badge {
   border-radius: 2px;
 }
 html[data-appearance="skyline-pop"] .themed-site .sidebar {
-  border-color: var(--site-border);
   background: var(--site-header);
 }
 html[data-appearance="skyline-pop"]

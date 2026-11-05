@@ -318,7 +318,6 @@ html[data-appearance="prism-overture"]
   text-underline-offset: 0.2em;
 }
 html[data-appearance="prism-overture"] .themed-site .sidebar {
-  border-color: var(--site-border);
   background: transparent;
 }
 html[data-appearance="prism-overture"] .themed-site .sidebar nav a {

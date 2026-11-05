@@ -404,7 +404,6 @@ html[data-appearance="graphite-arena"]
 }
 html[data-appearance="graphite-arena"] .themed-site .sidebar {
   background: transparent;
-  border-color: var(--site-border);
 }
 /* Workspace links are machined strips rather than the shared rounded pills. */
 html[data-appearance="graphite-arena"] .themed-site .sidebar nav a {
