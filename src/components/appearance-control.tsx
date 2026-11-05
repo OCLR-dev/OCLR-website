@@ -4,7 +4,14 @@ import {
   activateAppearanceStylesheet,
 } from "@/lib/appearance-styles";
 import { appearanceLabel } from "@/i18n/appearance";
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import {
   appearanceCookie,
   publicAppearances,
@@ -34,6 +41,10 @@ export function AppearanceControl({
   const appearance = scope?.appearance ?? localAppearance;
   const preference = scope ? (scope.preference ?? "site") : localPreference;
   const inheritedDefault = scope?.inheritedDefault ?? defaultAppearance;
+  const latestDefault = useRef(inheritedDefault);
+  useLayoutEffect(() => {
+    latestDefault.current = inheritedDefault;
+  }, [inheritedDefault]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(false);
@@ -164,7 +175,8 @@ export function AppearanceControl({
               data-appearance-option={value}
               disabled={loading}
               onClick={async () => {
-                const effective = value === "site" ? inheritedDefault : value;
+                let effective =
+                  value === "site" ? latestDefault.current : value;
                 const previous = document.cookie
                   .split("; ")
                   .find((entry) => entry.startsWith(`${appearanceCookie}=`))
@@ -179,7 +191,24 @@ export function AppearanceControl({
                 setLoading(true);
                 setLoadError(false);
                 try {
-                  await ensureAppearanceStylesheet(effective);
+                  // Inheritance follows the current route even when navigation
+                  // finishes before the clicked route's stylesheet request.
+                  for (;;) {
+                    effective =
+                      value === "site" ? latestDefault.current : value;
+                    try {
+                      await ensureAppearanceStylesheet(effective);
+                    } catch (error) {
+                      if (
+                        value === "site" &&
+                        effective !== latestDefault.current
+                      )
+                        continue;
+                      throw error;
+                    }
+                    if (value !== "site" || effective === latestDefault.current)
+                      break;
+                  }
                 } catch {
                   const current = document.cookie
                     .split("; ")

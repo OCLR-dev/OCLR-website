@@ -30,6 +30,7 @@ const bundle = await build({
     "tests/components/staff-role-form.tsx",
     "tests/components/country-flags.tsx",
     "tests/components/header.tsx",
+    "tests/components/appearance-navigation.tsx",
     "tests/components/schedule-selection.tsx",
     "tests/components/practice-records.tsx",
     "tests/components/referee-panel.tsx",
@@ -229,9 +230,11 @@ createServer((request, response) => {
                       : entry;
     const fixtureName = request.url?.startsWith("/event-players")
       ? "event-players"
-      : request.url?.startsWith("/backup-manager")
-        ? "backup-manager"
-        : fixture;
+      : request.url?.startsWith("/appearance-navigation")
+        ? "appearance-navigation"
+        : request.url?.startsWith("/backup-manager")
+          ? "backup-manager"
+          : fixture;
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${fixtureName}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${fixtureName}.js"></script></body></html>`,
     );
