@@ -508,19 +508,25 @@
   :global(.map-slot-badge)
   .modSelector {
   appearance: none;
+  -webkit-appearance: none;
   width: auto;
   max-width: 100%;
   min-width: 0;
   min-height: 24px;
   margin: 0;
-  padding: 0.1rem 1.5rem 0.1rem 0.5rem;
+  padding: 0.1rem 1.45rem 0.1rem 0.45rem;
   border: 0;
   border-radius: inherit;
-  background: transparent;
+  background-color: transparent;
+  background-image: var(--select-chevron);
+  background-repeat: no-repeat;
+  background-position: right 0.35rem center;
+  background-size: 0.85rem;
   color: inherit;
   box-shadow: none;
   font: inherit;
   line-height: inherit;
+  cursor: pointer;
 }
 .workbenchCard:global(.map-browse-card--band)
   :global(.map-slot-badge)

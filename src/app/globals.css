@@ -2269,7 +2269,7 @@ body:has(.presenter-view) .site-footer,
   cursor: grabbing;
 }
 .mappool-position {
-  width: 4.5rem;
+  width: 5.75rem;
 }
 .mappool-position select {
   min-height: var(--button-height);

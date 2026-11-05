@@ -465,3 +465,10 @@ html[data-appearance="verdant-prelude"] .themed-site .map-view-control {
 html[data-appearance="verdant-prelude"] .themed-site .map-view-control button {
   border-radius: max(0px, calc(var(--button-radius) - 1px));
 }
+
+html[data-appearance="verdant-prelude"] {
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23526d63' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+}
+html[data-appearance="verdant-prelude"][data-theme="dark"] {
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23b5cbbf' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+}

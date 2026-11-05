@@ -1120,6 +1120,7 @@ export function SelectionWorkbench({
                           <select
                             aria-label={tr("Mod category")}
                             className={styles.modSelector}
+                            data-select-compact=""
                             value={c.category}
                             disabled={busy}
                             onChange={async (event) => {
