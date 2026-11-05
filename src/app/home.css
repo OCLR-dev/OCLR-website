@@ -970,48 +970,111 @@ html[data-theme="dark"]
 .home-liru-card {
   display: none;
 }
+/* Speech bubble (#857): a hairline edge with a notch, and a tail drawn as
+ * its own shape so the outline meets the fill instead of a clipped border
+ * sitting on top of the bubble. Colours stay put in both themes — the bubble
+ * sits on the hero art, not the page surface. */
 .home-liru-bubble {
+  --home-liru-fill: #f7f2ff;
+  --home-liru-line: #c9b6f0;
+  --home-liru-ink: #4a3478;
+  --home-liru-arrow: #8d68d0;
+  --home-liru-notch: 6.5px;
   position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 0.45rem;
-  padding: 0.8rem 1.1rem 0.75rem;
-  border: 3px solid #c4a8f5;
-  border-radius: 20px;
-  background: #f5eefff2;
-  color: #4a3478;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.6rem 0.55rem 0.85rem;
+  border-radius: 14px;
+  background: var(--home-liru-fill);
+  color: var(--home-liru-ink);
   font-weight: 700;
   font-size: var(--text-small);
-  line-height: 1.3;
-  text-align: center;
-  box-shadow: 0 6px 18px #0b071b55;
+  line-height: 1.25;
+  text-align: start;
+  filter: drop-shadow(0 8px 14px rgb(11 7 27 / 38%));
 }
-.home-liru-bubble > span:first-child {
-  /* longer translations (English) wrap instead of pushing the card into the
-   * logo */
-  max-width: 10em;
-  text-wrap: balance;
+html[data-theme="dark"] .home-liru-bubble {
+  --home-liru-fill: #f4eeff;
+  --home-liru-line: #d2c0f6;
+  --home-liru-ink: #3d2b64;
+  --home-liru-arrow: #9470d6;
 }
-.home-liru-bubble::after {
-  /* tail pointing right, at Liru */
+.home-liru-bubble::before {
   content: "";
   position: absolute;
-  top: calc(50% - 10px);
-  right: -14px;
-  width: 16px;
-  height: 18px;
-  background: inherit;
-  border: 3px solid #c4a8f5;
-  border-left: 0;
-  clip-path: polygon(0 0, 100% 55%, 0 100%);
+  inset: 0;
+  border: 1.5px solid var(--home-liru-line);
+  border-radius: inherit;
+  pointer-events: none;
+  /* open the right edge where the tail joins */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 calc(50% - var(--home-liru-notch)),
+    transparent calc(50% - var(--home-liru-notch)),
+    transparent calc(50% + var(--home-liru-notch)),
+    #000 calc(50% + var(--home-liru-notch)),
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 calc(50% - var(--home-liru-notch)),
+    transparent calc(50% - var(--home-liru-notch)),
+    transparent calc(50% + var(--home-liru-notch)),
+    #000 calc(50% + var(--home-liru-notch)),
+    #000 100%
+  );
+}
+.home-liru-bubble > span:first-of-type {
+  /* longer translations (English) wrap instead of pushing the card into the
+   * logo. The arrow sits beside the text, so the line is a little narrower
+   * than the old stacked layout. */
+  max-width: 9.25em;
+  text-wrap: balance;
+}
+.home-liru-tail {
+  position: absolute;
+  top: 50%;
+  /* 3px of the shape sits inside the bubble so the fill covers the notch;
+   * the tip reaches her outline */
+  right: -16px;
+  width: 19px;
+  height: 14px;
+  translate: 0 -50%;
+  overflow: visible;
+  pointer-events: none;
+}
+.home-liru-tail-fill {
+  fill: var(--home-liru-fill);
+}
+.home-liru-tail-edge {
+  fill: none;
+  stroke: var(--home-liru-line);
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
 .home-liru-go {
-  padding: 0.1rem 1.4rem;
-  border-radius: 8px;
-  background: #9b78d6;
+  display: grid;
+  flex: none;
+  place-items: center;
+  min-width: 1.55rem;
+  height: 1.55rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--home-liru-arrow);
   color: #fff;
-  font-size: var(--text-support);
+  font-size: var(--text-label);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
   transition: background-color 0.15s ease;
+}
+.home-liru-card .home-liru-go {
+  width: 1.55rem;
+  padding: 0;
 }
 .home-liru-chibi {
   display: block;
@@ -1044,7 +1107,8 @@ html[data-theme="dark"]
     top: calc(34px + var(--home-liru-card-art) * 0.06);
     display: flex;
     align-items: center;
-    gap: 0.9rem;
+    /* room for the tail to show, with the tip on her outline */
+    gap: 10px;
     height: 170px;
     color: inherit;
     text-decoration: none;
@@ -1057,7 +1121,8 @@ html[data-theme="dark"]
       visibility 0s linear 0.43s;
   }
   .home-liru-card .home-liru-bubble {
-    margin-top: -24px;
+    /* centre the tail on her cheek (about a third of the way down the chibi) */
+    margin-top: -54px;
   }
   .home-liru:is(:hover, :focus-within) .home-liru-card {
     opacity: 1;
@@ -1069,7 +1134,7 @@ html[data-theme="dark"]
       visibility 0s;
   }
   .home-liru-card:hover .home-liru-go {
-    background: #8660cc;
+    background: #7454be;
   }
 }
 
@@ -1114,14 +1179,17 @@ html[data-theme="dark"]
 .home-liru-ask-card {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 8px;
   height: 104px;
   color: inherit;
   text-decoration: none;
 }
 .home-liru-ask .home-liru-bubble {
-  margin-top: -16px;
+  margin-top: -34px;
   font-size: var(--text-small);
+}
+.home-liru-ask-card:hover .home-liru-go {
+  background: #7454be;
 }
 
 @media (prefers-reduced-motion: reduce) {

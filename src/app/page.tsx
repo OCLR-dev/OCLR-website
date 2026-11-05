@@ -39,6 +39,23 @@ const LOGO_STARS: [number, number, number][] = [
   [95, 90, 2.5],
 ];
 
+function LiruBubble({ label, action }: { label: string; action: string }) {
+  return (
+    <span className="home-liru-bubble">
+      <svg className="home-liru-tail" viewBox="0 0 19 14" aria-hidden="true">
+        <path className="home-liru-tail-fill" d="M0 0.4 18.2 7 0 13.6Z" />
+        <path
+          className="home-liru-tail-edge"
+          d="M0.15 1.35 17.1 7 0.15 12.65"
+          fill="none"
+        />
+      </svg>
+      <span>{label}</span>
+      <span className="home-liru-go">{action}</span>
+    </span>
+  );
+}
+
 function EntryIcon({ kind }: { kind: "discord" | "qq" | "info" | "calendar" }) {
   return (
     <svg
@@ -349,10 +366,10 @@ async function HomeContent() {
               tabIndex={-1}
               aria-hidden="true"
             >
-              <span className="home-liru-bubble">
-                <span>{tr("View Liru's character sheet")}</span>
-                <span className="home-liru-go">→</span>
-              </span>
+              <LiruBubble
+                label={tr("View Liru's character sheet")}
+                action="→"
+              />
               <Image
                 src="/branding/home-hero/liru-chibi-wave-400.webp"
                 unoptimized
@@ -366,10 +383,10 @@ async function HomeContent() {
         </div>
         <div id="home-liru-ask" popover="auto" className="home-liru-ask">
           <Link href={wikiHref("liru")} className="home-liru-ask-card">
-            <span className="home-liru-bubble">
-              <span>{tr("Go to Liru's character page?")}</span>
-              <span className="home-liru-go">{tr("Go")} →</span>
-            </span>
+            <LiruBubble
+              label={tr("Go to Liru's character page?")}
+              action={`${tr("Go")} →`}
+            />
             <Image
               src="/branding/home-hero/liru-chibi-wave-400.webp"
               unoptimized
