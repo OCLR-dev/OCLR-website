@@ -34,6 +34,58 @@ function snapshot(version: number): ScheduleWorkspace {
   };
 }
 
+test("filters deleted fixture history and shows an empty state only when nothing matches", async ({
+  page,
+}) => {
+  const data = snapshot(1);
+  data.admin = true;
+  data.fixtures = [];
+  data.requests = [
+    {
+      id: "deleted-request",
+      fixtureId: null,
+      label: "Deleted A vs B",
+      basis: {
+        scheduledAt: "2090-01-01T08:00:00.000Z",
+        timeZone: "Asia/Taipei",
+        homeTeamId: "home",
+        awayTeamId: "away",
+        homeCaptainId: 1,
+        awayCaptainId: 2,
+      },
+      proposedAt: "2090-01-02T08:00:00.000Z",
+      proposerId: 1,
+      proposerName: "Synthetic captain",
+      status: "expired",
+      version: 1,
+      decisionNote: null,
+      updatedAt: "2090-01-01T08:00:00.000Z",
+      canReview: true,
+      history: [],
+    },
+  ];
+  await page.route("**/api/tournaments/synthetic/schedule/requests", (route) =>
+    route.fulfill({ json: data }),
+  );
+  await page.goto("/schedule-selection?fixture");
+  await page
+    .getByRole("button", { name: "Reload schedule", exact: true })
+    .click();
+  await expect(page.locator(".schedule-heading")).toHaveCount(0);
+  const history = page.locator("summary").filter({ hasText: "Deleted A vs B" });
+  const empty = page.getByText("No matching schedule requests.", {
+    exact: true,
+  });
+  for (const status of ["pending", "approved", "expired", "all"]) {
+    await page
+      .getByRole("combobox", { name: "Request status", exact: true })
+      .selectOption(status);
+    const matching = status === "expired" || status === "all";
+    await expect(history).toHaveCount(matching ? 1 : 0);
+    await expect(empty).toHaveCount(matching ? 0 : 1);
+  }
+});
+
 for (const stale of ["success", "http-error", "network-error"] as const) {
   test(`ignores a late ${stale} after the newest schedule is shown`, async ({
     page,

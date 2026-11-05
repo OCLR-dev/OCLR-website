@@ -472,6 +472,11 @@ export function ScheduleManager({
         data.requests.some((r) => r.fixtureId === f.id && r.status === status)),
   );
   const f = listed.find((f) => f.id === selected) ?? listed[0];
+  const deletedRequests = data.admin
+    ? data.requests.filter(
+        (r) => !r.fixtureId && (status === "all" || r.status === status),
+      )
+    : [];
   return (
     <div className="schedule-tool">
       <div className="actions schedule-filters">
@@ -550,23 +555,20 @@ export function ScheduleManager({
           f={f}
           reload={reload}
         />
-      ) : (
+      ) : deletedRequests.length === 0 ? (
         <p className="notice">{tr("No matching schedule requests.")}</p>
-      )}
-      {data.admin &&
-        data.requests
-          .filter((r) => !r.fixtureId)
-          .map((r) => (
-            <details key={r.id}>
-              <summary>
-                {r.label} · {statusLabel(r.status, tr)}
-              </summary>
-              <p>{tr("Original fixture removed; request history retained.")}</p>
-              <p>
-                {r.basis.scheduledAt} → {r.proposedAt}
-              </p>
-            </details>
-          ))}
+      ) : null}
+      {deletedRequests.map((r) => (
+        <details key={r.id}>
+          <summary>
+            {r.label} · {statusLabel(r.status, tr)}
+          </summary>
+          <p>{tr("Original fixture removed; request history retained.")}</p>
+          <p>
+            {r.basis.scheduledAt} → {r.proposedAt}
+          </p>
+        </details>
+      ))}
     </div>
   );
 }
