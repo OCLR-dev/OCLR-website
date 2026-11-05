@@ -45,6 +45,7 @@ import {
 } from "../../src/lib/ratings";
 import { publicPlayer } from "../../src/lib/players";
 import { playerCompetitionRecord } from "../../src/lib/player-competition";
+import { playerMapPerformance } from "../../src/lib/player-map-performance";
 import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
 import { publicBracket } from "../../src/lib/brackets";
 import { fixtureCommand, fixtureForReview } from "../../src/lib/fixtures";
@@ -277,6 +278,43 @@ describe.skipIf(!url)(
         })
       ).review;
     }
+    it("includes published maps without a scheduled fixture time using MP play times", async () => {
+      source.games[2].startTime = null;
+      for (const game of source.games)
+        for (const score of game.scores) score.total! *= 10_000;
+      let view = await imported();
+      view = (
+        await resultCommand(referee, "test-cup", fixtureId, submission(view))
+      ).review;
+      await published(await approved(view));
+      const before = (await publicFixture("test-cup", fixtureId))!;
+      const uid = source.games[0].scores[0].osuId!;
+      const participation = await publicPlayer(uid);
+      const unscheduled = await playerMapPerformance(participation);
+      expect(unscheduled).toMatchObject({
+        mapsPlayed: 3,
+        mapsWon: 2,
+        mapsLost: 1,
+      });
+      expect(unscheduled.editions[0].maps.map((row) => row.at).sort()).toEqual(
+        source.games.map((game) => game.startTime ?? game.endTime).sort(),
+      );
+      // Weekly awards still use the scheduled fixture time, independently of play time.
+      expect(
+        (await approvedRatingGames("test-cup", db())).every(
+          (game) => game.at === null,
+        ),
+      ).toBe(true);
+      await db()
+        .update(fixtures)
+        .set({ scheduledAt: new Date("2026-10-03T12:00:00Z") })
+        .where(eq(fixtures.id, fixtureId));
+      expect(await playerMapPerformance(participation)).toEqual(unscheduled);
+      expect((await publicFixture("test-cup", fixtureId))!.result).toEqual(
+        before.result,
+      );
+    });
+
     it("uses the edition EZ multiplier for approved statistics while preserving raw and reviewed results", async () => {
       source.games[0].scores[0].mods = ["EZ"];
       let view = await imported();

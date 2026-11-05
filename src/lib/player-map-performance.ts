@@ -381,7 +381,8 @@ export function liveMapPlays(
   slots: Map<string, string>,
 ): MapPlay[] {
   return games.flatMap((game) => {
-    if (game.problem || !game.at) return [];
+    const at = game.playedAt ?? game.at;
+    if (game.problem || !at) return [];
     const stage = stageByFixture.get(game.fixtureId) ?? "unknown";
     const slot = slots.get(`${game.roundId}:${game.beatmapId}`) ?? "—";
     const title =
@@ -394,7 +395,7 @@ export function liveMapPlays(
       stage,
       title,
       slot,
-      at: game.at,
+      at,
       osuId: score.userId,
       teamId: score.teamId,
       winnerTeamId: game.winnerTeamId,

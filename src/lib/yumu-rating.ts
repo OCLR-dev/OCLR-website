@@ -32,6 +32,8 @@ export type RatingGame = {
   approvalFingerprint?: string;
   roundId?: string;
   at: string | null;
+  /** Actual MP play time for map history; `at` remains the fixture time for awards. */
+  playedAt?: string | null;
   teamIds: string[];
   winnerTeamId: string | null;
   scores: RatingScore[];

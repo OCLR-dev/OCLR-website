@@ -190,6 +190,9 @@ export async function approvedRatingGames(
       games.push({
         ...common,
         gameId: reviewed.gameId,
+        playedAt: parsed.success
+          ? (parsed.data.startTime ?? parsed.data.endTime)
+          : null,
         winnerTeamId: reviewed.winnerTeamId,
         beatmapId: parsed.success ? parsed.data.beatmapId : null,
         beatmap: parsed.success ? parsed.data.beatmap : null,

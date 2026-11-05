@@ -276,6 +276,14 @@ describe("liveMapPlays", () => {
   const stages = new Map([["fixture", "group"]]);
   const slots = new Map([["round:42", "NM1"]]);
 
+  it("uses actual play time for unscheduled maps and ahead of a planned fixture time", () => {
+    const playedAt = "2025-04-06T12:00:00Z";
+    for (const at of [null, "2025-04-05T12:00:00Z"])
+      expect(liveMapPlays([game({ at, playedAt })], stages, slots)[0].at).toBe(
+        playedAt,
+      );
+  });
+
   it.each([2000, 1999, 0])(
     "retains the approved winner when the opponent scores %i",
     (opponentScore) => {
