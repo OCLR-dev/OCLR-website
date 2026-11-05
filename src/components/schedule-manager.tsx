@@ -1,5 +1,5 @@
 "use client";
-import { useState, type ComponentProps } from "react";
+import { useEffect, useRef, useState, type ComponentProps } from "react";
 import dynamic from "next/dynamic";
 import { useAppTranslations } from "@/i18n/shared";
 import type { ScheduleWorkspace } from "@/lib/schedule";
@@ -438,16 +438,32 @@ export function ScheduleManager({
   const [selected, setSelected] = useState(initial.fixtures[0]?.id ?? "");
   const [status, setStatus] = useState(initial.admin ? "pending" : "all"),
     [round, setRound] = useState("");
+  const reloadSequence = useRef(0);
+  useEffect(
+    () => () => {
+      reloadSequence.current += 1;
+    },
+    [slug],
+  );
   async function reload() {
-    const response = await fetch(`/api/tournaments/${slug}/schedule/requests`, {
-      cache: "no-store",
-    });
-    if (!response.ok) {
-      setError(tr("Reload failed. Refresh before continuing."));
-      return;
+    const sequence = ++reloadSequence.current;
+    try {
+      const response = await fetch(
+        `/api/tournaments/${slug}/schedule/requests`,
+        {
+          cache: "no-store",
+        },
+      );
+      if (!response.ok) throw new Error("Schedule reload failed.");
+      const next: ScheduleWorkspace = await response.json();
+      // The manual button and post-mutation reload share the same ordering.
+      if (sequence !== reloadSequence.current) return;
+      setData(next);
+      setError("");
+    } catch {
+      if (sequence === reloadSequence.current)
+        setError(tr("Reload failed. Refresh before continuing."));
     }
-    setData(await response.json());
-    setError("");
   }
   const listed = data.fixtures.filter(
     (f) =>
