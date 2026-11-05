@@ -323,6 +323,10 @@ export const savedOsuProfileSchema = z
       .object({
         mode: profileMode,
         data: z.array(z.number().int().positive()).max(1000),
+        dayOffsets: z
+          .array(z.number().int().min(-999).max(0))
+          .max(1000)
+          .optional(),
       })
       .strip()
       .nullable()

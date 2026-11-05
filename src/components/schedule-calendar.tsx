@@ -1,6 +1,6 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
-import FullCalendar from "@fullcalendar/react";
+import { useCallback, useEffect, useRef } from "react";
+import FullCalendar, { type CalendarRef } from "@fullcalendar/react";
 import classic from "@fullcalendar/react/themes/classic";
 import timeGrid from "@fullcalendar/react/timegrid";
 import interaction from "@fullcalendar/react/interaction";
@@ -46,7 +46,7 @@ export default function ScheduleCalendar({
   }[];
 }) {
   const tr = useAppTranslations();
-  const [mobile, setMobile] = useState(false);
+  const calendar = useRef<CalendarRef>(null);
   const root = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
   const label = tr("Calendar time slots");
@@ -76,10 +76,15 @@ export default function ScheduleCalendar({
   useEffect(() => {
     enableKeyboardScroll();
     return () => cancelAnimationFrame(frame.current);
-  }, [enableKeyboardScroll, mobile]);
+  }, [enableKeyboardScroll]);
   useEffect(() => {
     const media = matchMedia("(max-width: 640px)");
-    const update = () => setMobile(media.matches);
+    // Change the existing view so navigation keeps its current date when the
+    // viewport crosses the day/week breakpoint.
+    const update = () =>
+      calendar.current
+        ?.getApi()
+        .changeView(media.matches ? "timeGridDay" : "timeGridWeek");
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
@@ -92,9 +97,9 @@ export default function ScheduleCalendar({
       aria-label={label}
     >
       <FullCalendar
-        key={mobile ? "day" : "week"}
+        ref={calendar}
         plugins={[classic, timeGrid, interaction]}
-        initialView={mobile ? "timeGridDay" : "timeGridWeek"}
+        initialView="timeGridWeek"
         initialDate={proposed ?? official ?? initialDate ?? undefined}
         timeZone={timeZone}
         slotEventOverlap={teammates.length ? false : undefined}

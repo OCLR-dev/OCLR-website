@@ -1,8 +1,11 @@
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { formatDate } from "@/lib/editions";
 import { publicNews } from "@/lib/public-news";
-import { publicNewsKind } from "@/lib/public-news-model";
+import {
+  publicNewsDate,
+  publicNewsDateTime,
+  publicNewsKind,
+} from "@/lib/public-news-model";
 import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 export const dynamic = "force-dynamic";
@@ -26,8 +29,8 @@ async function Issue271Page() {
                 <p className="eyebrow news-kind">{publicNewsKind(a, tr)}</p>
                 <p className="muted small">
                   {a.future ? tr("Scheduled for ") : ""}
-                  <time dateTime={a.at}>
-                    {tr(formatDate(a.at, a.timeZone, tr.locale))}
+                  <time dateTime={publicNewsDateTime(a)}>
+                    {publicNewsDate(a, tr.locale)}
                   </time>
                 </p>
               </div>

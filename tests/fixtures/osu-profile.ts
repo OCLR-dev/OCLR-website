@@ -30,7 +30,7 @@ export const profileResponse = {
   },
   rank_history: {
     mode: "osu",
-    // One unranked day is compacted by normalization; the chart only draws ranks.
+    // One unranked day has no point but still occupies its original date.
     data: [16200, null, 15500, 15000],
   },
   discord: "MUST_NOT_CACHE_PRIVATE_CONTACT",

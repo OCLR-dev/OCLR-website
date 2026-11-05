@@ -1,8 +1,11 @@
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { formatDate } from "@/lib/editions";
 import { publicNewsItem } from "@/lib/public-news";
-import { publicNewsKind } from "@/lib/public-news-model";
+import {
+  publicNewsDate,
+  publicNewsDateTime,
+  publicNewsKind,
+} from "@/lib/public-news-model";
 import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -37,8 +40,8 @@ async function Issue271Page({ params }: { params: Promise<{ slug: string }> }) {
           eyebrow={
             <>
               {item.future ? tr("Scheduled for ") : ""}
-              <time dateTime={item.at}>
-                {tr(formatDate(item.at, item.timeZone, tr.locale))}
+              <time dateTime={publicNewsDateTime(item)}>
+                {publicNewsDate(item, tr.locale)}
               </time>
             </>
           }

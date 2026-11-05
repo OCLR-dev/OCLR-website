@@ -16,6 +16,15 @@ generated contracts, and `npm run read-api:check` verifies it before a push (see
 
 ## Resources and authorization
 
+Contract 1.21 adds optional `rankHistory.dayOffsets` alongside the numeric rank
+history. Each offset identifies that sample's day relative to the snapshot date
+(0 is the snapshot day), preserving gaps for unranked days. Older cached snapshots
+and backends omit offsets and retain the sequential fallback; lost gaps become
+available after the normal profile refresh. Existing numeric `data` is unchanged.
+Generated schedule news also retains optional `precision` so its summary and
+list/detail timestamps respect date-only milestones; absent precision keeps the
+existing instant formatting. Stored timestamps, ordering and event URLs stay stable.
+
 Contract 1.20 adds optional edition `ezScoreMultiplier`, statistics `rawScore` /
 `scoreMultiplier` fields and score-policy evidence. Statistical values are already
 adjusted by the backend; remote frontends must display them without multiplying

@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   projectPublicNews,
+  publicNewsDate,
+  publicNewsDateTime,
   publishesTournamentNews,
   type NewsEdition,
 } from "../../src/lib/public-news-model";
 import { edition } from "../fixtures/edition";
 import { announcements } from "../fixtures/announcements";
 import { historicalArchive } from "../fixtures/historical-archive";
+import { tournamentTimeline } from "../../src/lib/tournament-timeline";
 const now = new Date("2026-10-20T12:00:00Z");
 const record: NewsEdition = {
   edition: {
@@ -19,6 +22,44 @@ const record: NewsEdition = {
   registrationPaused: false,
 };
 describe("read-only deterministic public News", () => {
+  it.each([
+    ["2027-02-02T16:00:00Z", "day", "3 Feb 2027"],
+    ["2027-04-12T07:45:00Z", "day", "12 Apr 2027"],
+    ["2027-04-12T07:45:00Z", "instant", "15:45 (UTC+8)"],
+    ["2027-04-12T07:45:00Z", undefined, "15:45 (UTC+8)"],
+  ] as const)(
+    "preserves milestone precision at %s (%s)",
+    (at, precision, expected) => {
+      const e = {
+        ...edition,
+        timeZone: "Asia/Taipei",
+        registration: null,
+        schedule: [{ label: "Synthetic milestone", at, precision }],
+      };
+      const [item] = projectPublicNews(
+        [{ edition: e, registrationPaused: false }],
+        [],
+        [],
+        true,
+        now,
+      );
+      const [row] = tournamentTimeline(e, (text) => text, "en-GB").schedule;
+      expect(item.summary).toContain(row.date);
+      expect(item.summary).toContain(expected);
+      expect(publicNewsDate(item, "en-GB")).toBe(row.date);
+      expect(publicNewsDateTime(item)).toBe(
+        precision === "day"
+          ? at.startsWith("2027-02")
+            ? "2027-02-03"
+            : "2027-04-12"
+          : at,
+      );
+      if (precision === "day")
+        expect(item.summary).not.toMatch(/\d{2}:\d{2}|UTC/);
+      expect(item.at).toBe(at);
+      expect(item.future).toBe(true);
+    },
+  );
   it("excludes S1–S10 across every generated news kind, even after recent publication", () => {
     const editions = Array.from({ length: 12 }, (_, index) => ({
       ...record,

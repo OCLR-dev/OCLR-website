@@ -4,12 +4,14 @@ import { enrollmentState, formatDate, type Edition } from "./editions";
 import type { announcementsSchema } from "./announcements";
 import type { z } from "zod";
 import { seasonNumber } from "./player-timeline";
+import { localDateTime } from "./edition-time";
 export type PublicNewsItem = {
   slug: string;
   title: string;
   summary: string;
   at: string;
   timeZone: string;
+  precision?: "day" | "instant";
   kind:
     | "announcement"
     | "schedule"
@@ -21,6 +23,24 @@ export type PublicNewsItem = {
   source: { label: string; url: string } | null;
   sections: { heading: string; body: string }[];
 };
+export function publicNewsDate(
+  item: Pick<PublicNewsItem, "at" | "timeZone" | "precision">,
+  locale: string,
+) {
+  return item.precision === "day"
+    ? new Intl.DateTimeFormat(locale, {
+        dateStyle: "medium",
+        timeZone: item.timeZone,
+      }).format(new Date(item.at))
+    : formatDate(item.at, item.timeZone, locale);
+}
+export function publicNewsDateTime(
+  item: Pick<PublicNewsItem, "at" | "timeZone" | "precision">,
+) {
+  return item.precision === "day"
+    ? localDateTime(item.at, item.timeZone).slice(0, 10)
+    : item.at;
+}
 /** Display labels are interface copy; never expose internal event identifiers. */
 export function publicNewsKind(
   item: Pick<PublicNewsItem, "kind" | "future">,
@@ -97,6 +117,7 @@ export function projectPublicNews(
       summary: string,
       at: string,
       path: string,
+      precision?: PublicNewsItem["precision"],
     ) {
       items.push({
         slug: eventSlug(e.slug, kind, id),
@@ -104,6 +125,7 @@ export function projectPublicNews(
         summary,
         at,
         timeZone: e.timeZone,
+        ...(precision ? { precision } : {}),
         kind,
         future: Date.parse(at) > now.getTime(),
         source: { label: e.name, url: path },
@@ -170,11 +192,19 @@ export function projectPublicNews(
             "{label} is scheduled for {time}. This published date is a plan, not confirmation that the event took place.",
             {
               label: entry.label,
-              time: formatDate(entry.at, e.timeZone, tr.locale),
+              time: publicNewsDate(
+                {
+                  at: entry.at,
+                  timeZone: e.timeZone,
+                  precision: entry.precision,
+                },
+                tr.locale,
+              ),
             },
           ),
           entry.at,
           `/tournaments/${e.slug}/schedule`,
+          entry.precision,
         );
       }
     for (const event of events.filter(

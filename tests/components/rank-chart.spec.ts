@@ -1,4 +1,18 @@
 import { test, expect } from "@playwright/test";
+test("unranked days retain the dates of earlier ranks", async ({ page }) => {
+  for (const gaps of ["none", "one", "two", "trailing"]) {
+    await page.goto(`/rank-chart?gaps=${gaps}`);
+    const chart = page.locator(".rank-chart-svg");
+    await expect(chart).toBeVisible();
+    const box = (await chart.boundingBox())!;
+    await page.mouse.move(box.x + 10, box.y + box.height / 2);
+    await expect(page.locator(".rank-chart-tip")).toContainText("#16,200");
+    await expect(page.locator(".rank-chart-tip")).toContainText("Nov 1, 2026");
+    await page.mouse.move(box.x + box.width - 10, box.y + box.height / 2);
+    await expect(page.locator(".rank-chart-tip")).toContainText("#15,000");
+    await expect(page.locator(".rank-chart-tip")).toContainText("Nov 4, 2026");
+  }
+});
 test("snapshot dates stay fixed across midnight and repeated pointer visits", async ({
   page,
 }) => {

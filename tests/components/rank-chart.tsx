@@ -12,6 +12,17 @@ const history = Array.from({ length: 120 }, (_, index) => {
   rank += index % 7 === 0 ? 180 : -Math.round(index % 5) * 12;
   return Math.max(1, rank);
 });
+const params = new URLSearchParams(location.search);
+const gaps = params.get("gaps");
+// Explicit normalized fixtures; normalization/cache contracts are tested in Vitest.
+const sample =
+  gaps === "two"
+    ? { data: [16200, 15000], dayOffsets: [-3, 0] }
+    : gaps === "trailing"
+      ? { data: [16200], dayOffsets: [-3] }
+      : gaps === "one"
+        ? { data: [16200, 15500, 15000], dayOffsets: [-3, -1, 0] }
+        : { data: [16200, 15900, 15500, 15000], dayOffsets: [-3, -2, -1, 0] };
 
 createRoot(document.getElementById("root")!).render(
   <NextIntlClientProvider locale="en" messages={en} timeZone="UTC">
@@ -22,12 +33,15 @@ createRoot(document.getElementById("root")!).render(
           <div className="profile-body">
             <div className="rank-chart-card">
               <RankChart
-                data={history}
-                globalRank={12345}
+                data={gaps ? sample.data : history}
+                dayOffsets={gaps ? sample.dayOffsets : undefined}
+                globalRank={gaps ? 15000 : 12345}
                 observedAt={
                   new URLSearchParams(location.search).has("undated")
                     ? null
-                    : "2026-11-01T23:30:00Z"
+                    : gaps
+                      ? "2026-11-04T09:00:00Z"
+                      : "2026-11-01T23:30:00Z"
                 }
               />
             </div>

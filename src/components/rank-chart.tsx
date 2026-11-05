@@ -17,16 +17,24 @@ const PAD = { top: 5, right: 10, bottom: 6, left: 10 };
  * looks empty whenever the history barely moves. */
 const LOG_HEADROOM = 0.02;
 
-function toPoints(data: readonly number[], globalRank: number | null) {
+function toPoints(
+  data: readonly number[],
+  globalRank: number | null,
+  dayOffsets?: readonly number[],
+) {
   const points: RankPoint[] = [];
   data.forEach((rank, index) => {
     if (Number.isFinite(rank) && rank > 0)
-      points.push({ day: index - (data.length - 1), rank });
+      points.push({
+        day: dayOffsets?.[index] ?? index - (data.length - 1),
+        rank,
+      });
   });
   const today = globalRank !== null && globalRank > 0 ? globalRank : null;
   if (today !== null) {
-    // The last history sample is the previous day; pin the line to today's rank.
-    if (points.length) points[points.length - 1] = { day: 0, rank: today };
+    // Update today's slot, or append it when the history ends in unranked days.
+    if (points.at(-1)?.day === 0)
+      points[points.length - 1] = { day: 0, rank: today };
     else points.push({ day: 0, rank: today });
   }
   if (points.length === 1)
@@ -50,10 +58,12 @@ function tickRanks(lo: number, hi: number) {
 
 export function RankChart({
   data,
+  dayOffsets,
   globalRank,
   observedAt,
 }: {
   data: readonly number[];
+  dayOffsets?: readonly number[];
   globalRank: number | null;
   observedAt?: string | null;
 }) {
@@ -80,7 +90,10 @@ export function RankChart({
     return () => observer.disconnect();
   }, []);
 
-  const points = useMemo(() => toPoints(data, globalRank), [data, globalRank]);
+  const points = useMemo(
+    () => toPoints(data, globalRank, dayOffsets),
+    [data, globalRank, dayOffsets],
+  );
   const geometry = useMemo(() => {
     if (width < 40 || points.length < 2) return null;
     const ranks = points.map((point) => point.rank);

@@ -4,6 +4,7 @@ import {
   parseOsuProfile,
 } from "../../src/lib/osu-profile-model";
 import { profileResponse } from "../fixtures/osu-profile";
+import { safeSavedOsuProfile } from "../../src/lib/read-api-contract";
 describe("official osu! user profiles", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -181,9 +182,23 @@ describe("official osu! user profiles", () => {
     ).toBeNull();
   });
 
-  it("keeps the requested ruleset's daily rank history and drops unranked days", () => {
+  it("keeps the requested ruleset's daily rank history and the dates of ranked days", () => {
     const p = normalizeOsuProfile(profileResponse, 260001, "osu");
-    expect(p.rankHistory).toEqual({ mode: "osu", data: [16200, 15500, 15000] });
+    expect(p.rankHistory).toEqual({
+      mode: "osu",
+      data: [16200, 15500, 15000],
+      dayOffsets: [-3, -1, 0],
+    });
+    expect(safeSavedOsuProfile(p, 260001, "osu")?.rankHistory).toEqual(
+      p.rankHistory,
+    );
+    const legacy = {
+      ...p,
+      rankHistory: { mode: "osu", data: [16200, 15500, 15000] },
+    };
+    expect(safeSavedOsuProfile(legacy, 260001, "osu")?.rankHistory).toEqual(
+      legacy.rankHistory,
+    );
     expect(
       normalizeOsuProfile(profileResponse, 260001, "mania").rankHistory,
     ).toBeNull();
@@ -197,6 +212,31 @@ describe("official osu! user profiles", () => {
     expect(
       normalizeOsuProfile(
         { ...profileResponse, rank_history: undefined },
+        260001,
+        "osu",
+      ).rankHistory,
+    ).toBeNull();
+  });
+  it("preserves leading and trailing unranked days without drawing them", () => {
+    const p = normalizeOsuProfile(
+      {
+        ...profileResponse,
+        rank_history: { mode: "osu", data: [null, 16200, 0, 15000, null] },
+      },
+      260001,
+      "osu",
+    );
+    expect(p.rankHistory).toEqual({
+      mode: "osu",
+      data: [16200, 15000],
+      dayOffsets: [-3, -1],
+    });
+    expect(
+      normalizeOsuProfile(
+        {
+          ...profileResponse,
+          rank_history: { mode: "osu", data: [null, null] },
+        },
         260001,
         "osu",
       ).rankHistory,

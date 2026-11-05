@@ -121,6 +121,7 @@ export function PlayerProfile({
         {history && history.length > 1 && (
           <div className="rank-chart-card">
             <RankChart
+              dayOffsets={p.rankHistory?.dayOffsets}
               data={history}
               globalRank={s.globalRank}
               observedAt={p.fetchedAt}

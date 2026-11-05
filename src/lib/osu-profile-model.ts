@@ -121,8 +121,7 @@ const stats = z
       .catch(null),
   })
   .nullish();
-// Daily global rank history, oldest first. Unranked days arrive as null and are
-// compacted: the chart only needs the sequence of known ranks.
+// Daily global rank history, oldest first. Unranked days still occupy a date.
 const rankHistory = z
   .object({
     mode: profileMode.nullish().catch(null),
@@ -210,12 +209,25 @@ export function normalizeOsuProfile(
       "osu! returned a different ruleset. The saved snapshot was preserved.",
     );
   const s = p.statistics;
-  const rankData =
+  const dailyRanks =
     p.rank_history && (!p.rank_history.mode || p.rank_history.mode === mode)
-      ? (p.rank_history.data ?? []).filter(
-          (rank): rank is number => typeof rank === "number" && rank > 0,
-        )
+      ? (p.rank_history.data ?? [])
       : [];
+  const rankData: number[] = [];
+  const dayOffsets: number[] = [];
+  dailyRanks.forEach((rank, index) => {
+    if (typeof rank === "number" && rank > 0) {
+      rankData.push(rank);
+      dayOffsets.push(index - (dailyRanks.length - 1));
+    }
+  });
+  // Keep the numeric data compatible with older readers. The additive offsets
+  // preserve gaps for new snapshots; older cached snapshots omit them.
+  const history: {
+    mode: ProfileMode;
+    data: number[];
+    dayOffsets?: number[];
+  } | null = rankData.length ? { mode, data: rankData, dayOffsets } : null;
   return {
     osuId,
     username: p.username,
@@ -236,7 +248,7 @@ export function normalizeOsuProfile(
     // Missing/partial inventories are unknown, never a fabricated zero count.
     badges: profileBadges(p.badges),
     // Only the requested ruleset's history is meaningful for this profile.
-    rankHistory: rankData.length ? { mode, data: rankData } : null,
+    rankHistory: history,
     statistics: {
       globalRank: s?.global_rank ?? null,
       globalRankPercent: s?.global_rank_percent ?? null,
