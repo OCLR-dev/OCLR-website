@@ -9,8 +9,10 @@ credential, production migration or deployment is part of this implementation.
 
 Selecting a cell never writes. Dragging scrolls the canvas; zoom buttons and
 numeric X/Y controls provide touch and keyboard access. A separate confirmation
-saves the selected color. Failed/uncertain writes retain their request UUID for
-retry; pixels are rendered only from saved server responses. Each visible client
+saves the selected color. Uncertain writes (network errors or server failures) retain
+their request UUID for retry. A definite client rejection, including a 429 cooldown,
+ends the pending request and unlocks selection; new submissions still wait for the
+cooldown. Pixels are rendered only from saved server responses. Each visible client
 polls every three seconds, with one in-flight read and a ten-second timeout.
 The remote read-only frontend currently reports the canvas unavailable; it never
 opens local DB access or sends game writes through Developer access.

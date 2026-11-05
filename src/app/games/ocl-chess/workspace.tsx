@@ -128,8 +128,7 @@ export function ChessCanvas() {
       });
       const data = await response.json();
       if (!response.ok) {
-        if (response.status < 500 && response.status !== 429)
-          pending.current = null;
+        if (response.status < 500) pending.current = null;
         throw Error(data.error);
       }
       receive(data);

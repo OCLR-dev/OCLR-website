@@ -43,6 +43,60 @@ test("selects without writing and confirms a saved pixel", async ({ page }) => {
     page.getByRole("button", { name: "Confirm pixel" }),
   ).toBeDisabled();
 });
+test("unlocks selection after a cooldown rejection and submits a new pixel", async ({
+  page,
+}) => {
+  await page.clock.install();
+  const commands: { requestId: string; x: number; y: number; color: number }[] =
+    [];
+  let nextAt = 0;
+  await page.route("**/api/games/ocl-chess", async (route) => {
+    if (route.request().method() === "POST") {
+      commands.push(route.request().postDataJSON());
+      if (commands.length === 1) {
+        nextAt = await page.evaluate(() => Date.now() + 30_000);
+        await route.fulfill({
+          status: 429,
+          json: {
+            error: "Wait for the cooldown before placing another pixel.",
+          },
+        });
+        return;
+      }
+    }
+    await route.fulfill({
+      json: {
+        pixels: "0".repeat(16384),
+        revision: 0,
+        enabled: true,
+        nextAt,
+        serverTime: await page.evaluate(() => Date.now()),
+        signedIn: true,
+        admin: false,
+      },
+    });
+  });
+  await page.goto("/ocl-chess");
+  const confirm = page.getByRole("button", { name: "Confirm pixel" });
+  await page.getByLabel("X", { exact: true }).fill("10");
+  await confirm.click();
+  await expect(page.locator('p[role="status"]')).toHaveText(
+    "Wait for the cooldown before placing another pixel.",
+  );
+  await expect(page.getByLabel("X", { exact: true })).toBeEnabled();
+  await expect(page.locator(".chess-palette button:disabled")).toHaveCount(0);
+  await page.getByLabel("X", { exact: true }).fill("11");
+  await page.locator(".chess-palette button").first().click();
+  await page.clock.runFor(3_100);
+  await expect(confirm).toBeDisabled();
+  await page.clock.runFor(30_000);
+  await expect(confirm).toBeEnabled();
+  await confirm.click();
+  await expect.poll(() => commands.length).toBe(2);
+  expect(commands[1]).toMatchObject({ x: 11, y: 0, color: 0 });
+  expect(commands[1].requestId).not.toBe(commands[0].requestId);
+});
+
 test("retries an uncertain save with the same request identity", async ({
   page,
 }) => {
