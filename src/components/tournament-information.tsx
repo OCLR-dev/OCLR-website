@@ -43,9 +43,7 @@ export async function InformationDocument({
     ...(document.teams.length > 0
       ? [{ id: "participants", label: tr("Participants") }]
       : []),
-    ...(document.pools.length > 0
-      ? [{ id: "mappools", label: tr("Mappools") }]
-      : []),
+    // Published pools stay on the tournament mappool page (#862).
     ...(hasRules
       ? [
           {
@@ -199,41 +197,6 @@ export async function InformationDocument({
                       </tbody>
                     </table>
                   </div>
-                </section>
-              )}
-              {document.pools.length > 0 && (
-                <section id="mappools" tabIndex={-1}>
-                  <h2>{tr("Mappools")}</h2>
-                  {document.pools.map((pool, i) => (
-                    <div className="information-pool" key={i}>
-                      <h3>{pool.name}</h3>
-                      {pool.href && (
-                        <p>
-                          <Link href={pool.href}>
-                            {tr("Explore mappools")} →
-                          </Link>
-                        </p>
-                      )}
-                      <ul className="information-pool-groups">
-                        {pool.groups.map((group) => (
-                          <li key={group.category}>
-                            <strong>{group.category}</strong>
-                            <ol>
-                              {group.maps.map((map, j) => (
-                                <li key={j}>
-                                  {map.href ? (
-                                    <a href={map.href}>{map.title}</a>
-                                  ) : (
-                                    map.title
-                                  )}
-                                </li>
-                              ))}
-                            </ol>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
                 </section>
               )}
             </article>

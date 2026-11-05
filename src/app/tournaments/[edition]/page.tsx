@@ -91,7 +91,6 @@ async function OverviewContent({
   const ruleSections = tournamentRuleSections(edition, tr("Eligibility"));
   const {
     teams,
-    pools,
     draft,
     nextFixture: fixture,
     unavailable,
@@ -135,21 +134,7 @@ async function OverviewContent({
         .map((member) => member.username),
       href: `${base}/teams/${team.id}`,
     })),
-    pools: pools.map((pool) => ({
-      name: pool.roundName,
-      href: `${base}/mappools/${pool.id}`,
-      groups: [...new Set(pool.entries.map((entry) => entry.category))].map(
-        (category) => ({
-          category,
-          maps: pool.entries
-            .filter((entry) => entry.category === category)
-            .map((entry) => ({
-              title: entry.title,
-              href: entry.href,
-            })),
-        }),
-      ),
-    })),
+    pools: [], // Published pools stay on the mappool page (#862).
     rules: [], // Published rules render directly from this edition below.
   };
   const active =

@@ -151,7 +151,20 @@ test.describe("season overview composition", () => {
     ).toBe(true);
     await seedPublicPolish(60001, 970999, 971000);
     await page.reload();
-    await expect(page.locator(".information-pool")).not.toHaveCount(0);
+    await expect(page.locator("#mappools, .information-pool")).toHaveCount(0);
+    await expect(page.locator("#rules, #stages")).toHaveCount(2);
+    const menu = page.getByRole("button", { name: "Tournament menu" });
+    if (await menu.isVisible()) await menu.click();
+    await expect(
+      page.locator('a[href="/tournaments/test-cup/mappools"]'),
+    ).toBeVisible();
+    await page.goto("/tournaments/test-cup/mappools");
+    await expect(
+      page.getByRole("heading", { name: "Mappools", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Mappool: test" }),
+    ).toBeVisible();
   });
   test("registration stays discoverable while the server enforces open, closed and paused windows", async ({
     page,
