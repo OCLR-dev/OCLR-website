@@ -1758,10 +1758,16 @@ body:has(.presenter-view) .site-footer,
 }
 .news-list article {
   display: grid;
-  grid-template-columns: 180px minmax(0, 1fr);
-  gap: 2rem;
+  /* A full timestamp with its offset is wider than the old 180px track.
+   * Keep one shared column and let the date wrap inside it. */
+  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2rem);
+  align-items: start;
   padding: 1.5rem 0;
   border-top: 1px solid #2d3045;
+}
+.news-list article > div {
+  min-width: 0;
 }
 .news-list h2 {
   margin-bottom: 0.75rem;
@@ -1771,6 +1777,7 @@ body:has(.presenter-view) .site-footer,
 .news-list p {
   margin-bottom: 0.5rem;
   font-size: var(--text-support);
+  overflow-wrap: break-word;
 }
 .about-layout {
   display: grid;
@@ -7023,11 +7030,15 @@ button.staff-role-save {
   min-width: 0;
 }
 
-/* Keep a complete timestamp together, including its timezone suffix. */
+/* Keep a complete timestamp together, including its timezone suffix.
+ * The news list column is the exception: a nowrap date overflows into the summary. */
 .themed-site time {
   display: inline-block;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+.themed-site .news-list time {
+  white-space: normal;
 }
 .themed-site small,
 .themed-site .countdown-date {
