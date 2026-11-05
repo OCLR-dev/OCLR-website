@@ -367,7 +367,7 @@ export async function playerLeaderboard(): Promise<PlayerLeaderboard> {
     editions: available,
     unavailableEditions: unavailable,
     maps: report.mapCount,
-    skippedMaps: report.skippedMaps,
+    skippedMaps,
     art,
   };
 }
