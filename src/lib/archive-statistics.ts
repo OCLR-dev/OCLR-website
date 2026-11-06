@@ -3,11 +3,12 @@ import {
   archiveStatisticsSummary,
 } from "./archive-statistics-projection";
 import {
-  normalizedStatistics,
+  readHistoricalStatistics,
+  persistHistoricalStatistics,
+  lockHistoricalStatistics,
   syncArchiveRelations,
 } from "./archive-relations";
 import {
-  relationalStatistics,
   relationalPublicPlays,
   relationalPublicStatistics,
   relationalPlayerArchivePlays,
@@ -30,8 +31,8 @@ import {
 import { ratingSnapshot } from "./ratings";
 import type { RatingGame } from "./yumu-rating";
 import { db } from "@/db";
-import { editionEvents, editionState, historicalStatistics } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { editionEvents, editionState } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
@@ -113,30 +114,9 @@ async function archiveFor(
     throw new HttpError(404, "Historical statistics are unavailable.");
   return t.edition.archive;
 }
-function where(slug: string) {
-  return eq(historicalStatistics.editionSlug, slug);
-}
-async function stored(
-  slug: string,
-  reader: Reader = db(),
-  relational = false,
-  fixtureId?: string,
-) {
-  const rows =
-    (await normalizedStatistics(slug, reader, fixtureId)) ??
-    (await reader
-      .select()
-      .from(historicalStatistics)
-      .where(
-        and(
-          where(slug),
-          fixtureId ? eq(historicalStatistics.fixtureId, fixtureId) : undefined,
-        ),
-      ));
-  const values = relational
-    ? await relationalStatistics(slug, rows, reader)
-    : rows;
-  return values.map((r) => ({
+async function stored(slug: string, reader: Reader = db(), fixtureId?: string) {
+  const rows = await readHistoricalStatistics(slug, reader, fixtureId);
+  return rows.map((r) => ({
     ...r,
     draft: parseStatisticsSnapshot(r.draft),
     published: r.published ? parseStatisticsSnapshot(r.published) : null,
@@ -187,6 +167,7 @@ async function preserveStatisticsForRosterChange(
 ) {
   const oldKey = statisticsArchiveKey(before);
   const newKey = statisticsArchiveKey(after);
+  await lockHistoricalStatistics(tx, before.editionSlug);
   const rows = await stored(before.editionSlug, tx);
   const unchanged = (fixtureId: string, s: StatisticsSnapshot) => {
     if (
@@ -268,17 +249,12 @@ async function preserveStatisticsForRosterChange(
         "Published statistics would change. Review or withdraw them before changing this roster.",
       );
     if (draft === row.draft && published === row.published) continue;
-    await tx
-      .update(historicalStatistics)
-      .set({
-        draft,
-        published,
-        version: row.version + 1,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(where(before.editionSlug), eq(historicalStatistics.mpId, row.mpId)),
-      );
+    await persistHistoricalStatistics(tx, before.editionSlug, row.mpId, row, {
+      draft,
+      published,
+      version: row.version + 1,
+      updatedAt: new Date(),
+    });
     versions.push({
       mpId: row.mpId,
       fromVersion: row.version,
@@ -303,7 +279,7 @@ async function databaseStatisticsWorkspace(
   await assertReadCapability(actor, "record_results", slug);
   const archive = await archiveFor(slug);
   const key = statisticsArchiveKey(archive);
-  const rows = (await stored(slug, db(), true)).filter((r) =>
+  const rows = (await stored(slug, db())).filter((r) =>
     statisticsFixtures(archive).some(
       (f) =>
         f.id === r.fixtureId && f.mpUrls.some((u) => archiveMpId(u) === r.mpId),
@@ -487,6 +463,7 @@ export async function statisticsCommand(
       .where(eq(editionState.slug, slug))
       .for("update");
     await assertCapability(actor, permission, slug, tx);
+    await lockHistoricalStatistics(tx, slug);
     if (
       c.action === "review" &&
       (c.technicalAdjudication ||
@@ -526,19 +503,14 @@ export async function statisticsCommand(
       )
         return;
       if (selected)
-        await tx
-          .update(historicalStatistics)
-          .set({
-            fixtureId: fixture.id,
-            draft: imported!,
-            version: selected.version + 1,
-            updatedAt: new Date(),
-          })
-          .where(and(where(slug), eq(historicalStatistics.mpId, c.mpId)));
+        await persistHistoricalStatistics(tx, slug, c.mpId, selected, {
+          fixtureId: fixture.id,
+          draft: imported!,
+          version: selected.version + 1,
+          updatedAt: new Date(),
+        });
       else
-        await tx.insert(historicalStatistics).values({
-          editionSlug: slug,
-          mpId: c.mpId,
+        await persistHistoricalStatistics(tx, slug, c.mpId, undefined, {
           fixtureId: fixture.id,
           version: 1,
           draft: imported!,
@@ -614,10 +586,11 @@ export async function statisticsCommand(
           "Only eligible recorded games can be selected.",
         );
       reviewedSnapshot = draft;
-      await tx
-        .update(historicalStatistics)
-        .set({ draft, version: selected.version + 1, updatedAt: new Date() })
-        .where(and(where(slug), eq(historicalStatistics.mpId, c.mpId)));
+      await persistHistoricalStatistics(tx, slug, c.mpId, selected, {
+        draft,
+        version: selected.version + 1,
+        updatedAt: new Date(),
+      });
     } else {
       if (
         !relevant.length ||
@@ -649,15 +622,12 @@ export async function statisticsCommand(
           );
       }
       for (const r of relevant)
-        await tx
-          .update(historicalStatistics)
-          .set({
-            published: c.action === "publish" ? r.draft : null,
-            publishedAt: c.action === "publish" ? new Date() : null,
-            version: r.version + 1,
-            updatedAt: new Date(),
-          })
-          .where(and(where(slug), eq(historicalStatistics.mpId, r.mpId)));
+        await persistHistoricalStatistics(tx, slug, r.mpId, r, {
+          published: c.action === "publish" ? r.draft : null,
+          publishedAt: c.action === "publish" ? new Date() : null,
+          version: r.version + 1,
+          updatedAt: new Date(),
+        });
     }
     await tx.insert(editionEvents).values({
       editionSlug: slug,
@@ -772,7 +742,7 @@ async function databasePublicArchiveStatistics(
       const archive = await archiveFor(slug, tx, true);
       const ezScoreMultiplier =
         (await readTournament(slug, tx, true))?.edition.ezScoreMultiplier ?? 1;
-      const rows = await stored(slug, tx, false, fixtureId);
+      const rows = await stored(slug, tx, fixtureId);
       const release = releasedArchiveStatistics(archive, rows, fixtureId);
       const { fixtures, published } = release;
       const plays =

@@ -37,7 +37,13 @@ function rows(table: unknown) {
   if (table === staffRoles)
     return state.revoke && ++state.grantReads > 1 ? [] : state.grants;
   if (table === editionState)
-    return [{ configuration: { archive: state.archived ? {} : undefined } }];
+    return [
+      {
+        configured: true,
+        archive: state.archived,
+        configuration: { archive: state.archived ? {} : undefined },
+      },
+    ];
   if (table === mappoolCandidates)
     return state.missing ? [] : [{ ...state.candidate }];
   throw Error("Unexpected skillset read");

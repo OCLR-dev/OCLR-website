@@ -1,3 +1,4 @@
+import { editionOperationState } from "./archive-guard";
 import { openExhibitionSides } from "./exhibition-sides";
 import { streamingFilters } from "./read-api-queries";
 export { streamingFilters } from "./read-api-queries";
@@ -82,10 +83,7 @@ async function databaseStreamingWorkspace(
   return db().transaction(
     async (tx) => {
       await assertView(actor, slug, tx);
-      const [state] = await tx
-        .select()
-        .from(editionState)
-        .where(eq(editionState.slug, slug));
+      const state = await editionOperationState(slug, tx);
       if (!state?.configuration)
         throw new HttpError(404, "Tournament not found.");
       const grants = await staffAccess(actor, tx);
@@ -305,8 +303,7 @@ async function databaseStreamingWorkspace(
           ? commentaryCandidates
           : [],
         operational:
-          !state.configuration.archive &&
-          state.configuration.status !== "completed",
+          !state.hasArchive && state.configuration.status !== "completed",
         candidates: permits(grants, "manage_streaming", slug) ? candidates : [],
         filters,
         rounds: [

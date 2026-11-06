@@ -1,3 +1,4 @@
+import { editionOperationState } from "./archive-guard";
 import { openExhibitionSides } from "./exhibition-sides";
 import { createHash } from "node:crypto";
 import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
@@ -46,10 +47,7 @@ function localOnly() {
     );
 }
 async function context(reader: Reader, actor: User, slug: string) {
-  const [state] = await reader
-    .select()
-    .from(editionState)
-    .where(eq(editionState.slug, slug));
+  const state = await editionOperationState(slug, reader);
   if (!state?.configuration) throw new HttpError(404, "Tournament not found.");
   const grants = await staffAccess(actor, reader);
   const admin = permits(grants, "manage_fixtures", slug);
@@ -142,7 +140,7 @@ async function context(reader: Reader, actor: User, slug: string) {
       basis &&
       homeCaptainId !== awayCaptainId &&
       state.configuration?.published &&
-      !state.configuration.archive &&
+      !state.hasArchive &&
       !state.lockedAt &&
       state.configuration.status !== "completed" &&
       f.publishedAt &&

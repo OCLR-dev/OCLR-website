@@ -5,6 +5,7 @@ import {
   editionState,
   historicalStatistics,
   historicalStatisticsSources,
+  historicalArchiveSources,
   playerLeaderboardVersions,
   playerLeaderboardRows,
 } from "@/db/schema";
@@ -37,9 +38,17 @@ export async function leaderboardSource(reader: Reader) {
       slug: editionState.slug,
       revision: editionState.configurationVersion,
       updatedAt: editionState.configurationUpdatedAt,
-      hash: sql<string>`encode(sha256(convert_to(${editionState.configuration}::text, 'UTF8')), 'hex')`,
+      hash: sql<
+        string | null
+      >`CASE WHEN jsonb_typeof(${editionState.configuration}->'archive') = 'object'
+        THEN ${historicalArchiveSources.configurationHash}
+        ELSE encode(sha256(convert_to(${editionState.configuration}::text, 'UTF8')), 'hex') END`,
     })
     .from(editionState)
+    .leftJoin(
+      historicalArchiveSources,
+      eq(historicalArchiveSources.editionSlug, editionState.slug),
+    )
     .where(sql`${editionState.configuration}->>'published' = 'true'`)
     .orderBy(editionState.slug);
   const sources = editions.length
@@ -69,9 +78,11 @@ export async function leaderboardSource(reader: Reader) {
         .orderBy(historicalStatistics.editionSlug, historicalStatistics.mpId)
     : [];
   return {
-    sourceHash: sources.some((s) => s.hash === null)
-      ? null
-      : hash({ policy, editions, sources }),
+    sourceHash:
+      editions.some((e) => e.hash === null) ||
+      sources.some((s) => s.hash === null)
+        ? null
+        : hash({ policy, editions, sources }),
     editions: editions.length,
   };
 }

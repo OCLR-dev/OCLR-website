@@ -955,7 +955,7 @@ export async function mappoolCommand(
           );
         // Serialize against source edition configuration/publication changes. Source rows are never mutated.
         await tx
-          .select()
+          .select({ slug: editionState.slug })
           .from(editionState)
           .where(eq(editionState.slug, c.sourceEdition))
           .for("share");

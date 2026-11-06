@@ -11,6 +11,7 @@ import { eq, sql } from "drizzle-orm";
 import { db, closeDb, readOnlyData } from "../../src/db";
 import {
   archiveReadPlays,
+  archiveReadVersions,
   editionState,
   historicalStatistics,
 } from "../../src/db/schema";
@@ -291,6 +292,7 @@ async function replaceFacts(generationId: string, plays: MapPlay[]) {
           stage: p.stage,
           title: p.title,
           slot: p.slot,
+          beatmapId: 10000 + p.gameId,
           score: p.score,
           rawScore: p.rawScore ?? p.score,
           scoreMultiplier: 1,
@@ -299,9 +301,16 @@ async function replaceFacts(generationId: string, plays: MapPlay[]) {
           accuracy: p.accuracy,
           mods: p.mods ?? [],
           winnerTeamId: p.winnerTeamId ?? null,
+          optionalFields: ["rawScore", "winnerTeamId"].filter(
+            (key) => p[key as keyof MapPlay] !== undefined,
+          ),
           payload: { ...p },
         })),
       );
+  await db()
+    .update(archiveReadVersions)
+    .set({ publicPlayCount: plays.length })
+    .where(eq(archiveReadVersions.id, generationId));
 }
 
 async function generation() {

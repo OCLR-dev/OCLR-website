@@ -402,6 +402,12 @@ export function buildArchiveReadData(
             hitOk: play.hits?.ok ?? null,
             hitMeh: play.hits?.meh ?? null,
             hitMiss: play.hits?.miss ?? null,
+            optionalFields: [
+              "winnerTeamId",
+              "rawScore",
+              "scoreMultiplier",
+              "hits",
+            ].filter((k) => play[k as keyof StatisticsPlay] !== undefined),
             payload: { ...play },
           });
     }

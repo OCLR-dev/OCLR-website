@@ -10,7 +10,7 @@ export type Entity = {
   node: Node;
 };
 export type Layout = {
-  kind: "archive" | "statistics";
+  kind: "archive" | "statistics" | "summary";
   root: string;
   entities: Entity[];
 };

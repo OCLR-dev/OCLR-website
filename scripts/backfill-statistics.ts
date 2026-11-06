@@ -34,7 +34,7 @@
  *   npm run db:backfill-statistics -- s4 s5 s7 s8 s9 --publish
  */
 import env from "@next/env";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   archiveMpId,
   canExcludeNonParticipantScore,
@@ -54,8 +54,16 @@ import type { MatchSource } from "../src/lib/match-model";
 import type { HistoricalArchive } from "../src/lib/historical-archive";
 import { HttpError } from "../src/lib/http";
 import { db, closeDb } from "../src/db";
-import { editionEvents, historicalStatistics, editionState } from "../src/db/schema";
-import { syncArchiveRelations } from "../src/lib/archive-relations";
+import {
+  editionEvents,
+  editionState,
+} from "../src/db/schema";
+import {
+  syncArchiveRelations,
+  readHistoricalStatistics,
+  lockHistoricalStatistics,
+  persistHistoricalStatistics,
+} from "../src/lib/archive-relations";
 import { readTournament } from "../src/lib/tournaments";
 
 type Options = {
@@ -122,8 +130,7 @@ function teamTotals(
     statisticsScores(game, excludedScores ?? []).reduce(
       (sum, score) =>
         sum +
-        (archive.players.find((p) => p.osuId === score.osuId)?.teamId ===
-        teamId
+        (archive.players.find((p) => p.osuId === score.osuId)?.teamId === teamId
           ? (score.total ?? 0)
           : 0),
       0,
@@ -178,7 +185,10 @@ function selectGames(
 ) {
   const included: number[] = [];
   const rosterTeamGames: number[] = [];
-  const issues = (game: MatchSource["games"][number], useRosterTeams: boolean) =>
+  const issues = (
+    game: MatchSource["games"][number],
+    useRosterTeams: boolean,
+  ) =>
     statisticsGameIssues(
       archive,
       fixtureId,
@@ -226,8 +236,7 @@ function reviewFor(
     const key = (game: MatchSource["games"][number]) =>
       game.beatmapId ?? -game.id;
     const lastByBeatmap = new Map<number, number>();
-    for (const game of source.games)
-      lastByBeatmap.set(key(game), game.id);
+    for (const game of source.games) lastByBeatmap.set(key(game), game.id);
     for (const game of source.games)
       if (lastByBeatmap.get(key(game)) !== game.id) skip.add(game.id);
   }
@@ -317,7 +326,9 @@ function resolveReview(
     { rule: "reviewed", review: base },
     {
       rule: "unlisted-map",
-      review: reviewFor(archive, fixtureId, source, { allowUnlistedMaps: true }),
+      review: reviewFor(archive, fixtureId, source, {
+        allowUnlistedMaps: true,
+      }),
     },
     {
       rule: "replay",
@@ -327,7 +338,9 @@ function resolveReview(
     },
     {
       rule: "empty-team-game",
-      review: reviewFor(archive, fixtureId, source, { dropZeroTeamGames: true }),
+      review: reviewFor(archive, fixtureId, source, {
+        dropZeroTeamGames: true,
+      }),
     },
   ];
   const seeded = candidates.slice();
@@ -394,10 +407,7 @@ async function withRetry<T>(label: string, run: () => Promise<T>) {
 }
 
 async function rowsFor(slug: string) {
-  return db()
-    .select()
-    .from(historicalStatistics)
-    .where(eq(historicalStatistics.editionSlug, slug));
+  return readHistoricalStatistics(slug, db());
 }
 
 async function backfillEdition(slug: string, options: Options) {
@@ -419,8 +429,11 @@ async function backfillEdition(slug: string, options: Options) {
 
   for (const fixture of fixtures) {
     const mpIds = fixture.mpUrls.map(archiveMpId);
-    const prepared: { mpId: number; draft: StatisticsSnapshot; rule: string }[] =
-      [];
+    const prepared: {
+      mpId: number;
+      draft: StatisticsSnapshot;
+      rule: string;
+    }[] = [];
     for (const mpId of mpIds) {
       const existing = rows.find((row) => row.mpId === mpId);
       if (existing?.published && !options.refresh) {
@@ -474,27 +487,24 @@ async function backfillEdition(slug: string, options: Options) {
         .from(editionState)
         .where(eq(editionState.slug, slug))
         .for("update");
+      if (
+        statisticsArchiveKey(
+          (await readTournament(slug, tx))!.edition.archive!,
+        ) !== key
+      )
+        throw new HttpError(409, "Archive changed. Reload before retrying.");
+      await lockHistoricalStatistics(tx, slug);
       for (const { mpId, draft } of prepared) {
         const existing = rows.find((row) => row.mpId === mpId);
         if (existing)
-          await tx
-            .update(historicalStatistics)
-            .set({
-              fixtureId: fixture.id,
-              draft,
-              version: existing.version + 1,
-              updatedAt: new Date(),
-            })
-            .where(
-              and(
-                eq(historicalStatistics.editionSlug, slug),
-                eq(historicalStatistics.mpId, mpId),
-              ),
-            );
+          await persistHistoricalStatistics(tx, slug, mpId, existing, {
+            fixtureId: fixture.id,
+            draft,
+            version: existing.version + 1,
+            updatedAt: new Date(),
+          });
         else
-          await tx.insert(historicalStatistics).values({
-            editionSlug: slug,
-            mpId,
+          await persistHistoricalStatistics(tx, slug, mpId, undefined, {
             fixtureId: fixture.id,
             version: 1,
             draft,
@@ -548,20 +558,19 @@ async function backfillEdition(slug: string, options: Options) {
         .from(editionState)
         .where(eq(editionState.slug, slug))
         .for("update");
+      if (
+        statisticsArchiveKey(
+          (await readTournament(slug, tx))!.edition.archive!,
+        ) !== key
+      )
+        throw new HttpError(409, "Archive changed. Reload before retrying.");
+      await lockHistoricalStatistics(tx, slug);
       for (const row of relevant)
-        await tx
-          .update(historicalStatistics)
-          .set({
-            published: row.draft,
-            publishedAt: new Date(),
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(historicalStatistics.editionSlug, slug),
-              eq(historicalStatistics.mpId, row.mpId),
-            ),
-          );
+        await persistHistoricalStatistics(tx, slug, row.mpId, row, {
+          published: row.draft,
+          publishedAt: new Date(),
+          updatedAt: new Date(),
+        });
       await tx.insert(editionEvents).values({
         editionSlug: slug,
         actorId: null,

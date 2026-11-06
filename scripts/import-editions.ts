@@ -1,4 +1,7 @@
-import { syncArchiveRelations } from "../src/lib/archive-relations";
+import {
+  syncArchiveRelations,
+  archiveEditionStates,
+} from "../src/lib/archive-relations";
 /** One-time migration command. The web application never imports this module or reads this JSON. */
 import { readFileSync } from "node:fs";
 import { and, eq } from "drizzle-orm";
@@ -39,11 +42,16 @@ export async function importLegacyEditions(
       });
       const { slug, ...configuration } = value;
       await tx.insert(editionState).values({ slug }).onConflictDoNothing();
-      const [state] = await tx
-        .select()
+      await tx
+        .select({ slug: editionState.slug })
         .from(editionState)
         .where(eq(editionState.slug, slug))
         .for("update");
+      const [savedState] = await archiveEditionStates(tx, false, slug);
+      const state = savedState ?? {
+        configuration: null,
+        configurationVersion: 0,
+      };
       if (
         state.configuration &&
         JSON.stringify(
@@ -94,7 +102,12 @@ export async function importLegacyEditions(
       await tx
         .insert(editionRevisions)
         .values({ editionSlug: slug, version: revision, configuration });
-      await syncArchiveRelations(tx, slug);
+      await syncArchiveRelations(
+        tx,
+        slug,
+        false,
+        configuration.archive ?? undefined,
+      );
       await tx.insert(editionEvents).values({
         editionSlug: slug,
         kind: "tournament_legacy_import",

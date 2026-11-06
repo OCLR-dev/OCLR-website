@@ -28,7 +28,12 @@ import {
   type RelationRow,
 } from "./archive-relational-codec";
 import { historicalArchiveSchema } from "./historical-archive";
-import { statisticsSnapshotSchema } from "./statistics-snapshot";
+import {
+  statisticsSnapshotSchema,
+  parseStatisticsSnapshot,
+} from "./statistics-snapshot";
+import { archiveStatisticsSummarySchema } from "./archive-summary-schema";
+import type { ArchiveStatisticsSummary } from "./archive-statistics-projection";
 import {
   archiveContentHash,
   type ArchiveState,
@@ -52,6 +57,19 @@ const disabled = () =>
 // Native digests are calculated only at writes/operator verification. Requests
 // compare the small sidecar; canonical content hashes verify decoded rows.
 const archiveDatabaseDigest = sql<string>`encode(sha256(convert_to((${editionState.configuration}->'archive')::text, 'UTF8')), 'hex')`;
+
+/** Operator discovery returns identities only, never entire saved archives. */
+export async function historicalArchiveSlugs(reader: Reader) {
+  return (
+    await reader
+      .select({ slug: editionState.slug })
+      .from(editionState)
+      .where(
+        sql`${editionState.configuration}->'archive' IS NOT NULL AND ${editionState.configuration}->'archive' <> 'null'::jsonb`,
+      )
+      .orderBy(editionState.slug)
+  ).map((row) => row.slug);
+}
 
 /** Pin a verified immutable document in the same statement that reads its
  * configuration/publication metadata. Ready rows omit archive JSONB entirely.
@@ -170,7 +188,12 @@ async function heads(reader: Reader, slug: string, keys?: string[]) {
       ),
     );
 }
-function metadata(reader: Reader, slug: string, fixtureId?: string) {
+function metadata(
+  reader: Reader,
+  slug: string,
+  fixtureId?: string,
+  mpId?: number,
+) {
   return reader
     .select({
       editionSlug: historicalStatistics.editionSlug,
@@ -197,6 +220,7 @@ function metadata(reader: Reader, slug: string, fixtureId?: string) {
       and(
         eq(historicalStatistics.editionSlug, slug),
         fixtureId ? eq(historicalStatistics.fixtureId, fixtureId) : undefined,
+        mpId === undefined ? undefined : eq(historicalStatistics.mpId, mpId),
       ),
     );
 }
@@ -231,13 +255,12 @@ async function loadDocuments(reader: Reader, kind: string, ids: string[]) {
     result.get(String(row.documentId))![row.entity] = row.rows;
   return result;
 }
-async function saveDocument(
+async function storeDocument(
   tx: Writer,
   slug: string,
   key: string,
-  kind: "archive" | "statistics",
+  kind: Layout["kind"],
   value: unknown,
-  sourceHash: string,
   force: boolean,
 ) {
   const layout = layoutFor(kind),
@@ -289,6 +312,25 @@ async function saveDocument(
           );
     }
   }
+  return { document, created };
+}
+async function saveDocument(
+  tx: Writer,
+  slug: string,
+  key: string,
+  kind: "archive" | "statistics",
+  value: unknown,
+  sourceHash: string,
+  force: boolean,
+) {
+  const { document, created } = await storeDocument(
+    tx,
+    slug,
+    key,
+    kind,
+    value,
+    force,
+  );
   await tx
     .insert(archiveRelationHeads)
     .values({
@@ -307,16 +349,155 @@ async function saveDocument(
   return created;
 }
 
+/** Immutable typed cache DTO, deliberately not a source/current-head document. */
+export async function saveArchiveSummary(
+  tx: Writer,
+  slug: string,
+  generationId: string,
+  value: ArchiveStatisticsSummary,
+) {
+  const parsed = archiveStatisticsSummarySchema.parse(value);
+  const { document } = await storeDocument(
+    tx,
+    slug,
+    `summary:${generationId}`,
+    "summary",
+    parsed,
+    false,
+  );
+  if (await readArchiveSummary(tx, slug, document.id, generationId))
+    return document.id;
+  const repaired = await storeDocument(
+    tx,
+    slug,
+    `summary:${generationId}`,
+    "summary",
+    parsed,
+    true,
+  );
+  if (!(await readArchiveSummary(tx, slug, repaired.document.id, generationId)))
+    throw new Error("Historical summary roundtrip mismatch");
+  return repaired.document.id;
+}
+export async function readArchiveSummary(
+  reader: Reader,
+  slug: string,
+  id: string,
+  generationId: string,
+): Promise<ArchiveStatisticsSummary | undefined> {
+  const [document] = await reader
+    .select()
+    .from(archiveRelationDocuments)
+    .where(
+      and(
+        eq(archiveRelationDocuments.id, id),
+        eq(archiveRelationDocuments.documentKey, `summary:${generationId}`),
+        eq(archiveRelationDocuments.editionSlug, slug),
+        eq(archiveRelationDocuments.kind, "summary"),
+        eq(archiveRelationDocuments.codecVersion, ARCHIVE_RELATION_CODEC),
+      ),
+    );
+  if (!document) return undefined;
+  const data = await loadDocuments(reader, "summary", [id]);
+  try {
+    const value = archiveStatisticsSummarySchema.parse(
+      decodeArchiveRelations(layoutFor("summary"), data.get(id)!),
+    );
+    if (
+      value.slug !== slug ||
+      archiveContentHash(value) !== document.contentHash
+    )
+      return undefined;
+    return {
+      ...value,
+      ezScoreMultiplier: value.ezScoreMultiplier,
+      statisticsScorePolicy: value.statisticsScorePolicy,
+      poolFixtures: value.poolFixtures,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+/** Small version identity for validated statistics. No source/payload JSONB
+ * leaves the database, and legacy edits invalidate through the source trigger. */
+export async function archiveReadIdentity(reader: Reader, slug: string) {
+  if (disabled()) return undefined;
+  const [row] = await reader
+    .select({
+      slug: editionState.slug,
+      configurationVersion: editionState.configurationVersion,
+      published: sql<boolean>`${editionState.configuration}->'published' = 'true'::jsonb`,
+      ezScoreMultiplier: sql<number>`coalesce((${editionState.configuration}->>'ezScoreMultiplier')::double precision,1)`,
+      archiveHash: archiveRelationDocuments.contentHash,
+    })
+    .from(editionState)
+    .innerJoin(
+      historicalArchiveSources,
+      eq(historicalArchiveSources.editionSlug, editionState.slug),
+    )
+    .innerJoin(
+      archiveRelationHeads,
+      and(
+        eq(archiveRelationHeads.editionSlug, editionState.slug),
+        eq(archiveRelationHeads.documentKey, "archive"),
+        eq(
+          archiveRelationHeads.archiveSourceDigest,
+          historicalArchiveSources.sourceHash,
+        ),
+      ),
+    )
+    .innerJoin(
+      archiveRelationDocuments,
+      and(
+        eq(archiveRelationDocuments.id, archiveRelationHeads.documentId),
+        eq(archiveRelationDocuments.kind, "archive"),
+        eq(archiveRelationDocuments.codecVersion, ARCHIVE_RELATION_CODEC),
+        eq(
+          archiveRelationDocuments.contentHash,
+          archiveRelationHeads.sourceHash,
+        ),
+      ),
+    )
+    .where(eq(editionState.slug, slug));
+  return row;
+}
+
 /** Caller holds the edition row lock. Only changed documents/MPs are encoded. */
 export async function syncArchiveRelations(
   tx: Writer,
   slug: string,
   force = false,
+  knownArchive?: ReturnType<typeof historicalArchiveSchema.parse>,
 ) {
-  const [state] = await tx
-    .select()
-    .from(editionState)
-    .where(eq(editionState.slug, slug));
+  let state: ArchiveState | undefined;
+  if (knownArchive) {
+    const [source] = await tx
+      .select({
+        state: {
+          ...getTableColumns(editionState),
+          configuration: sql<
+            ArchiveState["configuration"]
+          >`${editionState.configuration} - 'archive'`,
+        },
+        matches: sql<boolean>`${editionState.configuration}->'archive' = ${JSON.stringify(knownArchive)}::jsonb`,
+      })
+      .from(editionState)
+      .where(eq(editionState.slug, slug));
+    if (!source?.matches)
+      throw new Error(
+        "Archive mirror changed before relational synchronization",
+      );
+    state = {
+      ...source.state,
+      configuration: { ...source.state.configuration!, archive: knownArchive },
+    };
+  } else if (!force) [state] = await archiveEditionStates(tx, false, slug);
+  else
+    [state] = await tx
+      .select()
+      .from(editionState)
+      .where(eq(editionState.slug, slug));
   if (!state?.configuration?.archive) {
     await tx
       .delete(archiveRelationHeads)
@@ -328,10 +509,10 @@ export async function syncArchiveRelations(
     throw new Error("Historical edition scope mismatch");
   // Repair missing/stale metadata explicitly under the caller's edition lock.
   // The normal configuration trigger maintains it in the source transaction.
-  await tx.execute(sql`INSERT INTO ${historicalArchiveSources}(edition_slug,source_hash)
-    SELECT ${editionState.slug}, ${archiveDatabaseDigest} FROM ${editionState}
+  await tx.execute(sql`INSERT INTO ${historicalArchiveSources}(edition_slug,source_hash,configuration_hash)
+    SELECT ${editionState.slug}, ${archiveDatabaseDigest}, encode(sha256(convert_to(${editionState.configuration}::text,'UTF8')),'hex') FROM ${editionState}
     WHERE ${editionState.slug} = ${slug}
-    ON CONFLICT(edition_slug) DO UPDATE SET source_hash=EXCLUDED.source_hash`);
+    ON CONFLICT(edition_slug) DO UPDATE SET source_hash=EXCLUDED.source_hash,configuration_hash=EXCLUDED.configuration_hash`);
   // Lock source identities without transferring their large JSONB values.
   await tx
     .select({ mpId: historicalStatistics.mpId })
@@ -503,9 +684,10 @@ export async function normalizedStatistics(
   slug: string,
   reader: Reader,
   fixtureId?: string,
+  mpId?: number,
 ): Promise<StatisticsRow[] | undefined> {
   if (disabled()) return undefined;
-  const sources = await metadata(reader, slug, fixtureId);
+  const sources = await metadata(reader, slug, fixtureId, mpId);
   if (!sources.length) return [];
   const current = await heads(
     reader,
@@ -557,12 +739,167 @@ export async function normalizedStatistics(
   }
 }
 
+/** Complete typed source documents first; only an unavailable/stale document
+ * selects the retained JSONB. Shared by commands, caches and operator imports. */
+export async function readHistoricalStatistics(
+  slug: string,
+  reader: Reader,
+  fixtureId?: string,
+  mpId?: number,
+): Promise<StatisticsRow[]> {
+  return (
+    (await normalizedStatistics(slug, reader, fixtureId, mpId)) ??
+    reader
+      .select()
+      .from(historicalStatistics)
+      .where(
+        and(
+          eq(historicalStatistics.editionSlug, slug),
+          fixtureId ? eq(historicalStatistics.fixtureId, fixtureId) : undefined,
+          mpId === undefined ? undefined : eq(historicalStatistics.mpId, mpId),
+        ),
+      )
+  );
+}
+
+/** Serialize publication/roster checks with direct legacy MP writers as well
+ * as normal edition-scoped commands, without selecting their JSONB. */
+export async function lockHistoricalStatistics(tx: Writer, slug: string) {
+  await tx
+    .select({ mpId: historicalStatistics.mpId })
+    .from(historicalStatistics)
+    .where(eq(historicalStatistics.editionSlug, slug))
+    .for("update");
+}
+
+type StatisticsPatch = Partial<
+  Pick<
+    StatisticsRow,
+    | "fixtureId"
+    | "draft"
+    | "published"
+    | "publishedAt"
+    | "version"
+    | "updatedAt"
+  >
+>;
+/** The JSONB mirror and its typed documents share one write transaction.
+ * Decode unchanged snapshots from relations, retaining their literal legacy
+ * representation instead of normalizing or rereading the JSONB mirror. */
+export async function persistHistoricalStatistics(
+  tx: Writer,
+  slug: string,
+  mpId: number,
+  before: StatisticsRow | undefined,
+  patch: StatisticsPatch,
+) {
+  await tx
+    .select({ mpId: historicalStatistics.mpId })
+    .from(historicalStatistics)
+    .where(
+      and(
+        eq(historicalStatistics.editionSlug, slug),
+        eq(historicalStatistics.mpId, mpId),
+      ),
+    )
+    .for("update");
+  const [raw] = await readHistoricalStatistics(slug, tx, undefined, mpId);
+  const comparable = (row: StatisticsRow) => ({
+    ...row,
+    draft: parseStatisticsSnapshot(row.draft),
+    published: row.published ? parseStatisticsSnapshot(row.published) : null,
+  });
+  if (
+    Boolean(raw) !== Boolean(before) ||
+    (raw &&
+      before &&
+      archiveContentHash(comparable(raw)) !==
+        archiveContentHash(comparable(before)))
+  )
+    throw new HttpError(409, "Statistics changed. Reload before retrying.");
+  const returning = {
+    editionSlug: historicalStatistics.editionSlug,
+    mpId: historicalStatistics.mpId,
+    fixtureId: historicalStatistics.fixtureId,
+    version: historicalStatistics.version,
+    publishedAt: historicalStatistics.publishedAt,
+    updatedAt: historicalStatistics.updatedAt,
+  };
+  const [saved] = raw
+    ? await tx
+        .update(historicalStatistics)
+        .set(patch)
+        .where(
+          and(
+            eq(historicalStatistics.editionSlug, slug),
+            eq(historicalStatistics.mpId, mpId),
+            eq(historicalStatistics.version, raw.version),
+          ),
+        )
+        .returning(returning)
+    : await tx
+        .insert(historicalStatistics)
+        .values({
+          editionSlug: slug,
+          mpId,
+          fixtureId: patch.fixtureId!,
+          draft: patch.draft!,
+          version: patch.version ?? 1,
+          ...patch,
+        })
+        .returning(returning);
+  if (!saved)
+    throw new HttpError(409, "Statistics changed. Reload before retrying.");
+  const [source] = await tx
+    .select({ hash: historicalStatisticsSources.sourceHash })
+    .from(historicalStatisticsSources)
+    .where(
+      and(
+        eq(historicalStatisticsSources.editionSlug, slug),
+        eq(historicalStatisticsSources.mpId, mpId),
+      ),
+    );
+  if (!source) throw new Error("Historical source digest is missing");
+  const snapshots = {
+    draft: patch.draft ?? raw!.draft,
+    published: Object.hasOwn(patch, "published")
+      ? patch.published
+      : (raw?.published ?? null),
+  };
+  for (const kind of ["draft", "published"] as const) {
+    const key = statisticsKey(mpId, kind),
+      value = snapshots[kind];
+    if (value)
+      await saveDocument(
+        tx,
+        slug,
+        key,
+        "statistics",
+        statisticsSnapshotSchema.parse(value),
+        source.hash,
+        false,
+      );
+    else
+      await tx
+        .delete(archiveRelationHeads)
+        .where(
+          and(
+            eq(archiveRelationHeads.editionSlug, slug),
+            eq(archiveRelationHeads.documentKey, key),
+          ),
+        );
+  }
+  return { ...saved, ...snapshots } as StatisticsRow;
+}
+
 export async function archiveRelationsReport(reader: Reader, slug: string) {
   const [state] = await reader
     .select({
       state: editionState,
       digest: archiveDatabaseDigest,
       sourceDigest: historicalArchiveSources.sourceHash,
+      configurationDigest: sql<string>`encode(sha256(convert_to(${editionState.configuration}::text,'UTF8')),'hex')`,
+      storedConfigurationDigest: historicalArchiveSources.configurationHash,
     })
     .from(editionState)
     .leftJoin(
@@ -611,7 +948,8 @@ export async function archiveRelationsReport(reader: Reader, slug: string) {
         c.document.contentHash === expected.get("archive") &&
         c.document.codecVersion === ARCHIVE_RELATION_CODEC &&
         c.head.archiveSourceDigest === state.digest &&
-        state.sourceDigest === state.digest,
+        state.sourceDigest === state.digest &&
+        state.storedConfigurationDigest === state.configurationDigest,
     ),
   };
 }

@@ -86,7 +86,13 @@ describe.skipIf(!base)("historical analysis index upgrade (#911)", () => {
         ).toEqual(revisions);
         expect(
           (await pool.query("SELECT * FROM archive_read_versions")).rows,
-        ).toEqual(versions);
+        ).toEqual(
+          versions.map((version) => ({
+            ...version,
+            public_summary_document_id: null,
+            public_play_count: 1,
+          })),
+        );
         expect(
           (await pool.query("SELECT title,payload FROM archive_read_plays"))
             .rows,
@@ -160,7 +166,13 @@ describe.skipIf(!base)("complete historical relations upgrade (#905)", () => {
         ).toEqual(revisions);
         expect(
           (await pool.query("SELECT * FROM archive_read_versions")).rows,
-        ).toEqual(generations);
+        ).toEqual(
+          generations.map((generation) => ({
+            ...generation,
+            public_summary_document_id: null,
+            public_play_count: 0,
+          })),
+        );
         vi.stubEnv("DATABASE_URL", connection);
         expect(await backfillArchiveRelations("s7")).toMatchObject({
           created: 0,
@@ -185,7 +197,13 @@ describe.skipIf(!base)("complete historical relations upgrade (#905)", () => {
         ).toEqual(revisions);
         expect(
           (await pool.query("SELECT * FROM archive_read_versions")).rows,
-        ).toEqual(generations);
+        ).toEqual(
+          generations.map((generation) => ({
+            ...generation,
+            public_summary_document_id: null,
+            public_play_count: 0,
+          })),
+        );
       } finally {
         rmSync(folder, { recursive: true, force: true });
       }
@@ -258,6 +276,8 @@ describe.skipIf(!base)("historical source manifests upgrade (#902)", () => {
             statistics_score_policy: null,
             ez_score_multiplier: null,
             public_statistics: null,
+            public_summary_document_id: null,
+            public_play_count: 0,
           })),
         );
         const digest = (

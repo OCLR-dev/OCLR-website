@@ -31,7 +31,8 @@ export async function observe<T>(run: () => Promise<T>) {
       ),
     );
     let bytes = 0,
-      sourceArchives = 0;
+      sourceArchives = 0,
+      legacyPayloads = 0;
     for (const s of [...spies, poolQueries])
       for (const r of s.mock.results)
         if (r.type === "return") {
@@ -39,6 +40,12 @@ export async function observe<T>(run: () => Promise<T>) {
           if (result && typeof result === "object" && "rows" in result) {
             const response = result as QueryResult;
             bytes += Buffer.byteLength(JSON.stringify(response.rows));
+            for (const field of response.fields ?? [])
+              if (
+                [114, 3802].includes(field.dataTypeID) &&
+                ["payload", "public_statistics", "header"].includes(field.name)
+              )
+                legacyPayloads += response.rows.length;
             const configuration =
               response.fields?.findIndex(
                 (field: { name: string }) => field.name === "configuration",
@@ -53,7 +60,7 @@ export async function observe<T>(run: () => Promise<T>) {
               }
           }
         }
-    return { value, statements, bytes, sourceArchives };
+    return { value, statements, bytes, sourceArchives, legacyPayloads };
   } finally {
     pool.removeListener("acquire", acquired);
     poolQueries.mockRestore();

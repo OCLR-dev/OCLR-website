@@ -7,6 +7,11 @@ DT5/TB1 and every other season/pool are unaffected. The captured public inventor
 in `docs/imports/early-season-mappools.json` remains evidence of the old save.
 New Admin archive imports correct those two slots at the write boundary.
 
+The [remaining JSONB read/write inventory](archive-jsonb-inventory.md) records the
+completion of native public summaries/facts, lightweight generation checks and
+transactional mirror/document writes (#929). It lists the JSONB kept for evidence,
+compatibility, audits and explicit recovery, and the migration 0083/backfill steps.
+
 ## Operator shell and diagnostics
 
 On the managed Rocky host, systemd loads `/etc/oclr/runtime.env` for the service.

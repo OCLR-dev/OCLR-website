@@ -1,9 +1,28 @@
 import { alias } from "drizzle-orm/pg-core";
-import { normalizedArchive, syncArchiveRelations } from "./archive-relations";
-import { editionSchema, normalizeEditionBranding } from "./editions";
+import {
+  normalizedArchive,
+  syncArchiveRelations,
+  archiveEditionStates,
+  archiveReadIdentity,
+  readArchiveSummary,
+  saveArchiveSummary,
+} from "./archive-relations";
+import {
+  archivePlayColumns,
+  archivePlayFromColumns,
+} from "./archive-play-columns";
 import { supportsArchiveStatistics } from "./archive-statistics-model";
 import { STATISTICS_SCORE_POLICY } from "./statistics-score";
-import { and, desc, eq, inArray, or, gte } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  inArray,
+  or,
+  gte,
+  getTableColumns,
+  sql,
+} from "drizzle-orm";
 import { db } from "@/db";
 import {
   archiveReadVersions,
@@ -220,17 +239,11 @@ export async function rebuildArchiveReadData(
   force = false,
 ) {
   await syncArchiveRelations(tx, slug, force);
-  const [state] = await tx
-    .select()
-    .from(editionState)
-    .where(eq(editionState.slug, slug));
+  const [state] = await archiveEditionStates(tx, false, slug);
   if (!state?.configuration?.archive)
     return { created: false, generationId: null };
-  const rows = await tx
-    .select()
-    .from(historicalStatistics)
-    .where(eq(historicalStatistics.editionSlug, slug))
-    .for("share");
+  const { readHistoricalStatistics } = await import("./archive-relations");
+  const rows = await readHistoricalStatistics(slug, tx);
   const sourceHash = archiveSourceHash(state, rows);
   const [existing] = await tx
     .select()
@@ -246,9 +259,70 @@ export async function rebuildArchiveReadData(
         eq(archiveReadVersions.projectorVersion, ARCHIVE_PROJECTOR_VERSION),
       ),
     )
+    .orderBy(desc(archiveReadVersions.createdAt), desc(archiveReadVersions.id))
     .limit(1);
-  if (existing && !force) return { created: false, generationId: existing.id };
+  const [existingCount] = existing
+    ? await tx
+        .select({ total: sql<number>`count(*)::integer` })
+        .from(archiveReadPlays)
+        .where(eq(archiveReadPlays.generationId, existing.id))
+    : [{ total: 0 }];
+  if (
+    existing &&
+    !force &&
+    existing.publicPlayCount === existingCount.total &&
+    existing.publicSummaryDocumentId &&
+    (await readArchiveSummary(
+      tx,
+      slug,
+      existing.publicSummaryDocumentId,
+      existing.id,
+    ))
+  )
+    return { created: false, generationId: existing.id, publicReadReady: true };
   const built = buildArchiveReadData(state, rows);
+  if (existing && !force && !built.publicStatistics)
+    return {
+      created: false,
+      generationId: existing.id,
+      publicReadReady: false,
+    };
+  if (existing && !force && built.publicStatistics) {
+    const actual = await tx
+      .select(archivePlayColumns)
+      .from(archiveReadPlays)
+      .where(eq(archiveReadPlays.generationId, existing.id))
+      .orderBy(archiveReadPlays.position);
+    // Upgrade old valid generations in place, preserving their JSONB and IDs.
+    // Rebuild a new generation when derived facts do not roundtrip exactly.
+    let matches = false;
+    try {
+      matches =
+        archiveContentHash(actual.map(archivePlayFromColumns)) ===
+        archiveContentHash(
+          built.data.plays.map((r) => archivePlayPayload(r.payload)),
+        );
+    } catch {
+      /* Incomplete native facts require a rebuild. */
+    }
+    if (matches) {
+      const publicSummaryDocumentId = await saveArchiveSummary(
+        tx,
+        slug,
+        existing.id,
+        built.publicStatistics,
+      );
+      await tx
+        .update(archiveReadVersions)
+        .set({ publicSummaryDocumentId, publicPlayCount: actual.length })
+        .where(eq(archiveReadVersions.id, existing.id));
+      return {
+        created: false,
+        generationId: existing.id,
+        publicReadReady: true,
+      };
+    }
+  }
   if (
     archiveContentHash(restoreArchiveReadData(built.header, built.data)) !==
     built.archiveHash
@@ -276,10 +350,23 @@ export async function rebuildArchiveReadData(
       statisticsScorePolicy: STATISTICS_SCORE_POLICY,
       ezScoreMultiplier: state.configuration.ezScoreMultiplier ?? 1,
       publicStatistics: built.publicStatistics,
+      publicPlayCount: built.data.plays.length,
     })
     .returning();
   const data = built.data,
     generationId = version.id;
+  if (built.publicStatistics) {
+    const publicSummaryDocumentId = await saveArchiveSummary(
+      tx,
+      slug,
+      generationId,
+      built.publicStatistics,
+    );
+    await tx
+      .update(archiveReadVersions)
+      .set({ publicSummaryDocumentId })
+      .where(eq(archiveReadVersions.id, generationId));
+  }
   for (let offset = 0; offset < data.teams.length; offset += 250)
     await tx
       .insert(archiveReadTeams)
@@ -384,7 +471,11 @@ export async function rebuildArchiveReadData(
           .slice(offset, offset + 250)
           .map((row) => ({ ...row, generationId })),
       );
-  return { created: true, generationId };
+  return {
+    created: true,
+    generationId,
+    publicReadReady: Boolean(built.publicStatistics),
+  };
 }
 
 /** Explicit, saved-only, idempotent backfill. Preview takes no write locks. */
@@ -395,24 +486,55 @@ export async function backfillArchiveReads(
 ) {
   return db().transaction(
     async (tx) => {
-      const query = tx
-        .select()
-        .from(editionState)
-        .where(eq(editionState.slug, slug));
-      const [state] = await (apply ? query.for("update") : query);
+      if (apply)
+        await tx
+          .select({ slug: editionState.slug })
+          .from(editionState)
+          .where(eq(editionState.slug, slug))
+          .for("update");
+      const [state] = await archiveEditionStates(tx, false, slug);
       if (!state?.configuration?.archive)
         throw new HttpError(404, "Saved historical archive is required.");
       if (apply)
         return { slug, ...(await rebuildArchiveReadData(tx, slug, force)) };
-      const rows = await tx
-        .select()
-        .from(historicalStatistics)
-        .where(eq(historicalStatistics.editionSlug, slug));
+      const { readHistoricalStatistics } = await import("./archive-relations");
+      const rows = await readHistoricalStatistics(slug, tx);
       const { data, sourceHash } = buildArchiveReadData(state, rows);
+      const [existing] = await tx
+        .select({
+          id: archiveReadVersions.id,
+          documentId: archiveReadVersions.publicSummaryDocumentId,
+          publicPlayCount: archiveReadVersions.publicPlayCount,
+          actualPlayCount: sql<number>`(SELECT count(*)::integer FROM ${archiveReadPlays} WHERE ${archiveReadPlays.generationId}=${archiveReadVersions.id})`,
+        })
+        .from(archiveReadVersions)
+        .where(
+          and(
+            eq(archiveReadVersions.editionSlug, slug),
+            eq(archiveReadVersions.sourceHash, sourceHash),
+            eq(archiveReadVersions.projectorVersion, ARCHIVE_PROJECTOR_VERSION),
+          ),
+        )
+        .orderBy(
+          desc(archiveReadVersions.createdAt),
+          desc(archiveReadVersions.id),
+        )
+        .limit(1);
       return {
         slug,
         created: false,
         sourceHash,
+        publicReadReady: Boolean(
+          existing?.documentId &&
+          existing.publicPlayCount === existing.actualPlayCount &&
+          existing.actualPlayCount === data.plays.length &&
+          (await readArchiveSummary(
+            tx,
+            slug,
+            existing.documentId,
+            existing.id,
+          )),
+        ),
         rows: Object.fromEntries(
           Object.entries(data).map(([key, value]) => [key, value.length]),
         ),
@@ -423,6 +545,73 @@ export async function backfillArchiveReads(
       ...(apply ? {} : { accessMode: "read only" as const }),
     },
   );
+}
+
+/** Explicit audit against retained raw evidence; never called by a page read. */
+export async function verifyArchiveReads(reader: Reader, slug: string) {
+  const [state] = await reader
+    .select()
+    .from(editionState)
+    .where(eq(editionState.slug, slug));
+  if (!state?.configuration?.archive)
+    throw new HttpError(404, "Saved historical archive is required.");
+  const sources = await reader
+    .select()
+    .from(historicalStatistics)
+    .where(eq(historicalStatistics.editionSlug, slug));
+  const built = buildArchiveReadData(state, sources);
+  const [version] = await reader
+    .select({
+      id: archiveReadVersions.id,
+      documentId: archiveReadVersions.publicSummaryDocumentId,
+      publicPlayCount: archiveReadVersions.publicPlayCount,
+    })
+    .from(archiveReadVersions)
+    .where(
+      and(
+        eq(archiveReadVersions.editionSlug, slug),
+        eq(archiveReadVersions.sourceHash, built.sourceHash),
+        eq(archiveReadVersions.projectorVersion, ARCHIVE_PROJECTOR_VERSION),
+      ),
+    )
+    .orderBy(desc(archiveReadVersions.createdAt), desc(archiveReadVersions.id))
+    .limit(1);
+  if (!version || (built.publicStatistics && !version.documentId))
+    throw new HttpError(
+      409,
+      "Historical relations are stale; run the reviewed apply first.",
+    );
+  const summary = version.documentId
+    ? await readArchiveSummary(reader, slug, version.documentId, version.id)
+    : null;
+  const facts = await reader
+    .select(archivePlayColumns)
+    .from(archiveReadPlays)
+    .where(eq(archiveReadPlays.generationId, version.id))
+    .orderBy(archiveReadPlays.position);
+  let matches = false;
+  try {
+    matches =
+      version.publicPlayCount === facts.length &&
+      archiveContentHash(summary) ===
+        archiveContentHash(built.publicStatistics) &&
+      archiveContentHash(facts.map(archivePlayFromColumns)) ===
+        archiveContentHash(
+          built.data.plays.map((row) => archivePlayPayload(row.payload)),
+        );
+  } catch {
+    /* Fail below without printing evidence. */
+  }
+  if (!matches)
+    throw new HttpError(
+      409,
+      "Historical relational verification failed; source JSONB was preserved.",
+    );
+  return {
+    generationId: version.id,
+    publicReadReady: Boolean(summary),
+    plays: facts.length,
+  };
 }
 
 export async function relationalStatistics(
@@ -458,7 +647,7 @@ export async function relationalStatistics(
  * Every server entry point rechecks publication and the matching source manifest. */
 export async function relationalPublicPlays(
   slug: string,
-  rows: StatisticsRow[],
+  _rows: StatisticsRow[],
   reader: Reader,
   filters: {
     fixtureId?: string;
@@ -468,15 +657,10 @@ export async function relationalPublicPlays(
     beatmapId?: number;
   } = {},
 ) {
-  const [state] = await reader
-    .select()
-    .from(editionState)
-    .where(eq(editionState.slug, slug));
-  if (!state?.configuration?.published) return undefined;
-  const version = await currentVersion(state, reader, rows);
+  const version = await currentPublicStatisticsVersion(slug, reader);
   if (!version) return undefined;
   const result = await reader
-    .select()
+    .select(archivePlayColumns)
     .from(archiveReadPlays)
     .where(
       and(
@@ -497,7 +681,11 @@ export async function relationalPublicPlays(
       ),
     )
     .orderBy(archiveReadPlays.position);
-  return result.map((row) => archivePlayPayload(row.payload));
+  try {
+    return result.map(archivePlayFromColumns);
+  } catch {
+    return undefined;
+  }
 }
 
 /** A missing sidecar row disables the shortcut; it never hides a source. */
@@ -530,25 +718,42 @@ export async function currentPublicStatisticsVersion(
 ) {
   if (remoteMode() || process.env.OCLR_ARCHIVE_READ_MODEL === "jsonb")
     return undefined;
-  const [state] = await reader
-    .select()
-    .from(editionState)
-    .where(eq(editionState.slug, slug));
-  if (
-    state?.configuration?.published !== true ||
-    !supportsArchiveStatistics(slug)
-  )
+  const state = await archiveReadIdentity(reader, slug);
+  if (state?.published !== true || !supportsArchiveStatistics(slug))
     return undefined;
-  const edition = editionSchema.parse(
-    normalizeEditionBranding({ ...state.configuration, slug }),
-  );
-  if (!edition.archive) return undefined;
-  const version = await currentVersion(state, reader);
+  const {
+    header: _header,
+    publicStatistics: _summary,
+    ...fields
+  } = getTableColumns(archiveReadVersions);
+  void _header;
+  void _summary;
+  const [version] = await reader
+    .select({
+      ...fields,
+      actualPlayCount: sql<number>`(SELECT count(*)::integer FROM ${archiveReadPlays} WHERE ${archiveReadPlays.generationId}=${archiveReadVersions.id})`,
+    })
+    .from(archiveReadVersions)
+    .where(
+      and(
+        eq(archiveReadVersions.editionSlug, slug),
+        eq(
+          archiveReadVersions.configurationVersion,
+          state.configurationVersion,
+        ),
+        eq(archiveReadVersions.archiveHash, state.archiveHash),
+        eq(archiveReadVersions.projectorVersion, ARCHIVE_PROJECTOR_VERSION),
+      ),
+    )
+    .orderBy(desc(archiveReadVersions.createdAt), desc(archiveReadVersions.id))
+    .limit(1);
   if (
-    !version?.publicStatistics ||
+    !version ||
+    !version.publicSummaryDocumentId ||
+    version.publicPlayCount !== version.actualPlayCount ||
     !version.statisticsManifestHash ||
     version.statisticsScorePolicy !== STATISTICS_SCORE_POLICY ||
-    version.ezScoreMultiplier !== (edition.ezScoreMultiplier ?? 1) ||
+    version.ezScoreMultiplier !== state.ezScoreMultiplier ||
     version.statisticsManifestHash !==
       (await statisticsManifestHash(reader, slug))
   )
@@ -559,16 +764,24 @@ export async function currentPublicStatisticsVersion(
 /** Already validated summary and facts: no MP source JSONB is read on this path. */
 export async function relationalPublicStatistics(slug: string, reader: Reader) {
   const version = await currentPublicStatisticsVersion(slug, reader);
-  if (!version) return undefined;
+  if (!version?.publicSummaryDocumentId) return undefined;
+  const summary = await readArchiveSummary(
+    reader,
+    slug,
+    version.publicSummaryDocumentId,
+    version.id,
+  );
+  if (!summary) return undefined;
   const facts = await reader
-    .select({ payload: archiveReadPlays.payload })
+    .select(archivePlayColumns)
     .from(archiveReadPlays)
     .where(eq(archiveReadPlays.generationId, version.id))
     .orderBy(archiveReadPlays.position);
-  return {
-    summary: version.publicStatistics!,
-    plays: facts.map((f) => archivePlayPayload(f.payload)),
-  };
+  try {
+    return { summary, plays: facts.map(archivePlayFromColumns) };
+  } catch {
+    return undefined;
+  }
 }
 
 /** Keep entire games, including opponents and bench games for the player's teams. */
@@ -607,7 +820,7 @@ export async function relationalPlayerArchivePlays(
       ),
     );
   const facts = await reader
-    .select({ payload: archiveReadPlays.payload })
+    .select(archivePlayColumns)
     .from(archiveReadPlays)
     .where(
       and(
@@ -616,5 +829,9 @@ export async function relationalPlayerArchivePlays(
       ),
     )
     .orderBy(archiveReadPlays.position);
-  return facts.map((f) => archivePlayPayload(f.payload));
+  try {
+    return facts.map(archivePlayFromColumns);
+  } catch {
+    return undefined;
+  }
 }

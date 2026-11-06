@@ -1844,6 +1844,8 @@ export const archiveReadVersions = pgTable(
       jsonb("public_statistics").$type<
         import("@/lib/archive-statistics-projection").ArchiveStatisticsSummary
       >(),
+    publicSummaryDocumentId: uuid("public_summary_document_id"),
+    publicPlayCount: integer("public_play_count"),
     projectorVersion: integer("projector_version").notNull(),
     header: jsonb("header").$type<Record<string, unknown>>().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -1861,6 +1863,13 @@ export const archiveReadVersions = pgTable(
       "archive_read_version_positive",
       sql`${t.configurationVersion} >= 0 AND ${t.projectorVersion} > 0`,
     ),
+    foreignKey({
+      columns: [t.editionSlug, t.publicSummaryDocumentId],
+      foreignColumns: [
+        archiveRelationDocuments.editionSlug,
+        archiveRelationDocuments.id,
+      ],
+    }),
   ],
 );
 
@@ -2206,6 +2215,10 @@ export const archiveReadPlays = pgTable(
     hitOk: archiveBigint("hit_ok"),
     hitMeh: archiveBigint("hit_meh"),
     hitMiss: archiveBigint("hit_miss"),
+    optionalFields: text("optional_fields")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     payload: jsonb("payload").$type<Record<string, unknown>>().notNull(),
   },
   (t) => [
@@ -2310,6 +2323,7 @@ export const archiveRelationDocuments = pgTable(
       t.documentKey,
       t.id,
     ),
+    unique("archive_relation_document_edition_id").on(t.editionSlug, t.id),
     index("archive_relation_document_content_idx").on(
       t.editionSlug,
       t.documentKey,
@@ -2323,11 +2337,11 @@ export const archiveRelationDocuments = pgTable(
     ),
     check(
       "archive_relation_document_kind",
-      sql`${t.kind} IN ('archive','statistics')`,
+      sql`${t.kind} IN ('archive','statistics','summary')`,
     ),
     check(
       "archive_relation_document_source",
-      sql`(${t.kind}='archive' AND ${t.mpId} IS NULL AND ${t.snapshotKind} IS NULL) OR (${t.kind}='statistics' AND ${t.mpId} IS NOT NULL AND ${t.snapshotKind} IS NOT NULL AND ${t.mpId}>0 AND ${t.snapshotKind} IN ('draft','published'))`,
+      sql`(${t.kind} IN ('archive','summary') AND ${t.mpId} IS NULL AND ${t.snapshotKind} IS NULL) OR (${t.kind}='statistics' AND ${t.mpId} IS NOT NULL AND ${t.snapshotKind} IS NOT NULL AND ${t.mpId}>0 AND ${t.snapshotKind} IN ('draft','published'))`,
     ),
     check(
       "archive_relation_document_hash",
@@ -2347,11 +2361,16 @@ export const historicalArchiveSources = pgTable(
         onUpdate: "cascade",
       }),
     sourceHash: text("source_hash").notNull(),
+    configurationHash: text("configuration_hash"),
   },
   (t) => [
     check(
       "historical_archive_source_hash",
       sql`${t.sourceHash} ~ '^[a-f0-9]{64}$'`,
+    ),
+    check(
+      "historical_archive_configuration_hash",
+      sql`${t.configurationHash} ~ '^[a-f0-9]{64}$'`,
     ),
   ],
 );

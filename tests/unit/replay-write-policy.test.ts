@@ -66,7 +66,13 @@ const state = {
 function rows(table: unknown): unknown[] {
   if (table === staffRoles) return state.grants;
   if (table === editionState)
-    return [{ configuration: { archive: state.archived ? {} : undefined } }];
+    return [
+      {
+        configured: true,
+        archive: state.archived,
+        configuration: { archive: state.archived ? {} : undefined },
+      },
+    ];
   if (table === mappoolEntries)
     return state.missing
       ? []

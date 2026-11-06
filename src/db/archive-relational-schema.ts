@@ -1454,6 +1454,288 @@ export const archiveRelStatisticsExcludedGames = pgTable(
     }),
   ],
 );
+export const archiveRelSummary = pgTable(
+  "archive_rel_summary",
+  {
+    documentId: uuid("document_id").notNull(),
+    id: integer("id").notNull(),
+    parentId: integer("parent_id"),
+    position: integer("position").notNull(),
+    recordKey: text("record_key"),
+    present: text("present").array().notNull(),
+    nulls: text("nulls").array().notNull(),
+    value_slug: text("value_slug"),
+    value_archive_key: text("value_archive_key"),
+    value_ez_score_multiplier: doublePrecision("value_ez_score_multiplier"),
+    value_statistics_score_policy: text("value_statistics_score_policy"),
+    value_stages: text("value_stages").array(),
+    value_published_at: text("value_published_at"),
+    value_mp_total: bigint("value_mp_total", { mode: "number" }),
+    value_mp_covered: bigint("value_mp_covered", { mode: "number" }),
+  },
+  (t) => [
+    primaryKey({
+      name: "archive_rel_summary_pk",
+      columns: [t.documentId, t.id],
+    }),
+    unique("archive_rel_summary_order_key").on(
+      t.documentId,
+      t.parentId,
+      t.position,
+    ),
+    foreignKey({
+      name: "archive_rel_summary_document_fk",
+      columns: [t.documentId],
+      foreignColumns: [archiveRelationDocuments.id],
+    }),
+    check("archive_rel_summary_root", sql`${t.id}=0 AND ${t.parentId} IS NULL`),
+  ],
+);
+export const archiveRelSummaryPlayers = pgTable(
+  "archive_rel_summary_players",
+  {
+    documentId: uuid("document_id").notNull(),
+    id: integer("id").notNull(),
+    parentId: integer("parent_id").notNull(),
+    position: integer("position").notNull(),
+    recordKey: text("record_key"),
+    present: text("present").array().notNull(),
+    nulls: text("nulls").array().notNull(),
+    value_osu_id: bigint("value_osu_id", { mode: "number" }),
+    value_username: text("value_username"),
+    value_team_id: text("value_team_id"),
+    value_role: text("value_role"),
+    value_tier: doublePrecision("value_tier"),
+  },
+  (t) => [
+    primaryKey({
+      name: "archive_rel_summary_players_pk",
+      columns: [t.documentId, t.id],
+    }),
+    unique("archive_rel_summary_players_order_key").on(
+      t.documentId,
+      t.parentId,
+      t.position,
+    ),
+    foreignKey({
+      name: "archive_rel_summary_players_document_fk",
+      columns: [t.documentId],
+      foreignColumns: [archiveRelationDocuments.id],
+    }),
+    foreignKey({
+      name: "archive_rel_summary_players_parent_fk",
+      columns: [t.documentId, t.parentId],
+      foreignColumns: [archiveRelSummary.documentId, archiveRelSummary.id],
+    }),
+    index("archive_rel_summary_players_value_osu_id_idx").on(
+      t["value_osu_id"],
+      t.documentId,
+    ),
+    index("archive_rel_summary_players_value_team_id_idx").on(
+      t["value_team_id"],
+      t.documentId,
+    ),
+  ],
+);
+export const archiveRelSummaryTeams = pgTable(
+  "archive_rel_summary_teams",
+  {
+    documentId: uuid("document_id").notNull(),
+    id: integer("id").notNull(),
+    parentId: integer("parent_id").notNull(),
+    position: integer("position").notNull(),
+    recordKey: text("record_key"),
+    present: text("present").array().notNull(),
+    nulls: text("nulls").array().notNull(),
+    value_id: text("value_id"),
+    value_name: text("value_name"),
+  },
+  (t) => [
+    primaryKey({
+      name: "archive_rel_summary_teams_pk",
+      columns: [t.documentId, t.id],
+    }),
+    unique("archive_rel_summary_teams_order_key").on(
+      t.documentId,
+      t.parentId,
+      t.position,
+    ),
+    foreignKey({
+      name: "archive_rel_summary_teams_document_fk",
+      columns: [t.documentId],
+      foreignColumns: [archiveRelationDocuments.id],
+    }),
+    foreignKey({
+      name: "archive_rel_summary_teams_parent_fk",
+      columns: [t.documentId, t.parentId],
+      foreignColumns: [archiveRelSummary.documentId, archiveRelSummary.id],
+    }),
+  ],
+);
+export const archiveRelSummaryFixtures = pgTable(
+  "archive_rel_summary_fixtures",
+  {
+    documentId: uuid("document_id").notNull(),
+    id: integer("id").notNull(),
+    parentId: integer("parent_id").notNull(),
+    position: integer("position").notNull(),
+    recordKey: text("record_key"),
+    present: text("present").array().notNull(),
+    nulls: text("nulls").array().notNull(),
+    value_id: text("value_id"),
+    value_label: text("value_label"),
+    value_stage: text("value_stage"),
+    value_covered: boolean("value_covered"),
+    value_technical_adjudication: boolean("value_technical_adjudication"),
+    value_score: doublePrecision("value_score").array(),
+  },
+  (t) => [
+    primaryKey({
+      name: "archive_rel_summary_fixtures_pk",
+      columns: [t.documentId, t.id],
+    }),
+    unique("archive_rel_summary_fixtures_order_key").on(
+      t.documentId,
+      t.parentId,
+      t.position,
+    ),
+    foreignKey({
+      name: "archive_rel_summary_fixtures_document_fk",
+      columns: [t.documentId],
+      foreignColumns: [archiveRelationDocuments.id],
+    }),
+    foreignKey({
+      name: "archive_rel_summary_fixtures_parent_fk",
+      columns: [t.documentId, t.parentId],
+      foreignColumns: [archiveRelSummary.documentId, archiveRelSummary.id],
+    }),
+  ],
+);
+export const archiveRelSummaryPoolFixtures = pgTable(
+  "archive_rel_summary_pool_fixtures",
+  {
+    documentId: uuid("document_id").notNull(),
+    id: integer("id").notNull(),
+    parentId: integer("parent_id").notNull(),
+    position: integer("position").notNull(),
+    recordKey: text("record_key"),
+    present: text("present").array().notNull(),
+    nulls: text("nulls").array().notNull(),
+    value_id: text("value_id"),
+    value_round: text("value_round"),
+    value_teams: text("value_teams").array(),
+    value_team_ids: text("value_team_ids").array(),
+    value_picks: text("value_picks").array(),
+  },
+  (t) => [
+    primaryKey({
+      name: "archive_rel_summary_pool_fixtures_pk",
+      columns: [t.documentId, t.id],
+    }),
+    unique("archive_rel_summary_pool_fixtures_order_key").on(
+      t.documentId,
+      t.parentId,
+      t.position,
+    ),
+    foreignKey({
+      name: "archive_rel_summary_pool_fixtures_document_fk",
+      columns: [t.documentId],
+      foreignColumns: [archiveRelationDocuments.id],
+    }),
+    foreignKey({
+      name: "archive_rel_summary_pool_fixtures_parent_fk",
+      columns: [t.documentId, t.parentId],
+      foreignColumns: [archiveRelSummary.documentId, archiveRelSummary.id],
+    }),
+  ],
+);
+export const archiveRelSummaryPoolFixturesMaps = pgTable(
+  "archive_rel_summary_pool_fixtures_maps",
+  {
+    documentId: uuid("document_id").notNull(),
+    id: integer("id").notNull(),
+    parentId: integer("parent_id").notNull(),
+    position: integer("position").notNull(),
+    recordKey: text("record_key"),
+    present: text("present").array().notNull(),
+    nulls: text("nulls").array().notNull(),
+    value_round: text("value_round"),
+    value_slot: text("value_slot"),
+    value_map_id: doublePrecision("value_map_id"),
+    value_title: text("value_title"),
+  },
+  (t) => [
+    primaryKey({
+      name: "archive_rel_summary_pool_fixtures_maps_pk",
+      columns: [t.documentId, t.id],
+    }),
+    unique("archive_rel_summary_pool_fixtures_maps_order_key").on(
+      t.documentId,
+      t.parentId,
+      t.position,
+    ),
+    foreignKey({
+      name: "archive_rel_summary_pool_fixtures_maps_document_fk",
+      columns: [t.documentId],
+      foreignColumns: [archiveRelationDocuments.id],
+    }),
+    foreignKey({
+      name: "archive_rel_summary_pool_fixtures_maps_parent_fk",
+      columns: [t.documentId, t.parentId],
+      foreignColumns: [
+        archiveRelSummaryPoolFixtures.documentId,
+        archiveRelSummaryPoolFixtures.id,
+      ],
+    }),
+    index("archive_rel_summary_pool_fixtures_maps_value_slot_idx").on(
+      t["value_slot"],
+      t.documentId,
+    ),
+  ],
+);
+export const archiveRelSummaryPoolFixturesBans = pgTable(
+  "archive_rel_summary_pool_fixtures_bans",
+  {
+    documentId: uuid("document_id").notNull(),
+    id: integer("id").notNull(),
+    parentId: integer("parent_id").notNull(),
+    position: integer("position").notNull(),
+    recordKey: text("record_key"),
+    present: text("present").array().notNull(),
+    nulls: text("nulls").array().notNull(),
+    value_team: text("value_team"),
+    value_team_id: text("value_team_id"),
+    value_maps: text("value_maps").array(),
+  },
+  (t) => [
+    primaryKey({
+      name: "archive_rel_summary_pool_fixtures_bans_pk",
+      columns: [t.documentId, t.id],
+    }),
+    unique("archive_rel_summary_pool_fixtures_bans_order_key").on(
+      t.documentId,
+      t.parentId,
+      t.position,
+    ),
+    foreignKey({
+      name: "archive_rel_summary_pool_fixtures_bans_document_fk",
+      columns: [t.documentId],
+      foreignColumns: [archiveRelationDocuments.id],
+    }),
+    foreignKey({
+      name: "archive_rel_summary_pool_fixtures_bans_parent_fk",
+      columns: [t.documentId, t.parentId],
+      foreignColumns: [
+        archiveRelSummaryPoolFixtures.documentId,
+        archiveRelSummaryPoolFixtures.id,
+      ],
+    }),
+    index("archive_rel_summary_pool_fixtures_bans_value_team_id_idx").on(
+      t["value_team_id"],
+      t.documentId,
+    ),
+  ],
+);
 export const archiveRelationTables = {
   archive_rel_archive: archiveRelArchive,
   archive_rel_archive_final_placements: archiveRelArchiveFinalPlacements,
@@ -1492,4 +1774,11 @@ export const archiveRelationTables = {
     archiveRelStatisticsSourceGamesScoresProviderFields,
   archive_rel_statistics_excluded_scores: archiveRelStatisticsExcludedScores,
   archive_rel_statistics_excluded_games: archiveRelStatisticsExcludedGames,
+  archive_rel_summary: archiveRelSummary,
+  archive_rel_summary_players: archiveRelSummaryPlayers,
+  archive_rel_summary_teams: archiveRelSummaryTeams,
+  archive_rel_summary_fixtures: archiveRelSummaryFixtures,
+  archive_rel_summary_pool_fixtures: archiveRelSummaryPoolFixtures,
+  archive_rel_summary_pool_fixtures_maps: archiveRelSummaryPoolFixturesMaps,
+  archive_rel_summary_pool_fixtures_bans: archiveRelSummaryPoolFixturesBans,
 };

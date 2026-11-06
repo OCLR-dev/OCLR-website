@@ -66,4 +66,5 @@ real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
 - [Referee match and recovery acceptance](referee-acceptance.md) — explicit isolated BO9 rehearsal, pinned desktop Main, real HTTP/TCP, fault/revocation/handoff matrix and evidence limits (#525/#526).
 
 - [Historical JSONB correction and relational reads](archive-relational-queries.md) — S2 saved-data correction, complete typed relations for all historical seasons, direct relation reads without source archive JSONB transfer, incremental transaction synchronization, backfill and compatible reads (#899, #900, #902, #905, #919).
+- [Historical JSONB read/write inventory](archive-jsonb-inventory.md) — remaining-path audit, typed public summary/facts, transactional mirror writes and the intentionally retained evidence/fallback paths (#929).
 - [Background player analytics](background-player-analytics.md) — versioned ranking snapshots, source invalidation, personal MRA reads and the operator timer (#916).

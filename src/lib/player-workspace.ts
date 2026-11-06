@@ -1,3 +1,4 @@
+import { editionOperationState } from "./archive-guard";
 import { createHash } from "node:crypto";
 import { and, eq, inArray, isNull, isNotNull, or, sql } from "drizzle-orm";
 import { db, readOnlyData } from "@/db";
@@ -66,11 +67,8 @@ export async function playerWorkspaceEligible(
   };
 }
 async function context(reader: Reader, actor: User, slug: string) {
-  const [state] = await reader
-    .select()
-    .from(editionState)
-    .where(eq(editionState.slug, slug));
-  if (!state?.configuration?.published || state.configuration.archive)
+  const state = await editionOperationState(slug, reader);
+  if (!state?.configuration?.published || state.hasArchive)
     throw new HttpError(
       404,
       "Player workspace is unavailable for this tournament.",

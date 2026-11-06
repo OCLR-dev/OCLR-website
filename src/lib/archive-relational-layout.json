@@ -2528,5 +2528,360 @@
         }
       }
     ]
+  },
+  {
+    "kind": "summary",
+    "root": "archive_rel_summary",
+    "entities": [
+      {
+        "key": "archive_rel_summary",
+        "fields": [
+          { "column": "value_slug", "type": "string", "array": false },
+          { "column": "value_archive_key", "type": "string", "array": false },
+          {
+            "column": "value_ez_score_multiplier",
+            "type": "number",
+            "array": false
+          },
+          {
+            "column": "value_statistics_score_policy",
+            "type": "string",
+            "array": false
+          },
+          { "column": "value_stages", "type": "string", "array": true },
+          { "column": "value_published_at", "type": "string", "array": false },
+          { "column": "value_mp_total", "type": "integer", "array": false },
+          { "column": "value_mp_covered", "type": "integer", "array": false }
+        ],
+        "node": {
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "scalar",
+              "column": "value_slug",
+              "scalar": "string",
+              "array": false
+            },
+            "archiveKey": {
+              "type": "scalar",
+              "column": "value_archive_key",
+              "scalar": "string",
+              "array": false
+            },
+            "ezScoreMultiplier": {
+              "type": "scalar",
+              "column": "value_ez_score_multiplier",
+              "scalar": "number",
+              "array": false
+            },
+            "statisticsScorePolicy": {
+              "type": "scalar",
+              "column": "value_statistics_score_policy",
+              "scalar": "string",
+              "array": false
+            },
+            "players": {
+              "type": "relation",
+              "mode": "array",
+              "entity": "archive_rel_summary_players"
+            },
+            "teams": {
+              "type": "relation",
+              "mode": "array",
+              "entity": "archive_rel_summary_teams"
+            },
+            "stages": {
+              "type": "scalar",
+              "column": "value_stages",
+              "scalar": "string",
+              "array": true
+            },
+            "fixtures": {
+              "type": "relation",
+              "mode": "array",
+              "entity": "archive_rel_summary_fixtures"
+            },
+            "poolFixtures": {
+              "type": "relation",
+              "mode": "array",
+              "entity": "archive_rel_summary_pool_fixtures"
+            },
+            "publishedAt": {
+              "type": "scalar",
+              "column": "value_published_at",
+              "scalar": "string",
+              "array": false
+            },
+            "mpTotal": {
+              "type": "scalar",
+              "column": "value_mp_total",
+              "scalar": "integer",
+              "array": false
+            },
+            "mpCovered": {
+              "type": "scalar",
+              "column": "value_mp_covered",
+              "scalar": "integer",
+              "array": false
+            }
+          }
+        }
+      },
+      {
+        "key": "archive_rel_summary_players",
+        "parent": "archive_rel_summary",
+        "fields": [
+          { "column": "value_osu_id", "type": "integer", "array": false },
+          { "column": "value_username", "type": "string", "array": false },
+          { "column": "value_team_id", "type": "string", "array": false },
+          { "column": "value_role", "type": "string", "array": false },
+          { "column": "value_tier", "type": "number", "array": false }
+        ],
+        "node": {
+          "type": "object",
+          "properties": {
+            "osuId": {
+              "type": "scalar",
+              "column": "value_osu_id",
+              "scalar": "integer",
+              "array": false
+            },
+            "username": {
+              "type": "scalar",
+              "column": "value_username",
+              "scalar": "string",
+              "array": false
+            },
+            "teamId": {
+              "type": "scalar",
+              "column": "value_team_id",
+              "scalar": "string",
+              "array": false
+            },
+            "role": {
+              "type": "scalar",
+              "column": "value_role",
+              "scalar": "string",
+              "array": false
+            },
+            "tier": {
+              "type": "scalar",
+              "column": "value_tier",
+              "scalar": "number",
+              "array": false
+            }
+          }
+        }
+      },
+      {
+        "key": "archive_rel_summary_teams",
+        "parent": "archive_rel_summary",
+        "fields": [
+          { "column": "value_id", "type": "string", "array": false },
+          { "column": "value_name", "type": "string", "array": false }
+        ],
+        "node": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "scalar",
+              "column": "value_id",
+              "scalar": "string",
+              "array": false
+            },
+            "name": {
+              "type": "scalar",
+              "column": "value_name",
+              "scalar": "string",
+              "array": false
+            }
+          }
+        }
+      },
+      {
+        "key": "archive_rel_summary_fixtures",
+        "parent": "archive_rel_summary",
+        "fields": [
+          { "column": "value_id", "type": "string", "array": false },
+          { "column": "value_label", "type": "string", "array": false },
+          { "column": "value_stage", "type": "string", "array": false },
+          { "column": "value_covered", "type": "boolean", "array": false },
+          {
+            "column": "value_technical_adjudication",
+            "type": "boolean",
+            "array": false
+          },
+          { "column": "value_score", "type": "number", "array": true }
+        ],
+        "node": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "scalar",
+              "column": "value_id",
+              "scalar": "string",
+              "array": false
+            },
+            "label": {
+              "type": "scalar",
+              "column": "value_label",
+              "scalar": "string",
+              "array": false
+            },
+            "stage": {
+              "type": "scalar",
+              "column": "value_stage",
+              "scalar": "string",
+              "array": false
+            },
+            "covered": {
+              "type": "scalar",
+              "column": "value_covered",
+              "scalar": "boolean",
+              "array": false
+            },
+            "technicalAdjudication": {
+              "type": "scalar",
+              "column": "value_technical_adjudication",
+              "scalar": "boolean",
+              "array": false
+            },
+            "score": {
+              "type": "scalar",
+              "column": "value_score",
+              "scalar": "number",
+              "array": true
+            }
+          }
+        }
+      },
+      {
+        "key": "archive_rel_summary_pool_fixtures",
+        "parent": "archive_rel_summary",
+        "fields": [
+          { "column": "value_id", "type": "string", "array": false },
+          { "column": "value_round", "type": "string", "array": false },
+          { "column": "value_teams", "type": "string", "array": true },
+          { "column": "value_team_ids", "type": "string", "array": true },
+          { "column": "value_picks", "type": "string", "array": true }
+        ],
+        "node": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "scalar",
+              "column": "value_id",
+              "scalar": "string",
+              "array": false
+            },
+            "round": {
+              "type": "scalar",
+              "column": "value_round",
+              "scalar": "string",
+              "array": false
+            },
+            "teams": {
+              "type": "scalar",
+              "column": "value_teams",
+              "scalar": "string",
+              "array": true
+            },
+            "teamIds": {
+              "type": "scalar",
+              "column": "value_team_ids",
+              "scalar": "string",
+              "array": true
+            },
+            "maps": {
+              "type": "relation",
+              "mode": "array",
+              "entity": "archive_rel_summary_pool_fixtures_maps"
+            },
+            "picks": {
+              "type": "scalar",
+              "column": "value_picks",
+              "scalar": "string",
+              "array": true
+            },
+            "bans": {
+              "type": "relation",
+              "mode": "array",
+              "entity": "archive_rel_summary_pool_fixtures_bans"
+            }
+          }
+        }
+      },
+      {
+        "key": "archive_rel_summary_pool_fixtures_maps",
+        "parent": "archive_rel_summary_pool_fixtures",
+        "fields": [
+          { "column": "value_round", "type": "string", "array": false },
+          { "column": "value_slot", "type": "string", "array": false },
+          { "column": "value_map_id", "type": "number", "array": false },
+          { "column": "value_title", "type": "string", "array": false }
+        ],
+        "node": {
+          "type": "object",
+          "properties": {
+            "round": {
+              "type": "scalar",
+              "column": "value_round",
+              "scalar": "string",
+              "array": false
+            },
+            "slot": {
+              "type": "scalar",
+              "column": "value_slot",
+              "scalar": "string",
+              "array": false
+            },
+            "mapId": {
+              "type": "scalar",
+              "column": "value_map_id",
+              "scalar": "number",
+              "array": false
+            },
+            "title": {
+              "type": "scalar",
+              "column": "value_title",
+              "scalar": "string",
+              "array": false
+            }
+          }
+        }
+      },
+      {
+        "key": "archive_rel_summary_pool_fixtures_bans",
+        "parent": "archive_rel_summary_pool_fixtures",
+        "fields": [
+          { "column": "value_team", "type": "string", "array": false },
+          { "column": "value_team_id", "type": "string", "array": false },
+          { "column": "value_maps", "type": "string", "array": true }
+        ],
+        "node": {
+          "type": "object",
+          "properties": {
+            "team": {
+              "type": "scalar",
+              "column": "value_team",
+              "scalar": "string",
+              "array": false
+            },
+            "teamId": {
+              "type": "scalar",
+              "column": "value_team_id",
+              "scalar": "string",
+              "array": false
+            },
+            "maps": {
+              "type": "scalar",
+              "column": "value_maps",
+              "scalar": "string",
+              "array": true
+            }
+          }
+        }
+      }
+    ]
   }
 ]

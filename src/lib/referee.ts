@@ -1,3 +1,4 @@
+import { editionOperationState } from "./archive-guard";
 import { db } from "@/db";
 import {
   editionState,
@@ -146,10 +147,7 @@ export async function readRefereeWorkspace(
 ) {
   const access = await assertRefereeAccess(reader, actor, slug, fixtureId);
   const fixture = access.fixture;
-  const [edition] = await reader
-    .select({ configuration: editionState.configuration })
-    .from(editionState)
-    .where(eq(editionState.slug, slug));
+  const edition = await editionOperationState(slug, reader);
   if (!edition?.configuration)
     throw new HttpError(404, "Tournament not found.");
   const [round] = await reader
@@ -306,7 +304,7 @@ export async function readRefereeWorkspace(
     readiness.push("The fixture needs a saved round mappool.");
   if (fixture.status === "cancelled")
     readiness.push("Cancelled fixtures cannot record referee activity.");
-  if (edition.configuration.archive)
+  if (edition.hasArchive)
     readiness.push("Historical archives cannot record referee activity.");
   const basis: RefereeBasis = {
     policy,
@@ -439,10 +437,8 @@ export async function readRefereeWorkspace(
     dependencyFingerprint,
     readiness,
     canRecord:
-      access.canRecord &&
-      !edition.configuration.archive &&
-      fixture.status !== "cancelled",
-    canConfigure: access.canConfigure && !edition.configuration.archive,
+      access.canRecord && !edition.hasArchive && fixture.status !== "cancelled",
+    canConfigure: access.canConfigure && !edition.hasArchive,
   };
 }
 export type RefereeWorkspace = Awaited<ReturnType<typeof readRefereeWorkspace>>;

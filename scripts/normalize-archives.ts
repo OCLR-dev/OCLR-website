@@ -1,10 +1,9 @@
 import env from "@next/env";
 import { closeDb, db } from "../src/db";
-import { editionState } from "../src/db/schema";
-import { isNotNull } from "drizzle-orm";
 import {
   backfillArchiveRelations,
   verifyArchiveRelations,
+  historicalArchiveSlugs,
 } from "../src/lib/archive-relations";
 import { HttpError } from "../src/lib/http";
 import {
@@ -36,15 +35,7 @@ try {
   phase = "discover";
   const slugs = selected.length
     ? [...new Set(selected)]
-    : (
-        await db()
-          .select()
-          .from(editionState)
-          .where(isNotNull(editionState.configuration))
-      )
-        .filter((s) => s.configuration?.archive)
-        .map((s) => s.slug)
-        .sort();
+    : await historicalArchiveSlugs(db());
   const totals = {
     seasons: slugs.length,
     documents: 0,

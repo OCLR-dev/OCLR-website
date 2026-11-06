@@ -444,11 +444,12 @@ export async function tournamentCommand(
       );
   }
   await db().transaction(async (tx) => {
-    const [state] = await tx
-      .select()
+    await tx
+      .select({ slug: editionState.slug })
       .from(editionState)
       .where(eq(editionState.slug, slug))
       .for("update");
+    const [state] = await archiveEditionStates(tx, false, slug);
     const current = state && storedEdition(state);
     if (!current) throw new HttpError(404, "Tournament not found.");
     await assertCapability(actor, "configure_tournament", slug, tx);
@@ -641,10 +642,17 @@ export async function tournamentCommand(
         ? (state.registrationPausedAt ?? new Date())
         : null;
     }
-    const revisions = await tx
-      .select()
-      .from(editionRevisions)
-      .where(eq(editionRevisions.editionSlug, slug));
+    const revisions =
+      c.action === "rules"
+        ? await tx
+            .select({
+              rules: sql<
+                Edition["rules"]
+              >`${editionRevisions.configuration}->'rules'`,
+            })
+            .from(editionRevisions)
+            .where(eq(editionRevisions.editionSlug, slug))
+        : [];
     if (
       c.action === "general" &&
       c.rosterCapacity !== undefined &&
@@ -713,8 +721,8 @@ export async function tournamentCommand(
         c.rules &&
         revisions.some(
           (r) =>
-            r.configuration.rules?.version === c.rules?.version &&
-            !isDeepStrictEqual(r.configuration.rules, c.rules),
+            r.rules?.version === c.rules?.version &&
+            !isDeepStrictEqual(r.rules, c.rules),
         )
       ) {
         throw new HttpError(
@@ -802,7 +810,12 @@ export async function tournamentCommand(
         },
       },
     });
-    await syncArchiveRelations(tx, slug);
+    await syncArchiveRelations(
+      tx,
+      slug,
+      false,
+      configuration.archive ?? undefined,
+    );
   });
   return tournamentForAdmin(actor, slug);
 }

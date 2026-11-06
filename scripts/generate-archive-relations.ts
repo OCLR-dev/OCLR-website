@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { format } from "prettier";
 import { historicalArchiveSchema } from "../src/lib/historical-archive";
 import { statisticsSnapshotSchema } from "../src/lib/statistics-snapshot";
+import { archiveStatisticsSummarySchema } from "../src/lib/archive-summary-schema";
 import type {
   Layout,
   Node,
@@ -48,6 +49,7 @@ const layouts: Layout[] = [];
 for (const [kind, schema] of [
   ["archive", historicalArchiveSchema],
   ["statistics", statisticsSnapshotSchema],
+  ["summary", archiveStatisticsSummarySchema],
 ] as const) {
   const entities: Entity[] = [];
   function entity(s: Schema, path: string[], parent?: string): string {
