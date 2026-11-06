@@ -3943,6 +3943,22 @@
     "m6d6ceb5b602a": "Download mirror",
     "m1969823f96f9": "Download mirror (optional)",
     "m87fafa7206f9": "Search emoji",
-    "ma70b140e1055": "No matching emoji."
+    "ma70b140e1055": "No matching emoji.",
+    "m8d698cda62a0": "Enter a port between 1 and 65535.",
+    "m472ffc2ea4ac": "This port is already in the list.",
+    "mdd9b98658aee": "This port is not allowed by the server.",
+    "mfb05c60c7a86": "You can add up to 20 local ports.",
+    "mc3f6ba285dc6": "Add the entered port to the list before creating a token.",
+    "m630729c80549": "Allowed local ports",
+    "md75837cf2ed7": "Add the ports used by your local frontends. One token can serve multiple development sessions.",
+    "m765e67e1640c": "localhost, 127.0.0.1 and [::1] share the same port list for HTTP and HTTPS.",
+    "m5491bf85c07b": "Server-allowed ports: {ports}",
+    "me69c1a91f9a9": "The server has disabled local developer access.",
+    "md39ef29f56f3": "Add local port",
+    "m2c06cca79008": "Add port",
+    "m83f965d47641": "Remove port {port}",
+    "m5fe52b1dbb13": "Add at least one local port.",
+    "m80e14f0d3b54": "Developer API ports are not configured correctly.",
+    "ma06dd60adcce": "Choose 1 to 20 unique local ports between 1 and 65535 and valid read scopes."
   }
 }

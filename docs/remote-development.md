@@ -36,7 +36,7 @@ remote mode; production entry points reject it. `.next-remote` keeps development
 output separate from the ordinary production build.
 
 Open `/remote`. Sign in on the **backend**, then use its `/developer` page to
-create short-lived access bound to the exact local origin. Paste it once into the
+create short-lived access that includes your local port. Paste it once into the
 local password input. Request `identity:read` and `tournaments:read`; add
 `tournaments:private:read` for staff workspaces and `profiles:read` for other saved
 private profile snapshots. The subject's own saved profile/applications/team and
@@ -59,9 +59,10 @@ not part of a frontend checkout and does not authorize a deployment or real gran
 The full-site adapter requires read contract **1.2.0 or a newer additive v1
 version**, exposed as `X-OCLR-Read-Contract`. The OpenAPI document reports the same
 version. Missing/older/incompatible successful responses produce
-`REMOTE_INCOMPATIBLE`, with no local fallback. The backend operator must allow the
-exact local origin in `OCLR_DEVELOPER_ORIGINS`; a proxy must preserve the contract
-and CORS headers. See [Developer access](developer-api.md).
+`REMOTE_INCOMPATIBLE`, with no local fallback. The local port must be included
+in the Developer token and, if configured, the backend `OCLR_DEVELOPER_PORTS` policy (legacy `OCLR_DEVELOPER_ORIGINS` is also
+supported). `localhost` and `127.0.0.1` are equivalent at the same port. A proxy
+must preserve the contract and CORS headers. See [Developer access](developer-api.md).
 
 ## Read coverage and authority
 
@@ -180,14 +181,14 @@ storage or provider service supplies missing remote data.
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | Disconnected / process restarted                  | Open `/remote` and reconnect or explicitly select anonymous mode.                                |
 | 401 / expired or revoked                          | Issue fresh access on the backend; check the parent login session.                               |
-| 403                                               | Check the live Developer grant, requested scopes, bound origin and actual edition appointment.   |
+| 403                                               | Check the live Developer grant, requested scopes, allowed ports and actual edition appointment.   |
 | `REMOTE_INCOMPATIBLE`                             | Update the separate backend to read API 1.2.0+ within v1 and preserve its contract header.       |
 | Missing saved profile / historical “Not recorded” | These are saved-data states; a GET cannot refresh or invent a profile.                           |
 | 409 collection changed                            | Discard the whole collection and restart; the adapter retries one complete read.                 |
 | 413                                               | Narrow a supported filter; no truncated response is accepted.                                    |
 | 429                                               | Respect `Retry-After` (currently 60 seconds); do not bypass issuance/read quotas.                |
 | 5xx / invalid response                            | Check backend availability, migration/configuration and request ID; no local DB fallback occurs. |
-| CORS / preflight denied                           | Allow the exact local origin; use `credentials: "omit"` for direct browser Bearer reads.         |
+| CORS / preflight denied                           | Include the local port in the token and server policy; use `credentials: "omit"` for direct browser Bearer reads.         |
 
 ## Verification and remaining external gates
 

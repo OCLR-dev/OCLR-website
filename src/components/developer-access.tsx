@@ -8,21 +8,27 @@ import { useState, type FormEvent } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import {
   developerApiScopes,
+  isDeveloperPort,
+  maxDeveloperPorts,
   type DeveloperApiScope,
   type DeveloperTokenMetadata,
 } from "@/lib/developer-api-model";
 
 export function DeveloperAccess({
   backend,
-  origins,
+  allowedPorts,
   initialTokens,
 }: {
   backend: string;
-  origins: string[];
+  allowedPorts: number[] | null;
   initialTokens: DeveloperTokenMetadata[];
 }) {
   const tr = useAppTranslations();
-  const [origin, setOrigin] = useState(origins[0] ?? "");
+  const [ports, setPorts] = useState<number[]>(
+    allowedPorts === null ? [3000] : allowedPorts.slice(0, 1),
+  );
+  const [portInput, setPortInput] = useState("");
+  const [portError, setPortError] = useState("");
   const [scopes, setScopes] = useState<DeveloperApiScope[]>([
     ...developerApiScopes,
   ]);
@@ -46,9 +52,38 @@ export function DeveloperAccess({
       timeStyle: "short",
       timeZone: "UTC",
     }).format(new Date(value));
+  function addPort() {
+    const value = portInput.trim();
+    const port = Number(value);
+    if (!/^[0-9]{1,5}$/.test(value) || !isDeveloperPort(port)) {
+      setPortError(tr("Enter a port between 1 and 65535."));
+      return;
+    }
+    if (ports.includes(port)) {
+      setPortError(tr("This port is already in the list."));
+      return;
+    }
+    if (allowedPorts !== null && !allowedPorts.includes(port)) {
+      setPortError(tr("This port is not allowed by the server."));
+      return;
+    }
+    if (ports.length >= maxDeveloperPorts) {
+      setPortError(tr("You can add up to 20 local ports."));
+      return;
+    }
+    setPorts((previous) => [...previous, port]);
+    setPortInput("");
+    setPortError("");
+  }
   async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
+    if (pending || !ports.length) return;
+    if (portInput.trim()) {
+      setPortError(
+        tr("Add the entered port to the list before creating a token."),
+      );
+      return;
+    }
     setActiveAction("create");
     setPending(true);
     setError("");
@@ -57,7 +92,7 @@ export function DeveloperAccess({
       const response = await fetch("/api/developer/tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ origin, scopes }),
+        body: JSON.stringify({ ports, scopes }),
         cache: "no-store",
       });
       const result = await response.json();
@@ -126,21 +161,100 @@ export function DeveloperAccess({
           </a>
         </p>
         <form className="form-stack" onSubmit={create}>
-          <label className="field">
-            {tr("Local origin")}
-            <select
-              value={origin}
-              onChange={(event) => setOrigin(event.target.value)}
-              disabled={pending}
-              required
-            >
-              {origins.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-          </label>
+          <fieldset
+            className="developer-ports"
+            disabled={pending || allowedPorts?.length === 0}
+          >
+            <legend>{tr("Allowed local ports")}</legend>
+            <p id="developer-ports-help" className="muted small">
+              {tr(
+                "Add the ports used by your local frontends. One token can serve multiple development sessions.",
+              )}
+            </p>
+            <p className="muted small">
+              {tr(
+                "localhost, 127.0.0.1 and [::1] share the same port list for HTTP and HTTPS.",
+              )}
+            </p>
+            {allowedPorts !== null && (
+              <p className="small">
+                {allowedPorts.length
+                  ? tr("Server-allowed ports: {ports}", {
+                      ports: allowedPorts.join(", "),
+                    })
+                  : tr("The server has disabled local developer access.")}
+              </p>
+            )}
+            <div className="developer-port-entry">
+              <label className="field" htmlFor="developer-port-input">
+                {tr("Add local port")}
+                <input
+                  id="developer-port-input"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder="5173"
+                  value={portInput}
+                  aria-describedby={`developer-ports-help${portError ? " developer-port-error" : ""}`}
+                  aria-invalid={Boolean(portError)}
+                  onChange={(event) => {
+                    setPortInput(event.target.value);
+                    setPortError("");
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addPort();
+                    }
+                  }}
+                />
+              </label>
+              <button type="button" className="secondary" onClick={addPort}>
+                {tr("Add port")}
+              </button>
+            </div>
+            {portError && (
+              <p
+                id="developer-port-error"
+                className="error-text small"
+                role="alert"
+              >
+                {portError}
+              </p>
+            )}
+            {ports.length ? (
+              <ul
+                className="developer-port-list"
+                aria-label={tr("Allowed local ports")}
+              >
+                {ports.map((port) => (
+                  <li key={port}>
+                    <code>{port}</code>
+                    <button
+                      type="button"
+                      className="secondary"
+                      aria-label={tr("Remove port {port}", { port })}
+                      onClick={() => {
+                        setPorts((previous) =>
+                          previous.filter((value) => value !== port),
+                        );
+                        setPortError("");
+                      }}
+                    >
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="muted small">
+                {tr("Add at least one local port.")}
+              </p>
+            )}
+            <p className="muted small">
+              {tr("You can add up to 20 local ports.")}
+            </p>
+          </fieldset>
           <fieldset>
             <legend>{tr("Read scopes")}</legend>
             <div className="stack">
@@ -172,7 +286,12 @@ export function DeveloperAccess({
           </p>
           <div className="actions">
             <button
-              disabled={pending || !origin || !scopes.length}
+              disabled={
+                pending ||
+                !ports.length ||
+                !scopes.length ||
+                Boolean(portInput.trim())
+              }
               aria-busy={pending && activeAction === "create"}
             >
               {tr("Create token")}
@@ -230,7 +349,10 @@ export function DeveloperAccess({
             {tokens.map((entry) => (
               <article className="panel" key={entry.id}>
                 <p>
-                  <strong>{entry.origin}</strong>
+                  <strong>{tr("Allowed local ports")}</strong>{" "}
+                  <span className="developer-port-values">
+                    {entry.ports.join(" · ")}
+                  </span>
                 </p>
                 <p className="muted small">
                   {tr("Expires {date}", { date: date(entry.expiresAt) })}

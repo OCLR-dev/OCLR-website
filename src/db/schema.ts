@@ -168,6 +168,7 @@ export const developerApiTokens = pgTable(
       .notNull()
       .references(() => users.osuId, { onDelete: "cascade" }),
     origin: text("origin").notNull(),
+    ports: integer("ports").array(),
     scopes: jsonb("scopes")
       .$type<import("@/lib/developer-api-model").DeveloperApiScope[]>()
       .notNull(),
@@ -181,6 +182,10 @@ export const developerApiTokens = pgTable(
     index("developer_api_tokens_user_idx").on(t.userId),
     index("developer_api_tokens_session_idx").on(t.sessionHash),
     check("developer_api_tokens_hash", sql`${t.tokenHash} ~ '^[0-9a-f]{64}$'`),
+    check(
+      "developer_api_tokens_ports",
+      sql`${t.ports} IS NULL OR (array_ndims(${t.ports}) = 1 AND cardinality(${t.ports}) BETWEEN 1 AND 20 AND array_position(${t.ports}, NULL) IS NULL AND 1 <= ALL(${t.ports}) AND 65535 >= ALL(${t.ports}))`,
+    ),
     check(
       "developer_api_tokens_expiry",
       sql`${t.expiresAt} > ${t.createdAt} AND ${t.expiresAt} <= ${t.createdAt} + interval '1 hour'`,

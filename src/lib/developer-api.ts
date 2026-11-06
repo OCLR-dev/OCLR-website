@@ -16,6 +16,10 @@ import {
   developerApiScopes,
   developerTokenPrefix,
   isDeveloperOrigin,
+  developerOriginPort,
+  developerOriginAllowed,
+  developerTokenPorts,
+  maxDeveloperPorts,
   validDeveloperToken,
   type DeveloperApiScope,
   type DeveloperTokenMetadata,
@@ -30,21 +34,32 @@ export class DeveloperApiError extends HttpError {
     super(status, message);
   }
 }
-export function developerOrigins() {
-  const origins = (
-    process.env.OCLR_DEVELOPER_ORIGINS ??
-    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:4000,http://127.0.0.1:4000"
-  )
+/** null means Developers may choose any valid loopback port; [] disables access. */
+export function developerPorts(): number[] | null {
+  const configured = process.env.OCLR_DEVELOPER_PORTS;
+  const legacy = process.env.OCLR_DEVELOPER_ORIGINS;
+  if (configured === undefined && legacy === undefined) return null;
+  const values = (configured ?? legacy!)
     .split(",")
-    .map((v) => v.trim())
-    .filter(Boolean);
-  if (origins.length > 20 || origins.some((v) => !isDeveloperOrigin(v)))
+    .map((value) => value.trim());
+  if (values.length === 1 && values[0] === "") return [];
+  const ports = values.map((value) =>
+    configured !== undefined
+      ? /^[0-9]{1,5}$/.test(value)
+        ? Number(value)
+        : null
+      : developerOriginPort(value),
+  );
+  if (
+    ports.length > maxDeveloperPorts ||
+    ports.some((port) => port === null || port < 1 || port > 65535)
+  )
     throw new DeveloperApiError(
       503,
       "API_UNAVAILABLE",
-      "Developer API origins are not configured correctly.",
+      "Developer API ports are not configured correctly.",
     );
-  return [...new Set(origins)];
+  return [...new Set(ports as number[])];
 }
 
 /** Bounded process-local abuse protection. Never store raw credentials or IP headers. */
@@ -116,6 +131,7 @@ function metadata(
   return {
     id: row.id,
     origin: row.origin,
+    ports: developerTokenPorts(row),
     scopes: row.scopes,
     createdAt: row.createdAt.toISOString(),
     expiresAt: row.expiresAt.toISOString(),
@@ -161,21 +177,39 @@ export async function listDeveloperTokens(session: BrowserSessionContext) {
   await liveBrowserSession(session, db());
   return {
     backend: appUrl(),
-    origins: developerOrigins(),
+    ports: developerPorts(),
     scopes: developerApiScopes,
     tokens: rows.map(metadata),
   };
 }
-const creation = z
-  .object({
-    origin: z.string().max(200).refine(isDeveloperOrigin),
-    scopes: z
-      .array(z.enum(developerApiScopes))
-      .min(1)
-      .max(4)
-      .refine((v) => new Set(v).size === v.length),
-  })
-  .strict();
+const scopesSchema = z
+  .array(z.enum(developerApiScopes))
+  .min(1)
+  .max(4)
+  .refine((v) => new Set(v).size === v.length);
+const creation = z.union([
+  z
+    .object({
+      ports: z
+        .array(z.number().int().min(1).max(65535))
+        .min(1)
+        .max(maxDeveloperPorts)
+        .refine((ports) => new Set(ports).size === ports.length),
+      scopes: scopesSchema,
+    })
+    .strict(),
+  // Existing clients can still request one canonical origin.
+  z
+    .object({
+      origin: z
+        .string()
+        .max(200)
+        .refine(isDeveloperOrigin)
+        .refine((origin) => developerOriginPort(origin) !== null),
+      scopes: scopesSchema,
+    })
+    .strict(),
+]);
 export async function createDeveloperToken(
   session: BrowserSessionContext,
   input: unknown,
@@ -185,9 +219,17 @@ export async function createDeveloperToken(
     throw new DeveloperApiError(
       400,
       "INVALID_REQUEST",
-      "Choose a valid local origin and read scopes.",
+      "Choose 1 to 20 unique local ports between 1 and 65535 and valid read scopes.",
     );
-  if (!developerOrigins().includes(parsed.data.origin))
+  const ports =
+    "ports" in parsed.data
+      ? parsed.data.ports
+      : [developerOriginPort(parsed.data.origin)!];
+  const allowedPorts = developerPorts();
+  if (
+    allowedPorts !== null &&
+    ports.some((port) => !allowedPorts.includes(port))
+  )
     throw new DeveloperApiError(
       403,
       "ORIGIN_NOT_ALLOWED",
@@ -228,7 +270,12 @@ export async function createDeveloperToken(
         userId: session.osuId,
         sessionHash: session.tokenHash,
         tokenHash: hashToken(token),
-        ...parsed.data,
+        scopes: parsed.data.scopes,
+        ports,
+        origin:
+          "origin" in parsed.data
+            ? parsed.data.origin
+            : new URL(`http://localhost:${ports[0]}`).origin,
         createdAt: now,
         expiresAt: new Date(
           Math.min(now.getTime() + 3_600_000, parent.expiresAt.getTime()),
@@ -311,7 +358,11 @@ export async function authenticateDeveloperRead(
     );
   const fingerprint = hashToken(match[1]);
   if (developerTokenMisses.has(fingerprint))
-    throw new DeveloperApiError(401, "INVALID_TOKEN", "A valid developer API token is required.");
+    throw new DeveloperApiError(
+      401,
+      "INVALID_TOKEN",
+      "A valid developer API token is required.",
+    );
   return db().transaction(
     async (tx) => {
       await tx.execute(sql`SET LOCAL statement_timeout = '5s'`);
@@ -349,7 +400,11 @@ export async function authenticateDeveloperRead(
       }
       await assertDeveloper(row.access.userId, tx);
       const origin = request.headers.get("origin");
-      if (origin !== null && origin !== row.access.origin)
+      if (
+        origin !== null &&
+        (!developerOriginAllowed(origin, developerPorts()) ||
+          !developerOriginAllowed(origin, developerTokenPorts(row.access)))
+      )
         throw new DeveloperApiError(
           403,
           "ORIGIN_NOT_ALLOWED",

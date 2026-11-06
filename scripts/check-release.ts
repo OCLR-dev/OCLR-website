@@ -46,7 +46,7 @@ try {
   }
   await db().execute(sql`SELECT 1 FROM users LIMIT 0`);
   await db().execute(
-    sql`SELECT token_hash, session_hash, user_id, origin, scopes, expires_at, revoked_at FROM developer_api_tokens LIMIT 0`,
+    sql`SELECT token_hash, session_hash, user_id, origin, ports, scopes, expires_at, revoked_at FROM developer_api_tokens LIMIT 0`,
   );
   await db().execute(
     sql`SELECT actor_id, access_id, action, detail FROM developer_api_events LIMIT 0`,
