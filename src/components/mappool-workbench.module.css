@@ -454,6 +454,13 @@
   background: var(--site-tint);
   color: var(--site-accent);
 }
+.createdAt {
+  padding: 0 0.75rem 0.5rem;
+  color: var(--site-muted);
+  font-size: var(--text-label);
+  text-align: end;
+  overflow-wrap: anywhere;
+}
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-values) {
   flex-wrap: nowrap;
   align-items: center;
@@ -478,19 +485,9 @@
   margin-inline-start: auto;
 }
 .workbenchCard:global(.map-browse-card--band) .attribution {
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex-wrap: nowrap;
   max-width: 100%;
   font-size: var(--text-label);
-  text-align: end;
-  white-space: normal;
-}
-.attributionAuthor {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.25rem;
-  min-width: 0;
-  max-width: 100%;
   white-space: nowrap;
 }
 .workbenchCard:global(.map-browse-card--band) .attribution a {

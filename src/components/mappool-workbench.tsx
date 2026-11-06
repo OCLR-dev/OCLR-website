@@ -1062,27 +1062,32 @@ export function SelectionWorkbench({
                     openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
                     note={tr("★ base")}
                     footer={
-                      <div
-                        className={styles.assignedRounds}
-                        role="group"
-                        aria-label={tr("Intended rounds")}
-                      >
-                        <span>{tr("Intended rounds")}:</span>
-                        {c.roundIds.length ? (
-                          data.rounds
-                            .filter((round) => c.roundIds.includes(round.id))
-                            .map((round) => (
-                              <span
-                                key={round.id}
-                                className={styles.assignedRound}
-                              >
-                                {round.name}
-                              </span>
-                            ))
-                        ) : (
-                          <span>{tr("Unassigned")}</span>
-                        )}
-                      </div>
+                      <>
+                        <div
+                          className={styles.assignedRounds}
+                          role="group"
+                          aria-label={tr("Intended rounds")}
+                        >
+                          <span>{tr("Intended rounds")}:</span>
+                          {c.roundIds.length ? (
+                            data.rounds
+                              .filter((round) => c.roundIds.includes(round.id))
+                              .map((round) => (
+                                <span
+                                  key={round.id}
+                                  className={styles.assignedRound}
+                                >
+                                  {round.name}
+                                </span>
+                              ))
+                          ) : (
+                            <span>{tr("Unassigned")}</span>
+                          )}
+                        </div>
+                        <div className={styles.createdAt}>
+                          {tr("Added at")}: <Stamp value={c.createdAt} />
+                        </div>
+                      </>
                     }
                     actions={
                       <>
@@ -1171,17 +1176,14 @@ export function SelectionWorkbench({
                     side={
                       <>
                         <span className={`small muted ${styles.attribution}`}>
-                          <span className={styles.attributionAuthor}>
-                            {tr("Added by")}{" "}
-                            <a
-                              className="text-link"
-                              href={`https://osu.ppy.sh/users/${c.authorId}`}
-                              title={c.authorName}
-                            >
-                              <strong>{c.authorName}</strong>
-                            </a>
-                          </span>{" "}
-                          <Stamp value={c.createdAt} />
+                          {tr("Added by")}{" "}
+                          <a
+                            className="text-link"
+                            href={`https://osu.ppy.sh/users/${c.authorId}`}
+                            title={c.authorName}
+                          >
+                            <strong>{c.authorName}</strong>
+                          </a>
                         </span>
                       </>
                     }

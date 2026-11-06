@@ -2,12 +2,13 @@
 
 ## Candidate creation times (#965)
 
-Candidate cards show the original creation time beside the author attribution,
+Candidate cards show the original creation time on their final row below the
+intended rounds, labelled **Added at**,
 using the workbench's existing locale-aware UTC timestamp format and semantic
 `time` element. The value comes from the candidate's saved `createdAt`, distinct
-from metadata refresh or workspace snapshot times. Attribution and time wrap in
-narrow columns while retaining the author's profile link; editable and read-only
-workspaces share the same display.
+from metadata refresh or workspace snapshot times. The timestamp can wrap in
+narrow columns; the author's profile link stays on the artist row. Editable and
+read-only workspaces share the same display.
 
 ## Candidate skillset tags (#735)
 
