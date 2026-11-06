@@ -1,0 +1,68 @@
+[
+  {
+    "width": 877,
+    "height": 819,
+    "view": "teams",
+    "theme": "light",
+    "background": "rgba(0, 0, 0, 0)",
+    "shadow": "none",
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "width": 877,
+    "height": 819,
+    "view": "draft",
+    "theme": "light",
+    "background": "rgba(0, 0, 0, 0)",
+    "shadow": "none",
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "width": 877,
+    "height": 819,
+    "view": "teams",
+    "theme": "dark",
+    "background": "rgba(0, 0, 0, 0)",
+    "shadow": "none",
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "width": 877,
+    "height": 819,
+    "view": "draft",
+    "theme": "dark",
+    "background": "rgba(0, 0, 0, 0)",
+    "shadow": "none",
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "view": "teams",
+    "theme": "light",
+    "background": "rgba(0, 0, 0, 0)",
+    "shadow": "none",
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "view": "draft",
+    "theme": "dark",
+    "background": "rgba(0, 0, 0, 0)",
+    "shadow": "none",
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  }
+]

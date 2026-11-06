@@ -117,7 +117,7 @@ html[data-appearance="nebula-bloom"]
 }
 html[data-appearance="nebula-bloom"]
   .themed-site
-  :is(.panel, .settings-card, .rules-article, .map-browse-card, .empty-state) {
+  :is(.panel, .settings-card, .rules-article, .map-browse-card) {
   background-color: var(--site-surface);
   border-color: var(--site-border);
   box-shadow: 0 2px 8px var(--site-soft-shadow);

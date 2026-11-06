@@ -6,6 +6,9 @@ Base: main `ad7d568db4806a037ec310c8327815d9bb510245`.
 The [design specification](../../design/nebula-bloom.md) explains how the theme
 extends the default purple interface and reuses the current S11 artwork.
 
+The [post-merge empty-state correction](empty-states/README.md) records the
+organizer's teams/draft background reports and the shared CSS fix.
+
 Organizer correction: the mappool banner now uses the **pure purple nebula sky**
 with pale text in both color modes. The previous preview incorrectly inserted
 the complete S11 character/wordmark poster below the title; the corrected preview
