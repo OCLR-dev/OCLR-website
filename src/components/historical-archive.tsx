@@ -459,7 +459,7 @@ export async function HistoricalArchiveView({
       },
       {
         key: "scores",
-        label: tr("Scores"),
+        label: tr("Statistics"),
         count: scores,
         href: statistics ? href("statistics") : undefined,
       },
