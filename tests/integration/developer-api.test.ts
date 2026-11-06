@@ -101,6 +101,8 @@ describe.skipIf(!url)("Developer API credentials (isolated PostgreSQL)", () => {
     vi.stubEnv("OCLR_DEVELOPER_ORIGINS", `${origin},http://127.0.0.1:3000`);
   });
   beforeEach(async () => {
+    vi.stubEnv("OCLR_DEVELOPER_PORTS", undefined);
+    vi.stubEnv("OCLR_DEVELOPER_ORIGINS", origin);
     await db().execute(sql`TRUNCATE users CASCADE`);
     const first = ++sequence,
       second = ++sequence;
@@ -209,7 +211,7 @@ describe.skipIf(!url)("Developer API credentials (isolated PostgreSQL)", () => {
     expect(result.data.access.kind).toBe("developer-read");
     expect(result.data.access).not.toHaveProperty("capabilities");
   });
-  it("enforces exact bound origins, scope and safe preflight on both successes and errors", async () => {
+  it("enforces bound ports, scope and safe preflight on both successes and errors", async () => {
     const preflight = request(undefined, undefined, origin, "OPTIONS");
     preflight.headers.set("Access-Control-Request-Method", "GET");
     preflight.headers.set("Access-Control-Request-Headers", "Authorization");
@@ -235,7 +237,7 @@ describe.skipIf(!url)("Developer API credentials (isolated PostgreSQL)", () => {
     const otherAllowed = await me(
       request(undefined, credential.token, "http://127.0.0.1:3000"),
     );
-    expect(otherAllowed.status).toBe(403);
+    expect(otherAllowed.status).toBe(200);
     expect(otherAllowed.headers.get("Access-Control-Allow-Origin")).toBe(
       "http://127.0.0.1:3000",
     );
@@ -250,6 +252,99 @@ describe.skipIf(!url)("Developer API credentials (isolated PostgreSQL)", () => {
     expect(invalid.status).toBe(401);
     expect(invalid.headers.get("Access-Control-Allow-Origin")).toBe(origin);
     expect(invalid.headers.has("WWW-Authenticate")).toBe(true);
+  });
+  it("persists multiple ports, reads through each loopback alias and rejects unlisted ports", async () => {
+    vi.stubEnv("OCLR_DEVELOPER_ORIGINS", undefined);
+    const credential = await createDeveloperToken(owner!, {
+      ports: [3000, 5173],
+      scopes: ["identity:read"],
+    });
+    expect(credential.access.ports).toEqual([3000, 5173]);
+    expect((await listDeveloperTokens(owner!)).tokens[0].ports).toEqual([
+      3000, 5173,
+    ]);
+    expect(
+      (await db().select().from(developerApiEvents))[0].detail,
+    ).toMatchObject({ after: { ports: [3000, 5173] } });
+    for (const local of [
+      "http://localhost:3000",
+      "http://127.0.0.1:5173",
+      "https://localhost:5173",
+      "http://[::1]:5173",
+    ]) {
+      const preflight = request(undefined, undefined, local, "OPTIONS");
+      preflight.headers.set("Access-Control-Request-Method", "GET");
+      expect((await options(preflight)).status).toBe(204);
+      const response = await me(request(undefined, credential.token, local));
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Access-Control-Allow-Origin")).toBe(local);
+      expect(response.headers.get("Vary")).toContain("Origin");
+    }
+    const denied = await me(
+      request(undefined, credential.token, "http://localhost:5174"),
+    );
+    expect(denied.status).toBe(403);
+    expect((await denied.json()).error.code).toBe("ORIGIN_NOT_ALLOWED");
+    for (const origin of [
+      "http://example.com:5173",
+      "http://localhost.evil:5173",
+      "null",
+      "http://user@localhost:5173",
+      "http://localhost:5173/",
+    ]) {
+      const response = await me(request(undefined, credential.token, origin));
+      expect(response.status).toBe(403);
+      expect(response.headers.has("Access-Control-Allow-Origin")).toBe(false);
+    }
+    vi.stubEnv("OCLR_DEVELOPER_PORTS", "3000");
+    expect(
+      (await me(request(undefined, credential.token, "http://localhost:5173")))
+        .status,
+    ).toBe(403);
+    await expect(
+      createDeveloperToken(owner!, {
+        ports: [3000, 5173],
+        scopes: ["identity:read"],
+      }),
+    ).rejects.toMatchObject({ status: 403 });
+    await revokeDeveloperToken(owner!, credential.access.id);
+    expect((await me(request(undefined, credential.token))).status).toBe(401);
+  });
+  it("derives the single port of pre-migration rows without rewriting origin or audit", async () => {
+    const credential = await issued();
+    await db().update(developerApiTokens).set({ ports: null });
+    expect((await listDeveloperTokens(owner!)).tokens[0].ports).toEqual([3000]);
+    expect(
+      (await me(request(undefined, credential.token, "http://127.0.0.1:3000")))
+        .status,
+    ).toBe(200);
+    expect((await db().select().from(developerApiTokens))[0].origin).toBe(
+      origin,
+    );
+  });
+  it("rejects invalid port lists before issuing access", async () => {
+    for (const ports of [
+      [],
+      [0],
+      [65536],
+      [3000.5],
+      [3000, 3000],
+      ["3000"],
+      [null],
+      Array.from({ length: 21 }, (_, i) => 3000 + i),
+    ]) {
+      await expect(
+        createDeveloperToken(owner!, { ports, scopes: ["identity:read"] }),
+      ).rejects.toMatchObject({ status: 400 });
+    }
+    await expect(
+      createDeveloperToken(owner!, {
+        ports: [3000],
+        origin,
+        scopes: ["identity:read"],
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    expect(await db().select().from(developerApiTokens)).toHaveLength(0);
   });
   it("ends access immediately on explicit revoke, parent expiry/logout and Developer withdrawal", async () => {
     const first = await issued();

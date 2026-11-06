@@ -6,10 +6,13 @@ import {
   authenticateDeveloperRead,
   DeveloperApiError,
   DeveloperApiLimiter,
-  developerOrigins,
+  developerPorts,
   type DeveloperReadPrincipal,
 } from "./developer-api";
-import type { DeveloperApiScope } from "./developer-api-model";
+import {
+  developerOriginAllowed,
+  type DeveloperApiScope,
+} from "./developer-api-model";
 import { appUrl, HttpError } from "./http";
 import type { ReadPayload } from "./read-api-contract";
 import { withReadChannel } from "./read-channel";
@@ -24,7 +27,7 @@ const anonymousLimiter = new DeveloperApiLimiter(
     }
   ).oclrAnonymousReadWindows ??= new Map()),
 );
-function responseHeaders(request: Request, id: string, origins: string[]) {
+function responseHeaders(request: Request, id: string, allowedOrigin: boolean) {
   const headers = new Headers({
     "Cache-Control": "no-store",
     "X-Request-Id": id,
@@ -32,7 +35,7 @@ function responseHeaders(request: Request, id: string, origins: string[]) {
     [readContractHeader]: readContractVersion,
   });
   const origin = request.headers.get("origin");
-  if (origin !== null && origins.includes(origin)) {
+  if (origin !== null && allowedOrigin) {
     headers.set("Access-Control-Allow-Origin", origin);
     headers.set(
       "Access-Control-Expose-Headers",
@@ -100,11 +103,18 @@ export async function readDataResponse<T, P = DeveloperReadPrincipal>(
     [readContractHeader]: readContractVersion,
   });
   try {
-    const origins = (options.origins ?? developerOrigins)();
-    headers = responseHeaders(request, id, origins);
-    appUrl();
     const origin = request.headers.get("origin");
-    if (origin !== null && !origins.includes(origin))
+    // Streaming supplies its own exact-origin policy; Developer port rules do not apply there.
+    const origins = options.origins?.();
+    const ports = origins ? null : developerPorts();
+    const allowedOrigin =
+      origin !== null &&
+      (origins
+        ? origins.includes(origin)
+        : developerOriginAllowed(origin, ports));
+    headers = responseHeaders(request, id, allowedOrigin);
+    appUrl();
+    if (origin !== null && !allowedOrigin)
       throw new DeveloperApiError(
         403,
         "ORIGIN_NOT_ALLOWED",

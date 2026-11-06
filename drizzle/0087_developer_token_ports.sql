@@ -1,0 +1,2 @@
+ALTER TABLE "developer_api_tokens" ADD COLUMN "ports" integer[];--> statement-breakpoint
+ALTER TABLE "developer_api_tokens" ADD CONSTRAINT "developer_api_tokens_ports" CHECK ("developer_api_tokens"."ports" IS NULL OR (array_ndims("developer_api_tokens"."ports") = 1 AND cardinality("developer_api_tokens"."ports") BETWEEN 1 AND 20 AND array_position("developer_api_tokens"."ports", NULL) IS NULL AND 1 <= ALL("developer_api_tokens"."ports") AND 65535 >= ALL("developer_api_tokens"."ports")));

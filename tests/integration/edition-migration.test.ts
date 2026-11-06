@@ -2230,7 +2230,14 @@ describe.skipIf(!base)("Streaming API upgrade (#540)", () => {
         const before = await state();
         await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
         await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
-        expect(await state()).toEqual(before);
+        // #968 adds a nullable port list; every pre-existing credential field stays intact.
+        expect(await state()).toEqual(
+          before.map((rows, index) =>
+            preserved[index] === "developer_api_tokens"
+              ? rows.map((row) => ({ ...row, ports: null }))
+              : rows,
+          ),
+        );
         await pool.query(
           "INSERT INTO streaming_api_tokens (token_hash,session_hash,user_id,edition_slug,origin,scopes,created_at,last_used_at,expires_at) VALUES ($1,$2,540001,'streaming-test','http://localhost:3001','[\"streaming:read\"]',now()-interval '2 hours',now(),now()+interval '1 hour')",
           ["c".repeat(64), "a".repeat(64)],

@@ -79,10 +79,10 @@ An explicit Authorization header is always validated, including on public routes
 Invalid credentials never fall back to anonymous access or a browser session.
 A valid token on a public route still gets only the public projection; it cannot
 expose an unpublished edition. Private routes recheck the current Developer grant,
-parent session, token, scope and bound browser origin on every request. An Admin
+parent session, token, scope and allowed browser port on every request. An Admin
 without a Developer grant cannot use them. The global Developer read grant does
 not confer edition staff capabilities or authorize mutations. See
-[developer-api.md](developer-api.md) for issuance, revocation, quotas and exact-origin
+[developer-api.md](developer-api.md) for issuance, revocation, quotas and local-port
 CORS configuration. Use `credentials: "omit"` in local browser requests.
 
 Both profile resources accept only `mode=osu|taiko|fruits|mania`, default `osu`.
