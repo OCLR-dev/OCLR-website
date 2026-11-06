@@ -194,6 +194,8 @@ describe("explicit remote frontend boundaries", () => {
           "/branding/oclr-mark.svg",
           "/fonts/local.woff2",
           "/flags/twemoji/1f1e8-1f1f3.svg",
+          "/appearance-styles/pages.css",
+          "/appearance-styles/glacier-blue.css",
         ]) {
           const response = proxy(
             new NextRequest(`http://localhost:3000${path}`, {
@@ -230,6 +232,8 @@ describe("explicit remote frontend boundaries", () => {
         }
       });
   it.each([
+    "/appearance-styles/pages.css",
+    "/appearance-styles/glacier-blue.css",
     "/mascot/liru/sheet-main.webp",
     "/flags/twemoji/1f1e8-1f1f3.svg",
     ...bundledSeasonThemes.flatMap((theme) => theme.assets),
@@ -262,6 +266,9 @@ describe("explicit remote frontend boundaries", () => {
       "/themes-private/image.webp",
       "/themes-admin",
       "/themes",
+      "/appearance-styles-private/pages.css",
+      "/appearance-styles/pages.js",
+      "/appearance-styles/nested/pages.css",
     ])
       expect(
         proxy(

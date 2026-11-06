@@ -6,6 +6,7 @@ import { Action, Badge } from "./ui";
 import { EditionArtwork } from "./edition-artwork";
 import PendingLink from "./pending-link";
 import { formatDate, publicEditionSummary, type Edition } from "@/lib/editions";
+import { HistoricalEditionCard } from "./historical-edition-card";
 export async function EditionCard({
   edition,
   href,
@@ -15,12 +16,14 @@ export async function EditionCard({
 }) {
   const tr = await getAppTranslations();
 
+  if (edition.status === "completed")
+    return <HistoricalEditionCard edition={edition} href={href} />;
+
   const state =
     "source" in edition
       ? (edition.registration?.state ?? "unannounced")
       : await registrationAvailability(edition);
   const summary = publicEditionSummary(edition.summary);
-  const historical = edition.status === "completed";
   const archive = "archive" in edition ? edition.archive : null;
   const artwork =
     edition.branding.logo ??
@@ -36,15 +39,11 @@ export async function EditionCard({
       <span className="edition-card-glow" aria-hidden="true" />
       <EditionArtwork slug={edition.slug} logo={artwork} />
       <div className="edition-copy">
-        {historical ? (
-          <Badge>{tr("Historical archive")}</Badge>
-        ) : (
-          state !== "open" && (
-            <Badge>
-              {tr("Registration: ")}
-              {tr(state)}
-            </Badge>
-          )
+        {state !== "open" && (
+          <Badge>
+            {tr("Registration: ")}
+            {tr(state)}
+          </Badge>
         )}
         <h2>{edition.name}</h2>
         {summary && <p className="muted">{summary}</p>}
@@ -56,34 +55,32 @@ export async function EditionCard({
           </div>
         )}
       </div>
-      {!historical && (
-        <dl className="edition-facts">
-          <div>
-            <dt>{tr("Registration opens")}</dt>
-            <dd>
-              {tr(
-                formatDate(
-                  edition.registration?.opensAt ?? null,
-                  edition.timeZone,
-                  tr.locale,
-                ),
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>{tr("Registration closes")}</dt>
-            <dd>
-              {tr(
-                formatDate(
-                  edition.registration?.closesAt ?? null,
-                  edition.timeZone,
-                  tr.locale,
-                ),
-              )}
-            </dd>
-          </div>
-        </dl>
-      )}
+      <dl className="edition-facts">
+        <div>
+          <dt>{tr("Registration opens")}</dt>
+          <dd>
+            {tr(
+              formatDate(
+                edition.registration?.opensAt ?? null,
+                edition.timeZone,
+                tr.locale,
+              ),
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>{tr("Registration closes")}</dt>
+          <dd>
+            {tr(
+              formatDate(
+                edition.registration?.closesAt ?? null,
+                edition.timeZone,
+                tr.locale,
+              ),
+            )}
+          </dd>
+        </div>
+      </dl>
     </article>
   );
 }

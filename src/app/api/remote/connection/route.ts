@@ -52,7 +52,10 @@ export async function GET() {
     );
     return response({
       state: context.mode,
-      expiresAt: new Date(context.expiresAt).toISOString(),
+      expiresAt:
+        context.expiresAt === null
+          ? null
+          : new Date(context.expiresAt).toISOString(),
       identity: context.identity,
     });
   } catch (error) {
@@ -85,12 +88,17 @@ export async function POST(request: Request) {
       sameSite: "strict",
       secure: local.startsWith("https:"),
       path: "/",
-      expires: new Date(created.expiresAt),
+      ...(created.expiresAt === null
+        ? {}
+        : { expires: new Date(created.expiresAt) }),
     });
     return response(
       {
         state: parsed.data.mode,
-        expiresAt: new Date(created.expiresAt).toISOString(),
+        expiresAt:
+          created.expiresAt === null
+            ? null
+            : new Date(created.expiresAt).toISOString(),
       },
       201,
     );

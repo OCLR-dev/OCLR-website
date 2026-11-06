@@ -6,13 +6,24 @@ Selected official **OCLR** wordmark for **osu! Chinese League Rookie**, replacin
 - Preserve the four-point star above the R. **No orbital trails, slider arcs, planets, or separate ornaments**. The background stays fully transparent.
 - The artwork was traced into self-contained vector outlines from the selected transparent reference image; it uses no text/font fallback or embedded bitmap. Small page header renditions remain crisp.
 - `oclr-wordmark.svg` and `oclr-wordmark-dark.svg` are for **dark** surfaces. `oclr-wordmark-light.svg` uses darker OCL lettering for accessible contrast on **light** surfaces, while keeping the same vivid R/star.
-- `src/components/oclr-logo.tsx` renders the same complete **OCLR** artwork, including the signature R and the star in its original position, with CSS theme-specific gradient stops. Display width: 132 px on desktop and 112 px below 400 px; preserve the **1465 × 430** viewBox ratio. Tournament wordmarks and favicon assets remain OCLR.
+- The original header use of this R/star wordmark was superseded by the homepage lettering on 2026-11-06 (see below). These assets remain available, including the favicon family.
 - The favicon is **the signature pink-to-violet R plus four-point star**, cropped and adapted from the exact vector outlines in `oclr-wordmark.svg`, replacing the old standalone O mark.
 - `oclr-mark.svg`: scalable transparent R+star favicon. `oclr-mark-mono.svg`: monochrome silhouette for single-color contexts. `oclr-16.webp`, `oclr-32.webp`, `oclr-48.webp`: matching raster browser icons; `oclr-180.png`: matching transparent Apple Touch Icon. All share the same R/star artwork and have no background.
 - `src/app/layout.tsx` links the SVG, WebP browser-icon and PNG Apple-icon variants with a shared `v=3` URL cache-buster.
 - This is independent community tournament branding, not osu!'s official logo. Do not add unlicensed osu! brand marks.
 
 Previous wordmark versions are superseded by this design. No database or application behavior changes are needed.
+
+## Header aligned with the homepage — 2026-11-06
+
+At the organizer's request, `src/components/oclr-logo.tsx` now references the
+existing `home-s11/oclr-layer.svg` directly. Its `48 104 980 304` viewport shows
+only the angular gradient OCL and the outlined R with star control points,
+excluding the accuracy bar and English subtitle. The source paths and colours
+remain shared with the homepage. Existing responsive header widths apply. Light
+headers deepen the blue/purple colours with brightness and saturation filters,
+without a blurred shadow; dark headers retain the original pale colours and glow.
+The parent home link supplies the accessible name.
 
 ## S11 local visual integration
 

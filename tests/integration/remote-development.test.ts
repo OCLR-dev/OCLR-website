@@ -487,7 +487,8 @@ describe("remote frontend transport with no local DB", () => {
     const old = session.id;
     session = await connectRemote({ mode: "developer", token: tokenA }, old);
     expect(() => remoteConnection(old)).toThrow();
-    for (let i = 1; i < 50; i++) await connectRemote({ mode: "anonymous" });
+    for (let i = 1; i < 50; i++)
+      await connectRemote({ mode: "developer", token: tokenA });
     await expect(connectRemote({ mode: "anonymous" })).rejects.toMatchObject({
       status: 503,
     });
