@@ -1,5 +1,21 @@
 # S6 surviving historical sources (#289)
 
+## Captain qualifier NM3 original package (#852, 2026-11-06)
+
+The organizer supplied `ELFENSJoN - Hyousou wa Hakuen o Matoite.osz` on
+2026-11-06 for S6 / captain-qualifier / NM3. The unmodified package is stored at
+[imports/beatmaps/2314568.osz](imports/beatmaps/2314568.osz).
+
+- Size: 6,585,829 bytes; ZIP CRC validation passed for all 12 entries.
+- SHA-256: `700df144c44ff92299e9284c26422621f5b1f55becb64abc3ffee9e076416b71`.
+- The included `Dailycare's Extra` difficulty records `BeatmapID:2314568` and
+  `BeatmapSetID:1034526`, matching the missing S6 slot. The package also contains
+  the source audio, `bg.jpg`, samples and four other difficulties.
+
+This is preserved source evidence for restoring that exact difficulty and its
+artwork. Runtime integration and database updates for this S6 record are still
+tracked on #852.
+
 ## Team K roster correction (#629, 2026-11-01)
 
 [Issue #629](https://github.com/OCLR-dev/OCLR-website/issues/629) supersedes the
