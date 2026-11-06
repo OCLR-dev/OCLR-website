@@ -11,6 +11,7 @@ type Connection = {
   mode: "developer" | "anonymous";
   sealedToken?: Buffer;
   expiresAt: number | null;
+  lastUsedAt: number;
   publicCache?: RemotePublicCache;
 };
 const globalConnections = globalThis as unknown as {
@@ -21,6 +22,19 @@ function prune() {
   for (const [key, item] of entries())
     if (item.expiresAt !== null && item.expiresAt <= Date.now())
       disconnectRemote(key);
+}
+function reclaimAnonymousConnection() {
+  let oldest: { id: string; lastUsedAt: number } | undefined;
+  for (const [id, item] of entries()) {
+    // Connections retained across HMR may predate activity tracking.
+    const lastUsedAt = item.lastUsedAt ?? 0;
+    if (
+      item.mode === "anonymous" &&
+      (!oldest || lastUsedAt < oldest.lastUsedAt)
+    )
+      oldest = { id, lastUsedAt };
+  }
+  if (oldest) disconnectRemote(oldest.id);
 }
 export function disconnectRemote(id?: string) {
   if (id) {
@@ -43,12 +57,15 @@ export async function connectRemote(
     );
   }
   if (input.mode === "anonymous") await remoteRead("/site");
-  if (entries().size >= 50 && (!previous || !entries().has(previous)))
-    throw new RemoteDataError("REMOTE_UNAVAILABLE", 503);
   const id = randomBytes(32).toString("base64url");
   const expiresAt = identity ? Date.parse(identity.access.expiresAt) : null;
   if (expiresAt !== null && expiresAt <= Date.now())
     throw new RemoteDataError("REMOTE_EXPIRED", 401);
+  if (entries().size >= 50 && (!previous || !entries().has(previous))) {
+    reclaimAnonymousConnection();
+    if (entries().size >= 50)
+      throw new RemoteDataError("REMOTE_UNAVAILABLE", 503);
+  }
   disconnectRemote(previous);
   entries().set(id, {
     mode: input.mode,
@@ -57,6 +74,7 @@ export async function connectRemote(
         ? remoteCredentialVault.seal(input.token!)
         : undefined,
     expiresAt,
+    lastUsedAt: Date.now(),
   });
   return { id, expiresAt };
 }
@@ -72,6 +90,7 @@ export function remoteConnection(id?: string) {
       401,
     );
   }
+  connection.lastUsedAt = Date.now();
   connection.publicCache ??= new RemotePublicCache();
   return connection;
 }

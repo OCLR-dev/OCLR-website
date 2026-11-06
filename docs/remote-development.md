@@ -118,6 +118,10 @@ The BFF stores the credential only in a bounded process-memory map behind a rand
 HttpOnly, SameSite=Strict local cookie. At most 50 connections exist per process;
 Developer access expires with the backend token/parent session. Explicit anonymous
 browsing has no local time limit and uses a browser-session cookie.
+At capacity, a new connection reclaims the least recently used anonymous entry
+and clears its public snapshots. Developer entries are never evicted for capacity;
+if all 50 entries are Developer connections, new connections receive HTTP 503.
+Replacing an existing connection reuses its slot.
 The connection endpoint accepts at most 1 KiB and 20 connection attempts/minute.
 Reconnect rotates the ID and reloads the application. Disconnect, expiry, backend
 auth rejection or process restart removes access. Never put tokens in files,
@@ -239,8 +243,9 @@ cookie lasts for the browser session. The local connection endpoint returns
 `expiresAt: null` for anonymous access and the backend expiry for Developer access.
 A minute timer removes expired Developer entries even while idle; disconnect,
 replacement and backend 401/403 clear the cache and overwrite the sealed credential
-buffer. HMR replaces the cleanup timer with the current module's callback while
-retaining connections and the vault key. Keeping an old callback can apply an
+buffer. Capacity eviction also clears the reclaimed anonymous entry's cache;
+anonymous entries have no idle timer. HMR replaces the cleanup timer with the
+current module's callback while retaining connections and the vault key. Keeping an old callback can apply an
 obsolete expiry policy to new connections (#971).
 JavaScript cannot guarantee erasure of transient plaintext strings.
 Restarting the frontend discards connections and the process key. Connect again
@@ -250,5 +255,5 @@ be checked via `/me`. An expired Developer connection never falls back to anonym
 The backend currently issues Developer tokens for at most one hour, capped by the
 original login session. This is also a database constraint; removing the local
 cutoff does not renew or extend a backend credential. For sustained public UI work,
-explicit anonymous browsing needs no token and remains connected for the browser
-session while the local process runs.
+explicit anonymous browsing needs no token and can remain connected for the browser
+session while the local process runs, subject to the capacity policy above.
