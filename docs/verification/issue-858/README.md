@@ -6,11 +6,16 @@ Base: main `ad7d568db4806a037ec310c8327815d9bb510245`.
 The [design specification](../../design/nebula-bloom.md) explains how the theme
 extends the default purple interface and reuses the current S11 artwork.
 
+Organizer correction: the mappool banner now uses the **pure purple nebula sky**
+with pale text in both color modes. The previous preview incorrectly inserted
+the complete S11 character/wordmark poster below the title; the corrected preview
+matches the real mappool route's heading followed by pool controls and data.
+
 ## Matched comparisons
 
 These captures use actual `Header`, `TournamentShell`, `PageHeading`,
-`EventArtwork`, `PlayerTimeline`, `PublicMappools` and its real map dialog, with
-synthetic records in the isolated component host. The settings captures use the
+`PublicMappools` and its real map dialog, with synthetic records in the isolated
+component host. `PlayerTimeline` has a separate preview. The settings captures use the
 actual `TournamentEditor`. They establish component rendering and interactions,
 not live tournament data, authenticated page/SSR acceptance or deployment.
 
@@ -37,8 +42,8 @@ and difficulty metadata. The mobile mode comparison uses unscaled 390px crops:
 [Machine-readable results](browser-results.json) record:
 
 - All eight matched public previews: no page errors or horizontal page overflow;
-  S11 tooltip remains inside the viewport; Escape closes the map dialog and
-  restores focus to its opener.
+  the banner resolves the pure nebula background and has no key-visual poster;
+  Escape closes the map dialog and restores focus to its opener.
 - axe WCAG 2 A/AA and 2.1 AA: zero violations in each preview and each open dialog.
   This automated result is limited to the rendered fixture states.
 - S11 keeps the same season identity/link while the viewer uses `default`:
@@ -60,11 +65,16 @@ Open-dialog previews: [desktop/light](desktop-light-nebula-bloom-dialog.png),
 
 With Node **24.22.2** and the existing npm lockfile:
 
+The banner correction reran `check`, `test`, `build`, the production dependency
+audit and the targeted browser captures. Installation, i18n and read-contract
+results below are retained from the initial implementation, whose corresponding
+inputs did not change in this correction.
+
 - `npm ci` passed (initial restricted-network attempt failed; final cached
   installation and prepare completed).
 - `npm run check` passed: lint, TypeScript and historical relation generation.
 - `npm test` passed: **208 files passed, 81 skipped; 1,769 tests passed,
-  790 skipped**, 178.70s. DB-dependent cases were skipped without an isolated
+  790 skipped**, 163.20s. DB-dependent cases were skipped without an isolated
   `TEST_DATABASE_URL`.
 - `npm run build` passed. The first sandboxed build stalled at compilation;
   the retry with local process permissions completed.

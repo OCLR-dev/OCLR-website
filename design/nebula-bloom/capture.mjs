@@ -31,22 +31,29 @@ try {
           `${base}/nebula-preview?theme=${mode}&appearance=${appearance}&locale=zh-Hant`,
         );
         await page.locator(".map-browse-card").first().waitFor();
-        await page
-          .locator(".event-artwork img")
-          .evaluate((img) => img.decode());
+        if (appearance === "nebula-bloom")
+          await page.evaluate(async () => {
+            const image = new Image();
+            image.src = "/branding/home-hero/nebula-v2-1600.webp";
+            await image.decode();
+          });
         const prefix = `${output}/${size}-${mode}-${appearance}`;
         await page.screenshot({ path: `${prefix}.png`, fullPage: true });
         const overflow = await page.evaluate(
           () => document.documentElement.scrollWidth > innerWidth,
         );
-        const s11 = page.locator('[data-tl-key="season-11"]');
-        await s11.focus();
-        await page.getByRole("note").waitFor();
-        const title = await page.getByRole("note").innerText();
-        const tip = await page.getByRole("note").boundingBox();
-        if (appearance === "nebula-bloom" && mode === "dark")
-          await page.screenshot({ path: `${prefix}-timeline.png` });
-        await s11.blur();
+        const bannerBackground = await page
+          .locator(".page-heading")
+          .evaluate((element) => getComputedStyle(element).backgroundImage);
+        const posterCount = await page.locator(".event-artwork").count();
+        if (
+          posterCount ||
+          (appearance === "nebula-bloom" &&
+            !bannerBackground.includes("nebula-v2-1600.webp"))
+        )
+          throw new Error(
+            "Mappool banner must use the nebula background without a key-visual poster.",
+          );
         await page.locator(".map-open-button").first().click();
         await page.getByRole("dialog").waitFor();
         const dialogAudit = await new AxeBuilder({ page })
@@ -67,8 +74,8 @@ try {
           mode,
           appearance,
           overflow,
-          title,
-          tipInside: tip.x >= 0 && tip.x + tip.width <= viewport.width,
+          bannerBackground,
+          posterCount,
           focusRestored,
           dialogViolations: dialogAudit.violations.map((v) => v.id),
           errors,
@@ -105,7 +112,7 @@ try {
     ["zh-Hant", "S11 · 星雲初綻"],
   ]) {
     await page.goto(
-      `${base}/nebula-preview?theme=dark&appearance=default&locale=${locale}`,
+      `${base}/nebula-preview?view=timeline&theme=dark&appearance=default&locale=${locale}`,
     );
     const s11 = page.locator('[data-tl-key="season-11"]');
     await s11.focus();

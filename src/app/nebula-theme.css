@@ -29,8 +29,8 @@ html[data-appearance="nebula-bloom"] {
   --site-panel-shadow: #38214926;
   --site-dialog-shadow: #22123538;
   --site-backdrop: #22123580;
-  --nebula-heading-wash: #f6f0ff;
-  --nebula-heading-edge: #f6f0ffe6;
+  --nebula-heading-wash: #241536eb;
+  --nebula-heading-edge: #28143dbf;
   --nebula-heading-glow: #c5e2f480;
   --nebula-jade: #287661;
   --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23695875' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
@@ -63,8 +63,8 @@ html[data-appearance="nebula-bloom"][data-theme="dark"] {
   --site-panel-shadow: #09051266;
   --site-dialog-shadow: #09051299;
   --site-backdrop: #090512b0;
-  --nebula-heading-wash: #261c38;
-  --nebula-heading-edge: #261c38eb;
+  --nebula-heading-wash: #1d102deb;
+  --nebula-heading-edge: #211035bf;
   --nebula-heading-glow: #a9d9f01a;
   --nebula-jade: #9bd9c5;
   --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23c0b0d1' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
@@ -76,7 +76,7 @@ html[data-appearance="nebula-bloom"] .themed-site .page-heading {
   padding: 24px 32px;
   border: 1px solid var(--site-border);
   border-radius: var(--radius-panel);
-  background-color: var(--nebula-heading-wash);
+  color: #f9f3ff;
   background:
     linear-gradient(
       100deg,
@@ -84,10 +84,14 @@ html[data-appearance="nebula-bloom"] .themed-site .page-heading {
       var(--nebula-heading-edge) 72%
     ),
     url("/branding/home-hero/nebula-v2-1600.webp") 75% 48% / cover no-repeat;
+  background-color: #241536;
   box-shadow: inset 0 1px 0 var(--nebula-heading-glow);
 }
 html[data-appearance="nebula-bloom"] .themed-site .page-heading .eyebrow {
-  color: var(--nebula-jade);
+  color: #b2ead8;
+}
+html[data-appearance="nebula-bloom"] .themed-site .page-heading .muted {
+  color: #e0d4ee;
 }
 html[data-appearance="nebula-bloom"] .themed-site .page-heading h1 {
   font-size: clamp(1.7rem, 3vw, 2.35rem);
@@ -190,7 +194,10 @@ html[data-appearance="nebula-bloom"]
     border-color: CanvasText;
     box-shadow: none;
   }
-  html[data-appearance="nebula-bloom"] .themed-site .page-heading .eyebrow {
+  html[data-appearance="nebula-bloom"]
+    .themed-site
+    .page-heading
+    :is(.eyebrow, .muted) {
     color: CanvasText;
   }
   html[data-appearance="nebula-bloom"]

@@ -11,7 +11,6 @@ import {
 } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { Header } from "../../src/components/header";
 import { TournamentShell } from "../../src/components/tournament-navigation";
-import { EventArtwork } from "../../src/components/event-artwork";
 import { PageHeading } from "../../src/components/ui";
 import { PublicMappools } from "../../src/components/public-mappools";
 import { PlayerTimeline } from "../../src/components/player-timeline";
@@ -30,6 +29,7 @@ import "../../src/app/tournaments/[edition]/event-pages.css";
 import "../../src/app/nebula-theme.css";
 
 const params = new URLSearchParams(location.search);
+const timelinePreview = params.get("view") === "timeline";
 const locale = params.get("locale") || "zh-Hant";
 const appearance =
   params.get("appearance") === "default" ? "default" : "nebula-bloom";
@@ -64,17 +64,17 @@ function Preview() {
       />
       <main className="public-tournament">
         <TournamentShell slug="synthetic-s11" name="OCLR S11" liveDraft={false}>
-          <PageHeading eyebrow="OCLR S11" title={tr("Pools")}>
+          <PageHeading
+            eyebrow="OCLR S11"
+            title={timelinePreview ? tr("Player timeline") : tr("Pools")}
+          >
             Synthetic design preview · 合成設計樣本；非正式賽事資料
           </PageHeading>
-          <EventArtwork src="/oclr-s11-key-visual.webp" name="OCLR S11" />
-          <section
-            style={{ marginBlock: 32 }}
-            aria-label={tr("Player timeline")}
-          >
+          {timelinePreview ? (
             <PlayerTimeline timeline={timeline} />
-          </section>
-          <PublicMappools slug="synthetic-s11" pools={syntheticPublicPools} />
+          ) : (
+            <PublicMappools slug="synthetic-s11" pools={syntheticPublicPools} />
+          )}
         </TournamentShell>
       </main>
     </div>

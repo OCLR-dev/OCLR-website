@@ -19,15 +19,18 @@ scoped stylesheet rather than a parallel component system.
 | Dark page / reading surface   | Blue-black / blue-gray        | `#141020` / `#20192f`, layered indigo-purple                                            |
 | Light primary action          | Native purple                 | `#70409c`, white text                                                                   |
 | Dark primary action           | Native purple                 | Pale lavender `#cfacf1`, deep purple text                                               |
-| Page heading                  | Plain title area              | Existing nebula image under a strong reading wash, native rounded geometry              |
+| Page heading                  | Plain title area              | Pure purple nebula background, pale text and a dark reading wash in both modes          |
 | Small identifiers             | Purple                        | Jade eyebrow and active navigation dot; text and current-state semantics remain visible |
 | Tables, map parameters, rules | Stable data surfaces          | Solid surfaces, lavender table headers, tabular numerals                                |
 | Motion                        | Native short control feedback | 180ms heading entrance and 140ms navigation feedback; removed for reduced motion        |
 
-The main visual anchor remains the approved S11 artwork. Nebula detail and star
-points come from that existing image, concentrated in page headings. There is
-no background animation or new illustration. The overview/banner and
-`EventArtwork` use their existing sources and gain a matching edge and radius.
+Page banners use the existing pure purple nebula sky as their background, with
+pale headings, lavender supporting text and a mint eyebrow. A dark reading wash
+preserves text contrast while leaving the star field visible in both modes.
+The mappool layout follows its real page: title banner, then pool controls and
+data. Its design preview previously inserted a full key-visual poster; the
+organizer's correction removes that extra composition. The separate tournament
+overview retains its existing artwork placement and matching edge/radius.
 Long text wraps within the heading; mobile padding is 24px. Forms use a stronger
 control edge in both modes. Forced colors remove the heading image and preserve
 explicit selected outlines.

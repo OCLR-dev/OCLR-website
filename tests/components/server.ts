@@ -16,9 +16,6 @@ const tournamentArtwork = new Set([
   "/oclr-s11-square-logo.webp",
   "/oclr-s11-website-background.webp",
   "/oclr-s11-key-visual.webp",
-  ...[640, 960, 1280, 1920, 2560, 3840].map(
-    (width) => `/oclr-s11-key-visual-enhanced-${width}.webp`,
-  ),
 ]);
 
 const bundle = await build({
