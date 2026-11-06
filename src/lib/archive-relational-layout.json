@@ -1527,6 +1527,12 @@
           { "column": "value_slot", "type": "string", "array": false },
           { "column": "value_beatmap_id", "type": "integer", "array": false },
           {
+            "column": "value_beatmap_set_id",
+            "type": "integer",
+            "array": false
+          },
+          { "column": "value_cover_path", "type": "string", "array": false },
+          {
             "column": "value_difficulty_snapshot_beatmap_id",
             "type": "integer",
             "array": false
@@ -1605,6 +1611,18 @@
               "type": "scalar",
               "column": "value_beatmap_id",
               "scalar": "integer",
+              "array": false
+            },
+            "beatmapSetId": {
+              "type": "scalar",
+              "column": "value_beatmap_set_id",
+              "scalar": "integer",
+              "array": false
+            },
+            "coverPath": {
+              "type": "scalar",
+              "column": "value_cover_path",
+              "scalar": "string",
               "array": false
             },
             "difficultySnapshot": {

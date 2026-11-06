@@ -13,14 +13,23 @@ IMPORTS = ROOT / "docs/imports"
 # Provenance for archived edits whose original beatmap is known. The edit stays
 # in beatmapId; originalId points at the map players can open separately.
 ORIGINAL_BEATMAP_IDS = {1933040: 1863199}
+FILE_SUPPLEMENTS = json.loads((ROOT / 'src/data/archive-file-supplements.json').read_text())['s6']
 
 
-def archived_map(m):
+def archived_map(m, pool_id):
     entry = {}
     for key in ["slot", "beatmapId", "title", "mapper", "stars", "bpm", "drainSeconds", "cs", "ar", "od", "source"]:
         entry[key] = m[key]
         if key == "beatmapId" and m[key] in ORIGINAL_BEATMAP_IDS:
             entry["originalId"] = ORIGINAL_BEATMAP_IDS[m[key]]
+    correction = next((s for s in FILE_SUPPLEMENTS if s['poolId'] == pool_id and
+                       s['slot'] == m['slot'] and s['beatmapId'] == m['beatmapId']), None)
+    if correction:
+        for key, value in correction['attributes'].items():
+            if entry[key] is None:
+                entry[key] = value
+        entry['beatmapSetId'] = correction['beatmapSetId']
+        entry['coverPath'] = correction['coverPath']
     return entry
 
 
@@ -80,7 +89,7 @@ def build():
                 a["players"].append(dict(osuId=p["osuId"], **member))
     for p in s["pools"]:
         a["pools"].append(dict(id=p["id"], name=p["name"], source=p["maps"][0]["source"],
-                               maps=[archived_map(m) for m in p["maps"]]))
+                               maps=[archived_map(m, p['id']) for m in p["maps"]]))
     for q in s["qualifiers"]:
         a["qualifiers"].append(dict(
             name=q["name"], poolId="coach-qualifier" if q["name"] == "教练资格赛" else "captain-qualifier",

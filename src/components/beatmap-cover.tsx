@@ -6,19 +6,22 @@ import Image from "next/image";
 import { useState } from "react";
 export function BeatmapCover({
   setId,
+  coverPath,
   fallbackSetId,
   compact = false,
 }: {
   setId: number | null | undefined;
+  coverPath?: string;
   fallbackSetId?: number | null;
   compact?: boolean;
 }) {
   const tr = useAppTranslations();
 
   const sources = [
+    coverPath,
     beatmapCoverUrl(setId),
     beatmapCoverUrl(fallbackSetId),
-  ].filter((value): value is string => value !== null);
+  ].filter((value): value is string => typeof value === "string");
   const [failedSources, setFailedSources] = useState<string[]>([]);
   const src = sources.find((value) => !failedSources.includes(value));
   return (

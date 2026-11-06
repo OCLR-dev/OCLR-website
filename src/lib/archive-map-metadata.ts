@@ -1,5 +1,6 @@
 import snapshot from "@/data/archive-beatmaps.json";
 import supplements from "@/data/archive-map-supplements.json";
+import fileSupplements from "@/data/archive-file-supplements.json";
 import type { HistoricalArchive } from "./historical-archive";
 import type { DifficultySnapshot } from "./mappool-model";
 
@@ -133,6 +134,22 @@ export function archivePoolMetadata(
       ...pool,
       maps: maps.map((map): ArchiveDisplayMap => {
         const result: ArchiveDisplayMap = { ...map };
+        const recovered =
+          editionSlug === "s6"
+            ? fileSupplements.s6.find(
+                (entry) =>
+                  entry.poolId === pool.id &&
+                  entry.slot === map.slot &&
+                  entry.beatmapId === map.beatmapId,
+              )
+            : undefined;
+        if (recovered) {
+          result.beatmapSetId ??= recovered.beatmapSetId;
+          result.coverPath ??= recovered.coverPath;
+          result.archivalSource = recovered.source;
+        }
+        if (result.beatmapId && result.beatmapSetId)
+          setIds[result.beatmapId] = result.beatmapSetId;
         // Existing saved/remote archives predate the import-package supplement.
         // Apply only the confirmed edition/pool/slot/BID, without mutating it.
         const correction = confirmed.find(
@@ -146,8 +163,10 @@ export function archivePoolMetadata(
           result.preferOriginal = result.originalId === correction.originalId;
           result.archivalSource = correction.source;
         }
-        const archivedAttributes: Partial<Pick<MapEntry, Field>> =
-          correction?.attributes ?? {};
+        const archivedAttributes: Partial<Pick<MapEntry, Field>> = {
+          ...correction?.attributes,
+          ...recovered?.attributes,
+        };
         const metadata =
           enabled && map.beatmapId
             ? (snapshot.maps as Record<string, Snapshot>)[map.beatmapId]

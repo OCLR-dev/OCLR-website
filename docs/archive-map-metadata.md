@@ -73,8 +73,9 @@ rather than the original page's base attributes (2678913 shows 4.46 stars at
 still available. `python3 scripts/prepare-s5-archive.py` and
 `python3 scripts/prepare-s5-reviewed-import.py` reproduce both packages.
 
-Completing the remaining S6 record requires a surviving original map file or
-other authoritative source; do not substitute another difficulty of the song.
+The organizer subsequently supplied the exact S6 original package; its recovery
+and database migration are documented below. The official-page 404 remains
+recorded separately from the recovered local file.
 
 The original S5 supplement lived only in the import package, so deploying it did
 not repair already-saved archives. #843 adds the display correction below.
@@ -166,6 +167,38 @@ consume the same mapping, and the checked-in S10 package retains the new Finals
 source. Deploying display code alone does not constitute production DB acceptance;
 record the actual migration and normalization results on #852. The remaining
 missing covers and S2/S6 source investigation remain separate issue work.
+
+## S6 NM3 recovery from the original package (#852)
+
+The [S6 source record](s6-archive.md#captain-qualifier-nm3-original-package-852-2026-11-06)
+documents the exact file, hashes and reproducible extraction. The shared
+supplement fills missing CS 4 / AR 9.5 / OD 9.1 for S6 / captain-qualifier /
+NM3 / 2314568 and supplies set 1034526 and a same-origin cover extracted unchanged
+from `bg.jpg` (1920×1080 JPEG). It does not recalculate historical stars, BPM,
+length or results. The original API page's unavailable status is retained.
+
+Migration `0085_s6_nm3_file_recovery` adds optional `beatmapSetId`/`coverPath`
+columns to the complete typed map relations and patches the current saved S6
+archive. It locks the edition, keeps the original revision, adds a new revision
+and audit with source hashes, fills only missing/null metrics and retains all
+other JSONB. An explicit different set/cover or duplicate exact target aborts
+the transaction. Identical retries write no additional revision or audit.
+
+Apply through the existing backup/update/migration workflow, then run:
+
+```sh
+npm run db:normalize-archives -- s6 --apply --verify
+```
+
+The source-manifest trigger invalidates old relation/cache digests immediately;
+reads use the corrected source until normalization creates a new immutable typed
+document. `statisticsArchiveKey` is unchanged because BID/title/slot stay literal.
+Public, preview and remote views receive the same file recovery without provider
+credentials or writes during reads. The same-origin asset is bundled with the
+frontend in remote mode. Its path is restricted to the archive JPEG namespace.
+The original spreadsheet/source-review snapshots remain evidence, and both S6
+import packages regenerate the corrected map without carrying over source-only
+HP as a historical measurement. No new interface wording is introduced.
 
 ## Local verification — 2026-10-26
 

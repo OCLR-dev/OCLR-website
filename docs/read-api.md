@@ -254,6 +254,12 @@ against the same exhausted counters and verifies HTTP 429, `RATE_LIMITED` and
 
 ## Generating and checking contracts
 
+Contract 1.25.0 adds optional historical-map `beatmapSetId` and `coverPath`.
+`coverPath` is a same-origin `/archive/beatmaps/BID/cover.jpg` asset path; arbitrary
+URLs and traversal are rejected. S6 NM3 uses the organizer-supplied exact original
+file. Older saved archives remain valid without these fields; the data migration
+and subsequent normalization persist them for the saved-read and typed paths.
+
 Contract 1.23.0 adds optional fixture-local `exhibitionSides` to staff fixtures,
 `openExhibition` to trusted review/referee contexts, and an optional `exhibition`
 marker on public side descriptors. Referee captains may be null for open sides.

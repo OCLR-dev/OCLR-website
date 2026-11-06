@@ -8968,10 +8968,12 @@
           "stars": 6.35,
           "bpm": 209.0,
           "drainSeconds": 216,
-          "cs": null,
-          "ar": null,
-          "od": null,
-          "source": "队长资格赛赛图!A4:L4"
+          "cs": 4.0,
+          "ar": 9.5,
+          "od": 9.1,
+          "source": "队长资格赛赛图!A4:L4",
+          "beatmapSetId": 1034526,
+          "coverPath": "/archive/beatmaps/2314568/cover.jpg"
         },
         {
           "slot": "HD1",

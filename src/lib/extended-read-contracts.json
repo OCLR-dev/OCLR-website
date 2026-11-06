@@ -382,69 +382,6 @@
         { "$ref": "#/$defs/Readbe633062b6e6" }
       ]
     },
-    "Read1df011eadedc": {
-      "type": "object",
-      "properties": {
-        "slug": { "type": "string" },
-        "name": { "type": "string" },
-        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "branding": { "$ref": "#/$defs/Read5ab2db77dabd" },
-        "published": { "type": "boolean" },
-        "status": {
-          "anyOf": [
-            { "type": "string", "const": "upcoming" },
-            { "type": "string", "const": "live" },
-            { "type": "string", "const": "completed" }
-          ]
-        },
-        "summary": { "type": "string" },
-        "timeZone": { "type": "string" },
-        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
-        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "registration": { "$ref": "#/$defs/Reade8693424c8e5" },
-        "schedule": { "$ref": "#/$defs/Read53d8bb6b02cb" },
-        "defaultAppearance": { "$ref": "#/$defs/Read0cdca1ea8fa1" },
-        "rosterCapacity": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "null" },
-            { "type": "number" }
-          ]
-        },
-        "coachesEnabled": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "boolean", "const": false },
-            { "type": "boolean", "const": true }
-          ]
-        },
-        "ezScoreMultiplier": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "null" },
-            { "type": "number" }
-          ]
-        },
-        "archive": { "$ref": "#/$defs/Readb9f4db7e6569" },
-        "automaticEligibility": { "$ref": "#/$defs/Read9d043f4f751e" },
-        "rankGraceRange": { "$ref": "#/$defs/Readc78fa88a9778" }
-      },
-      "required": [
-        "slug",
-        "name",
-        "season",
-        "branding",
-        "published",
-        "status",
-        "summary",
-        "timeZone",
-        "rules",
-        "eligibility",
-        "registration",
-        "schedule"
-      ],
-      "additionalProperties": false
-    },
     "Read1e24ba30e3f7": {
       "anyOf": [
         { "type": "null", "x-oclr-undefined": true },
@@ -504,20 +441,35 @@
       ],
       "additionalProperties": false
     },
+    "Read1f24f66b4dd5": {
+      "type": "object",
+      "properties": {
+        "edition": { "$ref": "#/$defs/Read88fb4b7186b7" },
+        "revision": { "type": "number" },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "registrationPaused": { "type": "boolean" }
+      },
+      "required": [
+        "edition",
+        "revision",
+        "createdAt",
+        "updatedAt",
+        "registrationPaused"
+      ],
+      "additionalProperties": false
+    },
     "Read1f938af86459": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read82bf7dd414f3" }
-    },
-    "Read209e835b6cfd": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "source": { "type": "string" },
-        "maps": { "$ref": "#/$defs/Read9fbd4f0ed4ef" }
-      },
-      "required": ["id", "name", "source", "maps"],
-      "additionalProperties": false
     },
     "Read2347807f2e85": {
       "type": "object",
@@ -970,6 +922,17 @@
       "type": "array",
       "items": { "$ref": "#/$defs/Readf8f63afe963c" }
     },
+    "Read41b57dda1e82": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "source": { "type": "string" },
+        "maps": { "$ref": "#/$defs/Read840c9ca7b062" }
+      },
+      "required": ["id", "name", "source", "maps"],
+      "additionalProperties": false
+    },
     "Read444cf4653b57": {
       "anyOf": [
         { "type": "null", "x-oclr-undefined": true },
@@ -1028,9 +991,6 @@
         { "type": "null", "x-oclr-undefined": true },
         { "$ref": "#/$defs/Readcc90ca124d66" }
       ]
-    },
-    "Read47cd26afd222": {
-      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read7a00f6e97845" }]
     },
     "Read47ce73c3b4b5": {
       "type": "object",
@@ -1098,6 +1058,67 @@
         "status",
         "result",
         "updatedAt"
+      ],
+      "additionalProperties": false
+    },
+    "Read495d390d23bd": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "timeZone": { "type": "string" },
+        "status": {
+          "anyOf": [
+            { "type": "string", "const": "upcoming" },
+            { "type": "string", "const": "live" },
+            { "type": "string", "const": "completed" }
+          ]
+        },
+        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "branding": { "$ref": "#/$defs/Read5ab2db77dabd" },
+        "defaultAppearance": { "$ref": "#/$defs/Read0cdca1ea8fa1" },
+        "rosterCapacity": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "null" },
+            { "type": "number" }
+          ]
+        },
+        "coachesEnabled": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "boolean", "const": false },
+            { "type": "boolean", "const": true }
+          ]
+        },
+        "ezScoreMultiplier": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "null" },
+            { "type": "number" }
+          ]
+        },
+        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
+        "schedule": { "$ref": "#/$defs/Read53d8bb6b02cb" },
+        "archive": { "$ref": "#/$defs/Read926d22aaadbe" },
+        "published": { "type": "boolean" },
+        "summary": { "type": "string" },
+        "automaticEligibility": { "$ref": "#/$defs/Read9d043f4f751e" },
+        "rankGraceRange": { "$ref": "#/$defs/Readc78fa88a9778" },
+        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "registration": { "$ref": "#/$defs/Reade8693424c8e5" }
+      },
+      "required": [
+        "name",
+        "timeZone",
+        "status",
+        "season",
+        "branding",
+        "rules",
+        "schedule",
+        "published",
+        "summary",
+        "eligibility",
+        "registration"
       ],
       "additionalProperties": false
     },
@@ -1742,43 +1763,6 @@
         { "type": "string", "const": "aborted" }
       ]
     },
-    "Read75c92ae83557": {
-      "type": "object",
-      "properties": {
-        "slot": { "type": "string" },
-        "beatmapId": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-        "title": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "mapper": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "stars": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-        "bpm": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-        "drainSeconds": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-        "cs": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-        "ar": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-        "od": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-        "source": { "type": "string" },
-        "difficultySnapshot": { "$ref": "#/$defs/Readf2e55dff6d84" },
-        "originalId": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "number" }
-          ]
-        }
-      },
-      "required": [
-        "slot",
-        "beatmapId",
-        "title",
-        "mapper",
-        "stars",
-        "bpm",
-        "drainSeconds",
-        "cs",
-        "ar",
-        "od",
-        "source"
-      ],
-      "additionalProperties": false
-    },
     "Read789fefbfbc20": {
       "anyOf": [
         { "type": "null" },
@@ -1822,67 +1806,6 @@
         "required": ["id", "beatmapId", "exMode"],
         "additionalProperties": false
       }
-    },
-    "Read7a00f6e97845": {
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "timeZone": { "type": "string" },
-        "status": {
-          "anyOf": [
-            { "type": "string", "const": "upcoming" },
-            { "type": "string", "const": "live" },
-            { "type": "string", "const": "completed" }
-          ]
-        },
-        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "branding": { "$ref": "#/$defs/Read5ab2db77dabd" },
-        "defaultAppearance": { "$ref": "#/$defs/Read0cdca1ea8fa1" },
-        "rosterCapacity": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "null" },
-            { "type": "number" }
-          ]
-        },
-        "coachesEnabled": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "boolean", "const": false },
-            { "type": "boolean", "const": true }
-          ]
-        },
-        "ezScoreMultiplier": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "null" },
-            { "type": "number" }
-          ]
-        },
-        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
-        "schedule": { "$ref": "#/$defs/Read53d8bb6b02cb" },
-        "archive": { "$ref": "#/$defs/Readb9f4db7e6569" },
-        "published": { "type": "boolean" },
-        "summary": { "type": "string" },
-        "automaticEligibility": { "$ref": "#/$defs/Read9d043f4f751e" },
-        "rankGraceRange": { "$ref": "#/$defs/Readc78fa88a9778" },
-        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "registration": { "$ref": "#/$defs/Reade8693424c8e5" }
-      },
-      "required": [
-        "name",
-        "timeZone",
-        "status",
-        "season",
-        "branding",
-        "rules",
-        "schedule",
-        "published",
-        "summary",
-        "eligibility",
-        "registration"
-      ],
-      "additionalProperties": false
     },
     "Read7b4160ec244f": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readac78a7f5c202" }]
@@ -2000,6 +1923,10 @@
         { "$ref": "#/$defs/Readb8922fa1da53" }
       ]
     },
+    "Read840c9ca7b062": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Readfb780800bd10" }
+    },
     "Read84f979990fe4": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read5ef7cdf4b946" }
@@ -2046,6 +1973,69 @@
     },
     "Read88d0cc0096e6": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readdfaf457548f6" }]
+    },
+    "Read88fb4b7186b7": {
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string" },
+        "name": { "type": "string" },
+        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "branding": { "$ref": "#/$defs/Read5ab2db77dabd" },
+        "published": { "type": "boolean" },
+        "status": {
+          "anyOf": [
+            { "type": "string", "const": "upcoming" },
+            { "type": "string", "const": "live" },
+            { "type": "string", "const": "completed" }
+          ]
+        },
+        "summary": { "type": "string" },
+        "timeZone": { "type": "string" },
+        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
+        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "registration": { "$ref": "#/$defs/Reade8693424c8e5" },
+        "schedule": { "$ref": "#/$defs/Read53d8bb6b02cb" },
+        "defaultAppearance": { "$ref": "#/$defs/Read0cdca1ea8fa1" },
+        "rosterCapacity": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "null" },
+            { "type": "number" }
+          ]
+        },
+        "coachesEnabled": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "boolean", "const": false },
+            { "type": "boolean", "const": true }
+          ]
+        },
+        "ezScoreMultiplier": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "null" },
+            { "type": "number" }
+          ]
+        },
+        "archive": { "$ref": "#/$defs/Read926d22aaadbe" },
+        "automaticEligibility": { "$ref": "#/$defs/Read9d043f4f751e" },
+        "rankGraceRange": { "$ref": "#/$defs/Readc78fa88a9778" }
+      },
+      "required": [
+        "slug",
+        "name",
+        "season",
+        "branding",
+        "published",
+        "status",
+        "summary",
+        "timeZone",
+        "rules",
+        "eligibility",
+        "registration",
+        "schedule"
+      ],
+      "additionalProperties": false
     },
     "Read897ffb1214dd": {
       "type": "object",
@@ -2300,6 +2290,12 @@
       "required": ["osuId", "username", "source"],
       "additionalProperties": false
     },
+    "Read926d22aaadbe": {
+      "anyOf": [
+        { "type": "null", "x-oclr-undefined": true },
+        { "$ref": "#/$defs/Readf535a6836201" }
+      ]
+    },
     "Read9310acee3389": {
       "type": "object",
       "properties": {
@@ -2521,32 +2517,6 @@
         { "$ref": "#/$defs/Readf19f59b9ac44" }
       ]
     },
-    "Read9ec8992a2207": {
-      "type": "object",
-      "properties": {
-        "edition": { "$ref": "#/$defs/Read1df011eadedc" },
-        "revision": { "type": "number" },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "registrationPaused": { "type": "boolean" }
-      },
-      "required": [
-        "edition",
-        "revision",
-        "createdAt",
-        "updatedAt",
-        "registrationPaused"
-      ],
-      "additionalProperties": false
-    },
     "Read9ee538274272": {
       "anyOf": [
         { "type": "null" },
@@ -2561,10 +2531,6 @@
         },
         { "$ref": "#/$defs/Readb8922fa1da53" }
       ]
-    },
-    "Read9fbd4f0ed4ef": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/Read75c92ae83557" }
     },
     "Reada2c3e1f170e7": {
       "type": "object",
@@ -2950,10 +2916,6 @@
       "type": "array",
       "items": { "$ref": "#/$defs/Read9310acee3389" }
     },
-    "Readb796ff884930": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/Read209e835b6cfd" }
-    },
     "Readb816614b908d": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read1f231615934f" }
@@ -2971,12 +2933,6 @@
     "Readb9d665a48607": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read1c2a15b000ac" }
-    },
-    "Readb9f4db7e6569": {
-      "anyOf": [
-        { "type": "null", "x-oclr-undefined": true },
-        { "$ref": "#/$defs/Readce48de56aeaf" }
-      ]
     },
     "Readbaa78f3deb59": {
       "type": "array",
@@ -3056,6 +3012,32 @@
         "name": { "type": "string" }
       },
       "required": ["captainId", "members", "id", "name"],
+      "additionalProperties": false
+    },
+    "Readbfda3fb06be7": {
+      "type": "object",
+      "properties": {
+        "edition": { "$ref": "#/$defs/Reade6ebdf868b8f" },
+        "revision": { "type": "number" },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "registrationPaused": { "type": "boolean" }
+      },
+      "required": [
+        "edition",
+        "revision",
+        "createdAt",
+        "updatedAt",
+        "registrationPaused"
+      ],
       "additionalProperties": false
     },
     "Readbfe49fb255d4": {
@@ -3259,6 +3241,10 @@
         }
       ]
     },
+    "Readc85b203c356b": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Read41b57dda1e82" }
+    },
     "Readc8901e4a43cd": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read6a97c56944ea" }
@@ -3273,81 +3259,6 @@
     "Readcc90ca124d66": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read2dfae71947e0" }
-    },
-    "Readce48de56aeaf": {
-      "type": "object",
-      "properties": {
-        "formatVersion": {
-          "anyOf": [
-            { "type": "number", "const": 1 },
-            { "type": "number", "const": 2 }
-          ]
-        },
-        "editionSlug": { "type": "string" },
-        "sourceUrl": { "type": "string" },
-        "capturedOn": { "type": "string" },
-        "notes": { "type": "array", "items": { "type": "string" } },
-        "links": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "label": { "type": "string" },
-              "url": { "type": "string" }
-            },
-            "required": ["label", "url"],
-            "additionalProperties": false
-          }
-        },
-        "teams": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": { "type": "string" },
-              "name": { "type": "string" },
-              "source": { "type": "string" }
-            },
-            "required": ["id", "name", "source"],
-            "additionalProperties": false
-          }
-        },
-        "players": { "$ref": "#/$defs/Readf967082085a3" },
-        "picks": { "$ref": "#/$defs/Readdd9076fa0a18" },
-        "staff": { "$ref": "#/$defs/Read0f654788845d" },
-        "standings": { "$ref": "#/$defs/Read40465fb837bf" },
-        "matches": { "$ref": "#/$defs/Read7fcc87c9b682" },
-        "pools": { "$ref": "#/$defs/Readb796ff884930" },
-        "season": { "$ref": "#/$defs/Readc012244b07fc" },
-        "finalPlacements": { "$ref": "#/$defs/Read50818bdc2cdf" },
-        "unresolvedPlayers": { "$ref": "#/$defs/Read669629fa6f18" },
-        "rosterReplacements": { "$ref": "#/$defs/Read4778909e6dff" },
-        "qualifiers": { "$ref": "#/$defs/Read30ef5fe2da33" },
-        "reviewTables": { "$ref": "#/$defs/Read1d67b72ac404" },
-        "sourceFacts": { "$ref": "#/$defs/Read444cf4653b57" },
-        "draftMode": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "string", "const": "final-tiers" }
-          ]
-        }
-      },
-      "required": [
-        "formatVersion",
-        "editionSlug",
-        "sourceUrl",
-        "capturedOn",
-        "notes",
-        "links",
-        "teams",
-        "players",
-        "picks",
-        "staff",
-        "standings",
-        "matches",
-        "pools"
-      ],
-      "additionalProperties": false
     },
     "Readcff19b2c3d86": {
       "type": "object",
@@ -3555,32 +3466,6 @@
       "required": ["osuId", "username"],
       "additionalProperties": false
     },
-    "Readdcfdc0c5b641": {
-      "type": "object",
-      "properties": {
-        "edition": { "$ref": "#/$defs/Readf464f387dc17" },
-        "revision": { "type": "number" },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "registrationPaused": { "type": "boolean" }
-      },
-      "required": [
-        "edition",
-        "revision",
-        "createdAt",
-        "updatedAt",
-        "registrationPaused"
-      ],
-      "additionalProperties": false
-    },
     "Readdd9076fa0a18": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read871137da0b63" }
@@ -3675,12 +3560,55 @@
       "required": ["category", "code", "policy"],
       "additionalProperties": false
     },
+    "Reade6ebdf868b8f": {
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string" },
+        "name": { "type": "string" },
+        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "branding": { "$ref": "#/$defs/Read5ab2db77dabd" },
+        "defaultAppearance": { "$ref": "#/$defs/Read0cdca1ea8fa1" },
+        "published": { "type": "boolean" },
+        "status": {
+          "anyOf": [
+            { "type": "string", "const": "upcoming" },
+            { "type": "string", "const": "live" },
+            { "type": "string", "const": "completed" }
+          ]
+        },
+        "summary": { "type": "string" },
+        "timeZone": { "type": "string" },
+        "archive": { "$ref": "#/$defs/Read926d22aaadbe" },
+        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
+        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "schedule": { "$ref": "#/$defs/Read53d8bb6b02cb" },
+        "registration": { "$ref": "#/$defs/Read38af2e1030f3" }
+      },
+      "required": [
+        "slug",
+        "name",
+        "season",
+        "branding",
+        "published",
+        "status",
+        "summary",
+        "timeZone",
+        "rules",
+        "eligibility",
+        "schedule",
+        "registration"
+      ],
+      "additionalProperties": false
+    },
     "Reade8074981c738": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read78fb7898b0e5" }
     },
     "Reade8693424c8e5": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read38888921c9c6" }]
+    },
+    "Readea61889ea4e9": {
+      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read495d390d23bd" }]
     },
     "Readea7146449dc9": {
       "type": "array",
@@ -3920,43 +3848,78 @@
       "required": ["type", "options", "id", "label", "required"],
       "additionalProperties": false
     },
-    "Readf464f387dc17": {
+    "Readf535a6836201": {
       "type": "object",
       "properties": {
-        "slug": { "type": "string" },
-        "name": { "type": "string" },
-        "season": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "branding": { "$ref": "#/$defs/Read5ab2db77dabd" },
-        "defaultAppearance": { "$ref": "#/$defs/Read0cdca1ea8fa1" },
-        "published": { "type": "boolean" },
-        "status": {
+        "formatVersion": {
           "anyOf": [
-            { "type": "string", "const": "upcoming" },
-            { "type": "string", "const": "live" },
-            { "type": "string", "const": "completed" }
+            { "type": "number", "const": 1 },
+            { "type": "number", "const": 2 }
           ]
         },
-        "summary": { "type": "string" },
-        "timeZone": { "type": "string" },
-        "archive": { "$ref": "#/$defs/Readb9f4db7e6569" },
-        "rules": { "$ref": "#/$defs/Readcb41459d5612" },
-        "eligibility": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "schedule": { "$ref": "#/$defs/Read53d8bb6b02cb" },
-        "registration": { "$ref": "#/$defs/Read38af2e1030f3" }
+        "editionSlug": { "type": "string" },
+        "sourceUrl": { "type": "string" },
+        "capturedOn": { "type": "string" },
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "url": { "type": "string" }
+            },
+            "required": ["label", "url"],
+            "additionalProperties": false
+          }
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "source": { "type": "string" }
+            },
+            "required": ["id", "name", "source"],
+            "additionalProperties": false
+          }
+        },
+        "players": { "$ref": "#/$defs/Readf967082085a3" },
+        "picks": { "$ref": "#/$defs/Readdd9076fa0a18" },
+        "staff": { "$ref": "#/$defs/Read0f654788845d" },
+        "standings": { "$ref": "#/$defs/Read40465fb837bf" },
+        "matches": { "$ref": "#/$defs/Read7fcc87c9b682" },
+        "pools": { "$ref": "#/$defs/Readc85b203c356b" },
+        "season": { "$ref": "#/$defs/Readc012244b07fc" },
+        "finalPlacements": { "$ref": "#/$defs/Read50818bdc2cdf" },
+        "unresolvedPlayers": { "$ref": "#/$defs/Read669629fa6f18" },
+        "rosterReplacements": { "$ref": "#/$defs/Read4778909e6dff" },
+        "qualifiers": { "$ref": "#/$defs/Read30ef5fe2da33" },
+        "reviewTables": { "$ref": "#/$defs/Read1d67b72ac404" },
+        "sourceFacts": { "$ref": "#/$defs/Read444cf4653b57" },
+        "draftMode": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "string", "const": "final-tiers" }
+          ]
+        }
       },
       "required": [
-        "slug",
-        "name",
-        "season",
-        "branding",
-        "published",
-        "status",
-        "summary",
-        "timeZone",
-        "rules",
-        "eligibility",
-        "schedule",
-        "registration"
+        "formatVersion",
+        "editionSlug",
+        "sourceUrl",
+        "capturedOn",
+        "notes",
+        "links",
+        "teams",
+        "players",
+        "picks",
+        "staff",
+        "standings",
+        "matches",
+        "pools"
       ],
       "additionalProperties": false
     },
@@ -4128,6 +4091,55 @@
         "publicNote",
         "games",
         "series"
+      ],
+      "additionalProperties": false
+    },
+    "Readfb780800bd10": {
+      "type": "object",
+      "properties": {
+        "slot": { "type": "string" },
+        "beatmapId": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "title": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "mapper": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "stars": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "bpm": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "drainSeconds": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "cs": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "ar": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "od": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "source": { "type": "string" },
+        "beatmapSetId": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "number" }
+          ]
+        },
+        "coverPath": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "string" }
+          ]
+        },
+        "difficultySnapshot": { "$ref": "#/$defs/Readf2e55dff6d84" },
+        "originalId": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "number" }
+          ]
+        }
+      },
+      "required": [
+        "slot",
+        "beatmapId",
+        "title",
+        "mapper",
+        "stars",
+        "bpm",
+        "drainSeconds",
+        "cs",
+        "ar",
+        "od",
+        "source"
       ],
       "additionalProperties": false
     },
@@ -5021,7 +5033,7 @@
           }
         },
         "links": { "$ref": "#/$defs/Readab8799e08222" },
-        "edition": { "$ref": "#/$defs/Read1df011eadedc" },
+        "edition": { "$ref": "#/$defs/Read88fb4b7186b7" },
         "revision": { "type": "number" },
         "createdAt": {
           "type": "string",
@@ -5249,7 +5261,7 @@
               "type": "object",
               "properties": {
                 "slug": { "type": "string" },
-                "configuration": { "$ref": "#/$defs/Read47cd26afd222" },
+                "configuration": { "$ref": "#/$defs/Readea61889ea4e9" },
                 "configurationVersion": { "type": "number" },
                 "createdAt": {
                   "type": "string",
@@ -7383,7 +7395,7 @@
                 ],
                 "additionalProperties": false
               },
-              "configuration": { "$ref": "#/$defs/Read47cd26afd222" }
+              "configuration": { "$ref": "#/$defs/Readea61889ea4e9" }
             },
             "required": ["attempt", "snapshot", "configuration"],
             "additionalProperties": false
@@ -7400,7 +7412,7 @@
           ]
         },
         "username": { "type": "string" },
-        "acknowledgedConfiguration": { "$ref": "#/$defs/Read47cd26afd222" }
+        "acknowledgedConfiguration": { "$ref": "#/$defs/Readea61889ea4e9" }
       },
       "required": [
         "attempts",
@@ -7525,11 +7537,11 @@
               { "type": "string", "const": "player_reapply" }
             ]
           },
-          "acknowledgedConfiguration": { "$ref": "#/$defs/Read47cd26afd222" },
+          "acknowledgedConfiguration": { "$ref": "#/$defs/Readea61889ea4e9" },
           "edition": {
             "anyOf": [
               { "type": "null", "x-oclr-undefined": true },
-              { "$ref": "#/$defs/Read1df011eadedc" }
+              { "$ref": "#/$defs/Read88fb4b7186b7" }
             ]
           },
           "withdrawable": { "type": "boolean" },
@@ -7706,14 +7718,14 @@
       ]
     },
     "captainDraft": { "$ref": "#/$defs/Read3335ccc07221" },
-    "publicEnrollment": { "$ref": "#/$defs/Readdcfdc0c5b641" },
-    "privateSavedTournament": { "$ref": "#/$defs/Read9ec8992a2207" },
+    "publicEnrollment": { "$ref": "#/$defs/Readbfda3fb06be7" },
+    "privateSavedTournament": { "$ref": "#/$defs/Read1f24f66b4dd5" },
     "publicNewsModel": {
       "type": "object",
       "properties": {
         "editions": {
           "type": "array",
-          "items": { "$ref": "#/$defs/Read1df011eadedc" }
+          "items": { "$ref": "#/$defs/Read88fb4b7186b7" }
         },
         "items": {
           "type": "array",
@@ -7907,8 +7919,8 @@
     },
     "ownRegistrationForm": {
       "anyOf": [
-        { "$ref": "#/$defs/Read9ec8992a2207" },
-        { "$ref": "#/$defs/Readdcfdc0c5b641" }
+        { "$ref": "#/$defs/Read1f24f66b4dd5" },
+        { "$ref": "#/$defs/Readbfda3fb06be7" }
       ]
     },
     "publicContributors": {

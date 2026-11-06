@@ -30,6 +30,7 @@ export function MapCardBand({
   mapper,
   beatmapId,
   setId,
+  coverPath,
   originalBeatmapId,
   originalSetId,
   beatmapMissing,
@@ -67,6 +68,7 @@ export function MapCardBand({
   mapper?: string | null;
   beatmapId?: number | null;
   setId?: number | null;
+  coverPath?: string;
   originalBeatmapId?: number | null;
   originalSetId?: number | null;
   beatmapMissing?: boolean;
@@ -96,7 +98,7 @@ export function MapCardBand({
 )) {
   const tr = useAppTranslations();
   const Heading = `h${headingLevel}` as "h3";
-  const art = beatmapCoverUrl(setId ?? originalSetId);
+  const art = coverPath ?? beatmapCoverUrl(setId ?? originalSetId);
   const slotMod = slotModInfo(slot);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
     "idle",
@@ -121,7 +123,11 @@ export function MapCardBand({
   const identity = (
     <div className="map-card-cover">
       {variant === "band" && (
-        <BeatmapCover setId={setId} fallbackSetId={originalSetId} />
+        <BeatmapCover
+          setId={setId}
+          coverPath={coverPath}
+          fallbackSetId={originalSetId}
+        />
       )}
       <span
         className="map-slot-badge"

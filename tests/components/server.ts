@@ -114,6 +114,11 @@ createServer((request, response) => {
         : "text/javascript; charset=utf-8",
     );
     response.end(themedStyles.get(file) ?? file.contents);
+  } else if (request.url === "/archive/beatmaps/2314568/cover.jpg") {
+    response.setHeader("Content-Type", "image/jpeg");
+    response.end(
+      readFileSync(resolve("public/archive/beatmaps/2314568/cover.jpg")),
+    );
   } else if (/^\/appearance-styles\/[a-z-]+\.css$/.test(request.url ?? "")) {
     response.setHeader("Content-Type", "text/css; charset=utf-8");
     response.end(readFileSync(resolve("public", `.${request.url}`)));

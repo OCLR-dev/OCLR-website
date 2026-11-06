@@ -9,6 +9,7 @@ import { legacyS5Mappool } from "../fixtures/legacy-s5-mappool";
 import { archivePoolMetadata } from "../../src/lib/archive-map-metadata";
 import { correctS2PoolArchive } from "../../src/lib/archive-pool-correction-model";
 import earlyInventory from "../../docs/imports/early-season-mappools.json";
+import s6Files from "../../src/data/archive-file-supplements.json";
 import { baseDifficulty } from "../../src/lib/difficulty-display";
 import {
   difficultyMods,
@@ -45,11 +46,38 @@ const earlyPools = params.has("early-season")
 const earlyPool = earlyPools?.find(
   (pool) => pool.id === (params.get("pool") ?? "gs"),
 );
-const legacy = earlyPool
-  ? archivePoolMetadata(earlyPool, earlySeason)
-  : params.has("legacy-s5")
-    ? archivePoolMetadata(legacyS5Mappool, "s5")
-    : null;
+const recoveredS6 = params.has("s6-file")
+  ? archivePoolMetadata(
+      {
+        id: "captain-qualifier",
+        name: "Synthetic qualifier",
+        source: "Synthetic source",
+        maps: [
+          {
+            slot: "NM3",
+            beatmapId: 2314568,
+            title: s6Files.s6[0].attributes.title,
+            mapper: "HeTo",
+            stars: 6.35,
+            bpm: 209,
+            drainSeconds: 216,
+            cs: null,
+            ar: null,
+            od: null,
+            source: "Synthetic saved map",
+          },
+        ],
+      },
+      "s6",
+    )
+  : null;
+const legacy =
+  recoveredS6 ??
+  (earlyPool
+    ? archivePoolMetadata(earlyPool, earlySeason)
+    : params.has("legacy-s5")
+      ? archivePoolMetadata(legacyS5Mappool, "s5")
+      : null);
 type Pool = (typeof syntheticPublicPools)[number];
 const difficultyPools: Pool[] = syntheticPublicPools.map((pool) => ({
   ...pool,

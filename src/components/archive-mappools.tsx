@@ -83,7 +83,11 @@ function ArchiveMapDetails({
       </header>
       <div className="map-dialog-body">
         <div className="map-detail-identity">
-          <BeatmapCover setId={setId} fallbackSetId={originalSetId} />
+          <BeatmapCover
+            setId={setId}
+            coverPath={map.coverPath}
+            fallbackSetId={originalSetId}
+          />
           <div>
             <h2 id={title}>{map.title ?? tr("Not recorded")}</h2>
             {map.artist && <p className="muted">{map.artist}</p>}
@@ -220,11 +224,13 @@ export function ArchiveMappools({
       : null;
     return {
       beatmapMissing: !!m.beatmapId && missingBeatmapIds.includes(m.beatmapId),
-      setId: m.preferOriginal
-        ? originalSetId
-        : m.beatmapId
-          ? (artworkSetIds[m.beatmapId] ?? null)
-          : null,
+      setId:
+        m.beatmapSetId ??
+        (m.preferOriginal
+          ? originalSetId
+          : m.beatmapId
+            ? (artworkSetIds[m.beatmapId] ?? null)
+            : null),
       originalSetId,
     };
   };
@@ -442,6 +448,7 @@ export function ArchiveMappools({
                     mapper={parsed?.mapper ?? m.mapper}
                     beatmapId={m.beatmapId}
                     setId={setId}
+                    coverPath={m.coverPath}
                     originalBeatmapId={m.originalId}
                     originalSetId={originalSetId}
                     beatmapMissing={beatmapMissing}
@@ -474,6 +481,7 @@ export function ArchiveMappools({
                   <div className="archive-map-thumbnail">
                     <BeatmapCover
                       setId={setId}
+                      coverPath={m.coverPath}
                       fallbackSetId={originalSetId}
                       compact
                     />

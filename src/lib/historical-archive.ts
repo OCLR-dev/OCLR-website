@@ -183,6 +183,11 @@ export const historicalArchiveSchema = z
                   .object({
                     slot: z.string().regex(/^(NM|HD|HR|DT|FM|TB|ACE)[1-9]\d?$/),
                     beatmapId: id.nullable(),
+                    beatmapSetId: id.optional(),
+                    coverPath: z
+                      .string()
+                      .regex(/^\/archive\/beatmaps\/[1-9]\d*\/cover\.jpg$/)
+                      .optional(),
                     difficultySnapshot: difficultySnapshotSchema.optional(),
                     originalId: id.optional(),
                     title: text.nullable(),

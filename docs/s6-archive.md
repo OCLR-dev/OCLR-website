@@ -12,9 +12,27 @@ The organizer supplied `ELFENSJoN - Hyousou wa Hakuen o Matoite.osz` on
   `BeatmapSetID:1034526`, matching the missing S6 slot. The package also contains
   the source audio, `bg.jpg`, samples and four other difficulties.
 
-This is preserved source evidence for restoring that exact difficulty and its
-artwork. Runtime integration and database updates for this S6 record are still
-tracked on #852.
+`python3 scripts/prepare-s6-map-file.py` verifies the reviewed package checksum,
+exact difficulty/ruleset and background reference. It reproduces the public
+`/archive/beatmaps/2314568/cover.jpg` byte-for-byte and the scoped
+`src/data/archive-file-supplements.json`. `--check` verifies both without writes.
+The file records CS **4**, AR **9.5**, OD **9.1** and HP **5.5**; the existing
+historical stars **6.35**, BPM **209** and drain length **216 s** remain literal.
+The preserved difficulty MD5 is `e473fac1d442477700a83edf208eb966`.
+
+Migration `0085_s6_nm3_file_recovery` fills missing CS/AR/OD and saves set ID
+1034526 plus the local cover path for this exact S6 pool/slot/BID. Existing
+non-null metrics, title, creator credit, source cell and all result/statistics
+history are preserved. Source package/difficulty hashes enter the transactional
+audit. Both S6 import builders and the read-only fallback use the same recovered
+data, including old saved/remote archives. Cards, compact rows and Details prefer
+the bundled JPEG and retain the usual official-image fallback.
+
+Apply the reviewed migration through the existing production update workflow,
+then run `npm run db:normalize-archives -- s6 --apply --verify` as the configured
+operator. The new optional `beatmapSetId`/`coverPath` fields survive the complete
+typed archive relations and saved-read contract 1.25.0. Production migration and
+deployment remain separate operator evidence on #852.
 
 ## Team K roster correction (#629, 2026-11-01)
 

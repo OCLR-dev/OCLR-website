@@ -915,6 +915,8 @@ export const archiveRelArchivePoolsMaps = pgTable(
     nulls: text("nulls").array().notNull(),
     value_slot: text("value_slot"),
     value_beatmap_id: bigint("value_beatmap_id", { mode: "number" }),
+    value_beatmap_set_id: bigint("value_beatmap_set_id", { mode: "number" }),
+    value_cover_path: text("value_cover_path"),
     value_difficulty_snapshot_beatmap_id: bigint(
       "value_difficulty_snapshot_beatmap_id",
       { mode: "number" },
