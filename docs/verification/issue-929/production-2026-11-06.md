@@ -40,3 +40,11 @@ cancelled after the subsequent main update; it is not recorded as passed. Final
 #941 CI evidence is recorded in its PR. E2E: not run (too slow), under ordinary
 development policy. Database backfill verification and CI acceptance remain
 separate evidence.
+
+The subsequent main `210ffde5` run passed build/check and reported 2,562 passed /
+one failed (2,563 total). Its only failure was the new S11 theme being inserted
+as legacy site-setting data even though the database correctly forbids that
+value. #943 repairs that fixture: the ten historically storable themes keep
+their legacy checks; newly registered themes verify application and database
+rejection without inventing legacy rows. Both CI test repairs are in PR #942,
+with no runtime/schema change. The site-settings case count remains 26.

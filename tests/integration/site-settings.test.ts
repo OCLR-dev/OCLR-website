@@ -37,6 +37,20 @@ const save = (defaultAppearance = "cute-pastel", expectedRevision = 0) => ({
   defaultAppearance,
   expectedRevision,
 });
+// Frozen historical fixtures: these values could be stored before season
+// appearances stopped being allowed as new site-wide defaults.
+const legacySiteAppearances: readonly string[] = [
+  "skyline-pop",
+  "glacier-blue",
+  "sakura-circuit",
+  "graphite-arena",
+  "orbital-pulse",
+  "prism-overture",
+  "azure-brush",
+  "frost-waltz",
+  "verdant-prelude",
+  "chromatic-origins",
+];
 describe.skipIf(!url)("global site appearance settings", () => {
   beforeAll(() => {
     assertTestDatabase(url);
@@ -90,7 +104,9 @@ describe.skipIf(!url)("global site appearance settings", () => {
       expect(await db().select().from(siteSettingEvents)).toHaveLength(1);
     },
   );
-  it.each(seasonAppearances)(
+  it.each(
+    seasonAppearances.filter((theme) => legacySiteAppearances.includes(theme)),
+  )(
     "rejects new site-wide %s saves and safely reads legacy values",
     async (theme) => {
       await db()
@@ -110,6 +126,29 @@ describe.skipIf(!url)("global site appearance settings", () => {
         after: "default",
         revision: 6,
       });
+    },
+  );
+  it.each(
+    seasonAppearances.filter((theme) => !legacySiteAppearances.includes(theme)),
+  )(
+    "rejects new site-wide %s values at the application and database boundaries",
+    async (theme) => {
+      const before = await siteSettingsForAdmin(admin);
+      expect(before).toMatchObject({
+        defaultAppearance: "default",
+        revision: 0,
+      });
+      await expect(
+        updateSiteSettings(admin, save(theme)),
+      ).rejects.toMatchObject({ status: 400 });
+      await expect(
+        db().insert(siteSettings).values({ id: 1, defaultAppearance: theme }),
+      ).rejects.toMatchObject({
+        cause: { code: "23514", constraint: "site_settings_appearance" },
+      });
+      expect(await siteSettingsForAdmin(admin)).toEqual(before);
+      expect(await defaultSiteAppearance()).toBe("default");
+      expect(await db().select().from(siteSettingEvents)).toHaveLength(0);
     },
   );
   it.each([
