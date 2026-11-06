@@ -85,6 +85,7 @@ const themedStyles = new Map(
       "practice-records.css",
       "schedule-selection.css",
       "streaming-manager.css",
+      "round-referee-policy.css",
       "captain-manager.css",
       "tournament-settings.css",
     ].map(async (name) => {
