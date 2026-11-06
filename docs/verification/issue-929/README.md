@@ -7,6 +7,10 @@ Initial baseline: main `f6ebb7bc`; integrated main `ad7d568d` before the final
 affected checks. No production connection, migration, provider request or service
 operation was performed by this session.
 
+Subsequent [organizer-reported production backfill results](production-2026-11-06.md)
+confirm all ten saved seasons are normalized and their public score generations
+verify successfully. Those operations were performed by the organizer.
+
 ## Source preservation and actual CLI upgrade rehearsal
 
 Two separate, loopback-only PostgreSQL 17 databases with `test` in their names

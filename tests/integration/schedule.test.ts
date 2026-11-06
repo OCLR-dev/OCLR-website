@@ -187,10 +187,15 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
         assignedBy: admin.osuId,
       };
       await db().insert(table).values(booking);
-      const conflicts = async () =>
-        (await scheduleWorkspace(admin, slug)).fixtures.map(
-          (fixture) => fixture.sameStart,
+      const conflicts = async () => {
+        const items = (await scheduleWorkspace(admin, slug)).fixtures;
+        expect(items).toHaveLength(2);
+        // Equal start times do not establish an order between fixtures.
+        return [first.id, second.id].map(
+          (fixtureId) =>
+            items.find((fixture) => fixture.id === fixtureId)?.sameStart,
         );
+      };
       expect(await conflicts()).toEqual([[second.label], [first.label]]);
       await db()
         .update(table)
