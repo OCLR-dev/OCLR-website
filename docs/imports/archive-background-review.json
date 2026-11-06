@@ -1,0 +1,1739 @@
+{
+  "capturedOn": "2026-11-07",
+  "sort": "relevance_desc",
+  "modes": "any",
+  "statuses": "any",
+  "policy": "Exact title ignoring case; verify artist identity/credited aliases; exclude original set and unavailable images; select first remaining candidate. Background only.",
+  "entries": [
+    {
+      "editionSlug": "s1",
+      "poolId": "gs",
+      "slot": "NM3",
+      "beatmapId": 659750,
+      "originalSetId": 293275,
+      "title": "Scars of FAUNA",
+      "artist": "Nekomata Master",
+      "search": {
+        "filters": ["Any", "Any", "Any", "Any", "Show", "Any", "Any", "Any"],
+        "results": [
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/743685",
+                "text": "Scars of FAUNA"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/743685",
+                "text": "by Nekomata Master"
+              }
+            ],
+            "mapper": "Ambient",
+            "rank": 1,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/644654",
+                "text": "Scars of FAUNA"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/644654",
+                "text": "by Nekomata Master"
+              }
+            ],
+            "mapper": "Critical_Star",
+            "rank": 2,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/846374",
+                "text": "Scars of FAUNA"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/846374",
+                "text": "by Nekomata Master"
+              }
+            ],
+            "mapper": "Raveille",
+            "rank": 3,
+            "status": "Loved"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1302763",
+                "text": "Scars of FAUNA"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1302763",
+                "text": "by Nekomata Master"
+              }
+            ],
+            "mapper": "Madoka2574",
+            "rank": 4,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/553755",
+                "text": "Scars of FAUNA"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/553755",
+                "text": "by NekomataMaster"
+              }
+            ],
+            "mapper": "Holoaz",
+            "rank": 5,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/975206",
+                "text": "Scars of FAUNA"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/975206",
+                "text": "by Nekomata Master"
+              }
+            ],
+            "mapper": "FelixSpade",
+            "rank": 6,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/293275",
+                "text": "Scars of FAUNA"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/293275",
+                "text": "by Nekomata Master"
+              }
+            ],
+            "mapper": "Urushi38",
+            "rank": 7,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1172950",
+                "text": "Scars of FAUNA"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1172950",
+                "text": "by Nekomata Master"
+              }
+            ],
+            "mapper": "Kloyd",
+            "rank": 8,
+            "status": "Graveyard"
+          }
+        ],
+        "sort": "Relevance",
+        "url": "https://osu.ppy.sh/beatmapsets?q=Scars%20of%20FAUNA&s=any",
+        "query": "Scars of FAUNA",
+        "capturedAt": "2026-11-06T16:35:46.822Z"
+      },
+      "originalCover": {
+        "setId": 293275,
+        "url": "https://assets.ppy.sh/beatmaps/293275/covers/cover.jpg",
+        "status": 404,
+        "bytes": 150
+      },
+      "selected": {
+        "setId": 743685,
+        "title": "Scars of FAUNA",
+        "artist": "Nekomata Master",
+        "creator": "Ambient",
+        "status": 200,
+        "coverSha256": "d499b303ef4094f9f7a14cb21b9e1b19ec4f745ffa087139db5467132f735038",
+        "beatmaps": [
+          {
+            "beatmapId": 1568262,
+            "mode": "osu",
+            "difficulty": "Extreme"
+          },
+          {
+            "beatmapId": 1568263,
+            "mode": "osu",
+            "difficulty": "Normal"
+          },
+          {
+            "beatmapId": 1587083,
+            "mode": "osu",
+            "difficulty": "moph's Insane"
+          },
+          {
+            "beatmapId": 1618405,
+            "mode": "osu",
+            "difficulty": "ailv's Hard"
+          },
+          {
+            "beatmapId": 1619861,
+            "mode": "osu",
+            "difficulty": "Advanced"
+          }
+        ]
+      },
+      "selectedRank": 1,
+      "checkedUnavailableCandidates": []
+    },
+    {
+      "editionSlug": "s1",
+      "poolId": "es1",
+      "slot": "HD3",
+      "beatmapId": 776326,
+      "originalSetId": 352290,
+      "title": "Loftiness Dream",
+      "artist": "Solo Buta-R",
+      "search": {
+        "filters": ["Any", "Any", "Any", "Any", "Show", "Any", "Any", "Any"],
+        "results": [
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/352290",
+                "text": "Loftiness Dream"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/352290",
+                "text": "by Solo Buta-R"
+              }
+            ],
+            "mapper": "EvilElvis",
+            "rank": 1,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1352465",
+                "text": "Dream Running Music"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1352465",
+                "text": "by Dream"
+              }
+            ],
+            "mapper": "Toadi_",
+            "rank": 2,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1429419",
+                "text": "Konnanimo"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1429419",
+                "text": "by Dream"
+              }
+            ],
+            "mapper": "timemon",
+            "rank": 3,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1729551",
+                "text": "Dream"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1729551",
+                "text": "by JOYLESS"
+              }
+            ],
+            "mapper": "Shii",
+            "rank": 4,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/70945",
+                "text": "Get Over"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/70945",
+                "text": "by Dream"
+              }
+            ],
+            "mapper": "P o M u T a",
+            "rank": 5,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1019827",
+                "text": "Sad Dream"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1019827",
+                "text": "by UNDEAD CORPORATION"
+              }
+            ],
+            "mapper": "Hinsvar",
+            "rank": 6,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2417098",
+                "text": "ROMANCEPLANET - DREAM (OFFICIAL AUDIO)"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2417098",
+                "text": "by Dream"
+              }
+            ],
+            "mapper": "ScarletSecret",
+            "rank": 7,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2075279",
+                "text": "Dream"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2075279",
+                "text": "by JOYLESS"
+              }
+            ],
+            "mapper": "netnesanya",
+            "rank": 8,
+            "status": "Graveyard"
+          }
+        ],
+        "sort": "Relevance",
+        "url": "https://osu.ppy.sh/beatmapsets?q=Loftiness%20Dream&s=any",
+        "query": "Loftiness Dream",
+        "capturedAt": "2026-11-06T16:35:39.128Z"
+      },
+      "originalCover": {
+        "setId": 352290,
+        "url": "https://assets.ppy.sh/beatmaps/352290/covers/cover.jpg",
+        "status": 404,
+        "bytes": 150
+      },
+      "unresolved": "Only the original unavailable set matches this title in the captured official result list."
+    },
+    {
+      "editionSlug": "s4",
+      "poolId": "coach",
+      "slot": "NM3",
+      "beatmapId": 700445,
+      "originalSetId": 313788,
+      "title": "Suigetsu Kyouka Koubou Issen",
+      "artist": "Xenon",
+      "search": {
+        "filters": ["Any", "Any", "Any", "Any", "Show", "Any", "Any", "Any"],
+        "results": [
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/433340",
+                "text": "Suigetsu Kyouka Koubou Issen"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/433340",
+                "text": "by Onocchi, Xenon"
+              }
+            ],
+            "mapper": "Video",
+            "rank": 1,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2198080",
+                "text": "Suigetsu Kyouka Koubou Issen"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2198080",
+                "text": "by Xenoglossy"
+              }
+            ],
+            "mapper": "Camo",
+            "rank": 2,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/294471",
+                "text": "Suigetsu Kyouka Koubou Issen"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/294471",
+                "text": "by Onocchi, Xenon"
+              }
+            ],
+            "mapper": "lolcubes",
+            "rank": 3,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/313788",
+                "text": "Suigetsu Kyouka Koubou Issen"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/313788",
+                "text": "by Xenon"
+              }
+            ],
+            "mapper": "GoldenWolf",
+            "rank": 4,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/518002",
+                "text": "Suigetsu Kyouka Koubou Issen"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/518002",
+                "text": "by Onocchi, Xenon"
+              }
+            ],
+            "mapper": "Catshy",
+            "rank": 5,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1137864",
+                "text": "Suigetsu Kyouka Koubou Issen"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1137864",
+                "text": "by Onocchi, Xenon"
+              }
+            ],
+            "mapper": "Fawx",
+            "rank": 6,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/594330",
+                "text": "Suigetsu Kyouka Koubou Issen"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/594330",
+                "text": "by Xenon, Onocchi"
+              }
+            ],
+            "mapper": "PunyFlash",
+            "rank": 7,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/402967",
+                "text": "Suigetsu Kyouka Koubou Issen"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/402967",
+                "text": "by Onocchi, Xenon"
+              }
+            ],
+            "mapper": "[Force]",
+            "rank": 8,
+            "status": "Graveyard"
+          }
+        ],
+        "sort": "Relevance",
+        "url": "https://osu.ppy.sh/beatmapsets?q=Suigetsu%20Kyouka%20Koubou%20Issen&s=any",
+        "query": "Suigetsu Kyouka Koubou Issen",
+        "capturedAt": "2026-11-06T16:33:11.074Z"
+      },
+      "originalCover": {
+        "setId": 313788,
+        "url": "https://assets.ppy.sh/beatmaps/313788/covers/cover.jpg",
+        "status": 404,
+        "bytes": 150
+      },
+      "selected": {
+        "setId": 433340,
+        "title": "Suigetsu Kyouka Koubou Issen",
+        "artist": "Onocchi, Xenon",
+        "creator": "Video",
+        "status": 200,
+        "coverSha256": "646ab4ecac05925831c2ae5d1ae5930de3134a6274d8072581658337c434ff10",
+        "beatmaps": [
+          {
+            "beatmapId": 934131,
+            "mode": "osu",
+            "difficulty": "~ Sword Dance ~"
+          }
+        ]
+      },
+      "selectedRank": 1,
+      "checkedUnavailableCandidates": []
+    },
+    {
+      "editionSlug": "s4",
+      "poolId": "captain",
+      "slot": "DT1",
+      "beatmapId": 871267,
+      "originalSetId": 400439,
+      "title": "Yume Utsutsu",
+      "artist": "Another Infinity feat. Mayumi Morinaga",
+      "search": {
+        "filters": ["Any", "Any", "Any", "Any", "Show", "Any", "Any", "Any"],
+        "results": [
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1862096",
+                "text": "Yume Utsutsu"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1862096",
+                "text": "by Lamp"
+              }
+            ],
+            "mapper": "IISkippy",
+            "rank": 1,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1100394",
+                "text": "Yume wa Utsutsu"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1100394",
+                "text": "by SYNC.ART'S"
+              }
+            ],
+            "mapper": "Lasse",
+            "rank": 2,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1039388",
+                "text": "Akumu no Hate ni Miru Yume"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1039388",
+                "text": "by Diao Ye Zong feat. nayuta"
+              }
+            ],
+            "mapper": "Hey lululu",
+            "rank": 3,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/545384",
+                "text": "Yume Utsutsu"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/545384",
+                "text": "by Another Infinity feat. Mayumi Morinaga"
+              }
+            ],
+            "mapper": "souzirou1000",
+            "rank": 4,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2389260",
+                "text": "Yume"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2389260",
+                "text": "by Acro"
+              }
+            ],
+            "mapper": "Gera",
+            "rank": 5,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/390533",
+                "text": "yume ka utsutsu ka"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/390533",
+                "text": "by Suara"
+              }
+            ],
+            "mapper": "Snowpuff2001",
+            "rank": 6,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2051706",
+                "text": "Yorimashi wa Yume to Utsutsu no Aida ni ~ Necro-Fantasia"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2051706",
+                "text": "by ZUN"
+              }
+            ],
+            "mapper": "Shurelia",
+            "rank": 7,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1976627",
+                "text": "Yume Utsutsu"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1976627",
+                "text": "by Lamp"
+              }
+            ],
+            "mapper": "Shxro343",
+            "rank": 8,
+            "status": "Graveyard"
+          }
+        ],
+        "sort": "Relevance",
+        "url": "https://osu.ppy.sh/beatmapsets?q=Yume%20Utsutsu&s=any",
+        "query": "Yume Utsutsu",
+        "capturedAt": "2026-11-06T16:34:59.023Z"
+      },
+      "originalCover": {
+        "setId": 400439,
+        "url": "https://assets.ppy.sh/beatmaps/400439/covers/cover.jpg",
+        "status": 404,
+        "bytes": 150
+      },
+      "selected": {
+        "setId": 545384,
+        "title": "Yume Utsutsu",
+        "artist": "Another Infinity feat. Mayumi Morinaga",
+        "creator": "souzirou1000",
+        "status": 200,
+        "coverSha256": "8cdecbbe5005117caf8fb0dbec5f4b271a05bd8411f21c99062c23fa91c3b884",
+        "beatmaps": [
+          {
+            "beatmapId": 1155482,
+            "mode": "mania",
+            "difficulty": "[7K] Insane"
+          }
+        ]
+      },
+      "selectedRank": 4,
+      "checkedUnavailableCandidates": []
+    },
+    {
+      "editionSlug": "s5",
+      "poolId": "pool-1",
+      "slot": "NM3",
+      "beatmapId": 446261,
+      "originalSetId": 186899,
+      "title": "Moldy Eye",
+      "artist": "Igorrr",
+      "search": {
+        "filters": ["Any", "Any", "Any", "Any", "Show", "Any", "Any", "Any"],
+        "results": [
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/186899",
+                "text": "Moldy Eye"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/186899",
+                "text": "by Igorrr"
+              }
+            ],
+            "mapper": "grumd",
+            "rank": 1,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/101629",
+                "text": "Moldy Eye"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/101629",
+                "text": "by Igorrr"
+              }
+            ],
+            "mapper": "Wasabi",
+            "rank": 2,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1665328",
+                "text": "EYE"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1665328",
+                "text": "by Kanaria"
+              }
+            ],
+            "mapper": "Astrolis",
+            "rank": 3,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/356357",
+                "text": "Bull's eye"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/356357",
+                "text": "by nano"
+              }
+            ],
+            "mapper": "Chloe",
+            "rank": 4,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/384588",
+                "text": "Bull's eye"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/384588",
+                "text": "by nano"
+              }
+            ],
+            "mapper": "HB24",
+            "rank": 5,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/393986",
+                "text": "Bull's Eye"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/393986",
+                "text": "by nano"
+              }
+            ],
+            "mapper": "Asphyxia",
+            "rank": 6,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/650979",
+                "text": "Lazy Eye"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/650979",
+                "text": "by Silversun Pickups"
+              }
+            ],
+            "mapper": "squirrelpascals",
+            "rank": 7,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1630837",
+                "text": "Moldy Eye"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1630837",
+                "text": "by Igorrr"
+              }
+            ],
+            "mapper": "FVKAWA",
+            "rank": 8,
+            "status": "Graveyard"
+          }
+        ],
+        "sort": "Relevance",
+        "url": "https://osu.ppy.sh/beatmapsets?q=Moldy%20Eye&s=any",
+        "query": "Moldy Eye",
+        "capturedAt": "2026-11-06T16:34:33.681Z"
+      },
+      "originalCover": {
+        "setId": 186899,
+        "url": "https://assets.ppy.sh/beatmaps/186899/covers/cover.jpg",
+        "status": 404,
+        "bytes": 150
+      },
+      "selected": {
+        "setId": 1630837,
+        "title": "Moldy Eye",
+        "artist": "Igorrr",
+        "creator": "FVKAWA",
+        "status": 200,
+        "coverSha256": "5c68fd3d0454ad8da65ba3897e470b9d32ba6e13518ee1c27dee3a9e22a311ab",
+        "beatmaps": [
+          {
+            "beatmapId": 3329187,
+            "mode": "osu",
+            "difficulty": "Fungi"
+          }
+        ]
+      },
+      "selectedRank": 8,
+      "checkedUnavailableCandidates": [
+        {
+          "setId": 101629,
+          "title": "Moldy Eye",
+          "artist": "Igorrr",
+          "creator": "Wasabi",
+          "status": 404,
+          "coverSha256": "ee1a27178227546d3dcc49e611a6d72e4f1c30080ee4493ae4085b58a49e28e6",
+          "beatmaps": [
+            {
+              "beatmapId": 434731,
+              "mode": "osu",
+              "difficulty": "Insane"
+            },
+            {
+              "beatmapId": 434732,
+              "mode": "osu",
+              "difficulty": "Extra"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "editionSlug": "s5",
+      "poolId": "pool-4",
+      "slot": "HR1",
+      "beatmapId": 757229,
+      "originalSetId": 342574,
+      "title": "Kreuz",
+      "artist": "sky_delta",
+      "search": {
+        "filters": ["Any", "Any", "Any", "Any", "Show", "Any", "Any", "Any"],
+        "results": [
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/347551",
+                "text": "Kreuz"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/347551",
+                "text": "by sky_delta"
+              }
+            ],
+            "mapper": "Side",
+            "rank": 1,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/342574",
+                "text": "Kreuz"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/342574",
+                "text": "by sky_delta"
+              }
+            ],
+            "mapper": "Meg",
+            "rank": 2,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/234738",
+                "text": "Kreuz"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/234738",
+                "text": "by sky_delta"
+              }
+            ],
+            "mapper": "scanter",
+            "rank": 3,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/922174",
+                "text": "Kreuz"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/922174",
+                "text": "by sky_delta"
+              }
+            ],
+            "mapper": "gogozzzx",
+            "rank": 4,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/486344",
+                "text": "Kreuz"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/486344",
+                "text": "by sky_delta"
+              }
+            ],
+            "mapper": "Yoyupond",
+            "rank": 5,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2104231",
+                "text": "Kreuz"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2104231",
+                "text": "by sky_delta"
+              }
+            ],
+            "mapper": "chaser01",
+            "rank": 6,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/976559",
+                "text": "Kreuz"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/976559",
+                "text": "by sky_delta"
+              }
+            ],
+            "mapper": "Necho",
+            "rank": 7,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/343694",
+                "text": "Kreuz"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/343694",
+                "text": "by sky_delta"
+              }
+            ],
+            "mapper": "hokin1995",
+            "rank": 8,
+            "status": "Graveyard"
+          }
+        ],
+        "sort": "Relevance",
+        "url": "https://osu.ppy.sh/beatmapsets?q=Kreuz&s=any",
+        "query": "Kreuz",
+        "capturedAt": "2026-11-06T16:34:40.819Z"
+      },
+      "originalCover": {
+        "setId": 342574,
+        "url": "https://assets.ppy.sh/beatmaps/342574/covers/cover.jpg",
+        "status": 404,
+        "bytes": 150
+      },
+      "selected": {
+        "setId": 347551,
+        "title": "Kreuz",
+        "artist": "sky_delta",
+        "creator": "Side",
+        "status": 200,
+        "coverSha256": "d7329a8add8a83083b5dec565aa6aa3a07acb446ae68c8137def130629385b09",
+        "beatmaps": [
+          {
+            "beatmapId": 769744,
+            "mode": "osu",
+            "difficulty": "Normal"
+          },
+          {
+            "beatmapId": 769839,
+            "mode": "osu",
+            "difficulty": "Beginner"
+          },
+          {
+            "beatmapId": 779102,
+            "mode": "osu",
+            "difficulty": "Atsuro's Hyper"
+          },
+          {
+            "beatmapId": 784093,
+            "mode": "osu",
+            "difficulty": "Broseph's Advanced"
+          },
+          {
+            "beatmapId": 785113,
+            "mode": "osu",
+            "difficulty": "Another"
+          },
+          {
+            "beatmapId": 832346,
+            "mode": "osu",
+            "difficulty": "Irre's Extra"
+          }
+        ]
+      },
+      "selectedRank": 1,
+      "checkedUnavailableCandidates": []
+    },
+    {
+      "editionSlug": "s5",
+      "poolId": "coach-qualifier",
+      "slot": "NM1",
+      "beatmapId": 792500,
+      "originalSetId": 360578,
+      "title": "Bikkuri sa Setara Okoru yo!",
+      "artist": "Camellia ft. Nanahira",
+      "search": {
+        "filters": ["Any", "Any", "Any", "Any", "Show", "Any", "Any", "Any"],
+        "results": [
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/762639",
+                "text": "Bikkuri sa setara okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/762639",
+                "text": "by Camellia feat. Nanahira"
+              }
+            ],
+            "mapper": "PianoLuigi",
+            "rank": 1,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/360578",
+                "text": "Bikkuri sa Setara Okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/360578",
+                "text": "by Camellia ft. Nanahira"
+              }
+            ],
+            "mapper": "Axarious",
+            "rank": 2,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/317340",
+                "text": "Bikkuri sa setara okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/317340",
+                "text": "by Confetto (Camellia) ft. Nanahira"
+              }
+            ],
+            "mapper": "Polychu",
+            "rank": 3,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/975133",
+                "text": "Bikkuri sa Setara Okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/975133",
+                "text": "by Camellia ft. Nanahira"
+              }
+            ],
+            "mapper": "frz",
+            "rank": 4,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2148102",
+                "text": "Bikkuri sa Setara Okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/2148102",
+                "text": "by Confetto"
+              }
+            ],
+            "mapper": "Villdjack",
+            "rank": 5,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/838051",
+                "text": "Bikkuri sa setara okoru yo"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/838051",
+                "text": "by Camellia feat. nanahira"
+              }
+            ],
+            "mapper": "Thekuso10",
+            "rank": 6,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1301396",
+                "text": "Bikkuri sa setara okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1301396",
+                "text": "by Confetto (Camellia) ft. Nanahira"
+              }
+            ],
+            "mapper": "Skze",
+            "rank": 7,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/976686",
+                "text": "Bikkuri sa setara okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/976686",
+                "text": "by Nanahira"
+              }
+            ],
+            "mapper": "choco-icecream",
+            "rank": 8,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/532434",
+                "text": "Bikkuri sa Setara Okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/532434",
+                "text": "by Camellia ft. Nanahira"
+              }
+            ],
+            "mapper": "Reya",
+            "rank": 9,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1814870",
+                "text": "Bikkuri sa Setara Okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1814870",
+                "text": "by Camellia feat. Nanahira"
+              }
+            ],
+            "mapper": "itlciywjv",
+            "rank": 10,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1057303",
+                "text": "Bikkurisa setara okoru yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1057303",
+                "text": "by Camellia feat. Nanahira"
+              }
+            ],
+            "mapper": "levesterz",
+            "rank": 11,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1644257",
+                "text": "Bikkuri Sa Setara Okoru Yo!"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1644257",
+                "text": "by Camellia feat. Nanahira"
+              }
+            ],
+            "mapper": "BaRho80",
+            "rank": 12,
+            "status": "Graveyard"
+          }
+        ],
+        "sort": "Relevance",
+        "url": "https://osu.ppy.sh/beatmapsets?q=Bikkuri%20sa%20Setara%20Okoru%20yo%21&s=any",
+        "query": "Bikkuri sa Setara Okoru yo!",
+        "capturedAt": "2026-11-06T16:33:56.704Z"
+      },
+      "originalCover": {
+        "setId": 360578,
+        "url": "https://assets.ppy.sh/beatmaps/360578/covers/cover.jpg",
+        "status": 404,
+        "bytes": 150
+      },
+      "selected": {
+        "setId": 762639,
+        "title": "Bikkuri sa setara okoru yo!",
+        "artist": "Camellia feat. Nanahira",
+        "creator": "PianoLuigi",
+        "status": 200,
+        "coverSha256": "526d834eacc167bbb8d705e48e41d10ff241d860088a66bfed66b1e13f829a43",
+        "beatmaps": [
+          {
+            "beatmapId": 1660264,
+            "mode": "mania",
+            "difficulty": "[4K] Hard"
+          },
+          {
+            "beatmapId": 1660265,
+            "mode": "mania",
+            "difficulty": "[4K] Kowai!"
+          },
+          {
+            "beatmapId": 1660266,
+            "mode": "mania",
+            "difficulty": "[4K] Normal"
+          }
+        ]
+      },
+      "selectedRank": 1,
+      "checkedUnavailableCandidates": []
+    },
+    {
+      "editionSlug": "s6",
+      "poolId": "fs",
+      "slot": "HR2",
+      "beatmapId": 483199,
+      "originalSetId": 203212,
+      "title": "Himiko",
+      "artist": "Suzaku VS Genbu",
+      "search": {
+        "filters": ["Any", "Any", "Any", "Any", "Show", "Any", "Any", "Any"],
+        "results": [
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/36776",
+                "text": "Himiko"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/36776",
+                "text": "by Suzaku VS Genbu"
+              }
+            ],
+            "mapper": "TKiller",
+            "rank": 1,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/360430",
+                "text": "Himiko"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/360430",
+                "text": "by Suzaku VS Genbu"
+              }
+            ],
+            "mapper": "lahphnya",
+            "rank": 2,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/188743",
+                "text": "Himiko"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/188743",
+                "text": "by Suzaku VS Genbu"
+              }
+            ],
+            "mapper": "diicky",
+            "rank": 3,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/203212",
+                "text": "Himiko"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/203212",
+                "text": "by Suzaku VS Genbu"
+              }
+            ],
+            "mapper": "EvilElvis",
+            "rank": 4,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/253107",
+                "text": "Himiko"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/253107",
+                "text": "by Suzaku VS Genbu"
+              }
+            ],
+            "mapper": "junkzombie",
+            "rank": 5,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1474934",
+                "text": "Himiko"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1474934",
+                "text": "by Suzaku vs. Genbu"
+              }
+            ],
+            "mapper": "SuperBox",
+            "rank": 6,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1739610",
+                "text": "Himiko"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1739610",
+                "text": "by Suzaku VS Genbu"
+              }
+            ],
+            "mapper": "jordanlr7",
+            "rank": 7,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/73951",
+                "text": "Himiko"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/73951",
+                "text": "by Suzaku VS Genbu"
+              }
+            ],
+            "mapper": "serobor",
+            "rank": 8,
+            "status": "Graveyard"
+          }
+        ],
+        "sort": "Relevance",
+        "url": "https://osu.ppy.sh/beatmapsets?q=Himiko&s=any",
+        "query": "Himiko",
+        "capturedAt": "2026-11-06T16:35:08.927Z"
+      },
+      "originalCover": {
+        "setId": 203212,
+        "url": "https://assets.ppy.sh/beatmaps/203212/covers/cover.jpg",
+        "status": 404,
+        "bytes": 150
+      },
+      "selected": {
+        "setId": 1474934,
+        "title": "Himiko",
+        "artist": "Suzaku vs. Genbu",
+        "creator": "SuperBox",
+        "status": 200,
+        "coverSha256": "d92b59ef52e16650a3e0f2176463dd2226e58ebaa2a9e8f52495ef0051735905",
+        "beatmaps": [
+          {
+            "beatmapId": 3026840,
+            "mode": "osu",
+            "difficulty": "EMPRESS"
+          },
+          {
+            "beatmapId": 4883961,
+            "mode": "osu",
+            "difficulty": "Arietta-'s NORMAL"
+          },
+          {
+            "beatmapId": 4883962,
+            "mode": "osu",
+            "difficulty": "BLACK ANOTHER"
+          },
+          {
+            "beatmapId": 4883963,
+            "mode": "osu",
+            "difficulty": "Delis' EXTRA"
+          },
+          {
+            "beatmapId": 4883964,
+            "mode": "osu",
+            "difficulty": "Elvis' EXTREME"
+          },
+          {
+            "beatmapId": 4883965,
+            "mode": "osu",
+            "difficulty": "Gyro's INSANE"
+          },
+          {
+            "beatmapId": 4883966,
+            "mode": "osu",
+            "difficulty": "Kobayakawa Sae's BEGINNER"
+          },
+          {
+            "beatmapId": 4883967,
+            "mode": "osu",
+            "difficulty": "Lobelia's ANOTHER+"
+          },
+          {
+            "beatmapId": 4883968,
+            "mode": "osu",
+            "difficulty": "Makii's BLACK ANOTHER+"
+          },
+          {
+            "beatmapId": 4883969,
+            "mode": "osu",
+            "difficulty": "Noob's ANOTHER"
+          },
+          {
+            "beatmapId": 4883970,
+            "mode": "osu",
+            "difficulty": "zengsb's HYPER"
+          },
+          {
+            "beatmapId": 5185378,
+            "mode": "osu",
+            "difficulty": "yf vs. fanzhen's LEGGENDARIA"
+          },
+          {
+            "beatmapId": 5241326,
+            "mode": "osu",
+            "difficulty": "Muya's ONE MORE EXTRA"
+          }
+        ]
+      },
+      "selectedRank": 6,
+      "checkedUnavailableCandidates": [
+        {
+          "setId": 36776,
+          "title": "Himiko",
+          "artist": "Suzaku VS Genbu",
+          "creator": "TKiller",
+          "status": 404,
+          "coverSha256": "ee1a27178227546d3dcc49e611a6d72e4f1c30080ee4493ae4085b58a49e28e6",
+          "beatmaps": [
+            {
+              "beatmapId": 118687,
+              "mode": "osu",
+              "difficulty": "Esoteric Speedcore"
+            }
+          ]
+        },
+        {
+          "setId": 360430,
+          "title": "Himiko",
+          "artist": "Suzaku VS Genbu",
+          "creator": "lahphnya",
+          "status": 404,
+          "coverSha256": "ee1a27178227546d3dcc49e611a6d72e4f1c30080ee4493ae4085b58a49e28e6",
+          "beatmaps": [
+            {
+              "beatmapId": 792235,
+              "mode": "osu",
+              "difficulty": "AR9.5"
+            },
+            {
+              "beatmapId": 792236,
+              "mode": "osu",
+              "difficulty": "Arles"
+            }
+          ]
+        },
+        {
+          "setId": 188743,
+          "title": "Himiko",
+          "artist": "Suzaku VS Genbu",
+          "creator": "diicky",
+          "status": 404,
+          "coverSha256": "ee1a27178227546d3dcc49e611a6d72e4f1c30080ee4493ae4085b58a49e28e6",
+          "beatmaps": [
+            {
+              "beatmapId": 449775,
+              "mode": "mania",
+              "difficulty": "[4K] Beginner"
+            },
+            {
+              "beatmapId": 449776,
+              "mode": "mania",
+              "difficulty": "[4K] Hyper"
+            },
+            {
+              "beatmapId": 449777,
+              "mode": "mania",
+              "difficulty": "[4K] Another"
+            },
+            {
+              "beatmapId": 449778,
+              "mode": "mania",
+              "difficulty": "[4K] puxtu's Normal"
+            }
+          ]
+        },
+        {
+          "setId": 253107,
+          "title": "Himiko",
+          "artist": "Suzaku VS Genbu",
+          "creator": "junkzombie",
+          "status": 404,
+          "coverSha256": "ee1a27178227546d3dcc49e611a6d72e4f1c30080ee4493ae4085b58a49e28e6",
+          "beatmaps": [
+            {
+              "beatmapId": 581173,
+              "mode": "mania",
+              "difficulty": "[4K] J.Zombie's Another"
+            },
+            {
+              "beatmapId": 776166,
+              "mode": "mania",
+              "difficulty": "[4K] Toss's JackHouse"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "editionSlug": "s9",
+      "poolId": "gs",
+      "slot": "HD3",
+      "beatmapId": 486597,
+      "originalSetId": 206326,
+      "title": "Little Star",
+      "artist": "REDALiCE feat. Ayumi Nomiya",
+      "search": {
+        "filters": ["Any", "Any", "Any", "Any", "Show", "Any", "Any", "Any"],
+        "results": [
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1567641",
+                "text": "Little Star (Full ver.)"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1567641",
+                "text": "by REDALiCE feat. Ayumi Nomiya"
+              }
+            ],
+            "mapper": "Enon",
+            "rank": 1,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/730367",
+                "text": "Little Star"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/730367",
+                "text": "by REDALiCE feat. Ayumi Nomiya"
+              }
+            ],
+            "mapper": "DavidEd",
+            "rank": 2,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/20312",
+                "text": "little my star"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/20312",
+                "text": "by U"
+              }
+            ],
+            "mapper": "Vicho-kun",
+            "rank": 3,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1023311",
+                "text": "little my star"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/1023311",
+                "text": "by U"
+              }
+            ],
+            "mapper": "Log Off Now",
+            "rank": 4,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/528824",
+                "text": "Little Little wish"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/528824",
+                "text": "by Spacelectro feat.Setsunan"
+              }
+            ],
+            "mapper": "Starfy",
+            "rank": 5,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/206326",
+                "text": "Little Star"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/206326",
+                "text": "by REDALiCE Feat. Ayumi Nomiya"
+              }
+            ],
+            "mapper": "liaoxingyao",
+            "rank": 6,
+            "status": "Graveyard"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/7702",
+                "text": "Little My Star"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/7702",
+                "text": "by U"
+              }
+            ],
+            "mapper": "vytalibus",
+            "rank": 7,
+            "status": "Ranked"
+          },
+          {
+            "links": [
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/87209",
+                "text": "little my star"
+              },
+              {
+                "href": "https://osu.ppy.sh/beatmapsets/87209",
+                "text": "by U"
+              }
+            ],
+            "mapper": "-Hyde",
+            "rank": 8,
+            "status": "Ranked"
+          }
+        ],
+        "sort": "Relevance",
+        "url": "https://osu.ppy.sh/beatmapsets?q=Little%20Star&s=any",
+        "query": "Little Star",
+        "capturedAt": "2026-11-06T16:35:15.795Z"
+      },
+      "originalCover": {
+        "setId": 206326,
+        "url": "https://assets.ppy.sh/beatmaps/206326/covers/cover.jpg",
+        "status": 404,
+        "bytes": 150
+      },
+      "selected": {
+        "setId": 730367,
+        "title": "Little Star",
+        "artist": "REDALiCE feat. Ayumi Nomiya",
+        "creator": "DavidEd",
+        "status": 200,
+        "coverSha256": "d59924203f9c078431457132b1e035367fb18d62005f0b12f6c84b8490b818d2",
+        "beatmaps": [
+          {
+            "beatmapId": 1541404,
+            "mode": "osu",
+            "difficulty": "Extra"
+          },
+          {
+            "beatmapId": 1553461,
+            "mode": "osu",
+            "difficulty": "Normal"
+          },
+          {
+            "beatmapId": 1565293,
+            "mode": "osu",
+            "difficulty": "Insane"
+          },
+          {
+            "beatmapId": 1569936,
+            "mode": "osu",
+            "difficulty": "Hard"
+          }
+        ]
+      },
+      "selectedRank": 2,
+      "checkedUnavailableCandidates": []
+    }
+  ]
+}

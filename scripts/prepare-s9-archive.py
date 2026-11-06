@@ -15,6 +15,7 @@ from pathlib import Path
 
 # Reviewed edit-to-original provenance; retained across worksheet regeneration.
 ORIGINAL_BEATMAP_IDS = {3523843: 2691208, 4400095: 3129616, 3493389: 1911962}
+BACKGROUNDS = json.loads((Path(__file__).resolve().parents[1] / 'src/data/archive-background-supplements.json').read_text())
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("source")
@@ -114,6 +115,9 @@ for i, (sheet, pool_id) in enumerate([("GS Mappool","gs"),("SF Mappool","sf"),("
             m[key] = (int(float(v)) if key == "beatmapId" else round(float(v)*86400,6) if key == "drainSeconds" else float(v)) if numeric and v is not None else v
         if m["beatmapId"] in ORIGINAL_BEATMAP_IDS:
             m["originalId"] = ORIGINAL_BEATMAP_IDS[m["beatmapId"]]
+        background = next((r for r in BACKGROUNDS if r['editionSlug'] == 's9' and r['poolId'] == pool_id and r['slot'] == m['slot'] and r['beatmapId'] == m['beatmapId']), None)
+        if background:
+            m['backgroundSetId'] = background['backgroundSetId']
         maps.append(m)
     pools.append({"id": pool_id, "name": value(sheet,"D4"), "source": f"{sheet}!D7:S26", "maps": maps})
 for row in range(2,21):

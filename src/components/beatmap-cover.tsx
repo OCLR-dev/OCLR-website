@@ -1,27 +1,30 @@
 "use client";
 import { useAppTranslations } from "@/i18n/shared";
 
-import { beatmapCoverUrl } from "@/lib/beatmap-artwork";
+import { beatmapCoverSources } from "@/lib/beatmap-artwork";
 import Image from "next/image";
 import { useState } from "react";
 export function BeatmapCover({
   setId,
   coverPath,
+  backgroundSetId,
   fallbackSetId,
   compact = false,
 }: {
   setId: number | null | undefined;
   coverPath?: string;
+  backgroundSetId?: number | null;
   fallbackSetId?: number | null;
   compact?: boolean;
 }) {
   const tr = useAppTranslations();
 
-  const sources = [
+  const sources = beatmapCoverSources({
+    setId,
     coverPath,
-    beatmapCoverUrl(setId),
-    beatmapCoverUrl(fallbackSetId),
-  ].filter((value): value is string => typeof value === "string");
+    backgroundSetId,
+    fallbackSetId,
+  });
   const [failedSources, setFailedSources] = useState<string[]>([]);
   const src = sources.find((value) => !failedSources.includes(value));
   return (

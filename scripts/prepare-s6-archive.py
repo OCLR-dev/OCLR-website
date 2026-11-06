@@ -148,6 +148,12 @@ def build():
     fact("bracket", "淘汰分支（待確認）", "勝者組 B/C/G/J；敗者組 A/E/F/H。缺少 G–J 勝者決賽來源，G 勝僅由後續路徑推導，不新增比賽、日期、MP 或比分。", "33 場 MP／S6 規則推導")
     fact("bracket", "條件式名次（未批准）", "僅在接受四場重打判定、C–F 缺漏及總決賽終局性後，候選為 B/G/J/F 前四、C/E 5–6、A/H 7–8。正式名次保持空白。", "重建覆核文件")
     fact("review", "來源完整性", "33 場 MP、348 局；65 局圖池外開場、20 局中止、4 局較早完整重打候選、D–I 末 TB 暫列娛樂；工作統計選用 258 局。逐局審查保留在每場 review.games。原始選手分數快照另見來源連結。", "s6-match-reconstruction.json／s6-match-source-snapshot.json")
+    backgrounds = json.loads((ROOT / 'src/data/archive-background-supplements.json').read_text())
+    for pool in a['pools']:
+        for saved in pool['maps']:
+            background = next((r for r in backgrounds if r['editionSlug'] == 's6' and r['poolId'] == pool['id'] and r['slot'] == saved['slot'] and r['beatmapId'] == saved['beatmapId']), None)
+            if background:
+                saved['backgroundSetId'] = background['backgroundSetId']
     return a
 
 

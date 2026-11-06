@@ -1532,6 +1532,11 @@
             "array": false
           },
           {
+            "column": "value_background_set_id",
+            "type": "integer",
+            "array": false
+          },
+          {
             "column": "value_download_mirror",
             "type": "string",
             "array": false
@@ -1621,6 +1626,12 @@
             "beatmapSetId": {
               "type": "scalar",
               "column": "value_beatmap_set_id",
+              "scalar": "integer",
+              "array": false
+            },
+            "backgroundSetId": {
+              "type": "scalar",
+              "column": "value_background_set_id",
               "scalar": "integer",
               "array": false
             },

@@ -185,6 +185,7 @@ export const historicalArchiveSchema = z
                     slot: z.string().regex(/^(NM|HD|HR|DT|FM|TB|ACE)[1-9]\d?$/),
                     beatmapId: id.nullable(),
                     beatmapSetId: id.optional(),
+                    backgroundSetId: id.optional(),
                     downloadMirror: downloadMirrorSchema.optional(),
                     coverPath: z
                       .string()

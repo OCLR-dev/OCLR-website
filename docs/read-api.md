@@ -254,6 +254,12 @@ against the same exhausted counters and verifies HTTP 429, `RATE_LIMITED` and
 
 ## Generating and checking contracts
 
+Contract 1.27.0 adds optional historical-map `backgroundSetId`, a positive
+beatmapset ID for artwork only. It does not replace map identity, metadata,
+original-map actions or download destinations. Older responses may omit it;
+reviewed targets receive a read-only local supplement without provider requests.
+See [background source evidence](archive-map-metadata.md#background-alternatives-for-404-images-852).
+
 Contract 1.26.0 adds optional `downloadMirror` to native public/staff mappool
 entries (nullable) and historical archive maps (omitted when unset). This is a
 credential-free HTTPS browser download URL, independent of provider metadata,

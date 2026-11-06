@@ -1587,7 +1587,8 @@
           "cs": null,
           "ar": null,
           "od": null,
-          "source": "第一轮赛图!B4:P4"
+          "source": "第一轮赛图!B4:P4",
+          "backgroundSetId": 1630837
         },
         {
           "slot": "NM4",
@@ -2378,7 +2379,8 @@
           "cs": null,
           "ar": null,
           "od": null,
-          "source": "Final 图池!B14:P14"
+          "source": "Final 图池!B14:P14",
+          "backgroundSetId": 347551
         },
         {
           "slot": "HR2",
@@ -2502,7 +2504,8 @@
           "cs": null,
           "ar": null,
           "od": null,
-          "source": "教练赛积分!F2:R2"
+          "source": "教练赛积分!F2:R2",
+          "backgroundSetId": 762639
         },
         {
           "slot": "NM2",

@@ -3957,6 +3957,7 @@
     "m83f965d47641": "Remove port {port}",
     "m5fe52b1dbb13": "Add at least one local port.",
     "m80e14f0d3b54": "Developer API ports are not configured correctly.",
-    "ma06dd60adcce": "Choose 1 to 20 unique local ports between 1 and 65535 and valid read scopes."
+    "ma06dd60adcce": "Choose 1 to 20 unique local ports between 1 and 65535 and valid read scopes.",
+    "m106428f81ac4": "Alternative background"
   }
 }

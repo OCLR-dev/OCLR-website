@@ -86,6 +86,7 @@ function ArchiveMapDetails({
           <BeatmapCover
             setId={setId}
             coverPath={map.coverPath}
+            backgroundSetId={map.backgroundSetId}
             fallbackSetId={originalSetId}
           />
           <div>
@@ -104,6 +105,19 @@ function ArchiveMapDetails({
           </div>
         </div>
         {stats}
+        {map.backgroundSetId && (
+          <p className="muted small">
+            {tr("Alternative background")}:{" "}
+            <a
+              href={`https://osu.ppy.sh/beatmapsets/${map.backgroundSetId}`}
+              aria-label={tr("Alternative background")}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {tr("Source")}
+            </a>
+          </p>
+        )}
         <BeatmapActions
           beatmapId={map.beatmapId}
           downloadMirror={map.downloadMirror}
@@ -451,6 +465,7 @@ export function ArchiveMappools({
                     downloadMirror={m.downloadMirror}
                     setId={setId}
                     coverPath={m.coverPath}
+                    backgroundSetId={m.backgroundSetId}
                     originalBeatmapId={m.originalId}
                     originalSetId={originalSetId}
                     beatmapMissing={beatmapMissing}
@@ -484,6 +499,7 @@ export function ArchiveMappools({
                     <BeatmapCover
                       setId={setId}
                       coverPath={m.coverPath}
+                      backgroundSetId={m.backgroundSetId}
                       fallbackSetId={originalSetId}
                       compact
                     />

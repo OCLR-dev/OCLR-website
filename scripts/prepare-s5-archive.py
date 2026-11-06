@@ -121,6 +121,12 @@ def build():
     assert len(a['matches'])==34 and all(m['score'] is None for m in a['matches'])
     assert sum(len(p['maps']) for p in a['pools'])==77
     assert len(a['sourceFacts'])<=100
+    backgrounds = json.loads((ROOT / 'src/data/archive-background-supplements.json').read_text())
+    for pool in a['pools']:
+        for saved in pool['maps']:
+            background = next((r for r in backgrounds if r['editionSlug'] == 's5' and r['poolId'] == pool['id'] and r['slot'] == saved['slot'] and r['beatmapId'] == saved['beatmapId']), None)
+            if background:
+                saved['backgroundSetId'] = background['backgroundSetId']
     return a
 
 
