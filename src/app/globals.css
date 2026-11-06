@@ -2762,17 +2762,7 @@ html[data-appearance]
 }
 .profile-summary--no-cover .profile-cover-content [class*="previousNames"] {
   color: var(--site-muted, var(--color-muted));
-}
-/* The previous-usernames trigger is a bare, grid-set button that appearance
-   rules otherwise fill with the primary button material. */
-.profile-summary--no-cover .profile-cover-content button.previousNamesTrigger {
-  grid-area: auto;
-  min-height: 1.4rem;
-  padding: 0.1rem 0.45rem;
-  border: 1px solid var(--site-border, var(--color-border));
-  background: var(--site-surface, var(--color-surface));
-  color: var(--site-muted, var(--color-muted));
-  box-shadow: none;
+  text-shadow: none;
 }
 .profile-summary--no-cover .profile-level {
   color: var(--site-foreground, var(--color-foreground));
@@ -3227,10 +3217,13 @@ html[data-appearance]
 }
 .rank-chart-card {
   /* One 0.75rem inset on all four sides; the chart's own 12px internal
-     margins sit inside it. The card is a stretched grid item, so the chart
-     fills whatever height the statistics column gives the row. */
+     margins sit inside it. The height is pinned to the six statistics rows
+     so it stays the same when the profile stacks and returns to the wide
+     layout: 0.5rem padding above and below, a 1.45 line at --text-body and
+     the divider between rows (the last row has none). */
   display: flex;
   flex-direction: column;
+  block-size: calc(6 * (1.45 * var(--text-body) + 1rem + 1px) - 1px);
   padding: 0.75rem;
   border: 1px solid var(--site-border, var(--color-border));
   border-radius: 0.9rem;
@@ -3243,10 +3236,17 @@ html[data-appearance]
   min-height: 184px;
   touch-action: pan-y;
 }
+/* The SVG fills the measured host instead of sizing it. With `height: auto`
+   the rendered width fed the SVG's intrinsic ratio back into the card height,
+   so one narrow pass made the chart taller on every return to the wide
+   layout. Taking it out of flow keeps the card at the statistics column's
+   height. */
 .rank-chart-svg {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   overflow: visible;
 }
 .rank-chart-blank {

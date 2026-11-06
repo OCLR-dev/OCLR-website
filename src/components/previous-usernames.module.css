@@ -1,0 +1,114 @@
+/* Previous aliases sit next to the name on one fixed line. The capped width
+   keeps a long history from growing the heading and moving the avatar. */
+.previousNames {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+  max-width: min(100%, 26rem);
+  font-size: var(--text-support);
+  line-height: 1.35;
+  color: var(--site-muted, var(--color-muted));
+  vertical-align: baseline;
+}
+
+.previousNamesLabel {
+  flex: none;
+  white-space: nowrap;
+}
+
+.previousNamesViewport {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 1.35;
+  cursor: text;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Fade the clipping edge only while the line actually scrolls. */
+.previousNames[data-overflowing="true"] .previousNamesViewport {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 0.45rem,
+    #000 calc(100% - 0.45rem),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 0.45rem,
+    #000 calc(100% - 0.45rem),
+    transparent 100%
+  );
+}
+
+.previousNamesTrack {
+  display: flex;
+  width: max-content;
+  column-gap: var(--previous-names-gap, 32px);
+  line-height: 1.35;
+  will-change: transform;
+}
+
+.previousNames[data-overflowing="true"] .previousNamesTrack {
+  animation: previousNamesMarquee var(--previous-names-duration, 12s) linear
+    infinite;
+}
+
+/* Pausing on hover is what makes drag-selecting a name possible. */
+.previousNames:hover .previousNamesTrack,
+.previousNames:focus-within .previousNamesTrack {
+  animation-play-state: paused;
+}
+
+.previousNamesGroup {
+  display: block;
+  flex: none;
+  min-width: max-content;
+  white-space: pre;
+}
+
+/* The repeated copy exists only to close the marquee loop; it must not take
+   part in text selection. */
+.previousNamesClone {
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@keyframes previousNamesMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-1 * var(--previous-names-distance, 0px)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .previousNames[data-overflowing="true"] .previousNamesViewport {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .previousNames[data-overflowing="true"] .previousNamesTrack {
+    animation: none;
+  }
+
+  .previousNamesClone {
+    display: none;
+  }
+}
+
+/* Over the banner the aliases read white through the scrim; the artless card
+   keeps its surface tokens through the no-cover rules. */
+:global(.profile-cover-content) .previousNames {
+  color: rgb(255 255 255 / 78%);
+  text-shadow: 0 1px 3px rgb(0 0 0 / 65%);
+}

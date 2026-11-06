@@ -5,6 +5,16 @@
   margin: 1rem 0 1.5rem;
 }
 
+/* With aliases, stay on the same flex line as the BWS card while the alias
+   viewport can keep at least 60px. The 19rem basis covers the avatar, current
+   name, the "Previous usernames" label and that 60px; flexbox then shrinks the
+   alias instead of wrapping the card. Once it would go below 60px the heading
+   wraps onto the first line, which is the intended fallback. */
+.headingWithAliases {
+  flex: 1 1 19rem;
+  max-width: max-content;
+}
+
 .heading :global(.avatar) {
   width: 4.5rem;
   height: 4.5rem;
@@ -18,93 +28,17 @@
 
 .nameRow {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
   gap: 0.2rem 0.6rem;
+  min-width: 0;
 }
 
 .nameRow h1 {
-  margin: 0;
-}
-
-/* Previous aliases sit next to the name; long lists collapse into a disclosure. */
-.previousNames {
-  position: relative;
-  display: inline-flex;
-  font-size: var(--text-support);
-  color: var(--site-muted, var(--color-muted));
-  overflow-wrap: anywhere;
-}
-
-/* A disclosure button, not a themed control: appearances style every button,
-   so the reset has to out-rank those rules. */
-.previousNames button.previousNamesTrigger,
-:global(html[data-appearance])
-  :global(.themed-site)
-  .heading
-  button.previousNamesTrigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  min-width: 0;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  background-image: none;
-  box-shadow: none;
-  color: inherit;
-  font: inherit;
-  line-height: inherit;
-  transform: none;
-  cursor: help;
-}
-
-.previousNames button.previousNamesTrigger:is(:hover, :focus-visible, :active) {
-  background: none;
-  background-image: none;
-  box-shadow: none;
-  border: 0;
-  transform: none;
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 0.18rem;
-}
-
-.previousNamesIcon {
-  width: 0.9rem;
-  height: 0.9rem;
   flex: none;
-}
-
-.previousNames:hover .previousNamesList,
-.previousNames:focus-within .previousNamesList {
-  display: grid;
-}
-
-.previousNamesList {
-  display: none;
-  position: absolute;
-  z-index: 6;
-  inset-block-start: 100%;
-  inset-inline-start: 0;
-  gap: 0.15rem;
-  min-width: 9rem;
-  max-width: min(20rem, calc(100vw - 2rem));
+  min-width: 0;
+  max-width: 100%;
   margin: 0;
-  padding: 0.55rem 0.75rem;
-  /* Flush under the trigger: a visual gap would drop the hover while the
-     pointer crosses it. */
-  border: 1px solid var(--site-border, var(--color-border));
-  border-radius: 0.6rem;
-  background: var(--site-surface, var(--color-surface));
-  color: var(--site-foreground, var(--color-foreground));
-  box-shadow: 0 0.5rem 1.4rem rgb(0 0 0 / 35%);
-  font-size: var(--text-support);
-  list-style: none;
-  text-shadow: none;
 }
 
 .headingText h1 {
@@ -131,42 +65,29 @@
 /* The heading is overlaid on the cover image, where the left scrim keeps it readable. */
 :global(.profile-cover-content) .heading {
   margin: 0;
+  padding-block-start: calc(
+    var(--profile-cover-inset, 1.25rem) +
+      var(--profile-id-pill-block-size, 1.28rem)
+  );
 }
 
-/* On narrow screens the cover sits at its 7rem minimum and the heading would
-   start in the same corner as the absolutely positioned player id pill, which
-   then covers the avatar. Reserve the pill's row above the heading; wider
-   covers are bottom-aligned and already tall enough for the padding to be
-   absorbed without moving the heading.
+/* The player id pill is absolutely positioned at the cover's top-left corner.
+   Reserve its row above the heading at every width: once the heading and the
+   BWS card wrap onto separate lines, the heading sits on the first line and
+   would otherwise start underneath the pill.
 
    The stretched narrow heading would centre its content inside the stretched
    box, which reads as a gap that no padding value can control, so it aligns to
-   the start instead. The heading already starts one inset below the cover's
-   top edge, so the reserve only adds the pill's block size to that inset: the
-   avatar then sits exactly 1.25rem below the pill. */
+   the start instead. */
 @media (max-width: 48rem) {
   :global(.profile-cover-content) .heading {
     align-items: flex-start;
-    padding-block-start: calc(
-      var(--profile-cover-inset, 1.25rem) +
-        var(--profile-id-pill-block-size, 1.28rem)
-    );
   }
 }
 
 :global(.profile-cover-content) .headingText h1 {
   color: #fff;
   text-shadow: 0 1px 4px rgb(0 0 0 / 65%);
-}
-
-:global(.profile-cover-content) .previousNames {
-  color: rgb(255 255 255 / 78%);
-  text-shadow: 0 1px 3px rgb(0 0 0 / 65%);
-}
-
-:global(.profile-cover-content) .previousNamesList {
-  color: var(--site-foreground, var(--color-foreground));
-  text-shadow: none;
 }
 
 :global(.profile-cover-content) .headingText p {

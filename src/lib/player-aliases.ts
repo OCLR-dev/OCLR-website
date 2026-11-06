@@ -9,11 +9,3 @@ export function previousUsernames(
     (name) => name.toLowerCase() !== currentKey,
   );
 }
-
-/**
- * Only genuinely long alias lists collapse behind a hover/focus panel; up to five
- * names stay inline so the row still reads at a glance.
- */
-export function collapseAliases(names: readonly string[]): boolean {
-  return names.length > 5;
-}

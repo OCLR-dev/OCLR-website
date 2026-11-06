@@ -28,6 +28,33 @@ for (const viewport of [
   });
 }
 
+test("long previous usernames stay on one line and pause on hover", async ({
+  page,
+}) => {
+  await page.goto("/player-profile-cover");
+  const aliases = page.locator('[class*="previousNames"]').first();
+  await expect(aliases).toHaveAttribute("data-overflowing", "true");
+
+  const viewport = aliases.locator('[class*="previousNamesViewport"]');
+  const track = aliases.locator('[class*="previousNamesTrack"]');
+  await expect(viewport).toBeVisible();
+  expect(await viewport.evaluate((node) => node.clientHeight)).toBeLessThan(40);
+  expect(
+    await track.evaluate((node) => getComputedStyle(node).animationName),
+  ).toContain("previousNamesMarquee");
+
+  await aliases.hover();
+  expect(
+    await track.evaluate((node) => getComputedStyle(node).animationPlayState),
+  ).toBe("paused");
+  // Pausing keeps the names as ordinary selectable text for drag selection.
+  expect(
+    await aliases
+      .locator('[class*="previousNamesViewport"]')
+      .evaluate((node) => getComputedStyle(node).userSelect),
+  ).toBe("text");
+});
+
 test("the improvement index carries the faster-than-typical colour band", async ({
   page,
 }) => {

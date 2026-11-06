@@ -4,6 +4,7 @@ import { PlayerIdBadge } from "../../src/components/player-id-badge";
 import { ProfileLevel } from "../../src/components/profile-level";
 import { BwsSummary } from "../../src/components/bws-summary";
 import { RankChart } from "../../src/components/rank-chart";
+import { PreviousUsernames } from "../../src/components/previous-usernames";
 import { rankTierPalette } from "../../src/lib/rank-tier";
 import en from "../../messages/en.json";
 import styles from "../../src/app/players/[osuId]/profile.module.css";
@@ -55,6 +56,20 @@ const badges = [
 // A short rank history so the two-column profile body renders under the cover.
 const history = [24000, 21000, 19000, 18000, 15000, 12345];
 
+// Long enough to overflow the capped alias viewport at every tested width.
+const previousNames = [
+  "ser1203843",
+  "[ Jingfire ]",
+  "yue0429",
+  "Yue0429",
+  "Ichikawa Hinana",
+  "a_previous_username_that_is_long",
+  "another_previous_username_that_is_long",
+  "Muziyami_old",
+  "咪子",
+  "Muzi",
+];
+
 // The real cover branch of PlayerProfile: the player id pill and level chip
 // anchored to the card corners, with the identity heading overlaid on the
 // cover and the rank chart / statistics body below it.
@@ -84,6 +99,10 @@ createRoot(document.getElementById("root")!).render(
                         Player
                       </a>
                     </h1>
+                    <PreviousUsernames
+                      names={previousNames}
+                      label="Previous usernames"
+                    />
                   </div>
                   <p className="muted">CN (CN)</p>
                 </div>

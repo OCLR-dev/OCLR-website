@@ -1,7 +1,8 @@
 import { PlayerEditionView } from "@/components/player-edition-view";
 import { Avatar } from "@/components/avatar";
 import { CountryFlag } from "@/components/country-flag";
-import { collapseAliases, previousUsernames } from "@/lib/player-aliases";
+import { PreviousUsernames } from "@/components/previous-usernames";
+import { previousUsernames } from "@/lib/player-aliases";
 import {
   participatedTournamentEditions,
   playerCompetitionRecord,
@@ -86,10 +87,12 @@ async function ProfileContent({
     data.identity.names.map((name) => name.username),
     data.identity.currentUsername ?? data.identity.username,
   );
-  const aliasesInline = aliases.join(", ");
-  const collapsedAliases = collapseAliases(aliases);
   const heading = (
-    <header className={styles.heading}>
+    <header
+      className={`${styles.heading}${
+        aliases.length > 0 ? ` ${styles.headingWithAliases}` : ""
+      }`}
+    >
       <a
         href={data.identity.canonicalUrl}
         target="_blank"
@@ -115,50 +118,12 @@ async function ProfileContent({
               {data.identity.username}
             </a>
           </h1>
-          {aliases.length > 0 &&
-            (collapsedAliases ? (
-              <span className={styles.previousNames}>
-                <button
-                  type="button"
-                  className={styles.previousNamesTrigger}
-                  aria-label={tr("Previous usernames")}
-                >
-                  {tr("Previous usernames")} (+{aliases.length})
-                  <svg
-                    className={styles.previousNamesIcon}
-                    viewBox="0 0 16 16"
-                    aria-hidden="true"
-                    focusable="false"
-                  >
-                    <circle
-                      cx="8"
-                      cy="8"
-                      r="6.4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.2"
-                    />
-                    <circle cx="8" cy="4.9" r="0.95" fill="currentColor" />
-                    <path
-                      d="M8 7.1v4.2"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-                <ul className={styles.previousNamesList}>
-                  {aliases.map((name) => (
-                    <li key={name}>{name}</li>
-                  ))}
-                </ul>
-              </span>
-            ) : (
-              <span className={styles.previousNames}>
-                {tr("Previous usernames")}: {aliasesInline}
-              </span>
-            ))}
+          {aliases.length > 0 && (
+            <PreviousUsernames
+              names={aliases}
+              label={tr("Previous usernames")}
+            />
+          )}
         </div>
         <p className="muted">
           <CountryFlag
