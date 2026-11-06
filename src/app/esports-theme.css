@@ -432,10 +432,7 @@ html[data-appearance="esports-broadcast"]
   .site-header
   .brand
   .oclr-wordmark {
-  --oclr-letter-top: #ffeef9;
-  --oclr-letter-mid: #f5b9eb;
-  --oclr-letter-bottom: #bc7bf2;
-  --oclr-letter-outline: #fae3f4;
+  filter: drop-shadow(0 0 2px #9b6cff55);
 }
 html[data-appearance="esports-broadcast"]
   .themed-site

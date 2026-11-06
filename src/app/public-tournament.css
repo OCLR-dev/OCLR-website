@@ -2177,18 +2177,12 @@ html[data-theme="dark"] .themed-site {
   display: block;
   width: 132px;
   height: auto;
-  aspect-ratio: 1465 / 430;
+  aspect-ratio: 980 / 304;
   flex-shrink: 0;
-  --oclr-letter-top: #573446;
-  --oclr-letter-mid: #794267;
-  --oclr-letter-bottom: #7452b1;
-  --oclr-letter-outline: #885b7f;
+  filter: drop-shadow(0 1px 1px #44305e80);
 }
 html[data-theme="dark"] .brand .oclr-wordmark {
-  --oclr-letter-top: #ffeef9;
-  --oclr-letter-mid: #f5b9eb;
-  --oclr-letter-bottom: #bc7bf2;
-  --oclr-letter-outline: #fae3f4;
+  filter: drop-shadow(0 0 2px #9b6cff55);
 }
 @media (max-width: 400px) {
   .brand .oclr-wordmark {
