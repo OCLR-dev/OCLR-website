@@ -20,6 +20,7 @@ const tournamentArtwork = new Set([
 
 const bundle = await build({
   entryPoints: [
+    "tests/components/team-coach-draft.tsx",
     "tests/components/developer-access.tsx",
     "tests/components/referee-reconciliation.tsx",
     "tests/components/fixture-manager.tsx",
@@ -246,27 +247,29 @@ createServer((request, response) => {
                       : request.url?.startsWith("/player-leaderboard")
                         ? "player-leaderboard"
                         : entry;
-    const fixtureName = request.url?.startsWith("/developer-access")
-      ? "developer-access"
-      : request.url?.startsWith("/referee-reconciliation")
-        ? "referee-reconciliation"
-        : request.url?.startsWith("/fixture-manager")
-          ? "fixture-manager"
-          : request.url?.startsWith("/award-manager")
-            ? "award-manager"
-            : request.url?.startsWith("/nebula-preview")
-              ? "nebula-preview"
-              : request.url?.startsWith("/mappool-sort")
-                ? "mappool-sort"
-                : request.url?.startsWith("/event-players")
-                  ? "event-players"
-                  : request.url?.startsWith("/appearance-navigation")
-                    ? "appearance-navigation"
-                    : request.url?.startsWith("/backup-manager")
-                      ? "backup-manager"
-                      : request.url?.startsWith("/archive-importer")
-                        ? "archive-importer"
-                        : fixture;
+    const fixtureName = request.url?.startsWith("/team-coach-draft")
+      ? "team-coach-draft"
+      : request.url?.startsWith("/developer-access")
+        ? "developer-access"
+        : request.url?.startsWith("/referee-reconciliation")
+          ? "referee-reconciliation"
+          : request.url?.startsWith("/fixture-manager")
+            ? "fixture-manager"
+            : request.url?.startsWith("/award-manager")
+              ? "award-manager"
+              : request.url?.startsWith("/nebula-preview")
+                ? "nebula-preview"
+                : request.url?.startsWith("/mappool-sort")
+                  ? "mappool-sort"
+                  : request.url?.startsWith("/event-players")
+                    ? "event-players"
+                    : request.url?.startsWith("/appearance-navigation")
+                      ? "appearance-navigation"
+                      : request.url?.startsWith("/backup-manager")
+                        ? "backup-manager"
+                        : request.url?.startsWith("/archive-importer")
+                          ? "archive-importer"
+                          : fixture;
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${fixtureName}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${fixtureName}.js"></script></body></html>`,
     );
