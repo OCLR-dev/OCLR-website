@@ -12,6 +12,7 @@ import { archiveArtworkLookup } from "@/lib/archive-artwork";
 import { archiveBracket } from "@/lib/archive-bracket";
 import { archiveEventMatches } from "@/lib/archive-event-matches";
 import { archiveStaff } from "@/lib/archive-staff";
+import { archivePlayerRoleLabel } from "@/lib/archive-player-role";
 import { groupArchiveStaff } from "@/lib/archive-staff-groups";
 import { remoteMode } from "@/lib/data-source";
 import { formatDate, type Edition } from "@/lib/editions";
@@ -135,22 +136,13 @@ export async function HistoricalArchiveView({
     </Link>
   );
   const role = (
-    p: Pick<
-      HistoricalArchive["players"][number],
-      "role" | "tier" | "sourceRole"
-    >,
+    p: Pick<HistoricalArchive["players"][number], "osuId" | "role" | "tier">,
   ) =>
-    p.sourceRole === "VICE"
-      ? "VICE"
-      : p.role === "captain"
-        ? "Captain"
-        : p.role === "coach"
-          ? tr("Coach")
-          : p.role === "free_agent"
-            ? tr("Free agent")
-            : p.tier === null
-              ? tr("Not recorded")
-              : `Tier ${p.tier}`;
+    archivePlayerRoleLabel(
+      a,
+      a.players.find((saved) => saved.osuId === p.osuId) ?? p,
+      tr,
+    );
   const rosterCard = (
     p: HistoricalArchive["players"][number] | PublicPlayer,
     showTeam = true,
@@ -161,10 +153,7 @@ export async function HistoricalArchiveView({
       username={p.username}
       profileHref={playerHref(p.osuId)}
       roleCode={p.role}
-      roleLabel={role({
-        ...p,
-        sourceRole: a.players.find((s) => s.osuId === p.osuId)?.sourceRole,
-      })}
+      roleLabel={role(p)}
       team={
         showTeam && ("teamId" in p ? p.teamId : p.team?.id)
           ? teamLink(("teamId" in p ? p.teamId : p.team?.id)!)
@@ -653,11 +642,7 @@ export async function HistoricalArchiveView({
                   .filter((n) => n.osuId === p.osuId)
                   .map((n) => n.username),
               ),
-              roleLabel: role({
-                ...p,
-                sourceRole: a.players.find((s) => s.osuId === p.osuId)
-                  ?.sourceRole,
-              }),
+              roleLabel: role(p),
               roleCode: p.role,
               profileHref: playerHref(p.osuId),
               teamName: p.team?.name,

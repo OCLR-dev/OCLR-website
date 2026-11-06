@@ -4,7 +4,7 @@ import { InfoNote } from "@/components/info-note";
 
 import { ReadOnlyFields } from "./staff-read-only";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import {
   historicalArchiveSchema,
@@ -105,6 +105,7 @@ export function ArchiveImporter({
   const [review, setReview] = useState<HistoricalArchive | null>(null);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const fileReadGeneration = useRef(0);
   function validate() {
     setError("");
     setReview(null);
@@ -227,6 +228,8 @@ export function ArchiveImporter({
             accept=".json,application/json"
             onChange={async (e) => {
               const file = e.target.files?.[0];
+              const generation = ++fileReadGeneration.current;
+              setText("");
               setReview(null);
               setSaved(false);
               setError("");
@@ -237,9 +240,12 @@ export function ArchiveImporter({
                 return;
               }
               try {
-                setText(await file.text());
+                const contents = await file.text();
+                if (generation === fileReadGeneration.current)
+                  setText(contents);
               } catch {
-                setError(tr("Could not read the archive file."));
+                if (generation === fileReadGeneration.current)
+                  setError(tr("Could not read the archive file."));
               }
             }}
           />
@@ -250,6 +256,8 @@ export function ArchiveImporter({
             rows={10}
             value={text}
             onChange={(e) => {
+              // Manual edits supersede any file that is still being read.
+              fileReadGeneration.current++;
               setText(e.target.value);
               setReview(null);
               setSaved(false);

@@ -355,6 +355,7 @@ export function MappoolBrowser({
             headingLevel={headingLevel}
             onSelect={setSelected}
             showCategoryLinks={false}
+            preserveEntryOrder={sort !== "slot"}
             getDifficulty={difficulty}
           />
         ) : (

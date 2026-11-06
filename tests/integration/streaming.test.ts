@@ -656,6 +656,167 @@ describe.skipIf(!url)("authoritative edition streaming tasks", () => {
     expect(await db().select().from(fixtureCommentators)).toHaveLength(2);
     expect(await db().select().from(editionEvents)).toHaveLength(2);
   });
+  it("atomically adds multiple commentators, preserves bookings, and replays one audit event", async () => {
+    await db().insert(staffRoles).values({
+      userId: outsider.osuId,
+      role: "commentator",
+      editionSlug: slug,
+      grantedBy: admin.osuId,
+    });
+    await streamingCommand(streamer, slug, id, command());
+    await streamingCommand(
+      commentator,
+      slug,
+      id,
+      command("select", 1, { task: "commentary" }),
+    );
+    const batch = command("assign", 2, {
+      task: "commentary",
+      userIds: [secondCommentator.osuId, outsider.osuId],
+    });
+    const results = await Promise.all([
+      streamingCommand(admin, slug, id, batch),
+      streamingCommand(admin, slug, id, batch),
+    ]);
+    expect(results.map((result) => result.replayed).sort()).toEqual([
+      false,
+      true,
+    ]);
+    const data = await streamingWorkspace(admin, slug, {}, id);
+    expect(data.fixtures[0].streamRevision).toBe(3);
+    expect(data.fixtures[0].assignment?.userId).toBe(streamer.osuId);
+    expect(
+      data.fixtures[0].commentators.map((task) => task.userId).sort(),
+    ).toEqual(
+      [outsider.osuId, commentator.osuId, secondCommentator.osuId].sort(),
+    );
+    const event = (
+      await db()
+        .select()
+        .from(editionEvents)
+        .where(eq(editionEvents.id, batch.requestKey))
+    )[0];
+    expect(event.detail.before).toEqual([]);
+    expect(event.detail.after).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ userId: outsider.osuId }),
+        expect.objectContaining({ userId: secondCommentator.osuId }),
+      ]),
+    );
+    await streamingCommand(
+      secondCommentator,
+      slug,
+      id,
+      command("cancel", 3, { task: "commentary" }),
+    );
+    expect(
+      (await streamingWorkspace(admin, slug, {}, id)).fixtures[0].commentators
+        .map((task) => task.userId)
+        .sort(),
+    ).toEqual([outsider.osuId, commentator.osuId].sort());
+  });
+  it("rejects invalid, unauthorized, stale or mixed batches without partial assignment", async () => {
+    const ids = [commentator.osuId, secondCommentator.osuId];
+    for (const actor of [commentator, streamer, developer]) {
+      await expect(
+        streamingCommand(
+          actor,
+          slug,
+          id,
+          command("assign", 0, { task: "commentary", userIds: ids }),
+        ),
+      ).rejects.toMatchObject({ status: 403 });
+    }
+    for (const extra of [
+      { task: "commentary", userIds: [] },
+      { task: "commentary", userIds: [ids[0], ids[0]] },
+      { task: "commentary", userIds: ids, userId: ids[0] },
+      { userIds: ids },
+      { task: "commentary", userIds: [ids[0], outsider.osuId] },
+    ])
+      await expect(
+        streamingCommand(admin, slug, id, command("assign", 0, extra)),
+      ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      streamingCommand(
+        admin,
+        slug,
+        id,
+        command("select", 0, { task: "commentary", userIds: ids }),
+      ),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      streamingCommand(
+        admin,
+        "other-test-cup",
+        id,
+        command("assign", 0, { task: "commentary", userIds: ids }),
+      ),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(
+      streamingCommand(
+        admin,
+        slug,
+        id,
+        command("assign", 1, { task: "commentary", userIds: ids }),
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    await db()
+      .update(staffRoles)
+      .set({ revokedAt: new Date() })
+      .where(eq(staffRoles.userId, secondCommentator.osuId));
+    await expect(
+      streamingCommand(
+        admin,
+        slug,
+        id,
+        command("assign", 0, { task: "commentary", userIds: ids }),
+      ),
+    ).rejects.toMatchObject({ status: 400 });
+    expect(await db().select().from(fixtureCommentators)).toHaveLength(0);
+    expect(await db().select().from(editionEvents)).toHaveLength(0);
+    await streamingCommand(
+      admin,
+      slug,
+      id,
+      command("assign", 0, { task: "commentary", userId: commentator.osuId }),
+    );
+    await expect(
+      streamingCommand(
+        admin,
+        slug,
+        id,
+        command("assign", 1, {
+          task: "commentary",
+          userIds: [outsider.osuId, commentator.osuId],
+        }),
+      ),
+    ).rejects.toMatchObject({ status: 400 });
+    // Both valid but one already booked: no new booking, revision or audit event.
+    await db().insert(staffRoles).values({
+      userId: outsider.osuId,
+      role: "commentator",
+      editionSlug: slug,
+      grantedBy: admin.osuId,
+    });
+    await expect(
+      streamingCommand(
+        admin,
+        slug,
+        id,
+        command("assign", 1, {
+          task: "commentary",
+          userIds: [outsider.osuId, commentator.osuId],
+        }),
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(await db().select().from(fixtureCommentators)).toHaveLength(1);
+    expect(await db().select().from(editionEvents)).toHaveLength(1);
+    expect(
+      (await streamingWorkspace(admin, slug, {}, id)).fixtures[0]
+        .streamRevision,
+    ).toBe(1);
+  });
   it("requires each commentator to reconfirm a changed schedule and keeps cancellation available", async () => {
     await streamingCommand(
       commentator,

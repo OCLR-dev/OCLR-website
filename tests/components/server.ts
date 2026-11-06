@@ -20,6 +20,7 @@ const tournamentArtwork = new Set([
 
 const bundle = await build({
   entryPoints: [
+    "tests/components/mappool-sort.tsx",
     "tests/components/player-leaderboard.tsx",
     "tests/components/event-players.tsx",
     "tests/components/public-results.tsx",
@@ -59,6 +60,7 @@ const bundle = await build({
     "tests/components/player-profile-cover.tsx",
     "tests/components/player-profile-no-cover.tsx",
     "tests/components/backup-manager.tsx",
+    "tests/components/archive-importer.tsx",
   ],
   alias: { "next/image": resolve("tests/components/next-image.ts") },
   external: ["/rookie-stage.svg", "/themes/*", "/fonts/*", "/branding/*"],
@@ -83,6 +85,7 @@ const themedStyles = new Map(
       "practice-records.css",
       "schedule-selection.css",
       "streaming-manager.css",
+      "round-referee-policy.css",
       "captain-manager.css",
       "tournament-settings.css",
     ].map(async (name) => {
@@ -231,13 +234,17 @@ createServer((request, response) => {
                       : request.url?.startsWith("/player-leaderboard")
                         ? "player-leaderboard"
                         : entry;
-    const fixtureName = request.url?.startsWith("/event-players")
-      ? "event-players"
-      : request.url?.startsWith("/appearance-navigation")
-        ? "appearance-navigation"
-        : request.url?.startsWith("/backup-manager")
-          ? "backup-manager"
-          : fixture;
+    const fixtureName = request.url?.startsWith("/mappool-sort")
+      ? "mappool-sort"
+      : request.url?.startsWith("/event-players")
+        ? "event-players"
+        : request.url?.startsWith("/appearance-navigation")
+          ? "appearance-navigation"
+          : request.url?.startsWith("/backup-manager")
+            ? "backup-manager"
+            : request.url?.startsWith("/archive-importer")
+              ? "archive-importer"
+              : fixture;
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${fixtureName}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${fixtureName}.js"></script></body></html>`,
     );

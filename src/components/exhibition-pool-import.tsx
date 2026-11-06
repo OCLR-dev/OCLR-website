@@ -48,7 +48,9 @@ export function ExhibitionPoolImport({
       (sources ?? []).map((source) => [source.editionSlug, source.editionName]),
     ).entries(),
   ];
-  const currentEdition = edition || editions[0]?.[0];
+  const currentEdition = editions.some(([slug]) => slug === edition)
+    ? edition
+    : editions[0]?.[0];
   const pools = (sources ?? []).filter(
     (source) => source.editionSlug === currentEdition,
   );

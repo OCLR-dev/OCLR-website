@@ -6,6 +6,7 @@ import { useAppTranslations } from "@/i18n/shared";
 import type { StreamingWorkspace } from "@/lib/streaming";
 import { formatDate } from "@/lib/editions";
 import { ConfirmMutation } from "./confirm-mutation";
+import { ReadOnlyFields } from "./staff-read-only";
 type Fixture = StreamingWorkspace["fixtures"][number];
 type Assignment = NonNullable<Fixture["assignment"]>;
 function StreamingMutation(
@@ -63,6 +64,124 @@ function BookingSummary({
         </p>
       )}
     </div>
+  );
+}
+function CommentaryAssignment({
+  slug,
+  fixture,
+  data,
+}: {
+  slug: string;
+  fixture: Fixture;
+  data: StreamingWorkspace;
+}) {
+  const tr = useAppTranslations();
+  const [selection, setSelection] = useState<
+    StreamingWorkspace["commentaryCandidates"]
+  >([]);
+  const [error, setError] = useState("");
+  const selected = selection.filter(
+    (user) => !fixture.commentators.some((task) => task.userId === user.osuId),
+  );
+  const candidates = data.commentaryCandidates.filter(
+    (user) => !fixture.commentators.some((task) => task.userId === user.osuId),
+  );
+  const options = [
+    ...candidates,
+    ...selected.filter(
+      (user) => !candidates.some((candidate) => candidate.osuId === user.osuId),
+    ),
+  ];
+  const ids = selected.map((user) => user.osuId).sort((a, b) => a - b);
+  const invalid = selected.some(
+    (user) => !candidates.some((candidate) => candidate.osuId === user.osuId),
+  );
+  return (
+    <>
+      <details className={styles.commentaryPicker}>
+        <summary>
+          <span>{tr("Choose Commentators")}</span>
+          <span className="badge">{selected.length}</span>
+        </summary>
+        <ReadOnlyFields>
+          <div
+            role="group"
+            aria-label={tr("Choose Commentators")}
+            className={styles.commentaryOptions}
+          >
+            {options.map((user) => (
+              <div key={user.osuId}>
+                <label className={`check-field ${styles.commentaryOption}`}>
+                  <input
+                    type="checkbox"
+                    checked={ids.includes(user.osuId)}
+                    onChange={(event) => {
+                      setError("");
+                      setSelection(
+                        event.target.checked
+                          ? [...selected, user]
+                          : selected.filter(
+                              (item) => item.osuId !== user.osuId,
+                            ),
+                      );
+                    }}
+                  />
+                  <span>
+                    {user.username} · {user.osuId}
+                  </span>
+                </label>
+                {ids.includes(user.osuId) &&
+                  fixture.sameStartBookings.some(
+                    (booking) => booking.userId === user.osuId,
+                  ) && (
+                    <p className="notice small" role="status">
+                      {tr("Same start time as: {value0}", {
+                        value0: fixture.sameStartBookings
+                          .filter((booking) => booking.userId === user.osuId)
+                          .map((booking) => booking.label)
+                          .join(", "),
+                      })}
+                    </p>
+                  )}
+              </div>
+            ))}
+          </div>
+        </ReadOnlyFields>
+      </details>
+      {invalid && (
+        <p role="alert" className="notice small">
+          {tr("Choose an active Commentator authorized for this edition.")}
+        </p>
+      )}
+      {error && (
+        <p role="alert" className="notice error-text">
+          {tr(error)}
+        </p>
+      )}
+      <StreamingMutation
+        key={`${ids.join(",")}:${fixture.streamRevision}:${fixture.version}`}
+        label={tr("Assign Commentator")}
+        title={tr("Confirm commentary task change?")}
+        description={selected
+          .map((user) => `${user.username} · ${user.osuId}`)
+          .join(", ")}
+        url={`/api/admin/tournaments/${slug}/streaming/${fixture.id}`}
+        payload={{
+          action: "assign",
+          task: "commentary",
+          userIds: ids,
+          expectedRevision: fixture.streamRevision,
+          expectedFixtureVersion: fixture.version,
+          confirmed: true,
+        }}
+        disabled={!ids.length || invalid}
+        onSuccess={() => {
+          setSelection([]);
+          setError("");
+        }}
+        onError={setError}
+      />
+    </>
   );
 }
 function BroadcastBookings({
@@ -170,7 +289,10 @@ function BroadcastBookings({
         (data.canManage ||
           (canSelect && (commentary ? !own : !f.assignment))) && (
           <div className={styles.controls}>
-            {data.canManage && (
+            {data.canManage && commentary && (
+              <CommentaryAssignment slug={slug} fixture={f} data={data} />
+            )}
+            {data.canManage && !commentary && (
               <select
                 aria-label={
                   commentary ? tr("Assign Commentator") : tr("Assign Streamer")
@@ -206,6 +328,7 @@ function BroadcastBookings({
               )}
             <div className="actions">
               {data.canManage &&
+                !commentary &&
                 action(
                   "assign",
                   commentary
@@ -275,7 +398,12 @@ function StreamingTask({
         </div>
       </div>
       <div className={styles.bookings}>
-        <BroadcastBookings slug={slug} fixture={f} data={data} />
+        <BroadcastBookings
+          key={`${f.streamRevision}:${f.version}`}
+          slug={slug}
+          fixture={f}
+          data={data}
+        />
         <BroadcastBookings slug={slug} fixture={f} data={data} commentary />
       </div>
     </article>
@@ -344,7 +472,7 @@ export function StreamingManager({
       )}
       <ul className={styles.list}>
         {data.fixtures.map((f) => (
-          <li key={`${f.id}:${f.streamRevision}:${f.version}`}>
+          <li key={f.id}>
             <StreamingTask slug={slug} fixture={f} data={data} />
           </li>
         ))}
@@ -358,10 +486,8 @@ export function StreamingManager({
           <ol className="streaming-history">
             {data.history.map((h) => {
               const command = h.detail.command as { action: string };
-              const task = (h.detail.after ?? h.detail.before) as {
-                userId: number;
-                source: string;
-              } | null;
+              const task = (h.detail.after ?? h.detail.before) as
+                { userId: number } | { userId: number }[] | null;
               return (
                 <li key={h.id}>
                   <p>
@@ -380,7 +506,9 @@ export function StreamingManager({
                               "commentary"
                             ? tr("Cancel commentary task")
                             : tr("Cancel streaming task")}
-                    {task ? ` · ${task.userId}` : ""}
+                    {task
+                      ? ` · ${(Array.isArray(task) ? task : [task]).map((person: { userId: number }) => person.userId).join(", ")}`
+                      : ""}
                   </p>
                   <p className="muted small">
                     {tr("Operator osu! ID: {value0}", {

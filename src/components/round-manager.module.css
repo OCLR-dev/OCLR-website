@@ -13,6 +13,14 @@
 .toolbar :is(h2, h3, p) {
   margin: 0;
 }
+.groupLink {
+  min-width: 0;
+  max-width: 100%;
+  font-size: var(--text-support);
+  font-weight: 600;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
 .list {
   list-style: none;
   padding: 0;

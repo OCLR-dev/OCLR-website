@@ -22,6 +22,10 @@ Coach cards and edition-bound profiles become public only when the edition, capt
 
 ## Group assignments
 
+Round competition settings stack scoring rules followed by applicable group ranking rules in one column at every viewport width (#932). Fields and saving continue to use the same approved round rules.
+
+The group-round competition heading provides a secondary link to this edition's team group assignments (#931). Exhibition and knockout rounds omit this group-only navigation; exhibition participants use their fixture-local red/blue sides without official team or group setup.
+
 Team management uses a compact team table for captain identity, membership/status and row actions; team editing, publication and coaches retain their existing commands. Captain appointment/player-pool controls and bulk captain-team settings are available together on the same page, with the existing captain route retained for compatibility.
 
 Configure stage-scoped groups at **Team management → Group assignments** before arranging fixtures (#545). The fixture configuration links to this workspace. Saving and publishing still use the existing versioned `stage_groups` command; group identifiers, membership, standings and publication rules are unchanged. Choose up to four groups (or no groups) and generate the group rows (#551), then assign teams using each row’s picker, drag a team card, or select a team and activate its destination. Moving a team between cards removes its previous membership, so each team belongs to at most one group per stage. The unassigned pool also accepts returned teams. The browser and server write contract share the four-group limit; existing larger saved configurations remain readable and are never automatically truncated. Increasing the count preserves existing group keys and members; shrinking it asks for confirmation when removed groups contain teams and returns those teams to the pool. These edits remain local until Save and its confirmation; each saved group still requires at least two teams. Publication is a separate explicit choice, and unpublished teams retain their staff-only marker and existing publication checks.

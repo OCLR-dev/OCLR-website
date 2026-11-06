@@ -182,12 +182,14 @@ export function MappoolView({
   headingLevel = 2,
   onSelect,
   showCategoryLinks = true,
+  preserveEntryOrder = false,
   getDifficulty,
 }: {
   pool: Pool;
   headingLevel?: 2 | 4 | 5;
   onSelect?: (id: string) => void;
   showCategoryLinks?: boolean;
+  preserveEntryOrder?: boolean;
   getDifficulty?: (entry: Pool["entries"][number]) => DifficultyDisplay;
 }) {
   const tr = useAppTranslations();
@@ -196,6 +198,24 @@ export function MappoolView({
     pool.entries.some((entry) => entry.category === category),
   );
   const prefix = `pool-${pool.id}`;
+  // A browser sort may interleave mods. Keep consecutive runs together without
+  // moving rows back into category order or changing their detail navigation.
+  const groups = preserveEntryOrder
+    ? pool.entries.reduce<
+        {
+          category: Pool["entries"][number]["category"];
+          entries: Pool["entries"];
+        }[]
+      >((all, entry) => {
+        const previous = all.at(-1);
+        if (previous?.category === entry.category) previous.entries.push(entry);
+        else all.push({ category: entry.category, entries: [entry] });
+        return all;
+      }, [])
+    : populated.map((category) => ({
+        category,
+        entries: pool.entries.filter((entry) => entry.category === category),
+      }));
   const Heading = headingLevel === 5 ? "h5" : headingLevel === 4 ? "h4" : "h2";
   if (!populated.length)
     return (
@@ -223,10 +243,8 @@ export function MappoolView({
           ))}
         </nav>
       )}
-      {populated.map((category) => {
-        const entries = pool.entries.filter(
-          (entry) => entry.category === category,
-        );
+      {groups.map(({ category, entries }, index) => {
+        const groupId = `${prefix}-maps-${category}${preserveEntryOrder ? `-${index}` : ""}`;
         const name =
           category === "FM" && pool.fmMode
             ? pool.fmMode === "free_mod"
@@ -236,14 +254,11 @@ export function MappoolView({
         return (
           <section
             className="mappool-category"
-            id={`${prefix}-maps-${category}`}
-            key={category}
-            aria-labelledby={`${prefix}-maps-${category}-title`}
+            id={groupId}
+            key={groupId}
+            aria-labelledby={`${groupId}-title`}
           >
-            <Heading
-              id={`${prefix}-maps-${category}-title`}
-              className="sr-only"
-            >
+            <Heading id={`${groupId}-title`} className="sr-only">
               {category} {tr(name)}
             </Heading>
             {category === "FM" && (
@@ -263,10 +278,7 @@ export function MappoolView({
               tabIndex={0}
             >
               <table className="mappool-sheet">
-                <caption
-                  id={`${prefix}-maps-${category}-caption`}
-                  className="sr-only"
-                >
+                <caption id={`${groupId}-caption`} className="sr-only">
                   {pool.name}: {category} / {tr(name)} {tr(" beatmaps")}
                 </caption>
                 <colgroup>

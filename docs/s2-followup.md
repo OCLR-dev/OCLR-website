@@ -4,6 +4,19 @@ This follow-up preserves #285's accepted archive and separates source review,
 identity confirmation, statistics review and publication. No new migration is
 required. Deploying or publishing is a separate organizer action.
 
+## Confirmed role labels (#926)
+
+On 2026-11-06 the organizer supplied the
+[S2 TEAM source](https://docs.google.com/spreadsheets/d/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY/edit?gid=1044331149#gid=1044331149).
+Live bounded reads confirmed `TEAM!F4` is literally `ASSITANT`, with ten names in
+`F6`, `F10`, `F14`, `F18`, `F22`, `F26`, `F30`, `F34`, `F38` and `F42`.
+Historical player and team cards use that label for the matching workbook and
+saved roster cells, even if the edition slug changes. Later substitutes without
+these source cells retain their unknown labels. Captain, coach, VICE and recorded
+Tier labels retain their existing meaning. This display supplement preserves
+unknown draft Tiers and does not change saved roster records or account
+permissions.
+
 ## Read-only reconciliation
 
 `scripts/review-s2-archive.py` compares a saved S2 archive with bounded MainSheet

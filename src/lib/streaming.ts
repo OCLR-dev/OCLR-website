@@ -341,6 +341,12 @@ const commandSchema = z
     action: z.enum(["select", "assign", "cancel", "reconfirm"]),
     task: z.literal("commentary").optional(),
     userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).optional(),
+    userIds: z
+      .array(z.number().int().positive().max(Number.MAX_SAFE_INTEGER))
+      .min(1)
+      .max(100)
+      .refine((ids) => new Set(ids).size === ids.length)
+      .optional(),
     requestKey: z.uuid(),
     expectedRevision: z.number().int().nonnegative(),
     expectedFixtureVersion: z.number().int().nonnegative(),
@@ -366,7 +372,9 @@ export async function streamingCommand(
   const commentaryTask = c.task === "commentary";
   const table = commentaryTask ? fixtureCommentators : fixtureStreams;
   if (
-    (c.action === "assign" && c.userId === undefined) ||
+    (c.action === "assign" && c.userId === undefined && !c.userIds) ||
+    (c.userIds !== undefined &&
+      (c.action !== "assign" || !commentaryTask || c.userId !== undefined)) ||
     (c.userId !== undefined &&
       c.action !== "assign" &&
       !(commentaryTask && (c.action === "cancel" || c.action === "reconfirm")))
@@ -429,17 +437,20 @@ export async function streamingCommand(
       .where(and(eq(fixtures.id, fixtureId), eq(fixtures.editionSlug, slug)))
       .for("update");
     if (!fixture) throw new HttpError(404, "Fixture not found.");
-    const [before] = await tx
+    const beforeRows = await tx
       .select()
       .from(table)
       .where(
         and(
           eq(table.fixtureId, fixtureId),
           commentaryTask
-            ? eq(table.userId, c.userId ?? actor.osuId)
+            ? c.userIds
+              ? inArray(table.userId, c.userIds)
+              : eq(table.userId, c.userId ?? actor.osuId)
             : undefined,
         ),
       );
+    const before = beforeRows[0];
     const grants = await staffAccess(actor, tx);
     const manager = permits(grants, "manage_streaming", slug);
     if ((c.action === "cancel" || c.action === "reconfirm") && !manager) {
@@ -497,15 +508,15 @@ export async function streamingCommand(
           : c.action === "reconfirm"
             ? before?.userId
             : actor.osuId;
+      const targets = c.userIds ?? (target ? [target] : []);
+      const eligible = await eligibleBroadcastStaff(
+        tx,
+        slug,
+        commentaryTask ? "commentator" : "streamer",
+      );
       if (
-        !target ||
-        !(
-          await eligibleBroadcastStaff(
-            tx,
-            slug,
-            commentaryTask ? "commentator" : "streamer",
-          )
-        ).some((u) => u.osuId === target)
+        !targets.length ||
+        targets.some((id) => !eligible.some((u) => u.osuId === id))
       )
         throw new HttpError(
           400,
@@ -541,7 +552,7 @@ export async function streamingCommand(
       } else {
         const values = {
           fixtureId,
-          userId: target,
+          userId: targets[0],
           source:
             c.action === "select" ? ("self" as const) : ("staff" as const),
           assignedBy: actor.osuId,
@@ -549,7 +560,10 @@ export async function streamingCommand(
           confirmedScheduledAt: fixture.scheduledAt,
           confirmedTimeZone: fixture.timeZone,
         };
-        if (commentaryTask) await tx.insert(fixtureCommentators).values(values);
+        if (commentaryTask)
+          await tx
+            .insert(fixtureCommentators)
+            .values(targets.map((userId) => ({ ...values, userId })));
         else
           await tx.insert(fixtureStreams).values(values).onConflictDoUpdate({
             target: fixtureStreams.fixtureId,
@@ -569,14 +583,16 @@ export async function streamingCommand(
       .update(fixtures)
       .set({ streamRevision: fixture.streamRevision + 1 })
       .where(eq(fixtures.id, fixtureId));
-    const [after] = await tx
+    const afterRows = await tx
       .select()
       .from(table)
       .where(
         and(
           eq(table.fixtureId, fixtureId),
           commentaryTask
-            ? eq(table.userId, c.userId ?? actor.osuId)
+            ? c.userIds
+              ? inArray(table.userId, c.userIds)
+              : eq(table.userId, c.userId ?? actor.osuId)
             : undefined,
         ),
       );
@@ -589,8 +605,8 @@ export async function streamingCommand(
         entity: { type: "fixture", id: fixtureId },
         fixtureId,
         command,
-        before: before ?? null,
-        after: after ?? null,
+        before: c.userIds ? beforeRows : (before ?? null),
+        after: c.userIds ? afterRows : (afterRows[0] ?? null),
         fixture: {
           label: fixture.label,
           scheduledAt: fixture.scheduledAt,

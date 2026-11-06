@@ -3936,6 +3936,7 @@
     "m5dfbc1c9319a": "Background calculation requires an operator database.",
     "m3fc50e5563e9": "Historical source metadata is incomplete; run the reviewed normalization first.",
     "mfc6773bd1458": "Leaderboard calculation pending",
-    "m18f0dd15158c": "The leaderboard is calculated in the background. Please check again shortly."
+    "m18f0dd15158c": "The leaderboard is calculated in the background. Please check again shortly.",
+    "ma838970bbfcd": "Choose Commentators"
   }
 }

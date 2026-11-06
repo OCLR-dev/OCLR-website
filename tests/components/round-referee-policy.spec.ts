@@ -1,9 +1,33 @@
 import { test, expect } from "@playwright/test";
 const route = "**/api/admin/tournaments/synthetic/rounds/*/referee-policy";
 
-test("changing group points preserves the approved failed-score policy", async ({
+test("offers edition group navigation only for group rounds", async ({
   page,
 }) => {
+  await page.goto("/round-referee-policy");
+  const link = page.getByRole("link", {
+    name: "Configure groups in team management",
+    exact: true,
+  });
+  await expect(link).toHaveAttribute(
+    "href",
+    "/admin/tournaments/synthetic/teams#groups",
+  );
+  await link.focus();
+  await expect(link).toBeFocused();
+  await page.goto("/round-referee-policy?exhibition");
+  await expect(link).toHaveCount(0);
+  await expect(
+    page.getByRole("combobox", { name: "Game mode", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("Points for a win", { exact: true }),
+  ).toHaveCount(0);
+});
+
+test("changing group points preserves the approved failed-score policy", async ({
+  page,
+}, testInfo) => {
   const writes: Record<string, unknown>[] = [];
   await page.route(
     "**/api/admin/tournaments/synthetic/matches",
@@ -16,6 +40,32 @@ test("changing group points preserves the approved failed-score policy", async (
     await page.goto(
       `/round-referee-policy${policy === "zero" ? "?failed-zero" : ""}`,
     );
+    if (policy === "zero") {
+      const scoring = page
+        .getByRole("heading", {
+          name: "Configure approved scoring rules",
+          exact: true,
+        })
+        .locator("..");
+      const ranking = page
+        .getByRole("heading", {
+          name: "Configure approved group ranking rules",
+          exact: true,
+        })
+        .locator("..");
+      const scoreBox = (await scoring.boundingBox())!;
+      const rankingBox = (await ranking.boundingBox())!;
+      expect(rankingBox.y).toBeGreaterThanOrEqual(scoreBox.y + scoreBox.height);
+      expect(Math.abs(rankingBox.x - scoreBox.x)).toBeLessThan(2);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      await page
+        .locator("#competition")
+        .screenshot({ path: testInfo.outputPath("single-column-rules.png") });
+    }
     await page.getByLabel("Points for a win", { exact: true }).fill("4");
     await page
       .getByRole("button", { name: "Save approved round rules", exact: true })
