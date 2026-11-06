@@ -169,6 +169,7 @@ function MappoolRow({
       <td className="mappool-actions-cell">
         <BeatmapActions
           beatmapId={e.beatmapId}
+          downloadMirror={e.downloadMirror}
           setId={m.setId}
           compact
           name={slotLabel(e.category, e.position)}

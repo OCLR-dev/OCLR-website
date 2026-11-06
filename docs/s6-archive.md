@@ -2,12 +2,14 @@
 
 ## Captain qualifier NM3 original package (#852, 2026-11-06)
 
-The organizer supplied `ELFENSJoN - Hyousou wa Hakuen o Matoite.osz` on
-2026-11-06 for S6 / captain-qualifier / NM3. The unmodified package is stored at
-[imports/beatmaps/2314568.osz](imports/beatmaps/2314568.osz).
+The organizer supplied the official
+`1034526 ELFENSJoN - Hyousou wa Hakuen o Matoite.osz` on 2026-11-06 for
+S6 / captain-qualifier / NM3. It replaces the earlier package at the current
+tree and is stored unmodified at
+[imports/beatmaps/1034526.osz](imports/beatmaps/1034526.osz).
 
-- Size: 6,585,829 bytes; ZIP CRC validation passed for all 12 entries.
-- SHA-256: `700df144c44ff92299e9284c26422621f5b1f55becb64abc3ffee9e076416b71`.
+- Size: 6,585,832 bytes; ZIP CRC validation passed for all 12 entries.
+- SHA-256: `77b67ed47821a8463f8820da2b57d6274d41203b4e721ace368cb89876e3f96f`.
 - The included `Dailycare's Extra` difficulty records `BeatmapID:2314568` and
   `BeatmapSetID:1034526`, matching the missing S6 slot. The package also contains
   the source audio, `bg.jpg`, samples and four other difficulties.
@@ -19,6 +21,10 @@ exact difficulty/ruleset and background reference. It reproduces the public
 The file records CS **4**, AR **9.5**, OD **9.1** and HP **5.5**; the existing
 historical stars **6.35**, BPM **209** and drain length **216 s** remain literal.
 The preserved difficulty MD5 is `e473fac1d442477700a83edf208eb966`.
+The exact difficulty and background bytes match the earlier package; the old
+package remains available in its original immutable Git history. The new
+per-map download mirror points to the official package at a pinned GitHub
+commit. See [download mirror operations](archive-map-metadata.md#official-osz-download-mirrors-852).
 
 Migration `0085_s6_nm3_file_recovery` fills missing CS/AR/OD and saves set ID
 1034526 plus the local cover path for this exact S6 pool/slot/BID. Existing

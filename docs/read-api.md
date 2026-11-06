@@ -254,6 +254,13 @@ against the same exhausted counters and verifies HTTP 429, `RATE_LIMITED` and
 
 ## Generating and checking contracts
 
+Contract 1.26.0 adds optional `downloadMirror` to native public/staff mappool
+entries (nullable) and historical archive maps (omitted when unset). This is a
+credential-free HTTPS browser download URL, independent of provider metadata,
+the official map identity and archive source cells. Existing publication and
+read-only remote boundaries apply. Older backends can omit it; the confirmed
+S2/S6 slots also receive a read-only fallback from the checked download manifest.
+
 Contract 1.25.0 adds optional historical-map `beatmapSetId` and `coverPath`.
 `coverPath` is a same-origin `/archive/beatmaps/BID/cover.jpg` asset path; arbitrary
 URLs and traversal are rejected. S6 NM3 uses the organizer-supplied exact original

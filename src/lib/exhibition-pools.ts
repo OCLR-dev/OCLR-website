@@ -20,8 +20,16 @@ export type HistoricalMapSource = {
 };
 /** Older saved-read backends omit this additive field. Current DB rows retain null. */
 export function historicalSourceRead<
-  T extends { source: HistoricalMapSource | null },
->(entry: T): Omit<T, "source"> & { source?: HistoricalMapSource | null } {
+  T extends {
+    source: HistoricalMapSource | null;
+    downloadMirror: string | null;
+  },
+>(
+  entry: T,
+): Omit<T, "source" | "downloadMirror"> & {
+  source?: HistoricalMapSource | null;
+  downloadMirror?: string | null;
+} {
   return entry;
 }
 export type HistoricalPoolChoice = {

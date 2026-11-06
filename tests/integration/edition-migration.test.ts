@@ -1319,14 +1319,18 @@ describe.skipIf(!base)(
             ).toBe(true);
             expect(
               (
-                await pool.query("SELECT source FROM mappool_entries")
-              ).rows.every((row) => row.source === null),
+                await pool.query(
+                  "SELECT source, download_mirror FROM mappool_entries",
+                )
+              ).rows.every(
+                (row) => row.source === null && row.download_mirror === null,
+              ),
             ).toBe(true);
             for (const table of tables)
               expect(
                 (
                   await pool.query(
-                    `SELECT ${table === "registrations" ? "to_jsonb(t) - 'configuration_version' - 'eligibility_acknowledged' - 'source' - 'eligibility_verification' - 'attempt'" : table === "fixtures" ? "to_jsonb(t) - 'assignment_revision' - 'stream_revision' - 'exhibition_sides'" : table === "staff_roles" ? "to_jsonb(t) - 'about_published'" : table === "teams" ? "to_jsonb(t) - 'avatar_key'" : table === "mappools" ? "to_jsonb(t) - 'selection_locked_at' - 'showcase_at'" : table === "mappool_entries" ? "to_jsonb(t) - 'source'" : "to_jsonb(t)"} AS row FROM ${table} t ORDER BY to_jsonb(t)::text`,
+                    `SELECT ${table === "registrations" ? "to_jsonb(t) - 'configuration_version' - 'eligibility_acknowledged' - 'source' - 'eligibility_verification' - 'attempt'" : table === "fixtures" ? "to_jsonb(t) - 'assignment_revision' - 'stream_revision' - 'exhibition_sides'" : table === "staff_roles" ? "to_jsonb(t) - 'about_published'" : table === "teams" ? "to_jsonb(t) - 'avatar_key'" : table === "mappools" ? "to_jsonb(t) - 'selection_locked_at' - 'showcase_at'" : table === "mappool_entries" ? "to_jsonb(t) - 'source' - 'download_mirror'" : "to_jsonb(t)"} AS row FROM ${table} t ORDER BY to_jsonb(t)::text`,
                   )
                 ).rows,
               ).toEqual(before.get(table));

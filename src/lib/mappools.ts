@@ -26,6 +26,7 @@ import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 import { catalogDifficulty } from "./difficulty-catalog";
+import { downloadMirrorSchema } from "./mappool-download";
 import {
   categories,
   difficultyConfigurations,
@@ -174,6 +175,7 @@ const commandSchema = z.discriminatedUnion("action", [
       ...confirmation,
       ...versioned,
       action: z.literal("entry_save"),
+      downloadMirror: downloadMirrorSchema.nullable().optional(),
       difficultyConfiguration: z
         .enum(difficultyConfigurations)
         .nullable()
@@ -1166,6 +1168,12 @@ export async function mappoolCommand(
             category: c.category,
             position: c.position,
             beatmapId: beatmapId!,
+            downloadMirror:
+              c.downloadMirror !== undefined
+                ? c.downloadMirror
+                : entry?.beatmapId === beatmapId
+                  ? (entry?.downloadMirror ?? null)
+                  : null,
             metadata: metadata!,
             metadataFetchedAt: metadataFetchedAt!,
             source:
@@ -1269,6 +1277,7 @@ async function databasePublicMappools(slug: string, poolId?: string) {
               category: mappoolEntries.category,
               position: mappoolEntries.position,
               beatmapId: mappoolEntries.beatmapId,
+              downloadMirror: mappoolEntries.downloadMirror,
               metadata: mappoolEntries.metadata,
               source: mappoolEntries.source,
             })

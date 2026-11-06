@@ -1,0 +1,26 @@
+[
+  {
+    "editionSlug": "s2",
+    "poolId": "captain-qualifier",
+    "slot": "NM2",
+    "beatmapId": 1009329,
+    "beatmapSetId": 403096,
+    "downloadMirror": "https://github.com/OCLR-dev/OCLR-website/raw/8e8416c3003795665b148208f6ecd94137ed812a/docs/imports/beatmaps/403096.osz",
+    "packagePath": "docs/imports/beatmaps/403096.osz",
+    "packageSha256": "c98304139ab47c9bde13a77ace1af547900e9fbaab32941b13e8a86d4417e1ad",
+    "beatmapFile": "Reol - Yakusoku no Ao (Fatfan Kolek) [NiNo's Extra].osu",
+    "beatmapMd5": "256a8a9df9a06d924d1578357ad56840"
+  },
+  {
+    "editionSlug": "s6",
+    "poolId": "captain-qualifier",
+    "slot": "NM3",
+    "beatmapId": 2314568,
+    "beatmapSetId": 1034526,
+    "downloadMirror": "https://github.com/OCLR-dev/OCLR-website/raw/8e8416c3003795665b148208f6ecd94137ed812a/docs/imports/beatmaps/1034526.osz",
+    "packagePath": "docs/imports/beatmaps/1034526.osz",
+    "packageSha256": "77b67ed47821a8463f8820da2b57d6274d41203b4e721ace368cb89876e3f96f",
+    "beatmapFile": "ELFENSJoN - Hyousou wa Hakuen o Matoite (HeTo) [Dailycare's Extra].osu",
+    "beatmapMd5": "e473fac1d442477700a83edf208eb966"
+  }
+]

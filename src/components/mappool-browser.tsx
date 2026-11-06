@@ -125,7 +125,11 @@ function MapDetails({
           </p>
         )}
         <div className="actions">
-          <BeatmapActions beatmapId={entry.beatmapId} setId={m.setId} />
+          <BeatmapActions
+            beatmapId={entry.beatmapId}
+            setId={m.setId}
+            downloadMirror={entry.downloadMirror}
+          />
           <Link
             className="button secondary"
             href={`/tournaments/${slug}/mappools/${pool.id}#map-${entry.id}`}
@@ -384,6 +388,7 @@ export function MappoolBrowser({
                     difficulty={e.metadata.difficulty}
                     mapper={e.metadata.mapper}
                     beatmapId={e.beatmapId}
+                    downloadMirror={e.downloadMirror}
                     setId={e.metadata.setId}
                     stars={values.stars}
                     bpm={values.bpm}

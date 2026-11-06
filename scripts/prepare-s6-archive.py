@@ -14,6 +14,7 @@ IMPORTS = ROOT / "docs/imports"
 # in beatmapId; originalId points at the map players can open separately.
 ORIGINAL_BEATMAP_IDS = {1933040: 1863199}
 FILE_SUPPLEMENTS = json.loads((ROOT / 'src/data/archive-file-supplements.json').read_text())['s6']
+DOWNLOADS = json.loads((ROOT / 'src/data/archive-map-downloads.json').read_text())
 
 
 def archived_map(m, pool_id):
@@ -30,6 +31,10 @@ def archived_map(m, pool_id):
                 entry[key] = value
         entry['beatmapSetId'] = correction['beatmapSetId']
         entry['coverPath'] = correction['coverPath']
+    download = next((s for s in DOWNLOADS if s['editionSlug'] == 's6' and s['poolId'] == pool_id and
+                     s['slot'] == m['slot'] and s['beatmapId'] == m['beatmapId']), None)
+    if download:
+        entry['downloadMirror'] = download['downloadMirror']
     return entry
 
 

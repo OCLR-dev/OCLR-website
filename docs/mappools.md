@@ -1,5 +1,29 @@
 # Mappool implementation and workflows
 
+## Download mirrors (#852)
+
+Each map may save an optional `downloadMirror` HTTPS URL independently of its
+official BID and metadata. Authorized pool editors set or clear it in the
+existing entry form. Saves use the existing edition permission, pool version,
+publication, completed-fixture lock and transactional audit checks. Changing
+the BID clears the old mirror in the editor; API saves that omit the field keep
+it only for the same BID. Metadata refresh and reorder preserve it. Explicit
+`null` clears a native entry's mirror. Historical imports accept an optional
+non-null URL on each map.
+
+Cards, compact lists and Details show **Download mirror** alongside the existing
+osu! actions when a valid mirror is saved. The browser follows the HTTPS link;
+the application does not fetch or proxy it. URLs with credentials or unsafe
+schemes are rejected and are not rendered from older read responses. Draft
+pool links remain private with the pool. Developer/remote channels stay
+read-only. Older backends may omit the additive field.
+
+Migration `0086_mappool_download_mirrors` adds the native entry column and typed
+historical-map column, and saves the organizer's two pinned GitHub OSZ mirrors.
+See [official package evidence and normalization](archive-map-metadata.md#official-osz-download-mirrors-852).
+New labels are `下载镜像（可选）` / `下載鏡像（選填）` and
+`下载镜像` / `下載鏡像`; organizer wording review remains separate.
+
 ## Candidate creation times (#965)
 
 Candidate cards show the original creation time on their final row below the

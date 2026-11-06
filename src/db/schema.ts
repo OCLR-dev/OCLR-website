@@ -845,6 +845,7 @@ export const mappoolEntries = pgTable(
     category: mappoolCategory("category").notNull(),
     position: integer("position").notNull(),
     beatmapId: bigint("beatmap_id", { mode: "number" }).notNull(),
+    downloadMirror: text("download_mirror"),
     metadata: jsonb("metadata")
       .$type<import("../lib/mappool-model").BeatmapMetadata>()
       .notNull(),

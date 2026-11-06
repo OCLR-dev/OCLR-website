@@ -196,6 +196,9 @@ export function EntryForm({
         : "",
   );
   const id = parseBeatmapId(beatmap);
+  const [downloadMirror, setDownloadMirror] = useState(
+    entry?.downloadMirror ?? "",
+  );
   const [preview, setPreview] = useState<BeatmapSnapshot | null>(null);
   const [mod, setMod] = useState(entry?.category ?? category);
   function nextPosition(category: string) {
@@ -222,7 +225,10 @@ export function EntryForm({
             readOnly={candidateBeatmapId !== undefined}
             onChange={(e) => {
               const next = e.target.value;
-              if (parseBeatmapId(next) !== id) setPreview(null);
+              if (parseBeatmapId(next) !== id) {
+                setPreview(null);
+                setDownloadMirror("");
+              }
               setBeatmap(next);
             }}
             aria-invalid={Boolean(beatmap.trim() && !id)}
@@ -237,6 +243,16 @@ export function EntryForm({
             )}
           </p>
         )}
+        <label className="field">
+          <span>{tr("Download mirror (optional)")}</span>
+          <input
+            type="url"
+            value={downloadMirror}
+            maxLength={2048}
+            placeholder="https://github.com/…"
+            onChange={(e) => setDownloadMirror(e.target.value)}
+          />
+        </label>
         <fieldset className="mappool-attributes">
           <legend>{tr("Official mod attributes")}</legend>
           <label className="field">
@@ -308,6 +324,7 @@ export function EntryForm({
           disabled={!id || preview?.beatmapId !== id}
           payload={{
             action: "entry_save",
+            downloadMirror: downloadMirror.trim() || null,
             difficultyConfiguration,
             expectedMetadataFingerprint: preview?.fingerprint,
             poolId: pool.id,

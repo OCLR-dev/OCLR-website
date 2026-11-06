@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { beatmapLinks } from "@/lib/beatmap-links";
+import { safeDownloadMirror } from "@/lib/mappool-download";
 
 function ActionIcon({ kind }: { kind: "web" | "direct" }) {
   if (kind === "direct")
@@ -39,6 +40,7 @@ function ActionIcon({ kind }: { kind: "web" | "direct" }) {
 export function BeatmapActions({
   beatmapId,
   setId,
+  downloadMirror,
   originalBeatmapId,
   originalSetId,
   beatmapMissing = false,
@@ -50,6 +52,7 @@ export function BeatmapActions({
 }: {
   beatmapId: number | null | undefined;
   setId: number | null | undefined;
+  downloadMirror?: string | null;
   originalBeatmapId?: number | null;
   originalSetId?: number | null;
   beatmapMissing?: boolean;
@@ -60,6 +63,7 @@ export function BeatmapActions({
   extra?: ReactNode;
 }) {
   const tr = useAppTranslations();
+  const mirror = safeDownloadMirror(downloadMirror);
   const originalLinks = beatmapLinks(originalBeatmapId, originalSetId);
   // Confirmed archive corrections may prefer the surviving original even if a
   // cached set exists or provider lookup is unavailable. Otherwise retain the
@@ -77,7 +81,7 @@ export function BeatmapActions({
         web: tr("Open on osu!"),
         direct: tr("osu!direct"),
       };
-  if (!links.web && !links.direct)
+  if (!links.web && !links.direct && !mirror)
     return compact ? null : (
       <p className="muted small">{tr("Beatmap ID unresolved")}</p>
     );
@@ -86,6 +90,23 @@ export function BeatmapActions({
       className={`beatmap-actions${compact ? " beatmap-actions-compact" : ""}`}
     >
       {extra}
+      {mirror && (
+        <a
+          href={mirror}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="button secondary"
+          aria-label={
+            name ? `${tr("Download mirror")} · ${name}` : tr("Download mirror")
+          }
+          title={compact ? tr("Download mirror") : undefined}
+        >
+          <ActionIcon kind="direct" />
+          <span className={compact ? "sr-only" : undefined}>
+            {tr("Download mirror")}
+          </span>
+        </a>
+      )}
       {(["direct", "web"] as const).map(
         (kind) =>
           links[kind] &&

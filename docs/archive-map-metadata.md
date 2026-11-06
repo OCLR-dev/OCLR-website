@@ -111,13 +111,13 @@ and refresh coverage so regeneration cannot remove these two original IDs.
 The organizer supplied these exact edit-to-original mappings. `originalId` is the
 stored field name; the issue calls it `originalID`.
 
-| Season | Pool | Slot | Historical BID | originalId | Official set ID |
-| --- | --- | --- | --- | --- | --- |
-| S5 | pool-4 | NM4 | 2756449 | 2755377 | 1329838 |
-| S10 | gs1 | NM6 | 5015295 | 4000824 | 1930357 |
-| S10 | gs2 | NM4 | 5036455 | 4934310 | 2284029 |
-| S10 | gs2 | DT4 | 5033877 | 1571394 | 738331 |
-| S10 | f | NM7 | 4769379 | 5206595 | 2243651 |
+| Season | Pool   | Slot | Historical BID | originalId | Official set ID |
+| ------ | ------ | ---- | -------------- | ---------- | --------------- |
+| S5     | pool-4 | NM4  | 2756449        | 2755377    | 1329838         |
+| S10    | gs1    | NM6  | 5015295        | 4000824    | 1930357         |
+| S10    | gs2    | NM4  | 5036455        | 4934310    | 2284029         |
+| S10    | gs2    | DT4  | 5033877        | 1571394    | 738331          |
+| S10    | f      | NM7  | 4769379        | 5206595    | 2243651         |
 
 All five official difficulty pages supplied matching osu!standard identities on
 2026-11-06. Their five official `cover.jpg` files returned HTTP 200 and decoded as
@@ -349,3 +349,67 @@ component coverage checks desktop/mobile cards, compact rows, details,
 search/sort, image failure and unavailable maps; the S5 fallback regression is
 included. Actual command results are recorded in the PR, separately from CI and
 organizer acceptance.
+
+## Official OSZ download mirrors (#852)
+
+The organizer supplied two official packages on 2026-11-06. They are preserved
+unmodified under `docs/imports/beatmaps` at commit
+`8e8416c3003795665b148208f6ecd94137ed812a`:
+
+| Saved slot                   | BID     | Package       | Bytes     | SHA-256                                                            |
+| ---------------------------- | ------- | ------------- | --------- | ------------------------------------------------------------------ |
+| S2 / captain-qualifier / NM2 | 1009329 | `403096.osz`  | 7,914,595 | `c98304139ab47c9bde13a77ace1af547900e9fbaab32941b13e8a86d4417e1ad` |
+| S6 / captain-qualifier / NM3 | 2314568 | `1034526.osz` | 6,585,832 | `77b67ed47821a8463f8820da2b57d6274d41203b4e721ace368cb89876e3f96f` |
+
+The S2 package contains the exact `NiNo's Extra` difficulty (MD5
+`256a8a9df9a06d924d1578357ad56840`, set 403096). The S6 package replaces
+`2314568.osz` in the current tree; the older file remains in its historical
+commit. Its exact difficulty and background bytes are unchanged. Existing
+migration 0085 and its audit hashes remain historical evidence of that earlier
+package; they are not rewritten to claim the newer file was used then.
+
+`python3 scripts/prepare-map-downloads.py --check` verifies both package hashes,
+ZIP CRC and bounded size, exact BID/set/ruleset/difficulty identity, and the
+pinned GitHub raw download URLs in `src/data/archive-map-downloads.json`.
+`python3 scripts/prepare-s6-map-file.py --check` also verifies the new S6 source
+and existing extracted cover. Two S6 import packages and their generator retain
+the mirror. The early-season inventory remains the original captured evidence.
+
+Migration `0086_mappool_download_mirrors` adds nullable
+`mappool_entries.download_mirror` and optional historical typed-map
+`value_download_mirror`. It transactionally saves only `downloadMirror` on the
+two exact completed historical slots above. It preserves original revisions,
+adds an audited revision with package/difficulty hashes, and is idempotent.
+A different saved mirror or duplicate target fails and rolls back both seasons.
+BIDs, source cells, attributes, publication, approvals and statistics are retained.
+The display fallback uses the same scoped manifest without writes on read.
+This batch does not recover S2 artwork or replace any historical metric.
+
+After the reviewed release/migration is deployed through the existing operator
+flow, run in its configured runtime environment:
+
+```sh
+python3 scripts/prepare-map-downloads.py --check
+python3 scripts/prepare-s6-map-file.py --check
+npm run db:normalize-archives -- s2 s6 --apply --verify
+```
+
+Read back both saved records and typed projections with the operator's existing
+DB tooling. The saved value should be the corresponding pinned GitHub URL in the
+manifest; compare against `value_download_mirror` after normalization:
+
+```sql
+SELECT s.slug, p.value->>'id' AS pool, m.value->>'slot' AS slot,
+       m.value->>'beatmapId' AS bid, m.value->>'downloadMirror' AS mirror
+FROM edition_state s
+CROSS JOIN LATERAL jsonb_array_elements(s.configuration->'archive'->'pools') p(value)
+CROSS JOIN LATERAL jsonb_array_elements(p.value->'maps') m(value)
+WHERE s.slug IN ('s2','s6') AND p.value->>'id'='captain-qualifier'
+  AND ((s.slug='s2' AND m.value->>'slot'='NM2' AND m.value->>'beatmapId'='1009329')
+    OR (s.slug='s6' AND m.value->>'slot'='NM3' AND m.value->>'beatmapId'='2314568'));
+```
+
+Public configuration reads and card/list/Details must expose the same mirror.
+The GitHub targets download OSZ bytes directly, not a blob HTML page. Frontend
+remote views remain read-only; production operations and new wording acceptance
+are separate organizer/operator steps.

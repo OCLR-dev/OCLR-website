@@ -6,6 +6,28 @@ import { english } from "../../src/i18n/translate";
 vi.mock("../../src/i18n/shared", () => ({ useAppTranslations: () => english }));
 afterEach(() => vi.unstubAllGlobals());
 describe("archive edit destinations", () => {
+  it("offers a safe independent mirror when official identities are unavailable", () => {
+    vi.stubGlobal("React", React);
+    const mirror =
+      "https://github.com/OCLR-dev/OCLR-website/raw/reviewed/map.osz";
+    const html = renderToStaticMarkup(
+      <BeatmapActions beatmapId={null} setId={null} downloadMirror={mirror} />,
+    );
+    expect(html).toContain(`href="${mirror}"`);
+    expect(html).toContain("Download mirror");
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).not.toContain("Beatmap ID unresolved");
+    const invalid = renderToStaticMarkup(
+      <BeatmapActions
+        beatmapId={123}
+        setId={null}
+        downloadMirror="javascript:alert(1)"
+      />,
+    );
+    expect(invalid).not.toContain("javascript:");
+    expect(invalid).not.toContain("Download mirror");
+    expect(invalid).toContain('href="osu://b/123"');
+  });
   it("uses an explicitly confirmed original even with a cached edit set and no provider 404", () => {
     vi.stubGlobal("React", React);
     const html = renderToStaticMarkup(

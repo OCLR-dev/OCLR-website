@@ -162,6 +162,75 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
     position,
     beatmap,
   });
+  it("persists and audits a mirror, serves it publicly, retains it on refresh and clears it when replacing the map", async () => {
+    const pool = await create();
+    const mirror =
+      "https://github.com/OCLR-dev/OCLR-website/raw/reviewed/map.osz";
+    let data = await mappoolCommand(mapper, edition.slug, {
+      ...add(pool.id, 0),
+      downloadMirror: mirror,
+    });
+    const entryId = data.entries[0].id;
+    expect(data.entries[0].downloadMirror).toBe(mirror);
+    expect((await auditEvents()).at(-1)?.after).toMatchObject({
+      entries: [{ downloadMirror: mirror }],
+    });
+    await expect(
+      mappoolCommand(mapper, edition.slug, {
+        ...add(pool.id, 0),
+        entryId,
+        downloadMirror: null,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      mappoolCommand(mapper, edition.slug, {
+        ...add(pool.id, 1),
+        entryId,
+        downloadMirror: "javascript:alert(1)",
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    data = await mappoolCommand(mapper, edition.slug, {
+      ...confirm,
+      action: "entry_refresh",
+      poolId: pool.id,
+      expectedVersion: 1,
+      entryId,
+    });
+    expect(data.entries[0].downloadMirror).toBe(mirror);
+    data = await mappoolCommand(mapper, edition.slug, {
+      ...add(pool.id, 2),
+      entryId,
+    });
+    expect(data.entries[0].downloadMirror).toBe(mirror);
+    await mappoolCommand(admin, edition.slug, {
+      ...confirm,
+      action: "pool_publish",
+      poolId: pool.id,
+      expectedVersion: 3,
+      published: true,
+    });
+    vi.mocked(fetchBeatmap).mockClear();
+    expect(
+      (await publicMappools(edition.slug))[0].entries[0].downloadMirror,
+    ).toBe(mirror);
+    expect(fetchBeatmap).not.toHaveBeenCalled();
+    data = await mappoolCommand(mapper, edition.slug, {
+      ...add(pool.id, 4, 1, "NM", "456"),
+      entryId,
+    });
+    expect(data.entries[0].downloadMirror).toBeNull();
+    data = await mappoolCommand(mapper, edition.slug, {
+      ...add(pool.id, 5, 1, "NM", "456"),
+      entryId,
+      downloadMirror: mirror,
+    });
+    data = await mappoolCommand(mapper, edition.slug, {
+      ...add(pool.id, 6, 1, "NM", "456"),
+      entryId,
+      downloadMirror: null,
+    });
+    expect(data.entries[0].downloadMirror).toBeNull();
+  });
   it("protects preview lookups by role and edition without writing an audit event", async () => {
     for (const actor of [referee, player])
       await expect(

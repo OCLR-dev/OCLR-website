@@ -106,6 +106,7 @@ function ArchiveMapDetails({
         {stats}
         <BeatmapActions
           beatmapId={map.beatmapId}
+          downloadMirror={map.downloadMirror}
           setId={setId}
           originalBeatmapId={map.originalId}
           originalSetId={originalSetId}
@@ -447,6 +448,7 @@ export function ArchiveMappools({
                     difficulty={parsed?.difficulty ?? m.difficulty}
                     mapper={parsed?.mapper ?? m.mapper}
                     beatmapId={m.beatmapId}
+                    downloadMirror={m.downloadMirror}
                     setId={setId}
                     coverPath={m.coverPath}
                     originalBeatmapId={m.originalId}
@@ -526,6 +528,7 @@ export function ArchiveMappools({
                     <BeatmapActions
                       compact
                       beatmapId={m.beatmapId}
+                      downloadMirror={m.downloadMirror}
                       setId={setId}
                       originalBeatmapId={m.originalId}
                       originalSetId={originalSetId}

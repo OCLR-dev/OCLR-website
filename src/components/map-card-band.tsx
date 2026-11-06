@@ -31,6 +31,7 @@ export function MapCardBand({
   beatmapId,
   setId,
   coverPath,
+  downloadMirror,
   originalBeatmapId,
   originalSetId,
   beatmapMissing,
@@ -69,6 +70,7 @@ export function MapCardBand({
   beatmapId?: number | null;
   setId?: number | null;
   coverPath?: string;
+  downloadMirror?: string | null;
   originalBeatmapId?: number | null;
   originalSetId?: number | null;
   beatmapMissing?: boolean;
@@ -239,6 +241,7 @@ export function MapCardBand({
       showWeb={variant !== "workbench"}
       beatmapId={beatmapId}
       setId={setId}
+      downloadMirror={downloadMirror}
       originalBeatmapId={originalBeatmapId}
       originalSetId={originalSetId}
       beatmapMissing={beatmapMissing}

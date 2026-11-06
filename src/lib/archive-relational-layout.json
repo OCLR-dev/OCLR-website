@@ -1531,6 +1531,11 @@
             "type": "integer",
             "array": false
           },
+          {
+            "column": "value_download_mirror",
+            "type": "string",
+            "array": false
+          },
           { "column": "value_cover_path", "type": "string", "array": false },
           {
             "column": "value_difficulty_snapshot_beatmap_id",
@@ -1617,6 +1622,12 @@
               "type": "scalar",
               "column": "value_beatmap_set_id",
               "scalar": "integer",
+              "array": false
+            },
+            "downloadMirror": {
+              "type": "scalar",
+              "column": "value_download_mirror",
+              "scalar": "string",
               "array": false
             },
             "coverPath": {
