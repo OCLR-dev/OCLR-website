@@ -10,6 +10,7 @@ import {
   historicalArchiveSchema,
 } from "../../src/lib/historical-archive";
 import snapshot from "../../src/data/archive-beatmaps.json";
+import supplements from "../../src/data/archive-map-supplements.json";
 import early from "../../docs/imports/early-season-mappools.json";
 import { correctS2PoolArchive } from "../../src/lib/archive-pool-correction-model";
 import { statisticsArchiveKey } from "../../src/lib/archive-statistics";
@@ -86,6 +87,38 @@ describe("historical composite titles", () => {
 });
 
 describe("historical map metadata supplementation", () => {
+  it("resolves all five #852 originals for artwork/actions without copying their attributes over the edits", () => {
+    for (const [season, entries] of Object.entries(supplements)) {
+      const source = archive(season);
+      for (const entry of entries.filter((m) =>
+        m.source.endsWith("/issues/852"),
+      )) {
+        const pool = structuredClone(
+          source.pools.find((p) => p.id === entry.poolId)!,
+        );
+        const map = pool.maps.find((m) => m.slot === entry.slot)!;
+        delete map.originalId;
+        const original = structuredClone(pool);
+        const display = archivePoolMetadata(pool, season);
+        const result = display.pool.maps.find((m) => m.slot === entry.slot)!;
+        expect(result).toMatchObject({
+          ...map,
+          originalId: entry.originalId,
+          preferOriginal: true,
+        });
+        expect(display.setIds[entry.originalId]).toBeGreaterThan(0);
+        expect(result.archivalSource).toBe(entry.source);
+        expect(result.archivalSupplemented).toBeUndefined();
+        expect(pool).toEqual(original);
+        map.originalId = 42;
+        expect(
+          archivePoolMetadata(pool, season).pool.maps.find(
+            (m) => m.slot === entry.slot,
+          ),
+        ).toMatchObject({ originalId: 42, preferOriginal: false });
+      }
+    }
+  });
   it("repairs legacy saved S5 DT maps without a reimport or mutation", () => {
     const pool = archive("s5").pools.find((p) => p.id === "pool-2")!;
     for (const map of pool.maps) {

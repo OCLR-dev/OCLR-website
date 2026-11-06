@@ -19,3 +19,5 @@ class S5SupplementTests(unittest.TestCase):
         self.assertEqual(maps['DT4']['originalId'], 2678913)
         self.assertEqual(maps['DT4']['bpm'], 210)
         self.assertEqual(maps['DT4']['stars'], 6.27)
+        final = next(p for p in pools if p['id'] == 'pool-4')
+        self.assertEqual(next(m for m in final['maps'] if m['slot'] == 'NM4')['originalId'], 2755377)

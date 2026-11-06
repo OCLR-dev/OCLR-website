@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture public official base metadata for S1–S6. No credentials or DB writes.
+"""Capture S1–S6 and confirmed original-map metadata. No credentials or DB writes.
 
 Only whitelisted metadata is retained, never the full page/user content. Existing
 historical source packages remain unchanged. Failures remain explicit in output.

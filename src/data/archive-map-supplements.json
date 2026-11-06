@@ -23,6 +23,48 @@
         "ar": 8.5,
         "od": 8
       }
+    },
+    {
+      "poolId": "pool-4",
+      "slot": "NM4",
+      "beatmapId": 2756449,
+      "originalId": 2755377,
+      "source": "https://github.com/OCLR-dev/OCLR-website/issues/852",
+      "attributes": {}
+    }
+  ],
+  "s10": [
+    {
+      "poolId": "gs1",
+      "slot": "NM6",
+      "beatmapId": 5015295,
+      "originalId": 4000824,
+      "source": "https://github.com/OCLR-dev/OCLR-website/issues/852",
+      "attributes": {}
+    },
+    {
+      "poolId": "gs2",
+      "slot": "NM4",
+      "beatmapId": 5036455,
+      "originalId": 4934310,
+      "source": "https://github.com/OCLR-dev/OCLR-website/issues/852",
+      "attributes": {}
+    },
+    {
+      "poolId": "gs2",
+      "slot": "DT4",
+      "beatmapId": 5033877,
+      "originalId": 1571394,
+      "source": "https://github.com/OCLR-dev/OCLR-website/issues/852",
+      "attributes": {}
+    },
+    {
+      "poolId": "f",
+      "slot": "NM7",
+      "beatmapId": 4769379,
+      "originalId": 5206595,
+      "source": "https://github.com/OCLR-dev/OCLR-website/issues/852",
+      "attributes": {}
     }
   ]
 }

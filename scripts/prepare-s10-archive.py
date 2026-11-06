@@ -14,7 +14,9 @@ import zipfile
 from pathlib import Path
 
 # Reviewed edit-to-original provenance; retained across worksheet regeneration.
-ORIGINAL_BEATMAP_IDS = {5015295: 4000824, 5036455: 4934310, 4052151: 3678140, 5033877: 1571394, 3668376: 3668377, 3500303: 1509453}
+MAP_SUPPLEMENTS = json.loads((Path(__file__).resolve().parents[1] / 'src/data/archive-map-supplements.json').read_text())['s10']
+ORIGINAL_BEATMAP_IDS = {4052151: 3678140, 3668376: 3668377, 3500303: 1509453,
+                      **{entry['beatmapId']: entry['originalId'] for entry in MAP_SUPPLEMENTS}}
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("source")

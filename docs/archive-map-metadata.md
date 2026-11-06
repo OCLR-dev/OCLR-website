@@ -15,10 +15,11 @@ unknown. Artist, song title, difficulty and mapper remain literal provider text.
 The display lists the supplemented fields, links their official source, and
 shows the capture date. These are **current base/no-mod attributes**, not a claim
 about the map version, star-rating algorithm or adjusted attributes used during
-the historical tournament. Existing source statistics always win. The original
-import packages and saved database archives are unchanged; results, roster,
-publication and authorization boundaries are unaffected. Saved-data API clients
-continue to receive source records, not silently rewritten historical data.
+the historical tournament. Existing source statistics always win. The display
+projection does not modify saved archives; results, roster, publication and
+authorization boundaries are unaffected. Saved-data API clients receive source
+records. The separate #852 data migration below persists the organizer-confirmed
+original-map IDs.
 
 `src/data/archive-beatmaps.json` contains only whitelisted public map metadata,
 with per-map source URL, capture time and provider map-update time. No page HTML,
@@ -103,6 +104,68 @@ reimporting or writing their configuration. MP matching, results and raw saved
 read-API responses retain their recorded BIDs. Archive and official snapshot
 generators both retain the shared supplement; Python tests check package parity
 and refresh coverage so regeneration cannot remove these two original IDs.
+
+## Persisting the five confirmed sources (#852, 2026-11-06)
+
+The organizer supplied these exact edit-to-original mappings. `originalId` is the
+stored field name; the issue calls it `originalID`.
+
+| Season | Pool | Slot | Historical BID | originalId | Official set ID |
+| --- | --- | --- | --- | --- | --- |
+| S5 | pool-4 | NM4 | 2756449 | 2755377 | 1329838 |
+| S10 | gs1 | NM6 | 5015295 | 4000824 | 1930357 |
+| S10 | gs2 | NM4 | 5036455 | 4934310 | 2284029 |
+| S10 | gs2 | DT4 | 5033877 | 1571394 | 738331 |
+| S10 | f | NM7 | 4769379 | 5206595 | 2243651 |
+
+All five official difficulty pages supplied matching osu!standard identities on
+2026-11-06. Their five official `cover.jpg` files returned HTTP 200 and decoded as
+900×250 JPEGs. The snapshot retains the original maps' public metadata for artwork;
+their current attributes are not substituted for the historical edits' values.
+
+Migration `0084_archive_original_ids` writes the missing IDs into the **current
+saved database configuration**, matching edition, pool, slot and historical BID.
+It retains every other JSONB field, the actual BIDs, recorded attributes,
+statistics, approvals and publication. It locks affected editions, adds one
+configuration revision and audit event per changed edition, and is idempotent.
+An already different explicit original ID, duplicate target or nonhistorical
+edition aborts the migration transaction for operator review. Empty installations
+and absent target slots are left alone. Prior revisions/documents remain evidence.
+
+Apply through the existing reviewed release, backup and migration workflow. After
+the migration, run the existing normalization maintenance as the configured
+operator to create and verify fresh immutable relations/cache generations:
+
+```sh
+npm run db:normalize-archives -- s5 s10 --apply --verify
+```
+
+In the operator's existing database console, verify the five saved `originalId`
+values against the table above:
+
+```sql
+SELECT s.slug, p->>'id' AS pool, m->>'slot' AS slot,
+       m->>'beatmapId' AS bid, m->>'originalId' AS original_id
+FROM edition_state s,
+     LATERAL jsonb_array_elements(s.configuration->'archive'->'pools') p,
+     LATERAL jsonb_array_elements(p->'maps') m
+WHERE s.slug IN ('s5', 's10')
+  AND m->>'beatmapId' IN ('2756449', '5015295', '5036455', '5033877', '4769379')
+ORDER BY s.slug, pool, slot;
+```
+
+The source-manifest trigger immediately invalidates old archive/cache digests.
+Before normalization completes, public and saved-read API paths use the corrected
+source safely. After normalization they use the new typed relations. No source
+statistics need rekeying: `statisticsArchiveKey` excludes `originalId`.
+
+The shared supplement also supplies artwork and original-map actions on
+public/preview/remote pages with older saved data. It preserves a different
+explicitly saved original and never writes during a read. S5/S10 import builders
+consume the same mapping, and the checked-in S10 package retains the new Finals
+source. Deploying display code alone does not constitute production DB acceptance;
+record the actual migration and normalization results on #852. The remaining
+missing covers and S2/S6 source investigation remain separate issue work.
 
 ## Local verification — 2026-10-26
 

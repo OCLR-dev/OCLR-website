@@ -64,7 +64,8 @@ Files stay private even when the pool is published. There is no public replay AP
 
 See [historical metadata supplements](archive-map-metadata.md) for the #335 root
 cause, official snapshot provenance, field precedence and current/base-value
-disclosure. This read-only display enrichment does not rewrite archive imports.
+disclosure. The #852 section covers the separate database migration for five
+confirmed original IDs and the existing normalization command to run afterward.
 
 ## Public difficulty preview (#851)
 

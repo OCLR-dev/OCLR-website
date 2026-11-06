@@ -12,6 +12,8 @@ class CaptureTests(unittest.TestCase):
         ids = capture.expected_ids()
         self.assertIn(2678913, ids)
         self.assertIn(2933979, ids)
+        for bid in [2755377, 4000824, 4934310, 1571394, 5206595]:
+            self.assertIn(bid, ids)
         self.assertIn(2720295, ids)
         self.assertIn(2567502, ids)
         self.assertIn(1532662, ids)  # S1

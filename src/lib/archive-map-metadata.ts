@@ -113,6 +113,12 @@ export function archivePoolMetadata(
 } {
   const setIds: Record<number, number> = {};
   const enabled = ["s1", "s2", "s3", "s4", "s5", "s6"].includes(editionSlug);
+  const confirmed =
+    editionSlug === "s5"
+      ? supplements.s5
+      : editionSlug === "s10"
+        ? supplements.s10
+        : [];
   const maps = pool.maps;
   return {
     setIds,
@@ -129,15 +135,12 @@ export function archivePoolMetadata(
         const result: ArchiveDisplayMap = { ...map };
         // Existing saved/remote archives predate the import-package supplement.
         // Apply only the confirmed edition/pool/slot/BID, without mutating it.
-        const correction =
-          editionSlug === "s5"
-            ? supplements.s5.find(
-                (entry) =>
-                  entry.poolId === pool.id &&
-                  entry.slot === map.slot &&
-                  entry.beatmapId === map.beatmapId,
-              )
-            : undefined;
+        const correction = confirmed.find(
+          (entry) =>
+            entry.poolId === pool.id &&
+            entry.slot === map.slot &&
+            entry.beatmapId === map.beatmapId,
+        );
         if (correction) {
           result.originalId ??= correction.originalId;
           result.preferOriginal = result.originalId === correction.originalId;
@@ -185,7 +188,7 @@ export function archivePoolMetadata(
           result.metadataFetchedAt = metadata.fetchedAt;
         }
         const originalMetadata =
-          enabled && result.originalId
+          (enabled || correction) && result.originalId
             ? (snapshot.maps as Record<string, Snapshot>)[result.originalId]
             : undefined;
         if (originalMetadata)
