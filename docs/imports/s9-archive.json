@@ -1996,7 +1996,8 @@
           "drainSeconds": 115.0,
           "cs": 4.0,
           "ar": 9.4,
-          "od": 8.0
+          "od": 8.0,
+          "backgroundSetId": 730367
         },
         {
           "slot": "HD4",

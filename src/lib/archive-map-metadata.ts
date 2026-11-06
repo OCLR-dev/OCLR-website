@@ -2,6 +2,7 @@ import snapshot from "@/data/archive-beatmaps.json";
 import supplements from "@/data/archive-map-supplements.json";
 import fileSupplements from "@/data/archive-file-supplements.json";
 import downloads from "@/data/archive-map-downloads.json";
+import backgrounds from "@/data/archive-background-supplements.json";
 import type { HistoricalArchive } from "./historical-archive";
 import type { DifficultySnapshot } from "./mappool-model";
 
@@ -135,6 +136,14 @@ export function archivePoolMetadata(
       ...pool,
       maps: maps.map((map): ArchiveDisplayMap => {
         const result: ArchiveDisplayMap = { ...map };
+        const background = backgrounds.find(
+          (entry) =>
+            entry.editionSlug === editionSlug &&
+            entry.poolId === pool.id &&
+            entry.slot === map.slot &&
+            entry.beatmapId === map.beatmapId,
+        );
+        if (background) result.backgroundSetId ??= background.backgroundSetId;
         const download = downloads.find(
           (entry) =>
             entry.editionSlug === editionSlug &&

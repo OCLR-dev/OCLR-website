@@ -413,3 +413,67 @@ Public configuration reads and card/list/Details must expose the same mirror.
 The GitHub targets download OSZ bytes directly, not a blob HTML page. Frontend
 remote views remain read-only; production operations and new wording acceptance
 are separate organizer/operator steps.
+
+## Background alternatives for 404 images (#852)
+
+`backgroundSetId` is an optional historical-map **beatmapset** ID used only for
+artwork. It is independent of the difficulty `beatmapId`, the official
+`beatmapSetId`, edit provenance `originalId`, download mirrors and all measured
+attributes. A recovered local `coverPath` takes priority, followed by the saved
+background alternative and the usual original artwork fallbacks. Card artwork,
+card thumbnails, compact rows and Details use this shared source order. Details
+identify the alternative source explicitly. Reads never search osu! or write DB
+state; an older saved/remote map can receive the exact reviewed supplement.
+
+The organizer selected **relevance descending** on 2026-11-07. Search uses the
+official osu! listing, all modes and statuses, with exact song title ignoring
+case and checked artist identity/credited aliases. Exclude the original set,
+different songs/artists, title variants such as `(Full ver.)`, and images that
+still return 404. Select the first remaining usable candidate, retaining its
+actual position in the original result list. Cross-mode sets are valid for
+background-only use; their gameplay attributes are never copied.
+
+| Season / pool / slot       | Historical BID | backgroundSetId | Original search position |
+| -------------------------- | -------------- | --------------- | ------------------------ |
+| S1 / gs / NM3              | 659750         | 743685          | 1                        |
+| S4 / coach / NM3           | 700445         | 433340          | 1                        |
+| S4 / captain / DT1         | 871267         | 545384          | 4                        |
+| S5 / pool-1 / NM3          | 446261         | 1630837         | 8                        |
+| S5 / pool-4 / HR1          | 757229         | 347551          | 1                        |
+| S5 / coach-qualifier / NM1 | 792500         | 762639          | 1                        |
+| S6 / fs / HR2              | 483199         | 1474934         | 6                        |
+| S9 / gs / HD3              | 486597         | 730367          | 2                        |
+
+All nine original covers were rechecked as HTTP 404. These eight alternatives
+returned HTTP 200 and fully decoded as 900×250 JPEGs. The checked manifest is
+`src/data/archive-background-supplements.json`; the bounded browser result list,
+selected official metadata, original/failed cover statuses and image SHA-256
+values are retained in `docs/imports/archive-background-review.json`. This is a
+captured selection, not a promise that live search order remains unchanged.
+S1 / es1 / HD3 / 776326 (`Loftiness Dream`) remains unresolved: the captured
+all-mode/all-status results contain only its original unavailable set as an
+exact-title match. No unrelated background is assigned.
+
+Migration `0088_archive_background_alternatives` adds the typed historical-map
+column and saves the eight exact edition/pool/slot/BID values. Each affected
+season receives one transactional revision and an audit record with the source
+metadata, query URL, position and image hash. Different saved background IDs or
+duplicate targets roll back the batch; repeat execution is a no-op. Lookalike
+anchors whose archive belongs to another season are excluded. Source identities,
+recorded metrics, original/download links, publication, results, statistics keys
+and prior revisions are preserved. The six authored import packages and S5/S6/S9
+builders retain the same supplements; captured early-season/source inventories
+stay historical evidence.
+
+After operator deployment of the reviewed release/migration:
+
+```sh
+python3 scripts/prepare-archive-backgrounds.py --check
+npm run db:normalize-archives -- s1 s4 s5 s6 s9 --apply --verify
+npm run db:normalize-archives -- s1 s4 s5 s6 s9 --dry-run --verify
+```
+
+Read back `backgroundSetId` from the saved archives and verify card, compact and
+Details artwork plus the original map actions. Saved-read contract **1.27.0**
+accepts the optional field. The new label is `替代背景` in both Chinese catalogs;
+organizer wording review and actual production validation remain separate.

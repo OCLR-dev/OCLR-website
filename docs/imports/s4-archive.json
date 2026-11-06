@@ -8623,7 +8623,8 @@
           "cs": null,
           "ar": null,
           "od": null,
-          "source": "Coach Qual Mappool!B4:L4"
+          "source": "Coach Qual Mappool!B4:L4",
+          "backgroundSetId": 433340
         },
         {
           "slot": "HD1",
@@ -8760,7 +8761,8 @@
           "cs": null,
           "ar": null,
           "od": null,
-          "source": "Captain Qual Mappool!B10:L10"
+          "source": "Captain Qual Mappool!B10:L10",
+          "backgroundSetId": 545384
         },
         {
           "slot": "DT2",

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import { beatmapCoverUrl } from "@/lib/beatmap-artwork";
+import { beatmapCoverSources } from "@/lib/beatmap-artwork";
 import { starColor, starInk } from "@/lib/beatmap-star-color";
 import { slotModInfo } from "@/lib/mod-colors";
 import {
@@ -31,6 +31,7 @@ export function MapCardBand({
   beatmapId,
   setId,
   coverPath,
+  backgroundSetId,
   downloadMirror,
   originalBeatmapId,
   originalSetId,
@@ -70,6 +71,7 @@ export function MapCardBand({
   beatmapId?: number | null;
   setId?: number | null;
   coverPath?: string;
+  backgroundSetId?: number | null;
   downloadMirror?: string | null;
   originalBeatmapId?: number | null;
   originalSetId?: number | null;
@@ -100,7 +102,12 @@ export function MapCardBand({
 )) {
   const tr = useAppTranslations();
   const Heading = `h${headingLevel}` as "h3";
-  const art = coverPath ?? beatmapCoverUrl(setId ?? originalSetId);
+  const art = beatmapCoverSources({
+    setId,
+    coverPath,
+    backgroundSetId,
+    fallbackSetId: originalSetId,
+  })[0];
   const slotMod = slotModInfo(slot);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
     "idle",
@@ -128,6 +135,7 @@ export function MapCardBand({
         <BeatmapCover
           setId={setId}
           coverPath={coverPath}
+          backgroundSetId={backgroundSetId}
           fallbackSetId={originalSetId}
         />
       )}
