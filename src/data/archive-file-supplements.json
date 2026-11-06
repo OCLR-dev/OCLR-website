@@ -27,5 +27,39 @@
         "od": 9.1
       }
     }
+  ],
+  "s2": [
+    {
+      "poolId": "captain-qualifier",
+      "slot": "NM2",
+      "beatmapId": 1009329,
+      "beatmapSetId": 403096,
+      "coverPath": "/archive/beatmaps/1009329/cover.jpg",
+      "source": "https://github.com/OCLR-dev/OCLR-website/blob/8e8416c3003795665b148208f6ecd94137ed812a/docs/imports/beatmaps/403096.osz",
+      "packageSha256": "c98304139ab47c9bde13a77ace1af547900e9fbaab32941b13e8a86d4417e1ad",
+      "beatmapFile": "Reol - Yakusoku no Ao (Fatfan Kolek) [NiNo's Extra].osu",
+      "beatmapMd5": "256a8a9df9a06d924d1578357ad56840",
+      "backgroundFile": "reol bg.jpg",
+      "backgroundSha256": "9379c2b120c56eb811a674265c7f43cd0a1c8c0df113707547bcb1b218c1ef45",
+      "fileMetadata": {
+        "artist": "Reol",
+        "title": "Yakusoku no Ao",
+        "difficulty": "NiNo's Extra",
+        "creator": "Fatfan Kolek",
+        "hp": 5.5
+      },
+      "historicalSource": "Organizer-supplied #852 metadata: 5.67 stars, 240 BPM, 3:52 drain (3:55 total); 2026-11-06",
+      "attributes": {
+        "title": "Reol - Yakusoku no Ao [NiNo's Extra]",
+        "mapper": "Fatfan Kolek",
+        "stars": 5.67,
+        "bpm": 240,
+        "drainSeconds": 232,
+        "cs": 4.0,
+        "ar": 9.3,
+        "od": 8.3,
+        "hp": 5.5
+      }
+    }
   ]
 }

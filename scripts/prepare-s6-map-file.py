@@ -60,7 +60,9 @@ def build(package=PACKAGE):
                      backgroundSha256=hashlib.sha256(background).hexdigest(),
                      fileMetadata=dict(artist=m['Artist'], title=m['Title'], difficulty=m['Version'], creator=m['Creator'], hp=hp),
                      attributes=dict(title=f"{m['Artist']} - {m['Title']} [{m['Version']}]", mapper=m['Creator'], **attributes))
-        return {'s6': [entry]}, background
+        data = json.loads(OUTPUT.read_text())
+        data['s6'] = [entry]
+        return data, background
 
 
 if __name__ == '__main__':

@@ -302,15 +302,16 @@ historical titles, mapper names, metrics and zeroes remain authoritative.
 
 ### Unavailable exact difficulty and covers
 
-S2 / `captain-qualifier` / NM2 / **1009329** remains unresolved. Its
+At the earlier API-only checkpoint, S2 / `captain-qualifier` / NM2 /
+**1009329** remained unresolved. The later [official-file recovery](#s2-nm2-official-file-recovery-852)
+now supplies its missing metadata and cover. Its
 [official difficulty page](https://osu.ppy.sh/beatmaps/1009329) returned HTTP 404
 on capture and on a separate confirmation request. The original public
 [S2 workbook](https://docs.google.com/spreadsheets/d/1lQrHwsbPb5nC-MDPbHSNkL2RFD1eEcS-LbGonEr10QY/edit),
 `captain's qualifier mappool!B5:H5`, was independently read with a bounded public
 GViz request: B = NM2, C–F = `#N/A`, G = `https://old.ppy.sh/b/1009329`,
-H = 1009329. It supplies no surviving title or attributes. A surviving original
-`.osu` file or historical exact-BID evidence is needed; no other difficulty is
-substituted. The slot, ID and explicit unavailable state remain visible.
+H = 1009329. This capture supplies no surviving title or attributes; it remains
+unchanged as source evidence. The recovered exact difficulty is described below.
 
 The prior full public cover scan also confirms two S1 image 404s: GS NM3
 659750 / set 293275 and ES1 HD3 776326 / set 352290. Their official map metadata
@@ -477,3 +478,48 @@ Read back `backgroundSetId` from the saved archives and verify card, compact and
 Details artwork plus the original map actions. Saved-read contract **1.27.0**
 accepts the optional field. The new label is `替代背景` in both Chinese catalogs;
 organizer wording review and actual production validation remain separate.
+
+## S2 NM2 official-file recovery (#852)
+
+The organizer recovered the official set 403096 OSZ, already stored at the
+immutable source commit `8e8416c3003795665b148208f6ecd94137ed812a`.
+`python3 scripts/prepare-s2-map-file.py --check` verifies the package checksum,
+ZIP CRC, unique BID 1009329 / NiNo's Extra, osu!standard mode, 240 BPM timing,
+metadata and unchanged `reol bg.jpg` bytes. The bundled same-origin cover is
+`/archive/beatmaps/1009329/cover.jpg`, a 1366×768 JPEG with SHA-256
+`9379c2b120c56eb811a674265c7f43cd0a1c8c0df113707547bcb1b218c1ef45`.
+
+The file supplies `Reol - Yakusoku no Ao [NiNo's Extra]`, creator `Fatfan Kolek`,
+CS 4, AR 9.3, OD 8.3 and HP 5.5. The organizer's earlier #852 evidence supplies
+historical 5.67 stars and 232 seconds drain (235 seconds total); stars are not
+recalculated. The metadata manifest distinguishes these sources. The exact
+edition/pool/slot/BID supplement covers older saved, preview and remote reads;
+the raw early-season spreadsheet inventory remains capture evidence.
+
+Migration `0089_s2_nm2_file_recovery` saves the set ID, local cover and missing
+metadata, including a new optional historical-map `hp` field. Nonempty existing
+text and non-null metrics (including zero) are retained. A conflicting saved
+set/cover or duplicate exact target aborts the transaction. Identical retries
+create no revision or audit. It preserves the original configuration in edition
+history and records the reviewed package, difficulty and background hashes.
+
+When filling an unavailable title, `sourceTitle` retains its exact former value
+(including null or spreadsheet errors). `statisticsArchiveKey` uses that source
+value, preserving the existing statistics identity while the restored title is
+shown. Existing maps without `sourceTitle` retain their prior key behavior.
+This avoids changing approved statistics snapshots, scores or publication.
+Both `sourceTitle` and `hp` roundtrip through the typed relations and additive
+saved-read contract **1.28.0**. The card/list/Details use the saved HP when present.
+
+After the operator deploys the reviewed release containing migration 0089:
+
+```sh
+python3 scripts/prepare-s2-map-file.py --check
+python3 scripts/prepare-s6-map-file.py --check
+npm run db:normalize-archives -- s2 --apply --verify
+npm run db:normalize-archives -- s2 --dry-run --verify
+```
+
+Verify saved DB and public configuration values plus actual cover loading in
+card, compact and Details. Production application is a separate operator step;
+this supplement is not part of the earlier PR #977 deployment SHA.
