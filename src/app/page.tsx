@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/editions";
 import { wikiHref } from "@/lib/wiki-articles";
 import type { CSSProperties } from "react";
 import "./home.css";
+import entryStyles from "./home-entry-links.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -56,10 +57,10 @@ function LiruBubble({ label, action }: { label: string; action: string }) {
   );
 }
 
-function EntryIcon({ kind }: { kind: "discord" | "qq" | "info" | "calendar" }) {
+function EntryIcon({ kind }: { kind: "discord" | "qq" | "calendar" }) {
   return (
     <svg
-      className="home-entry-icon"
+      className={entryStyles.icon}
       aria-hidden="true"
       viewBox="0 0 24 24"
       fill="none"
@@ -82,12 +83,6 @@ function EntryIcon({ kind }: { kind: "discord" | "qq" | "info" | "calendar" }) {
           stroke="none"
           d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"
         />
-      )}
-      {kind === "info" && (
-        <>
-          <rect x="4" y="3" width="16" height="18" rx="2" />
-          <path d="M8 8h8M8 12h8M8 16h5" />
-        </>
       )}
       {kind === "calendar" && (
         <>
@@ -258,63 +253,66 @@ async function HomeContent() {
                 ))}
               </span>
             </h1>
-            <div className="home-entry-links">
+            <div className={`home-entry-links ${entryStyles.entries}`}>
               <div
-                className="home-contact-bar"
+                className={entryStyles.socials}
                 role="group"
                 aria-label={tr("Contact")}
               >
                 <a
                   href="https://discord.gg/graS4RJHjM"
-                  className="home-contact"
+                  className={entryStyles.contact}
                 >
-                  <EntryIcon kind="discord" />
+                  <span className={entryStyles.iconCell}>
+                    <EntryIcon kind="discord" />
+                  </span>
                   <span>{"Discord"}</span>
-                  <span aria-hidden="true">→</span>
+                  <span className={entryStyles.arrow} aria-hidden="true">
+                    →
+                  </span>
                 </a>
                 <a
                   href="https://qm.qq.com/q/sqIoPulwUo"
-                  className="home-contact"
+                  className={entryStyles.contact}
                 >
-                  <EntryIcon kind="qq" />
+                  <span className={entryStyles.iconCell}>
+                    <EntryIcon kind="qq" />
+                  </span>
                   <span>{tr("QQ group")}</span>
-                  <span aria-hidden="true">→</span>
+                  <span className={entryStyles.arrow} aria-hidden="true">
+                    →
+                  </span>
                 </a>
               </div>
-              <Link className="home-contact home-information-link" href={base}>
-                <EntryIcon kind="info" />
+              <Link className={entryStyles.overview} href={base}>
+                <span className={entryStyles.square} aria-hidden="true" />
                 <span>{tr("Information page")}</span>
-                <span aria-hidden="true">→</span>
+                <span className={entryStyles.arrow} aria-hidden="true">
+                  →
+                </span>
               </Link>
               <Link
-                className="home-registration-link"
+                className={`home-registration-link ${entryStyles.registration}`}
                 href={availability === "open" ? `${base}/register` : base}
               >
-                <EntryIcon kind="calendar" />
-                <span className="home-registration-label">
-                  <span>{registrationLabel}</span>
-                  {availability === "open" && featured?.registration && (
-                    <>
-                      <span
-                        className="home-registration-divider"
-                        aria-hidden="true"
-                      >
-                        |
-                      </span>
-                      <span>
-                        {tr("Deadline {date}", {
-                          date: formatDate(
-                            featured.registration.closesAt,
-                            featured.timeZone,
-                            tr.locale,
-                          ),
-                        })}
-                      </span>
-                    </>
-                  )}
+                <span className={entryStyles.iconCell}>
+                  <EntryIcon kind="calendar" />
                 </span>
-                <span className="home-registration-arrow" aria-hidden="true">
-                  →
+                <span
+                  className={`home-registration-label ${entryStyles.registrationText}`}
+                >
+                  <span className={entryStyles.phase}>{registrationLabel}</span>
+                  {availability === "open" && featured?.registration && (
+                    <span className={entryStyles.deadline}>
+                      {tr("Deadline {date}", {
+                        date: formatDate(
+                          featured.registration.closesAt,
+                          featured.timeZone,
+                          tr.locale,
+                        ),
+                      })}
+                    </span>
+                  )}
                 </span>
               </Link>
             </div>

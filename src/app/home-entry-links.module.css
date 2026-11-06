@@ -1,0 +1,163 @@
+.entries {
+  --entry-line: #d8c6ed;
+  --entry-accent: #c29af4;
+  border-left: 4px solid var(--entry-accent);
+  padding-left: 12px;
+  color: #f7f3ff;
+}
+
+.socials {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.entries .contact,
+.entries .overview,
+.entries .registration {
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  min-height: 44px;
+  color: inherit;
+  background: transparent;
+  text-decoration: none;
+  border-radius: 0;
+  transition: background-color 160ms ease;
+}
+
+.entries .contact {
+  grid-template-columns: 40px minmax(0, 1fr) 20px;
+  gap: 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--entry-line);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.iconCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 24px;
+  border-right: 1px solid var(--entry-line);
+}
+
+.icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+  color: #d7bbff;
+}
+
+.arrow {
+  justify-self: end;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.entries .overview {
+  grid-template-columns: 28px minmax(0, 1fr) 20px;
+  gap: 14px;
+  padding: 8px 13px 8px 0;
+  border-block: 1px solid var(--entry-line);
+  font-size: 1.125rem;
+  font-weight: 750;
+}
+
+.square {
+  width: 20px;
+  height: 20px;
+  background: var(--entry-accent);
+}
+
+.entries .registration {
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 14px;
+  padding: 8px 13px;
+  border-block: 1px solid var(--entry-line);
+}
+
+.registration .icon {
+  color: inherit;
+}
+
+.registrationText {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  min-width: 0;
+  line-height: 1.5;
+}
+
+.phase {
+  font-size: 1rem;
+  font-weight: 700;
+  word-break: keep-all;
+}
+
+.deadline {
+  padding-left: 12px;
+  border-left: 1px solid var(--entry-line);
+  color: #d9c5ef;
+  font-size: 0.75rem;
+}
+
+.entries :is(.contact, .overview, .registration):hover {
+  background: #c29af414;
+}
+
+.entries :is(.contact, .overview, .registration):focus-visible {
+  outline: 2px solid #f1d9ff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  .entries {
+    padding-left: 8px;
+    border-left-width: 3px;
+  }
+  .socials {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .entries .contact,
+  .entries .registration {
+    grid-template-columns: 23px minmax(0, 1fr);
+    gap: 8px;
+    padding: 6px;
+    font-size: 0.75rem;
+  }
+  .iconCell {
+    height: 20px;
+  }
+  .icon {
+    width: 16px;
+    height: 16px;
+  }
+  .entries .overview {
+    grid-template-columns: 23px minmax(0, 1fr);
+    gap: 8px;
+    padding: 6px;
+    font-size: 0.75rem;
+  }
+  .square {
+    width: 16px;
+    height: 16px;
+  }
+  .phase {
+    font-size: 0.75rem;
+  }
+  .contact > span:nth-child(2),
+  .overview > span:nth-child(2),
+  .phase {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .arrow,
+  .deadline {
+    display: none;
+  }
+}

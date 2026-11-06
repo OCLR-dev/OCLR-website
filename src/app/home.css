@@ -96,74 +96,6 @@
     width: 90%;
   }
 }
-.home-contact-bar {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  width: 100%;
-  align-items: center;
-  gap: 1.25rem;
-  margin: 0;
-}
-.home-feature .home-contact {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.4rem;
-  min-height: 32.1264px;
-  padding: 0.24rem 0.9rem;
-  min-width: 0;
-  font-size: var(--text-support);
-  font-weight: 600;
-}
-.home-contact > span:last-child {
-  color: inherit;
-}
-.home-registration-link {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  width: 100%;
-  min-height: 32.1264px;
-  padding: 0.24rem 0.9rem;
-  font-size: var(--text-support);
-  font-weight: 600;
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
-}
-.home-feature .home-contact,
-.home-registration-link {
-  border: 1px solid var(--site-control-border);
-  border-radius: 0.65rem;
-  background: transparent;
-  color: var(--site-foreground);
-  box-shadow: none;
-  transition:
-    border-color 0.2s,
-    background-color 0.2s;
-}
-.home-feature .home-contact > span,
-.home-registration-link > span {
-  background: linear-gradient(
-    120deg,
-    var(--site-foreground) 25%,
-    var(--site-accent) 90%
-  );
-  background-clip: text;
-  color: transparent;
-}
-.home-feature .home-contact:hover,
-.home-registration-link:hover {
-  border-color: var(--site-accent);
-  background: color-mix(in srgb, var(--site-tint) 35%, transparent);
-}
-.home-registration-divider {
-  opacity: 0.5;
-  font-weight: 400;
-}
-.home-registration-arrow {
-  margin-left: auto;
-}
 .home-archive-section {
   padding-block: 3.5rem 5rem;
   scroll-margin-top: 6rem;
@@ -199,9 +131,7 @@
   margin-bottom: 3rem;
 }
 
-html[data-appearance="swiss-minimal"]
-  .home-redesign
-  :is(.home-registration-link, .home-contact, .home-archive-art) {
+html[data-appearance="swiss-minimal"] .home-redesign .home-archive-art {
   border-radius: 0;
 }
 @media (max-width: 760px) {
@@ -233,20 +163,6 @@ html[data-appearance="swiss-minimal"]
   }
   .home-wordmark {
     font-size: clamp(4.225rem, 20.15vw, 9.1rem);
-  }
-  .home-contact-bar {
-    gap: 1rem;
-  }
-  .home-feature .home-contact {
-    gap: 0.8rem;
-    padding: 0.25rem 0.72rem;
-    font-size: var(--text-support);
-  }
-  .home-registration-link {
-    min-height: 32.1264px;
-    padding: 0.25rem 0.72rem;
-    gap: 0.675rem;
-    font-size: var(--text-support);
   }
   .home-archive-section {
     padding-block: 2.5rem;
@@ -283,29 +199,6 @@ html[data-appearance="swiss-minimal"]
   display: grid;
   gap: 1rem;
   width: 100%;
-}
-.home-feature :is(.home-contact, .home-registration-link) {
-  justify-content: flex-start;
-  gap: 0.65rem;
-}
-.home-entry-icon {
-  flex: 0 0 1.125rem;
-  width: 1.125rem;
-  height: 1.125rem;
-  color: #e8c3ee;
-}
-.home-feature :is(.home-contact, .home-registration-link) > span:last-child {
-  background: none;
-  color: #e8c3ee;
-  border-left: 1px solid #f8e4f440;
-  margin-left: auto;
-  padding-left: 0.85rem;
-  line-height: 1.4;
-}
-.home-registration-label {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
 }
 /* Homepage branding belongs to the default appearance; other headers inherit
  * their appearance tokens instead of receiving these element-local values. */
@@ -370,105 +263,8 @@ html[data-appearance="default"][data-theme="dark"]
   .nav-login:hover {
   background: var(--site-tint);
 }
-@media (max-width: 420px) {
-  .home-entry-links .home-contact-bar {
-    gap: 0.75rem;
-  }
-  .home-entry-links .home-contact {
-    gap: 0.25rem;
-    padding-inline: 0.35rem;
-  }
-  .home-contact .home-entry-icon {
-    flex-basis: 0.875rem;
-    width: 0.875rem;
-    height: 0.875rem;
-  }
-  .home-feature .home-contact > span:last-child {
-    padding-left: 0.3rem;
-  }
-  .home-registration-label {
-    gap: 0.4rem;
-  }
-  .home-feature .home-registration-link {
-    gap: 0.4rem;
-    padding-inline: 0.5rem;
-  }
-  .home-feature .home-registration-link > span:last-child {
-    padding-left: 0.4rem;
-  }
-}
 .home-painted-wordmark {
   filter: saturate(0.82);
-}
-.home-feature .home-entry-links :is(.home-contact, .home-registration-link) {
-  position: relative;
-  isolation: isolate;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-.home-feature
-  .home-entry-links
-  :is(.home-contact, .home-registration-link)::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  transform: skewX(-25deg);
-  border: 1px solid #edb9f3b3;
-  border-radius: 4px;
-  background: linear-gradient(
-    120deg,
-    #d8a5ec45,
-    #27203536 35%,
-    #ca95d72b 80%,
-    #f2bfdd40
-  );
-  backdrop-filter: blur(9px) saturate(1.1);
-  -webkit-backdrop-filter: blur(9px) saturate(1.1);
-  box-shadow:
-    inset 0 1px 5px #ffe4ff50,
-    inset 0 -1px 4px #efb0f040,
-    0 3px 12px #0b071b30;
-  transition:
-    background 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s;
-}
-.home-feature
-  .home-entry-links
-  :is(.home-contact, .home-registration-link):hover::before,
-.home-feature
-  .home-entry-links
-  :is(.home-contact, .home-registration-link):focus-visible::before {
-  border-color: #f9d4ff;
-  background: linear-gradient(
-    120deg,
-    #d8a5ec60,
-    #30243e50 35%,
-    #ca95d740 80%,
-    #f2bfdd60
-  );
-  box-shadow:
-    inset 0 1px 6px #ffe4ff70,
-    inset 0 -1px 5px #efb0f060,
-    0 0 12px #c79bff55,
-    0 6px 18px #b86be840;
-}
-.home-feature
-  .home-entry-links
-  :is(.home-contact, .home-registration-link)
-  > span:last-child {
-  border-left: 0;
-}
-@media (max-width: 760px) {
-  .home-feature
-    .home-entry-links
-    :is(.home-contact, .home-registration-link)::before {
-    transform: skewX(-18deg);
-  }
 }
 
 /* Layered hero (direction C): base colour, nebula, ink mist and stars span the
@@ -658,11 +454,6 @@ html[data-appearance="default"][data-theme="dark"]
 .home-layered-hero .home-entry-links {
   max-width: 500px;
 }
-.home-layered-hero .home-registration-label {
-  /* the narrower entry column must not split Chinese words (报名阶/段);
-   * English still wraps between words */
-  word-break: keep-all;
-}
 .home-hero-character {
   /* A window onto the artwork: the image is taller than the hero, so only
    * the head down to the hand on the fan (66 % of the image) shows above the
@@ -692,14 +483,6 @@ html[data-appearance="default"][data-theme="dark"]
   object-fit: contain;
   object-position: top;
   animation: home-hero-float 5.5s ease-in-out infinite;
-}
-.home-feature .home-entry-links :is(.home-contact, .home-registration-link) {
-  transition: transform 0.2s ease;
-}
-.home-feature
-  .home-entry-links
-  :is(.home-contact, .home-registration-link):is(:hover, :focus-visible) {
-  transform: translateY(-2px);
 }
 @keyframes home-hero-drift {
   from {
@@ -749,10 +532,6 @@ html[data-appearance="default"][data-theme="dark"]
   .home-hero-character img {
     animation: none;
   }
-  .home-feature .home-entry-links :is(.home-contact, .home-registration-link) {
-    transition: none;
-    transform: none;
-  }
 }
 @media (max-width: 1439px) {
   .home-layered-hero {
@@ -778,11 +557,8 @@ html[data-appearance="default"][data-theme="dark"]
   }
 }
 @media (max-width: 760px) {
-  /* Phones, figure-led: a light logo top left, Liru large from just below it
-   * to the bottom, and the entries stacked in the free space left of her
-   * head, ending just above the fan. Positions follow from Liru's size and
-   * two points in the artwork: her hair never reaches left of 37 % of the
-   * image width, and the fan starts at 41 % of its height. */
+  /* Phones keep the entry column below the logo and clear of Liru's hair.
+   * Her artwork and the column width share the same sizing variables. */
   .home-layered-hero {
     --home-hero-fade: 48px;
     /* 75-80 % of the screen, but the next section stays on the first
@@ -844,11 +620,8 @@ html[data-appearance="default"][data-theme="dark"]
   .home-layered-hero .home-entry-links {
     position: absolute;
     left: 0;
-    /* ends 16px above the fan */
-    bottom: calc(
-      var(--home-phone-h) - var(--home-phone-liru-top) -
-        var(--home-phone-liru-h) * 0.41 + 16px
-    );
+    top: calc(var(--home-phone-logo-bottom) + 20px);
+    bottom: auto;
     z-index: 2;
     /* stops 14px short of her hair */
     width: calc(
@@ -859,51 +632,6 @@ html[data-appearance="default"][data-theme="dark"]
     grid-template-columns: minmax(0, 1fr);
     gap: 0.4rem;
   }
-  .home-layered-hero .home-contact-bar {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.4rem;
-  }
-  /* compact, rounder, more translucent buttons without the arrow column */
-  .home-feature .home-entry-links :is(.home-contact, .home-registration-link) {
-    min-height: 30px;
-    padding: 0.2rem 0.6rem;
-    gap: 0.45rem;
-    font-size: var(--text-label);
-    line-height: 1.2;
-  }
-  .home-feature
-    .home-entry-links
-    :is(.home-contact, .home-registration-link)::before {
-    transform: skewX(-10deg);
-    border-radius: 9px;
-    background: linear-gradient(120deg, #d8a5ec30, #2720352a 40%, #ca95d724);
-  }
-  .home-feature
-    .home-entry-links
-    :is(.home-contact, .home-registration-link)
-    > span:last-child {
-    display: none;
-  }
-  .home-layered-hero .home-entry-icon {
-    flex-basis: 0.95rem;
-    width: 0.95rem;
-    height: 0.95rem;
-  }
-  /* all four buttons keep the same size: a label longer than the button
-   * (English registration states) stays on one line and ends in "…" (#698) */
-  .home-feature .home-entry-links :is(.home-contact, .home-registration-link),
-  .home-layered-hero .home-registration-label {
-    min-width: 0;
-  }
-  .home-layered-hero
-    .home-entry-links
-    :is(.home-contact, .home-registration-link)
-    > span:nth-child(2),
-  .home-layered-hero .home-registration-label > span:first-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
   .home-hero-sky {
     background-position: 74% 30%;
   }
@@ -911,22 +639,6 @@ html[data-appearance="default"][data-theme="dark"]
     width: 140%;
     right: -40%;
     bottom: 30%;
-  }
-}
-
-/* Keep the phone's registration entry to its phase label. */
-@media (max-width: 760px) {
-  .home-feature .home-registration-label {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .home-feature .home-registration-label > span:first-child {
-    white-space: nowrap;
-  }
-
-  .home-feature .home-registration-label > span:not(:first-child) {
-    display: none;
   }
 }
 

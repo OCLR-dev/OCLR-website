@@ -20,8 +20,9 @@ At the organizer's request, `src/components/oclr-logo.tsx` now references the
 existing `home-s11/oclr-layer.svg` directly. Its `48 104 980 304` viewport shows
 only the angular gradient OCL and the outlined R with star control points,
 excluding the accuracy bar and English subtitle. The source paths and colours
-remain shared with the homepage. Existing responsive header widths apply; a
-subtle theme-dependent shadow keeps the pale lettering visible on light surfaces.
+remain shared with the homepage. Existing responsive header widths apply. Light
+headers deepen the blue/purple colours with brightness and saturation filters,
+without a blurred shadow; dark headers retain the original pale colours and glow.
 The parent home link supplies the accessible name.
 
 ## S11 local visual integration
