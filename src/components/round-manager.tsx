@@ -303,13 +303,17 @@ export function RoundManager({
                       (r) => r.round.id === round.id,
                     ) && (
                       <section id="competition" className="form-stack">
-                        <h3>{tr("Competition configuration")}</h3>
-                        <Link
-                          className="text-link"
-                          href={`/admin/tournaments/${slug}/teams#groups`}
-                        >
-                          {tr("Configure groups in team management")}
-                        </Link>
+                        <div className={styles.toolbar}>
+                          <h3>{tr("Competition configuration")}</h3>
+                          {stage === "group" && (
+                            <Link
+                              className={`button secondary ${styles.groupLink}`}
+                              href={`/admin/tournaments/${slug}/teams#groups`}
+                            >
+                              {tr("Configure groups in team management")}
+                            </Link>
+                          )}
+                        </div>
                         <StaffReadOnlyContext
                           value={!competitionData.canManage}
                         >

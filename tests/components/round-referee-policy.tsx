@@ -17,6 +17,7 @@ import "../../src/app/globals.css";
 import "../../src/app/public-tournament.css";
 import "../../src/app/workspace.css";
 const params = new URLSearchParams(location.search);
+const stage = params.has("exhibition") ? "exhibition" : "group";
 const wins = params.has("bo13") ? 7 : 6;
 const defaults = s11RefereeDefaults("11", { type: "first_to", wins })!;
 const roundId = "00000000-0000-4000-8000-000000000001";
@@ -98,7 +99,7 @@ function Harness() {
           <main className="container themed-site private-site">
             <RoundManager
               slug="synthetic"
-              initialStage="group"
+              initialStage={stage}
               initialRoundId={roundId}
               season={params.has("other-season") ? "12" : "11"}
               canManageRefereePolicy
@@ -107,7 +108,7 @@ function Harness() {
                   canManage: !params.has("readonly"),
                   rounds: [
                     {
-                      stage: "group",
+                      stage,
                       round: {
                         id: roundId,
                         version: state.roundVersion,
@@ -152,7 +153,7 @@ function Harness() {
                 {
                   id: roundId,
                   name: "Synthetic S11 round",
-                  stage: "group",
+                  stage,
                   position: 1,
                   version: state.roundVersion,
                 },

@@ -1,6 +1,21 @@
 import { test, expect } from "@playwright/test";
 const route = "**/api/admin/tournaments/synthetic/rounds/*/referee-policy";
 
+test("offers edition group navigation only for group rounds", async ({ page }) => {
+  await page.goto("/round-referee-policy");
+  const link = page.getByRole("link", {
+    name: "Configure groups in team management",
+    exact: true,
+  });
+  await expect(link).toHaveAttribute("href", "/admin/tournaments/synthetic/teams#groups");
+  await link.focus();
+  await expect(link).toBeFocused();
+  await page.goto("/round-referee-policy?exhibition");
+  await expect(link).toHaveCount(0);
+  await expect(page.getByLabel("Game mode", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Points for a win", { exact: true })).toHaveCount(0);
+});
+
 test("changing group points preserves the approved failed-score policy", async ({
   page,
 }) => {
