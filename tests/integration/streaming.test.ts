@@ -657,14 +657,12 @@ describe.skipIf(!url)("authoritative edition streaming tasks", () => {
     expect(await db().select().from(editionEvents)).toHaveLength(2);
   });
   it("atomically adds multiple commentators, preserves bookings, and replays one audit event", async () => {
-    await db()
-      .insert(staffRoles)
-      .values({
-        userId: outsider.osuId,
-        role: "commentator",
-        editionSlug: slug,
-        grantedBy: admin.osuId,
-      });
+    await db().insert(staffRoles).values({
+      userId: outsider.osuId,
+      role: "commentator",
+      editionSlug: slug,
+      grantedBy: admin.osuId,
+    });
     await streamingCommand(streamer, slug, id, command());
     await streamingCommand(
       commentator,
@@ -795,14 +793,12 @@ describe.skipIf(!url)("authoritative edition streaming tasks", () => {
       ),
     ).rejects.toMatchObject({ status: 400 });
     // Both valid but one already booked: no new booking, revision or audit event.
-    await db()
-      .insert(staffRoles)
-      .values({
-        userId: outsider.osuId,
-        role: "commentator",
-        editionSlug: slug,
-        grantedBy: admin.osuId,
-      });
+    await db().insert(staffRoles).values({
+      userId: outsider.osuId,
+      role: "commentator",
+      editionSlug: slug,
+      grantedBy: admin.osuId,
+    });
     await expect(
       streamingCommand(
         admin,
