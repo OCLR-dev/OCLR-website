@@ -155,6 +155,13 @@ The optional Frutiger Aero design (#239) adapts style G from the organizer's sec
 
 The S10 Skyline Pop design (#195) is registered as `skyline-pop`, labelled **S10 · Skyline Pop** (晴空未来城／晴空未來城) in edition Admin settings. It uses the approved vivid coastal illustration with cream/sky-blue/pink MainSheet surfaces and an independent night-blue variant. `src/app/skyline-theme.css` and the public `/themes/skyline-pop/coast.webp` asset ship with the application. Migration `0045_skyline_pop_appearance` expands the site setting/audit constraints without changing existing defaults or tournament data. Apply it through the normal reviewed update workflow; rollback requires selecting older supported defaults first, without deleting history or down-migrating. The offline S10 gallery records the earlier design review and does not control the application menu.
 
+S11 Nebula Bloom (#858) is registered as `nebula-bloom`, based on the native
+purple MainSheet with lavender/indigo reading surfaces and the current S11 sky
+in page headings. It is an edition-only choice under #445, also used by the
+player timeline's shared three-language S11 label. It requires no database
+migration or default data update. See the [design specification](design/nebula-bloom.md)
+and [synthetic component previews/verification](verification/issue-858/README.md).
+
 ## osu! authentication and PostgreSQL
 
 Set `APP_URL`, `DATABASE_URL`, `OSU_CLIENT_ID`, `OSU_CLIENT_SECRET`, `PRIVACY_CONTACT_OSU_ID`. Register **exactly** `APP_URL/auth/osu/callback` as the osu! callback, with no extra trailing slash. Follow the [official osu! OAuth documentation](https://osu.ppy.sh/docs/index.html#authentication). Only `identify` is requested. Designate one verified Admin using a positive numeric osu! ID in private `.env.local`; do not copy the bootstrap allowlist. Existing sessions and identities remain intact, but new sign-in and registration fail closed until a valid designated privacy contact is configured. See [privacy contact setup](deployment.md#privacy-contact-setup) when upgrading from the email setting. Neither OAuth access nor refresh tokens are stored; identity is refreshed on login. No password accounts or production test-auth route exist.

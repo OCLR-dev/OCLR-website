@@ -11,6 +11,7 @@ import type { SeasonAppearance } from "./preferences";
 export type SeasonAccent = { light: string; dark: string };
 
 export const seasonAccents: Record<SeasonAppearance, SeasonAccent> = {
+  "nebula-bloom": { light: "#70409c", dark: "#d5b4f5" },
   "chromatic-origins": { light: "#744d8b", dark: "#d5b8ff" },
   "verdant-prelude": { light: "#2d634d", dark: "#9bcfc1" },
   "frost-waltz": { light: "#174a78", dark: "#91d8ef" },

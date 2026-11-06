@@ -81,6 +81,13 @@ This policy supersedes earlier instructions offering season designs in the
 Header or as site-wide defaults; historical design verification is not current
 selection-policy evidence.
 
+S11 **Nebula Bloom** (`nebula-bloom`, #858) follows this policy. Edition settings
+and the player timeline share `appearanceLabel`: **S11 · 星云初绽** (zh-Hans),
+**S11 · 星雲初綻** (zh-Hant), **S11 · Nebula Bloom** (en). The timeline's S11
+identity selects this name independently of the viewer's appearance; its saved
+dates and published edition links retain their existing meaning. See the
+[design specification](design/nebula-bloom.md) and [review previews](verification/issue-858/README.md).
+
 ## On-demand appearance styles (#812)
 
 `npm ci` / `npm run dev` / `npm run build` generate minified public styles from

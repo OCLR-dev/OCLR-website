@@ -16,10 +16,14 @@ const tournamentArtwork = new Set([
   "/oclr-s11-square-logo.webp",
   "/oclr-s11-website-background.webp",
   "/oclr-s11-key-visual.webp",
+  ...[640, 960, 1280, 1920, 2560, 3840].map(
+    (width) => `/oclr-s11-key-visual-enhanced-${width}.webp`,
+  ),
 ]);
 
 const bundle = await build({
   entryPoints: [
+    "tests/components/nebula-preview.tsx",
     "tests/components/mappool-sort.tsx",
     "tests/components/player-leaderboard.tsx",
     "tests/components/event-players.tsx",
@@ -75,6 +79,7 @@ const themedStyles = new Map(
   await Promise.all(
     [
       "action-loading.css",
+      "nebula-preview.css",
       "player-sidebar.css",
       "staff-navigation.css",
       "staff-role-form.css",
@@ -234,17 +239,19 @@ createServer((request, response) => {
                       : request.url?.startsWith("/player-leaderboard")
                         ? "player-leaderboard"
                         : entry;
-    const fixtureName = request.url?.startsWith("/mappool-sort")
-      ? "mappool-sort"
-      : request.url?.startsWith("/event-players")
-        ? "event-players"
-        : request.url?.startsWith("/appearance-navigation")
-          ? "appearance-navigation"
-          : request.url?.startsWith("/backup-manager")
-            ? "backup-manager"
-            : request.url?.startsWith("/archive-importer")
-              ? "archive-importer"
-              : fixture;
+    const fixtureName = request.url?.startsWith("/nebula-preview")
+      ? "nebula-preview"
+      : request.url?.startsWith("/mappool-sort")
+        ? "mappool-sort"
+        : request.url?.startsWith("/event-players")
+          ? "event-players"
+          : request.url?.startsWith("/appearance-navigation")
+            ? "appearance-navigation"
+            : request.url?.startsWith("/backup-manager")
+              ? "backup-manager"
+              : request.url?.startsWith("/archive-importer")
+                ? "archive-importer"
+                : fixture;
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${fixtureName}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${fixtureName}.js"></script></body></html>`,
     );

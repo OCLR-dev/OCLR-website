@@ -100,3 +100,9 @@ A contribution or PR does not authorize deployment, service restarts, production
 S1 Chromatic Origins (#417) is registered as `chromatic-origins` following organizer approval; existing defaults are unchanged.
 
 S3 Frost Waltz (`frost-waltz`) and S1 Chromatic Origins (`chromatic-origins`) are season themes available only to authorized edition Admins in tournament settings (#445), never public choices or new site defaults.
+
+S11 Nebula Bloom (`nebula-bloom`, #858) is registered following the organizer's
+explicit implementation request. It extends the native purple MainSheet using
+the current S11 sky and shares its three-language name with the player timeline.
+It is available only in authorized edition Admin settings under #445. Design
+review, applying an S11 default, publication and deployment remain separate.

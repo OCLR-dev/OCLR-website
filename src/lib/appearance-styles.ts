@@ -1,5 +1,6 @@
 import type { Appearance } from "./preferences";
 export const appearanceStyleSources = {
+  "nebula-bloom": "nebula",
   "cute-pastel": "pastel",
   "swiss-minimal": "swiss",
   claymorphism: "clay",

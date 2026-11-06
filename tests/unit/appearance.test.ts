@@ -19,6 +19,7 @@ describe("registered appearance decoding", () => {
       "esports-broadcast",
       "retro-arcade",
       "frutiger-aero",
+      "nebula-bloom",
       "skyline-pop",
       "glacier-blue",
       "sakura-circuit",

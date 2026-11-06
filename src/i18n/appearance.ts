@@ -6,6 +6,8 @@ export function appearanceLabel(
   tr: (message: string) => string,
 ) {
   switch (value) {
+    case "nebula-bloom":
+      return tr("S11 · Nebula Bloom");
     case "cute-pastel":
       return tr("Cute pastel");
     case "swiss-minimal":

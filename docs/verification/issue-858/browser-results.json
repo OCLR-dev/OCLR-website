@@ -1,0 +1,134 @@
+[
+  {
+    "size": "desktop",
+    "mode": "light",
+    "appearance": "default",
+    "overflow": false,
+    "title": "S11 · 星雲初綻\n2026年11月26日\n未參賽",
+    "tipInside": true,
+    "focusRestored": true,
+    "dialogViolations": [],
+    "errors": [],
+    "violations": []
+  },
+  {
+    "size": "desktop",
+    "mode": "light",
+    "appearance": "nebula-bloom",
+    "overflow": false,
+    "title": "S11 · 星雲初綻\n2026年11月26日\n未參賽",
+    "tipInside": true,
+    "focusRestored": true,
+    "dialogViolations": [],
+    "errors": [],
+    "violations": []
+  },
+  {
+    "size": "desktop",
+    "mode": "dark",
+    "appearance": "default",
+    "overflow": false,
+    "title": "S11 · 星雲初綻\n2026年11月26日\n未參賽",
+    "tipInside": true,
+    "focusRestored": true,
+    "dialogViolations": [],
+    "errors": [],
+    "violations": []
+  },
+  {
+    "size": "desktop",
+    "mode": "dark",
+    "appearance": "nebula-bloom",
+    "overflow": false,
+    "title": "S11 · 星雲初綻\n2026年11月26日\n未參賽",
+    "tipInside": true,
+    "focusRestored": true,
+    "dialogViolations": [],
+    "errors": [],
+    "violations": []
+  },
+  {
+    "size": "mobile",
+    "mode": "light",
+    "appearance": "default",
+    "overflow": false,
+    "title": "S11 · 星雲初綻\n2026年11月26日\n未參賽",
+    "tipInside": true,
+    "focusRestored": true,
+    "dialogViolations": [],
+    "errors": [],
+    "violations": []
+  },
+  {
+    "size": "mobile",
+    "mode": "light",
+    "appearance": "nebula-bloom",
+    "overflow": false,
+    "title": "S11 · 星雲初綻\n2026年11月26日\n未參賽",
+    "tipInside": true,
+    "focusRestored": true,
+    "dialogViolations": [],
+    "errors": [],
+    "violations": []
+  },
+  {
+    "size": "mobile",
+    "mode": "dark",
+    "appearance": "default",
+    "overflow": false,
+    "title": "S11 · 星雲初綻\n2026年11月26日\n未參賽",
+    "tipInside": true,
+    "focusRestored": true,
+    "dialogViolations": [],
+    "errors": [],
+    "violations": []
+  },
+  {
+    "size": "mobile",
+    "mode": "dark",
+    "appearance": "nebula-bloom",
+    "overflow": false,
+    "title": "S11 · 星雲初綻\n2026年11月26日\n未參賽",
+    "tipInside": true,
+    "focusRestored": true,
+    "dialogViolations": [],
+    "errors": [],
+    "violations": []
+  },
+  {
+    "locale": "en",
+    "viewerAppearance": "default",
+    "title": "S11 · Nebula Bloom\nNov 26, 2026\nDid not participate",
+    "href": "/tournaments/synthetic-s11"
+  },
+  {
+    "locale": "zh-Hans",
+    "viewerAppearance": "default",
+    "title": "S11 · 星云初绽\n2026年11月26日\n未参赛",
+    "href": "/tournaments/synthetic-s11"
+  },
+  {
+    "locale": "zh-Hant",
+    "viewerAppearance": "default",
+    "title": "S11 · 星雲初綻\n2026年11月26日\n未參賽",
+    "href": "/tournaments/synthetic-s11"
+  },
+  {
+    "surface": "edition settings",
+    "size": "desktop",
+    "theme": "light",
+    "value": "nebula-bloom",
+    "overflow": false
+  },
+  {
+    "surface": "edition settings",
+    "size": "mobile",
+    "theme": "dark",
+    "value": "nebula-bloom",
+    "overflow": false
+  },
+  {
+    "reducedMotion": "none",
+    "forcedBackground": "none"
+  }
+]

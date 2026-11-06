@@ -1,0 +1,202 @@
+/* S11 Nebula Bloom: the native purple MainSheet, lit by the current S11 sky.
+ * Keep decoration in headings; controls and reading surfaces inherit MainSheet.
+ * Source/credits: public/branding/README.md, layered homepage hero (#754). */
+html[data-appearance="nebula-bloom"] {
+  --site-background: #f5f2fa;
+  --site-surface: #ffffff;
+  --site-raised: #f0eaf7;
+  --site-tint: #eae0f5;
+  --site-foreground: #251b35;
+  --site-muted: #695875;
+  --site-secondary-text: #554564;
+  --site-accent: #70409c;
+  --site-accent-strong: #512477;
+  --site-border: #ded3e9;
+  --site-control-border: #9481a8;
+  --site-header: #fdfbff;
+  --site-primary: #70409c;
+  --site-primary-hover: #592c81;
+  --site-on-primary: #ffffff;
+  --site-focus: #70409c;
+  --site-selection: #e2d0f3;
+  --site-success: #1c6554;
+  --site-warning: #845400;
+  --site-danger: #ac294c;
+  --site-highlight: #287661;
+  --site-connector: #9481a8;
+  --site-shadow: #38214918;
+  --site-soft-shadow: #3821490a;
+  --site-panel-shadow: #38214926;
+  --site-dialog-shadow: #22123538;
+  --site-backdrop: #22123580;
+  --nebula-heading-wash: #f6f0ff;
+  --nebula-heading-edge: #f6f0ffe6;
+  --nebula-heading-glow: #c5e2f480;
+  --nebula-jade: #287661;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23695875' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+}
+html[data-appearance="nebula-bloom"][data-theme="dark"] {
+  --site-background: #141020;
+  --site-surface: #20192f;
+  --site-raised: #2c223d;
+  --site-tint: #3a294f;
+  --site-foreground: #f5effc;
+  --site-muted: #c0b0d1;
+  --site-secondary-text: #dacbe8;
+  --site-accent: #d5b4f5;
+  --site-accent-strong: #eddaff;
+  --site-border: #49395e;
+  --site-control-border: #9780af;
+  --site-header: #1a1428;
+  --site-primary: #cfacf1;
+  --site-primary-hover: #dfc4fa;
+  --site-on-primary: #2c173e;
+  --site-focus: #a9d9f0;
+  --site-selection: #51376e;
+  --site-success: #9bd9c5;
+  --site-warning: #f0cf91;
+  --site-danger: #ffafc6;
+  --site-highlight: #9bd9c5;
+  --site-connector: #9780af;
+  --site-shadow: #09051250;
+  --site-soft-shadow: #09051228;
+  --site-panel-shadow: #09051266;
+  --site-dialog-shadow: #09051299;
+  --site-backdrop: #090512b0;
+  --nebula-heading-wash: #261c38;
+  --nebula-heading-edge: #261c38eb;
+  --nebula-heading-glow: #a9d9f01a;
+  --nebula-jade: #9bd9c5;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23c0b0d1' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+}
+html[data-appearance="nebula-bloom"] .themed-site .site-header {
+  box-shadow: 0 1px 0 var(--site-soft-shadow);
+}
+html[data-appearance="nebula-bloom"] .themed-site .page-heading {
+  padding: 24px 32px;
+  border: 1px solid var(--site-border);
+  border-radius: var(--radius-panel);
+  background-color: var(--nebula-heading-wash);
+  background:
+    linear-gradient(
+      100deg,
+      var(--nebula-heading-wash) 0 40%,
+      var(--nebula-heading-edge) 72%
+    ),
+    url("/branding/home-hero/nebula-v2-1600.webp") 75% 48% / cover no-repeat;
+  box-shadow: inset 0 1px 0 var(--nebula-heading-glow);
+}
+html[data-appearance="nebula-bloom"] .themed-site .page-heading .eyebrow {
+  color: var(--nebula-jade);
+}
+html[data-appearance="nebula-bloom"] .themed-site .page-heading h1 {
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  margin-bottom: 12px;
+}
+html[data-appearance="nebula-bloom"] .themed-site .page-heading > :is(h1, p) {
+  max-width: 65ch;
+  overflow-wrap: anywhere;
+}
+html[data-appearance="nebula-bloom"] .themed-site .page-heading > :last-child {
+  margin-bottom: 0;
+}
+/* The overview already carries its approved S11 banner/character artwork.
+ * Its outline follows the reading surface; no new artwork layer covers text. */
+html[data-appearance="nebula-bloom"]
+  .themed-site
+  :is(.information-banner, .event-artwork) {
+  border: 1px solid var(--site-border);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  background-color: var(--site-surface);
+  box-shadow: 0 8px 24px -16px var(--site-panel-shadow);
+}
+html[data-appearance="nebula-bloom"]
+  .themed-site
+  :is(.panel, .settings-card, .rules-article, .map-browse-card, .empty-state) {
+  background-color: var(--site-surface);
+  border-color: var(--site-border);
+  box-shadow: 0 2px 8px var(--site-soft-shadow);
+}
+html[data-appearance="nebula-bloom"]
+  .themed-site
+  :is(.information-document, .rules-article, .table-wrap, .pool-table) {
+  background: var(--site-surface);
+}
+html[data-appearance="nebula-bloom"] .themed-site :is(th, td) {
+  border-color: var(--site-border);
+  font-variant-numeric: tabular-nums;
+}
+html[data-appearance="nebula-bloom"] .themed-site th {
+  background: var(--site-raised);
+  color: var(--site-foreground);
+}
+html[data-appearance="nebula-bloom"]
+  .themed-site
+  :is(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+  border-color: var(--site-control-border);
+}
+html[data-appearance="nebula-bloom"]
+  .themed-site
+  :is(.sidebar a[aria-current], .tournament-navigation a[aria-current]) {
+  color: var(--site-accent-strong);
+}
+html[data-appearance="nebula-bloom"]
+  .themed-site
+  .tournament-navigation
+  a[aria-current]::before {
+  background: var(--nebula-jade);
+}
+/* Use the native focus/disabled/dialog rules and semantic status tokens. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-appearance="nebula-bloom"] .themed-site .page-heading {
+    animation: nebula-enter 180ms ease-out both;
+  }
+  html[data-appearance="nebula-bloom"] .themed-site .main-nav > a {
+    transition:
+      color 140ms ease,
+      border-color 140ms ease;
+  }
+}
+@keyframes nebula-enter {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 760px) {
+  html[data-appearance="nebula-bloom"] .themed-site .page-heading {
+    padding: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-appearance="nebula-bloom"] .themed-site *,
+  html[data-appearance="nebula-bloom"] .themed-site *::before,
+  html[data-appearance="nebula-bloom"] .themed-site *::after {
+    animation: none;
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  html[data-appearance="nebula-bloom"]
+    .themed-site
+    :is(.page-heading, .information-banner, .event-artwork, th) {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  html[data-appearance="nebula-bloom"] .themed-site .page-heading .eyebrow {
+    color: CanvasText;
+  }
+  html[data-appearance="nebula-bloom"]
+    .themed-site
+    :is(.sidebar a[aria-current], .tournament-navigation a[aria-current]) {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+}

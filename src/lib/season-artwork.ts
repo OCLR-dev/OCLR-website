@@ -11,6 +11,10 @@ import type { SeasonAppearance } from "./preferences";
 export type SeasonArtwork = { light: string; dark: string };
 
 export const seasonArtwork: Record<SeasonAppearance, SeasonArtwork> = {
+  "nebula-bloom": {
+    light: "/branding/home-hero/nebula-v2-1600.webp",
+    dark: "/branding/home-hero/nebula-v2-1600.webp",
+  },
   "chromatic-origins": {
     light: "/themes/chromatic-origins/ink-diffusion.webp",
     dark: "/themes/chromatic-origins/ink-diffusion.webp",

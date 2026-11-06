@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 
 // Read the shipped styles instead of duplicating their asset filenames in tests.
 export const bundledSeasonThemes = [
+  { appearance: "nebula-bloom", stylesheet: "nebula-theme.css" },
   { appearance: "skyline-pop", stylesheet: "skyline-theme.css" },
   { appearance: "glacier-blue", stylesheet: "glacier-theme.css" },
   { appearance: "sakura-circuit", stylesheet: "sakura-theme.css" },
@@ -22,7 +23,9 @@ export const bundledSeasonThemes = [
         readFileSync(
           new URL(`../../src/app/${stylesheet}`, import.meta.url),
           "utf8",
-        ).matchAll(/url\(\s*["']?(\/themes\/[^\s"')]+)["']?\s*\)/g),
+        ).matchAll(
+          /url\(\s*["']?(\/(?:themes|branding)\/[^\s"')]+)["']?\s*\)/g,
+        ),
         (match) => match[1],
       ),
     ),

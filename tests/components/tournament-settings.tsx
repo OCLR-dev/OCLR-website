@@ -17,6 +17,7 @@ import "../../src/app/public-tournament.css";
 import "../../src/app/workspace.css";
 import "../../src/app/pastel-theme.css";
 import "../../src/app/swiss-theme.css";
+import "../../src/app/nebula-theme.css";
 
 type Workspace = Parameters<typeof TournamentEditor>[0]["data"];
 const params = new URLSearchParams(location.search);

@@ -5,6 +5,7 @@ import {
   buildPlayerTimeline,
   logAxisFraction,
   readSeasonWindows,
+  seasonAppearanceFor,
   seasonNumber,
   timelineOrigin,
   type SeasonWindow,
@@ -356,5 +357,36 @@ describe("shipped season timeline file", () => {
         new RegExp(`^S${window.season} · `),
       );
     }
+  });
+
+  it("identifies S11 by its season theme while preserving its date and published link", () => {
+    const timeline = buildPlayerTimeline({
+      editions: [edition("Organizer-authored S11 name", "S11", [])],
+      editionPool: [{ season: "11", slug: "published-s11" }],
+      now: new Date("2026-12-01T00:00:00Z"),
+    });
+    const span = timeline.spans.find((span) => span.season === 11)!;
+    expect(span).toMatchObject({
+      appearance: "nebula-bloom",
+      editionName: "Organizer-authored S11 name",
+      editionSlug: "organizer-authored-s11-name",
+      start: "2026-11-26T00:00:00.000Z",
+      end: "2026-11-26T00:00:00.000Z",
+      point: true,
+      participated: true,
+    });
+    expect(seasonAppearanceFor("Season 11")).toBe("nebula-bloom");
+    expect(appearanceLabel(span.appearance!, (message) => message)).toBe(
+      "S11 · Nebula Bloom",
+    );
+    const publicSpan = buildPlayerTimeline({
+      editions: [],
+      editionPool: [{ season: "11", slug: "published-s11" }],
+    }).spans.find((span) => span.season === 11)!;
+    expect(publicSpan).toMatchObject({
+      appearance: "nebula-bloom",
+      editionSlug: "published-s11",
+      participated: false,
+    });
   });
 });

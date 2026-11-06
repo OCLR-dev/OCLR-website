@@ -35,6 +35,7 @@ export const publicAppearances = [
 ] as const;
 // New designs must explicitly opt into publicAppearances to be publicly selectable.
 export const seasonAppearances = [
+  "nebula-bloom",
   "skyline-pop",
   "glacier-blue",
   "sakura-circuit",
