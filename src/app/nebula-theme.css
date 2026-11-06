@@ -124,7 +124,7 @@ html[data-appearance="nebula-bloom"]
 }
 html[data-appearance="nebula-bloom"]
   .themed-site
-  :is(.information-document, .rules-article, .table-wrap, .pool-table) {
+  :is(.rules-article, .table-wrap, .pool-table) {
   background: var(--site-surface);
 }
 html[data-appearance="nebula-bloom"] .themed-site :is(th, td) {
