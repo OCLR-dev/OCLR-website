@@ -1,0 +1,65 @@
+[
+  {
+    "appearance": "nebula-bloom",
+    "theme": "light",
+    "baseline": [
+      "rgba(0, 0, 0, 0)",
+      "color(srgb 0.941177 0.917647 0.968628 / 0.65)"
+    ],
+    "hovered": [
+      "rgb(234, 224, 245)",
+      "rgb(234, 224, 245)"
+    ],
+    "restored": [
+      "rgba(0, 0, 0, 0)",
+      "color(srgb 0.941177 0.917647 0.968628 / 0.65)"
+    ],
+    "headerBefore": "rgb(240, 234, 247)",
+    "headerAfter": "rgb(240, 234, 247)",
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "appearance": "nebula-bloom",
+    "theme": "dark",
+    "baseline": [
+      "rgba(0, 0, 0, 0)",
+      "color(srgb 0.172549 0.133333 0.239216 / 0.65)"
+    ],
+    "hovered": [
+      "rgb(58, 41, 79)",
+      "rgb(58, 41, 79)"
+    ],
+    "restored": [
+      "rgba(0, 0, 0, 0)",
+      "color(srgb 0.172549 0.133333 0.239216 / 0.65)"
+    ],
+    "headerBefore": "rgb(44, 34, 61)",
+    "headerAfter": "rgb(44, 34, 61)",
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "appearance": "default",
+    "theme": "light",
+    "baseline": [
+      "rgba(0, 0, 0, 0)",
+      "color(srgb 0.972549 0.956863 0.984314 / 0.65)"
+    ],
+    "hovered": [
+      "rgb(236, 229, 243)",
+      "rgb(236, 229, 243)"
+    ],
+    "restored": [
+      "rgba(0, 0, 0, 0)",
+      "color(srgb 0.972549 0.956863 0.984314 / 0.65)"
+    ],
+    "headerBefore": "rgb(236, 229, 243)",
+    "headerAfter": "rgb(236, 229, 243)",
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  }
+]

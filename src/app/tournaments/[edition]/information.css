@@ -168,6 +168,9 @@
 .information-document tbody tr:nth-child(even) {
   background: color-mix(in srgb, var(--site-raised) 65%, transparent);
 }
+.information-document tbody tr:hover {
+  background: var(--site-tint);
+}
 .information-document tbody tr:last-child td {
   border-bottom: 0;
 }
