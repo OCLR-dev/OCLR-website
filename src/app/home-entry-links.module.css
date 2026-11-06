@@ -115,36 +115,34 @@
 
 @media (max-width: 760px) {
   .entries {
-    padding-left: 8px;
-    border-left-width: 3px;
+    padding-left: 0;
+    border-left: 0;
   }
   .socials {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 6px;
+    display: contents;
   }
   .entries .contact,
+  .entries .overview,
   .entries .registration {
-    grid-template-columns: 23px minmax(0, 1fr);
-    gap: 8px;
-    padding: 6px;
+    grid-template-columns: 12px minmax(0, 1fr);
+    min-height: 36px;
+    gap: 5px;
+    padding: 4px;
+    border: 1px solid #d8c6ed99;
+    background: #15102766;
     font-size: 0.75rem;
   }
   .iconCell {
-    height: 20px;
+    height: 16px;
+    border-right: 0;
   }
   .icon {
-    width: 16px;
-    height: 16px;
-  }
-  .entries .overview {
-    grid-template-columns: 23px minmax(0, 1fr);
-    gap: 8px;
-    padding: 6px;
-    font-size: 0.75rem;
+    width: 12px;
+    height: 12px;
   }
   .square {
-    width: 16px;
-    height: 16px;
+    width: 10px;
+    height: 10px;
   }
   .phase {
     font-size: 0.75rem;

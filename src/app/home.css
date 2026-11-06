@@ -623,13 +623,11 @@ html[data-appearance="default"][data-theme="dark"]
     top: calc(var(--home-phone-logo-bottom) + 20px);
     bottom: auto;
     z-index: 2;
-    /* stops 14px short of her hair */
-    width: calc(
-      var(--home-phone-liru-x) + var(--home-phone-liru-h) * 0.207 - 14px
-    );
+    /* Four compact entries fit below the logo, beside the character. */
+    width: clamp(160px, 45vw, 184px);
     max-width: none;
     /* the column keeps its width whatever the labels say (#698) */
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.4rem;
   }
   .home-hero-sky {

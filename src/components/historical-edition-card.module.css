@@ -203,37 +203,57 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 760px) {
   .card {
-    grid-template-columns: 1fr;
-    padding: 0.75rem;
+    grid-template-columns: clamp(68px, 20vw, 84px) minmax(0, 1fr);
+    gap: 8px;
+    padding: 0;
   }
   .artwork {
-    height: 160px;
-    min-height: 0;
+    height: auto;
+    min-height: 72px;
   }
   .artwork :global(.edition-art) img {
-    object-position: center;
+    object-position: left center;
   }
   .content {
-    padding: 1rem 0 0;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 8px 6px 0;
   }
   .heading {
-    gap: 0.75rem;
+    gap: 0;
   }
   .brand {
-    letter-spacing: 0.06em;
+    display: none;
+  }
+  .titleRow {
+    gap: 5px;
+    padding-bottom: 4px;
+  }
+  .card .heading h2 {
+    font-size: clamp(14px, 3.6vw, 16px);
+    letter-spacing: -0.035em;
   }
   .overview {
-    gap: 0.5rem;
-    min-height: 44px;
-    padding: 0.5rem 0.75rem;
+    gap: 3px;
+    min-height: 24px;
+    padding: 2px 5px;
+    font-size: 9px;
   }
   .links {
-    grid-template-columns: repeat(5, minmax(6rem, 1fr));
-    overflow-x: auto;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
   .links a {
-    padding-inline: 0.75rem;
+    min-height: 28px;
+    padding: 3px 1px;
+    font-size: 10px;
+    line-height: 1.3;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .links a + a::before {
+    top: 6px;
+    bottom: 6px;
   }
 }
