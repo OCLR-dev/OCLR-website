@@ -604,8 +604,11 @@ test.describe("streaming workspace through real HTTP sessions", () => {
         }),
       ).toHaveCount(1);
       await commentary(admin)
-        .getByRole("combobox")
-        .selectOption(String(secondId));
+        .getByText("Choose Commentators", { exact: true })
+        .click();
+      await commentary(admin)
+        .getByRole("checkbox", { name: new RegExp(` · ${secondId}$`) })
+        .check();
       await commentary(admin)
         .getByRole("button", { name: "Assign Commentator", exact: true })
         .click();
