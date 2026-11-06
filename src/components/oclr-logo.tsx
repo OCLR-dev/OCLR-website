@@ -1,58 +1,22 @@
-/** Transparent OCLR wordmark: shared O/C/L letter treatment, signature gradient R, and star. */
+/** Reuse the homepage lettering, cropped to OCLR without the subtitle/bar. */
 export function OclrLogo() {
   return (
     <svg
       className="oclr-wordmark"
-      viewBox="140 233 1465 430"
+      viewBox="48 104 980 304"
       width="132"
-      height="39"
+      height="41"
+      overflow="hidden"
       aria-hidden="true"
       focusable="false"
     >
-      <defs>
-        <linearGradient id="oclr-letters" x1="0.16" y1="0" x2="0.65" y2="1">
-          <stop offset="0%" stopColor="var(--oclr-letter-top)" />
-          <stop offset="46%" stopColor="var(--oclr-letter-mid)" />
-          <stop offset="100%" stopColor="var(--oclr-letter-bottom)" />
-        </linearGradient>
-        <linearGradient id="oclr-r" x1="0.06" y1="0" x2="0.85" y2="1">
-          <stop offset="0%" stopColor="#ff8cca" />
-          <stop offset="48%" stopColor="#e353e7" />
-          <stop offset="100%" stopColor="#815af7" />
-        </linearGradient>
-        <linearGradient id="oclr-star" x1="0.1" y1="0" x2="0.85" y2="1">
-          <stop offset="0%" stopColor="#ff9ad4" />
-          <stop offset="57%" stopColor="#d06be8" />
-          <stop offset="100%" stopColor="#9c52fb" />
-        </linearGradient>
-      </defs>
-      <g strokeWidth="2" strokeLinejoin="round" fillRule="evenodd">
-        <path
-          d="M512,391 494,376 473,365 457,360 431,356 328,357 291,365 250,383 214,409 197,427 178,455 166,481 158,509 155,540 158,565 168,592 178,607 206,631 227,641 260,649 336,651 374,648 411,639 444,624 479,599 500,577 517,552 534,512 540,480 539,446 530,418Z M442,444 451,459 455,476 454,498 450,513 443,528 433,542 414,560 403,567 380,577 348,583 307,583 286,579 271,573 263,568 250,554 245,544 242,530 243,507 248,489 262,463 279,445 290,437 316,425 337,420 388,419 419,427 431,434Z"
-          fill="url(#oclr-letters)"
-          stroke="var(--oclr-letter-outline)"
-        />
-        <path
-          d="M897,357 694,358 646,370 612,389 586,413 569,438 557,466 541,518 535,561 538,582 550,609 568,628 593,642 610,647 625,649 756,649 827,575 655,575 641,573 632,569 623,559 620,549 620,534 627,505 639,475 650,458 661,447 676,437 694,431 826,430Z"
-          fill="url(#oclr-letters)"
-          stroke="var(--oclr-letter-outline)"
-        />
-        <path
-          d="M916,357 821,649 1054,649 1123,575 945,575 935,573 1006,358Z"
-          fill="url(#oclr-letters)"
-          stroke="var(--oclr-letter-outline)"
-        />
-        <path
-          d="M1227,358 1171,430 1383,430 1391,432 1395,436 1395,450 1381,466 1359,474 1169,475 1111,649 1199,649 1232,551 1250,551 1345,649 1464,649 1354,536 1394,534 1420,527 1442,516 1468,493 1487,463 1496,432 1495,404 1492,394 1483,380 1460,364 1443,359 1425,357Z"
-          fill="url(#oclr-r)"
-          stroke="#ffadf2"
-        />
-        <path
-          d="M1522,247 1518,270 1507,293 1492,307 1479,313 1457,318 1483,324 1494,330 1506,341 1516,359 1523,387 1528,361 1540,340 1549,331 1561,324 1587,317 1565,313 1549,304 1541,296 1528,273Z"
-          fill="url(#oclr-star)"
-          stroke="#eca2ef"
-        />
-      </g>
+      <image
+        href="/branding/home-s11/oclr-layer.svg"
+        x="40"
+        y="0"
+        width="1200"
+        height="490"
+      />
     </svg>
   );
 }

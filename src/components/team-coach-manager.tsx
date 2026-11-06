@@ -50,7 +50,7 @@ export function TeamCoachManager({
       setNotice(
         action === "add_coach" ? tr("Coach added.") : tr("Coach removed."),
       );
-      setId("");
+      if (action === "add_coach") setId("");
       refresh();
     } catch (e) {
       setError(

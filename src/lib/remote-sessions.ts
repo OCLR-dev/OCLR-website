@@ -10,17 +10,31 @@ export type RemoteIdentity = z.infer<typeof apiIdentitySchema>;
 type Connection = {
   mode: "developer" | "anonymous";
   sealedToken?: Buffer;
-  expiresAt: number;
+  expiresAt: number | null;
+  lastUsedAt: number;
   publicCache?: RemotePublicCache;
 };
 const globalConnections = globalThis as unknown as {
   oclrRemoteConnections?: Map<string, Connection>;
 };
 const entries = () => (globalConnections.oclrRemoteConnections ??= new Map());
-export const remoteSessionLifetime = 15 * 60 * 1000;
 function prune() {
   for (const [key, item] of entries())
-    if (item.expiresAt <= Date.now()) disconnectRemote(key);
+    if (item.expiresAt !== null && item.expiresAt <= Date.now())
+      disconnectRemote(key);
+}
+function reclaimAnonymousConnection() {
+  let oldest: { id: string; lastUsedAt: number } | undefined;
+  for (const [id, item] of entries()) {
+    // Connections retained across HMR may predate activity tracking.
+    const lastUsedAt = item.lastUsedAt ?? 0;
+    if (
+      item.mode === "anonymous" &&
+      (!oldest || lastUsedAt < oldest.lastUsedAt)
+    )
+      oldest = { id, lastUsedAt };
+  }
+  if (oldest) disconnectRemote(oldest.id);
 }
 export function disconnectRemote(id?: string) {
   if (id) {
@@ -43,14 +57,15 @@ export async function connectRemote(
     );
   }
   if (input.mode === "anonymous") await remoteRead("/site");
-  if (entries().size >= 50 && (!previous || !entries().has(previous)))
-    throw new RemoteDataError("REMOTE_UNAVAILABLE", 503);
   const id = randomBytes(32).toString("base64url");
-  const expiresAt = Math.min(
-    Date.now() + remoteSessionLifetime,
-    identity ? Date.parse(identity.access.expiresAt) : Infinity,
-  );
-  if (expiresAt <= Date.now()) throw new RemoteDataError("REMOTE_EXPIRED", 401);
+  const expiresAt = identity ? Date.parse(identity.access.expiresAt) : null;
+  if (expiresAt !== null && expiresAt <= Date.now())
+    throw new RemoteDataError("REMOTE_EXPIRED", 401);
+  if (entries().size >= 50 && (!previous || !entries().has(previous))) {
+    reclaimAnonymousConnection();
+    if (entries().size >= 50)
+      throw new RemoteDataError("REMOTE_UNAVAILABLE", 503);
+  }
   disconnectRemote(previous);
   entries().set(id, {
     mode: input.mode,
@@ -59,18 +74,23 @@ export async function connectRemote(
         ? remoteCredentialVault.seal(input.token!)
         : undefined,
     expiresAt,
+    lastUsedAt: Date.now(),
   });
   return { id, expiresAt };
 }
 export function remoteConnection(id?: string) {
   const connection = id ? entries().get(id) : undefined;
-  if (!connection || connection.expiresAt <= Date.now()) {
+  if (
+    !connection ||
+    (connection.expiresAt !== null && connection.expiresAt <= Date.now())
+  ) {
     disconnectRemote(id);
     throw new RemoteDataError(
       id ? "REMOTE_EXPIRED" : "REMOTE_DISCONNECTED",
       401,
     );
   }
+  connection.lastUsedAt = Date.now();
   connection.publicCache ??= new RemotePublicCache();
   return connection;
 }
@@ -109,4 +129,8 @@ export async function verifiedConnection(id?: string) {
 const cleanupState = globalThis as typeof globalThis & {
   oclrRemoteSessionCleanup?: ReturnType<typeof setInterval>;
 };
-cleanupState.oclrRemoteSessionCleanup ??= setInterval(prune, 60_000).unref();
+// HMR preserves global state, including timers. Replace the callback as well as
+// the module so an older expiry policy cannot delete current connections.
+if (cleanupState.oclrRemoteSessionCleanup)
+  clearInterval(cleanupState.oclrRemoteSessionCleanup);
+cleanupState.oclrRemoteSessionCleanup = setInterval(prune, 60_000).unref();

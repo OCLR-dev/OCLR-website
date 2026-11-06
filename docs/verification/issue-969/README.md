@@ -118,3 +118,25 @@ Review verification used Node 24.22.2 and the existing npm lockfile:
 An initial sandboxed test attempt could not open the local listeners or run
 all subprocess fixtures. The results above use permission for isolated local
 fixtures; they do not describe a production service operation or deployment.
+
+### Second main synchronization — 2026-11-07
+
+Merged main `3cf5cd57898f20b26ef8e9c16b1616241ed04ded` after the coach-draft
+fix (#976) and UI/remote-session PR #973 landed. The sole conflict was the
+component host's fixture selector. It now selects `player-reactions`,
+`team-coach-draft` and `developer-access` explicitly.
+
+An isolated HTTP check started the actual component host and verified each of
+those three routes serves its matching HTML, JavaScript and CSS successfully.
+`npm run i18n:extract` synchronized the catalogs. `npm run read-api:generate`
+checked 59 contracts and 185 coverage rows with no generated artifact changes.
+Browser/E2E suites were not run (too slow); this merge resolves fixture routing
+and adds no browser interaction or presentation behavior.
+
+- `npm run check`: passed (lint, TypeScript and 38 archive relations).
+- `npm test`: 211 files passed, 85 skipped; 1,788 tests passed, 807 skipped
+  (no isolated test DB configured), 169.13 seconds.
+- `npm run build`: passed, with the existing 1,124 custom-header warning.
+- `npm audit --omit=dev`: zero vulnerabilities.
+- `npm run read-api:check`: 59 contracts, 185 coverage rows and 8 tests passed.
+- `git diff --check`: passed.
