@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import sharp from "sharp";
 import { expect, it } from "vitest";
 import { archiveKeyVisual } from "../../src/lib/archive-key-visual";
+import { archivePlayerRoleLabel } from "../../src/lib/archive-player-role";
+import { english } from "../../src/i18n/translate";
 import { editionSchema } from "../../src/lib/editions";
 import {
   historicalArchiveSchema,
@@ -60,6 +62,56 @@ function source(suffix = "") {
     ],
   });
 }
+
+it("shows source-confirmed S2 ASSITANT labels without inferring substitute roles or Tiers", () => {
+  const player = { role: "player" as const, tier: null, source: "TEAM!F6" };
+  for (const suffix of ["", "/edit"]) {
+    const archive = publicHistoricalArchive(source(suffix));
+    for (const row of [6, 10, 14, 18, 22, 26, 30, 34, 38, 42])
+      expect(
+        archivePlayerRoleLabel(
+          archive,
+          { ...player, source: `TEAM!F${row}` },
+          english,
+        ),
+      ).toBe("ASSITANT");
+    for (const cell of [undefined, "TEAM!L42", "TEAM!G6", "TEAM!F7"])
+      expect(
+        archivePlayerRoleLabel(archive, { ...player, source: cell }, english),
+      ).toBe("Not recorded");
+    expect(
+      archivePlayerRoleLabel(archive, { ...player, tier: 2 }, english),
+    ).toBe("Tier 2");
+    expect(
+      archivePlayerRoleLabel(archive, { role: "captain", tier: 0 }, english),
+    ).toBe("Captain");
+    expect(
+      archivePlayerRoleLabel(archive, { ...player, role: "coach" }, english),
+    ).toBe("Coach");
+    expect(
+      archivePlayerRoleLabel(
+        archive,
+        { ...player, role: "free_agent" },
+        english,
+      ),
+    ).toBe("Free agent");
+    expect(
+      archivePlayerRoleLabel(
+        archive,
+        { ...player, sourceRole: "VICE" },
+        english,
+      ),
+    ).toBe("VICE");
+  }
+  expect(player.tier).toBeNull();
+  expect(
+    archivePlayerRoleLabel(
+      { sourceUrl: "https://example.com/other" },
+      player,
+      english,
+    ),
+  ).toBe("Not recorded");
+});
 
 it("uses current saved S2 rules after public projection and slug changes", () => {
   for (const suffix of ["", "/edit"]) {
