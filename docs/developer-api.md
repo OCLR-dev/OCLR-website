@@ -1,8 +1,8 @@
 # Developer API access (#268–#269)
 
 An explicitly granted global Developer can open **Dashboard → Developer API access**
-at `/developer`, choose an exact local origin and read scopes, and create or revoke
-their own short-lived API access. Use the existing osu! login on the backend.
+at `/developer`, add one or more local ports, choose read scopes, and create or
+revoke their own short-lived API access. Use the existing osu! login on the backend.
 No role is granted by opening this page. Global Admin alone is not a Developer
 grant; a bootstrap Admin with an explicit Developer grant can use this feature.
 
@@ -59,15 +59,42 @@ do not down-migrate or erase authorization history.
 
 ## Origins and browser use
 
-The backend's optional exported `OCLR_DEVELOPER_ORIGINS` is an exact comma-separated
-allowlist. By default it includes `http://localhost:3000`, `http://127.0.0.1:3000`,
-`http://localhost:4000` and `http://127.0.0.1:4000`. An explicitly empty value
-disables issuance and browser CORS. At most 20 canonical HTTP/HTTPS loopback origins
-are allowed; localhost, 127.0.0.1 and [::1], schemes and ports are distinct. Paths,
-trailing slashes, credentials, `null`, suffixes and wildcard origins fail validation.
-If the operator sets `OCLR_DEVELOPER_ORIGINS`, that exact list replaces the defaults
-and must include each desired origin. The developer chooses one configured origin
-when issuing access.
+A token accepts **1–20 unique ports**, each an integer from 1 to 65535. Add or
+remove ports on `/developer` before creating access. A token can serve parallel
+local frontends, for example ports `3000`, `4000` and `5173`. To change an issued
+token's ports, revoke it and create another token.
+
+After validating a canonical HTTP/HTTPS loopback Origin, the server compares only
+its effective port: `localhost`, `127.0.0.1` and `[::1]` are equivalent, and HTTP
+and HTTPS with the same port are equivalent. An omitted port means 80 for HTTP
+or 443 for HTTPS. Paths, trailing slashes, credentials, `null`, suffixes, wildcard
+origins, external hosts and port 0 remain invalid. CORS echoes the actual allowed
+request Origin, never a wildcard or a substituted hostname.
+
+By default, Developers may choose any valid loopback ports. Operators can set
+`OCLR_DEVELOPER_PORTS=3000,4000,5173` to limit the available ports. An explicitly
+empty value disables issuance and browser CORS. The list accepts at most 20
+entries; duplicate configuration entries are deduplicated. A token may only use
+a subset of this server list, checked on both issuance and browser reads.
+
+For existing installations, when `OCLR_DEVELOPER_PORTS` is unset,
+`OCLR_DEVELOPER_ORIGINS` remains supported: its canonical HTTP/HTTPS loopback
+origins are converted to effective ports and deduplicated. Thus a configured
+`http://localhost:3000` also permits `http://127.0.0.1:3000` and
+`https://localhost:3000`. Its explicitly empty value still disables issuance/CORS.
+`OCLR_DEVELOPER_PORTS`, when supplied, takes precedence; malformed selected
+configuration fails closed. Streaming credentials keep their separate exact-origin
+policy.
+
+Migration `0087_developer_token_ports` adds a nullable integer array. Existing
+rows with no array derive their single port from the stored origin; original
+origin strings and audit events are preserved. New tokens store the complete
+port list and include it in audit metadata. The management API accepts
+`{ ports: [3000, 5173], scopes: ["identity:read"] }`; the legacy single `origin`
+creation request remains supported. Responses expose `ports` for token metadata
+and the server policy (`null` for unrestricted, `[]` for disabled); the token's
+legacy `origin` field remains for compatibility. Apply the migration through the
+normal approved backend update procedure before running the new code.
 
 ```js
 // token is supplied privately at runtime and kept in memory.
@@ -82,9 +109,9 @@ For v1 read resources, OPTIONS supports GET/HEAD and Authorization, Accept and
 Accept-Language request headers. It requires no token and discloses no data.
 Allowed origins receive matching CORS headers on success and errors, `Vary: Origin`
 and exposed X-Request-Id/Retry-After/WWW-Authenticate headers. Credentialed cookies
-are not enabled. Bearer browser reads require both the backend allowlist and the
-token's exact bound origin. Anonymous public reads need only the backend allowlist. A private server/BFF request may omit Origin and must still
-supply a valid bearer token and scope. CORS is a browser policy, not proof of identity.
+are not enabled. Bearer browser reads require both the backend port policy and the
+token's selected ports. Anonymous public reads need only the backend port policy.
+A private server/BFF request may omit Origin and must still supply a valid bearer token and scope. CORS is a browser policy, not proof of identity.
 All remote backend traffic uses HTTPS; APP_URL permits HTTP only on loopback.
 
 GET/HEAD errors use `{ error: { code, message, requestId } }`; successes use

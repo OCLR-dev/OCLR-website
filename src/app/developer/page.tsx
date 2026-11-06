@@ -24,7 +24,7 @@ export default async function DeveloperPage() {
         <PageHeading title={tr("Developer API access")} />
         <DeveloperAccess
           backend={context.backend}
-          origins={context.origins}
+          allowedPorts={context.ports}
           initialTokens={context.tokens}
         />
       </div>

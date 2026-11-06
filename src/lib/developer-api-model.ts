@@ -9,6 +9,7 @@ export type DeveloperApiScope = (typeof developerApiScopes)[number];
 export type DeveloperTokenMetadata = {
   id: string;
   origin: string;
+  ports: number[];
   scopes: DeveloperApiScope[];
   createdAt: string;
   expiresAt: string;
@@ -30,4 +31,35 @@ export function isDeveloperOrigin(value: string) {
   } catch {
     return false;
   }
+}
+
+export const maxDeveloperPorts = 20;
+export function isDeveloperPort(value: number) {
+  return Number.isInteger(value) && value >= 1 && value <= 65535;
+}
+
+/** Check the entire Origin before comparing ports; URL parsing alone accepts aliases. */
+export function developerOriginPort(origin: string): number | null {
+  if (!isDeveloperOrigin(origin)) return null;
+  const url = new URL(origin);
+  const port = Number(url.port || (url.protocol === "https:" ? 443 : 80));
+  return isDeveloperPort(port) ? port : null;
+}
+
+export function developerOriginAllowed(
+  origin: string,
+  ports: readonly number[] | null,
+) {
+  const port = developerOriginPort(origin);
+  return port !== null && (ports === null || ports.includes(port));
+}
+
+/** Old rows retain their single port without rewriting their origin or audit history. */
+export function developerTokenPorts(access: {
+  origin: string;
+  ports?: number[] | null;
+}) {
+  if (access.ports != null) return access.ports;
+  const port = developerOriginPort(access.origin);
+  return port === null ? [] : [port];
 }

@@ -79,7 +79,10 @@ test.describe("Developer API local browser access", () => {
     await expect(
       page.getByRole("heading", { name: "Developer API access", exact: true }),
     ).toBeVisible();
-    await page.getByLabel("Local origin").selectOption(local);
+    await page
+      .getByLabel("Add local port", { exact: true })
+      .fill(new URL(local).port);
+    await page.getByRole("button", { name: "Add port", exact: true }).click();
     const response = page.waitForResponse(
       (response) =>
         response.url().endsWith("/api/developer/tokens") &&
