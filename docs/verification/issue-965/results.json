@@ -1,0 +1,67 @@
+[
+  {
+    "width": 877,
+    "theme": "light",
+    "locale": "zh-Hant",
+    "readOnly": false,
+    "datetime": "2025-12-31T10:25:00.000Z",
+    "text": "2025年12月31日 上午10:25 UTC",
+    "href": "https://osu.ppy.sh/users/1",
+    "inside": true,
+    "cardHeight": 210.21875,
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "locale": "zh-Hant",
+    "readOnly": false,
+    "datetime": "2025-12-31T10:25:00.000Z",
+    "text": "2025年12月31日 上午10:25 UTC",
+    "href": "https://osu.ppy.sh/users/1",
+    "inside": true,
+    "cardHeight": 206.21875,
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "width": 320,
+    "theme": "light",
+    "locale": "zh-Hans",
+    "readOnly": false,
+    "datetime": "2025-12-31T10:25:00.000Z",
+    "text": "2025年12月31日 10:25 UTC",
+    "href": "https://osu.ppy.sh/users/1",
+    "inside": true,
+    "cardHeight": 206.21875,
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "width": 877,
+    "theme": "dark",
+    "locale": "en",
+    "readOnly": true,
+    "datetime": "2025-12-31T10:25:00.000Z",
+    "text": "Dec 31, 2025, 10:25 AM UTC",
+    "href": "https://osu.ppy.sh/users/1",
+    "inside": true,
+    "cardHeight": 210.21875,
+    "overflow": false,
+    "errors": [],
+    "axeViolations": 0
+  },
+  {
+    "width": 877,
+    "theme": "light",
+    "locale": "zh-Hant",
+    "narrow": true,
+    "datetime": "2025-12-31T10:25:00.000Z",
+    "text": "2025年12月31日 上午10:25 UTC",
+    "overflow": false
+  }
+]

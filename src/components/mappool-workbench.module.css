@@ -478,9 +478,19 @@
   margin-inline-start: auto;
 }
 .workbenchCard:global(.map-browse-card--band) .attribution {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   max-width: 100%;
   font-size: var(--text-label);
+  text-align: end;
+  white-space: normal;
+}
+.attributionAuthor {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  min-width: 0;
+  max-width: 100%;
   white-space: nowrap;
 }
 .workbenchCard:global(.map-browse-card--band) .attribution a {

@@ -3,12 +3,13 @@ import { NextIntlClientProvider } from "next-intl";
 import { SelectionWorkbench } from "../../src/components/mappool-workbench";
 import type { SelectionWorkspace } from "../../src/lib/mappool-workbench";
 import en from "../../messages/en.json";
+import hans from "../../messages/zh-Hans.json";
 import hant from "../../messages/zh-Hant.json";
 import "../../src/app/globals.css";
 import "../../src/app/public-tournament.css";
 import "../../src/app/workspace.css";
 const params = new URLSearchParams(location.search);
-const locale = params.get("locale") === "en" ? "en" : "zh-Hant";
+const locale = params.get("locale") ?? "zh-Hant";
 document.documentElement.lang = locale;
 document.documentElement.dataset.theme = params.get("theme") ?? "light";
 document.documentElement.dataset.appearance = "default";
@@ -42,7 +43,7 @@ const data: SelectionWorkspace = {
     skillsetVersion: 1,
     authorId: 1,
     authorName: "Synthetic Pooler With A Long Name",
-    createdAt: date,
+    createdAt: new Date("2025-12-31T10:25:00Z"),
     metadataFetchedAt: date,
     commentCount: 0,
     metadata: {
@@ -65,7 +66,7 @@ const data: SelectionWorkspace = {
 createRoot(document.getElementById("root")!).render(
   <NextIntlClientProvider
     locale={locale}
-    messages={locale === "en" ? en : hant}
+    messages={locale === "en" ? en : locale === "zh-Hans" ? hans : hant}
     timeZone="UTC"
   >
     <main

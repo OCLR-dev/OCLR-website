@@ -1171,14 +1171,17 @@ export function SelectionWorkbench({
                     side={
                       <>
                         <span className={`small muted ${styles.attribution}`}>
-                          {tr("Added by")}{" "}
-                          <a
-                            className="text-link"
-                            href={`https://osu.ppy.sh/users/${c.authorId}`}
-                            title={c.authorName}
-                          >
-                            <strong>{c.authorName}</strong>
-                          </a>
+                          <span className={styles.attributionAuthor}>
+                            {tr("Added by")}{" "}
+                            <a
+                              className="text-link"
+                              href={`https://osu.ppy.sh/users/${c.authorId}`}
+                              title={c.authorName}
+                            >
+                              <strong>{c.authorName}</strong>
+                            </a>
+                          </span>{" "}
+                          <Stamp value={c.createdAt} />
                         </span>
                       </>
                     }
