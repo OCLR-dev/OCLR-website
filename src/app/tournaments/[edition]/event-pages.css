@@ -634,14 +634,45 @@
   position: fixed;
   inset: auto;
   margin: 0;
-  width: 272px;
+  width: 360px;
   max-width: calc(100vw - 24px);
+  height: min(400px, calc(100dvh - 24px));
   padding: 10px;
   border: 1px solid var(--site-control-border);
   border-radius: 0.65rem;
   background: var(--site-surface);
   color: var(--site-foreground);
   box-shadow: 0 8px 28px var(--site-shadow);
+}
+.themed-site .reaction-picker:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.reaction-picker-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+.themed-site .reaction-picker-toolbar input {
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  font-size: 16px;
+}
+.reaction-picker-total {
+  flex: none;
+  color: var(--site-muted);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+}
+.reaction-picker-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 .reaction-picker-grid {
   display: grid;
@@ -650,10 +681,33 @@
 }
 .themed-site .reaction-picker-grid button {
   min-width: 0;
-  min-height: 34px;
+  min-height: 38px;
   padding: 3px;
   border-color: transparent;
   font-size: var(--text-heading);
+}
+.reaction-image {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+.reaction-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.reaction-picker-grid .reaction-image {
+  width: 28px;
+  height: 28px;
+}
+.reaction-image-mod {
+  border-radius: 4px;
+  background: #30263e;
+  padding: 2px;
 }
 .player-reactions {
   max-height: 65px;

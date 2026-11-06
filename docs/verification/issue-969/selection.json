@@ -1,0 +1,333 @@
+{
+  "purpose": "OCLR 选手页面表情候选",
+  "issue": "https://github.com/OCLR-dev/OCLR-website/issues/969",
+  "selected": [
+    {
+      "key": "qq-13",
+      "id": "13",
+      "name": "呲牙",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/13/png/13.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/13/apng/13.png"
+    },
+    {
+      "key": "qq-22",
+      "id": "22",
+      "name": "白眼",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/22/png/22.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/22/apng/22.png"
+    },
+    {
+      "key": "qq-38",
+      "id": "38",
+      "name": "敲打",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/38/png/38.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/38/apng/38.png"
+    },
+    {
+      "key": "qq-41",
+      "id": "41",
+      "name": "发抖",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": false,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/41/png/41.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/41/apng/41.png"
+    },
+    {
+      "key": "qq-42",
+      "id": "42",
+      "name": "爱情",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": false,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/42/png/42.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/42/apng/42.png"
+    },
+    {
+      "key": "qq-46",
+      "id": "46",
+      "name": "猪头",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": false,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/46/png/46.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/46/apng/46.png"
+    },
+    {
+      "key": "qq-63",
+      "id": "63",
+      "name": "玫瑰",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/63/png/63.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/63/apng/63.png"
+    },
+    {
+      "key": "qq-66",
+      "id": "66",
+      "name": "爱心",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/66/png/66.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/66/apng/66.png"
+    },
+    {
+      "key": "qq-76",
+      "id": "76",
+      "name": "赞",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/76/png/76.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/76/apng/76.png"
+    },
+    {
+      "key": "qq-77",
+      "id": "77",
+      "name": "踩",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/77/png/77.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/77/apng/77.png"
+    },
+    {
+      "key": "qq-78",
+      "id": "78",
+      "name": "握手",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/78/png/78.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/78/apng/78.png"
+    },
+    {
+      "key": "qq-297",
+      "id": "297",
+      "name": "拜谢",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/297/png/297.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/297/apng/297.png"
+    },
+    {
+      "key": "qq-320",
+      "id": "320",
+      "name": "庆祝",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/320/png/320.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/320/apng/320.png"
+    },
+    {
+      "key": "qq-325",
+      "id": "325",
+      "name": "惊吓",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/325/png/325.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/325/apng/325.png"
+    },
+    {
+      "key": "qq-326",
+      "id": "326",
+      "name": "生气",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": false,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/326/png/326.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/326/apng/326.png"
+    },
+    {
+      "key": "qq-349",
+      "id": "349",
+      "name": "坚强",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/349/png/349.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/349/apng/349.png"
+    },
+    {
+      "key": "qq-352",
+      "id": "352",
+      "name": "咦",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/352/png/352.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/352/apng/352.png"
+    },
+    {
+      "key": "qq-354",
+      "id": "354",
+      "name": "尊嘟假嘟",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/354/png/354.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/354/apng/354.png"
+    },
+    {
+      "key": "qq-368",
+      "id": "368",
+      "name": "奥特笑哭",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/368/png/368.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/368/apng/368.png"
+    },
+    {
+      "key": "qq-387",
+      "id": "387",
+      "name": "太好笑",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/387/png/387.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/387/apng/387.png"
+    },
+    {
+      "key": "qq-424",
+      "id": "424",
+      "name": "续标识",
+      "group": "qq",
+      "source": "https://koishi.js.org/QFace/#/qqnt",
+      "animated": true,
+      "staticUrl": "https://koishi.js.org/QFace/assets/qq_emoji/424/png/424.png",
+      "animatedUrl": "https://koishi.js.org/QFace/assets/qq_emoji/424/apng/424.png"
+    },
+    {
+      "key": "osu-NM",
+      "id": "NM",
+      "name": "No Mod",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-no-mod.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-no-mod.svg"
+    },
+    {
+      "key": "osu-HD",
+      "id": "HD",
+      "name": "Hidden",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-hidden.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-hidden.svg"
+    },
+    {
+      "key": "osu-HR",
+      "id": "HR",
+      "name": "Hard Rock",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-hard-rock.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-hard-rock.svg"
+    },
+    {
+      "key": "osu-DT",
+      "id": "DT",
+      "name": "Double Time",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-double-time.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-double-time.svg"
+    },
+    {
+      "key": "osu-EZ",
+      "id": "EZ",
+      "name": "Easy",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-easy.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-easy.svg"
+    },
+    {
+      "key": "osu-HT",
+      "id": "HT",
+      "name": "Half Time",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-half-time.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-half-time.svg"
+    },
+    {
+      "key": "osu-NC",
+      "id": "NC",
+      "name": "Nightcore",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-nightcore.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-nightcore.svg"
+    },
+    {
+      "key": "osu-FL",
+      "id": "FL",
+      "name": "Flashlight",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-flashlight.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-flashlight.svg"
+    },
+    {
+      "key": "osu-NF",
+      "id": "NF",
+      "name": "No Fail",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-no-fail.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-no-fail.svg"
+    },
+    {
+      "key": "osu-SD",
+      "id": "SD",
+      "name": "Sudden Death",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-sudden-death.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-sudden-death.svg"
+    },
+    {
+      "key": "osu-PF",
+      "id": "PF",
+      "name": "Perfect",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-perfect.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-perfect.svg"
+    },
+    {
+      "key": "osu-RX",
+      "id": "RX",
+      "name": "Relax",
+      "group": "osu",
+      "source": "https://github.com/ppy/osu-web/blob/master/public/images/badges/mods/mod-relax.svg",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/mods/mod-relax.svg"
+    },
+    {
+      "key": "unicode-3297",
+      "id": "U+3297",
+      "name": "红圈祝",
+      "group": "unicode",
+      "source": "https://github.com/discord/twemoji",
+      "animated": false,
+      "staticUrl": "https://raw.githubusercontent.com/discord/twemoji/main/assets/72x72/3297.png"
+    }
+  ]
+}

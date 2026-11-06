@@ -1,0 +1,27 @@
+OCLR player reaction collection, prepared 2026-11-06.
+
+QQ assets: Tencent. Source: https://github.com/koishijs/QFace
+QFace index syncedAt: 2026-09-28T03:43:28.805Z.
+QFace states that emoji artwork belongs to Tencent and is provided for
+learning and exchange, not commercial use. Its MIT code license does not
+license Tencent artwork. Assets are unmodified; hashed filenames are local.
+APNG-labelled assets with only one frame are shown as static previews.
+
+Classic osu! mod PNG artwork (HD, HR, DT, EZ, HT, NC, FL, NF, SD, PF, RX):
+Original osu! skin artwork as published in the official Wiki.
+https://osu.ppy.sh/wiki/en/Skinning/Interface
+https://github.com/ppy/osu-wiki/tree/master/wiki/Skinning/Interface/img
+Selected by the user on 2026-11-06. Files unmodified. The Wiki's text license
+is not asserted to cover all included game artwork.
+
+No Mod (NM) SVG artwork: ppy/osu-web.
+https://github.com/ppy/osu-web/tree/master/public/images/badges/mods
+https://github.com/ppy/osu-web/blob/master/LICENCE
+AGPL-3.0-or-later as stated in that repository's README. Files unmodified.
+
+Red circled congratulation (3297.png): Twemoji, Discord/Twitter and contributors.
+https://github.com/discord/twemoji
+https://creativecommons.org/licenses/by/4.0/
+Graphics licensed CC BY 4.0. File unmodified.
+
+This collection is not an official Tencent, osu!, or Discord product.
