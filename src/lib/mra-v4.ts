@@ -4,7 +4,9 @@
  * Unlike the score-only v1 policy, v4 compares each score with a guidance
  * score built from the map's average combo/accuracy and its maximum combo.
  * Every included score contributes one raw rating (RRA); the final MRA is
- * 70% scaled rating and 30% damage rating.
+ * 70% scaled rating and 30% damage rating. Damage rating uses the square root
+ * of each player's summed RRA, normalized by the sum of those roots, to keep
+ * high-volume totals from dominating the ranking.
  */
 export const MRA_V4_POLICY = "yumu-mra-v4";
 
@@ -194,7 +196,10 @@ function rate(
     };
   });
   const sumAra = entries.reduce((sum, row) => sum + row.ara, 0);
-  const totalScores = entries.reduce((sum, row) => sum + row.appearances, 0);
+  const totalRootTra = entries.reduce(
+    (sum, row) => sum + Math.sqrt(row.tra),
+    0,
+  );
   const scaled = entries.map((row) => ({
     ...row,
     sra: sumAra > 0 ? (row.ara * count) / sumAra : 0,
@@ -208,7 +213,8 @@ function rate(
       denominator > 0
         ? (row.sra - minSra * miu) / denominator
         : row.sra;
-    const dra = totalScores > 0 ? (row.tra * count) / totalScores : 0;
+    const dra =
+      totalRootTra > 0 ? (Math.sqrt(row.tra) * count) / totalRootTra : 0;
     rated.set(row.userId, {
       userId: row.userId,
       appearances: row.appearances,
