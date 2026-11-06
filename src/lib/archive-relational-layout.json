@@ -1599,6 +1599,7 @@
           },
           { "column": "value_original_id", "type": "integer", "array": false },
           { "column": "value_title", "type": "string", "array": false },
+          { "column": "value_source_title", "type": "string", "array": false },
           { "column": "value_mapper", "type": "string", "array": false },
           { "column": "value_stars", "type": "number", "array": false },
           { "column": "value_bpm", "type": "number", "array": false },
@@ -1606,6 +1607,7 @@
           { "column": "value_cs", "type": "number", "array": false },
           { "column": "value_ar", "type": "number", "array": false },
           { "column": "value_od", "type": "number", "array": false },
+          { "column": "value_hp", "type": "number", "array": false },
           { "column": "value_source", "type": "string", "array": false }
         ],
         "node": {
@@ -1740,6 +1742,12 @@
               "scalar": "string",
               "array": false
             },
+            "sourceTitle": {
+              "type": "scalar",
+              "column": "value_source_title",
+              "scalar": "string",
+              "array": false
+            },
             "mapper": {
               "type": "scalar",
               "column": "value_mapper",
@@ -1779,6 +1787,12 @@
             "od": {
               "type": "scalar",
               "column": "value_od",
+              "scalar": "number",
+              "array": false
+            },
+            "hp": {
+              "type": "scalar",
+              "column": "value_hp",
               "scalar": "number",
               "array": false
             },

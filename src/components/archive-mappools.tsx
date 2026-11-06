@@ -197,7 +197,7 @@ export function ArchiveMappools({
           ar: m.ar,
           od: m.od,
           cs: m.cs,
-          hp: null,
+          hp: m.hp ?? null,
         },
       },
       choice,
@@ -262,6 +262,7 @@ export function ArchiveMappools({
     cs: tr("CS"),
     ar: tr("AR"),
     od: tr("OD"),
+    hp: tr("HP"),
   };
   const supplemented = (m: MapEntry) =>
     (m.supplemented?.length || m.archivalSource) && (

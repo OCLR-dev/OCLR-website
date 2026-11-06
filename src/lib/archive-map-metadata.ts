@@ -17,12 +17,14 @@ const fields = [
   "cs",
   "ar",
   "od",
+  "hp",
 ] as const;
 type Field = (typeof fields)[number];
 type DisplayField = Field | "artist" | "difficulty";
 type Snapshot = (typeof snapshot.maps)[keyof typeof snapshot.maps] & {
   artist?: string;
   difficulty?: string;
+  hp?: number | null;
 };
 export type ArchiveDisplayMap = MapEntry & {
   difficultySnapshot?: DifficultySnapshot;
@@ -152,15 +154,14 @@ export function archivePoolMetadata(
             entry.beatmapId === map.beatmapId,
         );
         if (download) result.downloadMirror ??= download.downloadMirror;
-        const recovered =
-          editionSlug === "s6"
-            ? fileSupplements.s6.find(
-                (entry) =>
-                  entry.poolId === pool.id &&
-                  entry.slot === map.slot &&
-                  entry.beatmapId === map.beatmapId,
-              )
-            : undefined;
+        const recovered = (
+          fileSupplements[editionSlug as keyof typeof fileSupplements] ?? []
+        ).find(
+          (entry) =>
+            entry.poolId === pool.id &&
+            entry.slot === map.slot &&
+            entry.beatmapId === map.beatmapId,
+        );
         if (recovered) {
           result.beatmapSetId ??= recovered.beatmapSetId;
           result.coverPath ??= recovered.coverPath;
@@ -193,7 +194,7 @@ export function archivePoolMetadata(
           const missing =
             field === "title" || field === "mapper"
               ? missingArchiveText(map[field])
-              : map[field] === null;
+              : map[field] == null;
           if (!missing) continue;
           if (field === "title" || field === "mapper") result[field] = null;
           const archivedValue = archivedAttributes[field];
@@ -202,7 +203,7 @@ export function archivePoolMetadata(
             (result.archivalSupplemented ??= []).push(field);
             continue;
           }
-          if (!metadata) continue;
+          if (!metadata || metadata[field] === undefined) continue;
           // Field/value pairs have the same schema in the archive and snapshot.
           Object.assign(result, { [field]: metadata[field] });
           (result.supplemented ??= []).push(field);

@@ -957,6 +957,7 @@ export const archiveRelArchivePoolsMaps = pgTable(
     ),
     value_original_id: bigint("value_original_id", { mode: "number" }),
     value_title: text("value_title"),
+    value_source_title: text("value_source_title"),
     value_mapper: text("value_mapper"),
     value_stars: doublePrecision("value_stars"),
     value_bpm: doublePrecision("value_bpm"),
@@ -964,6 +965,7 @@ export const archiveRelArchivePoolsMaps = pgTable(
     value_cs: doublePrecision("value_cs"),
     value_ar: doublePrecision("value_ar"),
     value_od: doublePrecision("value_od"),
+    value_hp: doublePrecision("value_hp"),
     value_source: text("value_source"),
   },
   (t) => [

@@ -478,3 +478,9 @@ Contract 1.24.0 adds public saved-ranking reads at `/rankings/players` and
 from this channel. Single-player reads use the generation/UID index. See
 [background player analytics](background-player-analytics.md) for source guards,
 background refresh and the older-backend compatibility path.
+
+Contract 1.28.0 adds optional historical-map `hp` (nullable numeric) and
+`sourceTitle` (nullable original text). File recovery can restore a display title
+while retaining its exact prior statistics identity through `sourceTitle`;
+existing maps without these fields remain compatible. See
+[the S2 NM2 recovery](archive-map-metadata.md#s2-nm2-official-file-recovery-852).

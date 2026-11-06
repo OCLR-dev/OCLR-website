@@ -194,6 +194,7 @@ export const historicalArchiveSchema = z
                     difficultySnapshot: difficultySnapshotSchema.optional(),
                     originalId: id.optional(),
                     title: text.nullable(),
+                    sourceTitle: z.string().max(300).nullable().optional(),
                     mapper: text.nullable(),
                     stars: metric,
                     bpm: metric,
@@ -201,6 +202,7 @@ export const historicalArchiveSchema = z
                     cs: metric,
                     ar: metric,
                     od: metric,
+                    hp: metric.optional(),
                     source,
                   })
                   .strict(),

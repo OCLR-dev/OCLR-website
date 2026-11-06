@@ -39,9 +39,10 @@ export function statisticsArchiveKey(a: HistoricalArchive) {
         ),
         pools: a.pools.map(({ id, maps }) => ({
           id,
-          maps: maps.map(({ beatmapId, title, slot }) => ({
+          maps: maps.map(({ beatmapId, title, sourceTitle, slot }) => ({
             beatmapId,
-            title,
+            // Recovered display titles retain the original statistics identity.
+            title: sourceTitle === undefined ? title : sourceTitle,
             slot,
           })),
         })),

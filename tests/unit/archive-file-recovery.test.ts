@@ -71,3 +71,42 @@ describe("S6 exact file recovery", () => {
     expect(historicalArchiveSchema.parse(source)).toEqual(source);
   });
 });
+
+describe("S2 exact file recovery", () => {
+  it("recovers the missing record without mutating saved input or another slot", () => {
+    const entry = files.s2[0];
+    const map = {
+      slot: "NM2",
+      beatmapId: 1009329,
+      title: "#N/A",
+      mapper: null,
+      stars: null,
+      bpm: null,
+      drainSeconds: null,
+      cs: null,
+      ar: null,
+      od: null,
+      source: "captain's qualifier mappool!B5:H5",
+    };
+    const pool = {
+      id: entry.poolId,
+      name: "Qualifier",
+      source: "source",
+      maps: [map],
+    };
+    const before = structuredClone(pool);
+    const display = archivePoolMetadata(pool, "s2");
+    expect(display.pool.maps[0]).toMatchObject({
+      ...entry.attributes,
+      coverPath: entry.coverPath,
+      beatmapSetId: 403096,
+    });
+    expect(display.setIds[1009329]).toBe(403096);
+    expect(pool).toEqual(before);
+    const preserved = { ...pool, maps: [{ ...map, stars: 6 }] };
+    expect(archivePoolMetadata(preserved, "s2").pool.maps[0].stars).toBe(6);
+    expect(
+      archivePoolMetadata({ ...pool, id: "gs" }, "s2").pool.maps[0].coverPath,
+    ).toBeUndefined();
+  });
+});
