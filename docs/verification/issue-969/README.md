@@ -79,3 +79,42 @@ with the correct content type and bytes. No interface messages or dependencies
 changed in this follow-up. Full tests and browser suites were not repeated for
 this asset replacement; the results above remain the initial implementation's
 verification, not new runs. Full E2E: not run (too slow).
+
+### Review fixes — 2026-11-07
+
+Merged upstream main `466a32c5` into PR #972 without rewriting its history.
+The catalog conflicts retain both the reaction search translations and the
+Developer port translations. The component host retains both fixture routes.
+
+QQ 367, 449, 466, 468 and 469 used animated APNGs even for their PNG-labelled
+fallbacks. Their fallback files now contain the original PNG default image,
+with only the APNG control/frame chunks removed; the animated variants stay
+intact. The manifest records the original source digest, local digest and
+transformation, and NOTICE documents the five derived files.
+
+The existing catalog test now parses every PNG's chunks: fallback images must
+have no `acTL`, `fcTL` or `fdAT`, and animated variants must declare multiple
+frames. The existing reduced-motion browser case now uses affected QQ 367.
+The browser suite still has the same two cases across desktop/mobile (4 total);
+no E2E case or browser matrix was added.
+
+Review verification used Node 24.22.2 and the existing npm lockfile:
+
+- `npm ci` and `npm run check`: passed.
+- `npm test`: 211 files passed, 85 skipped; 1,779 tests passed, 807 skipped
+  (no isolated test DB configured), 163.14 seconds.
+- `npm run i18n:extract`: catalogs synchronized; focused reaction/i18n tests:
+  7 passed, including metadata and digest checks for all catalog PNGs.
+- Existing reaction-picker component suite with Chrome: 4 passed across
+  desktop/mobile, 12.9 seconds, including affected QQ 367 under reduced motion.
+- Full E2E: not run (too slow).
+
+- `npm run build`: passed, with the existing 1,124 custom-header warning.
+- `npm audit --omit=dev`: zero vulnerabilities.
+- `npm run read-api:generate` / `npm run read-api:check`: synchronized;
+  59 contracts, 185 coverage rows and 8 tests passed. Generated files are unchanged.
+- `git diff --check`: passed.
+
+An initial sandboxed test attempt could not open the local listeners or run
+all subprocess fixtures. The results above use permission for isolated local
+fixtures; they do not describe a production service operation or deployment.

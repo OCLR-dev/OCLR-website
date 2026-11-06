@@ -1834,7 +1834,9 @@
     {
       "file": "qq-0788979fc936-png.png",
       "source": "https://koishi.js.org/QFace/assets/qq_emoji/367/png/367.png",
-      "sha256": "54d0dfcb676c3aa529ed3bce03fcf2a219754efaf993dd48a0b7634fbf499932"
+      "sha256": "047a2b394481f5f32263a5cb381d8967d06e613ec6d0dc12cb937112401a7d60",
+      "sourceSha256": "54d0dfcb676c3aa529ed3bce03fcf2a219754efaf993dd48a0b7634fbf499932",
+      "transformation": "PNG default image; removed APNG animation chunks (acTL, fcTL, fdAT), preserving image data"
     },
     {
       "file": "qq-0788979fc936-apng.png",
@@ -2539,7 +2541,9 @@
     {
       "file": "qq-4a30a219a9d7-png.png",
       "source": "https://koishi.js.org/QFace/assets/qq_emoji/449/png/449.png",
-      "sha256": "4cbac049c49960a5746c432c2fbad32844b5197d06bf1e47830219a776e02912"
+      "sha256": "d967999c2fb88effee526fb9ef8d062856ffb6a2ce1a6fd8f7215587a9628be5",
+      "sourceSha256": "4cbac049c49960a5746c432c2fbad32844b5197d06bf1e47830219a776e02912",
+      "transformation": "PNG default image; removed APNG animation chunks (acTL, fcTL, fdAT), preserving image data"
     },
     {
       "file": "qq-4a30a219a9d7-apng.png",
@@ -2709,7 +2713,9 @@
     {
       "file": "qq-826e27285307-png.png",
       "source": "https://koishi.js.org/QFace/assets/qq_emoji/466/png/466.png",
-      "sha256": "6a818f08759a3114fe9c21da52cf2f81f9744dfa3f0dd446aa74e481fbd67c7a"
+      "sha256": "3211e0115bca250c37b725258103fb2c293beb2814e8f8a9d44445c51b38e963",
+      "sourceSha256": "6a818f08759a3114fe9c21da52cf2f81f9744dfa3f0dd446aa74e481fbd67c7a",
+      "transformation": "PNG default image; removed APNG animation chunks (acTL, fcTL, fdAT), preserving image data"
     },
     {
       "file": "qq-826e27285307-apng.png",
@@ -2729,7 +2735,9 @@
     {
       "file": "qq-1e5ee5e58c8f-png.png",
       "source": "https://koishi.js.org/QFace/assets/qq_emoji/468/png/468.png",
-      "sha256": "23112a51cceb903b27f7899ae89ffc6d0dd2395a0d4cc7d8ea55788d87e3ba45"
+      "sha256": "68e0bc78ab636984369d4350596b3ebf7e68e5e90b855d59ef0344db42d9de5d",
+      "sourceSha256": "23112a51cceb903b27f7899ae89ffc6d0dd2395a0d4cc7d8ea55788d87e3ba45",
+      "transformation": "PNG default image; removed APNG animation chunks (acTL, fcTL, fdAT), preserving image data"
     },
     {
       "file": "qq-1e5ee5e58c8f-apng.png",
@@ -2739,7 +2747,9 @@
     {
       "file": "qq-c6bd343ae000-png.png",
       "source": "https://koishi.js.org/QFace/assets/qq_emoji/469/png/469.png",
-      "sha256": "05f2fcc1240b45e83a657c56765a61ddda7e1f8277b412bff6264cfd92c06349"
+      "sha256": "fc28fe9c1c717343af7ad1181054906bee4b78b31405b64d88129cacfe3d4b6f",
+      "sourceSha256": "05f2fcc1240b45e83a657c56765a61ddda7e1f8277b412bff6264cfd92c06349",
+      "transformation": "PNG default image; removed APNG animation chunks (acTL, fcTL, fdAT), preserving image data"
     },
     {
       "file": "qq-c6bd343ae000-apng.png",

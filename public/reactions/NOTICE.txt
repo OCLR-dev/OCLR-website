@@ -4,8 +4,12 @@ QQ assets: Tencent. Source: https://github.com/koishijs/QFace
 QFace index syncedAt: 2026-09-28T03:43:28.805Z.
 QFace states that emoji artwork belongs to Tencent and is provided for
 learning and exchange, not commercial use. Its MIT code license does not
-license Tencent artwork. Assets are unmodified; hashed filenames are local.
-APNG-labelled assets with only one frame are shown as static previews.
+license Tencent artwork. Hashed filenames are local. Five PNG-labelled sources
+(QQ 367, 449, 466, 468, 469) contained APNG animation; their local static previews retain the
+original PNG default image data with APNG control/frame chunks removed.
+Original source digests and this transformation are recorded in the manifest.
+All other QQ assets are unmodified. APNG-labelled assets with only one frame
+are shown as static previews.
 
 Classic osu! mod PNG artwork (HD, HR, DT, EZ, HT, NC, FL, NF, SD, PF, RX):
 Original osu! skin artwork as published in the official Wiki.

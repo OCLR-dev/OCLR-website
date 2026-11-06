@@ -63,7 +63,8 @@ test("reduced motion uses still images, legacy reactions survive, and escape ret
   await page.addInitScript(() => {
     localStorage.setItem(
       "oclr-reactions:synthetic-969:969001",
-      JSON.stringify(["💜", "qq-424"]),
+      // This source was PNG-labelled but contained an infinitely looping APNG.
+      JSON.stringify(["💜", "qq-367"]),
     );
   });
   await page.goto("/player-reactions?locale=en&theme=dark");

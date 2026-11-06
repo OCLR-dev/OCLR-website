@@ -9,6 +9,24 @@ import {
 import selection from "../../docs/verification/issue-969/selection.json";
 import manifest from "../../public/reactions/manifest.json";
 
+function pngChunks(bytes: Buffer) {
+  expect(bytes.subarray(0, 8)).toEqual(
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+  );
+  const chunks = new Map<string, Buffer>();
+  for (let offset = 8; offset < bytes.length;) {
+    const length = bytes.readUInt32BE(offset);
+    expect(offset + length + 12).toBeLessThanOrEqual(bytes.length);
+    chunks.set(
+      bytes.toString("ascii", offset + 4, offset + 8),
+      bytes.subarray(offset + 8, offset + 8 + length),
+    );
+    offset += length + 12;
+  }
+  expect(chunks.has("IEND")).toBe(true);
+  return chunks;
+}
+
 describe("player reaction catalog", () => {
   it("puts the exported shortlist first, followed by unique candidates with intact local images", () => {
     expect(
@@ -28,6 +46,18 @@ describe("player reaction catalog", () => {
         expect(createHash("sha256").update(bytes).digest("hex")).toBe(
           sources.get(src.split("/").at(-1)!)?.sha256,
         );
+        if (src.endsWith(".png")) {
+          const chunks = pngChunks(bytes);
+          if (src === reaction.src) {
+            // Check the actual PNG metadata: a -png.png name can hide an APNG.
+            for (const chunk of ["acTL", "fcTL", "fdAT"])
+              expect(chunks.has(chunk), `${reaction.id} static ${chunk}`).toBe(
+                false,
+              );
+          } else {
+            expect(chunks.get("acTL")?.readUInt32BE(0)).toBeGreaterThan(1);
+          }
+        }
       }
     }
     expect(playerReactions.some((r) => r.id === "qq-122")).toBe(false);
