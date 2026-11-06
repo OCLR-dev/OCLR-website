@@ -85,3 +85,6 @@ and covers old cache upgrades, source/mirror preservation, missing/corrupt nativ
 data, configuration checksum compatibility, review/publish/withdraw and existing
 permission/transaction/concurrency regressions. Commit-specific checks and CI are
 recorded in the PR.
+
+See the [local upgrade and regression evidence](verification/issue-929/README.md)
+for the pre-0083 CLI rehearsal and the precise limits of local verification.
