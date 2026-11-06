@@ -9,7 +9,7 @@
 }
 .columns {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 1.5rem;
 }
@@ -19,9 +19,4 @@
 .columns h4 {
   font-size: var(--text-body);
   margin: 0;
-}
-@media (max-width: 800px) {
-  .columns {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }

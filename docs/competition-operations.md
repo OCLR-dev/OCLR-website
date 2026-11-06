@@ -22,6 +22,8 @@ Coach cards and edition-bound profiles become public only when the edition, capt
 
 ## Group assignments
 
+Round competition settings stack scoring rules followed by applicable group ranking rules in one column at every viewport width (#932). Fields and saving continue to use the same approved round rules.
+
 The group-round competition heading provides a secondary link to this edition's team group assignments (#931). Exhibition and knockout rounds omit this group-only navigation; exhibition participants use their fixture-local red/blue sides without official team or group setup.
 
 Team management uses a compact team table for captain identity, membership/status and row actions; team editing, publication and coaches retain their existing commands. Captain appointment/player-pool controls and bulk captain-team settings are available together on the same page, with the existing captain route retained for compatibility.
