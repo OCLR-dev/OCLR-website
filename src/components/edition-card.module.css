@@ -94,6 +94,42 @@
   overflow-wrap: anywhere;
 }
 
+.registration {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.summary {
+  margin: 0;
+  font-size: var(--text-support);
+}
+
+.registrationDetails {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--text-label);
+}
+
+.facts dt {
+  color: var(--site-muted);
+}
+
+.facts dd {
+  margin: 0.125rem 0 0;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
 .links {
   /* Keep the section links above the full-card link and its glow. */
   position: relative;
@@ -173,11 +209,15 @@
     padding: 0;
   }
   .heading {
+    gap: 0.5rem;
     padding-bottom: 0;
+    padding-left: 0.875rem;
     border-bottom: 0;
+    border-left: 4px solid var(--edition-accent);
   }
   .brand {
-    display: none;
+    padding-left: 0;
+    border-left: 0;
   }
   .card .heading h2 {
     font-size: clamp(14px, 3.6vw, 16px);
@@ -185,5 +225,23 @@
   }
   .links {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .current .content {
+    display: contents;
+  }
+  .current .heading {
+    align-self: center;
+  }
+  .registration {
+    grid-column: 1 / -1;
+  }
+  .registrationDetails {
+    gap: 0.75rem;
+  }
+  .facts {
+    flex: 1 1 180px;
   }
 }
