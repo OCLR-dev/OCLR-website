@@ -4,8 +4,11 @@ import sharp from "sharp";
 import {
   archiveCounts,
   historicalArchiveSchema,
+  publicHistoricalArchive,
 } from "../../src/lib/historical-archive";
 import { historicalRulebook } from "../../src/lib/historical-rulebooks";
+import { archiveBracket } from "../../src/lib/archive-bracket";
+import { bracketRouting } from "../../src/lib/bracket-routing";
 import s10 from "../../src/content/s10-rulebook.json";
 
 const archive = historicalArchiveSchema.parse(
@@ -125,6 +128,89 @@ describe("S10 historical source package", () => {
     expect(archive.players.every((p) => p.source.startsWith("Team!"))).toBe(
       true,
     );
+  });
+});
+
+describe("S10 knockout progression", () => {
+  const href = (id: string) => `/tournaments/s10/matches/${id}`;
+
+  it("routes all qualified seeds and completed outcomes on the public bracket", () => {
+    const published = publicHistoricalArchive({ ...archive, sourceFacts: [] });
+    const bracket = archiveBracket(published, href)!;
+    const knockout = bracket.groups[0];
+    expect(knockout.showAdvancement).toBe(true);
+    expect(knockout.rounds.map((round) => round.label)).toEqual([
+      "SF",
+      "Finals",
+      "Finals",
+      "Losers bracket final",
+      "Grand final",
+    ]);
+    expect(
+      bracket.groups.slice(1).map((group) => group.rounds[0].matches.length),
+    ).toEqual([10, 10]);
+    const matches = knockout.rounds.flatMap((round) => round.matches);
+    expect(matches).toHaveLength(10);
+    for (const match of matches) {
+      const saved = published.matches.find((m) => m.id === match.id)!;
+      expect(match.scores).toEqual(saved.score);
+      expect(match.slots.map((slot) => slot.teamId)).toEqual([
+        saved.teamA,
+        saved.teamB,
+      ]);
+      expect(match.detailsUrl).toBe(href(saved.id));
+    }
+    expect(
+      knockout.rounds[0].matches.map((m) => m.slots.map((s) => s.groupSeed)),
+    ).toEqual([
+      ["A1", "B2"],
+      ["B1", "A2"],
+      ["A3", "B4"],
+      ["B3", "A4"],
+    ]);
+    expect(
+      bracketRouting(knockout).edges.map(({ sourceId, targetId, kind }) => [
+        sourceId.slice(6),
+        targetId.slice(6),
+        kind,
+      ]),
+    ).toEqual([
+      ["21", "27", "winner"],
+      ["22", "27", "winner"],
+      ["21", "26", "loser"],
+      ["24", "26", "winner"],
+      ["22", "25", "loser"],
+      ["23", "25", "winner"],
+      ["25", "28", "winner"],
+      ["26", "28", "winner"],
+      ["27", "29", "loser"],
+      ["28", "29", "winner"],
+      ["27", "30", "winner"],
+      ["29", "30", "winner"],
+    ]);
+  });
+
+  it("keeps recorded matches without asserting progression for conflicting or partial archives", () => {
+    const changedResult = archive.matches.map((m) =>
+      m.id === "match-27" ? { ...m, score: [7, 6] as [number, number] } : m,
+    );
+    const missingFinal = archive.matches.filter((m) => m.id !== "match-30");
+    const changedSeeds = archive.standings.map((s) =>
+      s.group === "A" && s.rank === 1 ? { ...s, rank: 2 } : s,
+    );
+    for (const changed of [
+      { ...archive, matches: changedResult },
+      { ...archive, matches: missingFinal },
+      { ...archive, standings: changedSeeds },
+      { ...archive, sourceUrl: "https://example.com/archive" },
+    ]) {
+      const knockout = archiveBracket(changed, href)!.groups[0];
+      expect(knockout.showAdvancement).toBeUndefined();
+      expect(bracketRouting(knockout).edges).toEqual([]);
+      expect(knockout.rounds.flatMap((r) => r.matches)).toHaveLength(
+        changed.matches === missingFinal ? 9 : 10,
+      );
+    }
   });
 });
 

@@ -2,7 +2,19 @@
 
 The historical schedule and bracket page now share the same archive competition view: Group Stage and Knockout are the top-level choices. Group A/B/C/D remain secondary choices under Group Stage, beside the historical standings. Knockout displays the existing archive bracket's complete chronological columns and recorded team-path connectors instead of an isolated SF/Finals/GF card list. The match summary, round filter and detail links remain available.
 
-The existing archive generator excludes scoreless alternatives and withholds ambiguous/missing-date edges. Its connections mean previous recorded appearances, not verified qualification rules. The public bracket omits the connection-source disclosure and recorded-appearance note following the organizer’s request (#512). This change does not invent a single/double-elimination format or declare an unverified winner/loser advancement rule. Source-authored round names and results remain literal. Official progression verification remains an organizer/source review item.
+By default the archive generator connects previous recorded appearances. It
+excludes scoreless alternatives and withholds edges with ambiguous or missing
+dates. The public bracket omits the recorded-appearance disclosure (#512).
+
+S10's [original workbook and rulebook](s10-archive.md) support a verified
+knockout path (#997). The first two teams in each group start in the winners
+bracket. The third and fourth teams start in the losers bracket. The graph
+checks all eight seeds and both inputs to each of the six subsequent matches
+against the saved teams and outcomes. The winner of 27 goes directly to 30.
+Its loser meets the winner of 28 in 29, and the winner of 29 advances to 30.
+Match 30 decides the championship without a reset. If the saved records do
+not match the verified path, the schedule displays the recorded appearances.
+The match summary and match details retain the original stage and pool labels.
 
 S1's exact source workbook identifies `小组赛 A组` and `小组赛 B组`
 independently of its overall final standings, including in private previews and
