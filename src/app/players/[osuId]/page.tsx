@@ -289,7 +289,7 @@ async function ProfileContent({
       staffHistory={historicalStaffHistory(
         data.identity.osuId,
         publishedEditions,
-      )}
+      ).reverse()}
       mapPerformance={mapPerformance}
       mapByEdition={mapByEdition}
       mra={mra}
