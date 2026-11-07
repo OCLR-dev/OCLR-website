@@ -1,6 +1,11 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { archiveStaff } from "../../src/lib/archive-staff";
+import {
+  archiveMatchStaffLabel,
+  archiveStaff,
+} from "../../src/lib/archive-staff";
+import { staffWorkbooks } from "../../src/lib/archive-staff-evidence";
+import { groupArchiveStaff } from "../../src/lib/archive-staff-groups";
 import { historicalStaffHistory } from "../../src/lib/archive-staff-history";
 import { historicalArchiveSchema } from "../../src/lib/historical-archive";
 
@@ -139,11 +144,107 @@ describe("historical staff from recorded match evidence", () => {
     };
     const [record] = historicalStaffHistory(9755808, [edition]);
     expect(record.roles).toEqual(["streamer"]);
-    expect(new Set(record.matches.map((match) => match.id)).size).toBe(
-      record.matches.length,
-    );
+    expect(record).not.toHaveProperty("matches");
     expect(
       historicalStaffHistory(9755808, [{ ...edition, published: false }]),
     ).toEqual([]);
+  });
+
+  it("links organizer-confirmed spellings and aliases to the same numeric profile", () => {
+    const credits = [
+      ["s2", "seira-", "Miyaguni Akari", 3407743],
+      ["s3", "Gryo Zeppeli", "Gyro Zeppeli", 3824882],
+      ["s3", "Refia Vrifdis", "Refia Vridis", 760389],
+      ["s3", "Re_cycle", "Re_cyclc", 9043058],
+      ["s4", "Segawa Emi", "Segawa Emi", 9043058],
+      ["s4", "爆炸哥", "Explosive", 245276],
+      ["s5", "FujiwaraNoMouko", "FujiwaraNoMokou", 685188],
+      ["s5", "BC", "B C", 3917377],
+      ["s5", "demq", "demq", null],
+      ["s7", "ye_ow", "ye__ow", 2992539],
+    ] as const;
+    for (const [slug, original, username, osuId] of credits) {
+      const edition = {
+        ...archive,
+        editionSlug: slug,
+        sourceUrl: `https://docs.google.com/spreadsheets/d/${staffWorkbooks[slug]}/edit`,
+        staff: [
+          {
+            username: original,
+            osuId: null,
+            position: "Referee",
+            source: "Staff!A2",
+          },
+        ],
+        matches: [
+          { ...archive.matches[0], referee: username, streamer: original },
+        ],
+      };
+      const staff = archiveStaff(edition);
+      expect(staff).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ username, osuId, position: "Referee" }),
+          expect.objectContaining({ username, osuId, position: "Streamer" }),
+        ]),
+      );
+      expect(
+        groupArchiveStaff(staff).find((group) => group.key === "referee")
+          ?.members,
+      ).toHaveLength(1);
+      expect(archiveMatchStaffLabel(edition, "streamer", original)).toBe(
+        username,
+      );
+      expect(edition.staff[0].username).toBe(original);
+    }
+  });
+
+  it("orders released staff history by season and merges aliases into one role per UID", () => {
+    const staffEdition = (slug: string, season: string | null) => ({
+      slug,
+      season,
+      name: slug,
+      published: true,
+      archive: {
+        ...archive,
+        editionSlug: slug,
+        staff: [
+          {
+            username: "-Inui Sana-",
+            osuId: 9043058,
+            position: "Referee",
+            source: "Staff!A1",
+          },
+          {
+            username: "Re_cyclc",
+            osuId: 9043058,
+            position: "裁判",
+            source: "Staff!A2",
+          },
+          {
+            username: "Segawa Emi",
+            osuId: 9043058,
+            position: "Streamer",
+            source: "Staff!A3",
+          },
+        ],
+        matches: [],
+      },
+    });
+    const editions = [
+      staffEdition("s2", "2"),
+      staffEdition("s10", "10"),
+      staffEdition("s1", null),
+      staffEdition("s5", "β"),
+    ];
+    const records = historicalStaffHistory(9043058, editions);
+    expect(records.map((record) => record.editionSlug)).toEqual([
+      "s1",
+      "s2",
+      "s5",
+      "s10",
+    ]);
+    expect(records.map((record) => record.roles)).toEqual(
+      editions.map(() => ["referee", "streamer"]),
+    );
   });
 });

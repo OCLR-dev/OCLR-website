@@ -56,13 +56,16 @@ export const staffIdentities: ReadonlyMap<string, number> = new Map([
   ["eiko tokura", 9062731],
   ["endurance aura", 6368197],
   ["europix", 10741620],
+  ["fujiwaranomokou", 685188],
   ["fushimi rio", 1205412],
   ["gxytcgxytc", 874891],
+  ["gyro zeppeli", 3824882],
   ["hailaltair", 6606335],
   ["iz6", 26093361],
   ["k e e h a c k", 11324904],
   ["kishin sagume", 596803],
   ["lolol233", 11375105],
+  ["miyaguni akari", 3407743],
   ["myangelzfxggg", 11375105],
   ["nagaiyume", 1489075],
   ["niumaokun", 16227180],
@@ -79,6 +82,22 @@ export const staffIdentities: ReadonlyMap<string, number> = new Map([
   ["vrei", 4711096],
   ["watera1", 6938658],
   ["ye__ow", 2992539],
+]);
+
+// Organizer-confirmed corrections apply only to the named historical source.
+export const staffCorrections = new Map<
+  string,
+  { username: string; osuId: number }
+>([
+  ["s2:seira-", { username: "Miyaguni Akari", osuId: 3407743 }],
+  ["s3:gryo zeppeli", { username: "Gyro Zeppeli", osuId: 3824882 }],
+  ["s3:re_cycle", { username: "Re_cyclc", osuId: 9043058 }],
+  ["s3:refia vrifdis", { username: "Refia Vridis", osuId: 760389 }],
+  ["s4:segawa emi", { username: "Segawa Emi", osuId: 9043058 }],
+  ["s4:爆炸哥", { username: "Explosive", osuId: 245276 }],
+  ["s5:bc", { username: "B C", osuId: 3917377 }],
+  ["s5:fujiwaranomouko", { username: "FujiwaraNoMokou", osuId: 685188 }],
+  ["s7:ye_ow", { username: "ye__ow", osuId: 2992539 }],
 ]);
 
 // Split only explicitly reviewed cells when a workbook uses spaces between
