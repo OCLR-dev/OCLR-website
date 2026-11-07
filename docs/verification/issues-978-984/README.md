@@ -70,13 +70,16 @@ Mobile, dark:
 - `npm run check`, production build and read-API checks passed. The initial
   generation checks detected Windows CRLF differences; regenerating produced no
   Git content changes and the checks then passed.
-- The full unit/integration run reports unrelated replay/shell failures and a
-  historical migration timeout on this Windows host. These were also reproduced
-  on unmodified `95cb55b9` in a separate database. See the PR for final run counts.
+- The full unit/integration run was stopped after local PostgreSQL stalled in
+  `DataFileSync`, leaving database cleanup waiting in `CheckpointStart`. It
+  reported existing replay/shell failures, a historical migration timeout and an
+  Admin backup timeout before interruption. There is no complete-suite pass or
+  final test count for this run.
 - Baseline comparison: the replay attachment suite reproduced the same 7 failing
   cases; 16 selected existing unit suites produced 71 failures in 15 suites and
   one Windows socket error; the historical migration suite reproduced its 60s
-  timeout. This is not a claim that the complete suite passed.
+  timeout. The Admin backup timeout was observed waiting for the same stalled
+  checkpoint; that suite was not independently repeated. CI remains necessary.
 - Full E2E suite not run (too slow); browser verification is limited to this
   reported menu behavior.
 
