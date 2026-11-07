@@ -21,7 +21,10 @@ import { frontendConnection } from "@/lib/frontend-data";
 import { archiveEventMatches } from "@/lib/archive-event-matches";
 import { archiveStaff } from "@/lib/archive-staff";
 import { archivePlayerRoleLabel } from "@/lib/archive-player-role";
-import { groupArchiveStaff } from "@/lib/archive-staff-groups";
+import {
+  archiveStaffRoleTitles,
+  groupArchiveStaff,
+} from "@/lib/archive-staff-groups";
 import { remoteMode } from "@/lib/data-source";
 import { formatDate, type Edition } from "@/lib/editions";
 import {
@@ -588,18 +591,12 @@ export async function HistoricalArchiveView({
   } else if (section === "staff") {
     title = tr("Staff");
     const groups = groupArchiveStaff(archiveStaff(a));
-    const roleTitles: Record<string, string> = {
-      referee: tr("Referee"),
-      streamer: tr("Streamer"),
-      designer: tr("Designer"),
-      commentator: tr("Commentator"),
-      unspecified: tr("Staff (unspecified)"),
-    };
+    const roleTitles = archiveStaffRoleTitles(tr);
     content = groups.length ? (
       <div className="archive-staff stack">
         {groups.map(({ key, members }) => (
           <section key={key}>
-            <h2>{Object.hasOwn(roleTitles, key) ? roleTitles[key] : key}</h2>
+            <h2>{roleTitles.get(key) ?? key}</h2>
             <ul className="public-staff-list">
               {members.map((person, index) => (
                 <li key={`${person.osuId}-${index}`}>
@@ -624,6 +621,18 @@ export async function HistoricalArchiveView({
                         person.names.join(" · ")
                       )}
                     </h3>
+                    {!preview && person.osuId && (
+                      <Link
+                        className="context-link small"
+                        href={`/players/${person.osuId}#historical-staff-history`}
+                        prefetch={false}
+                        aria-label={tr("OCLR profile for {username}", {
+                          username: person.names[0],
+                        })}
+                      >
+                        {tr("OCLR profile")}
+                      </Link>
+                    )}
                   </div>
                 </li>
               ))}

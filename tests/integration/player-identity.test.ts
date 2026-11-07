@@ -32,6 +32,7 @@ import {
 import { publicPlayerDirectoryModel } from "../../src/lib/public-read-models";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
 import { readApiRoute } from "../../src/lib/read-api";
+import { historicalArchiveSchema } from "../../src/lib/historical-archive";
 import { profileResponse } from "../fixtures/osu-profile";
 import { edition } from "../fixtures/edition";
 import { historicalArchive } from "../fixtures/historical-archive";
@@ -156,6 +157,44 @@ describe.skipIf(!url)(
           ),
         ).rejects.toMatchObject({ status: 404 });
       }
+    });
+    it("opens a staff-only profile from published match credits and withdraws it when hidden", async () => {
+      const archive = historicalArchiveSchema.parse(
+        JSON.parse(readFileSync("docs/imports/s8-archive.json", "utf8")),
+      );
+      const staffEdition = {
+        ...edition,
+        slug: archive.editionSlug,
+        status: "completed" as const,
+        registration: null,
+        archive,
+        published: true,
+      };
+      const staffOnlyId = 245276;
+      await seedEditions([staffEdition]);
+      expect(await publicPlayer(staffOnlyId)).toEqual([]);
+      expect(
+        await publishedPlayerProfile(
+          String(staffOnlyId),
+          "osu",
+          undefined,
+          undefined,
+          true,
+        ),
+      ).toMatchObject({
+        identity: { username: "Explosive" },
+        participation: [],
+      });
+      await seedEditions([{ ...staffEdition, published: false }]);
+      await expect(
+        publishedPlayerProfile(
+          String(staffOnlyId),
+          "osu",
+          undefined,
+          undefined,
+          true,
+        ),
+      ).rejects.toMatchObject({ status: 404 });
     });
     it("aggregates cross-season native/archive facts once and keeps original names, roles, sources and results", async () => {
       await db()

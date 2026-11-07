@@ -3969,6 +3969,12 @@
     "mff526f68e975": "败者组决赛",
     "ma54974718b6d": "总决赛",
     "mb3d58ec438d9": "第 {value0} 场胜方",
-    "m19bbe477d366": "第 {value0} 场败方"
+    "m19bbe477d366": "第 {value0} 场败方",
+    "m2515b68329cf": "{username} 的 OCLR 资料",
+    "me93d149aef33": "我的历史执勤记录",
+    "m49fd30edacc4": "历史执勤记录",
+    "mad4fb98eee82": "历史执勤记录暂不可用。",
+    "m9c2d84c5fc7e": "暂无历史执勤记录。",
+    "m03c81fbedeb6": "{count, plural, other {# 场已记录对局}}"
   }
 }

@@ -223,18 +223,49 @@ export async function frontendProfile(
   const own = viewer?.osuId === identity.osuId;
   const query = new URLSearchParams();
   if (edition) query.set("edition", edition);
+  async function publicStaffName() {
+    const { getPublicEdition, getPublicEditions } = await import("./content");
+    const editions = edition
+      ? [await getPublicEdition(edition)].filter(
+          (record) => record !== undefined,
+        )
+      : await getPublicEditions();
+    const { historicalStaffHistory } = await import("./archive-staff-history");
+    return historicalStaffHistory(identity.osuId, editions)[0]?.username;
+  }
   // Negotiate using the freshly verified header. Old v1 backends reject unknown
   // paths/queries with 400; never probe and silently downgrade authorization.
   const version = (await frontendConnection()).contractVersion;
   if (Number(/^1\.(\d+)\./.exec(version ?? "")?.[1] ?? 0) >= 3) {
-    return oclrProfileSchema.parse(
-      (
-        await frontendRemoteRead(
-          own ? "/me/oclr-profile" : `/players/${identity.osuId}/oclr-profile`,
-          query,
-        )
-      ).data,
-    );
+    try {
+      return oclrProfileSchema.parse(
+        (
+          await frontendRemoteRead(
+            own
+              ? "/me/oclr-profile"
+              : `/players/${identity.osuId}/oclr-profile`,
+            query,
+          )
+        ).data,
+      );
+    } catch (error) {
+      // Older backends may have the published credit without a profile index entry.
+      if (
+        own ||
+        !(error instanceof RemoteDataError) ||
+        error.code !== "NOT_FOUND"
+      )
+        throw error;
+      const username = await publicStaffName();
+      if (!username) throw error;
+      return {
+        identity: { ...identity, username, currentUsername: null, names: [] },
+        participation: [],
+        snapshot: null,
+        bws: null,
+        error: null,
+      };
+    }
   }
   const slugs = edition
     ? [edition]
@@ -272,15 +303,14 @@ export async function frontendProfile(
       throw error;
     }
   }
-  if (!participation.length && !own)
-    throw new RemoteDataError("NOT_FOUND", 404);
   if (own && !saved)
     saved = await (
       await import("./osu-profiles")
     ).cachedOsuUserProfile(identity.osuId, identity.mode);
   const username =
     (own ? viewer.username : saved?.profile.username) ??
-    participation[0]?.username;
+    participation[0]?.username ??
+    (await publicStaffName());
   if (!username) throw new RemoteDataError("NOT_FOUND", 404);
   // Old servers cannot provide persistent provenance. These names have no
   // invented observation dates; v1.3 supplies the durable evidence instead.
