@@ -15,12 +15,17 @@ Every beatmap in cards, compact lists and Details has a **Download mirror** menu
 alongside its osu! actions. BeatConnect, Sayobot and Catboy link directly to the
 known beatmapset. When its ID is missing, the menu labels the links as searches.
 BeatConnect and Sayobot receive the song title when available. A valid saved
-mirror appears first. BeatConnect, Catboy and GitHub use local SVGs. Sayobot and
-other hosts without a distinct site icon use initials. The browser follows each
-HTTPS link directly. URLs with credentials or unsafe schemes are rejected and
-are not rendered from older read responses. Draft pool links remain private
-with the pool. Developer/remote channels stay read-only. Older backends may omit
-the additive field.
+mirror appears first. BeatConnect, Catboy and GitHub use local SVGs. Sayobot uses
+a centred S in an SVG badge, and other hosts without a distinct site icon use
+initials. The browser follows each HTTPS link directly. URLs with credentials or
+unsafe schemes are rejected and are not rendered from older read responses.
+Draft pool links remain private with the pool. Developer/remote channels stay
+read-only. Older backends may omit the additive field.
+
+The menu button uses the [Font Awesome download icon](../LICENSES/Font-Awesome-Free.md).
+The osu!direct button uses the original outlines from the [official single-colour
+osu! SVG](https://github.com/ppy/osu-web/blob/cfcc19be102bb2e4712fef4067542affd506087d/public/images/layout/osu-logo-white.svg).
+It follows the button's text colour under the [osu! brand identity guidelines](https://osu.ppy.sh/wiki/en/Brand_identity_guidelines).
 
 Migration `0086_mappool_download_mirrors` adds the native entry column and typed
 historical-map column, and saves the organizer's two pinned GitHub OSZ mirrors.

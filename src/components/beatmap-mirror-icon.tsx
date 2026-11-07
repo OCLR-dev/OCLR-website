@@ -30,6 +30,18 @@ export function BeatmapMirrorIcon({ mirror }: { mirror: BeatmapMirror }) {
           <path fill="#6812cc" d="m12 9.9 1.3 1.3-1.3 1.3-1.3-1.3Z" />
         </>
       )}
+      {mirror.icon === "sayobot" && (
+        <>
+          <rect width="24" height="24" rx="5" fill="var(--site-tint)" />
+          <path
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeWidth="2.5"
+            d="M15.7 7.4C14.8 6.5 13.6 6 12 6 9.5 6 8.1 7.3 8.1 9c0 1.9 1.8 2.4 3.9 3s3.9 1.1 3.9 3c0 1.7-1.4 3-3.9 3-1.6 0-2.8-.5-3.7-1.4"
+          />
+        </>
+      )}
       {mirror.icon === "catboy" && (
         // Redrawn from the Mino mascot at catboy.best/static/img/mino.png.
         <>

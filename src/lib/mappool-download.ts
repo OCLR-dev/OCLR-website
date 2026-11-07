@@ -29,7 +29,7 @@ export function safeDownloadMirror(value: unknown): string | null {
 export type BeatmapMirror = {
   name: string;
   href: string;
-  icon?: "beatconnect" | "catboy" | "github";
+  icon?: "beatconnect" | "sayobot" | "catboy" | "github";
   search?: boolean;
 };
 
@@ -57,6 +57,7 @@ export function beatmapDownloadMirrors(
     },
     {
       name: "Sayobot",
+      icon: "sayobot",
       href: knownSet
         ? `https://dl.sayobot.cn/beatmaps/download/full/${setId}`
         : sayobotSearch.href,
