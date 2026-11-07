@@ -329,24 +329,24 @@ async function HomeContent() {
            * (display: contents), so hovering or focusing either the hit area
            * or the card keeps the card open. */}
           <div className="home-liru">
-            {/* Liru artwork: the box crops it per breakpoint (home.css), so
-             * another Liru image can be dropped in unchanged. */}
+            {/* The WebP crop follows the original hero framing. The box
+             * crops it further per breakpoint (home.css). */}
             <div className="home-hero-character">
               <div className="home-liru-art">
                 <picture>
                   <source
                     type="image/webp"
-                    srcSet="/branding/home-hero/liru-cn-v3-480.webp 480w, /branding/home-hero/liru-cn-v3-800.webp 800w, /branding/home-hero/liru-cn-v3-1111.webp 1111w"
+                    srcSet="/branding/home-hero/liru-jade-fan-480.webp 480w, /branding/home-hero/liru-jade-fan-610.webp 610w"
                     sizes="(max-width: 760px) 86vw, 390px"
                   />
                   <Image
-                    src="/branding/home-hero/liru-cn-v3-800.webp"
+                    src="/branding/home-hero/liru-jade-fan-610.webp"
                     unoptimized
                     alt={tr(
                       "Liru, the OCLR mascot, in her Chinese-style outfit holding a folding fan",
                     )}
-                    width={800}
-                    height={1430}
+                    width={610}
+                    height={1090}
                     loading="eager"
                   />
                 </picture>

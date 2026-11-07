@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const LIRU = /\/branding\/home-hero\/liru-cn-v3-(?:480|800|1111)\.webp$/;
+const LIRU = /\/branding\/home-hero\/liru-jade-fan-(?:480|610)\.webp$/;
 
 test("a narrow homepage loads the small Liru artwork and the small nebula", async ({
   page,
@@ -23,7 +23,7 @@ test("a narrow homepage loads the small Liru artwork and the small nebula", asyn
     .toBe(true);
   expect(
     await liru.evaluate((node: HTMLImageElement) => node.currentSrc),
-  ).toMatch(/liru-cn-v3-(?:480|800|1111)\.webp$/);
+  ).toMatch(LIRU);
   expect(requested.has("/branding/home-hero/nebula-v2-2560.webp")).toBe(false);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),

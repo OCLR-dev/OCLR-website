@@ -57,7 +57,7 @@ describe("homepage registration banner", () => {
     );
     expect(liru).toContain('type="image/webp"');
     expect(liru).not.toContain(".png");
-    expect(liru).toMatch(/srcSet="[^"]+ 480w, [^"]+ 800w, [^"]+ 1111w"/);
+    expect(liru).toMatch(/srcSet="[^"]+ 480w, [^"]+ 610w"/);
     expect(liru).toContain('sizes="(max-width: 760px) 86vw, 390px"');
     expect(html).not.toMatch(/<link[^>]+as="image"[^>]+home-hero/);
   });
