@@ -34,7 +34,7 @@ export async function HistoricalEditionCard({
   ];
   return (
     <article
-      className={styles.card}
+      className={`edition-card ${styles.card}`}
       style={
         accent
           ? ({
@@ -44,6 +44,12 @@ export async function HistoricalEditionCard({
           : undefined
       }
     >
+      <Link
+        className="edition-card-link"
+        href={href ?? base}
+        aria-label={`${tr("View tournament")}: ${edition.name}`}
+      />
+      <span className="edition-card-glow" aria-hidden="true" />
       <div className={styles.artwork}>
         <EditionArtwork slug={edition.slug} logo={artwork} />
       </div>
@@ -53,12 +59,7 @@ export async function HistoricalEditionCard({
             <strong>OCLR</strong>
             <span>osu! Chinese League Rookie</span>
           </div>
-          <div className={styles.titleRow}>
-            <h2>{title}</h2>
-            <Link className={styles.overview} href={href ?? base}>
-              {tr("Main page")} <span aria-hidden="true">→</span>
-            </Link>
-          </div>
+          <h2>{title}</h2>
         </div>
         <nav className={styles.links} aria-label={edition.name}>
           {links.map(({ path, label }) => (

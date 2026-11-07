@@ -22,15 +22,16 @@
   color: inherit;
   background: transparent;
   text-decoration: none;
-  border-radius: 0;
+  border: 1px solid var(--entry-line);
+  border-radius: 0.65rem;
   transition: background-color 160ms ease;
 }
 
-.entries .contact {
+.entries .contact,
+.entries .overview {
   grid-template-columns: 40px minmax(0, 1fr) 20px;
   gap: 14px;
   padding: 8px 12px;
-  border: 1px solid var(--entry-line);
   font-size: 1rem;
   font-weight: 700;
 }
@@ -57,25 +58,14 @@
 }
 
 .entries .overview {
-  grid-template-columns: 28px minmax(0, 1fr) 20px;
-  gap: 14px;
-  padding: 8px 13px 8px 0;
-  border-block: 1px solid var(--entry-line);
   font-size: 1.125rem;
   font-weight: 750;
-}
-
-.square {
-  width: 20px;
-  height: 20px;
-  background: var(--entry-accent);
 }
 
 .entries .registration {
   grid-template-columns: 40px minmax(0, 1fr);
   gap: 14px;
-  padding: 8px 13px;
-  border-block: 1px solid var(--entry-line);
+  padding: 8px 12px;
 }
 
 .registration .icon {
@@ -139,10 +129,6 @@
   .icon {
     width: 12px;
     height: 12px;
-  }
-  .square {
-    width: 10px;
-    height: 10px;
   }
   .phase {
     font-size: 0.75rem;
