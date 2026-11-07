@@ -156,9 +156,11 @@ and read-only Developer/remote restrictions still apply.
 The [background difficulty job](#background-difficulty-job) discovers maps in
 published native and historical pools and stores official base and Mod snapshots
 in PostgreSQL. The web server joins the saved results by BID. Native pool entries
-with a known ruleset or checksum use only compatible results. Where multiple
-snapshots are available, prefer coverage of the requested Mods, then recency.
-Each displayed result uses one coherent base and set of Mod attributes.
+with a known ruleset or checksum use only compatible results. The background
+snapshot takes precedence, including when only some Mod results are available.
+When there is no compatible background snapshot, saved compatibility snapshots
+are ranked by coverage of the requested Mods, then recency. Each displayed
+result uses one coherent base and set of Mod attributes.
 
 Previously prepared files remain a compatibility source. The offline command
 can still prepare a public numeric catalog on an approved preparation host with
@@ -217,12 +219,17 @@ npm run db:refresh-beatmap-difficulties -- --apply
 Dry-run reports counts without provider calls. Each apply handles up to 12 BIDs,
 deduplicating their required Mod combinations across published pools. FM prepares
 HD, HR and EZ. Unknown TB/ACE combinations stay variable. Fresh complete results
-are reused for seven days. A PostgreSQL advisory lock keeps jobs from overlapping,
-and each complete snapshot commits independently. Failed lookups preserve the
-previous result. Missing maps retry after a day and other provider failures after
-15 minutes. A rate-limit response ends the current batch. The job reuses the
-existing osu! API transport and its process-local limiter. Account for other
-processes using the same application credentials when scheduling the timer.
+are reused for seven days. A PostgreSQL advisory lock keeps jobs from overlapping.
+Each map commits independently. If a Mod lookup fails, the job still saves the
+official base and the Mod results it obtained, and keeps previously fetched
+variants for the same verified map revision. These partial writes are counted in
+`partial` and are included in `failed` while waiting for retry. A failed base
+lookup preserves the previous snapshot. Missing maps retry after a day and other
+provider failures after 15 minutes. A rate-limit response ends the current batch.
+During the first sync, reload the page after a map's batch completes to see its
+official values. The job reuses the existing osu! API transport and its
+process-local limiter. Account for other processes using the same application
+credentials when scheduling the timer.
 
 On Rocky Linux, review the release path, Node executable and protected environment
 file in the [service](systemd/oclr-beatmap-difficulty.service) and

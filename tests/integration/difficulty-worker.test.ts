@@ -24,6 +24,7 @@ import { publicMappools } from "../../src/lib/mappools";
 import { osuApi } from "../../src/lib/osu-api";
 import { readApiRoute } from "../../src/lib/read-api";
 import { withReadChannel } from "../../src/lib/read-channel";
+import { attachArchiveDifficulties } from "../../src/lib/saved-difficulty";
 import { assertTestDatabase } from "../database";
 import { edition } from "../fixtures/edition";
 import { seedEditions } from "../fixtures/editions";
@@ -54,6 +55,28 @@ function archiveEdition(slug: string, beatmapId: number, published = true) {
     status: "completed",
     registration: null,
     archive,
+  };
+}
+
+function officialBeatmap(path: string) {
+  return {
+    id: Number(path.split("/").at(-1)),
+    beatmapset_id: 1,
+    version: "Synthetic",
+    difficulty_rating: 5,
+    bpm: 180,
+    total_length: 120,
+    mode: "osu",
+    checksum,
+    ar: 9,
+    accuracy: 8,
+    cs: 4,
+    drain: 6,
+    beatmapset: {
+      title: "Synthetic",
+      artist: "Synthetic",
+      creator: "Synthetic",
+    },
   };
 }
 
@@ -179,26 +202,7 @@ describe.skipIf(!url)("background official mappool difficulty", () => {
             max_combo: 1000,
           },
         };
-      const id = Number(path.split("/").at(-1));
-      return {
-        id,
-        beatmapset_id: 1,
-        version: "Synthetic",
-        difficulty_rating: 5,
-        bpm: 180,
-        total_length: 120,
-        mode: "osu",
-        checksum,
-        ar: 9,
-        accuracy: 8,
-        cs: 4,
-        drain: 6,
-        beatmapset: {
-          title: "Synthetic",
-          artist: "Synthetic",
-          creator: "Synthetic",
-        },
-      };
+      return officialBeatmap(path);
     });
     expect(await refreshBeatmapDifficulties(true)).toMatchObject({
       saved: 2,
@@ -273,6 +277,90 @@ describe.skipIf(!url)("background official mappool difficulty", () => {
       .from(mappools)
       .where(eq(mappools.id, published.id));
     expect(locked).toEqual(published);
+  });
+
+  it("uses a partial daemon snapshot ahead of historical values and retries the missing FM variant", async () => {
+    const source = archiveEdition("history-test", 51006);
+    const [map] = source.archive.pools[0].maps;
+    Object.assign(map, { slot: "FM1" });
+    const oldTime = "2025-01-01T00:00:00.000Z";
+    Object.assign(map, {
+      difficultySnapshot: {
+        beatmapId: 51006,
+        ruleset: "osu",
+        checksum,
+        fetchedAt: oldTime,
+        base: { ...values, stars: 4 },
+        variants: Object.fromEntries(
+          ["HD", "HR", "EZ"].map((mod) => [
+            mod,
+            {
+              configuration: mod,
+              mods: [mod],
+              ruleset: "osu",
+              stars: 4,
+              maxCombo: null,
+              values: {},
+              fetchedAt: oldTime,
+            },
+          ]),
+        ),
+      },
+    });
+    await seedEditions([source]);
+    api.mockImplementation(async (path, request) => {
+      if (!request) return officialBeatmap(path);
+      if (request.mods.includes("HR"))
+        throw new HttpError(404, "Synthetic missing variant");
+      return { attributes: { star_rating: 6.75 } };
+    });
+    expect(await refreshBeatmapDifficulties(true)).toMatchObject({
+      saved: 0,
+      failed: 1,
+      partial: 1,
+      deferred: 1,
+    });
+    const [result] = (await attachArchiveDifficulties(source.archive)).pools[0]
+      .maps;
+    expect(result.stars).toBe(5.5);
+    const input = {
+      beatmapId: 51006,
+      category: "FM",
+      historical: true,
+      base: { ...values, stars: 5.5 },
+      snapshot: result.difficultySnapshot,
+    };
+    expect(displayDifficulty(input, { adjusted: false, fm: "" })).toMatchObject(
+      {
+        status: "base",
+        values: { stars: 5, hp: 6 },
+      },
+    );
+    expect(
+      displayDifficulty(input, { adjusted: true, fm: "HR" }),
+    ).toMatchObject({
+      status: "missing",
+      values: { stars: null, ar: 10 },
+    });
+    expect(
+      displayDifficulty(input, { adjusted: true, fm: "EZ" }),
+    ).toMatchObject({
+      status: "adjusted",
+      values: { stars: 6.75, ar: 4.5 },
+    });
+    api.mockClear();
+    api.mockResolvedValue({ attributes: { star_rating: 7.25 } });
+    await db().update(beatmapDifficultySnapshots).set({ retryAt: null });
+    expect(await refreshBeatmapDifficulties(true)).toMatchObject({
+      saved: 1,
+      failed: 0,
+      partial: 0,
+    });
+    expect(api.mock.calls).toEqual([
+      ["/beatmaps/51006/attributes", { mods: ["HR"], ruleset: "osu" }],
+    ]);
+    const [saved] = await db().select().from(beatmapDifficultySnapshots);
+    expect(saved.snapshot?.variants.HR?.stars).toBe(7.25);
   });
 
   it("retains the last complete result and defers a rate-limited refresh", async () => {

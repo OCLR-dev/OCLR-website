@@ -37,7 +37,7 @@ export async function loadSavedDifficulties(ids: readonly (number | null)[]) {
   return snapshots;
 }
 
-/** Pick a single coherent base/Mod result, preferring complete, recent data. */
+/** Prefer the daemon snapshot, then choose a coherent saved compatibility result. */
 export function selectSavedDifficulty(
   saved: ReadonlyMap<number, DifficultySnapshot>,
   beatmapId: number | null,
@@ -56,12 +56,10 @@ export function selectSavedDifficulty(
     s.beatmapId === beatmapId &&
     (!checksum || s.checksum === checksum) &&
     (!ruleset || s.ruleset === ruleset);
+  const current = saved.get(beatmapId);
+  if (compatible(current)) return current;
   const validated = difficultySnapshotSchema.safeParse(embedded);
-  return [
-    saved.get(beatmapId),
-    validated.data,
-    catalogDifficulty(beatmapId, checksum),
-  ]
+  return [validated.data, catalogDifficulty(beatmapId, checksum)]
     .filter(compatible)
     .sort(
       (a, b) =>

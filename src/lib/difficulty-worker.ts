@@ -11,13 +11,24 @@ import { remoteMode } from "./data-source";
 import { previewConfigurations } from "./difficulty-display";
 import { difficultySnapshotSchema } from "./difficulty-snapshot";
 import { HttpError } from "./http";
-import type { DifficultyConfiguration } from "./mappool-model";
-import { fetchBeatmap, prepareDifficultySnapshot } from "./osu-beatmaps";
+import type {
+  DifficultyConfiguration,
+  DifficultySnapshot,
+} from "./mappool-model";
+import {
+  fetchBeatmap,
+  prepareDifficultySnapshot,
+  withBeatmapAttributes,
+} from "./osu-beatmaps";
 import { inReadChannel } from "./read-channel";
 
 const batchSize = 12;
 const day = 24 * 60 * 60 * 1000;
 const freshFor = 7 * day;
+
+function isFresh(value: { fetchedAt: string } | undefined, now: number) {
+  return value && Date.parse(value.fetchedAt) > now - freshFor;
+}
 
 async function pendingDifficulties(
   database: Pick<ReturnType<typeof db>, "select" | "execute">,
@@ -92,19 +103,26 @@ async function pendingDifficulties(
   const pending: {
     beatmapId: number;
     configurations: DifficultyConfiguration[];
+    previous?: DifficultySnapshot;
   }[] = [];
   for (const [beatmapId, configurations] of targets) {
     const row = saved.get(beatmapId);
     const parsed = difficultySnapshotSchema.safeParse(row?.snapshot);
+    const previous =
+      parsed.data?.beatmapId === beatmapId ? parsed.data : undefined;
     if (
-      parsed.success &&
-      parsed.data.beatmapId === beatmapId &&
-      Date.parse(parsed.data.fetchedAt) > now - freshFor &&
-      [...configurations].every((mod) => parsed.data.variants[mod])
+      previous &&
+      isFresh(previous, now) &&
+      [...configurations].every((mod) => isFresh(previous.variants[mod], now))
     )
       continue;
     if (row?.retryAt && row.retryAt.getTime() > now) deferred++;
-    else pending.push({ beatmapId, configurations: [...configurations] });
+    else
+      pending.push({
+        beatmapId,
+        configurations: [...configurations],
+        previous,
+      });
   }
   return { pending, tracked: targets.size, deferred };
 }
@@ -128,7 +146,7 @@ export async function refreshBeatmapDifficulties(apply = false) {
     };
   }
   // Use a dedicated connection so a process exit releases the session lock.
-  // Each complete map commits independently, without a transaction spanning HTTP calls.
+  // Each map commits independently, without a transaction spanning HTTP calls.
   const client = await getPool().connect();
   client.on("error", () => {
     console.error("Difficulty synchronization lost its database connection.");
@@ -142,40 +160,61 @@ export async function refreshBeatmapDifficulties(apply = false) {
     const { pending, tracked, deferred } = await pendingDifficulties(database);
     let saved = 0;
     let failed = 0;
-    for (const { beatmapId, configurations } of pending.slice(0, batchSize)) {
-      let snapshot;
-      try {
-        snapshot = difficultySnapshotSchema.parse(
-          await prepareDifficultySnapshot(
-            await fetchBeatmap(beatmapId),
-            configurations,
-          ),
-        );
-      } catch (error) {
+    let partial = 0;
+    for (const { beatmapId, configurations, previous } of pending.slice(
+      0,
+      batchSize,
+    )) {
+      const retry = { at: null as Date | null, limited: false };
+      function defer(error: unknown) {
         const status = error instanceof HttpError ? error.status : undefined;
         if (status === 503) throw error;
-        const retryAt = new Date(
-          Date.now() + (status === 404 ? day : 15 * 60 * 1000),
-        );
-        await database
-          .insert(beatmapDifficultySnapshots)
-          .values({ beatmapId, retryAt })
-          .onConflictDoUpdate({
-            target: beatmapDifficultySnapshots.beatmapId,
-            set: { retryAt },
-          });
-        failed++;
-        if (status === 429) break;
-        continue;
+        const next = Date.now() + (status === 404 ? day : 15 * 60 * 1000);
+        if (!retry.at || next < retry.at.getTime()) retry.at = new Date(next);
+        retry.limited = status === 429;
       }
+      let base;
+      let snapshot;
+      try {
+        base = await fetchBeatmap(beatmapId);
+        snapshot = await prepareDifficultySnapshot(base, []);
+      } catch (error) {
+        defer(error);
+      }
+      if (base && snapshot) {
+        // Reuse variants only if the provider confirmed the same map revision.
+        if (
+          previous?.checksum &&
+          previous.checksum === snapshot.checksum &&
+          previous.ruleset === snapshot.ruleset
+        )
+          snapshot.variants = { ...previous.variants };
+        for (const configuration of configurations) {
+          if (retry.limited) break;
+          if (isFresh(snapshot.variants[configuration], Date.now())) continue;
+          try {
+            snapshot.variants[configuration] = (
+              await withBeatmapAttributes(base, configuration)
+            ).metadata.attributes!;
+          } catch (error) {
+            defer(error);
+          }
+        }
+        snapshot = difficultySnapshotSchema.parse(snapshot);
+      }
+      const update = { retryAt: retry.at, ...(snapshot ? { snapshot } : {}) };
       await database
         .insert(beatmapDifficultySnapshots)
-        .values({ beatmapId, snapshot, retryAt: null })
+        .values({ beatmapId, ...update })
         .onConflictDoUpdate({
           target: beatmapDifficultySnapshots.beatmapId,
-          set: { snapshot, retryAt: null },
+          set: update,
         });
-      saved++;
+      if (retry.at) {
+        failed++;
+        if (snapshot) partial++;
+      } else saved++;
+      if (retry.limited) break;
     }
     return {
       status: pending.length ? "processed" : deferred ? "deferred" : "current",
@@ -184,6 +223,7 @@ export async function refreshBeatmapDifficulties(apply = false) {
       deferred: deferred + failed,
       saved,
       failed,
+      partial,
     };
   } finally {
     client.release(true);
