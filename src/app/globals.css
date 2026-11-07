@@ -1590,8 +1590,10 @@ body:has(.presenter-view) .site-footer,
   padding: 1rem;
 }
 .bracket-frame {
+  --bracket-column-width: 224px;
+  --bracket-column-gap: 2.5rem;
   display: flex;
-  gap: 2.5rem;
+  gap: var(--bracket-column-gap);
   width: max-content;
   min-height: 220px;
   position: relative;
@@ -1600,9 +1602,47 @@ body:has(.presenter-view) .site-footer,
 .bracket-round {
   display: flex;
   flex-direction: column;
-  width: 224px;
+  width: var(--bracket-column-width, 224px);
   position: relative;
   z-index: 1;
+}
+.bracket-frame.bracket-double {
+  --bracket-column-width: 13rem;
+  --bracket-column-gap: 2rem;
+  display: grid;
+  grid-template-columns: max-content max-content;
+  gap: 1.5rem var(--bracket-column-gap);
+}
+.bracket-lane {
+  grid-column: 1;
+}
+.bracket-lane > h2 {
+  font-size: var(--text-body);
+  margin: 0 0 0.75rem;
+}
+.bracket-lane-lower {
+  grid-row: 2;
+  border-top: 1px solid var(--site-border, #292d43);
+  padding-top: 1rem;
+}
+.bracket-lane-final {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+.bracket-lane-rounds {
+  display: grid;
+  grid-auto-columns: var(--bracket-column-width);
+  column-gap: var(--bracket-column-gap);
+}
+.bracket-lane-rounds > .bracket-round {
+  grid-row: 1;
+}
+.bracket-round-label {
+  color: var(--site-muted, #c9bfdb);
+  font-size: var(--text-support);
+  margin: 0 0 0.75rem;
+  text-align: center;
 }
 .bracket-round > h2 {
   font-size: var(--text-support);
@@ -1794,11 +1834,8 @@ body:has(.presenter-view) .site-footer,
   .bracket-scroll {
     padding: 1rem;
   }
-  .bracket-round {
-    width: 220px;
-  }
   .bracket-frame {
-    gap: 2.5rem;
+    --bracket-column-width: 220px;
   }
 }
 .news-list article {

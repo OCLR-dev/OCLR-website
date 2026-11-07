@@ -1,6 +1,6 @@
 # Historical competition presentation (#241)
 
-The historical schedule and bracket page now share the same archive competition view: Group Stage and Knockout are the top-level choices. Group A/B/C/D remain secondary choices under Group Stage, beside the historical standings. Knockout shows the archive's match columns and the reviewed winner and loser connections when available. The match summary, round filter and detail links remain available.
+The historical schedule and bracket page now share the same archive competition view: Group Stage and Knockout are the top-level choices. Group A/B/C/D remain secondary choices under Group Stage, beside the historical standings. Reviewed S1–S10 knockout graphs show the winners bracket above the losers bracket, with both winners feeding the grand final on the right (#1002). Dashed lines show where a defeat sends a team into the losers bracket. The match summary, round filter and detail links remain available.
 
 Migration `0091_historical_bracket_progression.sql` stores the reviewed
 S1–S10 knockout paths (#999). `historical_brackets` identifies each archive
