@@ -47,6 +47,6 @@
 
 - S1 的「傻呗」依主辦要求顯示為 ShaBae，使用已保存的 UID 8501053。原署名留在封存資料。 [ShaBae 的 osu! 檔案](https://osu.ppy.sh/users/8501053)
 - S5 B31 原表解說欄列出 `Prophet BC demq`，同場錄影簡介列出「解说:Prophet 沙贝 BC」。主辦確認 `demq` 是 `demisemiquaver`（ShaBae，UID 8501053），S5 執勤記錄同時列出裁判與解說。現用同名帳號 UID 27633059 於 2021 年 12 月建立，晚於 B31。 [OCLR 對局](https://oclr.org/tournaments/s5/matches/b31) · [當年錄影](https://www.bilibili.com/video/BV1Di4y1c7aq/) · [同名 osu! 帳號](https://osu.ppy.sh/users/27633059)
-- S4 K8 原表直播欄記載「感谢BC临时帮忙」。主辦確認 B C（UID 3917377）為直播員，並保留原註記。 [S4 K8 對局](https://oclr.org/tournaments/s4/matches/k8) · [B C 的 osu! 檔案](https://osu.ppy.sh/users/3917377)
+- S4 K8 原表直播欄記載「感谢BC临时帮忙」。主辦確認 B C（UID 3917377）為直播員，公開直播欄顯示「Sonoaoi、B C」。 [S4 K8 對局](https://oclr.org/tournaments/s4/matches/k8) · [B C 的 osu! 檔案](https://osu.ppy.sh/users/3917377)
 
 `鸽了`、`none`、`好多人` 等只作原始對局備註。多人欄使用原表標點或逐欄核對的分隔方式。來源署名與對局資料保持原樣，應用程式從現有公開資料組合工作人員名單與執勤記錄。

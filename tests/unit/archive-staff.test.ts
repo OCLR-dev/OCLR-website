@@ -199,7 +199,7 @@ describe("historical staff from recorded match evidence", () => {
     }
   });
 
-  it("adds the confirmed S4 and S5 match duties while retaining their source text", () => {
+  it("adds the confirmed S4 and S5 match duties and formats their public credits", () => {
     const s4 = load(4);
     const k8 = s4.matches.find((match) => match.id === "k8")!;
     const s4Staff = archiveStaff({ ...s4, matches: [k8] });
@@ -210,7 +210,7 @@ describe("historical staff from recorded match evidence", () => {
       source: `${k8.source}; streamer`,
     });
     expect(archiveMatchStaffLabel(s4, "streamer", k8.streamer)).toBe(
-      "Sonoaoi(感谢BC临时帮忙)",
+      "Sonoaoi、B C",
     );
 
     const s5 = load(5);
