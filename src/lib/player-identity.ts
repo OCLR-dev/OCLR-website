@@ -1,4 +1,4 @@
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { playerNames, users } from "@/db/schema";
 import { getPublicEditions } from "./content";
@@ -13,6 +13,34 @@ export type NameEvidence = {
   lastObservedAt: string | null;
 };
 export type PlayerName = { username: string; evidence: NameEvidence[] };
+
+/** Only call for already-public UIDs. Durable provider observations survive
+ * cache eviction; private login names and historical aliases are not current IDs. */
+export async function currentPublicPlayerNames(osuIds: number[]) {
+  const names = new Map<number, string>();
+  if (!process.env.DATABASE_URL) return names;
+  const ids = [...new Set(osuIds)];
+  for (let offset = 0; offset < ids.length; offset += 500) {
+    const rows = await db()
+      .select({ osuId: playerNames.osuId, username: playerNames.username })
+      .from(playerNames)
+      .where(
+        and(
+          inArray(playerNames.osuId, ids.slice(offset, offset + 500)),
+          eq(playerNames.source, "osu_current"),
+          eq(playerNames.published, true),
+        ),
+      )
+      .orderBy(
+        sql`${playerNames.lastObservedAt} DESC NULLS LAST`,
+        desc(playerNames.username),
+        playerNames.reference,
+      );
+    for (const row of rows)
+      if (!names.has(row.osuId)) names.set(row.osuId, row.username);
+  }
+  return names;
+}
 
 /** UID is the only join key. A reused name never establishes identity. */
 export function groupPlayerNames(

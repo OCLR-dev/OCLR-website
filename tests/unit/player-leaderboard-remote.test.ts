@@ -28,7 +28,7 @@ describe("background ranking remote adapter", () => {
   });
   it("reads the saved full and personal resources without a local database", async () => {
     state.resource.mockResolvedValueOnce({
-      players: [],
+      players: [{ osuId: 42, username: "Latest public ID", mra: 1.25 }],
       editions: 1,
       unavailableEditions: 0,
       maps: 2,
@@ -38,6 +38,9 @@ describe("background ranking remote adapter", () => {
       calculatedAt: "2026-11-06T00:00:00Z",
     });
     const full = await playerLeaderboard();
+    expect(full.players).toEqual([
+      { osuId: 42, username: "Latest public ID", mra: 1.25 },
+    ]);
     expect(full.art.get(42)).toEqual({ avatarUrl: null, coverUrl: null });
     expect(state.resource).toHaveBeenCalledWith("playerLeaderboard");
     state.resource.mockResolvedValueOnce({

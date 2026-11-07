@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { db, readOnlyData } from "@/db";
 import { playerLeaderboardRows } from "@/db/schema";
 import { cachedDirectoryStatistics } from "./osu-profiles";
+import { currentPublicPlayerNames } from "./player-identity";
 import {
   leaderboardSource,
   matchingLeaderboard,
@@ -28,6 +29,16 @@ const empty = (): PlayerLeaderboardCore => ({
 });
 async function decorate(core: PlayerLeaderboardCore) {
   const art: PlayerLeaderboardWire["art"] = {};
+  const names = remoteMode()
+    ? new Map<number, string>()
+    : await currentPublicPlayerNames(core.players.map((p) => p.osuId));
+  core = {
+    ...core,
+    players: core.players.map((player) => ({
+      ...player,
+      username: names.get(player.osuId) ?? player.username,
+    })),
+  };
   try {
     const saved = await cachedDirectoryStatistics(
       core.players.map((p) => p.osuId),
