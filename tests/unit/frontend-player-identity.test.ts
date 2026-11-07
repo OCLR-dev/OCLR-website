@@ -5,6 +5,8 @@ import { frontendProfile } from "../../src/lib/frontend-data";
 import { remoteRead } from "../../src/lib/remote-transport";
 import { cachedOsuUserProfile } from "../../src/lib/osu-profiles";
 import { edition } from "../fixtures/edition";
+import { historicalArchive } from "../fixtures/historical-archive";
+import { getPublicEditions } from "../../src/lib/content";
 const state = vi.hoisted(() => ({
   version: "1.2.0",
   viewer: null as null | { osuId: number; username: string },
@@ -34,6 +36,10 @@ vi.mock("../../src/lib/remote-transport", async (original) => ({
 }));
 vi.mock("../../src/lib/osu-profiles", () => ({
   cachedOsuUserProfile: vi.fn(async () => null),
+}));
+vi.mock("../../src/lib/content", () => ({
+  getPublicEdition: vi.fn(async () => undefined),
+  getPublicEditions: vi.fn(async () => []),
 }));
 const source = {
   kind: "historical_archive",
@@ -172,6 +178,37 @@ it("keeps standard snapshot aliases for the legacy subject without participation
   );
   expect(cachedOsuUserProfile).toHaveBeenCalledWith(360001, "osu");
 });
+it.each(["1.2.0", "1.3.0"])(
+  "opens a staff-only profile from released archive credits on v%s",
+  async (version) => {
+    state.version = version;
+    const released = {
+      ...edition,
+      published: true,
+      archive: {
+        ...historicalArchive,
+        staff: [
+          {
+            username: "Archive Staff",
+            osuId: 360002,
+            position: "Referee",
+            source: "Staff!A2",
+          },
+        ],
+      },
+    };
+    vi.mocked(getPublicEditions).mockResolvedValueOnce([released]);
+    vi.mocked(remoteRead).mockImplementation(async (path) => {
+      if (path === "/tournaments") return response(summaries, true);
+      throw new RemoteDataError("NOT_FOUND", 404);
+    });
+    expect(await frontendProfile("360002")).toMatchObject({
+      identity: { osuId: 360002, username: "Archive Staff" },
+      participation: [],
+      snapshot: null,
+    });
+  },
+);
 it("uses the negotiated v1.3 subject resource and never downgrades auth failures", async () => {
   state.version = "1.3.0";
   state.viewer = { osuId: 360001, username: "Self" };

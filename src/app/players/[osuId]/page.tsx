@@ -18,6 +18,7 @@ import {
   type PlayerTimeline,
 } from "@/lib/player-timeline";
 import { getPublicEditions } from "@/lib/content";
+import { historicalStaffHistory } from "@/lib/archive-staff-history";
 import { archiveKeyVisual } from "@/lib/archive-key-visual";
 import { getAppTranslations } from "@/i18n/server";
 import { frontendProfile, frontendUsernameOwner } from "@/lib/frontend-data";
@@ -285,6 +286,10 @@ async function ProfileContent({
       bws={data.bws}
       bwsByEdition={bwsByEdition}
       competition={competition}
+      staffHistory={historicalStaffHistory(
+        data.identity.osuId,
+        publishedEditions,
+      )}
       mapPerformance={mapPerformance}
       mapByEdition={mapByEdition}
       mra={mra}

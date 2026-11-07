@@ -3969,6 +3969,12 @@
     "mff526f68e975": "Losers bracket final",
     "ma54974718b6d": "Grand final",
     "mb3d58ec438d9": "Winner of match {value0}",
-    "m19bbe477d366": "Loser of match {value0}"
+    "m19bbe477d366": "Loser of match {value0}",
+    "m2515b68329cf": "OCLR profile for {username}",
+    "me93d149aef33": "My historical staff record",
+    "m49fd30edacc4": "Historical staff record",
+    "mad4fb98eee82": "Historical staff records are temporarily unavailable.",
+    "m9c2d84c5fc7e": "No historical staff duties are recorded yet.",
+    "m03c81fbedeb6": "{count, plural, one {# recorded match} other {# recorded matches}}"
   }
 }

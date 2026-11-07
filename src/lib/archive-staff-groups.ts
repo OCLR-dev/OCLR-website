@@ -2,9 +2,12 @@ import type { HistoricalArchive } from "./historical-archive";
 
 type Staff = HistoricalArchive["staff"][number];
 export type ArchiveStaffRole =
-  "referee" | "streamer" | "commentator" | "unspecified";
+  "referee" | "streamer" | "commentator" | "designer" | "unspecified";
 const aliases: Record<string, ArchiveStaffRole> = {
+  designer: "designer",
+  staff: "unspecified",
   referee: "referee",
+  refer: "referee",
   referees: "referee",
   裁判: "referee",
   streamer: "streamer",
@@ -87,4 +90,14 @@ export function groupArchiveStaff(staff: readonly Staff[]) {
     }
   }
   return [...groups.values()];
+}
+
+export function archiveStaffRoleTitles(tr: (message: string) => string) {
+  return new Map([
+    ["referee", tr("Referee")],
+    ["streamer", tr("Streamer")],
+    ["designer", tr("Designer")],
+    ["commentator", tr("Commentator")],
+    ["unspecified", tr("Staff (unspecified)")],
+  ]);
 }
