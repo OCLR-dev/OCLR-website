@@ -168,7 +168,8 @@
     "name": "No Mod",
     "group": "osu",
     "src": "/reactions/osu-NM.svg",
-    "keywords": "NM"
+    "keywords": "NM",
+    "selectable": false
   },
   {
     "id": "osu-HD",

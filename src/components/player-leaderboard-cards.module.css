@@ -3,11 +3,12 @@
 }
 
 /* A compact version of the old table header: one sort control per column,
-   wrapping instead of scrolling because the cards below are full width. */
+   wrapping instead of scrolling because the cards below are full width. The
+   component groups the controls into balanced rows so every wrapped row keeps
+   the same number of controls, give or take one. */
 .sortBar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
   gap: 0.2rem;
   margin-bottom: 0.75rem;
   padding: 0;
@@ -15,9 +16,28 @@
   background: none;
 }
 
+.sortRow {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.2rem;
+}
+
+/* The first paint keeps the browser's natural wrap until script has measured
+   the labels and can balance the rows. */
+.sortRow[data-measuring] {
+  flex-wrap: wrap;
+}
+
+/* Once the rows are settled, let the controls take the spare width instead of
+   leaving it between them. Measurement temporarily turns this off. */
+.sortRow:not([data-measuring]) .sortButton {
+  flex: 1 1 auto;
+}
+
 .sortButton {
   display: inline-flex;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
   gap: 0.1rem;
@@ -76,6 +96,10 @@
 
 @media (max-width: 640px) {
   .sortBar {
+    gap: 0.1rem;
+  }
+
+  .sortRow {
     gap: 0.1rem;
   }
 

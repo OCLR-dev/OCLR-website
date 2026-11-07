@@ -34,18 +34,17 @@ About lists active persistent staff grants with public visibility in `/admin/sta
 
 ### Local player reactions (#969)
 
-The player-list reaction picker contains 408 bundled image entries: 395 QQ
-resources, 12 osu! Mod icons and the Twemoji circled congratulation. The 34
-entries in [the reviewed export](verification/issue-969/selection.json) appear
-first in export order; the remaining images follow in catalog order. Entries
+The player-list reaction picker contains 407 bundled image entries: 395 QQ
+resources, 11 osu! Mod icons and the Twemoji circled congratulation. The 33
+selectable entries in [the reviewed export](verification/issue-969/selection.json)
+appear first in export order, followed by the other images in catalog order. Entries
 without an image are omitted. Names remain literal asset names; search also
 recognizes IDs and the aliases 按按钮 / 跪拜. Search and empty-state controls use
 the shared three-language catalogs.
 
-Following the user's selection, 11 Mod icons use the classic osu! skin PNGs.
-NM retains the original SVG because the reviewed classic set has no NM image.
-The original reaction IDs and shortlist order remain stable, so previously
-saved Mod reactions automatically display the replacement artwork.
+The 11 selectable Mod icons use the classic osu! skin PNGs. Previously saved
+No Mod reactions (`osu-NM`) still display their SVG and can be removed. The
+picker excludes No Mod from the catalog and the Frequently used filter.
 
 The picker mounts only while open, uses a bounded scrolling grid and lazy images,
 and plays an animation on hover/focus. Selected reactions play their available
@@ -54,6 +53,16 @@ APNG; reduced-motion users see the static image. All images are local under
 Asset URLs and SHA-256 checksums are recorded in
 [`manifest.json`](../public/reactions/manifest.json), with attribution in
 [`NOTICE.txt`](../public/reactions/NOTICE.txt).
+
+The picker renders up to 40 emoji at a time on open and appends up to 40 more
+as the grid is scrolled. Search covers the full catalog, and changing the query
+or filter returns the grid to the first batch. The counter shows displayed
+emoji over matching emoji.
+
+The Frequently used filter (#985) ranks successful additions by count, with
+ties following catalog order. Counts use stable emoji IDs in `localStorage`
+under `oclr-reaction-picks`, shared across players and editions in the same
+browser profile and site origin. Removing a reaction leaves its count intact.
 
 Reactions remain browser-local, keyed by edition and player. Existing Unicode
 selections can still be displayed and removed, but are not added to the new

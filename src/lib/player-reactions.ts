@@ -7,12 +7,16 @@ export type PlayerReaction = {
   src: string;
   animatedSrc?: string;
   keywords: string;
+  selectable?: boolean;
 };
 
-// The reviewed shortlist leads; every remaining entry has a bundled image.
-export const playerReactions: readonly PlayerReaction[] = catalog;
+const allReactions: readonly PlayerReaction[] = catalog;
+// Keep retired images available to display existing selections.
 export const playerReactionById = new Map(
-  playerReactions.map((reaction) => [reaction.id, reaction]),
+  allReactions.map((reaction) => [reaction.id, reaction]),
+);
+export const playerReactions: readonly PlayerReaction[] = allReactions.filter(
+  (reaction) => reaction.selectable !== false,
 );
 
 // Keep already-saved Unicode readable/removable, without adding image-less
@@ -69,11 +73,42 @@ export function parsePlayerReactions(snapshot: string): string[] {
   return [];
 }
 
-export function searchPlayerReactions(query: string) {
+export function parsePlayerReactionPicks(snapshot: string) {
+  const picks = new Map<string, number>();
+  try {
+    const value: unknown = JSON.parse(snapshot);
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      for (const [id, count] of Object.entries(value)) {
+        const reaction = playerReactionById.get(id);
+        if (
+          reaction &&
+          reaction.selectable !== false &&
+          typeof count === "number" &&
+          Number.isSafeInteger(count) &&
+          count > 0
+        ) {
+          picks.set(id, count);
+        }
+      }
+    }
+  } catch {}
+  return picks;
+}
+
+export function searchPlayerReactions(
+  query: string,
+  picks?: ReadonlyMap<string, number>,
+) {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  return playerReactions.filter((reaction) => {
+  const matches = playerReactions.filter((reaction) => {
+    if (picks && !picks.has(reaction.id)) return false;
+    if (!terms.length) return true;
     const text =
       `${reaction.name} ${reaction.id} ${reaction.keywords}`.toLowerCase();
     return terms.every((term) => text.includes(term));
   });
+  // Stable sort preserves catalog order for equally frequent reactions.
+  return picks
+    ? matches.sort((a, b) => (picks.get(b.id) ?? 0) - (picks.get(a.id) ?? 0))
+    : matches;
 }

@@ -15,6 +15,7 @@ import {
   historicalStatisticsRevisions,
   playerLeaderboardRows,
   playerLeaderboardVersions,
+  playerNames,
   userProfileCache,
 } from "../../src/db/schema";
 import { refreshPlayerLeaderboard } from "../../src/lib/player-leaderboard-worker";
@@ -48,7 +49,7 @@ describe.skipIf(!url)("background public player analytics (#916)", () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
     await db().execute(
-      sql`TRUNCATE edition_state,users,user_profile_cache,player_leaderboard_versions CASCADE`,
+      sql`TRUNCATE edition_state,users,user_profile_cache,player_names,player_leaderboard_versions CASCADE`,
     );
     const f = archiveQueryFixture();
     await seedEditions([
@@ -190,6 +191,93 @@ describe.skipIf(!url)("background public player analytics (#916)", () => {
       .set({ configuration: { ...state.configuration!, published: false } });
     expect((await databasePlayerLeaderboard()).state).toBe("pending");
     expect(await db().select().from(playerLeaderboardVersions)).toHaveLength(3);
+  });
+  it("overlays the latest public current name by UID without changing saved rankings or historical names", async () => {
+    await refreshPlayerLeaderboard(true);
+    const before = await databasePlayerLeaderboard();
+    const [first, second] = before.players;
+    expect(first).toBeDefined();
+    expect(second).toBeDefined();
+    const stored = await db().select().from(playerLeaderboardRows);
+    const history = await db().select().from(historicalStatistics);
+    await db()
+      .insert(playerNames)
+      .values([
+        {
+          osuId: first.osuId,
+          username: "Older provider",
+          source: "osu_current",
+          published: true,
+          lastObservedAt: new Date("2026-01-01"),
+        },
+        {
+          osuId: first.osuId,
+          username: "Current ID",
+          source: "osu_current",
+          published: true,
+          lastObservedAt: new Date("2026-02-01"),
+        },
+        {
+          osuId: first.osuId,
+          username: "Previous alias",
+          source: "osu_previous",
+          published: true,
+          lastObservedAt: new Date("2026-03-01"),
+        },
+        {
+          osuId: first.osuId,
+          username: "Private login",
+          source: "account",
+          lastObservedAt: new Date("2026-04-01"),
+        },
+        {
+          osuId: second.osuId,
+          username: "Current ID",
+          source: "osu_current",
+          published: true,
+          lastObservedAt: new Date("2026-02-01"),
+        },
+        {
+          osuId: second.osuId,
+          username: "Unreleased",
+          source: "osu_current",
+          published: false,
+          lastObservedAt: new Date("2026-05-01"),
+        },
+      ]);
+    const renamed = await databasePlayerLeaderboard();
+    expect(renamed.players).toEqual(
+      before.players.map((p) => ({
+        ...p,
+        username: [first.osuId, second.osuId].includes(p.osuId)
+          ? "Current ID"
+          : p.username,
+      })),
+    );
+    await db()
+      .insert(playerNames)
+      .values({
+        osuId: first.osuId,
+        username: "Renamed again",
+        source: "osu_current",
+        published: true,
+        lastObservedAt: new Date("2026-06-01"),
+      });
+    const api = await readApiRoute(
+      new Request("https://oclr.example.test/api/v1/rankings/players"),
+    );
+    expect(api.status).toBe(200);
+    expect(
+      (await api.json()).data.players.find(
+        (p: { osuId: number }) => p.osuId === first.osuId,
+      ).username,
+    ).toBe("Renamed again");
+    expect(await db().select().from(playerLeaderboardRows)).toEqual(stored);
+    expect(await db().select().from(historicalStatistics)).toEqual(history);
+    expect(await refreshPlayerLeaderboard(true)).toMatchObject({
+      status: "current",
+      created: false,
+    });
   });
   it("serializes jobs and rejects a source changed during calculation without replacing valid snapshots", async () => {
     let release!: () => void, entered!: () => void;

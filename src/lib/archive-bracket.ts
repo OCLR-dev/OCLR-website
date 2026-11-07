@@ -6,14 +6,18 @@ import {
   recordedArchiveMatch,
   type HistoricalArchive,
 } from "./historical-archive";
-import type { ResolvedBracket, ResolvedMatch } from "./bracket-model";
+import type { BracketDisplay, ResolvedMatch } from "./bracket-model";
 import { isS1Archive } from "./s1-archive";
+import { s10KnockoutRounds } from "./s10-bracket";
+import type { HistoricalBracketPlan } from "./archive-progression";
+import { verifiedHistoricalRounds } from "./archive-progression-display";
 
-/** Edges mean a team's previous recorded appearance, never an invented qualification rule. */
+/** Show recorded appearances when reviewed progression cannot be verified. */
 export function archiveBracket(
   archive: HistoricalArchive,
   detailsHref: (id: string) => string,
-): ResolvedBracket | null {
+  plan?: HistoricalBracketPlan | null,
+): BracketDisplay | null {
   const s5Source = isS5Source(archive.sourceUrl);
   const s3Source = isS3Source(archive.sourceUrl);
   const s2Source =
@@ -142,17 +146,22 @@ export function archiveBracket(
       rounds.set(label, round);
     }
   }
-  const s5Matches = [...rounds.values()].flatMap((r) => r.matches);
-  if (s5Source && completeS5Paths(s5Matches)) {
+  const knockoutMatches = [...rounds.values()].flatMap((r) => r.matches);
+  if (s5Source && completeS5Paths(knockoutMatches)) {
     rounds.clear();
     for (const [column, id] of s5KnockoutOrder.entries()) {
       rounds.set(id, {
         column,
         label: archive.matches.find((m) => m.id === id)!.stage,
-        matches: [s5Matches.find((m) => m.id === id)!],
+        matches: [knockoutMatches.find((m) => m.id === id)!],
       });
     }
   }
+  const verified = plan
+    ? verifiedHistoricalRounds(archive, knockoutMatches, plan)
+    : plan === undefined
+      ? s10KnockoutRounds(archive, knockoutMatches)
+      : null;
   return {
     editionSlug: archive.editionSlug,
     published: true,
@@ -165,25 +174,28 @@ export function archiveBracket(
             {
               id: "match-path",
               label: "Match path",
-              rounds: [...rounds.values()]
-                .sort((a, b) => {
-                  // S2's final has no date. Keep its recorded sheet-row order
-                  // without inventing a timestamp or a qualification edge.
-                  const ar = a.matches.map(s2Row),
-                    br = b.matches.map(s2Row);
-                  if (
-                    orderByS2Rows &&
-                    ar.every((n) => n !== null) &&
-                    br.every((n) => n !== null)
-                  )
-                    return Math.min(...ar) - Math.min(...br);
-                  return a.column - b.column;
-                })
-                .map((r, i) => ({
-                  matches: r.matches,
-                  id: `round-${i}`,
-                  label: r.label,
-                })),
+              ...(verified && { showAdvancement: true }),
+              rounds:
+                verified ??
+                [...rounds.values()]
+                  .sort((a, b) => {
+                    // S2's final has no date. Keep its recorded sheet-row order
+                    // without inventing a timestamp or a qualification edge.
+                    const ar = a.matches.map(s2Row),
+                      br = b.matches.map(s2Row);
+                    if (
+                      orderByS2Rows &&
+                      ar.every((n) => n !== null) &&
+                      br.every((n) => n !== null)
+                    )
+                      return Math.min(...ar) - Math.min(...br);
+                    return a.column - b.column;
+                  })
+                  .map((r, i) => ({
+                    matches: r.matches,
+                    id: `round-${i}`,
+                    label: r.label,
+                  })),
             },
           ]
         : []),

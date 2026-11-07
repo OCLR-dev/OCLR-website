@@ -3,20 +3,24 @@ import Image from "next/image";
 import {
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
 } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import {
+  parsePlayerReactionPicks,
   parsePlayerReactions,
   playerReactionById,
-  playerReactions,
   searchPlayerReactions,
   type PlayerReaction,
 } from "@/lib/player-reactions";
 
 const changeEvent = "oclr-player-reactions";
+const picksKey = "oclr-reaction-picks";
+const batchSize = 40;
+
 function subscribe(callback: () => void) {
   window.addEventListener("storage", callback);
   window.addEventListener(changeEvent, callback);
@@ -25,7 +29,16 @@ function subscribe(callback: () => void) {
     window.removeEventListener(changeEvent, callback);
   };
 }
-const serverSnapshot = () => "[]";
+const emptySelection = () => "[]";
+const emptyPicks = () => "{}";
+
+function storedValue(key: string, fallback: string) {
+  try {
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 function ReactionImage({
   reaction,
@@ -62,24 +75,36 @@ export function PlayerReactions({
   const pickerId = useId();
   const picker = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const scroll = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [frequent, setFrequent] = useState(false);
+  const [limit, setLimit] = useState(batchSize);
   const [hovered, setHovered] = useState<string | null>(null);
   const [focused, setFocused] = useState<string | null>(null);
   const key = `oclr-reactions:${edition}:${playerId}`;
   const snapshot = useSyncExternalStore(
     subscribe,
-    () => {
-      try {
-        return localStorage.getItem(key) ?? "[]";
-      } catch {
-        return "[]";
-      }
-    },
-    serverSnapshot,
+    () => storedValue(key, emptySelection()),
+    emptySelection,
+  );
+  const pickSnapshot = useSyncExternalStore(
+    subscribe,
+    () =>
+      open && frequent ? storedValue(picksKey, emptyPicks()) : emptyPicks(),
+    emptyPicks,
   );
   const selected = parsePlayerReactions(snapshot);
-  const candidates = searchPlayerReactions(query);
+  const picks = useMemo(
+    () => parsePlayerReactionPicks(pickSnapshot),
+    [pickSnapshot],
+  );
+  const candidates = useMemo(
+    () =>
+      open ? searchPlayerReactions(query, frequent ? picks : undefined) : [],
+    [open, query, frequent, picks],
+  );
+  const visible = candidates.slice(0, limit);
 
   useLayoutEffect(() => {
     if (!open) return;
@@ -111,13 +136,44 @@ export function PlayerReactions({
     };
   }, [open]);
 
-  function toggle(id: string) {
-    const next = selected.includes(id)
-      ? selected.filter((value) => value !== id)
-      : [...selected, id];
-    try {
+  function resetResults() {
+    setLimit(batchSize);
+    setHovered(null);
+    setFocused(null);
+    scroll.current?.scrollTo(0, 0);
+  }
+
+  async function setReaction(id: string, add: boolean) {
+    function save() {
+      const current = parsePlayerReactions(localStorage.getItem(key) ?? "[]");
+      if (current.includes(id) === add) return;
+      const next = add
+        ? [...current, id]
+        : current.filter((value) => value !== id);
       localStorage.setItem(key, JSON.stringify(next));
-      window.dispatchEvent(new Event(changeEvent));
+      try {
+        if (add) {
+          const picks = parsePlayerReactionPicks(
+            localStorage.getItem(picksKey) ?? "{}",
+          );
+          picks.set(
+            id,
+            Math.min((picks.get(id) ?? 0) + 1, Number.MAX_SAFE_INTEGER),
+          );
+          localStorage.setItem(
+            picksKey,
+            JSON.stringify(Object.fromEntries(picks)),
+          );
+        }
+      } finally {
+        window.dispatchEvent(new Event(changeEvent));
+      }
+    }
+
+    // Serialize updates across same-origin tabs when Web Locks is available.
+    try {
+      if (navigator.locks) await navigator.locks.request(picksKey, save);
+      else save();
     } catch {}
   }
 
@@ -138,7 +194,7 @@ export function PlayerReactions({
             title={label}
             aria-label={tr("React with {emoji}", { emoji: label })}
             aria-pressed="true"
-            onClick={() => toggle(id)}
+            onClick={() => void setReaction(id, false)}
           >
             {reaction ? (
               <ReactionImage reaction={reaction} animated />
@@ -180,8 +236,8 @@ export function PlayerReactions({
           setOpen(isOpen);
           if (!isOpen) {
             setQuery("");
-            setHovered(null);
-            setFocused(null);
+            setFrequent(false);
+            resetResults();
           }
         }}
       >
@@ -195,24 +251,46 @@ export function PlayerReactions({
                 placeholder={tr("Search emoji")}
                 onChange={(event) => {
                   setQuery(event.target.value);
-                  setHovered(null);
-                  setFocused(null);
-                  picker.current
-                    ?.querySelector(".reaction-picker-scroll")
-                    ?.scrollTo(0, 0);
+                  resetResults();
                 }}
               />
+            </div>
+            <div className="reaction-picker-toolbar reaction-picker-filter">
+              <button
+                type="button"
+                aria-pressed={frequent}
+                onClick={() => {
+                  setFrequent(!frequent);
+                  resetResults();
+                }}
+              >
+                {tr("Frequently used")}
+              </button>
               <span className="reaction-picker-total">
-                {candidates.length}/{playerReactions.length}
+                {visible.length}/{candidates.length}
               </span>
             </div>
-            <div className="reaction-picker-scroll">
+            <div
+              ref={scroll}
+              className="reaction-picker-scroll"
+              onScroll={(event) => {
+                const { scrollHeight, scrollTop, clientHeight } =
+                  event.currentTarget;
+                if (
+                  visible.length < candidates.length &&
+                  scrollTop > 0 &&
+                  scrollHeight - scrollTop - clientHeight <= 24
+                ) {
+                  setLimit(limit + batchSize);
+                }
+              }}
+            >
               <div
                 className="reaction-picker-grid"
                 role="group"
                 aria-label={tr("Choose an emoji")}
               >
-                {candidates.map((reaction) => (
+                {visible.map((reaction) => (
                   <button
                     type="button"
                     key={reaction.id}
@@ -227,7 +305,10 @@ export function PlayerReactions({
                     onFocus={() => setFocused(reaction.id)}
                     onBlur={() => setFocused(null)}
                     onClick={() => {
-                      toggle(reaction.id);
+                      void setReaction(
+                        reaction.id,
+                        !selected.includes(reaction.id),
+                      );
                       picker.current?.hidePopover();
                       trigger.current?.focus();
                     }}
@@ -243,7 +324,9 @@ export function PlayerReactions({
               </div>
               {!candidates.length && (
                 <p className="muted small" role="status">
-                  {tr("No matching emoji.")}
+                  {frequent && !picks.size
+                    ? tr("No frequently used emoji yet.")
+                    : tr("No matching emoji.")}
                 </p>
               )}
             </div>

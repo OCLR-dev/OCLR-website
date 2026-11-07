@@ -3960,6 +3960,15 @@
     "m5fe52b1dbb13": "Add at least one local port.",
     "m80e14f0d3b54": "Developer API ports are not configured correctly.",
     "ma06dd60adcce": "Choose 1 to 20 unique local ports between 1 and 65535 and valid read scopes.",
-    "m106428f81ac4": "Alternative background"
+    "m106428f81ac4": "Alternative background",
+    "m5566f22d08be": "Frequently used",
+    "m566ecbdb972b": "No frequently used emoji yet.",
+    "m56db31adb5de": "Beatmaps",
+    "m4f7d64017689": "Coming soon",
+    "m2106767a077b": "Winners bracket final",
+    "mff526f68e975": "Losers bracket final",
+    "ma54974718b6d": "Grand final",
+    "mb3d58ec438d9": "Winner of match {value0}",
+    "m19bbe477d366": "Loser of match {value0}"
   }
 }

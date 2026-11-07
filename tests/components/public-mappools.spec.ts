@@ -9,6 +9,48 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
+test("mirror dropdown fits the compact list and Escape dismisses it inside Details", async ({
+  page,
+}, info) => {
+  const mobile = info.project.name === "mobile";
+  const width = mobile ? 320 : 1280;
+  await page.setViewportSize({ width, height: 700 });
+  await page.goto(
+    `/public-mappools?archive&early-season=s2&pool=captain-qualifier&theme=${mobile ? "dark" : "light"}`,
+  );
+  const row = page.locator("#map-NM2");
+  const mirror = row.getByRole("button", { name: "Download mirror · NM2" });
+  await expect(mirror).toBeVisible();
+
+  await page.locator(".map-view-control button").nth(1).click();
+  await mirror.click();
+  const menu = row.locator("[popover]");
+  await expect(menu.getByRole("link", { name: "GitHub" })).toBeVisible();
+  await expect
+    .poll(async () => (await menu.boundingBox())?.x)
+    .toBeGreaterThan(0);
+  const bounds = (await menu.boundingBox())!;
+  expect(bounds.x + bounds.width).toBeLessThan(width);
+  await page.getByRole("searchbox").click();
+  await expect(menu).toBeHidden();
+
+  await row.locator(".map-open-button").click();
+  const details = page.getByRole("dialog");
+  const detailsMirror = details.getByRole("button", {
+    name: "Download mirror",
+  });
+  await detailsMirror.focus();
+  await page.keyboard.press("Enter");
+  const savedLink = details.getByRole("link", { name: "GitHub" });
+  await expect(savedLink).toBeVisible();
+  await page.keyboard.press("Tab");
+  await expect(savedLink).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(savedLink).toBeHidden();
+  await expect(details).toBeVisible();
+  await expect(detailsMirror).toBeFocused();
+});
+
 for (const locale of ["en", "zh-Hans", "zh-Hant"]) {
   for (const theme of ["light", "dark"]) {
     test(`one pool, S10 cards and keyboard tabs (${locale}, ${theme})`, async ({

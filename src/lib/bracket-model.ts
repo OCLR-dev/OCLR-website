@@ -86,6 +86,16 @@ export type ResolvedBracket = Omit<Bracket, "groups"> & {
     rounds: { id: string; label: string; matches: ResolvedMatch[] }[];
   }[];
 };
+type BracketDisplaySlot = ResolvedSlot & { groupSeed?: string };
+export type BracketDisplayMatch = Omit<ResolvedMatch, "slots"> & {
+  slots: [BracketDisplaySlot, BracketDisplaySlot];
+};
+export type BracketDisplay = Omit<ResolvedBracket, "groups"> & {
+  groups: (Omit<ResolvedBracket["groups"][number], "rounds"> & {
+    showAdvancement?: boolean;
+    rounds: { id: string; label: string; matches: BracketDisplayMatch[] }[];
+  })[];
+};
 export function bracketTeamIds(bracket: Bracket) {
   return [
     ...new Set(

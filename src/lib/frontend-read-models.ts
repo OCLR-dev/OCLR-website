@@ -13,7 +13,7 @@ import en from "../../messages/en.json" with { type: "json" };
 import hans from "../../messages/zh-Hans.json" with { type: "json" };
 import hant from "../../messages/zh-Hant.json" with { type: "json" };
 import { z } from "zod";
-import { archiveDifficultySnapshots } from "./difficulty-catalog";
+import { attachArchiveDifficulties } from "./saved-difficulty";
 async function databasePublicEnrollment(
   slug: string,
 ): ReturnType<typeof readTournament> {
@@ -23,7 +23,7 @@ async function databasePublicEnrollment(
     ...record,
     edition: {
       ...record.edition,
-      archive: archiveDifficultySnapshots(record.edition.archive),
+      archive: await attachArchiveDifficulties(record.edition.archive),
     },
   };
 }

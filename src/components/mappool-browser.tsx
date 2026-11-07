@@ -128,6 +128,7 @@ function MapDetails({
           <BeatmapActions
             beatmapId={entry.beatmapId}
             setId={m.setId}
+            searchTitle={m.title}
             downloadMirror={entry.downloadMirror}
           />
           <Link

@@ -1,0 +1,12 @@
+[Unit]
+Description=Synchronize OCLR published mappool difficulties every minute
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+AccuracySec=1s
+RandomizedDelaySec=5s
+Persistent=true
+Unit=oclr-beatmap-difficulty.service
+
+[Install]
+WantedBy=timers.target

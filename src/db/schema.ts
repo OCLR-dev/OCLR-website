@@ -342,6 +342,83 @@ export const editionRevisions = pgTable(
   },
   (t) => [primaryKey({ columns: [t.editionSlug, t.version] })],
 );
+// Reviewed graphs can be installed before their historical archive is imported.
+// Readers verify them against the matching saved archive before showing them.
+export const historicalBrackets = pgTable("historical_brackets", {
+  editionSlug: text("edition_slug").primaryKey(),
+  sourceUrl: text("source_url").notNull(),
+  matchCount: integer("match_count").notNull(),
+  advancementCount: integer("advancement_count").notNull(),
+});
+
+export const historicalBracketMatches = pgTable(
+  "historical_bracket_matches",
+  {
+    editionSlug: text("edition_slug")
+      .notNull()
+      .references(() => historicalBrackets.editionSlug),
+    fixtureId: text("fixture_id").notNull(),
+    position: integer("position").notNull(),
+    lane: text("lane").$type<"upper" | "lower" | "grand-final">().notNull(),
+    teamA: text("team_a").notNull(),
+    teamB: text("team_b").notNull(),
+    winnerSlot: integer("winner_slot").$type<0 | 1>().notNull(),
+    seedA: text("seed_a"),
+    seedB: text("seed_b"),
+  },
+  (t) => [
+    primaryKey({ columns: [t.editionSlug, t.fixtureId] }),
+    unique("historical_bracket_match_position").on(t.editionSlug, t.position),
+    check(
+      "historical_bracket_match_slots",
+      sql`${t.position} >= 0 AND ${t.teamA} <> ${t.teamB} AND ${t.winnerSlot} IN (0, 1)`,
+    ),
+    check(
+      "historical_bracket_match_lane",
+      sql`${t.lane} IN ('upper', 'lower', 'grand-final')`,
+    ),
+  ],
+);
+
+export const historicalBracketAdvancements = pgTable(
+  "historical_bracket_advancements",
+  {
+    editionSlug: text("edition_slug").notNull(),
+    targetFixtureId: text("target_fixture_id").notNull(),
+    targetSlot: integer("target_slot").$type<0 | 1>().notNull(),
+    sourceFixtureId: text("source_fixture_id").notNull(),
+    outcome: text("outcome").$type<"winner" | "loser">().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.editionSlug, t.targetFixtureId, t.targetSlot] }),
+    unique("historical_bracket_source_outcome").on(
+      t.editionSlug,
+      t.sourceFixtureId,
+      t.outcome,
+    ),
+    foreignKey({
+      name: "historical_bracket_advancement_target_fk",
+      columns: [t.editionSlug, t.targetFixtureId],
+      foreignColumns: [
+        historicalBracketMatches.editionSlug,
+        historicalBracketMatches.fixtureId,
+      ],
+    }),
+    foreignKey({
+      name: "historical_bracket_advancement_source_fk",
+      columns: [t.editionSlug, t.sourceFixtureId],
+      foreignColumns: [
+        historicalBracketMatches.editionSlug,
+        historicalBracketMatches.fixtureId,
+      ],
+    }),
+    check(
+      "historical_bracket_advancement_slots",
+      sql`${t.targetSlot} IN (0, 1) AND ${t.outcome} IN ('winner', 'loser') AND ${t.targetFixtureId} <> ${t.sourceFixtureId}`,
+    ),
+  ],
+);
+
 export const registrations = pgTable(
   "registrations",
   {
@@ -866,6 +943,19 @@ export const mappoolEntries = pgTable(
     unique("pool_slot_unique").on(t.poolId, t.category, t.position),
     index("pool_entry_pool_idx").on(t.poolId),
   ],
+);
+/** Current provider data shared by published pools, independent of tournament revisions. */
+export const beatmapDifficultySnapshots = pgTable(
+  "beatmap_difficulty_snapshots",
+  {
+    beatmapId: bigint("beatmap_id", { mode: "number" }).primaryKey(),
+    snapshot:
+      jsonb("snapshot").$type<
+        import("../lib/mappool-model").DifficultySnapshot
+      >(),
+    retryAt: timestamp("retry_at", { withTimezone: true }),
+  },
+  (t) => [check("beatmap_difficulty_positive_id", sql`${t.beatmapId} > 0`)],
 );
 export const mappoolReplays = pgTable(
   "mappool_replays",

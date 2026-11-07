@@ -1,11 +1,11 @@
 import type { Match } from "@cm3tahkuh/react-tournament-brackets/dist/src/types";
-import type { ResolvedBracket, ResolvedMatch } from "./bracket-model";
+import type { BracketDisplay, ResolvedMatch } from "./bracket-model";
 import { bracketRouting } from "./bracket-routing";
 
 export type LibraryMatch = Match & { original: ResolvedMatch; stage: string };
 /** Converts existing sources only; never generates matches, seeds or results.
  * A historical source is still only an appearance reference in this view. */
-export function doubleBracketMatches(group: ResolvedBracket["groups"][number]) {
+export function doubleBracketMatches(group: BracketDisplay["groups"][number]) {
   const matches = group.rounds.flatMap((r) =>
     r.matches.map((m): LibraryMatch => ({
       id: m.id,
@@ -29,10 +29,14 @@ export function doubleBracketMatches(group: ResolvedBracket["groups"][number]) {
   const edges = bracketRouting(group, true).edges;
   const upper = new Set<string | number>();
   const lower = new Set<string | number>();
-  for (const m of matches) {
-    if (/敗者|败者|loser/i.test(m.stage)) lower.add(m.id);
-    if (/勝者|胜者|winner|總決賽|总决赛|grand final/i.test(m.stage))
-      upper.add(m.id);
+  // Reviewed paths have explicit outcomes and can be rendered in any locale.
+  // The older appearance graphs still need their recorded stage labels.
+  if (!group.showAdvancement) {
+    for (const m of matches) {
+      if (/敗者|败者|loser/i.test(m.stage)) lower.add(m.id);
+      if (/勝者|胜者|winner|總決賽|总决赛|grand final/i.test(m.stage))
+        upper.add(m.id);
+    }
   }
   for (const edge of edges) {
     const source = all.get(edge.sourceId)!;

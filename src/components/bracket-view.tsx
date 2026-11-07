@@ -1,7 +1,7 @@
 "use client";
 import { useState, type ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import type { ResolvedBracket, ResolvedMatch } from "@/lib/bracket-model";
+import type { BracketDisplay, ResolvedMatch } from "@/lib/bracket-model";
 import { BracketColumns } from "./bracket-columns";
 import { BracketCanvas } from "./bracket-canvas";
 
@@ -11,7 +11,7 @@ export function BracketView({
   teamUrls,
   hideGroupTabs = false,
 }: {
-  bracket: ResolvedBracket;
+  bracket: BracketDisplay;
   renderMatch?: (match: ResolvedMatch) => ReactNode;
   teamUrls?: Record<string, string>;
   hideGroupTabs?: boolean;
@@ -41,7 +41,7 @@ export function BracketView({
           ))}
         </div>
       )}
-      {group.layout === "grid" || renderMatch ? (
+      {group.layout === "grid" || group.showAdvancement || renderMatch ? (
         <BracketColumns
           bracket={{ ...bracket, groups: [group] }}
           renderMatch={renderMatch}

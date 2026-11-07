@@ -3,17 +3,16 @@ import styles from "./archive-competition.module.css";
 import { useState } from "react";
 import { BracketView } from "./bracket-view";
 import { useAppTranslations } from "@/i18n/shared";
-import type { ResolvedBracket } from "@/lib/bracket-model";
+import type { BracketDisplay } from "@/lib/bracket-model";
 import type { ReactNode } from "react";
 
-/** Historical appearances are always-visible references, never confirmed advancement. */
 export function ArchiveCompetition({
   bracket,
   teamUrls,
   standings,
   finalStandings,
 }: {
-  bracket: ResolvedBracket | null;
+  bracket: BracketDisplay | null;
   teamUrls: Record<string, string>;
   standings?: ReactNode;
   finalStandings?: ReactNode;

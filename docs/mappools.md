@@ -11,12 +11,21 @@ it only for the same BID. Metadata refresh and reorder preserve it. Explicit
 `null` clears a native entry's mirror. Historical imports accept an optional
 non-null URL on each map.
 
-Cards, compact lists and Details show **Download mirror** alongside the existing
-osu! actions when a valid mirror is saved. The browser follows the HTTPS link;
-the application does not fetch or proxy it. URLs with credentials or unsafe
-schemes are rejected and are not rendered from older read responses. Draft
-pool links remain private with the pool. Developer/remote channels stay
+Every beatmap in cards, compact lists and Details has a **Download mirror** menu
+alongside its osu! actions. BeatConnect, Sayobot and Catboy link directly to the
+known beatmapset. When its ID is missing, the menu labels the links as searches.
+BeatConnect and Sayobot receive the song title when available. A valid saved
+mirror appears first. BeatConnect, Catboy and GitHub use local SVGs. Sayobot uses
+a centred S in an SVG badge, and other hosts without a distinct site icon use
+initials. The browser follows each HTTPS link directly. URLs with credentials or
+unsafe schemes are rejected and are not rendered from older read responses.
+Draft pool links remain private with the pool. Developer/remote channels stay
 read-only. Older backends may omit the additive field.
+
+The menu button uses the [Font Awesome download icon](../LICENSES/Font-Awesome-Free.md).
+The osu!direct button uses the original outlines from the [official single-colour
+osu! SVG](https://github.com/ppy/osu-web/blob/cfcc19be102bb2e4712fef4067542affd506087d/public/images/layout/osu-logo-white.svg).
+It follows the button's text colour under the [osu! brand identity guidelines](https://osu.ppy.sh/wiki/en/Brand_identity_guidelines).
 
 Migration `0086_mappool_download_mirrors` adds the native entry column and typed
 historical-map column, and saves the organizer's two pinned GitHub OSZ mirrors.
@@ -141,16 +150,21 @@ variants through the existing shared cache/rate limiter. FM prepares HD/HR/EZ
 regardless of its competition restrictions. All requested results must succeed
 before the existing versioned, audited pool transaction commits. A failure
 preserves prior metadata, revision and audit. Existing metadata JSONB accepts the
-optional `difficultySnapshot`; no migration is required. Completed-fixture locks
+optional `difficultySnapshot`. Completed-fixture locks
 and read-only Developer/remote restrictions still apply.
 
-Older native pools and historical pools can use an **operator-prepared public
-numeric catalog**, without changing locked pool or imported archive records.
-The checked-in `src/data/difficulty-previews.json` starts empty. Preparing live
-snapshots requires the operator's separately approved osu! application
-configuration; this implementation does not supply credentials or perform live
-backfill. On an approved preparation host, export `OSU_CLIENT_ID` and
-`OSU_CLIENT_SECRET` through its existing secret configuration, then run:
+The [background difficulty job](#background-difficulty-job) discovers maps in
+published native and historical pools and stores official base and Mod snapshots
+in PostgreSQL. The web server joins the saved results by BID. Native pool entries
+with a known ruleset or checksum use only compatible results. The background
+snapshot takes precedence, including when only some Mod results are available.
+When there is no compatible background snapshot, saved compatibility snapshots
+are ranked by coverage of the requested Mods, then recency. Each displayed
+result uses one coherent base and set of Mod attributes.
+
+Previously prepared files remain a compatibility source. The offline command
+can still prepare a public numeric catalog on an approved preparation host with
+the existing osu! application configuration:
 
 ```sh
 node --import tsx scripts/prepare-difficulty-previews.ts --archives --output /absolute/path/difficulty-previews.json
@@ -181,14 +195,59 @@ base/adjusted control uses the current official base; original source values rem
 in the details. The source, ruleset and UTC fetch time identify the current calculation, which is not
 a reconstruction of the tournament year's difficulty algorithm.
 
-Saved-read contract **1.22.0** carries optional native metadata snapshots and
+Saved-read contract **1.22.0** introduced optional native metadata snapshots and
 historical map snapshots through the existing public resources. The backend
-composes the catalog into `publicEnrollment` / `publicMappools`; the remote
+composes saved snapshots into `publicEnrollment` / `publicMappools`; the remote
 frontend needs no provider credentials or DB. Older backends and missing variants
 remain readable and show unavailable/recorded values. Public pages, preview
-switches and saved-read API requests never contact osu!, backfill the catalog or
-write business data. Deploying the code alone does not populate live snapshots;
-prepare the catalog or refresh an editable pool before expecting adjusted SR.
+switches and saved-read API requests only read saved results. Reload a page after
+its first successful background sync to see the newly saved values.
+
+### Background difficulty job
+
+After applying migration `0090_beatmap_difficulty_snapshots` through the normal
+deployment workflow, use the existing application-user environment with
+`DATABASE_URL`, `OSU_CLIENT_ID` and `OSU_CLIENT_SECRET` exported. The sync role
+needs SELECT on the published-pool source tables and SELECT/INSERT/UPDATE on
+`beatmap_difficulty_snapshots`. Use the existing approved runtime grants.
+
+```sh
+npm run db:refresh-beatmap-difficulties -- --dry-run
+npm run db:refresh-beatmap-difficulties -- --apply
+```
+
+Dry-run reports counts without provider calls. Each apply handles up to 12 BIDs,
+deduplicating their required Mod combinations across published pools. FM prepares
+HD, HR and EZ. Unknown TB/ACE combinations stay variable. Fresh complete results
+are reused for seven days. A PostgreSQL advisory lock keeps jobs from overlapping.
+Each map commits independently. If a Mod lookup fails, the job still saves the
+official base and the Mod results it obtained, and keeps previously fetched
+variants for the same verified map revision. These partial writes are counted in
+`partial` and are included in `failed` while waiting for retry. A failed base
+lookup preserves the previous snapshot. Missing maps retry after a day and other
+provider failures after 15 minutes. A rate-limit response ends the current batch.
+During the first sync, reload the page after a map's batch completes to see its
+official values. The job reuses the existing osu! API transport and its
+process-local limiter. Account for other processes using the same application
+credentials when scheduling the timer.
+
+On Rocky Linux, review the release path, Node executable and protected environment
+file in the [service](systemd/oclr-beatmap-difficulty.service) and
+[timer](systemd/oclr-beatmap-difficulty.timer). From a trusted checkout of the
+reviewed release, an authorized operator can install the root-owned definitions:
+
+```sh
+sudo install -o root -g root -m 0644 docs/systemd/oclr-beatmap-difficulty.service /etc/systemd/system/oclr-beatmap-difficulty.service
+sudo install -o root -g root -m 0644 docs/systemd/oclr-beatmap-difficulty.timer /etc/systemd/system/oclr-beatmap-difficulty.timer
+sudo systemd-analyze verify /etc/systemd/system/oclr-beatmap-difficulty.service /etc/systemd/system/oclr-beatmap-difficulty.timer
+sudo systemctl daemon-reload
+sudo systemctl enable --now oclr-beatmap-difficulty.timer
+sudo journalctl -u oclr-beatmap-difficulty.service -n 20 --no-pager
+```
+
+The timer runs a bounded batch every minute. Check `saved`, `pending`, `deferred`
+and `failed` in the journal and reload a published pool to verify the switch
+after its BID has synchronized. Stopping the timer leaves saved values available.
 
 ## Private map selection workbench (#572)
 

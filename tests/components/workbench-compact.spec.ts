@@ -235,7 +235,7 @@ for (const theme of ["light", "dark"]) {
         ),
       ).toBeLessThan(2);
       const controls = toolbar.locator("button:visible, a.button:visible");
-      await expect(controls).toHaveCount(4);
+      await expect(controls).toHaveCount(5);
       await expect(
         toolbar.locator('a[href^="https://osu.ppy.sh/"]'),
       ).toHaveCount(0);

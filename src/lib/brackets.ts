@@ -1,6 +1,12 @@
 import defaultBrackets from "@/content/brackets.json" with { type: "json" };
 import { readFileSync } from "node:fs";
-import type { ResolvedBracket, ResolvedMatch } from "./bracket-model";
+import type {
+  BracketDisplay,
+  ResolvedBracket,
+  ResolvedMatch,
+} from "./bracket-model";
+import { archiveBracket } from "./archive-bracket";
+import { readArchiveProgression } from "./archive-progression";
 import {
   bracketTeamIds,
   bracketsSchema,
@@ -19,8 +25,23 @@ export function getBrackets() {
       : defaultBrackets,
   );
 }
-async function databasePublicBracket(slug: string) {
-  if (!(await getPublicEdition(slug))) return null;
+async function databasePublicBracket(
+  slug: string,
+): Promise<BracketDisplay | null> {
+  const edition = await getPublicEdition(slug);
+  if (!edition) return null;
+  if (edition.archive) {
+    const plan = await readArchiveProgression(slug);
+    if (plan) {
+      const bracket = archiveBracket(
+        edition.archive,
+        (id) => `/tournaments/${slug}/matches/${id}`,
+        plan,
+      );
+      const groups = bracket?.groups.filter((group) => group.showAdvancement);
+      if (bracket && groups?.length) return { ...bracket, groups };
+    }
+  }
   const competition = await publicCompetition(slug);
   if (competition?.databaseAuthority) {
     const fixtures = competition.fixtures.filter((f) => f.stage === "knockout");

@@ -339,6 +339,7 @@ function PracticeEntry({
                 <BeatmapActions
                   beatmapId={entry.beatmapId}
                   setId={entry.metadata.setId}
+                  searchTitle={entry.metadata.title}
                   name={`${label} ${entry.metadata.title}`}
                   compact
                   showWeb={false}

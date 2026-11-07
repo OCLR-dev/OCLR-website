@@ -7,9 +7,17 @@ import {
 import { supportsArchiveStatistics } from "@/lib/archive-statistics-model";
 import { getAppTranslations } from "@/i18n/server";
 import { archivePoolMetadata } from "@/lib/archive-map-metadata";
+import { attachArchiveDifficulties } from "@/lib/saved-difficulty";
 import { catalogDifficulty } from "@/lib/difficulty-catalog";
 import { archiveArtworkLookup } from "@/lib/archive-artwork";
 import { archiveBracket } from "@/lib/archive-bracket";
+import {
+  readArchiveProgression,
+  supportsArchiveProgression,
+} from "@/lib/archive-progression";
+import { sameHistoricalMatches } from "@/lib/archive-progression-display";
+import { publicBracket } from "@/lib/brackets";
+import { frontendConnection } from "@/lib/frontend-data";
 import { archiveEventMatches } from "@/lib/archive-event-matches";
 import { archiveStaff } from "@/lib/archive-staff";
 import { archivePlayerRoleLabel } from "@/lib/archive-player-role";
@@ -315,8 +323,43 @@ export async function HistoricalArchiveView({
       <p className="muted">{tr("Not recorded")}</p>
     );
   }
-  function competition() {
-    const bracket = archiveBracket(a, (id) => href("matches", id));
+  async function competitionBracket() {
+    const remote = remoteMode();
+    const version =
+      remote && supportsArchiveProgression(edition.slug)
+        ? (await frontendConnection()).contractVersion
+        : null;
+    const remoteProgression =
+      Number(/^1\.(\d+)\./.exec(version ?? "")?.[1] ?? 0) >= 29;
+    const details = (id: string) => href("matches", id);
+    const bracket = archiveBracket(
+      a,
+      details,
+      remote
+        ? remoteProgression
+          ? null
+          : undefined
+        : await readArchiveProgression(edition.slug),
+    );
+    if (bracket && remoteProgression && !preview) {
+      const saved = await publicBracket(edition.slug);
+      const incoming = saved?.groups.find(
+        (g) => g.showAdvancement && g.id === "match-path",
+      );
+      const index = bracket.groups.findIndex((g) => g.id === "match-path");
+      if (
+        incoming &&
+        saved?.source.url === a.sourceUrl &&
+        index !== -1 &&
+        sameHistoricalMatches(bracket.groups[index], incoming)
+      )
+        bracket.groups[index] = incoming;
+    }
+    return bracket;
+  }
+  function competition(
+    bracket: Awaited<ReturnType<typeof competitionBracket>>,
+  ) {
     const rules = historicalRulebook(a, edition.rules);
     const derived =
       rules && historicalRulebookSeason(rules) === "8"
@@ -332,13 +375,32 @@ export async function HistoricalArchiveView({
     if (bracket)
       for (const group of bracket.groups) {
         if (group.id === "match-path") group.label = tr("Match path");
-        for (const round of group.rounds)
-          for (const match of round.matches)
+        const labels = group.showAdvancement
+          ? new Map([
+              ["Winners bracket", tr("Winners bracket")],
+              ["Losers bracket", tr("Losers bracket")],
+              ["Winners bracket final", tr("Winners bracket final")],
+              ["Losers bracket final", tr("Losers bracket final")],
+              ["Grand final", tr("Grand final")],
+            ])
+          : null;
+        for (const round of group.rounds) {
+          const roundNumber =
+            group.showAdvancement && /^Round (\d+)$/.exec(round.label);
+          round.label = roundNumber
+            ? tr("Round {value0}", { value0: Number(roundNumber[1]) })
+            : (labels?.get(round.label) ?? round.label);
+          for (const match of round.matches) {
+            if (match.note) match.note = labels?.get(match.note) ?? match.note;
             if (
               a.matches.find((m) => m.id === match.id)?.forfeitWinner !==
               undefined
             )
-              match.note = tr("Forfeit");
+              match.note = [match.note, tr("Forfeit")]
+                .filter(Boolean)
+                .join(" · ");
+          }
+        }
       }
     notes = [
       derived && (
@@ -726,7 +788,7 @@ export async function HistoricalArchiveView({
           reviewMode={preview}
           initialStatus={statusFilter}
           timeZone={edition.timeZone}
-          competition={competition()}
+          competition={competition(await competitionBracket())}
           phases={[...new Set(matches.map((m) => m.stage))].map((stage) => ({
             id: stage,
             label: stage,
@@ -741,9 +803,11 @@ export async function HistoricalArchiveView({
         />
       );
   } else if (section === "mappools" || section === "pool") {
-    const pool =
+    let pool =
       section === "pool" ? a.pools.find((p) => p.id === id) : a.pools[0];
     if (section === "pool" && !pool) notFound();
+    if (pool && !preview && !remoteMode())
+      [pool] = (await attachArchiveDifficulties({ ...a, pools: [pool] })).pools;
     const display = pool ? archivePoolMetadata(pool, a.editionSlug) : null;
     const artwork =
       pool && display
@@ -788,7 +852,7 @@ export async function HistoricalArchiveView({
       );
   } else if (section === "bracket") {
     title = tr("Bracket");
-    content = competition();
+    content = competition(await competitionBracket());
   } else if (section === "draft") {
     title = tr("Draft results");
     if (a.draftMode === "final-tiers")
