@@ -1,40 +1,21 @@
 "use client";
-import { useId, useRef, useSyncExternalStore } from "react";
+import Image from "next/image";
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useAppTranslations } from "@/i18n/shared";
-const presets = [
-  "💜",
-  "🔥",
-  "👏",
-  "🐧",
-  "✨",
-  "💪",
-  "😂",
-  "😍",
-  "🥹",
-  "😎",
-  "🤔",
-  "👀",
-  "🎉",
-  "🚀",
-  "🏆",
-  "🥇",
-  "🍀",
-  "🫶",
-  "👍",
-  "❤️",
-  "🎵",
-  "⭐",
-  "🌸",
-  "🦆",
-  "😈",
-  "😭",
-  "🤯",
-  "🙏",
-  "💯",
-  "🎯",
-  "🍵",
-  "🐱",
-];
+import {
+  parsePlayerReactions,
+  playerReactionById,
+  playerReactions,
+  searchPlayerReactions,
+  type PlayerReaction,
+} from "@/lib/player-reactions";
+
 const changeEvent = "oclr-player-reactions";
 function subscribe(callback: () => void) {
   window.addEventListener("storage", callback);
@@ -45,6 +26,29 @@ function subscribe(callback: () => void) {
   };
 }
 const serverSnapshot = () => "[]";
+
+function ReactionImage({
+  reaction,
+  animated = false,
+}: {
+  reaction: PlayerReaction;
+  animated?: boolean;
+}) {
+  return (
+    <picture
+      className={`reaction-image${reaction.group === "osu" && reaction.src.endsWith(".svg") ? " reaction-image-mod" : ""}`}
+    >
+      {animated && reaction.animatedSrc && (
+        <source
+          media="(prefers-reduced-motion: no-preference)"
+          srcSet={reaction.animatedSrc}
+        />
+      )}
+      <Image src={reaction.src} width={32} height={32} alt="" unoptimized />
+    </picture>
+  );
+}
+
 export function PlayerReactions({
   playerId,
   edition,
@@ -58,6 +62,10 @@ export function PlayerReactions({
   const pickerId = useId();
   const picker = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [focused, setFocused] = useState<string | null>(null);
   const key = `oclr-reactions:${edition}:${playerId}`;
   const snapshot = useSyncExternalStore(
     subscribe,
@@ -70,44 +78,77 @@ export function PlayerReactions({
     },
     serverSnapshot,
   );
-  let selected: string[] = [];
-  try {
-    const value: unknown = JSON.parse(snapshot);
-    if (Array.isArray(value))
-      selected = value.filter(
-        (v): v is string => typeof v === "string" && presets.includes(v),
-      );
-  } catch {}
-  function toggle(emoji: string) {
-    const next = selected.includes(emoji)
-      ? selected.filter((e) => e !== emoji)
-      : [...selected, emoji];
+  const selected = parsePlayerReactions(snapshot);
+  const candidates = searchPlayerReactions(query);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    function position() {
+      if (!picker.current || !trigger.current) return;
+      const rect = trigger.current.getBoundingClientRect();
+      const panel = picker.current.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const width = viewport?.width ?? window.innerWidth;
+      const height = viewport?.height ?? window.innerHeight;
+      const offsetTop = viewport?.offsetTop ?? 0;
+      const offsetLeft = viewport?.offsetLeft ?? 0;
+      const bottom = offsetTop + height;
+      picker.current.style.left = `${Math.max(offsetLeft + 12, Math.min(rect.left, offsetLeft + width - panel.width - 12))}px`;
+      const top =
+        rect.bottom + panel.height + 8 <= bottom - 12
+          ? rect.bottom + 8
+          : rect.top - panel.height - 8;
+      picker.current.style.top = `${Math.max(offsetTop + 12, Math.min(top, bottom - panel.height - 12))}px`;
+    }
+    position();
+    window.addEventListener("resize", position);
+    window.addEventListener("scroll", position, true);
+    window.visualViewport?.addEventListener("resize", position);
+    return () => {
+      window.removeEventListener("resize", position);
+      window.removeEventListener("scroll", position, true);
+      window.visualViewport?.removeEventListener("resize", position);
+    };
+  }, [open]);
+
+  function toggle(id: string) {
+    const next = selected.includes(id)
+      ? selected.filter((value) => value !== id)
+      : [...selected, id];
     try {
       localStorage.setItem(key, JSON.stringify(next));
       window.dispatchEvent(new Event(changeEvent));
     } catch {}
   }
+
   return (
     <div
       className="player-reactions"
       role="group"
       aria-label={tr("Reactions for {name}", { name })}
     >
-      {selected.map((emoji) => (
-        <button
-          type="button"
-          key={emoji}
-          className="player-reaction"
-          aria-label={tr("React with {emoji}", { emoji })}
-          aria-pressed={selected.includes(emoji)}
-          onClick={() => toggle(emoji)}
-        >
-          <span aria-hidden="true">{emoji}</span>
-          {selected.includes(emoji) && (
+      {selected.map((id) => {
+        const reaction = playerReactionById.get(id);
+        const label = reaction?.name ?? id;
+        return (
+          <button
+            type="button"
+            key={id}
+            className="player-reaction"
+            title={label}
+            aria-label={tr("React with {emoji}", { emoji: label })}
+            aria-pressed="true"
+            onClick={() => toggle(id)}
+          >
+            {reaction ? (
+              <ReactionImage reaction={reaction} animated />
+            ) : (
+              <span aria-hidden="true">{id}</span>
+            )}
             <span className="reaction-count">1</span>
-          )}
-        </button>
-      ))}
+          </button>
+        );
+      })}
       <button
         ref={trigger}
         type="button"
@@ -115,13 +156,7 @@ export function PlayerReactions({
         popoverTarget={pickerId}
         aria-label={tr("Add reaction")}
         title={tr("Add reaction")}
-        onClick={(event) => {
-          const panel = picker.current;
-          if (!panel) return;
-          const rect = event.currentTarget.getBoundingClientRect();
-          panel.style.left = `${Math.max(12, Math.min(rect.left, window.innerWidth - 284))}px`;
-          panel.style.top = `${rect.bottom + 220 < window.innerHeight ? rect.bottom + 8 : Math.max(12, rect.top - 212)}px`;
-        }}
+        aria-expanded={open}
       >
         ＋
       </button>
@@ -131,28 +166,89 @@ export function PlayerReactions({
         popover="auto"
         className="reaction-picker"
         aria-label={tr("Choose an emoji")}
+        onKeyDown={(event) => {
+          // A search input otherwise consumes Escape to clear its value first.
+          if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopPropagation();
+            picker.current?.hidePopover();
+            trigger.current?.focus();
+          }
+        }}
+        onToggle={(event) => {
+          const isOpen = event.newState === "open";
+          setOpen(isOpen);
+          if (!isOpen) {
+            setQuery("");
+            setHovered(null);
+            setFocused(null);
+          }
+        }}
       >
-        <div
-          className="reaction-picker-grid"
-          role="group"
-          aria-label={tr("Choose an emoji")}
-        >
-          {presets.map((emoji) => (
-            <button
-              type="button"
-              key={emoji}
-              aria-label={tr("React with {emoji}", { emoji })}
-              aria-pressed={selected.includes(emoji)}
-              onClick={() => {
-                toggle(emoji);
-                picker.current?.hidePopover();
-                trigger.current?.focus();
-              }}
-            >
-              {emoji}
-            </button>
-          ))}
-        </div>
+        {open && (
+          <>
+            <div className="reaction-picker-toolbar">
+              <input
+                type="search"
+                value={query}
+                aria-label={tr("Search emoji")}
+                placeholder={tr("Search emoji")}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setHovered(null);
+                  setFocused(null);
+                  picker.current
+                    ?.querySelector(".reaction-picker-scroll")
+                    ?.scrollTo(0, 0);
+                }}
+              />
+              <span className="reaction-picker-total">
+                {candidates.length}/{playerReactions.length}
+              </span>
+            </div>
+            <div className="reaction-picker-scroll">
+              <div
+                className="reaction-picker-grid"
+                role="group"
+                aria-label={tr("Choose an emoji")}
+              >
+                {candidates.map((reaction) => (
+                  <button
+                    type="button"
+                    key={reaction.id}
+                    title={`${reaction.name} · ${reaction.id}`}
+                    data-reaction-id={reaction.id}
+                    aria-label={tr("React with {emoji}", {
+                      emoji: reaction.name,
+                    })}
+                    aria-pressed={selected.includes(reaction.id)}
+                    onMouseEnter={() => setHovered(reaction.id)}
+                    onMouseLeave={() => setHovered(null)}
+                    onFocus={() => setFocused(reaction.id)}
+                    onBlur={() => setFocused(null)}
+                    onClick={() => {
+                      toggle(reaction.id);
+                      picker.current?.hidePopover();
+                      trigger.current?.focus();
+                    }}
+                  >
+                    <ReactionImage
+                      reaction={reaction}
+                      animated={
+                        hovered === reaction.id || focused === reaction.id
+                      }
+                    />
+                  </button>
+                ))}
+              </div>
+              {!candidates.length && (
+                <p className="muted small" role="status">
+                  {tr("No matching emoji.")}
+                </p>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

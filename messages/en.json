@@ -3942,6 +3942,8 @@
     "ma955d8e81cf0": "Added at",
     "m6d6ceb5b602a": "Download mirror",
     "m1969823f96f9": "Download mirror (optional)",
+    "m87fafa7206f9": "Search emoji",
+    "ma70b140e1055": "No matching emoji.",
     "m8d698cda62a0": "Enter a port between 1 and 65535.",
     "m472ffc2ea4ac": "This port is already in the list.",
     "mdd9b98658aee": "This port is not allowed by the server.",

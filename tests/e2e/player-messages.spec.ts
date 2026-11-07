@@ -306,10 +306,10 @@ test.describe("player identity, introduction and signed messages", () => {
             .getByRole("button", {
               name:
                 locale === "en"
-                  ? "React with 💜"
+                  ? "React with 呲牙"
                   : locale === "zh-Hans"
-                    ? "贴上 💜"
-                    : "貼上 💜",
+                    ? "贴上 呲牙"
+                    : "貼上 呲牙",
               exact: true,
             })
             .click();
@@ -318,10 +318,10 @@ test.describe("player identity, introduction and signed messages", () => {
             .getByRole("button", {
               name:
                 locale === "en"
-                  ? "React with 💜"
+                  ? "React with 呲牙"
                   : locale === "zh-Hans"
-                    ? "贴上 💜"
-                    : "貼上 💜",
+                    ? "贴上 呲牙"
+                    : "貼上 呲牙",
               exact: true,
             })
             .click();

@@ -8,6 +8,13 @@ import { readFileSync } from "node:fs";
 import postcss from "postcss";
 import tailwind from "@tailwindcss/postcss";
 import { bundledSeasonThemes } from "../fixtures/theme-assets";
+import { playerReactions } from "../../src/lib/player-reactions";
+
+const reactionAssets = new Set(
+  playerReactions.flatMap((reaction) =>
+    [reaction.src, reaction.animatedSrc].filter((src): src is string => !!src),
+  ),
+);
 
 const themeAssets = new Set(
   bundledSeasonThemes.flatMap((theme) => theme.assets),
@@ -29,6 +36,7 @@ const bundle = await build({
     "tests/components/mappool-sort.tsx",
     "tests/components/player-leaderboard.tsx",
     "tests/components/event-players.tsx",
+    "tests/components/player-reactions.tsx",
     "tests/components/public-results.tsx",
     "tests/components/exhibition-pool-import.tsx",
     "tests/components/action-loading.tsx",
@@ -82,6 +90,7 @@ const themedStyles = new Map(
     [
       "developer-access.css",
       "action-loading.css",
+      "player-reactions.css",
       "nebula-preview.css",
       "player-sidebar.css",
       "staff-navigation.css",
@@ -132,11 +141,16 @@ createServer((request, response) => {
     response.end(readFileSync(resolve("public", `.${request.url}`)));
   } else if (
     themeAssets.has(request.url ?? "") ||
-    tournamentArtwork.has(request.url ?? "")
+    tournamentArtwork.has(request.url ?? "") ||
+    reactionAssets.has(request.url ?? "")
   ) {
     response.setHeader(
       "Content-Type",
-      request.url!.endsWith(".svg") ? "image/svg+xml" : "image/webp",
+      request.url!.endsWith(".svg")
+        ? "image/svg+xml"
+        : request.url!.endsWith(".png")
+          ? "image/png"
+          : "image/webp",
     );
     response.end(readFileSync(resolve("public", `.${request.url}`)));
   } else if (
@@ -250,29 +264,31 @@ createServer((request, response) => {
                       : request.url?.startsWith("/player-leaderboard")
                         ? "player-leaderboard"
                         : entry;
-    const fixtureName = request.url?.startsWith("/team-coach-draft")
-      ? "team-coach-draft"
-      : request.url?.startsWith("/developer-access")
-        ? "developer-access"
-        : request.url?.startsWith("/referee-reconciliation")
-          ? "referee-reconciliation"
-          : request.url?.startsWith("/fixture-manager")
-            ? "fixture-manager"
-            : request.url?.startsWith("/award-manager")
-              ? "award-manager"
-              : request.url?.startsWith("/nebula-preview")
-                ? "nebula-preview"
-                : request.url?.startsWith("/mappool-sort")
-                  ? "mappool-sort"
-                  : request.url?.startsWith("/event-players")
-                    ? "event-players"
-                    : request.url?.startsWith("/appearance-navigation")
-                      ? "appearance-navigation"
-                      : request.url?.startsWith("/backup-manager")
-                        ? "backup-manager"
-                        : request.url?.startsWith("/archive-importer")
-                          ? "archive-importer"
-                          : fixture;
+    const fixtureName = request.url?.startsWith("/player-reactions")
+      ? "player-reactions"
+      : request.url?.startsWith("/team-coach-draft")
+        ? "team-coach-draft"
+        : request.url?.startsWith("/developer-access")
+          ? "developer-access"
+          : request.url?.startsWith("/referee-reconciliation")
+            ? "referee-reconciliation"
+            : request.url?.startsWith("/fixture-manager")
+              ? "fixture-manager"
+              : request.url?.startsWith("/award-manager")
+                ? "award-manager"
+                : request.url?.startsWith("/nebula-preview")
+                  ? "nebula-preview"
+                  : request.url?.startsWith("/mappool-sort")
+                    ? "mappool-sort"
+                    : request.url?.startsWith("/event-players")
+                      ? "event-players"
+                      : request.url?.startsWith("/appearance-navigation")
+                        ? "appearance-navigation"
+                        : request.url?.startsWith("/backup-manager")
+                          ? "backup-manager"
+                          : request.url?.startsWith("/archive-importer")
+                            ? "archive-importer"
+                            : fixture;
     response.end(
       `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/${fixtureName}.css"></head><body><div id="root"></div><script nonce="${nonce}" src="/${fixtureName}.js"></script></body></html>`,
     );

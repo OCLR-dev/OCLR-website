@@ -32,6 +32,36 @@ About lists active persistent staff grants with public visibility in `/admin/sta
 
 ## Public player directory
 
+### Local player reactions (#969)
+
+The player-list reaction picker contains 408 bundled image entries: 395 QQ
+resources, 12 osu! Mod icons and the Twemoji circled congratulation. The 34
+entries in [the reviewed export](verification/issue-969/selection.json) appear
+first in export order; the remaining images follow in catalog order. Entries
+without an image are omitted. Names remain literal asset names; search also
+recognizes IDs and the aliases 按按钮 / 跪拜. Search and empty-state controls use
+the shared three-language catalogs.
+
+Following the user's selection, 11 Mod icons use the classic osu! skin PNGs.
+NM retains the original SVG because the reviewed classic set has no NM image.
+The original reaction IDs and shortlist order remain stable, so previously
+saved Mod reactions automatically display the replacement artwork.
+
+The picker mounts only while open, uses a bounded scrolling grid and lazy images,
+and plays an animation on hover/focus. Selected reactions play their available
+APNG; reduced-motion users see the static image. All images are local under
+`/reactions/`; there is no visitor-time request to QQ, Discord or GitHub.
+Asset URLs and SHA-256 checksums are recorded in
+[`manifest.json`](../public/reactions/manifest.json), with attribution in
+[`NOTICE.txt`](../public/reactions/NOTICE.txt).
+
+Reactions remain browser-local, keyed by edition and player. Existing Unicode
+selections can still be displayed and removed, but are not added to the new
+image-only candidate list. Remote read-only player lists continue to omit the
+reaction controls. This change adds no server-side reaction counts or writes.
+
+### Directory behavior
+
 `/tournaments/[edition]/players` and `/api/tournaments/[edition]/players` list every accepted registration in that published edition. The page reads the complete matching collection (#245), initially renders 40 players, and automatically reveals the next 40 near the bottom of the list (#841). A keyboard-operable button provides a manual fallback. Search, sorting and filters apply to the full collection and reset the visible batch; preview renders all players. Username, osu! ID and accepted participation are automatically public, as explained before submission and in Privacy. Application answers, contact fields and staff notes are never queried. Captain/team/roster details retain separate publication checks. Pending/rejected/withdrawn registrations and unpublished editions stay private. Legacy `/players?edition=...` redirects into the edition; `/players` redirects to Tournaments. The legacy directory API requires one edition and cannot return a cross-edition list. `/dashboard` remains private.
 
 Current and historical player pages share search, public-team and role filters, stable sorting, applied-condition chips, result/season counts and reset (#425). Search includes literal names, UIDs, visible name evidence and published team names. Only reliably available season data produces filter options; unknown teams do not become free agents. Current accepted Captain/coach combinations can match several roles while appearing once per UID. Historical names, roles and absent statistics remain historical; current caches never supply invented historical rank, PP or Tier.
