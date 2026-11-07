@@ -7,32 +7,14 @@ import {
   PlayerRankCard,
   type PlayerRankCardData,
   type RankStatAnchors,
+  type RankStatKey,
 } from "./player-rank-card";
 import styles from "./player-leaderboard-cards.module.css";
 
-type SortKey =
-  | "rank"
-  | "player"
-  | "pp"
-  | "mra"
-  | "rws"
-  | "type"
-  | "wins"
-  | "losses"
-  | "appearances"
-  | "winRate"
-  | "participation"
-  | "nm"
-  | "mod"
-  | "hd"
-  | "hr"
-  | "dt";
-
+type SortKey = "rank" | "player" | "pp" | "mra" | "type" | RankStatKey;
 type Direction = "desc" | "asc";
 type Sort = { key: SortKey; dir: Direction };
-type Ranked = { player: PlayerRankCardData; rank: number };
 
-// The list starts on MRA descending; that is also how the table ranks players.
 const DEFAULT_SORT: Sort = { key: "mra", dir: "desc" };
 const PAGE_SIZE = 50;
 
@@ -46,54 +28,22 @@ function classKey(classification: PlayerClass | null) {
   return [category, codes.indexOf(classification.code)] as const;
 }
 
-function numericValue(player: PlayerRankCardData, key: SortKey) {
-  switch (key) {
-    case "pp":
-      return player.pp;
-    case "mra":
-      return player.mra;
-    case "rws":
-      return player.stats.rws;
-    case "wins":
-      return player.stats.wins;
-    case "losses":
-      return player.stats.losses;
-    case "appearances":
-      return player.stats.appearances;
-    case "winRate":
-      return player.stats.winRate;
-    case "participation":
-      return player.stats.participation;
-    case "nm":
-      return player.stats.nm;
-    case "mod":
-      return player.stats.mod;
-    case "hd":
-      return player.stats.hd;
-    case "hr":
-      return player.stats.hr;
-    case "dt":
-      return player.stats.dt;
-    default:
-      return null;
-  }
-}
-
-function compareRows(a: Ranked, b: Ranked, sort: Sort) {
-  const direction = sort.dir === "desc" ? -1 : 1;
-  if (sort.key === "rank") return (a.rank - b.rank) * direction;
-  if (sort.key === "player")
-    return a.player.username.localeCompare(b.player.username) * direction;
-  if (sort.key === "type") {
-    const left = classKey(a.player.classification);
-    const right = classKey(b.player.classification);
+function compareRows(a: PlayerRankCardData, b: PlayerRankCardData, sort: Sort) {
+  const { key, dir } = sort;
+  const direction = dir === "desc" ? -1 : 1;
+  if (key === "rank") return (a.rank - b.rank) * direction;
+  if (key === "player") return a.username.localeCompare(b.username) * direction;
+  if (key === "type") {
+    const left = classKey(a.classification);
+    const right = classKey(b.classification);
     if (!left && !right) return 0;
     if (!left) return 1;
     if (!right) return -1;
     return (left[0] - right[0] || left[1] - right[1]) * direction;
   }
-  const left = numericValue(a.player, sort.key);
-  const right = numericValue(b.player, sort.key);
+  const directValue = key === "pp" || key === "mra";
+  const left = directValue ? a[key] : a.stats[key];
+  const right = directValue ? b[key] : b.stats[key];
   // Missing values stay at the end for either direction.
   if (left === null && right === null) return 0;
   if (left === null) return 1;
@@ -114,18 +64,14 @@ export function PlayerLeaderboardCards({
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const activeSort = sort ?? DEFAULT_SORT;
 
-  const sorted = useMemo(() => {
-    const ranked: Ranked[] = players.map((player) => ({
-      player,
-      rank: player.rank,
-    }));
-    return [...ranked].sort(
-      (a, b) =>
-        compareRows(a, b, activeSort) ||
-        a.rank - b.rank ||
-        a.player.osuId - b.player.osuId,
-    );
-  }, [players, activeSort]);
+  const sorted = useMemo(
+    () =>
+      [...players].sort(
+        (a, b) =>
+          compareRows(a, b, activeSort) || a.rank - b.rank || a.osuId - b.osuId,
+      ),
+    [players, activeSort],
+  );
 
   const shown = sorted.slice(0, visibleCount);
   const hasMore = visibleCount < sorted.length;
@@ -225,7 +171,7 @@ export function PlayerLeaderboardCards({
         })}
       </div>
       <div className={styles.list}>
-        {shown.map(({ player }) => (
+        {shown.map((player) => (
           <PlayerRankCard
             key={player.osuId}
             player={player}
