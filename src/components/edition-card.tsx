@@ -10,6 +10,9 @@ import { EditionArtwork } from "./edition-artwork";
 import PendingLink from "./pending-link";
 import { formatDate, publicEditionSummary, type Edition } from "@/lib/editions";
 import styles from "./edition-card.module.css";
+
+const leagueName = "osu! Chinese League Rookie";
+
 export async function EditionCard({
   edition,
   href,
@@ -66,7 +69,7 @@ export async function EditionCard({
         <div className={styles.heading}>
           <div className={styles.brand}>
             <strong>OCLR</strong>
-            <span>osu! Chinese League Rookie</span>
+            <span>{leagueName}</span>
           </div>
           <h2>{title}</h2>
         </div>
@@ -83,7 +86,9 @@ export async function EditionCard({
           </nav>
         ) : (
           <div className={styles.registration}>
-            {summary && <p className={`muted ${styles.summary}`}>{summary}</p>}
+            {summary && summary !== `${leagueName} — ${title}.` && (
+              <p className={`muted ${styles.summary}`}>{summary}</p>
+            )}
             <div className={styles.registrationDetails}>
               {state === "open" ? (
                 <div className="actions">
