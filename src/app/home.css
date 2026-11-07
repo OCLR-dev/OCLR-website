@@ -117,14 +117,6 @@
   grid-template-columns: 1fr;
   gap: 1.5rem;
 }
-.home-archive-grid .edition-card {
-  grid-template-columns: 128px minmax(0, 1fr);
-  min-width: 0;
-  /* The home route skips pages.css, so repeat its themed card surface here;
-   * without it the dark base card keeps the light theme's dark text. */
-  background: var(--site-surface);
-  border-color: var(--site-border);
-}
 .home-other-current {
   display: grid;
   gap: 1rem;
@@ -180,12 +172,6 @@ html[data-appearance="swiss-minimal"] .home-redesign .home-archive-art {
 @media (max-width: 360px) {
   .home-wordmark {
     font-size: 19.5vw;
-  }
-}
-
-@media (max-width: 760px) {
-  .home-archive-grid .edition-card {
-    grid-template-columns: 72px minmax(0, 1fr);
   }
 }
 
@@ -623,11 +609,10 @@ html[data-appearance="default"][data-theme="dark"]
     top: calc(var(--home-phone-logo-bottom) + 20px);
     bottom: auto;
     z-index: 2;
-    /* Four compact entries fit below the logo, beside the character. */
-    width: clamp(160px, 45vw, 184px);
+    /* Keep the column below the logo and beside Liru's hair. */
+    width: clamp(112px, 36vw, 144px);
     max-width: none;
-    /* the column keeps its width whatever the labels say (#698) */
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.4rem;
   }
   .home-hero-sky {
