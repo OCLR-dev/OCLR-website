@@ -2,6 +2,7 @@
 
 For the reviewed cross-season ranking worker, see [background player analytics](background-player-analytics.md).
 It requires migration 0081 and an explicitly installed timer; public requests do not calculate or write ranking snapshots.
+For official osu! v2 difficulty snapshots, see the [background mappool difficulty job](mappools.md#background-difficulty-job).
 
 The deployment target is a Rocky Linux 10 Node.js application host, an existing separate PostgreSQL server and an existing separate Nginx proxy. CI verifies Node.js 24 and PostgreSQL 17; the actual external database version, permissions and networking must be rehearsed before launch. No deployment, domain, DNS or OAuth application has been provisioned by this repository. The local isolated tests are not a production launch.
 

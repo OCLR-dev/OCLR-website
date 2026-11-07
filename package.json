@@ -48,7 +48,8 @@
     "prepare": "node --import tsx scripts/build-appearance-styles.ts",
     "predev": "node --import tsx scripts/build-appearance-styles.ts",
     "prebuild": "node --import tsx scripts/build-appearance-styles.ts",
-    "db:refresh-player-leaderboard": "tsx scripts/refresh-player-leaderboard.ts"
+    "db:refresh-player-leaderboard": "tsx scripts/refresh-player-leaderboard.ts",
+    "db:refresh-beatmap-difficulties": "tsx scripts/refresh-beatmap-difficulties.ts"
   },
   "dependencies": {
     "@cm3tahkuh/react-tournament-brackets": "^1.1.6",

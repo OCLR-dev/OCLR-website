@@ -1,0 +1,20 @@
+[Unit]
+Description=OCLR published mappool difficulty synchronization
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=oclr
+Group=oclr
+WorkingDirectory=/opt/oclr/current
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/oclr/runtime.env
+ExecStart=/usr/bin/node --import tsx /opt/oclr/current/scripts/refresh-beatmap-difficulties.ts --apply
+TimeoutStartSec=300
+Nice=10
+CPUWeight=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict

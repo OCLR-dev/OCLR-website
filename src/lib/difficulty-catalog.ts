@@ -55,13 +55,17 @@ export function catalogDifficulty(
 }
 export function archiveDifficultySnapshots(
   archive: HistoricalArchive,
+  resolve: (
+    map: HistoricalArchive["pools"][number]["maps"][number],
+  ) => DifficultySnapshot | undefined = (map) =>
+    catalogDifficulty(map.beatmapId),
 ): HistoricalArchive {
   return {
     ...archive,
     pools: archive.pools.map((pool) => ({
       ...pool,
       maps: pool.maps.map((map) => {
-        const snapshot = catalogDifficulty(map.beatmapId);
+        const snapshot = resolve(map);
         return snapshot ? { ...map, difficultySnapshot: snapshot } : map;
       }),
     })),

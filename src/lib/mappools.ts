@@ -25,7 +25,11 @@ import { getEdition, getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
-import { catalogDifficulty } from "./difficulty-catalog";
+import {
+  loadSavedDifficulties,
+  selectSavedDifficulty,
+} from "./saved-difficulty";
+import { previewConfigurations } from "./difficulty-display";
 import { downloadMirrorSchema } from "./mappool-download";
 import {
   categories,
@@ -1309,12 +1313,23 @@ export async function publicMappools(
         Awaited<ReturnType<typeof databasePublicMappools>>
       >("publicMappools", { slug, poolId })
     : await databasePublicMappools(slug, poolId);
+  const saved = await loadSavedDifficulties(
+    pools.flatMap((pool) => pool.entries.map((entry) => entry.beatmapId)),
+  );
   return pools.map((pool) => ({
     ...pool,
     entries: pool.entries.map((entry) => {
-      const snapshot =
-        entry.metadata.difficultySnapshot ??
-        catalogDifficulty(entry.beatmapId, entry.metadata.checksum);
+      const snapshot = selectSavedDifficulty(
+        saved,
+        entry.beatmapId,
+        previewConfigurations(
+          entry.category,
+          entry.metadata.attributes?.configuration,
+        ),
+        entry.metadata.difficultySnapshot,
+        entry.metadata.checksum,
+        entry.metadata.mode,
+      );
       return snapshot
         ? {
             ...entry,

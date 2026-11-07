@@ -867,6 +867,19 @@ export const mappoolEntries = pgTable(
     index("pool_entry_pool_idx").on(t.poolId),
   ],
 );
+/** Current provider data shared by published pools, independent of tournament revisions. */
+export const beatmapDifficultySnapshots = pgTable(
+  "beatmap_difficulty_snapshots",
+  {
+    beatmapId: bigint("beatmap_id", { mode: "number" }).primaryKey(),
+    snapshot:
+      jsonb("snapshot").$type<
+        import("../lib/mappool-model").DifficultySnapshot
+      >(),
+    retryAt: timestamp("retry_at", { withTimezone: true }),
+  },
+  (t) => [check("beatmap_difficulty_positive_id", sql`${t.beatmapId} > 0`)],
+);
 export const mappoolReplays = pgTable(
   "mappool_replays",
   {
