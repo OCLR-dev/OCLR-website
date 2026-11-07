@@ -7,6 +7,7 @@ import {
 import { supportsArchiveStatistics } from "@/lib/archive-statistics-model";
 import { getAppTranslations } from "@/i18n/server";
 import { archivePoolMetadata } from "@/lib/archive-map-metadata";
+import { attachArchiveDifficulties } from "@/lib/saved-difficulty";
 import { catalogDifficulty } from "@/lib/difficulty-catalog";
 import { archiveArtworkLookup } from "@/lib/archive-artwork";
 import { archiveBracket } from "@/lib/archive-bracket";
@@ -741,9 +742,11 @@ export async function HistoricalArchiveView({
         />
       );
   } else if (section === "mappools" || section === "pool") {
-    const pool =
+    let pool =
       section === "pool" ? a.pools.find((p) => p.id === id) : a.pools[0];
     if (section === "pool" && !pool) notFound();
+    if (pool && !preview && !remoteMode())
+      [pool] = (await attachArchiveDifficulties({ ...a, pools: [pool] })).pools;
     const display = pool ? archivePoolMetadata(pool, a.editionSlug) : null;
     const artwork =
       pool && display
