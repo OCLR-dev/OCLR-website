@@ -645,6 +645,20 @@
       "when": 1794056984537,
       "tag": "0091_historical_bracket_progression",
       "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1794067423563,
+      "tag": "0092_live_season_relational_queries",
+      "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "7",
+      "when": 1794069643019,
+      "tag": "0093_live_score_notifications",
+      "breakpoints": true
     }
   ]
 }

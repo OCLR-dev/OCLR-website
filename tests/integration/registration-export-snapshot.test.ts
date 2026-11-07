@@ -118,7 +118,7 @@ describe.skipIf(!target)(
                 text.includes('"registrations"."created_at"')
               : text.includes('from "registrations"') &&
                 text.includes('"configuration_version"') &&
-                text.includes('"answers"') &&
+                text.includes('"registration_answers"') &&
                 !text.includes("join");
           if (committed || !match) return result;
           committed = true;

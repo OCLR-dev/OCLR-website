@@ -101,6 +101,7 @@ export function BroadcastDraft({
     accept: acceptBroadcastSnapshot,
     credentials: remote ? "same-origin" : "omit",
     initiallyConnected: available,
+    refreshBroadcastProfile: true,
   });
   const previous = useRef(initial);
   const wasConnected = useRef(available);

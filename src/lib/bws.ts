@@ -101,7 +101,7 @@ async function applicant(
   if (!z.uuid().safeParse(id).success)
     throw new HttpError(404, "Application not found.");
   const [row] = await reader
-    .select()
+    .select({ userId: registrations.userId })
     .from(registrations)
     .where(and(eq(registrations.id, id), eq(registrations.editionSlug, slug)));
   if (!row) throw new HttpError(404, "Application not found.");

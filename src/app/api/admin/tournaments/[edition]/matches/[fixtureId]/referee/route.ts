@@ -1,3 +1,4 @@
+import { liveSnapshot } from "@/lib/live-snapshot";
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
@@ -30,6 +31,12 @@ export async function PATCH(request: Request, context: Context) {
   }
 }
 
-export async function GET(...args: Parameters<typeof readGET>) {
-  return withFrontendReadRequest(() => readGET(...args));
+export async function GET(
+  request: Request,
+  context: Parameters<typeof readGET>[1],
+) {
+  const { fixtureId } = await context.params;
+  return liveSnapshot(request, `referee:${fixtureId}`, () =>
+    withFrontendReadRequest(() => readGET(request, context)),
+  );
 }

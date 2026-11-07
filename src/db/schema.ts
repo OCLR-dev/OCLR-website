@@ -473,6 +473,18 @@ export const registrations = pgTable(
     check("registrations_attempt_positive", sql`${table.attempt} > 0`),
   ],
 );
+export const registrationAnswers = pgTable(
+  "registration_answers",
+  {
+    registrationId: uuid("registration_id")
+      .notNull()
+      .references(() => registrations.id, { onDelete: "cascade" }),
+    questionId: text("question_id").notNull(),
+    value: text("value").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.registrationId, t.questionId] })],
+);
+
 export type RegistrationAttemptSnapshot = Omit<
   typeof registrations.$inferSelect,
   "createdAt" | "updatedAt"
@@ -718,6 +730,41 @@ export const draftSessions = pgTable("draft_sessions", {
       import("../lib/draft-types").CaptainBoard
     >(),
 });
+export const draftPoolEntries = pgTable(
+  "draft_pool_entries",
+  {
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => draftSessions.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    userId: bigint("user_id", { mode: "number" }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.sessionId, t.position] }),
+    index("draft_pool_entries_membership_idx").on(t.sessionId, t.userId),
+    check("draft_pool_entry_position", sql`${t.position} > 0`),
+    check(
+      "draft_pool_entry_user",
+      sql`${t.userId} BETWEEN 1 AND 9007199254740991`,
+    ),
+  ],
+);
+
+export const draftTurnSlots = pgTable(
+  "draft_turn_slots",
+  {
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => draftSessions.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    teamId: uuid("team_id").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.sessionId, t.position] }),
+    check("draft_turn_slot_position", sql`${t.position} > 0`),
+  ],
+);
+
 export const draftPicks = pgTable(
   "draft_picks",
   {
@@ -1542,6 +1589,31 @@ export const refereeEvents = pgTable(
     payload: jsonb("payload")
       .$type<import("../lib/referee-model").RefereeEventPayload>()
       .notNull(),
+    resolvedPickId: uuid("resolved_pick_id").generatedAlwaysAs(
+      sql`CASE WHEN payload->>'type' = 'attempt_resolved'
+                AND (payload->>'pickId') ~ '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+               THEN (payload->>'pickId')::uuid END`,
+    ),
+    resolvedAttemptId: uuid("resolved_attempt_id").generatedAlwaysAs(
+      sql`CASE WHEN payload->>'type' = 'attempt_resolved'
+                AND (payload->>'attemptId') ~ '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+               THEN (payload->>'attemptId')::uuid END`,
+    ),
+    resolvedStatus: text("resolved_status")
+      .$type<
+        Extract<
+          import("../lib/referee-model").RefereeEventPayload,
+          { type: "attempt_resolved" }
+        >["status"]
+      >()
+      .generatedAlwaysAs(
+        sql`CASE WHEN payload->>'type' = 'attempt_resolved' THEN payload->>'status' END`,
+      ),
+    resolvedWinnerTeamId: uuid("resolved_winner_team_id").generatedAlwaysAs(
+      sql`CASE WHEN payload->>'type' = 'attempt_resolved'
+                AND (payload->>'winnerTeamId') ~ '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+               THEN (payload->>'winnerTeamId')::uuid END`,
+    ),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -1730,6 +1802,30 @@ export const scheduleAvailability = pgTable(
     ),
   ],
 );
+export const scheduleAvailabilityIntervals = pgTable(
+  "schedule_availability_intervals",
+  {
+    fixtureId: uuid("fixture_id").notNull(),
+    userId: bigint("user_id", { mode: "number" }).notNull(),
+    position: integer("position").notNull(),
+    // Preserve the exact ISO offsets and precision accepted by the API.
+    start: text("start").notNull(),
+    end: text("end").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.fixtureId, t.userId, t.position] }),
+    foreignKey({
+      name: "schedule_availability_intervals_owner_fk",
+      columns: [t.fixtureId, t.userId],
+      foreignColumns: [
+        scheduleAvailability.fixtureId,
+        scheduleAvailability.userId,
+      ],
+    }).onDelete("cascade"),
+    check("schedule_interval_position", sql`${t.position} BETWEEN 1 AND 40`),
+  ],
+);
+
 export const scheduleRequests = pgTable(
   "schedule_requests",
   {
@@ -1889,6 +1985,40 @@ export const playerSeasonAvailability = pgTable(
 );
 
 // Kept outside generic staff audit projections because notes and slots are personal.
+export const playerSeasonAvailabilityIntervals = pgTable(
+  "player_season_availability_intervals",
+  {
+    editionSlug: text("edition_slug").notNull(),
+    userId: bigint("user_id", { mode: "number" }).notNull(),
+    position: integer("position").notNull(),
+    start: text("start").notNull(),
+    end: text("end").notNull(),
+    status:
+      text("status").$type<
+        import("@/lib/player-workspace-model").AvailabilityState
+      >(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.editionSlug, t.userId, t.position] }),
+    foreignKey({
+      name: "player_season_availability_intervals_owner_fk",
+      columns: [t.editionSlug, t.userId],
+      foreignColumns: [
+        playerSeasonAvailability.editionSlug,
+        playerSeasonAvailability.userId,
+      ],
+    }).onDelete("cascade"),
+    check(
+      "player_season_interval_position",
+      sql`${t.position} BETWEEN 1 AND 200`,
+    ),
+    check(
+      "player_season_interval_status",
+      sql`${t.status} IN ('available','unsure','unavailable')`,
+    ),
+  ],
+);
+
 export const playerWorkspaceEvents = pgTable(
   "player_workspace_events",
   {

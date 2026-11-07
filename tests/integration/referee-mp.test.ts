@@ -217,7 +217,20 @@ describe.skipIf(!url)("MP binding and atomic provisional scores", () => {
     await Promise.all([sync(), sync()]);
     w = await refereeWorkspace(actor, "test-cup", w.fixture.id);
     expect(w.projection.score[w.teams[0].id]).toBe(1);
-    expect(await db().select().from(refereeMpScores)).toHaveLength(1);
+    const [score] = await db().select().from(refereeMpScores);
+    const [outcome] = await db()
+      .select()
+      .from(refereeEvents)
+      .where(eq(refereeEvents.id, score.eventId!));
+    expect(outcome).toMatchObject({
+      resolvedPickId: score.pickId,
+      resolvedAttemptId: score.attemptId,
+      resolvedStatus: "completed",
+      resolvedWinnerTeamId: w.teams[0].id,
+    });
+    expect(w.events.find((e) => e.id === score.eventId)?.payload).toEqual(
+      outcome.payload,
+    );
     await sync();
     expect(
       (await call({ action: "status" })).workspace.projection.score[

@@ -23,6 +23,7 @@ import { publicMappools } from "./mappools";
 import { publicStaff } from "./public-staff";
 import { publicDraft } from "./draft";
 import { publicCompetition } from "./public-competition";
+import { draftTurnSequence } from "./live-season-columns";
 import { draftAwardTiers, awardTierLabel } from "./award-tiers";
 import { archiveCounts, type HistoricalArchive } from "./historical-archive";
 import {
@@ -310,7 +311,7 @@ async function releasedTiers(
   if (!snapshot) return new Map(captainIds.map((id) => [id, 0]));
   const [session] = await db()
     .select({
-      turnSequence: draftSessions.turnSequence,
+      turnSequence: draftTurnSequence,
       revision: draftSessions.version,
       publishedRevision: draftSessions.publishedRevision,
     })

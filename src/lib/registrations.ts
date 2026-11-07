@@ -18,6 +18,11 @@ import { verifyEligibility } from "./eligibility";
 import { ELIGIBILITY_FRESH_MS, withinRankGrace } from "./eligibility-model";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import {
+  registrationAnswerValues,
+  registrationMetadata,
+  registrationReadColumns,
+} from "./live-season-columns";
 import { readTournament, storedEdition } from "./tournaments";
 // Latest explicit provenance, without rewriting legacy audit records or storing
 // a second registration status. Mutations timestamp the event and row together.
@@ -217,7 +222,7 @@ export async function submitRegistration(
     if (state.registrationPausedAt || enrollmentState(edition) !== "open")
       throw new HttpError(409, "Registration is not open.");
     const [existing] = await tx
-      .select()
+      .select(registrationMetadata)
       .from(registrations)
       .where(
         and(
@@ -259,9 +264,14 @@ export async function submitRegistration(
       statusReason: null,
       draftUnavailableReason: null,
     };
-    let registration: typeof registrations.$inferSelect;
+    let registration:
+      Omit<typeof registrations.$inferSelect, "answers"> | undefined;
     if (existing) {
       await assertRegistrationUnassigned(tx, slug, user.osuId, true);
+      const [{ answers }] = await tx
+        .select({ answers: registrationAnswerValues })
+        .from(registrations)
+        .where(eq(registrations.id, existing.id));
       await tx.insert(registrationAttempts).values({
         registrationId: existing.id,
         attempt: existing.attempt,
@@ -271,6 +281,7 @@ export async function submitRegistration(
         archivedAt: now,
         snapshot: {
           ...existing,
+          answers,
           createdAt: existing.createdAt.toISOString(),
           updatedAt: existing.updatedAt.toISOString(),
         },
@@ -279,7 +290,7 @@ export async function submitRegistration(
         .update(registrations)
         .set({ ...active, attempt: existing.attempt + 1 })
         .where(eq(registrations.id, existing.id))
-        .returning();
+        .returning(registrationMetadata);
     } else {
       [registration] = await tx
         .insert(registrations)
@@ -287,7 +298,7 @@ export async function submitRegistration(
         .onConflictDoNothing({
           target: [registrations.editionSlug, registrations.userId],
         })
-        .returning();
+        .returning(registrationMetadata);
     }
     if (!registration)
       throw new HttpError(
@@ -303,7 +314,7 @@ export async function submitRegistration(
       operation: existing ? "player_reapply" : null,
       createdAt: now,
     });
-    return registration;
+    return { ...registration, answers: active.answers };
   });
 }
 export function canWithdraw(
@@ -336,7 +347,7 @@ export async function withdrawRegistration(
   assertUserWriteChannel();
   return db().transaction(async (tx) => {
     const [own] = await tx
-      .select()
+      .select({ editionSlug: registrations.editionSlug })
       .from(registrations)
       .where(
         and(eq(registrations.id, id), eq(registrations.userId, user.osuId)),
@@ -349,7 +360,7 @@ export async function withdrawRegistration(
       .where(eq(editionState.slug, own.editionSlug))
       .for("update");
     const [current] = await tx
-      .select()
+      .select(registrationMetadata)
       .from(registrations)
       .where(eq(registrations.id, id))
       .for("update");
@@ -389,7 +400,7 @@ export async function withdrawRegistration(
       .update(registrations)
       .set({ status: "withdrawn", statusReason: null, updatedAt })
       .where(eq(registrations.id, id))
-      .returning();
+      .returning(registrationReadColumns);
     await tx.insert(registrationEvents).values({
       registrationId: id,
       actorId: user.osuId,
@@ -415,7 +426,7 @@ async function databaseOwnRegistrations(userId: number) {
       rulesVersion: registrations.rulesVersion,
       eligibilityAcknowledged: registrations.eligibilityAcknowledged,
       configurationVersion: registrations.configurationVersion,
-      answers: registrations.answers,
+      answers: registrationAnswerValues,
       statusReason: registrations.statusReason,
       createdAt: registrations.createdAt,
       updatedAt: registrations.updatedAt,
@@ -455,8 +466,9 @@ export async function assertRegistrationUnassigned(
         EXISTS(SELECT 1 FROM teams t JOIN fixtures f ON (f.home_team_id=t.id OR f.away_team_id=t.id)
           WHERE t.edition_slug=${slug} AND (t.captain_id=${userId} OR
             EXISTS(SELECT 1 FROM memberships m WHERE m.team_id=t.id AND m.user_id=${userId})))
-      ) AS "assigned", EXISTS(SELECT 1 FROM draft_sessions s WHERE s.edition_slug=${slug}
-        AND s.pool @> ${JSON.stringify([userId])}::jsonb
+      ) AS "assigned", EXISTS(SELECT 1 FROM draft_sessions s
+        JOIN draft_pool_entries p ON p.session_id=s.id
+        WHERE s.edition_slug=${slug} AND p.user_id=${userId}
       ) AS "protectedPool"`);
   if (
     reapplying &&

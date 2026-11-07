@@ -21,6 +21,10 @@ import { assertUserWriteChannel } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { inReadChannel } from "./read-channel";
 import { HttpError } from "./http";
+import {
+  seasonAvailabilityMetadata,
+  seasonAvailabilityReadColumns,
+} from "./live-season-columns";
 import { publicMappools } from "./mappools";
 import {
   practiceCommandSchema,
@@ -293,7 +297,7 @@ export async function playerTimetableWorkspace(
         "You may only view your own timetable or your current team's timetable as captain.",
       );
     const rows = await db()
-      .select()
+      .select(seasonAvailabilityReadColumns)
       .from(playerSeasonAvailability)
       .where(
         and(
@@ -493,8 +497,8 @@ export async function playerTimetableCommand(
         );
       return { saved: true, version: receipt.after.version };
     }
-    const [before] = await tx
-      .select()
+    const [locked] = await tx
+      .select(seasonAvailabilityMetadata)
       .from(playerSeasonAvailability)
       .where(
         and(
@@ -503,14 +507,25 @@ export async function playerTimetableCommand(
         ),
       )
       .for("update");
-    if ((before?.version ?? 0) !== p.expectedVersion)
+    if ((locked?.version ?? 0) !== p.expectedVersion)
       throw new HttpError(409, "Availability changed. Reload before saving.");
+    const [before] = locked
+      ? await tx
+          .select(seasonAvailabilityReadColumns)
+          .from(playerSeasonAvailability)
+          .where(
+            and(
+              eq(playerSeasonAvailability.editionSlug, slug),
+              eq(playerSeasonAvailability.userId, actor.osuId),
+            ),
+          )
+      : [];
     const values = {
       intervals: p.intervals,
       version: p.expectedVersion + 1,
       updatedAt: new Date(),
     };
-    const [after] = before
+    const [saved] = locked
       ? await tx
           .update(playerSeasonAvailability)
           .set(values)
@@ -520,11 +535,12 @@ export async function playerTimetableCommand(
               eq(playerSeasonAvailability.userId, actor.osuId),
             ),
           )
-          .returning()
+          .returning(seasonAvailabilityMetadata)
       : await tx
           .insert(playerSeasonAvailability)
           .values({ ...values, editionSlug: slug, userId: actor.osuId })
-          .returning();
+          .returning(seasonAvailabilityMetadata);
+    const after = { ...saved, intervals: values.intervals };
     await tx.insert(playerWorkspaceEvents).values({
       editionSlug: slug,
       actorId: actor.osuId,

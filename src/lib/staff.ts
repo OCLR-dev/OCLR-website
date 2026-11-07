@@ -22,6 +22,11 @@ import { remoteMode } from "./data-source";
 import type { EditionConfiguration } from "./editions";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import {
+  registrationAnswerValues,
+  registrationMetadata,
+  registrationReadColumns,
+} from "./live-season-columns";
 import { cachedExportStatistics } from "./osu-profiles";
 import {
   assertRegistrationUnassigned,
@@ -129,7 +134,7 @@ async function exportApplicationSnapshot(actor: User, input: unknown) {
   const snapshots = await db()
     .select({
       id: registrations.id,
-      answers: registrations.answers,
+      answers: registrationAnswerValues,
       editionSlug: registrations.editionSlug,
       version: registrations.configurationVersion,
     })
@@ -205,7 +210,7 @@ async function databaseApplicationDetails(actor: User, id: string) {
     throw new HttpError(404, "Application not found.");
   const [row] = await db()
     .select({
-      registration: registrations,
+      registration: registrationReadColumns,
       lastOperation: registrationOperation,
       username: users.username,
       acknowledgedConfiguration: editionRevisions.configuration,
@@ -278,7 +283,7 @@ export async function reviewApplication(
     throw new HttpError(400, "Give the player a reason for rejection.");
   return db().transaction(async (tx) => {
     const [record] = await tx
-      .select()
+      .select({ editionSlug: registrations.editionSlug })
       .from(registrations)
       .where(eq(registrations.id, id));
     if (!record) throw new HttpError(404, "Application not found.");
@@ -294,7 +299,7 @@ export async function reviewApplication(
       .where(eq(editionState.slug, record.editionSlug))
       .for("update");
     const [current] = await tx
-      .select()
+      .select(registrationMetadata)
       .from(registrations)
       .where(eq(registrations.id, id))
       .for("update");
@@ -319,7 +324,7 @@ export async function reviewApplication(
         updatedAt,
       })
       .where(eq(registrations.id, id))
-      .returning();
+      .returning(registrationReadColumns);
     await tx.insert(registrationEvents).values({
       registrationId: id,
       actorId: actor.osuId,
@@ -361,7 +366,7 @@ export async function changeRegistrationParticipation(
     await assertCapability(actor, "manage_registrations", slug, tx);
     const [target] = await tx
       .select({
-        registration: registrations,
+        registration: registrationMetadata,
         lastOperation: registrationOperation,
       })
       .from(registrations)

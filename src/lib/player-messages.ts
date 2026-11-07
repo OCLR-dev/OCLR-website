@@ -3,6 +3,7 @@ import {
   editionEvents,
   editionState,
   playerMessages,
+  registrationAnswers,
   registrations,
   users,
 } from "@/db/schema";
@@ -292,9 +293,16 @@ export async function publicPlayerIntroductions(
   const rows = await db()
     .select({
       playerId: registrations.userId,
-      bio: sql<string | null>`${registrations.answers}->>${questionId}`,
+      bio: registrationAnswers.value,
     })
     .from(registrations)
+    .innerJoin(
+      registrationAnswers,
+      and(
+        eq(registrationAnswers.registrationId, registrations.id),
+        eq(registrationAnswers.questionId, questionId),
+      ),
+    )
     .innerJoin(editionState, eq(editionState.slug, registrations.editionSlug))
     .where(
       and(
@@ -305,9 +313,5 @@ export async function publicPlayerIntroductions(
         sql`${editionState.configuration}->'registration'->>'publicIntroductionQuestionId' = ${questionId}`,
       ),
     );
-  return new Map(
-    rows
-      .filter((r) => typeof r.bio === "string")
-      .map((r) => [r.playerId, r.bio!]),
-  );
+  return new Map(rows.map((r) => [r.playerId, r.bio]));
 }

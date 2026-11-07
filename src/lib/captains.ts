@@ -266,7 +266,9 @@ export async function updateCaptains(
     }
     if (command.action === "appoint" || command.action === "replace") {
       const [eligible] = await tx
-        .select()
+        .select({
+          draftUnavailableReason: registrations.draftUnavailableReason,
+        })
         .from(registrations)
         .where(
           and(
