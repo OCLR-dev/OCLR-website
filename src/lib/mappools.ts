@@ -1308,7 +1308,8 @@ export async function publicMappools(
   slug: string,
   poolId?: string,
 ): Promise<Awaited<ReturnType<typeof databasePublicMappools>>> {
-  const pools = remoteMode()
+  const remote = remoteMode();
+  const pools = remote
     ? await frontendResource<
         Awaited<ReturnType<typeof databasePublicMappools>>
       >("publicMappools", { slug, poolId })
@@ -1319,6 +1320,7 @@ export async function publicMappools(
   return pools.map((pool) => ({
     ...pool,
     entries: pool.entries.map((entry) => {
+      if (remote && entry.metadata.difficultySnapshot) return entry;
       const snapshot = selectSavedDifficulty(
         saved,
         entry.beatmapId,

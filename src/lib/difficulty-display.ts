@@ -184,7 +184,9 @@ export function displayDifficulty(
       configuration: null,
       fallback,
     };
-  const candidate = snapshot?.variants[configuration] ?? input.attributes;
+  const candidate = snapshot
+    ? snapshot.variants[configuration]
+    : input.attributes;
   const attributes = matches(candidate, configuration, ruleset)
     ? candidate
     : undefined;
