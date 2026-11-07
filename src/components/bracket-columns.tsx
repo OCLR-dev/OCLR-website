@@ -35,6 +35,9 @@ export function BracketColumns({
     bracket.groups.find((g) => g.id === groupId) ?? bracket.groups[0];
   const flat = group.layout === "grid";
   const showSources = group.showAdvancement === true;
+  const sourceLabelClass = /^s(?:[1-9]|10)$/.test(bracket.editionSlug)
+    ? "sr-only"
+    : "match-source";
   const double =
     showSources && !flat && !renderMatch ? doubleBracketMatches(group) : null;
   const grandFinal = double?.upper.find((match) => !match.nextMatchId);
@@ -211,7 +214,7 @@ export function BracketColumns({
                             <span className="sr-only"> {tr(" (winner)")}</span>
                           )}
                           {source && (
-                            <span className="match-source">{source}</span>
+                            <span className={sourceLabelClass}>{source}</span>
                           )}
                         </span>
                         <strong
