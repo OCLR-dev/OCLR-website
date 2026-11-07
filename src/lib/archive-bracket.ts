@@ -9,11 +9,14 @@ import {
 import type { BracketDisplay, ResolvedMatch } from "./bracket-model";
 import { isS1Archive } from "./s1-archive";
 import { s10KnockoutRounds } from "./s10-bracket";
+import type { HistoricalBracketPlan } from "./archive-progression";
+import { verifiedHistoricalRounds } from "./archive-progression-display";
 
-/** Use recorded appearances by default and verified progression for S10. */
+/** Show recorded appearances when reviewed progression cannot be verified. */
 export function archiveBracket(
   archive: HistoricalArchive,
   detailsHref: (id: string) => string,
+  plan?: HistoricalBracketPlan | null,
 ): BracketDisplay | null {
   const s5Source = isS5Source(archive.sourceUrl);
   const s3Source = isS3Source(archive.sourceUrl);
@@ -154,7 +157,11 @@ export function archiveBracket(
       });
     }
   }
-  const s10Rounds = s10KnockoutRounds(archive, knockoutMatches);
+  const verified = plan
+    ? verifiedHistoricalRounds(archive, knockoutMatches, plan)
+    : plan === undefined
+      ? s10KnockoutRounds(archive, knockoutMatches)
+      : null;
   return {
     editionSlug: archive.editionSlug,
     published: true,
@@ -167,9 +174,9 @@ export function archiveBracket(
             {
               id: "match-path",
               label: "Match path",
-              ...(s10Rounds && { showAdvancement: true }),
+              ...(verified && { showAdvancement: true }),
               rounds:
-                s10Rounds ??
+                verified ??
                 [...rounds.values()]
                   .sort((a, b) => {
                     // S2's final has no date. Keep its recorded sheet-row order
