@@ -171,6 +171,7 @@ function MappoolRow({
           beatmapId={e.beatmapId}
           downloadMirror={e.downloadMirror}
           setId={m.setId}
+          searchTitle={m.title}
           compact
           name={slotLabel(e.category, e.position)}
         />

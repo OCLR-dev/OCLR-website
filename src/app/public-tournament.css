@@ -1475,7 +1475,7 @@ html[data-appearance]
   gap: 0.5rem;
   min-width: 0;
 }
-.beatmap-actions a.button,
+.beatmap-actions > :is(a.button, .beatmap-mirror-trigger),
 .mappool-icon-action {
   display: inline-flex;
   align-items: center;
@@ -1491,7 +1491,7 @@ html[data-appearance]
   gap: 0.25rem;
   margin-top: 0.5rem;
 }
-.themed-site .beatmap-actions-compact a.button,
+.themed-site .beatmap-actions-compact > :is(a.button, .beatmap-mirror-trigger),
 .themed-site .mappool-icon-action {
   width: 44px;
   padding: 0.5rem;
@@ -1499,6 +1499,51 @@ html[data-appearance]
 .themed-site .mappool-icon-action {
   height: 44px;
   flex: 0 0 44px;
+}
+.beatmap-mirror-menu {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  min-width: min(10rem, calc(100vw - 1.5rem));
+  max-width: calc(100vw - 1.5rem);
+  max-height: calc(100dvh - 1.5rem);
+  overflow: auto;
+  padding: 0.25rem;
+  border: 1px solid var(--site-border);
+  border-radius: 0.75rem;
+  background: var(--site-surface);
+  color: var(--site-foreground);
+  box-shadow: 0 0.75rem 2rem var(--site-shadow);
+  font-size: var(--text-small);
+  text-align: start;
+}
+.beatmap-mirror-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+.beatmap-mirror-menu a:is(:hover, :focus-visible) {
+  background: var(--site-tint);
+}
+.beatmap-mirror-initial {
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  place-items: center;
+  border-radius: 0.25rem;
+  background: var(--site-tint);
+  font-weight: 700;
+}
+.beatmap-mirror-search {
+  margin-inline-start: auto;
+  color: var(--site-muted);
+  font-size: var(--text-label);
 }
 .archive-map-thumbnail {
   align-self: center;
@@ -1519,8 +1564,9 @@ html[data-appearance]
   margin: 0;
 }
 @media (hover: hover) and (pointer: fine) {
-  .mappool-actions-cell .beatmap-actions a.button,
-  .archive-map-list .beatmap-actions a.button {
+  :is(.mappool-actions-cell, .archive-map-list)
+    .beatmap-actions
+    > :is(a.button, .beatmap-mirror-trigger) {
     width: 32px;
     min-height: 32px;
     height: 32px;
