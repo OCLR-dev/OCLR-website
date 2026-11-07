@@ -7,14 +7,14 @@
 | [S1](https://oclr.org/tournaments/s1/schedule)   |               40 |                 40 |         40 |                      40 |
 | [S2](https://oclr.org/tournaments/s2/schedule)   |               30 |                 20 |         22 |                      22 |
 | [S3](https://oclr.org/tournaments/s3/schedule)   |               30 |                 27 |         20 |                      20 |
-| [S4](https://oclr.org/tournaments/s4/schedule)   |               34 |                 33 |         21 |                      21 |
-| [S5](https://oclr.org/tournaments/s5/schedule)   |               34 |                 34 |         45 |                      44 |
+| [S4](https://oclr.org/tournaments/s4/schedule)   |               34 |                 33 |         22 |                      22 |
+| [S5](https://oclr.org/tournaments/s5/schedule)   |               34 |                 34 |         45 |                      45 |
 | [S6](https://oclr.org/tournaments/s6/schedule)   |               34 |                  0 |          5 |                       5 |
 | [S7](https://oclr.org/tournaments/s7/schedule)   |               22 |                 22 |         25 |                      25 |
 | [S8](https://oclr.org/tournaments/s8/schedule)   |               38 |                 38 |         33 |                      33 |
 | [S9](https://oclr.org/tournaments/s9/schedule)   |               22 |                 22 |         30 |                      30 |
 | [S10](https://oclr.org/tournaments/s10/schedule) |               30 |                 30 |         35 |                      35 |
-| 合計                                             |              314 |                266 |        276 |                     275 |
+| 合計                                             |              314 |                266 |        277 |                     277 |
 
 計數以各屆工作人員頁的職務分組為準。一個人擔任兩個職務計兩筆。S1–S3 的名單以公開頁為準。S4–S10 的原始 Staff 名單來自對應匯入包，逐場署名取自公開對局。S6 的五筆署名來自原表封面，公開對局沒有逐場工作人員署名。 [S6 原始來源紀錄](s6-source-records.json)
 
@@ -31,18 +31,22 @@
 
 ## 主辦確認的更正（#1008）
 
-| 屆次 | 原始署名          | 更正或合併後的身分                                                              |
-| ---- | ----------------- | ------------------------------------------------------------------------------- |
-| S2   | `seira-`          | [Miyaguni Akari · 3407743](https://osu.ppy.sh/users/3407743)                    |
-| S3   | `Gryo Zeppeli`    | [Gyro Zeppeli · 3824882](https://osu.ppy.sh/users/3824882)                      |
-| S3   | `Refia Vrifdis`   | [Refia Vridis／Manasoy · 760389](https://osu.ppy.sh/users/760389)               |
-| S3   | `Re_cycle`        | [Re_cyclc／-Inui Sana- · 9043058](https://osu.ppy.sh/users/9043058)             |
-| S4   | `Segawa Emi`      | [Segawa Emi／-Inui Sana- · 9043058](https://osu.ppy.sh/users/9043058)           |
-| S4   | `爆炸哥`          | [Explosive · 245276](https://osu.ppy.sh/users/245276)，依原裁判欄記錄臨時代班   |
-| S5   | `FujiwaraNoMouko` | [FujiwaraNoMokou · 685188](https://osu.ppy.sh/users/685188)，合併選圖及裁判職務 |
-| S5   | `BC`              | [B C · 3917377](https://osu.ppy.sh/users/3917377)                               |
-| S7   | `ye_ow`           | [ye__ow · 2992539](https://osu.ppy.sh/users/2992539)                            |
+| 屆次 | 原始署名        | 更正或合併後的身分                                                  |
+| ---- | --------------- | ------------------------------------------------------------------- |
+| S2   | `seira-`        | [Miyaguni Akari · 3407743](https://osu.ppy.sh/users/3407743)        |
+| S3   | `Gryo Zeppeli`  | [Gyro Zeppeli · 3824882](https://osu.ppy.sh/users/3824882)          |
+| S3   | `Refia Vrifdis` | [Refia Vridis／Manasoy · 760389](https://osu.ppy.sh/users/760389)   |
+| S3   | `Re_cycle`      | [Re_cyclc／-Inui Sana- · 9043058](https://osu.ppy.sh/users/9043058) |
+| S4   | 22              | 22                                                                  |
+| S4   | 22              | 22                                                                  |
+| S5   | 45              | 45                                                                  |
+| S5   | 45              | 45                                                                  |
+| S7   | `ye_ow`         | [ye__ow · 2992539](https://osu.ppy.sh/users/2992539)                |
 
-S5 的 `demq` 保留為唯一未關聯的署名。現用 `DemQ` 帳號建立於 S5 結束後。S4 直播欄「感谢BC临时帮忙」沒有具體職務，保留原註記。
+## ShaBae 與 B C 的署名確認（#1010）
+
+- S1 的「傻呗」依主辦要求顯示為 ShaBae，使用已保存的 UID 8501053。原署名留在封存資料。 [ShaBae 的 osu! 檔案](https://osu.ppy.sh/users/8501053)
+- S5 B31 原表解說欄列出 `Prophet BC demq`，同場錄影簡介列出「解说:Prophet 沙贝 BC」。主辦確認 `demq` 是 `demisemiquaver`（ShaBae，UID 8501053），S5 執勤記錄同時列出裁判與解說。現用同名帳號 UID 27633059 於 2021 年 12 月建立，晚於 B31。 [OCLR 對局](https://oclr.org/tournaments/s5/matches/b31) · [當年錄影](https://www.bilibili.com/video/BV1Di4y1c7aq/) · [同名 osu! 帳號](https://osu.ppy.sh/users/27633059)
+- S4 K8 原表直播欄記載「感谢BC临时帮忙」。主辦確認 B C（UID 3917377）為直播員，並保留原註記。 [S4 K8 對局](https://oclr.org/tournaments/s4/matches/k8) · [B C 的 osu! 檔案](https://osu.ppy.sh/users/3917377)
 
 `鸽了`、`none`、`好多人` 等只作原始對局備註。多人欄使用原表標點或逐欄核對的分隔方式。來源署名與對局資料保持原樣，應用程式從現有公開資料組合工作人員名單與執勤記錄。

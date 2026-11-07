@@ -72,6 +72,7 @@ export const staffIdentities: ReadonlyMap<string, number> = new Map([
   ["re_cyclc", 9043058],
   ["refia vridis", 760389],
   ["sayori_yui", 7183040],
+  ["shabae", 8501053],
   ["siyuyuko", 9794030],
   ["snownight", 1735834],
   ["sonoboi", 10040597],
@@ -89,6 +90,7 @@ export const staffCorrections = new Map<
   string,
   { username: string; osuId: number }
 >([
+  ["s1:傻呗", { username: "ShaBae", osuId: 8501053 }],
   ["s2:seira-", { username: "Miyaguni Akari", osuId: 3407743 }],
   ["s3:gryo zeppeli", { username: "Gyro Zeppeli", osuId: 3824882 }],
   ["s3:re_cycle", { username: "Re_cyclc", osuId: 9043058 }],
@@ -96,6 +98,7 @@ export const staffCorrections = new Map<
   ["s4:segawa emi", { username: "Segawa Emi", osuId: 9043058 }],
   ["s4:爆炸哥", { username: "Explosive", osuId: 245276 }],
   ["s5:bc", { username: "B C", osuId: 3917377 }],
+  ["s5:demq", { username: "demq", osuId: 8501053 }],
   ["s5:fujiwaranomouko", { username: "FujiwaraNoMokou", osuId: 685188 }],
   ["s7:ye_ow", { username: "ye__ow", osuId: 2992539 }],
 ]);

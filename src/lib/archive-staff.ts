@@ -60,7 +60,7 @@ function matchCreditNames(
     if (field === "referee" && credit === "Sonoaoi(感谢爆炸哥替了一会)")
       return ["Sonoaoi", "爆炸哥"];
     if (field === "streamer" && credit === "Sonoaoi(感谢BC临时帮忙)")
-      return ["Sonoaoi"];
+      return ["Sonoaoi", "B C"];
   }
   return field === "commentators"
     ? (spacedCommentatorCredits.get(`${slug}:${credit}`) ??

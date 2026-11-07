@@ -152,6 +152,7 @@ describe("historical staff from recorded match evidence", () => {
 
   it("links organizer-confirmed spellings and aliases to the same numeric profile", () => {
     const credits = [
+      ["s1", "傻呗", "ShaBae", 8501053],
       ["s2", "seira-", "Miyaguni Akari", 3407743],
       ["s3", "Gryo Zeppeli", "Gyro Zeppeli", 3824882],
       ["s3", "Refia Vrifdis", "Refia Vridis", 760389],
@@ -160,7 +161,7 @@ describe("historical staff from recorded match evidence", () => {
       ["s4", "爆炸哥", "Explosive", 245276],
       ["s5", "FujiwaraNoMouko", "FujiwaraNoMokou", 685188],
       ["s5", "BC", "B C", 3917377],
-      ["s5", "demq", "demq", null],
+      ["s5", "demq", "demq", 8501053],
       ["s7", "ye_ow", "ye__ow", 2992539],
     ] as const;
     for (const [slug, original, username, osuId] of credits) {
@@ -196,6 +197,36 @@ describe("historical staff from recorded match evidence", () => {
       );
       expect(edition.staff[0].username).toBe(original);
     }
+  });
+
+  it("adds the confirmed S4 and S5 match duties while retaining their source text", () => {
+    const s4 = load(4);
+    const k8 = s4.matches.find((match) => match.id === "k8")!;
+    const s4Staff = archiveStaff({ ...s4, matches: [k8] });
+    expect(s4Staff).toContainEqual({
+      username: "B C",
+      osuId: 3917377,
+      position: "Streamer",
+      source: `${k8.source}; streamer`,
+    });
+    expect(archiveMatchStaffLabel(s4, "streamer", k8.streamer)).toBe(
+      "Sonoaoi(感谢BC临时帮忙)",
+    );
+
+    const s5 = load(5);
+    const b31 = s5.matches.find((match) => match.id === "b31")!;
+    const released = {
+      ...s5,
+      matches: [{ ...b31, score: [6, 4] as [number, number] }],
+    };
+    const history = historicalStaffHistory(8501053, [
+      { slug: "s5", name: "OCLR β", published: true, archive: released },
+    ]);
+    expect(history[0].roles).toEqual(["referee", "commentator"]);
+    expect(archiveMatchStaffLabel(s5, "commentators", b31.commentators)).toBe(
+      "Prophet、B C、demq",
+    );
+    expect(b31.commentators).toBe("Prophet BC demq");
   });
 
   it("orders released staff history by season and merges aliases into one role per UID", () => {
