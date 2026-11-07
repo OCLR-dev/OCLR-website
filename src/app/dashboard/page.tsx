@@ -2,6 +2,9 @@ import { Avatar } from "@/components/avatar";
 import { CountryFlag } from "@/components/country-flag";
 import { ConfirmMutation } from "@/components/confirm-mutation";
 import { PlayerHistory } from "@/components/player-history";
+import { HistoricalStaffHistory } from "@/components/historical-staff-history";
+import { historicalStaffHistory } from "@/lib/archive-staff-history";
+import { getPublicEditions } from "@/lib/content";
 import { Action, EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { applicationAnswers } from "@/lib/application-answers";
@@ -33,18 +36,22 @@ async function Issue271Page({
 
   const user = await currentUser();
   if (!user) redirect("/login");
-  const [applications, snapshot, history] = await Promise.all([
+  const unavailableHistory = (error: unknown) => {
+    unstable_rethrow(error);
+    if (
+      error instanceof RemoteDataError &&
+      !["REMOTE_UNAVAILABLE", "REMOTE_TIMEOUT"].includes(error.code)
+    )
+      throw error;
+    return null;
+  };
+  const [applications, snapshot, history, staffHistory] = await Promise.all([
     playerApplications(user.osuId),
     getOsuUserProfile(user.osuId, "osu").catch(() => null),
-    playerParticipationHistory(user.osuId).catch((error) => {
-      unstable_rethrow(error);
-      if (
-        error instanceof RemoteDataError &&
-        !["REMOTE_UNAVAILABLE", "REMOTE_TIMEOUT"].includes(error.code)
-      )
-        throw error;
-      return null;
-    }),
+    playerParticipationHistory(user.osuId).catch(unavailableHistory),
+    getPublicEditions()
+      .then((editions) => historicalStaffHistory(user.osuId, editions))
+      .catch(unavailableHistory),
   ]);
   const profile = snapshot?.profile;
   const country = profile?.countryCode;
@@ -160,6 +167,7 @@ async function Issue271Page({
           </div>
         </section>
         <PlayerHistory history={history} />
+        <HistoricalStaffHistory history={staffHistory} personal />
         <section className="section-space" id="registrations">
           <div className="section-title">
             <h2>{tr("My registrations")}</h2>

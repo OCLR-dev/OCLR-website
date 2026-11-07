@@ -2,6 +2,7 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { playerNames, users } from "@/db/schema";
 import { getPublicEditions } from "./content";
+import { historicalStaffHistory } from "./archive-staff-history";
 import { HttpError } from "./http";
 import type { PublishedPlayer } from "./players";
 
@@ -124,9 +125,14 @@ export async function knownPlayerIdentity(
   // A provider diagnostic cache alone is not evidence that a player belongs to
   // OCLR. Historical staff/replacements with confirmed UIDs are known too.
   const publicArchive = names.some((n) => n.source.startsWith("archive_"));
+  const staffName =
+    !participation.length && !publicArchive
+      ? historicalStaffHistory(osuId, await getPublicEditions())[0]?.username
+      : undefined;
   if (
     !participation.length &&
     !publicArchive &&
+    !staffName &&
     !((selfId === osuId || authorizedEdition) && account)
   )
     throw new HttpError(404, "Known player not found.");
@@ -151,7 +157,10 @@ export async function knownPlayerIdentity(
       ? accountName
       : (currentProvider?.username ?? accountName ?? null);
   const username =
-    currentUsername ?? participation[0]?.username ?? names[0]?.username;
+    currentUsername ??
+    participation[0]?.username ??
+    staffName ??
+    names[0]?.username;
   if (!username) throw new HttpError(404, "Known player not found.");
   return { osuId, username, currentUsername, names: groupPlayerNames(names) };
 }

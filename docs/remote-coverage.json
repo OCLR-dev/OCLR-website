@@ -1662,10 +1662,16 @@
       "file": "src/app/dashboard/page.tsx",
       "kind": "page",
       "authority": "saved-read",
-      "operations": ["getApiIdentity", "ownSavedProfile", "playerApplications"],
+      "operations": [
+        "getApiIdentity",
+        "listPublicTournaments",
+        "ownSavedProfile",
+        "playerApplications"
+      ],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (listPublicTournaments)",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
         "src/lib/dashboard.ts#playerApplications",
         "src/lib/frontend-read-models.ts#ownSavedProfile"

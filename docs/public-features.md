@@ -9,6 +9,12 @@ confirmed UIDs are deduplicated while retaining all historical name variants;
 unresolved identities are not merged merely because their names match. Original
 role/source evidence remains saved and is not turned into live role grants.
 
+For S1–S10, the Staff page combines the saved credits and explicit roles from
+recorded matches. Confirmed osu! UIDs link to the corresponding OCLR profile.
+Public profiles show the released seasons, roles and match links under
+Historical staff record. The signed-in dashboard shows My historical staff
+record for the session's UID. See the [source and identity review](imports/historical-staff-review.md).
+
 Published news, tournament participant information, edition-scoped player listings, osu! profile snapshots, the public competition center and standings. Refer to [tournament administration](tournament-management.md) for registration and publication policies.
 
 ## News, About and public participants

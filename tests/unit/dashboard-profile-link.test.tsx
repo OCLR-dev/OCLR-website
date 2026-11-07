@@ -21,6 +21,12 @@ vi.mock("../../src/i18n/server", () => ({
   getAppTranslations: async () =>
     Object.assign((message: string) => message, { locale: "en" }),
 }));
+vi.mock("../../src/i18n/shared", () => ({
+  useAppTranslations: () => (message: string) => message,
+}));
+vi.mock("../../src/lib/content", () => ({
+  getPublicEditions: vi.fn(async () => []),
+}));
 vi.mock("../../src/lib/auth/user", () => ({ currentUser: vi.fn() }));
 vi.mock("../../src/lib/players", () => ({ publicPlayer: vi.fn() }));
 vi.mock("../../src/lib/dashboard", () => ({
@@ -110,6 +116,8 @@ describe("dashboard OCLR profile navigation", () => {
       await Dashboard({ searchParams: Promise.resolve({}) }),
     );
     expect(html).toContain('href="/players/277003"');
+    expect(html).toContain("My historical staff record");
+    expect(html).toContain("No historical staff duties are recorded yet.");
     expect(publicPlayer).not.toHaveBeenCalled();
     expect(html).not.toContain(
       "Your OCLR profile is available after you have public tournament participation.",

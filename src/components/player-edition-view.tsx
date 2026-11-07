@@ -18,6 +18,8 @@ import { PlayerCompetition, PlayerTeamRecord } from "./player-competition";
 import { PlayerMapPerformance as PlayerMapPerformanceView } from "./player-map-performance";
 import { PlayerParticipatedTournaments } from "./player-participated-tournaments";
 import { PlayerProfile } from "./player-profile";
+import { HistoricalStaffHistory } from "./historical-staff-history";
+import type { HistoricalStaffHistory as StaffHistory } from "@/lib/archive-staff-history";
 import { PlayerTimeline as PlayerTimelineView } from "./player-timeline";
 import { RoundRatings } from "./round-ratings";
 import styles from "./player-edition-view.module.css";
@@ -39,6 +41,7 @@ export function PlayerEditionView({
   bws,
   bwsByEdition,
   competition,
+  staffHistory = [],
   mapPerformance,
   mapByEdition,
   mra,
@@ -54,6 +57,7 @@ export function PlayerEditionView({
   bws?: BwsData | null;
   bwsByEdition: Record<string, BwsData | null>;
   competition: PlayerCompetitionRecord | null;
+  staffHistory?: StaffHistory;
   mapPerformance: PlayerMapPerformance | null;
   mapByEdition: Record<string, PlayerMapPerformance>;
   mra: number | null;
@@ -114,6 +118,9 @@ export function PlayerEditionView({
     ? (timelines[selected] ?? allTimeline)
     : allTimeline;
   const ratings = selected ? ratingsByEdition[selected] : undefined;
+  const staffDuties = selected
+    ? staffHistory.filter((record) => record.editionSlug === selected)
+    : staffHistory;
 
   return (
     <>
@@ -196,6 +203,9 @@ export function PlayerEditionView({
             mra={mra}
             career={!selected}
           />
+        )}
+        {staffDuties.length > 0 && (
+          <HistoricalStaffHistory history={staffDuties} />
         )}
         {selectedCompetition && (
           <PlayerTeamRecord record={selectedCompetition} />
