@@ -20,6 +20,8 @@ import {
   fixtures,
   memberships,
   playerSeasonAvailability,
+  refereeEvents,
+  refereeSessions,
   registrations,
   scheduleAvailability,
   teams,
@@ -163,8 +165,43 @@ describe.skipIf(!base)("live-season relational upgrade (#980)", () => {
         })
         .returning();
 
+      // An earlier release wrote only the event payload, with no typed outcome columns.
+      const outcome = {
+        type: "attempt_resolved",
+        pickId: randomUUID(),
+        attemptId: randomUUID(),
+        status: "completed",
+        winnerTeamId: home.id,
+      } as const;
+      const eventId = randomUUID();
+      await db.execute(sql`
+        INSERT INTO ${refereeSessions}
+          (fixture_id, edition_slug, revision, settings, dependency_fingerprint, basis)
+        VALUES (${fixture.id}, ${slug}, 1, '{}'::jsonb, ${"0".repeat(64)}, '{}'::jsonb)
+      `);
+      await db.execute(sql`
+        INSERT INTO ${refereeEvents}
+          (id, fixture_id, ordinal, actor_id, request_key, request_hash, payload)
+        VALUES (${eventId}, ${fixture.id}, 1, ${userId}, ${randomUUID()},
+                ${"0".repeat(64)}, ${JSON.stringify(outcome)}::jsonb)
+      `);
+
       await migrate(db, { migrationsFolder: "drizzle" });
       await migrate(db, { migrationsFolder: "drizzle" });
+      expect(
+        await db
+          .select()
+          .from(refereeEvents)
+          .where(eq(refereeEvents.id, eventId)),
+      ).toMatchObject([
+        {
+          payload: outcome,
+          resolvedPickId: outcome.pickId,
+          resolvedAttemptId: outcome.attemptId,
+          resolvedStatus: outcome.status,
+          resolvedWinnerTeamId: outcome.winnerTeamId,
+        },
+      ]);
       expect(
         await db
           .select()

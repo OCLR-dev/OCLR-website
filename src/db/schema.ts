@@ -1589,6 +1589,31 @@ export const refereeEvents = pgTable(
     payload: jsonb("payload")
       .$type<import("../lib/referee-model").RefereeEventPayload>()
       .notNull(),
+    resolvedPickId: uuid("resolved_pick_id").generatedAlwaysAs(
+      sql`CASE WHEN payload->>'type' = 'attempt_resolved'
+                AND (payload->>'pickId') ~ '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+               THEN (payload->>'pickId')::uuid END`,
+    ),
+    resolvedAttemptId: uuid("resolved_attempt_id").generatedAlwaysAs(
+      sql`CASE WHEN payload->>'type' = 'attempt_resolved'
+                AND (payload->>'attemptId') ~ '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+               THEN (payload->>'attemptId')::uuid END`,
+    ),
+    resolvedStatus: text("resolved_status")
+      .$type<
+        Extract<
+          import("../lib/referee-model").RefereeEventPayload,
+          { type: "attempt_resolved" }
+        >["status"]
+      >()
+      .generatedAlwaysAs(
+        sql`CASE WHEN payload->>'type' = 'attempt_resolved' THEN payload->>'status' END`,
+      ),
+    resolvedWinnerTeamId: uuid("resolved_winner_team_id").generatedAlwaysAs(
+      sql`CASE WHEN payload->>'type' = 'attempt_resolved'
+                AND (payload->>'winnerTeamId') ~ '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+               THEN (payload->>'winnerTeamId')::uuid END`,
+    ),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

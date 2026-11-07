@@ -1,5 +1,6 @@
 "use client";
 import { RefereeMp } from "./referee-mp";
+import { useSnapshotUpdates } from "./use-poll";
 import { useStaffReadOnly } from "./staff-read-only";
 import Link from "next/link";
 import { refereeMessage } from "@/i18n/referee";
@@ -40,9 +41,10 @@ export function RefereePanel({
 }) {
   const tr = useAppTranslations();
   const readOnly = useStaffReadOnly();
-  const newestRevision = useRef(initial.session?.revision ?? 0);
+  const newestSession = useRef(initial.session);
   const controlId = useId();
   const [data, setData] = useState(initial);
+  const [accessLost, setAccessLost] = useState(false);
   const [firstBan, setFirstBan] = useState(
     initial.session?.firstBanTeamId ?? "",
   );
@@ -160,13 +162,31 @@ export function RefereePanel({
     firstPickTeamId: firstPick || null,
   });
   const map = data.maps.find((m) => m.id === selected) ?? null;
-  function accept(next: RefereeWorkspace) {
-    if ((next.session?.revision ?? 0) < newestRevision.current) return;
-    newestRevision.current = next.session?.revision ?? 0;
+  function accept(next: RefereeWorkspace, preserveOrder = false) {
+    const previous = newestSession.current;
+    if ((next.session?.revision ?? 0) < (previous?.revision ?? 0)) return;
+    newestSession.current = next.session;
     setData(next);
-    setFirstBan(next.session?.firstBanTeamId ?? "");
-    setFirstPick(next.session?.firstPickTeamId ?? "");
+    setFirstBan((current) =>
+      preserveOrder && current !== (previous?.firstBanTeamId ?? "")
+        ? current
+        : (next.session?.firstBanTeamId ?? ""),
+    );
+    setFirstPick((current) =>
+      preserveOrder && current !== (previous?.firstPickTeamId ?? "")
+        ? current
+        : (next.session?.firstPickTeamId ?? ""),
+    );
   }
+  useSnapshotUpdates<RefereeWorkspace>(
+    simulation || readOnly ? null : endpoint,
+    (update) => {
+      if (update.type === "access-lost") setAccessLost(true);
+      if (update.type === "snapshot" && update.value)
+        accept(update.value, true);
+    },
+    { pollMs: 10000, clearOnNotFound: true },
+  );
   function prepareRecordedSelection(
     workspace: RefereeWorkspace,
     entryId: string,
@@ -540,6 +560,14 @@ export function RefereePanel({
       {syncFeedback}
     </section>
   );
+  if (accessLost)
+    return (
+      <p className="notice" role="alert">
+        {tr(
+          "Staff access is unavailable. Sign in again or contact the organizer.",
+        )}
+      </p>
+    );
   return (
     <div className={styles.workspace}>
       <nav className={styles.stageNav} aria-label={tr("Referee stages")}>
@@ -896,12 +924,7 @@ export function RefereePanel({
                 endpoint={`${endpoint}/mp`}
                 disabled={disabled}
                 roomId={ircRoomId}
-                onWorkspace={(next) => {
-                  if ((next.session?.revision ?? 0) < newestRevision.current)
-                    return;
-                  newestRevision.current = next.session?.revision ?? 0;
-                  setData(next);
-                }}
+                onWorkspace={(next) => accept(next, true)}
               >
                 {renderSummary}
               </RefereeMp>
@@ -1256,7 +1279,7 @@ export function RefereePanel({
               JSON.stringify(next.defaultSettings) !==
                 JSON.stringify(data.defaultSettings))
           )
-            accept(next);
+            accept(next, true);
         }}
         onConfirmed={(commands) =>
           setSentCommands((current) =>

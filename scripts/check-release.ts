@@ -73,6 +73,9 @@ try {
     sql`SELECT 1 FROM registration_answers, schedule_availability_intervals, player_season_availability_intervals, draft_pool_entries, draft_turn_slots LIMIT 0`,
   );
   await db().execute(
+    sql`SELECT resolved_pick_id, resolved_attempt_id, resolved_status, resolved_winner_team_id FROM referee_events LIMIT 0`,
+  );
+  await db().execute(
     sql`SELECT snapshot, configuration_version FROM registration_attempts LIMIT 0`,
   );
   await db().execute(

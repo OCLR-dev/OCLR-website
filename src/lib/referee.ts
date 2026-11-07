@@ -356,7 +356,30 @@ export async function readRefereeWorkspace(
     .where(eq(refereeSessions.fixtureId, fixtureId));
   const eventRows = sessionRow
     ? await reader
-        .select()
+        .select({
+          id: refereeEvents.id,
+          ordinal: refereeEvents.ordinal,
+          actorId: refereeEvents.actorId,
+          createdAt: refereeEvents.createdAt,
+          resolvedPickId: refereeEvents.resolvedPickId,
+          resolvedAttemptId: refereeEvents.resolvedAttemptId,
+          resolvedStatus: refereeEvents.resolvedStatus,
+          resolvedWinnerTeamId: refereeEvents.resolvedWinnerTeamId,
+          rawPayload: sql<RefereeEventPayload | null>`
+            CASE WHEN ${refereeEvents.resolvedAttemptId} IS NOT NULL
+                 AND ${refereeEvents.resolvedPickId} IS NOT NULL
+                 AND ${refereeEvents.resolvedStatus} IS NOT NULL
+                 AND ${refereeEvents.payload} = jsonb_build_object(
+                   'type', 'attempt_resolved',
+                   'pickId', ${refereeEvents.resolvedPickId},
+                   'attemptId', ${refereeEvents.resolvedAttemptId},
+                   'status', ${refereeEvents.resolvedStatus},
+                   'winnerTeamId', ${refereeEvents.resolvedWinnerTeamId}
+                 )
+              THEN NULL
+              ELSE ${refereeEvents.payload}
+            END`,
+        })
         .from(refereeEvents)
         .where(eq(refereeEvents.fixtureId, fixtureId))
         .orderBy(refereeEvents.ordinal)
@@ -366,7 +389,13 @@ export async function readRefereeWorkspace(
     ordinal: e.ordinal,
     actorId: e.actorId,
     createdAt: e.createdAt.toISOString(),
-    payload: e.payload,
+    payload: e.rawPayload ?? {
+      type: "attempt_resolved",
+      pickId: e.resolvedPickId!,
+      attemptId: e.resolvedAttemptId!,
+      status: e.resolvedStatus!,
+      winnerTeamId: e.resolvedWinnerTeamId,
+    },
   }));
   const stale = Boolean(
     sessionRow && sessionRow.dependencyFingerprint !== dependencyFingerprint,

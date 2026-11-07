@@ -1,3 +1,4 @@
+import { liveSnapshot } from "@/lib/live-snapshot";
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff";
@@ -39,6 +40,12 @@ export async function POST(
   }
 }
 
-export async function GET(...args: Parameters<typeof readGET>) {
-  return withFrontendReadRequest(() => readGET(...args));
+export async function GET(
+  request: Request,
+  context: Parameters<typeof readGET>[1],
+) {
+  const { edition } = await context.params;
+  return liveSnapshot(request, `draft-private:${edition}`, () =>
+    withFrontendReadRequest(() => readGET(request, context)),
+  );
 }
