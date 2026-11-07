@@ -69,11 +69,40 @@ export function parsePlayerReactions(snapshot: string): string[] {
   return [];
 }
 
-export function searchPlayerReactions(query: string) {
+export function parsePlayerReactionPicks(snapshot: string) {
+  const picks = new Map<string, number>();
+  try {
+    const value: unknown = JSON.parse(snapshot);
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      for (const [id, count] of Object.entries(value)) {
+        if (
+          playerReactionById.has(id) &&
+          typeof count === "number" &&
+          Number.isSafeInteger(count) &&
+          count > 0
+        ) {
+          picks.set(id, count);
+        }
+      }
+    }
+  } catch {}
+  return picks;
+}
+
+export function searchPlayerReactions(
+  query: string,
+  picks?: ReadonlyMap<string, number>,
+) {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  return playerReactions.filter((reaction) => {
+  const matches = playerReactions.filter((reaction) => {
+    if (picks && !picks.has(reaction.id)) return false;
+    if (!terms.length) return true;
     const text =
       `${reaction.name} ${reaction.id} ${reaction.keywords}`.toLowerCase();
     return terms.every((term) => text.includes(term));
   });
+  // Stable sort preserves catalog order for equally frequent reactions.
+  return picks
+    ? matches.sort((a, b) => (picks.get(b.id) ?? 0) - (picks.get(a.id) ?? 0))
+    : matches;
 }

@@ -636,7 +636,7 @@
   margin: 0;
   width: 360px;
   max-width: calc(100vw - 24px);
-  height: min(400px, calc(100dvh - 24px));
+  height: min(264px, calc(100dvh - 24px));
   padding: 10px;
   border: 1px solid var(--site-control-border);
   border-radius: 0.65rem;
@@ -660,6 +660,9 @@
   min-width: 0;
   padding: 8px;
   font-size: 16px;
+}
+.reaction-picker-filter {
+  justify-content: space-between;
 }
 .reaction-picker-total {
   flex: none;
