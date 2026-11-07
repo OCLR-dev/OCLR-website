@@ -436,8 +436,8 @@ html[data-theme="dark"] {
     display: none;
     position: absolute;
     top: 100%;
-    inset-inline: 0;
-    width: 100%;
+    inset-inline-end: 0;
+    width: min(24rem, 100%);
     margin-top: 0.5rem;
     max-height: calc(100dvh - var(--tournament-scroll-offset) - 2rem);
     overflow-y: auto;
@@ -453,6 +453,7 @@ html[data-theme="dark"] {
   }
   .public-tournament .tournament-navigation nav a {
     white-space: normal;
+    overflow-wrap: anywhere;
   }
   /* Theme tab strips may be transparent; a floating menu needs a solid pane. */
   html[data-appearance]
