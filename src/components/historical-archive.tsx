@@ -333,13 +333,28 @@ export async function HistoricalArchiveView({
     if (bracket)
       for (const group of bracket.groups) {
         if (group.id === "match-path") group.label = tr("Match path");
-        for (const round of group.rounds)
-          for (const match of round.matches)
+        const labels = group.showAdvancement
+          ? new Map([
+              ["Winners bracket", tr("Winners bracket")],
+              ["Losers bracket", tr("Losers bracket")],
+              ["Winners bracket final", tr("Winners bracket final")],
+              ["Losers bracket final", tr("Losers bracket final")],
+              ["Grand final", tr("Grand final")],
+            ])
+          : null;
+        for (const round of group.rounds) {
+          round.label = labels?.get(round.label) ?? round.label;
+          for (const match of round.matches) {
+            if (match.note) match.note = labels?.get(match.note) ?? match.note;
             if (
               a.matches.find((m) => m.id === match.id)?.forfeitWinner !==
               undefined
             )
-              match.note = tr("Forfeit");
+              match.note = [match.note, tr("Forfeit")]
+                .filter(Boolean)
+                .join(" · ");
+          }
+        }
       }
     notes = [
       derived && (
