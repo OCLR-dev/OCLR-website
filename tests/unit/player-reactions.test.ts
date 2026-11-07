@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
+  parsePlayerReactionPicks,
   parsePlayerReactions,
   playerReactions,
   searchPlayerReactions,
@@ -79,5 +80,20 @@ describe("player reaction catalog", () => {
     ).toEqual(["💜", "qq-424", "osu-HD"]);
     expect(parsePlayerReactions('{"id":"qq-13"}')).toEqual([]);
     expect(parsePlayerReactions("broken")).toEqual([]);
+  });
+  it("ranks valid pick counts and breaks ties in catalog order", () => {
+    const picks = parsePlayerReactionPicks(
+      '{"qq-38":2,"qq-22":4,"qq-13":2,"qq-122":10,"💜":8,"osu-HD":0,"qq-424":"5","qq-297":1.5}',
+    );
+    expect(searchPlayerReactions("", picks).map((r) => r.id)).toEqual([
+      "qq-22",
+      "qq-13",
+      "qq-38",
+    ]);
+    expect(searchPlayerReactions("qq-38", picks).map((r) => r.id)).toEqual([
+      "qq-38",
+    ]);
+    expect(searchPlayerReactions("qq-424", picks)).toEqual([]);
+    expect(parsePlayerReactionPicks("broken").size).toBe(0);
   });
 });

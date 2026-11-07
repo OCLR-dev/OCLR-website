@@ -55,6 +55,16 @@ Asset URLs and SHA-256 checksums are recorded in
 [`manifest.json`](../public/reactions/manifest.json), with attribution in
 [`NOTICE.txt`](../public/reactions/NOTICE.txt).
 
+The picker renders up to 40 emoji at a time on open and appends up to 40 more
+as the grid is scrolled. Search covers the full catalog, and changing the query
+or filter returns the grid to the first batch. The counter shows displayed
+emoji over matching emoji.
+
+The Frequently used filter (#985) ranks successful additions by count, with
+ties following catalog order. Counts use stable emoji IDs in `localStorage`
+under `oclr-reaction-picks`, shared across players and editions in the same
+browser profile and site origin. Removing a reaction leaves its count intact.
+
 Reactions remain browser-local, keyed by edition and player. Existing Unicode
 selections can still be displayed and removed, but are not added to the new
 image-only candidate list. Remote read-only player lists continue to omit the
