@@ -223,8 +223,21 @@
     font-size: clamp(14px, 3.6vw, 16px);
     letter-spacing: -0.035em;
   }
+  /* Put the section links on their own full-width row at the card bottom. */
+  .historical .content {
+    display: contents;
+  }
+  .historical .heading {
+    align-self: center;
+  }
   .links {
-    display: none;
+    grid-column: 1 / -1;
+    margin-top: 0.125rem;
+  }
+  .links a {
+    min-height: 40px;
+    padding: 0.5rem 0.125rem;
+    font-size: clamp(10px, 2.9vw, 12px);
   }
 }
 

@@ -145,16 +145,20 @@ export function PlayerEditionView({
           header,
         )}
       <div
-        className={
+        className={`${
           selected ? "public-tournament public-player-page" : "container page"
-        }
+        } ${styles.playerPage}`}
       >
-        <Link
-          className="context-link"
-          href={selected ? `/tournaments/${selected}/players` : "/tournaments"}
-        >
-          {selected ? tr("← Tournament players") : tr("← Tournaments")}
-        </Link>
+        <div className={styles.pageHeader}>
+          <Link
+            className="context-link"
+            href={
+              selected ? `/tournaments/${selected}/players` : "/tournaments"
+            }
+          >
+            {selected ? tr("← Tournament players") : tr("← Tournaments")}
+          </Link>
+        </div>
         {snapshot ? (
           <PlayerProfile
             heading={heading}

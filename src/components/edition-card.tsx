@@ -46,7 +46,7 @@ export async function EditionCard({
   ];
   return (
     <article
-      className={`edition-card ${styles.card}${historical ? "" : ` ${styles.current}`}`}
+      className={`edition-card ${styles.card}${historical ? ` ${styles.historical}` : ` ${styles.current}`}`}
       style={
         accent
           ? ({
