@@ -484,3 +484,10 @@ Contract 1.28.0 adds optional historical-map `hp` (nullable numeric) and
 while retaining its exact prior statistics identity through `sourceTitle`;
 existing maps without these fields remain compatible. See
 [the S2 NM2 recovery](archive-map-metadata.md#s2-nm2-official-file-recovery-852).
+
+Contract 1.29.0 exposes reviewed historical knockout paths through the existing
+`/tournaments/{edition}/bracket` resource. The optional `showAdvancement`
+flag identifies the reviewed group and `groupSeed` identifies a recorded
+qualifying seed where available. Each advancement uses the existing slot
+`kind` and `sourceMatchId` fields. See [historical bracket
+presentation](historical-bracket-display.md).

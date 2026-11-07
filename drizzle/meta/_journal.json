@@ -638,6 +638,13 @@
       "when": 1794036382961,
       "tag": "0090_beatmap_difficulty_snapshots",
       "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "7",
+      "when": 1794056984537,
+      "tag": "0091_historical_bracket_progression",
+      "breakpoints": true
     }
   ]
 }
