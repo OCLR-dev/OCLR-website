@@ -1,0 +1,5 @@
+/* The ranking context bar supplies its own top inset, matching tournament
+   event pages. Avoid adding a second page-level inset above it. */
+.page.page {
+  padding-block-start: 0;
+}

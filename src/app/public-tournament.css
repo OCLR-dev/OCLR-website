@@ -200,7 +200,7 @@ html[data-theme="dark"] {
   width: min(var(--content-max), calc(100% - 2 * var(--gutter)));
   margin-inline: auto;
   min-height: 65vh;
-  padding: 1.5rem 0 4rem;
+  padding: 0 0 4rem;
 }
 /* Player profiles keep the standard page column when an edition narrows the
    profile. The wider tournament canvas is for event pages, so adding an
@@ -212,13 +212,6 @@ html[data-theme="dark"] {
   .public-tournament.public-player-page {
     width: min(var(--content-max), calc(100% - 2 * var(--gutter)));
   }
-}
-/* The context bar brings its own 0.75rem top inset, so the shell only needs
-   the other half of the 1.5rem page inset. Player pages have no context bar
-   and keep the full shell padding above. The bar centers its children, so do
-   not top-align the identity here. */
-.public-tournament:has(> .event-context) {
-  padding-block-start: 0.75rem;
 }
 .event-context {
   --tournament-navigation-font-size: var(--text-small);
@@ -397,9 +390,6 @@ html[data-theme="dark"] {
   .themed-site .main-nav.open {
     background: var(--site-surface);
     border-color: var(--site-border);
-  }
-  .public-tournament {
-    padding-top: 1rem;
   }
 }
 @container tournament (max-width: 52rem) {
@@ -2101,9 +2091,6 @@ html[data-theme="dark"] .themed-site {
 }
 .themed-site .profile-summary {
   margin-top: 1rem;
-}
-.themed-site .public-player-page {
-  padding-top: 1.5rem;
 }
 .public-tournament .event-context {
   margin-bottom: 1rem;

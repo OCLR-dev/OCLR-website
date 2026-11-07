@@ -1,0 +1,73 @@
+.context {
+  --tournament-header-height: 76px;
+  --tournament-navigation-font-size: var(--text-small);
+}
+
+.context .tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
+  padding: 0.3rem;
+  border-radius: 1.5rem;
+  background: var(--site-tint);
+  width: fit-content;
+  max-width: 100%;
+  margin-inline-start: auto;
+  overflow-x: auto;
+}
+
+.context .tabs > :is(a, button) {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  appearance: none;
+  background: transparent;
+  color: var(--site-muted);
+  font-size: var(--tournament-navigation-font-size, 0.95rem);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+.context .tabs > a:hover {
+  color: var(--site-accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.context .tabs > a[aria-current] {
+  color: var(--site-accent);
+  background: var(--site-surface);
+  box-shadow: 0 2px 6px var(--site-soft-shadow);
+}
+
+.context .tabs > a[aria-current]::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-right: 0.45rem;
+  border-radius: 50%;
+  background: var(--site-highlight);
+}
+
+.context .tabs > button:disabled,
+.context .tabs > button:disabled:hover {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+  background: transparent;
+  color: var(--site-muted);
+  box-shadow: none;
+}
+
+@media (max-width: 760px) {
+  .context {
+    --tournament-header-height: 52px;
+    gap: 0.5rem;
+    transition: top 180ms ease-out;
+  }
+}

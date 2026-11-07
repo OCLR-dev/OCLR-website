@@ -41,6 +41,7 @@
     "/players",
     "/privacy",
     "/ranking",
+    "/ranking/performance",
     "/remote",
     "/remote/unsupported",
     "/tournaments/[edition]/bracket",
