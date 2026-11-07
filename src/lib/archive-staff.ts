@@ -46,6 +46,7 @@ const nonNames = new Set([
   "好多人",
 ]);
 const staffNameKey = (name: string) => name.toLowerCase();
+const s4BroadcastCredit = "Sonoaoi(感谢BC临时帮忙)";
 
 function staffCorrection(slug: string, username: string) {
   return staffCorrections.get(`${slug}:${staffNameKey(username)}`);
@@ -59,8 +60,8 @@ function matchCreditNames(
   if (slug === "s4") {
     if (field === "referee" && credit === "Sonoaoi(感谢爆炸哥替了一会)")
       return ["Sonoaoi", "爆炸哥"];
-    if (field === "streamer" && credit === "Sonoaoi(感谢BC临时帮忙)")
-      return ["Sonoaoi"];
+    if (field === "streamer" && credit === s4BroadcastCredit)
+      return ["Sonoaoi", "B C"];
   }
   return field === "commentators"
     ? (spacedCommentatorCredits.get(`${slug}:${credit}`) ??
@@ -77,6 +78,12 @@ export function archiveMatchStaffLabel(
   credit: string | null,
 ) {
   if (!credit || !reviewedStaffSource(archive)) return credit;
+  if (
+    archive.editionSlug === "s4" &&
+    field === "streamer" &&
+    credit === s4BroadcastCredit
+  )
+    return matchCreditNames(archive.editionSlug, field, credit).join("、");
   const names =
     field === "commentators"
       ? matchCreditNames(archive.editionSlug, field, credit)
