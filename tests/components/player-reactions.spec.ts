@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
-import playerReactions from "../../src/lib/player-reaction-catalog.json" with { type: "json" };
+import catalog from "../../src/lib/player-reaction-catalog.json" with { type: "json" };
+
+const playerReactions = catalog.filter(
+  (reaction) => reaction.selectable !== false,
+);
 
 // Existing player-messages E2E covers the original toggle. The larger image
 // catalog needs a focused native-popover/scroll/focus check, without a DB flow.
@@ -17,7 +21,7 @@ test("image picker loads one batch at a time and preserves reactions and pick co
   const search = panel.getByRole("searchbox");
   const frequent = panel.getByRole("button", { name: "Frequently used" });
   await expect(options).toHaveCount(40);
-  await expect(count).toHaveText("40/408");
+  await expect(count).toHaveText("40/407");
   const bounds = await panel.boundingBox();
   const viewport = page.viewportSize()!;
   expect(bounds!.x).toBeGreaterThanOrEqual(0);
@@ -32,7 +36,7 @@ test("image picker loads one batch at a time and preserves reactions and pick co
       nodes.map((node) => node.getAttribute("data-reaction-id")),
     ),
   ).toEqual(playerReactions.map((reaction) => reaction.id));
-  await expect(count).toHaveText("408/408");
+  await expect(count).toHaveText("407/407");
   const lastId = playerReactions.at(-1)!.id;
   await search.fill(lastId);
   await expect(options).toHaveCount(1);
@@ -99,12 +103,18 @@ test("reduced motion uses still images, legacy reactions survive, and escape ret
     localStorage.setItem(
       "oclr-reactions:synthetic-969:969001",
       // This source was PNG-labelled but contained an infinitely looping APNG.
-      JSON.stringify(["💜", "qq-367"]),
+      JSON.stringify(["💜", "qq-367", "osu-NM"]),
     );
-    localStorage.setItem("oclr-reaction-picks", JSON.stringify(picks));
+    localStorage.setItem(
+      "oclr-reaction-picks",
+      JSON.stringify({ ...picks, "osu-NM": 99 }),
+    );
   }, recorded);
   await page.goto("/player-reactions?locale=en&theme=dark");
   const row = page.locator(".event-player-row").first();
+  await row
+    .getByRole("button", { name: "React with No Mod", exact: true })
+    .click();
   await expect(row.locator(".player-reaction")).toHaveCount(2);
   await expect
     .poll(() =>
@@ -132,7 +142,7 @@ test("reduced motion uses still images, legacy reactions survive, and escape ret
   await expect(options).toHaveCount(45);
   await search.fill(playerReactions.at(-1)!.id);
   await expect(options).toHaveCount(1);
-  await search.fill("no-such-emoji");
+  await search.fill("osu-NM");
   await expect(panel.getByRole("status")).toHaveText("No matching emoji.");
   await page.keyboard.press("Escape");
   await expect(add).toBeFocused();

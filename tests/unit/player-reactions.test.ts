@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import {
   parsePlayerReactionPicks,
   parsePlayerReactions,
+  playerReactionById,
   playerReactions,
   searchPlayerReactions,
 } from "../../src/lib/player-reactions";
@@ -30,13 +31,16 @@ function pngChunks(bytes: Buffer) {
 
 describe("player reaction catalog", () => {
   it("puts the exported shortlist first, followed by unique candidates with intact local images", () => {
-    expect(
-      playerReactions.slice(0, selection.selected.length).map((r) => r.id),
-    ).toEqual(selection.selected.map((r) => r.key));
-    expect(playerReactions).toHaveLength(408);
-    expect(new Set(playerReactions.map((r) => r.id)).size).toBe(408);
+    const shortlist = selection.selected
+      .map((r) => r.key)
+      .filter((id) => id !== "osu-NM");
+    expect(playerReactions.slice(0, shortlist.length).map((r) => r.id)).toEqual(
+      shortlist,
+    );
+    expect(playerReactions).toHaveLength(407);
+    expect(new Set(playerReactions.map((r) => r.id)).size).toBe(407);
     const sources = new Map(manifest.assets.map((a) => [a.file, a]));
-    for (const reaction of playerReactions) {
+    for (const reaction of playerReactionById.values()) {
       for (const src of [reaction.src, reaction.animatedSrc].filter(
         (s): s is string => !!s,
       )) {
@@ -69,15 +73,16 @@ describe("player reaction catalog", () => {
     ]);
     expect(searchPlayerReactions("跪拜").map((r) => r.id)).toEqual(["qq-297"]);
     expect(searchPlayerReactions(" HD ").map((r) => r.id)).toContain("osu-HD");
+    expect(searchPlayerReactions("osu-NM")).toEqual([]);
     expect(searchPlayerReactions("qq 呲牙")[0].id).toBe("qq-13");
     expect(searchPlayerReactions("definitely-not-a-reaction")).toEqual([]);
   });
   it("retains legacy choices and rejects malformed, missing and duplicate IDs", () => {
     expect(
       parsePlayerReactions(
-        '["💜","qq-424","qq-424","osu-HD","qq-122",null,3,"https://example.test/x.png"]',
+        '["💜","qq-424","qq-424","osu-HD","osu-NM","qq-122",null,3,"https://example.test/x.png"]',
       ),
-    ).toEqual(["💜", "qq-424", "osu-HD"]);
+    ).toEqual(["💜", "qq-424", "osu-HD", "osu-NM"]);
     expect(parsePlayerReactions('{"id":"qq-13"}')).toEqual([]);
     expect(parsePlayerReactions("broken")).toEqual([]);
   });
@@ -94,6 +99,7 @@ describe("player reaction catalog", () => {
       "qq-38",
     ]);
     expect(searchPlayerReactions("qq-424", picks)).toEqual([]);
+    expect(parsePlayerReactionPicks('{"osu-NM":99}').size).toBe(0);
     expect(parsePlayerReactionPicks("broken").size).toBe(0);
   });
 });
