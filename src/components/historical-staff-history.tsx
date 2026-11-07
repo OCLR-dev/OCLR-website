@@ -47,42 +47,12 @@ export function HistoricalStaffHistory({
                   {record.editionName}
                 </Link>
               </h3>
-              <div className={styles.experiences}>
-                <div className={styles.experience}>
-                  {record.roles.map((role) => (
-                    <span className="badge" key={role}>
-                      {roleTitle(role)}
-                    </span>
-                  ))}
-                </div>
-                {record.matches.length > 0 && (
-                  <details>
-                    <summary className="small">
-                      {tr(
-                        "{count, plural, one {# recorded match} other {# recorded matches}}",
-                        {
-                          count: record.matches.length,
-                        },
-                      )}
-                    </summary>
-                    <ul className={styles.experiences}>
-                      {record.matches.map((match) => (
-                        <li className={styles.experience} key={match.id}>
-                          <Link
-                            href={`/tournaments/${record.editionSlug}/matches/${match.id}`}
-                            className="context-link"
-                            prefetch={false}
-                          >
-                            {match.label}
-                          </Link>
-                          <span className="muted">
-                            {match.roles.map(roleTitle).join(" · ")}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                )}
+              <div className={styles.experience}>
+                {record.roles.map((role) => (
+                  <span className="badge" key={role}>
+                    {roleTitle(role)}
+                  </span>
+                ))}
               </div>
             </li>
           ))}

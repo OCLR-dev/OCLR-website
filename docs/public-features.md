@@ -5,13 +5,13 @@ Historical Staff presentation groups the explicit equivalents 裁判 / Referee,
 each applicable group. The source umbrella “裁判 / 直播 / 解说（Staff原文统称）”
 does not imply three duties: it is shown as unspecified Staff when there is no
 explicit duty. Unknown role names retain their literal text. Within a group,
-confirmed UIDs are deduplicated while retaining all historical name variants;
+confirmed UIDs are deduplicated with organizer-reviewed spellings;
 unresolved identities are not merged merely because their names match. Original
 role/source evidence remains saved and is not turned into live role grants.
 
 For S1–S10, the Staff page combines the saved credits and explicit roles from
 recorded matches. Confirmed osu! UIDs link to the corresponding OCLR profile.
-Public profiles show the released seasons, roles and match links under
+Public profiles show released editions and roles in ascending season order under
 Historical staff record. The signed-in dashboard shows My historical staff
 record for the session's UID. See the [source and identity review](imports/historical-staff-review.md).
 

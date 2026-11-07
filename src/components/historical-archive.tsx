@@ -19,7 +19,7 @@ import { sameHistoricalMatches } from "@/lib/archive-progression-display";
 import { publicBracket } from "@/lib/brackets";
 import { frontendConnection } from "@/lib/frontend-data";
 import { archiveEventMatches } from "@/lib/archive-event-matches";
-import { archiveStaff } from "@/lib/archive-staff";
+import { archiveStaff, archiveMatchStaffLabel } from "@/lib/archive-staff";
 import { archivePlayerRoleLabel } from "@/lib/archive-player-role";
 import {
   archiveStaffRoleTitles,
@@ -266,9 +266,15 @@ export async function HistoricalArchiveView({
         <>
           <dl className="detail-list">
             {[
-              [tr("Referee"), m.referee],
-              [tr("Streamer"), m.streamer],
-              [tr("Commentators"), m.commentators],
+              [tr("Referee"), archiveMatchStaffLabel(a, "referee", m.referee)],
+              [
+                tr("Streamer"),
+                archiveMatchStaffLabel(a, "streamer", m.streamer),
+              ],
+              [
+                tr("Commentators"),
+                archiveMatchStaffLabel(a, "commentators", m.commentators),
+              ],
               [tr("Red bans"), m.bansA],
               [tr("Blue bans"), m.bansB],
             ].map(([label, value]) => (

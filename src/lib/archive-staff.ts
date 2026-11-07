@@ -1,6 +1,7 @@
 import { archiveStaffPositions } from "./archive-staff-groups";
 import {
   spacedCommentatorCredits,
+  staffCorrections,
   staffIdentities,
   staffWorkbooks,
 } from "./archive-staff-evidence";
@@ -10,7 +11,6 @@ import {
 } from "./historical-archive";
 
 type Staff = HistoricalArchive["staff"][number];
-type Match = HistoricalArchive["matches"][number];
 
 function reviewedStaffSource(archive: HistoricalArchive) {
   if (archive.editionSlug === "s6")
@@ -47,6 +47,10 @@ const nonNames = new Set([
 ]);
 const staffNameKey = (name: string) => name.toLowerCase();
 
+function staffCorrection(slug: string, username: string) {
+  return staffCorrections.get(`${slug}:${staffNameKey(username)}`);
+}
+
 function matchCreditNames(
   slug: string,
   field: (typeof matchRoles)[number][0],
@@ -64,6 +68,27 @@ function matchCreditNames(
     : slug === "s9"
       ? credit.split("&")
       : [credit];
+}
+
+/** Show reviewed spellings while keeping the archived credit text intact. */
+export function archiveMatchStaffLabel(
+  archive: HistoricalArchive,
+  field: (typeof matchRoles)[number][0],
+  credit: string | null,
+) {
+  if (!credit || !reviewedStaffSource(archive)) return credit;
+  const names =
+    field === "commentators"
+      ? matchCreditNames(archive.editionSlug, field, credit)
+      : [credit];
+  const corrected = names.map(
+    (name) =>
+      staffCorrection(archive.editionSlug, name.trim())?.username ??
+      name.trim(),
+  );
+  return corrected.some((name, i) => name !== names[i].trim())
+    ? corrected.join("、")
+    : credit;
 }
 
 function staffIdentity(archive: HistoricalArchive) {
@@ -94,57 +119,43 @@ function staffIdentity(archive: HistoricalArchive) {
   };
 }
 
-/** The saved roster and recorded match credits share the same identity rules. */
-export function historicalStaffCredits(archive: HistoricalArchive) {
-  if (!reviewedStaffSource(archive))
-    return {
-      roster: archive.staff,
-      matches: [] as { match: Match; staff: Staff[] }[],
-    };
-  const resolve = staffIdentity(archive);
-  const roster = archive.staff.map((person) =>
-    person.osuId === null
-      ? { ...person, osuId: resolve(person.username) }
-      : person,
-  );
-  const matches = archive.matches.filter(recordedArchiveMatch).map((match) => ({
-    match,
-    staff: matchRoles.flatMap(([field, position]) => {
-      const credit = match[field];
-      if (!credit) return [];
-      const names = matchCreditNames(archive.editionSlug, field, credit)
-        .map((name) => name.trim())
-        .filter((name) => name && !nonNames.has(staffNameKey(name)));
-      return names.map((username) => ({
-        username,
-        osuId: resolve(username),
-        position,
-        source: `${match.source}; ${field}`,
-      }));
-    }),
-  }));
-  return { roster, matches };
-}
-
-/** Add each observed signature once to the edition roster. Per-match evidence is
- * retained independently so a player's history can show all recorded duties. */
+/** Merge saved credits and duties from recorded matches in reviewed sources. */
 export function archiveStaff(archive: HistoricalArchive): Staff[] {
-  const { roster, matches } = historicalStaffCredits(archive);
-  const staff = [...roster];
+  if (!reviewedStaffSource(archive)) return archive.staff;
+  const resolve = staffIdentity(archive);
+  const project = (person: Staff): Staff => {
+    const correction = staffCorrection(archive.editionSlug, person.username);
+    return correction
+      ? { ...person, ...correction }
+      : { ...person, osuId: person.osuId ?? resolve(person.username) };
+  };
+  const staff = archive.staff.map(project);
   const key = (person: Staff, role: string) =>
     JSON.stringify([person.osuId, staffNameKey(person.username), role]);
   const seen = new Set(
-    roster.flatMap((person) =>
+    staff.flatMap((person) =>
       archiveStaffPositions(person.position).map((role) => key(person, role)),
     ),
   );
-  for (const { staff: credits } of matches) {
-    for (const person of credits) {
-      const [role] = archiveStaffPositions(person.position);
-      const duty = key(person, role);
-      if (seen.has(duty)) continue;
-      staff.push(person);
-      seen.add(duty);
+  for (const match of archive.matches.filter(recordedArchiveMatch)) {
+    for (const [field, position] of matchRoles) {
+      const credit = match[field];
+      if (!credit) continue;
+      const [role] = archiveStaffPositions(position);
+      for (const name of matchCreditNames(archive.editionSlug, field, credit)) {
+        const username = name.trim();
+        if (!username || nonNames.has(staffNameKey(username))) continue;
+        const person = project({
+          username,
+          osuId: null,
+          position,
+          source: `${match.source}; ${field}`,
+        });
+        const duty = key(person, role);
+        if (seen.has(duty)) continue;
+        staff.push(person);
+        seen.add(duty);
+      }
     }
   }
   return staff;
