@@ -32,10 +32,30 @@ import type {
 } from "./draft-types";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import { draftSessionReadColumns } from "./live-season-columns";
 type Reader = Pick<ReturnType<typeof db>, "select">;
+async function lockDraftSession(tx: Reader, slug: string, id?: string) {
+  const [locked] = await tx
+    .select({ id: draftSessions.id })
+    .from(draftSessions)
+    .where(
+      and(
+        eq(draftSessions.editionSlug, slug),
+        id ? eq(draftSessions.id, id) : undefined,
+      ),
+    )
+    .for("update");
+  if (!locked) return undefined;
+  // Read the child rows after obtaining the owner lock, including legacy writes.
+  const [session] = await tx
+    .select(draftSessionReadColumns)
+    .from(draftSessions)
+    .where(eq(draftSessions.id, locked.id));
+  return session;
+}
 async function draftData(tx: Reader, slug: string) {
   const [session] = await tx
-    .select()
+    .select(draftSessionReadColumns)
     .from(draftSessions)
     .where(eq(draftSessions.editionSlug, slug));
   const [edition] = await tx
@@ -188,7 +208,7 @@ export async function refreshDraftSnapshot(
 }
 async function acceptedPlayers(tx: Reader, slug: string) {
   return tx
-    .select()
+    .select({ userId: registrations.userId })
     .from(registrations)
     .where(
       and(
@@ -406,11 +426,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
         .insert(draftSessions)
         .values({ editionSlug: slug })
         .onConflictDoNothing();
-    const [session] = await tx
-      .select()
-      .from(draftSessions)
-      .where(eq(draftSessions.editionSlug, slug))
-      .for("update");
+    const session = await lockDraftSession(tx, slug);
     if (!session || session.version !== expectedVersion)
       throw new HttpError(
         409,
@@ -857,16 +873,7 @@ export async function pickPlayer(actor: User, slug: string, input: unknown) {
       .from(editionState)
       .where(eq(editionState.slug, slug))
       .for("update");
-    const [session] = await tx
-      .select()
-      .from(draftSessions)
-      .where(
-        and(
-          eq(draftSessions.id, value.sessionId),
-          eq(draftSessions.editionSlug, slug),
-        ),
-      )
-      .for("update");
+    const session = await lockDraftSession(tx, slug, value.sessionId);
     if (!edition?.lockedAt || !session)
       throw new HttpError(409, "Draft session is not available.");
     const [appointment] = await tx

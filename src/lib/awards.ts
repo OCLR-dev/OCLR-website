@@ -31,6 +31,7 @@ import { draftAwardTiers } from "./award-tiers";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import { draftTurnSequence } from "./live-season-columns";
 import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
 import { staffRoundRatings } from "./ratings";
 import { readTournament } from "./tournaments";
@@ -55,7 +56,12 @@ async function calculation(slug: string, reader: Reader) {
     policy: stored?.policy ?? YUMU_POLICY,
   });
   const [session] = await reader
-    .select()
+    .select({
+      id: draftSessions.id,
+      state: draftSessions.state,
+      turnSequence: draftTurnSequence,
+      publicSnapshot: draftSessions.publicSnapshot,
+    })
     .from(draftSessions)
     .where(eq(draftSessions.editionSlug, slug));
   const appointed = await reader

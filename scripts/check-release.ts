@@ -70,6 +70,9 @@ try {
   );
   await db().execute(sql`SELECT attempt FROM registrations LIMIT 0`);
   await db().execute(
+    sql`SELECT 1 FROM registration_answers, schedule_availability_intervals, player_season_availability_intervals, draft_pool_entries, draft_turn_slots LIMIT 0`,
+  );
+  await db().execute(
     sql`SELECT snapshot, configuration_version FROM registration_attempts LIMIT 0`,
   );
   await db().execute(

@@ -29,6 +29,7 @@ import { assertUserWriteChannel, permits, staffAccess } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { inReadChannel } from "./read-channel";
 import { HttpError } from "./http";
+import { fixtureAvailabilityReadColumns } from "./live-season-columns";
 import { publicCompetition } from "./public-competition";
 import {
   activeSchedule,
@@ -209,7 +210,7 @@ export async function scheduleWorkspace(actor: User, slug: string) {
       const availability =
         visible.length && roster.length
           ? await tx
-              .select()
+              .select(fixtureAvailabilityReadColumns)
               .from(scheduleAvailability)
               .where(
                 and(
@@ -531,7 +532,7 @@ export async function scheduleCommand(
           "Only current players can save their own availability.",
         );
       const [before] = await tx
-        .select()
+        .select({ version: scheduleAvailability.version })
         .from(scheduleAvailability)
         .where(
           and(

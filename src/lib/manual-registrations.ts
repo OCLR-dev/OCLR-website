@@ -16,6 +16,7 @@ import { getOsuUserProfile, getOsuProfileByUsername } from "./osu-profiles";
 import { parseOsuProfile } from "./osu-profile-model";
 import { verifyEligibility } from "./eligibility";
 import { HttpError } from "./http";
+import { registrationMetadata } from "./live-season-columns";
 import {
   MANUAL_BATCH_LIMIT,
   MANUAL_BATCH_TEXT_LIMIT,
@@ -208,7 +209,7 @@ export async function addManualRegistration(
       .onConflictDoNothing({
         target: [registrations.editionSlug, registrations.userId],
       })
-      .returning();
+      .returning(registrationMetadata);
     if (!registration)
       throw new HttpError(
         409,
@@ -220,7 +221,7 @@ export async function addManualRegistration(
       toStatus: command.status,
       reason: current.outsideWindow ? command.exceptionReason : null,
     });
-    return registration;
+    return { ...registration, answers: {} as Record<string, string> };
   });
 }
 

@@ -5,6 +5,7 @@ import { captainAppointment } from "./captains";
 import { getPublicEditions } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { registrationReadColumns } from "./live-season-columns";
 import {
   canWithdraw,
   registrationAvailability,
@@ -13,7 +14,7 @@ import {
 async function databasePlayerApplications(userId: number) {
   const rows = await db()
     .select({
-      registration: registrations,
+      registration: registrationReadColumns,
       lastOperation: registrationOperation,
       registrationPausedAt: editionState.registrationPausedAt,
       assigned: sql<boolean>`EXISTS(SELECT 1 FROM memberships m WHERE m.edition_slug=${registrations.editionSlug} AND m.user_id=${registrations.userId} AND m.left_at IS NULL)`,
