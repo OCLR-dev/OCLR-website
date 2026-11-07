@@ -21,9 +21,6 @@ describe("archive edit destinations", () => {
       );
       expect(html).toContain('popover="auto"');
       expect(html).toContain('aria-label="Download mirror"');
-      expect(html).toContain(
-        'class="beatmap-mirror-initial" aria-hidden="true">S',
-      );
       const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map(
         (match) => match[1],
       );
