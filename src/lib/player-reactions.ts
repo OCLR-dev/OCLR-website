@@ -7,12 +7,16 @@ export type PlayerReaction = {
   src: string;
   animatedSrc?: string;
   keywords: string;
+  selectable?: boolean;
 };
 
-// The reviewed shortlist leads; every remaining entry has a bundled image.
-export const playerReactions: readonly PlayerReaction[] = catalog;
+const allReactions: readonly PlayerReaction[] = catalog;
+// Keep retired images available to display existing selections.
 export const playerReactionById = new Map(
-  playerReactions.map((reaction) => [reaction.id, reaction]),
+  allReactions.map((reaction) => [reaction.id, reaction]),
+);
+export const playerReactions: readonly PlayerReaction[] = allReactions.filter(
+  (reaction) => reaction.selectable !== false,
 );
 
 // Keep already-saved Unicode readable/removable, without adding image-less
@@ -75,8 +79,10 @@ export function parsePlayerReactionPicks(snapshot: string) {
     const value: unknown = JSON.parse(snapshot);
     if (value && typeof value === "object" && !Array.isArray(value)) {
       for (const [id, count] of Object.entries(value)) {
+        const reaction = playerReactionById.get(id);
         if (
-          playerReactionById.has(id) &&
+          reaction &&
+          reaction.selectable !== false &&
           typeof count === "number" &&
           Number.isSafeInteger(count) &&
           count > 0

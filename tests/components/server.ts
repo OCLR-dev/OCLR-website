@@ -8,10 +8,10 @@ import { readFileSync } from "node:fs";
 import postcss from "postcss";
 import tailwind from "@tailwindcss/postcss";
 import { bundledSeasonThemes } from "../fixtures/theme-assets";
-import { playerReactions } from "../../src/lib/player-reactions";
+import { playerReactionById } from "../../src/lib/player-reactions";
 
 const reactionAssets = new Set(
-  playerReactions.flatMap((reaction) =>
+  [...playerReactionById.values()].flatMap((reaction) =>
     [reaction.src, reaction.animatedSrc].filter((src): src is string => !!src),
   ),
 );
