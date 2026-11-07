@@ -43,11 +43,12 @@ test("landing page exposes the official identity and working tournament entry", 
   await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
     /osu! Chinese League Rookie/,
   );
-  await expect(page.locator(".home-information-link")).toHaveAttribute(
-    "href",
-    /\/tournaments/,
-  );
-  await page.locator(".home-information-link").click();
+  const tournamentEntry = page.getByRole("link", {
+    name: "Information page",
+    exact: true,
+  });
+  await expect(tournamentEntry).toHaveAttribute("href", /^\/tournaments/);
+  await tournamentEntry.click();
   await expect(page).toHaveURL(/\/tournaments(?:\/[a-z0-9-]+)?$/);
 });
 test("news is approved content only and about uses the official identity", async ({

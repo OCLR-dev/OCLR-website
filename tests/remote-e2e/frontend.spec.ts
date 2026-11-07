@@ -307,10 +307,14 @@ test("uses real remote grants for core SSR/navigation without local DB or OAuth,
       exact: true,
     });
     await expect(rows).toHaveCount(40);
-    await showMore.click();
-    await expect(rows).toHaveCount(80);
-    await showMore.click();
-    await expect(rows).toHaveCount(108);
+    for (const count of [80, 108]) {
+      await rows
+        .last()
+        .evaluate((row) =>
+          row.scrollIntoView({ block: "end", behavior: "instant" }),
+        );
+      await expect(rows).toHaveCount(count);
+    }
     await expect(showMore).toHaveCount(0);
   }
   await showAllPlayers();

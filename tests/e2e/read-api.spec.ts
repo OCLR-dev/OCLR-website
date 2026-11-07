@@ -181,14 +181,17 @@ test.describe("versioned read API and existing SSR", () => {
       await context.route("https://a.ppy.sh/**", (route) => route.abort());
       if (isMobile) await page.setViewportSize({ width: 320, height: 844 });
       await page.goto("/tournaments/test-cup/players");
-      await expect(page.locator(".event-player-row")).toHaveCount(40);
-      const showMore = page.getByRole("button", {
-        name: "Show more players",
-        exact: true,
-      });
-      await showMore.click();
-      await expect(page.locator(".event-player-row")).toHaveCount(63);
-      await expect(showMore).toHaveCount(0);
+      const rows = page.locator(".event-player-row");
+      await expect(rows).toHaveCount(40);
+      await rows
+        .last()
+        .evaluate((row) =>
+          row.scrollIntoView({ block: "end", behavior: "instant" }),
+        );
+      await expect(rows).toHaveCount(63);
+      await expect(
+        page.getByRole("button", { name: "Show more players", exact: true }),
+      ).toHaveCount(0);
       const zero = page
         .locator(".event-player-row")
         .filter({ hasText: `Synthetic Directory ${base} Member` });
