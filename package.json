@@ -14,6 +14,7 @@
     "check": "npm run lint && npm run typecheck && npm run archive:relations:check",
     "test:e2e": "playwright test",
     "test:components": "playwright test --config playwright.components.config.ts",
+    "perf:api": "node --import tsx scripts/api-baseline.ts",
     "test:referee:acceptance": "node --import tsx scripts/referee-acceptance.ts",
     "test": "vitest run",
     "i18n:extract": "node --import tsx scripts/i18n.ts",
