@@ -1,7 +1,19 @@
-import type { ReactNode } from "react";
+"use client";
+
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { beatmapLinks } from "@/lib/beatmap-links";
-import { safeDownloadMirror } from "@/lib/mappool-download";
+import {
+  beatmapDownloadMirrors,
+  type BeatmapMirror,
+} from "@/lib/mappool-download";
+import { BeatmapMirrorIcon } from "./beatmap-mirror-icon";
 
 function ActionIcon({ kind }: { kind: "web" | "direct" }) {
   if (kind === "direct")
@@ -37,9 +49,108 @@ function ActionIcon({ kind }: { kind: "web" | "direct" }) {
   );
 }
 
+function MirrorMenu({
+  mirrors,
+  label,
+  searchLabel,
+  compact,
+  name,
+}: {
+  mirrors: BeatmapMirror[];
+  label: string;
+  searchLabel: string;
+  compact: boolean;
+  name?: string;
+}) {
+  const id = useId();
+  const trigger = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    function position() {
+      if (!trigger.current || !menu.current) return;
+      const rect = trigger.current.getBoundingClientRect();
+      const { offsetWidth, offsetHeight } = menu.current;
+      const { clientWidth, clientHeight } = document.documentElement;
+      const left = Math.max(
+        12,
+        Math.min(rect.left, clientWidth - offsetWidth - 12),
+      );
+      const below = rect.bottom + 4;
+      const above = rect.top - offsetHeight - 4;
+      const top = below + offsetHeight <= clientHeight - 12 ? below : above;
+      menu.current.style.left = `${left}px`;
+      menu.current.style.top = `${Math.max(12, Math.min(top, clientHeight - offsetHeight - 12))}px`;
+    }
+    position();
+    window.addEventListener("resize", position);
+    window.addEventListener("scroll", position, true);
+    return () => {
+      window.removeEventListener("resize", position);
+      window.removeEventListener("scroll", position, true);
+    };
+  }, [open]);
+
+  return (
+    <>
+      <button
+        ref={trigger}
+        type="button"
+        popoverTarget={id}
+        className="button secondary beatmap-mirror-trigger"
+        aria-label={name ? `${label} · ${name}` : label}
+        title={compact ? label : undefined}
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 3v18M8 5 3 19h5ZM16 5l5 14h-5Z" />
+        </svg>
+        <span className={compact ? "sr-only" : undefined}>{label}</span>
+      </button>
+      <div
+        ref={menu}
+        id={id}
+        popover="auto"
+        className="beatmap-mirror-menu"
+        onToggle={(event) =>
+          setOpen(event.currentTarget.matches(":popover-open"))
+        }
+      >
+        {mirrors.map((mirror) => (
+          <a
+            key={mirror.href}
+            href={mirror.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => menu.current?.hidePopover()}
+          >
+            <BeatmapMirrorIcon mirror={mirror} />
+            <span>{mirror.name}</span>
+            {mirror.search && (
+              <span className="beatmap-mirror-search">{searchLabel}</span>
+            )}
+          </a>
+        ))}
+      </div>
+    </>
+  );
+}
+
 export function BeatmapActions({
   beatmapId,
   setId,
+  searchTitle,
   downloadMirror,
   originalBeatmapId,
   originalSetId,
@@ -52,6 +163,7 @@ export function BeatmapActions({
 }: {
   beatmapId: number | null | undefined;
   setId: number | null | undefined;
+  searchTitle?: string | null;
   downloadMirror?: string | null;
   originalBeatmapId?: number | null;
   originalSetId?: number | null;
@@ -63,7 +175,6 @@ export function BeatmapActions({
   extra?: ReactNode;
 }) {
   const tr = useAppTranslations();
-  const mirror = safeDownloadMirror(downloadMirror);
   const originalLinks = beatmapLinks(originalBeatmapId, originalSetId);
   // Confirmed archive corrections may prefer the surviving original even if a
   // cached set exists or provider lookup is unavailable. Otherwise retain the
@@ -72,6 +183,11 @@ export function BeatmapActions({
     (preferOriginal || (beatmapMissing && !setId)) &&
     !!(originalLinks.web || originalLinks.direct);
   const links = useOriginal ? originalLinks : beatmapLinks(beatmapId, setId);
+  const mirrors = beatmapDownloadMirrors(
+    useOriginal ? originalSetId : setId,
+    downloadMirror,
+    searchTitle,
+  );
   const labels = useOriginal
     ? {
         web: tr("Open original map on osu!"),
@@ -81,31 +197,20 @@ export function BeatmapActions({
         web: tr("Open on osu!"),
         direct: tr("osu!direct"),
       };
-  if (!links.web && !links.direct && !mirror)
-    return compact ? null : (
-      <p className="muted small">{tr("Beatmap ID unresolved")}</p>
-    );
   return (
     <div
       className={`beatmap-actions${compact ? " beatmap-actions-compact" : ""}`}
     >
       {extra}
-      {mirror && (
-        <a
-          href={mirror}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="button secondary"
-          aria-label={
-            name ? `${tr("Download mirror")} · ${name}` : tr("Download mirror")
-          }
-          title={compact ? tr("Download mirror") : undefined}
-        >
-          <ActionIcon kind="direct" />
-          <span className={compact ? "sr-only" : undefined}>
-            {tr("Download mirror")}
-          </span>
-        </a>
+      <MirrorMenu
+        mirrors={mirrors}
+        label={tr("Download mirror")}
+        searchLabel={tr("Search")}
+        compact={compact}
+        name={name}
+      />
+      {!compact && !links.web && mirrors.every((mirror) => mirror.search) && (
+        <p className="muted small">{tr("Beatmap ID unresolved")}</p>
       )}
       {(["direct", "web"] as const).map(
         (kind) =>

@@ -95,7 +95,12 @@ function MapIdentity({
         <span className="small muted">
           {tr("BID")} {id}
         </span>
-        <BeatmapActions beatmapId={id} setId={m.setId} showWeb={false} />
+        <BeatmapActions
+          beatmapId={id}
+          setId={m.setId}
+          searchTitle={m.title}
+          showWeb={false}
+        />
       </div>
     </div>
   );

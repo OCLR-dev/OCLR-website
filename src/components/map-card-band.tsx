@@ -25,6 +25,7 @@ export function MapCardBand({
   dataCategory,
   slot,
   title,
+  searchTitle = title,
   artist,
   difficulty,
   mapper,
@@ -65,6 +66,7 @@ export function MapCardBand({
   dataCategory: string;
   slot: string;
   title: string;
+  searchTitle?: string | null;
   artist?: string | null;
   difficulty?: string | null;
   mapper?: string | null;
@@ -249,6 +251,7 @@ export function MapCardBand({
       showWeb={variant !== "workbench"}
       beatmapId={beatmapId}
       setId={setId}
+      searchTitle={searchTitle}
       downloadMirror={downloadMirror}
       originalBeatmapId={originalBeatmapId}
       originalSetId={originalSetId}

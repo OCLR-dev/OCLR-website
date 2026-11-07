@@ -203,7 +203,7 @@
   margin: 0;
   gap: 0;
 }
-.workspace.workspace .mapTools :global(a.button) {
+.workspace.workspace .mapTools :global(:is(a.button, .beatmap-mirror-trigger)) {
   width: 2rem;
   min-width: 2rem;
   height: 2rem;

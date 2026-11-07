@@ -122,6 +122,7 @@ function ArchiveMapDetails({
           beatmapId={map.beatmapId}
           downloadMirror={map.downloadMirror}
           setId={setId}
+          searchTitle={parseArchiveTitle(map.title)?.title ?? map.title}
           originalBeatmapId={map.originalId}
           originalSetId={originalSetId}
           beatmapMissing={beatmapMissing}
@@ -459,6 +460,7 @@ export function ArchiveMappools({
                     dataCategory={m.slot.replace(/\d+$/, "")}
                     slot={m.slot}
                     title={parsed?.title ?? m.title ?? tr("Not recorded")}
+                    searchTitle={parsed?.title ?? m.title}
                     artist={parsed?.artist ?? m.artist}
                     difficulty={parsed?.difficulty ?? m.difficulty}
                     mapper={parsed?.mapper ?? m.mapper}
@@ -547,6 +549,7 @@ export function ArchiveMappools({
                       beatmapId={m.beatmapId}
                       downloadMirror={m.downloadMirror}
                       setId={setId}
+                      searchTitle={parseArchiveTitle(m.title)?.title ?? m.title}
                       originalBeatmapId={m.originalId}
                       originalSetId={originalSetId}
                       beatmapMissing={beatmapMissing}

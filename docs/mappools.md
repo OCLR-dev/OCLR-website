@@ -11,12 +11,16 @@ it only for the same BID. Metadata refresh and reorder preserve it. Explicit
 `null` clears a native entry's mirror. Historical imports accept an optional
 non-null URL on each map.
 
-Cards, compact lists and Details show **Download mirror** alongside the existing
-osu! actions when a valid mirror is saved. The browser follows the HTTPS link;
-the application does not fetch or proxy it. URLs with credentials or unsafe
-schemes are rejected and are not rendered from older read responses. Draft
-pool links remain private with the pool. Developer/remote channels stay
-read-only. Older backends may omit the additive field.
+Every beatmap in cards, compact lists and Details has a **Download mirror** menu
+alongside its osu! actions. BeatConnect, Sayobot and Catboy link directly to the
+known beatmapset. When its ID is missing, the menu labels the links as searches.
+BeatConnect and Sayobot receive the song title when available. A valid saved
+mirror appears first. BeatConnect, Catboy and GitHub use local SVGs. Sayobot and
+other hosts without a distinct site icon use initials. The browser follows each
+HTTPS link directly. URLs with credentials or unsafe schemes are rejected and
+are not rendered from older read responses. Draft pool links remain private
+with the pool. Developer/remote channels stay read-only. Older backends may omit
+the additive field.
 
 Migration `0086_mappool_download_mirrors` adds the native entry column and typed
 historical-map column, and saves the organizer's two pinned GitHub OSZ mirrors.
