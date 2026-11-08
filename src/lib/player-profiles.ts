@@ -9,7 +9,11 @@ import {
   assertReadCapability,
 } from "./auth/staff";
 import { publicPlayer, publicPlayerStillListed } from "./players";
-import { cachedOsuUserProfile, getOsuUserProfile } from "./osu-profiles";
+import {
+  cachedOsuUserProfile,
+  getOsuUserProfile,
+  type ProfileRefreshScheduler,
+} from "./osu-profiles";
 import { parseOsuProfile } from "./osu-profile-model";
 import { HttpError } from "./http-error";
 import { safeSavedOsuProfile } from "./read-api-contract";
@@ -38,6 +42,7 @@ export async function publishedPlayerProfile(
   selfId?: number,
   savedOnly = false,
   authorizedEdition?: string,
+  scheduleRefresh?: ProfileRefreshScheduler,
 ) {
   const identity = parseOsuProfile(input, mode);
   if (
@@ -61,6 +66,7 @@ export async function publishedPlayerProfile(
         ? cachedOsuUserProfile(identity.osuId, identity.mode)
         : getOsuUserProfile(identity.osuId, identity.mode, {
             staleWhileRevalidate: true,
+            scheduleRefresh,
           })),
       identity.osuId,
       identity.mode,

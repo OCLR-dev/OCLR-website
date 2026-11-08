@@ -1,4 +1,5 @@
 import { frontendTournament } from "@/lib/frontend-data";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { remoteMode } from "@/lib/data-source";
 import { remotePage } from "@/lib/remote-page";
 import { historicalPage } from "@/components/historical-archive";
@@ -29,7 +30,7 @@ export async function generateMetadata({
     title:
       (remoteMode() ? undefined : informationPreview(edition)?.name) ??
       (remoteMode()
-        ? await frontendTournament(edition)
+        ? await withFrontendReadRequest(() => frontendTournament(edition))
             .then((e) => e.name)
             .catch(() => undefined)
         : (await getPublicEdition(edition))?.name) ??

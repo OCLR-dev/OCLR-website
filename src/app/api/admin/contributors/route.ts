@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { contributorsForAdmin, updateContributors } from "@/lib/contributors";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 async function readGET() {
   try {
     return NextResponse.json(await contributorsForAdmin(await requireUser()), {

@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth/user";
 import { assertReadCapability } from "@/lib/auth/staff";
 import { historicalPoolChoices } from "@/lib/exhibition-pools";
 import { apiError } from "@/lib/http";
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 export async function GET(
   _request: Request,
   context: { params: Promise<{ edition: string }> },

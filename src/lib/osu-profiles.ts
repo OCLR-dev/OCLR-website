@@ -1,7 +1,6 @@
 import { db } from "@/db";
 import { userProfileCache, users } from "@/db/schema";
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { after } from "next/server.js";
 import { randomUUID } from "node:crypto";
 import { remoteMode } from "./data-source";
 import { HttpError } from "./http-error";
@@ -373,7 +372,13 @@ const revalidating = new Set<string>();
 // concurrent page loads do not wait for the provider I/O they just triggered.
 const servedWhileRevalidating = new Map<string, ProfileSnapshot>();
 /** Refresh after the response when a request scope exists; stay blocking elsewhere. */
-async function revalidateProfile(osuId: number, mode: ProfileMode) {
+export type ProfileRefreshScheduler = (refresh: () => Promise<void>) => void;
+
+async function revalidateProfile(
+  osuId: number,
+  mode: ProfileMode,
+  schedule?: ProfileRefreshScheduler,
+) {
   const key = `${osuId}:${mode}`;
   if (revalidating.has(key)) return;
   revalidating.add(key);
@@ -381,26 +386,31 @@ async function revalidateProfile(osuId: number, mode: ProfileMode) {
     revalidating.delete(key);
     servedWhileRevalidating.delete(key);
   };
-  const run = () =>
-    getOsuUserProfile(osuId, mode, { refresh: true }).catch(() => {});
-  try {
-    after(() => {
-      void run().finally(done);
-    });
-  } catch {
-    // Scripts and tests have no request scope; keep the previous behaviour.
+  const run = async () => {
     try {
-      await run();
+      await getOsuUserProfile(osuId, mode, { refresh: true });
+    } catch {
+      // The refresh has its own cache backoff and stale fallback.
     } finally {
       done();
     }
+  };
+  if (schedule) {
+    try {
+      schedule(run);
+      return;
+    } catch {
+      // If scheduling is unavailable, finish the refresh in this call.
+    }
   }
+  await run();
 }
 async function settle(
   request: Promise<LoadedProfile>,
   key: string,
   osuId: number,
   mode: ProfileMode,
+  schedule?: ProfileRefreshScheduler,
 ): Promise<ProfileSnapshot> {
   let result: LoadedProfile;
   try {
@@ -415,14 +425,18 @@ async function settle(
     notice: result.notice,
   };
   servedWhileRevalidating.set(key, snapshot);
-  await revalidateProfile(osuId, mode);
+  await revalidateProfile(osuId, mode, schedule);
   return snapshot;
 }
 /** Credentials stay server-side. Callers must enforce participant/staff visibility. */
 export async function getOsuUserProfile(
   osuId: number,
   mode: ProfileMode = "osu",
-  options: { refresh?: boolean; staleWhileRevalidate?: boolean } = {},
+  options: {
+    refresh?: boolean;
+    staleWhileRevalidate?: boolean;
+    scheduleRefresh?: ProfileRefreshScheduler;
+  } = {},
 ): Promise<ProfileSnapshot> {
   if (remoteMode() || inReadChannel()) {
     const snapshot = await cachedOsuUserProfile(osuId, mode);
@@ -438,7 +452,7 @@ export async function getOsuUserProfile(
         ? servedWhileRevalidating.get(key)
         : undefined;
     if (served) return served;
-    return settle(existing, key, osuId, mode);
+    return settle(existing, key, osuId, mode, options.scheduleRefresh);
   }
   if (pending.size >= 32) throw unavailable(429);
   const request = load(
@@ -448,7 +462,7 @@ export async function getOsuUserProfile(
     options.staleWhileRevalidate === true,
   );
   pending.set(key, request);
-  return settle(request, key, osuId, mode);
+  return settle(request, key, osuId, mode, options.scheduleRefresh);
 }
 
 // Short, bounded resolution cache. The authoritative ID profile still uses the

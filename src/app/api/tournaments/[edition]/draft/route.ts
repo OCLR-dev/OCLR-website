@@ -1,5 +1,5 @@
 import { liveSnapshot } from "@/lib/live-snapshot";
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { after, NextResponse } from "next/server";
 import { publicDraft } from "@/lib/draft";
 import { publicBroadcastDraft } from "@/lib/broadcast";

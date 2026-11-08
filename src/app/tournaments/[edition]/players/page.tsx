@@ -1,5 +1,5 @@
+import { currentUser } from "@/lib/auth/user";
 import {
-  frontendViewer,
   frontendPlayers,
   frontendTournament,
 } from "@/lib/frontend-data";
@@ -102,7 +102,7 @@ async function PlayersContent({
         // Stats refresh must never prevent an otherwise usable public directory.
       }
     });
-  const viewer = await frontendViewer();
+  const viewer = await currentUser();
   return (
     <div className="directory-page edition-players">
       <PageHeading title={tr("Players")} />

@@ -9,6 +9,9 @@ import { playerApplications } from "../../src/lib/dashboard";
 import { remoteMode } from "../../src/lib/data-source";
 import { edition } from "../fixtures/edition";
 import { historicalArchive } from "../fixtures/historical-archive";
+vi.mock("next/headers.js", () => ({
+  cookies: async () => ({ get: () => undefined }),
+}));
 vi.mock("../../src/lib/player-history", () => ({
   playerParticipationHistory: vi.fn(async () => []),
 }));

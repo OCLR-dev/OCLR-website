@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/user";
 import { changeMappoolWorkbenchWrite } from "@/lib/mappool-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import {
   selectionWorkspace,
   previewCandidates,

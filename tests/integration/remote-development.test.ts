@@ -1,4 +1,8 @@
-import { withFrontendReadRequest } from "../../src/lib/frontend-read-context";
+import { withFrontendReadRequest } from "../../src/lib/next-frontend-request";
+import {
+  createFrontendReadContext,
+  runFrontendReadContext,
+} from "../../src/lib/frontend-read-context";
 import {
   readContractHeader,
   readContractVersion,
@@ -50,10 +54,12 @@ import {
 
 const jar = vi.hoisted(() => new Map<string, string>());
 const setCookie = vi.hoisted(() => vi.fn());
+const getCookie = vi.hoisted(() => vi.fn((name: string) =>
+  jar.has(name) ? { value: jar.get(name) } : undefined,
+));
 vi.mock("next/headers", () => ({
   cookies: async () => ({
-    get: (name: string) =>
-      jar.has(name) ? { value: jar.get(name) } : undefined,
+    get: getCookie,
     set: (name: string, value: string, options: unknown) => {
       jar.set(name, value);
       setCookie(name, value, options);
@@ -317,6 +323,7 @@ beforeEach(() => {
   seen.length = 0;
   jar.clear();
   setCookie.mockClear();
+  getCookie.mockClear();
   mode = "healthy";
   revoked = false;
   redirected = 0;
@@ -335,16 +342,16 @@ describe("remote frontend transport with no local DB", () => {
     const session = await connectRemote({ mode: "developer", token: tokenA });
     jar.set("oclr_remote_session", session.id);
     for (const slug of ["s1", "s2", "s3", "s4", "s5", "s6"]) {
-      expect(await publicArchiveStatistics(slug, "one")).toMatchObject({
+      expect(
+        await withFrontendReadRequest(() => publicArchiveStatistics(slug, "one")),
+      ).toMatchObject({
         slug,
         plays: [],
         mpCovered: 0,
       });
       expect(
-        await statisticsWorkspace(
-          { osuId: 27001, username: "Synthetic A" },
-          slug,
-          "one",
+        await withFrontendReadRequest(() =>
+          statisticsWorkspace({ osuId: 27001, username: "Synthetic A" }, slug, "one"),
         ),
       ).toMatchObject({ slug, canPublish: false, reviews: [] });
       expect(
@@ -357,13 +364,17 @@ describe("remote frontend transport with no local DB", () => {
       ).toBe(true);
     }
     await expect(
-      statisticsWorkspace({ osuId: 27002, username: "Other subject" }, "s1"),
+      withFrontendReadRequest(() =>
+        statisticsWorkspace({ osuId: 27002, username: "Other subject" }, "s1"),
+      ),
     ).rejects.toMatchObject({ status: 403 });
   });
   it("maps the public participation service's osuId and optional edition to its registered resource", async () => {
     const session = await connectRemote({ mode: "developer", token: tokenA });
     jar.set("oclr_remote_session", session.id);
-    expect(await publicPlayer(27001, "test-cup")).toEqual([]);
+    expect(
+      await withFrontendReadRequest(() => publicPlayer(27001, "test-cup")),
+    ).toEqual([]);
     expect(
       seen.some((r) => r.path === "/api/v1/players/27001/participations"),
     ).toBe(true);
@@ -388,11 +399,11 @@ describe("remote frontend transport with no local DB", () => {
   it("completes all 137 rows, preserves null/PP zero, shares data with profile, and retries a changed collection without mixing", async () => {
     const session = await connectRemote({ mode: "anonymous" });
     jar.set("oclr_remote_session", session.id);
-    expect(await frontendSite()).toMatchObject({
+    expect(await withFrontendReadRequest(frontendSite)).toMatchObject({
       defaultAppearance: "cute-pastel",
     });
-    expect(await frontendTournaments()).toHaveLength(1);
-    const result = await frontendPlayers(edition.slug);
+    expect(await withFrontendReadRequest(frontendTournaments)).toHaveLength(1);
+    const result = await withFrontendReadRequest(() => frontendPlayers(edition.slug));
     expect(result.rows).toEqual(players);
     expect(result.refreshIds).toEqual([]);
     expect(result.rows[0].statistics).toMatchObject({
@@ -405,7 +416,9 @@ describe("remote frontend transport with no local DB", () => {
       (await withFrontendReadRequest(() => frontendPlayers(edition.slug))).rows,
     ).toEqual(players);
     expect(changed).toBe(true);
-    const profile = await frontendProfile("2700000", edition.slug);
+    const profile = await withFrontendReadRequest(() =>
+      frontendProfile("2700000", edition.slug),
+    );
     expect(profile.participation[0]).toEqual(players[0]);
     expect(profile.snapshot).toBeNull();
     expect(seen.filter((r) => r.path.endsWith("/players")).length).toBe(6);
@@ -473,11 +486,12 @@ describe("remote frontend transport with no local DB", () => {
     await withFrontendReadRequest(async () => {
       await Promise.all([
         frontendConnection(),
-        frontendConnection(),
+        withFrontendReadRequest(frontendConnection),
         frontendSite(),
         frontendSite(),
       ]);
     });
+    expect(getCookie).toHaveBeenCalledExactlyOnceWith("oclr_remote_session");
     expect(seen.filter((r) => r.path === "/api/v1/me")).toHaveLength(1);
     expect(seen.filter((r) => r.path === "/api/v1/site")).toHaveLength(1);
     await withFrontendReadRequest(() => frontendSite());
@@ -495,6 +509,32 @@ describe("remote frontend transport with no local DB", () => {
     await expect(
       withFrontendReadRequest(() => frontendSite()),
     ).rejects.toMatchObject({ code: "REMOTE_EXPIRED" });
+  });
+  it("isolates concurrent explicit contexts without reading Next.js cookies", async () => {
+    const first = await connectRemote({ mode: "developer", token: tokenA });
+    const second = await connectRemote({ mode: "developer", token: tokenB });
+    const anonymous = await connectRemote({ mode: "anonymous" });
+    jar.set("oclr_remote_session", second.id);
+    seen.length = 0;
+
+    const read = (id: string) =>
+      runFrontendReadContext(createFrontendReadContext(id), async () => {
+        const [connection, repeated] = await Promise.all([
+          frontendConnection(),
+          frontendConnection(),
+        ]);
+        expect(repeated).toBe(connection);
+        return connection.identity?.user.osuId ?? null;
+      });
+    await expect(Promise.all([read(first.id), read(second.id), read(anonymous.id)]))
+      .resolves.toEqual([27001, 27002, null]);
+    expect(getCookie).not.toHaveBeenCalled();
+    expect(seen.filter((r) => r.path === "/api/v1/me").map((r) => r.authorization))
+      .toEqual(expect.arrayContaining([`Bearer ${tokenA}`, `Bearer ${tokenB}`]));
+    expect(seen.filter((r) => r.path === "/api/v1/me")).toHaveLength(2);
+    await expect(frontendConnection()).rejects.toMatchObject({
+      code: "REMOTE_DISCONNECTED",
+    });
   });
   it("bounds sessions, rotates connection IDs and expires memory access without persisting credentials", async () => {
     let session = await connectRemote({ mode: "anonymous" });

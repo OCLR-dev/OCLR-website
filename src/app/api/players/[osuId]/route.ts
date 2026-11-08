@@ -1,5 +1,7 @@
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
-import { NextResponse } from "next/server";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
+import { after, NextResponse } from "next/server";
+import { localBrowserUser } from "@/lib/auth/user";
+import { remoteMode } from "@/lib/data-source";
 import { frontendProfile } from "@/lib/frontend-data";
 import { apiError, HttpError } from "@/lib/http";
 async function readGET(
@@ -22,6 +24,10 @@ async function readGET(
     const result = await frontendProfile(
       (await params).osuId,
       query.get("edition") ?? undefined,
+      {
+        selfId: remoteMode() ? undefined : (await localBrowserUser())?.osuId,
+        scheduleRefresh: after,
+      },
     );
     // A known identity remains a valid resource when provider statistics fail.
     return NextResponse.json(result, {

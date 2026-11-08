@@ -1,3 +1,4 @@
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { notFound } from "next/navigation";
 import { getAppTranslations } from "@/i18n/server";
 import { PageHeading } from "@/components/ui";
@@ -6,7 +7,7 @@ import { remoteMode, remoteConfiguration } from "@/lib/data-source";
 import { frontendConnection } from "@/lib/frontend-data";
 import { remoteErrorMessage, RemoteDataError } from "@/lib/remote-errors";
 import Link from "next/link";
-export default async function RemotePage() {
+async function RemotePageContent() {
   if (!remoteMode()) notFound();
   const tr = await getAppTranslations();
   const { upstream, local } = remoteConfiguration();
@@ -77,4 +78,8 @@ export default async function RemotePage() {
       </section>
     </div>
   );
+}
+
+export default function RemotePage() {
+  return withFrontendReadRequest(() => RemotePageContent());
 }

@@ -1,4 +1,4 @@
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { remoteMode } from "@/lib/data-source";
 import { frontendLegacyPlayers } from "@/lib/frontend-legacy";
 import { NextResponse } from "next/server";

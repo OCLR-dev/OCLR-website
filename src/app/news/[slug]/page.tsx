@@ -1,6 +1,7 @@
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { publicNewsItem } from "@/lib/public-news";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import {
   publicNewsDate,
   publicNewsDateTime,
@@ -17,7 +18,9 @@ export async function generateMetadata({
 }) {
   const tr = await getAppTranslations();
   const { slug } = await params;
-  const item = await publicNewsItem(slug, undefined, tr);
+  const item = await withFrontendReadRequest(() =>
+    publicNewsItem(slug, undefined, tr),
+  );
   return {
     title: item?.title ?? tr("Announcement"),
     description: item?.summary,

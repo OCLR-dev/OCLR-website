@@ -1,4 +1,4 @@
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { requireUser } from "@/lib/auth/user";
 import { remoteMode } from "@/lib/data-source";
 import { frontendMedia } from "@/lib/frontend-media";

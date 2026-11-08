@@ -1,7 +1,7 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
-const adapterImports = "^next(?:/|$)|(?:^|/)(?:http|next-revalidation|(?:auth/)?(?:page|staff-request|user))(?:\\.[jt]sx?)?$";
+const adapterImports = "^next(?:/|$)|(?:^|/)(?:http|next-frontend-request|next-revalidation|(?:auth/)?(?:page|staff-request|user))(?:\\.[jt]sx?)?$";
 const adapterImportMessage =
   "Use the framework-free error and service APIs. Keep request and cache adapters at the entry point.";
 
@@ -13,11 +13,11 @@ export default defineConfig([
     ignores: [
       // HTTP and browser adapters.
       "src/lib/http.ts",
-      "src/lib/next-revalidation.ts",
+      "src/lib/{next-frontend-request,next-revalidation}.ts",
       "src/lib/auth/{page,staff-request,user}.ts",
       "src/lib/remote-page.tsx",
       // Existing entry points tracked in docs/next-service-boundaries.md.
-      "src/lib/{admin-backups,frontend-data,osu-profiles}.ts",
+      "src/lib/admin-backups.ts",
     ],
     rules: {
       "no-restricted-imports": [

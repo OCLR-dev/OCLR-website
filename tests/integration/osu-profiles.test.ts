@@ -14,6 +14,7 @@ import { db, closeDb } from "../../src/db";
 import { registrations, userProfileCache, users } from "../../src/db/schema";
 import {
   cachedDirectoryStatistics,
+  cachedOsuUserProfile,
   getOsuProfileByUsername,
   getOsuUserProfile,
   PROFILE_TTL_MS,
@@ -307,6 +308,44 @@ describe.skipIf(!url)(
       ).toEqual([]);
       await expect(publishedPlayerProfile("651307")).rejects.toMatchObject({
         status: 404,
+      });
+    });
+    it("deduplicates scheduled profile refreshes and falls back to an awaited refresh", async () => {
+      await getOsuUserProfile(base);
+      await expire();
+      provider.mockClear();
+      const tasks: Array<() => Promise<void>> = [];
+      const options = {
+        staleWhileRevalidate: true,
+        scheduleRefresh: (task: () => Promise<void>) => {
+          tasks.push(task);
+        },
+      };
+      const snapshots = await Promise.all([
+        getOsuUserProfile(base, "osu", options),
+        getOsuUserProfile(base, "osu", options),
+      ]);
+      expect(snapshots.every((snapshot) => snapshot.stale)).toBe(true);
+      expect(tasks).toHaveLength(1);
+      expect(provider).not.toHaveBeenCalled();
+      await tasks[0]();
+      expect(provider).toHaveBeenCalledTimes(1);
+      expect(await cachedOsuUserProfile(base, "osu")).toMatchObject({
+        stale: false,
+      });
+
+      await expire();
+      provider.mockClear();
+      const stale = await getOsuUserProfile(base, "osu", {
+        staleWhileRevalidate: true,
+        scheduleRefresh: () => {
+          throw new Error("Synthetic scheduling failure");
+        },
+      });
+      expect(stale.stale).toBe(true);
+      expect(provider).toHaveBeenCalledTimes(1);
+      expect(await cachedOsuUserProfile(base, "osu")).toMatchObject({
+        stale: false,
       });
     });
     it("claims refreshes across instances and ignores a late response whose lease was superseded", async () => {

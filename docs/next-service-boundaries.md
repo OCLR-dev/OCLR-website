@@ -1,7 +1,7 @@
 # Service and Next.js boundaries
 
-The website continues to run on Node.js and PostgreSQL. This first change for
-#1012 separates error, staff request and result publication boundaries.
+The website continues to run on Node.js and PostgreSQL. #1012 separates
+request and cache adapters from services.
 
 | Responsibility | Previous dependency | Current boundary |
 | --- | --- | --- |
@@ -11,12 +11,25 @@ The website continues to run on Node.js and PostgreSQL. This first change for
 
 The lint rule protects service and DB modules from direct Next.js imports and
 from importing the HTTP, browser auth and cache adapters. The remaining
-exceptions identify existing boundaries. `frontend-data.ts` reads the
-loopback remote connection cookie and coordinates render caching.
-`osu-profiles.ts` still uses Next.js `after` for profile refresh scheduling.
-`admin-backups.ts` resolves the browser actor before reaching the separate
-operator. The other mutation routes still own their current invalidation calls.
-These are the remaining migration points for #1012.
+migration points are the browser actor resolution in `admin-backups.ts`
+and cache invalidation in the other mutation routes.
+
+## Remote reads and profile refresh
+
+`next-frontend-request.ts` reads the opaque remote connection cookie at the
+Next.js entry point. Server components and metadata share a React-cached
+context for one render. A route handler creates its own context. Nested
+entry points reuse the current context. The read services verify the connection
+within this scope and share its pending read promises. The context carries
+the connection ID and request-local cache. The remote session
+vault retains credentials. The next request verifies its connection again.
+
+The player page and legacy profile route supply the local session's subject
+and Next.js `after` to the profile service. The service owns refresh
+deduplication, claims and backoff. The scheduled callback returns the
+refresh promise. Callers without a scheduler, or with a scheduler that
+throws, await the refresh while returning the selected stale snapshot.
+Remote and delegated reads continue to use saved snapshots.
 
 ## Same-origin extraction
 
