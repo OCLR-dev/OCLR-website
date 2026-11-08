@@ -283,7 +283,18 @@
     "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/irc/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeRefereeIrcBrowser",
+        "access": "browser",
+        "actions": [
+          "queue",
+          "sync_selection",
+          "disconnect"
+        ],
+        "consumers": [
+          "src/components/referee-irc.tsx",
+          "src/components/referee-panel.tsx"
+        ]
       }
     }
   },

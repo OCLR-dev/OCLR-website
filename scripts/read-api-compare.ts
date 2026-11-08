@@ -19,6 +19,7 @@ function load<T>(file: string): [T, T] {
     JSON.parse(
       execFileSync("git", ["show", `${baseline}:${file}`], {
         encoding: "utf8",
+        maxBuffer: 8 * 1024 * 1024,
       }),
     ),
     JSON.parse(readFileSync(file, "utf8")),

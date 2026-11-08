@@ -45,6 +45,7 @@ import {
   changeRefereeWorkspaceWrite,
   reconcileRefereeAttemptWrite,
 } from "../src/lib/referee-write-contracts";
+import { changeRefereeIrcBrowserWrite } from "../src/lib/referee-irc-browser-contract";
 import { refereeRelayWrite } from "../src/lib/referee-relay-contract";
 import {
   removeRegistrationWrite,
@@ -115,6 +116,7 @@ const operations: readonly WriteApiOperation[] = [
   changeRefereeWorkspaceWrite,
   changeRefereeMpWrite,
   reconcileRefereeAttemptWrite,
+  changeRefereeIrcBrowserWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],

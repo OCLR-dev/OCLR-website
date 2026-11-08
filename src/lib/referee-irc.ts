@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import type { User } from "./auth/sessions";
 import { assertCapability } from "./auth/staff";
+import { changeRefereeIrcBrowserWrite } from "./referee-irc-browser-contract";
 import { HttpError } from "./http";
 import {
   assertRefereeAccess,
@@ -21,7 +22,6 @@ import {
   allowedIrcCommand,
   allowedMakeCommand,
   confirmsIrcCommand,
-  ircQueueSchema,
   normalizedIrcUsername,
   safeIrcMessages,
 } from "./referee-irc-model";
@@ -155,7 +155,7 @@ export async function refereeIrcBrowserCommand(
   input: unknown,
 ) {
   await assertCapability(actor, "record_results", slug);
-  const parsed = ircQueueSchema.safeParse(input);
+  const parsed = changeRefereeIrcBrowserWrite.request.safeParse(input);
   if (!parsed.success) throw new HttpError(400, "Invalid IRC command request.");
   const action = parsed.data;
   return db().transaction(async (tx) => {

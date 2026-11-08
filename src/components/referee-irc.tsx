@@ -1,41 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
+import type { RefereeIrcBrowserView } from "@/lib/referee-irc-browser-contract";
 import type { RefereeWorkspace } from "@/lib/referee";
 import { refereeMessage } from "@/i18n/referee";
 import { desktopLaunchUrl, desktopRoomJoinUrl } from "@/lib/desktop-launch";
 import styles from "./referee-panel.module.css";
 
-type RelayView = {
-  connection: null | {
-    id: string;
-    roomId: number;
-    ircUsername: string;
-    status: "connected" | "disconnected" | "revoked";
-    lastSeenAt: string | null;
-    connected: boolean;
-    bpSync?: boolean;
-  };
-  messages: { id: string; sender: string; text: string; at: string }[];
-  commands: {
-    id: string;
-    requestKey: string;
-    text: string;
-    target: string;
-    status:
-      | "queued"
-      | "sending"
-      | "sent"
-      | "notified"
-      | "confirmed"
-      | "failed"
-      | "unknown"
-      | "record_failed";
-    recordError: string | null;
-    createdAt: string;
-  }[];
-  workspace: RefereeWorkspace;
-};
 type QueueRequest = {
   action: "queue";
   requestKey: string;
@@ -84,7 +55,7 @@ export function RefereeIrc({
   const [history, setHistory] = useState<
     { text: string; time: string; selection: string | null }[]
   >([]);
-  const [relay, setRelay] = useState<RelayView | null>(null),
+  const [relay, setRelay] = useState<RefereeIrcBrowserView | null>(null),
     [sending, setSending] = useState(false),
     [error, setError] = useState<"load" | "send" | "uncertain" | null>(null);
   const [retry, setRetry] = useState<QueueRequest | null>(null);
@@ -113,7 +84,7 @@ export function RefereeIrc({
   useEffect(() => {
     callbacks.current = { onWorkspace, onConfirmed, onRoomChange };
   }, [onWorkspace, onConfirmed, onRoomChange]);
-  function applyView(view: RelayView) {
+  function applyView(view: RefereeIrcBrowserView) {
     // An earlier poll must not replace a successful command or disconnect response.
     appliedMutation.current++;
     setRelay(view);
@@ -141,7 +112,7 @@ export function RefereeIrc({
           signal: controller.signal,
         });
         if (!response.ok) throw Error();
-        const view = (await response.json()) as RelayView;
+        const view = (await response.json()) as RefereeIrcBrowserView;
         if (
           controller.signal.aborted ||
           mutationAtStart !== appliedMutation.current
