@@ -181,6 +181,11 @@ This works before a fixture exists. The referee panel reads the same saved polic
 and links back to the selected round instead of hosting the policy editor.
 The first Ban and first Pick are independent; the same team may hold both.
 The preview is unsaved until **Apply order** succeeds.
+For an exhibition with Ban steps, select **Skip bans** and apply the first Pick
+side to start with Pick. The choice is saved for that fixture. Pick order and
+the TB score condition still come from the round policy. Withdraw any recorded
+steps before changing the choice (#1023).
+
 Conflicting recorded steps must be withdrawn in reverse order before changing
 an already-used order. Missing teams, rules, pool, policy, or stale dependencies
 are shown as missing configuration, never replaced with assumed tournament rules.
