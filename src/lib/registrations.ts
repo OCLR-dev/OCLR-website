@@ -17,7 +17,7 @@ import { enrollmentState, type Edition } from "./editions";
 import { verifyEligibility } from "./eligibility";
 import { ELIGIBILITY_FRESH_MS, withinRankGrace } from "./eligibility-model";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   registrationAnswerValues,
   registrationMetadata,

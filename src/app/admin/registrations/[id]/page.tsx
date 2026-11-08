@@ -1,5 +1,5 @@
 import { authorizedPage } from "@/lib/auth/page";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";
 import { applicationDetails } from "@/lib/staff";
 import { redirect } from "next/navigation";

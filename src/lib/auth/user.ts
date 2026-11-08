@@ -1,5 +1,5 @@
 import { cookies, headers } from "next/headers.js";
-import { HttpError } from "../http";
+import { HttpError } from "../http-error";
 import { sessionCookie } from "./config";
 import { readSession, readSessionContext } from "./sessions";
 export async function currentUser() {

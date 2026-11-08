@@ -23,7 +23,7 @@ import {
   roundRefereePolicyWrite,
   type RoundRefereePolicyReceipt,
 } from "./fixture-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   projectReferee,
   type RefereePolicy,

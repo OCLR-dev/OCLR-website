@@ -4,7 +4,7 @@ import { contributorDirectory, contributorEvents } from "@/db/schema";
 import { assertCapability, assertReadCapability } from "./auth/staff";
 import type { User } from "./auth/sessions";
 import { updateContributorsWrite } from "./staff-administration-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import type { ExplicitReadData } from "./explicit-read-contracts";

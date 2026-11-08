@@ -35,7 +35,7 @@ import {
   previewMatchImportWrite,
   type FixtureMatchPreview,
 } from "./match-result-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   matchSourceSchema,
   reviewedResultSchema,

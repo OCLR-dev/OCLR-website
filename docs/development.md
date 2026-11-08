@@ -77,6 +77,9 @@ The main sources are:
 
 Client interactions call the corresponding `/api/...` route, which reuses the same services and server-side permission checks. Initial page rendering can query these services directly without making a browser API request. The homepage combines database events with authored announcement JSON; it does not scrape the live website. In database mode, a missing `DATABASE_URL` produces an empty tournament list, while a configured but unreachable/unmigrated database can fail queries. Explicit remote mode instead uses the adapter and connection states described below; it never falls back to local database reads. `/api/health` returns HTTP 200 only when a database query succeeds; it does not verify schema migrations or demo content.
 
+See [Service and Next.js boundaries](next-service-boundaries.md) for the
+request adapter, service authorization and cache responsibilities.
+
 ## Choosing and maintaining tests (#869)
 
 Find the test that already owns the behavior before adding a case. Test a new

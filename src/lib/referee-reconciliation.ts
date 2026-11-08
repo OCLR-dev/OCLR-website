@@ -17,7 +17,7 @@ import {
   reconcileRefereeAttemptWrite,
   type RefereeReconciliationResult,
 } from "./referee-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { matchSourceSchema } from "./match-model";
 import { previewMatch } from "./match-scoring";
 import { matchReview } from "./results";

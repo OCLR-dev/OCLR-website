@@ -24,7 +24,7 @@ import { draftAwardTiers } from "./award-tiers";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { changeAwardsWrite } from "./results-publication-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { draftTurnSequence } from "./live-season-columns";
 import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
 import { staffRoundRatings } from "./ratings";

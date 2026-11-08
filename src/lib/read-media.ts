@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { teams, captains } from "@/db/schema";
 import { getPublicEdition } from "./content";
 import { assertReadCapability } from "./auth/staff";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { readTeamImage } from "./team-media";
 import { downloadMappoolReplay } from "./mappool-replays";
 import type { DeveloperReadPrincipal } from "./developer-api";

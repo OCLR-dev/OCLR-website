@@ -3,7 +3,7 @@ import { frontendPrivateTournament } from "@/lib/frontend-data";
 import { remotePage } from "@/lib/remote-page";
 import { authorizedPage } from "@/lib/auth/page";
 import { notFound } from "next/navigation";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireStaff } from "@/lib/auth/staff-request";
 import { tournamentList } from "@/lib/tournaments";
 export default async function TournamentLayout({
   children,

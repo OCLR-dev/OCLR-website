@@ -15,7 +15,7 @@ import { publicMappools } from "./mappools";
 import { assertStreamer } from "./streaming-api";
 import { projectReferee } from "./referee-model";
 import { editionSchema } from "./editions";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type NextStreamingRead = ExplicitReadData<"nextStreamingRead">;
 

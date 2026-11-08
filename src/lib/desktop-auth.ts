@@ -9,7 +9,8 @@ import {
   desktopTokens as tokens,
   desktopSecurityEvents as audit,
 } from "@/db/desktop-auth-schema";
-import { appUrl, HttpError } from "./http";
+import { appUrl } from "./app-url";
+import { HttpError } from "./http-error";
 import type { User } from "./auth/sessions";
 import {
   desktopApiVersion,

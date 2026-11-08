@@ -12,7 +12,7 @@ import type { User } from "./auth/sessions";
 import { assertUserWriteChannel } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { frontendResource } from "./frontend-resource";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   deletePlayerMessageWrite,
   editPlayerMessageWrite,

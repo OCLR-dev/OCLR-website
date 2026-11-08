@@ -1,6 +1,6 @@
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { requireUser } from "@/lib/auth/user";
 import { matchReview, resultCommand } from "@/lib/results";
 import { changeMatchResultWrite } from "@/lib/match-result-write-contracts";
@@ -34,7 +34,7 @@ export async function POST(
       await readJson(request, changeMatchResultWrite.maxBodyBytes),
     );
     if (result.publicChanged)
-      revalidatePath(`/tournaments/${edition}`, "layout");
+      revalidateCommittedPath(`/tournaments/${edition}`, "layout");
     return NextResponse.json(result.review, {
       headers: { "Cache-Control": "no-store" },
     });

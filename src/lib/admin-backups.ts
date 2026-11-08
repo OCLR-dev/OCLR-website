@@ -4,7 +4,7 @@ import { requireUser } from "./auth/user";
 import { staffAccess } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { inReadChannel } from "./read-channel";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 export async function backupActor() {
   if (remoteMode() || inReadChannel())
     throw new HttpError(403, "You do not have permission for this operation.");

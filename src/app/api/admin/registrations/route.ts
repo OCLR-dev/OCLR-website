@@ -1,6 +1,6 @@
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextRequest, NextResponse } from "next/server";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireStaff } from "@/lib/auth/staff-request";
 import { listApplications } from "@/lib/staff";
 import { apiError } from "@/lib/http";
 async function readGET(request: NextRequest) {

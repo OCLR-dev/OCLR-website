@@ -56,7 +56,7 @@ import {
   type StatisticsRow,
 } from "./archive-read-model";
 import { historicalArchiveSchema } from "./historical-archive";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { remoteMode } from "./data-source";
 
 type Reader = Pick<ReturnType<typeof db>, "select">;

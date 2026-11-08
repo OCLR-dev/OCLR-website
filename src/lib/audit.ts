@@ -6,7 +6,7 @@ import type { User } from "./auth/sessions";
 import { readCapabilityScope } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type AuditLog = ExplicitReadData<"auditLog">;
 /** Bounded, redacted projection only. The original events remain untouched. */

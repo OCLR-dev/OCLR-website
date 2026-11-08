@@ -5,7 +5,7 @@ import { StaffDraftRoom } from "@/components/staff-draft";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireStaff } from "@/lib/auth/staff-request";
 import { staffDraft } from "@/lib/draft";
 import { appUrl } from "@/lib/http";
 import { remotePage } from "@/lib/remote-page";

@@ -7,7 +7,7 @@ import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { readSiteAppearance } from "./preferences";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type SiteSettings = ExplicitReadData<"siteSettingsForAdmin">;

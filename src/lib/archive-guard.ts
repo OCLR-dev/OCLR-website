@@ -1,7 +1,7 @@
 import { eq, sql, getTableColumns } from "drizzle-orm";
 import type { db } from "@/db";
 import { editionState } from "@/db/schema";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 const archivePresent = sql<boolean>`${editionState.configuration}->'archive' IS NOT NULL AND ${editionState.configuration}->'archive' <> 'null'::jsonb`;
 
 /** Live-workspace eligibility needs an archive flag, not its source content. */

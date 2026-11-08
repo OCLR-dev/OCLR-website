@@ -1,4 +1,4 @@
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 
 import {
   MANUAL_BATCH_LIMIT,

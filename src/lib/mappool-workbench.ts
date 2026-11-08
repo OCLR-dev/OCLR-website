@@ -23,7 +23,7 @@ import {
   type CandidatePreview,
   type SelectionReceipt,
 } from "./mappool-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { fetchBeatmaps } from "./osu-beatmaps";
 import type { BeatmapSnapshot } from "./mappool-model";
 import { canonicalSkillsets } from "./mappool-skillsets";

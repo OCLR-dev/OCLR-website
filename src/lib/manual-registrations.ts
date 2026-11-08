@@ -14,7 +14,7 @@ import { enrollmentState } from "./editions";
 import { getOsuUserProfile, getOsuProfileByUsername } from "./osu-profiles";
 import { parseOsuProfile } from "./osu-profile-model";
 import { verifyEligibility } from "./eligibility";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { registrationMetadata } from "./live-season-columns";
 import { parseManualLines } from "./manual-registration-model";
 import {

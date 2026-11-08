@@ -9,7 +9,7 @@ import { classifyPlayer } from "./player-class";
 import { minimumCountedScore } from "./player-map-performance-model";
 import { slotCategory } from "./mappool-model";
 import { calculateMraV4, type MraV4Game, type MraV4Player } from "./mra-v4";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 
 type Accumulator = {
   osuId: number;

@@ -23,7 +23,7 @@ import { badgeClassifications, summarizeBws } from "./bws-model";
 import type { BwsSummary } from "./bws-model";
 import { cachedOsuUserProfile, getOsuUserProfile } from "./osu-profiles";
 import { type ProfileSnapshot } from "./osu-profile-model";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { reviewBwsWrite } from "./bws-write-contract";
 const choices = z.array(z.enum(badgeClassifications)).max(100);
 export function badgeFingerprint(snapshot: ProfileSnapshot) {

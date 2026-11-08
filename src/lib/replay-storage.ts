@@ -3,7 +3,7 @@ import { randomUUID, createHash } from "node:crypto";
 import { constants } from "node:fs";
 import { open, rename, unlink, lstat, readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   REPLAY_MAX_BYTES,
   REPLAY_STORAGE_MAX_BYTES,

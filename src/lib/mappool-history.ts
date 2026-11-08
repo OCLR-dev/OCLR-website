@@ -7,7 +7,7 @@ import { assertReadCapability } from "./auth/staff";
 import { getPublicEditions } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { publicMappools } from "./mappools";
 import { slotLabel } from "./mappool-model";
 import { compareTournamentSeasons } from "./tournament-order";

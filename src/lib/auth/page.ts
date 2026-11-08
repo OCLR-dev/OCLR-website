@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { HttpError } from "../http";
+import { HttpError } from "../http-error";
 // Server pages translate service authorization failures into navigation responses.
 // APIs keep their explicit 401/403 status through apiError instead.
 export async function authorizedPage<T>(render: () => Promise<T>): Promise<T> {

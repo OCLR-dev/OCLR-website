@@ -5,7 +5,7 @@ import { PgTable } from "drizzle-orm/pg-core";
 import type { User } from "./auth/sessions";
 import { assertBusinessWrite, assertCapability } from "./auth/staff";
 import { editionSchema, normalizeEditionBranding } from "./editions";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { isBlankTournamentDraft } from "./tournament-draft";
 import { storedEdition } from "./tournaments";
 import { deleteTournamentDraftWrite } from "./tournament-write-contracts";

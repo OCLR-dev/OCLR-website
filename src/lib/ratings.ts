@@ -18,7 +18,7 @@ import type { User } from "./auth/sessions";
 import { assertReadCapability } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
 import { publicCompetition } from "./public-competition";
 import { readTournament } from "./tournaments";

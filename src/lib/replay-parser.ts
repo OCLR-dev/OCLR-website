@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { REPLAY_MAX_BYTES, type ReplaySummary } from "./replay-model";
 
 const EXPANDED_LIMIT = 16 * 1024 * 1024;

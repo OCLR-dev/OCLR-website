@@ -4,7 +4,7 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { after } from "next/server.js";
 import { randomUUID } from "node:crypto";
 import { remoteMode } from "./data-source";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { osuApi } from "./osu-api";
 import {
   normalizeOsuProfile,

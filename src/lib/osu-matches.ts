@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
 import { osuApi } from "./osu-api";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   matchSourceSchema,
   OPEN_MATCH_WARNING,

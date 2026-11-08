@@ -73,6 +73,7 @@ import {
 import { POST as importRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/route";
 import { POST as previewRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/preview/route";
 import { POST as resultRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/results/route";
+import { revalidatePath } from "next/cache";
 import {
   changeMatchResultWrite,
   importMatchResultWrite,
@@ -1057,10 +1058,20 @@ describe.skipIf(!url)(
       });
       view = await matchReview(admin, "test-cup", fixtureId);
       const commands = [payload(), payload()];
+      const invalidate = vi.mocked(revalidatePath);
+      invalidate.mockClear();
+      invalidate.mockImplementationOnce(() => {
+        throw new Error("Synthetic cache failure");
+      });
+      const diagnostic = vi.spyOn(console, "error").mockImplementation(() => {});
       const attempts = await Promise.all(
         commands.map((c) =>
           post(resultRoute, changeMatchResultWrite.path, fixtureId, admin, c),
         ),
+      ).finally(() => diagnostic.mockRestore());
+      expect(invalidate).toHaveBeenCalledExactlyOnceWith(
+        "/tournaments/test-cup",
+        "layout",
       );
       expect(attempts.map((response) => response.status).sort()).toEqual([
         200, 409,
@@ -1073,9 +1084,16 @@ describe.skipIf(!url)(
         ),
       ).toEqual(body);
       expect(body.context.result.publishedRevision).toBe(1);
-      await expect(
-        resultCommand(admin, "test-cup", fixtureId, commands[winningIndex]),
-      ).resolves.toMatchObject({ publicChanged: true });
+      const replay = await post(
+        resultRoute,
+        changeMatchResultWrite.path,
+        fixtureId,
+        admin,
+        commands[winningIndex],
+      );
+      expect(replay.status).toBe(200);
+      expect(await replay.json()).toEqual(body);
+      expect(invalidate).toHaveBeenCalledTimes(2);
       const saved = await matchReview(admin, "test-cup", fixtureId);
       expect(saved.context.result).toMatchObject({
         state: "approved",

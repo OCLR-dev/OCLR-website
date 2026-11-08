@@ -1,4 +1,4 @@
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 export class RemoteDataError extends HttpError {
   constructor(
     public code: string,

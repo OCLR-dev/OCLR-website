@@ -3,7 +3,7 @@ import {
   type ArchiveSection,
 } from "@/components/historical-archive";
 import { authorizedPage } from "@/lib/auth/page";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";
 import { tournamentForAdmin } from "@/lib/tournaments";
 import { notFound } from "next/navigation";

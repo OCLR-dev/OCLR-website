@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { appUrl, HttpError } from "../http";
+import { appUrl } from "../app-url";
+import { HttpError } from "../http-error";
 const privacyContactId = z
   .string()
   .trim()

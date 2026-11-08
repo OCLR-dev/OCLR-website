@@ -1,10 +1,10 @@
+import { requireStaff } from "../../src/lib/auth/staff-request";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Application from "../../src/app/admin/tournaments/[edition]/registrations/[id]/page";
 import {
-  requireStaff,
   isDeveloper,
   hasCapability,
 } from "../../src/lib/auth/staff";
@@ -27,8 +27,8 @@ import messages from "../../messages/en.json";
 vi.mock("../../src/i18n/server", () => ({
   getAppTranslations: async () => english,
 }));
+vi.mock("../../src/lib/auth/staff-request", () => ({ requireStaff: vi.fn() }));
 vi.mock("../../src/lib/auth/staff", () => ({
-  requireStaff: vi.fn(),
   staffAccess: vi.fn(async () => [{ role: "admin", editionSlug: null }]),
   isDeveloper: vi.fn(() => false),
   hasCapability: vi.fn(async () => true),

@@ -40,7 +40,7 @@ import {
   type StatisticsRow,
 } from "./archive-read-model";
 import { remoteMode } from "./data-source";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 
 export const ARCHIVE_RELATION_CODEC = 1;
 export const archiveRelationLayouts = layoutsJson as Layout[];

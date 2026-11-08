@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { oauthConfig } from "./config";
-import { HttpError } from "../http";
+import { HttpError } from "../http-error";
 export const osuIdentity = z.object({
   id: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
   username: z.string().min(1).max(255),

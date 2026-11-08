@@ -19,7 +19,7 @@ import { refreshDraftSnapshot } from "./draft";
 import { draftSetupProtection } from "./draft-setup";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { changeCaptainsWrite } from "./draft-setup-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type PublicCaptains = ExplicitReadData<"publicCaptains">;
 type CaptainSetup = ExplicitReadData<"captainSetup">;

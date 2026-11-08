@@ -19,11 +19,8 @@ import { staffTeams } from "../../src/lib/teams";
 import { editTeamIdentityWrite } from "../../src/lib/draft-setup-write-contracts";
 import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { assertTestDatabase } from "../database";
-vi.mock("../../src/lib/auth/staff", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../../src/lib/auth/staff")>()),
-  requireStaff: vi.fn(),
-}));
-import { requireStaff } from "../../src/lib/auth/staff";
+vi.mock("../../src/lib/auth/staff-request", () => ({ requireStaff: vi.fn() }));
+import { requireStaff } from "../../src/lib/auth/staff-request";
 import { PATCH } from "../../src/app/api/admin/tournaments/[edition]/teams/[teamId]/route";
 const url = process.env.TEST_DATABASE_URL,
   slug = "upload-rollback-test";

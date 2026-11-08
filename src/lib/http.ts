@@ -1,33 +1,11 @@
 import { NextResponse } from "next/server.js";
+import { appUrl } from "./app-url";
+import { HttpError } from "./http-error";
 import { defaultJsonBodyLimit } from "./request-body-limits";
-import { allowsPlainHttpOrigin } from "./site-origin";
-export class HttpError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-export function appUrl() {
-  const value = process.env.APP_URL;
-  if (!value) throw new HttpError(503, "The site origin is not configured.");
-  const url = new URL(value);
-  if (
-    url.username ||
-    url.password ||
-    url.search ||
-    url.hash ||
-    url.pathname !== "/" ||
-    (url.protocol !== "https:" &&
-      !(
-        url.protocol === "http:" &&
-        allowsPlainHttpOrigin(url.hostname, process.env.NODE_ENV)
-      ))
-  )
-    throw new HttpError(503, "The site origin is invalid.");
-  return url.origin;
-}
+
+export { appUrl } from "./app-url";
+export { HttpError } from "./http-error";
+
 export function requireSameOrigin(request: Request) {
   if (request.headers.has("authorization"))
     throw new HttpError(403, "Use a browser session for this operation.");

@@ -10,7 +10,8 @@ import {
 } from "@/db/schema";
 import type { BrowserSessionContext } from "./auth/sessions";
 import { hashToken, randomToken } from "./auth/tokens";
-import { appUrl, HttpError } from "./http";
+import { appUrl } from "./app-url";
+import { HttpError } from "./http-error";
 import {
   developerApiScopes,
   developerTokenPrefix,

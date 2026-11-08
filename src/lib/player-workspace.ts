@@ -20,7 +20,7 @@ import type { User } from "./auth/sessions";
 import { assertUserWriteChannel } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { inReadChannel } from "./read-channel";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   seasonAvailabilityMetadata,
   seasonAvailabilityReadColumns,
