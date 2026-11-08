@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { requireUser } from "@/lib/auth/user";
 import { changeRegistrationParticipation } from "@/lib/staff";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
@@ -21,10 +21,10 @@ export async function POST(
       "restore",
       await readJson(request, restoreRegistrationWrite.maxBodyBytes),
     );
-    revalidatePath("/admin", "layout");
-    revalidatePath("/players", "layout");
-    revalidatePath(`/tournaments/${edition}`, "layout");
-    revalidatePath("/dashboard");
+    revalidateCommittedPath("/admin", "layout");
+    revalidateCommittedPath("/players", "layout");
+    revalidateCommittedPath(`/tournaments/${edition}`, "layout");
+    revalidateCommittedPath("/dashboard");
     return NextResponse.json(result, {
       headers: { "Cache-Control": "no-store" },
     });

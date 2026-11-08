@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { requireUser } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { scheduleCommand, scheduleWorkspace } from "@/lib/schedule";
@@ -31,8 +31,8 @@ export async function POST(
       edition,
       await readJson(request, scheduleRequestWrite.maxBodyBytes),
     );
-    revalidatePath(`/tournaments/${edition}`, "layout");
-    revalidatePath(`/admin/tournaments/${edition}`, "layout");
+    revalidateCommittedPath(`/tournaments/${edition}`, "layout");
+    revalidateCommittedPath(`/admin/tournaments/${edition}`, "layout");
     return NextResponse.json(saved, {
       headers: { "Cache-Control": "no-store" },
     });

@@ -8,6 +8,7 @@ import {
   vi,
 } from "vitest";
 import { eq, sql } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { randomUUID } from "node:crypto";
 import { db, closeDb } from "../../src/db";
 import {
@@ -246,12 +247,36 @@ describe.skipIf(!url)(
             ),
             { params: Promise.resolve({ edition: edition.slug, id: r.id }) },
           );
+        const invalidate = vi.mocked(revalidatePath);
+        invalidate.mockClear();
+        const stale = await change(
+          removeRegistrationRoute,
+          removeRegistrationWrite.path,
+          "2000-01-01T00:00:00.000Z",
+        );
+        expect(stale.status).toBe(409);
+        expect(invalidate).not.toHaveBeenCalled();
+
+        invalidate.mockImplementationOnce(() => {
+          throw new Error("Synthetic cache scheduling failure");
+        });
+        const diagnostic = vi
+          .spyOn(console, "error")
+          .mockImplementation(() => {});
         const removal = await change(
           removeRegistrationRoute,
           removeRegistrationWrite.path,
           r.updatedAt.toISOString(),
-        );
+        ).finally(() => diagnostic.mockRestore());
         expect(removal.status).toBe(200);
+        const paths = [
+          ["/admin", "layout"],
+          ["/players", "layout"],
+          [`/tournaments/${edition.slug}`, "layout"],
+          ["/dashboard", undefined],
+        ];
+        expect(invalidate.mock.calls).toEqual(paths);
+        invalidate.mockClear();
         const removed = await removal.json();
         expect(removeRegistrationWrite.response.parse(removed)).toEqual(
           removed,
@@ -263,6 +288,7 @@ describe.skipIf(!url)(
           removed.updatedAt,
         );
         expect(restoration.status).toBe(200);
+        expect(invalidate.mock.calls).toEqual(paths);
         const restored = await restoration.json();
         expect(restoreRegistrationWrite.response.parse(restored)).toEqual(
           restored,

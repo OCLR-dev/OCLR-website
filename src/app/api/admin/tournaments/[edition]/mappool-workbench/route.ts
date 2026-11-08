@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { requireUser } from "@/lib/auth/user";
 import { changeMappoolWorkbenchWrite } from "@/lib/mappool-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
@@ -46,7 +46,7 @@ export async function POST(request: Request, context: Context) {
         })
       : await selectionCommand(actor, edition, input);
     if (!preview)
-      revalidatePath(`/admin/tournaments/${edition}/mappool-workbench`);
+      revalidateCommittedPath(`/admin/tournaments/${edition}/mappool-workbench`);
     return NextResponse.json(result, {
       headers: { "Cache-Control": "no-store" },
     });
