@@ -113,11 +113,13 @@ export async function selectionWorkspace(
   return databaseSelectionWorkspace(actor, slug);
 }
 export type SelectionWorkspace = Awaited<ReturnType<typeof selectionWorkspace>>;
+export type CandidateComments =
+  import("./explicit-read-contracts").ExplicitReadData<"candidateComments">;
 async function databaseCandidateComments(
   actor: User,
   slug: string,
   id: string,
-) {
+): Promise<CandidateComments> {
   await assertReadCapability(actor, "select_mappools", slug);
   if (!z.uuid().safeParse(id).success)
     throw new HttpError(400, "Invalid candidate.");
@@ -149,14 +151,13 @@ export async function candidateComments(
   actor: User,
   slug: string,
   id: string,
-): Promise<Awaited<ReturnType<typeof databaseCandidateComments>>> {
+): Promise<CandidateComments> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
     return frontendResource("candidateComments", { slug, id });
   }
   return databaseCandidateComments(actor, slug, id);
 }
-export type CandidateComments = Awaited<ReturnType<typeof candidateComments>>;
 export async function previewCandidates(
   actor: User,
   slug: string,

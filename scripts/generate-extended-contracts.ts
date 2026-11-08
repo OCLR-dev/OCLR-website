@@ -99,13 +99,53 @@ const result: Record<string, Schema> = {};
 const explicit = new Map<string, z.ZodType>(
   Object.entries(explicitReadContracts),
 );
-function preserveReadUnions(value: unknown): void {
+function preserveReadSchema(value: unknown): void {
   if (!value || typeof value !== "object") return;
-  for (const child of Object.values(value)) preserveReadUnions(child);
+  for (const child of Object.values(value)) preserveReadSchema(child);
   // The remote adapter walks anyOf branches to restore domain values.
   if ("type" in value && Array.isArray(value.type)) {
     Object.assign(value, { anyOf: value.type.map((type) => ({ type })) });
     delete value.type;
+  }
+  if (
+    "properties" in value &&
+    value.properties &&
+    typeof value.properties === "object"
+  ) {
+    const required = new Set(
+      "required" in value && Array.isArray(value.required)
+        ? value.required
+        : [],
+    );
+    const properties = value.properties as Record<string, Schema>;
+    for (const [name, property] of Object.entries(properties)) {
+      if (required.has(name)) continue;
+      const branches =
+        Object.keys(property).length === 1 && Array.isArray(property.anyOf)
+          ? property.anyOf
+          : [property];
+      properties[name] = {
+        anyOf: [{ type: "null", "x-oclr-undefined": true }, ...branches],
+      };
+    }
+  }
+  if (
+    "type" in value &&
+    value.type === "object" &&
+    !("properties" in value) &&
+    "additionalProperties" in value &&
+    "propertyNames" in value &&
+    JSON.stringify(value.propertyNames) === '{"type":"string"}'
+  ) {
+    // A record with unrestricted string keys uses the existing dictionary shape.
+    const values = value.additionalProperties;
+    delete value.propertyNames;
+    delete value.additionalProperties;
+    Object.assign(value, {
+      properties: {},
+      required: [],
+      additionalProperties: values,
+    });
   }
 }
 for (const resource of definitions) {
@@ -118,7 +158,7 @@ for (const resource of definitions) {
           : "throw",
     });
     void $schema;
-    preserveReadUnions(wire);
+    preserveReadSchema(wire);
     result[resource.id] = wire;
     explicit.delete(resource.id);
     continue;

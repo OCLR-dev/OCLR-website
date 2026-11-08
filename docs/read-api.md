@@ -237,8 +237,11 @@ or a production deployment. No migration is added by #269, #271 or #272.
 registration/audit/streaming services. OpenAPI query types, enums, defaults, UUIDs,
 dates and limits come from those schemas. The finite resource registry maps
 operationId to its existing service. The [explicit response contracts](../src/lib/explicit-read-contracts.ts)
-define the Staff, captain, published team, and Replay lists independently of
-service and database types. Their service return types come from those contracts.
+define saved reads for Staff, captains and teams, the site and its contributors,
+registration and eligibility, roles and audit, player profiles and rankings,
+tournament workspaces, brackets and draft boards, mappool candidates and
+Replay lists independently of service and database types. Their service return
+types come from those contracts.
 `generate-extended-contracts.ts` uses these Zod schemas for migrated resources
 and derives the remaining response schemas from TypeScript return types.
 Runtime response validation and OpenAPI consume the generated definitions.

@@ -270,7 +270,9 @@ export function tournamentLinks(
       })),
   );
 }
-async function databaseTournamentList(actor: User) {
+type TournamentList =
+  import("./explicit-read-contracts").ExplicitReadData<"tournamentList">;
+async function databaseTournamentList(actor: User): Promise<TournamentList> {
   const grants = await staffAccess(actor);
   if (!grants.length) throw new HttpError(403, "Staff access is required.");
   const rows = await readTournaments();
@@ -310,15 +312,10 @@ async function databaseTournamentList(actor: User) {
       .sort(compareTournamentSeasons),
   };
 }
-export async function tournamentList(
-  actor: User,
-): Promise<Awaited<ReturnType<typeof databaseTournamentList>>> {
+export async function tournamentList(actor: User): Promise<TournamentList> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseTournamentList>>>(
-      "tournamentList",
-      {},
-    );
+    return frontendResource<TournamentList>("tournamentList");
   }
   return databaseTournamentList(actor);
 }

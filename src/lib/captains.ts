@@ -22,6 +22,8 @@ import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type PublicCaptains = ExplicitReadData<"publicCaptains">;
+type CaptainSetup = ExplicitReadData<"captainSetup">;
+type CaptainAppointment = ExplicitReadData<"captainAppointment">;
 const id = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const commands = z.discriminatedUnion("action", [
   z.object({ action: z.literal("appoint"), userId: id }).strict(),
@@ -59,7 +61,10 @@ const commandSchema = z
     confirmed: z.literal(true),
   })
   .strict();
-async function databaseCaptainSetup(actor: User, slug: string) {
+async function databaseCaptainSetup(
+  actor: User,
+  slug: string,
+): Promise<CaptainSetup> {
   await assertReadCapability(actor, "manage_captains", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -132,13 +137,10 @@ async function databaseCaptainSetup(actor: User, slug: string) {
 export async function captainSetup(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseCaptainSetup>>> {
+): Promise<CaptainSetup> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseCaptainSetup>>>(
-      "captainSetup",
-      { slug },
-    );
+    return frontendResource<CaptainSetup>("captainSetup", { slug });
   }
   return databaseCaptainSetup(actor, slug);
 }
@@ -503,11 +505,19 @@ export async function publicCaptains(slug: string): Promise<PublicCaptains> {
   return databasePublicCaptains(slug);
 }
 
-async function databaseCaptainAppointment(userId: number, slug: string) {
+async function databaseCaptainAppointment(
+  userId: number,
+  slug: string,
+): Promise<CaptainAppointment> {
   return (
     (
       await db()
-        .select()
+        .select({
+          editionSlug: captains.editionSlug,
+          userId: captains.userId,
+          position: captains.position,
+          published: captains.published,
+        })
         .from(captains)
         .where(and(eq(captains.editionSlug, slug), eq(captains.userId, userId)))
     )[0] ?? null
@@ -516,12 +526,10 @@ async function databaseCaptainAppointment(userId: number, slug: string) {
 export async function captainAppointment(
   userId: number,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseCaptainAppointment>>> {
+): Promise<CaptainAppointment> {
   if (remoteMode()) {
     await assertRemoteSubject(userId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseCaptainAppointment>>
-    >("captainAppointment", { slug });
+    return frontendResource<CaptainAppointment>("captainAppointment", { slug });
   }
   return databaseCaptainAppointment(userId, slug);
 }

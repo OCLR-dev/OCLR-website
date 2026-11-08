@@ -13,6 +13,8 @@ import { getEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type StaffRoleList = ExplicitReadData<"listStaffRoles">;
 const confirmation = {
   confirmed: z.literal(true),
 };
@@ -43,11 +45,23 @@ const command = z.discriminatedUnion("action", [
     .object({ ...confirmation, action: z.literal("revoke"), grantId: z.uuid() })
     .strict(),
 ]);
-async function databaseListStaffRoles(actor: User) {
+async function databaseListStaffRoles(actor: User): Promise<StaffRoleList> {
   const scopes = await readCapabilityScope(actor, "manage_staff");
   const where = scopes ? inArray(staffRoles.editionSlug, scopes) : undefined;
   const grants = await db()
-    .select({ grant: staffRoles, username: users.username })
+    .select({
+      grant: {
+        id: staffRoles.id,
+        userId: staffRoles.userId,
+        editionSlug: staffRoles.editionSlug,
+        role: staffRoles.role,
+        grantedBy: staffRoles.grantedBy,
+        grantedAt: staffRoles.grantedAt,
+        revokedAt: staffRoles.revokedAt,
+        aboutPublished: staffRoles.aboutPublished,
+      },
+      username: users.username,
+    })
     .from(staffRoles)
     .innerJoin(users, eq(users.osuId, staffRoles.userId))
     .where(where)
@@ -61,15 +75,10 @@ async function databaseListStaffRoles(actor: User) {
   );
   return { grants, scopes, writeScopes };
 }
-export async function listStaffRoles(
-  actor: User,
-): Promise<Awaited<ReturnType<typeof databaseListStaffRoles>>> {
+export async function listStaffRoles(actor: User): Promise<StaffRoleList> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseListStaffRoles>>>(
-      "listStaffRoles",
-      {},
-    );
+    return frontendResource<StaffRoleList>("listStaffRoles");
   }
   return databaseListStaffRoles(actor);
 }

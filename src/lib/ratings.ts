@@ -24,6 +24,10 @@ import { publicCompetition } from "./public-competition";
 import { readTournament } from "./tournaments";
 import { calculateRating, type RatingGame } from "./yumu-rating";
 import { STATISTICS_SCORE_POLICY } from "./statistics-score";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type RatingSnapshot = ExplicitReadData<"matchRatingWorkspace">;
+type PublicMatchRating = ExplicitReadData<"publicMatchRating">;
+type PublicRoundRatings = ExplicitReadData<"publicRoundRatings">;
 
 export async function ratingIdentities(
   slug: string,
@@ -69,7 +73,7 @@ export async function ratingIdentities(
 export function ratingSnapshot(
   games: RatingGame[],
   identities: Map<number, string>,
-) {
+): RatingSnapshot {
   const report = calculateRating(games);
   const evidence = [
     ...new Map(
@@ -109,7 +113,7 @@ async function databaseMatchRatingWorkspace(
   actor: User,
   slug: string,
   fixtureId: string,
-) {
+): Promise<RatingSnapshot> {
   await assertReadCapability(actor, "approve_results", slug);
   return db().transaction(
     async (tx) => {
@@ -128,17 +132,21 @@ export async function matchRatingWorkspace(
   actor: User,
   slug: string,
   fixtureId: string,
-): Promise<Awaited<ReturnType<typeof databaseMatchRatingWorkspace>>> {
+): Promise<RatingSnapshot> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseMatchRatingWorkspace>>
-    >("matchRatingWorkspace", { slug, fixtureId });
+    return frontendResource<RatingSnapshot>("matchRatingWorkspace", {
+      slug,
+      fixtureId,
+    });
   }
   return databaseMatchRatingWorkspace(actor, slug, fixtureId);
 }
 
-async function databasePublicMatchRating(slug: string, fixtureId: string) {
+async function databasePublicMatchRating(
+  slug: string,
+  fixtureId: string,
+): Promise<PublicMatchRating> {
   if (!process.env.DATABASE_URL) return null;
   return db().transaction(
     async (tx) => {
@@ -166,17 +174,20 @@ async function databasePublicMatchRating(slug: string, fixtureId: string) {
 export async function publicMatchRating(
   slug: string,
   fixtureId: string,
-): Promise<Awaited<ReturnType<typeof databasePublicMatchRating>>> {
+): Promise<PublicMatchRating> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicMatchRating>>
-    >("publicMatchRating", { slug, fixtureId });
+    return frontendResource<PublicMatchRating>("publicMatchRating", {
+      slug,
+      fixtureId,
+    });
   }
   return databasePublicMatchRating(slug, fixtureId);
 }
 
 /** Same population and approval gates as single fixtures, with raw-game reaggregation. */
-async function databasePublicRoundRatings(slug: string) {
+async function databasePublicRoundRatings(
+  slug: string,
+): Promise<PublicRoundRatings> {
   if (!process.env.DATABASE_URL) return [];
   return db().transaction(
     async (tx) => {
@@ -266,11 +277,9 @@ async function databasePublicRoundRatings(slug: string) {
 }
 export async function publicRoundRatings(
   slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublicRoundRatings>>> {
+): Promise<PublicRoundRatings> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicRoundRatings>>
-    >("publicRoundRatings", { slug });
+    return frontendResource<PublicRoundRatings>("publicRoundRatings", { slug });
   }
   return databasePublicRoundRatings(slug);
 }

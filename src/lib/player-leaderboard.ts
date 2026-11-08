@@ -80,11 +80,11 @@ export async function databasePlayerLeaderboard(): Promise<PlayerLeaderboardWire
   });
 }
 
-export async function databasePublicPlayerMra(osuId: number): Promise<{
-  mra: number | null;
-  state: "ready" | "pending";
-  calculatedAt: string | null;
-}> {
+type PublicPlayerMra =
+  import("./explicit-read-contracts").ExplicitReadData<"publicPlayerMra">;
+export async function databasePublicPlayerMra(
+  osuId: number,
+): Promise<PublicPlayerMra> {
   if (!process.env.DATABASE_URL)
     return { mra: null, state: "pending", calculatedAt: null };
   return readOnlyData(async () => {
@@ -148,12 +148,10 @@ export async function playerLeaderboard(): Promise<PlayerLeaderboard> {
     ),
   };
 }
-export async function publicPlayerMra(osuId: number) {
+export async function publicPlayerMra(osuId: number): Promise<PublicPlayerMra> {
   if (!remoteMode()) return databasePublicPlayerMra(osuId);
   if (await supportsBackgroundReads())
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicPlayerMra>>
-    >("publicPlayerMra", { osuId });
+    return frontendResource<PublicPlayerMra>("publicPlayerMra", { osuId });
   const legacy = await playerLeaderboard();
   return {
     mra: legacy.players.find((p) => p.osuId === osuId)?.mra ?? null,

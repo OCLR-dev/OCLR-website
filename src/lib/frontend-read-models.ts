@@ -14,6 +14,11 @@ import hans from "../../messages/zh-Hans.json" with { type: "json" };
 import hant from "../../messages/zh-Hant.json" with { type: "json" };
 import { z } from "zod";
 import { attachArchiveDifficulties } from "./saved-difficulty";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type CaptainIdentities = ExplicitReadData<"captainIdentities">;
+type PublicEnrollmentState = ExplicitReadData<"publicEnrollmentState">;
+type OwnEligibility = ExplicitReadData<"ownEligibility">;
+type OwnSavedProfile = ExplicitReadData<"ownSavedProfile">;
 async function databasePublicEnrollment(
   slug: string,
 ): ReturnType<typeof readTournament> {
@@ -79,7 +84,10 @@ export async function publicNewsModel(
   return databasePublicNewsModel(locale);
 }
 
-async function databaseCaptainIdentities(actor: User, slug: string) {
+async function databaseCaptainIdentities(
+  actor: User,
+  slug: string,
+): Promise<CaptainIdentities> {
   const setup = await captainSetup(actor, slug);
   const ids = [
     ...new Set([...setup.captains, ...setup.pool].map((p) => p.userId)),
@@ -96,14 +104,7 @@ async function databaseCaptainIdentities(actor: User, slug: string) {
         )
         .orderBy(desc(userProfileCache.attemptedAt))
     : [];
-  const identities: Record<
-    number,
-    {
-      avatarUrl: string | null;
-      countryCode: string | null;
-      countryName: string | null;
-    }
-  > = {};
+  const identities: CaptainIdentities = {};
   for (const row of cached)
     if (row.profile && !identities[row.osuId])
       identities[row.osuId] = {
@@ -116,17 +117,17 @@ async function databaseCaptainIdentities(actor: User, slug: string) {
 export async function captainIdentities(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseCaptainIdentities>>> {
+): Promise<CaptainIdentities> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseCaptainIdentities>>
-    >("captainIdentities", { slug });
+    return frontendResource<CaptainIdentities>("captainIdentities", { slug });
   }
   return databaseCaptainIdentities(actor, slug);
 }
 
-async function databasePublicEnrollmentState(slug: string) {
+async function databasePublicEnrollmentState(
+  slug: string,
+): Promise<PublicEnrollmentState> {
   const edition = await (await import("./content")).getPublicEdition(slug);
   if (!edition)
     throw new (await import("./http")).HttpError(404, "Tournament not found.");
@@ -134,11 +135,11 @@ async function databasePublicEnrollmentState(slug: string) {
 }
 export async function publicEnrollmentState(
   slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublicEnrollmentState>>> {
+): Promise<PublicEnrollmentState> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicEnrollmentState>>
-    >("publicEnrollmentState", { slug });
+    return frontendResource<PublicEnrollmentState>("publicEnrollmentState", {
+      slug,
+    });
   }
   return databasePublicEnrollmentState(slug);
 }
@@ -146,7 +147,7 @@ export async function publicEnrollmentState(
 async function databaseOwnSavedProfile(
   actor: User,
   mode: import("./osu-profile-model").ProfileMode,
-) {
+): Promise<OwnSavedProfile> {
   return (await import("./osu-profiles")).cachedOsuUserProfile(
     actor.osuId,
     mode,
@@ -155,17 +156,18 @@ async function databaseOwnSavedProfile(
 export async function ownSavedProfile(
   actor: User,
   mode: import("./osu-profile-model").ProfileMode,
-): Promise<Awaited<ReturnType<typeof databaseOwnSavedProfile>>> {
+): Promise<OwnSavedProfile> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseOwnSavedProfile>>
-    >("ownSavedProfile", { mode });
+    return frontendResource<OwnSavedProfile>("ownSavedProfile", { mode });
   }
   return databaseOwnSavedProfile(actor, mode);
 }
 
-async function databaseOwnEligibility(actor: User, slug: string) {
+async function databaseOwnEligibility(
+  actor: User,
+  slug: string,
+): Promise<OwnEligibility> {
   const record = await databasePublicEnrollment(slug);
   if (!record)
     throw new (await import("./http")).HttpError(404, "Tournament not found.");
@@ -181,13 +183,10 @@ async function databaseOwnEligibility(actor: User, slug: string) {
 export async function ownEligibility(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseOwnEligibility>>> {
+): Promise<OwnEligibility> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseOwnEligibility>>>(
-      "ownEligibility",
-      { slug },
-    );
+    return frontendResource<OwnEligibility>("ownEligibility", { slug });
   }
   return databaseOwnEligibility(actor, slug);
 }

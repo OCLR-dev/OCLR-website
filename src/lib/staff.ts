@@ -69,11 +69,13 @@ const listFields = {
   createdAt: registrations.createdAt,
   updatedAt: registrations.updatedAt,
 };
+type ListApplications =
+  import("./explicit-read-contracts").ExplicitReadData<"listApplications">;
 async function databaseListApplications(
   actor: User,
   input: unknown,
   exporting = false,
-) {
+): Promise<ListApplications> {
   const scopes = exporting
     ? await capabilityScope(actor, "manage_registrations")
     : await readCapabilityScope(actor, "manage_registrations");
@@ -108,13 +110,11 @@ export async function listApplications(
   actor: User,
   input: unknown,
   exporting = false,
-): Promise<Awaited<ReturnType<typeof databaseListApplications>>> {
+): Promise<ListApplications> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
     if (exporting) throw new RemoteDataError("REMOTE_FORBIDDEN", 403);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseListApplications>>
-    >("listApplications", { input });
+    return frontendResource<ListApplications>("listApplications", { input });
   }
   return databaseListApplications(actor, input, exporting);
 }

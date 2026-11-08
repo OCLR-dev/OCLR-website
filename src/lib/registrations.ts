@@ -413,7 +413,11 @@ export async function withdrawRegistration(
     return updated;
   });
 }
-async function databaseOwnRegistrations(userId: number) {
+type OwnRegistrations =
+  import("./explicit-read-contracts").ExplicitReadData<"ownRegistrations">;
+async function databaseOwnRegistrations(
+  userId: number,
+): Promise<OwnRegistrations> {
   return db()
     .select({
       id: registrations.id,
@@ -437,12 +441,10 @@ async function databaseOwnRegistrations(userId: number) {
 }
 export async function ownRegistrations(
   userId: number,
-): Promise<Awaited<ReturnType<typeof databaseOwnRegistrations>>> {
+): Promise<OwnRegistrations> {
   if (remoteMode()) {
     await assertRemoteSubject(userId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseOwnRegistrations>>
-    >("ownRegistrations", {});
+    return frontendResource<OwnRegistrations>("ownRegistrations");
   }
   return databaseOwnRegistrations(userId);
 }

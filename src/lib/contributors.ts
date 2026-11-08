@@ -8,19 +8,28 @@ import { contributorListSchema } from "./contributor-model";
 import { HttpError } from "./http";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type ContributorsForAdmin = ExplicitReadData<"contributorsForAdmin">;
+type PublicContributors = ExplicitReadData<"publicContributors">;
 
-async function readDirectory() {
+async function readDirectory(): Promise<ContributorsForAdmin> {
   const [row] = await db()
-    .select()
+    .select({
+      id: contributorDirectory.id,
+      entries: contributorDirectory.entries,
+      revision: contributorDirectory.revision,
+    })
     .from(contributorDirectory)
     .where(eq(contributorDirectory.id, 1));
   return row ?? { id: 1, entries: [], revision: 0 };
 }
-async function databaseContributorsForAdmin(actor: User) {
+async function databaseContributorsForAdmin(
+  actor: User,
+): Promise<ContributorsForAdmin> {
   await assertReadCapability(actor, "configure_tournament");
   return readDirectory();
 }
-async function databasePublicContributors() {
+async function databasePublicContributors(): Promise<PublicContributors> {
   if (!process.env.DATABASE_URL) return [];
   return (await readDirectory()).entries
     .filter((entry) => entry.published)
@@ -28,16 +37,14 @@ async function databasePublicContributors() {
 }
 export async function contributorsForAdmin(
   actor: User,
-): Promise<Awaited<ReturnType<typeof databaseContributorsForAdmin>>> {
+): Promise<ContributorsForAdmin> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
     return frontendResource("contributorsForAdmin");
   }
   return databaseContributorsForAdmin(actor);
 }
-export async function publicContributors(): Promise<
-  Awaited<ReturnType<typeof databasePublicContributors>>
-> {
+export async function publicContributors(): Promise<PublicContributors> {
   return remoteMode()
     ? frontendResource("publicContributors")
     : databasePublicContributors();

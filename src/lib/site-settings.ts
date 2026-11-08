@@ -9,10 +9,17 @@ import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 import { publicAppearances, readSiteAppearance } from "./preferences";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type SiteSettings = ExplicitReadData<"siteSettingsForAdmin">;
 
-export async function readSiteSettings() {
+export async function readSiteSettings(): Promise<SiteSettings> {
   const [settings] = await db()
-    .select()
+    .select({
+      id: siteSettings.id,
+      defaultAppearance: siteSettings.defaultAppearance,
+      revision: siteSettings.revision,
+      updatedAt: siteSettings.updatedAt,
+    })
     .from(siteSettings)
     .where(eq(siteSettings.id, 1));
   return (
@@ -44,14 +51,10 @@ async function databaseSiteSettingsForAdmin(actor: User) {
   await assertReadCapability(actor, "configure_tournament");
   return readSiteSettings();
 }
-export async function siteSettingsForAdmin(
-  actor: User,
-): Promise<Awaited<ReturnType<typeof databaseSiteSettingsForAdmin>>> {
+export async function siteSettingsForAdmin(actor: User): Promise<SiteSettings> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseSiteSettingsForAdmin>>
-    >("siteSettingsForAdmin", {});
+    return frontendResource<SiteSettings>("siteSettingsForAdmin");
   }
   return databaseSiteSettingsForAdmin(actor);
 }

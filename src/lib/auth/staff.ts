@@ -6,6 +6,7 @@ import { HttpError } from "../http";
 import { inReadChannel } from "../read-channel";
 import type { User } from "./sessions";
 import { requireUser } from "./user";
+import type { ExplicitReadData } from "../explicit-read-contracts";
 
 export const capabilities = [
   "view_streaming",
@@ -52,7 +53,7 @@ const roleCapabilities: Record<StaffRole, readonly Capability[]> = {
   referee: ["record_results"],
   streamer: ["view_streaming", "select_streaming"],
 };
-export type StaffGrant = { role: StaffRole; editionSlug: string | null };
+export type StaffGrant = ExplicitReadData<"staffAccess">[number];
 export function permits(
   grants: readonly StaffGrant[],
   capability: Capability,

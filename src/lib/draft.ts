@@ -277,7 +277,9 @@ export async function staffDraft(
 }
 
 export type StaffDraft = Awaited<ReturnType<typeof staffDraft>>;
-async function databasePublicDraft(slug: string) {
+type PublicDraft =
+  import("./explicit-read-contracts").ExplicitReadData<"publicDraft">;
+async function databasePublicDraft(slug: string): Promise<PublicDraft> {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return null;
   return (await releasedDraftData(slug))?.snapshot ?? null;
 }
@@ -341,14 +343,9 @@ export async function releasedDraftData(slug: string, includeTurns = false) {
     };
   });
 }
-export async function publicDraft(
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublicDraft>>> {
+export async function publicDraft(slug: string): Promise<PublicDraft> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublicDraft>>>(
-      "publicDraft",
-      { slug },
-    );
+    return frontendResource<PublicDraft>("publicDraft", { slug });
   }
   return databasePublicDraft(slug);
 }

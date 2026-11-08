@@ -1,26 +1,58 @@
-import type { PlayerClass } from "./player-class";
+import { z } from "zod";
+import {
+  classRules,
+  PLAYER_CLASS_POLICY,
+  type BaseClass,
+} from "./player-class";
 import type { DirectoryArt } from "./osu-profiles";
 
-export type PlayerLeaderboardRow = {
-  osuId: number;
-  username: string;
-  team: string | null;
-  pp: number | null;
-  mra: number;
-  rws: number | null;
-  classification: PlayerClass | null;
-  wins: number;
-  losses: number;
-  draws: number;
-  appearances: number;
-  winRate: number | null;
-  participation: number | null;
-  nm: number;
-  mod: number;
-  hd: number;
-  hr: number;
-  dt: number;
-};
+const nullableString = z.union([z.null(), z.string()]);
+const nullableNumber = z.union([z.null(), z.number()]);
+export const playerClassificationReadContract = z.strictObject({
+  category: z.union(
+    (Object.keys(classRules) as BaseClass[]).map((key) => z.literal(key)),
+  ),
+  code: z.union(
+    Object.values(classRules).flatMap(({ codes }) =>
+      codes.map((code) => z.literal(code)),
+    ),
+  ),
+  policy: z.literal(PLAYER_CLASS_POLICY),
+});
+const leaderboardRow = z.strictObject({
+  osuId: z.number(),
+  username: z.string(),
+  team: nullableString,
+  pp: nullableNumber,
+  mra: z.number(),
+  rws: nullableNumber,
+  classification: z.union([z.null(), playerClassificationReadContract]),
+  wins: z.number(),
+  losses: z.number(),
+  draws: z.number(),
+  appearances: z.number(),
+  winRate: nullableNumber,
+  participation: nullableNumber,
+  nm: z.number(),
+  mod: z.number(),
+  hd: z.number(),
+  hr: z.number(),
+  dt: z.number(),
+});
+export const playerLeaderboardReadContract = z.strictObject({
+  players: z.array(leaderboardRow),
+  maps: z.number(),
+  state: z.union([z.literal("pending"), z.literal("ready")]),
+  editions: z.number(),
+  unavailableEditions: z.number(),
+  skippedMaps: z.number(),
+  calculatedAt: nullableString,
+  art: z.record(
+    z.string(),
+    z.strictObject({ avatarUrl: nullableString, coverUrl: nullableString }),
+  ),
+});
+export type PlayerLeaderboardRow = z.infer<typeof leaderboardRow>;
 
 export type PlayerLeaderboard = {
   players: PlayerLeaderboardRow[];
@@ -38,6 +70,6 @@ export type PlayerLeaderboardCore = Omit<
   PlayerLeaderboard,
   "art" | "state" | "calculatedAt"
 >;
-export type PlayerLeaderboardWire = Omit<PlayerLeaderboard, "art"> & {
-  art: Record<string, DirectoryArt>;
-};
+export type PlayerLeaderboardWire = z.infer<
+  typeof playerLeaderboardReadContract
+>;

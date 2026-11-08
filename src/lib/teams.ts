@@ -29,6 +29,20 @@ import { HttpError } from "./http";
 import { getOsuUserProfile } from "./osu-profiles";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type PublishedTeams = ExplicitReadData<"publishedTeams">;
+type StaffTeams = ExplicitReadData<"staffTeams">;
+type OwnTeam = ExplicitReadData<"ownTeam">;
+const teamReadColumns = {
+  id: teams.id,
+  editionSlug: teams.editionSlug,
+  captainId: teams.captainId,
+  avatarKey: teams.avatarKey,
+  name: teams.name,
+  capacity: teams.capacity,
+  identityPublished: teams.identityPublished,
+  rosterPublished: teams.rosterPublished,
+  finalizedAt: teams.finalizedAt,
+  archivedAt: teams.archivedAt,
+};
 const teamInput = z
   .object({
     captainId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
@@ -81,7 +95,10 @@ const commandSchema = z
     ]),
   })
   .strict();
-async function databaseStaffTeams(actor: User, slug: string) {
+async function databaseStaffTeams(
+  actor: User,
+  slug: string,
+): Promise<StaffTeams> {
   await assertReadCapability(actor, "manage_teams", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -91,7 +108,7 @@ async function databaseStaffTeams(actor: User, slug: string) {
         .from(editionState)
         .where(eq(editionState.slug, slug));
       const rows = await tx
-        .select()
+        .select(teamReadColumns)
         .from(teams)
         .where(and(eq(teams.editionSlug, slug), isNull(teams.archivedAt)))
         .orderBy(teams.name);
@@ -140,13 +157,10 @@ async function databaseStaffTeams(actor: User, slug: string) {
 export async function staffTeams(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseStaffTeams>>> {
+): Promise<StaffTeams> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseStaffTeams>>>(
-      "staffTeams",
-      { slug },
-    );
+    return frontendResource<StaffTeams>("staffTeams", { slug });
   }
   return databaseStaffTeams(actor, slug);
 }
@@ -426,9 +440,9 @@ export async function updateTeams(
   });
   return staffTeams(actor, slug);
 }
-async function databaseOwnTeam(userId: number, slug: string) {
+async function databaseOwnTeam(userId: number, slug: string): Promise<OwnTeam> {
   const [team] = await db()
-    .select()
+    .select(teamReadColumns)
     .from(teams)
     .where(
       and(
@@ -468,16 +482,10 @@ async function databaseOwnTeam(userId: number, slug: string) {
         .map(({ osuId, username }) => ({ osuId, username })),
   };
 }
-export async function ownTeam(
-  userId: number,
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databaseOwnTeam>>> {
+export async function ownTeam(userId: number, slug: string): Promise<OwnTeam> {
   if (remoteMode()) {
     await assertRemoteSubject(userId);
-    return frontendResource<Awaited<ReturnType<typeof databaseOwnTeam>>>(
-      "ownTeam",
-      { slug },
-    );
+    return frontendResource<OwnTeam>("ownTeam", { slug });
   }
   return databaseOwnTeam(userId, slug);
 }

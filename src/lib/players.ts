@@ -18,6 +18,7 @@ import { HttpError } from "./http";
 import { parseOsuProfile } from "./osu-profile-model";
 import { remoteMode } from "./data-source";
 import { frontendResource } from "./frontend-resource";
+import type { ExplicitReadData } from "./explicit-read-contracts";
 const filtersSchema = z
   .object({
     q: z.string().trim().max(100).default(""),
@@ -29,27 +30,8 @@ const filtersSchema = z
     page: z.coerce.number().int().min(1).max(10000).default(1),
   })
   .strict();
-export type PublishedPlayer = {
-  osuId: number;
-  username: string;
-  editionSlug: string;
-  editionName: string;
-  team: { id: string; name: string } | null;
-  captain: boolean;
-  participation:
-    "accepted" | "captain" | "finalized_roster" | "coach" | "historical";
-  coachedTeams?: { id: string; name: string }[];
-  role?: "captain" | "player" | "coach" | "free_agent";
-  sourceRole?: "VICE";
-  sourceReference?: string;
-  placing?: number | null;
-  placingRange?: ReturnType<typeof archiveTeamPlacement>;
-} & Partial<
-  Pick<
-    import("./read-api-contract").PublicPlayer,
-    "source" | "statistics" | "bio" | "tier" | "tierLabel" | "previousUsernames"
-  >
->;
+type PublicPlayerParticipation = ExplicitReadData<"publicPlayerParticipation">;
+export type PublishedPlayer = PublicPlayerParticipation[number];
 export function publicPlayerFilters(input: unknown, exactOsuId?: number) {
   const parsed = filtersSchema.safeParse(input);
   if (!parsed.success)
@@ -281,7 +263,10 @@ export async function publicPlayersForEditions(
     };
   });
 }
-async function databasePublicPlayer(osuId: number, edition?: string) {
+async function databasePublicPlayer(
+  osuId: number,
+  edition?: string,
+): Promise<PublicPlayerParticipation> {
   const rows = (await publicPlayers(edition ? { edition } : {}, osuId)).rows;
   const byEdition = new Map(rows.map((p) => [p.editionSlug, [p]]));
   for (const e of await getPublicEditions()) {
@@ -412,7 +397,7 @@ export async function publicPlayerStillListed(
 export async function publicPlayer(
   osuId: number,
   edition?: string,
-): Promise<Awaited<ReturnType<typeof databasePublicPlayer>>> {
+): Promise<PublicPlayerParticipation> {
   return remoteMode()
     ? frontendResource("publicPlayerParticipation", {
         osuId,
