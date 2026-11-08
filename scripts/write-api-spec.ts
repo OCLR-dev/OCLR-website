@@ -51,6 +51,15 @@ import {
   disconnectRemoteWrite,
   logoutWrite,
 } from "../src/lib/browser-connection-write-contracts";
+import {
+  queueAdminBackupWrite,
+  refreshStaffProfileWrite,
+  updateSiteAppearanceWrite,
+} from "../src/lib/admin-operations-write-contracts";
+import {
+  moderateChessWrite,
+  placeChessPixelWrite,
+} from "../src/lib/ocl-chess-write-contracts";
 import { reviewBwsWrite } from "../src/lib/bws-write-contract";
 import {
   createDeveloperTokenWrite,
@@ -169,6 +178,11 @@ const operations: readonly WriteApiOperation[] = [
   changeRemoteConnectionWrite,
   disconnectRemoteWrite,
   logoutWrite,
+  queueAdminBackupWrite,
+  refreshStaffProfileWrite,
+  updateSiteAppearanceWrite,
+  placeChessPixelWrite,
+  moderateChessWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
@@ -218,14 +232,12 @@ function commandActions(
 ): string[] {
   if (schema instanceof z.ZodUnion)
     return schema.options.flatMap((option) => commandActions(option, field));
-  if (!(schema instanceof z.ZodObject)) return [];
-  const action = schema.shape[field];
-  if (schema.shape.command instanceof z.ZodType)
-    return commandActions(schema.shape.command, field);
-  if (action instanceof z.ZodLiteral)
-    return [...action.values].filter((value) => typeof value === "string");
-  return action instanceof z.ZodEnum
-    ? action.options.filter((value) => typeof value === "string")
+  if (schema instanceof z.ZodObject)
+    return commandActions(schema.shape.command ?? schema.shape[field], field);
+  if (schema instanceof z.ZodLiteral)
+    return [...schema.values].filter((value) => typeof value === "string");
+  return schema instanceof z.ZodEnum
+    ? schema.options.filter((value) => typeof value === "string")
     : [];
 }
 
@@ -251,12 +263,14 @@ const routes = globSync("src/app/**/route.{ts,tsx,js,jsx}")
           if (readOnlyAliases.get(source) === names.get(method)) {
             return [method, { status: "read-only" }];
           }
-          if (!operation) return [method, { status: "pending" }];
+          if (!operation)
+            throw new Error(`Missing write contract for ${method} ${route}`);
           if (matched.has(operation.id))
             throw new Error(`Multiple routes match ${operation.id}`);
           matched.add(operation.id);
           const actions = commandActions(
-            operation.request,
+            operation.query?.[operation.actionField ?? "action"] ??
+              operation.request,
             operation.actionField,
           );
           return [
@@ -394,6 +408,12 @@ function openapiOperation(operation: WriteApiOperation) {
   );
   if (operation.access === "browser" || operation.access === "same-origin")
     parameters.push(browserOrigin);
+  const query = Object.entries(operation.query ?? {}).map(([name, schema]) => ({
+    name,
+    in: "query",
+    required: !(schema instanceof z.ZodOptional),
+    schema: jsonSchema(schema, "input"),
+  }));
   const successHeaders = {
     ...requestId,
     ...(operation.contractHeader
@@ -416,11 +436,13 @@ function openapiOperation(operation: WriteApiOperation) {
         ? [{ browserSession: [] }, { localBrowserSession: [] }]
         : [],
     ...(operation.scope ? { "x-required-desktop-scope": operation.scope } : {}),
-    ...(parameters.length ? { parameters } : {}),
+    ...(parameters.length || query.length
+      ? { parameters: [...parameters, ...query] }
+      : {}),
     ...(operation.request
       ? {
           requestBody: {
-            required: true,
+            required: operation.requestBodyRequired ?? true,
             "x-max-body-bytes": operation.maxBodyBytes,
             content: {
               [operation.requestMediaType ?? "application/json"]: {

@@ -22,6 +22,10 @@ import { createSession } from "../../src/lib/auth/sessions";
 import { withReadChannel } from "../../src/lib/read-channel";
 import { GET, POST, PATCH } from "../../src/app/api/games/ocl-chess/route";
 import { assertTestDatabase } from "../database";
+import {
+  moderateChessWrite,
+  placeChessPixelWrite,
+} from "../../src/lib/ocl-chess-write-contracts";
 const browser = vi.hoisted(() => ({ headers: new Headers(), token: "" }));
 vi.mock("next/headers.js", () => ({
   headers: async () => browser.headers,
@@ -223,13 +227,21 @@ describe.skipIf(!url)("OCL Chess transactions", () => {
       ).status,
     ).toBe(403);
     expect((await readChess(null)).revision).toBe(0);
-    const response = await POST(request(pixel()));
+    const placement = pixel();
+    const response = await POST(request(placement));
     expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    const body = await response.json();
+    const saved = placeChessPixelWrite.response.parse(body);
+    expect(saved).toEqual(body);
+    expect(saved).toMatchObject({ id: 1, revision: 1, signedIn: true, admin: false });
+    const replay = await POST(request(placement));
+    expect(replay.status).toBe(200);
+    expect(placeChessPixelWrite.response.parse(await replay.json())).toMatchObject({
       revision: 1,
-      signedIn: true,
-      admin: false,
+      nextAt: saved.nextAt,
     });
+    expect((await POST(request({ ...placement, color: 7 }))).status).toBe(409);
     browser.token = "";
     browser.headers = new Headers();
     expect(await (await GET()).json()).toMatchObject({
@@ -249,6 +261,22 @@ describe.skipIf(!url)("OCL Chess transactions", () => {
       ).status,
     ).toBe(403);
     expect((await readChess(null)).revision).toBe(1);
-    expect(await db().select().from(chessEvents)).toHaveLength(1);
+    browser.token = (await createSession(admin.osuId)).token;
+    const clear = {
+      action: "clear",
+      x: placement.x,
+      y: placement.y,
+      width: 1,
+      height: 1,
+      expectedRevision: 1,
+    };
+    const moderated = await PATCH(request(clear, {}, "PATCH"));
+    expect(moderated.status).toBe(200);
+    const cleared = await moderated.json();
+    expect(moderateChessWrite.response.parse(cleared)).toEqual(cleared);
+    expect(cleared).toMatchObject({ revision: 2, admin: true });
+    expect(cleared.pixels).toBe("0".repeat(16384));
+    expect((await PATCH(request(clear, {}, "PATCH"))).status).toBe(409);
+    expect(await db().select().from(chessEvents)).toHaveLength(2);
   });
 });

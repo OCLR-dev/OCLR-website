@@ -4,7 +4,17 @@
     "source": "src/app/api/admin/backups/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "queueAdminBackup",
+        "access": "browser",
+        "actions": [
+          "backup",
+          "import",
+          "restore"
+        ],
+        "consumers": [
+          "src/components/backup-manager.tsx"
+        ]
       }
     }
   },
@@ -27,7 +37,12 @@
     "source": "src/app/api/admin/profiles/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "refreshStaffProfile",
+        "access": "browser",
+        "consumers": [
+          "src/components/captain-player-card.tsx"
+        ]
       }
     }
   },
@@ -50,7 +65,12 @@
     "source": "src/app/api/admin/settings/route.ts",
     "methods": {
       "PATCH": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "updateSiteAppearance",
+        "access": "browser",
+        "consumers": [
+          "src/components/site-appearance-form.tsx"
+        ]
       }
     }
   },
@@ -810,10 +830,24 @@
     "source": "src/app/api/games/ocl-chess/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "placeChessPixel",
+        "access": "browser",
+        "consumers": [
+          "src/app/games/ocl-chess/workspace.tsx"
+        ]
       },
       "PATCH": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "moderateChess",
+        "access": "browser",
+        "actions": [
+          "toggle",
+          "clear"
+        ],
+        "consumers": [
+          "src/app/games/ocl-chess/workspace.tsx"
+        ]
       }
     }
   },

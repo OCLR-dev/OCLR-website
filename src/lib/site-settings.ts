@@ -2,13 +2,13 @@ import { db } from "@/db";
 import { siteSettingEvents, siteSettings } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { cache } from "react";
-import { z } from "zod";
+import { updateSiteAppearanceWrite } from "./admin-operations-write-contracts";
 import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
-import { publicAppearances, readSiteAppearance } from "./preferences";
+import { readSiteAppearance } from "./preferences";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type SiteSettings = ExplicitReadData<"siteSettingsForAdmin">;
 
@@ -61,13 +61,7 @@ export async function siteSettingsForAdmin(actor: User): Promise<SiteSettings> {
 
 export async function updateSiteSettings(actor: User, input: unknown) {
   await assertCapability(actor, "configure_tournament");
-  const parsed = z
-    .object({
-      defaultAppearance: z.enum(publicAppearances),
-      expectedRevision: z.number().int().min(0).max(2147483646),
-    })
-    .strict()
-    .safeParse(input);
+  const parsed = updateSiteAppearanceWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Select a valid website appearance.");
   return db().transaction(async (tx) => {

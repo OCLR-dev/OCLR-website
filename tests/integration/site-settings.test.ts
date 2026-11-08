@@ -24,6 +24,15 @@ import { auditLog } from "../../src/lib/audit";
 import { assertTestDatabase } from "../database";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
+import { PATCH } from "../../src/app/api/admin/settings/route";
+import { requireUser } from "../../src/lib/auth/user";
+import { updateSiteAppearanceWrite } from "../../src/lib/admin-operations-write-contracts";
+
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: vi.fn(),
+}));
+const origin = "https://oclr.example.test";
 
 import {
   publicAppearances,
@@ -56,6 +65,7 @@ describe.skipIf(!url)("global site appearance settings", () => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
+    vi.stubEnv("APP_URL", origin);
   });
   beforeEach(async () => {
     await db().execute(
@@ -76,7 +86,20 @@ describe.skipIf(!url)("global site appearance settings", () => {
         defaultAppearance: "default",
         revision: 0,
       });
-      const saved = await updateSiteSettings(admin, save(appearance));
+      vi.mocked(requireUser).mockResolvedValue(admin);
+      const patch = (input: unknown) =>
+        PATCH(new Request(origin + updateSiteAppearanceWrite.path, {
+          method: "PATCH",
+          headers: { origin, "content-type": "application/json" },
+          body: JSON.stringify(input),
+        }));
+      const response = await patch(save(appearance));
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      const body = await response.json();
+      const saved = updateSiteAppearanceWrite.response.parse(body);
+      expect(saved).toEqual(body);
+      expect((await patch(save(appearance))).status).toBe(409);
       expect(saved).toMatchObject({
         id: 1,
         defaultAppearance: appearance,
@@ -98,9 +121,9 @@ describe.skipIf(!url)("global site appearance settings", () => {
       expect(new Date(logs.rows[0].timestamp).getTime()).toBeGreaterThan(
         Date.now() - 30000,
       );
-      expect(await updateSiteSettings(admin, save(appearance, 1))).toEqual(
-        saved,
-      );
+      const unchanged = await patch(save(appearance, 1));
+      expect(unchanged.status).toBe(200);
+      expect(await unchanged.json()).toEqual(saved);
       expect(await db().select().from(siteSettingEvents)).toHaveLength(1);
     },
   );

@@ -29,6 +29,14 @@ import { edition } from "../fixtures/edition";
 import { seedPublicDirectory } from "../fixtures/players";
 import { profileResponse } from "../fixtures/osu-profile";
 import { assertTestDatabase } from "../database";
+import { POST as lookupProfile } from "../../src/app/api/admin/profiles/route";
+import { requireUser } from "../../src/lib/auth/user";
+import { refreshStaffProfileWrite } from "../../src/lib/admin-operations-write-contracts";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: vi.fn(),
+}));
+const origin = "https://oclr.example.test";
 vi.mock("../../src/lib/osu-api", () => ({ osuApi: vi.fn() }));
 import { osuApi } from "../../src/lib/osu-api";
 const provider = vi.mocked(osuApi);
@@ -43,6 +51,7 @@ describe.skipIf(!url)(
       fixtureEditions = [edition];
       vi.stubEnv("DATABASE_URL", url!);
       vi.stubEnv("ADMIN_OSU_IDS", "269999");
+      vi.stubEnv("APP_URL", origin);
     });
     beforeEach(async () => {
       await db().execute(
@@ -261,11 +270,38 @@ describe.skipIf(!url)(
         id: 651307,
         username: "Synthetic only",
       });
-      const result = await staffPlayerProfile(
-        { osuId: 269999, username: "Synthetic Admin" },
-        { input: "https://osu.ppy.sh/users/651307/osu" },
-      );
-      expect(result.profile.osuId).toBe(651307);
+      vi.mocked(requireUser).mockResolvedValue({
+        osuId: 269999,
+        username: "Synthetic Admin",
+      });
+      const post = (refresh = false) =>
+        lookupProfile(new Request(origin + refreshStaffProfileWrite.path, {
+          method: "POST",
+          headers: { origin, "content-type": "application/json" },
+          body: JSON.stringify({
+            input: "https://osu.ppy.sh/users/651307/osu",
+            ...(refresh ? { refresh } : {}),
+          }),
+        }));
+      const fetched = await post();
+      expect(fetched.status).toBe(200);
+      expect(fetched.headers.get("Cache-Control")).toBe("no-store");
+      const body = await fetched.json();
+      const snapshot = refreshStaffProfileWrite.response.parse(body);
+      expect(snapshot).toEqual(body);
+      expect(snapshot.profile.osuId).toBe(651307);
+      expect(snapshot).toMatchObject({ stale: false, notice: null });
+      await expire();
+      provider.mockRejectedValueOnce(new HttpError(502, "Synthetic outage"));
+      const fallback = await post(true);
+      expect(fallback.status).toBe(200);
+      const fallbackBody = await fallback.json();
+      expect(refreshStaffProfileWrite.response.parse(fallbackBody)).toEqual(fallbackBody);
+      expect(fallbackBody).toMatchObject({
+        stale: true,
+        notice: expect.any(String),
+        profile: { osuId: 651307, username: "Synthetic only" },
+      });
       expect(
         await db().select().from(users).where(eq(users.osuId, 651307)),
       ).toEqual([]);

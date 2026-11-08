@@ -5,6 +5,7 @@ import { appearanceLabel } from "@/i18n/appearance";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
+import type { SiteAppearanceInput } from "@/lib/admin-operations-write-contracts";
 import {
   publicAppearances,
   readSiteAppearance,
@@ -44,7 +45,7 @@ export function SiteAppearanceForm({
         body: JSON.stringify({
           defaultAppearance: appearance,
           expectedRevision: saved.revision,
-        }),
+        } satisfies SiteAppearanceInput),
       });
       const body = await response.json();
       if (!response.ok) {

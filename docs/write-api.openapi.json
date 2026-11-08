@@ -36750,6 +36750,1607 @@
           }
         }
       }
+    },
+    "/api/admin/backups": {
+      "post": {
+        "operationId": "queueAdminBackup",
+        "summary": "Queue a backup, package import or restore with the backup operator",
+        "description": "Requires a global Admin and a same-origin browser session. Import sends the package bytes directly, without a multipart envelope. Restore uses source and confirm=REPLACE. A repeated restore for the same source can return its existing job. A 202 indicates acceptance, not completion. Poll the job list for the outcome.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "backup",
+                "import",
+                "restore"
+              ]
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Required for restore. The source job ID."
+            }
+          },
+          {
+            "name": "confirm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Required for restore with the exact value REPLACE."
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "x-max-body-bytes": 67125248,
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "binary",
+                "contentEncoding": "binary",
+                "maxLength": 67125248,
+                "description": "Send the raw .oclr package for import. Backup and restore need no body."
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "The queued or existing operator job.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "actor": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "backup",
+                        "import",
+                        "restore"
+                      ]
+                    },
+                    "source": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "running",
+                        "validated",
+                        "completed",
+                        "failed"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "recovery": {
+                      "type": "string",
+                      "enum": [
+                        "operator-required",
+                        "original-preserved"
+                      ]
+                    },
+                    "target": {
+                      "type": "string"
+                    },
+                    "manifest": {
+                      "type": "object",
+                      "properties": {
+                        "format": {
+                          "type": "number",
+                          "const": 1
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "type": "string"
+                        },
+                        "release": {
+                          "type": "string"
+                        },
+                        "schema": {
+                          "type": "string"
+                        },
+                        "postgres": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "media": {
+                          "type": "boolean",
+                          "const": false
+                        },
+                        "mediaHash": {
+                          "type": "string"
+                        },
+                        "counts": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "sha256": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "format",
+                        "createdAt",
+                        "source",
+                        "release",
+                        "schema",
+                        "postgres",
+                        "media",
+                        "sha256"
+                      ],
+                      "additionalProperties": {}
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "actor",
+                    "action",
+                    "source",
+                    "state",
+                    "createdAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An authenticated browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or required staff permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The operator rejected the request or is busy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The raw body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The operator response exceeded the size limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin or the separately configured backup operator is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_configured",
+                            "unreachable"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "error",
+                        "code"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/profiles": {
+      "post": {
+        "operationId": "refreshStaffProfile",
+        "summary": "Look up or refresh an osu! profile through the staff cache",
+        "description": "Requires registration-management access. A Developer without that write permission may read a saved snapshot only. Normal lookup may fetch the provider on a cache miss. Refresh can reuse a current claim, return a stale saved snapshot or be rate limited. The lookup does not create user accounts or tournament participation.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "description": "Numeric osu! ID or canonical HTTPS osu! profile URL.",
+                    "type": "string"
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "osu"
+                      },
+                      {
+                        "type": "string",
+                        "const": "taiko"
+                      },
+                      {
+                        "type": "string",
+                        "const": "fruits"
+                      },
+                      {
+                        "type": "string",
+                        "const": "mania"
+                      }
+                    ]
+                  },
+                  "refresh": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "input"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile snapshot, stale flag and nullable notice.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "profile": {
+                      "type": "object",
+                      "properties": {
+                        "osuId": {
+                          "type": "number"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "canonicalUrl": {
+                          "type": "string"
+                        },
+                        "avatarUrl": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "coverUrl": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "countryCode": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "countryName": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "defaultRuleset": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "string",
+                              "const": "osu"
+                            },
+                            {
+                              "type": "string",
+                              "const": "taiko"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fruits"
+                            },
+                            {
+                              "type": "string",
+                              "const": "mania"
+                            }
+                          ]
+                        },
+                        "joinedAt": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "lastSeenAt": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "previousUsernames": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "active": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "boolean",
+                              "const": false
+                            },
+                            {
+                              "type": "boolean",
+                              "const": true
+                            }
+                          ]
+                        },
+                        "bot": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "boolean",
+                              "const": false
+                            },
+                            {
+                              "type": "boolean",
+                              "const": true
+                            }
+                          ]
+                        },
+                        "ruleset": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "osu"
+                            },
+                            {
+                              "type": "string",
+                              "const": "taiko"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fruits"
+                            },
+                            {
+                              "type": "string",
+                              "const": "mania"
+                            }
+                          ]
+                        },
+                        "fetchedAt": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "type": "string",
+                          "const": "osu! API v2"
+                        },
+                        "badges": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "awardedAt": {
+                                    "type": "string"
+                                  },
+                                  "url": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "imageUrl": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "image2xUrl": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "description",
+                                  "awardedAt",
+                                  "url",
+                                  "imageUrl",
+                                  "image2xUrl"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          ]
+                        },
+                        "rankHistory": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "mode": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "const": "osu"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "taiko"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "fruits"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "mania"
+                                    }
+                                  ]
+                                },
+                                "data": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                },
+                                "dayOffsets": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "mode",
+                                "data"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "statistics": {
+                          "type": "object",
+                          "properties": {
+                            "globalRank": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "globalRankPercent": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "countryRank": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "pp": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "accuracy": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "playCount": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "playTimeSeconds": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "rankedScore": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "totalScore": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "maximumCombo": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "totalHits": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "level": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "current": {
+                                      "type": [
+                                        "null",
+                                        "number"
+                                      ]
+                                    },
+                                    "progress": {
+                                      "type": [
+                                        "null",
+                                        "number"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "current",
+                                    "progress"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            },
+                            "grades": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": [
+                                      "null",
+                                      "number"
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "globalRank",
+                            "globalRankPercent",
+                            "countryRank",
+                            "pp",
+                            "accuracy",
+                            "playCount",
+                            "playTimeSeconds",
+                            "rankedScore",
+                            "totalScore",
+                            "maximumCombo",
+                            "totalHits",
+                            "level",
+                            "grades"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "osuId",
+                        "username",
+                        "canonicalUrl",
+                        "avatarUrl",
+                        "coverUrl",
+                        "countryCode",
+                        "countryName",
+                        "defaultRuleset",
+                        "joinedAt",
+                        "lastSeenAt",
+                        "previousUsernames",
+                        "active",
+                        "bot",
+                        "ruleset",
+                        "fetchedAt",
+                        "source",
+                        "badges",
+                        "rankHistory",
+                        "statistics"
+                      ],
+                      "additionalProperties": {}
+                    },
+                    "stale": {
+                      "type": "boolean"
+                    },
+                    "notice": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "stale",
+                    "notice"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid profile ID, URL or ruleset.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An authenticated browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or required staff permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The profile or a permitted saved snapshot is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The provider or cache refresh is busy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Provider transport or response failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site, cache or provider configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/settings": {
+      "patch": {
+        "operationId": "updateSiteAppearance",
+        "summary": "Update the global website appearance",
+        "description": "Requires global configure_tournament. Only public appearances can be saved. The current revision is required even for unchanged values. Unchanged settings at the current revision do not create an audit event.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "defaultAppearance": {
+                    "type": "string",
+                    "enum": [
+                      "default",
+                      "cute-pastel",
+                      "swiss-minimal",
+                      "claymorphism",
+                      "manga-halftone",
+                      "glassmorphism",
+                      "esports-broadcast",
+                      "retro-arcade",
+                      "frutiger-aero"
+                    ]
+                  },
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483646
+                  }
+                },
+                "required": [
+                  "defaultAppearance",
+                  "expectedRevision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved website setting with its revision and timestamp.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "const": 1
+                    },
+                    "defaultAppearance": {
+                      "type": "string",
+                      "enum": [
+                        "default",
+                        "cute-pastel",
+                        "swiss-minimal",
+                        "claymorphism",
+                        "manga-halftone",
+                        "glassmorphism",
+                        "esports-broadcast",
+                        "retro-arcade",
+                        "frutiger-aero"
+                      ]
+                    },
+                    "revision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "defaultAppearance",
+                    "revision",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid appearance or revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An authenticated browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or required staff permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The current revision differs from the supplied revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/games/ocl-chess": {
+      "post": {
+        "operationId": "placeChessPixel",
+        "summary": "Place a pixel on the OCL Chess canvas",
+        "description": "Uses the signed-in browser account. Identical retries by that account return the current board without another write or cooldown. New placements require an enabled canvas and enforce the per-account cooldown. An already accepted retry can still be confirmed while paused.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 2048,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "x": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 127
+                  },
+                  "y": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 127
+                  },
+                  "color": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 15
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "x",
+                  "y",
+                  "color"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current canvas and the caller's cooldown and permissions.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pixels": {
+                      "type": "string",
+                      "minLength": 16384,
+                      "maxLength": 16384,
+                      "pattern": "^[0-9a-f]+$"
+                    },
+                    "revision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "nextAt": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "serverTime": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "signedIn": {
+                      "type": "boolean"
+                    },
+                    "admin": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "number",
+                      "const": 1
+                    }
+                  },
+                  "required": [
+                    "pixels",
+                    "revision",
+                    "enabled",
+                    "nextAt",
+                    "serverTime",
+                    "signedIn",
+                    "admin",
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid canvas command.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An authenticated browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or paused canvas rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request ID was already used with different data or by another account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The caller is still on cooldown.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The canvas or site origin is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "moderateChess",
+        "summary": "Toggle the OCL Chess canvas or clear a rectangle",
+        "description": "Requires global configure_tournament and the current canvas revision. The clear rectangle must fit within the 128 by 128 canvas. A saved command and its audit event commit together.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 2048,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "const": "toggle"
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "enabled",
+                      "expectedRevision"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "const": "clear"
+                      },
+                      "x": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 127
+                      },
+                      "y": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 127
+                      },
+                      "width": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 128
+                      },
+                      "height": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 128
+                      },
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "x",
+                      "y",
+                      "width",
+                      "height",
+                      "expectedRevision"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current canvas and the caller's cooldown and permissions.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pixels": {
+                      "type": "string",
+                      "minLength": 16384,
+                      "maxLength": 16384,
+                      "pattern": "^[0-9a-f]+$"
+                    },
+                    "revision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "nextAt": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "serverTime": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "signedIn": {
+                      "type": "boolean"
+                    },
+                    "admin": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "number",
+                      "const": 1
+                    }
+                  },
+                  "required": [
+                    "pixels",
+                    "revision",
+                    "enabled",
+                    "nextAt",
+                    "serverTime",
+                    "signedIn",
+                    "admin",
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid canvas command.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An authenticated browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or global administration permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The canvas revision changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The canvas or site origin is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

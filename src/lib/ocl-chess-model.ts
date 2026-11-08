@@ -46,12 +46,13 @@ export const chessAdminCommand = z.discriminatedUnion("action", [
     .strict()
     .refine((v) => v.x + v.width <= 128 && v.y + v.height <= 128),
 ]);
-export type ChessState = {
-  pixels: string;
-  revision: number;
-  enabled: boolean;
-  nextAt: number;
-  serverTime: number;
-  signedIn: boolean;
-  admin: boolean;
-};
+export const chessStateSchema = z.strictObject({
+  pixels: z.string().length(chessSize * chessSize).regex(/^[0-9a-f]+$/),
+  revision: z.number().int().nonnegative(),
+  enabled: z.boolean(),
+  nextAt: z.number().int(),
+  serverTime: z.number().int(),
+  signedIn: z.boolean(),
+  admin: z.boolean(),
+});
+export type ChessState = z.output<typeof chessStateSchema>;

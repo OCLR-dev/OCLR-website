@@ -2,6 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { chessPalette, type ChessState } from "@/lib/ocl-chess-model";
+import type {
+  ChessModerationInput,
+  ChessPixelInput,
+} from "@/lib/ocl-chess-write-contracts";
 import "./workspace.css";
 const endpoint = "/api/games/ocl-chess";
 export function ChessCanvas() {
@@ -22,12 +26,7 @@ export function ChessCanvas() {
     [height, setHeight] = useState(1);
   const canvas = useRef<HTMLCanvasElement>(null),
     view = useRef<HTMLDivElement>(null);
-  const pending = useRef<{
-    requestId: string;
-    x: number;
-    y: number;
-    color: number;
-  } | null>(null);
+  const pending = useRef<ChessPixelInput | null>(null);
   const [retry, setRetry] = useState(false);
   const deadline = useRef(0),
     writing = useRef(false),
@@ -113,7 +112,10 @@ export function ChessCanvas() {
       ctx.fillRect(i % 128, Math.floor(i / 128), 1, 1);
     }
   }, [state]);
-  async function submit(command: object, admin = false) {
+  async function submit(
+    command: ChessPixelInput | ChessModerationInput,
+    admin = false,
+  ) {
     if (writing.current) return;
     writing.current = true;
     generation.current++;

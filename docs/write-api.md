@@ -4,9 +4,8 @@ The [route inventory](write-api-inventory.json) lists the POST, PUT, PATCH and
 DELETE handlers exported by Next.js route files under `src/app`. A documented
 handler links to its operation ID in the [OpenAPI document](write-api.openapi.json)
 and lists its authentication channel, actions defined by the schema, and known
-consumers. Pending handlers still use
-their existing transport and have yet to be catalogued by command and caller.
-The read-only entries are method aliases on the saved-data and streaming read
+consumers. The generator requires a contract for each write handler. The
+read-only entries are method aliases on the saved-data and streaming read
 endpoints that route writes to the read API's rejection logic.
 
 The first two contracts cover player practice saves and deletes, and player
@@ -119,6 +118,12 @@ Remote development connection management uses the local same-origin channel.
 Connecting sets an opaque cookie, refresh clears only that connection's
 public snapshots, and disconnect clears the connection and cookie. Website
 logout revokes the cookie's site session and returns an empty 303 redirect.
+
+Admin backups queue jobs through the separately installed operator. Import uses
+raw package bytes and restore requires the source job and explicit confirmation.
+Staff profile lookups and refreshes return the existing cache snapshot. Site
+appearance writes require a current revision and a public appearance. OCL Chess
+separates pixel placement and request replay from revision-checked moderation.
 
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and

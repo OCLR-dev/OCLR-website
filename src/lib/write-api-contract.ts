@@ -37,6 +37,7 @@ export type WriteApiOperation = {
   summary: string;
   description: string;
   parameters?: Readonly<Record<string, z.ZodType>>;
+  query?: Readonly<Record<string, z.ZodType>>;
   successStatus: number;
   successDescription: string;
   response: WriteOperationResponse;
@@ -49,7 +50,11 @@ export type WriteApiOperation = {
   | {
       request: z.ZodType;
       maxBodyBytes: number;
-      requestMediaType?: "multipart/form-data" | "application/x-www-form-urlencoded";
+      requestMediaType?:
+        | "multipart/form-data"
+        | "application/x-www-form-urlencoded"
+        | "*/*";
+      requestBodyRequired?: boolean;
       urlencodedRequest?: z.ZodType;
     }
   | {
