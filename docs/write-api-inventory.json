@@ -369,7 +369,18 @@
     "source": "src/app/api/admin/tournaments/[edition]/streaming/[fixtureId]/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeStreamingTask",
+        "access": "browser",
+        "actions": [
+          "select",
+          "assign",
+          "cancel",
+          "reconfirm"
+        ],
+        "consumers": [
+          "src/components/streaming-manager.tsx"
+        ]
       }
     }
   },
@@ -643,7 +654,20 @@
     "source": "src/app/api/tournaments/[edition]/schedule/requests/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeScheduleRequest",
+        "access": "browser",
+        "actions": [
+          "availability",
+          "propose",
+          "accept",
+          "withdraw",
+          "reject",
+          "approve"
+        ],
+        "consumers": [
+          "src/components/schedule-manager.tsx"
+        ]
       }
     }
   },

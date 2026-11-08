@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { streamingCommand, streamingWorkspace } from "@/lib/streaming";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { streamingTaskWrite } from "@/lib/scheduling-write-contracts";
 type Context = { params: Promise<{ edition: string; fixtureId: string }> };
 async function readGET(_request: Request, context: Context) {
   try {
@@ -26,7 +27,7 @@ export async function POST(request: Request, context: Context) {
       actor,
       edition,
       fixtureId,
-      await readJson(request),
+      await readJson(request, streamingTaskWrite.maxBodyBytes),
     );
     revalidatePath(`/admin/tournaments/${edition}`, "layout");
     return NextResponse.json(saved, {

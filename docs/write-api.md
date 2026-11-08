@@ -46,6 +46,11 @@ per-row results for batch retries and failures. BWS review shares the staff read
 workspace response and checks both the badge fingerprint and review version.
 These operations require the edition's registration management capability.
 
+Schedule requests document player availability and captain negotiation through
+staff approval. Streaming task changes cover streaming slots and commentary
+assignments. Both contracts describe fixture revision checks and repeat
+requests. Streaming responses also identify when a request was replayed.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

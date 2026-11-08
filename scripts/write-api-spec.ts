@@ -30,6 +30,10 @@ import {
   uploadReplayWrite,
 } from "../src/lib/replay-write-contract";
 import {
+  scheduleRequestWrite,
+  streamingTaskWrite,
+} from "../src/lib/scheduling-write-contracts";
+import {
   createStreamingAccessWrite,
   revokeStreamingAccessWrite,
 } from "../src/lib/streaming-write-contract";
@@ -57,6 +61,8 @@ const operations: readonly WriteApiOperation[] = [
   previewManualRegistrationsWrite,
   addManualRegistrationsWrite,
   reviewBwsWrite,
+  scheduleRequestWrite,
+  streamingTaskWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
@@ -106,7 +112,8 @@ function commandActions(schema: z.ZodType | undefined) {
   return choices.flatMap((choice) => {
     if (!(choice instanceof z.ZodObject)) return [];
     const action = choice.shape.action;
-    return action instanceof z.ZodLiteral ? [...action.values] : [];
+    if (action instanceof z.ZodLiteral) return [...action.values];
+    return action instanceof z.ZodEnum ? action.options : [];
   });
 }
 
