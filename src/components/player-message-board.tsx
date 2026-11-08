@@ -4,6 +4,11 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
 import type { PlayerMessage } from "@/lib/player-messages";
+import type {
+  DeletePlayerMessageInput,
+  EditPlayerMessageInput,
+  PostPlayerMessageInput,
+} from "@/lib/player-message-write-contract";
 export function PlayerMessageBoard({
   edition,
   playerId,
@@ -126,17 +131,22 @@ export function PlayerMessageBoard({
     setBusy(true);
     setError("");
     requestId.current ??= crypto.randomUUID();
+    const payload = editing
+      ? ({
+          text: editText,
+          version: editing.version,
+        } satisfies EditPlayerMessageInput)
+      : ({
+          text,
+          requestId: requestId.current,
+        } satisfies PostPlayerMessageInput);
     try {
       const response = await fetch(
         editing ? `${endpoint}/${editing.id}` : endpoint,
         {
           method: editing ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(
-            editing
-              ? { text: editText, version: editing.version }
-              : { text, requestId: requestId.current },
-          ),
+          body: JSON.stringify(payload),
         },
       );
       const result = await response.json();
@@ -146,7 +156,7 @@ export function PlayerMessageBoard({
           setEditConflict(true);
         return;
       }
-      showMessage(result);
+      showMessage(result as PlayerMessage);
       if (!editing) {
         setText("");
         requestId.current = null;
@@ -166,7 +176,9 @@ export function PlayerMessageBoard({
       const response = await fetch(`${endpoint}/${current.id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ version: current.version }),
+        body: JSON.stringify({
+          version: current.version,
+        } satisfies DeletePlayerMessageInput),
       });
       if (!response.ok) {
         const result = await response.json();

@@ -8,18 +8,19 @@ import {
   users,
 } from "@/db/schema";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
-import { z } from "zod";
 import type { User } from "./auth/sessions";
 import { assertUserWriteChannel } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import {
+  deletePlayerMessageWrite,
+  editPlayerMessageWrite,
+  postPlayerMessageWrite,
+} from "./player-message-write-contract";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type PublicPlayerMessages = ExplicitReadData<"publicPlayerMessages">;
 export type PlayerMessage = PublicPlayerMessages[number];
-const inputSchema = z
-  .object({ requestId: z.uuid(), text: z.string().trim().min(1).max(1000) })
-  .strict();
 const visible = (edition: string, playerId: number) =>
   and(
     eq(registrations.editionSlug, edition),
@@ -83,7 +84,7 @@ export async function postPlayerMessage(
   playerId: number,
   input: unknown,
 ) {
-  const parsed = inputSchema.safeParse(input);
+  const parsed = postPlayerMessageWrite.request.safeParse(input);
   if (!parsed.success || !Number.isSafeInteger(playerId) || playerId <= 0)
     throw new HttpError(400, "Enter a message of 1 to 1000 characters.");
   assertUserWriteChannel();
@@ -195,19 +196,12 @@ export async function changePlayerMessage(
   operation: "edit" | "delete",
   input: unknown,
 ) {
-  const schema =
-    operation === "edit"
-      ? z
-          .object({
-            version: z.string().regex(/^\d+$/),
-            text: z.string().trim().min(1).max(1000),
-          })
-          .strict()
-      : z.object({ version: z.string().regex(/^\d+$/) }).strict();
-  const parsed = schema.safeParse(input);
+  const contract =
+    operation === "edit" ? editPlayerMessageWrite : deletePlayerMessageWrite;
+  const parsed = contract.request.safeParse(input);
   if (
     !parsed.success ||
-    !z.uuid().safeParse(messageId).success ||
+    !contract.parameters.messageId.safeParse(messageId).success ||
     !Number.isSafeInteger(playerId) ||
     playerId <= 0
   )

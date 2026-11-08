@@ -908,10 +908,20 @@
     "source": "src/app/api/tournaments/[edition]/players/[osuId]/messages/[messageId]/route.ts",
     "methods": {
       "PATCH": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "editPlayerMessage",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-message-board.tsx"
+        ]
       },
       "DELETE": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "deletePlayerMessage",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-message-board.tsx"
+        ]
       }
     }
   },
@@ -920,7 +930,12 @@
     "source": "src/app/api/tournaments/[edition]/players/[osuId]/messages/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "postPlayerMessage",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-message-board.tsx"
+        ]
       }
     }
   },

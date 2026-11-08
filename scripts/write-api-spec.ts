@@ -32,6 +32,11 @@ import {
   createTournamentWrite,
   deleteTournamentDraftWrite,
 } from "../src/lib/tournament-write-contracts";
+import {
+  deletePlayerMessageWrite,
+  editPlayerMessageWrite,
+  postPlayerMessageWrite,
+} from "../src/lib/player-message-write-contract";
 import { lookupArchiveStaffWrite } from "../src/lib/archive-staff-write-contract";
 import { reviewBwsWrite } from "../src/lib/bws-write-contract";
 import {
@@ -139,6 +144,9 @@ const operations: readonly WriteApiOperation[] = [
   createTournamentWrite,
   changeTournamentWrite,
   deleteTournamentDraftWrite,
+  postPlayerMessageWrite,
+  editPlayerMessageWrite,
+  deletePlayerMessageWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],

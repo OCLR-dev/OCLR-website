@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { replaySummarySchema } from "./replay-model";
+import { playerMessageSchema } from "./player-message-model";
 import { siteRegistrationReadContracts } from "./site-registration-read-contracts";
 import { playerLeaderboardReadContract } from "./player-leaderboard-model";
 import { publicBracketReadContract } from "./bracket-read-contract";
@@ -159,16 +160,7 @@ const replayList = z.array(
     createdAt: z.date(),
   }),
 );
-const publicPlayerMessages = z.array(
-  z.strictObject({
-    id: z.string(),
-    authorId: z.number(),
-    author: z.string(),
-    text: z.string(),
-    createdAt: z.string(),
-    version: z.string(),
-  }),
-);
+const publicPlayerMessages = z.array(playerMessageSchema);
 const publicPlayerMra = z.strictObject({
   mra: z.union([z.null(), z.number()]),
   state: z.union([z.literal("pending"), z.literal("ready")]),

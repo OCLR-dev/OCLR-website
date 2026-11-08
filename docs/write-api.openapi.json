@@ -34023,6 +34023,603 @@
           }
         }
       }
+    },
+    "/api/tournaments/{edition}/players/{osuId}/messages": {
+      "post": {
+        "operationId": "postPlayerMessage",
+        "summary": "Post a signed message for a published tournament player",
+        "description": "Requires a browser session and a target with accepted registration in the published edition. The signed-in account is the author. Reusing its request ID with the same target and saved text returns the existing message. A changed payload or reuse after deletion conflicts. Posting limits apply per author across targets, including recently deleted messages.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "osuId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Must convert to a positive safe integer."
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 8192,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "text": {
+                    "description": "After trimming surrounding whitespace, 1 to 1000 UTF-16 code units.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The saved or replayed message, including its current version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "authorId": {
+                      "type": "number"
+                    },
+                    "author": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "authorId",
+                    "author",
+                    "text",
+                    "createdAt",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid player ID or message request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin or authentication channel rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The target player is not accepted in the published edition.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request ID is already in use for different content, another target, or a deleted message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The author exceeded the posting rate limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tournaments/{edition}/players/{osuId}/messages/{messageId}": {
+      "patch": {
+        "operationId": "editPlayerMessage",
+        "summary": "Edit the signed-in author's player message",
+        "description": "Checks current publication, accepted registration, message ownership and the supplied version. An edit retains the original creation time and returns the new version. Refresh the list after a conflict before trying again.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "osuId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Must convert to a positive safe integer."
+            }
+          },
+          {
+            "name": "messageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 8192,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "pattern": "^\\d+$",
+                    "description": "Opaque version returned by the server. Send it as a string."
+                  },
+                  "text": {
+                    "description": "After trimming surrounding whitespace, 1 to 1000 UTF-16 code units.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "version",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The edited message with its updated version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "authorId": {
+                      "type": "number"
+                    },
+                    "author": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "authorId",
+                    "author",
+                    "text",
+                    "createdAt",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid player ID, message ID or request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin or authentication channel rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The target player is not accepted in the published edition or the owned message was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The message has changed since the supplied version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deletePlayerMessage",
+        "summary": "Delete the signed-in author's player message",
+        "description": "Checks current publication, accepted registration, message ownership and the supplied version. Repeated deletion returns not found. Replaying the original post after deletion returns a conflict.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "osuId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Must convert to a positive safe integer."
+            }
+          },
+          {
+            "name": "messageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 8192,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "pattern": "^\\d+$",
+                    "description": "Opaque version returned by the server. Send it as a string."
+                  }
+                },
+                "required": [
+                  "version"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The message was deleted. The JSON response is null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid player ID, message ID or request fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin or authentication channel rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The target player is not accepted in the published edition or the owned message was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The message has changed since the supplied version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

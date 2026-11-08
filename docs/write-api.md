@@ -104,6 +104,11 @@ historical corrections, including staff identity confirmation. Blank draft
 deletion requires a matching slug and revision and retains the reserved slug
 and audit history.
 
+Player message creation, edits and deletion share the saved public message
+shape. Creation deduplicates a matching request ID. Edits and deletion require
+the author's current opaque version and an accepted target in a published
+edition. A successful deletion returns JSON null.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.
