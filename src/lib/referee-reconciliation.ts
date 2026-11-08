@@ -13,6 +13,10 @@ import {
 import type { User } from "./auth/sessions";
 import { assertBusinessWrite } from "./auth/staff";
 import { fixtureForReview } from "./fixtures";
+import {
+  reconcileRefereeAttemptWrite,
+  type RefereeReconciliationResult,
+} from "./referee-write-contracts";
 import { HttpError } from "./http";
 import { matchSourceSchema } from "./match-model";
 import { previewMatch } from "./match-scoring";
@@ -173,34 +177,14 @@ async function databaseRefereeReconciliation(
 export type RefereeReconciliationWorkspace = Awaited<
   ReturnType<typeof refereeReconciliation>
 >;
-const commandSchema = z
-  .object({
-    requestKey: z.uuid(),
-    expectedRevision: z.number().int().nonnegative(),
-    expectedSessionRevision: z.number().int().nonnegative(),
-    dependencyFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-    attemptId: z.uuid(),
-    importId: z.uuid().nullable(),
-    sourceFingerprint: z
-      .string()
-      .regex(/^[a-f0-9]{64}$/)
-      .nullable(),
-    gameId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).nullable(),
-  })
-  .strict()
-  .refine((v) =>
-    v.importId === null
-      ? v.gameId === null && v.sourceFingerprint === null
-      : v.gameId !== null && v.sourceFingerprint !== null,
-  );
 export async function reconcileRefereeAttempt(
   actor: User,
   slug: string,
   fixtureId: string,
   input: unknown,
-) {
+): Promise<RefereeReconciliationResult> {
   await assertBusinessWrite(actor, slug);
-  const parsed = commandSchema.safeParse(input);
+  const parsed = reconcileRefereeAttemptWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,

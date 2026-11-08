@@ -1,6 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   editionState,
@@ -17,6 +16,11 @@ import {
 import type { User } from "./auth/sessions";
 import { assertBusinessWrite } from "./auth/staff";
 import { assertOperationalEdition } from "./archive-guard";
+import {
+  changeRefereeMpWrite,
+  type RefereeMpView,
+} from "./referee-write-contracts";
+export type { RefereeMpView } from "./referee-write-contracts";
 import { HttpError } from "./http";
 import {
   assertRefereeAccess,
@@ -35,41 +39,6 @@ import type { RefereeEventPayload } from "./referee-model";
 import { refereeIrcRoomId } from "./referee-irc";
 
 type Tx = Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0];
-const version = z.number().int().nonnegative();
-const commandSchema = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("status") }).strict(),
-  z
-    .object({
-      action: z.literal("bind"),
-      match: z.string().trim().min(1).max(250),
-      expectedRevision: version,
-      expectedSessionRevision: version,
-      dependencyFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("bind_room"),
-      expectedRoomId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-      expectedRevision: version,
-      expectedSessionRevision: version,
-      dependencyFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-    })
-    .strict(),
-  z.object({ action: z.literal("unbind"), expectedRevision: version }).strict(),
-  z
-    .object({
-      action: z.literal("sync"),
-      expectedRevision: version,
-      expectedRoomId: z
-        .number()
-        .int()
-        .positive()
-        .max(Number.MAX_SAFE_INTEGER)
-        .optional(),
-    })
-    .strict(),
-]);
 async function lock(tx: Tx, actor: User, slug: string, fixtureId: string) {
   await tx.execute(sql`SELECT pg_advisory_xact_lock(17301)`);
   await tx
@@ -98,7 +67,7 @@ async function view(
   actor: User,
   slug: string,
   fixtureId: string,
-) {
+): Promise<RefereeMpView> {
   const workspace = await readRefereeWorkspace(tx, actor, slug, fixtureId);
   const binding = await bindingFor(tx, fixtureId);
   return {
@@ -121,7 +90,6 @@ async function view(
       : null,
   };
 }
-export type RefereeMpView = Awaited<ReturnType<typeof view>>;
 
 /** Source corrections append an aborted provisional outcome; no human event is overwritten. */
 async function invalidate(
@@ -190,7 +158,7 @@ export async function refereeMpCommand(
   input: unknown,
 ): Promise<RefereeMpView> {
   await assertBusinessWrite(actor, slug);
-  const parsed = commandSchema.safeParse(input);
+  const parsed = changeRefereeMpWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,

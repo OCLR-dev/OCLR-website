@@ -42,15 +42,21 @@ import {
 import { scoringRulesSchema } from "./competition-model";
 import { remoteMode } from "./data-source";
 import { persistRoundRefereePolicy } from "./round-referee-policy";
+import {
+  changeRefereeWorkspaceWrite,
+  type RefereeCommandResult,
+} from "./referee-write-contracts";
+export {
+  refereeCommandSchema,
+  type RefereeCommand,
+} from "./referee-write-contracts";
 import { HttpError } from "./http";
 import {
   defaultRefereeRoomName,
   emptyRefereeSettings,
-  refereeSettingsSchema,
 } from "./referee-commands";
 import {
   projectReferee,
-  refereeActionSchema,
   refereePolicySchema,
   validateRefereeAction,
   type RefereeEvent,
@@ -67,32 +73,6 @@ export type { RefereeBasis } from "./fixture-read-contracts";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 const hash = (value: unknown) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex");
-const common = {
-  requestKey: z.uuid(),
-  expectedRevision: z.number().int().nonnegative(),
-  dependencyFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-};
-export const refereeCommandSchema = z.discriminatedUnion("action", [
-  z
-    .object({
-      ...common,
-      action: z.literal("save_settings"),
-      settings: refereeSettingsSchema,
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("configure_policy"),
-      expectedPolicyRevision: z.number().int().nonnegative(),
-      policy: refereePolicySchema,
-    })
-    .strict(),
-  z.object({ ...common, action: z.literal("reconfirm_dependencies") }).strict(),
-  ...refereeActionSchema.options.map((option) => option.extend(common)),
-]);
-export type RefereeCommand = z.infer<typeof refereeCommandSchema>;
-
 /** Rechecked inside every transaction, including idempotent replay. No role is inferred from repository access. */
 export async function assertRefereeAccess(
   reader: Reader,
@@ -493,9 +473,9 @@ export async function refereeCommand(
   transaction?: Parameters<
     Parameters<ReturnType<typeof db>["transaction"]>[0]
   >[0],
-) {
+): Promise<RefereeCommandResult> {
   await assertCapability(actor, "record_results", slug);
-  const parsed = refereeCommandSchema.safeParse(input);
+  const parsed = changeRefereeWorkspaceWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,

@@ -30,6 +30,33 @@ import {
   refereeReconciliation,
   reconcileRefereeAttempt,
 } from "../../src/lib/referee-reconciliation";
+import { POST as route } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/reconciliation/route";
+import {
+  reconcileRefereeAttemptWrite,
+  refereeReconciliationReceipt,
+} from "../../src/lib/referee-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => actor,
+}));
+function post(fixtureId: string, input: unknown) {
+  return route(
+    new Request(
+      origin +
+        reconcileRefereeAttemptWrite.path
+          .replace("{edition}", "test-cup")
+          .replace("{fixtureId}", fixtureId),
+      {
+        method: "POST",
+        headers: { origin, "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+    ),
+    { params: Promise.resolve({ edition: "test-cup", fixtureId }) },
+  );
+}
 const url = process.env.TEST_DATABASE_URL;
 describe.skipIf(!url)("saved referee MP reconciliation boundaries", () => {
   let fixtureId: string, w: RefereeWorkspace;
@@ -38,6 +65,7 @@ describe.skipIf(!url)("saved referee MP reconciliation boundaries", () => {
     if (new URL(url!).pathname === "/oclr_frontend_test")
       throw Error("Not the preview DB");
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -103,21 +131,21 @@ describe.skipIf(!url)("saved referee MP reconciliation boundaries", () => {
   });
   it("retries return one receipt and payload changes cannot reuse request IDs", async () => {
     const input = await command();
-    const a = await reconcileRefereeAttempt(
-        actor,
-        "test-cup",
-        fixtureId,
-        input,
-      ),
-      b = await reconcileRefereeAttempt(actor, "test-cup", fixtureId, input);
-    expect(b.receipt).toEqual(a.receipt);
+    const first = await post(fixtureId, input);
+    expect(first.status).toBe(200);
+    const saved = await first.json();
+    expect(refereeReconciliationReceipt.parse(saved.receipt)).toEqual(
+      saved.receipt,
+    );
+    expect(
+      extendedSchemas.refereeReconciliation.parse(saved.workspace),
+    ).toEqual(saved.workspace);
+    const replay = await post(fixtureId, input);
+    expect(replay.status).toBe(200);
+    expect((await replay.json()).receipt).toEqual(saved.receipt);
     expect(await db().select().from(refereeReconciliations)).toHaveLength(1);
-    await expect(
-      reconcileRefereeAttempt(actor, "test-cup", fixtureId, {
-        ...input,
-        gameId: 999,
-      }),
-    ).rejects.toMatchObject({ status: 409 });
+    const conflict = await post(fixtureId, { ...input, gameId: 999 });
+    expect(conflict.status).toBe(409);
   });
   it("serializes concurrent confirmation and requires current session revision", async () => {
     const input = await command();

@@ -42,12 +42,40 @@ vi.mock("../../src/lib/osu-matches", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../src/lib/osu-matches")>()),
   fetchMatchSource: vi.fn(),
 }));
+import { POST as route } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/mp/route";
+import {
+  changeRefereeMpWrite,
+  refereeMpBindingResponse,
+} from "../../src/lib/referee-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => actor,
+}));
+function post(fixtureId: string, input: unknown) {
+  return route(
+    new Request(
+      origin +
+        changeRefereeMpWrite.path
+          .replace("{edition}", "test-cup")
+          .replace("{fixtureId}", fixtureId),
+      {
+        method: "POST",
+        headers: { origin, "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+    ),
+    { params: Promise.resolve({ edition: "test-cup", fixtureId }) },
+  );
+}
 const url = process.env.TEST_DATABASE_URL;
 describe.skipIf(!url)("MP binding and atomic provisional scores", () => {
   let w: RefereeWorkspace;
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -85,15 +113,14 @@ describe.skipIf(!url)("MP binding and atomic provisional scores", () => {
   }
   const call = (input: unknown, user = actor) =>
     refereeMpCommand(user, "test-cup", w.fixture.id, input);
-  async function bind() {
-    return call({
-      action: "bind",
-      match: "https://osu.ppy.sh/community/matches/880001",
-      expectedRevision: 0,
-      expectedSessionRevision: w.session?.revision ?? 0,
-      dependencyFingerprint: w.dependencyFingerprint,
-    });
-  }
+  const bindInput = () => ({
+    action: "bind",
+    match: "https://osu.ppy.sh/community/matches/880001",
+    expectedRevision: 0,
+    expectedSessionRevision: w.session?.revision ?? 0,
+    dependencyFingerprint: w.dependencyFingerprint,
+  });
+  const bind = () => call(bindInput());
   const desktopActor = { ...actor, sessionId: randomUUID() };
   async function bindRoom(roomId = 880001) {
     return refereeIrcRelay(desktopActor, w.fixture.id, {
@@ -211,7 +238,16 @@ describe.skipIf(!url)("MP binding and atomic provisional scores", () => {
     return call({ action: "sync", expectedRevision: status.binding!.revision });
   }
   it("binds without provider work, automatically scores once across simultaneous polls and reload, without official publication", async () => {
-    await bind();
+    const response = await post(w.fixture.id, bindInput());
+    expect(response.status).toBe(200);
+    const bound = await response.json();
+    expect(extendedSchemas.refereeWorkspace.parse(bound.workspace)).toEqual(
+      bound.workspace,
+    );
+    expect(refereeMpBindingResponse.parse(bound.binding)).toEqual(
+      bound.binding,
+    );
+    expect(bound.binding).toMatchObject({ matchId: 880001, revision: 1 });
     expect(fetchMatchSource).not.toHaveBeenCalled();
     const before = (await db().select().from(matchResults))[0];
     await Promise.all([sync(), sync()]);
@@ -232,11 +268,18 @@ describe.skipIf(!url)("MP binding and atomic provisional scores", () => {
       outcome.payload,
     );
     await sync();
-    expect(
-      (await call({ action: "status" })).workspace.projection.score[
-        w.teams[0].id
-      ],
-    ).toBe(1);
+    const calls = vi.mocked(fetchMatchSource).mock.calls.length;
+    const status = await post(w.fixture.id, { action: "status" });
+    expect(status.status).toBe(200);
+    const snapshot = await status.json();
+    expect(extendedSchemas.refereeWorkspace.parse(snapshot.workspace)).toEqual(
+      snapshot.workspace,
+    );
+    expect(refereeMpBindingResponse.parse(snapshot.binding)).toEqual(
+      snapshot.binding,
+    );
+    expect(snapshot.workspace.projection.score[w.teams[0].id]).toBe(1);
+    expect(vi.mocked(fetchMatchSource)).toHaveBeenCalledTimes(calls);
     expect((await db().select().from(matchResults))[0]).toEqual(before);
     expect(await db().select().from(resultRevisions)).toHaveLength(0);
     expect(

@@ -40,6 +40,11 @@ import {
   importMatchResultWrite,
   previewMatchImportWrite,
 } from "../src/lib/match-result-write-contracts";
+import {
+  changeRefereeMpWrite,
+  changeRefereeWorkspaceWrite,
+  reconcileRefereeAttemptWrite,
+} from "../src/lib/referee-write-contracts";
 import { refereeRelayWrite } from "../src/lib/referee-relay-contract";
 import {
   removeRegistrationWrite,
@@ -107,6 +112,9 @@ const operations: readonly WriteApiOperation[] = [
   importMatchResultWrite,
   previewMatchImportWrite,
   changeMatchResultWrite,
+  changeRefereeWorkspaceWrite,
+  changeRefereeMpWrite,
+  reconcileRefereeAttemptWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
@@ -253,6 +261,17 @@ function responseBranchSchema(response: WriteResponseSchema) {
 }
 
 function responseSchema(response: WriteApiOperation["response"]) {
+  if ("properties" in response) {
+    const entries = Object.entries(response.properties);
+    return {
+      type: "object",
+      properties: Object.fromEntries(
+        entries.map(([name, schema]) => [name, responseBranchSchema(schema)]),
+      ),
+      required: entries.map(([name]) => name),
+      additionalProperties: false,
+    };
+  }
   return "anyOf" in response
     ? { anyOf: response.anyOf.map(responseBranchSchema) }
     : responseBranchSchema(response);

@@ -292,7 +292,20 @@
     "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/mp/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeRefereeMp",
+        "access": "browser",
+        "actions": [
+          "status",
+          "bind",
+          "bind_room",
+          "unbind",
+          "sync"
+        ],
+        "consumers": [
+          "src/components/referee-mp.tsx",
+          "src/components/referee-panel.tsx"
+        ]
       }
     }
   },
@@ -301,7 +314,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/reconciliation/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "reconcileRefereeAttempt",
+        "access": "browser",
+        "consumers": [
+          "src/components/referee-reconciliation.tsx"
+        ]
       }
     }
   },
@@ -310,7 +328,24 @@
     "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/route.ts",
     "methods": {
       "PATCH": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeRefereeWorkspace",
+        "access": "browser",
+        "actions": [
+          "save_settings",
+          "configure_policy",
+          "reconfirm_dependencies",
+          "set_order",
+          "record_selection",
+          "declare_ex",
+          "start_attempt",
+          "resolve_attempt",
+          "replay_attempt",
+          "void_last"
+        ],
+        "consumers": [
+          "src/components/referee-panel.tsx"
+        ]
       }
     }
   },

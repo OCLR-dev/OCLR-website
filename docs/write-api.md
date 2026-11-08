@@ -78,6 +78,11 @@ document review, approval and publication as separate permissions. Import and
 result commands return the existing private review workspace and check retries
 by request key and payload.
 
+Referee events, MP bindings and saved evidence reconciliation return their
+private workspace together with a receipt or binding. MP status reads through
+the same POST without provider work. Sync stores provisional scores, and
+reconciliation records links to saved evidence.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

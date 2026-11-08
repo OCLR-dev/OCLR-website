@@ -18,7 +18,10 @@ export type WriteApiOperation = {
   parameters?: Readonly<Record<string, z.ZodType>>;
   successStatus: number;
   successDescription: string;
-  response: WriteResponseSchema | { anyOf: readonly WriteResponseSchema[] };
+  response:
+    | WriteResponseSchema
+    | { anyOf: readonly WriteResponseSchema[] }
+    | { properties: Readonly<Record<string, WriteResponseSchema>> };
   errors: Readonly<Record<number, string>>;
   errorResponses?: Readonly<Record<number, z.ZodType>>;
   consumers: readonly string[];

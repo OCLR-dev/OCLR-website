@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
+import { changeRefereeMpWrite } from "@/lib/referee-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { refereeMpCommand } from "@/lib/referee-mp";
 export async function POST(
@@ -15,7 +16,7 @@ export async function POST(
         actor,
         edition,
         fixtureId,
-        await readJson(request),
+        await readJson(request, changeRefereeMpWrite.maxBodyBytes),
       ),
       { headers: { "Cache-Control": "no-store" } },
     );
