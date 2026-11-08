@@ -8,3 +8,6 @@ export const registrationBodyLimit = 256 * 1024;
 // 4,096 UUIDs × (36 characters × 6 escaped bytes + quotes/comma) is 897,024
 // bytes. Leave room for command/version fields, including escaped property names.
 export const draftCommandBodyLimit = 1024 * 1024;
+
+export const MANUAL_BATCH_LIMIT = 20;
+export const MANUAL_BATCH_TEXT_LIMIT = 8192;

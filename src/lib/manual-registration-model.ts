@@ -1,7 +1,13 @@
 import { HttpError } from "./http";
 
-export const MANUAL_BATCH_LIMIT = 20;
-export const MANUAL_BATCH_TEXT_LIMIT = 8192;
+import {
+  MANUAL_BATCH_LIMIT,
+  MANUAL_BATCH_TEXT_LIMIT,
+} from "./request-body-limits";
+export {
+  MANUAL_BATCH_LIMIT,
+  MANUAL_BATCH_TEXT_LIMIT,
+} from "./request-body-limits";
 export type ManualInputType = "id" | "username";
 export function parseManualLines(text: string, inputType: ManualInputType) {
   if (!text.trim() || text.length > MANUAL_BATCH_TEXT_LIMIT)

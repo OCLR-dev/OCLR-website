@@ -32,7 +32,11 @@ import {
   assertRegistrationUnassigned,
   registrationOperation,
 } from "./registrations";
-import { registrationParticipationInput } from "./registration-write-contract";
+import {
+  registrationParticipationInput,
+  reviewRegistrationWrite,
+  type ReviewedRegistration,
+} from "./registration-write-contract";
 import { RemoteDataError } from "./remote-errors";
 export function parseFilters(input: unknown) {
   const result = staffApplicationFilters.safeParse(input);
@@ -270,17 +274,9 @@ export async function reviewApplication(
   actor: User,
   id: string,
   input: unknown,
-) {
+): Promise<ReviewedRegistration> {
   await capabilityScope(actor, "manage_registrations");
-  const result = z
-    .object({
-      status: z.enum(["accepted", "rejected", "deferred", "pending"]),
-      reason: z.string().trim().max(1000).default(""),
-      expectedUpdatedAt: z.iso.datetime(),
-      confirmed: z.literal(true),
-    })
-    .strict()
-    .safeParse(input);
+  const result = reviewRegistrationWrite.request.safeParse(input);
   if (!z.uuid().safeParse(id).success || !result.success)
     throw new HttpError(400, "Confirm a valid review decision.");
   if (result.data.status === "rejected" && !result.data.reason)

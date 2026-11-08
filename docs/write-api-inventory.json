@@ -31,7 +31,12 @@
     "source": "src/app/api/admin/registrations/[id]/review/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "reviewRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/review-form.tsx"
+        ]
       }
     }
   },
@@ -239,7 +244,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/bws/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "reviewBws",
+        "access": "browser",
+        "consumers": [
+          "src/components/bws-review.tsx"
+        ]
       }
     }
   },
@@ -276,7 +286,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/registrations/batch/preview/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "previewManualRegistrations",
+        "access": "browser",
+        "consumers": [
+          "src/components/bulk-manual-registration.tsx"
+        ]
       }
     }
   },
@@ -285,7 +300,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/registrations/batch/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "addManualRegistrations",
+        "access": "browser",
+        "consumers": [
+          "src/components/bulk-manual-registration.tsx"
+        ]
       }
     }
   },
@@ -294,7 +314,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/registrations/preview/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "previewManualRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/manual-registration.tsx"
+        ]
       }
     }
   },
@@ -303,7 +328,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/registrations/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "addManualRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/manual-registration.tsx"
+        ]
       }
     }
   },

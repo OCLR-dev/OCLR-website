@@ -1,5 +1,4 @@
 import { and, eq } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   editionState,
@@ -17,29 +16,23 @@ import { parseOsuProfile } from "./osu-profile-model";
 import { verifyEligibility } from "./eligibility";
 import { HttpError } from "./http";
 import { registrationMetadata } from "./live-season-columns";
+import { parseManualLines } from "./manual-registration-model";
 import {
-  MANUAL_BATCH_LIMIT,
-  MANUAL_BATCH_TEXT_LIMIT,
-  parseManualLines,
-} from "./manual-registration-model";
+  addManualRegistrationWrite,
+  addManualRegistrationsWrite,
+  previewManualRegistrationWrite,
+  previewManualRegistrationsWrite,
+  type ManualBatchPreview,
+  type ManualBatchResult,
+  type ManualBatchRow,
+  type ManualRegistrationBatch,
+  type ManualRegistrationPreview,
+} from "./manual-registration-write-contract";
+export type {
+  ManualBatchResult,
+  ManualBatchRow,
+} from "./manual-registration-write-contract";
 
-const lookupInput = z
-  .object({
-    input: z.string().trim().min(1).max(300),
-    inputType: z.enum(["id", "username"]).default("id"),
-  })
-  .strict();
-const enrollmentInput = lookupInput
-  .extend({
-    expectedRevision: z.number().int().nonnegative(),
-    status: z.enum(["pending", "accepted"]),
-    confirmed: z.literal(true),
-    publicationAcknowledged: z.boolean().default(false),
-    overrideWindow: z.boolean().default(false),
-    overrideEligibility: z.boolean().default(false),
-    exceptionReason: z.string().trim().max(1000).default(""),
-  })
-  .strict();
 async function verifiedIdentity(
   input: string,
   inputType: "id" | "username" = "id",
@@ -89,9 +82,9 @@ export async function previewManualRegistration(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<ManualRegistrationPreview> {
   await assertCapability(actor, "manage_registrations", slug);
-  const parsed = lookupInput.safeParse(input);
+  const parsed = previewManualRegistrationWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,
@@ -133,7 +126,7 @@ export async function addManualRegistration(
   input: unknown,
 ) {
   await assertCapability(actor, "manage_registrations", slug);
-  const parsed = enrollmentInput.safeParse(input);
+  const parsed = addManualRegistrationWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Confirm a valid player and registration status.");
   const command = parsed.data;
@@ -234,29 +227,13 @@ async function existingRegistration(slug: string, osuId: number) {
     );
   return row ?? null;
 }
-const batchPreviewInput = z
-  .object({
-    text: z.string().max(MANUAL_BATCH_TEXT_LIMIT),
-    inputType: z.enum(["id", "username"]),
-  })
-  .strict();
-type SinglePreview = Awaited<ReturnType<typeof previewManualRegistration>>;
-export type ManualBatchRow = {
-  line: number;
-  raw: string;
-  input: string;
-  inputType: "id" | "username";
-  state: "ready" | "duplicate" | "existing" | "failed";
-  preview: SinglePreview | null;
-  error: string | null;
-};
 export async function previewManualRegistrations(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<ManualBatchPreview> {
   await context(actor, slug);
-  const parsed = batchPreviewInput.safeParse(input);
+  const parsed = previewManualRegistrationsWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,
@@ -320,42 +297,13 @@ export async function previewManualRegistrations(
     },
   };
 }
-const batchEnrollmentInput = z
-  .object({
-    expectedRevision: z.number().int().nonnegative(),
-    status: z.enum(["pending", "accepted"]),
-    confirmed: z.literal(true),
-    publicationAcknowledged: z.boolean().default(false),
-    overrideWindow: z.boolean().default(false),
-    exceptionReason: z.string().trim().max(1000).default(""),
-    rows: z
-      .array(
-        z
-          .object({
-            line: z.number().int().positive().max(MANUAL_BATCH_TEXT_LIMIT),
-            osuId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-            overrideEligibility: z.boolean().default(false),
-          })
-          .strict(),
-      )
-      .min(1)
-      .max(MANUAL_BATCH_LIMIT),
-  })
-  .strict();
-export type ManualBatchResult = {
-  line: number;
-  osuId: number;
-  state: "added" | "skipped" | "failed";
-  registration: { id: string; status: string } | null;
-  error: string | null;
-};
 export async function addManualRegistrations(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<ManualRegistrationBatch> {
   const current = await context(actor, slug);
-  const parsed = batchEnrollmentInput.safeParse(input);
+  const parsed = addManualRegistrationsWrite.request.safeParse(input);
   if (
     !parsed.success ||
     new Set(parsed.data.rows.map((r) => r.line)).size !==

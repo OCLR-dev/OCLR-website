@@ -2694,6 +2694,3582 @@
           }
         }
       }
+    },
+    "/api/admin/registrations/{id}/review": {
+      "post": {
+        "operationId": "reviewRegistration",
+        "summary": "Review a pending or deferred registration",
+        "description": "Requires the registration edition's manage_registrations capability. Rejection requires a reason. The current update timestamp is checked in the transaction. A successful review and its audit event commit together.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "confirmed": {
+                    "type": "boolean",
+                    "const": true
+                  },
+                  "expectedUpdatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "accepted",
+                      "rejected",
+                      "deferred",
+                      "pending"
+                    ]
+                  },
+                  "reason": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 1000
+                  }
+                },
+                "required": [
+                  "confirmed",
+                  "expectedUpdatedAt",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated application with its existing answers and acknowledgment data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "pending",
+                        "deferred",
+                        "accepted",
+                        "rejected",
+                        "withdrawn"
+                      ]
+                    },
+                    "editionSlug": {
+                      "type": "string"
+                    },
+                    "userId": {
+                      "type": "number"
+                    },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "player",
+                        "staff"
+                      ]
+                    },
+                    "rulesVersion": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "eligibilityAcknowledged": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "eligibilityVerification": {
+                      "anyOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "rankGraceRange": {
+                              "type": "object",
+                              "properties": {
+                                "minRank": {
+                                  "type": "number"
+                                },
+                                "maxRank": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "minRank",
+                                "maxRank"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "userId": {
+                              "type": "number"
+                            },
+                            "mode": {
+                              "type": "string",
+                              "const": "osu"
+                            },
+                            "source": {
+                              "type": "string",
+                              "const": "osu-api-v2"
+                            },
+                            "configurationVersion": {
+                              "type": "number"
+                            },
+                            "status": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "unavailable"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "pass"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "fail"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "staff_override"
+                                }
+                              ]
+                            },
+                            "pp": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "rank": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "fetchedAt": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "checkedAt": {
+                              "type": "string"
+                            },
+                            "limits": {
+                              "type": "object",
+                              "properties": {
+                                "minPp": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "maxPp": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "minRank": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "maxRank": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "minPp",
+                                "maxPp",
+                                "minRank",
+                                "maxRank"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "comparisons": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "minPp"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "maxPp"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "minRank"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "maxRank"
+                                      }
+                                    ]
+                                  },
+                                  "limit": {
+                                    "type": "number"
+                                  },
+                                  "value": {
+                                    "type": [
+                                      "null",
+                                      "number"
+                                    ]
+                                  },
+                                  "passed": {
+                                    "anyOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "boolean",
+                                        "const": false
+                                      },
+                                      {
+                                        "type": "boolean",
+                                        "const": true
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "limit",
+                                  "value",
+                                  "passed"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "userId",
+                            "mode",
+                            "source",
+                            "configurationVersion",
+                            "status",
+                            "pp",
+                            "rank",
+                            "fetchedAt",
+                            "checkedAt",
+                            "limits",
+                            "comparisons"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "configurationVersion": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "answers": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "attempt": {
+                      "type": "number"
+                    },
+                    "statusReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "draftUnavailableReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "editionSlug",
+                    "userId",
+                    "source",
+                    "rulesVersion",
+                    "eligibilityAcknowledged",
+                    "eligibilityVerification",
+                    "configurationVersion",
+                    "answers",
+                    "attempt",
+                    "statusReason",
+                    "draftUnavailableReason",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid registration ID, review command, or rejection reason.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The application was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The application changed, its current status disallows the transition, or the edition is locked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/registrations/preview": {
+      "post": {
+        "operationId": "previewManualRegistration",
+        "summary": "Verify one identity for staff-assisted registration",
+        "description": "Requires manage_registrations for the edition. An ID, canonical profile URL, or explicit username can identify a player. The preview verifies current identity and eligibility and reports any existing application without creating one.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 1024,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "inputType": {
+                    "default": "id",
+                    "type": "string",
+                    "enum": [
+                      "id",
+                      "username"
+                    ]
+                  }
+                },
+                "required": [
+                  "input"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verified profile, edition revision and eligibility preview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "profile": {
+                      "type": "object",
+                      "properties": {
+                        "osuId": {
+                          "type": "number"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "canonicalUrl": {
+                          "type": "string"
+                        },
+                        "avatarUrl": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "coverUrl": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "countryCode": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "countryName": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "defaultRuleset": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "string",
+                              "const": "osu"
+                            },
+                            {
+                              "type": "string",
+                              "const": "taiko"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fruits"
+                            },
+                            {
+                              "type": "string",
+                              "const": "mania"
+                            }
+                          ]
+                        },
+                        "joinedAt": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "lastSeenAt": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "previousUsernames": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "active": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "boolean",
+                              "const": false
+                            },
+                            {
+                              "type": "boolean",
+                              "const": true
+                            }
+                          ]
+                        },
+                        "bot": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "boolean",
+                              "const": false
+                            },
+                            {
+                              "type": "boolean",
+                              "const": true
+                            }
+                          ]
+                        },
+                        "ruleset": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "osu"
+                            },
+                            {
+                              "type": "string",
+                              "const": "taiko"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fruits"
+                            },
+                            {
+                              "type": "string",
+                              "const": "mania"
+                            }
+                          ]
+                        },
+                        "fetchedAt": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "type": "string",
+                          "const": "osu! API v2"
+                        },
+                        "badges": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "awardedAt": {
+                                    "type": "string"
+                                  },
+                                  "url": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "imageUrl": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "image2xUrl": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "description",
+                                  "awardedAt",
+                                  "url",
+                                  "imageUrl",
+                                  "image2xUrl"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          ]
+                        },
+                        "rankHistory": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "mode": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "const": "osu"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "taiko"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "fruits"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "mania"
+                                    }
+                                  ]
+                                },
+                                "data": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                },
+                                "dayOffsets": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "required": [
+                                "mode",
+                                "data"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "statistics": {
+                          "type": "object",
+                          "properties": {
+                            "globalRank": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "globalRankPercent": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "countryRank": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "pp": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "accuracy": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "playCount": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "playTimeSeconds": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "rankedScore": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "totalScore": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "maximumCombo": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "totalHits": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "level": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "current": {
+                                      "type": [
+                                        "null",
+                                        "number"
+                                      ]
+                                    },
+                                    "progress": {
+                                      "type": [
+                                        "null",
+                                        "number"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "current",
+                                    "progress"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            },
+                            "grades": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": [
+                                      "null",
+                                      "number"
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "globalRank",
+                            "globalRankPercent",
+                            "countryRank",
+                            "pp",
+                            "accuracy",
+                            "playCount",
+                            "playTimeSeconds",
+                            "rankedScore",
+                            "totalScore",
+                            "maximumCombo",
+                            "totalHits",
+                            "level",
+                            "grades"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "osuId",
+                        "username",
+                        "canonicalUrl",
+                        "avatarUrl",
+                        "coverUrl",
+                        "countryCode",
+                        "countryName",
+                        "defaultRuleset",
+                        "joinedAt",
+                        "lastSeenAt",
+                        "previousUsernames",
+                        "active",
+                        "bot",
+                        "ruleset",
+                        "fetchedAt",
+                        "source",
+                        "badges",
+                        "rankHistory",
+                        "statistics"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "existing": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "pending",
+                                "deferred",
+                                "accepted",
+                                "rejected",
+                                "withdrawn"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "verification": {
+                      "anyOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "rankGraceRange": {
+                              "type": "object",
+                              "properties": {
+                                "minRank": {
+                                  "type": "number"
+                                },
+                                "maxRank": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "minRank",
+                                "maxRank"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "userId": {
+                              "type": "number"
+                            },
+                            "mode": {
+                              "type": "string",
+                              "const": "osu"
+                            },
+                            "source": {
+                              "type": "string",
+                              "const": "osu-api-v2"
+                            },
+                            "configurationVersion": {
+                              "type": "number"
+                            },
+                            "status": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "unavailable"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "pass"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "fail"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "staff_override"
+                                }
+                              ]
+                            },
+                            "pp": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "rank": {
+                              "type": [
+                                "null",
+                                "number"
+                              ]
+                            },
+                            "fetchedAt": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "checkedAt": {
+                              "type": "string"
+                            },
+                            "limits": {
+                              "type": "object",
+                              "properties": {
+                                "minPp": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "maxPp": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "minRank": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "maxRank": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "minPp",
+                                "maxPp",
+                                "minRank",
+                                "maxRank"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "comparisons": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "minPp"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "maxPp"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "minRank"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "maxRank"
+                                      }
+                                    ]
+                                  },
+                                  "limit": {
+                                    "type": "number"
+                                  },
+                                  "value": {
+                                    "type": [
+                                      "null",
+                                      "number"
+                                    ]
+                                  },
+                                  "passed": {
+                                    "anyOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "boolean",
+                                        "const": false
+                                      },
+                                      {
+                                        "type": "boolean",
+                                        "const": true
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "limit",
+                                  "value",
+                                  "passed"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "userId",
+                            "mode",
+                            "source",
+                            "configurationVersion",
+                            "status",
+                            "pp",
+                            "rank",
+                            "fetchedAt",
+                            "checkedAt",
+                            "limits",
+                            "comparisons"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "edition": {
+                      "type": "object",
+                      "properties": {
+                        "slug": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "revision": {
+                          "type": "number"
+                        },
+                        "outsideWindow": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "slug",
+                        "name",
+                        "revision",
+                        "outsideWindow"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "profile",
+                    "existing",
+                    "verification",
+                    "edition"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing, malformed, or invalid JSON command.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or osu! profile was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The edition is locked, frozen, completed, or its revision changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "osu! lookup is rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream osu! response was unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site, privacy configuration, or verified osu! profile is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The osu! lookup timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/registrations": {
+      "post": {
+        "operationId": "addManualRegistration",
+        "summary": "Add one verified player by staff action",
+        "description": "Requires manage_registrations, matching edition revision, and explicit confirmation. Accepted status requires identity publication acknowledgment. Window and eligibility exceptions require their respective confirmations. An existing application of any status causes a conflict. The staff registration and audit event commit together.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 4096,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "inputType": {
+                    "default": "id",
+                    "type": "string",
+                    "enum": [
+                      "id",
+                      "username"
+                    ]
+                  },
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "accepted"
+                    ]
+                  },
+                  "confirmed": {
+                    "type": "boolean",
+                    "const": true
+                  },
+                  "publicationAcknowledged": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "overrideWindow": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "exceptionReason": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 1000
+                  },
+                  "overrideEligibility": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "input",
+                  "expectedRevision",
+                  "status",
+                  "confirmed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created registration identity and status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "pending",
+                        "deferred",
+                        "accepted",
+                        "rejected",
+                        "withdrawn"
+                      ]
+                    },
+                    "userId": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "userId"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing, malformed, or invalid JSON command.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or osu! profile was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Edition revision or enrollment state conflict, missing exception, or an existing registration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "osu! lookup is rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream osu! response was unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site, privacy configuration, or verified osu! profile is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The osu! lookup timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/registrations/batch/preview": {
+      "post": {
+        "operationId": "previewManualRegistrations",
+        "summary": "Verify up to 20 identities for staff-assisted registration",
+        "description": "Requires manage_registrations for the edition. Accepts 1 to 20 non-empty lines. Each row keeps its original line number. Lookup failures and duplicate or already registered identities appear in the response rows.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "maxLength": 8192
+                  },
+                  "inputType": {
+                    "type": "string",
+                    "enum": [
+                      "id",
+                      "username"
+                    ]
+                  }
+                },
+                "required": [
+                  "text",
+                  "inputType"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Per-line previews and the common edition revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "line": {
+                            "type": "number"
+                          },
+                          "raw": {
+                            "type": "string"
+                          },
+                          "input": {
+                            "type": "string"
+                          },
+                          "inputType": {
+                            "type": "string",
+                            "enum": [
+                              "id",
+                              "username"
+                            ]
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "ready",
+                              "duplicate",
+                              "existing",
+                              "failed"
+                            ]
+                          },
+                          "preview": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "profile": {
+                                    "type": "object",
+                                    "properties": {
+                                      "osuId": {
+                                        "type": "number"
+                                      },
+                                      "username": {
+                                        "type": "string"
+                                      },
+                                      "canonicalUrl": {
+                                        "type": "string"
+                                      },
+                                      "avatarUrl": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      },
+                                      "coverUrl": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      },
+                                      "countryCode": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      },
+                                      "countryName": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      },
+                                      "defaultRuleset": {
+                                        "anyOf": [
+                                          {
+                                            "type": "null"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "osu"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "taiko"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "fruits"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "mania"
+                                          }
+                                        ]
+                                      },
+                                      "joinedAt": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      },
+                                      "lastSeenAt": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      },
+                                      "previousUsernames": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "active": {
+                                        "anyOf": [
+                                          {
+                                            "type": "null"
+                                          },
+                                          {
+                                            "type": "boolean",
+                                            "const": false
+                                          },
+                                          {
+                                            "type": "boolean",
+                                            "const": true
+                                          }
+                                        ]
+                                      },
+                                      "bot": {
+                                        "anyOf": [
+                                          {
+                                            "type": "null"
+                                          },
+                                          {
+                                            "type": "boolean",
+                                            "const": false
+                                          },
+                                          {
+                                            "type": "boolean",
+                                            "const": true
+                                          }
+                                        ]
+                                      },
+                                      "ruleset": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "const": "osu"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "taiko"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "fruits"
+                                          },
+                                          {
+                                            "type": "string",
+                                            "const": "mania"
+                                          }
+                                        ]
+                                      },
+                                      "fetchedAt": {
+                                        "type": "string"
+                                      },
+                                      "source": {
+                                        "type": "string",
+                                        "const": "osu! API v2"
+                                      },
+                                      "badges": {
+                                        "anyOf": [
+                                          {
+                                            "type": "null"
+                                          },
+                                          {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "description": {
+                                                  "type": "string"
+                                                },
+                                                "awardedAt": {
+                                                  "type": "string"
+                                                },
+                                                "url": {
+                                                  "type": [
+                                                    "null",
+                                                    "string"
+                                                  ]
+                                                },
+                                                "imageUrl": {
+                                                  "type": [
+                                                    "null",
+                                                    "string"
+                                                  ]
+                                                },
+                                                "image2xUrl": {
+                                                  "type": [
+                                                    "null",
+                                                    "string"
+                                                  ]
+                                                }
+                                              },
+                                              "required": [
+                                                "description",
+                                                "awardedAt",
+                                                "url",
+                                                "imageUrl",
+                                                "image2xUrl"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "rankHistory": {
+                                        "anyOf": [
+                                          {
+                                            "type": "null"
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "mode": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string",
+                                                    "const": "osu"
+                                                  },
+                                                  {
+                                                    "type": "string",
+                                                    "const": "taiko"
+                                                  },
+                                                  {
+                                                    "type": "string",
+                                                    "const": "fruits"
+                                                  },
+                                                  {
+                                                    "type": "string",
+                                                    "const": "mania"
+                                                  }
+                                                ]
+                                              },
+                                              "data": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "number"
+                                                }
+                                              },
+                                              "dayOffsets": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "number"
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "mode",
+                                              "data"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        ]
+                                      },
+                                      "statistics": {
+                                        "type": "object",
+                                        "properties": {
+                                          "globalRank": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "globalRankPercent": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "countryRank": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "pp": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "accuracy": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "playCount": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "playTimeSeconds": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "rankedScore": {
+                                            "type": [
+                                              "null",
+                                              "string"
+                                            ]
+                                          },
+                                          "totalScore": {
+                                            "type": [
+                                              "null",
+                                              "string"
+                                            ]
+                                          },
+                                          "maximumCombo": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "totalHits": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "level": {
+                                            "anyOf": [
+                                              {
+                                                "type": "null"
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "current": {
+                                                    "type": [
+                                                      "null",
+                                                      "number"
+                                                    ]
+                                                  },
+                                                  "progress": {
+                                                    "type": [
+                                                      "null",
+                                                      "number"
+                                                    ]
+                                                  }
+                                                },
+                                                "required": [
+                                                  "current",
+                                                  "progress"
+                                                ],
+                                                "additionalProperties": false
+                                              }
+                                            ]
+                                          },
+                                          "grades": {
+                                            "anyOf": [
+                                              {
+                                                "type": "null"
+                                              },
+                                              {
+                                                "type": "object",
+                                                "propertyNames": {
+                                                  "type": "string"
+                                                },
+                                                "additionalProperties": {
+                                                  "type": [
+                                                    "null",
+                                                    "number"
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "globalRank",
+                                          "globalRankPercent",
+                                          "countryRank",
+                                          "pp",
+                                          "accuracy",
+                                          "playCount",
+                                          "playTimeSeconds",
+                                          "rankedScore",
+                                          "totalScore",
+                                          "maximumCombo",
+                                          "totalHits",
+                                          "level",
+                                          "grades"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    },
+                                    "required": [
+                                      "osuId",
+                                      "username",
+                                      "canonicalUrl",
+                                      "avatarUrl",
+                                      "coverUrl",
+                                      "countryCode",
+                                      "countryName",
+                                      "defaultRuleset",
+                                      "joinedAt",
+                                      "lastSeenAt",
+                                      "previousUsernames",
+                                      "active",
+                                      "bot",
+                                      "ruleset",
+                                      "fetchedAt",
+                                      "source",
+                                      "badges",
+                                      "rankHistory",
+                                      "statistics"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "existing": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          "status": {
+                                            "type": "string",
+                                            "enum": [
+                                              "pending",
+                                              "deferred",
+                                              "accepted",
+                                              "rejected",
+                                              "withdrawn"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "status"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "verification": {
+                                    "anyOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "rankGraceRange": {
+                                            "type": "object",
+                                            "properties": {
+                                              "minRank": {
+                                                "type": "number"
+                                              },
+                                              "maxRank": {
+                                                "type": "number"
+                                              }
+                                            },
+                                            "required": [
+                                              "minRank",
+                                              "maxRank"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "userId": {
+                                            "type": "number"
+                                          },
+                                          "mode": {
+                                            "type": "string",
+                                            "const": "osu"
+                                          },
+                                          "source": {
+                                            "type": "string",
+                                            "const": "osu-api-v2"
+                                          },
+                                          "configurationVersion": {
+                                            "type": "number"
+                                          },
+                                          "status": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string",
+                                                "const": "unavailable"
+                                              },
+                                              {
+                                                "type": "string",
+                                                "const": "pass"
+                                              },
+                                              {
+                                                "type": "string",
+                                                "const": "fail"
+                                              },
+                                              {
+                                                "type": "string",
+                                                "const": "staff_override"
+                                              }
+                                            ]
+                                          },
+                                          "pp": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "rank": {
+                                            "type": [
+                                              "null",
+                                              "number"
+                                            ]
+                                          },
+                                          "fetchedAt": {
+                                            "type": [
+                                              "null",
+                                              "string"
+                                            ]
+                                          },
+                                          "checkedAt": {
+                                            "type": "string"
+                                          },
+                                          "limits": {
+                                            "type": "object",
+                                            "properties": {
+                                              "minPp": {
+                                                "type": [
+                                                  "null",
+                                                  "number"
+                                                ]
+                                              },
+                                              "maxPp": {
+                                                "type": [
+                                                  "null",
+                                                  "number"
+                                                ]
+                                              },
+                                              "minRank": {
+                                                "type": [
+                                                  "null",
+                                                  "number"
+                                                ]
+                                              },
+                                              "maxRank": {
+                                                "type": [
+                                                  "null",
+                                                  "number"
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "minPp",
+                                              "maxPp",
+                                              "minRank",
+                                              "maxRank"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "comparisons": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "field": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "string",
+                                                      "const": "minPp"
+                                                    },
+                                                    {
+                                                      "type": "string",
+                                                      "const": "maxPp"
+                                                    },
+                                                    {
+                                                      "type": "string",
+                                                      "const": "minRank"
+                                                    },
+                                                    {
+                                                      "type": "string",
+                                                      "const": "maxRank"
+                                                    }
+                                                  ]
+                                                },
+                                                "limit": {
+                                                  "type": "number"
+                                                },
+                                                "value": {
+                                                  "type": [
+                                                    "null",
+                                                    "number"
+                                                  ]
+                                                },
+                                                "passed": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "null"
+                                                    },
+                                                    {
+                                                      "type": "boolean",
+                                                      "const": false
+                                                    },
+                                                    {
+                                                      "type": "boolean",
+                                                      "const": true
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "required": [
+                                                "field",
+                                                "limit",
+                                                "value",
+                                                "passed"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          }
+                                        },
+                                        "required": [
+                                          "userId",
+                                          "mode",
+                                          "source",
+                                          "configurationVersion",
+                                          "status",
+                                          "pp",
+                                          "rank",
+                                          "fetchedAt",
+                                          "checkedAt",
+                                          "limits",
+                                          "comparisons"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "edition": {
+                                    "type": "object",
+                                    "properties": {
+                                      "slug": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "revision": {
+                                        "type": "number"
+                                      },
+                                      "outsideWindow": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "slug",
+                                      "name",
+                                      "revision",
+                                      "outsideWindow"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "required": [
+                                  "profile",
+                                  "existing",
+                                  "verification",
+                                  "edition"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "error": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "line",
+                          "raw",
+                          "input",
+                          "inputType",
+                          "state",
+                          "preview",
+                          "error"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "edition": {
+                      "type": "object",
+                      "properties": {
+                        "slug": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "revision": {
+                          "type": "number"
+                        },
+                        "outsideWindow": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "slug",
+                        "name",
+                        "revision",
+                        "outsideWindow"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "edition"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing, malformed, or invalid JSON command.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or osu! profile was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The edition is locked, frozen, completed, or its revision changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site, privacy configuration, or verified osu! profile is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/registrations/batch": {
+      "post": {
+        "operationId": "addManualRegistrations",
+        "summary": "Add up to 20 verified players by staff action",
+        "description": "Requires unique line numbers, manage_registrations, matching edition revision and the same confirmations as a single registration. Each row commits separately. Repeated submissions report existing registrations as skipped while the caller still has permission.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "accepted"
+                    ]
+                  },
+                  "confirmed": {
+                    "type": "boolean",
+                    "const": true
+                  },
+                  "publicationAcknowledged": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "overrideWindow": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "exceptionReason": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 1000
+                  },
+                  "rows": {
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "line": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 8192
+                        },
+                        "osuId": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "overrideEligibility": {
+                          "default": false,
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "line",
+                        "osuId"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "expectedRevision",
+                  "status",
+                  "confirmed",
+                  "rows"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Per-player added, skipped, or failed results and counts. Added rows include the submitted eligibility override flag.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "line": {
+                            "type": "number"
+                          },
+                          "osuId": {
+                            "type": "number"
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "added",
+                              "skipped",
+                              "failed"
+                            ]
+                          },
+                          "registration": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "pending",
+                                      "deferred",
+                                      "accepted",
+                                      "rejected",
+                                      "withdrawn"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "status"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "error": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "overrideEligibility": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "line",
+                          "osuId",
+                          "state",
+                          "registration",
+                          "error"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "counts": {
+                      "type": "object",
+                      "properties": {
+                        "added": {
+                          "type": "number"
+                        },
+                        "skipped": {
+                          "type": "number"
+                        },
+                        "failed": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "added",
+                        "skipped",
+                        "failed"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "results",
+                    "counts"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing, malformed, or invalid JSON command.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or osu! profile was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Edition revision or enrollment state conflict, or a missing window exception.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site, privacy configuration, or verified osu! profile is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/registrations/{id}/bws": {
+      "post": {
+        "operationId": "reviewBws",
+        "summary": "Review the standard-mode badges for an applicant",
+        "description": "Requires manage_registrations for the edition and one classification per current badge. The server rechecks the badge fingerprint and review version in the transaction. A successful review increments the version and writes one audit event. Reload before retrying a stale review.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 8192,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "osu"
+                  },
+                  "fingerprint": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "classifications": {
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "unknown",
+                        "other",
+                        "osu"
+                      ]
+                    }
+                  },
+                  "confirmed": {
+                    "type": "boolean",
+                    "const": true
+                  }
+                },
+                "required": [
+                  "mode",
+                  "fingerprint",
+                  "expectedVersion",
+                  "classifications",
+                  "confirmed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The staff BWS workspace with the updated review and summary.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "snapshot": {
+                      "type": "object",
+                      "properties": {
+                        "profile": {
+                          "type": "object",
+                          "properties": {
+                            "osuId": {
+                              "type": "number"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "canonicalUrl": {
+                              "type": "string"
+                            },
+                            "avatarUrl": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "coverUrl": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "countryCode": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "countryName": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "defaultRuleset": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "osu"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "taiko"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "fruits"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "mania"
+                                }
+                              ]
+                            },
+                            "joinedAt": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "lastSeenAt": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "previousUsernames": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "active": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "boolean",
+                                  "const": false
+                                },
+                                {
+                                  "type": "boolean",
+                                  "const": true
+                                }
+                              ]
+                            },
+                            "bot": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "boolean",
+                                  "const": false
+                                },
+                                {
+                                  "type": "boolean",
+                                  "const": true
+                                }
+                              ]
+                            },
+                            "ruleset": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "osu"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "taiko"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "fruits"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "mania"
+                                }
+                              ]
+                            },
+                            "fetchedAt": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "string",
+                              "const": "osu! API v2"
+                            },
+                            "badges": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "description": {
+                                        "type": "string"
+                                      },
+                                      "awardedAt": {
+                                        "type": "string"
+                                      },
+                                      "url": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      },
+                                      "imageUrl": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      },
+                                      "image2xUrl": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "description",
+                                      "awardedAt",
+                                      "url",
+                                      "imageUrl",
+                                      "image2xUrl"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              ]
+                            },
+                            "rankHistory": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "mode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "osu"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "taiko"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "fruits"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "mania"
+                                        }
+                                      ]
+                                    },
+                                    "data": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "dayOffsets": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "mode",
+                                    "data"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            },
+                            "statistics": {
+                              "type": "object",
+                              "properties": {
+                                "globalRank": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "globalRankPercent": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "countryRank": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "pp": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "accuracy": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "playCount": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "playTimeSeconds": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "rankedScore": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "totalScore": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "maximumCombo": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "totalHits": {
+                                  "type": [
+                                    "null",
+                                    "number"
+                                  ]
+                                },
+                                "level": {
+                                  "anyOf": [
+                                    {
+                                      "type": "null"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "current": {
+                                          "type": [
+                                            "null",
+                                            "number"
+                                          ]
+                                        },
+                                        "progress": {
+                                          "type": [
+                                            "null",
+                                            "number"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "current",
+                                        "progress"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ]
+                                },
+                                "grades": {
+                                  "anyOf": [
+                                    {
+                                      "type": "null"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "propertyNames": {
+                                        "type": "string"
+                                      },
+                                      "additionalProperties": {
+                                        "type": [
+                                          "null",
+                                          "number"
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "globalRank",
+                                "globalRankPercent",
+                                "countryRank",
+                                "pp",
+                                "accuracy",
+                                "playCount",
+                                "playTimeSeconds",
+                                "rankedScore",
+                                "totalScore",
+                                "maximumCombo",
+                                "totalHits",
+                                "level",
+                                "grades"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "osuId",
+                            "username",
+                            "canonicalUrl",
+                            "avatarUrl",
+                            "coverUrl",
+                            "countryCode",
+                            "countryName",
+                            "defaultRuleset",
+                            "joinedAt",
+                            "lastSeenAt",
+                            "previousUsernames",
+                            "active",
+                            "bot",
+                            "ruleset",
+                            "fetchedAt",
+                            "source",
+                            "badges",
+                            "rankHistory",
+                            "statistics"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "stale": {
+                          "type": "boolean"
+                        },
+                        "notice": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "profile",
+                        "stale",
+                        "notice"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "fingerprint": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "number"
+                    },
+                    "classifications": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "unknown"
+                          },
+                          {
+                            "type": "string",
+                            "const": "osu"
+                          },
+                          {
+                            "type": "string",
+                            "const": "other"
+                          }
+                        ]
+                      }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "properties": {
+                        "mode": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "osu"
+                            },
+                            {
+                              "type": "string",
+                              "const": "taiko"
+                            },
+                            {
+                              "type": "string",
+                              "const": "fruits"
+                            },
+                            {
+                              "type": "string",
+                              "const": "mania"
+                            }
+                          ]
+                        },
+                        "status": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "pending"
+                            },
+                            {
+                              "type": "string",
+                              "const": "ready"
+                            },
+                            {
+                              "type": "string",
+                              "const": "stale"
+                            },
+                            {
+                              "type": "string",
+                              "const": "unranked"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "type": [
+                            "null",
+                            "number"
+                          ]
+                        },
+                        "rawPp": {
+                          "type": [
+                            "null",
+                            "number"
+                          ]
+                        },
+                        "adjustedPp": {
+                          "type": [
+                            "null",
+                            "number"
+                          ]
+                        },
+                        "ppStatus": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "pending"
+                            },
+                            {
+                              "type": "string",
+                              "const": "unavailable"
+                            },
+                            {
+                              "type": "string",
+                              "const": "ready"
+                            },
+                            {
+                              "type": "string",
+                              "const": "stale"
+                            }
+                          ]
+                        },
+                        "stale": {
+                          "type": "boolean"
+                        },
+                        "badgeCount": {
+                          "type": [
+                            "null",
+                            "number"
+                          ]
+                        },
+                        "globalRank": {
+                          "type": [
+                            "null",
+                            "number"
+                          ]
+                        },
+                        "reviewedAt": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "fetchedAt": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "mode",
+                        "status",
+                        "value",
+                        "rawPp",
+                        "adjustedPp",
+                        "ppStatus",
+                        "stale",
+                        "badgeCount",
+                        "globalRank",
+                        "reviewedAt",
+                        "fetchedAt"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "snapshot",
+                    "fingerprint",
+                    "version",
+                    "classifications",
+                    "summary"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid badge review command.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The application or osu! profile was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The badge inventory or review version changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "osu! lookup is rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream osu! response was unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site or osu! provider configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The osu! lookup timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

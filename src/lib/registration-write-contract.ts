@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { siteRegistrationReadContracts } from "./site-registration-read-contracts";
 import {
   defaultJsonBodyLimit,
   registrationBodyLimit,
@@ -138,3 +139,49 @@ export const restoreRegistrationWrite = {
     409: "The application changed or is ineligible for restoration.",
   },
 } as const satisfies WriteApiOperation;
+
+export const reviewRegistrationWrite = {
+  ...browserPost,
+  id: "reviewRegistration",
+  path: "/api/admin/registrations/{id}/review",
+  parameters: registrationId,
+  maxBodyBytes: defaultJsonBodyLimit,
+  request: registrationParticipationInput.extend({
+    status: z.enum(["accepted", "rejected", "deferred", "pending"]),
+    reason: z.string().trim().max(1000).default(""),
+  }),
+  summary: "Review a pending or deferred registration",
+  description:
+    "Requires the registration edition's manage_registrations capability. Rejection requires a reason. The current update timestamp is checked in the transaction. A successful review and its audit event commit together.",
+  successStatus: 200,
+  successDescription:
+    "Updated application with its existing answers and acknowledgment data.",
+  response: receipt.extend({
+    editionSlug: z.string(),
+    userId: z.number(),
+    source: z.enum(["player", "staff"]),
+    rulesVersion: z.string().nullable(),
+    eligibilityAcknowledged: z.boolean().nullable(),
+    eligibilityVerification: siteRegistrationReadContracts.ownEligibility,
+    configurationVersion: z.number().nullable(),
+    answers: z.record(z.string(), z.string()),
+    attempt: z.number(),
+    statusReason: z.string().nullable(),
+    draftUnavailableReason: z.string().nullable(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
+  }),
+  errors: {
+    ...commonErrors,
+    400: "Invalid registration ID, review command, or rejection reason.",
+    403: "Origin, authentication channel, or edition capability rejected.",
+    404: "The application was not found.",
+    409: "The application changed, its current status disallows the transition, or the edition is locked.",
+  },
+  consumers: ["src/components/review-form.tsx"],
+} as const satisfies WriteApiOperation;
+
+export type ReviewedRegistration = Omit<
+  z.output<typeof reviewRegistrationWrite.response>,
+  "createdAt" | "updatedAt"
+> & { createdAt: Date; updatedAt: Date };

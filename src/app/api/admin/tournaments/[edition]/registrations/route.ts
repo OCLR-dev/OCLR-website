@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { addManualRegistration } from "@/lib/manual-registrations";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { addManualRegistrationWrite } from "@/lib/manual-registration-write-contract";
 export async function POST(
   request: Request,
   context: { params: Promise<{ edition: string }> },
@@ -13,7 +14,7 @@ export async function POST(
     const registration = await addManualRegistration(
       actor,
       edition,
-      await readJson(request, 4096),
+      await readJson(request, addManualRegistrationWrite.maxBodyBytes),
     );
     return NextResponse.json(
       {
@@ -21,7 +22,10 @@ export async function POST(
         userId: registration.userId,
         status: registration.status,
       },
-      { status: 201, headers: { "Cache-Control": "no-store" } },
+      {
+        status: addManualRegistrationWrite.successStatus,
+        headers: { "Cache-Control": "no-store" },
+      },
     );
   } catch (error) {
     return apiError(error);

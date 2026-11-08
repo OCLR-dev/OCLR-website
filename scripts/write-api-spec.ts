@@ -10,10 +10,18 @@ import {
   desktopContractVersion,
   desktopErrorSchema,
 } from "../src/lib/desktop-wire";
+import { reviewBwsWrite } from "../src/lib/bws-write-contract";
+import {
+  addManualRegistrationWrite,
+  addManualRegistrationsWrite,
+  previewManualRegistrationWrite,
+  previewManualRegistrationsWrite,
+} from "../src/lib/manual-registration-write-contract";
 import { refereeRelayWrite } from "../src/lib/referee-relay-contract";
 import {
   removeRegistrationWrite,
   restoreRegistrationWrite,
+  reviewRegistrationWrite,
   submitRegistrationWrite,
   withdrawRegistrationWrite,
 } from "../src/lib/registration-write-contract";
@@ -43,6 +51,12 @@ const operations: readonly WriteApiOperation[] = [
   withdrawRegistrationWrite,
   removeRegistrationWrite,
   restoreRegistrationWrite,
+  reviewRegistrationWrite,
+  previewManualRegistrationWrite,
+  addManualRegistrationWrite,
+  previewManualRegistrationsWrite,
+  addManualRegistrationsWrite,
+  reviewBwsWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],

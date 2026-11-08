@@ -8,15 +8,13 @@ import { useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { modeNames } from "@/lib/osu-profile-model";
 import { type BadgeClassification } from "@/lib/bws-model";
-import type { staffBws } from "@/lib/bws";
+import type { ExplicitReadData } from "@/lib/explicit-read-contracts";
 import { BwsSummary } from "./bws-summary";
 export function BwsReview({ slug, id }: { slug: string; id: string }) {
   const readOnly = useStaffReadOnly();
   const tr = useAppTranslations();
   const mode = "osu";
-  const [data, setData] = useState<Awaited<ReturnType<typeof staffBws>> | null>(
-    null,
-  );
+  const [data, setData] = useState<ExplicitReadData<"staffBws"> | null>(null);
   const [classifications, setClassifications] = useState<BadgeClassification[]>(
     [],
   );

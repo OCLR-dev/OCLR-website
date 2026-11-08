@@ -44,11 +44,13 @@ import { prepareDraft } from "../fixtures/draft";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
+import { POST as reviewRegistrationRoute } from "../../src/app/api/admin/registrations/[id]/review/route";
 import { POST as removeRegistrationRoute } from "../../src/app/api/admin/tournaments/[edition]/registrations/[id]/remove/route";
 import { POST as restoreRegistrationRoute } from "../../src/app/api/admin/tournaments/[edition]/registrations/[id]/restore/route";
 import {
   removeRegistrationWrite,
   restoreRegistrationWrite,
+  reviewRegistrationWrite,
 } from "../../src/lib/registration-write-contract";
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 610001, username: "Synthetic Removal Admin" };
@@ -402,6 +404,40 @@ describe.skipIf(!url)(
         ),
       ).rejects.toMatchObject({ status: 403 });
       expect(await db().select().from(registrationEvents)).toHaveLength(1);
+    });
+    it("returns the existing review payload and rejects invalid or stale decisions", async () => {
+      const r = await registration();
+      const review = (reason: string) =>
+        reviewRegistrationRoute(
+          new Request(
+            origin + reviewRegistrationWrite.path.replace("{id}", r.id),
+            {
+              method: "POST",
+              headers: { origin, "content-type": "application/json" },
+              body: JSON.stringify({
+                ...payload(r),
+                status: "rejected",
+                reason,
+              }),
+            },
+          ),
+          { params: Promise.resolve({ id: r.id }) },
+        );
+      expect((await review("")).status).toBe(400);
+      const response = await review("  Synthetic review reason  ");
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(reviewRegistrationWrite.response.parse(body)).toEqual(body);
+      expect(body).toMatchObject({
+        id: r.id,
+        answers: r.answers,
+        status: "rejected",
+        statusReason: "Synthetic review reason",
+        createdAt: r.createdAt.toISOString(),
+        updatedAt: expect.any(String),
+      });
+      expect((await review("stale")).status).toBe(409);
+      expect(await db().select().from(registrationEvents)).toHaveLength(2);
     });
     it("serializes duplicate removes and remove/review races without false success events", async () => {
       const r = await registration();

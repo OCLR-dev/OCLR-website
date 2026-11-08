@@ -41,12 +41,42 @@ import { profileResponse } from "../fixtures/osu-profile";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
 import { HttpError } from "../../src/lib/http";
 import { assertTestDatabase } from "../database";
+import { POST as addOne } from "../../src/app/api/admin/tournaments/[edition]/registrations/route";
+import { POST as previewOne } from "../../src/app/api/admin/tournaments/[edition]/registrations/preview/route";
+import { POST as addBatch } from "../../src/app/api/admin/tournaments/[edition]/registrations/batch/route";
+import { POST as previewBatch } from "../../src/app/api/admin/tournaments/[edition]/registrations/batch/preview/route";
+import {
+  addManualRegistrationWrite,
+  addManualRegistrationsWrite,
+  previewManualRegistrationWrite,
+  previewManualRegistrationsWrite,
+} from "../../src/lib/manual-registration-write-contract";
+
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => admin,
+}));
 vi.mock("../../src/lib/osu-api", () => ({ osuApi: vi.fn() }));
 import { osuApi } from "../../src/lib/osu-api";
 const provider = vi.mocked(osuApi);
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 979999, username: "Synthetic manual Admin" };
 const playerId = profileResponse.id;
+const origin = "https://oclr.example.test";
+function post(
+  route: (...args: Parameters<typeof addOne>) => Promise<Response>,
+  path: string,
+  body: unknown,
+) {
+  return route(
+    new Request(origin + path.replace("{edition}", edition.slug), {
+      method: "POST",
+      headers: { origin, "content-type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+    { params: Promise.resolve({ edition: edition.slug }) },
+  );
+}
 function bulkProvider() {
   provider.mockImplementation(async (path) => {
     const name = /^\/users\/@(.+)\/osu$/.exec(path);
@@ -102,6 +132,7 @@ describe.skipIf(!url)("staff-assisted registration integrity", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
     vi.stubEnv("PRIVACY_CONTACT_OSU_ID", String(admin.osuId));
   });
@@ -118,9 +149,17 @@ describe.skipIf(!url)("staff-assisted registration integrity", () => {
     vi.unstubAllEnvs();
   });
   it("previews an official identity without creating users, registrations or sessions", async () => {
-    const preview = await previewManualRegistration(admin, edition.slug, {
-      input: `https://osu.ppy.sh/users/${playerId}/osu`,
-    });
+    const response = await post(
+      previewOne,
+      previewManualRegistrationWrite.path,
+      {
+        input: `https://osu.ppy.sh/users/${playerId}/osu`,
+      },
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    const preview = previewManualRegistrationWrite.response.parse(body);
+    expect(preview).toEqual(body);
     expect(preview.profile.username).toBe(profileResponse.username);
     expect(preview.edition).toMatchObject({
       slug: edition.slug,
@@ -144,7 +183,23 @@ describe.skipIf(!url)("staff-assisted registration integrity", () => {
         },
       },
     ]);
-    const row = await addManualRegistration(admin, edition.slug, command);
+    const response = await post(
+      addOne,
+      addManualRegistrationWrite.path,
+      command,
+    );
+    expect(response.status).toBe(201);
+    const receipt = await response.json();
+    expect(addManualRegistrationWrite.response.parse(receipt)).toEqual(receipt);
+    expect(receipt).toEqual({
+      id: expect.any(String),
+      userId: playerId,
+      status: "pending",
+    });
+    const [row] = await db()
+      .select()
+      .from(registrations)
+      .where(eq(registrations.id, receipt.id));
     expect(row).toMatchObject({
       userId: playerId,
       source: "staff",
@@ -624,10 +679,18 @@ describe.skipIf(!url)("staff-assisted registration integrity", () => {
   });
   it("previews mixed lines without writes and deduplicates by stable ID across name, ID and URL", async () => {
     bulkProvider();
-    const result = await previewManualRegistrations(admin, edition.slug, {
-      text: "\nname: [Space Name]\nid: 260003\nhttps://osu.ppy.sh/users/260003\nname: missing\nname: 260001",
-      inputType: "username",
-    });
+    const response = await post(
+      previewBatch,
+      previewManualRegistrationsWrite.path,
+      {
+        text: "\nname: [Space Name]\nid: 260003\nhttps://osu.ppy.sh/users/260003\nname: missing\nname: 260001",
+        inputType: "username",
+      },
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    const result = previewManualRegistrationsWrite.response.parse(body);
+    expect(result).toEqual(body);
     expect(result.rows.map((r) => [r.line, r.state])).toEqual([
       [2, "ready"],
       [3, "duplicate"],
@@ -702,10 +765,24 @@ describe.skipIf(!url)("staff-assisted registration integrity", () => {
       confirmed: true,
       rows: ids.map((osuId, i) => ({ line: i + 1, osuId })),
     };
-    const results = await Promise.all([
-      addManualRegistrations(admin, edition.slug, payload),
-      addManualRegistrations(admin, edition.slug, payload),
+    const responses = await Promise.all([
+      post(addBatch, addManualRegistrationsWrite.path, payload),
+      post(addBatch, addManualRegistrationsWrite.path, payload),
     ]);
+    const results = await Promise.all(
+      responses.map(async (response) => {
+        expect(response.status).toBe(200);
+        const body = await response.json();
+        const result = addManualRegistrationsWrite.response.parse(body);
+        expect(result).toEqual(body);
+        expect(
+          result.results
+            .filter((row) => row.state === "added")
+            .every((row) => row.overrideEligibility === false),
+        ).toBe(true);
+        return result;
+      }),
+    );
     expect(results.reduce((n, r) => n + r.counts.added, 0)).toBe(20);
     expect(results.reduce((n, r) => n + r.counts.skipped, 0)).toBe(20);
     expect(await db().select().from(registrations)).toHaveLength(20);

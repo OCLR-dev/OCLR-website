@@ -24,6 +24,7 @@ import type { BwsSummary } from "./bws-model";
 import { cachedOsuUserProfile, getOsuUserProfile } from "./osu-profiles";
 import { type ProfileSnapshot } from "./osu-profile-model";
 import { HttpError } from "./http";
+import { reviewBwsWrite } from "./bws-write-contract";
 const choices = z.array(z.enum(badgeClassifications)).max(100);
 export function badgeFingerprint(snapshot: ProfileSnapshot) {
   return createHash("sha256")
@@ -158,15 +159,6 @@ export async function staffBws(
   return databaseStaffBws(actor, slug, id, mode);
 }
 
-const command = z
-  .object({
-    mode: z.literal("osu"),
-    fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-    expectedVersion: z.number().int().nonnegative(),
-    classifications: z.array(z.enum(["unknown", "other", "osu"])).max(100),
-    confirmed: z.literal(true),
-  })
-  .strict();
 export async function reviewBws(
   actor: User,
   slug: string,
@@ -174,7 +166,7 @@ export async function reviewBws(
   input: unknown,
 ) {
   const registration = await applicant(actor, slug, id);
-  const parsed = command.safeParse(input);
+  const parsed = reviewBwsWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Review each badge before saving.");
   const c = parsed.data;

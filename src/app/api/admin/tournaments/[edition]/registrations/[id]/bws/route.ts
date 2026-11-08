@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { staffBws, reviewBws } from "@/lib/bws";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { reviewBwsWrite } from "@/lib/bws-write-contract";
 type Context = { params: Promise<{ edition: string; id: string }> };
 async function readGET(request: Request, context: Context) {
   try {
@@ -27,7 +28,12 @@ export async function POST(request: Request, context: Context) {
     const actor = await requireUser();
     const { edition, id } = await context.params;
     return NextResponse.json(
-      await reviewBws(actor, edition, id, await readJson(request, 8192)),
+      await reviewBws(
+        actor,
+        edition,
+        id,
+        await readJson(request, reviewBwsWrite.maxBodyBytes),
+      ),
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {

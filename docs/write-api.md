@@ -40,6 +40,12 @@ return a question ID in a 400 response. Staff transitions keep the registration
 record and require its current update timestamp. Restoration returns the
 registration to pending review.
 
+Staff registration review keeps the existing private application response.
+Manual enrollment covers single and batch preview and submission, including
+per-row results for batch retries and failures. BWS review shares the staff read
+workspace response and checks both the badge fingerprint and review version.
+These operations require the edition's registration management capability.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.
