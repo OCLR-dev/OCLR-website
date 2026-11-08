@@ -57,6 +57,11 @@ the optional avatar file and the complete form body budget. Draft pick receipts
 include the current correction status on replay. The inventory lists commands
 inside the versioned command envelope.
 
+Award reports document settings revisions, publication fingerprints and
+withdrawal of an active release. Historical statistics document archived MP
+import, review and fixture release. Both operations return their saved staff
+workspace and retain separate capabilities for review and publication.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

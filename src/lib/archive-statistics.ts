@@ -14,11 +14,7 @@ import {
   relationalPlayerArchivePlays,
 } from "./archive-read";
 import { statisticsArchiveKey } from "./archive-statistics-key";
-import { archiveEvidenceUrl } from "./archive-metadata";
 import {
-  statisticsAdjudicationSchema,
-  statisticsExcludedGameSchema,
-  statisticsExcludedScoresSchema,
   hasStatisticsAdjudication,
   parseStatisticsSnapshot,
   statisticsSnapshotSchema,
@@ -35,7 +31,7 @@ import { editionEvents, editionState } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
-import { z } from "zod";
+import type { z } from "zod";
 import {
   archiveMpId,
   canExcludeNonParticipantScore,
@@ -62,46 +58,13 @@ import {
   type archivePlayerExchangeConfirmation,
   type HistoricalArchive,
 } from "./historical-archive";
+import { changeHistoricalStatisticsWrite } from "./results-publication-write-contracts";
 import { HttpError } from "./http";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 import { fetchMatchSource } from "./osu-matches";
 import { readTournament } from "./tournaments";
 import { statisticsScore } from "./statistics-score";
 
-const integer = z.number().int().nonnegative();
-const commandSchema = z.discriminatedUnion("action", [
-  z
-    .object({
-      action: z.literal("import"),
-      mpId: integer.positive(),
-      expectedVersion: integer,
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("review"),
-      mpId: integer.positive(),
-      expectedVersion: integer,
-      poolId: z.string().max(80),
-      included: z.array(integer.positive()).max(500),
-      allowUnlistedMaps: z.boolean().default(false),
-      excludedScores: statisticsExcludedScoresSchema.default([]),
-      rosterTeamGames: z.array(integer.positive()).max(500).default([]),
-      technicalAdjudication: z.boolean().optional(),
-      adjudication: statisticsAdjudicationSchema.nullable().optional(),
-      excludedGames: z.array(statisticsExcludedGameSchema).max(500).optional(),
-      evidenceUrl: archiveEvidenceUrl.nullable().optional(),
-    })
-    .strict(),
-  z
-    .object({
-      action: z.enum(["publish", "withdraw"]),
-      fixtureId: z.string().max(80),
-      expectedVersions: z.record(z.string(), integer),
-      confirmed: z.literal(true),
-    })
-    .strict(),
-]);
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export { statisticsArchiveKey } from "./archive-statistics-key";
 
@@ -407,8 +370,8 @@ export async function statisticsCommand(
   actor: User,
   slug: string,
   input: unknown,
-) {
-  const parsed = commandSchema.safeParse(input);
+): Promise<StatisticsWorkspace> {
+  const parsed = changeHistoricalStatisticsWrite.request.safeParse(input);
   if (!parsed.success) throw new HttpError(400, "Invalid statistics request.");
   const c = parsed.data;
   const permission =

@@ -38,6 +38,10 @@ import {
   uploadReplayWrite,
 } from "../src/lib/replay-write-contract";
 import {
+  changeAwardsWrite,
+  changeHistoricalStatisticsWrite,
+} from "../src/lib/results-publication-write-contracts";
+import {
   scheduleRequestWrite,
   streamingTaskWrite,
 } from "../src/lib/scheduling-write-contracts";
@@ -76,6 +80,8 @@ const operations: readonly WriteApiOperation[] = [
   editTeamIdentityWrite,
   changeDraftWrite,
   pickPlayerWrite,
+  changeAwardsWrite,
+  changeHistoricalStatisticsWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],

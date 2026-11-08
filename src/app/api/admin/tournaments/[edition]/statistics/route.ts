@@ -6,6 +6,7 @@ import {
   statisticsCommand,
   statisticsWorkspace,
 } from "@/lib/archive-statistics";
+import { changeHistoricalStatisticsWrite } from "@/lib/results-publication-write-contracts";
 type Context = { params: Promise<{ edition: string }> };
 async function readGET(request: Request, context: Context) {
   try {
@@ -28,7 +29,7 @@ export async function POST(request: Request, context: Context) {
       await statisticsCommand(
         await requireUser(),
         (await context.params).edition,
-        await readJson(request, 32768),
+        await readJson(request, changeHistoricalStatisticsWrite.maxBodyBytes),
       ),
       { headers: { "Cache-Control": "no-store" } },
     );

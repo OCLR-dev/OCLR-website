@@ -16,18 +16,14 @@ import {
 } from "@/db/schema";
 import { and, desc, eq, isNull, ne } from "drizzle-orm";
 import { createHash } from "node:crypto";
-import { z } from "zod";
 import { approvedRatingGames } from "./approved-rating-games";
 import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
-import {
-  awardConfigurationSchema,
-  awardPolicySchema,
-  weeklyStandings,
-} from "./award-model";
+import { awardConfigurationSchema, weeklyStandings } from "./award-model";
 import { draftAwardTiers } from "./award-tiers";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { changeAwardsWrite } from "./results-publication-write-contracts";
 import { HttpError } from "./http";
 import { draftTurnSequence } from "./live-season-columns";
 import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
@@ -247,38 +243,12 @@ export async function awardWorkspace(
   return databaseAwardWorkspace(actor, slug);
 }
 
-const common = {
-  expectedVersion: z.number().int().nonnegative(),
-  confirmed: z.literal(true),
-};
-const command = z.discriminatedUnion("action", [
-  z
-    .object({
-      ...common,
-      action: z.literal("configure"),
-      ...awardConfigurationSchema.shape,
-      policy: awardPolicySchema.optional(),
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("publish"),
-      week: z.number().int().positive(),
-      fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("unpublish"),
-      week: z.number().int().positive(),
-      releaseId: z.uuid(),
-    })
-    .strict(),
-]);
-export async function awardCommand(actor: User, slug: string, input: unknown) {
-  const parsed = command.safeParse(input);
+export async function awardCommand(
+  actor: User,
+  slug: string,
+  input: unknown,
+): Promise<AwardWorkspace> {
+  const parsed = changeAwardsWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Invalid award configuration or command.");
   const c = parsed.data;

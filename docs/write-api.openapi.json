@@ -4148,6 +4148,1801 @@
           "maxRank"
         ],
         "additionalProperties": false
+      },
+      "awardWorkspace": {
+        "type": "object",
+        "properties": {
+          "tiers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "number"
+                },
+                "tier": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "userId",
+                "tier"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "number"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "status": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "pending"
+                    },
+                    {
+                      "type": "string",
+                      "const": "deferred"
+                    },
+                    {
+                      "type": "string",
+                      "const": "accepted"
+                    },
+                    {
+                      "type": "string",
+                      "const": "rejected"
+                    },
+                    {
+                      "type": "string",
+                      "const": "withdrawn"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "userId",
+                "username",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Readad2dbf43a664"
+            }
+          },
+          "releases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "editionSlug": {
+                  "type": "string"
+                },
+                "week": {
+                  "type": "number"
+                },
+                "revision": {
+                  "type": "number"
+                },
+                "fingerprint": {
+                  "type": "string"
+                },
+                "report": {
+                  "$ref": "#/components/schemas/Readad2dbf43a664"
+                },
+                "publishedBy": {
+                  "type": "number"
+                },
+                "publishedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-oclr-date": true
+                },
+                "active": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "editionSlug",
+                "week",
+                "revision",
+                "fingerprint",
+                "report",
+                "publishedBy",
+                "publishedAt",
+                "active"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "weeks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "number": {
+                  "type": "number"
+                },
+                "startsAt": {
+                  "type": "string"
+                },
+                "endsAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "number",
+                "startsAt",
+                "endsAt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "yumu-mra-v1"
+              },
+              {
+                "type": "string",
+                "const": "relative-game-mean-v1"
+              }
+            ]
+          },
+          "roundRatings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "roundId": {
+                  "type": "string"
+                },
+                "roundName": {
+                  "type": "string"
+                },
+                "stage": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "group"
+                    },
+                    {
+                      "type": "string",
+                      "const": "knockout"
+                    },
+                    {
+                      "type": "string",
+                      "const": "exhibition"
+                    }
+                  ]
+                },
+                "groupKey": {
+                  "type": "string"
+                },
+                "groupName": {
+                  "type": "string"
+                },
+                "publishedFixtures": {
+                  "type": "number"
+                },
+                "ratedFixtures": {
+                  "type": "number"
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "report": {
+                  "$ref": "#/components/schemas/Readd672c12b3a1c"
+                }
+              },
+              "required": [
+                "roundId",
+                "roundName",
+                "stage",
+                "groupKey",
+                "groupName",
+                "publishedFixtures",
+                "ratedFixtures",
+                "complete",
+                "report"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "edition": {
+            "type": "object",
+            "properties": {
+              "slug": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "timeZone": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "slug",
+              "name",
+              "timeZone"
+            ],
+            "additionalProperties": false
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "tiers",
+          "participants",
+          "reports",
+          "releases",
+          "weeks",
+          "policy",
+          "roundRatings",
+          "edition",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "Readad2dbf43a664": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "number"
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "endsAt": {
+            "type": "string"
+          },
+          "candidates": {
+            "$ref": "#/components/schemas/Read2686b7facc7f"
+          },
+          "mvp": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "mip": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "rookie": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/Reada620a0db3e4d"
+          },
+          "policy": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "fingerprint": {
+            "type": "string"
+          },
+          "identities": {
+            "$ref": "#/components/schemas/Read473aed6aad8c"
+          }
+        },
+        "required": [
+          "number",
+          "startsAt",
+          "endsAt",
+          "candidates",
+          "mvp",
+          "mip",
+          "rookie",
+          "issues",
+          "evidence",
+          "policy",
+          "timeZone",
+          "fingerprint",
+          "identities"
+        ],
+        "additionalProperties": false
+      },
+      "Read2686b7facc7f": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Read94d1796c29db"
+        }
+      },
+      "Read94d1796c29db": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "number"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "appearances": {
+            "type": "number"
+          },
+          "performance": {
+            "type": "number"
+          },
+          "previousAppearances": {
+            "type": "number"
+          },
+          "previousPerformance": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "improvement": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "rating": {
+            "$ref": "#/components/schemas/Reade3879a8f03ac"
+          },
+          "ratingClass": {
+            "$ref": "#/components/schemas/Readd7be8940066d"
+          },
+          "ratingPlayerCount": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "userId",
+          "tier",
+          "appearances",
+          "performance",
+          "previousAppearances",
+          "previousPerformance",
+          "improvement"
+        ],
+        "additionalProperties": false
+      },
+      "Reade3879a8f03ac": {
+        "anyOf": [
+          {
+            "type": "null",
+            "x-oclr-undefined": true
+          },
+          {
+            "$ref": "#/components/schemas/Read3f08762e3e56"
+          }
+        ]
+      },
+      "Read3f08762e3e56": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "number"
+          },
+          "appearances": {
+            "type": "number"
+          },
+          "totalMu": {
+            "type": "number"
+          },
+          "averageMu": {
+            "type": "number"
+          },
+          "mq": {
+            "type": "number"
+          },
+          "era": {
+            "type": "number"
+          },
+          "dra": {
+            "type": "number"
+          },
+          "mra": {
+            "type": "number"
+          },
+          "rws": {
+            "type": "number"
+          },
+          "rank": {
+            "type": "number"
+          },
+          "eraIndex": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "draIndex": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "rwsIndex": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "userId",
+          "appearances",
+          "totalMu",
+          "averageMu",
+          "mq",
+          "era",
+          "dra",
+          "mra",
+          "rws",
+          "rank",
+          "eraIndex",
+          "draIndex",
+          "rwsIndex"
+        ],
+        "additionalProperties": false
+      },
+      "Readd7be8940066d": {
+        "anyOf": [
+          {
+            "type": "null",
+            "x-oclr-undefined": true
+          },
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/components/schemas/Reade5acebf64e20"
+          }
+        ]
+      },
+      "Reade5acebf64e20": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/Read517da9f95b7a"
+          },
+          "code": {
+            "$ref": "#/components/schemas/Readf9aec1660720"
+          },
+          "policy": {
+            "type": "string",
+            "const": "yumu-player-class-v2-oclr-v1"
+          }
+        },
+        "required": [
+          "category",
+          "code",
+          "policy"
+        ],
+        "additionalProperties": false
+      },
+      "Read517da9f95b7a": {
+        "anyOf": [
+          {
+            "type": "string",
+            "const": "BC"
+          },
+          {
+            "type": "string",
+            "const": "CA"
+          },
+          {
+            "type": "string",
+            "const": "MF"
+          },
+          {
+            "type": "string",
+            "const": "SP"
+          },
+          {
+            "type": "string",
+            "const": "WF"
+          },
+          {
+            "type": "string",
+            "const": "GE"
+          },
+          {
+            "type": "string",
+            "const": "GU"
+          },
+          {
+            "type": "string",
+            "const": "SU"
+          },
+          {
+            "type": "string",
+            "const": "SG"
+          },
+          {
+            "type": "string",
+            "const": "NO"
+          },
+          {
+            "type": "string",
+            "const": "FU"
+          }
+        ]
+      },
+      "Readf9aec1660720": {
+        "anyOf": [
+          {
+            "type": "string",
+            "const": "SMA"
+          },
+          {
+            "type": "string",
+            "const": "CMA"
+          },
+          {
+            "type": "string",
+            "const": "IMA"
+          },
+          {
+            "type": "string",
+            "const": "EGE"
+          },
+          {
+            "type": "string",
+            "const": "AGE"
+          },
+          {
+            "type": "string",
+            "const": "SGE"
+          },
+          {
+            "type": "string",
+            "const": "BMF"
+          },
+          {
+            "type": "string",
+            "const": "RMF"
+          },
+          {
+            "type": "string",
+            "const": "SMF"
+          },
+          {
+            "type": "string",
+            "const": "EAS"
+          },
+          {
+            "type": "string",
+            "const": "NAS"
+          },
+          {
+            "type": "string",
+            "const": "FAS"
+          },
+          {
+            "type": "string",
+            "const": "GCW"
+          },
+          {
+            "type": "string",
+            "const": "WCW"
+          },
+          {
+            "type": "string",
+            "const": "BCW"
+          },
+          {
+            "type": "string",
+            "const": "KPS"
+          },
+          {
+            "type": "string",
+            "const": "CMN"
+          },
+          {
+            "type": "string",
+            "const": "PSB"
+          },
+          {
+            "type": "string",
+            "const": "MAC"
+          },
+          {
+            "type": "string",
+            "const": "MIC"
+          },
+          {
+            "type": "string",
+            "const": "FIG"
+          },
+          {
+            "type": "string",
+            "const": "SAM"
+          },
+          {
+            "type": "string",
+            "const": "HAS"
+          },
+          {
+            "type": "string",
+            "const": "SIN"
+          },
+          {
+            "type": "string",
+            "const": "ANI"
+          },
+          {
+            "type": "string",
+            "const": "MNI"
+          },
+          {
+            "type": "string",
+            "const": "LCS"
+          },
+          {
+            "type": "string",
+            "const": "LKD"
+          },
+          {
+            "type": "string",
+            "const": "QAP"
+          },
+          {
+            "type": "string",
+            "const": "BGN"
+          },
+          {
+            "type": "string",
+            "const": "LSS"
+          },
+          {
+            "type": "string",
+            "const": "LSP"
+          },
+          {
+            "type": "string",
+            "const": "BDT"
+          }
+        ]
+      },
+      "Reada620a0db3e4d": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Readc67080690777"
+        }
+      },
+      "Readc67080690777": {
+        "type": "object",
+        "properties": {
+          "gameId": {
+            "type": "number"
+          },
+          "fixtureId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "number"
+          },
+          "at": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "fingerprint": {
+            "type": "string"
+          },
+          "ezScoreMultiplier": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "statisticsScorePolicy": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "gameId",
+          "fixtureId",
+          "revision",
+          "at",
+          "fingerprint"
+        ],
+        "additionalProperties": false
+      },
+      "Read473aed6aad8c": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "number"
+            },
+            "username": {
+              "type": "string"
+            },
+            "public": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "userId",
+            "username",
+            "public"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "Readd672c12b3a1c": {
+        "type": "object",
+        "properties": {
+          "classificationPolicy": {
+            "type": "string"
+          },
+          "players": {
+            "$ref": "#/components/schemas/Read3fa317a777eb"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/Read7014bf550cfe"
+          },
+          "fingerprint": {
+            "type": "string"
+          },
+          "policy": {
+            "type": "string",
+            "const": "yumu-mra-v1"
+          },
+          "gameCount": {
+            "type": "number"
+          },
+          "scoreCount": {
+            "type": "number"
+          },
+          "playerCount": {
+            "type": "number"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "classificationPolicy",
+          "players",
+          "evidence",
+          "fingerprint",
+          "policy",
+          "gameCount",
+          "scoreCount",
+          "playerCount",
+          "issues"
+        ],
+        "additionalProperties": false
+      },
+      "Read3fa317a777eb": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Read59b0eb4ee7d5"
+        }
+      },
+      "Read59b0eb4ee7d5": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "number"
+          },
+          "appearances": {
+            "type": "number"
+          },
+          "totalMu": {
+            "type": "number"
+          },
+          "averageMu": {
+            "type": "number"
+          },
+          "mq": {
+            "type": "number"
+          },
+          "era": {
+            "type": "number"
+          },
+          "dra": {
+            "type": "number"
+          },
+          "mra": {
+            "type": "number"
+          },
+          "rws": {
+            "type": "number"
+          },
+          "rank": {
+            "type": "number"
+          },
+          "eraIndex": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "draIndex": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "rwsIndex": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "classification": {
+            "$ref": "#/components/schemas/Read2c425a16fc28"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "appearances",
+          "totalMu",
+          "averageMu",
+          "mq",
+          "era",
+          "dra",
+          "mra",
+          "rws",
+          "rank",
+          "eraIndex",
+          "draIndex",
+          "rwsIndex",
+          "classification",
+          "username"
+        ],
+        "additionalProperties": false
+      },
+      "Read2c425a16fc28": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/components/schemas/Reade5acebf64e20"
+          }
+        ]
+      },
+      "Read7014bf550cfe": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Read215989598fb1"
+        }
+      },
+      "Read215989598fb1": {
+        "type": "object",
+        "properties": {
+          "gameId": {
+            "type": "number"
+          },
+          "fixtureId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "number"
+          },
+          "fingerprint": {
+            "type": "string"
+          },
+          "ezScoreMultiplier": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "statisticsScorePolicy": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "gameId",
+          "fixtureId",
+          "revision",
+          "fingerprint"
+        ],
+        "additionalProperties": false
+      },
+      "statisticsWorkspace": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "fixtures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "stage": {
+                  "type": "string"
+                },
+                "score": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "number"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    }
+                  ]
+                },
+                "teams": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "mpIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "label",
+                "stage",
+                "score",
+                "teams",
+                "mpIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "summaries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "mpId": {
+                  "type": "number"
+                },
+                "fixtureId": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "number"
+                },
+                "importedAt": {
+                  "type": "string"
+                },
+                "publishedAt": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "changes": {
+                  "type": "boolean"
+                },
+                "stale": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "mpId",
+                "fixtureId",
+                "version",
+                "importedAt",
+                "publishedAt",
+                "changes",
+                "stale"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "canPublish": {
+            "type": "boolean"
+          },
+          "pools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "mpId": {
+                  "type": "number"
+                },
+                "version": {
+                  "type": "number"
+                },
+                "poolId": {
+                  "type": "string"
+                },
+                "allowUnlistedMaps": {
+                  "type": "boolean"
+                },
+                "excludedScores": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "gameId": {
+                        "type": "number"
+                      },
+                      "osuId": {
+                        "type": "number"
+                      },
+                      "reason": {
+                        "anyOf": [
+                          {
+                            "type": "null",
+                            "x-oclr-undefined": true
+                          },
+                          {
+                            "type": "string",
+                            "const": "non-participant"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "gameId",
+                      "osuId"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "rosterTeamGames": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "technicalAdjudication": {
+                  "type": "boolean"
+                },
+                "adjudication": {
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "technical"
+                        },
+                        "note": {
+                          "anyOf": [
+                            {
+                              "type": "null",
+                              "x-oclr-undefined": true
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "evidenceUrl": {
+                          "anyOf": [
+                            {
+                              "type": "null",
+                              "x-oclr-undefined": true
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "excludedGames": {
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "gameId": {
+                            "type": "number"
+                          },
+                          "reason": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "unknown"
+                              },
+                              {
+                                "type": "string",
+                                "const": "warmup"
+                              },
+                              {
+                                "type": "string",
+                                "const": "aborted"
+                              },
+                              {
+                                "type": "string",
+                                "const": "superseded-replay"
+                              },
+                              {
+                                "type": "string",
+                                "const": "post-match"
+                              },
+                              {
+                                "type": "string",
+                                "const": "outside-pool"
+                              },
+                              {
+                                "type": "string",
+                                "const": "other"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "gameId",
+                          "reason"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  ]
+                },
+                "reviewedBy": {
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                "reviewedAt": {
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "evidenceUrl": {
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "fetchedAt": {
+                  "type": "string"
+                },
+                "warnings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "games": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "game": {
+                        "$ref": "#/components/schemas/Read357b6bac1748"
+                      },
+                      "included": {
+                        "type": "boolean"
+                      },
+                      "nonParticipantIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      },
+                      "issues": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "game",
+                      "included",
+                      "nonParticipantIds",
+                      "issues"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "mpId",
+                "version",
+                "poolId",
+                "allowUnlistedMaps",
+                "excludedScores",
+                "rosterTeamGames",
+                "technicalAdjudication",
+                "complete",
+                "fetchedAt",
+                "warnings",
+                "games"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "slug",
+          "fixtures",
+          "summaries",
+          "canPublish",
+          "pools",
+          "reviews",
+          "blockers"
+        ],
+        "additionalProperties": false
+      },
+      "Read357b6bac1748": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "beatmapId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "startTime": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "endTime": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "teamType": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "scoringType": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "mods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scores": {
+            "$ref": "#/components/schemas/Reada9e56490da8c"
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "beatmap": {
+            "$ref": "#/components/schemas/Reade30a93ef38fd"
+          }
+        },
+        "required": [
+          "id",
+          "beatmapId",
+          "startTime",
+          "endTime",
+          "mode",
+          "teamType",
+          "scoringType",
+          "mods",
+          "scores",
+          "problems",
+          "beatmap"
+        ],
+        "additionalProperties": false
+      },
+      "Reada9e56490da8c": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Readdd8bae067efc"
+        }
+      },
+      "Readdd8bae067efc": {
+        "type": "object",
+        "properties": {
+          "osuId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "team": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "const": "blue"
+              },
+              {
+                "type": "string",
+                "const": "red"
+              },
+              {
+                "type": "string",
+                "const": "none"
+              }
+            ]
+          },
+          "slot": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "passed": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean",
+                "const": false
+              },
+              {
+                "type": "boolean",
+                "const": true
+              }
+            ]
+          },
+          "mods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "accuracy": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "combo": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "providerFields": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean",
+                  "const": false
+                },
+                {
+                  "type": "boolean",
+                  "const": true
+                }
+              ]
+            }
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hitCounts": {
+            "$ref": "#/components/schemas/Read1abcc66ad442"
+          }
+        },
+        "required": [
+          "osuId",
+          "total",
+          "team",
+          "slot",
+          "passed",
+          "mods",
+          "accuracy",
+          "combo",
+          "providerFields",
+          "problems"
+        ],
+        "additionalProperties": false
+      },
+      "Read1abcc66ad442": {
+        "anyOf": [
+          {
+            "type": "null",
+            "x-oclr-undefined": true
+          },
+          {
+            "$ref": "#/components/schemas/Read4c0a952e974c"
+          }
+        ]
+      },
+      "Read4c0a952e974c": {
+        "type": "object",
+        "properties": {
+          "great": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "ok": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "meh": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "miss": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "great",
+          "ok",
+          "meh",
+          "miss"
+        ],
+        "additionalProperties": false
+      },
+      "Reade30a93ef38fd": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/components/schemas/Read0bc99bcee51a"
+          }
+        ]
+      },
+      "Read0bc99bcee51a": {
+        "type": "object",
+        "properties": {
+          "setId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "artist": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "difficulty": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "setId",
+          "title",
+          "artist",
+          "difficulty"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -12369,6 +14164,687 @@
           },
           "503": {
             "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/awards": {
+      "post": {
+        "operationId": "changeAwards",
+        "summary": "Configure, publish, or withdraw a weekly award report",
+        "description": "Configuration requires configure_tournament. Publication and withdrawal require publish_results. Every command checks the settings version. Publication also checks the current report fingerprint and winner publication prerequisites. Publishing the same active fingerprint adds no second release or audit event. Withdrawal checks the active release ID.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 524288,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "configure"
+                      },
+                      "weeks": {
+                        "maxItems": 52,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "number": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 52
+                            },
+                            "startsAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                            },
+                            "endsAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                            }
+                          },
+                          "required": [
+                            "number",
+                            "startsAt",
+                            "endsAt"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "policy": {
+                        "type": "string",
+                        "enum": [
+                          "relative-game-mean-v1",
+                          "yumu-mra-v1"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "expectedVersion",
+                      "confirmed",
+                      "action",
+                      "weeks"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "publish"
+                      },
+                      "week": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "fingerprint": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      }
+                    },
+                    "required": [
+                      "expectedVersion",
+                      "confirmed",
+                      "action",
+                      "week",
+                      "fingerprint"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "unpublish"
+                      },
+                      "week": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "releaseId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    },
+                    "required": [
+                      "expectedVersion",
+                      "confirmed",
+                      "action",
+                      "week",
+                      "releaseId"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The current staff award workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/awardWorkspace"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid award command or week configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The settings revision, release, source fingerprint, or publication prerequisites changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/statistics": {
+      "post": {
+        "operationId": "changeHistoricalStatistics",
+        "summary": "Import, review, publish, or withdraw historical match statistics",
+        "description": "Uses MP links already recorded in the edition archive. Import and review require record_results. Publishing, withdrawal and reviews with special adjudication require approve_results. Version checks protect each saved source or the full fixture release. Imported and reviewed records stay private until publication. The legacy technicalAdjudication flag is still accepted.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "const": "import"
+                      },
+                      "mpId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "mpId",
+                      "expectedVersion"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "const": "review"
+                      },
+                      "mpId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      "included": {
+                        "maxItems": 500,
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "allowUnlistedMaps": {
+                        "default": false,
+                        "type": "boolean"
+                      },
+                      "excludedScores": {
+                        "default": [],
+                        "maxItems": 32000,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "gameId": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "osuId": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "reason": {
+                              "type": "string",
+                              "const": "non-participant"
+                            }
+                          },
+                          "required": [
+                            "gameId",
+                            "osuId"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "rosterTeamGames": {
+                        "default": [],
+                        "maxItems": 500,
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "technicalAdjudication": {
+                        "type": "boolean"
+                      },
+                      "adjudication": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "const": "technical"
+                              },
+                              "note": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 6000
+                              },
+                              "evidenceUrl": {
+                                "type": "string",
+                                "maxLength": 2000,
+                                "format": "uri"
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "excludedGames": {
+                        "maxItems": 500,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "gameId": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "reason": {
+                              "type": "string",
+                              "enum": [
+                                "warmup",
+                                "aborted",
+                                "superseded-replay",
+                                "post-match",
+                                "outside-pool",
+                                "other",
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "gameId",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "evidenceUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 2000,
+                            "format": "uri"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "mpId",
+                      "expectedVersion",
+                      "poolId",
+                      "included"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "enum": [
+                          "publish",
+                          "withdraw"
+                        ]
+                      },
+                      "fixtureId": {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      "expectedVersions": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "fixtureId",
+                      "expectedVersions",
+                      "confirmed"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The current staff statistics workspace for the affected fixture.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/statisticsWorkspace"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid command, unrecorded match or fixture, or invalid review or publication evidence.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Historical statistics or the upstream MP resource was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The archive, source version, review, or publication state changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The request body or upstream MP history exceeds its size limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "An MP refresh is cooling down or the osu! lookup is rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream osu! response was unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site or provider configuration is unavailable, or the import time budget was reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The osu! request timed out.",
             "content": {
               "application/json": {
                 "schema": {

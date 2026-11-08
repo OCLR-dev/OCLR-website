@@ -72,7 +72,17 @@
     "source": "src/app/api/admin/tournaments/[edition]/awards/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeAwards",
+        "access": "browser",
+        "actions": [
+          "configure",
+          "publish",
+          "unpublish"
+        ],
+        "consumers": [
+          "src/components/award-manager.tsx"
+        ]
       }
     }
   },
@@ -394,7 +404,18 @@
     "source": "src/app/api/admin/tournaments/[edition]/statistics/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeHistoricalStatistics",
+        "access": "browser",
+        "actions": [
+          "import",
+          "review",
+          "publish",
+          "withdraw"
+        ],
+        "consumers": [
+          "src/components/statistics-manager.tsx"
+        ]
       }
     }
   },
