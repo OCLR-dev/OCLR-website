@@ -38,6 +38,13 @@ import { assertTestDatabase } from "../database";
 import { edition } from "../fixtures/edition";
 import { editionSchema } from "../../src/lib/editions";
 import { historicalArchive } from "../fixtures/historical-archive";
+import { POST as deleteRoute } from "../../src/app/api/admin/tournaments/[edition]/delete-draft/route";
+import { requireUser } from "../../src/lib/auth/user";
+import { deleteTournamentDraftWrite } from "../../src/lib/tournament-write-contracts";
+
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
+const origin = "https://oclr.example.test";
 
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 327001, username: "Synthetic Global Admin" };
@@ -51,6 +58,7 @@ describe.skipIf(!url)("unused blank tournament draft deletion", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -73,7 +81,20 @@ describe.skipIf(!url)("unused blank tournament draft deletion", () => {
   it("removes the draft from readers and routes but retains immutable history and reserves its slug", async () => {
     const revisions = await db().select().from(editionRevisions);
     const events = await db().select().from(editionEvents);
-    expect(await remove()).toEqual({ deleted: true, slug });
+    const path = deleteTournamentDraftWrite.path.replace("{edition}", slug);
+    vi.mocked(requireUser).mockResolvedValue(admin);
+    const deleteThroughBrowser = () =>
+      deleteRoute(new Request(origin + path, {
+        method: "POST",
+        headers: { origin, "content-type": "application/json" },
+        body: JSON.stringify(command),
+      }), { params: Promise.resolve({ edition: slug }) });
+    const response = await deleteThroughBrowser();
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    const body = await response.json();
+    expect(deleteTournamentDraftWrite.response.parse(body)).toEqual(body);
+    expect(body).toEqual({ deleted: true, slug });
     expect(await readTournament(slug)).toBeUndefined();
     expect((await tournamentList(admin)).rows).toEqual([]);
     await expect(tournamentForAdmin(admin, slug)).rejects.toMatchObject({
@@ -92,7 +113,7 @@ describe.skipIf(!url)("unused blank tournament draft deletion", () => {
         after: { configuration: null, revision: 1 },
       },
     });
-    await expect(remove()).rejects.toMatchObject({ status: 404 });
+    expect((await deleteThroughBrowser()).status).toBe(404);
     await expect(assertOperationalEdition(slug, db())).rejects.toMatchObject({
       status: 404,
     });

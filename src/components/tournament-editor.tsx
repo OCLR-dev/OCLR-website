@@ -23,6 +23,11 @@ import {
   type Edition,
 } from "@/lib/editions";
 import type { tournamentForAdmin } from "@/lib/tournaments";
+import type {
+  CreateTournamentInput,
+  DeleteTournamentDraftInput,
+  TournamentSettingsInput,
+} from "@/lib/tournament-write-contracts";
 import { isBlankTournamentDraft } from "@/lib/tournament-draft";
 import { ConfirmMutation } from "./confirm-mutation";
 import { WorkspaceTabs } from "./workspace-tabs";
@@ -224,14 +229,19 @@ export function CreateTournamentForm() {
       const result = await fetch("/api/admin/tournaments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, slug, confirmed: true }),
+        body: JSON.stringify({
+          name,
+          slug,
+          confirmed: true,
+        } satisfies CreateTournamentInput),
       });
       const data = await result.json();
       if (!result.ok) {
         setError(data.error || "Tournament could not be created.");
         return;
       }
-      router.push(`/admin/tournaments/${data.edition.slug}`);
+      const workspace = data as Workspace;
+      router.push(`/admin/tournaments/${workspace.edition.slug}`);
       router.refresh();
     } catch {
       setError(
@@ -315,7 +325,7 @@ function Save({
   confirmation = false,
   disabled = false,
 }: EditorProps & {
-  action: string;
+  action: TournamentSettingsInput["action"];
   fields: Record<string, unknown>;
   label: string;
   confirmation?: boolean;
@@ -833,7 +843,7 @@ function Registration({ data, saved }: EditorProps) {
                 paused: false,
                 expectedRevision: data.revision,
                 confirmed: true,
-              }}
+              } satisfies TournamentSettingsInput}
               onSuccess={() =>
                 saved(
                   tr(
@@ -1319,7 +1329,7 @@ function Publication({
             expectedRevision: data.revision,
             confirmed: true,
             published: !data.edition.published,
-          }}
+          } satisfies TournamentSettingsInput}
           onSuccess={() => {
             saved("Publication updated.");
           }}
@@ -1343,7 +1353,7 @@ function Publication({
               expectedRevision: data.revision,
               confirmed: true,
               confirmSlug,
-            }}
+            } satisfies DeleteTournamentDraftInput}
             canConfirm={confirmSlug === data.edition.slug}
             onError={saved}
             onSuccess={() => router.replace("/admin/tournaments")}

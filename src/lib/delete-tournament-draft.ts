@@ -2,21 +2,13 @@ import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { and, eq, getTableColumns, is, notInArray, sql } from "drizzle-orm";
 import { PgTable } from "drizzle-orm/pg-core";
-import { z } from "zod";
 import type { User } from "./auth/sessions";
 import { assertBusinessWrite, assertCapability } from "./auth/staff";
 import { editionSchema, normalizeEditionBranding } from "./editions";
 import { HttpError } from "./http";
 import { isBlankTournamentDraft } from "./tournament-draft";
 import { storedEdition } from "./tournaments";
-
-const command = z
-  .object({
-    expectedRevision: z.number().int().nonnegative(),
-    confirmSlug: editionSchema.shape.slug,
-    confirmed: z.literal(true),
-  })
-  .strict();
+import { deleteTournamentDraftWrite } from "./tournament-write-contracts";
 
 /** Retire only an unused draft; never delete revisions, audit events or reuse its slug. */
 export async function deleteUnusedTournamentDraft(
@@ -27,7 +19,7 @@ export async function deleteUnusedTournamentDraft(
   await assertBusinessWrite(actor);
   // Creation and deletion belong to global Admins, including inside the transaction.
   await assertCapability(actor, "configure_tournament");
-  const parsed = command.safeParse(input);
+  const parsed = deleteTournamentDraftWrite.request.safeParse(input);
   if (!parsed.success || parsed.data.confirmSlug !== slug)
     throw new HttpError(400, "Confirm the draft slug before deleting.");
   const c = parsed.data;

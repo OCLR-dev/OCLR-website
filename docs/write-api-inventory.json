@@ -135,7 +135,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/delete-draft/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "deleteTournamentDraft",
+        "access": "browser",
+        "consumers": [
+          "src/components/tournament-editor.tsx"
+        ]
       }
     }
   },
@@ -562,7 +567,30 @@
     "source": "src/app/api/admin/tournaments/[edition]/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeTournament",
+        "access": "browser",
+        "actions": [
+          "resolve-archive-staff",
+          "exchange-archive-players",
+          "add-archive-substitute",
+          "resolve-archive-identity",
+          "approve-archive-matches",
+          "archive",
+          "enrollment",
+          "general",
+          "rules",
+          "registration",
+          "schedule",
+          "publication"
+        ],
+        "consumers": [
+          "src/components/tournament-editor.tsx",
+          "src/components/archive-importer.tsx",
+          "src/components/archive-player-exchange.tsx",
+          "src/components/archive-staff-resolver.tsx",
+          "src/components/archive-substitute.tsx"
+        ]
       }
     }
   },
@@ -648,7 +676,12 @@
     "source": "src/app/api/admin/tournaments/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "createTournament",
+        "access": "browser",
+        "consumers": [
+          "src/components/tournament-editor.tsx"
+        ]
       }
     }
   },

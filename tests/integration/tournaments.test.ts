@@ -37,6 +37,32 @@ import { getPublicEdition } from "../../src/lib/content";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { seasonAppearances } from "../../src/lib/preferences";
+import { requireUser } from "../../src/lib/auth/user";
+import { POST as createRoute } from "../../src/app/api/admin/tournaments/route";
+import { POST as changeRoute } from "../../src/app/api/admin/tournaments/[edition]/route";
+import {
+  changeTournamentWrite,
+  createTournamentWrite,
+} from "../../src/lib/tournament-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
+const origin = "https://oclr.example.test";
+function post(path: string, input: unknown) {
+  return new Request(origin + path, {
+    method: "POST",
+    headers: { origin, "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+async function tournamentResponse(response: Response, status: number) {
+  expect(response.status).toBe(status);
+  expect(response.headers.get("Cache-Control")).toBe("no-store");
+  const body = await response.json();
+  expect(extendedSchemas.tournamentForAdmin.parse(body)).toEqual(body);
+  return body;
+}
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 330001, username: "Synthetic Tournament Admin" };
 const mapper = { osuId: 330002, username: "Synthetic Mappooler" };
@@ -64,6 +90,7 @@ describe.skipIf(!url)("authoritative tournament edition storage", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
     vi.stubEnv("PRIVACY_CONTACT_OSU_ID", "60001");
   });
@@ -151,7 +178,20 @@ describe.skipIf(!url)("authoritative tournament edition storage", () => {
       status: "upcoming",
       ezScoreMultiplier: 1.2345,
     };
-    const saved = await change(0, "general", payload);
+    const path = changeTournamentWrite.path.replace("{edition}", "s12");
+    const update = (extra: object = {}) =>
+      changeRoute(post(path, {
+        ...payload,
+        action: "general",
+        expectedRevision: 0,
+        confirmed: true,
+        ...extra,
+      }), { params: Promise.resolve({ edition: "s12" }) });
+    vi.mocked(requireUser).mockResolvedValue(mapper);
+    expect((await update()).status).toBe(403);
+    vi.mocked(requireUser).mockResolvedValue(admin);
+    const saved = await tournamentResponse(await update(), 200);
+    expect(saved.revision).toBe(1);
     expect(saved.edition.ezScoreMultiplier).toBe(1.2345);
     expect((await readTournament("s12"))?.edition.ezScoreMultiplier).toBe(
       1.2345,
@@ -165,9 +205,7 @@ describe.skipIf(!url)("authoritative tournament edition storage", () => {
     expect(JSON.stringify(event.detail)).toContain(
       '"ezScoreMultiplier":1.2345',
     );
-    await expect(
-      change(0, "general", { ...payload, ezScoreMultiplier: 2 }),
-    ).rejects.toMatchObject({ status: 409 });
+    expect((await update({ ezScoreMultiplier: 2 })).status).toBe(409);
     await expect(
       tournamentCommand(mapper, "s12", {
         action: "general",
@@ -363,7 +401,14 @@ describe.skipIf(!url)("authoritative tournament edition storage", () => {
     expect((await readTournament("test-cup"))?.edition.name).toBe(edition.name);
   });
   it("creates only an unpublished configuration, audits its actor and rejects duplicate or mutable slugs", async () => {
-    const saved = await create();
+    vi.mocked(requireUser).mockResolvedValue(admin);
+    const createThroughBrowser = () =>
+      createRoute(post(createTournamentWrite.path, {
+        ...fields,
+        slug: "s12",
+        confirmed: true,
+      }));
+    const saved = await tournamentResponse(await createThroughBrowser(), 201);
     expect(saved.edition).toMatchObject({
       slug: "s12",
       published: false,
@@ -379,7 +424,7 @@ describe.skipIf(!url)("authoritative tournament edition storage", () => {
       detail: { before: null, after: { revision: 0 } },
     });
     expect(await getPublicEdition("s12")).toBeUndefined();
-    await expect(create()).rejects.toMatchObject({ status: 409 });
+    expect((await createThroughBrowser()).status).toBe(409);
     await expect(
       change(0, "general", { ...fields, status: "upcoming", slug: "renamed" }),
     ).rejects.toMatchObject({ status: 400 });

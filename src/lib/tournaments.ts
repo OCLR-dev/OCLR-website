@@ -42,18 +42,17 @@ import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { draftSetupProtection } from "./draft-setup";
 import { refreshDraftSnapshot } from "./draft";
 import { HttpError } from "./http";
+import { confirmArchiveStaffIdentity } from "./archive-staff-identity-model";
 import {
-  resolveArchiveStaffCommand,
-  confirmArchiveStaffIdentity,
-} from "./archive-staff-identity-model";
+  changeTournamentWrite,
+  createTournamentWrite,
+} from "./tournament-write-contracts";
 import {
   approveArchiveMatches,
   publicHistoricalArchive,
   resolveArchiveIdentity,
   exchangeArchivePlayers,
-  archivePlayerExchangeConfirmation,
   addArchiveSubstitute,
-  archiveSubstituteConfirmation,
 } from "./historical-archive";
 import { supportsArchiveStatistics } from "./archive-statistics-model";
 import type { SavedTournament } from "./configuration-read-contracts";
@@ -116,119 +115,6 @@ export async function readTournaments(publicOnly = false) {
   return result;
 }
 
-const shape = editionSchema.shape;
-const identity = {
-  name: shape.name,
-  season: shape.season,
-  summary: shape.summary,
-  timeZone: shape.timeZone,
-  branding: shape.branding,
-  defaultAppearance: shape.defaultAppearance,
-};
-const version = {
-  expectedRevision: z.number().int().nonnegative(),
-  confirmed: z.literal(true),
-};
-const createSchema = z
-  .object({
-    ...identity,
-    slug: shape.slug
-      .refine((s) => s !== "new", "This slug is reserved")
-      .optional(),
-    summary: shape.summary.default(""),
-    timeZone: shape.timeZone.default("UTC"),
-    confirmed: z.literal(true),
-  })
-  .strict();
-const commandSchema = z.discriminatedUnion("action", [
-  resolveArchiveStaffCommand,
-  archivePlayerExchangeConfirmation
-    .extend({
-      ...version,
-      action: z.literal("exchange-archive-players"),
-      preserveStatistics: z.literal(true),
-    })
-    .strict(),
-  archiveSubstituteConfirmation
-    .extend({
-      ...version,
-      action: z.literal("add-archive-substitute"),
-      preserveStatistics: z.literal(true),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("resolve-archive-identity"),
-      unresolvedId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/),
-      osuId: z.number().int().positive().max(2147483647),
-      source: z.string().trim().min(1).max(160),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("approve-archive-matches"),
-      matchIds: z.array(z.string().min(1).max(80)).min(1).max(500),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("archive"),
-      archive: shape.archive.unwrap(),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("enrollment"),
-      paused: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("general"),
-      ...identity,
-      status: shape.status,
-      coachesEnabled: shape.coachesEnabled,
-      ezScoreMultiplier: shape.ezScoreMultiplier,
-      rosterCapacity: shape.rosterCapacity,
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("rules"),
-      rules: shape.rules,
-      eligibility: shape.eligibility,
-      automaticEligibility: shape.automaticEligibility,
-      rankGraceRange: shape.rankGraceRange,
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("registration"),
-      registration: shape.registration,
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("schedule"),
-      schedule: shape.schedule,
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("publication"),
-      published: z.boolean(),
-    })
-    .strict(),
-]);
 function invalid(parsed: { success: boolean; error?: z.ZodError }) {
   if (!parsed.success)
     throw new HttpError(
@@ -371,7 +257,7 @@ export async function tournamentForAdmin(
 
 export async function createTournament(actor: User, input: unknown) {
   await assertCapability(actor, "configure_tournament");
-  const parsed = createSchema.safeParse(input);
+  const parsed = createTournamentWrite.request.safeParse(input);
   invalid(parsed);
   if (!parsed.success) throw new HttpError(400, "Invalid tournament.");
   const { slug: requestedSlug, confirmed: _confirmed, ...fields } = parsed.data;
@@ -423,7 +309,7 @@ export async function tournamentCommand(
   input: unknown,
 ) {
   await assertCapability(actor, "configure_tournament", slug);
-  const parsed = commandSchema.safeParse(input);
+  const parsed = changeTournamentWrite.request.safeParse(input);
   invalid(parsed);
   if (!parsed.success) throw new HttpError(400, "Invalid settings.");
   const c = parsed.data;

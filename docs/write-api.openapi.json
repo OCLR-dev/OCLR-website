@@ -11099,6 +11099,235 @@
           "history"
         ],
         "additionalProperties": false
+      },
+      "tournamentForAdmin": {
+        "type": "object",
+        "properties": {
+          "applications": {
+            "type": "number"
+          },
+          "readiness": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "ready": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "label",
+                "ready"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/Readab8799e08222"
+          },
+          "edition": {
+            "$ref": "#/components/schemas/Read3dfcab2ad495"
+          },
+          "revision": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "x-oclr-date": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "x-oclr-date": true
+          },
+          "registrationPaused": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "applications",
+          "readiness",
+          "links",
+          "edition",
+          "revision",
+          "createdAt",
+          "updatedAt",
+          "registrationPaused"
+        ],
+        "additionalProperties": false
+      },
+      "Readab8799e08222": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Read2ed1c27fc18f"
+        }
+      },
+      "Read2ed1c27fc18f": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "group": {
+            "type": "string"
+          },
+          "exact": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "href",
+          "label",
+          "group",
+          "exact"
+        ],
+        "additionalProperties": false
+      },
+      "Read3dfcab2ad495": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "season": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "branding": {
+            "$ref": "#/components/schemas/Read5ab2db77dabd"
+          },
+          "published": {
+            "type": "boolean"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "upcoming"
+              },
+              {
+                "type": "string",
+                "const": "live"
+              },
+              {
+                "type": "string",
+                "const": "completed"
+              }
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/Readcb41459d5612"
+          },
+          "eligibility": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "registration": {
+            "$ref": "#/components/schemas/Reade8693424c8e5"
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/Read53d8bb6b02cb"
+          },
+          "defaultAppearance": {
+            "$ref": "#/components/schemas/Read0cdca1ea8fa1"
+          },
+          "rosterCapacity": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "coachesEnabled": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "boolean",
+                "const": false
+              },
+              {
+                "type": "boolean",
+                "const": true
+              }
+            ]
+          },
+          "ezScoreMultiplier": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "archive": {
+            "$ref": "#/components/schemas/Readc005b0a27eee"
+          },
+          "automaticEligibility": {
+            "$ref": "#/components/schemas/Read9d043f4f751e"
+          },
+          "rankGraceRange": {
+            "$ref": "#/components/schemas/Readc78fa88a9778"
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "season",
+          "branding",
+          "published",
+          "status",
+          "summary",
+          "timeZone",
+          "rules",
+          "eligibility",
+          "registration",
+          "schedule"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -30275,6 +30504,3475 @@
           },
           "409": {
             "description": "The connection, pending command, BP event, workspace revision, or request key conflicts with current state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments": {
+      "post": {
+        "operationId": "createTournament",
+        "summary": "Create an unpublished tournament draft",
+        "description": "Requires global configure_tournament and confirmation. A name alone can supply the default slug; new is reserved. The new draft starts unpublished at revision zero. Its slug is permanent. An existing or retired slug conflicts. Check the tournament list before retrying an uncertain response.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "season": {
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "summary": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "timeZone": {
+                    "default": "UTC",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "branding": {
+                    "default": {
+                      "logo": null,
+                      "background": null,
+                      "keyVisual": null
+                    },
+                    "type": "object",
+                    "properties": {
+                      "logo": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "/oclr-s11-square-logo.webp",
+                              "/archive/s10/thumbnail.webp",
+                              "/archive/s9/thumbnail.webp",
+                              "/archive/s8/thumbnail.webp",
+                              "/archive/s7/key-visual.jpg",
+                              "/archive/s6/key-visual.webp",
+                              "/archive/s5/key-visual.webp",
+                              "/archive/s4/key-visual.avif",
+                              "/archive/s3/key-visual.avif",
+                              "/archive/s2/key-visual.avif",
+                              "/archive/s1/key-visual.webp"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "background": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "/oclr-s11-website-background.webp"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "keyVisual": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "/oclr-s11-key-visual.webp",
+                              "/archive/s10/thumbnail.webp",
+                              "/archive/s9/thumbnail.webp",
+                              "/archive/s8/thumbnail.webp",
+                              "/archive/s7/key-visual.jpg",
+                              "/archive/s6/key-visual.webp",
+                              "/archive/s5/key-visual.webp",
+                              "/archive/s4/key-visual.avif",
+                              "/archive/s3/key-visual.avif",
+                              "/archive/s2/key-visual.avif",
+                              "/archive/s1/key-visual.webp"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "logo",
+                      "background",
+                      "keyVisual"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "defaultAppearance": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "default",
+                          "cute-pastel",
+                          "swiss-minimal",
+                          "claymorphism",
+                          "manga-halftone",
+                          "glassmorphism",
+                          "esports-broadcast",
+                          "retro-arcade",
+                          "frutiger-aero",
+                          "nebula-bloom",
+                          "skyline-pop",
+                          "glacier-blue",
+                          "sakura-circuit",
+                          "graphite-arena",
+                          "orbital-pulse",
+                          "prism-overture",
+                          "azure-brush",
+                          "frost-waltz",
+                          "verdant-prelude",
+                          "chromatic-origins"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "slug": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "confirmed": {
+                    "type": "boolean",
+                    "const": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "confirmed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The private admin workspace for the new tournament.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tournamentForAdmin"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid tournament identity or configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or current configuration permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The tournament slug already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}": {
+      "post": {
+        "operationId": "changeTournament",
+        "summary": "Change tournament settings or correct historical archive evidence",
+        "description": "Requires configure_tournament for the selected edition, explicit confirmation and the current configuration revision. Registration enablement, operational pause and tournament visibility have separate commands. Archive corrections require eligible saved history. Historical staff linking rechecks the verified provider ID and records the confirmation source without creating a role grant. A save with no change at the current revision creates no audit event. A committed change and its audit entry are transactional.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 80,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 524288,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "staffIndex": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 199
+                      },
+                      "username": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "osuId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 2147483647
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      "identityConfirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "resolve-archive-staff"
+                      }
+                    },
+                    "required": [
+                      "staffIndex",
+                      "username",
+                      "expectedRevision",
+                      "osuId",
+                      "source",
+                      "identityConfirmed",
+                      "confirmed",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "firstOsuId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 2147483647
+                      },
+                      "firstTeamId": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                      },
+                      "secondOsuId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 2147483647
+                      },
+                      "secondTeamId": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                      },
+                      "confirmationSource": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "exchange-archive-players"
+                      },
+                      "preserveStatistics": {
+                        "type": "boolean",
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "firstOsuId",
+                      "firstTeamId",
+                      "secondOsuId",
+                      "secondTeamId",
+                      "confirmationSource",
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "preserveStatistics"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "osuId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 2147483647
+                      },
+                      "username": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
+                      "teamId": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      "confirmationSource": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "add-archive-substitute"
+                      },
+                      "preserveStatistics": {
+                        "type": "boolean",
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "osuId",
+                      "username",
+                      "teamId",
+                      "source",
+                      "confirmationSource",
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "preserveStatistics"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "resolve-archive-identity"
+                      },
+                      "unresolvedId": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                      },
+                      "osuId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 2147483647
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "unresolvedId",
+                      "osuId",
+                      "source"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "approve-archive-matches"
+                      },
+                      "matchIds": {
+                        "minItems": 1,
+                        "maxItems": 500,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        }
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "matchIds"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "archive"
+                      },
+                      "archive": {
+                        "type": "object",
+                        "properties": {
+                          "formatVersion": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "const": 1
+                              },
+                              {
+                                "type": "number",
+                                "const": 2
+                              }
+                            ]
+                          },
+                          "editionSlug": {
+                            "type": "string",
+                            "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                          },
+                          "sourceUrl": {
+                            "type": "string",
+                            "maxLength": 2000,
+                            "format": "uri"
+                          },
+                          "capturedOn": {
+                            "type": "string",
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                          },
+                          "season": {
+                            "type": "object",
+                            "properties": {
+                              "startsAt": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "endsAt": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "timeZone": {
+                                "type": "string",
+                                "maxLength": 100
+                              },
+                              "precision": {
+                                "type": "string",
+                                "enum": [
+                                  "day",
+                                  "instant"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "startsAt",
+                              "endsAt",
+                              "timeZone"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "finalPlacements": {
+                            "maxItems": 128,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "teamId": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "placement": {
+                                  "type": "object",
+                                  "properties": {
+                                    "start": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 128
+                                    },
+                                    "end": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 128
+                                    }
+                                  },
+                                  "required": [
+                                    "start",
+                                    "end"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "tied": {
+                                  "type": "boolean"
+                                },
+                                "qualified": {
+                                  "type": "boolean"
+                                },
+                                "official": {
+                                  "type": "boolean"
+                                },
+                                "note": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 6000
+                                },
+                                "scope": {
+                                  "type": "string",
+                                  "const": "final"
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "teamId",
+                                "placement",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "notes": {
+                            "maxItems": 30,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 2000
+                            }
+                          },
+                          "links": {
+                            "maxItems": 30,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "label": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "maxLength": 2000,
+                                  "format": "uri"
+                                }
+                              },
+                              "required": [
+                                "label",
+                                "url"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "teams": {
+                            "minItems": 1,
+                            "maxItems": 128,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "players": {
+                            "maxItems": 2048,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "osuId": {
+                                  "type": "integer",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 2147483647
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "teamId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "role": {
+                                  "type": "string",
+                                  "enum": [
+                                    "captain",
+                                    "player",
+                                    "coach",
+                                    "free_agent"
+                                  ]
+                                },
+                                "sourceRole": {
+                                  "type": "string",
+                                  "const": "VICE"
+                                },
+                                "tier": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 32
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "osuId",
+                                "username",
+                                "teamId",
+                                "role",
+                                "tier",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "unresolvedPlayers": {
+                            "maxItems": 2048,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "teamId": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "role": {
+                                  "type": "string",
+                                  "enum": [
+                                    "captain",
+                                    "player",
+                                    "coach"
+                                  ]
+                                },
+                                "tier": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 32
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "sourceRole": {
+                                  "type": "string",
+                                  "const": "VICE"
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "username",
+                                "teamId",
+                                "role",
+                                "tier",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "rosterReplacements": {
+                            "maxItems": 200,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "teamId": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "tier": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 32
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "people": {
+                                  "minItems": 2,
+                                  "maxItems": 10,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "osuId": {
+                                        "anyOf": [
+                                          {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 2147483647
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "username": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 300
+                                      },
+                                      "source": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 160
+                                      }
+                                    },
+                                    "required": [
+                                      "osuId",
+                                      "username",
+                                      "source"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "replacedAt": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "date-time",
+                                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "note": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 6000
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "teamId",
+                                "tier",
+                                "people",
+                                "replacedAt",
+                                "note",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "qualifiers": {
+                            "maxItems": 32,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "poolId": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                },
+                                "records": {
+                                  "maxItems": 2048,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "username": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 300
+                                      },
+                                      "scores": {
+                                        "maxItems": 100,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "slot": {
+                                              "type": "string",
+                                              "pattern": "^(NM|HD|HR|DT|FM|TB|ACE)[1-9]\\d?$"
+                                            },
+                                            "score": {
+                                              "type": "integer",
+                                              "minimum": 0,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "required": [
+                                            "slot",
+                                            "score"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      },
+                                      "source": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 160
+                                      }
+                                    },
+                                    "required": [
+                                      "username",
+                                      "scores",
+                                      "source"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "poolId",
+                                "source",
+                                "records"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "reviewTables": {
+                            "maxItems": 10,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "note": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 6000
+                                },
+                                "rows": {
+                                  "maxItems": 128,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "teamId": {
+                                        "type": "string",
+                                        "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                      },
+                                      "wins": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 100
+                                      },
+                                      "losses": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 100
+                                      },
+                                      "mapsWon": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 100
+                                      },
+                                      "mapsLost": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 100
+                                      }
+                                    },
+                                    "required": [
+                                      "teamId",
+                                      "wins",
+                                      "losses",
+                                      "mapsWon",
+                                      "mapsLost"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "note",
+                                "rows"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "sourceFacts": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "category": {
+                                  "type": "string",
+                                  "enum": [
+                                    "rules",
+                                    "provenance",
+                                    "bracket",
+                                    "schedule",
+                                    "review"
+                                  ]
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "text": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 6000
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "category",
+                                "label",
+                                "text",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "picks": {
+                            "maxItems": 2048,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "round": {
+                                  "type": "integer",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 32
+                                },
+                                "pick": {
+                                  "type": "integer",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 128
+                                },
+                                "teamId": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "osuId": {
+                                  "type": "integer",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 2147483647
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "round",
+                                "pick",
+                                "teamId",
+                                "osuId",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "draftMode": {
+                            "type": "string",
+                            "const": "final-tiers"
+                          },
+                          "staff": {
+                            "maxItems": 200,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "osuId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 2147483647
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "position": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "osuId",
+                                "username",
+                                "position",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "standings": {
+                            "maxItems": 128,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "group": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "placement": {
+                                  "type": "object",
+                                  "properties": {
+                                    "start": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 128
+                                    },
+                                    "end": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 128
+                                    }
+                                  },
+                                  "required": [
+                                    "start",
+                                    "end"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "tied": {
+                                  "type": "boolean"
+                                },
+                                "qualified": {
+                                  "type": "boolean"
+                                },
+                                "official": {
+                                  "type": "boolean"
+                                },
+                                "note": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 6000
+                                },
+                                "scope": {
+                                  "type": "string",
+                                  "enum": [
+                                    "group",
+                                    "final"
+                                  ]
+                                },
+                                "teamId": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "rank": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 128
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "wins": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                "losses": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                "mapsWon": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                "mapsLost": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "group",
+                                "teamId",
+                                "rank",
+                                "wins",
+                                "losses",
+                                "mapsWon",
+                                "mapsLost",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "matches": {
+                            "maxItems": 1024,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "stage": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "round": {
+                                  "type": "object",
+                                  "properties": {
+                                    "phase": {
+                                      "type": "string",
+                                      "enum": [
+                                        "qualifier",
+                                        "group",
+                                        "swiss",
+                                        "knockout",
+                                        "final"
+                                      ]
+                                    },
+                                    "index": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 128
+                                    }
+                                  },
+                                  "required": [
+                                    "phase",
+                                    "index"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "format": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "bestOf": {
+                                          "type": "integer",
+                                          "minimum": 1,
+                                          "maximum": 99
+                                        }
+                                      },
+                                      "required": [
+                                        "bestOf"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "maxGames": {
+                                          "type": "integer",
+                                          "minimum": 1,
+                                          "maximum": 99
+                                        },
+                                        "winsRequired": {
+                                          "type": "integer",
+                                          "minimum": 1,
+                                          "maximum": 99
+                                        }
+                                      },
+                                      "required": [
+                                        "maxGames",
+                                        "winsRequired"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ]
+                                },
+                                "timeZone": {
+                                  "type": "string",
+                                  "maxLength": 100
+                                },
+                                "adjudication": {
+                                  "type": "object",
+                                  "properties": {
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "technical",
+                                        "forfeit",
+                                        "cancelled",
+                                        "not-played"
+                                      ]
+                                    },
+                                    "note": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 6000
+                                    },
+                                    "evidenceUrl": {
+                                      "type": "string",
+                                      "maxLength": 2000,
+                                      "format": "uri"
+                                    }
+                                  },
+                                  "required": [
+                                    "kind",
+                                    "note",
+                                    "evidenceUrl"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "poolId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "teamA": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "teamB": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "scheduledAt": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "date-time",
+                                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "roomOpenedAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                },
+                                "score": {
+                                  "anyOf": [
+                                    {
+                                      "type": "array",
+                                      "prefixItems": [
+                                        {
+                                          "type": "integer",
+                                          "minimum": 0,
+                                          "maximum": 100
+                                        },
+                                        {
+                                          "type": "integer",
+                                          "minimum": 0,
+                                          "maximum": 100
+                                        }
+                                      ],
+                                      "items": false,
+                                      "minItems": 2,
+                                      "maxItems": 2
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "review": {
+                                  "type": "object",
+                                  "properties": {
+                                    "status": {
+                                      "type": "string",
+                                      "enum": [
+                                        "pending",
+                                        "approved"
+                                      ]
+                                    },
+                                    "approval": {
+                                      "type": "object",
+                                      "properties": {
+                                        "approvedOn": {
+                                          "type": "string",
+                                          "format": "date",
+                                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                                        },
+                                        "approvedBy": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 300
+                                        },
+                                        "evidenceUrl": {
+                                          "type": "string",
+                                          "maxLength": 2000,
+                                          "format": "uri"
+                                        },
+                                        "source": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 6000
+                                        }
+                                      },
+                                      "required": [
+                                        "approvedOn",
+                                        "source"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "workingScore": {
+                                      "anyOf": [
+                                        {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "integer",
+                                              "minimum": 0,
+                                              "maximum": 100
+                                            },
+                                            {
+                                              "type": "integer",
+                                              "minimum": 0,
+                                              "maximum": 100
+                                            }
+                                          ],
+                                          "items": false,
+                                          "minItems": 2,
+                                          "maxItems": 2
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "rawScore": {
+                                      "anyOf": [
+                                        {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "integer",
+                                              "minimum": 0,
+                                              "maximum": 100
+                                            },
+                                            {
+                                              "type": "integer",
+                                              "minimum": 0,
+                                              "maximum": 100
+                                            }
+                                          ],
+                                          "items": false,
+                                          "minItems": 2,
+                                          "maxItems": 2
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "possibleScore": {
+                                      "anyOf": [
+                                        {
+                                          "type": "array",
+                                          "prefixItems": [
+                                            {
+                                              "type": "integer",
+                                              "minimum": 0,
+                                              "maximum": 100
+                                            },
+                                            {
+                                              "type": "integer",
+                                              "minimum": 0,
+                                              "maximum": 100
+                                            }
+                                          ],
+                                          "items": false,
+                                          "minItems": 2,
+                                          "maxItems": 2
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "note": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 6000
+                                    },
+                                    "startedAt": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "format": "date-time",
+                                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "redTeamId": {
+                                      "type": "string",
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                    },
+                                    "blueTeamId": {
+                                      "type": "string",
+                                      "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                    },
+                                    "games": {
+                                      "maxItems": 100,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "gameId": {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 2147483647
+                                          },
+                                          "beatmapId": {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 2147483647
+                                          },
+                                          "poolSlot": {
+                                            "anyOf": [
+                                              {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string",
+                                                    "pattern": "^(NM|HD|HR|DT|FM|TB|ACE)[1-9]\\d?$"
+                                                  },
+                                                  {
+                                                    "type": "string",
+                                                    "const": "TB"
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          },
+                                          "startTime": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                          },
+                                          "endTime": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          },
+                                          "disposition": {
+                                            "type": "string",
+                                            "enum": [
+                                              "outside-stage-pools",
+                                              "earlier-completed-replay-candidate",
+                                              "selected-under-last-completed-attempt-hypothesis",
+                                              "aborted-no-result",
+                                              "post-match-entertainment-pending-confirmation"
+                                            ]
+                                          },
+                                          "totals": {
+                                            "type": "object",
+                                            "properties": {
+                                              "red": {
+                                                "type": "integer",
+                                                "minimum": 0,
+                                                "maximum": 9007199254740991
+                                              },
+                                              "blue": {
+                                                "type": "integer",
+                                                "minimum": 0,
+                                                "maximum": 9007199254740991
+                                              }
+                                            },
+                                            "required": [
+                                              "red",
+                                              "blue"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "positivePlayers": {
+                                            "type": "object",
+                                            "properties": {
+                                              "red": {
+                                                "type": "integer",
+                                                "minimum": 0,
+                                                "maximum": 100
+                                              },
+                                              "blue": {
+                                                "type": "integer",
+                                                "minimum": 0,
+                                                "maximum": 100
+                                              }
+                                            },
+                                            "required": [
+                                              "red",
+                                              "blue"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "teamFail": {
+                                            "type": "object",
+                                            "properties": {
+                                              "red": {
+                                                "type": "boolean"
+                                              },
+                                              "blue": {
+                                                "type": "boolean"
+                                              }
+                                            },
+                                            "required": [
+                                              "red",
+                                              "blue"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "winningColor": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string",
+                                                "enum": [
+                                                  "red",
+                                                  "blue"
+                                                ]
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          },
+                                          "interpretationStatus": {
+                                            "type": "string",
+                                            "const": "pending-confirmation"
+                                          }
+                                        },
+                                        "required": [
+                                          "gameId",
+                                          "beatmapId",
+                                          "poolSlot",
+                                          "startTime",
+                                          "endTime",
+                                          "disposition",
+                                          "totals",
+                                          "positivePlayers"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "status",
+                                    "workingScore",
+                                    "rawScore",
+                                    "possibleScore",
+                                    "note",
+                                    "startedAt",
+                                    "redTeamId",
+                                    "blueTeamId",
+                                    "games"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "forfeitWinner": {
+                                  "anyOf": [
+                                    {
+                                      "type": "number",
+                                      "const": 0
+                                    },
+                                    {
+                                      "type": "number",
+                                      "const": 1
+                                    }
+                                  ]
+                                },
+                                "mpUrls": {
+                                  "maxItems": 10,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "maxLength": 2000,
+                                    "format": "uri"
+                                  }
+                                },
+                                "vodUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "maxLength": 2000,
+                                      "format": "uri"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "referee": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 300
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "streamer": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 300
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "commentators": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 300
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "bansA": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 300
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "bansB": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 300
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "label",
+                                "stage",
+                                "teamA",
+                                "teamB",
+                                "scheduledAt",
+                                "score",
+                                "mpUrls",
+                                "vodUrl",
+                                "referee",
+                                "streamer",
+                                "commentators",
+                                "bansA",
+                                "bansB",
+                                "source"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "pools": {
+                            "maxItems": 32,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 160
+                                },
+                                "maps": {
+                                  "minItems": 1,
+                                  "maxItems": 100,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "slot": {
+                                        "type": "string",
+                                        "pattern": "^(NM|HD|HR|DT|FM|TB|ACE)[1-9]\\d?$"
+                                      },
+                                      "beatmapId": {
+                                        "anyOf": [
+                                          {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 2147483647
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "beatmapSetId": {
+                                        "type": "integer",
+                                        "exclusiveMinimum": 0,
+                                        "maximum": 2147483647
+                                      },
+                                      "backgroundSetId": {
+                                        "type": "integer",
+                                        "exclusiveMinimum": 0,
+                                        "maximum": 2147483647
+                                      },
+                                      "downloadMirror": {
+                                        "type": "string",
+                                        "maxLength": 2048,
+                                        "format": "uri",
+                                        "pattern": "^[^\\s\\u0000-\\u001f\\u007f]+$"
+                                      },
+                                      "coverPath": {
+                                        "type": "string",
+                                        "pattern": "^\\/archive\\/beatmaps\\/[1-9]\\d*\\/cover\\.jpg$"
+                                      },
+                                      "difficultySnapshot": {
+                                        "type": "object",
+                                        "properties": {
+                                          "beatmapId": {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 9007199254740991
+                                          },
+                                          "ruleset": {
+                                            "type": "string",
+                                            "enum": [
+                                              "osu",
+                                              "taiko",
+                                              "fruits",
+                                              "mania"
+                                            ]
+                                          },
+                                          "checksum": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string",
+                                                "pattern": "^[a-f0-9]{32}$"
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          },
+                                          "fetchedAt": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                          },
+                                          "base": {
+                                            "type": "object",
+                                            "properties": {
+                                              "stars": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "number",
+                                                    "minimum": 0
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "bpm": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "number",
+                                                    "minimum": 0
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "duration": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "number",
+                                                    "minimum": 0
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "ar": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "number",
+                                                    "minimum": 0
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "od": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "number",
+                                                    "minimum": 0
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "cs": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "number",
+                                                    "minimum": 0
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "hp": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "number",
+                                                    "minimum": 0
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "stars",
+                                              "bpm",
+                                              "duration",
+                                              "ar",
+                                              "od",
+                                              "cs",
+                                              "hp"
+                                            ]
+                                          },
+                                          "variants": {
+                                            "type": "object",
+                                            "propertyNames": {
+                                              "type": "string",
+                                              "enum": [
+                                                "NM",
+                                                "HD",
+                                                "HR",
+                                                "DT",
+                                                "HDHR",
+                                                "HDDT",
+                                                "HRDT",
+                                                "HDHRDT",
+                                                "EZ",
+                                                "HT"
+                                              ]
+                                            },
+                                            "additionalProperties": {
+                                              "type": "object",
+                                              "properties": {
+                                                "configuration": {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "NM",
+                                                    "HD",
+                                                    "HR",
+                                                    "DT",
+                                                    "HDHR",
+                                                    "HDDT",
+                                                    "HRDT",
+                                                    "HDHRDT",
+                                                    "EZ",
+                                                    "HT"
+                                                  ]
+                                                },
+                                                "mods": {
+                                                  "type": "array",
+                                                  "items": {
+                                                    "type": "string"
+                                                  }
+                                                },
+                                                "ruleset": {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "osu",
+                                                    "taiko",
+                                                    "fruits",
+                                                    "mania"
+                                                  ]
+                                                },
+                                                "stars": {
+                                                  "type": "number",
+                                                  "minimum": 0
+                                                },
+                                                "maxCombo": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "integer",
+                                                      "minimum": 0,
+                                                      "maximum": 9007199254740991
+                                                    },
+                                                    {
+                                                      "type": "null"
+                                                    }
+                                                  ]
+                                                },
+                                                "values": {
+                                                  "type": "object",
+                                                  "propertyNames": {
+                                                    "type": "string"
+                                                  },
+                                                  "additionalProperties": {
+                                                    "type": "number"
+                                                  }
+                                                },
+                                                "fetchedAt": {
+                                                  "type": "string",
+                                                  "format": "date-time",
+                                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                                }
+                                              },
+                                              "required": [
+                                                "configuration",
+                                                "mods",
+                                                "ruleset",
+                                                "stars",
+                                                "maxCombo",
+                                                "values",
+                                                "fetchedAt"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        "required": [
+                                          "beatmapId",
+                                          "ruleset",
+                                          "checksum",
+                                          "fetchedAt",
+                                          "base",
+                                          "variants"
+                                        ]
+                                      },
+                                      "originalId": {
+                                        "type": "integer",
+                                        "exclusiveMinimum": 0,
+                                        "maximum": 2147483647
+                                      },
+                                      "title": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 300
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "sourceTitle": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "maxLength": 300
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "mapper": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 300
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "stars": {
+                                        "anyOf": [
+                                          {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 10000
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "bpm": {
+                                        "anyOf": [
+                                          {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 10000
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "drainSeconds": {
+                                        "anyOf": [
+                                          {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 10000
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "cs": {
+                                        "anyOf": [
+                                          {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 10000
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "ar": {
+                                        "anyOf": [
+                                          {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 10000
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "od": {
+                                        "anyOf": [
+                                          {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 10000
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "hp": {
+                                        "anyOf": [
+                                          {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 10000
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "source": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 160
+                                      }
+                                    },
+                                    "required": [
+                                      "slot",
+                                      "beatmapId",
+                                      "title",
+                                      "mapper",
+                                      "stars",
+                                      "bpm",
+                                      "drainSeconds",
+                                      "cs",
+                                      "ar",
+                                      "od",
+                                      "source"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "source",
+                                "maps"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "formatVersion",
+                          "editionSlug",
+                          "sourceUrl",
+                          "capturedOn",
+                          "notes",
+                          "links",
+                          "teams",
+                          "players",
+                          "picks",
+                          "staff",
+                          "standings",
+                          "matches",
+                          "pools"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "archive"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "enrollment"
+                      },
+                      "paused": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "paused"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "general"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "season": {
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "summary": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "timeZone": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "branding": {
+                        "default": {
+                          "logo": null,
+                          "background": null,
+                          "keyVisual": null
+                        },
+                        "type": "object",
+                        "properties": {
+                          "logo": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "/oclr-s11-square-logo.webp",
+                                  "/archive/s10/thumbnail.webp",
+                                  "/archive/s9/thumbnail.webp",
+                                  "/archive/s8/thumbnail.webp",
+                                  "/archive/s7/key-visual.jpg",
+                                  "/archive/s6/key-visual.webp",
+                                  "/archive/s5/key-visual.webp",
+                                  "/archive/s4/key-visual.avif",
+                                  "/archive/s3/key-visual.avif",
+                                  "/archive/s2/key-visual.avif",
+                                  "/archive/s1/key-visual.webp"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "background": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "/oclr-s11-website-background.webp"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "keyVisual": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "/oclr-s11-key-visual.webp",
+                                  "/archive/s10/thumbnail.webp",
+                                  "/archive/s9/thumbnail.webp",
+                                  "/archive/s8/thumbnail.webp",
+                                  "/archive/s7/key-visual.jpg",
+                                  "/archive/s6/key-visual.webp",
+                                  "/archive/s5/key-visual.webp",
+                                  "/archive/s4/key-visual.avif",
+                                  "/archive/s3/key-visual.avif",
+                                  "/archive/s2/key-visual.avif",
+                                  "/archive/s1/key-visual.webp"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "logo",
+                          "background",
+                          "keyVisual"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "defaultAppearance": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "default",
+                              "cute-pastel",
+                              "swiss-minimal",
+                              "claymorphism",
+                              "manga-halftone",
+                              "glassmorphism",
+                              "esports-broadcast",
+                              "retro-arcade",
+                              "frutiger-aero",
+                              "nebula-bloom",
+                              "skyline-pop",
+                              "glacier-blue",
+                              "sakura-circuit",
+                              "graphite-arena",
+                              "orbital-pulse",
+                              "prism-overture",
+                              "azure-brush",
+                              "frost-waltz",
+                              "verdant-prelude",
+                              "chromatic-origins"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "upcoming",
+                          "live",
+                          "completed"
+                        ]
+                      },
+                      "coachesEnabled": {
+                        "type": "boolean"
+                      },
+                      "ezScoreMultiplier": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": 0.0001,
+                            "maximum": 100
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rosterCapacity": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 256
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "name",
+                      "summary",
+                      "timeZone",
+                      "status"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "rules"
+                      },
+                      "rules": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "version": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 80
+                              },
+                              "sections": {
+                                "minItems": 1,
+                                "maxItems": 32,
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "heading": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 200
+                                    },
+                                    "body": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 20000
+                                    }
+                                  },
+                                  "required": [
+                                    "heading",
+                                    "body"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "version",
+                              "sections"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "eligibility": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4000
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "automaticEligibility": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "minPp": {
+                                "anyOf": [
+                                  {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1000000
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "maxPp": {
+                                "anyOf": [
+                                  {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1000000
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "minRank": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "maxRank": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9007199254740991
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "minPp",
+                              "maxPp",
+                              "minRank",
+                              "maxRank"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rankGraceRange": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "minRank": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "maxRank": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "minRank",
+                              "maxRank"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "rules",
+                      "eligibility"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "registration"
+                      },
+                      "registration": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "default": true,
+                                "type": "boolean"
+                              },
+                              "opensAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              "closesAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              "withdrawUntil": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "questions": {
+                                "default": [],
+                                "maxItems": 16,
+                                "type": "array",
+                                "items": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                                        },
+                                        "label": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 200
+                                        },
+                                        "required": {
+                                          "type": "boolean"
+                                        },
+                                        "type": {
+                                          "default": "text",
+                                          "type": "string",
+                                          "const": "text"
+                                        },
+                                        "maxLength": {
+                                          "default": 500,
+                                          "type": "integer",
+                                          "minimum": 1,
+                                          "maximum": 2000
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "label",
+                                        "required"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                                        },
+                                        "label": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 200
+                                        },
+                                        "required": {
+                                          "type": "boolean"
+                                        },
+                                        "type": {
+                                          "type": "string",
+                                          "const": "single_choice"
+                                        },
+                                        "options": {
+                                          "minItems": 2,
+                                          "maxItems": 20,
+                                          "type": "array",
+                                          "items": {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": {
+                                                "type": "string",
+                                                "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                                              },
+                                              "label": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 200
+                                              }
+                                            },
+                                            "required": [
+                                              "id",
+                                              "label"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "label",
+                                        "required",
+                                        "type",
+                                        "options"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ]
+                                }
+                              },
+                              "publicIntroductionQuestionId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "opensAt",
+                              "closesAt",
+                              "withdrawUntil"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "registration"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "schedule"
+                      },
+                      "schedule": {
+                        "maxItems": 64,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            },
+                            "at": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "group",
+                                "knockout"
+                              ]
+                            },
+                            "endAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "precision": {
+                              "type": "string",
+                              "enum": [
+                                "day",
+                                "instant"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "at"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "schedule"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "publication"
+                      },
+                      "published": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action",
+                      "published"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved private tournament admin workspace and revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tournamentForAdmin"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid command or resulting tournament configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or current configuration permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The tournament or verified provider identity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision, publication, registration, draft lock, or archive evidence conflicts with current state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Provider lookup is rate limited or busy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The provider returned an invalid response or could not be reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site configuration or a current verified provider profile is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/delete-draft": {
+      "post": {
+        "operationId": "deleteTournamentDraft",
+        "summary": "Retire an unused blank tournament draft",
+        "description": "Requires global configure_tournament, the exact draft slug and the current revision. Any existing tournament data, staff history or nonblank current or earlier revision prevents deletion. The draft disappears from readers while its slug and history remain reserved. A repeat returns not found.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 80,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "confirmSlug": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "confirmed": {
+                    "type": "boolean",
+                    "const": true
+                  }
+                },
+                "required": [
+                  "expectedRevision",
+                  "confirmSlug",
+                  "confirmed"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Confirmation that the draft was retired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deleted": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "maxLength": 80,
+                      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                    }
+                  },
+                  "required": [
+                    "deleted",
+                    "slug"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid command or confirmation slug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or current configuration permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The active draft was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision or current and historical draft eligibility conflict.",
             "content": {
               "application/json": {
                 "schema": {

@@ -98,6 +98,12 @@ and check the directory revision. Historical staff lookup verifies an unresolved
 identity against the current archive. The separate tournament command links a
 confirmed identity with evidence and does not create a staff grant.
 
+Tournament settings commands share the private admin workspace with draft
+creation. The contract covers publication, enrollment, versioned settings and
+historical corrections, including staff identity confirmation. Blank draft
+deletion requires a matching slug and revision and retains the reserved slug
+and audit history.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

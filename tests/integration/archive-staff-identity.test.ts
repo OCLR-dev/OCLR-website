@@ -22,7 +22,11 @@ import { lookupArchiveStaffWrite } from "../../src/lib/archive-staff-write-contr
 import type { ResolveArchiveStaffInput } from "../../src/lib/archive-staff-identity-model";
 import { POST } from "../../src/app/api/admin/tournaments/[edition]/archive-staff/route";
 import { requireUser } from "../../src/lib/auth/user";
+import { POST as changeRoute } from "../../src/app/api/admin/tournaments/[edition]/route";
+import { changeTournamentWrite } from "../../src/lib/tournament-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
 
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
 const origin = "https://oclr.example.test";
 import { getOsuProfileByUsername } from "../../src/lib/osu-profiles";
@@ -153,8 +157,24 @@ describe.skipIf(!url)(
       expect(
         (await readTournament(archive.editionSlug))?.edition.archive,
       ).toEqual(archive);
-      await tournamentCommand(admin, archive.editionSlug, command);
+      const changePath = changeTournamentWrite.path.replace(
+        "{edition}",
+        archive.editionSlug,
+      );
+      const confirm = () =>
+        changeRoute(new Request(origin + changePath, {
+          method: "POST",
+          headers: { origin, "content-type": "application/json" },
+          body: JSON.stringify(command),
+        }), { params: Promise.resolve({ edition: archive.editionSlug }) });
+      const changed = await confirm();
+      expect(changed.status).toBe(200);
+      const workspace = await changed.json();
+      expect(extendedSchemas.tournamentForAdmin.parse(workspace)).toEqual(
+        workspace,
+      );
       const saved = await readTournament(archive.editionSlug);
+      expect(workspace.edition).toEqual(saved?.edition);
       expect(saved?.revision).toBe(1);
       expect(saved?.edition.archive?.staff).toEqual([
         { ...archive.staff[0], osuId: 983001 },
@@ -186,9 +206,7 @@ describe.skipIf(!url)(
           .from(editionRevisions)
           .where(eq(editionRevisions.editionSlug, archive.editionSlug)),
       ).toHaveLength(2);
-      await expect(
-        tournamentCommand(admin, archive.editionSlug, command),
-      ).rejects.toMatchObject({ status: 409 });
+      expect((await confirm()).status).toBe(409);
     });
     it("rejects other scopes, Developer, remote and invalid selection before provider access", async () => {
       for (const actor of [scoped, developer]) {

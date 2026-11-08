@@ -1,3 +1,4 @@
+import { changeTournamentWrite } from "@/lib/tournament-write-contracts";
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
@@ -24,7 +25,7 @@ export async function POST(request: Request, context: Context) {
     const result = await tournamentCommand(
       await requireUser(),
       (await context.params).edition,
-      await readJson(request, 524288),
+      await readJson(request, changeTournamentWrite.maxBodyBytes),
     );
     revalidatePath("/", "layout");
     return NextResponse.json(result, {
