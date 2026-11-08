@@ -32,6 +32,7 @@ import {
   assertRegistrationUnassigned,
   registrationOperation,
 } from "./registrations";
+import { registrationParticipationInput } from "./registration-write-contract";
 import { RemoteDataError } from "./remote-errors";
 export function parseFilters(input: unknown) {
   const result = staffApplicationFilters.safeParse(input);
@@ -351,13 +352,7 @@ export async function changeRegistrationParticipation(
   input: unknown,
 ) {
   await assertCapability(actor, "manage_registrations", slug);
-  const parsed = z
-    .object({
-      expectedUpdatedAt: z.iso.datetime(),
-      confirmed: z.literal(true),
-    })
-    .strict()
-    .safeParse(input);
+  const parsed = registrationParticipationInput.safeParse(input);
   if (!z.uuid().safeParse(id).success || !parsed.success)
     throw new HttpError(400, "Confirm a valid registration change.");
   return db().transaction(async (tx) => {

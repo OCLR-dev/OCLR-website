@@ -16,6 +16,7 @@ export type WriteApiOperation = {
   successDescription: string;
   response: z.ZodType;
   errors: Readonly<Record<number, string>>;
+  errorResponses?: Readonly<Record<number, z.ZodType>>;
   consumers: readonly string[];
   externalConsumers?: readonly string[];
 } & (

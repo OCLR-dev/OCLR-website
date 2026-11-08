@@ -1,3 +1,5 @@
+export const defaultJsonBodyLimit = 32 * 1024;
+
 // Keep these budgets local to the affected routes; readJson's default stays 32 KiB.
 // 16 answers × (2,000 UTF-16 code units + 40-character question ID) × 6 bytes
 // for JSON \uXXXX escaping, plus acknowledgments, versions and the JSON envelope.

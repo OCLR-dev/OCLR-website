@@ -4,6 +4,8 @@ import { requireUser } from "@/lib/auth/user";
 import { changeRegistrationParticipation } from "@/lib/staff";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 
+import { removeRegistrationWrite } from "@/lib/registration-write-contract";
+
 export async function POST(
   request: Request,
   context: { params: Promise<{ edition: string; id: string }> },
@@ -17,7 +19,7 @@ export async function POST(
       edition,
       id,
       "remove",
-      await readJson(request, 1024),
+      await readJson(request, removeRegistrationWrite.maxBodyBytes),
     );
     revalidatePath("/admin", "layout");
     revalidatePath("/players", "layout");

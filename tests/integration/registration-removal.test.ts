@@ -44,6 +44,12 @@ import { prepareDraft } from "../fixtures/draft";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
+import { POST as removeRegistrationRoute } from "../../src/app/api/admin/tournaments/[edition]/registrations/[id]/remove/route";
+import { POST as restoreRegistrationRoute } from "../../src/app/api/admin/tournaments/[edition]/registrations/[id]/restore/route";
+import {
+  removeRegistrationWrite,
+  restoreRegistrationWrite,
+} from "../../src/lib/registration-write-contract";
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 610001, username: "Synthetic Removal Admin" };
 const player = { osuId: 610002, username: "Synthetic Removal Player" };
@@ -51,6 +57,12 @@ const scoped = { osuId: 610003, username: "Synthetic Scoped Admin" };
 const mapper = { osuId: 610004, username: "Synthetic Mappooler" };
 const referee = { osuId: 610005, username: "Synthetic Referee" };
 const other = "other-removal-test";
+const origin = "https://oclr.example.test";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => admin,
+}));
 const payload = (r: { updatedAt: Date }) => ({
   confirmed: true,
   expectedUpdatedAt: r.updatedAt.toISOString(),
@@ -61,6 +73,7 @@ describe.skipIf(!url)(
     beforeAll(() => {
       assertTestDatabase(url);
       vi.stubEnv("DATABASE_URL", url!);
+      vi.stubEnv("APP_URL", origin);
       vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
       vi.stubEnv("PRIVACY_CONTACT_OSU_ID", String(admin.osuId));
     });
@@ -214,20 +227,45 @@ describe.skipIf(!url)(
       "restores %s entries only to Pending, preserving original acknowledgments",
       async (source) => {
         const r = await registration("accepted", source);
-        const removed = await changeRegistrationParticipation(
-          admin,
-          edition.slug,
-          r.id,
-          "remove",
-          payload(r),
+        const change = (
+          route: typeof removeRegistrationRoute,
+          path: string,
+          expectedUpdatedAt: string,
+        ) =>
+          route(
+            new Request(
+              origin +
+                path.replace("{edition}", edition.slug).replace("{id}", r.id),
+              {
+                method: "POST",
+                headers: { origin, "content-type": "application/json" },
+                body: JSON.stringify({ expectedUpdatedAt, confirmed: true }),
+              },
+            ),
+            { params: Promise.resolve({ edition: edition.slug, id: r.id }) },
+          );
+        const removal = await change(
+          removeRegistrationRoute,
+          removeRegistrationWrite.path,
+          r.updatedAt.toISOString(),
         );
-        await changeRegistrationParticipation(
-          admin,
-          edition.slug,
-          r.id,
-          "restore",
-          payload(removed),
+        expect(removal.status).toBe(200);
+        const removed = await removal.json();
+        expect(removeRegistrationWrite.response.parse(removed)).toEqual(
+          removed,
         );
+        expect(removed).toMatchObject({ id: r.id, status: "withdrawn" });
+        const restoration = await change(
+          restoreRegistrationRoute,
+          restoreRegistrationWrite.path,
+          removed.updatedAt,
+        );
+        expect(restoration.status).toBe(200);
+        const restored = await restoration.json();
+        expect(restoreRegistrationWrite.response.parse(restored)).toEqual(
+          restored,
+        );
+        expect(restored).toMatchObject({ id: r.id, status: "pending" });
         const current = await applicationDetails(admin, r.id);
         expect(current.lastOperation).toBe("staff_restore");
         expect(current.registration).toMatchObject({

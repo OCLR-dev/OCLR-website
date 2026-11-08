@@ -34,6 +34,12 @@ deletion. The specification distinguishes the stable `.osr` file limit from
 the complete multipart body budget and records the version and retry behavior
 for both operations.
 
+The registration contracts document player submission, reapplication and
+withdrawal, and staff removal and restoration. The public application form can
+return a question ID in a 400 response. Staff transitions keep the registration
+record and require its current update timestamp. Restoration returns the
+registration to pending review.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

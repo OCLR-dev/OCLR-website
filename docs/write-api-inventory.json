@@ -248,7 +248,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/remove/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "removeRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/registration-removal.tsx"
+        ]
       }
     }
   },
@@ -257,7 +262,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/restore/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "restoreRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/registration-removal.tsx"
+        ]
       }
     }
   },
@@ -469,7 +479,12 @@
     "source": "src/app/api/registrations/[id]/withdraw/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "withdrawRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/app/dashboard/page.tsx"
+        ]
       }
     }
   },
@@ -584,7 +599,12 @@
     "source": "src/app/api/tournaments/[edition]/registrations/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "submitRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/application-form.tsx"
+        ]
       }
     }
   },

@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { submitRegistration, ApplicationFieldError } from "@/lib/registrations";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
-import { registrationBodyLimit } from "@/lib/request-body-limits";
+import {
+  submitRegistrationWrite,
+  type RegistrationReceipt,
+} from "@/lib/registration-write-contract";
 export async function POST(
   request: Request,
   context: { params: Promise<{ edition: string }> },
@@ -14,12 +17,12 @@ export async function POST(
     const saved = await submitRegistration(
       user,
       edition,
-      await readJson(request, registrationBodyLimit),
+      await readJson(request, submitRegistrationWrite.maxBodyBytes),
     );
     return NextResponse.json(
-      { id: saved.id, status: saved.status },
+      { id: saved.id, status: saved.status } satisfies RegistrationReceipt,
       {
-        status: 201,
+        status: submitRegistrationWrite.successStatus,
         headers: { "Cache-Control": "no-store" },
       },
     );

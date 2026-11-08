@@ -12,6 +12,12 @@ import {
 } from "../src/lib/desktop-wire";
 import { refereeRelayWrite } from "../src/lib/referee-relay-contract";
 import {
+  removeRegistrationWrite,
+  restoreRegistrationWrite,
+  submitRegistrationWrite,
+  withdrawRegistrationWrite,
+} from "../src/lib/registration-write-contract";
+import {
   deleteReplayWrite,
   uploadReplayWrite,
 } from "../src/lib/replay-write-contract";
@@ -33,6 +39,10 @@ const operations: readonly WriteApiOperation[] = [
   revokeStreamingAccessWrite,
   availabilityWrite,
   practiceWrite,
+  submitRegistrationWrite,
+  withdrawRegistrationWrite,
+  removeRegistrationWrite,
+  restoreRegistrationWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
@@ -242,9 +252,14 @@ function openapiOperation(operation: WriteApiOperation) {
             ...(desktop ? { headers: requestId } : {}),
             content: {
               "application/json": {
-                schema: {
-                  $ref: `#/components/schemas/${desktop ? "DesktopWriteError" : "BrowserWriteError"}`,
-                },
+                schema: operation.errorResponses?.[Number(status)]
+                  ? jsonSchema(
+                      operation.errorResponses[Number(status)],
+                      "output",
+                    )
+                  : {
+                      $ref: `#/components/schemas/${desktop ? "DesktopWriteError" : "BrowserWriteError"}`,
+                    },
               },
             },
           },

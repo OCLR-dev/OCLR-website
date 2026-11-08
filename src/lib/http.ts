@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server.js";
+import { defaultJsonBodyLimit } from "./request-body-limits";
 import { allowsPlainHttpOrigin } from "./site-origin";
 export class HttpError extends Error {
   constructor(
@@ -38,7 +39,7 @@ export function requireSameOrigin(request: Request) {
 }
 export async function readJson(
   request: Request,
-  limit = 32768,
+  limit = defaultJsonBodyLimit,
 ): Promise<unknown> {
   if (!request.headers.get("content-type")?.startsWith("application/json"))
     throw new HttpError(415, "Send JSON data.");

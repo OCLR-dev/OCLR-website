@@ -26,6 +26,13 @@ import {
 } from "../../src/lib/registrations";
 import { edition } from "../fixtures/edition";
 import { withReadChannel } from "../../src/lib/read-channel";
+import { POST as submitRegistrationRoute } from "../../src/app/api/tournaments/[edition]/registrations/route";
+import { POST as withdrawRegistrationRoute } from "../../src/app/api/registrations/[id]/withdraw/route";
+import {
+  registrationFieldError,
+  submitRegistrationWrite,
+  withdrawRegistrationWrite,
+} from "../../src/lib/registration-write-contract";
 const testUrl = process.env.TEST_DATABASE_URL;
 const a = { osuId: 20001, username: "Synthetic Registration A" };
 const b = { osuId: 20002, username: "Synthetic Registration B" };
@@ -36,10 +43,23 @@ const valid = {
   rulesVersion: "test-v1",
   answers: {},
 };
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => a,
+}));
+function postRegistration(path: string, input: unknown) {
+  return new Request(`${origin}${path}`, {
+    method: "POST",
+    headers: { origin, "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
 describe.skipIf(!testUrl)("individual registration transactions", () => {
   beforeAll(() => {
     assertTestDatabase(testUrl);
     vi.stubEnv("DATABASE_URL", testUrl!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("PRIVACY_CONTACT_OSU_ID", "60001");
   });
   beforeEach(async () => {
@@ -174,21 +194,42 @@ describe.skipIf(!testUrl)("individual registration transactions", () => {
         },
       },
     ]);
-    await expect(
-      submitRegistration(a, edition.slug, valid),
-    ).rejects.toMatchObject({ status: 400 });
-    await expect(
-      submitRegistration(a, edition.slug, {
-        ...valid,
-        answers: { approved: "123456" },
-      }),
-    ).rejects.toMatchObject({ status: 400 });
-    const saved = await submitRegistration(a, edition.slug, {
+    const submit = (input: unknown, authorization?: string) => {
+      const request = postRegistration(
+        submitRegistrationWrite.path.replace("{edition}", edition.slug),
+        input,
+      );
+      if (authorization) request.headers.set("authorization", authorization);
+      return submitRegistrationRoute(request, {
+        params: Promise.resolve({ edition: edition.slug }),
+      });
+    };
+    const bearer = await submit(valid, "Bearer synthetic-read-token");
+    expect(bearer.status).toBe(403);
+    expect(await bearer.json()).toEqual({
+      error: "Use a browser session for this operation.",
+    });
+    for (const input of [
+      valid,
+      { ...valid, answers: { approved: "123456" } },
+    ]) {
+      const rejected = await submit(input);
+      expect(rejected.status).toBe(400);
+      const error = await rejected.json();
+      expect(registrationFieldError.parse(error)).toEqual(error);
+      expect(error.field).toBe("approved");
+    }
+    const accepted = await submit({
       ...valid,
       answers: { approved: "  good " },
     });
-    expect(saved.answers).toEqual({ approved: "good" });
-    expect(saved.status).toBe("pending");
+    expect(accepted.status).toBe(201);
+    const saved = await accepted.json();
+    expect(submitRegistrationWrite.response.parse(saved)).toEqual(saved);
+    expect(saved).toEqual({ id: expect.any(String), status: "pending" });
+    expect((await ownRegistrations(a.osuId))[0].answers).toEqual({
+      approved: "good",
+    });
     await expect(
       withdrawRegistration(b, saved.id, { confirmed: true }),
     ).rejects.toMatchObject({ status: 404 });
@@ -198,12 +239,20 @@ describe.skipIf(!testUrl)("individual registration transactions", () => {
     await expect(
       withdrawRegistration(a, saved.id, { confirmed: false }),
     ).rejects.toMatchObject({ status: 400 });
-    expect(
-      (await withdrawRegistration(a, saved.id, { confirmed: true })).status,
-    ).toBe("withdrawn");
-    await expect(
-      withdrawRegistration(a, saved.id, { confirmed: true }),
-    ).rejects.toMatchObject({ status: 409 });
+    const withdraw = () =>
+      withdrawRegistrationRoute(
+        postRegistration(
+          withdrawRegistrationWrite.path.replace("{id}", saved.id),
+          { confirmed: true },
+        ),
+        { params: Promise.resolve({ id: saved.id }) },
+      );
+    const response = await withdraw();
+    expect(response.status).toBe(200);
+    const receipt = await response.json();
+    expect(withdrawRegistrationWrite.response.parse(receipt)).toEqual(receipt);
+    expect(receipt).toEqual({ id: saved.id, status: "withdrawn" });
+    expect((await withdraw()).status).toBe(409);
     expect(await db().select().from(registrationEvents)).toHaveLength(2);
   });
   it("blocks withdrawal and new applications when the edition is locked", async () => {

@@ -23,6 +23,10 @@ import {
   registrationMetadata,
   registrationReadColumns,
 } from "./live-season-columns";
+import {
+  submitRegistrationWrite,
+  withdrawRegistrationWrite,
+} from "./registration-write-contract";
 import { readTournament, storedEdition } from "./tournaments";
 import type { RegistrationReadOperation } from "./configuration-read-contracts";
 // Latest explicit provenance, without rewriting legacy audit records or storing
@@ -52,22 +56,6 @@ export async function registrationAvailability(
     return "unavailable";
   }
 }
-const applicationInput = z
-  .object({
-    rulesAcknowledged: z.literal(true).optional(),
-    eligibilityAcknowledged: z.literal(true).optional(),
-    rulesVersion: z.string().min(1).max(80).nullable().optional(),
-    reapply: z
-      .object({
-        expectedUpdatedAt: z.iso.datetime(),
-        attempt: z.number().int().positive(),
-      })
-      .strict()
-      .optional(),
-    configurationVersion: z.number().int().nonnegative(),
-    answers: z.record(z.string(), z.string()).default({}),
-  })
-  .strict();
 export class ApplicationFieldError extends HttpError {
   constructor(
     public field: string,
@@ -81,7 +69,7 @@ export function validateApplication(
   input: unknown,
   configurationVersion: number,
 ) {
-  const result = applicationInput.safeParse(input);
+  const result = submitRegistrationWrite.request.safeParse(input);
   if (!result.success)
     throw new HttpError(
       400,
@@ -336,10 +324,7 @@ export async function withdrawRegistration(
   confirmed: unknown,
 ) {
   if (
-    !z
-      .object({ confirmed: z.literal(true) })
-      .strict()
-      .safeParse(confirmed).success ||
+    !withdrawRegistrationWrite.request.safeParse(confirmed).success ||
     !z.uuid().safeParse(id).success
   )
     throw new HttpError(400, "Confirm withdrawal before continuing.");
