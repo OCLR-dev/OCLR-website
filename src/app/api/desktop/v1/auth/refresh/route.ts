@@ -1,3 +1,4 @@
+import { refreshDesktopAuthWrite } from "@/lib/desktop-auth-write-contracts";
 import {
   DesktopError,
   refreshDesktopAuthorization,
@@ -9,8 +10,10 @@ export async function POST(request: Request) {
   try {
     if (request.headers.has("authorization"))
       throw new DesktopError(403, "INSUFFICIENT_SCOPE");
-    const result = await refreshDesktopAuthorization(await readJson(request));
-    return desktopResponse(result, 200);
+    const result = await refreshDesktopAuthorization(
+      await readJson(request, refreshDesktopAuthWrite.maxBodyBytes),
+    );
+    return desktopResponse(result, refreshDesktopAuthWrite.successStatus);
   } catch (e) {
     return desktopError(e);
   }

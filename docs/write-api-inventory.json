@@ -690,7 +690,16 @@
     "source": "src/app/api/desktop/v1/auth/decision/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "decideDesktopAuthorization",
+        "access": "browser",
+        "actions": [
+          "approve",
+          "deny"
+        ],
+        "consumers": [
+          "src/app/desktop/authorize/page.tsx"
+        ]
       }
     }
   },
@@ -699,7 +708,13 @@
     "source": "src/app/api/desktop/v1/auth/exchange/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "exchangeDesktopAuthorization",
+        "access": "public",
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr.ts"
+        ]
       }
     }
   },
@@ -708,7 +723,13 @@
     "source": "src/app/api/desktop/v1/auth/refresh/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "refreshDesktopAuthorization",
+        "access": "public",
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr.ts"
+        ]
       }
     }
   },
@@ -717,7 +738,13 @@
     "source": "src/app/api/desktop/v1/auth/requests/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "requestDesktopAuthorization",
+        "access": "public",
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr.ts"
+        ]
       }
     }
   },
@@ -726,7 +753,13 @@
     "source": "src/app/api/desktop/v1/auth/revoke/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "revokeDesktopAuthorization",
+        "access": "public",
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr.ts"
+        ]
       }
     }
   },
@@ -735,7 +768,12 @@
     "source": "src/app/api/desktop/v1/auth/sessions/[id]/route.ts",
     "methods": {
       "DELETE": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "deleteDesktopSession",
+        "access": "browser",
+        "consumers": [
+          "src/components/desktop-sessions.tsx"
+        ]
       }
     }
   },

@@ -1,3 +1,4 @@
+import { exchangeDesktopAuthWrite } from "@/lib/desktop-auth-write-contracts";
 import {
   DesktopError,
   exchangeDesktopAuthorization,
@@ -9,8 +10,10 @@ export async function POST(request: Request) {
   try {
     if (request.headers.has("authorization"))
       throw new DesktopError(403, "INSUFFICIENT_SCOPE");
-    const result = await exchangeDesktopAuthorization(await readJson(request));
-    return desktopResponse(result, 200);
+    const result = await exchangeDesktopAuthorization(
+      await readJson(request, exchangeDesktopAuthWrite.maxBodyBytes),
+    );
+    return desktopResponse(result, exchangeDesktopAuthWrite.successStatus);
   } catch (e) {
     return desktopError(e);
   }

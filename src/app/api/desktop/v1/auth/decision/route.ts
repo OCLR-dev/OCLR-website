@@ -1,3 +1,4 @@
+import { decideDesktopAuthWrite } from "@/lib/desktop-auth-write-contracts";
 import {
   approveDesktopAuthorization,
   desktopError,
@@ -8,8 +9,8 @@ import { requireUser } from "@/lib/auth/user";
 async function readDecisionForm(request: Request) {
   if (
     request.headers.get("content-type")?.split(";", 1)[0].trim() !==
-      "application/x-www-form-urlencoded" ||
-    Number(request.headers.get("content-length") ?? 0) > 2048
+      decideDesktopAuthWrite.requestMediaType ||
+    Number(request.headers.get("content-length") ?? 0) > decideDesktopAuthWrite.maxBodyBytes
   )
     throw new DesktopError(400, "INVALID_REQUEST");
   const reader = request.body?.getReader();
@@ -21,7 +22,7 @@ async function readDecisionForm(request: Request) {
       const { done, value } = await reader.read();
       if (done) break;
       size += value.byteLength;
-      if (size > 2048) {
+      if (size > decideDesktopAuthWrite.maxBodyBytes) {
         await reader.cancel();
         throw new DesktopError(400, "INVALID_REQUEST");
       }
@@ -40,19 +41,22 @@ export async function POST(request: Request) {
     const actor = await requireUser();
     const form = await readDecisionForm(request);
     if (
-      [...form.keys()].some((k) => !["request_id", "decision"].includes(k)) ||
+      form.size !== 2 ||
       form.getAll("request_id").length !== 1 ||
-      form.getAll("decision").length !== 1 ||
-      !["approve", "deny"].includes(form.get("decision") ?? "")
+      form.getAll("decision").length !== 1
     )
       throw new DesktopError(400, "INVALID_REQUEST");
+    const parsed = decideDesktopAuthWrite.request.safeParse(
+      Object.fromEntries(form),
+    );
+    if (!parsed.success) throw new DesktopError(400, "INVALID_REQUEST");
     const url = await approveDesktopAuthorization(
       actor,
-      form.get("request_id")!,
-      form.get("decision") === "approve",
+      parsed.data.request_id,
+      parsed.data.decision === "approve",
     );
     return new Response(null, {
-      status: 303,
+      status: decideDesktopAuthWrite.successStatus,
       headers: {
         Location: url,
         "Cache-Control": "no-store",

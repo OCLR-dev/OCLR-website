@@ -10,15 +10,19 @@ export type WriteApiOperation = {
   id: string;
   path: string;
   method: "POST" | "PUT" | "PATCH" | "DELETE";
-  access: "browser" | "desktop";
+  access: "browser" | "desktop" | "public";
   scope?: string;
   contractHeader?: string;
+  actionField?: string;
+  errorFormat?: "desktop";
+  successHeaders?: Readonly<Record<string, z.ZodType>>;
   summary: string;
   description: string;
   parameters?: Readonly<Record<string, z.ZodType>>;
   successStatus: number;
   successDescription: string;
   response:
+    | null
     | WriteResponseSchema
     | { anyOf: readonly WriteResponseSchema[] }
     | { properties: Readonly<Record<string, WriteResponseSchema>> };
@@ -30,7 +34,7 @@ export type WriteApiOperation = {
   | {
       request: z.ZodType;
       maxBodyBytes: number;
-      requestMediaType?: "multipart/form-data";
+      requestMediaType?: "multipart/form-data" | "application/x-www-form-urlencoded";
       urlencodedRequest?: z.ZodType;
     }
   | {

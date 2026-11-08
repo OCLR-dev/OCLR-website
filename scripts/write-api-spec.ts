@@ -38,6 +38,14 @@ import {
   postPlayerMessageWrite,
 } from "../src/lib/player-message-write-contract";
 import { lookupArchiveStaffWrite } from "../src/lib/archive-staff-write-contract";
+import {
+  requestDesktopAuthWrite,
+  decideDesktopAuthWrite,
+  exchangeDesktopAuthWrite,
+  refreshDesktopAuthWrite,
+  revokeDesktopAuthWrite,
+  deleteDesktopSessionWrite,
+} from "../src/lib/desktop-auth-write-contracts";
 import { reviewBwsWrite } from "../src/lib/bws-write-contract";
 import {
   createDeveloperTokenWrite,
@@ -147,6 +155,12 @@ const operations: readonly WriteApiOperation[] = [
   postPlayerMessageWrite,
   editPlayerMessageWrite,
   deletePlayerMessageWrite,
+  requestDesktopAuthWrite,
+  decideDesktopAuthWrite,
+  exchangeDesktopAuthWrite,
+  refreshDesktopAuthWrite,
+  revokeDesktopAuthWrite,
+  deleteDesktopSessionWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
@@ -190,13 +204,16 @@ function exportedNames(file: string) {
   return names;
 }
 
-function commandActions(schema: z.core.$ZodType | undefined): string[] {
+function commandActions(
+  schema: z.core.$ZodType | undefined,
+  field = "action",
+): string[] {
   if (schema instanceof z.ZodUnion)
-    return schema.options.flatMap(commandActions);
+    return schema.options.flatMap((option) => commandActions(option, field));
   if (!(schema instanceof z.ZodObject)) return [];
-  const action = schema.shape.action;
+  const action = schema.shape[field];
   if (schema.shape.command instanceof z.ZodType)
-    return commandActions(schema.shape.command);
+    return commandActions(schema.shape.command, field);
   if (action instanceof z.ZodLiteral)
     return [...action.values].filter((value) => typeof value === "string");
   return action instanceof z.ZodEnum
@@ -230,7 +247,10 @@ const routes = globSync("src/app/**/route.{ts,tsx,js,jsx}")
           if (matched.has(operation.id))
             throw new Error(`Multiple routes match ${operation.id}`);
           matched.add(operation.id);
-          const actions = commandActions(operation.request);
+          const actions = commandActions(
+            operation.request,
+            operation.actionField,
+          );
           return [
             method,
             {
@@ -292,7 +312,7 @@ function responseBranchSchema(response: WriteResponseSchema) {
   return { $ref: `#/components/schemas/${name}` };
 }
 
-function responseSchema(response: WriteApiOperation["response"]) {
+function responseSchema(response: NonNullable<WriteApiOperation["response"]>) {
   if ("properties" in response) {
     const entries = Object.entries(response.properties);
     return {
@@ -324,9 +344,11 @@ const jsonRequestErrors = {
 
 function openapiOperation(operation: WriteApiOperation) {
   const desktop = operation.access === "desktop";
-  const requestId = desktop
-    ? { "X-Request-Id": { schema: { type: "string", format: "uuid" } } }
-    : {};
+  const desktopErrors = desktop || operation.errorFormat === "desktop";
+  const requestIdHeader = {
+    "X-Request-Id": { schema: { type: "string", format: "uuid" } },
+  };
+  const requestId = desktop || operation.contractHeader ? requestIdHeader : {};
   const parameters = [...operation.path.matchAll(/\{([^}]+)\}/g)].map(
     ([, name]) => ({
       name,
@@ -335,7 +357,23 @@ function openapiOperation(operation: WriteApiOperation) {
       schema: jsonSchema(operation.parameters?.[name] ?? z.string(), "input"),
     }),
   );
-  if (!desktop) parameters.push(browserOrigin);
+  if (operation.access === "browser") parameters.push(browserOrigin);
+  const successHeaders = {
+    ...requestId,
+    ...(operation.contractHeader
+      ? {
+          [operation.contractHeader]: {
+            schema: { type: "string", const: desktopContractVersion },
+          },
+        }
+      : {}),
+    ...Object.fromEntries(
+      Object.entries(operation.successHeaders ?? {}).map(([name, schema]) => [
+        name,
+        { schema: jsonSchema(schema, "output") },
+      ]),
+    ),
+  };
 
   return {
     operationId: operation.id,
@@ -343,7 +381,9 @@ function openapiOperation(operation: WriteApiOperation) {
     description: operation.description,
     security: desktop
       ? [{ desktopBearer: [] }]
-      : [{ browserSession: [] }, { localBrowserSession: [] }],
+      : operation.access === "browser"
+        ? [{ browserSession: [] }, { localBrowserSession: [] }]
+        : [],
     ...(operation.scope ? { "x-required-desktop-scope": operation.scope } : {}),
     ...(parameters.length ? { parameters } : {}),
     ...(operation.request
@@ -369,28 +409,16 @@ function openapiOperation(operation: WriteApiOperation) {
     responses: {
       [operation.successStatus]: {
         description: operation.successDescription,
-        ...(desktop
-          ? {
-              headers: {
-                ...requestId,
-                ...(operation.contractHeader
-                  ? {
-                      [operation.contractHeader]: {
-                        schema: {
-                          type: "string",
-                          const: desktopContractVersion,
-                        },
-                      },
-                    }
-                  : {}),
-              },
-            }
+        ...(Object.keys(successHeaders).length
+          ? { headers: successHeaders }
           : {}),
-        content: {
-          "application/json": {
-            schema: responseSchema(operation.response),
-          },
-        },
+        ...(operation.response === null
+          ? {}
+          : {
+              content: {
+                "application/json": { schema: responseSchema(operation.response) },
+              },
+            }),
       },
       ...Object.fromEntries(
         Object.entries({
@@ -402,7 +430,19 @@ function openapiOperation(operation: WriteApiOperation) {
           status,
           {
             description,
-            ...(desktop ? { headers: requestId } : {}),
+            ...(operation.errorFormat === "desktop"
+              ? {
+                  headers: {
+                    ...requestIdHeader,
+                    "Cache-Control": { schema: { type: "string", const: "no-store" } },
+                    ...(status === "429"
+                      ? { "Retry-After": { schema: { type: "string", const: "60" } } }
+                      : {}),
+                  },
+                }
+              : desktop
+                ? { headers: requestId }
+                : {}),
             content: {
               "application/json": {
                 schema: operation.errorResponses?.[Number(status)]
@@ -411,7 +451,7 @@ function openapiOperation(operation: WriteApiOperation) {
                       "output",
                     )
                   : {
-                      $ref: `#/components/schemas/${desktop ? "DesktopWriteError" : "BrowserWriteError"}`,
+                      $ref: `#/components/schemas/${desktopErrors ? "DesktopWriteError" : "BrowserWriteError"}`,
                     },
               },
             },

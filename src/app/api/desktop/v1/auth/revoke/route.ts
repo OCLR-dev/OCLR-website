@@ -1,3 +1,4 @@
+import { revokeDesktopAuthWrite } from "@/lib/desktop-auth-write-contracts";
 import {
   DesktopError,
   revokeDesktopAuthorization,
@@ -8,9 +9,11 @@ export async function POST(request: Request) {
   try {
     if (request.headers.has("authorization"))
       throw new DesktopError(403, "INSUFFICIENT_SCOPE");
-    await revokeDesktopAuthorization(await readJson(request));
+    await revokeDesktopAuthorization(
+      await readJson(request, revokeDesktopAuthWrite.maxBodyBytes),
+    );
     return new Response(null, {
-      status: 204,
+      status: revokeDesktopAuthWrite.successStatus,
       headers: { "Cache-Control": "no-store" },
     });
   } catch (e) {

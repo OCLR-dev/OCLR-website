@@ -1,6 +1,7 @@
 import { randomBytes, createHash, randomUUID } from "node:crypto";
 import { writeFileSync } from "node:fs";
-import { beforeEach, afterAll, describe, it, expect } from "vitest";
+import { beforeEach, afterAll, describe, it, expect, vi } from "vitest";
+import type { z } from "zod";
 import { and, eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { fixtureReferees, staffRoles } from "../../src/db/schema";
@@ -13,12 +14,9 @@ import {
   getDesktopAuthorization,
   approveDesktopAuthorization,
   exchangeDesktopAuthorization,
-  refreshDesktopAuthorization,
   requireDesktopUser,
-  revokeDesktopAuthorization,
   desktopResponse,
   listDesktopSessions,
-  revokeDesktopSession,
   desktopScopes,
 } from "../../src/lib/desktop-auth";
 import { desktopFixtures, desktopPanel } from "../../src/lib/desktop-referee";
@@ -30,8 +28,82 @@ import {
 import { assertTestDatabase } from "../database";
 import { POST as relay } from "../../src/app/api/referee/v1/fixtures/[fixtureId]/relay/route";
 import { refereeRelayWrite } from "../../src/lib/referee-relay-contract";
-import { desktopErrorSchema } from "../../src/lib/desktop-wire";
+import { desktopErrorSchema, desktopContractVersion } from "../../src/lib/desktop-wire";
 import { refereeIrcBrowserCommand } from "../../src/lib/referee-irc";
+import { POST as requestRoute } from "../../src/app/api/desktop/v1/auth/requests/route";
+import { POST as decisionRoute } from "../../src/app/api/desktop/v1/auth/decision/route";
+import { POST as exchangeRoute } from "../../src/app/api/desktop/v1/auth/exchange/route";
+import { POST as refreshRoute } from "../../src/app/api/desktop/v1/auth/refresh/route";
+import { POST as revokeRoute } from "../../src/app/api/desktop/v1/auth/revoke/route";
+import { DELETE as sessionRoute } from "../../src/app/api/desktop/v1/auth/sessions/[id]/route";
+import {
+  requestDesktopAuthWrite,
+  decideDesktopAuthWrite,
+  exchangeDesktopAuthWrite,
+  refreshDesktopAuthWrite,
+  revokeDesktopAuthWrite,
+  deleteDesktopSessionWrite,
+} from "../../src/lib/desktop-auth-write-contracts";
+import { requireUser } from "../../src/lib/auth/user";
+
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: vi.fn(),
+}));
+const origin = "http://127.0.0.1:3001";
+function post(path: string, input: unknown, authorization?: string) {
+  return new Request(origin + path, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(authorization ? { Authorization: authorization } : {}),
+    },
+    body: JSON.stringify(input),
+  });
+}
+async function envelope<T extends { meta: { requestId: string } }>(
+  response: Response,
+  schema: z.ZodType<T>,
+  status: number,
+) {
+  expect(response.status).toBe(status);
+  expect(response.headers.get("Cache-Control")).toBe("no-store");
+  expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
+  expect(response.headers.get("X-OCLR-Desktop-Contract")).toBe(desktopContractVersion);
+  const body = await response.json();
+  const parsed = schema.parse(body);
+  expect(parsed).toEqual(body);
+  expect(response.headers.get("X-Request-Id")).toBe(parsed.meta.requestId);
+  return parsed;
+}
+async function desktopFailure(response: Response, status: number, code: string) {
+  expect(response.status).toBe(status);
+  const parsed = desktopErrorSchema.parse(await response.json());
+  expect(parsed.error.code).toBe(code);
+  expect(response.headers.get("X-Request-Id")).toBe(parsed.error.requestId);
+}
+async function emptyRevoke(response: Response) {
+  expect(response.status).toBe(204);
+  expect(response.headers.get("Cache-Control")).toBe("no-store");
+  expect(await response.text()).toBe("");
+}
+function decide(body: URLSearchParams) {
+  return decisionRoute(
+    new Request(origin + decideDesktopAuthWrite.path, {
+      method: "POST",
+      headers: { Origin: origin },
+      body,
+    }),
+  );
+}
+async function callback(id: string, decision: "approve" | "deny") {
+  const response = await decide(new URLSearchParams({ request_id: id, decision }));
+  expect(response.status).toBe(303);
+  expect(response.headers.get("Cache-Control")).toBe("no-store");
+  expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
+  expect(await response.text()).toBe("");
+  return new URL(response.headers.get("Location")!);
+}
 const enabled = !!process.env.TEST_DATABASE_URL;
 describe.skipIf(!enabled)(
   "desktop PKCE authorization and private read boundary",
@@ -40,7 +112,8 @@ describe.skipIf(!enabled)(
     beforeEach(async () => {
       assertTestDatabase(process.env.TEST_DATABASE_URL);
       process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-      process.env.APP_URL = "http://127.0.0.1:3001";
+      process.env.APP_URL = origin;
+      vi.mocked(requireUser).mockResolvedValue(refereeTestUser);
       seeded = await seedRefereeFixture();
       await db().execute(
         sql`TRUNCATE desktop_authorizations, desktop_sessions, desktop_tokens, desktop_security_events CASCADE`,
@@ -62,18 +135,18 @@ describe.skipIf(!enabled)(
           .digest("base64url"),
         code_challenge_method: "S256",
       };
-      const info = await createDesktopAuthorization(body);
+      const { data: info } = await envelope(
+        await requestRoute(post(requestDesktopAuthWrite.path, body)),
+        requestDesktopAuthWrite.response,
+        201,
+      );
       return { body, info, verifier };
     }
     async function approved() {
       const r = await request();
-      const url = new URL(
-        await approveDesktopAuthorization(
-          refereeTestUser,
-          r.info.authorization_request_id,
-          true,
-        ),
-      );
+      const url = await callback(r.info.authorization_request_id, "approve");
+      expect(url.origin + url.pathname).toBe(r.body.redirect_uri);
+      expect(url.searchParams.get("state")).toBe(r.body.state);
       return {
         ...r,
         exchange: {
@@ -87,7 +160,12 @@ describe.skipIf(!enabled)(
     }
     async function login() {
       const r = await approved();
-      return { ...r, token: await exchangeDesktopAuthorization(r.exchange) };
+      const { data: token } = await envelope(
+        await exchangeRoute(post(exchangeDesktopAuthWrite.path, r.exchange)),
+        exchangeDesktopAuthWrite.response,
+        200,
+      );
+      return { ...r, token };
     }
     const bearer = (
       token: string,
@@ -113,13 +191,18 @@ describe.skipIf(!enabled)(
       );
       expect(view.verificationCode).toBe(r.info.verification_code);
       expect(await db().select().from(desktopSessions)).toHaveLength(0);
-      const url = new URL(
-        await approveDesktopAuthorization(
-          refereeTestUser,
-          r.info.authorization_request_id,
-          false,
-        ),
+      await desktopFailure(
+        await requestRoute(post(requestDesktopAuthWrite.path, r.body, "Bearer synthetic-only")),
+        403,
+        "INSUFFICIENT_SCOPE",
       );
+      const form = new URLSearchParams({
+        request_id: r.info.authorization_request_id,
+        decision: "approve",
+      });
+      form.append("decision", "deny");
+      await desktopFailure(await decide(form), 400, "INVALID_REQUEST");
+      const url = await callback(r.info.authorization_request_id, "deny");
       expect(url.searchParams.get("error")).toBe("access_denied");
       expect(url.searchParams.get("state")).toBe(r.body.state);
       await expect(
@@ -219,10 +302,16 @@ describe.skipIf(!enabled)(
     });
     it("rotates refresh family and revokes old and new access on refresh reuse", async () => {
       const { token } = await login();
-      const refreshed = await refreshDesktopAuthorization({
+      const input = {
         client_id: "oclr-ref-tools",
         refresh_token: token.refresh_token,
-      });
+      };
+      const refresh = () => refreshRoute(post(refreshDesktopAuthWrite.path, input));
+      const { data: refreshed } = await envelope(
+        await refresh(),
+        refreshDesktopAuthWrite.response,
+        200,
+      );
       expect(refreshed.session_id).toBe(token.session_id);
       expect(refreshed.session_expires_at).toBe(token.session_expires_at);
       expect(refreshed.refresh_token).not.toBe(token.refresh_token);
@@ -230,27 +319,35 @@ describe.skipIf(!enabled)(
         (await requireDesktopUser(bearer(token.access_token), "referee:relay"))
           .osuId,
       ).toBe(refereeTestUser.osuId);
-      await expect(
-        refreshDesktopAuthorization({
-          client_id: "oclr-ref-tools",
-          refresh_token: token.refresh_token,
-        }),
-      ).rejects.toMatchObject({ status: 401 });
+      await desktopFailure(await refresh(), 401, "INVALID_REFRESH_TOKEN");
       await expect(
         requireDesktopUser(bearer(refreshed.access_token)),
       ).rejects.toMatchObject({ code: "SESSION_REVOKED" });
     });
     it("enforces subject session revoke and current referee grants", async () => {
       const { token } = await login();
-      await revokeDesktopSession(refereeTestAdmin, token.session_id);
+      const deleteSession = (id: string) =>
+        sessionRoute(new Request(origin + deleteDesktopSessionWrite.path.replace("{id}", id), {
+          method: "DELETE",
+          headers: { Origin: origin },
+        }), { params: Promise.resolve({ id }) });
+      vi.mocked(requireUser).mockResolvedValue(refereeTestAdmin);
+      await emptyRevoke(await deleteSession(token.session_id));
       await requireDesktopUser(bearer(token.access_token));
-      await revokeDesktopAuthorization({
-        client_id: "oclr-ref-tools",
-        refresh_token: token.refresh_token,
-      });
+      const revoke = (refresh_token: string) =>
+        revokeRoute(post(revokeDesktopAuthWrite.path, { client_id: "oclr-ref-tools", refresh_token }));
+      await emptyRevoke(await revoke("invalid"));
+      await requireDesktopUser(bearer(token.access_token));
+      await emptyRevoke(await revoke(token.refresh_token));
       await expect(
         requireDesktopUser(bearer(token.access_token)),
       ).rejects.toMatchObject({ status: 401 });
+      vi.mocked(requireUser).mockResolvedValue(refereeTestUser);
+      const owned = await login();
+      await emptyRevoke(await deleteSession(owned.token.session_id));
+      await expect(requireDesktopUser(bearer(owned.token.access_token))).rejects.toMatchObject({
+        code: "SESSION_REVOKED",
+      });
       const b = await login();
       await db()
         .update(staffRoles)
