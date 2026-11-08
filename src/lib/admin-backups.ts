@@ -1,15 +1,18 @@
 import { databaseIdentity } from "../../operator/identity";
 import { request } from "node:http";
-import { requireUser } from "./auth/user";
+import type { User } from "./auth/sessions";
 import { staffAccess } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { inReadChannel } from "./read-channel";
 import { HttpError } from "./http-error";
-export async function backupActor() {
-  if (remoteMode() || inReadChannel())
-    throw new HttpError(403, "You do not have permission for this operation.");
-  const actor = await requireUser();
+export function backupChannelAllowed() {
+  return !remoteMode() && !inReadChannel();
+}
+
+export async function authorizeBackupActor(actor: User | null) {
   if (
+    !actor ||
+    !backupChannelAllowed() ||
     !(await staffAccess(actor)).some(
       (g) => g.role === "admin" && g.editionSlug === null,
     )

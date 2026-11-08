@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { requireUser } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { practiceWrite } from "@/lib/player-workspace-contracts";
@@ -39,7 +39,7 @@ export async function POST(
       edition,
       await readJson(request, practiceWrite.maxBodyBytes),
     );
-    revalidatePath(`/tournaments/${edition}/player/practice`);
+    revalidateCommittedPath(`/tournaments/${edition}/player/practice`);
     return NextResponse.json(practiceWrite.response.parse(result), {
       headers: { "Cache-Control": "private, no-store" },
     });

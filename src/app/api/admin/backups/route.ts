@@ -1,9 +1,6 @@
 import { queueAdminBackupWrite } from "@/lib/admin-operations-write-contracts";
-import {
-  backupActor,
-  operatorRequest,
-  BackupServiceError,
-} from "@/lib/admin-backups";
+import { operatorRequest, BackupServiceError } from "@/lib/admin-backups";
+import { requireBackupActor } from "@/lib/auth/backup-request";
 import { apiError, HttpError, requireSameOrigin } from "@/lib/http";
 export const runtime = "nodejs";
 const headers = {
@@ -12,7 +9,7 @@ const headers = {
 };
 export async function GET(request: Request) {
   try {
-    const actor = await backupActor(),
+    const actor = await requireBackupActor(),
       id = new URL(request.url).searchParams.get("download");
     if (id && !/^[a-f0-9-]{36}$/.test(id))
       throw new HttpError(400, "Invalid request.");
@@ -42,7 +39,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     requireSameOrigin(request);
-    const actor = await backupActor();
+    const actor = await requireBackupActor();
     const url = new URL(request.url);
     const action = queueAdminBackupWrite.query.action.safeParse(
       url.searchParams.get("action"),

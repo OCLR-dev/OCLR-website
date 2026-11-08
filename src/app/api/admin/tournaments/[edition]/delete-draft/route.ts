@@ -1,5 +1,5 @@
 import { deleteTournamentDraftWrite } from "@/lib/tournament-write-contracts";
-import { revalidatePath } from "next/cache";
+import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { deleteUnusedTournamentDraft } from "@/lib/delete-tournament-draft";
@@ -16,7 +16,7 @@ export async function POST(
       (await context.params).edition,
       await readJson(request, deleteTournamentDraftWrite.maxBodyBytes),
     );
-    revalidatePath("/", "layout");
+    revalidateCommittedPath("/", "layout");
     return NextResponse.json(result, {
       headers: { "Cache-Control": "no-store" },
     });

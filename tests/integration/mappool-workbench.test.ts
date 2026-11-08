@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { randomUUID } from "node:crypto";
 import {
   beforeAll,
@@ -332,6 +333,8 @@ describe.skipIf(!url)("private selection collaboration", () => {
         [100, snapshot(100)],
       ]),
     );
+    const invalidate = vi.mocked(revalidatePath);
+    invalidate.mockClear();
     const response = await post(tester, {
       action: "preview",
       text: "75\n99\nbad\n100\n100",
@@ -348,8 +351,13 @@ describe.skipIf(!url)("private selection collaboration", () => {
       "duplicate",
     ]);
     expect(preview.rows[1].error).toBe("Beatmap not found.");
+    expect(invalidate).not.toHaveBeenCalled();
     const added = await post(tester, add([100]));
     expect(added.status).toBe(200);
+    expect(invalidate).toHaveBeenCalledExactlyOnceWith(
+      `/admin/tournaments/${slug}/mappool-workbench`,
+      undefined,
+    );
     const receipt = await added.json();
     expect(selectionReceipt.parse(receipt)).toEqual(receipt);
     expect(receipt).toEqual({ added: 1, skipped: 0 });

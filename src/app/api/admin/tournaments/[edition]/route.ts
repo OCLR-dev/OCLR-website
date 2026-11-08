@@ -1,6 +1,6 @@
 import { changeTournamentWrite } from "@/lib/tournament-write-contracts";
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
-import { revalidatePath } from "next/cache";
+import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { tournamentForAdmin, tournamentCommand } from "@/lib/tournaments";
@@ -27,7 +27,7 @@ export async function POST(request: Request, context: Context) {
       (await context.params).edition,
       await readJson(request, changeTournamentWrite.maxBodyBytes),
     );
-    revalidatePath("/", "layout");
+    revalidateCommittedPath("/", "layout");
     return NextResponse.json(result, {
       headers: { "Cache-Control": "no-store" },
     });

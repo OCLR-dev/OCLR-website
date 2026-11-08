@@ -7,12 +7,31 @@ request and cache adapters from services.
 | --- | --- | --- |
 | Domain errors and site origin policy | Services imported `http.ts`, which loads `NextResponse`. | `http-error.ts` owns the shared error class. `app-url.ts` resolves the configured origin. HTTP error serialization and bounded request parsing stay in `http.ts`. |
 | Staff identity and permission | The staff service imported browser session resolution. | `auth/staff-request.ts` resolves a session through `auth/user.ts` and passes its actor to `auth/staff.ts`. The service still reads current roles and honors edition and channel boundaries. |
+| Backup identity and permission | The backup service loaded the browser session itself. | The page and API use `auth/backup-request.ts` to resolve the session. The service accepts the resolved actor and checks current global Admin access. Remote and delegated read requests are rejected before session resolution. The operator still receives the authenticated actor and database identity over its configured socket. |
 | Result publication and cache | The result route directly invalidated the public tournament layout inside its error handler. | The route awaits the committed command and uses its `publicChanged` signal to invalidate the same layout through `next-revalidation.ts`. If scheduling throws, the adapter logs a fixed diagnostic and the route returns the saved receipt. The existing command key lets a retry request the same invalidation without a duplicate audit event. |
 
-The lint rule protects service and DB modules from direct Next.js imports and
-from importing the HTTP, browser auth and cache adapters. The remaining
-migration points are the browser actor resolution in `admin-backups.ts`
-and cache invalidation in the other mutation routes.
+The lint rules protect service and DB modules from importing Next.js or the
+HTTP, browser auth and cache adapters. Route handlers use
+`next-revalidation.ts` for path invalidation.
+
+## Cache invalidation after writes
+
+Route handlers await the saved result before requesting invalidation. Each
+path is attempted independently, so a scheduling failure preserves the
+response and does not prevent subsequent paths from being requested. Next.js
+revalidates a marked path on the next visit. Preview and rejected commands
+skip invalidation.
+
+| Write | Paths requested after success |
+| --- | --- |
+| Tournament configuration and unused draft deletion | Root layout |
+| Registration removal and restoration | Admin, players and selected public tournament layouts, plus dashboard |
+| Mappool, fixture, result import and round referee policy commands | Selected Admin and public tournament layouts |
+| Mappool workbench commands | Selected Admin workbench page |
+| Streaming task changes | Selected Admin tournament layout |
+| Player practice and availability | The corresponding player page |
+| Schedule requests | Selected public and Admin tournament layouts |
+| Result review | Selected public tournament layout when `publicChanged` is true |
 
 ## Remote reads and profile refresh
 

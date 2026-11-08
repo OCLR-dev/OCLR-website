@@ -4,21 +4,28 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { databaseIdentity } from "../../operator/identity";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+const actor = vi.hoisted(() => ({
+  osuId: 1,
+  username: "Synthetic backup Admin",
+}));
 const mock = vi.hoisted(() => ({
+  requireUser: vi.fn(async () => actor),
   grants: [] as { role: string; editionSlug: string | null }[],
   remote: false,
   read: false,
 }));
-vi.mock("@/lib/auth/user", () => ({ requireUser: async () => ({ osuId: 1 }) }));
+vi.mock("@/lib/auth/user", () => ({ requireUser: mock.requireUser }));
 vi.mock("@/lib/auth/staff", () => ({ staffAccess: async () => mock.grants }));
 vi.mock("@/lib/data-source", () => ({ remoteMode: () => mock.remote }));
 vi.mock("@/lib/read-channel", () => ({ inReadChannel: () => mock.read }));
-import { backupActor } from "@/lib/admin-backups";
+import { authorizeBackupActor } from "@/lib/admin-backups";
+import { HttpError } from "@/lib/http-error";
 import { queueAdminBackupWrite } from "@/lib/admin-operations-write-contracts";
-import { POST } from "@/app/api/admin/backups/route";
+import { GET, POST } from "@/app/api/admin/backups/route";
 describe("global backup authorization", () => {
   beforeEach(() => {
     mock.grants = [];
+    mock.requireUser.mockClear();
     mock.remote = false;
     mock.read = false;
   });
@@ -30,12 +37,13 @@ describe("global backup authorization", () => {
       [{ role: "referee", editionSlug: null }],
     ]) {
       mock.grants = grants;
-      await expect(backupActor()).rejects.toMatchObject({ status: 403 });
+      await expect(authorizeBackupActor(actor)).rejects.toMatchObject({ status: 403 });
     }
     mock.grants = [{ role: "admin", editionSlug: null }];
-    await expect(backupActor()).resolves.toMatchObject({ osuId: 1 });
+    await expect(authorizeBackupActor(actor)).resolves.toMatchObject({ osuId: 1 });
     mock.grants = [];
-    await expect(backupActor()).rejects.toMatchObject({ status: 403 });
+    await expect(authorizeBackupActor(actor)).rejects.toMatchObject({ status: 403 });
+    expect(mock.requireUser).not.toHaveBeenCalled();
   });
   it("forwards raw backup requests and preserves the operator's 202 receipt", async () => {
     const path = mkdtempSync(join(tmpdir(), "b-"));
@@ -61,6 +69,10 @@ describe("global backup authorization", () => {
         identity: req.headers["x-oclr-database"],
         body: Buffer.concat(chunks),
       });
+      if (req.method === "GET") {
+        res.writeHead(200).end("[]");
+        return;
+      }
       const query = new URL(req.url!, "http://operator").searchParams;
       if (query.get("action") === "restore" && query.get("confirm") !== "REPLACE") {
         res.writeHead(400).end("{}");
@@ -91,11 +103,30 @@ describe("global backup authorization", () => {
           body,
         }));
 
+      const get = () => GET(new Request(origin + queueAdminBackupWrite.path, {
+        headers: { "X-OCLR-Actor": "999" },
+      }));
+      mock.requireUser.mockRejectedValueOnce(
+        new HttpError(401, "Sign in with osu! to continue."),
+      );
+      expect((await get()).status).toBe(401);
+      expect((await get()).status).toBe(403);
       expect((await post("action=backup")).status).toBe(403);
       mock.grants = [{ role: "admin", editionSlug: null }];
       expect((await post("action=backup", undefined, "Bearer synthetic-only")).status).toBe(403);
       expect((await post("action=unknown")).status).toBe(400);
       expect(received).toHaveLength(0);
+      const listed = await get();
+      expect(listed.status).toBe(200);
+      expect(listed.headers.get("Cache-Control")).toBe("private, no-store");
+      expect(await listed.json()).toEqual([]);
+      expect(received.at(-1)).toEqual({
+        url: "/jobs",
+        method: "GET",
+        actor: "1",
+        identity: databaseIdentity(database),
+        body: Buffer.alloc(0),
+      });
       for (const [query, body] of [
         ["action=backup", undefined],
         ["action=import", bytes],
@@ -129,10 +160,15 @@ describe("global backup authorization", () => {
   });
   it("rejects remote and Developer read channels even with cumulative Admin grants", async () => {
     mock.grants = [{ role: "admin", editionSlug: null }];
+    const get = () =>
+      GET(new Request("https://oclr.example.test" + queueAdminBackupWrite.path));
     mock.remote = true;
-    await expect(backupActor()).rejects.toMatchObject({ status: 403 });
+    expect((await get()).status).toBe(403);
+    await expect(authorizeBackupActor(actor)).rejects.toMatchObject({ status: 403 });
     mock.remote = false;
     mock.read = true;
-    await expect(backupActor()).rejects.toMatchObject({ status: 403 });
+    expect((await get()).status).toBe(403);
+    await expect(authorizeBackupActor(actor)).rejects.toMatchObject({ status: 403 });
+    expect(mock.requireUser).not.toHaveBeenCalled();
   });
 });

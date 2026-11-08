@@ -1,5 +1,5 @@
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
-import { revalidatePath } from "next/cache";
+import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { streamingCommand, streamingWorkspace } from "@/lib/streaming";
@@ -29,7 +29,7 @@ export async function POST(request: Request, context: Context) {
       fixtureId,
       await readJson(request, streamingTaskWrite.maxBodyBytes),
     );
-    revalidatePath(`/admin/tournaments/${edition}`, "layout");
+    revalidateCommittedPath(`/admin/tournaments/${edition}`, "layout");
     return NextResponse.json(saved, {
       headers: { "Cache-Control": "no-store" },
     });

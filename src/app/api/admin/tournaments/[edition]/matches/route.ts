@@ -1,5 +1,5 @@
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
-import { revalidatePath } from "next/cache";
+import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { staffFixtures, fixtureCommand } from "@/lib/fixtures";
@@ -40,8 +40,8 @@ export async function POST(
         { headers: { "Cache-Control": "no-store" } },
       );
     const result = await fixtureCommand(user, edition, input);
-    revalidatePath(`/admin/tournaments/${edition}`, "layout");
-    revalidatePath(`/tournaments/${edition}`, "layout");
+    revalidateCommittedPath(`/admin/tournaments/${edition}`, "layout");
+    revalidateCommittedPath(`/tournaments/${edition}`, "layout");
     return NextResponse.json(result, {
       headers: { "Cache-Control": "no-store" },
     });
