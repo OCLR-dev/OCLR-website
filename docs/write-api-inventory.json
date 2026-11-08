@@ -856,10 +856,25 @@
     "source": "src/app/api/remote/connection/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeRemoteConnection",
+        "access": "same-origin",
+        "actions": [
+          "refresh",
+          "anonymous",
+          "developer"
+        ],
+        "consumers": [
+          "src/components/remote-development.tsx"
+        ]
       },
       "DELETE": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "disconnectRemote",
+        "access": "same-origin",
+        "consumers": [
+          "src/components/remote-development.tsx"
+        ]
       }
     }
   },
@@ -1072,7 +1087,12 @@
     "source": "src/app/auth/logout/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "logout",
+        "access": "same-origin",
+        "consumers": [
+          "src/app/dashboard/page.tsx"
+        ]
       }
     }
   }

@@ -46,6 +46,11 @@ import {
   revokeDesktopAuthWrite,
   deleteDesktopSessionWrite,
 } from "../src/lib/desktop-auth-write-contracts";
+import {
+  changeRemoteConnectionWrite,
+  disconnectRemoteWrite,
+  logoutWrite,
+} from "../src/lib/browser-connection-write-contracts";
 import { reviewBwsWrite } from "../src/lib/bws-write-contract";
 import {
   createDeveloperTokenWrite,
@@ -161,6 +166,9 @@ const operations: readonly WriteApiOperation[] = [
   refreshDesktopAuthWrite,
   revokeDesktopAuthWrite,
   deleteDesktopSessionWrite,
+  changeRemoteConnectionWrite,
+  disconnectRemoteWrite,
+  logoutWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
@@ -342,6 +350,33 @@ const jsonRequestErrors = {
   415: "Content-Type must be application/json.",
 };
 
+function headerSchemas(headers: WriteApiOperation["successHeaders"]) {
+  return Object.fromEntries(
+    Object.entries(headers ?? {}).map(([name, schema]) => [
+      name,
+      { schema: jsonSchema(schema, "output") },
+    ]),
+  );
+}
+
+function successResponse(
+  description: string,
+  response: WriteApiOperation["response"],
+  headers: ReturnType<typeof headerSchemas>,
+) {
+  return {
+    description,
+    ...(Object.keys(headers).length ? { headers } : {}),
+    ...(response === null
+      ? {}
+      : {
+          content: {
+            "application/json": { schema: responseSchema(response) },
+          },
+        }),
+  };
+}
+
 function openapiOperation(operation: WriteApiOperation) {
   const desktop = operation.access === "desktop";
   const desktopErrors = desktop || operation.errorFormat === "desktop";
@@ -357,7 +392,8 @@ function openapiOperation(operation: WriteApiOperation) {
       schema: jsonSchema(operation.parameters?.[name] ?? z.string(), "input"),
     }),
   );
-  if (operation.access === "browser") parameters.push(browserOrigin);
+  if (operation.access === "browser" || operation.access === "same-origin")
+    parameters.push(browserOrigin);
   const successHeaders = {
     ...requestId,
     ...(operation.contractHeader
@@ -367,12 +403,7 @@ function openapiOperation(operation: WriteApiOperation) {
           },
         }
       : {}),
-    ...Object.fromEntries(
-      Object.entries(operation.successHeaders ?? {}).map(([name, schema]) => [
-        name,
-        { schema: jsonSchema(schema, "output") },
-      ]),
-    ),
+    ...headerSchemas(operation.successHeaders),
   };
 
   return {
@@ -407,19 +438,23 @@ function openapiOperation(operation: WriteApiOperation) {
         }
       : {}),
     responses: {
-      [operation.successStatus]: {
-        description: operation.successDescription,
-        ...(Object.keys(successHeaders).length
-          ? { headers: successHeaders }
-          : {}),
-        ...(operation.response === null
-          ? {}
-          : {
-              content: {
-                "application/json": { schema: responseSchema(operation.response) },
-              },
-            }),
-      },
+      [operation.successStatus]: successResponse(
+        operation.successDescription,
+        operation.response,
+        successHeaders,
+      ),
+      ...Object.fromEntries(
+        Object.entries(operation.additionalSuccess ?? {}).map(
+          ([status, result]) => [
+            status,
+            successResponse(
+              result.description,
+              result.response,
+              headerSchemas(result.headers),
+            ),
+          ],
+        ),
+      ),
       ...Object.fromEntries(
         Object.entries({
           ...(operation.request && !operation.requestMediaType
@@ -442,7 +477,11 @@ function openapiOperation(operation: WriteApiOperation) {
                 }
               : desktop
                 ? { headers: requestId }
-                : {}),
+                : operation.errorHeaders?.[Number(status)]
+                  ? {
+                      headers: headerSchemas(operation.errorHeaders[Number(status)]),
+                    }
+                  : {}),
             content: {
               "application/json": {
                 schema: operation.errorResponses?.[Number(status)]

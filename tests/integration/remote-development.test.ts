@@ -40,12 +40,25 @@ import { publicPlayerSchema } from "../../src/lib/read-api-contract";
 import {
   GET as connectionGET,
   POST as connectionPOST,
+  DELETE as connectionDELETE,
 } from "../../src/app/api/remote/connection/route";
+import {
+  changeRemoteConnectionWrite,
+  disconnectRemoteWrite,
+  type RemoteConnectionInput,
+} from "../../src/lib/browser-connection-write-contracts";
+
 const jar = vi.hoisted(() => new Map<string, string>());
+const setCookie = vi.hoisted(() => vi.fn());
 vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: (name: string) =>
       jar.has(name) ? { value: jar.get(name) } : undefined,
+    set: (name: string, value: string, options: unknown) => {
+      jar.set(name, value);
+      setCookie(name, value, options);
+    },
+    delete: (name: string) => jar.delete(name),
   }),
 }));
 const tokenA = "oclr_dev_" + "a".repeat(43),
@@ -303,6 +316,7 @@ beforeEach(() => {
   vi.stubEnv("OSU_CLIENT_SECRET", "");
   seen.length = 0;
   jar.clear();
+  setCookie.mockClear();
   mode = "healthy";
   revoked = false;
   redirected = 0;
@@ -497,6 +511,82 @@ describe("remote frontend transport with no local DB", () => {
     expect(() => remoteConnection(session.id)).toThrow();
     vi.useRealTimers();
   });
+  it("preserves connection and disconnect replies, cookie scope and backend retry timing", async () => {
+    const origin = "http://localhost:3000";
+    const url = origin + changeRemoteConnectionWrite.path;
+    const post = (input: RemoteConnectionInput, authorization?: string) =>
+      connectionPOST(new Request(url, {
+        method: "POST",
+        headers: {
+          Origin: origin,
+          "Content-Type": "application/json",
+          ...(authorization ? { Authorization: authorization } : {}),
+        },
+        body: JSON.stringify(input),
+      }));
+    const denied = await post({ mode: "anonymous" }, "Bearer synthetic-only");
+    expect(denied.status).toBe(403);
+    expect(
+      changeRemoteConnectionWrite.errorResponses[403].parse(await denied.json()),
+    ).toEqual({ state: "unavailable", code: "REMOTE_FORBIDDEN" });
+    const connected = changeRemoteConnectionWrite.additionalSuccess[201].response;
+    const anonymous = await post({ mode: "anonymous" });
+    expect(anonymous.status).toBe(201);
+    expect(anonymous.headers.get("Cache-Control")).toBe("no-store");
+    expect(connected.parse(await anonymous.json())).toEqual({
+      state: "anonymous",
+      expiresAt: null,
+    });
+    const previous = jar.get("oclr_remote_session");
+    const authenticated = await post({ mode: "developer", token: tokenA });
+    expect(authenticated.status).toBe(201);
+    expect(connected.parse(await authenticated.json())).toEqual({
+      state: "developer",
+      expiresAt: expect.any(String),
+    });
+    const id = jar.get("oclr_remote_session");
+    expect(id).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(id).not.toBe(previous);
+    expect(setCookie).toHaveBeenLastCalledWith(
+      "oclr_remote_session",
+      id,
+      {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: false,
+        path: "/",
+        expires: expect.any(Date),
+      },
+    );
+    expect(() => remoteConnection(previous)).toThrow();
+
+    mode = "throttled";
+    const throttled = await post({ mode: "developer", token: tokenA });
+    expect(throttled.status).toBe(429);
+    expect(throttled.headers.get("Retry-After")).toBe("90");
+    expect(
+      changeRemoteConnectionWrite.errorResponses[429].parse(
+        await throttled.json(),
+      ),
+    ).toEqual({ state: "unavailable", code: "RATE_LIMITED" });
+    expect(jar.get("oclr_remote_session")).toBe(id);
+
+    const remove = () =>
+      connectionDELETE(new Request(origin + disconnectRemoteWrite.path, {
+        method: "DELETE",
+        headers: { Origin: origin },
+      }));
+    for (let i = 0; i < 2; i++) {
+      const disconnected = await remove();
+      expect(disconnected.status).toBe(200);
+      expect(disconnected.headers.get("Cache-Control")).toBe("no-store");
+      expect(
+        disconnectRemoteWrite.response.parse(await disconnected.json()),
+      ).toEqual({ state: "disconnected" });
+    }
+    expect(jar.has("oclr_remote_session")).toBe(false);
+    expect(() => remoteConnection(id)).toThrow();
+  });
   it("refreshes only the current session's snapshots and forwards rate-limit timing", async () => {
     const first = await connectRemote({ mode: "developer", token: tokenA });
     const second = await connectRemote({ mode: "developer", token: tokenB });
@@ -518,6 +608,9 @@ describe("remote frontend transport with no local DB", () => {
       }),
     );
     expect(refresh.status).toBe(200);
+    expect(
+      changeRemoteConnectionWrite.response.parse(await refresh.json()),
+    ).toEqual({ state: "refreshed" });
     await withFrontendReadRequest(() => frontendSite());
     jar.set("oclr_remote_session", second.id);
     await withFrontendReadRequest(() => frontendSite());

@@ -115,6 +115,11 @@ same-origin browser decision uses a form and an empty 303 redirect to the
 loopback callback. Revocation and browser session deletion return empty 204
 responses. Error bodies follow the desktop envelope.
 
+Remote development connection management uses the local same-origin channel.
+Connecting sets an opaque cookie, refresh clears only that connection's
+public snapshots, and disconnect clears the connection and cookie. Website
+logout revokes the cookie's site session and returns an empty 303 redirect.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

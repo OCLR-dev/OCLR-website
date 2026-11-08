@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { z } from "zod";
+import {
+  changeRemoteConnectionWrite,
+  disconnectRemoteWrite,
+} from "@/lib/browser-connection-write-contracts";
 import { remoteConfiguration } from "@/lib/data-source";
 import {
   remoteCookie,
@@ -11,13 +14,6 @@ import {
 } from "@/lib/remote-sessions";
 import { RemoteDataError } from "@/lib/remote-errors";
 import { readJson, requireSameOrigin, HttpError } from "@/lib/http";
-const inputSchema = z.discriminatedUnion("mode", [
-  z.object({ mode: z.literal("refresh") }).strict(),
-  z.object({ mode: z.literal("anonymous") }).strict(),
-  z
-    .object({ mode: z.literal("developer"), token: z.string().max(100) })
-    .strict(),
-]);
 const attempts = globalThis as unknown as {
   oclrRemoteAttempts?: { start: number; count: number };
 };
@@ -72,12 +68,17 @@ export async function POST(request: Request) {
       attempts.oclrRemoteAttempts = { start: now, count: 0 };
     if (++attempts.oclrRemoteAttempts!.count > 20)
       throw new RemoteDataError("RATE_LIMITED", 429);
-    const parsed = inputSchema.safeParse(await readJson(request, 1024));
+    const parsed = changeRemoteConnectionWrite.request.safeParse(
+      await readJson(request, changeRemoteConnectionWrite.maxBodyBytes),
+    );
     if (!parsed.success) throw new RemoteDataError("INVALID_REQUEST", 400);
     const cookieJar = await cookies();
     if (parsed.data.mode === "refresh") {
       remoteConnection(cookieJar.get(remoteCookie)?.value).publicCache?.clear();
-      return response({ state: "refreshed" });
+      return response(
+        { state: "refreshed" },
+        changeRemoteConnectionWrite.successStatus,
+      );
     }
     const created = await connectRemote(
       parsed.data,
@@ -113,7 +114,7 @@ export async function DELETE(request: Request) {
     const cookieJar = await cookies();
     disconnectRemote(cookieJar.get(remoteCookie)?.value);
     cookieJar.delete(remoteCookie);
-    return response({ state: "disconnected" });
+    return response({ state: "disconnected" }, disconnectRemoteWrite.successStatus);
   } catch (error) {
     return failure(error);
   }

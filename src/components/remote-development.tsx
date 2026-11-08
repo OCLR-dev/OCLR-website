@@ -14,6 +14,7 @@ import {
 } from "react";
 import { RemoteReadOnlyContext } from "./staff-read-only";
 import { remoteHealthMonitor } from "@/lib/remote-health";
+import type { RemoteConnectionInput } from "@/lib/browser-connection-write-contracts";
 export function RemoteNotice({
   code = "REMOTE_UNSUPPORTED",
 }: {
@@ -122,7 +123,11 @@ export function RemoteConnectionForm({ connected }: { connected: boolean }) {
     form.reset(); // Clear the input before the request; never keep the token in React state.
     await change("connect", "POST", { mode: "developer", token });
   }
-  async function change(action: string, method: string, body?: unknown) {
+  async function change(
+    action: string,
+    method: string,
+    body?: RemoteConnectionInput,
+  ) {
     if (busy) return;
     setActiveAction(action);
     setBusy(true);
