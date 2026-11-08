@@ -25735,8 +25735,8 @@
                   { "type": "string", "const": "staff" },
                   { "type": "string", "const": "mappools" },
                   { "type": "string", "const": "draft" },
-                  { "type": "string", "const": "captains" },
                   { "type": "string", "const": "registrations" },
+                  { "type": "string", "const": "captains" },
                   { "type": "string", "const": "site" },
                   { "type": "string", "const": "tournament" },
                   { "type": "string", "const": "results" },
@@ -26949,13 +26949,13 @@
                 },
                 "status": {
                   "anyOf": [
-                    { "type": "string", "const": "matched" },
                     { "type": "string", "const": "stale" },
                     { "type": "string", "const": "missing" },
                     { "type": "string", "const": "unmatched" },
                     { "type": "string", "const": "incomplete" },
                     { "type": "string", "const": "different_map" },
-                    { "type": "string", "const": "different_result" }
+                    { "type": "string", "const": "different_result" },
+                    { "type": "string", "const": "matched" }
                   ]
                 }
               },

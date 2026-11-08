@@ -20,6 +20,8 @@ import { refreshDraftSnapshot } from "./draft";
 import { draftSetupProtection } from "./draft-setup";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PublicCaptains = ExplicitReadData<"publicCaptains">;
 const id = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const commands = z.discriminatedUnion("action", [
   z.object({ action: z.literal("appoint"), userId: id }).strict(),
@@ -481,7 +483,7 @@ export async function updateCaptains(
   });
   return captainSetup(actor, slug);
 }
-async function databasePublicCaptains(slug: string) {
+async function databasePublicCaptains(slug: string): Promise<PublicCaptains> {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return [];
   return db()
     .select({
@@ -494,14 +496,9 @@ async function databasePublicCaptains(slug: string) {
     .where(and(eq(captains.editionSlug, slug), eq(captains.published, true)))
     .orderBy(captains.position);
 }
-export async function publicCaptains(
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublicCaptains>>> {
+export async function publicCaptains(slug: string): Promise<PublicCaptains> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublicCaptains>>>(
-      "publicCaptains",
-      { slug },
-    );
+    return frontendResource<PublicCaptains>("publicCaptains", { slug });
   }
   return databasePublicCaptains(slug);
 }

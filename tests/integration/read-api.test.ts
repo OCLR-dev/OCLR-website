@@ -36,6 +36,9 @@ import {
   staffPlayerProfile,
 } from "../../src/lib/player-profiles";
 import { publicPlayers } from "../../src/lib/players";
+import { publicStaff } from "../../src/lib/public-staff";
+import { publicCaptains } from "../../src/lib/captains";
+import { publishedTeams } from "../../src/lib/teams";
 import {
   publicPlayerDirectoryModel,
   publicTournamentListModel,
@@ -196,6 +199,59 @@ describe.skipIf(!url)("v1 public/private saved read projections", () => {
     expect(
       (await get("/tournaments/private-test-cup", fullToken)).response.status,
     ).toBe(404);
+  });
+  it("serves the shared Staff, captain, and team contracts with publication applied", async () => {
+    await db()
+      .insert(staffRoles)
+      .values([
+        {
+          userId: seeded.captainId,
+          role: "mappooler",
+          editionSlug: null,
+          aboutPublished: true,
+          grantedBy: ownerId,
+        },
+        {
+          userId: seeded.captainId,
+          role: "referee",
+          editionSlug: "private-test-cup",
+          aboutPublished: true,
+          grantedBy: ownerId,
+        },
+      ]);
+    const staff = await get("/site/staff");
+    expect(staff.response.status).toBe(200);
+    expect(staff.body.data).toEqual(await publicStaff());
+    expect(staff.body.data).toContainEqual({
+      osuId: seeded.captainId,
+      username: `Synthetic Directory ${base} Captain`,
+      countryCode: profileResponse.country_code,
+      roles: [{ role: "mappooler", edition: null }],
+    });
+
+    const captains = await get("/tournaments/test-cup/captains");
+    expect(captains.response.status).toBe(200);
+    expect(captains.body.data).toEqual(await publicCaptains("test-cup"));
+    expect(
+      captains.body.data.map((entry: { osuId: number }) => entry.osuId),
+    ).toEqual([seeded.captainId]);
+
+    const teamsPath = "/tournaments/test-cup/teams";
+    const published = await get(teamsPath);
+    expect(published.response.status).toBe(200);
+    expect(published.body.data).toEqual(await publishedTeams("test-cup"));
+    expect(published.body.data[0].members).toHaveLength(2);
+    await db()
+      .update(teams)
+      .set({ rosterPublished: false })
+      .where(eq(teams.id, seeded.teamId));
+    const withHiddenRoster = await get(teamsPath);
+    expect(withHiddenRoster.response.status).toBe(200);
+    expect(withHiddenRoster.body.data[0]).toMatchObject({
+      id: seeded.teamId,
+      coaches: [],
+      members: null,
+    });
   });
   it("keeps public projections identical with a token and allows private configuration only with the matching live scope", async () => {
     const anonymous = await get("/tournaments/test-cup");

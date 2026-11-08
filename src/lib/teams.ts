@@ -27,6 +27,8 @@ import {
 } from "./editions";
 import { HttpError } from "./http";
 import { getOsuUserProfile } from "./osu-profiles";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PublishedTeams = ExplicitReadData<"publishedTeams">;
 const teamInput = z
   .object({
     captainId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
@@ -480,7 +482,7 @@ export async function ownTeam(
   return databaseOwnTeam(userId, slug);
 }
 
-async function databasePublishedTeams(slug: string) {
+async function databasePublishedTeams(slug: string): Promise<PublishedTeams> {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return [];
   return db().transaction(
     async (tx) => {
@@ -512,7 +514,7 @@ async function databasePublishedTeams(slug: string) {
           ),
         )
         .orderBy(teams.name);
-      const published = [];
+      const published: PublishedTeams = [];
       for (const team of rows) {
         const members =
           team.finalizedAt && team.rosterPublished
@@ -570,14 +572,9 @@ async function databasePublishedTeams(slug: string) {
     { isolationLevel: "repeatable read" },
   );
 }
-export async function publishedTeams(
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublishedTeams>>> {
+export async function publishedTeams(slug: string): Promise<PublishedTeams> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublishedTeams>>>(
-      "publishedTeams",
-      { slug },
-    );
+    return frontendResource<PublishedTeams>("publishedTeams", { slug });
   }
   return databasePublishedTeams(slug);
 }

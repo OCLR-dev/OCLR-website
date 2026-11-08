@@ -2,7 +2,9 @@ import { createHash } from "node:crypto";
 import { format } from "prettier";
 import ts from "typescript";
 import fs from "node:fs";
+import { z } from "zod";
 import definitions from "./extended-read-resources.json" with { type: "json" };
+import { explicitReadContracts } from "../src/lib/explicit-read-contracts";
 const config = ts.readConfigFile("tsconfig.json", ts.sys.readFile);
 const parsed = ts.parseJsonConfigFileContent(
   config.config,
@@ -94,7 +96,33 @@ function schema(type: ts.Type, depth = 0): Schema {
   };
 }
 const result: Record<string, Schema> = {};
+const explicit = new Map<string, z.ZodType>(
+  Object.entries(explicitReadContracts),
+);
+function preserveReadUnions(value: unknown): void {
+  if (!value || typeof value !== "object") return;
+  for (const child of Object.values(value)) preserveReadUnions(child);
+  // The remote adapter walks anyOf branches to restore domain values.
+  if ("type" in value && Array.isArray(value.type)) {
+    Object.assign(value, { anyOf: value.type.map((type) => ({ type })) });
+    delete value.type;
+  }
+}
 for (const resource of definitions) {
+  const contract = explicit.get(resource.id);
+  if (contract) {
+    const { $schema, ...wire } = z.toJSONSchema(contract, {
+      unrepresentable: ({ zodSchema }) =>
+        zodSchema instanceof z.ZodDate
+          ? { type: "string", format: "date-time", "x-oclr-date": true }
+          : "throw",
+    });
+    void $schema;
+    preserveReadUnions(wire);
+    result[resource.id] = wire;
+    explicit.delete(resource.id);
+    continue;
+  }
   const file = program.getSourceFile("src/lib/" + resource.module + ".ts")!;
   const name =
     "model" in resource
@@ -112,6 +140,8 @@ for (const resource of definitions) {
   )!;
   result[resource.id] = schema(type);
 }
+if (explicit.size)
+  throw Error("Unregistered read contracts: " + [...explicit.keys()]);
 if (unsupported.size) throw Error("Untyped DTO: " + [...unsupported]);
 // Stable structural definitions keep identical query models shared across resources.
 const counts = new Map<string, number>();

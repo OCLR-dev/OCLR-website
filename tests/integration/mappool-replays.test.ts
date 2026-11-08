@@ -55,6 +55,12 @@ import {
   deleteReplayWrite,
   uploadReplayWrite,
 } from "../../src/lib/replay-write-contract";
+import { createSession, readSessionContext } from "../../src/lib/auth/sessions";
+import { createDeveloperToken } from "../../src/lib/developer-api";
+import { readApiRoute } from "../../src/lib/read-api";
+import { reviveReadValue } from "../../src/lib/read-value";
+import contracts from "../../src/lib/extended-read-contracts.json" with { type: "json" };
+import { explicitReadContracts } from "../../src/lib/explicit-read-contracts";
 vi.mock("../../src/lib/osu-beatmaps", async (original) => ({
   ...(await original<typeof import("../../src/lib/osu-beatmaps")>()),
   fetchBeatmap: vi.fn(),
@@ -280,7 +286,32 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     expect(await mappoolWorkspace(tester, edition.slug)).toHaveProperty(
       "entries",
     );
-    expect(await replayList(developer, edition.slug, entryId)).toHaveLength(2);
+    const replayItems = await replayList(developer, edition.slug, entryId);
+    expect(replayItems).toHaveLength(2);
+    const readPath = `${origin}/api/v1/staff/tournaments/${edition.slug}/mappool-entries/${entryId}/replays`;
+    expect((await readApiRoute(new Request(readPath))).status).toBe(401);
+    const session = await readSessionContext(
+      (await createSession(developer.osuId)).token,
+    );
+    const { token } = await createDeveloperToken(session!, {
+      origin: "http://127.0.0.1:3001",
+      scopes: ["tournaments:private:read"],
+    });
+    const response = await readApiRoute(
+      new Request(readPath, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    );
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data).toEqual(JSON.parse(JSON.stringify(replayItems)));
+    const revived = reviveReadValue(data, {
+      ...contracts.resources.replayList,
+      $defs: contracts.$defs,
+    });
+    expect(explicitReadContracts.replayList.parse(revived)).toEqual(
+      replayItems,
+    );
     expect(
       (await downloadMappoolReplay(developer, edition.slug, entryId, r.id))
         .bytes,

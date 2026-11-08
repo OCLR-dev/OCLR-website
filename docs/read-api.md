@@ -236,11 +236,14 @@ or a production deployment. No migration is added by #269, #271 or #272.
 `src/lib/read-api-queries.ts` supplies the exact request schemas also used by
 registration/audit/streaming services. OpenAPI query types, enums, defaults, UUIDs,
 dates and limits come from those schemas. The finite resource registry maps
-operationId to its existing service. `generate-extended-contracts.ts` generates
-strict response JSON Schemas from the same TypeScript return types, including
-nullable first-row results, tuples, normalized profiles and saved snapshots.
-Runtime Zod validation and OpenAPI share those definitions. JSON dates are ISO
-strings; the existing SSR service adapter restores Dates using schema metadata.
+operationId to its existing service. The [explicit response contracts](../src/lib/explicit-read-contracts.ts)
+define the Staff, captain, published team, and Replay lists independently of
+service and database types. Their service return types come from those contracts.
+`generate-extended-contracts.ts` uses these Zod schemas for migrated resources
+and derives the remaining response schemas from TypeScript return types.
+Runtime response validation and OpenAPI consume the generated definitions.
+JSON dates are ISO strings. The SSR service adapter restores Dates using schema
+metadata, including for Replay creation timestamps.
 Unknown audit/answer JSON keeps its existing authorized, bounded projection.
 
 Every operation has `x-oclr-issues`; GET operations also identify the query model,
