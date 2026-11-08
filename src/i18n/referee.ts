@@ -66,6 +66,16 @@ export function refereeMessage(tr: AppTranslator, message: string): string {
       return tr("A tied or aborted attempt has no winner.");
     case "Apply both the first-ban and first-pick teams.":
       return tr("Apply both the first-ban and first-pick teams.");
+    case "Apply the first-pick team.":
+      return tr("Apply the first-pick team.");
+    case "Only exhibition fixtures can skip bans.":
+      return tr("Only exhibition fixtures can skip bans.");
+    case "Withdraw recorded steps before changing whether bans are skipped.":
+      return tr(
+        "Withdraw recorded steps before changing whether bans are skipped.",
+      );
+    case "Configure a pick or tiebreaker before skipping bans.":
+      return tr("Configure a pick or tiebreaker before skipping bans.");
     case "Both fixture teams must be resolved.":
       return tr("Both fixture teams must be resolved.");
     case "Cancelled fixtures cannot record referee activity.":

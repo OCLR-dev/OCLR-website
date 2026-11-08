@@ -86,6 +86,70 @@ function act(i: RefereeModelInput, a: RefereeAction) {
   return append(i, validateRefereeAction(i, a));
 }
 describe("referee finite workflow", () => {
+  it("bypasses interleaved bans while retaining Pick and TB indices and order checks", () => {
+    const i = input();
+    const skip = {
+      action: "set_order",
+      skipBans: true,
+      firstBanTeamId: null,
+      firstPickTeamId: b,
+    } as const;
+    expect(() => validateRefereeAction(i, skip)).toThrow("Only exhibition");
+    const order = validateRefereeAction(i, skip, true);
+    expect(order).toEqual({
+      type: "order_set",
+      skipBans: true,
+      firstBanTeamId: null,
+      firstPickTeamId: b,
+    });
+    i.orders = { firstBanTeamId: null, firstPickTeamId: b };
+    i.skipBans = true;
+    expect(projectReferee(i).issues).toEqual([]);
+    const pick = (map: number, winnerTeamId: string) => {
+      const pickId = act(i, {
+        action: "record_selection",
+        entryId: i.maps[map].id,
+      });
+      act(i, {
+        action: "resolve_attempt",
+        pickId,
+        status: "completed",
+        winnerTeamId,
+      });
+    };
+    pick(0, b);
+    expect(projectReferee(i).nextStep).toMatchObject({
+      kind: "pick",
+      index: 3,
+      teamId: a,
+    });
+    expect(
+      refereeOrderConflicts(i, { firstBanTeamId: null, firstPickTeamId: a }),
+    ).toEqual([2]);
+    pick(1, a);
+    expect(projectReferee(i).nextStep).toMatchObject({ kind: "tb", index: 4 });
+    act(i, { action: "void_last" });
+    expect(projectReferee(i).nextStep).toMatchObject({
+      kind: "pick",
+      index: 3,
+    });
+    act(i, { action: "void_last" });
+    const restored = validateRefereeAction(
+      i,
+      {
+        action: "set_order",
+        skipBans: false,
+        firstBanTeamId: a,
+        firstPickTeamId: b,
+      },
+      true,
+    );
+    expect(restored).toEqual({
+      type: "order_set",
+      firstBanTeamId: a,
+      firstPickTeamId: b,
+    });
+  });
   it("records EX only for the current pick before its first start, carries it across replay and voids it with the pick", () => {
     const i = input();
     i.exPlayersPerTeam = 1;

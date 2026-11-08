@@ -230,7 +230,7 @@ describe.skipIf(!url)("fixture-local open exhibition sides", () => {
       edit(id, { exhibitionSides: { ...sides, redId: randomUUID() } }),
     ).rejects.toMatchObject({ status: 400 });
   });
-  it("automatically scores an exhibition pick using recorded colors without captain invitations or roster attribution", async () => {
+  it("saves a pick-only exhibition order and scores the first pick from MP colors", async () => {
     const seeded = await seedRefereeFixture(true, true);
     let w = seeded.workspace;
     const action = async (c: Record<string, unknown>) => {
@@ -248,20 +248,38 @@ describe.skipIf(!url)("fixture-local open exhibition sides", () => {
       firstBanTeamId: w.teams[0].id,
       firstPickTeamId: w.teams[1].id,
     });
+    expect(w.projection.nextStep?.kind).toBe("ban");
     await action({
-      action: "record_selection",
-      entryId: w.maps.find((m) => m.beatmapId === 10004)!.id,
+      action: "set_order",
+      skipBans: true,
+      firstBanTeamId: null,
+      firstPickTeamId: w.teams[1].id,
+    });
+    w = await refereeWorkspace(referee, "test-cup", w.fixture.id);
+    expect(w.projection.nextStep).toMatchObject({
+      kind: "pick",
+      index: 1,
+      teamId: w.teams[1].id,
     });
     await action({
       action: "record_selection",
       entryId: w.maps.find((m) => m.beatmapId === 10001)!.id,
     });
+    await expect(
+      action({
+        action: "set_order",
+        skipBans: false,
+        firstBanTeamId: w.teams[0].id,
+        firstPickTeamId: w.teams[1].id,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
     const session = (await db().select().from(refereeSessions))[0];
     expect(session).toMatchObject({
       firstBanTeamId: null,
       firstPickTeamId: null,
+      basis: { skipBans: true },
       exhibitionOrder: {
-        firstBanTeamId: w.teams[0].id,
+        firstBanTeamId: null,
         firstPickTeamId: w.teams[1].id,
       },
     });
@@ -287,6 +305,11 @@ describe.skipIf(!url)("fixture-local open exhibition sides", () => {
       expectedRevision: status.binding!.revision,
     });
     expect(synced.workspace.projection.score[w.teams[1].id]).toBe(1);
+    expect(synced.workspace.projection.nextStep).toMatchObject({
+      kind: "pick",
+      index: 3,
+      teamId: w.teams[0].id,
+    });
     expect(await db().select().from(refereeMpScores)).toHaveLength(1);
     expect(await db().select().from(matchResults)).toEqual(before);
   });

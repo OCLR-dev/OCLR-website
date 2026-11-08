@@ -3974,6 +3974,12 @@
     "me93d149aef33": "My historical staff record",
     "m49fd30edacc4": "Historical staff record",
     "mad4fb98eee82": "Historical staff records are temporarily unavailable.",
-    "m9c2d84c5fc7e": "No historical staff duties are recorded yet."
+    "m9c2d84c5fc7e": "No historical staff duties are recorded yet.",
+    "m240dd50c6877": "Bans skipped",
+    "m36b5afa4195b": "Skip bans",
+    "m4f6fbce25122": "Apply the first-pick team.",
+    "m4ab0e17eb7a5": "Only exhibition fixtures can skip bans.",
+    "m1d4873e931ca": "Withdraw recorded steps before changing whether bans are skipped.",
+    "m58862466a673": "Configure a pick or tiebreaker before skipping bans."
   }
 }
