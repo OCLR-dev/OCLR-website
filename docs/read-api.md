@@ -239,9 +239,9 @@ dates and limits come from those schemas. The finite resource registry maps
 operationId to its existing service. The [explicit response contracts](../src/lib/explicit-read-contracts.ts)
 define saved reads for Staff, captains and teams, the site and its contributors,
 registration and eligibility, roles and audit, player profiles and rankings,
-tournament workspaces, brackets and draft boards, mappool candidates and
-Replay lists independently of service and database types. Their service return
-types come from those contracts.
+tournament workspaces, brackets and draft boards, mappool candidates, Replay
+lists, broadcast assignments, referee reconciliation and staff BWS independently
+of service and database types. Their service return types come from those contracts.
 `generate-extended-contracts.ts` uses these Zod schemas for migrated resources
 and derives the remaining response schemas from TypeScript return types.
 Runtime response validation and OpenAPI consume the generated definitions.
@@ -332,6 +332,11 @@ reads fail with `INTERNAL_ERROR` and shows up as failing `verify` and `e2e` jobs
 When the change affects stored responses, also run
 `npx vitest run tests/integration/extended-read.test.ts` against an isolated
 `TEST_DATABASE_URL`.
+
+For a migration that preserves the wire contract, run
+`npm run read-api:compare -- BASELINE_REF` after generation. It resolves shared
+schema references, compares runtime resources and OpenAPI operations, and
+ignores the order of required fields and literal alternatives.
 
 ## Browser Bearer and existing Next SSR/BFF examples
 

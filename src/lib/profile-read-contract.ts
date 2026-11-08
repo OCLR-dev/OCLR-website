@@ -65,7 +65,12 @@ const profile = z.strictObject({
     grades: z.union([z.null(), z.record(z.string(), nullableNumber)]),
   }),
 });
+export const profileSnapshotReadContract = z.strictObject({
+  profile,
+  stale: z.boolean(),
+  notice: nullableString,
+});
 export const savedProfileReadContract = z.union([
   z.null(),
-  z.strictObject({ profile, stale: z.boolean(), notice: nullableString }),
+  profileSnapshotReadContract,
 ]);

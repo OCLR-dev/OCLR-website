@@ -40,6 +40,8 @@ import {
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+export type StreamingWorkspace = ExplicitReadData<"streamingWorkspace">;
 
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export function canViewStreaming(grants: readonly StaffGrant[], slug: string) {
@@ -73,7 +75,7 @@ async function databaseStreamingWorkspace(
   slug: string,
   input: unknown = {},
   fixtureId?: string,
-) {
+): Promise<StreamingWorkspace> {
   await assertView(actor, slug);
   const parsed = streamingFilters.safeParse(input);
   if (!parsed.success)
@@ -326,12 +328,14 @@ export async function streamingWorkspace(
   slug: string,
   input: unknown = {},
   fixtureId?: string,
-): Promise<Awaited<ReturnType<typeof databaseStreamingWorkspace>>> {
+): Promise<StreamingWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseStreamingWorkspace>>
-    >("streamingWorkspace", { slug, input, fixtureId });
+    return frontendResource<StreamingWorkspace>("streamingWorkspace", {
+      slug,
+      input,
+      fixtureId,
+    });
   }
   return databaseStreamingWorkspace(actor, slug, input, fixtureId);
 }
@@ -619,4 +623,3 @@ export async function streamingCommand(
     return { saved: true, replayed: false };
   });
 }
-export type StreamingWorkspace = Awaited<ReturnType<typeof streamingWorkspace>>;

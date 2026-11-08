@@ -83,9 +83,8 @@ async function savedLinks(tx: Reader, fixtureId: string) {
     history,
   };
 }
-export type RefereeReconciliation = Awaited<
-  ReturnType<typeof databaseRefereeReconciliation>
->;
+export type RefereeReconciliation =
+  import("./explicit-read-contracts").ExplicitReadData<"refereeReconciliation">;
 export async function refereeReconciliation(
   actor: User,
   slug: string,
@@ -106,7 +105,7 @@ async function databaseRefereeReconciliation(
   actor: User,
   slug: string,
   fixtureId: string,
-) {
+): Promise<RefereeReconciliation> {
   return readOnlyData(async () => {
     const workspace = await refereeWorkspace(actor, slug, fixtureId);
     const saved = await db().transaction((tx) => savedLinks(tx, fixtureId));

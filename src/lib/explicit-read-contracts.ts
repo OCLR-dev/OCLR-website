@@ -7,6 +7,7 @@ import { ratingReadContracts } from "./rating-read-contracts";
 import { publicPlayerParticipationReadContract } from "./player-participation-contract";
 import { draftReadContracts } from "./draft-read-contracts";
 import { savedProfileReadContract } from "./profile-read-contract";
+import { operationsReadContracts } from "./operations-read-contracts";
 
 const identity = { osuId: z.number(), username: z.string() };
 const nullableString = z.union([z.null(), z.string()]);
@@ -194,6 +195,7 @@ export const explicitReadContracts = {
   ...siteRegistrationReadContracts,
   ...ratingReadContracts,
   ...draftReadContracts,
+  ...operationsReadContracts,
   ownSavedProfile: savedProfileReadContract,
   publicStaff,
   publicCaptains,
