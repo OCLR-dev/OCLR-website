@@ -204,11 +204,11 @@ export function PlayerEditionView({
             career={!selected}
           />
         )}
-        {staffDuties.length > 0 && (
-          <HistoricalStaffHistory history={staffDuties} />
-        )}
         {selectedCompetition && (
           <PlayerTeamRecord record={selectedCompetition} />
+        )}
+        {staffDuties.length > 0 && (
+          <HistoricalStaffHistory history={staffDuties} />
         )}
       </div>
     </>
