@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { db, readOnlyData } from "@/db";
 import {
   captains,
   draftPicks,
@@ -32,7 +32,10 @@ import type {
 } from "./draft-types";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
-import { draftSessionReadColumns } from "./live-season-columns";
+import {
+  draftSessionReadColumns,
+  draftTurnSequence,
+} from "./live-season-columns";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 async function lockDraftSession(tx: Reader, slug: string, id?: string) {
   const [locked] = await tx
@@ -276,53 +279,67 @@ export async function staffDraft(
 export type StaffDraft = Awaited<ReturnType<typeof staffDraft>>;
 async function databasePublicDraft(slug: string) {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return null;
-  return db().transaction(
-    async (tx) => {
-      const [row] = await tx
-        .select({
-          snapshot: draftSessions.publicSnapshot,
-          captain: draftSessions.captainSnapshot,
-        })
-        .from(draftSessions)
-        .where(eq(draftSessions.editionSlug, slug));
-      if (!row?.snapshot) return null;
-      const approved = await tx
-        .select({ id: teams.id })
-        .from(teams)
-        .innerJoin(
-          captains,
-          and(
-            eq(captains.editionSlug, teams.editionSlug),
-            eq(captains.userId, teams.captainId),
-          ),
-        )
-        .where(
-          and(
-            eq(teams.editionSlug, slug),
-            isNull(teams.archivedAt),
-            eq(teams.identityPublished, true),
-            eq(captains.published, true),
-          ),
-        );
-      if (
-        !row.snapshot.rosters.every((r) =>
-          approved.some((t) => t.id === r.team.id),
-        )
+  return (await releasedDraftData(slug))?.snapshot ?? null;
+}
+
+/** Read publication, pool visibility and Tier evidence from one database snapshot. */
+export async function releasedDraftData(slug: string, includeTurns = false) {
+  return readOnlyData(async () => {
+    const [row] = await db()
+      .select({
+        snapshot: draftSessions.publicSnapshot,
+        captain: draftSessions.captainSnapshot,
+        poolPublished: editionState.poolPublished,
+        turnSequence: includeTurns
+          ? draftTurnSequence
+          : sql<string[]>`'[]'::jsonb`,
+        revision: draftSessions.version,
+        publishedRevision: draftSessions.publishedRevision,
+      })
+      .from(draftSessions)
+      .innerJoin(editionState, eq(editionState.slug, draftSessions.editionSlug))
+      .where(
+        and(
+          eq(draftSessions.editionSlug, slug),
+          sql`${editionState.configuration}->>'published' = 'true'`,
+        ),
+      );
+    if (!row?.snapshot) return null;
+    const approved = await db()
+      .select({ id: teams.id })
+      .from(teams)
+      .innerJoin(
+        captains,
+        and(
+          eq(captains.editionSlug, teams.editionSlug),
+          eq(captains.userId, teams.captainId),
+        ),
       )
-        return null;
-      const [visibility] = await tx
-        .select({ poolPublished: editionState.poolPublished })
-        .from(editionState)
-        .where(eq(editionState.slug, slug));
-      return {
+      .where(
+        and(
+          eq(teams.editionSlug, slug),
+          isNull(teams.archivedAt),
+          eq(teams.identityPublished, true),
+          eq(captains.published, true),
+        ),
+      );
+    if (
+      !row.snapshot.rosters.every((r) =>
+        approved.some((t) => t.id === r.team.id),
+      )
+    )
+      return null;
+    return {
+      snapshot: {
         ...row.snapshot,
-        pool: visibility?.poolPublished
+        pool: row.poolPublished
           ? (row.captain?.eligiblePool ?? row.snapshot.pool)
           : null,
-      };
-    },
-    { isolationLevel: "repeatable read" },
-  );
+      },
+      turnSequence:
+        row.revision === row.publishedRevision ? row.turnSequence : [],
+    };
+  });
 }
 export async function publicDraft(
   slug: string,

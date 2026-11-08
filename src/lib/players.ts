@@ -1,7 +1,7 @@
 import { archiveTeamPlacement } from "./archive-placement";
 import { and, count, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db";
+import { db, readOnlyData } from "@/db";
 import {
   captains,
   editionState,
@@ -12,6 +12,8 @@ import {
   users,
 } from "@/db/schema";
 import { getPublicEditions } from "./content";
+import type { Edition } from "./editions";
+import { readTournament } from "./tournaments";
 import { HttpError } from "./http";
 import { parseOsuProfile } from "./osu-profile-model";
 import { remoteMode } from "./data-source";
@@ -63,201 +65,221 @@ export function publicPlayerFilters(input: unknown, exactOsuId?: number) {
 }
 export async function publicPlayers(input: unknown, exactOsuId?: number) {
   const filters = publicPlayerFilters(input, exactOsuId);
-  const editions = (await getPublicEditions()).filter(
-    (e) => !filters.edition || filters.edition === e.slug,
-  );
-  const empty = { rows: [] as PublishedPlayer[], total: 0, filters };
-  if (!editions.length || !process.env.DATABASE_URL) return empty;
-  const slugs = editions.map((e) => e.slug);
-  return db().transaction(
-    async (tx) => {
-      // Acceptance releases minimal identity, not private application contents or
-      // unpublished captain/team metadata. Select only the fields intended for release.
-      const accepted = await tx
-        .select({
-          osuId: users.osuId,
-          username: users.username,
-          editionSlug: registrations.editionSlug,
-        })
-        .from(registrations)
-        .innerJoin(users, eq(users.osuId, registrations.userId))
-        .where(
-          and(
-            inArray(registrations.editionSlug, slugs),
-            eq(registrations.status, "accepted"),
-            exactOsuId ? eq(registrations.userId, exactOsuId) : undefined,
-          ),
-        );
-      const publishedCaptains = await tx
-        .select({
-          osuId: users.osuId,
-          username: users.username,
-          editionSlug: captains.editionSlug,
-          teamId: teams.id,
-          teamName: teams.name,
-        })
-        .from(captains)
-        .innerJoin(users, eq(users.osuId, captains.userId))
-        .leftJoin(
-          teams,
-          and(
-            eq(teams.editionSlug, captains.editionSlug),
-            eq(teams.captainId, captains.userId),
-            eq(teams.identityPublished, true),
-            isNull(teams.archivedAt),
-          ),
-        )
-        .where(
-          and(
-            inArray(captains.editionSlug, slugs),
-            eq(captains.published, true),
-          ),
-        );
-      const roster = await tx
-        .select({
-          osuId: users.osuId,
-          username: users.username,
-          editionSlug: teams.editionSlug,
-          teamId: teams.id,
-          teamName: teams.name,
-          captainId: teams.captainId,
-        })
-        .from(teams)
-        .innerJoin(
-          captains,
-          and(
-            eq(captains.editionSlug, teams.editionSlug),
-            eq(captains.userId, teams.captainId),
-            eq(captains.published, true),
-          ),
-        )
-        .innerJoin(
-          memberships,
-          and(eq(memberships.teamId, teams.id), isNull(memberships.leftAt)),
-        )
-        .innerJoin(users, eq(users.osuId, memberships.userId))
-        .where(
-          and(
-            inArray(teams.editionSlug, slugs),
-            eq(teams.identityPublished, true),
-            eq(teams.rosterPublished, true),
-            isNotNull(teams.finalizedAt),
-            isNull(teams.archivedAt),
-          ),
-        );
-      const byIdentity = new Map<string, PublishedPlayer>(
-        accepted.map((p) => [
-          `${p.editionSlug}:${p.osuId}`,
-          {
-            ...p,
-            editionName: editions.find((e) => e.slug === p.editionSlug)!.name,
-            team: null,
-            captain: false,
-            participation: "accepted",
-          },
-        ]),
+  if (!process.env.DATABASE_URL)
+    return { rows: [] as PublishedPlayer[], total: 0, filters };
+  return readOnlyData(async () => {
+    // Post-response callers must recheck the selected edition against saved data.
+    const row = filters.edition
+      ? await readTournament(filters.edition, db(), true)
+      : null;
+    const editions = filters.edition
+      ? row
+        ? [row.edition]
+        : []
+      : await getPublicEditions();
+    return publicPlayersForEditions(filters, editions, exactOsuId);
+  });
+}
+
+/** Reuse editions already checked in the caller's current read snapshot. */
+export async function publicPlayersForEditions(
+  filters: ReturnType<typeof publicPlayerFilters>,
+  editions: Pick<Edition, "slug" | "name" | "published">[],
+  exactOsuId?: number,
+) {
+  const slugs = editions
+    .filter(
+      (edition) =>
+        edition.published &&
+        (!filters.edition || edition.slug === filters.edition),
+    )
+    .map((edition) => edition.slug);
+  if (!slugs.length)
+    return { rows: [] as PublishedPlayer[], total: 0, filters };
+  return readOnlyData(async () => {
+    const tx = db();
+    // Acceptance releases minimal identity, not private application contents or
+    // unpublished captain/team metadata. Select only the fields intended for release.
+    const accepted = await tx
+      .select({
+        osuId: users.osuId,
+        username: users.username,
+        editionSlug: registrations.editionSlug,
+      })
+      .from(registrations)
+      .innerJoin(users, eq(users.osuId, registrations.userId))
+      .where(
+        and(
+          inArray(registrations.editionSlug, slugs),
+          eq(registrations.status, "accepted"),
+          exactOsuId ? eq(registrations.userId, exactOsuId) : undefined,
+        ),
       );
-      for (const p of publishedCaptains) {
-        if (!byIdentity.has(`${p.editionSlug}:${p.osuId}`)) continue;
-        byIdentity.set(`${p.editionSlug}:${p.osuId}`, {
-          osuId: p.osuId,
-          username: p.username,
-          editionSlug: p.editionSlug,
+    const publishedCaptains = await tx
+      .select({
+        osuId: users.osuId,
+        username: users.username,
+        editionSlug: captains.editionSlug,
+        teamId: teams.id,
+        teamName: teams.name,
+      })
+      .from(captains)
+      .innerJoin(users, eq(users.osuId, captains.userId))
+      .leftJoin(
+        teams,
+        and(
+          eq(teams.editionSlug, captains.editionSlug),
+          eq(teams.captainId, captains.userId),
+          eq(teams.identityPublished, true),
+          isNull(teams.archivedAt),
+        ),
+      )
+      .where(
+        and(inArray(captains.editionSlug, slugs), eq(captains.published, true)),
+      );
+    const roster = await tx
+      .select({
+        osuId: users.osuId,
+        username: users.username,
+        editionSlug: teams.editionSlug,
+        teamId: teams.id,
+        teamName: teams.name,
+        captainId: teams.captainId,
+      })
+      .from(teams)
+      .innerJoin(
+        captains,
+        and(
+          eq(captains.editionSlug, teams.editionSlug),
+          eq(captains.userId, teams.captainId),
+          eq(captains.published, true),
+        ),
+      )
+      .innerJoin(
+        memberships,
+        and(eq(memberships.teamId, teams.id), isNull(memberships.leftAt)),
+      )
+      .innerJoin(users, eq(users.osuId, memberships.userId))
+      .where(
+        and(
+          inArray(teams.editionSlug, slugs),
+          eq(teams.identityPublished, true),
+          eq(teams.rosterPublished, true),
+          isNotNull(teams.finalizedAt),
+          isNull(teams.archivedAt),
+        ),
+      );
+    const byIdentity = new Map<string, PublishedPlayer>(
+      accepted.map((p) => [
+        `${p.editionSlug}:${p.osuId}`,
+        {
+          ...p,
           editionName: editions.find((e) => e.slug === p.editionSlug)!.name,
-          team: p.teamId ? { id: p.teamId, name: p.teamName! } : null,
-          captain: true,
-          participation: "captain",
-        });
-      }
-      for (const p of roster) {
-        if (!byIdentity.has(`${p.editionSlug}:${p.osuId}`)) continue;
-        byIdentity.set(`${p.editionSlug}:${p.osuId}`, {
-          osuId: p.osuId,
-          username: p.username,
-          editionSlug: p.editionSlug,
-          editionName: editions.find((e) => e.slug === p.editionSlug)!.name,
-          team: { id: p.teamId, name: p.teamName },
-          captain: p.osuId === p.captainId,
-          participation: "finalized_roster",
-        });
-      }
-      const coaches = await tx
-        .select({
-          osuId: users.osuId,
-          username: users.username,
-          editionSlug: teams.editionSlug,
-          teamId: teams.id,
-          teamName: teams.name,
-        })
-        .from(teamCoaches)
-        .innerJoin(users, eq(users.osuId, teamCoaches.userId))
-        .innerJoin(teams, eq(teams.id, teamCoaches.teamId))
-        .innerJoin(
-          captains,
-          and(
-            eq(captains.editionSlug, teams.editionSlug),
-            eq(captains.userId, teams.captainId),
-            eq(captains.published, true),
-          ),
-        )
-        .where(
-          and(
-            inArray(teams.editionSlug, slugs),
-            eq(teams.identityPublished, true),
-            eq(teams.rosterPublished, true),
-            isNotNull(teams.finalizedAt),
-            isNull(teams.archivedAt),
-          ),
-        );
-      for (const c of coaches) {
-        const key = `${c.editionSlug}:${c.osuId}`,
-          previous = byIdentity.get(key);
-        const team = { id: c.teamId, name: c.teamName };
-        byIdentity.set(key, {
-          ...(previous ?? {
-            osuId: c.osuId,
-            username: c.username,
-            editionSlug: c.editionSlug,
-            editionName: editions.find((e) => e.slug === c.editionSlug)!.name,
-            team,
-            captain: false,
-            participation: "coach" as const,
-          }),
-          coachedTeams: [...(previous?.coachedTeams ?? []), team],
-        });
-      }
-      const q = filters.q.toLowerCase();
-      const aliases = q
-        ? await (
-            await import("./player-identity")
-          ).visiblePlayerNames([...byIdentity.values()].map((p) => p.osuId))
-        : [];
-      const matching = [...byIdentity.values()]
-        .filter((p) =>
-          exactOsuId
-            ? p.osuId === exactOsuId
-            : p.username.toLowerCase().includes(q) ||
-              String(p.osuId) === q ||
-              aliases.some(
-                (n) =>
-                  n.osuId === p.osuId && n.username.toLowerCase().includes(q),
-              ),
-        )
-        .sort(
-          (a, b) =>
-            a.editionName.localeCompare(b.editionName) ||
-            a.username.localeCompare(b.username) ||
-            a.osuId - b.osuId,
-        );
-      return {
-        // Legacy page parameters remain valid, but never hide directory entries.
-        rows: matching,
-        total: matching.length,
-        filters,
-      };
-    },
-    { isolationLevel: "repeatable read" },
-  );
+          team: null,
+          captain: false,
+          participation: "accepted",
+        },
+      ]),
+    );
+    for (const p of publishedCaptains) {
+      if (!byIdentity.has(`${p.editionSlug}:${p.osuId}`)) continue;
+      byIdentity.set(`${p.editionSlug}:${p.osuId}`, {
+        osuId: p.osuId,
+        username: p.username,
+        editionSlug: p.editionSlug,
+        editionName: editions.find((e) => e.slug === p.editionSlug)!.name,
+        team: p.teamId ? { id: p.teamId, name: p.teamName! } : null,
+        captain: true,
+        participation: "captain",
+      });
+    }
+    for (const p of roster) {
+      if (!byIdentity.has(`${p.editionSlug}:${p.osuId}`)) continue;
+      byIdentity.set(`${p.editionSlug}:${p.osuId}`, {
+        osuId: p.osuId,
+        username: p.username,
+        editionSlug: p.editionSlug,
+        editionName: editions.find((e) => e.slug === p.editionSlug)!.name,
+        team: { id: p.teamId, name: p.teamName },
+        captain: p.osuId === p.captainId,
+        participation: "finalized_roster",
+      });
+    }
+    const coaches = await tx
+      .select({
+        osuId: users.osuId,
+        username: users.username,
+        editionSlug: teams.editionSlug,
+        teamId: teams.id,
+        teamName: teams.name,
+      })
+      .from(teamCoaches)
+      .innerJoin(users, eq(users.osuId, teamCoaches.userId))
+      .innerJoin(teams, eq(teams.id, teamCoaches.teamId))
+      .innerJoin(
+        captains,
+        and(
+          eq(captains.editionSlug, teams.editionSlug),
+          eq(captains.userId, teams.captainId),
+          eq(captains.published, true),
+        ),
+      )
+      .where(
+        and(
+          inArray(teams.editionSlug, slugs),
+          eq(teams.identityPublished, true),
+          eq(teams.rosterPublished, true),
+          isNotNull(teams.finalizedAt),
+          isNull(teams.archivedAt),
+        ),
+      );
+    for (const c of coaches) {
+      const key = `${c.editionSlug}:${c.osuId}`,
+        previous = byIdentity.get(key);
+      const team = { id: c.teamId, name: c.teamName };
+      byIdentity.set(key, {
+        ...(previous ?? {
+          osuId: c.osuId,
+          username: c.username,
+          editionSlug: c.editionSlug,
+          editionName: editions.find((e) => e.slug === c.editionSlug)!.name,
+          team,
+          captain: false,
+          participation: "coach" as const,
+        }),
+        coachedTeams: [...(previous?.coachedTeams ?? []), team],
+      });
+    }
+    const q = filters.q.toLowerCase();
+    const aliases = q
+      ? await (
+          await import("./player-identity")
+        ).visiblePlayerNames([...byIdentity.values()].map((p) => p.osuId))
+      : [];
+    const matching = [...byIdentity.values()]
+      .filter((p) =>
+        exactOsuId
+          ? p.osuId === exactOsuId
+          : p.username.toLowerCase().includes(q) ||
+            String(p.osuId) === q ||
+            aliases.some(
+              (n) =>
+                n.osuId === p.osuId && n.username.toLowerCase().includes(q),
+            ),
+      )
+      .sort(
+        (a, b) =>
+          a.editionName.localeCompare(b.editionName) ||
+          a.username.localeCompare(b.username) ||
+          a.osuId - b.osuId,
+      );
+    return {
+      // Legacy page parameters remain valid, but never hide directory entries.
+      rows: matching,
+      total: matching.length,
+      filters,
+    };
+  });
 }
 async function databasePublicPlayer(osuId: number, edition?: string) {
   const rows = (await publicPlayers(edition ? { edition } : {}, osuId)).rows;
@@ -328,8 +350,7 @@ export async function publicPlayerStillListed(
   osuId: number,
   edition?: string,
 ): Promise<boolean> {
-  if (remoteMode())
-    return (await publicPlayer(osuId, edition)).length > 0;
+  if (remoteMode()) return (await publicPlayer(osuId, edition)).length > 0;
   const editions = (await getPublicEditions()).filter(
     (e) => !edition || e.slug === edition,
   );

@@ -196,10 +196,24 @@ describe.skipIf(!url)("bounded public directory statistics", () => {
         ...profileResponse,
         id: Number(path.split("/")[2]),
       }));
-    const ids = Array.from({ length: 24 }, (_, i) => base + i);
-    const refreshing = refreshDirectoryStatistics(ids);
+    const ids = [base + 2, ...Array.from({ length: 24 }, (_, i) => base + i)];
+    const check = Promise.withResolvers<void>();
+    const visible = vi.fn(async () => {
+      await check.promise;
+      const current = await publicPlayers({ edition: "test-cup" });
+      return new Set(current.rows.map((player) => player.osuId));
+    });
+    const refreshing = refreshDirectoryStatistics(ids, visible);
+    try {
+      await refreshDirectoryStatistics(ids.slice(2), visible);
+      expect(visible).toHaveBeenCalledTimes(1);
+      expect(provider).not.toHaveBeenCalled();
+    } finally {
+      check.resolve();
+    }
     await vi.waitFor(() => expect(provider).toHaveBeenCalledTimes(1));
-    await refreshDirectoryStatistics(ids.slice(2));
+    await refreshDirectoryStatistics(ids.slice(2), visible);
+    expect(visible).toHaveBeenCalledTimes(1);
     expect(provider).toHaveBeenCalledTimes(1);
     release({ ...profileResponse, id: base });
     await refreshing;
@@ -208,7 +222,7 @@ describe.skipIf(!url)("bounded public directory statistics", () => {
       `/users/${base}/osu?key=id`,
       `/users/${base + 1}/osu?key=id`,
     ]);
-    await refreshDirectoryStatistics(ids);
+    await refreshDirectoryStatistics(ids, visible);
     expect(provider).toHaveBeenCalledTimes(2);
   });
   it("preserves cached values and records backoff when a bounded refresh fails", async () => {
@@ -218,7 +232,7 @@ describe.skipIf(!url)("bounded public directory statistics", () => {
     const { HttpError } = await import("../../src/lib/http");
     await cache(base, 12345, 7890.45, true);
     provider.mockRejectedValue(new HttpError(503, "PRIVATE_PROVIDER_BODY"));
-    await fresh.refreshDirectoryStatistics([base]);
+    await fresh.refreshDirectoryStatistics([base], async () => new Set([base]));
     expect(
       (await fresh.cachedDirectoryStatistics([base])).statistics.get(base),
     ).toMatchObject({ globalRank: 12345, pp: 7890.45, stale: true });

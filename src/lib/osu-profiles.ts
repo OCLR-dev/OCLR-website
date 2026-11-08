@@ -149,10 +149,18 @@ export async function cachedDirectoryStatistics(osuIds: number[]) {
 let directoryRefreshAfter = 0;
 /** Post-response only: at most two sequential lookups per 10s per Node process.
  * Existing profile claims/backoff and the shared provider pacer still apply. */
-export async function refreshDirectoryStatistics(osuIds: number[]) {
+export async function refreshDirectoryStatistics(
+  osuIds: number[],
+  readVisibleIds: () => Promise<ReadonlySet<number>>,
+) {
   if (!osuIds.length || Date.now() < directoryRefreshAfter) return;
   directoryRefreshAfter = Date.now() + 10000;
-  for (const id of [...new Set(osuIds)].slice(0, 2)) {
+  // Reserve the slot before doing database work so concurrent renders do not
+  // all reload the directory just to discover that a refresh is already queued.
+  const visible = await readVisibleIds();
+  for (const id of [...new Set(osuIds)]
+    .filter((id) => visible.has(id))
+    .slice(0, 2)) {
     try {
       await getOsuUserProfile(id, "osu");
     } catch {

@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import Players from "../../src/app/tournaments/[edition]/players/page";
-import { publicPlayers } from "../../src/lib/players";
+import { publicPlayers, publicPlayersForEditions } from "../../src/lib/players";
 import { getPublicEdition } from "../../src/lib/content";
 import {
   cachedDirectoryStatistics,
@@ -35,10 +35,14 @@ vi.mock("../../src/lib/player-identity", () => ({
 vi.mock("../../src/lib/players", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../src/lib/players")>()),
   publicPlayers: vi.fn(),
+  publicPlayersForEditions: vi.fn(),
 }));
-vi.mock("../../src/lib/draft", () => ({ publicDraft: async () => null }));
+vi.mock("../../src/lib/draft", () => ({ releasedDraftData: async () => null }));
 vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
-vi.mock("../../src/db", () => ({ db: () => ({}) }));
+vi.mock("../../src/db", () => ({
+  db: () => ({ transaction: (read: () => unknown) => read() }),
+  readOnlyData: (read: () => unknown) => read(),
+}));
 vi.mock("../../src/lib/tournaments", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../src/lib/tournaments")>()),
   readTournament: vi.fn(async () => {
@@ -90,6 +94,7 @@ describe("cache-first edition player cards", () => {
     callbacks.length = 0;
     vi.mocked(getPublicEdition).mockResolvedValue(edition);
     vi.mocked(publicPlayers).mockResolvedValue(result());
+    vi.mocked(publicPlayersForEditions).mockResolvedValue(result());
     vi.mocked(cachedDirectoryStatistics).mockResolvedValue({
       statistics: new Map([
         [
@@ -127,9 +132,10 @@ describe("cache-first edition player cards", () => {
     expect(refreshDirectoryStatistics).not.toHaveBeenCalled();
     expect(callbacks).toHaveLength(1);
     await callbacks[0]();
-    expect(refreshDirectoryStatistics).toHaveBeenCalledExactlyOnceWith([
-      1220001,
-    ]);
+    expect(refreshDirectoryStatistics).toHaveBeenCalledExactlyOnceWith(
+      [1220001],
+      expect.any(Function),
+    );
   });
   it("rechecks publication after rendering before requesting refresh", async () => {
     await html();
@@ -139,7 +145,12 @@ describe("cache-first edition player cards", () => {
       total: 0,
     });
     await callbacks[0]();
-    expect(refreshDirectoryStatistics).toHaveBeenCalledExactlyOnceWith([]);
+    const [, readVisibleIds] = vi.mocked(refreshDirectoryStatistics).mock
+      .calls[0];
+    expect(await readVisibleIds()).toEqual(new Set());
+    expect(publicPlayers).toHaveBeenCalledExactlyOnceWith({
+      edition: edition.slug,
+    });
   });
   it("keeps identity/navigation available when the cache fails and does not start upstream work", async () => {
     vi.mocked(cachedDirectoryStatistics).mockRejectedValue(

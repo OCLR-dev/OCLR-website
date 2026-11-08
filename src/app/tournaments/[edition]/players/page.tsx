@@ -8,7 +8,10 @@ import { remotePage } from "@/lib/remote-page";
 
 import { EventPlayers } from "@/components/event-players";
 import { eventPreview } from "@/lib/event-preview";
-import { historicalPage } from "@/components/historical-archive";
+import {
+  HistoricalArchiveView,
+  historicalPage,
+} from "@/components/historical-archive";
 import { getAppTranslations } from "@/i18n/server";
 import { publicPlayers, publicPlayerFilters } from "@/lib/players";
 import { directoryKeys, publicDirectoryPlayer } from "@/lib/player-directory";
@@ -38,13 +41,25 @@ async function PlayersContent({
   const tr = await getAppTranslations();
 
   const { edition } = await params;
-  const archivePage = await historicalPage(edition, "players");
-  if (archivePage) return archivePage;
-  const currentEdition = remoteMode()
-    ? await frontendTournament(edition)
-    : await getPublicEdition(edition);
-  if (!currentEdition) notFound();
-  const preview = remoteMode() ? null : eventPreview(edition);
+  const remote = remoteMode();
+  if (remote) {
+    const archivePage = await historicalPage(edition, "players");
+    if (archivePage) return archivePage;
+    if (!(await frontendTournament(edition))) notFound();
+  } else {
+    // The edition layout already uses this request-scoped read.
+    const currentEdition = await getPublicEdition(edition);
+    if (!currentEdition) notFound();
+    if (currentEdition.archive)
+      return (
+        <HistoricalArchiveView
+          edition={currentEdition}
+          archive={currentEdition.archive}
+          section="players"
+        />
+      );
+  }
+  const preview = remote ? null : eventPreview(edition);
   if (preview)
     return (
       <>
@@ -78,12 +93,11 @@ async function PlayersContent({
   if (refreshIds.length)
     after(async () => {
       try {
-        // A publication or registration decision may change after rendering.
-        const current = await publicPlayers({ edition });
-        const visible = new Set(current.rows.map((p) => p.osuId));
-        await refreshDirectoryStatistics(
-          refreshIds.filter((id) => visible.has(id)),
-        );
+        await refreshDirectoryStatistics(refreshIds, async () => {
+          // A publication or registration decision may change after rendering.
+          const current = await publicPlayers({ edition });
+          return new Set(current.rows.map((p) => p.osuId));
+        });
       } catch {
         // Stats refresh must never prevent an otherwise usable public directory.
       }
@@ -94,7 +108,7 @@ async function PlayersContent({
       <PageHeading title={tr("Players")} />
       <EventPlayers
         edition={edition}
-        remote={remoteMode()}
+        remote={remote}
         signedIn={Boolean(viewer)}
         viewerId={viewer?.osuId}
         grouped={rows.some((p) => p.participation === "finalized_roster")}

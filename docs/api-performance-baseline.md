@@ -106,3 +106,50 @@ fixture. Use the query-count upper bounds and control p95 ranges above as
 provisional review thresholds on the same machine and workload. When a change
 exceeds either, repeat the benchmark with both mode orders and investigate a
 persistent change. Latency thresholds here are local comparison points.
+
+## Player directory SSR follow-up
+
+A separate driver trace on the synthetic anonymous player page grouped each
+statement by pool checkout, counting only work through response close. All
+103 traced responses made 11 acquisitions:
+
+| Work before response close                                                                                      | Acquisitions |
+| --------------------------------------------------------------------------------------------------------------- | -----------: |
+| Site default                                                                                                    |            1 |
+| Edition state for the layout, historical check, directory context, directory edition list and appearance scopes |            5 |
+| Published draft checks for the layout and the directory Tiers                                                   |            2 |
+| Public roster transaction, public name evidence and saved profile cache                                         |            3 |
+
+The original #1015 report also counted an acquisition from `after()`.
+The sampler holds a reference to each sample until reporting, so work that
+starts after response close can update its driver counters. The latency
+measurement ends when the HTTP client consumes the response.
+
+The page now shares the layout's request-scoped edition read. The directory
+reuses its edition record and one read-only transaction for the roster,
+public name evidence, saved statistics, introductions and Tier evidence.
+Archive projections for name evidence are loaded only when a published
+archive alias needs verification. Draft data joins the edition's pool
+visibility with the released snapshot and can read its turn sequence and
+revision in the same statement. The profile refresh checks its throttle
+before reloading the published roster. An admitted refresh still reloads
+current publication and registration data before contacting the provider.
+
+The first before/after pair used the unchanged `perf:api` runner, Node.js
+24.22.2 and PostgreSQL 17.11, with a fresh database for each build. Both
+runs returned HTTP 200 for all 1,030 requests. The after run overlapped
+the integration suite, so compare the SQL and checkout counts directly
+and treat the latency result as a preliminary observation.
+
+| Player-page SSR metric                   | Before (`c37d4dc1`) |    After |
+| ---------------------------------------- | ------------------: | -------: |
+| Pool acquisitions p95, serial / 12 lanes |             12 / 12 |    5 / 5 |
+| Driver calls p95, serial / 12 lanes      |             26 / 25 |  20 / 21 |
+| Control HTTP p95, serial                 |             34.6 ms |  36.3 ms |
+| Control HTTP p95, 12 lanes               |            266.1 ms | 300.6 ms |
+| Decoded response bytes p95, 12 lanes     |             372,649 |  372,649 |
+
+The 12-lane directory API also used fewer driver calls at p95, from 18
+to 13, while retaining one acquisition. The SSR acquisition savings
+do not establish a latency improvement. The unmodified measurement
+still includes some post-response driver work.
