@@ -10,7 +10,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { remoteMode } from "./data-source";
 import { previewConfigurations } from "./difficulty-display";
 import { difficultySnapshotSchema } from "./difficulty-snapshot";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type {
   DifficultyConfiguration,
   DifficultySnapshot,

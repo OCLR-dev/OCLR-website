@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 export const profileModes = ["osu", "taiko", "fruits", "mania"] as const;
 export const profileMode = z.enum(profileModes);
 export type ProfileMode = z.infer<typeof profileMode>;

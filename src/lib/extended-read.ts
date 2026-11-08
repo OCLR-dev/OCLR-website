@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type { DeveloperReadPrincipal } from "./developer-api";
 const slugSchema = z
   .string()

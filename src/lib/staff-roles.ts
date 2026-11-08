@@ -14,7 +14,7 @@ import {
   staffRoleChange,
   staffRoleSet,
 } from "./staff-administration-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type StaffRoleList = ExplicitReadData<"listStaffRoles">;
 async function databaseListStaffRoles(actor: User): Promise<StaffRoleList> {

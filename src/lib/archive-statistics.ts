@@ -59,7 +59,7 @@ import {
   type HistoricalArchive,
 } from "./historical-archive";
 import { changeHistoricalStatisticsWrite } from "./results-publication-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 import { fetchMatchSource } from "./osu-matches";
 import { readTournament } from "./tournaments";

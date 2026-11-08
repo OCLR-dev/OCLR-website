@@ -50,7 +50,7 @@ export {
   refereeCommandSchema,
   type RefereeCommand,
 } from "./referee-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   defaultRefereeRoomName,
   emptyRefereeSettings,

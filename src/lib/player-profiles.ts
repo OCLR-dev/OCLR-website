@@ -11,7 +11,7 @@ import {
 import { publicPlayer, publicPlayerStillListed } from "./players";
 import { cachedOsuUserProfile, getOsuUserProfile } from "./osu-profiles";
 import { parseOsuProfile } from "./osu-profile-model";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { safeSavedOsuProfile } from "./read-api-contract";
 import { knownPlayerIdentity } from "./player-identity";
 import type { ProfileSnapshot, ProfileMode } from "./osu-profile-model";

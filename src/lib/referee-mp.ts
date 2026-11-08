@@ -21,7 +21,7 @@ import {
   type RefereeMpView,
 } from "./referee-write-contracts";
 export type { RefereeMpView } from "./referee-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   assertRefereeAccess,
   readRefereeWorkspace,

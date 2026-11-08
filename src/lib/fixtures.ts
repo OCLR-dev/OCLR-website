@@ -59,7 +59,7 @@ import {
   assignFixtureRefereesWrite,
   fixtureCommandInput,
 } from "./fixture-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { persistRoundRefereePolicy } from "./round-referee-policy";
 import { refereePolicyForWins } from "./referee-series";
 import { refereePolicySchema } from "./referee-model";

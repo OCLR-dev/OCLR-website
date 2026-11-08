@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST as register } from "../../src/app/api/tournaments/[edition]/registrations/route";
 import { POST as configureDraft } from "../../src/app/api/admin/tournaments/[edition]/draft/route";
 import { requireUser } from "../../src/lib/auth/user";
-import { requireStaff } from "../../src/lib/auth/staff";
+import { requireStaff } from "../../src/lib/auth/staff-request";
 import {
   submitRegistration,
   validateApplication,
@@ -22,7 +22,7 @@ import {
 } from "../fixtures/request-body";
 
 vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
-vi.mock("../../src/lib/auth/staff", () => ({ requireStaff: vi.fn() }));
+vi.mock("../../src/lib/auth/staff-request", () => ({ requireStaff: vi.fn() }));
 vi.mock("../../src/lib/registrations", async (original) => ({
   ...(await original<typeof import("../../src/lib/registrations")>()),
   submitRegistration: vi.fn(),

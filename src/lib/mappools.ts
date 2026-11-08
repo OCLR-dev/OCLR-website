@@ -31,7 +31,7 @@ import {
   singleBeatmapPreviewInput,
   type MappoolBatchPreview,
 } from "./mappool-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   loadSavedDifficulties,
   selectSavedDifficulty,

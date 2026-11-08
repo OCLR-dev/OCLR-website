@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { remoteMode } from "./data-source";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { inReadChannel } from "./read-channel";
 // Server-only callers use fixed API paths. Tokens never leave this module.
 let token: { value: string; expiresAt: number; key: string } | undefined;

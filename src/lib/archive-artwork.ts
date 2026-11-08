@@ -1,4 +1,4 @@
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { fetchBeatmaps } from "./osu-beatmaps";
 
 // Artwork is current official metadata, separate from immutable archival statistics.

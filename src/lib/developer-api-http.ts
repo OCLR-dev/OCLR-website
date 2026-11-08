@@ -13,7 +13,8 @@ import {
   developerOriginAllowed,
   type DeveloperApiScope,
 } from "./developer-api-model";
-import { appUrl, HttpError } from "./http";
+import { appUrl } from "./app-url";
+import { HttpError } from "./http-error";
 import type { ReadPayload } from "./read-api-contract";
 import { withReadChannel } from "./read-channel";
 import type { ReadMedia } from "./read-media";

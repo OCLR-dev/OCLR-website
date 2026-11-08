@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { open, rename, unlink, readFile, lstat } from "node:fs/promises";
 import { join } from "node:path";
 import sharp from "sharp";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { TEAM_IMAGE_MAX_BYTES } from "./request-body-limits";
 export { TEAM_IMAGE_MAX_BYTES } from "./request-body-limits";
 const directory = () => mediaDirectory("teams");

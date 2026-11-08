@@ -6,7 +6,7 @@ import {
   lookupArchiveStaffWrite,
   type ArchiveStaffCandidate,
 } from "./archive-staff-write-contract";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 
 /** Provider resolution is explicit, edition-authorized and never a public GET. */
 export async function lookupArchiveStaffIdentity(

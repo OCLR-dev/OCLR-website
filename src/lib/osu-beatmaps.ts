@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { osuApi } from "./osu-api";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { baseDifficulty, previewConfigurations } from "./difficulty-display";
 import {
   difficultyMods,

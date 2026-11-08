@@ -1,3 +1,4 @@
+import { HttpError } from "./http-error";
 import { frontendResource, assertRemoteSubject } from "./frontend-resource";
 import { remoteMode } from "./data-source";
 import { db } from "@/db";
@@ -50,7 +51,7 @@ async function databasePrivateSavedTournament(
 ): Promise<SavedTournament> {
   const record = await readTournament(slug);
   if (!record)
-    throw new (await import("./http")).HttpError(404, "Tournament not found.");
+    throw new HttpError(404, "Tournament not found.");
   return record;
 }
 export async function privateSavedTournament(
@@ -134,7 +135,7 @@ async function databasePublicEnrollmentState(
 ): Promise<PublicEnrollmentState> {
   const edition = await (await import("./content")).getPublicEdition(slug);
   if (!edition)
-    throw new (await import("./http")).HttpError(404, "Tournament not found.");
+    throw new HttpError(404, "Tournament not found.");
   return (await import("./registrations")).registrationAvailability(edition);
 }
 export async function publicEnrollmentState(
@@ -174,7 +175,7 @@ async function databaseOwnEligibility(
 ): Promise<OwnEligibility> {
   const record = await databasePublicEnrollment(slug);
   if (!record)
-    throw new (await import("./http")).HttpError(404, "Tournament not found.");
+    throw new HttpError(404, "Tournament not found.");
   const { evaluateEligibility, hasEligibilityLimits, noEligibilityLimits } =
     await import("./eligibility-model");
   const limits = record.edition.automaticEligibility ?? noEligibilityLimits;
@@ -200,7 +201,7 @@ export async function publicConfigurationModel(
 ): Promise<PublicConfiguration> {
   const record = await databasePublicEnrollment(slug);
   if (!record)
-    throw new (await import("./http")).HttpError(404, "Tournament not found.");
+    throw new HttpError(404, "Tournament not found.");
   const {
     slug: editionSlug,
     name,
@@ -264,7 +265,7 @@ async function databaseOwnRegistrationForm(
   void actor; // The authenticated subject is injected by the route, never selected by a query argument.
   const record = await databasePublicEnrollment(slug);
   if (!record)
-    throw new (await import("./http")).HttpError(404, "Tournament not found.");
+    throw new HttpError(404, "Tournament not found.");
   return (await (
     await import("./registrations")
   ).registrationAvailability(record.edition)) === "open"

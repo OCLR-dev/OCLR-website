@@ -11,7 +11,7 @@ import {
 import type { User } from "./auth/sessions";
 import { assertCapability } from "./auth/staff";
 import { changeRefereeIrcBrowserWrite } from "./referee-irc-browser-contract";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   assertRefereeAccess,
   readRefereeWorkspace,

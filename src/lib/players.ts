@@ -14,7 +14,7 @@ import {
 import { getPublicEditions } from "./content";
 import type { Edition } from "./editions";
 import { readTournament } from "./tournaments";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { parseOsuProfile } from "./osu-profile-model";
 import { remoteMode } from "./data-source";
 import { frontendResource } from "./frontend-resource";

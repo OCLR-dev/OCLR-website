@@ -4,7 +4,7 @@ import { fixtures, tournamentRounds, tournamentStages } from "@/db/schema";
 import { approvedRatingGames } from "./approved-rating-games";
 import { publicArchiveStatistics } from "./archive-statistics";
 import { remoteMode } from "./data-source";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type { PublishedPlayer } from "./players";
 import type { RatingGame } from "./yumu-rating";
 

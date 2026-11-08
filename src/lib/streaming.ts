@@ -43,7 +43,7 @@ import {
   streamingTaskWrite,
   type StreamingTaskReceipt,
 } from "./scheduling-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 export type StreamingWorkspace = ExplicitReadData<"streamingWorkspace">;
 

@@ -21,7 +21,7 @@ import {
 import { remoteMode } from "./data-source";
 import type { EditionConfiguration } from "./editions";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   registrationAnswerValues,
   registrationMetadata,

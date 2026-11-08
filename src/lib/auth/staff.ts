@@ -2,10 +2,9 @@ import { db } from "@/db";
 import { staffRoles } from "@/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
 import { remoteMode } from "../data-source";
-import { HttpError } from "../http";
+import { HttpError } from "../http-error";
 import { inReadChannel } from "../read-channel";
 import type { User } from "./sessions";
-import { requireUser } from "./user";
 import type { ExplicitReadData } from "../explicit-read-contracts";
 import type { StaffRole } from "../staff-role-model";
 
@@ -152,12 +151,6 @@ export async function assertCapability(
 }
 export async function isStaff(user: User) {
   return (await staffAccess(user)).length > 0;
-}
-export async function requireStaff() {
-  const user = await requireUser();
-  if (!(await isStaff(user)))
-    throw new HttpError(403, "Staff access is required.");
-  return user;
 }
 function scopeFor(grants: readonly StaffGrant[], capability: Capability) {
   const allowed = grants.filter((g) =>

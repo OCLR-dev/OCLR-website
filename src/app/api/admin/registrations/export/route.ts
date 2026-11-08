@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireStaff } from "@/lib/auth/staff-request";
 import { exportApplications } from "@/lib/staff";
 import { csv } from "@/lib/csv";
 import { apiError } from "@/lib/http";

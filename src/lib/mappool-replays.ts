@@ -14,7 +14,7 @@ import { assertCapability, assertReadCapability } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   REPLAY_ENTRY_LIMIT,
   REPLAY_MAX_BYTES,

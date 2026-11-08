@@ -21,7 +21,7 @@ import {
   validStatisticsExclusions,
 } from "./archive-statistics-model";
 import { parseStatisticsSnapshot } from "./statistics-snapshot";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 
 /** Operator maintenance, not a web route or a permission bypass. Default is read-only. */
 export async function correctS2PoolData(

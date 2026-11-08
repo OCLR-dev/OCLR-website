@@ -25,7 +25,7 @@ import {
   normalizeEditionBranding,
 } from "./editions";
 import { changeTeamsWrite } from "./draft-setup-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { getOsuUserProfile } from "./osu-profiles";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type PublishedTeams = ExplicitReadData<"publishedTeams">;

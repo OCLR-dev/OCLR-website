@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { mappools, mappoolEntries } from "@/db/schema";
 import { getPublicEditions } from "./content";
 import { readTournament } from "./tournaments";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { remoteMode } from "./data-source";
 import { slotLabel, type MappoolCategory } from "./mappool-model";
 import { compareTournamentSeasons } from "./tournament-order";

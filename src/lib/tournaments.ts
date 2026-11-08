@@ -41,7 +41,7 @@ import { compareTournamentSeasons } from "./tournament-order";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { draftSetupProtection } from "./draft-setup";
 import { refreshDraftSnapshot } from "./draft";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { confirmArchiveStaffIdentity } from "./archive-staff-identity-model";
 import {
   changeTournamentWrite,

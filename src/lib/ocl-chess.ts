@@ -8,7 +8,7 @@ import {
   hasCapability,
 } from "./auth/staff";
 import type { User } from "./auth/sessions";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   moderateChessWrite,
   placeChessPixelWrite,

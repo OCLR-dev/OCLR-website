@@ -1,7 +1,7 @@
 import { RegistrationList } from "@/components/registration-list";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";
 export async function generateMetadata() {
   const tr = await getAppTranslations();

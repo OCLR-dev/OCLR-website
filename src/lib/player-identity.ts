@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { playerNames, users } from "@/db/schema";
 import { getPublicEditions } from "./content";
 import { historicalStaffHistory } from "./archive-staff-history";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import type { PublishedPlayer } from "./players";
 
 export type NameEvidence = {

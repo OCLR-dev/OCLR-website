@@ -6,7 +6,7 @@ import { publicArchiveStatistics } from "./archive-statistics";
 import { readTournaments } from "./tournaments";
 import { remoteMode } from "./data-source";
 import { inReadChannel } from "./read-channel";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import { projectPlayerLeaderboard } from "./player-leaderboard-projector";
 import {
   leaderboardSource,

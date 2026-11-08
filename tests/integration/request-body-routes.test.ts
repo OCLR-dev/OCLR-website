@@ -30,10 +30,7 @@ vi.mock("../../src/lib/auth/user", async (original) => ({
   ...(await original<typeof import("../../src/lib/auth/user")>()),
   requireUser: async () => state.actor,
 }));
-vi.mock("../../src/lib/auth/staff", async (original) => ({
-  ...(await original<typeof import("../../src/lib/auth/staff")>()),
-  requireStaff: async () => state.actor,
-}));
+vi.mock("../../src/lib/auth/staff-request", () => ({ requireStaff: async () => state.actor }));
 const url = process.env.TEST_DATABASE_URL;
 const context = { params: Promise.resolve({ edition: "test-cup" }) };
 function request(body: string) {

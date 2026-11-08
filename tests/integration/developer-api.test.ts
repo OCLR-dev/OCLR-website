@@ -53,6 +53,7 @@ import { DELETE as revoke } from "../../src/app/api/developer/tokens/[tokenId]/r
 import { PATCH as saveAppearance } from "../../src/app/api/admin/settings/route";
 import { GET as legacyProfile } from "../../src/app/api/players/[osuId]/route";
 import { auditLog } from "../../src/lib/audit";
+import { requireStaff } from "../../src/lib/auth/staff-request";
 
 const browser = vi.hoisted(() => ({ headers: new Headers(), token: "" }));
 vi.mock("next/headers.js", () => ({
@@ -433,7 +434,9 @@ describe.skipIf(!url)("Developer API credentials (isolated PostgreSQL)", () => {
   });
   it("requires browser management with same-origin and bounded JSON, not a bearer/cookie combination", async () => {
     const credential = await issued();
+    await expect(requireStaff()).resolves.toMatchObject({ osuId: owner!.osuId });
     browser.headers.set("Authorization", `Bearer ${credential.token}`);
+    await expect(requireStaff()).rejects.toMatchObject({ status: 403 });
     expect((await list()).status).toBe(403);
     const forbidden = request(
       "/api/developer/tokens",
@@ -454,6 +457,7 @@ describe.skipIf(!url)("Developer API credentials (isolated PostgreSQL)", () => {
         .status,
     ).toBe(403);
     browser.token = "";
+    await expect(requireStaff()).rejects.toMatchObject({ status: 401 });
     expect((await list()).status).toBe(401);
     browser.token = ownerToken;
     const path = revokeDeveloperTokenWrite.path.replace(

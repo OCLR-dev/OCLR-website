@@ -1,6 +1,6 @@
 import { realpath, mkdir, lstat } from "node:fs/promises";
 import { isAbsolute, resolve, sep, join } from "node:path";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 
 /** One fail-closed policy for runtime, cleanup and release backup paths. */
 export async function mediaRoot(

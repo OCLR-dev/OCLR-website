@@ -6,7 +6,7 @@ import { assertCapability } from "./auth/staff";
 import type { User } from "./auth/sessions";
 import { assertOperationalEdition } from "./archive-guard";
 import { forceDeletePreviewInput } from "./fixture-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   forceDeleteBlockerMessage,
   forceDeleteCountKeys,

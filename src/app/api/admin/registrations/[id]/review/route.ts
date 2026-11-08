@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireStaff } from "@/lib/auth/staff-request";
 import { reviewApplication } from "@/lib/staff";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { reviewRegistrationWrite } from "@/lib/registration-write-contract";

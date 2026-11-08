@@ -35,7 +35,7 @@ import {
   pickPlayerWrite,
   type PickPlayerReceipt,
 } from "./draft-setup-write-contracts";
-import { HttpError } from "./http";
+import { HttpError } from "./http-error";
 import {
   draftSessionReadColumns,
   draftTurnSequence,

@@ -1,7 +1,7 @@
 import { liveSnapshot } from "@/lib/live-snapshot";
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
-import { requireStaff } from "@/lib/auth/staff";
+import { requireStaff } from "@/lib/auth/staff-request";
 import { draftCommand, staffDraft } from "@/lib/draft";
 import { changeDraftWrite } from "@/lib/draft-setup-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
