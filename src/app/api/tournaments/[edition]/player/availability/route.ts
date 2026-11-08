@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { availabilityWrite } from "@/lib/player-workspace-contracts";
 import {
   assertDirectPlayerWorkspace,
   playerTimetableCommand,
@@ -40,10 +41,10 @@ export async function POST(
     const result = await playerTimetableCommand(
       actor,
       edition,
-      await readJson(request),
+      await readJson(request, availabilityWrite.maxBodyBytes),
     );
     revalidatePath(`/tournaments/${edition}/player/availability`);
-    return NextResponse.json(result, {
+    return NextResponse.json(availabilityWrite.response.parse(result), {
       headers: { "Cache-Control": "private, no-store" },
     });
   } catch (error) {

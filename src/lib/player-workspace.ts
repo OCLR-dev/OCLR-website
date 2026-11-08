@@ -34,6 +34,7 @@ import {
   normalizeSeasonAvailability,
 } from "./player-workspace-model";
 import { z } from "zod";
+import type { WorkspaceWriteReceipt } from "./player-workspace-contracts";
 
 type Reader = Pick<ReturnType<typeof db>, "select">;
 const digest = (value: unknown) =>
@@ -335,7 +336,7 @@ export async function playerPracticeCommand(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<WorkspaceWriteReceipt> {
   assertDirectPlayerWorkspace();
   const parsed = practiceCommandSchema.safeParse(input);
   if (!parsed.success)
@@ -460,7 +461,7 @@ export async function playerTimetableCommand(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<WorkspaceWriteReceipt> {
   assertDirectPlayerWorkspace();
   const parsed = timetableCommandSchema.safeParse(input);
   if (!parsed.success)

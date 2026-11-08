@@ -1,9 +1,16 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
+import type {
+  availabilityWrite,
+  practiceWrite,
+  WorkspaceWriteInput,
+} from "@/lib/player-workspace-contracts";
 
 /** Retain the request key after an uncertain response so retrying cannot duplicate a write. */
-export function useWorkspaceSave(url: string) {
+export function useWorkspaceSave<
+  Operation extends typeof practiceWrite | typeof availabilityWrite,
+>(operation: Operation, edition: string) {
   const tr = useAppTranslations();
   const receipt = useRef<{ payload: string; key: string } | null>(null);
   const running = useRef(false);
@@ -11,7 +18,7 @@ export function useWorkspaceSave(url: string) {
   const [message, setMessage] = useState("");
   const [failed, setFailed] = useState(false);
   async function save(
-    input: Record<string, unknown>,
+    input: WorkspaceWriteInput<Operation>,
     successMessage = tr("Saved"),
   ) {
     if (running.current) return;
@@ -26,20 +33,24 @@ export function useWorkspaceSave(url: string) {
       "Could not confirm the save. Retry to safely confirm your change.",
     );
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...input, requestKey: receipt.current.key }),
-      });
-      const result = await response.json();
+      const response = await fetch(
+        operation.path.replace("{edition}", edition),
+        {
+          method: operation.method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...input, requestKey: receipt.current.key }),
+        },
+      );
+      const result: unknown = await response.json();
       if (!response.ok) {
-        failure = tr(result.error);
+        const error = operation.error.safeParse(result);
+        if (error.success) failure = tr(error.data.error);
         throw new Error();
       }
-      if (!Number.isSafeInteger(result.version)) throw new Error();
+      const parsed = operation.response.parse(result);
       receipt.current = null;
       setMessage(successMessage);
-      return result.version as number;
+      return parsed.version;
     } catch {
       setFailed(true);
       setMessage(failure);

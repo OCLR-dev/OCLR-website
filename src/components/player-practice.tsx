@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
 import type { PracticeWorkspace } from "@/lib/player-workspace";
+import { practiceWrite } from "@/lib/player-workspace-contracts";
 import {
   practiceValueSchema,
   practiceFeels,
@@ -140,9 +141,7 @@ function PracticeEntry({
   const [exists, setExists] = useState(Boolean(own));
   const [stale, setStale] = useState(Boolean(own?.stale));
   const [validation, setValidation] = useState("");
-  const { save, busy, message, failed } = useWorkspaceSave(
-    `/api/tournaments/${slug}/player/practice`,
-  );
+  const { save, busy, message, failed } = useWorkspaceSave(practiceWrite, slug);
   const dirty = JSON.stringify(value) !== JSON.stringify(saved);
   const feedback = validation || (failed || !dirty ? message : "");
   useEffect(() => {

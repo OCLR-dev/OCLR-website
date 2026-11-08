@@ -1,0 +1,622 @@
+[
+  {
+    "route": "/api/admin/backups",
+    "source": "src/app/api/admin/backups/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/contributors",
+    "source": "src/app/api/admin/contributors/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/profiles",
+    "source": "src/app/api/admin/profiles/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/registrations/{id}/review",
+    "source": "src/app/api/admin/registrations/[id]/review/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/settings",
+    "source": "src/app/api/admin/settings/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/staff",
+    "source": "src/app/api/admin/staff/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/archive-staff",
+    "source": "src/app/api/admin/tournaments/[edition]/archive-staff/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/awards",
+    "source": "src/app/api/admin/tournaments/[edition]/awards/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/captains",
+    "source": "src/app/api/admin/tournaments/[edition]/captains/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/delete-draft",
+    "source": "src/app/api/admin/tournaments/[edition]/delete-draft/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/draft",
+    "source": "src/app/api/admin/tournaments/[edition]/draft/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappool-workbench",
+    "source": "src/app/api/admin/tournaments/[edition]/mappool-workbench/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappools/entries/{entryId}/replays/{replayId}",
+    "source": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/route.ts",
+    "methods": {
+      "DELETE": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappools/entries/{entryId}/replays",
+    "source": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappools/preview",
+    "source": "src/app/api/admin/tournaments/[edition]/mappools/preview/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappools",
+    "source": "src/app/api/admin/tournaments/[edition]/mappools/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/imports/preview",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/preview/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/imports",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referee/irc",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/irc/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referee/mp",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/mp/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referee/reconciliation",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/reconciliation/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referee",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referees",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referees/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/results",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/results/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/{id}/bws",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/bws/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/{id}/remove",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/remove/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/{id}/restore",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/restore/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/batch/preview",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/batch/preview/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/batch",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/batch/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/preview",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/preview/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/rounds/{roundId}/referee-policy",
+    "source": "src/app/api/admin/tournaments/[edition]/rounds/[roundId]/referee-policy/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}",
+    "source": "src/app/api/admin/tournaments/[edition]/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/statistics",
+    "source": "src/app/api/admin/tournaments/[edition]/statistics/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/streaming/{fixtureId}",
+    "source": "src/app/api/admin/tournaments/[edition]/streaming/[fixtureId]/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/teams/{teamId}",
+    "source": "src/app/api/admin/tournaments/[edition]/teams/[teamId]/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/teams",
+    "source": "src/app/api/admin/tournaments/[edition]/teams/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments",
+    "source": "src/app/api/admin/tournaments/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/decision",
+    "source": "src/app/api/desktop/v1/auth/decision/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/exchange",
+    "source": "src/app/api/desktop/v1/auth/exchange/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/refresh",
+    "source": "src/app/api/desktop/v1/auth/refresh/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/requests",
+    "source": "src/app/api/desktop/v1/auth/requests/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/revoke",
+    "source": "src/app/api/desktop/v1/auth/revoke/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/sessions/{id}",
+    "source": "src/app/api/desktop/v1/auth/sessions/[id]/route.ts",
+    "methods": {
+      "DELETE": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/developer/tokens/{tokenId}",
+    "source": "src/app/api/developer/tokens/[tokenId]/route.ts",
+    "methods": {
+      "DELETE": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/developer/tokens",
+    "source": "src/app/api/developer/tokens/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/games/ocl-chess",
+    "source": "src/app/api/games/ocl-chess/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      },
+      "PATCH": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/referee/v1/fixtures/{fixtureId}/relay",
+    "source": "src/app/api/referee/v1/fixtures/[fixtureId]/relay/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/registrations/{id}/withdraw",
+    "source": "src/app/api/registrations/[id]/withdraw/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/remote/connection",
+    "source": "src/app/api/remote/connection/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      },
+      "DELETE": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/streaming/tokens/{tokenId}",
+    "source": "src/app/api/streaming/tokens/[tokenId]/route.ts",
+    "methods": {
+      "DELETE": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/streaming/tokens",
+    "source": "src/app/api/streaming/tokens/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/draft/picks",
+    "source": "src/app/api/tournaments/[edition]/draft/picks/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/player/availability",
+    "source": "src/app/api/tournaments/[edition]/player/availability/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "writePlayerAvailability",
+        "consumers": [
+          "src/components/player-timetable.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/player/practice",
+    "source": "src/app/api/tournaments/[edition]/player/practice/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "writePlayerPractice",
+        "consumers": [
+          "src/components/player-practice.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/players/{osuId}/messages/{messageId}",
+    "source": "src/app/api/tournaments/[edition]/players/[osuId]/messages/[messageId]/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "pending"
+      },
+      "DELETE": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/players/{osuId}/messages",
+    "source": "src/app/api/tournaments/[edition]/players/[osuId]/messages/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/registrations",
+    "source": "src/app/api/tournaments/[edition]/registrations/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/schedule/requests",
+    "source": "src/app/api/tournaments/[edition]/schedule/requests/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  },
+  {
+    "route": "/api/v1/[...path]",
+    "source": "src/app/api/v1/[...path]/route.ts",
+    "methods": {
+      "POST": {
+        "status": "read-only"
+      },
+      "PUT": {
+        "status": "read-only"
+      },
+      "PATCH": {
+        "status": "read-only"
+      },
+      "DELETE": {
+        "status": "read-only"
+      }
+    }
+  },
+  {
+    "route": "/api/v1/me",
+    "source": "src/app/api/v1/me/route.ts",
+    "methods": {
+      "POST": {
+        "status": "read-only"
+      },
+      "PUT": {
+        "status": "read-only"
+      },
+      "PATCH": {
+        "status": "read-only"
+      },
+      "DELETE": {
+        "status": "read-only"
+      }
+    }
+  },
+  {
+    "route": "/api/v1/streaming/tournaments/{edition}/next",
+    "source": "src/app/api/v1/streaming/tournaments/[edition]/next/route.ts",
+    "methods": {
+      "POST": {
+        "status": "read-only"
+      },
+      "PUT": {
+        "status": "read-only"
+      },
+      "PATCH": {
+        "status": "read-only"
+      },
+      "DELETE": {
+        "status": "read-only"
+      }
+    }
+  },
+  {
+    "route": "/auth/logout",
+    "source": "src/app/auth/logout/route.ts",
+    "methods": {
+      "POST": {
+        "status": "pending"
+      }
+    }
+  }
+]
