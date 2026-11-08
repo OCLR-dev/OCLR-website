@@ -74,7 +74,6 @@ export async function visiblePlayerNames(
   authorizedEdition?: string,
 ) {
   if (!process.env.DATABASE_URL || !osuIds.length) return [];
-  const editions = await getPublicEditions();
   const rows = await db()
     .select()
     .from(playerNames)
@@ -85,6 +84,12 @@ export async function visiblePlayerNames(
       playerNames.editionSlug,
       playerNames.reference,
     );
+  // Only published archive evidence needs the edition archive projections.
+  const editions = rows.some(
+    (row) => row.published && row.source.startsWith("archive_"),
+  )
+    ? await getPublicEditions()
+    : [];
   return rows.filter((row) => {
     if (row.osuId === selfId) return true;
     if (

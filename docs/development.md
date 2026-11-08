@@ -53,6 +53,11 @@ The explicit `db:seed:dev` command accepts only this loopback port and database 
 
 The local database is for UI preview. Database-backed automated tests may truncate their target; use a different isolated test database for the full suite. OAuth, account access and real registration still require the organizer-approved configuration described below. No development authentication bypass is added.
 
+## API performance measurement
+
+Use the [isolated API baseline](api-performance-baseline.md) to compare HTTP,
+PostgreSQL driver and Node.js process timings on synthetic data.
+
 ## How pages read data
 
 Public App Router pages are server components. For example, `src/app/page.tsx` calls `publicNewsContext()` in `src/lib/public-news.ts`. It reads published editions via `readTournaments(true)` in `src/lib/tournaments.ts`; this queries `edition_state` through `db()` in `src/db/index.ts`. `db()` wraps the shared `pg.Pool` in Drizzle. The server loads `DATABASE_URL` from exported environment variables or `.env.local`; it is never a `NEXT_PUBLIC_` browser variable. The Drizzle CLI loads the same configuration through `@next/env` in `drizzle.config.ts`.

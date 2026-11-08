@@ -1,7 +1,5 @@
 import { compareTournamentSeasons } from "./tournament-order";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { draftSessions } from "@/db/schema";
+import { db, readOnlyData } from "@/db";
 import {
   readTournament,
   readTournaments,
@@ -11,7 +9,7 @@ import { registrationAvailability } from "./registrations";
 import { privacyContact } from "./auth/config";
 import { readSiteSettings } from "./site-settings";
 import { type Edition } from "./editions";
-import { publicPlayers } from "./players";
+import { publicPlayerFilters, publicPlayersForEditions } from "./players";
 import { publicPlayerIntroductions } from "./player-messages";
 import { cachedDirectoryStatistics } from "./osu-profiles";
 import { parseOsuProfile, type ProfileMode } from "./osu-profile-model";
@@ -21,9 +19,8 @@ import { profileBws } from "./bws";
 import { publishedTeams } from "./teams";
 import { publicMappools } from "./mappools";
 import { publicStaff } from "./public-staff";
-import { publicDraft } from "./draft";
+import { publicDraft, releasedDraftData } from "./draft";
 import { publicCompetition } from "./public-competition";
-import { draftTurnSequence } from "./live-season-columns";
 import { draftAwardTiers, awardTierLabel } from "./award-tiers";
 import { archiveCounts, type HistoricalArchive } from "./historical-archive";
 import {
@@ -307,33 +304,28 @@ async function releasedTiers(
   const captainIds = identities
     .filter((player) => player.captain)
     .map((player) => player.osuId);
-  const snapshot = await publicDraft(slug);
-  if (!snapshot) return new Map(captainIds.map((id) => [id, 0]));
-  const [session] = await db()
-    .select({
-      turnSequence: draftTurnSequence,
-      revision: draftSessions.version,
-      publishedRevision: draftSessions.publishedRevision,
-    })
-    .from(draftSessions)
-    .where(eq(draftSessions.editionSlug, slug));
-  // Older held-back snapshots do not establish the current custom turn sequence.
-  const picks =
-    snapshot && session?.revision === session.publishedRevision
-      ? snapshot.picks.map((pick) => ({
-          playerId: pick.player.osuId,
-          teamId: pick.team.id,
-          turnIndex: pick.turnIndex,
-        }))
-      : [];
+  const draft = await releasedDraftData(slug, true);
+  if (!draft) return new Map(captainIds.map((id) => [id, 0]));
+  const picks = draft.snapshot.picks.map((pick) => ({
+    playerId: pick.player.osuId,
+    teamId: pick.team.id,
+    turnIndex: pick.turnIndex,
+  }));
+  // Held-back snapshots do not establish the current custom turn sequence.
   return new Map(
-    draftAwardTiers(session?.turnSequence ?? [], picks, captainIds).map(
-      (tier) => [tier.userId, tier.tier],
-    ),
+    draftAwardTiers(draft.turnSequence, picks, captainIds).map((tier) => [
+      tier.userId,
+      tier.tier,
+    ]),
   );
 }
 /** Full SSR list, with bounded saved-cache reads and no provider refresh/claims. */
 export async function publicPlayerDirectoryModel(slug: string, q = "") {
+  if (!process.env.DATABASE_URL)
+    throw new DeveloperApiError(404, "NOT_FOUND", "Tournament not found.");
+  return readOnlyData(() => readPublicPlayerDirectory(slug, q));
+}
+async function readPublicPlayerDirectory(slug: string, q: string) {
   const row = await publicEditionContext(slug);
   if (row.edition.archive) {
     const all = historicalPlayerModel(
@@ -408,17 +400,24 @@ export async function publicPlayerDirectoryModel(slug: string, q = "") {
       refreshIds: [] as number[],
       order: "preview-source" as const,
     };
-  const result = await publicPlayers({ edition: slug, q });
+  const result = await publicPlayersForEditions(
+    publicPlayerFilters({ edition: slug, q }),
+    [row.edition],
+  );
   const aliases = await (
     await import("./player-identity")
   ).visiblePlayerNames(result.rows.map((p) => p.osuId));
   let statisticsUnavailable = false;
-  const { statistics, refreshIds } = await cachedDirectoryStatistics(
-    result.rows.map((player) => player.osuId),
-  ).catch(() => {
-    statisticsUnavailable = true;
-    return { statistics: new Map(), refreshIds: [] as number[] };
-  });
+  // A saved-cache query failure should not abort the rest of the directory's
+  // read-only transaction. Run it serially within a savepoint.
+  const { statistics, refreshIds } = await db()
+    .transaction(() =>
+      cachedDirectoryStatistics(result.rows.map((player) => player.osuId)),
+    )
+    .catch(() => {
+      statisticsUnavailable = true;
+      return { statistics: new Map(), refreshIds: [] as number[] };
+    });
   const introductions = await publicPlayerIntroductions(
     slug,
     result.rows.map((player) => player.osuId),
