@@ -35,6 +35,14 @@ import {
   statisticsWorkspace,
   publicArchiveStatistics,
 } from "../../src/lib/archive-statistics";
+import { POST as statisticsRoute } from "../../src/app/api/admin/tournaments/[edition]/statistics/route";
+import { changeHistoricalStatisticsWrite } from "../../src/lib/results-publication-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => admin,
+}));
 vi.mock("../../src/lib/osu-matches", () => ({ fetchMatchSource: vi.fn() }));
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 391001, username: "Statistics Admin" };
@@ -86,6 +94,7 @@ describe.skipIf(!url)("historical statistics transactions", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -241,10 +250,33 @@ describe.skipIf(!url)("historical statistics transactions", () => {
       await expect(
         statisticsCommand(referee, slug, publish),
       ).rejects.toMatchObject({ status: 403 });
-      await expect(
-        statisticsCommand(admin, slug, { ...reviewed, expectedVersion: 0 }),
-      ).rejects.toMatchObject({ status: 409 });
-      await statisticsCommand(admin, slug, publish);
+      const post = (input: unknown) =>
+        statisticsRoute(
+          new Request(
+            origin +
+              changeHistoricalStatisticsWrite.path.replace("{edition}", slug),
+            {
+              method: "POST",
+              headers: { origin, "content-type": "application/json" },
+              body: JSON.stringify(input),
+            },
+          ),
+          { params: Promise.resolve({ edition: slug }) },
+        );
+      const stale = await post({ ...reviewed, expectedVersion: 0 });
+      expect(stale.status).toBe(409);
+      expect(await stale.json()).toEqual({
+        error: "Statistics changed. Reload before retrying.",
+      });
+      const publication = await post(publish);
+      expect(publication.status).toBe(200);
+      const body = await publication.json();
+      expect(
+        extendedSchemas[
+          changeHistoricalStatisticsWrite.response.readResource
+        ].parse(body),
+      ).toEqual(body);
+      expect(body.summaries[0].publishedAt).toBeTruthy();
       const released = await publicArchiveStatistics(slug, "one");
       expect(released.plays).toHaveLength(8);
       expect(released.poolFixtures).toHaveLength(1);

@@ -17,19 +17,26 @@ import { assertOperationalEdition } from "./archive-guard";
 import { getEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import {
+  candidatePreviewInput,
+  selectionCommandInput,
+  type CandidatePreview,
+  type SelectionReceipt,
+} from "./mappool-write-contracts";
 import { HttpError } from "./http";
 import { fetchBeatmaps } from "./osu-beatmaps";
 import type { BeatmapSnapshot } from "./mappool-model";
-import { canonicalSkillsets, skillsetTags } from "./mappool-skillsets";
+import { canonicalSkillsets } from "./mappool-skillsets";
 import {
-  candidateCategories,
   candidateLimit,
   commentLimit,
-  commentLength,
   parseCandidateRows,
 } from "./mappool-workbench-model";
 
-async function databaseSelectionWorkspace(actor: User, slug: string) {
+async function databaseSelectionWorkspace(
+  actor: User,
+  slug: string,
+): Promise<SelectionWorkspace> {
   await assertReadCapability(actor, "select_mappools", slug);
   const edition = await getEdition(slug);
   if (!edition) throw new HttpError(404, "Edition not found.");
@@ -105,19 +112,22 @@ async function databaseSelectionWorkspace(actor: User, slug: string) {
 export async function selectionWorkspace(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseSelectionWorkspace>>> {
+): Promise<SelectionWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
     return frontendResource("selectionWorkspace", { slug });
   }
   return databaseSelectionWorkspace(actor, slug);
 }
-export type SelectionWorkspace = Awaited<ReturnType<typeof selectionWorkspace>>;
+export type SelectionWorkspace =
+  import("./explicit-read-contracts").ExplicitReadData<"selectionWorkspace">;
+export type CandidateComments =
+  import("./explicit-read-contracts").ExplicitReadData<"candidateComments">;
 async function databaseCandidateComments(
   actor: User,
   slug: string,
   id: string,
-) {
+): Promise<CandidateComments> {
   await assertReadCapability(actor, "select_mappools", slug);
   if (!z.uuid().safeParse(id).success)
     throw new HttpError(400, "Invalid candidate.");
@@ -149,28 +159,21 @@ export async function candidateComments(
   actor: User,
   slug: string,
   id: string,
-): Promise<Awaited<ReturnType<typeof databaseCandidateComments>>> {
+): Promise<CandidateComments> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
     return frontendResource("candidateComments", { slug, id });
   }
   return databaseCandidateComments(actor, slug, id);
 }
-export type CandidateComments = Awaited<ReturnType<typeof candidateComments>>;
 export async function previewCandidates(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<CandidatePreview> {
   // Preview spends provider budget, so it requires the same live write grant.
   await assertCapability(actor, "select_mappools", slug);
-  const parsed = z
-    .object({
-      text: z.string().max(16000),
-      category: z.enum(candidateCategories).default("unassigned"),
-    })
-    .strict()
-    .safeParse(input);
+  const parsed = candidatePreviewInput.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Enter between 1 and 50 map rows.");
   const data = await selectionWorkspace(actor, slug);
@@ -209,98 +212,15 @@ export async function previewCandidates(
     }),
   };
 }
-export type CandidatePreview = Awaited<ReturnType<typeof previewCandidates>>;
-const roundIdsSchema = z
-  .array(z.uuid())
-  .max(500)
-  .refine((ids) => new Set(ids).size === ids.length);
-const commandSchema = z.discriminatedUnion("action", [
-  z
-    .object({
-      action: z.literal("skillsets"),
-      candidateId: z.uuid(),
-      tags: z
-        .array(z.enum(skillsetTags))
-        .max(skillsetTags.length)
-        .refine((tags) => new Set(tags).size === tags.length),
-      expectedVersion: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("assign_rounds"),
-      candidateId: z.uuid(),
-      roundIds: roundIdsSchema,
-      expectedRoundIds: roundIdsSchema,
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("comment_edit"),
-      candidateId: z.uuid(),
-      commentId: z.uuid(),
-      version: z.string().regex(/^\d+$/),
-      body: z.string().trim().min(1).max(commentLength),
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("comment_delete"),
-      candidateId: z.uuid(),
-      commentId: z.uuid(),
-      version: z.string().regex(/^\d+$/),
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("classify"),
-      candidateId: z.uuid(),
-      category: z.enum(candidateCategories),
-      expectedCategory: z.enum(candidateCategories),
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("add"),
-      category: z.enum(candidateCategories).default("unassigned"),
-      roundIds: roundIdsSchema.default([]),
-      rows: z
-        .array(
-          z
-            .object({
-              beatmapId: z
-                .number()
-                .int()
-                .positive()
-                .max(Number.MAX_SAFE_INTEGER),
-              fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-            })
-            .strict(),
-        )
-        .min(1)
-        .max(50)
-        .refine(
-          (rows) => new Set(rows.map((r) => r.beatmapId)).size === rows.length,
-        ),
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("comment"),
-      candidateId: z.uuid(),
-      requestId: z.uuid(),
-      body: z.string().trim().min(1).max(commentLength),
-    })
-    .strict(),
-]);
+export type { CandidatePreview } from "./mappool-write-contracts";
 export async function selectionCommand(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<SelectionReceipt> {
   await assertCapability(actor, "select_mappools", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  const parsed = commandSchema.safeParse(input);
+  const parsed = selectionCommandInput.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Enter a valid selection workbench change.");
   const c = parsed.data;

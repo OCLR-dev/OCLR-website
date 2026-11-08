@@ -23,10 +23,17 @@ import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
 import { profileResponse } from "../fixtures/osu-profile";
+import { POST as reviewRoute } from "../../src/app/api/admin/tournaments/[edition]/registrations/[id]/bws/route";
+import { reviewBwsWrite } from "../../src/lib/bws-write-contract";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => actor,
+}));
 vi.mock("../../src/lib/osu-api", () => ({ osuApi: vi.fn() }));
 import { osuApi } from "../../src/lib/osu-api";
 const provider = vi.mocked(osuApi);
 const url = process.env.TEST_DATABASE_URL;
+const origin = "https://oclr.example.test";
 const actor = { osuId: 991001, username: "Synthetic BWS Admin" },
   player = 991002;
 const badges = [
@@ -43,6 +50,7 @@ describe.skipIf(!url)("scoped BWS review and public projection", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(actor.osuId));
   });
   beforeEach(async () => {
@@ -95,7 +103,36 @@ describe.skipIf(!url)("scoped BWS review and public projection", () => {
       value: null,
       badgeCount: null,
     });
-    const reviewed = await reviewBws(actor, edition.slug, id, await command());
+    const input = await command();
+    const review = (command = input) =>
+      reviewRoute(
+        new Request(
+          origin +
+            reviewBwsWrite.path
+              .replace("{edition}", edition.slug)
+              .replace("{id}", id),
+          {
+            method: "POST",
+            headers: { origin, "content-type": "application/json" },
+            body: JSON.stringify(command),
+          },
+        ),
+        { params: Promise.resolve({ edition: edition.slug, id }) },
+      );
+    expect(
+      (await review({ ...input, classifications: ["taiko", "other", "osu"] }))
+        .status,
+    ).toBe(400);
+    const response = await review();
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    const reviewed = reviewBwsWrite.response.parse(body);
+    expect(reviewed).toEqual(body);
+    const stale = await review();
+    expect(stale.status).toBe(409);
+    expect(await stale.json()).toEqual({
+      error: "Badge review changed. Reload before continuing.",
+    });
     expect(reviewed.summary).toMatchObject({
       status: "ready",
       badgeCount: 1,

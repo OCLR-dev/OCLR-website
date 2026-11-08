@@ -1,6 +1,5 @@
 import { getEditions } from "./content";
 import { and, desc, eq, gt, isNull, lt, or, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   streamingApiEvents,
@@ -23,6 +22,11 @@ import {
   type StreamingApiScope,
   type StreamingTokenMetadata,
 } from "./streaming-api-model";
+import {
+  createStreamingAccessWrite,
+  revokeStreamingAccessWrite,
+  type StreamingAccessIssued,
+} from "./streaming-write-contract";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 async function streamingGrants(osuId: number) {
   return db()
@@ -166,17 +170,11 @@ export async function listStreamingTokens(
     tokens: rows.map(metadata),
   };
 }
-const creation = z
-  .object({
-    editionSlug: editionSchema.shape.slug,
-    origin: z.string().max(200).refine(isDeveloperOrigin),
-  })
-  .strict();
 export async function createStreamingToken(
   session: BrowserSessionContext,
   input: unknown,
-) {
-  const parsed = creation.safeParse(input);
+): Promise<StreamingAccessIssued> {
+  const parsed = createStreamingAccessWrite.request.safeParse(input);
   if (!parsed.success)
     throw new DeveloperApiError(
       400,
@@ -247,8 +245,8 @@ export async function createStreamingToken(
 export async function revokeStreamingToken(
   session: BrowserSessionContext,
   id: string,
-) {
-  if (!z.uuid().safeParse(id).success)
+): Promise<StreamingTokenMetadata> {
+  if (!revokeStreamingAccessWrite.parameters.tokenId.safeParse(id).success)
     throw new DeveloperApiError(
       404,
       "NOT_FOUND",

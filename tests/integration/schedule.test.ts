@@ -37,7 +37,15 @@ import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
 import { withReadChannel } from "../../src/lib/read-channel";
+import { POST as scheduleRoute } from "../../src/app/api/tournaments/[edition]/schedule/requests/route";
+import { scheduleRequestWrite } from "../../src/lib/scheduling-write-contracts";
 const url = process.env.TEST_DATABASE_URL;
+const origin = "https://oclr.example.test";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => admin,
+}));
 const a = { osuId: 591001, username: "Captain A" },
   b = { osuId: 591002, username: "Captain B" },
   player = { osuId: 591003, username: "Player A" },
@@ -51,6 +59,7 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -292,8 +301,30 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
       (await db().select().from(fixtures))[0].scheduledAt?.toISOString(),
     ).toBe(official);
     const cmd = command("approve", { requestId: r.id, expectedVersion: 2 });
-    await scheduleCommand(admin, slug, cmd);
-    await scheduleCommand(admin, slug, cmd);
+    const post = (input: unknown) =>
+      scheduleRoute(
+        new Request(
+          origin + scheduleRequestWrite.path.replace("{edition}", slug),
+          {
+            method: "POST",
+            headers: { origin, "content-type": "application/json" },
+            body: JSON.stringify(input),
+          },
+        ),
+        { params: Promise.resolve({ edition: slug }) },
+      );
+    for (const input of [cmd, cmd]) {
+      const response = await post(input);
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(scheduleRequestWrite.response.parse(body)).toEqual(body);
+      expect(body).toEqual({ saved: true });
+    }
+    const conflict = await post({ ...cmd, decisionNote: "Changed decision" });
+    expect(conflict.status).toBe(409);
+    expect(await conflict.json()).toEqual({
+      error: "This request key was already used for a different operation.",
+    });
     expect((await db().select().from(fixtures))[0]).toMatchObject({
       scheduledAt: new Date(proposed),
       version: 1,

@@ -1,6 +1,5 @@
 import { developerTokenMisses } from "./developer-token-misses";
 import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   developerApiEvents,
@@ -15,7 +14,6 @@ import { appUrl, HttpError } from "./http";
 import {
   developerApiScopes,
   developerTokenPrefix,
-  isDeveloperOrigin,
   developerOriginPort,
   developerOriginAllowed,
   developerTokenPorts,
@@ -24,6 +22,11 @@ import {
   type DeveloperApiScope,
   type DeveloperTokenMetadata,
 } from "./developer-api-model";
+import {
+  createDeveloperTokenWrite,
+  revokeDeveloperTokenWrite,
+  type DeveloperTokenIssued,
+} from "./developer-token-write-contract";
 
 export class DeveloperApiError extends HttpError {
   constructor(
@@ -182,39 +185,11 @@ export async function listDeveloperTokens(session: BrowserSessionContext) {
     tokens: rows.map(metadata),
   };
 }
-const scopesSchema = z
-  .array(z.enum(developerApiScopes))
-  .min(1)
-  .max(4)
-  .refine((v) => new Set(v).size === v.length);
-const creation = z.union([
-  z
-    .object({
-      ports: z
-        .array(z.number().int().min(1).max(65535))
-        .min(1)
-        .max(maxDeveloperPorts)
-        .refine((ports) => new Set(ports).size === ports.length),
-      scopes: scopesSchema,
-    })
-    .strict(),
-  // Existing clients can still request one canonical origin.
-  z
-    .object({
-      origin: z
-        .string()
-        .max(200)
-        .refine(isDeveloperOrigin)
-        .refine((origin) => developerOriginPort(origin) !== null),
-      scopes: scopesSchema,
-    })
-    .strict(),
-]);
 export async function createDeveloperToken(
   session: BrowserSessionContext,
   input: unknown,
-) {
-  const parsed = creation.safeParse(input);
+): Promise<DeveloperTokenIssued> {
+  const parsed = createDeveloperTokenWrite.request.safeParse(input);
   if (!parsed.success)
     throw new DeveloperApiError(
       400,
@@ -296,7 +271,7 @@ export async function revokeDeveloperToken(
   session: BrowserSessionContext,
   id: string,
 ) {
-  if (!z.uuid().safeParse(id).success)
+  if (!revokeDeveloperTokenWrite.parameters.tokenId.safeParse(id).success)
     throw new DeveloperApiError(
       404,
       "NOT_FOUND",

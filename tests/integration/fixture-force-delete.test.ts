@@ -39,6 +39,29 @@ import {
   refereeTestUser as referee,
 } from "../fixtures/referee";
 import { assertTestDatabase } from "../database";
+import { POST as fixtureRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/route";
+import {
+  changeFixturesWrite,
+  forceDeletePreviewResponse,
+} from "../../src/lib/fixture-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => admin,
+}));
+function post(input: unknown) {
+  const slug = "test-cup";
+  return fixtureRoute(
+    new Request(origin + changeFixturesWrite.path.replace("{edition}", slug), {
+      method: "POST",
+      headers: { origin, "content-type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+    { params: Promise.resolve({ edition: slug }) },
+  );
+}
 const url = process.env.TEST_DATABASE_URL;
 describe.skipIf(!url)(
   "Admin force deletion of unapproved test fixtures",
@@ -47,6 +70,7 @@ describe.skipIf(!url)(
     beforeAll(() => {
       assertTestDatabase(url);
       vi.stubEnv("DATABASE_URL", url!);
+      vi.stubEnv("APP_URL", origin);
       vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
     });
     beforeEach(async () => {
@@ -130,6 +154,14 @@ describe.skipIf(!url)(
         .where(eq(fixtures.id, w.fixture.id));
       const pools = await db().select().from(mappools),
         teamRows = await db().select().from(teams);
+      const preflight = await post({
+        action: "preview_force_delete",
+        fixtureId: w.fixture.id,
+      });
+      expect(preflight.status).toBe(200);
+      const body = await preflight.json();
+      expect(forceDeletePreviewResponse.parse(body)).toEqual(body);
+      expect(body).toEqual(await preview());
       const request = await command();
       await db().execute(
         sql`UPDATE referee_irc_connections SET sequence=sequence+1,last_seen_at=now() WHERE fixture_id=${w.fixture.id}`,
@@ -143,7 +175,11 @@ describe.skipIf(!url)(
           confirmed: true,
         }),
       ).rejects.toMatchObject({ status: 409 });
-      await fixtureCommand(admin, "test-cup", request);
+      const response = await post(request);
+      expect(response.status).toBe(200);
+      const saved = await response.json();
+      expect(extendedSchemas.staffFixtures.parse(saved)).toEqual(saved);
+      expect(saved.fixtures).toEqual([]);
       expect(await db().select().from(fixtures)).toHaveLength(0);
       expect(await db().select().from(fixtureCommentators)).toHaveLength(0);
       expect(await db().select().from(refereeSessions)).toHaveLength(0);

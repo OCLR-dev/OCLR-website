@@ -47,6 +47,33 @@ import {
   refereeTestUser as referee,
 } from "../fixtures/referee";
 import { assertTestDatabase } from "../database";
+import { PATCH as route } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/route";
+import {
+  changeRefereeWorkspaceWrite,
+  refereeEventReceipt,
+} from "../../src/lib/referee-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => referee,
+}));
+function post(fixtureId: string, input: unknown) {
+  return route(
+    new Request(
+      origin +
+        changeRefereeWorkspaceWrite.path
+          .replace("{edition}", "test-cup")
+          .replace("{fixtureId}", fixtureId),
+      {
+        method: "PATCH",
+        headers: { origin, "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+    ),
+    { params: Promise.resolve({ edition: "test-cup", fixtureId }) },
+  );
+}
 const url = process.env.TEST_DATABASE_URL;
 const outsider = { osuId: 891003, username: "Synthetic outsider" };
 const developer = { osuId: 891004, username: "Synthetic read-only Developer" };
@@ -60,6 +87,7 @@ describe.skipIf(!url)("private persistent referee workspace", () => {
     if (new URL(url!).pathname === "/oclr_frontend_test")
       throw new Error("Never run against the preview database.");
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -514,29 +542,29 @@ describe.skipIf(!url)("private persistent referee workspace", () => {
       action: "save_settings",
       settings: w.defaultSettings,
     });
-    const results = await Promise.allSettled([
-      refereeCommand(referee, "test-cup", fixtureId, a),
-      refereeCommand(referee, "test-cup", fixtureId, b),
+    const responses = await Promise.all([
+      post(fixtureId, a),
+      post(fixtureId, b),
     ]);
-    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
-    const index = results.findIndex((r) => r.status === "fulfilled");
-    const won = results[index] as PromiseFulfilledResult<
-      Awaited<ReturnType<typeof refereeCommand>>
-    >;
-    const replay = await refereeCommand(
-      referee,
-      "test-cup",
-      fixtureId,
-      index === 0 ? a : b,
+    expect(responses.map((response) => response.status).sort()).toEqual([
+      200, 409,
+    ]);
+    const index = responses.findIndex((response) => response.ok);
+    const saved = await responses[index].json();
+    expect(refereeEventReceipt.parse(saved.receipt)).toEqual(saved.receipt);
+    expect(extendedSchemas.refereeWorkspace.parse(saved.workspace)).toEqual(
+      saved.workspace,
     );
-    expect(replay.receipt).toEqual(won.value.receipt);
+    const winner = index === 0 ? a : b;
+    const replay = await post(fixtureId, winner);
+    expect(replay.status).toBe(200);
+    expect((await replay.json()).receipt).toEqual(saved.receipt);
     expect(await db().select().from(refereeEvents)).toHaveLength(1);
-    await expect(
-      refereeCommand(referee, "test-cup", fixtureId, {
-        ...(index === 0 ? a : b),
-        settings: { ...emptyRefereeSettings, roomName: "Changed payload" },
-      }),
-    ).rejects.toMatchObject({ status: 409 });
+    const conflict = await post(fixtureId, {
+      ...winner,
+      settings: { ...emptyRefereeSettings, roomName: "Changed payload" },
+    });
+    expect(conflict.status).toBe(409);
     const audits = await db()
       .select()
       .from(resultAuditEvents)

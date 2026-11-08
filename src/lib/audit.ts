@@ -7,6 +7,8 @@ import { readCapabilityScope } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type AuditLog = ExplicitReadData<"auditLog">;
 /** Bounded, redacted projection only. The original events remain untouched. */
 export function safeAuditDetails(value: unknown) {
   let remaining = 16000;
@@ -141,7 +143,10 @@ type AuditRow = {
   details: unknown;
   created_at: Date | string;
 };
-async function databaseAuditLog(actor: User, input: unknown) {
+async function databaseAuditLog(
+  actor: User,
+  input: unknown,
+): Promise<AuditLog> {
   const scopes = await readCapabilityScope(actor, "manage_staff");
   const parsed = auditFilters.safeParse(input);
   if (!parsed.success)
@@ -198,16 +203,10 @@ async function databaseAuditLog(actor: User, input: unknown) {
     { isolationLevel: "repeatable read", accessMode: "read only" },
   );
 }
-export async function auditLog(
-  actor: User,
-  input: unknown,
-): Promise<Awaited<ReturnType<typeof databaseAuditLog>>> {
+export async function auditLog(actor: User, input: unknown): Promise<AuditLog> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseAuditLog>>>(
-      "auditLog",
-      { input },
-    );
+    return frontendResource<AuditLog>("auditLog", { input });
   }
   return databaseAuditLog(actor, input);
 }

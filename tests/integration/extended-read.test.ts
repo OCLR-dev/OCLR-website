@@ -19,7 +19,11 @@ import {
   extendedSchemas,
 } from "../../src/lib/extended-read-resources";
 import { reviveReadValue } from "../../src/lib/read-value";
+import { explicitReadContracts } from "../../src/lib/explicit-read-contracts";
+import type { ZodType } from "zod";
 import contracts from "../../src/lib/extended-read-contracts.json" with { type: "json" };
+const explicitSchemas: Readonly<Record<string, ZodType>> =
+  explicitReadContracts;
 vi.mock("../../src/lib/osu-api", () => ({
   osuApi: vi.fn(() => {
     throw new Error("Provider forbidden in read tests");
@@ -115,6 +119,21 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
         extendedSchemas[resource.id].safeParse(body.data).success,
         resource.id,
       ).toBe(true);
+      const explicit = explicitSchemas[resource.id];
+      if (explicit) {
+        const schema = {
+          ...(contracts.resources as Record<string, object>)[resource.id],
+          $defs: contracts.$defs,
+        };
+        const revived = reviveReadValue(body.data, schema);
+        const result = explicit.safeParse(revived);
+        expect(result.success, resource.id).toBe(true);
+        if (result.success)
+          expect(
+            reviveReadValue(JSON.parse(JSON.stringify(result.data)), schema),
+            resource.id,
+          ).toEqual(revived);
+      }
       if (resource.id === "ownRegistrations") {
         expect(
           body.data.every(
@@ -157,6 +176,26 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
     expect(ownForm.data.edition.registration.questions.length).toBeGreaterThan(
       0,
     );
+    const historicalConfiguration = await request(
+      "/tournaments/s9/configuration",
+      "",
+    );
+    const closedForm = await request("/me/tournaments/s9/registration");
+    expect(historicalConfiguration.status).toBe(200);
+    expect(closedForm.status).toBe(200);
+    const { data: closedConfiguration } = await closedForm.json();
+    expect(closedConfiguration).toEqual(
+      (await historicalConfiguration.json()).data,
+    );
+    expect(closedConfiguration.edition.registration).toBeNull();
+    const restoredConfiguration = reviveReadValue(closedConfiguration, {
+      ...contracts.resources.ownRegistrationForm,
+      $defs: contracts.$defs,
+    });
+    expect(restoredConfiguration).toMatchObject({
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
     const eligibility = await (
       await request("/me/tournaments/remote-registration/eligibility")
     ).json();

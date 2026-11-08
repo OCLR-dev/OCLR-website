@@ -23,6 +23,46 @@ import {
   refereeIrcBrowserCommand,
   refereeIrcView,
 } from "../../src/lib/referee-irc";
+import { POST as ircRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/irc/route";
+import { changeRefereeIrcBrowserWrite } from "../../src/lib/referee-irc-browser-contract";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => referee,
+}));
+function post(fixtureId: string, input: unknown, bearer = false) {
+  return ircRoute(
+    new Request(
+      origin +
+        changeRefereeIrcBrowserWrite.path
+          .replace("{edition}", "test-cup")
+          .replace("{fixtureId}", fixtureId),
+      {
+        method: "POST",
+        headers: {
+          origin,
+          "content-type": "application/json",
+          ...(bearer ? { authorization: "Bearer synthetic-only" } : {}),
+        },
+        body: JSON.stringify(input),
+      },
+    ),
+    { params: Promise.resolve({ edition: "test-cup", fixtureId }) },
+  );
+}
+async function parseIrcResponse(response: Response) {
+  expect(response.status).toBe(200);
+  const data = await response.json();
+  const fields = changeRefereeIrcBrowserWrite.response.properties;
+  expect({
+    connection: fields.connection.parse(data.connection),
+    messages: fields.messages.parse(data.messages),
+    commands: fields.commands.parse(data.commands),
+    workspace: extendedSchemas.refereeWorkspace.parse(data.workspace),
+  }).toEqual(data);
+  return data;
+}
 const url = process.env.TEST_DATABASE_URL;
 describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
   let fixtureId: string, connectionId: string, seq: number;
@@ -41,6 +81,7 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     assertTestDatabase(url);
     if (new URL(url!).port === "55436") throw Error("Preview prohibited");
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -166,7 +207,8 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
   }
   it("queues one ordered notice/map/Mods plan per saved Pick and never records BP twice", async () => {
     const { picked, request } = await autoPick();
-    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, request);
+    const replay = await parseIrcResponse(await post(fixtureId, request));
+    expect(replay.commands).toHaveLength(3);
     let state = await refereeIrcView(referee, "test-cup", fixtureId);
     expect(state.commands.map((c) => c.text)).toEqual([
       expect.stringMatching(/^\[OCLR BP #/),
@@ -522,8 +564,12 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     const dispatched = await sync();
     await sync([{ commandId: dispatched.command!.id, status: "unknown" }]);
     expect((await sync()).command).toBeNull();
-    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
-      action: "disconnect",
+    const disconnected = await parseIrcResponse(
+      await post(fixtureId, { action: "disconnect" }),
+    );
+    expect(disconnected.connection).toMatchObject({
+      status: "revoked",
+      connected: false,
     });
     await expect(sync()).rejects.toMatchObject({ status: 403 });
   });
@@ -533,7 +579,18 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
       requestKey: randomUUID(),
       text: "!mp timer 30",
     };
-    await refereeIrcBrowserCommand(referee, "test-cup", fixtureId, first);
+    expect((await post(fixtureId, first, true)).status).toBe(403);
+    const queued = await parseIrcResponse(await post(fixtureId, first));
+    const replay = await parseIrcResponse(await post(fixtureId, first));
+    expect(replay.commands).toEqual(queued.commands);
+    expect(queued.commands).toHaveLength(1);
+    expect(queued.commands[0]).toMatchObject({
+      requestKey: first.requestKey,
+      status: "queued",
+    });
+    expect(
+      (await post(fixtureId, { ...first, text: "!mp timer 40" })).status,
+    ).toBe(409);
     const dispatched = await sync();
     await sync([{ commandId: dispatched.command!.id, status: "sent" }]);
     await expect(

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { practiceWrite } from "@/lib/player-workspace-contracts";
 import {
   assertDirectPlayerWorkspace,
   playerPracticeCommand,
@@ -36,10 +37,10 @@ export async function POST(
     const result = await playerPracticeCommand(
       actor,
       edition,
-      await readJson(request),
+      await readJson(request, practiceWrite.maxBodyBytes),
     );
     revalidatePath(`/tournaments/${edition}/player/practice`);
-    return NextResponse.json(result, {
+    return NextResponse.json(practiceWrite.response.parse(result), {
       headers: { "Cache-Control": "private, no-store" },
     });
   } catch (error) {

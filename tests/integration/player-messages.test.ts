@@ -26,6 +26,40 @@ import {
   publicPlayerMessages,
 } from "../../src/lib/player-messages";
 import { withReadChannel } from "../../src/lib/read-channel";
+import { requireUser } from "../../src/lib/auth/user";
+import { POST } from "../../src/app/api/tournaments/[edition]/players/[osuId]/messages/route";
+import { DELETE, PATCH } from "../../src/app/api/tournaments/[edition]/players/[osuId]/messages/[messageId]/route";
+import {
+  postPlayerMessageWrite,
+  editPlayerMessageWrite,
+  deletePlayerMessageWrite,
+} from "../../src/lib/player-message-write-contract";
+
+vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
+const origin = "https://oclr.example.test";
+function request(
+  operation:
+    | typeof postPlayerMessageWrite
+    | typeof editPlayerMessageWrite
+    | typeof deletePlayerMessageWrite,
+  input: unknown,
+  messageId = "",
+  authorization?: string,
+) {
+  const path = operation.path
+    .replace("{edition}", cup.slug)
+    .replace("{osuId}", String(target))
+    .replace("{messageId}", messageId);
+  return new Request(origin + path, {
+    method: operation.method,
+    headers: {
+      origin,
+      "content-type": "application/json",
+      ...(authorization ? { authorization } : {}),
+    },
+    body: JSON.stringify(input),
+  });
+}
 const url = process.env.TEST_DATABASE_URL;
 const actor = { osuId: 320001, username: "Signed Author" };
 const target = 320002;
@@ -58,6 +92,7 @@ describe.skipIf(!url)(
     beforeAll(() => {
       assertTestDatabase(url);
       vi.stubEnv("DATABASE_URL", url!);
+      vi.stubEnv("APP_URL", origin);
     });
     beforeEach(async () => {
       await db().execute(sql`TRUNCATE edition_state, users CASCADE`);
@@ -112,11 +147,27 @@ describe.skipIf(!url)(
         role: "developer",
         grantedBy: actor.osuId,
       });
-      const input = { requestId: randomUUID(), text: "Developer comment" };
-      const saved = await postPlayerMessage(actor, cup.slug, target, input);
-      expect(await postPlayerMessage(actor, cup.slug, target, input)).toEqual(
-        saved,
-      );
+      vi.mocked(requireUser).mockResolvedValue(actor);
+      const input = { requestId: randomUUID(), text: `  ${"x".repeat(1000)}  ` };
+      const params = { edition: cup.slug, osuId: String(target) };
+      const post = (authorization?: string) =>
+        POST(request(postPlayerMessageWrite, input, "", authorization), {
+          params: Promise.resolve(params),
+        });
+      expect((await post("Bearer synthetic-only")).status).toBe(403);
+      const posted = await post();
+      expect(posted.status).toBe(201);
+      expect(posted.headers.get("Cache-Control")).toBe("no-store");
+      const body = await posted.json();
+      const saved = postPlayerMessageWrite.response.parse(body);
+      expect(saved).toEqual(body);
+      expect(saved).toMatchObject({
+        authorId: actor.osuId,
+        text: input.text.trim(),
+      });
+      const replay = await post();
+      expect(replay.status).toBe(201);
+      expect(await replay.json()).toEqual(saved);
       await expect(
         postPlayerMessage(actor, cup.slug, target + 1, {
           requestId: randomUUID(),
@@ -135,18 +186,41 @@ describe.skipIf(!url)(
           },
         ),
       ).rejects.toMatchObject({ status: 404 });
-      await changePlayerMessage(actor, cup.slug, target, saved.id, "edit", {
-        version: saved.version,
-        text: "Edited by Developer",
-      });
-      const [edited] = await publicPlayerMessages(cup.slug, target);
+      const context = {
+        params: Promise.resolve({ ...params, messageId: saved.id }),
+      };
+      const patch = await PATCH(
+        request(
+          editPlayerMessageWrite,
+          { version: saved.version, text: "Edited by Developer" },
+          saved.id,
+        ),
+        context,
+      );
+      expect(patch.status).toBe(200);
+      const changed = await patch.json();
+      const edited = editPlayerMessageWrite.response.parse(changed);
+      expect(edited).toEqual(changed);
       expect(edited).toMatchObject({
+        id: saved.id,
         authorId: actor.osuId,
+        createdAt: saved.createdAt,
         text: "Edited by Developer",
       });
-      await changePlayerMessage(actor, cup.slug, target, saved.id, "delete", {
-        version: edited.version,
-      });
+      expect(edited.version).not.toBe(saved.version);
+      expect(await publicPlayerMessages(cup.slug, target)).toEqual([edited]);
+
+      const remove = (version: string) =>
+        DELETE(request(deletePlayerMessageWrite, { version }, saved.id), context);
+      expect((await remove(saved.version)).status).toBe(409);
+      const removed = await remove(edited.version);
+      expect(removed.status).toBe(200);
+      expect(removed.headers.get("Cache-Control")).toBe("no-store");
+      expect(
+        deletePlayerMessageWrite.response.parse(await removed.json()),
+      ).toBeNull();
+      expect((await remove(edited.version)).status).toBe(404);
+      expect((await post()).status).toBe(409);
       expect(await publicPlayerMessages(cup.slug, target)).toEqual([]);
     });
     it("rejects message writes through delegated and remote read channels", async () => {

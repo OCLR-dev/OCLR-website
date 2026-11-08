@@ -2,6 +2,7 @@ import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff";
 import { staffTeams, updateTeams } from "@/lib/teams";
+import { changeTeamsWrite } from "@/lib/draft-setup-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 async function readGET(
   _request: Request,
@@ -26,7 +27,11 @@ export async function POST(
     const actor = await requireStaff();
     const { edition } = await context.params;
     return NextResponse.json(
-      await updateTeams(actor, edition, await readJson(request)),
+      await updateTeams(
+        actor,
+        edition,
+        await readJson(request, changeTeamsWrite.maxBodyBytes),
+      ),
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {

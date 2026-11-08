@@ -103,11 +103,11 @@ async function databasePublicBroadcastDraft(
 export async function publicBroadcastDraft(
   slug: string,
   defer?: (work: () => Promise<void>) => void,
-): Promise<Awaited<ReturnType<typeof databasePublicBroadcastDraft>>> {
+): Promise<DraftBoard | null> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicBroadcastDraft>>
-    >("publicBroadcastDraft", { slug });
+    return frontendResource<DraftBoard | null>("publicBroadcastDraft", {
+      slug,
+    });
   }
   return databasePublicBroadcastDraft(slug, defer);
 }

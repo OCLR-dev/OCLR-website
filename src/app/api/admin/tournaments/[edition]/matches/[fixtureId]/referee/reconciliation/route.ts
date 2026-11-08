@@ -1,6 +1,7 @@
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
+import { reconcileRefereeAttemptWrite } from "@/lib/referee-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import {
   refereeReconciliation,
@@ -29,7 +30,7 @@ export async function POST(request: Request, context: Context) {
         actor,
         edition,
         fixtureId,
-        await readJson(request),
+        await readJson(request, reconcileRefereeAttemptWrite.maxBodyBytes),
       ),
       { headers: { "Cache-Control": "no-store" } },
     );

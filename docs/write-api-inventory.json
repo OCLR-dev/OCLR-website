@@ -1,0 +1,1133 @@
+[
+  {
+    "route": "/api/admin/backups",
+    "source": "src/app/api/admin/backups/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "queueAdminBackup",
+        "access": "browser",
+        "actions": [
+          "backup",
+          "import",
+          "restore"
+        ],
+        "consumers": [
+          "src/components/backup-manager.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/contributors",
+    "source": "src/app/api/admin/contributors/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "documented",
+        "operationId": "updateContributors",
+        "access": "browser",
+        "consumers": [
+          "src/components/contributor-manager.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/profiles",
+    "source": "src/app/api/admin/profiles/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "refreshStaffProfile",
+        "access": "browser",
+        "consumers": [
+          "src/components/captain-player-card.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/registrations/{id}/review",
+    "source": "src/app/api/admin/registrations/[id]/review/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "reviewRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/review-form.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/settings",
+    "source": "src/app/api/admin/settings/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "documented",
+        "operationId": "updateSiteAppearance",
+        "access": "browser",
+        "consumers": [
+          "src/components/site-appearance-form.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/staff",
+    "source": "src/app/api/admin/staff/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeStaffRoles",
+        "access": "browser",
+        "actions": [
+          "visibility",
+          "grant",
+          "revoke",
+          "set_roles"
+        ],
+        "consumers": [
+          "src/components/staff-role-form.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/archive-staff",
+    "source": "src/app/api/admin/tournaments/[edition]/archive-staff/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "lookupArchiveStaffIdentity",
+        "access": "browser",
+        "consumers": [
+          "src/components/archive-staff-resolver.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/awards",
+    "source": "src/app/api/admin/tournaments/[edition]/awards/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeAwards",
+        "access": "browser",
+        "actions": [
+          "configure",
+          "publish",
+          "unpublish"
+        ],
+        "consumers": [
+          "src/components/award-manager.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/captains",
+    "source": "src/app/api/admin/tournaments/[edition]/captains/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeCaptains",
+        "access": "browser",
+        "actions": [
+          "appoint",
+          "revoke",
+          "replace",
+          "order",
+          "availability",
+          "lock",
+          "publish"
+        ],
+        "consumers": [
+          "src/components/captain-manager.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/delete-draft",
+    "source": "src/app/api/admin/tournaments/[edition]/delete-draft/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "deleteTournamentDraft",
+        "access": "browser",
+        "consumers": [
+          "src/components/tournament-editor.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/draft",
+    "source": "src/app/api/admin/tournaments/[edition]/draft/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeDraft",
+        "access": "browser",
+        "actions": [
+          "configure",
+          "unlock",
+          "reset",
+          "ready",
+          "start",
+          "pause",
+          "resume",
+          "publish",
+          "undo",
+          "abort",
+          "recover",
+          "finalize"
+        ],
+        "consumers": [
+          "src/components/draft-order-editor.tsx",
+          "src/components/staff-draft.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappool-workbench",
+    "source": "src/app/api/admin/tournaments/[edition]/mappool-workbench/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeMappoolWorkbench",
+        "access": "browser",
+        "actions": [
+          "preview",
+          "skillsets",
+          "assign_rounds",
+          "comment_edit",
+          "comment_delete",
+          "classify",
+          "add",
+          "comment"
+        ],
+        "consumers": [
+          "src/components/mappool-workbench.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappools/entries/{entryId}/replays/{replayId}",
+    "source": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/route.ts",
+    "methods": {
+      "DELETE": {
+        "status": "documented",
+        "operationId": "deleteMappoolReplay",
+        "access": "browser",
+        "consumers": [
+          "src/components/mappool-replays.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappools/entries/{entryId}/replays",
+    "source": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "uploadMappoolReplay",
+        "access": "browser",
+        "consumers": [
+          "src/components/mappool-replays.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappools/preview",
+    "source": "src/app/api/admin/tournaments/[edition]/mappools/preview/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "previewMappool",
+        "access": "browser",
+        "consumers": [
+          "src/components/mappool-batch.tsx",
+          "src/components/mappool-editor.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/mappools",
+    "source": "src/app/api/admin/tournaments/[edition]/mappools/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeMappool",
+        "access": "browser",
+        "actions": [
+          "history_import",
+          "batch_import",
+          "batch_remove",
+          "batch_move",
+          "batch_refresh",
+          "round_create",
+          "round_edit",
+          "round_delete",
+          "pool_create",
+          "pool_settings",
+          "pool_publish",
+          "entry_save",
+          "entry_remove",
+          "entry_refresh",
+          "reorder"
+        ],
+        "consumers": [
+          "src/components/exhibition-pool-import.tsx",
+          "src/components/mappool-batch.tsx",
+          "src/components/mappool-editor.tsx",
+          "src/components/mappool-workbench.tsx",
+          "src/components/round-manager.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/imports/preview",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/preview/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "previewMatchImport",
+        "access": "browser",
+        "consumers": [
+          "src/components/match-source-completion.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/imports",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "importMatchResult",
+        "access": "browser",
+        "consumers": [
+          "src/components/match-review.tsx",
+          "src/components/match-source-completion.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referee/irc",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/irc/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeRefereeIrcBrowser",
+        "access": "browser",
+        "actions": [
+          "queue",
+          "sync_selection",
+          "disconnect"
+        ],
+        "consumers": [
+          "src/components/referee-irc.tsx",
+          "src/components/referee-panel.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referee/mp",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/mp/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeRefereeMp",
+        "access": "browser",
+        "actions": [
+          "status",
+          "bind",
+          "bind_room",
+          "unbind",
+          "sync"
+        ],
+        "consumers": [
+          "src/components/referee-mp.tsx",
+          "src/components/referee-panel.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referee/reconciliation",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/reconciliation/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "reconcileRefereeAttempt",
+        "access": "browser",
+        "consumers": [
+          "src/components/referee-reconciliation.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referee",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "documented",
+        "operationId": "changeRefereeWorkspace",
+        "access": "browser",
+        "actions": [
+          "save_settings",
+          "configure_policy",
+          "reconfirm_dependencies",
+          "set_order",
+          "record_selection",
+          "declare_ex",
+          "start_attempt",
+          "resolve_attempt",
+          "replay_attempt",
+          "void_last"
+        ],
+        "consumers": [
+          "src/components/referee-panel.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/referees",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referees/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "documented",
+        "operationId": "assignFixtureReferees",
+        "access": "browser",
+        "consumers": [
+          "src/components/referee-assignment.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches/{fixtureId}/results",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/results/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeMatchResult",
+        "access": "browser",
+        "actions": [
+          "submit",
+          "approve",
+          "approve_publish",
+          "reject",
+          "publish",
+          "unpublish",
+          "void"
+        ],
+        "consumers": [
+          "src/components/match-review.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/matches",
+    "source": "src/app/api/admin/tournaments/[edition]/matches/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeFixtures",
+        "access": "browser",
+        "actions": [
+          "preview_force_delete",
+          "force_delete",
+          "delete",
+          "stage_groups",
+          "create",
+          "edit",
+          "publish",
+          "round_rules"
+        ],
+        "consumers": [
+          "src/components/competition-settings.tsx",
+          "src/components/fixture-manager.tsx",
+          "src/components/force-fixture-delete.tsx",
+          "src/components/stage-groups.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/{id}/bws",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/bws/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "reviewBws",
+        "access": "browser",
+        "consumers": [
+          "src/components/bws-review.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/{id}/remove",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/remove/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "removeRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/registration-removal.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/{id}/restore",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/restore/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "restoreRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/registration-removal.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/batch/preview",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/batch/preview/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "previewManualRegistrations",
+        "access": "browser",
+        "consumers": [
+          "src/components/bulk-manual-registration.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/batch",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/batch/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "addManualRegistrations",
+        "access": "browser",
+        "consumers": [
+          "src/components/bulk-manual-registration.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations/preview",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/preview/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "previewManualRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/manual-registration.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/registrations",
+    "source": "src/app/api/admin/tournaments/[edition]/registrations/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "addManualRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/manual-registration.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/rounds/{roundId}/referee-policy",
+    "source": "src/app/api/admin/tournaments/[edition]/rounds/[roundId]/referee-policy/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "saveRoundRefereePolicy",
+        "access": "browser",
+        "consumers": [
+          "src/components/round-referee-policy.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}",
+    "source": "src/app/api/admin/tournaments/[edition]/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeTournament",
+        "access": "browser",
+        "actions": [
+          "resolve-archive-staff",
+          "exchange-archive-players",
+          "add-archive-substitute",
+          "resolve-archive-identity",
+          "approve-archive-matches",
+          "archive",
+          "enrollment",
+          "general",
+          "rules",
+          "registration",
+          "schedule",
+          "publication"
+        ],
+        "consumers": [
+          "src/components/tournament-editor.tsx",
+          "src/components/archive-importer.tsx",
+          "src/components/archive-player-exchange.tsx",
+          "src/components/archive-staff-resolver.tsx",
+          "src/components/archive-substitute.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/statistics",
+    "source": "src/app/api/admin/tournaments/[edition]/statistics/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeHistoricalStatistics",
+        "access": "browser",
+        "actions": [
+          "import",
+          "review",
+          "publish",
+          "withdraw"
+        ],
+        "consumers": [
+          "src/components/statistics-manager.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/streaming/{fixtureId}",
+    "source": "src/app/api/admin/tournaments/[edition]/streaming/[fixtureId]/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeStreamingTask",
+        "access": "browser",
+        "actions": [
+          "select",
+          "assign",
+          "cancel",
+          "reconfirm"
+        ],
+        "consumers": [
+          "src/components/streaming-manager.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/teams/{teamId}",
+    "source": "src/app/api/admin/tournaments/[edition]/teams/[teamId]/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "documented",
+        "operationId": "editTeamIdentity",
+        "access": "browser",
+        "consumers": [
+          "src/components/team-editor.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments/{edition}/teams",
+    "source": "src/app/api/admin/tournaments/[edition]/teams/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeTeams",
+        "access": "browser",
+        "actions": [
+          "add_coach",
+          "remove_coach",
+          "configure",
+          "edit",
+          "publish"
+        ],
+        "consumers": [
+          "src/app/admin/tournaments/[edition]/teams/page.tsx",
+          "src/components/team-manager.tsx",
+          "src/components/team-coach-manager.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/admin/tournaments",
+    "source": "src/app/api/admin/tournaments/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "createTournament",
+        "access": "browser",
+        "consumers": [
+          "src/components/tournament-editor.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/decision",
+    "source": "src/app/api/desktop/v1/auth/decision/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "decideDesktopAuthorization",
+        "access": "browser",
+        "actions": [
+          "approve",
+          "deny"
+        ],
+        "consumers": [
+          "src/app/desktop/authorize/page.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/exchange",
+    "source": "src/app/api/desktop/v1/auth/exchange/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "exchangeDesktopAuthorization",
+        "access": "public",
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr.ts"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/refresh",
+    "source": "src/app/api/desktop/v1/auth/refresh/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "refreshDesktopAuthorization",
+        "access": "public",
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr.ts"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/requests",
+    "source": "src/app/api/desktop/v1/auth/requests/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "requestDesktopAuthorization",
+        "access": "public",
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr.ts"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/revoke",
+    "source": "src/app/api/desktop/v1/auth/revoke/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "revokeDesktopAuthorization",
+        "access": "public",
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr.ts"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/desktop/v1/auth/sessions/{id}",
+    "source": "src/app/api/desktop/v1/auth/sessions/[id]/route.ts",
+    "methods": {
+      "DELETE": {
+        "status": "documented",
+        "operationId": "deleteDesktopSession",
+        "access": "browser",
+        "consumers": [
+          "src/components/desktop-sessions.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/developer/tokens/{tokenId}",
+    "source": "src/app/api/developer/tokens/[tokenId]/route.ts",
+    "methods": {
+      "DELETE": {
+        "status": "documented",
+        "operationId": "revokeDeveloperToken",
+        "access": "browser",
+        "consumers": [
+          "src/components/developer-access.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/developer/tokens",
+    "source": "src/app/api/developer/tokens/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "createDeveloperToken",
+        "access": "browser",
+        "consumers": [
+          "src/components/developer-access.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/games/ocl-chess",
+    "source": "src/app/api/games/ocl-chess/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "placeChessPixel",
+        "access": "browser",
+        "consumers": [
+          "src/app/games/ocl-chess/workspace.tsx"
+        ]
+      },
+      "PATCH": {
+        "status": "documented",
+        "operationId": "moderateChess",
+        "access": "browser",
+        "actions": [
+          "toggle",
+          "clear"
+        ],
+        "consumers": [
+          "src/app/games/ocl-chess/workspace.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/referee/v1/fixtures/{fixtureId}/relay",
+    "source": "src/app/api/referee/v1/fixtures/[fixtureId]/relay/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "relayRefereeIrc",
+        "access": "desktop",
+        "actions": [
+          "bind",
+          "disconnect",
+          "sync"
+        ],
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr-relay.ts"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/registrations/{id}/withdraw",
+    "source": "src/app/api/registrations/[id]/withdraw/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "withdrawRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/app/dashboard/page.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/remote/connection",
+    "source": "src/app/api/remote/connection/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeRemoteConnection",
+        "access": "same-origin",
+        "actions": [
+          "refresh",
+          "anonymous",
+          "developer"
+        ],
+        "consumers": [
+          "src/components/remote-development.tsx"
+        ]
+      },
+      "DELETE": {
+        "status": "documented",
+        "operationId": "disconnectRemote",
+        "access": "same-origin",
+        "consumers": [
+          "src/components/remote-development.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/streaming/tokens/{tokenId}",
+    "source": "src/app/api/streaming/tokens/[tokenId]/route.ts",
+    "methods": {
+      "DELETE": {
+        "status": "documented",
+        "operationId": "revokeStreamingAccess",
+        "access": "browser",
+        "consumers": [
+          "src/components/streaming-access.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/streaming/tokens",
+    "source": "src/app/api/streaming/tokens/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "createStreamingAccess",
+        "access": "browser",
+        "consumers": [
+          "src/components/streaming-access.tsx",
+          "src/components/streaming-connect.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/draft/picks",
+    "source": "src/app/api/tournaments/[edition]/draft/picks/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "pickDraftPlayer",
+        "access": "browser",
+        "consumers": [
+          "src/components/draft-pick.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/player/availability",
+    "source": "src/app/api/tournaments/[edition]/player/availability/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "writePlayerAvailability",
+        "access": "browser",
+        "actions": [
+          "save_availability"
+        ],
+        "consumers": [
+          "src/components/player-timetable.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/player/practice",
+    "source": "src/app/api/tournaments/[edition]/player/practice/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "writePlayerPractice",
+        "access": "browser",
+        "actions": [
+          "save_practice",
+          "delete_practice"
+        ],
+        "consumers": [
+          "src/components/player-practice.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/players/{osuId}/messages/{messageId}",
+    "source": "src/app/api/tournaments/[edition]/players/[osuId]/messages/[messageId]/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "documented",
+        "operationId": "editPlayerMessage",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-message-board.tsx"
+        ]
+      },
+      "DELETE": {
+        "status": "documented",
+        "operationId": "deletePlayerMessage",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-message-board.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/players/{osuId}/messages",
+    "source": "src/app/api/tournaments/[edition]/players/[osuId]/messages/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "postPlayerMessage",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-message-board.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/registrations",
+    "source": "src/app/api/tournaments/[edition]/registrations/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "submitRegistration",
+        "access": "browser",
+        "consumers": [
+          "src/components/application-form.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/tournaments/{edition}/schedule/requests",
+    "source": "src/app/api/tournaments/[edition]/schedule/requests/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeScheduleRequest",
+        "access": "browser",
+        "actions": [
+          "availability",
+          "propose",
+          "accept",
+          "withdraw",
+          "reject",
+          "approve"
+        ],
+        "consumers": [
+          "src/components/schedule-manager.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/v1/[...path]",
+    "source": "src/app/api/v1/[...path]/route.ts",
+    "methods": {
+      "POST": {
+        "status": "read-only"
+      },
+      "PUT": {
+        "status": "read-only"
+      },
+      "PATCH": {
+        "status": "read-only"
+      },
+      "DELETE": {
+        "status": "read-only"
+      }
+    }
+  },
+  {
+    "route": "/api/v1/me",
+    "source": "src/app/api/v1/me/route.ts",
+    "methods": {
+      "POST": {
+        "status": "read-only"
+      },
+      "PUT": {
+        "status": "read-only"
+      },
+      "PATCH": {
+        "status": "read-only"
+      },
+      "DELETE": {
+        "status": "read-only"
+      }
+    }
+  },
+  {
+    "route": "/api/v1/streaming/tournaments/{edition}/next",
+    "source": "src/app/api/v1/streaming/tournaments/[edition]/next/route.ts",
+    "methods": {
+      "POST": {
+        "status": "read-only"
+      },
+      "PUT": {
+        "status": "read-only"
+      },
+      "PATCH": {
+        "status": "read-only"
+      },
+      "DELETE": {
+        "status": "read-only"
+      }
+    }
+  },
+  {
+    "route": "/auth/logout",
+    "source": "src/app/auth/logout/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "logout",
+        "access": "same-origin",
+        "consumers": [
+          "src/app/dashboard/page.tsx"
+        ]
+      }
+    }
+  }
+]

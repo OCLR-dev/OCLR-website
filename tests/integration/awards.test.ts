@@ -32,6 +32,14 @@ import { seedEditions } from "../fixtures/editions";
 import { seedAwardReview, awardWeeks } from "../fixtures/awards";
 import { assertTestDatabase } from "../database";
 import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
+import { POST as awardsRoute } from "../../src/app/api/admin/tournaments/[edition]/awards/route";
+import { changeAwardsWrite } from "../../src/lib/results-publication-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => admin,
+}));
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 113001, username: "Synthetic Admin" },
   referee = { osuId: 113002, username: "Synthetic Referee" };
@@ -39,6 +47,7 @@ describe.skipIf(!url)("edition weekly award review and publication", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -244,8 +253,35 @@ describe.skipIf(!url)("edition weekly award review and publication", () => {
       true,
     );
     expect(await publicAwards("test-cup")).toEqual([]);
-    await publish(data.reports[0].fingerprint);
-    await publish(data.reports[0].fingerprint);
+    const slug = "test-cup";
+    const post = (fingerprint: string) =>
+      awardsRoute(
+        new Request(
+          origin + changeAwardsWrite.path.replace("{edition}", slug),
+          {
+            method: "POST",
+            headers: { origin, "content-type": "application/json" },
+            body: JSON.stringify({
+              action: "publish",
+              confirmed: true,
+              expectedVersion: 1,
+              week: 1,
+              fingerprint,
+            }),
+          },
+        ),
+        { params: Promise.resolve({ edition: slug }) },
+      );
+    const { fingerprint } = data.reports[0];
+    for (const value of [fingerprint, fingerprint]) {
+      const response = await post(value);
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(
+        extendedSchemas[changeAwardsWrite.response.readResource].parse(body),
+      ).toEqual(body);
+      expect(body.releases).toHaveLength(1);
+    }
     expect(await db().select().from(weeklyAwardReleases)).toHaveLength(1);
     expect((await publicAwards("test-cup"))![0].stale).toBe(false);
     // A submitted correction does not replace the authoritative published revision.
@@ -262,8 +298,10 @@ describe.skipIf(!url)("edition weekly award review and publication", () => {
     expect(stale.stale).toBe(true);
     expect(stale.candidates).toEqual([]);
     expect(stale.mvp).toEqual([]);
-    await expect(publish(data.reports[0].fingerprint)).rejects.toMatchObject({
-      status: 409,
+    const staleResponse = await post(data.reports[0].fingerprint);
+    expect(staleResponse.status).toBe(409);
+    expect(await staleResponse.json()).toEqual({
+      error: "Award source data changed. Review the refreshed calculation.",
     });
     const refreshed = await awardWorkspace(admin, "test-cup");
     await publish(refreshed.reports[0].fingerprint);

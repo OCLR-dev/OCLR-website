@@ -8,24 +8,19 @@ import {
   users,
 } from "@/db/schema";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
-import { z } from "zod";
 import type { User } from "./auth/sessions";
 import { assertUserWriteChannel } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
-
-export type PlayerMessage = {
-  id: string;
-  authorId: number;
-  author: string;
-  text: string;
-  createdAt: string;
-  version: string;
-};
-const inputSchema = z
-  .object({ requestId: z.uuid(), text: z.string().trim().min(1).max(1000) })
-  .strict();
+import {
+  deletePlayerMessageWrite,
+  editPlayerMessageWrite,
+  postPlayerMessageWrite,
+} from "./player-message-write-contract";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PublicPlayerMessages = ExplicitReadData<"publicPlayerMessages">;
+export type PlayerMessage = PublicPlayerMessages[number];
 const visible = (edition: string, playerId: number) =>
   and(
     eq(registrations.editionSlug, edition),
@@ -73,11 +68,12 @@ async function databasePublicPlayerMessages(
 export async function publicPlayerMessages(
   edition: string,
   playerId: number,
-): Promise<Awaited<ReturnType<typeof databasePublicPlayerMessages>>> {
+): Promise<PublicPlayerMessages> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicPlayerMessages>>
-    >("publicPlayerMessages", { edition, playerId });
+    return frontendResource<PublicPlayerMessages>("publicPlayerMessages", {
+      edition,
+      playerId,
+    });
   }
   return databasePublicPlayerMessages(edition, playerId);
 }
@@ -88,7 +84,7 @@ export async function postPlayerMessage(
   playerId: number,
   input: unknown,
 ) {
-  const parsed = inputSchema.safeParse(input);
+  const parsed = postPlayerMessageWrite.request.safeParse(input);
   if (!parsed.success || !Number.isSafeInteger(playerId) || playerId <= 0)
     throw new HttpError(400, "Enter a message of 1 to 1000 characters.");
   assertUserWriteChannel();
@@ -200,19 +196,12 @@ export async function changePlayerMessage(
   operation: "edit" | "delete",
   input: unknown,
 ) {
-  const schema =
-    operation === "edit"
-      ? z
-          .object({
-            version: z.string().regex(/^\d+$/),
-            text: z.string().trim().min(1).max(1000),
-          })
-          .strict()
-      : z.object({ version: z.string().regex(/^\d+$/) }).strict();
-  const parsed = schema.safeParse(input);
+  const contract =
+    operation === "edit" ? editPlayerMessageWrite : deletePlayerMessageWrite;
+  const parsed = contract.request.safeParse(input);
   if (
     !parsed.success ||
-    !z.uuid().safeParse(messageId).success ||
+    !contract.parameters.messageId.safeParse(messageId).success ||
     !Number.isSafeInteger(playerId) ||
     playerId <= 0
   )

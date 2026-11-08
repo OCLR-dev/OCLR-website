@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { TimetableWorkspace } from "@/lib/player-workspace";
+import { availabilityWrite } from "@/lib/player-workspace-contracts";
 import {
   normalizeSeasonAvailability,
   seasonAvailabilitySchema,
@@ -81,7 +82,8 @@ export function PlayerTimetable({
   const viewportRef = useRef<HTMLDivElement>(null);
   const weekDaysRef = useRef<HTMLDivElement>(null);
   const { save, busy, message, failed } = useWorkspaceSave(
-    `/api/tournaments/${slug}/player/availability`,
+    availabilityWrite,
+    slug,
   );
   const dirty = JSON.stringify(intervals) !== JSON.stringify(saved);
   useUnsavedWorkspace(dirty);

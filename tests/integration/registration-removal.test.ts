@@ -44,6 +44,14 @@ import { prepareDraft } from "../fixtures/draft";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
+import { POST as reviewRegistrationRoute } from "../../src/app/api/admin/registrations/[id]/review/route";
+import { POST as removeRegistrationRoute } from "../../src/app/api/admin/tournaments/[edition]/registrations/[id]/remove/route";
+import { POST as restoreRegistrationRoute } from "../../src/app/api/admin/tournaments/[edition]/registrations/[id]/restore/route";
+import {
+  removeRegistrationWrite,
+  restoreRegistrationWrite,
+  reviewRegistrationWrite,
+} from "../../src/lib/registration-write-contract";
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 610001, username: "Synthetic Removal Admin" };
 const player = { osuId: 610002, username: "Synthetic Removal Player" };
@@ -51,6 +59,12 @@ const scoped = { osuId: 610003, username: "Synthetic Scoped Admin" };
 const mapper = { osuId: 610004, username: "Synthetic Mappooler" };
 const referee = { osuId: 610005, username: "Synthetic Referee" };
 const other = "other-removal-test";
+const origin = "https://oclr.example.test";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => admin,
+}));
 const payload = (r: { updatedAt: Date }) => ({
   confirmed: true,
   expectedUpdatedAt: r.updatedAt.toISOString(),
@@ -61,6 +75,7 @@ describe.skipIf(!url)(
     beforeAll(() => {
       assertTestDatabase(url);
       vi.stubEnv("DATABASE_URL", url!);
+      vi.stubEnv("APP_URL", origin);
       vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
       vi.stubEnv("PRIVACY_CONTACT_OSU_ID", String(admin.osuId));
     });
@@ -214,20 +229,45 @@ describe.skipIf(!url)(
       "restores %s entries only to Pending, preserving original acknowledgments",
       async (source) => {
         const r = await registration("accepted", source);
-        const removed = await changeRegistrationParticipation(
-          admin,
-          edition.slug,
-          r.id,
-          "remove",
-          payload(r),
+        const change = (
+          route: typeof removeRegistrationRoute,
+          path: string,
+          expectedUpdatedAt: string,
+        ) =>
+          route(
+            new Request(
+              origin +
+                path.replace("{edition}", edition.slug).replace("{id}", r.id),
+              {
+                method: "POST",
+                headers: { origin, "content-type": "application/json" },
+                body: JSON.stringify({ expectedUpdatedAt, confirmed: true }),
+              },
+            ),
+            { params: Promise.resolve({ edition: edition.slug, id: r.id }) },
+          );
+        const removal = await change(
+          removeRegistrationRoute,
+          removeRegistrationWrite.path,
+          r.updatedAt.toISOString(),
         );
-        await changeRegistrationParticipation(
-          admin,
-          edition.slug,
-          r.id,
-          "restore",
-          payload(removed),
+        expect(removal.status).toBe(200);
+        const removed = await removal.json();
+        expect(removeRegistrationWrite.response.parse(removed)).toEqual(
+          removed,
         );
+        expect(removed).toMatchObject({ id: r.id, status: "withdrawn" });
+        const restoration = await change(
+          restoreRegistrationRoute,
+          restoreRegistrationWrite.path,
+          removed.updatedAt,
+        );
+        expect(restoration.status).toBe(200);
+        const restored = await restoration.json();
+        expect(restoreRegistrationWrite.response.parse(restored)).toEqual(
+          restored,
+        );
+        expect(restored).toMatchObject({ id: r.id, status: "pending" });
         const current = await applicationDetails(admin, r.id);
         expect(current.lastOperation).toBe("staff_restore");
         expect(current.registration).toMatchObject({
@@ -364,6 +404,40 @@ describe.skipIf(!url)(
         ),
       ).rejects.toMatchObject({ status: 403 });
       expect(await db().select().from(registrationEvents)).toHaveLength(1);
+    });
+    it("returns the existing review payload and rejects invalid or stale decisions", async () => {
+      const r = await registration();
+      const review = (reason: string) =>
+        reviewRegistrationRoute(
+          new Request(
+            origin + reviewRegistrationWrite.path.replace("{id}", r.id),
+            {
+              method: "POST",
+              headers: { origin, "content-type": "application/json" },
+              body: JSON.stringify({
+                ...payload(r),
+                status: "rejected",
+                reason,
+              }),
+            },
+          ),
+          { params: Promise.resolve({ id: r.id }) },
+        );
+      expect((await review("")).status).toBe(400);
+      const response = await review("  Synthetic review reason  ");
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(reviewRegistrationWrite.response.parse(body)).toEqual(body);
+      expect(body).toMatchObject({
+        id: r.id,
+        answers: r.answers,
+        status: "rejected",
+        statusReason: "Synthetic review reason",
+        createdAt: r.createdAt.toISOString(),
+        updatedAt: expect.any(String),
+      });
+      expect((await review("stale")).status).toBe(409);
+      expect(await db().select().from(registrationEvents)).toHaveLength(2);
     });
     it("serializes duplicate removes and remove/review races without false success events", async () => {
       const r = await registration();

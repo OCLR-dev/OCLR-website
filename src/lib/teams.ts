@@ -11,7 +11,6 @@ import {
   users,
 } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
-import { z } from "zod";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
@@ -25,61 +24,29 @@ import {
   editionSchema,
   normalizeEditionBranding,
 } from "./editions";
+import { changeTeamsWrite } from "./draft-setup-write-contracts";
 import { HttpError } from "./http";
 import { getOsuUserProfile } from "./osu-profiles";
-const teamInput = z
-  .object({
-    captainId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-    name: z.string().trim().min(1).max(80),
-    capacity: z.number().int().min(1).max(256).nullable(),
-  })
-  .strict();
-const commandSchema = z
-  .object({
-    expectedVersion: z.number().int().nonnegative(),
-    confirmed: z.literal(true),
-    command: z.discriminatedUnion("action", [
-      z
-        .object({
-          action: z.literal("add_coach"),
-          teamId: z.uuid(),
-          userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-        })
-        .strict(),
-      z
-        .object({
-          action: z.literal("remove_coach"),
-          teamId: z.uuid(),
-          userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-        })
-        .strict(),
-      z
-        .object({
-          action: z.literal("configure"),
-          teams: z.array(teamInput).min(1).max(256),
-        })
-        .strict(),
-      z
-        .object({
-          action: z.literal("edit"),
-          teamId: z.uuid(),
-          name: teamInput.shape.name,
-          capacity: teamInput.shape.capacity,
-          avatarKey: z.uuid().nullable(),
-        })
-        .strict(),
-      z
-        .object({
-          action: z.literal("publish"),
-          teamId: z.uuid(),
-          identityPublished: z.boolean(),
-          rosterPublished: z.boolean(),
-        })
-        .strict(),
-    ]),
-  })
-  .strict();
-async function databaseStaffTeams(actor: User, slug: string) {
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PublishedTeams = ExplicitReadData<"publishedTeams">;
+type StaffTeams = ExplicitReadData<"staffTeams">;
+type OwnTeam = ExplicitReadData<"ownTeam">;
+const teamReadColumns = {
+  id: teams.id,
+  editionSlug: teams.editionSlug,
+  captainId: teams.captainId,
+  avatarKey: teams.avatarKey,
+  name: teams.name,
+  capacity: teams.capacity,
+  identityPublished: teams.identityPublished,
+  rosterPublished: teams.rosterPublished,
+  finalizedAt: teams.finalizedAt,
+  archivedAt: teams.archivedAt,
+};
+async function databaseStaffTeams(
+  actor: User,
+  slug: string,
+): Promise<StaffTeams> {
   await assertReadCapability(actor, "manage_teams", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -89,7 +56,7 @@ async function databaseStaffTeams(actor: User, slug: string) {
         .from(editionState)
         .where(eq(editionState.slug, slug));
       const rows = await tx
-        .select()
+        .select(teamReadColumns)
         .from(teams)
         .where(and(eq(teams.editionSlug, slug), isNull(teams.archivedAt)))
         .orderBy(teams.name);
@@ -138,13 +105,10 @@ async function databaseStaffTeams(actor: User, slug: string) {
 export async function staffTeams(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseStaffTeams>>> {
+): Promise<StaffTeams> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseStaffTeams>>>(
-      "staffTeams",
-      { slug },
-    );
+    return frontendResource<StaffTeams>("staffTeams", { slug });
   }
   return databaseStaffTeams(actor, slug);
 }
@@ -157,7 +121,7 @@ export async function updateTeams(
 ) {
   await assertCapability(actor, "manage_teams", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  const parsed = commandSchema.safeParse(input);
+  const parsed = changeTeamsWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Confirm valid team configuration.");
   const { command, expectedVersion } = parsed.data;
@@ -424,9 +388,9 @@ export async function updateTeams(
   });
   return staffTeams(actor, slug);
 }
-async function databaseOwnTeam(userId: number, slug: string) {
+async function databaseOwnTeam(userId: number, slug: string): Promise<OwnTeam> {
   const [team] = await db()
-    .select()
+    .select(teamReadColumns)
     .from(teams)
     .where(
       and(
@@ -466,21 +430,15 @@ async function databaseOwnTeam(userId: number, slug: string) {
         .map(({ osuId, username }) => ({ osuId, username })),
   };
 }
-export async function ownTeam(
-  userId: number,
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databaseOwnTeam>>> {
+export async function ownTeam(userId: number, slug: string): Promise<OwnTeam> {
   if (remoteMode()) {
     await assertRemoteSubject(userId);
-    return frontendResource<Awaited<ReturnType<typeof databaseOwnTeam>>>(
-      "ownTeam",
-      { slug },
-    );
+    return frontendResource<OwnTeam>("ownTeam", { slug });
   }
   return databaseOwnTeam(userId, slug);
 }
 
-async function databasePublishedTeams(slug: string) {
+async function databasePublishedTeams(slug: string): Promise<PublishedTeams> {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return [];
   return db().transaction(
     async (tx) => {
@@ -512,7 +470,7 @@ async function databasePublishedTeams(slug: string) {
           ),
         )
         .orderBy(teams.name);
-      const published = [];
+      const published: PublishedTeams = [];
       for (const team of rows) {
         const members =
           team.finalizedAt && team.rosterPublished
@@ -570,14 +528,9 @@ async function databasePublishedTeams(slug: string) {
     { isolationLevel: "repeatable read" },
   );
 }
-export async function publishedTeams(
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublishedTeams>>> {
+export async function publishedTeams(slug: string): Promise<PublishedTeams> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublishedTeams>>>(
-      "publishedTeams",
-      { slug },
-    );
+    return frontendResource<PublishedTeams>("publishedTeams", { slug });
   }
   return databasePublishedTeams(slug);
 }

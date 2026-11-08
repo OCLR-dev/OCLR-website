@@ -2,6 +2,7 @@ import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { postPlayerMessageWrite } from "@/lib/player-message-write-contract";
 import { postPlayerMessage, publicPlayerMessages } from "@/lib/player-messages";
 type Context = { params: Promise<{ edition: string; osuId: string }> };
 const headers = { "Cache-Control": "no-store" };
@@ -26,9 +27,9 @@ export async function POST(request: Request, context: Context) {
         actor,
         edition,
         Number(osuId),
-        await readJson(request, 8192),
+        await readJson(request, postPlayerMessageWrite.maxBodyBytes),
       ),
-      { status: 201, headers },
+      { status: postPlayerMessageWrite.successStatus, headers },
     );
   } catch (error) {
     return apiError(error);

@@ -1,3 +1,4 @@
+import { createTournamentWrite } from "@/lib/tournament-write-contracts";
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
@@ -16,8 +17,14 @@ export async function POST(request: Request) {
   try {
     requireSameOrigin(request);
     return NextResponse.json(
-      await createTournament(await requireUser(), await readJson(request)),
-      { status: 201, headers: { "Cache-Control": "no-store" } },
+      await createTournament(
+        await requireUser(),
+        await readJson(request, createTournamentWrite.maxBodyBytes),
+      ),
+      {
+        status: createTournamentWrite.successStatus,
+        headers: { "Cache-Control": "no-store" },
+      },
     );
   } catch (error) {
     return apiError(error);

@@ -39,7 +39,13 @@ import {
 } from "./auth/staff";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import {
+  streamingTaskWrite,
+  type StreamingTaskReceipt,
+} from "./scheduling-write-contracts";
 import { HttpError } from "./http";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+export type StreamingWorkspace = ExplicitReadData<"streamingWorkspace">;
 
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export function canViewStreaming(grants: readonly StaffGrant[], slug: string) {
@@ -73,7 +79,7 @@ async function databaseStreamingWorkspace(
   slug: string,
   input: unknown = {},
   fixtureId?: string,
-) {
+): Promise<StreamingWorkspace> {
   await assertView(actor, slug);
   const parsed = streamingFilters.safeParse(input);
   if (!parsed.success)
@@ -326,46 +332,31 @@ export async function streamingWorkspace(
   slug: string,
   input: unknown = {},
   fixtureId?: string,
-): Promise<Awaited<ReturnType<typeof databaseStreamingWorkspace>>> {
+): Promise<StreamingWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseStreamingWorkspace>>
-    >("streamingWorkspace", { slug, input, fixtureId });
+    return frontendResource<StreamingWorkspace>("streamingWorkspace", {
+      slug,
+      input,
+      fixtureId,
+    });
   }
   return databaseStreamingWorkspace(actor, slug, input, fixtureId);
 }
 
-const commandSchema = z
-  .object({
-    action: z.enum(["select", "assign", "cancel", "reconfirm"]),
-    task: z.literal("commentary").optional(),
-    userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).optional(),
-    userIds: z
-      .array(z.number().int().positive().max(Number.MAX_SAFE_INTEGER))
-      .min(1)
-      .max(100)
-      .refine((ids) => new Set(ids).size === ids.length)
-      .optional(),
-    requestKey: z.uuid(),
-    expectedRevision: z.number().int().nonnegative(),
-    expectedFixtureVersion: z.number().int().nonnegative(),
-    confirmed: z.literal(true),
-  })
-  .strict();
 export async function streamingCommand(
   actor: User,
   slug: string,
   fixtureId: string,
   input: unknown,
-) {
+): Promise<StreamingTaskReceipt> {
   const access = await staffAccess(actor);
   if (
     !permits(access, "select_streaming", slug) &&
     !permits(access, "manage_streaming", slug)
   )
     throw new HttpError(403, "You do not have permission for this operation.");
-  const parsed = commandSchema.safeParse(input);
+  const parsed = streamingTaskWrite.request.safeParse(input);
   if (!parsed.success || !z.uuid().safeParse(fixtureId).success)
     throw new HttpError(400, "Confirm a valid streaming task change.");
   const c = parsed.data;
@@ -619,4 +610,3 @@ export async function streamingCommand(
     return { saved: true, replayed: false };
   });
 }
-export type StreamingWorkspace = Awaited<ReturnType<typeof streamingWorkspace>>;

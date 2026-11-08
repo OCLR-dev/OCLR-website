@@ -1,5 +1,5 @@
 import { profileBws } from "./bws";
-import { z } from "zod";
+import { refreshStaffProfileWrite } from "./admin-operations-write-contracts";
 import type { User } from "./auth/sessions";
 import {
   readCapabilityScope,
@@ -134,17 +134,10 @@ export async function staffOclrPlayerProfile(
     throw new HttpError(404, "Known player not found.");
   return publishedPlayerProfile(input, mode, edition, undefined, true, edition);
 }
-const lookup = z
-  .object({
-    input: z.string().trim().min(1).max(300),
-    mode: z.enum(["osu", "taiko", "fruits", "mania"]).optional(),
-    refresh: z.boolean().default(false),
-  })
-  .strict();
 export async function staffPlayerProfile(user: User, input: unknown) {
   // Operational lookup doesn't grant applicant, captain or draft access.
   await readCapabilityScope(user, "manage_registrations");
-  const parsed = lookup.safeParse(input);
+  const parsed = refreshStaffProfileWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Enter a valid profile ID or URL and ruleset.");
   const identity = parseOsuProfile(parsed.data.input, parsed.data.mode);

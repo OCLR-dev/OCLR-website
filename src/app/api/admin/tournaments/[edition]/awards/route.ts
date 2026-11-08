@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { awardCommand, awardWorkspace } from "@/lib/awards";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { changeAwardsWrite } from "@/lib/results-publication-write-contracts";
 type Context = { params: Promise<{ edition: string }> };
 async function readGET(_request: Request, context: Context) {
   try {
@@ -21,7 +22,7 @@ export async function POST(request: Request, context: Context) {
       await awardCommand(
         await requireUser(),
         (await context.params).edition,
-        await readJson(request, 524288),
+        await readJson(request, changeAwardsWrite.maxBodyBytes),
       ),
       { headers: { "Cache-Control": "no-store" } },
     );

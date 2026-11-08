@@ -21,6 +21,7 @@ import type { User } from "./auth/sessions";
 import { assertCapability, hasCapability } from "./auth/staff";
 import { scoringRulesSchema } from "./competition-model";
 import { remoteMode } from "./data-source";
+import type { MatchReview as MatchReviewData } from "./fixture-read-contracts";
 import {
   fixtureForReview,
   officialTeams,
@@ -28,11 +29,17 @@ import {
   type FixtureReviewContext,
 } from "./fixtures";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import {
+  changeMatchResultWrite,
+  importMatchResultWrite,
+  previewMatchImportWrite,
+  type FixtureMatchPreview,
+} from "./match-result-write-contracts";
 import { HttpError } from "./http";
 import {
-  gameDecisionSchema,
   matchSourceSchema,
   reviewedResultSchema,
+  type GameDecision,
   type MatchSource,
   type ReviewedResult,
 } from "./match-model";
@@ -43,12 +50,6 @@ import {
   parseMatchId,
 } from "./osu-matches";
 type Reader = Pick<ReturnType<typeof db>, "select">;
-const common = {
-  requestKey: z.uuid(),
-  expectedVersion: z.number().int().nonnegative(),
-  expectedFixtureVersion: z.number().int().nonnegative(),
-  confirmed: z.literal(true),
-};
 const sourceDiffSchema = z
   .object({
     added: z.array(z.number().int().positive()).max(3000),
@@ -57,73 +58,6 @@ const sourceDiffSchema = z
     historyChanged: z.boolean(),
   })
   .strict();
-const importSchema = z
-  .object({
-    ...common,
-    match: z.string().trim().min(1).max(250),
-    completion: z
-      .object({
-        homeTeamId: z.uuid(),
-        awayTeamId: z.uuid(),
-        sourceFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-      })
-      .strict()
-      .optional(),
-  })
-  .strict();
-const commandSchema = z.discriminatedUnion("action", [
-  z
-    .object({
-      ...common,
-      action: z.literal("submit"),
-      importId: z.uuid(),
-      rulesConfirmed: z.literal(true),
-      sourceChangesConfirmed: z.literal(true),
-      decisions: z.array(gameDecisionSchema).max(3000),
-      publicNote: z.string().trim().max(1000),
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("approve"),
-      revision: z.number().int().positive(),
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("approve_publish"),
-      revision: z.number().int().positive(),
-      progressionAcknowledged: z.literal(true),
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("reject"),
-      decisionNote: z.string().trim().min(1).max(1000),
-      revision: z.number().int().positive(),
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("publish"),
-      revision: z.number().int().positive(),
-      progressionAcknowledged: z.literal(true),
-    })
-    .strict(),
-  z.object({ ...common, action: z.literal("unpublish") }).strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("void"),
-      decisionNote: z.string().trim().min(1).max(1000),
-      progressionAcknowledged: z.literal(true),
-    })
-    .strict(),
-]);
 function commandHash(value: unknown) {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
@@ -166,7 +100,7 @@ function checkedSource(value: unknown, fingerprint?: string): MatchSource {
 function proposalFrom(
   context: FixtureReviewContext,
   source: MatchSource,
-  decisions: z.infer<typeof gameDecisionSchema>[],
+  decisions: GameDecision[],
   publicNote: string,
 ): ReviewedResult {
   const preview = previewMatch(source, context, decisions);
@@ -239,7 +173,7 @@ async function databaseMatchReview(
   actor: User,
   slug: string,
   fixtureId: string,
-) {
+): Promise<MatchReview> {
   return db().transaction(
     async (tx) => {
       const context = await fixtureForReview(actor, slug, fixtureId, tx, true);
@@ -397,25 +331,22 @@ export async function matchReview(
   actor: User,
   slug: string,
   fixtureId: string,
-): Promise<Awaited<ReturnType<typeof databaseMatchReview>>> {
+): Promise<MatchReview> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseMatchReview>>>(
-      "matchReview",
-      { slug, fixtureId },
-    );
+    return frontendResource<MatchReview>("matchReview", { slug, fixtureId });
   }
   return databaseMatchReview(actor, slug, fixtureId);
 }
 
-export type MatchReview = Awaited<ReturnType<typeof matchReview>>;
+export type MatchReview = MatchReviewData<FixtureReviewContext>;
 export async function importFixtureMatch(
   actor: User,
   slug: string,
   fixtureId: string,
   input: unknown,
-) {
-  const parsed = importSchema.safeParse(input);
+): Promise<MatchReview> {
+  const parsed = importMatchResultWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Confirm a valid MP link and current versions.");
   const c = parsed.data;
@@ -647,9 +578,9 @@ export async function resultCommand(
   slug: string,
   fixtureId: string,
   input: unknown,
-) {
+): Promise<{ review: MatchReview; publicChanged: boolean }> {
   await fixtureForReview(actor, slug, fixtureId);
-  const parsed = commandSchema.safeParse(input);
+  const parsed = changeMatchResultWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,
@@ -1003,7 +934,7 @@ export async function previewFixtureMatch(
   slug: string,
   fixtureId: string,
   input: unknown,
-) {
+): Promise<FixtureMatchPreview> {
   await assertCapability(actor, "record_results", slug);
   if (!(await hasCapability(actor, "manage_fixtures", slug))) {
     const [assignment] = await db()
@@ -1021,10 +952,7 @@ export async function previewFixtureMatch(
   const workspace = await staffFixtures(actor, slug);
   const fixture = workspace.fixtures.find((f) => f.id === fixtureId);
   if (!fixture) throw new HttpError(404, "Fixture not found.");
-  const parsed = z
-    .object({ match: z.string().trim().min(1).max(250) })
-    .strict()
-    .safeParse(input);
+  const parsed = previewMatchImportWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Confirm a valid MP link and current versions.");
   if (fixture.status === "cancelled")
@@ -1080,6 +1008,4 @@ export async function previewFixtureMatch(
       refreshed.fixtures.find((f) => f.id === fixtureId)!.result?.version ?? 0,
   };
 }
-export type FixtureMatchPreview = Awaited<
-  ReturnType<typeof previewFixtureMatch>
->;
+export type { FixtureMatchPreview } from "./match-result-write-contracts";

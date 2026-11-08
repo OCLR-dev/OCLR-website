@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/user";
 import { matchReview, resultCommand } from "@/lib/results";
+import { changeMatchResultWrite } from "@/lib/match-result-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 async function readGET(
   _request: Request,
@@ -30,7 +31,7 @@ export async function POST(
       user,
       edition,
       fixtureId,
-      await readJson(request, 524288),
+      await readJson(request, changeMatchResultWrite.maxBodyBytes),
     );
     if (result.publicChanged)
       revalidatePath(`/tournaments/${edition}`, "layout");

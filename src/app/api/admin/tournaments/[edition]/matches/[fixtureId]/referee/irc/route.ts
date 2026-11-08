@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
+import { changeRefereeIrcBrowserWrite } from "@/lib/referee-irc-browser-contract";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { refereeIrcView, refereeIrcBrowserCommand } from "@/lib/referee-irc";
 type Context = { params: Promise<{ edition: string; fixtureId: string }> };
@@ -24,7 +25,7 @@ export async function POST(request: Request, context: Context) {
         actor,
         edition,
         fixtureId,
-        await readJson(request),
+        await readJson(request, changeRefereeIrcBrowserWrite.maxBodyBytes),
       ),
       { headers: { "Cache-Control": "no-store" } },
     );

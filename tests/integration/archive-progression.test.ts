@@ -8,6 +8,7 @@ import { readArchiveProgression } from "../../src/lib/archive-progression";
 import { syncArchiveRelations } from "../../src/lib/archive-relations";
 import { bracketRouting } from "../../src/lib/bracket-routing";
 import { publicBracket } from "../../src/lib/brackets";
+import { readApiRoute } from "../../src/lib/read-api";
 import { historicalArchiveSchema } from "../../src/lib/historical-archive";
 import { assertTestDatabase } from "../database";
 import { edition } from "../fixtures/edition";
@@ -15,11 +16,13 @@ import { seedEditions } from "../fixtures/editions";
 
 const url = process.env.TEST_DATABASE_URL;
 const href = (id: string) => `/tournaments/s10/matches/${id}`;
+const origin = "https://oclr.example.test";
 
 describe.skipIf(!url)("saved historical advancement", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url);
+    vi.stubEnv("APP_URL", origin);
   });
   afterAll(async () => {
     await closeDb();
@@ -83,6 +86,13 @@ describe.skipIf(!url)("saved historical advancement", () => {
       .from(editionState)
       .where(eq(editionState.slug, "s10"));
     const bracket = await publicBracket("s10");
+    const response = await readApiRoute(
+      new Request(`${origin}/api/v1/tournaments/s10/bracket`),
+    );
+    expect(response.status).toBe(200);
+    expect((await response.json()).data).toEqual(
+      JSON.parse(JSON.stringify(bracket)),
+    );
     expect(bracket?.groups).toHaveLength(1);
     const path = bracket!.groups[0];
     expect(path.showAdvancement).toBe(true);

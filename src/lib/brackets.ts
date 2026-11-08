@@ -1,10 +1,6 @@
 import defaultBrackets from "@/content/brackets.json" with { type: "json" };
 import { readFileSync } from "node:fs";
-import type {
-  BracketDisplay,
-  ResolvedBracket,
-  ResolvedMatch,
-} from "./bracket-model";
+import type { ResolvedBracket, ResolvedMatch } from "./bracket-model";
 import { archiveBracket } from "./archive-bracket";
 import { readArchiveProgression } from "./archive-progression";
 import {
@@ -17,6 +13,8 @@ import { remoteMode } from "./data-source";
 import { frontendResource } from "./frontend-resource";
 import { publicCompetition } from "./public-competition";
 import { publishedTeams } from "./teams";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PublicBracket = ExplicitReadData<"publicBracket">;
 export function getBrackets() {
   const file = process.env.OCLR_BRACKETS_FILE;
   return bracketsSchema.parse(
@@ -25,9 +23,7 @@ export function getBrackets() {
       : defaultBrackets,
   );
 }
-async function databasePublicBracket(
-  slug: string,
-): Promise<BracketDisplay | null> {
+async function databasePublicBracket(slug: string): Promise<PublicBracket> {
   const edition = await getPublicEdition(slug);
   if (!edition) return null;
   if (edition.archive) {
@@ -104,14 +100,9 @@ async function databasePublicBracket(
     return null;
   return resolveBracket(bracket, teams);
 }
-export async function publicBracket(
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublicBracket>>> {
+export async function publicBracket(slug: string): Promise<PublicBracket> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublicBracket>>>(
-      "publicBracket",
-      { slug },
-    );
+    return frontendResource<PublicBracket>("publicBracket", { slug });
   }
   return databasePublicBracket(slug);
 }

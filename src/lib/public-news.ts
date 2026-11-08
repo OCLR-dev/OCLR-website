@@ -15,7 +15,12 @@ import {
   type OfficialNewsEvent,
 } from "./public-news-model";
 import { readTournaments } from "./tournaments";
-async function loadNews(now: Date, tr: AppTranslator) {
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PublicNewsModel = ExplicitReadData<"publicNewsModel">;
+async function loadNews(
+  now: Date,
+  tr: AppTranslator,
+): Promise<PublicNewsModel> {
   const editions = await readTournaments(true);
   const newsEditions = editions.filter((r) =>
     publishesTournamentNews(r.edition),
@@ -125,10 +130,9 @@ async function loadNews(now: Date, tr: AppTranslator) {
 const requestNews = cache((tr: AppTranslator) => loadNews(new Date(), tr));
 export function publicNewsContext(now?: Date, tr: AppTranslator = english) {
   if (remoteMode())
-    return frontendResource<Awaited<ReturnType<typeof loadNews>>>(
-      "publicNewsModel",
-      { locale: tr.locale.startsWith("en") ? "en" : tr.locale },
-    );
+    return frontendResource<PublicNewsModel>("publicNewsModel", {
+      locale: tr.locale.startsWith("en") ? "en" : tr.locale,
+    });
   return now ? loadNews(now, tr) : requestNews(tr);
 }
 export async function publicNews(now?: Date, tr: AppTranslator = english) {

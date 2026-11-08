@@ -1,14 +1,15 @@
 import { createHash } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import { fixtures } from "@/db/schema";
 import { assertCapability } from "./auth/staff";
 import type { User } from "./auth/sessions";
 import { assertOperationalEdition } from "./archive-guard";
+import { forceDeletePreviewInput } from "./fixture-write-contracts";
 import { HttpError } from "./http";
 import {
   forceDeleteBlockerMessage,
+  forceDeleteCountKeys,
   fixtureForceDeleteBlocker,
   type FixtureForceDeletePreview,
 } from "./fixture-force-delete-model";
@@ -75,21 +76,7 @@ export async function fixtureDeletionSnapshot(tx: Tx, fixture: Fixture) {
   };
   const blocker = fixtureForceDeleteBlocker(snapshot);
   const counts = Object.fromEntries(
-    [
-      "imports",
-      "games",
-      "results",
-      "resultRevisions",
-      "refereeSessions",
-      "refereeEvents",
-      "reconciliations",
-      "connections",
-      "commands",
-      "referees",
-      "streams",
-      "commentators",
-      "statistics",
-    ].map((key) => [
+    forceDeleteCountKeys.map((key) => [
       key,
       snapshot[key as keyof typeof snapshot] instanceof Array
         ? (snapshot[key as keyof typeof snapshot] as Row[]).length
@@ -127,12 +114,9 @@ export async function previewFixtureForceDelete(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<FixtureForceDeletePreview> {
   await assertCapability(actor, "manage_fixtures", slug);
-  const command = z
-    .object({ action: z.literal("preview_force_delete"), fixtureId: z.uuid() })
-    .strict()
-    .safeParse(input);
+  const command = forceDeletePreviewInput.safeParse(input);
   if (!command.success)
     throw new HttpError(400, "Choose a valid fixture for force deletion.");
   return db().transaction(

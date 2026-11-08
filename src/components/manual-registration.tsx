@@ -6,9 +6,8 @@ import { EligibilitySummary } from "./eligibility-summary";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
-import type { previewManualRegistration } from "@/lib/manual-registrations";
+import type { ManualRegistrationPreview } from "@/lib/manual-registration-write-contract";
 import { Avatar } from "./avatar";
-type Preview = Awaited<ReturnType<typeof previewManualRegistration>>;
 export function ManualRegistration({
   edition,
 }: {
@@ -22,7 +21,9 @@ export function ManualRegistration({
   const request = useRef<AbortController | null>(null);
   const [input, setInput] = useState("");
   const [inputType, setInputType] = useState<"id" | "username">("id");
-  const [preview, setPreview] = useState<Preview | null>(null);
+  const [preview, setPreview] = useState<ManualRegistrationPreview | null>(
+    null,
+  );
   const [status, setStatus] = useState<"pending" | "accepted">("pending");
   const [published, setPublished] = useState(false);
   const [override, setOverride] = useState(false);

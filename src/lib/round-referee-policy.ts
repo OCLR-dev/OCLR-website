@@ -19,43 +19,21 @@ import { randomUUID } from "node:crypto";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
 import { assertCapability } from "./auth/staff";
-import type { ScoringRules } from "./competition-model";
+import {
+  roundRefereePolicyWrite,
+  type RoundRefereePolicyReceipt,
+} from "./fixture-write-contracts";
 import { HttpError } from "./http";
 import {
   projectReferee,
-  refereePolicySchema,
   type RefereePolicy,
   type RefereeEvent,
 } from "./referee-model";
 
-export type RoundRefereeRule = {
-  roundId: string;
-  revision: number;
-  policy: RefereePolicy | null;
-  series: ScoringRules["series"] | null;
-};
+export type { RoundRefereeRule } from "./staff-workspace-read-contracts";
 type Transaction = Parameters<
   Parameters<ReturnType<typeof db>["transaction"]>[0]
 >[0];
-export const roundRefereePolicyCommandSchema = z
-  .object({
-    expectedRevision: z.number().int().nonnegative(),
-    policy: refereePolicySchema,
-    seriesChange: z
-      .object({
-        bestOf: z
-          .number()
-          .int()
-          .min(1)
-          .max(197)
-          .refine((value) => value % 2 === 1),
-        expectedRoundVersion: z.number().int().nonnegative(),
-      })
-      .strict()
-      .optional(),
-  })
-  .strict();
-
 /** Caller holds the referee advisory lock, then the edition lock. */
 export async function persistRoundRefereePolicy(
   tx: Transaction,
@@ -65,7 +43,7 @@ export async function persistRoundRefereePolicy(
   expectedRevision: number,
   policy: RefereePolicy,
   seriesChange?: z.infer<
-    typeof roundRefereePolicyCommandSchema
+    typeof roundRefereePolicyWrite.request
   >["seriesChange"],
   validateUnchanged = false,
 ) {
@@ -269,9 +247,9 @@ export async function saveRoundRefereePolicy(
   slug: string,
   roundId: string,
   input: unknown,
-) {
+): Promise<RoundRefereePolicyReceipt> {
   await assertCapability(actor, "manage_fixtures", slug);
-  const command = roundRefereePolicyCommandSchema.safeParse(input);
+  const command = roundRefereePolicyWrite.request.safeParse(input);
   if (!command.success || !z.uuid().safeParse(roundId).success)
     throw new HttpError(
       400,

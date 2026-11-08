@@ -1,3 +1,4 @@
+import { updateSiteAppearanceWrite } from "@/lib/admin-operations-write-contracts";
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
@@ -17,7 +18,10 @@ export async function PATCH(request: Request) {
   try {
     requireSameOrigin(request);
     return NextResponse.json(
-      await updateSiteSettings(await requireUser(), await readJson(request)),
+      await updateSiteSettings(
+        await requireUser(),
+        await readJson(request, updateSiteAppearanceWrite.maxBodyBytes),
+      ),
       {
         headers: { "Cache-Control": "no-store" },
       },

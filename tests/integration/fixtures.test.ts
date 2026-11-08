@@ -43,6 +43,14 @@ import { importFixtureMatch, resultCommand } from "../../src/lib/results";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { seedPublicDirectory } from "../fixtures/players";
 import { edition } from "../fixtures/edition";
+import { PATCH as assignmentRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referees/route";
+import { assignFixtureRefereesWrite } from "../../src/lib/fixture-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => admin,
+}));
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 250001, username: "Synthetic Fixture Admin" };
 const referee = { osuId: 250002, username: "Synthetic Assigned Referee" };
@@ -74,6 +82,7 @@ describe.skipIf(!url)(
       assertTestDatabase(url);
       fixtureEditions = [edition, { ...edition, slug: "other-test-cup" }];
       vi.stubEnv("DATABASE_URL", url!);
+      vi.stubEnv("APP_URL", origin);
       vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
     });
     beforeEach(async () => {
@@ -380,20 +389,38 @@ describe.skipIf(!url)(
         .insert(matchResults)
         .values({ fixtureId: f.id, state: "submitted", version: 7 });
       const resultBefore = await db().select().from(matchResults);
-      const outcomes = await Promise.allSettled([
-        assignFixtureReferees(admin, "test-cup", f.id, {
-          expectedAssignmentRevision: 0,
-          refereeIds: [referee.osuId, otherRef.osuId],
-        }),
-        assignFixtureReferees(admin, "test-cup", f.id, {
-          expectedAssignmentRevision: 0,
-          refereeIds: [otherRef.osuId],
-        }),
+      const post = (refereeIds: number[]) =>
+        assignmentRoute(
+          new Request(
+            origin +
+              assignFixtureRefereesWrite.path
+                .replace("{edition}", "test-cup")
+                .replace("{fixtureId}", f.id),
+            {
+              method: "PATCH",
+              headers: { origin, "content-type": "application/json" },
+              body: JSON.stringify({
+                expectedAssignmentRevision: 0,
+                refereeIds,
+              }),
+            },
+          ),
+          { params: Promise.resolve({ edition: "test-cup", fixtureId: f.id }) },
+        );
+      const responses = await Promise.all([
+        post([referee.osuId, otherRef.osuId]),
+        post([otherRef.osuId]),
       ]);
-      expect(outcomes.filter((r) => r.status === "fulfilled")).toHaveLength(1);
-      expect(outcomes.find((r) => r.status === "rejected")).toMatchObject({
-        reason: { status: 409 },
-      });
+      expect(responses.map((response) => response.status).sort()).toEqual([
+        200, 409,
+      ]);
+      const receipt = await responses.find((response) => response.ok)!.json();
+      expect(
+        extendedSchemas[assignFixtureRefereesWrite.response.readResource].parse(
+          receipt,
+        ),
+      ).toEqual(receipt);
+      expect(receipt.fixtures[0].assignmentRevision).toBe(1);
       const updated = (await staffFixtures(admin, "test-cup")).fixtures[0];
       const {
         refereeIds: _ids,

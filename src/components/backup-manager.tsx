@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
+import type { BackupAction } from "@/lib/admin-operations-write-contracts";
 type Job = {
   id: string;
   state: string;
@@ -93,7 +94,7 @@ export function BackupManager() {
       clearInterval(timer);
     };
   }, []);
-  async function submit(action: string, file?: File, source?: string) {
+  async function submit(action: BackupAction, file?: File, source?: string) {
     setBusy(true);
     setError("");
     try {

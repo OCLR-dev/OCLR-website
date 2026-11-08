@@ -36,6 +36,21 @@ export function fixtureForceDeleteBlocker(snapshot: {
     return "published_statistics";
   return null;
 }
+export const forceDeleteCountKeys = [
+  "imports",
+  "games",
+  "results",
+  "resultRevisions",
+  "refereeSessions",
+  "refereeEvents",
+  "reconciliations",
+  "connections",
+  "commands",
+  "referees",
+  "streams",
+  "commentators",
+  "statistics",
+] as const;
 export type FixtureForceDeletePreview = {
   fixtureId: string;
   label: string;
@@ -43,22 +58,7 @@ export type FixtureForceDeletePreview = {
   assignmentRevision: number;
   fingerprint: string;
   blocker: ForceDeleteBlocker;
-  counts: Record<
-    | "imports"
-    | "games"
-    | "results"
-    | "resultRevisions"
-    | "refereeSessions"
-    | "refereeEvents"
-    | "reconciliations"
-    | "connections"
-    | "commands"
-    | "referees"
-    | "streams"
-    | "commentators"
-    | "statistics",
-    number
-  >;
+  counts: Record<(typeof forceDeleteCountKeys)[number], number>;
 };
 export function forceDeleteBlockerMessage(
   tr: (message: string) => string,

@@ -5,7 +5,7 @@ import { InfoNote } from "@/components/info-note";
 import { ReadOnlyFields } from "./staff-read-only";
 import { useEffect, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import type { FixtureMatchPreview } from "@/lib/results";
+import type { MatchImportPreviewResponse } from "@/lib/match-result-write-contracts";
 import { formatDate } from "@/lib/editions";
 import { ConfirmMutation } from "./confirm-mutation";
 export function MatchSourceCompletion({
@@ -19,7 +19,7 @@ export function MatchSourceCompletion({
 }) {
   const tr = useAppTranslations();
   const [match, setMatch] = useState("");
-  const [data, setData] = useState<FixtureMatchPreview | null>(null);
+  const [data, setData] = useState<MatchImportPreviewResponse | null>(null);
   const [home, setHome] = useState(""),
     [away, setAway] = useState("");
   const [busy, setBusy] = useState(false),

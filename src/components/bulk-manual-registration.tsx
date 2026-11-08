@@ -6,12 +6,11 @@ import { useId, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
 import type {
-  previewManualRegistrations,
+  ManualBatchPreview,
   ManualBatchResult,
-} from "@/lib/manual-registrations";
+} from "@/lib/manual-registration-write-contract";
 import { EligibilitySummary } from "./eligibility-summary";
 import { Avatar } from "./avatar";
-type Preview = Awaited<ReturnType<typeof previewManualRegistrations>>;
 export function BulkManualRegistration({
   edition,
 }: {
@@ -26,7 +25,7 @@ export function BulkManualRegistration({
   const generation = useRef(0);
   const [text, setText] = useState("");
   const [inputType, setInputType] = useState<"username" | "id">("username");
-  const [preview, setPreview] = useState<Preview | null>(null);
+  const [preview, setPreview] = useState<ManualBatchPreview | null>(null);
   const [selected, setSelected] = useState<number[]>([]);
   const [eligibility, setEligibility] = useState<number[]>([]);
   const [results, setResults] = useState<ManualBatchResult[]>([]);
@@ -139,8 +138,10 @@ export function BulkManualRegistration({
         }));
         setSelected(
           data.rows
-            .filter((r: Preview["rows"][number]) => r.state === "ready")
-            .map((r: Preview["rows"][number]) => r.line),
+            .filter(
+              (r: ManualBatchPreview["rows"][number]) => r.state === "ready",
+            )
+            .map((r: ManualBatchPreview["rows"][number]) => r.line),
         );
         setEligibility([]);
         setPublished(false);

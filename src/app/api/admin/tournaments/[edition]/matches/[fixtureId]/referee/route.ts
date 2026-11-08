@@ -3,6 +3,7 @@ import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { refereeCommand, refereeWorkspace } from "@/lib/referee";
+import { changeRefereeWorkspaceWrite } from "@/lib/referee-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 type Context = { params: Promise<{ edition: string; fixtureId: string }> };
 async function readGET(_request: Request, context: Context) {
@@ -23,7 +24,12 @@ export async function PATCH(request: Request, context: Context) {
     const actor = await requireUser();
     const { edition, fixtureId } = await context.params;
     return NextResponse.json(
-      await refereeCommand(actor, edition, fixtureId, await readJson(request)),
+      await refereeCommand(
+        actor,
+        edition,
+        fixtureId,
+        await readJson(request, changeRefereeWorkspaceWrite.maxBodyBytes),
+      ),
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {

@@ -3,7 +3,9 @@ import { editionState, staffRoles, userProfileCache, users } from "@/db/schema";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
 import { remoteMode } from "./data-source";
 import { frontendResource } from "./frontend-resource";
-async function databasePublicStaff() {
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PublicStaff = ExplicitReadData<"publicStaff">;
+async function databasePublicStaff(): Promise<PublicStaff> {
   if (!process.env.DATABASE_URL) return [];
   const rows = await db()
     .select({
@@ -38,15 +40,7 @@ async function databasePublicStaff() {
       ),
     )
     .orderBy(users.username, staffRoles.role, staffRoles.editionSlug);
-  const people = new Map<
-    number,
-    {
-      osuId: number;
-      username: string;
-      countryCode: string | null;
-      roles: { role: string; edition: { slug: string; name: string } | null }[];
-    }
-  >();
+  const people = new Map<number, PublicStaff[number]>();
   for (const row of rows) {
     if (row.editionSlug && !row.editionName) continue;
     const person = people.get(row.osuId) ?? {
@@ -65,14 +59,9 @@ async function databasePublicStaff() {
   }
   return [...people.values()];
 }
-export async function publicStaff(): Promise<
-  Awaited<ReturnType<typeof databasePublicStaff>>
-> {
+export async function publicStaff(): Promise<PublicStaff> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublicStaff>>>(
-      "publicStaff",
-      {},
-    );
+    return frontendResource<PublicStaff>("publicStaff");
   }
   return databasePublicStaff();
 }

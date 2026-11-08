@@ -14,11 +14,7 @@ import {
   relationalPlayerArchivePlays,
 } from "./archive-read";
 import { statisticsArchiveKey } from "./archive-statistics-key";
-import { archiveEvidenceUrl } from "./archive-metadata";
 import {
-  statisticsAdjudicationSchema,
-  statisticsExcludedGameSchema,
-  statisticsExcludedScoresSchema,
   hasStatisticsAdjudication,
   parseStatisticsSnapshot,
   statisticsSnapshotSchema,
@@ -35,7 +31,7 @@ import { editionEvents, editionState } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
-import { z } from "zod";
+import type { z } from "zod";
 import {
   archiveMpId,
   canExcludeNonParticipantScore,
@@ -62,45 +58,13 @@ import {
   type archivePlayerExchangeConfirmation,
   type HistoricalArchive,
 } from "./historical-archive";
+import { changeHistoricalStatisticsWrite } from "./results-publication-write-contracts";
 import { HttpError } from "./http";
+import type { ExplicitReadData } from "./explicit-read-contracts";
 import { fetchMatchSource } from "./osu-matches";
 import { readTournament } from "./tournaments";
 import { statisticsScore } from "./statistics-score";
 
-const integer = z.number().int().nonnegative();
-const commandSchema = z.discriminatedUnion("action", [
-  z
-    .object({
-      action: z.literal("import"),
-      mpId: integer.positive(),
-      expectedVersion: integer,
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("review"),
-      mpId: integer.positive(),
-      expectedVersion: integer,
-      poolId: z.string().max(80),
-      included: z.array(integer.positive()).max(500),
-      allowUnlistedMaps: z.boolean().default(false),
-      excludedScores: statisticsExcludedScoresSchema.default([]),
-      rosterTeamGames: z.array(integer.positive()).max(500).default([]),
-      technicalAdjudication: z.boolean().optional(),
-      adjudication: statisticsAdjudicationSchema.nullable().optional(),
-      excludedGames: z.array(statisticsExcludedGameSchema).max(500).optional(),
-      evidenceUrl: archiveEvidenceUrl.nullable().optional(),
-    })
-    .strict(),
-  z
-    .object({
-      action: z.enum(["publish", "withdraw"]),
-      fixtureId: z.string().max(80),
-      expectedVersions: z.record(z.string(), integer),
-      confirmed: z.literal(true),
-    })
-    .strict(),
-]);
 type Reader = Pick<ReturnType<typeof db>, "select">;
 export { statisticsArchiveKey } from "./archive-statistics-key";
 
@@ -275,7 +239,7 @@ async function databaseStatisticsWorkspace(
   actor: User,
   slug: string,
   fixtureId = "",
-) {
+): Promise<StatisticsWorkspace> {
   await assertReadCapability(actor, "record_results", slug);
   const archive = await archiveFor(slug);
   const key = statisticsArchiveKey(archive);
@@ -389,26 +353,25 @@ export async function statisticsWorkspace(
   actor: User,
   slug: string,
   fixtureId = "",
-): Promise<Awaited<ReturnType<typeof databaseStatisticsWorkspace>>> {
+): Promise<StatisticsWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseStatisticsWorkspace>>
-    >("statisticsWorkspace", { slug, fixtureId });
+    return frontendResource<StatisticsWorkspace>("statisticsWorkspace", {
+      slug,
+      fixtureId,
+    });
   }
   return databaseStatisticsWorkspace(actor, slug, fixtureId);
 }
 
-export type StatisticsWorkspace = Awaited<
-  ReturnType<typeof statisticsWorkspace>
->;
+export type StatisticsWorkspace = ExplicitReadData<"statisticsWorkspace">;
 
 export async function statisticsCommand(
   actor: User,
   slug: string,
   input: unknown,
-) {
-  const parsed = commandSchema.safeParse(input);
+): Promise<StatisticsWorkspace> {
+  const parsed = changeHistoricalStatisticsWrite.request.safeParse(input);
   if (!parsed.success) throw new HttpError(400, "Invalid statistics request.");
   const c = parsed.data;
   const permission =
@@ -727,7 +690,7 @@ function publicArchiveMatchDetails(
 async function databasePublicArchiveStatistics(
   slug: string,
   fixtureId?: string,
-) {
+): Promise<PublicArchiveStatistics> {
   return db().transaction(
     async (tx) => {
       if (!fixtureId) {
@@ -736,7 +699,7 @@ async function databasePublicArchiveStatistics(
           return {
             ...fast.summary,
             plays: fast.plays,
-            matchDetails: [] as ReturnType<typeof publicArchiveMatchDetails>,
+            matchDetails: [],
           };
       }
       const archive = await archiveFor(slug, tx, true);
@@ -777,18 +740,18 @@ async function databasePublicArchiveStatistics(
 export async function publicArchiveStatistics(
   slug: string,
   fixtureId?: string,
-): Promise<Awaited<ReturnType<typeof databasePublicArchiveStatistics>>> {
+): Promise<PublicArchiveStatistics> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicArchiveStatistics>>
-    >("publicArchiveStatistics", { slug, fixtureId });
+    return frontendResource<PublicArchiveStatistics>(
+      "publicArchiveStatistics",
+      { slug, fixtureId },
+    );
   }
   return databasePublicArchiveStatistics(slug, fixtureId);
 }
 
-export type PublicArchiveStatistics = Awaited<
-  ReturnType<typeof publicArchiveStatistics>
->;
+export type PublicArchiveStatistics =
+  ExplicitReadData<"publicArchiveStatistics">;
 
 /** Local profile reads keep full relevant games; remote keeps its existing resource. */
 export async function publicArchivePlayerPlays(

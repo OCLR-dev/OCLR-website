@@ -1,4 +1,6 @@
 "use client";
+
+import type { RegistrationParticipationInput } from "@/lib/registration-write-contract";
 import Link from "next/link";
 import { useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
@@ -51,7 +53,12 @@ export function RegistrationRemoval({
               )
         }
         url={`/api/admin/tournaments/${slug}/registrations/${id}/${restore ? "restore" : "remove"}`}
-        payload={{ expectedUpdatedAt: updatedAt, confirmed: true }}
+        payload={
+          {
+            expectedUpdatedAt: updatedAt,
+            confirmed: true,
+          } satisfies RegistrationParticipationInput
+        }
         onError={(message) =>
           setBlocked(
             message.startsWith("Resolve this player's") ||

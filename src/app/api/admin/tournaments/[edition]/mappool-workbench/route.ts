@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/user";
+import { changeMappoolWorkbenchWrite } from "@/lib/mappool-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import {
@@ -29,7 +30,10 @@ export async function POST(request: Request, context: Context) {
     requireSameOrigin(request);
     const actor = await requireUser();
     const { edition } = await context.params;
-    const input = await readJson(request);
+    const input = await readJson(
+      request,
+      changeMappoolWorkbenchWrite.maxBodyBytes,
+    );
     const preview =
       input &&
       typeof input === "object" &&

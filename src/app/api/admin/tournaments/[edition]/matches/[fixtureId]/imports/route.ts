@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { importFixtureMatch } from "@/lib/results";
+import { importMatchResultWrite } from "@/lib/match-result-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 export async function POST(
   request: Request,
@@ -15,7 +16,7 @@ export async function POST(
       user,
       edition,
       fixtureId,
-      await readJson(request),
+      await readJson(request, importMatchResultWrite.maxBodyBytes),
     );
     revalidatePath(`/admin/tournaments/${edition}`, "layout");
     revalidatePath(`/tournaments/${edition}`, "layout");

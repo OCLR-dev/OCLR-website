@@ -36,7 +36,15 @@ import { publicFixture } from "../../src/lib/public-competition";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
+import { POST as streamingRoute } from "../../src/app/api/admin/tournaments/[edition]/streaming/[fixtureId]/route";
+import { streamingTaskWrite } from "../../src/lib/scheduling-write-contracts";
 const url = process.env.TEST_DATABASE_URL;
+const origin = "https://oclr.example.test";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => streamer,
+}));
 const admin = { osuId: 187001, username: "Streaming Admin" };
 const streamer = { osuId: 187002, username: "Streaming Operator" };
 const other = { osuId: 187003, username: "Second Streamer" };
@@ -51,6 +59,7 @@ describe.skipIf(!url)("authoritative edition streaming tasks", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -214,20 +223,38 @@ describe.skipIf(!url)("authoritative edition streaming tasks", () => {
   });
   it("confirms self-selection, replays retries once, and never overwrites another booking", async () => {
     const c = command();
-    expect(await streamingCommand(streamer, slug, id, c)).toMatchObject({
-      replayed: false,
-    });
-    expect(await streamingCommand(streamer, slug, id, c)).toMatchObject({
-      replayed: true,
-    });
+    const post = (fixtureId: string) =>
+      streamingRoute(
+        new Request(
+          origin +
+            streamingTaskWrite.path
+              .replace("{edition}", slug)
+              .replace("{fixtureId}", fixtureId),
+          {
+            method: "POST",
+            headers: { origin, "content-type": "application/json" },
+            body: JSON.stringify(c),
+          },
+        ),
+        { params: Promise.resolve({ edition: slug, fixtureId }) },
+      );
+    for (const replayed of [false, true]) {
+      const response = await post(id);
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(streamingTaskWrite.response.parse(body)).toEqual(body);
+      expect(body).toEqual({ saved: true, replayed });
+    }
     expect(await db().select().from(fixtureStreams)).toHaveLength(1);
     expect(await db().select().from(editionEvents)).toHaveLength(1);
     await expect(
       streamingCommand(other, slug, id, command("select", 1)),
     ).rejects.toMatchObject({ status: 409 });
-    await expect(
-      streamingCommand(streamer, slug, secondId, { ...c }),
-    ).rejects.toMatchObject({ status: 409 });
+    const conflict = await post(secondId);
+    expect(conflict.status).toBe(409);
+    expect(await conflict.json()).toEqual({
+      error: "This request key was already used for a different operation.",
+    });
     expect(
       (await streamingWorkspace(streamer, slug, { view: "mine" })).fixtures[0]
         .assignment,

@@ -236,11 +236,14 @@ or a production deployment. No migration is added by #269, #271 or #272.
 `src/lib/read-api-queries.ts` supplies the exact request schemas also used by
 registration/audit/streaming services. OpenAPI query types, enums, defaults, UUIDs,
 dates and limits come from those schemas. The finite resource registry maps
-operationId to its existing service. `generate-extended-contracts.ts` generates
-strict response JSON Schemas from the same TypeScript return types, including
-nullable first-row results, tuples, normalized profiles and saved snapshots.
-Runtime Zod validation and OpenAPI share those definitions. JSON dates are ISO
-strings; the existing SSR service adapter restores Dates using schema metadata.
+operationId to its existing service. The [explicit response contracts](../src/lib/explicit-read-contracts.ts)
+cover all 59 extended saved reads. Services use their declared response types.
+The generator emits JSON Schema from either a Zod contract or a declared
+TypeScript response type built from shared domain models. It requires exactly
+one explicit contract for each resource. Runtime response validation and OpenAPI
+consume the generated definitions.
+JSON dates are ISO strings. The SSR service adapter restores Dates using schema
+metadata, including for Replay creation timestamps.
 Unknown audit/answer JSON keeps its existing authorized, bounded projection.
 
 Every operation has `x-oclr-issues`; GET operations also identify the query model,
@@ -326,6 +329,13 @@ reads fail with `INTERNAL_ERROR` and shows up as failing `verify` and `e2e` jobs
 When the change affects stored responses, also run
 `npx vitest run tests/integration/extended-read.test.ts` against an isolated
 `TEST_DATABASE_URL`.
+
+For a migration that preserves the wire contract, run
+`npm run read-api:compare -- BASELINE_REF` after generation. It resolves shared
+schema references, compares runtime resources and OpenAPI operations, and
+ignores the order of required fields and consecutive literal alternatives. It
+also ignores repeated identical union branches while preserving the order of
+distinct nonliteral branches, which the remote adapter uses to revive values.
 
 ## Browser Bearer and existing Next SSR/BFF examples
 

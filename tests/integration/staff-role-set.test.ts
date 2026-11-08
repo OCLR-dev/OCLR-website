@@ -14,6 +14,31 @@ import {
 } from "../../src/lib/auth/staff";
 import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { publicStaff } from "../../src/lib/public-staff";
+import { POST } from "../../src/app/api/admin/staff/route";
+import { requireUser } from "../../src/lib/auth/user";
+import { changeStaffRolesWrite } from "../../src/lib/staff-administration-write-contracts";
+
+vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
+const origin = "https://oclr.example.test";
+function post(input: unknown, authorization?: string) {
+  return POST(new Request(origin + changeStaffRolesWrite.path, {
+    method: "POST",
+    headers: {
+      origin,
+      "content-type": "application/json",
+      ...(authorization ? { authorization } : {}),
+    },
+    body: JSON.stringify(input),
+  }));
+}
+async function savedGrantResponse(response: Response) {
+  expect(response.status).toBe(200);
+  expect(response.headers.get("Cache-Control")).toBe("no-store");
+  const body = await response.json();
+  const saved = changeStaffRolesWrite.response.parse(body);
+  expect(saved).toEqual(body);
+  return saved;
+}
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 496001, username: "Synthetic Admin" };
 const scoped = { osuId: 496002, username: "Synthetic Scoped Admin" };
@@ -36,6 +61,7 @@ describe.skipIf(!url)("atomic staff role sets", () => {
   beforeEach(async () => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
     await db().execute(sql`TRUNCATE edition_state, users CASCADE`);
     await seedEditions([edition, { ...edition, slug: "other-test" }]);
@@ -58,6 +84,57 @@ describe.skipIf(!url)("atomic staff role sets", () => {
   afterAll(async () => {
     await closeDb();
     vi.unstubAllEnvs();
+  });
+  it("preserves the browser receipt for each staff command and rejects unauthorized writes", async () => {
+    vi.mocked(requireUser).mockResolvedValue(scoped);
+    const grant = {
+      action: "grant",
+      confirmed: true,
+      userId: member.osuId,
+      role: "referee",
+      editionSlug: "test-cup",
+    };
+    expect((await post(grant, "Bearer synthetic-only")).status).toBe(403);
+    expect((await post({ ...grant, editionSlug: "other-test" })).status).toBe(403);
+    const single = await savedGrantResponse(await post(grant));
+    if ("grants" in single) throw new Error("Expected a single grant");
+    expect(single).toMatchObject({
+      role: "referee",
+      userId: member.osuId,
+      revokedAt: null,
+    });
+    expect((await post(grant)).status).toBe(409);
+
+    const visibility = {
+      action: "visibility",
+      grantId: single.id,
+      published: false,
+      expectedPublished: true,
+      confirmed: true,
+    };
+    expect(await savedGrantResponse(await post(visibility))).toEqual({
+      ...single,
+      aboutPublished: false,
+    });
+    expect((await post(visibility)).status).toBe(409);
+    const set = await savedGrantResponse(
+      await post(command(["referee", "tester"], [single.id])),
+    );
+    expect(set).toEqual({
+      grants: [
+        { ...single, aboutPublished: false },
+        expect.objectContaining({ role: "tester", revokedAt: null }),
+      ],
+    });
+    expect((await post(command([], [single.id]))).status).toBe(409);
+
+    const revoke = { action: "revoke", grantId: single.id, confirmed: true };
+    expect(await savedGrantResponse(await post(revoke))).toEqual({
+      ...single,
+      aboutPublished: false,
+      revokedAt: expect.any(String),
+    });
+    expect((await post(revoke)).status).toBe(409);
   });
   it.each(
     ["designer", "commentator", "mapper"].flatMap((role) =>

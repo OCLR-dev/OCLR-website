@@ -38,6 +38,34 @@ import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { statisticsArchive } from "../fixtures/archive-statistics";
 import { assertTestDatabase } from "../database";
+import { POST as workbenchRoute } from "../../src/app/api/admin/tournaments/[edition]/mappool-workbench/route";
+import {
+  candidatePreviewResponse,
+  changeMappoolWorkbenchWrite,
+  selectionReceipt,
+} from "../../src/lib/mappool-write-contracts";
+import type { User } from "../../src/lib/auth/sessions";
+const origin = "https://oclr.example.test";
+let routeActor: User;
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => routeActor,
+}));
+function post(actor: User, input: unknown) {
+  routeActor = actor;
+  return workbenchRoute(
+    new Request(
+      origin + changeMappoolWorkbenchWrite.path.replace("{edition}", slug),
+      {
+        method: "POST",
+        headers: { origin, "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+    ),
+    { params: Promise.resolve({ edition: slug }) },
+  );
+}
 vi.mock("../../src/lib/osu-beatmaps", () => ({ fetchBeatmaps: vi.fn() }));
 const url = process.env.TEST_DATABASE_URL;
 const slug = edition.slug;
@@ -121,6 +149,7 @@ describe.skipIf(!url)("private selection collaboration", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -303,9 +332,14 @@ describe.skipIf(!url)("private selection collaboration", () => {
         [100, snapshot(100)],
       ]),
     );
-    const preview = await previewCandidates(tester, slug, {
+    const response = await post(tester, {
+      action: "preview",
       text: "75\n99\nbad\n100\n100",
     });
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    const preview = candidatePreviewResponse.parse(body);
+    expect(preview).toEqual(body);
     expect(preview.rows.map((r) => r.status)).toEqual([
       "duplicate",
       "failed",
@@ -314,10 +348,11 @@ describe.skipIf(!url)("private selection collaboration", () => {
       "duplicate",
     ]);
     expect(preview.rows[1].error).toBe("Beatmap not found.");
-    expect(await selectionCommand(tester, slug, add([100]))).toEqual({
-      added: 1,
-      skipped: 0,
-    });
+    const added = await post(tester, add([100]));
+    expect(added.status).toBe(200);
+    const receipt = await added.json();
+    expect(selectionReceipt.parse(receipt)).toEqual(receipt);
+    expect(receipt).toEqual({ added: 1, skipped: 0 });
     const saved = await selectionWorkspace(tester, slug);
     expect(
       saved.candidates.map((c) => c.beatmapId).sort((a, b) => a - b),
@@ -459,7 +494,9 @@ describe.skipIf(!url)("private selection collaboration", () => {
         body: "Second opinion",
       }),
     ]);
-    expect(await selectionCommand(pooler, slug, c)).toEqual({
+    const replay = await post(pooler, c);
+    expect(replay.status).toBe(200);
+    expect(selectionReceipt.parse(await replay.json())).toEqual({
       added: 0,
       skipped: 1,
     });
@@ -468,9 +505,8 @@ describe.skipIf(!url)("private selection collaboration", () => {
     expect(new Set(comments.map((r) => r.authorId))).toEqual(
       new Set([pooler.osuId, tester.osuId]),
     );
-    await expect(
-      selectionCommand(pooler, slug, { ...c, body: "Changed retry" }),
-    ).rejects.toMatchObject({ status: 409 });
+    const conflict = await post(pooler, { ...c, body: "Changed retry" });
+    expect(conflict.status).toBe(409);
     expect(
       (await selectionWorkspace(tester, slug)).candidates[0].commentCount,
     ).toBe(2);

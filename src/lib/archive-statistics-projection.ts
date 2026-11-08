@@ -6,10 +6,9 @@ import {
   statisticsFixtures,
 } from "./archive-statistics-model";
 import { statisticsArchiveKey } from "./archive-statistics-key";
-import {
-  archivePoolFixtures,
-  type EventPoolFixture,
-} from "./archive-mappool-statistics";
+import { archivePoolFixtures } from "./archive-mappool-statistics";
+import type { ArchiveStatisticsSummary } from "./competition-detail-read-contracts";
+export type { ArchiveStatisticsSummary } from "./competition-detail-read-contracts";
 import { hasStatisticsAdjudication } from "./statistics-snapshot";
 import { STATISTICS_SCORE_POLICY } from "./statistics-score";
 
@@ -48,13 +47,13 @@ export function archiveStatisticsSummary(
   release: ReturnType<typeof releasedArchiveStatistics>,
   ezScoreMultiplier = 1,
   fixtureId?: string,
-) {
+): ArchiveStatisticsSummary {
   const { key, fixtures, published } = release;
   return {
     slug: archive.editionSlug,
     archiveKey: key,
-    ezScoreMultiplier: ezScoreMultiplier as number | undefined,
-    statisticsScorePolicy: STATISTICS_SCORE_POLICY as string | undefined,
+    ezScoreMultiplier,
+    statisticsScorePolicy: STATISTICS_SCORE_POLICY,
     players: archive.players.map(({ osuId, username, teamId, role, tier }) => ({
       osuId,
       username,
@@ -83,8 +82,7 @@ export function archiveStatisticsSummary(
         fixtureId: r.fixtureId,
         snapshot: r.published!,
       })),
-    ).filter((f) => !fixtureId || f.id === fixtureId) as
-      EventPoolFixture[] | undefined,
+    ).filter((f) => !fixtureId || f.id === fixtureId),
     publishedAt:
       published
         .map((r) => r.publishedAt!.toISOString())
@@ -94,6 +92,3 @@ export function archiveStatisticsSummary(
     mpCovered: published.length,
   };
 }
-export type ArchiveStatisticsSummary = ReturnType<
-  typeof archiveStatisticsSummary
->;

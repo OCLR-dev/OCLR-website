@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { scheduleCommand, scheduleWorkspace } from "@/lib/schedule";
+import { scheduleRequestWrite } from "@/lib/scheduling-write-contracts";
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ edition: string }> },
@@ -25,13 +26,16 @@ export async function POST(
     requireSameOrigin(request);
     const actor = await requireUser();
     const { edition } = await params;
-    await scheduleCommand(actor, edition, await readJson(request));
+    const saved = await scheduleCommand(
+      actor,
+      edition,
+      await readJson(request, scheduleRequestWrite.maxBodyBytes),
+    );
     revalidatePath(`/tournaments/${edition}`, "layout");
     revalidatePath(`/admin/tournaments/${edition}`, "layout");
-    return NextResponse.json(
-      { saved: true },
-      { headers: { "Cache-Control": "no-store" } },
-    );
+    return NextResponse.json(saved, {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     return apiError(error);
   }

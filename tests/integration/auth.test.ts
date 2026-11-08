@@ -14,6 +14,7 @@ import { users, sessions, oauthStates } from "../../src/db/schema";
 import { GET as start } from "../../src/app/auth/osu/route";
 import { GET as callback } from "../../src/app/auth/osu/callback/route";
 import { POST as logout } from "../../src/app/auth/logout/route";
+import { logoutWrite } from "../../src/lib/browser-connection-write-contracts";
 import { createSession, readSession } from "../../src/lib/auth/sessions";
 import { hashToken, randomToken } from "../../src/lib/auth/tokens";
 import { eq, sql } from "drizzle-orm";
@@ -160,16 +161,28 @@ describe.skipIf(!testUrl)(
         ).status,
       ).toBe(403);
       headers.origin = "https://oclr.example.test";
-      expect(
-        (
-          await logout(
-            new NextRequest("https://oclr.example.test/auth/logout", {
-              method: "POST",
-              headers,
-            }),
-          )
-        ).status,
-      ).toBe(303);
+      const signOut = (requestHeaders: HeadersInit) =>
+        logout(new NextRequest("https://oclr.example.test" + logoutWrite.path, {
+          method: "POST",
+          headers: requestHeaders,
+        }));
+      const response = await signOut(headers);
+      expect(response.status).toBe(303);
+      expect(response.headers.get("Location")).toBe(
+        "https://oclr.example.test/login?loggedOut=1",
+      );
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(response.cookies.get("__Host-oclr_session")).toMatchObject({
+        value: "",
+        maxAge: 0,
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+      });
+      expect(await response.text()).toBe("");
+      const repeated = await signOut({ origin: headers.origin });
+      expect(repeated.status).toBe(303);
+      expect(repeated.cookies.get("__Host-oclr_session")?.maxAge).toBe(0);
       expect(await readSession(a.token)).toBeNull();
       expect(await readSession(b.token)).not.toBeNull();
       await db()

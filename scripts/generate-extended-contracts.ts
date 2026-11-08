@@ -2,7 +2,9 @@ import { createHash } from "node:crypto";
 import { format } from "prettier";
 import ts from "typescript";
 import fs from "node:fs";
+import { z } from "zod";
 import definitions from "./extended-read-resources.json" with { type: "json" };
+import { explicitReadContracts } from "../src/lib/explicit-read-contracts";
 const config = ts.readConfigFile("tsconfig.json", ts.sys.readFile);
 const parsed = ts.parseJsonConfigFileContent(
   config.config,
@@ -94,24 +96,102 @@ function schema(type: ts.Type, depth = 0): Schema {
   };
 }
 const result: Record<string, Schema> = {};
-for (const resource of definitions) {
-  const file = program.getSourceFile("src/lib/" + resource.module + ".ts")!;
-  const name =
-    "model" in resource
-      ? resource.model
-      : resource.fn === "staffAccess"
-        ? "staffAccess"
-        : "database" + resource.fn[0].toUpperCase() + resource.fn.slice(1);
-  const fn = file.statements.find(
-    (n) => ts.isFunctionDeclaration(n) && n.name?.text === name,
-  ) as ts.FunctionDeclaration;
-  if (!fn) throw Error("Missing " + name);
-  const signature = checker.getSignatureFromDeclaration(fn)!;
-  const type = checker.getAwaitedType(
-    checker.getReturnTypeOfSignature(signature),
-  )!;
-  result[resource.id] = schema(type);
+const explicit = new Map<string, z.ZodType>(
+  Object.entries(explicitReadContracts),
+);
+const contractFile = program.getSourceFile(
+  "src/lib/explicit-read-contracts.ts",
+);
+const structuralContracts = contractFile?.statements.find(
+  (node) =>
+    ts.isTypeAliasDeclaration(node) &&
+    node.name.text === "StructuralReadContracts",
+);
+if (!structuralContracts || !ts.isTypeAliasDeclaration(structuralContracts))
+  throw Error("Missing StructuralReadContracts");
+const structural = new Map(
+  checker
+    .getPropertiesOfType(checker.getTypeAtLocation(structuralContracts))
+    .map((property) => [property.getName(), checker.getTypeOfSymbol(property)]),
+);
+function preserveReadSchema(value: unknown): void {
+  if (!value || typeof value !== "object") return;
+  for (const child of Object.values(value)) preserveReadSchema(child);
+  // The remote adapter walks anyOf branches to restore domain values.
+  if ("type" in value && Array.isArray(value.type)) {
+    Object.assign(value, { anyOf: value.type.map((type) => ({ type })) });
+    delete value.type;
+  }
+  if (
+    "properties" in value &&
+    value.properties &&
+    typeof value.properties === "object"
+  ) {
+    const required = new Set(
+      "required" in value && Array.isArray(value.required)
+        ? value.required
+        : [],
+    );
+    const properties = value.properties as Record<string, Schema>;
+    for (const [name, property] of Object.entries(properties)) {
+      if (required.has(name)) continue;
+      const branches =
+        Object.keys(property).length === 1 && Array.isArray(property.anyOf)
+          ? property.anyOf
+          : [property];
+      properties[name] = {
+        anyOf: [{ type: "null", "x-oclr-undefined": true }, ...branches],
+      };
+    }
+  }
+  if (
+    "type" in value &&
+    value.type === "object" &&
+    !("properties" in value) &&
+    "additionalProperties" in value &&
+    "propertyNames" in value &&
+    JSON.stringify(value.propertyNames) === '{"type":"string"}'
+  ) {
+    // A record with unrestricted string keys uses the existing dictionary shape.
+    const values = value.additionalProperties;
+    delete value.propertyNames;
+    delete value.additionalProperties;
+    Object.assign(value, {
+      properties: {},
+      required: [],
+      additionalProperties: values,
+    });
+  }
 }
+for (const resource of definitions) {
+  const contract = explicit.get(resource.id);
+  const dto = structural.get(resource.id);
+  if (contract && dto) throw Error("Duplicate read contract: " + resource.id);
+  if (dto) {
+    result[resource.id] = schema(dto);
+    structural.delete(resource.id);
+    continue;
+  }
+  if (contract) {
+    const { $schema, ...wire } = z.toJSONSchema(contract, {
+      unrepresentable: ({ zodSchema }) =>
+        zodSchema instanceof z.ZodDate
+          ? { type: "string", format: "date-time", "x-oclr-date": true }
+          : "throw",
+    });
+    void $schema;
+    preserveReadSchema(wire);
+    result[resource.id] = wire;
+    explicit.delete(resource.id);
+    continue;
+  }
+  throw Error("Missing explicit read contract: " + resource.id);
+}
+if (explicit.size || structural.size)
+  throw Error(
+    "Unregistered read contracts: " +
+      [...explicit.keys(), ...structural.keys()],
+  );
 if (unsupported.size) throw Error("Untyped DTO: " + [...unsupported]);
 // Stable structural definitions keep identical query models shared across resources.
 const counts = new Map<string, number>();

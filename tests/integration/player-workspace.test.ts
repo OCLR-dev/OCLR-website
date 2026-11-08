@@ -36,6 +36,12 @@ import {
   playerPracticeCommand,
   playerTimetableCommand,
 } from "../../src/lib/player-workspace";
+import {
+  availabilityWrite,
+  practiceWrite,
+} from "../../src/lib/player-workspace-contracts";
+import { POST as savePractice } from "../../src/app/api/tournaments/[edition]/player/practice/route";
+import { POST as saveAvailability } from "../../src/app/api/tournaments/[edition]/player/availability/route";
 import { publicMappools } from "../../src/lib/mappools";
 import { withReadChannel } from "../../src/lib/read-channel";
 import { seedEditions } from "../fixtures/editions";
@@ -50,6 +56,20 @@ const a = { osuId: 671001, username: "Synthetic Captain A" },
   unassigned = { osuId: 671005, username: "Synthetic Unassigned" },
   admin = { osuId: 671006, username: "Synthetic Admin" };
 const slug = edition.slug;
+const origin = "https://oclr.example.test";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => p,
+}));
+function post(route: string, input: unknown) {
+  return new Request(`${origin}${route.replace("{edition}", slug)}`, {
+    method: "POST",
+    headers: { origin, "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+const routeContext = { params: Promise.resolve({ edition: slug }) };
 const metadata = {
   setId: 1,
   artist: "Synthetic Artist",
@@ -69,6 +89,7 @@ describe.skipIf(!url)("private player workspace #671", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -357,21 +378,25 @@ describe.skipIf(!url)("private player workspace #671", () => {
     );
   });
   it("saves a single transactional receipt on retry and rejects key reuse and stale versions", async () => {
-    const cmd = await practice();
-    expect(await playerPracticeCommand(p, slug, cmd)).toEqual({
-      saved: true,
-      version: 1,
-    });
-    expect(await playerPracticeCommand(p, slug, cmd)).toEqual({
-      saved: true,
-      version: 1,
-    });
-    await expect(
-      playerPracticeCommand(p, slug, { ...cmd, comment: "Changed" }),
-    ).rejects.toMatchObject({ status: 409 });
-    await expect(
-      playerPracticeCommand(p, slug, { ...cmd, requestKey: randomUUID() }),
-    ).rejects.toMatchObject({ status: 409 });
+    const cmd = await practice(p, { comment: `Team note${" ".repeat(2000)}` });
+    const submit = (input: unknown) =>
+      savePractice(post(practiceWrite.path, input), routeContext);
+    for (const input of [cmd, cmd]) {
+      const response = await submit(input);
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body).toEqual({ saved: true, version: 1 });
+      expect(practiceWrite.response.parse(body)).toEqual(body);
+    }
+    for (const input of [
+      { ...cmd, comment: "Changed" },
+      { ...cmd, requestKey: randomUUID() },
+    ]) {
+      const response = await submit(input);
+      expect(response.status).toBe(409);
+      const body = await response.json();
+      expect(practiceWrite.error.parse(body)).toEqual(body);
+    }
     const events = await db().select().from(playerWorkspaceEvents);
     expect(events).toHaveLength(1);
     expect(events[0]).toMatchObject({
@@ -391,6 +416,11 @@ describe.skipIf(!url)("private player workspace #671", () => {
       rating: null,
       comment: "",
     });
+    const response = await submit(await removePractice());
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toEqual({ saved: true, version: 3 });
+    expect(practiceWrite.response.parse(body)).toEqual(body);
   });
   it("omits retired ratings from reads, rejects old fields and keeps legacy audit evidence", async () => {
     await playerPracticeCommand(p, slug, await practice());
@@ -864,18 +894,23 @@ describe.skipIf(!url)("private player workspace #671", () => {
   });
   it("rejects stale timetable writes and permits clearing all slots with a versioned audit", async () => {
     const cmd = timetable();
-    await playerTimetableCommand(p, slug, cmd);
-    await expect(
-      playerTimetableCommand(p, slug, timetable()),
-    ).rejects.toMatchObject({ status: 409 });
-    await expect(
-      playerTimetableCommand(p, slug, { ...cmd, intervals: [] }),
-    ).rejects.toMatchObject({ status: 409 });
-    await playerTimetableCommand(
-      p,
-      slug,
-      timetable({ expectedVersion: 1, intervals: [] }),
-    );
+    const submit = (input: unknown) =>
+      saveAvailability(post(availabilityWrite.path, input), routeContext);
+    const expectSaved = async (input: unknown, version: number) => {
+      const response = await submit(input);
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body).toEqual({ saved: true, version });
+      expect(availabilityWrite.response.parse(body)).toEqual(body);
+    };
+    await expectSaved(cmd, 1);
+    for (const input of [timetable(), { ...cmd, intervals: [] }]) {
+      const response = await submit(input);
+      expect(response.status).toBe(409);
+      const body = await response.json();
+      expect(availabilityWrite.error.parse(body)).toEqual(body);
+    }
+    await expectSaved(timetable({ expectedVersion: 1, intervals: [] }), 2);
     expect(
       (await db().select().from(playerSeasonAvailability))[0],
     ).toMatchObject({ version: 2, intervals: [] });

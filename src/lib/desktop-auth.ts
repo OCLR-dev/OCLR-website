@@ -11,6 +11,20 @@ import {
 } from "@/db/desktop-auth-schema";
 import { appUrl, HttpError } from "./http";
 import type { User } from "./auth/sessions";
+import {
+  desktopApiVersion,
+  desktopContractVersion,
+  desktopPollAfterSeconds,
+} from "./desktop-wire";
+import {
+  exchangeDesktopAuthWrite,
+  refreshDesktopAuthWrite,
+  requestDesktopAuthWrite,
+  revokeDesktopAuthWrite,
+} from "./desktop-auth-write-contracts";
+
+export { desktopScopes } from "./desktop-auth-write-contracts";
+
 export class DesktopError extends HttpError {
   constructor(
     status: number,
@@ -19,59 +33,9 @@ export class DesktopError extends HttpError {
     super(status, code);
   }
 }
-export const desktopScopes = [
-  "referee:fixtures:read",
-  "referee:context:read",
-  "referee:panel:read",
-  "referee:relay",
-] as const;
 export const digest = (s: string) =>
   createHash("sha256").update(s).digest("hex");
 const opaque = () => randomBytes(32).toString("base64url");
-const secret = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
-const client = z.literal("oclr-ref-tools");
-const redirect = z.string().refine((s) => {
-  try {
-    const u = new URL(s);
-    return (
-      u.protocol === "http:" &&
-      u.hostname === "127.0.0.1" &&
-      Number(u.port) >= 1024 &&
-      Number(u.port) <= 65535 &&
-      u.pathname === "/oclr/callback" &&
-      !u.search &&
-      !u.hash &&
-      !u.username &&
-      !u.password
-    );
-  } catch {
-    return false;
-  }
-});
-const requestSchema = z
-  .object({
-    client_id: client,
-    client_version: z
-      .string()
-      .max(64)
-      .regex(/^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/),
-    platform: z.enum(["linux", "darwin", "win32"]),
-    device_name: z
-      .string()
-      .min(1)
-      .max(80)
-      .regex(/^[^\p{Cc}\p{Cf}]+$/u),
-    redirect_uri: redirect,
-    scope: z
-      .array(z.enum(desktopScopes))
-      .min(1)
-      .max(4)
-      .refine((a) => new Set(a).size === a.length),
-    state: secret,
-    code_challenge: secret,
-    code_challenge_method: z.literal("S256"),
-  })
-  .strict();
 type Reader = Pick<ReturnType<typeof db>, "select" | "insert" | "update">;
 async function eligible(reader: Reader, id: number) {
   const rows = await reader
@@ -88,7 +52,7 @@ async function eligible(reader: Reader, id: number) {
   if (!rows.length) throw new DesktopError(403, "REFEREE_ACCESS_REVOKED");
 }
 export async function createDesktopAuthorization(input: unknown) {
-  const p = requestSchema.safeParse(input);
+  const p = requestDesktopAuthWrite.request.safeParse(input);
   if (!p.success) throw new DesktopError(400, "INVALID_REQUEST");
   const v = p.data;
   return db().transaction(async (tx) => {
@@ -211,16 +175,7 @@ async function issue(reader: Reader, s: Session, user: User) {
   };
 }
 export async function exchangeDesktopAuthorization(input: unknown) {
-  const p = z
-    .object({
-      authorization_request_id: z.uuid(),
-      client_id: client,
-      code: secret,
-      code_verifier: secret,
-      redirect_uri: redirect,
-    })
-    .strict()
-    .safeParse(input);
+  const p = exchangeDesktopAuthWrite.request.safeParse(input);
   if (!p.success) throw new DesktopError(400, "INVALID_GRANT");
   const v = p.data;
   const result = await db().transaction(async (tx) => {
@@ -293,14 +248,8 @@ export async function exchangeDesktopAuthorization(input: unknown) {
   if (!result) throw new DesktopError(400, "INVALID_GRANT");
   return result;
 }
-const refreshSchema = z
-  .object({
-    client_id: client,
-    refresh_token: z.string().regex(/^oclr_desk_rt_[A-Za-z0-9_-]{43}$/),
-  })
-  .strict();
 export async function refreshDesktopAuthorization(input: unknown) {
-  const p = refreshSchema.safeParse(input);
+  const p = refreshDesktopAuthWrite.request.safeParse(input);
   if (!p.success) throw new DesktopError(401, "INVALID_REFRESH_TOKEN");
   const result = await db().transaction(async (tx) => {
     const [token] = await tx
@@ -352,7 +301,7 @@ export async function refreshDesktopAuthorization(input: unknown) {
   return result;
 }
 export async function revokeDesktopAuthorization(input: unknown) {
-  const p = refreshSchema.safeParse(input);
+  const p = revokeDesktopAuthWrite.request.safeParse(input);
   if (!p.success) return;
   const [token] = await db()
     .select()
@@ -455,11 +404,11 @@ export function desktopResponse(data: unknown, status = 200, kind = "Desktop") {
     {
       data,
       meta: {
-        apiVersion: "1",
-        contractVersion: "1.1.0",
+        apiVersion: desktopApiVersion,
+        contractVersion: desktopContractVersion,
         requestId,
         serverTime: new Date().toISOString(),
-        pollAfterSeconds: 3,
+        pollAfterSeconds: desktopPollAfterSeconds,
       },
     },
     {
@@ -467,7 +416,7 @@ export function desktopResponse(data: unknown, status = 200, kind = "Desktop") {
       headers: {
         "Cache-Control": "no-store",
         "X-Request-Id": requestId,
-        [`X-OCLR-${kind}-Contract`]: "1.1.0",
+        [`X-OCLR-${kind}-Contract`]: desktopContractVersion,
         "Referrer-Policy": "no-referrer",
       },
     },

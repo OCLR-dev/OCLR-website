@@ -25,6 +25,8 @@ import { HttpError } from "../../src/lib/http";
 import { requireUser } from "../../src/lib/auth/user";
 import { GET, PATCH } from "../../src/app/api/admin/contributors/route";
 import { assertTestDatabase } from "../database";
+import { updateContributorsWrite } from "../../src/lib/staff-administration-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { seedEditions } from "../fixtures/editions";
 vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
 const url = process.env.TEST_DATABASE_URL;
@@ -182,11 +184,11 @@ describe.skipIf(!url)("global contributor directory (#275)", () => {
       new HttpError(401, "Sign in to continue."),
     );
     expect((await GET()).status).toBe(401);
-    const request = (origin = "http://localhost:3000") =>
-      new Request("http://localhost:3000/api/admin/contributors", {
+    const request = (origin = "http://localhost:3000", input = save()) =>
+      new Request("http://localhost:3000" + updateContributorsWrite.path, {
         method: "PATCH",
         headers: { origin, "Content-Type": "application/json" },
-        body: JSON.stringify(save()),
+        body: JSON.stringify(input),
       });
     expect((await PATCH(request())).status).toBe(401);
     vi.mocked(requireUser).mockResolvedValue(other);
@@ -195,6 +197,16 @@ describe.skipIf(!url)("global contributor directory (#275)", () => {
     expect((await PATCH(request("https://untrusted.example"))).status).toBe(
       403,
     );
-    expect((await PATCH(request())).status).toBe(200);
+    const saved = await PATCH(request());
+    expect(saved.status).toBe(200);
+    expect(saved.headers.get("Cache-Control")).toBe("no-store");
+    const body = await saved.json();
+    expect(extendedSchemas.contributorsForAdmin.parse(body)).toEqual(body);
+    expect(body).toEqual({ id: 1, entries: [first, second], revision: 1 });
+    const repeated = await PATCH(request());
+    expect(repeated.status).toBe(200);
+    expect(await repeated.json()).toEqual(body);
+    expect(await db().select().from(contributorEvents)).toHaveLength(1);
+    expect((await PATCH(request(undefined, save([second])))).status).toBe(409);
   });
 });

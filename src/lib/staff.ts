@@ -32,6 +32,11 @@ import {
   assertRegistrationUnassigned,
   registrationOperation,
 } from "./registrations";
+import {
+  registrationParticipationInput,
+  reviewRegistrationWrite,
+  type ReviewedRegistration,
+} from "./registration-write-contract";
 import { RemoteDataError } from "./remote-errors";
 export function parseFilters(input: unknown) {
   const result = staffApplicationFilters.safeParse(input);
@@ -69,11 +74,13 @@ const listFields = {
   createdAt: registrations.createdAt,
   updatedAt: registrations.updatedAt,
 };
+type ListApplications =
+  import("./explicit-read-contracts").ExplicitReadData<"listApplications">;
 async function databaseListApplications(
   actor: User,
   input: unknown,
   exporting = false,
-) {
+): Promise<ListApplications> {
   const scopes = exporting
     ? await capabilityScope(actor, "manage_registrations")
     : await readCapabilityScope(actor, "manage_registrations");
@@ -108,13 +115,11 @@ export async function listApplications(
   actor: User,
   input: unknown,
   exporting = false,
-): Promise<Awaited<ReturnType<typeof databaseListApplications>>> {
+): Promise<ListApplications> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
     if (exporting) throw new RemoteDataError("REMOTE_FORBIDDEN", 403);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseListApplications>>
-    >("listApplications", { input });
+    return frontendResource<ListApplications>("listApplications", { input });
   }
   return databaseListApplications(actor, input, exporting);
 }
@@ -204,7 +209,12 @@ async function exportApplicationSnapshot(actor: User, input: unknown) {
     };
   });
 }
-async function databaseApplicationDetails(actor: User, id: string) {
+type ApplicationDetails =
+  import("./explicit-read-contracts").ExplicitReadData<"applicationDetails">;
+async function databaseApplicationDetails(
+  actor: User,
+  id: string,
+): Promise<ApplicationDetails> {
   await readCapabilityScope(actor, "manage_registrations");
   if (!z.uuid().safeParse(id).success)
     throw new HttpError(404, "Application not found.");
@@ -252,12 +262,10 @@ async function databaseApplicationDetails(actor: User, id: string) {
 export async function applicationDetails(
   actor: User,
   id: string,
-): Promise<Awaited<ReturnType<typeof databaseApplicationDetails>>> {
+): Promise<ApplicationDetails> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseApplicationDetails>>
-    >("applicationDetails", { id });
+    return frontendResource<ApplicationDetails>("applicationDetails", { id });
   }
   return databaseApplicationDetails(actor, id);
 }
@@ -266,17 +274,9 @@ export async function reviewApplication(
   actor: User,
   id: string,
   input: unknown,
-) {
+): Promise<ReviewedRegistration> {
   await capabilityScope(actor, "manage_registrations");
-  const result = z
-    .object({
-      status: z.enum(["accepted", "rejected", "deferred", "pending"]),
-      reason: z.string().trim().max(1000).default(""),
-      expectedUpdatedAt: z.iso.datetime(),
-      confirmed: z.literal(true),
-    })
-    .strict()
-    .safeParse(input);
+  const result = reviewRegistrationWrite.request.safeParse(input);
   if (!z.uuid().safeParse(id).success || !result.success)
     throw new HttpError(400, "Confirm a valid review decision.");
   if (result.data.status === "rejected" && !result.data.reason)
@@ -348,13 +348,7 @@ export async function changeRegistrationParticipation(
   input: unknown,
 ) {
   await assertCapability(actor, "manage_registrations", slug);
-  const parsed = z
-    .object({
-      expectedUpdatedAt: z.iso.datetime(),
-      confirmed: z.literal(true),
-    })
-    .strict()
-    .safeParse(input);
+  const parsed = registrationParticipationInput.safeParse(input);
   if (!z.uuid().safeParse(id).success || !parsed.success)
     throw new HttpError(400, "Confirm a valid registration change.");
   return db().transaction(async (tx) => {

@@ -23,13 +23,16 @@ import {
   registrationMetadata,
   registrationReadColumns,
 } from "./live-season-columns";
+import {
+  submitRegistrationWrite,
+  withdrawRegistrationWrite,
+} from "./registration-write-contract";
 import { readTournament, storedEdition } from "./tournaments";
+import type { RegistrationReadOperation } from "./configuration-read-contracts";
 // Latest explicit provenance, without rewriting legacy audit records or storing
 // a second registration status. Mutations timestamp the event and row together.
 // Keep the outer qualifier literal: single-table projections otherwise strip it.
-export const registrationOperation = sql<
-  "staff_remove" | "staff_restore" | "player_withdraw" | "player_reapply" | null
->`(
+export const registrationOperation = sql<RegistrationReadOperation | null>`(
   SELECT e.operation FROM registration_events e WHERE e.registration_id = "registrations"."id"
   ORDER BY e.created_at DESC, e.id DESC LIMIT 1
 )`;
@@ -53,22 +56,6 @@ export async function registrationAvailability(
     return "unavailable";
   }
 }
-const applicationInput = z
-  .object({
-    rulesAcknowledged: z.literal(true).optional(),
-    eligibilityAcknowledged: z.literal(true).optional(),
-    rulesVersion: z.string().min(1).max(80).nullable().optional(),
-    reapply: z
-      .object({
-        expectedUpdatedAt: z.iso.datetime(),
-        attempt: z.number().int().positive(),
-      })
-      .strict()
-      .optional(),
-    configurationVersion: z.number().int().nonnegative(),
-    answers: z.record(z.string(), z.string()).default({}),
-  })
-  .strict();
 export class ApplicationFieldError extends HttpError {
   constructor(
     public field: string,
@@ -82,7 +69,7 @@ export function validateApplication(
   input: unknown,
   configurationVersion: number,
 ) {
-  const result = applicationInput.safeParse(input);
+  const result = submitRegistrationWrite.request.safeParse(input);
   if (!result.success)
     throw new HttpError(
       400,
@@ -337,10 +324,7 @@ export async function withdrawRegistration(
   confirmed: unknown,
 ) {
   if (
-    !z
-      .object({ confirmed: z.literal(true) })
-      .strict()
-      .safeParse(confirmed).success ||
+    !withdrawRegistrationWrite.request.safeParse(confirmed).success ||
     !z.uuid().safeParse(id).success
   )
     throw new HttpError(400, "Confirm withdrawal before continuing.");
@@ -413,7 +397,11 @@ export async function withdrawRegistration(
     return updated;
   });
 }
-async function databaseOwnRegistrations(userId: number) {
+type OwnRegistrations =
+  import("./explicit-read-contracts").ExplicitReadData<"ownRegistrations">;
+async function databaseOwnRegistrations(
+  userId: number,
+): Promise<OwnRegistrations> {
   return db()
     .select({
       id: registrations.id,
@@ -437,12 +425,10 @@ async function databaseOwnRegistrations(userId: number) {
 }
 export async function ownRegistrations(
   userId: number,
-): Promise<Awaited<ReturnType<typeof databaseOwnRegistrations>>> {
+): Promise<OwnRegistrations> {
   if (remoteMode()) {
     await assertRemoteSubject(userId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseOwnRegistrations>>
-    >("ownRegistrations", {});
+    return frontendResource<OwnRegistrations>("ownRegistrations");
   }
   return databaseOwnRegistrations(userId);
 }

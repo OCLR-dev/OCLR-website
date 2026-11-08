@@ -8,11 +8,11 @@ import {
 } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { createHash, randomUUID } from "node:crypto";
-import { z } from "zod";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
 import { remoteMode } from "./data-source";
+import type { ExplicitReadData } from "./explicit-read-contracts";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http";
 import {
@@ -21,10 +21,18 @@ import {
   type ReplaySummary,
 } from "./replay-model";
 import { parseReplay } from "./replay-parser";
+import {
+  deleteReplayWrite,
+  replayDescription,
+  replayWriteCommand,
+  type ReplayDeleteReceipt,
+  type ReplayUploadReceipt,
+} from "./replay-write-contract";
 import { readReplay, removeReplayFile, storeReplay } from "./replay-storage";
 type Reader = Pick<ReturnType<typeof db>, "select">;
+type ReplayList = ExplicitReadData<"replayList">;
 function validId(id: string) {
-  if (!z.uuid().safeParse(id).success)
+  if (!deleteReplayWrite.parameters.replayId.safeParse(id).success)
     throw new HttpError(404, "Replay target not found.");
 }
 async function target(
@@ -57,16 +65,25 @@ function validateMatch(
       "Replay does not match this beatmap checksum or ruleset. Choose the correct map.",
     );
 }
-const command = z
-  .object({
-    expectedVersion: z.number().int().nonnegative(),
-    confirmed: z.literal(true),
-  })
-  .strict();
-async function databaseReplayList(actor: User, slug: string, entryId: string) {
+async function databaseReplayList(
+  actor: User,
+  slug: string,
+  entryId: string,
+): Promise<ReplayList> {
   const { entry } = await target(actor, slug, entryId);
   const rows = await db()
-    .select()
+    .select({
+      id: mappoolReplays.id,
+      entryId: mappoolReplays.entryId,
+      sha256: mappoolReplays.sha256,
+      filename: mappoolReplays.filename,
+      size: mappoolReplays.size,
+      description: mappoolReplays.description,
+      uploaderId: mappoolReplays.uploaderId,
+      uploaderName: mappoolReplays.uploaderName,
+      summary: mappoolReplays.summary,
+      createdAt: mappoolReplays.createdAt,
+    })
     .from(mappoolReplays)
     .where(eq(mappoolReplays.entryId, entryId))
     .orderBy(mappoolReplays.createdAt, mappoolReplays.id);
@@ -83,18 +100,15 @@ export async function replayList(
   actor: User,
   slug: string,
   entryId: string,
-): Promise<Awaited<ReturnType<typeof databaseReplayList>>> {
+): Promise<ReplayList> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseReplayList>>>(
-      "replayList",
-      { slug, entryId },
-    );
+    return frontendResource<ReplayList>("replayList", { slug, entryId });
   }
   return databaseReplayList(actor, slug, entryId);
 }
 
-export type ReplayItem = Awaited<ReturnType<typeof replayList>>[number];
+export type ReplayItem = ReplayList[number];
 export async function authorizeReplayUpload(
   actor: User,
   slug: string,
@@ -111,9 +125,9 @@ export async function uploadMappoolReplay(
   filename: string,
   description: string,
   bytes: Buffer,
-) {
+): Promise<ReplayUploadReceipt> {
   await authorizeReplayUpload(actor, slug, entryId);
-  const parsed = command.safeParse(input);
+  const parsed = replayWriteCommand.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,
@@ -124,8 +138,7 @@ export async function uploadMappoolReplay(
     filename.length > 180 ||
     !/\.osr$/i.test(filename) ||
     /[\\/\p{Cc}\p{Cf}]/u.test(filename) ||
-    description.length > 500 ||
-    /[\p{Cc}\p{Cf}]/u.test(description)
+    !replayDescription.safeParse(description).success
   )
     throw new HttpError(
       400,
@@ -245,11 +258,11 @@ export async function deleteMappoolReplay(
   entryId: string,
   replayId: string,
   input: unknown,
-) {
+): Promise<ReplayDeleteReceipt> {
   await assertCapability(actor, "manage_replays", slug);
   validId(entryId);
   validId(replayId);
-  const parsed = command.safeParse(input);
+  const parsed = replayWriteCommand.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,

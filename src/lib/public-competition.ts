@@ -36,67 +36,25 @@ import {
 import { calculateStandings } from "./standings";
 import { readTournament } from "./tournaments";
 import { openExhibitionSides } from "./exhibition-sides";
-export type PublicTeam = {
-  exhibition?: boolean;
-  id: string;
-  name: string;
-  avatarKey?: string | null;
-};
-export type PublicSlot = {
-  team: PublicTeam | null;
-  label: string;
-  sourceId: string | null;
-  outcome: "winner" | "loser" | null;
-};
-export type PublicMatchResult = {
-  revision: number;
-  homeWins: number;
-  awayWins: number;
-  tiedMaps: number;
-  winnerTeamId: string | null;
-  draw: boolean;
-  games: {
-    gameId: number;
-    beatmapId: number | null;
-    beatmap: {
-      setId: number | null;
-      title: string | null;
-      artist: string | null;
-      difficulty: string | null;
-    } | null;
-    mods: string[];
-    scoringType: string | null;
-    homeScore: number;
-    awayScore: number;
-    winnerTeamId: string | null;
-    tied: boolean;
-  }[];
-  mpId: number;
-  mpUrl: string;
-  publicNote: string;
-  updatedAt: string;
-};
-export type PublicFixture = {
-  pool: { id: string; name: string } | null;
-  id: string;
-  label: string;
-  publishedAt: string;
-  roundId: string;
-  roundName: string;
-  roundPosition: number;
-  stageId: string;
-  stage: "group" | "knockout" | "exhibition";
-  position: number;
-  home: PublicSlot;
-  away: PublicSlot;
-  confirmed: boolean;
-  scheduledAt: string | null;
-  timeZone: string;
-  status: "scheduled" | "in_progress" | "cancelled";
-  result: PublicMatchResult | null;
-  updatedAt: string;
-};
-async function databasePublicCompetition(slug: string, reader?: RatingReader) {
+import type {
+  PublicTeam,
+  PublicSlot,
+  PublicMatchResult,
+  PublicFixture,
+} from "./competition-read-contracts";
+export type {
+  PublicTeam,
+  PublicSlot,
+  PublicMatchResult,
+  PublicFixture,
+} from "./competition-read-contracts";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PublicCompetition = ExplicitReadData<"publicCompetition">;
+type PublicFixtureRead = ExplicitReadData<"publicFixture">;
+async function databasePublicCompetition(
+  slug: string,
+  reader?: RatingReader,
+): Promise<PublicCompetition> {
   if (
     !(reader
       ? await readTournament(slug, reader, true)
@@ -404,11 +362,9 @@ async function databasePublicCompetition(slug: string, reader?: RatingReader) {
 export async function publicCompetition(
   slug: string,
   reader?: RatingReader,
-): Promise<Awaited<ReturnType<typeof databasePublicCompetition>>> {
+): Promise<PublicCompetition> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicCompetition>>
-    >("publicCompetition", { slug });
+    return frontendResource<PublicCompetition>("publicCompetition", { slug });
   }
   return databasePublicCompetition(slug, reader);
 }
@@ -421,7 +377,7 @@ export type PublicGroup = {
 async function databasePublicFixture(
   slug: string,
   id: string,
-): Promise<(PublicFixture & { details: MatchDetails | null }) | null> {
+): Promise<PublicFixtureRead> {
   if (!process.env.DATABASE_URL) return null;
   return db().transaction(
     async (tx) => {
@@ -522,12 +478,9 @@ async function databasePublicFixture(
 export async function publicFixture(
   slug: string,
   id: string,
-): Promise<Awaited<ReturnType<typeof databasePublicFixture>>> {
+): Promise<PublicFixtureRead> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublicFixture>>>(
-      "publicFixture",
-      { slug, id },
-    );
+    return frontendResource<PublicFixtureRead>("publicFixture", { slug, id });
   }
   return databasePublicFixture(slug, id);
 }

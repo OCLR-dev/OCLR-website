@@ -9,7 +9,10 @@ import {
 } from "./auth/staff";
 import type { User } from "./auth/sessions";
 import { HttpError } from "./http";
-import { chessAdminCommand, pixelCommand } from "./ocl-chess-model";
+import {
+  moderateChessWrite,
+  placeChessPixelWrite,
+} from "./ocl-chess-write-contracts";
 export async function readChess(user: User | null) {
   const [board] = await db()
     .select()
@@ -33,8 +36,8 @@ export async function readChess(user: User | null) {
 export async function writeChess(user: User, input: unknown, admin = false) {
   assertUserWriteChannel();
   const parsed = admin
-    ? chessAdminCommand.safeParse(input)
-    : pixelCommand.safeParse(input);
+    ? moderateChessWrite.request.safeParse(input)
+    : placeChessPixelWrite.request.safeParse(input);
   if (!parsed.success) throw new HttpError(400, "Invalid canvas operation.");
   const command = parsed.data;
   await db().transaction(async (tx) => {

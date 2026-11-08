@@ -16,6 +16,8 @@ import { assertStreamer } from "./streaming-api";
 import { projectReferee } from "./referee-model";
 import { editionSchema } from "./editions";
 import { HttpError } from "./http";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type NextStreamingRead = ExplicitReadData<"nextStreamingRead">;
 
 export const streamingNextQuery = z
   .object({ afterFixtureId: z.uuid().optional() })
@@ -83,7 +85,7 @@ export async function nextStreamingRead(
   subject: { osuId: number },
   slug: string,
   input: unknown = {},
-) {
+): Promise<NextStreamingRead> {
   const parsed = streamingNextQuery.safeParse(input);
   if (!parsed.success || !editionSchema.shape.slug.safeParse(slug).success)
     throw new HttpError(400, "Choose valid streaming query parameters.");

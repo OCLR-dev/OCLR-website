@@ -109,12 +109,13 @@ const keyVisualPaths = [
   "/oclr-s11-key-visual.webp",
   ...archiveArtworkPaths,
 ] as const;
+export const editionSlugSchema = z
+  .string()
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  .max(80);
 export const editionSchema = z
   .object({
-    slug: z
-      .string()
-      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-      .max(80),
+    slug: editionSlugSchema,
     name: z.string().trim().min(1).max(100),
     season: z.string().trim().min(1).max(40).nullable().default(null),
     branding: z

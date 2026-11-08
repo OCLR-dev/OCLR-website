@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { previewManualRegistration } from "@/lib/manual-registrations";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { previewManualRegistrationWrite } from "@/lib/manual-registration-write-contract";
 export async function POST(
   request: Request,
   context: { params: Promise<{ edition: string }> },
@@ -14,7 +15,7 @@ export async function POST(
       await previewManualRegistration(
         actor,
         edition,
-        await readJson(request, 1024),
+        await readJson(request, previewManualRegistrationWrite.maxBodyBytes),
       ),
       { headers: { "Cache-Control": "no-store" } },
     );

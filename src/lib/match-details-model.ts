@@ -5,7 +5,7 @@ import {
   statisticsScores,
   type StatisticsSnapshot,
 } from "./archive-statistics-model";
-import type { ratingSnapshot } from "./ratings";
+import type { ExplicitReadData } from "./explicit-read-contracts";
 import { statisticsScore } from "./statistics-score";
 
 export type MatchDetailScore = {
@@ -61,7 +61,7 @@ export type MatchDetails = {
   teamIds: [string, string];
   failedScorePolicy: "include" | "zero" | null;
   technicalAdjudication: boolean;
-  rating: ReturnType<typeof ratingSnapshot> | null;
+  rating: ExplicitReadData<"matchRatingWorkspace"> | null;
 };
 /** Statistical adjustments do not replace reviewed contributions or match wins. */
 export function withStatisticsScores(

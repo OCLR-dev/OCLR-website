@@ -32,6 +32,11 @@ import {
   developerApiLimiter,
 } from "../../src/lib/developer-api";
 import { developerApiScopes } from "../../src/lib/developer-api-model";
+import {
+  createDeveloperTokenWrite,
+  revokeDeveloperTokenWrite,
+  type CreateDeveloperTokenInput,
+} from "../../src/lib/developer-token-write-contract";
 import { developerReadResponse } from "../../src/lib/developer-api-http";
 import {
   GET as me,
@@ -76,6 +81,21 @@ function request(
 }
 async function issued(scopes = [...developerApiScopes]) {
   return createDeveloperToken(owner!, { origin, scopes });
+}
+async function issueThroughBrowser(input: CreateDeveloperTokenInput) {
+  const response = await issue(
+    new Request(backend + createDeveloperTokenWrite.path, {
+      method: "POST",
+      headers: { Origin: backend, "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+  );
+  expect(response.status).toBe(201);
+  expect(response.headers.get("Cache-Control")).toBe("no-store");
+  const body = await response.json();
+  const credential = createDeveloperTokenWrite.response.parse(body);
+  expect(credential).toEqual(body);
+  return credential;
 }
 async function businessState() {
   const tables = await db().execute(
@@ -135,8 +155,12 @@ describe.skipIf(!url)("Developer API credentials (isolated PostgreSQL)", () => {
 
   it("issues only hashed credentials, caps lifetime, lists metadata and audits transactionally", async () => {
     const start = Date.now();
-    const credential = await issued();
+    const credential = await issueThroughBrowser({
+      origin,
+      scopes: [...developerApiScopes],
+    });
     expect(credential.backend).toBe(backend);
+    expect(credential.access).toMatchObject({ origin, ports: [3000] });
     expect(Date.parse(credential.access.expiresAt) - start).toBeLessThanOrEqual(
       3_600_000 + 500,
     );
@@ -255,7 +279,7 @@ describe.skipIf(!url)("Developer API credentials (isolated PostgreSQL)", () => {
   });
   it("persists multiple ports, reads through each loopback alias and rejects unlisted ports", async () => {
     vi.stubEnv("OCLR_DEVELOPER_ORIGINS", undefined);
-    const credential = await createDeveloperToken(owner!, {
+    const credential = await issueThroughBrowser({
       ports: [3000, 5173],
       scopes: ["identity:read"],
     });
@@ -432,16 +456,29 @@ describe.skipIf(!url)("Developer API credentials (isolated PostgreSQL)", () => {
     browser.token = "";
     expect((await list()).status).toBe(401);
     browser.token = ownerToken;
-    const deleted = await revoke(
-      request(
-        "/api/developer/tokens/" + credential.access.id,
-        undefined,
-        backend,
-        "DELETE",
-      ),
-      { params: Promise.resolve({ tokenId: credential.access.id }) },
+    const path = revokeDeveloperTokenWrite.path.replace(
+      "{tokenId}",
+      credential.access.id,
     );
+    const deleteToken = () =>
+      revoke(request(path, undefined, backend, "DELETE"), {
+        params: Promise.resolve({ tokenId: credential.access.id }),
+      });
+    const deleted = await deleteToken();
     expect(deleted.status).toBe(200);
+    expect(deleted.headers.get("Cache-Control")).toBe("no-store");
+    const body = await deleted.json();
+    const metadata = revokeDeveloperTokenWrite.response.parse(body);
+    expect(metadata).toEqual(body);
+    expect(metadata).toEqual({
+      ...credential.access,
+      revokedAt: expect.any(String),
+    });
+    expect((await me(request(undefined, credential.token))).status).toBe(401);
+    const repeated = await deleteToken();
+    expect(repeated.status).toBe(200);
+    expect(await repeated.json()).toEqual(metadata);
+    expect(await db().select().from(developerApiEvents)).toHaveLength(2);
   });
   it("cannot borrow mixed-role Admin writes, legacy provider reads or v1 mutation methods", async () => {
     await db()

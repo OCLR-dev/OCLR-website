@@ -11,20 +11,8 @@ import { HttpError } from "./http";
 import { publicMappools } from "./mappools";
 import { slotLabel } from "./mappool-model";
 import { compareTournamentSeasons } from "./tournament-order";
-
-export type CandidateHistory = {
-  beatmapId: number;
-  matches: {
-    editionSlug: string;
-    editionName: string;
-    season: string | null;
-    poolId: string;
-    poolName: string;
-    roundName: string | null;
-    slot: string;
-    matchedBy: "beatmap" | "original";
-  }[];
-};
+import type { ExplicitReadData } from "./explicit-read-contracts";
+export type CandidateHistory = ExplicitReadData<"candidateHistory">;
 
 async function databaseCandidateHistory(
   actor: User,

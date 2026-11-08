@@ -42,6 +42,12 @@ import { createDeveloperToken } from "../../src/lib/developer-api";
 import { nextStreamingRead } from "../../src/lib/streaming-read";
 import { GET as stream } from "../../src/app/api/v1/streaming/tournaments/[edition]/next/route";
 import { GET as me } from "../../src/app/api/v1/me/route";
+import { POST as issueAccess } from "../../src/app/api/streaming/tokens/route";
+import { DELETE as revokeAccess } from "../../src/app/api/streaming/tokens/[tokenId]/route";
+import {
+  createStreamingAccessWrite,
+  revokeStreamingAccessWrite,
+} from "../../src/lib/streaming-write-contract";
 import { readApiRoute } from "../../src/lib/read-api";
 import { assertTestDatabase } from "../database";
 import { seedEditions } from "../fixtures/editions";
@@ -52,11 +58,19 @@ const slug = "test-cup",
   origin = "http://127.0.0.1:3001",
   backend = "https://oclr.example.test";
 let subject: Awaited<ReturnType<typeof readSessionContext>>,
+  browserToken: string,
   token: string,
   accessId: string,
   first: string,
   second: string,
   roundId: string;
+vi.mock("next/headers.js", () => ({
+  cookies: async () => ({
+    get: (name: string) =>
+      name === "__Host-oclr_session" ? { value: browserToken } : undefined,
+  }),
+  headers: async () => new Headers(),
+}));
 const request = (
   method = "GET",
   query = "",
@@ -102,6 +116,7 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       grantedBy: ownerId,
     });
     const browser = await createSession(ownerId);
+    browserToken = browser.token;
     subject = await readSessionContext(browser.token);
     const issued = await createStreamingToken(subject!, {
       editionSlug: slug,
@@ -183,14 +198,12 @@ describe.skipIf(!url)("streaming read channel #540", () => {
     await expect(streamingAccessEditions(540002)).rejects.toMatchObject({
       status: 403,
     });
-    await db()
-      .insert(staffRoles)
-      .values({
-        userId: 540002,
-        role: "streamer",
-        editionSlug: null,
-        grantedBy: ownerId,
-      });
+    await db().insert(staffRoles).values({
+      userId: 540002,
+      role: "streamer",
+      editionSlug: null,
+      grantedBy: ownerId,
+    });
     expect(
       (await streamingAccessEditions(540002)).map((e) => e.slug).sort(),
     ).toEqual(["other-test", slug].sort());
@@ -556,7 +569,64 @@ describe.skipIf(!url)("streaming read channel #540", () => {
     expect(
       JSON.stringify(await db().select().from(streamingApiEvents)),
     ).not.toContain(token);
-    await revokeStreamingToken(subject!, accessId);
+    const creation = (authorization?: string) =>
+      issueAccess(
+        new Request(backend + createStreamingAccessWrite.path, {
+          method: createStreamingAccessWrite.method,
+          headers: {
+            Origin: backend,
+            "Content-Type": "application/json",
+            ...(authorization ? { Authorization: authorization } : {}),
+          },
+          body: JSON.stringify({ editionSlug: slug, origin }),
+        }),
+      );
+    const denied = await creation(`Bearer ${token}`);
+    expect(denied.status).toBe(403);
+    expect(
+      createStreamingAccessWrite.error.safeParse(await denied.json()).success,
+    ).toBe(true);
+    const issued = await creation();
+    expect(issued.status).toBe(201);
+    expect(issued.headers.get("Cache-Control")).toBe("no-store");
+    const body = createStreamingAccessWrite.response.parse(await issued.json());
+    expect(body.access).toMatchObject({
+      editionSlug: slug,
+      origin,
+      scopes: ["streaming:read"],
+      revokedAt: null,
+    });
+    expect(body.backend).toBe(backend);
+    const revoke = () =>
+      revokeAccess(
+        new Request(
+          backend +
+            revokeStreamingAccessWrite.path.replace("{tokenId}", accessId),
+          {
+            method: revokeStreamingAccessWrite.method,
+            headers: { Origin: backend },
+          },
+        ),
+        { params: Promise.resolve({ tokenId: accessId }) },
+      );
+    const revoked = await revoke();
+    expect(revoked.status).toBe(200);
+    const metadata = revokeStreamingAccessWrite.response.parse(
+      await revoked.json(),
+    );
+    expect(metadata.id).toBe(accessId);
+    expect(metadata.revokedAt).not.toBeNull();
+    const repeated = await revoke();
+    expect(repeated.status).toBe(200);
+    expect(await repeated.json()).toEqual(metadata);
+    expect(
+      (
+        await db()
+          .select()
+          .from(streamingApiEvents)
+          .where(eq(streamingApiEvents.accessId, accessId))
+      ).filter((event) => event.action === "revoke"),
+    ).toHaveLength(1);
     expect((await read()).status).toBe(401);
   });
   it("invalidates on parent logout and checks preflight without extending activity", async () => {

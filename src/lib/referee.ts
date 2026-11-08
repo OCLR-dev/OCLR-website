@@ -42,65 +42,37 @@ import {
 import { scoringRulesSchema } from "./competition-model";
 import { remoteMode } from "./data-source";
 import { persistRoundRefereePolicy } from "./round-referee-policy";
+import {
+  changeRefereeWorkspaceWrite,
+  type RefereeCommandResult,
+} from "./referee-write-contracts";
+export {
+  refereeCommandSchema,
+  type RefereeCommand,
+} from "./referee-write-contracts";
 import { HttpError } from "./http";
 import {
   defaultRefereeRoomName,
   emptyRefereeSettings,
-  refereeSettingsSchema,
 } from "./referee-commands";
 import {
   projectReferee,
-  refereeActionSchema,
   refereePolicySchema,
   validateRefereeAction,
   type RefereeEvent,
   type RefereeEventPayload,
-  type RefereeModelInput,
 } from "./referee-model";
 
 import {
   openExhibitionSides,
   exhibitionParticipants,
 } from "./exhibition-sides";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+import type { RefereeBasis } from "./fixture-read-contracts";
+export type { RefereeBasis } from "./fixture-read-contracts";
 type Reader = Pick<ReturnType<typeof db>, "select">;
-export type RefereeBasis = Pick<
-  RefereeModelInput,
-  | "policy"
-  | "teamIds"
-  | "maps"
-  | "series"
-  | "tiedMapPolicy"
-  | "exPlayersPerTeam"
-  | "skipBans"
->;
 const hash = (value: unknown) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex");
-const common = {
-  requestKey: z.uuid(),
-  expectedRevision: z.number().int().nonnegative(),
-  dependencyFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-};
-export const refereeCommandSchema = z.discriminatedUnion("action", [
-  z
-    .object({
-      ...common,
-      action: z.literal("save_settings"),
-      settings: refereeSettingsSchema,
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("configure_policy"),
-      expectedPolicyRevision: z.number().int().nonnegative(),
-      policy: refereePolicySchema,
-    })
-    .strict(),
-  z.object({ ...common, action: z.literal("reconfirm_dependencies") }).strict(),
-  ...refereeActionSchema.options.map((option) => option.extend(common)),
-]);
-export type RefereeCommand = z.infer<typeof refereeCommandSchema>;
-
 /** Rechecked inside every transaction, including idempotent replay. No role is inferred from repository access. */
 export async function assertRefereeAccess(
   reader: Reader,
@@ -145,7 +117,7 @@ export async function readRefereeWorkspace(
   actor: User,
   slug: string,
   fixtureId: string,
-) {
+): Promise<RefereeWorkspace> {
   const access = await assertRefereeAccess(reader, actor, slug, fixtureId);
   const fixture = access.fixture;
   const edition = await editionOperationState(slug, reader);
@@ -475,7 +447,7 @@ export async function readRefereeWorkspace(
     canConfigure: access.canConfigure && !edition.hasArchive,
   };
 }
-export type RefereeWorkspace = Awaited<ReturnType<typeof readRefereeWorkspace>>;
+export type RefereeWorkspace = ExplicitReadData<"refereeWorkspace">;
 export async function refereeWorkspace(
   actor: User,
   slug: string,
@@ -505,9 +477,9 @@ export async function refereeCommand(
   transaction?: Parameters<
     Parameters<ReturnType<typeof db>["transaction"]>[0]
   >[0],
-) {
+): Promise<RefereeCommandResult> {
   await assertCapability(actor, "record_results", slug);
-  const parsed = refereeCommandSchema.safeParse(input);
+  const parsed = changeRefereeWorkspaceWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,

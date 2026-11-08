@@ -42,22 +42,25 @@ import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { draftSetupProtection } from "./draft-setup";
 import { refreshDraftSnapshot } from "./draft";
 import { HttpError } from "./http";
+import { confirmArchiveStaffIdentity } from "./archive-staff-identity-model";
 import {
-  archiveStaffConfirmation,
-  confirmArchiveStaffIdentity,
-} from "./archive-staff-identity-model";
+  changeTournamentWrite,
+  createTournamentWrite,
+} from "./tournament-write-contracts";
 import {
   approveArchiveMatches,
   publicHistoricalArchive,
   resolveArchiveIdentity,
   exchangeArchivePlayers,
-  archivePlayerExchangeConfirmation,
   addArchiveSubstitute,
-  archiveSubstituteConfirmation,
 } from "./historical-archive";
 import { supportsArchiveStatistics } from "./archive-statistics-model";
+import type { SavedTournament } from "./configuration-read-contracts";
+import type { ExplicitReadData } from "./explicit-read-contracts";
 type Reader = Pick<ReturnType<typeof db>, "select">;
-export function storedEdition(row: typeof editionState.$inferSelect) {
+export function storedEdition(
+  row: typeof editionState.$inferSelect,
+): SavedTournament | undefined {
   if (!row.configuration) return undefined;
   return {
     edition: editionSchema.parse(
@@ -73,9 +76,9 @@ export async function readTournament(
   slug: string,
   reader?: Reader,
   publicOnly = false,
-): Promise<ReturnType<typeof storedEdition>> {
+): Promise<SavedTournament | undefined> {
   if (remoteMode())
-    return frontendResource<Awaited<ReturnType<typeof readTournament>>>(
+    return frontendResource<SavedTournament | undefined>(
       publicOnly ? "publicEnrollment" : "privateSavedTournament",
       { slug },
     );
@@ -94,7 +97,7 @@ export async function readTournament(
 export async function readTournaments(publicOnly = false) {
   if (!process.env.DATABASE_URL) return [];
   const rows = await archiveEditionStates(db(), publicOnly);
-  const result: NonNullable<ReturnType<typeof storedEdition>>[] = [];
+  const result: SavedTournament[] = [];
   for (const row of rows) {
     const saved = storedEdition(row)!;
     result.push(
@@ -112,124 +115,6 @@ export async function readTournaments(publicOnly = false) {
   return result;
 }
 
-const shape = editionSchema.shape;
-const identity = {
-  name: shape.name,
-  season: shape.season,
-  summary: shape.summary,
-  timeZone: shape.timeZone,
-  branding: shape.branding,
-  defaultAppearance: shape.defaultAppearance,
-};
-const version = {
-  expectedRevision: z.number().int().nonnegative(),
-  confirmed: z.literal(true),
-};
-const createSchema = z
-  .object({
-    ...identity,
-    slug: shape.slug
-      .refine((s) => s !== "new", "This slug is reserved")
-      .optional(),
-    summary: shape.summary.default(""),
-    timeZone: shape.timeZone.default("UTC"),
-    confirmed: z.literal(true),
-  })
-  .strict();
-const commandSchema = z.discriminatedUnion("action", [
-  archiveStaffConfirmation
-    .extend({
-      confirmed: z.literal(true),
-      action: z.literal("resolve-archive-staff"),
-    })
-    .strict(),
-  archivePlayerExchangeConfirmation
-    .extend({
-      ...version,
-      action: z.literal("exchange-archive-players"),
-      preserveStatistics: z.literal(true),
-    })
-    .strict(),
-  archiveSubstituteConfirmation
-    .extend({
-      ...version,
-      action: z.literal("add-archive-substitute"),
-      preserveStatistics: z.literal(true),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("resolve-archive-identity"),
-      unresolvedId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/),
-      osuId: z.number().int().positive().max(2147483647),
-      source: z.string().trim().min(1).max(160),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("approve-archive-matches"),
-      matchIds: z.array(z.string().min(1).max(80)).min(1).max(500),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("archive"),
-      archive: shape.archive.unwrap(),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("enrollment"),
-      paused: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("general"),
-      ...identity,
-      status: shape.status,
-      coachesEnabled: shape.coachesEnabled,
-      ezScoreMultiplier: shape.ezScoreMultiplier,
-      rosterCapacity: shape.rosterCapacity,
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("rules"),
-      rules: shape.rules,
-      eligibility: shape.eligibility,
-      automaticEligibility: shape.automaticEligibility,
-      rankGraceRange: shape.rankGraceRange,
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("registration"),
-      registration: shape.registration,
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("schedule"),
-      schedule: shape.schedule,
-    })
-    .strict(),
-  z
-    .object({
-      ...version,
-      action: z.literal("publication"),
-      published: z.boolean(),
-    })
-    .strict(),
-]);
 function invalid(parsed: { success: boolean; error?: z.ZodError }) {
   if (!parsed.success)
     throw new HttpError(
@@ -270,7 +155,9 @@ export function tournamentLinks(
       })),
   );
 }
-async function databaseTournamentList(actor: User) {
+type TournamentList =
+  import("./explicit-read-contracts").ExplicitReadData<"tournamentList">;
+async function databaseTournamentList(actor: User): Promise<TournamentList> {
   const grants = await staffAccess(actor);
   if (!grants.length) throw new HttpError(403, "Staff access is required.");
   const rows = await readTournaments();
@@ -310,15 +197,10 @@ async function databaseTournamentList(actor: User) {
       .sort(compareTournamentSeasons),
   };
 }
-export async function tournamentList(
-  actor: User,
-): Promise<Awaited<ReturnType<typeof databaseTournamentList>>> {
+export async function tournamentList(actor: User): Promise<TournamentList> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseTournamentList>>>(
-      "tournamentList",
-      {},
-    );
+    return frontendResource<TournamentList>("tournamentList");
   }
   return databaseTournamentList(actor);
 }
@@ -343,7 +225,11 @@ export async function competitionStructureProtected(
     Boolean(session && !["setup", "aborted"].includes(session.state))
   );
 }
-async function databaseTournamentForAdmin(actor: User, slug: string) {
+type TournamentForAdmin = ExplicitReadData<"tournamentForAdmin">;
+async function databaseTournamentForAdmin(
+  actor: User,
+  slug: string,
+): Promise<TournamentForAdmin> {
   await assertReadCapability(actor, "configure_tournament", slug);
   const row = await readTournament(slug);
   if (!row) throw new HttpError(404, "Tournament not found.");
@@ -361,19 +247,17 @@ async function databaseTournamentForAdmin(actor: User, slug: string) {
 export async function tournamentForAdmin(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseTournamentForAdmin>>> {
+): Promise<TournamentForAdmin> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseTournamentForAdmin>>
-    >("tournamentForAdmin", { slug });
+    return frontendResource<TournamentForAdmin>("tournamentForAdmin", { slug });
   }
   return databaseTournamentForAdmin(actor, slug);
 }
 
 export async function createTournament(actor: User, input: unknown) {
   await assertCapability(actor, "configure_tournament");
-  const parsed = createSchema.safeParse(input);
+  const parsed = createTournamentWrite.request.safeParse(input);
   invalid(parsed);
   if (!parsed.success) throw new HttpError(400, "Invalid tournament.");
   const { slug: requestedSlug, confirmed: _confirmed, ...fields } = parsed.data;
@@ -425,7 +309,7 @@ export async function tournamentCommand(
   input: unknown,
 ) {
   await assertCapability(actor, "configure_tournament", slug);
-  const parsed = commandSchema.safeParse(input);
+  const parsed = changeTournamentWrite.request.safeParse(input);
   invalid(parsed);
   if (!parsed.success) throw new HttpError(400, "Invalid settings.");
   const c = parsed.data;

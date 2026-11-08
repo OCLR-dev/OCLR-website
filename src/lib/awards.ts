@@ -16,34 +16,23 @@ import {
 } from "@/db/schema";
 import { and, desc, eq, isNull, ne } from "drizzle-orm";
 import { createHash } from "node:crypto";
-import { z } from "zod";
 import { approvedRatingGames } from "./approved-rating-games";
 import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
-import {
-  awardConfigurationSchema,
-  awardPolicySchema,
-  weeklyStandings,
-  type AwardStanding,
-  type AwardWeek,
-} from "./award-model";
+import { awardConfigurationSchema, weeklyStandings } from "./award-model";
 import { draftAwardTiers } from "./award-tiers";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { changeAwardsWrite } from "./results-publication-write-contracts";
 import { HttpError } from "./http";
 import { draftTurnSequence } from "./live-season-columns";
 import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
 import { staffRoundRatings } from "./ratings";
 import { readTournament } from "./tournaments";
 import { YUMU_POLICY } from "./yumu-rating";
+import type { AwardReport } from "./staff-workspace-read-contracts";
+export type { AwardReport } from "./staff-workspace-read-contracts";
 type Reader = Pick<ReturnType<typeof db>, "select">;
-export type AwardReport = AwardWeek &
-  AwardStanding & {
-    policy: string;
-    timeZone: string;
-    fingerprint: string;
-    identities: { userId: number; username: string; public: boolean }[];
-  };
 async function calculation(slug: string, reader: Reader) {
   const tournament = await readTournament(slug, reader);
   if (!tournament) throw new HttpError(404, "Tournament not found.");
@@ -231,7 +220,12 @@ async function calculation(slug: string, reader: Reader) {
     releases,
   };
 }
-async function databaseAwardWorkspace(actor: User, slug: string) {
+type AwardWorkspace =
+  import("./explicit-read-contracts").ExplicitReadData<"awardWorkspace">;
+async function databaseAwardWorkspace(
+  actor: User,
+  slug: string,
+): Promise<AwardWorkspace> {
   await assertReadCapability(actor, "approve_results", slug);
   return db().transaction((tx) => calculation(slug, tx), {
     isolationLevel: "repeatable read",
@@ -241,49 +235,20 @@ async function databaseAwardWorkspace(actor: User, slug: string) {
 export async function awardWorkspace(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseAwardWorkspace>>> {
+): Promise<AwardWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseAwardWorkspace>>>(
-      "awardWorkspace",
-      { slug },
-    );
+    return frontendResource<AwardWorkspace>("awardWorkspace", { slug });
   }
   return databaseAwardWorkspace(actor, slug);
 }
 
-const common = {
-  expectedVersion: z.number().int().nonnegative(),
-  confirmed: z.literal(true),
-};
-const command = z.discriminatedUnion("action", [
-  z
-    .object({
-      ...common,
-      action: z.literal("configure"),
-      ...awardConfigurationSchema.shape,
-      policy: awardPolicySchema.optional(),
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("publish"),
-      week: z.number().int().positive(),
-      fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("unpublish"),
-      week: z.number().int().positive(),
-      releaseId: z.uuid(),
-    })
-    .strict(),
-]);
-export async function awardCommand(actor: User, slug: string, input: unknown) {
-  const parsed = command.safeParse(input);
+export async function awardCommand(
+  actor: User,
+  slug: string,
+  input: unknown,
+): Promise<AwardWorkspace> {
+  const parsed = changeAwardsWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Invalid award configuration or command.");
   const c = parsed.data;
@@ -432,7 +397,9 @@ export async function awardCommand(actor: User, slug: string, input: unknown) {
   });
   return awardWorkspace(actor, slug);
 }
-async function databasePublicAwards(slug: string) {
+type PublicAwards =
+  import("./explicit-read-contracts").ExplicitReadData<"publicAwards">;
+async function databasePublicAwards(slug: string): Promise<PublicAwards> {
   if (!process.env.DATABASE_URL) return null;
   return db().transaction(
     async (tx) => {
@@ -473,14 +440,9 @@ async function databasePublicAwards(slug: string) {
     { isolationLevel: "repeatable read", accessMode: "read only" },
   );
 }
-export async function publicAwards(
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublicAwards>>> {
+export async function publicAwards(slug: string): Promise<PublicAwards> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublicAwards>>>(
-      "publicAwards",
-      { slug },
-    );
+    return frontendResource<PublicAwards>("publicAwards", { slug });
   }
   return databasePublicAwards(slug);
 }

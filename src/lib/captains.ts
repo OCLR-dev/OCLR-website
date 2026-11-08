@@ -10,7 +10,6 @@ import {
   users,
 } from "@/db/schema";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
-import { z } from "zod";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
@@ -19,45 +18,16 @@ import { remoteMode } from "./data-source";
 import { refreshDraftSnapshot } from "./draft";
 import { draftSetupProtection } from "./draft-setup";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { changeCaptainsWrite } from "./draft-setup-write-contracts";
 import { HttpError } from "./http";
-const id = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
-const commands = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("appoint"), userId: id }).strict(),
-  z.object({ action: z.literal("revoke"), userId: id }).strict(),
-  z
-    .object({ action: z.literal("replace"), userId: id, previousUserId: id })
-    .strict(),
-  z
-    .object({
-      action: z.literal("order"),
-      userIds: z.array(id).min(1).max(256),
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("availability"),
-      userId: id,
-      available: z.boolean(),
-      unavailableExplanation: z.string().trim().min(1).max(1000).optional(),
-    })
-    .strict(),
-  z.object({ action: z.literal("lock") }).strict(),
-  z
-    .object({
-      action: z.literal("publish"),
-      published: z.boolean(),
-      poolPublished: z.boolean(),
-    })
-    .strict(),
-]);
-const commandSchema = z
-  .object({
-    command: commands,
-    expectedVersion: z.number().int().nonnegative(),
-    confirmed: z.literal(true),
-  })
-  .strict();
-async function databaseCaptainSetup(actor: User, slug: string) {
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PublicCaptains = ExplicitReadData<"publicCaptains">;
+type CaptainSetup = ExplicitReadData<"captainSetup">;
+type CaptainAppointment = ExplicitReadData<"captainAppointment">;
+async function databaseCaptainSetup(
+  actor: User,
+  slug: string,
+): Promise<CaptainSetup> {
   await assertReadCapability(actor, "manage_captains", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -130,13 +100,10 @@ async function databaseCaptainSetup(actor: User, slug: string) {
 export async function captainSetup(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseCaptainSetup>>> {
+): Promise<CaptainSetup> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseCaptainSetup>>>(
-      "captainSetup",
-      { slug },
-    );
+    return frontendResource<CaptainSetup>("captainSetup", { slug });
   }
   return databaseCaptainSetup(actor, slug);
 }
@@ -148,7 +115,7 @@ export async function updateCaptains(
 ) {
   await assertCapability(actor, "manage_captains", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  const parsed = commandSchema.safeParse(input);
+  const parsed = changeCaptainsWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Confirm a valid captain setup action.");
   const { command, expectedVersion } = parsed.data;
@@ -320,14 +287,12 @@ export async function updateCaptains(
           capacity: state.configuration?.rosterCapacity ?? null,
         })
         .returning();
-      await tx
-        .insert(memberships)
-        .values({
-          editionSlug: slug,
-          teamId: team.id,
-          userId: command.userId,
-          origin: "captain",
-        });
+      await tx.insert(memberships).values({
+        editionSlug: slug,
+        teamId: team.id,
+        userId: command.userId,
+        origin: "captain",
+      });
       rosterChange = { ...rosterChange, createdTeam: team };
     } else if (command.action === "revoke") {
       if (!before.some((c) => c.userId === command.userId))
@@ -481,7 +446,7 @@ export async function updateCaptains(
   });
   return captainSetup(actor, slug);
 }
-async function databasePublicCaptains(slug: string) {
+async function databasePublicCaptains(slug: string): Promise<PublicCaptains> {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return [];
   return db()
     .select({
@@ -494,23 +459,26 @@ async function databasePublicCaptains(slug: string) {
     .where(and(eq(captains.editionSlug, slug), eq(captains.published, true)))
     .orderBy(captains.position);
 }
-export async function publicCaptains(
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublicCaptains>>> {
+export async function publicCaptains(slug: string): Promise<PublicCaptains> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublicCaptains>>>(
-      "publicCaptains",
-      { slug },
-    );
+    return frontendResource<PublicCaptains>("publicCaptains", { slug });
   }
   return databasePublicCaptains(slug);
 }
 
-async function databaseCaptainAppointment(userId: number, slug: string) {
+async function databaseCaptainAppointment(
+  userId: number,
+  slug: string,
+): Promise<CaptainAppointment> {
   return (
     (
       await db()
-        .select()
+        .select({
+          editionSlug: captains.editionSlug,
+          userId: captains.userId,
+          position: captains.position,
+          published: captains.published,
+        })
         .from(captains)
         .where(and(eq(captains.editionSlug, slug), eq(captains.userId, userId)))
     )[0] ?? null
@@ -519,12 +487,10 @@ async function databaseCaptainAppointment(userId: number, slug: string) {
 export async function captainAppointment(
   userId: number,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseCaptainAppointment>>> {
+): Promise<CaptainAppointment> {
   if (remoteMode()) {
     await assertRemoteSubject(userId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseCaptainAppointment>>
-    >("captainAppointment", { slug });
+    return frontendResource<CaptainAppointment>("captainAppointment", { slug });
   }
   return databaseCaptainAppointment(userId, slug);
 }

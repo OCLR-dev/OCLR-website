@@ -2,7 +2,6 @@ import { editionOperationState } from "./archive-guard";
 import { openExhibitionSides } from "./exhibition-sides";
 import { createHash } from "node:crypto";
 import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   captains,
@@ -33,11 +32,15 @@ import { fixtureAvailabilityReadColumns } from "./live-season-columns";
 import { publicCompetition } from "./public-competition";
 import {
   activeSchedule,
-  availabilitySchema,
   availabilitySummary,
   scheduleStatus,
   type ScheduleBasis,
 } from "./schedule-model";
+
+import {
+  scheduleRequestWrite,
+  type ScheduleRequestReceipt,
+} from "./scheduling-write-contracts";
 
 type Reader = Pick<ReturnType<typeof db>, "select">;
 function localOnly() {
@@ -420,52 +423,14 @@ export async function scheduleWorkspace(actor: User, slug: string) {
   );
 }
 export type ScheduleWorkspace = Awaited<ReturnType<typeof scheduleWorkspace>>;
-const common = {
-  fixtureId: z.uuid(),
-  expectedFixtureVersion: z.number().int().nonnegative(),
-  requestKey: z.uuid(),
-};
-const version = {
-  requestId: z.uuid(),
-  expectedVersion: z.number().int().positive(),
-};
-const command = z.discriminatedUnion("action", [
-  z
-    .object({
-      ...common,
-      action: z.literal("availability"),
-      expectedVersion: z.number().int().nonnegative(),
-      intervals: availabilitySchema,
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      action: z.literal("propose"),
-      requestId: z.uuid().nullable(),
-      expectedVersion: z.number().int().nonnegative(),
-      proposedAt: z.iso.datetime({ offset: true }),
-      confirmed: z.literal(true),
-    })
-    .strict(),
-  z
-    .object({
-      ...common,
-      ...version,
-      action: z.enum(["accept", "withdraw", "reject", "approve"]),
-      confirmed: z.literal(true),
-      decisionNote: z.string().trim().max(1000).optional(),
-    })
-    .strict(),
-]);
 export async function scheduleCommand(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<ScheduleRequestReceipt> {
   localOnly();
   assertUserWriteChannel();
-  const parsed = command.safeParse(input);
+  const parsed = scheduleRequestWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,

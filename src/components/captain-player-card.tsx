@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from "react";
 import { Avatar } from "./avatar";
 import { CountryFlag } from "./country-flag";
 import { countryFlagData } from "@/lib/country-flag";
+import type { StaffProfileLookupInput } from "@/lib/admin-operations-write-contracts";
+import type { ProfileSnapshot } from "@/lib/osu-profile-model";
 export type CaptainIdentity = {
   avatarUrl: string | null;
   countryCode: string | null;
@@ -46,11 +48,14 @@ export function CaptainPlayerCard({
           const response = await fetch("/api/admin/profiles", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ input: String(userId), mode: "osu" }),
+            body: JSON.stringify({
+              input: String(userId),
+              mode: "osu",
+            } satisfies StaffProfileLookupInput),
             signal: controller.signal,
           });
           if (!response.ok) return;
-          const snapshot = await response.json(),
+          const snapshot = (await response.json()) as ProfileSnapshot,
             p = snapshot.profile;
           if (!controller.signal.aborted && p?.osuId === userId)
             setProfile({

@@ -1,3 +1,7 @@
+import {
+  moderateChessWrite,
+  placeChessPixelWrite,
+} from "@/lib/ocl-chess-write-contracts";
 import { currentUser, requireUser } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin, HttpError } from "@/lib/http";
 import { readChess, writeChess } from "@/lib/ocl-chess";
@@ -19,10 +23,11 @@ async function write(request: Request, admin: boolean) {
   try {
     available();
     requireSameOrigin(request);
+    const contract = admin ? moderateChessWrite : placeChessPixelWrite;
     return Response.json(
       await writeChess(
         await requireUser(),
-        await readJson(request, 2048),
+        await readJson(request, contract.maxBodyBytes),
         admin,
       ),
       { headers: { "Cache-Control": "no-store" } },
