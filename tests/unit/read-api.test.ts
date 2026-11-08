@@ -63,6 +63,32 @@ describe("versioned read contract", () => {
         collectionPage(records, new URLSearchParams({ pageSize })),
       ).toThrow();
   });
+  it("preserves empty and out-of-range pages and rejects oversized collections", () => {
+    const empty = collectionPage([], new URLSearchParams());
+    expect(empty.data).toEqual([]);
+    expect(empty.meta?.pagination).toMatchObject({
+      total: 0,
+      totalPages: 0,
+      nextPage: null,
+    });
+    const single = collectionPage([{ id: 1 }], new URLSearchParams());
+    const beyond = collectionPage(
+      [{ id: 1 }],
+      new URLSearchParams({
+        page: "2",
+        version: single.meta!.pagination!.collectionVersion,
+      }),
+    );
+    expect(beyond.data).toEqual([]);
+    expect(beyond.meta?.pagination).toMatchObject({
+      total: 1,
+      totalPages: 1,
+      nextPage: null,
+    });
+    expect(() =>
+      collectionPage(Array(10_001).fill(1), new URLSearchParams()),
+    ).toThrow(/at most 10,000/);
+  });
   it("uses historical identities, Captain/Tier 0 and authoritative counts without present-day profile data", () => {
     const historic = editionSchema.parse({
       ...edition,

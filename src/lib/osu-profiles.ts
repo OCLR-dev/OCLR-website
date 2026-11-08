@@ -91,7 +91,10 @@ export async function cachedExportStatistics(osuIds: number[]) {
   return statistics;
 }
 /** Only call after publication filtering. Read the complete directory in bounded batches. */
-export async function cachedDirectoryStatistics(osuIds: number[]) {
+export async function cachedDirectoryStatistics(
+  osuIds: number[],
+  asOf?: number,
+) {
   const ids = [...new Set(osuIds)];
   for (const id of ids) parseOsuProfile(String(id), "osu");
   const statistics = new Map<number, DirectoryStatistics>();
@@ -113,7 +116,7 @@ export async function cachedDirectoryStatistics(osuIds: number[]) {
     );
   }
   const byId = new Map(rows.map((row) => [row.osuId, row]));
-  const now = Date.now();
+  const now = asOf ?? Date.now();
   for (const row of rows) {
     const profile = safeSavedOsuProfile(row.profile, row.osuId, "osu");
     if (!profile || row.errorStatus === 404) continue;

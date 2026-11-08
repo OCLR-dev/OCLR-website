@@ -112,6 +112,8 @@ results and restart at page 1. An empty collection has `totalPages: 0` and
 size while traversing. At most 10,000 matching records are supported; larger
 collections return 413 rather than truncating. Narrow `q` if necessary.
 
+[Collection pagination benchmark and server reuse rules](collection-pagination-baseline.md).
+
 Public tournaments sort by season (numeric, descending), then slug. Private
 summaries retain the existing updated-at descending, slug order. Current players
 retain username then osuId order; archives/preview retain source order. The
