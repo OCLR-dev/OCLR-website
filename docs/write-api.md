@@ -29,6 +29,11 @@ issued credential has `streaming:read` scope and is accepted by the
 [streaming read API](streaming-api.md). The browser and desktop contracts
 describe their existing error formats separately.
 
+Developer token management requires a current global Developer grant. Creation
+accepts the current port list or the legacy single loopback origin and returns
+the credential once. Repeated owner revocation returns the saved metadata
+without another audit event. See [Developer API access](developer-api.md).
+
 Replay attachments use a multipart request for upload and a JSON command for
 deletion. The specification distinguishes the stable `.osr` file limit from
 the complete multipart body budget and records the version and retry behavior

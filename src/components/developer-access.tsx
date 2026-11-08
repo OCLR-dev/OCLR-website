@@ -13,6 +13,10 @@ import {
   type DeveloperApiScope,
   type DeveloperTokenMetadata,
 } from "@/lib/developer-api-model";
+import type {
+  CreateDeveloperTokenInput,
+  DeveloperTokenIssued,
+} from "@/lib/developer-token-write-contract";
 
 export function DeveloperAccess({
   backend,
@@ -89,10 +93,11 @@ export function DeveloperAccess({
     setError("");
     setIssued(null);
     try {
+      const input = { ports, scopes } satisfies CreateDeveloperTokenInput;
       const response = await fetch("/api/developer/tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ports, scopes }),
+        body: JSON.stringify(input),
         cache: "no-store",
       });
       const result = await response.json();
@@ -100,8 +105,9 @@ export function DeveloperAccess({
         setError(result.error);
         return;
       }
-      setTokens((previous) => [result.access, ...previous]);
-      setIssued({ id: result.access.id, token: result.token });
+      const { access, token } = result as DeveloperTokenIssued;
+      setTokens((previous) => [access, ...previous]);
+      setIssued({ id: access.id, token });
     } catch {
       setError(
         "Connection interrupted. Refresh to check the saved state before retrying.",
@@ -125,8 +131,9 @@ export function DeveloperAccess({
         setError(result.error);
         return;
       }
+      const revoked = result as DeveloperTokenMetadata;
       setTokens((previous) =>
-        previous.map((entry) => (entry.id === id ? result : entry)),
+        previous.map((entry) => (entry.id === id ? revoked : entry)),
       );
       if (issued?.id === id) setIssued(null);
     } catch {

@@ -16,8 +16,9 @@ export type DeveloperTokenMetadata = {
   revokedAt: string | null;
 };
 export const developerTokenPrefix = "oclr_dev_";
+export const developerTokenPattern = /^oclr_dev_[A-Za-z0-9_-]{43}$/;
 export function validDeveloperToken(value: string): boolean {
-  return value.length === 52 && /^oclr_dev_[A-Za-z0-9_-]{43}$/.test(value);
+  return value.length === 52 && developerTokenPattern.test(value);
 }
 /** Canonical loopback origins only; no suffix matching, credentials or paths. */
 export function isDeveloperOrigin(value: string) {

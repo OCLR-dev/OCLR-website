@@ -25,6 +25,10 @@ import {
 } from "../src/lib/fixture-write-contracts";
 import { reviewBwsWrite } from "../src/lib/bws-write-contract";
 import {
+  createDeveloperTokenWrite,
+  revokeDeveloperTokenWrite,
+} from "../src/lib/developer-token-write-contract";
+import {
   addManualRegistrationWrite,
   addManualRegistrationsWrite,
   previewManualRegistrationWrite,
@@ -83,6 +87,8 @@ const operations: readonly WriteApiOperation[] = [
   refereeRelayWrite,
   createStreamingAccessWrite,
   revokeStreamingAccessWrite,
+  createDeveloperTokenWrite,
+  revokeDeveloperTokenWrite,
   availabilityWrite,
   practiceWrite,
   submitRegistrationWrite,

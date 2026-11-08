@@ -690,7 +690,12 @@
     "source": "src/app/api/developer/tokens/[tokenId]/route.ts",
     "methods": {
       "DELETE": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "revokeDeveloperToken",
+        "access": "browser",
+        "consumers": [
+          "src/components/developer-access.tsx"
+        ]
       }
     }
   },
@@ -699,7 +704,12 @@
     "source": "src/app/api/developer/tokens/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "createDeveloperToken",
+        "access": "browser",
+        "consumers": [
+          "src/components/developer-access.tsx"
+        ]
       }
     }
   },
