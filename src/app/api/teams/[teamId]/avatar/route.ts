@@ -1,4 +1,4 @@
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { db } from "@/db";
 import { captains, teams } from "@/db/schema";
 import { assertReadCapability } from "@/lib/auth/staff";

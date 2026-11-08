@@ -1,3 +1,4 @@
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { PageNotes } from "./page-notes";
 import { MatchDetailsView } from "./match-details";
 import {
@@ -106,7 +107,7 @@ export async function historicalPage(
 }
 
 /** Shared by private preview and published, edition-scoped historical pages. */
-export async function HistoricalArchiveView({
+async function HistoricalArchiveContent({
   edition,
   archive: a,
   section = "overview",
@@ -959,4 +960,10 @@ export async function HistoricalArchiveView({
       <PageNotes>{notes}</PageNotes>
     </div>
   );
+}
+
+export function HistoricalArchiveView(
+  props: Parameters<typeof HistoricalArchiveContent>[0],
+) {
+  return withFrontendReadRequest(() => HistoricalArchiveContent(props));
 }

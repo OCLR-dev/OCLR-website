@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { apiError } from "@/lib/http";
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { candidateHistory } from "@/lib/mappool-history";
 export async function GET(
   _request: Request,

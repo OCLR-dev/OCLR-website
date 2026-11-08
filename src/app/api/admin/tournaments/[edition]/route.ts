@@ -1,5 +1,5 @@
 import { changeTournamentWrite } from "@/lib/tournament-write-contracts";
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";

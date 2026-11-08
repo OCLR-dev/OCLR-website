@@ -12,6 +12,9 @@ import { edition } from "../fixtures/edition";
 import { english } from "../../src/i18n/translate";
 import { playerWorkspaceEligible } from "../../src/lib/player-workspace";
 
+vi.mock("next/headers.js", () => ({
+  cookies: async () => ({ get: () => undefined }),
+}));
 vi.mock("../../src/lib/player-workspace", () => ({
   playerWorkspaceEligible: vi.fn(),
 }));

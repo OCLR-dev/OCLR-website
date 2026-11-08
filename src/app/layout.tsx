@@ -1,3 +1,4 @@
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { GitHubMark } from "@/components/github-mark";
 import "./shell.generated.css";
 import { appearanceStylesheet } from "@/lib/appearance-styles";
@@ -91,7 +92,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function RootLayout({
+async function RootLayoutContent({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const tr = await getAppTranslations();
@@ -293,4 +294,8 @@ export default async function RootLayout({
       </body>
     </html>
   );
+}
+
+export default function RootLayout(props: Parameters<typeof RootLayoutContent>[0]) {
+  return withFrontendReadRequest(() => RootLayoutContent(props));
 }

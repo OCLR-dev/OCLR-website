@@ -1,11 +1,13 @@
 import { compareTournamentSeasons } from "./tournament-order";
-import { frontendRequestValue } from "./frontend-read-context";
+import {
+  currentFrontendReadContext,
+  frontendRequestValue,
+} from "./frontend-read-context";
 import { cache } from "react";
-import { cookies } from "next/headers.js";
 import { remoteMode, remoteConfiguration } from "./data-source";
 import { cachePublicOperation } from "./remote-public-cache";
 import { readContractVersion } from "./read-api-version";
-import { remoteCookie, verifiedConnection } from "./remote-sessions";
+import { disconnectRemote, verifiedConnection } from "./remote-sessions";
 import { remoteRead, remoteOperation } from "./remote-transport";
 import { RemoteDataError } from "./remote-errors";
 import {
@@ -21,13 +23,13 @@ import {
   privateTournamentSummarySchema,
 } from "./read-api-contract";
 import { z } from "zod";
-import { disconnectRemote } from "./remote-sessions";
-const renderConnection = cache(async () => {
-  const id = (await cookies()).get(remoteCookie)?.value;
-  return { id, ...(await verifiedConnection(id)) };
-});
+import type { ProfileRefreshScheduler } from "./osu-profiles";
+
 export function frontendConnection() {
-  return frontendRequestValue("connection", () => renderConnection());
+  return frontendRequestValue("connection", async () => {
+    const id = currentFrontendReadContext()?.connectionId;
+    return { id, ...(await verifiedConnection(id)) };
+  });
 }
 async function readRemoteResource(path: string, queryString: string) {
   const query = new URLSearchParams(queryString);
@@ -57,13 +59,12 @@ async function readRemoteResource(path: string, queryString: string) {
     throw error;
   }
 }
-const requestRead = cache(readRemoteResource);
 export function frontendRemoteRead(
   path: string,
   query = new URLSearchParams(),
 ) {
   return frontendRequestValue("read:" + path + "?" + query.toString(), () =>
-    requestRead(path, query.toString()),
+    readRemoteResource(path, query.toString()),
   );
 }
 async function completeCollection<T>(
@@ -202,22 +203,24 @@ export const frontendPrivateTournament = cache(async (slug: string) => {
   );
 });
 export async function frontendViewer() {
-  return remoteMode()
-    ? ((await frontendConnection()).identity?.user ?? null)
-    : (await import("./auth/user")).currentUser();
+  return (await frontendConnection()).identity?.user ?? null;
 }
 export async function frontendProfile(
   input: string,
   edition?: string,
+  options: { selfId?: number; scheduleRefresh?: ProfileRefreshScheduler } = {},
 ): Promise<OclrProfile> {
-  const viewer = await frontendViewer();
   if (!remoteMode())
     return (await import("./player-profiles")).publishedPlayerProfile(
       input,
       "osu",
       edition,
-      viewer?.osuId,
+      options.selfId,
+      false,
+      undefined,
+      options.scheduleRefresh,
     );
+  const viewer = await frontendViewer();
   const { parseOsuProfile } = await import("./osu-profile-model");
   const identity = parseOsuProfile(input, "osu");
   const own = viewer?.osuId === identity.osuId;

@@ -8,6 +8,9 @@ export async function currentUser() {
       (await (await import("../frontend-data")).frontendConnection()).identity
         ?.user ?? null
     );
+  return localBrowserUser();
+}
+export async function localBrowserUser() {
   // A bearer request must never inherit a browser's independent write roles.
   if ((await headers()).has("authorization"))
     throw new HttpError(403, "Use a browser session for this operation.");

@@ -1,3 +1,4 @@
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { StaffNavigation } from "@/components/staff-navigation";
 import { getAppTranslations } from "@/i18n/server";
 import { globalNavigation, tournamentNavigation } from "@/lib/admin-navigation";
@@ -13,7 +14,7 @@ export async function generateMetadata() {
   };
 }
 
-export default async function StaffLayout({
+async function StaffLayoutContent({
   children,
 }: {
   children: React.ReactNode;
@@ -85,4 +86,10 @@ export default async function StaffLayout({
       {children}
     </StaffNavigation>
   );
+}
+
+export default function StaffLayout(
+  props: Parameters<typeof StaffLayoutContent>[0],
+) {
+  return withFrontendReadRequest(() => StaffLayoutContent(props));
 }

@@ -1,4 +1,4 @@
-import { withFrontendReadRequest } from "@/lib/frontend-read-context";
+import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { fixtureForReview } from "@/lib/fixtures";

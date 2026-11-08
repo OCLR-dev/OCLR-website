@@ -2203,6 +2203,7 @@
       "kind": "page",
       "authority": "saved-read",
       "operations": [
+        "getApiIdentity",
         "getPublicTournament",
         "listPublicPlayers",
         "publicEnrollment",
@@ -2211,6 +2212,7 @@
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
         "src/lib/public-read-models.ts / frontend-data.ts (listPublicPlayers)",
         "src/lib/public-read-models.ts / frontend-data.ts (getPublicTournament)",
         "src/lib/player-messages.ts#publicPlayerMessages",

@@ -22,6 +22,8 @@ import { historicalStaffHistory } from "@/lib/archive-staff-history";
 import { archiveKeyVisual } from "@/lib/archive-key-visual";
 import { getAppTranslations } from "@/i18n/server";
 import { frontendProfile, frontendUsernameOwner } from "@/lib/frontend-data";
+import { localBrowserUser } from "@/lib/auth/user";
+import { after } from "next/server";
 import { remoteMode } from "@/lib/data-source";
 import { profileBws, profileBwsMany } from "@/lib/bws";
 import { publicRoundRatings } from "@/lib/ratings";
@@ -73,7 +75,12 @@ async function ProfileContent({
   let publishedEditions: Awaited<ReturnType<typeof getPublicEditions>>;
   try {
     [data, publishedEditions] = await Promise.all([
-      frontendProfile(osuId),
+      (remoteMode() ? Promise.resolve(null) : localBrowserUser()).then((viewer) =>
+        frontendProfile(osuId, undefined, {
+          selfId: viewer?.osuId,
+          scheduleRefresh: after,
+        }),
+      ),
       getPublicEditions(),
     ]);
   } catch (e) {

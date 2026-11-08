@@ -1,7 +1,11 @@
 import { beforeEach, afterEach, expect, it, vi } from "vitest";
 import { RemoteDataError } from "../../src/lib/remote-errors";
 import { RemotePublicCache } from "../../src/lib/remote-public-cache";
-import { frontendProfile } from "../../src/lib/frontend-data";
+import { frontendProfile as loadFrontendProfile } from "../../src/lib/frontend-data";
+import {
+  createFrontendReadContext,
+  runFrontendReadContext,
+} from "../../src/lib/frontend-read-context";
 import { remoteRead } from "../../src/lib/remote-transport";
 import { cachedOsuUserProfile } from "../../src/lib/osu-profiles";
 import { edition } from "../fixtures/edition";
@@ -12,9 +16,10 @@ const state = vi.hoisted(() => ({
   viewer: null as null | { osuId: number; username: string },
 }));
 vi.mock("react", () => ({ cache: (fn: unknown) => fn }));
-vi.mock("next/headers.js", () => ({
-  cookies: async () => ({ get: () => ({ value: "synthetic" }) }),
-}));
+const frontendProfile = (...args: Parameters<typeof loadFrontendProfile>) =>
+  runFrontendReadContext(createFrontendReadContext("synthetic"), () =>
+    loadFrontendProfile(...args),
+  );
 vi.mock("../../src/lib/remote-sessions", () => ({
   remoteCookie: "synthetic",
   disconnectRemote: vi.fn(),
