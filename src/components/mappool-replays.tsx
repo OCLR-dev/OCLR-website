@@ -15,9 +15,18 @@ import { useAppTranslations } from "@/i18n/shared";
 import type { MappoolWorkspace } from "@/lib/mappools";
 import type { ReplayItem } from "@/lib/mappool-replays";
 import { REPLAY_MAX_BYTES, REPLAY_ENTRY_LIMIT } from "@/lib/replay-model";
+import {
+  deleteReplayWrite,
+  uploadReplayWrite,
+  type ReplayWriteCommand,
+} from "@/lib/replay-write-contract";
 import { slotLabel } from "@/lib/mappool-model";
 type Pool = MappoolWorkspace["pools"][number];
 type Entry = MappoolWorkspace["entries"][number];
+const uploadReceipt = uploadReplayWrite.response.pick({
+  duplicate: true,
+  version: true,
+});
 export function MappoolReplays({
   slug,
   pool,
@@ -34,7 +43,9 @@ export function MappoolReplays({
   const tr = useAppTranslations(),
     { refreshing, refresh } = usePendingRefresh(),
     id = useId();
-  const url = `/api/admin/tournaments/${slug}/mappools/entries/${entry.id}/replays`;
+  const url = uploadReplayWrite.path
+    .replace("{edition}", slug)
+    .replace("{entryId}", entry.id);
   const [expanded, setExpanded] = useState(false),
     [items, setItems] = useState<ReplayItem[]>([]);
   const [loaded, setLoaded] = useState(false),
@@ -122,7 +133,7 @@ export function MappoolReplays({
         (resolve, reject) => {
           const xhr = new XMLHttpRequest();
           request.current = xhr;
-          xhr.open("POST", url);
+          xhr.open(uploadReplayWrite.method, url);
           xhr.timeout = 30000;
           xhr.upload.onprogress = (e) => {
             if (e.lengthComputable)
@@ -130,14 +141,18 @@ export function MappoolReplays({
           };
           xhr.onload = () => {
             try {
-              const data = JSON.parse(xhr.responseText);
-              if (xhr.status >= 200 && xhr.status < 300) resolve(data);
-              else
+              const data: unknown = JSON.parse(xhr.responseText);
+              if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(uploadReceipt.parse(data));
+              } else {
+                const failure = uploadReplayWrite.error.safeParse(data);
                 reject(
                   new Error(
-                    data.error || tr("Replay upload failed. Retry the file."),
+                    (failure.success && failure.data.error) ||
+                      tr("Replay upload failed. Retry the file."),
                   ),
                 );
+              }
             } catch {
               reject(new Error(tr("Replay upload failed. Retry the file.")));
             }
@@ -180,31 +195,34 @@ export function MappoolReplays({
   }
   async function remove() {
     if (!deleting || pending || !writable) return;
+    const failure = tr("Replay deletion failed. Reload and retry.");
     setOperation("delete");
     setPending(true);
     setError("");
     setStatus("");
     try {
+      const command: ReplayWriteCommand = {
+        expectedVersion: version,
+        confirmed: true,
+      };
       const response = await fetch(`${url}/${deleting.id}`, {
-        method: "DELETE",
+        method: deleteReplayWrite.method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          expectedVersion: version,
-          confirmed: true,
-        }),
+        body: JSON.stringify(command),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
-      setKnownVersion(data.version);
+      const body: unknown = await response.json();
+      if (!response.ok) {
+        const error = deleteReplayWrite.error.safeParse(body);
+        throw new Error(error.success ? error.data.error : failure);
+      }
+      const parsed = deleteReplayWrite.response.safeParse(body);
+      if (!parsed.success) throw new Error(failure);
+      setKnownVersion(parsed.data.version);
       dialog.current?.close();
       setDeleting(null);
       setStatus(tr("Replay deleted."));
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : tr("Replay deletion failed. Reload and retry."),
-      );
+      setError(err instanceof Error ? err.message : failure);
       dialog.current?.close();
       setDeleting(null);
     } finally {

@@ -1,6 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import {
   fixtures,
@@ -24,9 +23,12 @@ import {
   confirmsIrcCommand,
   ircQueueSchema,
   normalizedIrcUsername,
-  relaySchema,
   safeIrcMessages,
 } from "./referee-irc-model";
+import {
+  refereeRelayWrite,
+  type RefereeRelayReceipt,
+} from "./referee-relay-contract";
 import { bpSyncSource, isBpNotice } from "./referee-sync";
 import { refereeCommands } from "./referee-commands";
 import { assertOperationalEdition } from "./archive-guard";
@@ -406,7 +408,7 @@ export async function refereeIrcBrowserCommand(
   });
 }
 async function assigned(tx: Tx, actor: DesktopActor, fixtureId: string) {
-  if (!z.uuid().safeParse(fixtureId).success)
+  if (!refereeRelayWrite.parameters.fixtureId.safeParse(fixtureId).success)
     throw new HttpError(404, "Fixture not found.");
   const [f] = await tx
     .select()
@@ -435,8 +437,8 @@ export async function refereeIrcRelay(
   actor: DesktopActor,
   fixtureId: string,
   input: unknown,
-) {
-  const parsed = relaySchema.safeParse(input);
+): Promise<RefereeRelayReceipt> {
+  const parsed = refereeRelayWrite.request.safeParse(input);
   if (!parsed.success) throw new HttpError(400, "Invalid IRC relay request.");
   const action = parsed.data;
   return db().transaction(async (tx) => {

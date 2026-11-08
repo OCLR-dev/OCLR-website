@@ -10,6 +10,11 @@ import {
   type StreamingApiScope,
   type StreamingTokenMetadata,
 } from "@/lib/streaming-api-model";
+import {
+  createStreamingAccessWrite,
+  revokeStreamingAccessWrite,
+  type CreateStreamingAccessInput,
+} from "@/lib/streaming-write-contract";
 
 export function StreamingAccess({
   editionSlug,
@@ -49,17 +54,19 @@ export function StreamingAccess({
     setError("");
     setIssued(null);
     try {
-      const response = await fetch("/api/streaming/tokens", {
-        method: "POST",
+      const input: CreateStreamingAccessInput = { origin, editionSlug };
+      const response = await fetch(createStreamingAccessWrite.path, {
+        method: createStreamingAccessWrite.method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ origin, editionSlug }),
+        body: JSON.stringify(input),
         cache: "no-store",
       });
-      const result = await response.json();
+      const body: unknown = await response.json();
       if (!response.ok) {
-        setError(result.error);
+        setError(createStreamingAccessWrite.error.parse(body).error);
         return;
       }
+      const result = createStreamingAccessWrite.response.parse(body);
       setTokens((previous) => [result.access, ...previous]);
       setIssued({ id: result.access.id, token: result.token });
     } catch {
@@ -76,15 +83,19 @@ export function StreamingAccess({
     setPending(true);
     setError("");
     try {
-      const response = await fetch(`/api/streaming/tokens/${id}`, {
-        method: "DELETE",
-        cache: "no-store",
-      });
-      const result = await response.json();
+      const response = await fetch(
+        revokeStreamingAccessWrite.path.replace("{tokenId}", id),
+        {
+          method: revokeStreamingAccessWrite.method,
+          cache: "no-store",
+        },
+      );
+      const body: unknown = await response.json();
       if (!response.ok) {
-        setError(result.error);
+        setError(revokeStreamingAccessWrite.error.parse(body).error);
         return;
       }
+      const result = revokeStreamingAccessWrite.response.parse(body);
       setTokens((previous) =>
         previous.map((entry) => (entry.id === id ? result : entry)),
       );

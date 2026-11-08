@@ -4,12 +4,36 @@ import { z } from "zod";
 import {
   availabilityWrite,
   practiceWrite,
-  workspaceWriteError,
 } from "../src/lib/player-workspace-contracts";
 import { practiceValueSchema } from "../src/lib/player-workspace-model";
+import {
+  desktopContractVersion,
+  desktopErrorSchema,
+} from "../src/lib/desktop-wire";
+import { refereeRelayWrite } from "../src/lib/referee-relay-contract";
+import {
+  deleteReplayWrite,
+  uploadReplayWrite,
+} from "../src/lib/replay-write-contract";
+import {
+  createStreamingAccessWrite,
+  revokeStreamingAccessWrite,
+} from "../src/lib/streaming-write-contract";
+import {
+  browserWriteError,
+  type WriteApiOperation,
+} from "../src/lib/write-api-contract";
 
 const writeMethods = ["POST", "PUT", "PATCH", "DELETE"];
-const operations = [availabilityWrite, practiceWrite];
+const operations: readonly WriteApiOperation[] = [
+  uploadReplayWrite,
+  deleteReplayWrite,
+  refereeRelayWrite,
+  createStreamingAccessWrite,
+  revokeStreamingAccessWrite,
+  availabilityWrite,
+  practiceWrite,
+];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
   ["src/app/api/v1/me/route.ts", "readApiRoute"],
@@ -52,6 +76,16 @@ function exportedNames(file: string) {
   return names;
 }
 
+function commandActions(schema: z.ZodType | undefined) {
+  const choices =
+    schema instanceof z.ZodDiscriminatedUnion ? schema.options : [schema];
+  return choices.flatMap((choice) => {
+    if (!(choice instanceof z.ZodObject)) return [];
+    const action = choice.shape.action;
+    return action instanceof z.ZodLiteral ? [...action.values] : [];
+  });
+}
+
 const matched = new Set<string>();
 const routes = globSync("src/app/**/route.{ts,tsx,js,jsx}")
   .map((file) => file.replaceAll("\\", "/"))
@@ -78,12 +112,18 @@ const routes = globSync("src/app/**/route.{ts,tsx,js,jsx}")
           if (matched.has(operation.id))
             throw new Error(`Multiple routes match ${operation.id}`);
           matched.add(operation.id);
+          const actions = commandActions(operation.request);
           return [
             method,
             {
               status: "documented",
               operationId: operation.id,
+              access: operation.access,
+              ...(actions.length ? { actions } : {}),
               consumers: operation.consumers,
+              ...(operation.externalConsumers
+                ? { externalConsumers: operation.externalConsumers }
+                : {}),
             },
           ];
         }),
@@ -113,22 +153,124 @@ function jsonSchema(
   return value;
 }
 
-const errorSchema = { $ref: "#/components/schemas/WorkspaceWriteError" };
-const response = (
-  description: string,
-  schema: ReturnType<typeof jsonSchema> = errorSchema,
-) => ({
-  description,
-  content: { "application/json": { schema } },
-});
+const browserOrigin = {
+  name: "Origin",
+  in: "header",
+  required: true,
+  description: "Must match the configured site origin.",
+  schema: { type: "string" },
+} as const;
+const jsonRequestErrors = {
+  400: "Missing, malformed, or invalid JSON command.",
+  413: "The JSON body exceeds the byte limit.",
+  415: "Content-Type must be application/json.",
+};
+
+function openapiOperation(operation: WriteApiOperation) {
+  const desktop = operation.access === "desktop";
+  const requestId = desktop
+    ? { "X-Request-Id": { schema: { type: "string", format: "uuid" } } }
+    : {};
+  const parameters = [...operation.path.matchAll(/\{([^}]+)\}/g)].map(
+    ([, name]) => ({
+      name,
+      in: "path",
+      required: true,
+      schema: jsonSchema(operation.parameters?.[name] ?? z.string(), "input"),
+    }),
+  );
+  if (!desktop) parameters.push(browserOrigin);
+
+  return {
+    operationId: operation.id,
+    summary: operation.summary,
+    description: operation.description,
+    security: desktop
+      ? [{ desktopBearer: [] }]
+      : [{ browserSession: [] }, { localBrowserSession: [] }],
+    ...(operation.scope ? { "x-required-desktop-scope": operation.scope } : {}),
+    ...(parameters.length ? { parameters } : {}),
+    ...(operation.request
+      ? {
+          requestBody: {
+            required: true,
+            "x-max-body-bytes": operation.maxBodyBytes,
+            content: {
+              [operation.requestMediaType ?? "application/json"]: {
+                schema: jsonSchema(operation.request, "input"),
+              },
+            },
+          },
+        }
+      : {}),
+    responses: {
+      [operation.successStatus]: {
+        description: operation.successDescription,
+        ...(desktop
+          ? {
+              headers: {
+                ...requestId,
+                ...(operation.contractHeader
+                  ? {
+                      [operation.contractHeader]: {
+                        schema: {
+                          type: "string",
+                          const: desktopContractVersion,
+                        },
+                      },
+                    }
+                  : {}),
+              },
+            }
+          : {}),
+        content: {
+          "application/json": {
+            schema: jsonSchema(operation.response, "output"),
+          },
+        },
+      },
+      ...Object.fromEntries(
+        Object.entries({
+          ...(operation.request && !operation.requestMediaType
+            ? jsonRequestErrors
+            : {}),
+          ...operation.errors,
+        }).map(([status, description]) => [
+          status,
+          {
+            description,
+            ...(desktop ? { headers: requestId } : {}),
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: `#/components/schemas/${desktop ? "DesktopWriteError" : "BrowserWriteError"}`,
+                },
+              },
+            },
+          },
+        ]),
+      ),
+    },
+  };
+}
+
+const paths: Record<
+  string,
+  Record<string, ReturnType<typeof openapiOperation>>
+> = {};
+for (const operation of operations) {
+  paths[operation.path] ??= {};
+  paths[operation.path][operation.method.toLowerCase()] =
+    openapiOperation(operation);
+}
 
 const openapi = {
   openapi: "3.1.0",
   info: {
-    title: "OCLR browser write API",
-    version: "0.1.0",
+    title: "OCLR write API",
+    version: "0.2.0",
     description:
-      "Incremental documentation of existing OCLR browser routes. See write-api-inventory.json for coverage.",
+      "Incremental documentation of existing OCLR browser and desktop routes. See write-api-inventory.json for coverage.",
   },
   components: {
     securitySchemes: {
@@ -143,71 +285,19 @@ const openapi = {
         name: "oclr_session",
         description: "Session cookie when plain HTTP is allowed locally.",
       },
-    },
-    schemas: { WorkspaceWriteError: jsonSchema(workspaceWriteError, "output") },
-  },
-  paths: Object.fromEntries(
-    operations.map((operation) => [
-      operation.path,
-      {
-        [operation.method.toLowerCase()]: {
-          operationId: operation.id,
-          summary: operation.summary,
-          description: [
-            operation.description,
-            "Requires an accepted registration or captain appointment in a published, non-archived edition with a writable player workspace.",
-            "Send the last observed version as expectedVersion, or 0 for the first write. Reuse requestKey only when retrying the same payload after an uncertain outcome.",
-          ].join(" "),
-          security: [{ browserSession: [] }, { localBrowserSession: [] }],
-          parameters: [
-            {
-              name: "edition",
-              in: "path",
-              required: true,
-              schema: { type: "string" },
-            },
-            {
-              name: "Origin",
-              in: "header",
-              required: true,
-              description: "Must match the configured site origin.",
-              schema: { type: "string" },
-            },
-          ],
-          requestBody: {
-            required: true,
-            "x-max-body-bytes": operation.maxBodyBytes,
-            content: {
-              "application/json": {
-                schema: jsonSchema(operation.request, "input"),
-              },
-            },
-          },
-          responses: {
-            200: response(
-              "The saved version, including for a successful retry.",
-              jsonSchema(operation.response, "output"),
-            ),
-            400: response("Missing, malformed, or invalid JSON command."),
-            401: response("An authenticated browser session is required."),
-            403: response(
-              "Origin, authentication channel, or eligibility rejected.",
-            ),
-            404: response(operation.notFound),
-            409: response(
-              "Read-only workspace, stale data, or a reused request key with a different payload.",
-            ),
-            413: response("The JSON body exceeds the byte limit."),
-            415: response("Content-Type must be application/json."),
-            500: response("Unexpected failure."),
-            503: response(
-              "Site origin configuration is unavailable or invalid.",
-            ),
-          },
-        },
+      desktopBearer: {
+        type: "http",
+        scheme: "bearer",
+        description:
+          "Opaque OCLR desktop access token. Required scope is listed on each operation.",
       },
-    ]),
-  ),
+    },
+    schemas: {
+      BrowserWriteError: jsonSchema(browserWriteError, "output"),
+      DesktopWriteError: jsonSchema(desktopErrorSchema, "output"),
+    },
+  },
+  paths,
 };
 
 for (const [file, value] of Object.entries({

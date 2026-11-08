@@ -3,7 +3,8 @@
 The [route inventory](write-api-inventory.json) lists the POST, PUT, PATCH and
 DELETE handlers exported by Next.js route files under `src/app`. A documented
 handler links to its operation ID in the [OpenAPI document](write-api.openapi.json)
-and lists the consumers migrated to that contract. Pending handlers still use
+and lists its authentication channel, actions defined by the schema, and known
+consumers. Pending handlers still use
 their existing transport and have yet to be catalogued by command and caller.
 The read-only entries are method aliases on the saved-data and streaming read
 endpoints that route writes to the read API's rejection logic.
@@ -16,6 +17,22 @@ exact origin, edition eligibility, ownership, version checks and idempotency
 continue to be enforced on the server. See [Player workspace](player-workspace.md)
 for the business rules and [Developer API access](developer-api.md) for the
 separate read-only channel.
+
+The referee IRC relay documents the desktop Bearer `referee:relay` scope,
+versioned response envelope and optional capability flags. Sync requests from
+older clients can omit `bpSync` and receipt reasons. The [referee integration
+guide](referee-panel-integration.md) describes the wider desktop workflow.
+
+The streaming token routes document browser-session creation and revocation,
+including the one-time token on creation and repeated revoke behavior. The
+issued credential has `streaming:read` scope and is accepted by the
+[streaming read API](streaming-api.md). The browser and desktop contracts
+describe their existing error formats separately.
+
+Replay attachments use a multipart request for upload and a JSON command for
+deletion. The specification distinguishes the stable `.osr` file limit from
+the complete multipart body budget and records the version and retry behavior
+for both operations.
 
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and

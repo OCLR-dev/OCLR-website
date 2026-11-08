@@ -1,4 +1,4 @@
-import { randomBytes, createHash } from "node:crypto";
+import { randomBytes, createHash, randomUUID } from "node:crypto";
 import { writeFileSync } from "node:fs";
 import { beforeEach, afterAll, describe, it, expect } from "vitest";
 import { and, eq, sql } from "drizzle-orm";
@@ -28,6 +28,10 @@ import {
   refereeTestAdmin,
 } from "../fixtures/referee";
 import { assertTestDatabase } from "../database";
+import { POST as relay } from "../../src/app/api/referee/v1/fixtures/[fixtureId]/relay/route";
+import { refereeRelayWrite } from "../../src/lib/referee-relay-contract";
+import { desktopErrorSchema } from "../../src/lib/desktop-wire";
+import { refereeIrcBrowserCommand } from "../../src/lib/referee-irc";
 const enabled = !!process.env.TEST_DATABASE_URL;
 describe.skipIf(!enabled)(
   "desktop PKCE authorization and private read boundary",
@@ -258,6 +262,86 @@ describe.skipIf(!enabled)(
       expect(
         JSON.stringify(await listDesktopSessions(refereeTestUser)),
       ).not.toContain("oclr_desk_");
+    });
+    it("serves the v1 relay receipt for legacy sync, command dispatch and disconnect", async () => {
+      const { token } = await login();
+      const send = (body: unknown, credential = token.access_token) =>
+        relay(
+          new Request(
+            `http://127.0.0.1:3001${refereeRelayWrite.path.replace("{fixtureId}", seeded.fixtureId)}`,
+            {
+              method: refereeRelayWrite.method,
+              headers: {
+                Authorization: `Bearer ${credential}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(body),
+            },
+          ),
+          { params: Promise.resolve({ fixtureId: seeded.fixtureId }) },
+        );
+      const bind = {
+        action: "bind",
+        roomId: 123,
+        ircUsername: refereeTestUser.username,
+      };
+      const denied = await send(bind, "oclr_dev_" + "a".repeat(43));
+      expect(denied.status).toBe(403);
+      expect(desktopErrorSchema.parse(await denied.json()).error).toMatchObject(
+        {
+          code: "INSUFFICIENT_SCOPE",
+          requestId: denied.headers.get("X-Request-Id"),
+        },
+      );
+      async function readReceipt(body: unknown) {
+        const response = await send(body);
+        expect(response.status).toBe(200);
+        const receipt = refereeRelayWrite.response.parse(await response.json());
+        expect(receipt.meta.requestId).toBe(
+          response.headers.get("X-Request-Id"),
+        );
+        expect(response.headers.get("X-OCLR-Referee-Contract")).toBe(
+          receipt.meta.contractVersion,
+        );
+        return receipt.data;
+      }
+      const bound = await readReceipt(bind);
+      expect(bound).toMatchObject({
+        sequence: 0,
+        command: null,
+        receiptReasons: true,
+        bpSync: true,
+      });
+      const sync = {
+        action: "sync",
+        connectionId: bound.connectionId,
+        sequence: 1,
+        projection: { status: "connected", messages: [] },
+        receipts: [],
+      };
+      expect((await readReceipt(sync)).command).toBeNull();
+      await refereeIrcBrowserCommand(
+        refereeTestUser,
+        "test-cup",
+        seeded.fixtureId,
+        { action: "queue", requestKey: randomUUID(), text: "!mp aborttimer" },
+      );
+      const next = { ...sync, sequence: 2 };
+      expect((await readReceipt(next)).command).toMatchObject({
+        text: "!mp aborttimer",
+        target: "#mp_123",
+      });
+      expect(await readReceipt(next)).toEqual({
+        connectionId: bound.connectionId,
+        sequence: 2,
+        command: null,
+      });
+      expect(
+        await readReceipt({
+          action: "disconnect",
+          connectionId: bound.connectionId,
+        }),
+      ).toMatchObject({ sequence: 2, command: null });
     });
     it("serves client-shaped snapshots only for assigned fixtures and never initializes on GET", async () => {
       const r = await login();

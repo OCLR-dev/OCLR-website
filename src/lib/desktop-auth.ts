@@ -11,6 +11,11 @@ import {
 } from "@/db/desktop-auth-schema";
 import { appUrl, HttpError } from "./http";
 import type { User } from "./auth/sessions";
+import {
+  desktopApiVersion,
+  desktopContractVersion,
+  desktopPollAfterSeconds,
+} from "./desktop-wire";
 export class DesktopError extends HttpError {
   constructor(
     status: number,
@@ -455,11 +460,11 @@ export function desktopResponse(data: unknown, status = 200, kind = "Desktop") {
     {
       data,
       meta: {
-        apiVersion: "1",
-        contractVersion: "1.1.0",
+        apiVersion: desktopApiVersion,
+        contractVersion: desktopContractVersion,
         requestId,
         serverTime: new Date().toISOString(),
-        pollAfterSeconds: 3,
+        pollAfterSeconds: desktopPollAfterSeconds,
       },
     },
     {
@@ -467,7 +472,7 @@ export function desktopResponse(data: unknown, status = 200, kind = "Desktop") {
       headers: {
         "Cache-Control": "no-store",
         "X-Request-Id": requestId,
-        [`X-OCLR-${kind}-Contract`]: "1.1.0",
+        [`X-OCLR-${kind}-Contract`]: desktopContractVersion,
         "Referrer-Policy": "no-referrer",
       },
     },

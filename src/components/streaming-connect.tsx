@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
+import {
+  createStreamingAccessWrite,
+  type CreateStreamingAccessInput,
+} from "@/lib/streaming-write-contract";
 export function StreamingConnect({
   edition,
   origin,
@@ -51,20 +55,21 @@ export function StreamingConnect({
     setPending(true);
     setError("");
     try {
-      const response = await fetch("/api/streaming/tokens", {
-        method: "POST",
+      const input: CreateStreamingAccessInput = {
+        editionSlug: edition,
+        origin,
+      };
+      const response = await fetch(createStreamingAccessWrite.path, {
+        method: createStreamingAccessWrite.method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ editionSlug: edition, origin }),
+        body: JSON.stringify(input),
         cache: "no-store",
         signal: AbortSignal.timeout(15000),
       });
-      const result = await response.json();
-      if (!response.ok)
-        throw new Error(
-          typeof result.error === "string"
-            ? result.error
-            : "Connection failed. Please try again.",
-        );
+      if (!response.ok) throw new Error();
+      const result = createStreamingAccessWrite.response.parse(
+        await response.json(),
+      );
       setToken(result.token);
       window.opener?.postMessage(
         { type: "oclr-streaming-token", state, edition, token: result.token },

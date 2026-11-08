@@ -112,7 +112,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/route.ts",
     "methods": {
       "DELETE": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "deleteMappoolReplay",
+        "access": "browser",
+        "consumers": [
+          "src/components/mappool-replays.tsx"
+        ]
       }
     }
   },
@@ -121,7 +126,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "uploadMappoolReplay",
+        "access": "browser",
+        "consumers": [
+          "src/components/mappool-replays.tsx"
+        ]
       }
     }
   },
@@ -439,7 +449,18 @@
     "source": "src/app/api/referee/v1/fixtures/[fixtureId]/relay/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "relayRefereeIrc",
+        "access": "desktop",
+        "actions": [
+          "bind",
+          "disconnect",
+          "sync"
+        ],
+        "consumers": [],
+        "externalConsumers": [
+          "OCLR-dev/OCLR-ref-tools:src/main/oclr-relay.ts"
+        ]
       }
     }
   },
@@ -469,7 +490,12 @@
     "source": "src/app/api/streaming/tokens/[tokenId]/route.ts",
     "methods": {
       "DELETE": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "revokeStreamingAccess",
+        "access": "browser",
+        "consumers": [
+          "src/components/streaming-access.tsx"
+        ]
       }
     }
   },
@@ -478,7 +504,13 @@
     "source": "src/app/api/streaming/tokens/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "createStreamingAccess",
+        "access": "browser",
+        "consumers": [
+          "src/components/streaming-access.tsx",
+          "src/components/streaming-connect.tsx"
+        ]
       }
     }
   },
@@ -498,6 +530,10 @@
       "POST": {
         "status": "documented",
         "operationId": "writePlayerAvailability",
+        "access": "browser",
+        "actions": [
+          "save_availability"
+        ],
         "consumers": [
           "src/components/player-timetable.tsx"
         ]
@@ -511,6 +547,11 @@
       "POST": {
         "status": "documented",
         "operationId": "writePlayerPractice",
+        "access": "browser",
+        "actions": [
+          "save_practice",
+          "delete_practice"
+        ],
         "consumers": [
           "src/components/player-practice.tsx"
         ]

@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth/user";
 import { remoteMode } from "@/lib/data-source";
 import { frontendMedia } from "@/lib/frontend-media";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
+import { deleteReplayWrite } from "@/lib/replay-write-contract";
 import {
   deleteMappoolReplay,
   downloadMappoolReplay,
@@ -50,9 +51,12 @@ export async function DELETE(request: Request, context: Context) {
         edition,
         entryId,
         replayId,
-        await readJson(request),
+        await readJson(request, deleteReplayWrite.maxBodyBytes),
       ),
-      { headers: { "Cache-Control": "private, no-store" } },
+      {
+        status: deleteReplayWrite.successStatus,
+        headers: { "Cache-Control": "private, no-store" },
+      },
     );
   } catch (error) {
     return apiError(error);

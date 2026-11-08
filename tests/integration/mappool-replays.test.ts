@@ -49,16 +49,27 @@ import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
 import { syntheticReplay, replayChecksum } from "../fixtures/replay";
 import { fetchBeatmap } from "../../src/lib/osu-beatmaps";
+import { POST as postReplay } from "../../src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/route";
+import { DELETE as removeReplay } from "../../src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/route";
+import {
+  deleteReplayWrite,
+  uploadReplayWrite,
+} from "../../src/lib/replay-write-contract";
 vi.mock("../../src/lib/osu-beatmaps", async (original) => ({
   ...(await original<typeof import("../../src/lib/osu-beatmaps")>()),
   fetchBeatmap: vi.fn(),
 }));
 const url = process.env.TEST_DATABASE_URL;
+const origin = "https://oclr.example.test";
 const admin = { osuId: 185001, username: "Synthetic Admin" },
   mapper = { osuId: 185002, username: "Synthetic Mapper" },
   tester = { osuId: 185003, username: "Synthetic Tester" },
   developer = { osuId: 185004, username: "Synthetic Developer" },
   outsider = { osuId: 185005, username: "Synthetic Outsider" };
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => tester,
+}));
 const metadata = {
   setId: 1,
   title: "Synthetic map",
@@ -97,6 +108,7 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
   beforeAll(async () => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
     root = await realpath(await mkdtemp(join(tmpdir(), "oclr-185-media-")));
     vi.stubEnv("OCLR_MEDIA_DIR", root);
@@ -319,22 +331,60 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
       .where(eq(mappoolEvents.action, "replay_upload"));
     expect(events).toHaveLength(1);
     expect([tester.osuId, admin.osuId]).toContain(events[0].actorId);
-    expect((await upload(tester, bytes, input)).duplicate).toBe(true);
+    const route =
+      origin +
+      uploadReplayWrite.path
+        .replace("{edition}", edition.slug)
+        .replace("{entryId}", entryId);
+    const params = { edition: edition.slug, entryId };
+    const post = (body: BodyInit, headers: Record<string, string> = {}) =>
+      postReplay(
+        new Request(route, {
+          method: uploadReplayWrite.method,
+          headers: { Origin: origin, ...headers },
+          body,
+        }),
+        { params: Promise.resolve(params) },
+      );
+    const form = new FormData();
+    form.set("file", new Blob([new Uint8Array(bytes)]), "示范 replay.osr");
+    form.set("description", "Synthetic description");
+    form.set("expectedVersion", String(input.expectedVersion));
+    form.set("confirmed", "true");
+    const retry = await post(form);
+    expect(retry.status).toBe(200);
+    expect(uploadReplayWrite.response.parse(await retry.json())).toEqual({
+      duplicate: true,
+      id: results[0].id,
+      version: results[0].version,
+    });
+    form.append("description", "");
+    expect((await post(form)).status).toBe(400);
+    expect(
+      (
+        await post(new Uint8Array(uploadReplayWrite.maxBodyBytes + 1), {
+          "Content-Type": "multipart/form-data; boundary=synthetic",
+        })
+      ).status,
+    ).toBe(413);
+
     const deletion = await command();
-    await deleteMappoolReplay(
-      tester,
-      edition.slug,
-      entryId,
-      results[0].id,
-      deletion,
-    );
-    await deleteMappoolReplay(
-      tester,
-      edition.slug,
-      entryId,
-      results[0].id,
-      deletion,
-    );
+    const replayId = results[0].id;
+    for (const removed of [true, false]) {
+      const response = await removeReplay(
+        new Request(`${route}/${replayId}`, {
+          method: deleteReplayWrite.method,
+          headers: { Origin: origin, "Content-Type": "application/json" },
+          body: JSON.stringify(deletion),
+        }),
+        { params: Promise.resolve({ ...params, replayId }) },
+      );
+      expect(response.status).toBe(200);
+      expect(deleteReplayWrite.response.parse(await response.json())).toEqual({
+        removed,
+        version: deletion.expectedVersion + 1,
+      });
+    }
     expect(await readdir(join(root, "replays"))).toEqual([]);
     expect(await replayList(tester, edition.slug, entryId)).toEqual([]);
     expect(

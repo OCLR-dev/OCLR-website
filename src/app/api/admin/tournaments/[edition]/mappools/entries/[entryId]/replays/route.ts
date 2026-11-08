@@ -6,8 +6,9 @@ import {
   replayList,
 } from "@/lib/mappool-replays";
 import { apiError, requireSameOrigin, HttpError } from "@/lib/http";
-import { REPLAY_MAX_BYTES } from "@/lib/replay-model";
+import { uploadReplayWrite } from "@/lib/replay-write-contract";
 type Context = { params: Promise<{ edition: string; entryId: string }> };
+const fields = Object.keys(uploadReplayWrite.request.shape);
 export const runtime = "nodejs";
 async function readGET(_request: Request, context: Context) {
   try {
@@ -27,7 +28,7 @@ export async function POST(request: Request, context: Context) {
       { edition, entryId } = await context.params;
     await authorizeReplayUpload(user, edition, entryId);
     const type = request.headers.get("content-type");
-    if (!type?.startsWith("multipart/form-data;"))
+    if (!type?.startsWith(`${uploadReplayWrite.requestMediaType};`))
       throw new HttpError(415, "Send a replay file using the upload form.");
     const reader = request.body?.getReader();
     if (!reader) throw new HttpError(400, "A request body is required.");
@@ -38,7 +39,7 @@ export async function POST(request: Request, context: Context) {
         const { done, value } = await reader.read();
         if (done) break;
         size += value.byteLength;
-        if (size > REPLAY_MAX_BYTES + 16384) {
+        if (size > uploadReplayWrite.maxBodyBytes) {
           await reader.cancel();
           throw new HttpError(413, "Choose a stable .osr replay up to 8 MiB.");
         }
@@ -59,13 +60,8 @@ export async function POST(request: Request, context: Context) {
       );
     }
     if (
-      [...form.keys()].some(
-        (k) =>
-          !["file", "expectedVersion", "description", "confirmed"].includes(k),
-      ) ||
-      ["file", "expectedVersion", "description", "confirmed"].some(
-        (k) => form.getAll(k).length !== 1,
-      )
+      [...form.keys()].some((k) => !fields.includes(k)) ||
+      fields.some((k) => form.getAll(k).length !== 1)
     )
       throw new HttpError(400, "Send one replay file per upload.");
     const file = form.get("file"),
@@ -85,6 +81,7 @@ export async function POST(request: Request, context: Context) {
       Buffer.from(await file.arrayBuffer()),
     );
     return Response.json(result, {
+      status: uploadReplayWrite.successStatus,
       headers: { "Cache-Control": "private, no-store" },
     });
   } catch (error) {
