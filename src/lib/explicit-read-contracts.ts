@@ -8,6 +8,7 @@ import { publicPlayerParticipationReadContract } from "./player-participation-co
 import { draftReadContracts } from "./draft-read-contracts";
 import { savedProfileReadContract } from "./profile-read-contract";
 import { operationsReadContracts } from "./operations-read-contracts";
+import { publicCompetitionReadContract } from "./competition-read-contracts";
 
 const identity = { osuId: z.number(), username: z.string() };
 const nullableString = z.union([z.null(), z.string()]);
@@ -211,6 +212,7 @@ export const explicitReadContracts = {
   publicPlayerParticipation: publicPlayerParticipationReadContract,
   playerLeaderboard: playerLeaderboardReadContract,
   publicBracket: publicBracketReadContract,
+  publicCompetition: publicCompetitionReadContract,
   candidateComments,
   candidateHistory,
 } as const;

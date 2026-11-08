@@ -432,7 +432,9 @@ export async function awardCommand(actor: User, slug: string, input: unknown) {
   });
   return awardWorkspace(actor, slug);
 }
-async function databasePublicAwards(slug: string) {
+type PublicAwards =
+  import("./explicit-read-contracts").ExplicitReadData<"publicAwards">;
+async function databasePublicAwards(slug: string): Promise<PublicAwards> {
   if (!process.env.DATABASE_URL) return null;
   return db().transaction(
     async (tx) => {
@@ -473,14 +475,9 @@ async function databasePublicAwards(slug: string) {
     { isolationLevel: "repeatable read", accessMode: "read only" },
   );
 }
-export async function publicAwards(
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublicAwards>>> {
+export async function publicAwards(slug: string): Promise<PublicAwards> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublicAwards>>>(
-      "publicAwards",
-      { slug },
-    );
+    return frontendResource<PublicAwards>("publicAwards", { slug });
   }
   return databasePublicAwards(slug);
 }

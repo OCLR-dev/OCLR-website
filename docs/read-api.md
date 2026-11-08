@@ -239,7 +239,7 @@ dates and limits come from those schemas. The finite resource registry maps
 operationId to its existing service. The [explicit response contracts](../src/lib/explicit-read-contracts.ts)
 define saved reads for Staff, captains and teams, the site and its contributors,
 registration and eligibility, roles and audit, player profiles and rankings,
-tournament workspaces, brackets and draft boards, mappool candidates, Replay
+tournament workspaces, competition, awards, brackets and draft boards, mappool candidates, Replay
 lists, broadcast assignments, referee reconciliation and staff BWS independently
 of service and database types. Their service return types come from those contracts.
 `generate-extended-contracts.ts` uses these Zod schemas for migrated resources

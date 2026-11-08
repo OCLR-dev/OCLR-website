@@ -3,25 +3,29 @@ import { playerClassificationReadContract } from "./player-leaderboard-model";
 import { YUMU_POLICY } from "./yumu-rating";
 
 const nullableNumber = z.union([z.null(), z.number()]);
+const playerRating = {
+  userId: z.number(),
+  appearances: z.number(),
+  totalMu: z.number(),
+  averageMu: z.number(),
+  mq: z.number(),
+  era: z.number(),
+  dra: z.number(),
+  mra: z.number(),
+  rws: z.number(),
+  rank: z.number(),
+  eraIndex: nullableNumber,
+  draIndex: nullableNumber,
+  rwsIndex: nullableNumber,
+};
+const classification = z.union([z.null(), playerClassificationReadContract]);
 const rating = z.strictObject({
   classificationPolicy: z.string(),
   players: z.array(
     z.strictObject({
-      classification: z.union([z.null(), playerClassificationReadContract]),
+      classification,
       username: z.string(),
-      userId: z.number(),
-      appearances: z.number(),
-      totalMu: z.number(),
-      averageMu: z.number(),
-      mq: z.number(),
-      era: z.number(),
-      dra: z.number(),
-      mra: z.number(),
-      rws: z.number(),
-      rank: z.number(),
-      eraIndex: nullableNumber,
-      draIndex: nullableNumber,
-      rwsIndex: nullableNumber,
+      ...playerRating,
     }),
   ),
   evidence: z.array(
@@ -43,6 +47,39 @@ const rating = z.strictObject({
 });
 
 export const ratingReadContracts = {
+  publicAwards: z.union([
+    z.null(),
+    z.array(
+      z.strictObject({
+        week: z.number(),
+        revision: z.number(),
+        publishedAt: z.string(),
+        stale: z.boolean(),
+        startsAt: z.string(),
+        endsAt: z.string(),
+        timeZone: z.string(),
+        policy: z.string(),
+        candidates: z.array(
+          z.strictObject({
+            username: z.string(),
+            userId: z.number(),
+            tier: nullableNumber,
+            appearances: z.number(),
+            performance: z.number(),
+            previousAppearances: z.number(),
+            previousPerformance: nullableNumber,
+            improvement: nullableNumber,
+            rating: z.strictObject(playerRating).optional(),
+            ratingClass: classification.optional(),
+            ratingPlayerCount: z.number().optional(),
+          }),
+        ),
+        mvp: z.array(z.number()),
+        mip: z.array(z.number()),
+        rookie: z.array(z.number()),
+      }),
+    ),
+  ]),
   matchRatingWorkspace: rating,
   publicMatchRating: z.union([z.null(), rating]),
   publicRoundRatings: z.array(
