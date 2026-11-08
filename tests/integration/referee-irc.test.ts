@@ -111,6 +111,24 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     await closeDb();
     vi.unstubAllEnvs();
   });
+  it("keeps idle browser and desktop polling passive while projecting room messages", async () => {
+    const messages = [
+      {
+        id: "1",
+        sender: "Player",
+        text: "ready",
+        at: new Date().toISOString(),
+      },
+    ];
+    for (let i = 0; i < 5; i++) {
+      expect((await sync([], messages)).command).toBeNull();
+      const current = await refereeIrcView(referee, "test-cup", fixtureId);
+      expect(current.commands).toEqual([]);
+      expect(current.messages).toHaveLength(1);
+      expect(current.messages[0].text).toBe("ready");
+    }
+    expect(await db().select().from(refereeIrcCommands)).toEqual([]);
+  });
   async function queue() {
     const w = await refereeWorkspace(referee, "test-cup", fixtureId);
     const map = w.maps.find((m) => m.beatmapId === 10001)!;
