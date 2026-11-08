@@ -270,3 +270,15 @@ ledger 或來源變動即使舊確認失效，不能默默覆蓋另一方。技�
 - [#315 獨立先後手與流程](https://github.com/OCLR-dev/OCLR-website/issues/315)
 - [#316 選禁、attempt、重賽與修正](https://github.com/OCLR-dev/OCLR-website/issues/316)
 - [#317 MP 核對與審核](https://github.com/OCLR-dev/OCLR-website/issues/317)
+
+## 2026-11-08 房間查詢責任（#1026）
+
+網站的 `refereeIrcView` 為唯讀快照；desktop relay 的 `sync` 只投影聊天及領取已明確排隊的操作，閒置輪詢不產生 settings／listrefs。這兩種查詢不在網站命令 allowlist，避免網站與桌面各維護一組房間輪詢。
+
+持續刷屏的來源為 OCLR-IRC #116 的七秒背景查詢，由 [OCLR-IRC #123](https://github.com/OCLR-dev/OCLR-IRC/issues/123) 改為加入／重連、可信狀態事件及操作核對觸發的有界查詢；操作前需要新快照時仍由桌面端同步，保留房間／裁判資格檢查。必須使用包含 #123 修正的桌面版本；單獨更新網站不會改變舊客戶端的排程。
+
+本次網站回歸涵蓋重複 browser read／desktop sync 仍沒有新增指令、聊天投影仍更新，以及 settings／listrefs 不可從網站指令入口排隊。驗收觀察實際 IRC 發送數，不隱藏選手或 Bot 訊息來掩蓋刷屏；真實 Bancho 與部署不是合成測試的結果。
+
+對應桌面修復提交：[1381a4c](https://github.com/OCLR-dev/OCLR-IRC/commit/1381a4c5a4e63601323a4f43512eba7249f4390f)。本地 Node 24.22.2 驗證：網站 `npm run check` 通過，獨立 `oclr_settings_test` 資料庫的完整 `npm test` 為 304 檔通過、2,642 項通過／2 項跳過（409.03 秒）；IRC 相關兩檔 73 項及 `read-api:check` 通過。網站 E2E 未執行（too slow）；桌面另以完整 Electron 合成煙霧測試驗證。
+
+同批 `npm run build` 與 `npm audit --omit=dev` 通過，執行依賴 0 項漏洞。這些結果屬本機合成驗證，feature branch 的 CI、合併及部署分別追蹤。

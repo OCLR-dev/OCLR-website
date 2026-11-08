@@ -10,6 +10,10 @@ import {
   relaySchema,
 } from "../../src/lib/referee-irc-model";
 describe("IRC relay boundary", () => {
+  it("leaves settings and referee queries to the desktop room synchronizer", () => {
+    expect(allowedIrcCommand("!mp settings")).toBe(false);
+    expect(allowedIrcCommand("!mp listrefs")).toBe(false);
+  });
   it.each([1, 90, 3600, 3601, 9999, 10000])(
     "uses one countdown range for policy, queue and timer receipt: %s",
     (seconds) => {
