@@ -1,5 +1,5 @@
 import { and, eq, sql } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   afterAll,
   beforeAll,
@@ -44,6 +44,8 @@ import {
 import { readApiRoute } from "../../src/lib/read-api";
 import { readOperations, readSchemas } from "../../src/lib/read-api-operations";
 import { assertTestDatabase } from "../database";
+import { observe } from "../archive-query-observer";
+import { PROFILE_TTL_MS } from "../../src/lib/osu-profiles";
 import { edition } from "../fixtures/edition";
 import { seedEditions } from "../fixtures/editions";
 import { historicalArchive } from "../fixtures/historical-archive";
@@ -215,6 +217,46 @@ describe.skipIf(!url)("v1 public/private saved read projections", () => {
     expect(privateResult.body.data.configuration.published).toBe(false);
     expect(privateResult.body.data).not.toHaveProperty("applications");
     expect((await get("/tournaments", "invalid")).response.status).toBe(401);
+    const otherId = ownerId + 10_000;
+    await db()
+      .insert(users)
+      .values({ osuId: otherId, username: "Other synthetic Developer" });
+    await db()
+      .insert(staffRoles)
+      .values({ userId: otherId, role: "developer", grantedBy: ownerId });
+    const otherSession = await readSessionContext(
+      (await createSession(otherId)).token,
+    );
+    const other = await createDeveloperToken(otherSession!, {
+      origin,
+      scopes: ["tournaments:private:read"],
+    });
+    const privateList = await get("/staff/tournaments", fullToken);
+    expect(privateList.response.status).toBe(200);
+    expect(
+      privateList.body.data.some(
+        (r: { slug: string }) => r.slug === "private-test-cup",
+      ),
+    ).toBe(true);
+    const sameSubject = await observe(() =>
+      get("/staff/tournaments", fullToken),
+    );
+    const otherSubject = await observe(() =>
+      get("/staff/tournaments", other.token),
+    );
+    expect(otherSubject.value.body.data).toEqual(privateList.body.data);
+    expect(
+      sameSubject.statements.some((s) => s.includes("archive_relation_heads")),
+    ).toBe(false);
+    expect(
+      otherSubject.statements.some((s) => s.includes("archive_relation_heads")),
+    ).toBe(true);
+    const publicList = await get("/tournaments", fullToken);
+    expect(
+      publicList.body.data.some(
+        (r: { slug: string }) => r.slug === "private-test-cup",
+      ),
+    ).toBe(false);
     await db()
       .update(staffRoles)
       .set({ revokedAt: new Date() })
@@ -598,12 +640,27 @@ describe.skipIf(!url)("v1 public/private saved read projections", () => {
     const first = await get("/tournaments/test-cup/players?pageSize=50");
     expect(first.response.status).toBe(200);
     const version = first.body.meta.pagination.collectionVersion;
-    const second = await get(
-      `/tournaments/test-cup/players?pageSize=50&page=2&version=${version}`,
+    const observed = await observe(() =>
+      get(
+        `/tournaments/test-cup/players?pageSize=50&page=2&version=${version}`,
+      ),
     );
+    const second = observed.value;
     expect(second.response.status).toBe(200);
-    expect([...first.body.data, ...second.body.data]).toEqual(
-      (await publicPlayerDirectoryModel("test-cup")).rows,
+    expect(
+      observed.statements.some((statement) =>
+        statement.includes("pg_current_snapshot"),
+      ),
+    ).toBe(true);
+    expect(
+      observed.statements.some((statement) =>
+        /registrations|user_profile_cache/.test(statement),
+      ),
+    ).toBe(false);
+    const rows = (await publicPlayerDirectoryModel("test-cup")).rows;
+    expect([...first.body.data, ...second.body.data]).toEqual(rows);
+    expect(version).toBe(
+      createHash("sha256").update(JSON.stringify(rows)).digest("hex"),
     );
     expect(second.body.meta.pagination.total).toBe(78);
     expect(
@@ -618,6 +675,88 @@ describe.skipIf(!url)("v1 public/private saved read projections", () => {
     );
     expect(changed.response.status).toBe(409);
     expect(changed.body.error.code).toBe("COLLECTION_CHANGED");
+    const latest = async () =>
+      (await get("/tournaments/test-cup/players")).body.meta.pagination
+        .collectionVersion as string;
+    const changedVersion = await latest();
+    const extraId = base + 10_000;
+    // Use an existing name to exercise the stable UID tie-break after insertion.
+    await db()
+      .insert(users)
+      .values({ osuId: extraId, username: extra[0].username });
+    await db().insert(registrations).values({
+      userId: extraId,
+      editionSlug: "test-cup",
+      status: "accepted",
+      rulesVersion: "test-v1",
+      answers: {},
+    });
+    const inserted = await get(
+      `/tournaments/test-cup/players?page=2&version=${changedVersion}`,
+    );
+    expect(inserted.response.status).toBe(409);
+    const insertedVersion = await latest();
+    await db().delete(registrations).where(eq(registrations.userId, extraId));
+    const removed = await get(
+      `/tournaments/test-cup/players?page=2&version=${insertedVersion}`,
+    );
+    expect(removed.response.status).toBe(409);
+  });
+  it("rechecks registration windows and profile freshness even on an unchanged database snapshot", async () => {
+    const now = Date.now();
+    const [saved] = await db()
+      .select()
+      .from(editionState)
+      .where(eq(editionState.slug, "test-cup"));
+    await db()
+      .update(editionState)
+      .set({
+        configuration: {
+          ...saved.configuration!,
+          registration: {
+            ...edition.registration!,
+            closesAt: new Date(now + 500).toISOString(),
+          },
+        },
+      })
+      .where(eq(editionState.slug, "test-cup"));
+    await cache(base, "osu");
+    const fetchedAt = new Date(now - PROFILE_TTL_MS + 500).toISOString();
+    await db()
+      .update(userProfileCache)
+      .set({
+        profile: sql`jsonb_set(${userProfileCache.profile}, '{fetchedAt}', to_jsonb(${fetchedAt}::text))`,
+      })
+      .where(eq(userProfileCache.osuId, base));
+    const clock = vi.spyOn(Date, "now").mockReturnValue(now);
+    try {
+      const list = await get("/tournaments?q=test-cup&pageSize=1");
+      expect(list.body.data[0].registration.state).toBe("open");
+      const players = await get("/tournaments/test-cup/players");
+      expect(
+        players.body.data.find((p: { osuId: number }) => p.osuId === base)
+          .statistics.state,
+      ).toBe("fresh");
+      clock.mockReturnValue(now + 500);
+      const listChanged = await get(
+        `/tournaments?q=test-cup&pageSize=1&page=2&version=${list.body.meta.pagination.collectionVersion}`,
+      );
+      expect(listChanged.body.error.code).toBe("COLLECTION_CHANGED");
+      expect(
+        (await get("/tournaments?q=test-cup")).body.data[0].registration.state,
+      ).toBe("closed");
+      const playersChanged = await get(
+        `/tournaments/test-cup/players?page=2&version=${players.body.meta.pagination.collectionVersion}`,
+      );
+      expect(playersChanged.body.error.code).toBe("COLLECTION_CHANGED");
+      const restarted = await get("/tournaments/test-cup/players");
+      expect(
+        restarted.body.data.find((p: { osuId: number }) => p.osuId === base)
+          .statistics.state,
+      ).toBe("stale");
+    } finally {
+      clock.mockRestore();
+    }
   });
   it("validates parameters and retains CORS on success, query errors, hidden resources and HEAD", async () => {
     for (const path of [

@@ -6,9 +6,9 @@ import {
   publicEditionSummary,
 } from "./tournaments";
 import { registrationAvailability } from "./registrations";
-import { privacyContact } from "./auth/config";
+import { privacyContact, privacyReady } from "./auth/config";
 import { readSiteSettings } from "./site-settings";
-import { type Edition } from "./editions";
+import { enrollmentState, type Edition } from "./editions";
 import { publicPlayerFilters, publicPlayersForEditions } from "./players";
 import { publicPlayerIntroductions } from "./player-messages";
 import { cachedDirectoryStatistics } from "./osu-profiles";
@@ -86,11 +86,11 @@ export function historicalTournamentOverview(
       : null,
   });
 }
-async function summary(row: StoredTournament) {
-  const fields = publicEditionSummary(
-    row.edition,
-    await registrationAvailability(row.edition),
-  );
+function summary(
+  row: StoredTournament,
+  availability: Awaited<ReturnType<typeof registrationAvailability>>,
+) {
+  const fields = publicEditionSummary(row.edition, availability);
   return publicTournamentSummarySchema.parse({
     source: editionDataSource(row),
     slug: fields.slug,
@@ -111,23 +111,30 @@ async function summary(row: StoredTournament) {
     registration: fields.registration,
   });
 }
-export async function publicTournamentListModel() {
-  const rows = await readTournaments(true);
-  const output = [];
-  for (const row of rows) output.push(await summary(row));
-  return output.sort(compareTournamentSeasons);
+function listRegistrationState(row: StoredTournament, asOf: Date) {
+  const state = enrollmentState(row.edition, asOf);
+  if (state !== "open") return state;
+  if (!privacyReady()) return "unavailable";
+  return row.registrationPaused ? "closed" : "open";
 }
-export async function privateTournamentListModel() {
-  const output = [];
-  for (const row of await readTournaments())
-    output.push(
+
+export async function publicTournamentListModel(at = Date.now()) {
+  const asOf = new Date(at);
+  return (await readTournaments(true))
+    .map((row) => summary(row, listRegistrationState(row, asOf)))
+    .sort(compareTournamentSeasons);
+}
+export async function privateTournamentListModel(at = Date.now()) {
+  const asOf = new Date(at);
+  return (await readTournaments())
+    .map((row) =>
       privateTournamentSummarySchema.parse({
-        ...(await summary(row)),
+        ...summary(row, listRegistrationState(row, asOf)),
         published: row.edition.published,
         registrationPaused: row.registrationPaused,
       }),
-    );
-  return output.sort(compareTournamentSeasons);
+    )
+    .sort(compareTournamentSeasons);
 }
 export async function privateTournamentModel(slug: string) {
   const row = await readTournament(slug);
@@ -247,12 +254,10 @@ export async function publicTournamentModel(slug: string) {
     : preview
       ? { kind: "preview" as const, document: preview }
       : await databaseOverview(slug);
-  const publicFields = publicEditionSummary(
-    row.edition,
-    await registrationAvailability(row.edition),
-  );
+  const availability = await registrationAvailability(row.edition);
+  const publicFields = publicEditionSummary(row.edition, availability);
   return publicTournamentSchema.parse({
-    ...(await summary(row)),
+    ...summary(row, availability),
     rules: publicFields.rules,
     eligibility: publicFields.eligibility,
     automaticEligibility: publicFields.automaticEligibility,
@@ -320,12 +325,20 @@ async function releasedTiers(
   );
 }
 /** Full SSR list, with bounded saved-cache reads and no provider refresh/claims. */
-export async function publicPlayerDirectoryModel(slug: string, q = "") {
+export async function publicPlayerDirectoryModel(
+  slug: string,
+  q = "",
+  asOf?: number,
+) {
   if (!process.env.DATABASE_URL)
     throw new DeveloperApiError(404, "NOT_FOUND", "Tournament not found.");
-  return readOnlyData(() => readPublicPlayerDirectory(slug, q));
+  return readOnlyData(() => readPublicPlayerDirectory(slug, q, asOf));
 }
-async function readPublicPlayerDirectory(slug: string, q: string) {
+async function readPublicPlayerDirectory(
+  slug: string,
+  q: string,
+  asOf?: number,
+) {
   const row = await publicEditionContext(slug);
   if (row.edition.archive) {
     const all = historicalPlayerModel(
@@ -412,7 +425,10 @@ async function readPublicPlayerDirectory(slug: string, q: string) {
   // read-only transaction. Run it serially within a savepoint.
   const { statistics, refreshIds } = await db()
     .transaction(() =>
-      cachedDirectoryStatistics(result.rows.map((player) => player.osuId)),
+      cachedDirectoryStatistics(
+        result.rows.map((player) => player.osuId),
+        asOf,
+      ),
     )
     .catch(() => {
       statisticsUnavailable = true;

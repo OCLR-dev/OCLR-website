@@ -126,9 +126,10 @@ describe("cache-first edition player cards", () => {
     expect(page).toContain('href="https://osu.ppy.sh/users/1220001"');
     expect(page).toContain('href="/players/1220001?edition=test-cup"');
     expect(page).not.toContain("Player profile &amp; statistics");
-    expect(cachedDirectoryStatistics).toHaveBeenCalledExactlyOnceWith([
-      1220001,
-    ]);
+    expect(cachedDirectoryStatistics).toHaveBeenCalledExactlyOnceWith(
+      [1220001],
+      undefined,
+    );
     expect(refreshDirectoryStatistics).not.toHaveBeenCalled();
     expect(callbacks).toHaveLength(1);
     await callbacks[0]();

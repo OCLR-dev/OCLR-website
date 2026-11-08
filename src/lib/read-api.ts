@@ -1,5 +1,7 @@
-import { collectionQuery, readQuerySchema } from "./read-api-queries";
-import { createHash } from "node:crypto";
+import { readQuerySchema } from "./read-api-queries";
+import { collectionFilters, savedCollectionPage } from "./read-collection";
+import { privacyReady } from "./auth/config";
+import { PROFILE_TTL_MS } from "./osu-profiles";
 import { z } from "zod";
 import { DeveloperApiError } from "./developer-api";
 import { addressableUsername } from "./player-username";
@@ -26,63 +28,39 @@ import type { ReadPayload } from "./read-api-contract";
 import { readApiSpecification } from "./read-api-openapi";
 import { readOperations, readSchemas } from "./read-api-operations";
 import { readMedia } from "./read-media";
-export function collectionPage<T>(
-  items: T[],
-  params: URLSearchParams,
-): ReadPayload<T[]> {
-  const parsed = collectionQuery.safeParse(Object.fromEntries(params));
-  if (!parsed.success)
-    throw new DeveloperApiError(
-      400,
-      "INVALID_REQUEST",
-      "Choose valid API collection filters and page limits.",
-    );
-  const { page, pageSize, version } = parsed.data;
-  if (items.length > 10000)
-    throw new DeveloperApiError(
-      413,
-      "RESOURCE_TOO_LARGE",
-      "Narrow the collection filters to at most 10,000 records.",
-    );
-  const collectionVersion = createHash("sha256")
-    .update(JSON.stringify(items))
-    .digest("hex");
-  if (page > 1 && !version)
-    throw new DeveloperApiError(
-      400,
-      "COLLECTION_VERSION_REQUIRED",
-      "Use the first page collection version to request later pages.",
-    );
-  if (version && version !== collectionVersion)
-    throw new DeveloperApiError(
-      409,
-      "COLLECTION_CHANGED",
-      "The collection changed. Restart from the first page.",
-    );
-  const totalPages = Math.ceil(items.length / pageSize);
-  return {
-    data: items.slice((page - 1) * pageSize, page * pageSize),
-    meta: {
-      pagination: {
-        page,
-        pageSize,
-        total: items.length,
-        totalPages,
-        nextPage: page < totalPages ? page + 1 : null,
-        collectionVersion,
-      },
-    },
-  };
+export { collectionPage } from "./read-collection";
+
+function tournamentDeadline(
+  rows: readonly {
+    registration?: { opensAt: string; closesAt: string; state: string } | null;
+  }[],
+  asOf: number,
+) {
+  let next = Infinity;
+  for (const { registration } of rows) {
+    if (!registration) continue;
+    if (registration.state === "unavailable") return 0;
+    for (const time of [registration.opensAt, registration.closesAt]) {
+      const at = Date.parse(time);
+      if (at > asOf) next = Math.min(next, at);
+    }
+  }
+  return next;
 }
-function collectionFilters(query: URLSearchParams) {
-  const parsed = collectionQuery.safeParse(Object.fromEntries(query));
-  if (!parsed.success)
-    throw new DeveloperApiError(
-      400,
-      "INVALID_REQUEST",
-      "Choose valid API collection filters and page limits.",
-    );
-  return parsed.data;
+
+function playerDeadline(
+  rows: readonly { statistics: { state: string; fetchedAt: string | null } }[],
+) {
+  let next = Infinity;
+  for (const { statistics } of rows) {
+    if (statistics.state === "unavailable") return 0;
+    if (statistics.state === "fresh")
+      next = Math.min(
+        next,
+        Date.parse(statistics.fetchedAt ?? "") + PROFILE_TTL_MS,
+      );
+  }
+  return next;
 }
 function edition(value: string | undefined) {
   const parsed = editionSchema.shape.slug.safeParse(value);
@@ -262,24 +240,41 @@ export function readApiRoute(request: Request) {
           };
         case "getPublicSite":
           return { data: await publicSiteModel() };
-        case "listPublicTournaments": {
-          const { q } = collectionFilters(query);
-          return collectionPage(
-            (await publicTournamentListModel()).filter((row) =>
-              `${row.name} ${row.slug} ${row.season ?? ""}`
-                .toLowerCase()
-                .includes(q.toLowerCase()),
-            ),
-            query,
+        case "listPublicTournaments":
+        case "listStaffTournaments": {
+          const filters = collectionFilters(query);
+          const staff = operation.id === "listStaffTournaments";
+          const load = staff
+            ? privateTournamentListModel
+            : publicTournamentListModel;
+          return savedCollectionPage(
+            JSON.stringify([
+              operation.id,
+              staff ? principal!.subject.osuId : null,
+              filters.q,
+              privacyReady(),
+            ]),
+            filters,
+            async (asOf) =>
+              (await load(asOf)).filter((row) =>
+                `${row.name} ${row.slug} ${row.season ?? ""}`
+                  .toLowerCase()
+                  .includes(filters.q.toLowerCase()),
+              ),
+            tournamentDeadline,
           );
         }
         case "getPublicTournament":
           return { data: await publicTournamentModel(edition(params.edition)) };
         case "listPublicPlayers": {
-          const { q } = collectionFilters(query);
-          return collectionPage(
-            (await publicPlayerDirectoryModel(edition(params.edition), q)).rows,
-            query,
+          const filters = collectionFilters(query);
+          const slug = edition(params.edition);
+          return savedCollectionPage(
+            JSON.stringify([operation.id, slug, filters.q]),
+            filters,
+            async (asOf) =>
+              (await publicPlayerDirectoryModel(slug, filters.q, asOf)).rows,
+            playerDeadline,
           );
         }
         case "getPublicPlayer":
@@ -290,17 +285,6 @@ export function readApiRoute(request: Request) {
               mode(query),
             ),
           };
-        case "listStaffTournaments": {
-          const { q } = collectionFilters(query);
-          return collectionPage(
-            (await privateTournamentListModel()).filter((row) =>
-              `${row.name} ${row.slug} ${row.season ?? ""}`
-                .toLowerCase()
-                .includes(q.toLowerCase()),
-            ),
-            query,
-          );
-        }
         case "getStaffTournament":
           return {
             data: await privateTournamentModel(edition(params.edition)),
@@ -308,9 +292,9 @@ export function readApiRoute(request: Request) {
         case "getUsernamePlayer": {
           const name = String(query.get("name") ?? "");
           const owner = addressableUsername(name)
-            ? await (await import("./player-username")).databaseUsernameOwner(
-                name,
-              )
+            ? await (
+                await import("./player-username")
+              ).databaseUsernameOwner(name)
             : null;
           // Unknown, ambiguous and unaddressable names are all "no such player".
           if (!owner)

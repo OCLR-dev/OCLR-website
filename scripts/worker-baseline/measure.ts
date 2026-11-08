@@ -41,7 +41,7 @@ function timeMethod(
 }
 
 /** These probes exist only in the benchmark process. Store no request or SQL data. */
-export function installWorkerMeasurements(providerPort: number) {
+export function installWorkerMeasurements(providerPort?: number) {
   let phase:
     | {
         started: number;
@@ -69,7 +69,12 @@ export function installWorkerMeasurements(providerPort: number) {
             ) && method === "GET"
           ? "beatmap"
           : null;
-    if (url.origin !== "https://osu.ppy.sh" || url.search || !operation) {
+    if (
+      !providerPort ||
+      url.origin !== "https://osu.ppy.sh" ||
+      url.search ||
+      !operation
+    ) {
       blockedFetches++;
       throw new Error("Nonfixture fetch blocked.");
     }
