@@ -23,6 +23,11 @@ import {
   changeFixturesWrite,
   roundRefereePolicyWrite,
 } from "../src/lib/fixture-write-contracts";
+import {
+  changeStaffRolesWrite,
+  updateContributorsWrite,
+} from "../src/lib/staff-administration-write-contracts";
+import { lookupArchiveStaffWrite } from "../src/lib/archive-staff-write-contract";
 import { reviewBwsWrite } from "../src/lib/bws-write-contract";
 import {
   createDeveloperTokenWrite,
@@ -91,6 +96,9 @@ const operations: readonly WriteApiOperation[] = [
   revokeDeveloperTokenWrite,
   availabilityWrite,
   practiceWrite,
+  changeStaffRolesWrite,
+  lookupArchiveStaffWrite,
+  updateContributorsWrite,
   submitRegistrationWrite,
   withdrawRegistrationWrite,
   removeRegistrationWrite,

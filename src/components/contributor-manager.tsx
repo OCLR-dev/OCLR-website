@@ -3,6 +3,8 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
 import type { Contributor } from "@/lib/contributor-model";
+import type { UpdateContributorsInput } from "@/lib/staff-administration-write-contracts";
+import type { ExplicitReadData } from "@/lib/explicit-read-contracts";
 import { ReadOnlyFields } from "./staff-read-only";
 import { Avatar } from "./avatar";
 type Draft = Omit<Contributor, "osuId"> & { osuId: string };
@@ -55,15 +57,16 @@ export function ContributorManager({
         body: JSON.stringify({
           entries: values,
           expectedRevision: saved.revision,
-        }),
+        } satisfies UpdateContributorsInput),
       });
       const body = await response.json();
       if (!response.ok) {
         setError(tr(body.error));
         return;
       }
-      setSaved(body);
-      setEntries(drafts(body.entries));
+      const directory = body as ExplicitReadData<"contributorsForAdmin">;
+      setSaved(directory);
+      setEntries(drafts(directory.entries));
       setFeedback(tr("Contributors saved."));
       router.refresh();
     } catch {

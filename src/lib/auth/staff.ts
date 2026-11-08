@@ -7,6 +7,9 @@ import { inReadChannel } from "../read-channel";
 import type { User } from "./sessions";
 import { requireUser } from "./user";
 import type { ExplicitReadData } from "../explicit-read-contracts";
+import type { StaffRole } from "../staff-role-model";
+
+export { roles, type StaffRole } from "../staff-role-model";
 
 export const capabilities = [
   "view_streaming",
@@ -28,19 +31,6 @@ export const capabilities = [
   "configure_tournament",
 ] as const;
 export type Capability = (typeof capabilities)[number];
-export const roles = [
-  "admin",
-  "mappooler",
-  "referee",
-  "developer",
-  "streamer",
-  "tester",
-  "replayer",
-  "designer",
-  "commentator",
-  "mapper",
-] as const;
-export type StaffRole = (typeof roles)[number];
 const roleCapabilities: Record<StaffRole, readonly Capability[]> = {
   designer: [],
   commentator: ["view_streaming", "select_streaming"],

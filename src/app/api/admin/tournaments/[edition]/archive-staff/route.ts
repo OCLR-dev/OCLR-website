@@ -1,3 +1,4 @@
+import { lookupArchiveStaffWrite } from "@/lib/archive-staff-write-contract";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { lookupArchiveStaffIdentity } from "@/lib/archive-staff-identity";
@@ -13,7 +14,7 @@ export async function POST(
       await lookupArchiveStaffIdentity(
         await requireUser(),
         (await context.params).edition,
-        await readJson(request, 4096),
+        await readJson(request, lookupArchiveStaffWrite.maxBodyBytes),
       ),
       { headers: { "Cache-Control": "no-store" } },
     );

@@ -1,10 +1,9 @@
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import { contributorDirectory, contributorEvents } from "@/db/schema";
 import { assertCapability, assertReadCapability } from "./auth/staff";
 import type { User } from "./auth/sessions";
-import { contributorListSchema } from "./contributor-model";
+import { updateContributorsWrite } from "./staff-administration-write-contracts";
 import { HttpError } from "./http";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
@@ -51,13 +50,7 @@ export async function publicContributors(): Promise<PublicContributors> {
 }
 export async function updateContributors(actor: User, input: unknown) {
   await assertCapability(actor, "configure_tournament");
-  const parsed = z
-    .object({
-      entries: contributorListSchema,
-      expectedRevision: z.number().int().min(0).max(2147483646),
-    })
-    .strict()
-    .safeParse(input);
+  const parsed = updateContributorsWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,

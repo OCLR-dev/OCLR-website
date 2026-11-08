@@ -1,3 +1,4 @@
+import { changeStaffRolesWrite } from "@/lib/staff-administration-write-contracts";
 import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
   try {
     requireSameOrigin(request);
     const user = await requireUser();
-    const input = await readJson(request);
+    const input = await readJson(request, changeStaffRolesWrite.maxBodyBytes);
     return NextResponse.json(
       await (input &&
       typeof input === "object" &&

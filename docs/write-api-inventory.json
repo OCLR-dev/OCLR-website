@@ -13,7 +13,12 @@
     "source": "src/app/api/admin/contributors/route.ts",
     "methods": {
       "PATCH": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "updateContributors",
+        "access": "browser",
+        "consumers": [
+          "src/components/contributor-manager.tsx"
+        ]
       }
     }
   },
@@ -54,7 +59,18 @@
     "source": "src/app/api/admin/staff/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeStaffRoles",
+        "access": "browser",
+        "actions": [
+          "visibility",
+          "grant",
+          "revoke",
+          "set_roles"
+        ],
+        "consumers": [
+          "src/components/staff-role-form.tsx"
+        ]
       }
     }
   },
@@ -63,7 +79,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/archive-staff/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "lookupArchiveStaffIdentity",
+        "access": "browser",
+        "consumers": [
+          "src/components/archive-staff-resolver.tsx"
+        ]
       }
     }
   },

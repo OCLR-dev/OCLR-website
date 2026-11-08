@@ -4,10 +4,12 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import { useId, useState } from "react";
 import { ConfirmMutation } from "./confirm-mutation";
+import type { StaffRoleInput } from "@/lib/staff-administration-write-contracts";
+import type { StaffRole } from "@/lib/staff-role-model";
 type EditableRoles = {
   userId: number;
   editionSlug: string | null;
-  grants: { id: string; role: string }[];
+  grants: { id: string; role: StaffRole }[];
 };
 const roleOptions = [
   ["mappooler", "Mappooler"],
@@ -78,7 +80,7 @@ function StaffRoleFields({
   const tr = useAppTranslations();
   const id = useId();
   const [userId, setUserId] = useState(existing ? String(existing.userId) : "");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(
+  const [selectedRoles, setSelectedRoles] = useState<StaffRole[]>(
     existing?.grants.map((g) => g.role) ?? ["mappooler"],
   );
   const [scope, setScope] = useState(
@@ -268,7 +270,7 @@ function StaffRoleFields({
             editionSlug: scope || null,
             expectedGrantIds: existing?.grants.map((g) => g.id) ?? [],
             confirmed: true,
-          }}
+          } satisfies StaffRoleInput}
         />
       </div>
     </div>
@@ -298,7 +300,9 @@ export function RevokeRole({
         { value0: username, value1: role, value2: scope ?? "all editions" },
       )}
       url="/api/admin/staff"
-      payload={{ action: "revoke", grantId: id, confirmed: true }}
+      payload={
+        { action: "revoke", grantId: id, confirmed: true } satisfies StaffRoleInput
+      }
     />
   );
 }
@@ -335,7 +339,7 @@ export function StaffPublicVisibility({
         published: !published,
         expectedPublished: published,
         confirmed: true,
-      }}
+      } satisfies StaffRoleInput}
     />
   );
 }

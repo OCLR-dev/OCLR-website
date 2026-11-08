@@ -1,3 +1,4 @@
+import { updateContributorsWrite } from "@/lib/staff-administration-write-contracts";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { contributorsForAdmin, updateContributors } from "@/lib/contributors";
@@ -19,7 +20,10 @@ export async function PATCH(request: Request) {
   try {
     requireSameOrigin(request);
     return NextResponse.json(
-      await updateContributors(await requireUser(), await readJson(request)),
+      await updateContributors(
+        await requireUser(),
+        await readJson(request, updateContributorsWrite.maxBodyBytes),
+      ),
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {

@@ -72,6 +72,50 @@
         ],
         "additionalProperties": false
       },
+      "contributorsForAdmin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "osuId": {
+                  "type": "number"
+                },
+                "published": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "osuId",
+                "published"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "revision": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "entries",
+          "revision"
+        ],
+        "additionalProperties": false
+      },
       "captainSetup": {
         "type": "object",
         "properties": {
@@ -13255,6 +13299,873 @@
           },
           "409": {
             "description": "Read-only workspace, stale data, or a reused request key with a different payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/staff": {
+      "post": {
+        "operationId": "changeStaffRoles",
+        "summary": "Grant, revoke, replace or change visibility of staff roles",
+        "description": "Requires manage_staff in the exact grant scope and a signed-in target for new grants. Developer grants are global only. Set_roles compares the current active grant ID set and preserves visibility for retained roles. Visibility compares expectedPublished before saving. A stale set, duplicate active grant or repeated revocation returns a conflict. Changes and audit events commit together.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "visibility"
+                          },
+                          "grantId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "published": {
+                            "type": "boolean"
+                          },
+                          "expectedPublished": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "action",
+                          "grantId",
+                          "published",
+                          "expectedPublished"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "grant"
+                          },
+                          "userId": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "role": {
+                            "type": "string",
+                            "enum": [
+                              "admin",
+                              "mappooler",
+                              "referee",
+                              "developer",
+                              "streamer",
+                              "tester",
+                              "replayer",
+                              "designer",
+                              "commentator",
+                              "mapper"
+                            ]
+                          },
+                          "editionSlug": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "maxLength": 80,
+                                "pattern": "^[a-z0-9-]+$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "action",
+                          "userId",
+                          "role",
+                          "editionSlug"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "revoke"
+                          },
+                          "grantId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "action",
+                          "grantId"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "const": "set_roles"
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "userId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "editionSlug": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 80,
+                            "pattern": "^[a-z0-9-]+$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "roles": {
+                        "maxItems": 10,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "admin",
+                            "mappooler",
+                            "referee",
+                            "developer",
+                            "streamer",
+                            "tester",
+                            "replayer",
+                            "designer",
+                            "commentator",
+                            "mapper"
+                          ]
+                        },
+                        "uniqueItems": true
+                      },
+                      "expectedGrantIds": {
+                        "maxItems": 10,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "uniqueItems": true
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "confirmed",
+                      "userId",
+                      "editionSlug",
+                      "roles",
+                      "expectedGrantIds"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved grant for a single change, or the active grants in the requested scope for set_roles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "userId": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "editionSlug": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "admin",
+                            "mappooler",
+                            "referee",
+                            "developer",
+                            "streamer",
+                            "tester",
+                            "replayer",
+                            "designer",
+                            "commentator",
+                            "mapper"
+                          ]
+                        },
+                        "grantedBy": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "grantedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "revokedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "aboutPublished": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "userId",
+                        "editionSlug",
+                        "role",
+                        "grantedBy",
+                        "grantedAt",
+                        "revokedAt",
+                        "aboutPublished"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "grants": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "userId": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "editionSlug": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "role": {
+                                "type": "string",
+                                "enum": [
+                                  "admin",
+                                  "mappooler",
+                                  "referee",
+                                  "developer",
+                                  "streamer",
+                                  "tester",
+                                  "replayer",
+                                  "designer",
+                                  "commentator",
+                                  "mapper"
+                                ]
+                              },
+                              "grantedBy": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "grantedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                              },
+                              "revokedAt": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "aboutPublished": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "userId",
+                              "editionSlug",
+                              "role",
+                              "grantedBy",
+                              "grantedAt",
+                              "revokedAt",
+                              "aboutPublished"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "grants"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid role change, unsupported grant scope, or unknown target user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or current management permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or grant was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Grant, visibility, or role set differs from the expected state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/archive-staff": {
+      "post": {
+        "operationId": "lookupArchiveStaffIdentity",
+        "summary": "Verify a candidate osu! identity for unresolved historical staff",
+        "description": "Requires configure_tournament for the completed archive and its current revision. Checks the unresolved staff entry before and after provider work. This lookup does not link the identity. Linking requires the separate resolve-archive-staff command with evidence and explicit confirmation.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 4096,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "staffIndex": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 199
+                  },
+                  "username": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "staffIndex",
+                  "username",
+                  "expectedRevision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The current osu! identity and nullable avatar URL.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "osuId": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "avatarUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "osuId",
+                    "username",
+                    "avatarUrl"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid lookup request or username.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition management permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The tournament or provider profile was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Archive revision, staff selection, current username, or confirmed identity conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Provider lookup is rate limited or busy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The provider returned an invalid response or could not be reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site configuration or a current verified profile is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/contributors": {
+      "patch": {
+        "operationId": "updateContributors",
+        "summary": "Replace the ordered global contributor directory",
+        "description": "Requires global configure_tournament. Only entries marked published appear in the public directory. An unchanged request at the current revision or an identical retry of the last saved revision returns the saved directory without a second audit event.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "entries": {
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        },
+                        "osuId": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "published": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "osuId",
+                        "published"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Ordered entries with unique entry IDs and unique osu! IDs."
+                  },
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483646
+                  }
+                },
+                "required": [
+                  "entries",
+                  "expectedRevision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The complete saved admin directory and revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contributorsForAdmin"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid revision or contributor list, including duplicate identities.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or current management permission rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The directory changed since the expected revision.",
             "content": {
               "application/json": {
                 "schema": {

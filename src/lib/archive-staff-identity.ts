@@ -2,7 +2,10 @@ import type { User } from "./auth/sessions";
 import { assertBusinessWrite, assertCapability } from "./auth/staff";
 import { readTournament } from "./tournaments";
 import { getOsuProfileByUsername } from "./osu-profiles";
-import { archiveStaffLookupInput } from "./archive-staff-identity-model";
+import {
+  lookupArchiveStaffWrite,
+  type ArchiveStaffCandidate,
+} from "./archive-staff-write-contract";
 import { HttpError } from "./http";
 
 /** Provider resolution is explicit, edition-authorized and never a public GET. */
@@ -10,10 +13,10 @@ export async function lookupArchiveStaffIdentity(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<ArchiveStaffCandidate> {
   await assertBusinessWrite(actor, slug);
   await assertCapability(actor, "configure_tournament", slug);
-  const parsed = archiveStaffLookupInput.safeParse(input);
+  const parsed = lookupArchiveStaffWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,

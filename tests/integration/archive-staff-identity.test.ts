@@ -18,6 +18,13 @@ import {
 } from "../../src/db/schema";
 import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
 import { lookupArchiveStaffIdentity } from "../../src/lib/archive-staff-identity";
+import { lookupArchiveStaffWrite } from "../../src/lib/archive-staff-write-contract";
+import type { ResolveArchiveStaffInput } from "../../src/lib/archive-staff-identity-model";
+import { POST } from "../../src/app/api/admin/tournaments/[edition]/archive-staff/route";
+import { requireUser } from "../../src/lib/auth/user";
+
+vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
+const origin = "https://oclr.example.test";
 import { getOsuProfileByUsername } from "../../src/lib/osu-profiles";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
 import { publicHistoricalArchive } from "../../src/lib/historical-archive";
@@ -63,7 +70,7 @@ const command = {
   identityConfirmed: true,
   source: "Synthetic independent confirmation",
   osuId: 983001,
-};
+} satisfies ResolveArchiveStaffInput;
 const snapshot = () => ({
   profile: normalizeOsuProfile(
     { ...profileResponse, id: 983001, username: "[Test Player]" },
@@ -80,6 +87,7 @@ describe.skipIf(!url)(
     beforeAll(() => {
       assertTestDatabase(url);
       vi.stubEnv("DATABASE_URL", url!);
+      vi.stubEnv("APP_URL", origin);
       vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
     });
     beforeEach(async () => {
@@ -121,9 +129,27 @@ describe.skipIf(!url)(
       vi.unstubAllEnvs();
     });
     it("looks up without linking, then saves only a confirmed UID with a revision and audit", async () => {
-      expect(
-        await lookupArchiveStaffIdentity(admin, archive.editionSlug, lookup),
-      ).toMatchObject({ osuId: 983001, username: "[Test Player]" });
+      const path = lookupArchiveStaffWrite.path.replace(
+        "{edition}",
+        archive.editionSlug,
+      );
+      const post = (input: unknown) =>
+        POST(new Request(origin + path, {
+          method: "POST",
+          headers: { origin, "content-type": "application/json" },
+          body: JSON.stringify(input),
+        }), { params: Promise.resolve({ edition: archive.editionSlug }) });
+      vi.mocked(requireUser).mockResolvedValue(scoped);
+      expect((await post(lookup)).status).toBe(403);
+      expect(getOsuProfileByUsername).not.toHaveBeenCalled();
+      vi.mocked(requireUser).mockResolvedValue(admin);
+      expect((await post({ ...lookup, expectedRevision: 9 })).status).toBe(409);
+      const response = await post(lookup);
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      const body = await response.json();
+      expect(lookupArchiveStaffWrite.response.parse(body)).toEqual(body);
+      expect(body).toMatchObject({ osuId: 983001, username: "[Test Player]" });
       expect(
         (await readTournament(archive.editionSlug))?.edition.archive,
       ).toEqual(archive);

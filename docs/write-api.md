@@ -92,6 +92,12 @@ The referee IRC browser endpoint documents queueing, saved BP synchronization
 and disconnect. Its response includes the current browser-visible relay and
 referee workspace. The desktop relay has its own Bearer scope and envelope.
 
+Staff role management covers grants, revocations, visibility changes and atomic
+role replacement under the current scope. Contributor changes preserve ordering
+and check the directory revision. Historical staff lookup verifies an unresolved
+identity against the current archive. The separate tournament command links a
+confirmed identity with evidence and does not create a staff grant.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

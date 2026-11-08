@@ -43,7 +43,7 @@ import { draftSetupProtection } from "./draft-setup";
 import { refreshDraftSnapshot } from "./draft";
 import { HttpError } from "./http";
 import {
-  archiveStaffConfirmation,
+  resolveArchiveStaffCommand,
   confirmArchiveStaffIdentity,
 } from "./archive-staff-identity-model";
 import {
@@ -141,12 +141,7 @@ const createSchema = z
   })
   .strict();
 const commandSchema = z.discriminatedUnion("action", [
-  archiveStaffConfirmation
-    .extend({
-      confirmed: z.literal(true),
-      action: z.literal("resolve-archive-staff"),
-    })
-    .strict(),
+  resolveArchiveStaffCommand,
   archivePlayerExchangeConfirmation
     .extend({
       ...version,

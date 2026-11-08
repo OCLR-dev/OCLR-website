@@ -1,50 +1,22 @@
 import { db } from "@/db";
 import { editionState, staffRoleEvents, staffRoles, users } from "@/db/schema";
 import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
-import { z } from "zod";
 import type { User } from "./auth/sessions";
 import {
   assertCapability,
   capabilityScope,
   readCapabilityScope,
-  roles,
 } from "./auth/staff";
 import { getEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import {
+  staffRoleChange,
+  staffRoleSet,
+} from "./staff-administration-write-contracts";
 import { HttpError } from "./http";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type StaffRoleList = ExplicitReadData<"listStaffRoles">;
-const confirmation = {
-  confirmed: z.literal(true),
-};
-const command = z.discriminatedUnion("action", [
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("visibility"),
-      grantId: z.uuid(),
-      published: z.boolean(),
-      expectedPublished: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("grant"),
-      userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-      role: z.enum(roles),
-      editionSlug: z
-        .string()
-        .regex(/^[a-z0-9-]+$/)
-        .max(80)
-        .nullable(),
-    })
-    .strict(),
-  z
-    .object({ ...confirmation, action: z.literal("revoke"), grantId: z.uuid() })
-    .strict(),
-]);
 async function databaseListStaffRoles(actor: User): Promise<StaffRoleList> {
   const scopes = await readCapabilityScope(actor, "manage_staff");
   const where = scopes ? inArray(staffRoles.editionSlug, scopes) : undefined;
@@ -85,7 +57,7 @@ export async function listStaffRoles(actor: User): Promise<StaffRoleList> {
 
 export async function changeStaffRole(actor: User, input: unknown) {
   await capabilityScope(actor, "manage_staff");
-  const parsed = command.safeParse(input);
+  const parsed = staffRoleChange.safeParse(input);
   if (!parsed.success) throw new HttpError(400, "Confirm a valid role change.");
   const c = parsed.data;
   if (c.action === "grant" && c.role === "developer" && c.editionSlug !== null)
@@ -216,31 +188,10 @@ export async function changeStaffRole(actor: User, input: unknown) {
   });
 }
 
-const roleSetCommand = z
-  .object({
-    action: z.literal("set_roles"),
-    confirmed: z.literal(true),
-    userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-    editionSlug: z
-      .string()
-      .regex(/^[a-z0-9-]+$/)
-      .max(80)
-      .nullable(),
-    roles: z
-      .array(z.enum(roles))
-      .max(roles.length)
-      .refine((items) => new Set(items).size === items.length),
-    expectedGrantIds: z
-      .array(z.uuid())
-      .max(roles.length)
-      .refine((items) => new Set(items).size === items.length),
-  })
-  .strict();
-
 /** New roles are public; retained roles keep their visibility within this scope. */
 export async function changeStaffRoleSet(actor: User, input: unknown) {
   await capabilityScope(actor, "manage_staff");
-  const parsed = roleSetCommand.safeParse(input);
+  const parsed = staffRoleSet.safeParse(input);
   if (!parsed.success) throw new HttpError(400, "Confirm a valid role change.");
   const c = parsed.data;
   if (c.roles.includes("developer") && c.editionSlug !== null)

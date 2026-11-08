@@ -6,7 +6,10 @@ import type { HistoricalArchive } from "@/lib/historical-archive";
 import { Avatar } from "./avatar";
 import { ConfirmMutation } from "./confirm-mutation";
 
-type Candidate = { osuId: number; username: string; avatarUrl: string | null };
+import type {
+  ArchiveStaffCandidate,
+  ArchiveStaffLookupInput,
+} from "@/lib/archive-staff-write-contract";
 export function ArchiveStaffResolver({
   archive,
   revision,
@@ -21,7 +24,7 @@ export function ArchiveStaffResolver({
   const [index, setIndex] = useState(unresolved[0]?.index ?? -1);
   const person = unresolved.find((p) => p.index === index);
   const [username, setUsername] = useState(person?.username ?? "");
-  const [candidate, setCandidate] = useState<Candidate | null>(null);
+  const [candidate, setCandidate] = useState<ArchiveStaffCandidate | null>(null);
   const [source, setSource] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -46,7 +49,7 @@ export function ArchiveStaffResolver({
             staffIndex: index,
             username,
             expectedRevision: revision,
-          }),
+          } satisfies ArchiveStaffLookupInput),
         },
       );
       const result = await response.json();
@@ -54,7 +57,7 @@ export function ArchiveStaffResolver({
         setError(tr(result.error));
         return;
       }
-      setCandidate(result);
+      setCandidate(result as ArchiveStaffCandidate);
     } catch {
       setError(tr("This request could not be completed. Please try again."));
     } finally {

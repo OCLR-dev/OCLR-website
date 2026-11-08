@@ -3,14 +3,8 @@ import {
   historicalArchiveSchema,
   type HistoricalArchive,
 } from "./historical-archive";
+import { archiveStaffLookupInput } from "./archive-staff-write-contract";
 
-export const archiveStaffLookupInput = z
-  .object({
-    staffIndex: z.number().int().min(0).max(199),
-    username: z.string().trim().min(1).max(100),
-    expectedRevision: z.number().int().nonnegative(),
-  })
-  .strict();
 export const archiveStaffConfirmation = archiveStaffLookupInput
   .extend({
     osuId: z.number().int().positive().max(2147483647),
@@ -18,6 +12,14 @@ export const archiveStaffConfirmation = archiveStaffLookupInput
     identityConfirmed: z.literal(true),
   })
   .strict();
+
+export const resolveArchiveStaffCommand = archiveStaffConfirmation
+  .extend({
+    confirmed: z.literal(true),
+    action: z.literal("resolve-archive-staff"),
+  })
+  .strict();
+export type ResolveArchiveStaffInput = z.input<typeof resolveArchiveStaffCommand>;
 
 export function confirmArchiveStaffIdentity(
   archive: HistoricalArchive,
