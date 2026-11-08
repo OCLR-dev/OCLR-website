@@ -107,6 +107,9 @@ provisional review thresholds on the same machine and workload. When a change
 exceeds either, repeat the benchmark with both mode orders and investigate a
 persistent change. Latency thresholds here are local comparison points.
 
+See the [synthetic provider and worker baseline](worker-performance-baseline.md) for
+local provider wait, difficulty synchronization and leaderboard generation.
+
 ## Player directory SSR follow-up
 
 A separate driver trace on the synthetic anonymous player page grouped each
