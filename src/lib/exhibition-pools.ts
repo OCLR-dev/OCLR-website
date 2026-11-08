@@ -10,14 +10,8 @@ import { slotLabel, type MappoolCategory } from "./mappool-model";
 import { compareTournamentSeasons } from "./tournament-order";
 import type { Edition } from "./editions";
 
-export type HistoricalMapSource = {
-  editionSlug: string;
-  editionName: string;
-  poolId: string;
-  poolName: string;
-  slot: string;
-  beatmapId: number;
-};
+import type { HistoricalMapSource } from "./competition-detail-read-contracts";
+export type { HistoricalMapSource } from "./competition-detail-read-contracts";
 /** Older saved-read backends omit this additive field. Current DB rows retain null. */
 export function historicalSourceRead<
   T extends {

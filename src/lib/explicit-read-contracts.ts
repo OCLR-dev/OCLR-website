@@ -9,6 +9,14 @@ import { draftReadContracts } from "./draft-read-contracts";
 import { savedProfileReadContract } from "./profile-read-contract";
 import { operationsReadContracts } from "./operations-read-contracts";
 import { publicCompetitionReadContract } from "./competition-read-contracts";
+import type { ConfigurationReadContracts } from "./configuration-read-contracts";
+import type { CompetitionDetailReadContracts } from "./competition-detail-read-contracts";
+import type { StaffWorkspaceReadContracts } from "./staff-workspace-read-contracts";
+import type { FixtureReadContracts } from "./fixture-read-contracts";
+export type StructuralReadContracts = ConfigurationReadContracts &
+  CompetitionDetailReadContracts &
+  StaffWorkspaceReadContracts &
+  FixtureReadContracts;
 
 const identity = { osuId: z.number(), username: z.string() };
 const nullableString = z.union([z.null(), z.string()]);
@@ -217,5 +225,10 @@ export const explicitReadContracts = {
   candidateHistory,
 } as const;
 
-export type ExplicitReadData<Id extends keyof typeof explicitReadContracts> =
-  z.infer<(typeof explicitReadContracts)[Id]>;
+export type ExplicitReadData<
+  Id extends keyof typeof explicitReadContracts | keyof StructuralReadContracts,
+> = Id extends keyof typeof explicitReadContracts
+  ? z.infer<(typeof explicitReadContracts)[Id]>
+  : Id extends keyof StructuralReadContracts
+    ? StructuralReadContracts[Id]
+    : never;

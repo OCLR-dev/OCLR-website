@@ -21,6 +21,7 @@ import type { User } from "./auth/sessions";
 import { assertCapability, hasCapability } from "./auth/staff";
 import { scoringRulesSchema } from "./competition-model";
 import { remoteMode } from "./data-source";
+import type { MatchReview as MatchReviewData } from "./fixture-read-contracts";
 import {
   fixtureForReview,
   officialTeams,
@@ -239,7 +240,7 @@ async function databaseMatchReview(
   actor: User,
   slug: string,
   fixtureId: string,
-) {
+): Promise<MatchReview> {
   return db().transaction(
     async (tx) => {
       const context = await fixtureForReview(actor, slug, fixtureId, tx, true);
@@ -397,18 +398,15 @@ export async function matchReview(
   actor: User,
   slug: string,
   fixtureId: string,
-): Promise<Awaited<ReturnType<typeof databaseMatchReview>>> {
+): Promise<MatchReview> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseMatchReview>>>(
-      "matchReview",
-      { slug, fixtureId },
-    );
+    return frontendResource<MatchReview>("matchReview", { slug, fixtureId });
   }
   return databaseMatchReview(actor, slug, fixtureId);
 }
 
-export type MatchReview = Awaited<ReturnType<typeof matchReview>>;
+export type MatchReview = MatchReviewData<FixtureReviewContext>;
 export async function importFixtureMatch(
   actor: User,
   slug: string,

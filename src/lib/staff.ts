@@ -204,7 +204,12 @@ async function exportApplicationSnapshot(actor: User, input: unknown) {
     };
   });
 }
-async function databaseApplicationDetails(actor: User, id: string) {
+type ApplicationDetails =
+  import("./explicit-read-contracts").ExplicitReadData<"applicationDetails">;
+async function databaseApplicationDetails(
+  actor: User,
+  id: string,
+): Promise<ApplicationDetails> {
   await readCapabilityScope(actor, "manage_registrations");
   if (!z.uuid().safeParse(id).success)
     throw new HttpError(404, "Application not found.");
@@ -252,12 +257,10 @@ async function databaseApplicationDetails(actor: User, id: string) {
 export async function applicationDetails(
   actor: User,
   id: string,
-): Promise<Awaited<ReturnType<typeof databaseApplicationDetails>>> {
+): Promise<ApplicationDetails> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseApplicationDetails>>
-    >("applicationDetails", { id });
+    return frontendResource<ApplicationDetails>("applicationDetails", { id });
   }
   return databaseApplicationDetails(actor, id);
 }

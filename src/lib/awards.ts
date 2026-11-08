@@ -24,8 +24,6 @@ import {
   awardConfigurationSchema,
   awardPolicySchema,
   weeklyStandings,
-  type AwardStanding,
-  type AwardWeek,
 } from "./award-model";
 import { draftAwardTiers } from "./award-tiers";
 import { remoteMode } from "./data-source";
@@ -36,14 +34,9 @@ import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
 import { staffRoundRatings } from "./ratings";
 import { readTournament } from "./tournaments";
 import { YUMU_POLICY } from "./yumu-rating";
+import type { AwardReport } from "./staff-workspace-read-contracts";
+export type { AwardReport } from "./staff-workspace-read-contracts";
 type Reader = Pick<ReturnType<typeof db>, "select">;
-export type AwardReport = AwardWeek &
-  AwardStanding & {
-    policy: string;
-    timeZone: string;
-    fingerprint: string;
-    identities: { userId: number; username: string; public: boolean }[];
-  };
 async function calculation(slug: string, reader: Reader) {
   const tournament = await readTournament(slug, reader);
   if (!tournament) throw new HttpError(404, "Tournament not found.");
@@ -231,7 +224,12 @@ async function calculation(slug: string, reader: Reader) {
     releases,
   };
 }
-async function databaseAwardWorkspace(actor: User, slug: string) {
+type AwardWorkspace =
+  import("./explicit-read-contracts").ExplicitReadData<"awardWorkspace">;
+async function databaseAwardWorkspace(
+  actor: User,
+  slug: string,
+): Promise<AwardWorkspace> {
   await assertReadCapability(actor, "approve_results", slug);
   return db().transaction((tx) => calculation(slug, tx), {
     isolationLevel: "repeatable read",
@@ -241,13 +239,10 @@ async function databaseAwardWorkspace(actor: User, slug: string) {
 export async function awardWorkspace(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseAwardWorkspace>>> {
+): Promise<AwardWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseAwardWorkspace>>>(
-      "awardWorkspace",
-      { slug },
-    );
+    return frontendResource<AwardWorkspace>("awardWorkspace", { slug });
   }
   return databaseAwardWorkspace(actor, slug);
 }

@@ -56,8 +56,12 @@ import {
   archiveSubstituteConfirmation,
 } from "./historical-archive";
 import { supportsArchiveStatistics } from "./archive-statistics-model";
+import type { SavedTournament } from "./configuration-read-contracts";
+import type { ExplicitReadData } from "./explicit-read-contracts";
 type Reader = Pick<ReturnType<typeof db>, "select">;
-export function storedEdition(row: typeof editionState.$inferSelect) {
+export function storedEdition(
+  row: typeof editionState.$inferSelect,
+): SavedTournament | undefined {
   if (!row.configuration) return undefined;
   return {
     edition: editionSchema.parse(
@@ -73,9 +77,9 @@ export async function readTournament(
   slug: string,
   reader?: Reader,
   publicOnly = false,
-): Promise<ReturnType<typeof storedEdition>> {
+): Promise<SavedTournament | undefined> {
   if (remoteMode())
-    return frontendResource<Awaited<ReturnType<typeof readTournament>>>(
+    return frontendResource<SavedTournament | undefined>(
       publicOnly ? "publicEnrollment" : "privateSavedTournament",
       { slug },
     );
@@ -94,7 +98,7 @@ export async function readTournament(
 export async function readTournaments(publicOnly = false) {
   if (!process.env.DATABASE_URL) return [];
   const rows = await archiveEditionStates(db(), publicOnly);
-  const result: NonNullable<ReturnType<typeof storedEdition>>[] = [];
+  const result: SavedTournament[] = [];
   for (const row of rows) {
     const saved = storedEdition(row)!;
     result.push(
@@ -340,7 +344,11 @@ export async function competitionStructureProtected(
     Boolean(session && !["setup", "aborted"].includes(session.state))
   );
 }
-async function databaseTournamentForAdmin(actor: User, slug: string) {
+type TournamentForAdmin = ExplicitReadData<"tournamentForAdmin">;
+async function databaseTournamentForAdmin(
+  actor: User,
+  slug: string,
+): Promise<TournamentForAdmin> {
   await assertReadCapability(actor, "configure_tournament", slug);
   const row = await readTournament(slug);
   if (!row) throw new HttpError(404, "Tournament not found.");
@@ -358,12 +366,10 @@ async function databaseTournamentForAdmin(actor: User, slug: string) {
 export async function tournamentForAdmin(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseTournamentForAdmin>>> {
+): Promise<TournamentForAdmin> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseTournamentForAdmin>>
-    >("tournamentForAdmin", { slug });
+    return frontendResource<TournamentForAdmin>("tournamentForAdmin", { slug });
   }
   return databaseTournamentForAdmin(actor, slug);
 }

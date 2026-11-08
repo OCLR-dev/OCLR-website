@@ -176,6 +176,26 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
     expect(ownForm.data.edition.registration.questions.length).toBeGreaterThan(
       0,
     );
+    const historicalConfiguration = await request(
+      "/tournaments/s9/configuration",
+      "",
+    );
+    const closedForm = await request("/me/tournaments/s9/registration");
+    expect(historicalConfiguration.status).toBe(200);
+    expect(closedForm.status).toBe(200);
+    const { data: closedConfiguration } = await closedForm.json();
+    expect(closedConfiguration).toEqual(
+      (await historicalConfiguration.json()).data,
+    );
+    expect(closedConfiguration.edition.registration).toBeNull();
+    const restoredConfiguration = reviveReadValue(closedConfiguration, {
+      ...contracts.resources.ownRegistrationForm,
+      $defs: contracts.$defs,
+    });
+    expect(restoredConfiguration).toMatchObject({
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    });
     const eligibility = await (
       await request("/me/tournaments/remote-registration/eligibility")
     ).json();

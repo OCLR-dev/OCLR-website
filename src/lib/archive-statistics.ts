@@ -63,6 +63,7 @@ import {
   type HistoricalArchive,
 } from "./historical-archive";
 import { HttpError } from "./http";
+import type { ExplicitReadData } from "./explicit-read-contracts";
 import { fetchMatchSource } from "./osu-matches";
 import { readTournament } from "./tournaments";
 import { statisticsScore } from "./statistics-score";
@@ -275,7 +276,7 @@ async function databaseStatisticsWorkspace(
   actor: User,
   slug: string,
   fixtureId = "",
-) {
+): Promise<StatisticsWorkspace> {
   await assertReadCapability(actor, "record_results", slug);
   const archive = await archiveFor(slug);
   const key = statisticsArchiveKey(archive);
@@ -389,19 +390,18 @@ export async function statisticsWorkspace(
   actor: User,
   slug: string,
   fixtureId = "",
-): Promise<Awaited<ReturnType<typeof databaseStatisticsWorkspace>>> {
+): Promise<StatisticsWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseStatisticsWorkspace>>
-    >("statisticsWorkspace", { slug, fixtureId });
+    return frontendResource<StatisticsWorkspace>("statisticsWorkspace", {
+      slug,
+      fixtureId,
+    });
   }
   return databaseStatisticsWorkspace(actor, slug, fixtureId);
 }
 
-export type StatisticsWorkspace = Awaited<
-  ReturnType<typeof statisticsWorkspace>
->;
+export type StatisticsWorkspace = ExplicitReadData<"statisticsWorkspace">;
 
 export async function statisticsCommand(
   actor: User,
@@ -727,7 +727,7 @@ function publicArchiveMatchDetails(
 async function databasePublicArchiveStatistics(
   slug: string,
   fixtureId?: string,
-) {
+): Promise<PublicArchiveStatistics> {
   return db().transaction(
     async (tx) => {
       if (!fixtureId) {
@@ -736,7 +736,7 @@ async function databasePublicArchiveStatistics(
           return {
             ...fast.summary,
             plays: fast.plays,
-            matchDetails: [] as ReturnType<typeof publicArchiveMatchDetails>,
+            matchDetails: [],
           };
       }
       const archive = await archiveFor(slug, tx, true);
@@ -777,18 +777,18 @@ async function databasePublicArchiveStatistics(
 export async function publicArchiveStatistics(
   slug: string,
   fixtureId?: string,
-): Promise<Awaited<ReturnType<typeof databasePublicArchiveStatistics>>> {
+): Promise<PublicArchiveStatistics> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicArchiveStatistics>>
-    >("publicArchiveStatistics", { slug, fixtureId });
+    return frontendResource<PublicArchiveStatistics>(
+      "publicArchiveStatistics",
+      { slug, fixtureId },
+    );
   }
   return databasePublicArchiveStatistics(slug, fixtureId);
 }
 
-export type PublicArchiveStatistics = Awaited<
-  ReturnType<typeof publicArchiveStatistics>
->;
+export type PublicArchiveStatistics =
+  ExplicitReadData<"publicArchiveStatistics">;
 
 /** Local profile reads keep full relevant games; remote keeps its existing resource. */
 export async function publicArchivePlayerPlays(

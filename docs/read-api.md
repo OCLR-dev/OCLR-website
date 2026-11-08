@@ -237,14 +237,11 @@ or a production deployment. No migration is added by #269, #271 or #272.
 registration/audit/streaming services. OpenAPI query types, enums, defaults, UUIDs,
 dates and limits come from those schemas. The finite resource registry maps
 operationId to its existing service. The [explicit response contracts](../src/lib/explicit-read-contracts.ts)
-define saved reads for Staff, captains and teams, the site and its contributors,
-registration and eligibility, roles and audit, player profiles and rankings,
-tournament workspaces, competition, awards, brackets and draft boards, mappool candidates, Replay
-lists, broadcast assignments, referee reconciliation and staff BWS independently
-of service and database types. Their service return types come from those contracts.
-`generate-extended-contracts.ts` uses these Zod schemas for migrated resources
-and derives the remaining response schemas from TypeScript return types.
-Runtime response validation and OpenAPI consume the generated definitions.
+cover all 59 extended saved reads. Services use their declared response types.
+The generator emits JSON Schema from either a Zod contract or a declared
+TypeScript response type built from shared domain models. It requires exactly
+one explicit contract for each resource. Runtime response validation and OpenAPI
+consume the generated definitions.
 JSON dates are ISO strings. The SSR service adapter restores Dates using schema
 metadata, including for Replay creation timestamps.
 Unknown audit/answer JSON keeps its existing authorized, bounded projection.
@@ -336,7 +333,9 @@ When the change affects stored responses, also run
 For a migration that preserves the wire contract, run
 `npm run read-api:compare -- BASELINE_REF` after generation. It resolves shared
 schema references, compares runtime resources and OpenAPI operations, and
-ignores the order of required fields and literal alternatives.
+ignores the order of required fields and consecutive literal alternatives. It
+also ignores repeated identical union branches while preserving the order of
+distinct nonliteral branches, which the remote adapter uses to revive values.
 
 ## Browser Bearer and existing Next SSR/BFF examples
 

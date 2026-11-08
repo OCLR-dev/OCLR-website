@@ -238,7 +238,10 @@ function sequenceTeams(data: Data) {
     members: data.members.filter((m) => m.membership.teamId === team.id).length,
   }));
 }
-async function databaseStaffDraft(actor: User, slug: string) {
+async function databaseStaffDraft(
+  actor: User,
+  slug: string,
+): Promise<StaffDraft> {
   await assertReadCapability(actor, "manage_draft", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -265,18 +268,16 @@ async function databaseStaffDraft(actor: User, slug: string) {
 export async function staffDraft(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseStaffDraft>>> {
+): Promise<StaffDraft> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseStaffDraft>>>(
-      "staffDraft",
-      { slug },
-    );
+    return frontendResource<StaffDraft>("staffDraft", { slug });
   }
   return databaseStaffDraft(actor, slug);
 }
 
-export type StaffDraft = Awaited<ReturnType<typeof staffDraft>>;
+export type StaffDraft =
+  import("./explicit-read-contracts").ExplicitReadData<"staffDraft">;
 type PublicDraft =
   import("./explicit-read-contracts").ExplicitReadData<"publicDraft">;
 async function databasePublicDraft(slug: string): Promise<PublicDraft> {

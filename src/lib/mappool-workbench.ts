@@ -29,7 +29,10 @@ import {
   parseCandidateRows,
 } from "./mappool-workbench-model";
 
-async function databaseSelectionWorkspace(actor: User, slug: string) {
+async function databaseSelectionWorkspace(
+  actor: User,
+  slug: string,
+): Promise<SelectionWorkspace> {
   await assertReadCapability(actor, "select_mappools", slug);
   const edition = await getEdition(slug);
   if (!edition) throw new HttpError(404, "Edition not found.");
@@ -105,14 +108,15 @@ async function databaseSelectionWorkspace(actor: User, slug: string) {
 export async function selectionWorkspace(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseSelectionWorkspace>>> {
+): Promise<SelectionWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
     return frontendResource("selectionWorkspace", { slug });
   }
   return databaseSelectionWorkspace(actor, slug);
 }
-export type SelectionWorkspace = Awaited<ReturnType<typeof selectionWorkspace>>;
+export type SelectionWorkspace =
+  import("./explicit-read-contracts").ExplicitReadData<"selectionWorkspace">;
 export type CandidateComments =
   import("./explicit-read-contracts").ExplicitReadData<"candidateComments">;
 async function databaseCandidateComments(

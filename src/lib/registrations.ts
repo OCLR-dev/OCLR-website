@@ -24,12 +24,11 @@ import {
   registrationReadColumns,
 } from "./live-season-columns";
 import { readTournament, storedEdition } from "./tournaments";
+import type { RegistrationReadOperation } from "./configuration-read-contracts";
 // Latest explicit provenance, without rewriting legacy audit records or storing
 // a second registration status. Mutations timestamp the event and row together.
 // Keep the outer qualifier literal: single-table projections otherwise strip it.
-export const registrationOperation = sql<
-  "staff_remove" | "staff_restore" | "player_withdraw" | "player_reapply" | null
->`(
+export const registrationOperation = sql<RegistrationReadOperation | null>`(
   SELECT e.operation FROM registration_events e WHERE e.registration_id = "registrations"."id"
   ORDER BY e.created_at DESC, e.id DESC LIMIT 1
 )`;

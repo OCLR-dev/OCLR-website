@@ -240,7 +240,10 @@ const poolFields = {
   showcaseAt: mappools.showcaseAt,
   updatedAt: mappools.updatedAt,
 };
-async function databaseMappoolWorkspace(actor: User, slug: string) {
+async function databaseMappoolWorkspace(
+  actor: User,
+  slug: string,
+): Promise<MappoolWorkspace> {
   await assertReadCapability(actor, "view_replays", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
@@ -306,17 +309,16 @@ async function databaseMappoolWorkspace(actor: User, slug: string) {
 export async function mappoolWorkspace(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseMappoolWorkspace>>> {
+): Promise<MappoolWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseMappoolWorkspace>>
-    >("mappoolWorkspace", { slug });
+    return frontendResource<MappoolWorkspace>("mappoolWorkspace", { slug });
   }
   return databaseMappoolWorkspace(actor, slug);
 }
 
-export type MappoolWorkspace = Awaited<ReturnType<typeof mappoolWorkspace>>;
+export type MappoolWorkspace =
+  import("./explicit-read-contracts").ExplicitReadData<"mappoolWorkspace">;
 // Preview is a protected read, not a mutation. No registration or audit data is returned.
 export async function previewBeatmap(
   actor: User,
@@ -1237,7 +1239,12 @@ export async function mappoolCommand(
   }
   return mappoolWorkspace(actor, slug);
 }
-async function databasePublicMappools(slug: string, poolId?: string) {
+type PublicMappools =
+  import("./explicit-read-contracts").ExplicitReadData<"publicMappools">;
+async function databasePublicMappools(
+  slug: string,
+  poolId?: string,
+): Promise<PublicMappools> {
   if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return [];
   if (poolId && !z.uuid().safeParse(poolId).success) return [];
   return db().transaction(
@@ -1307,12 +1314,10 @@ async function databasePublicMappools(slug: string, poolId?: string) {
 export async function publicMappools(
   slug: string,
   poolId?: string,
-): Promise<Awaited<ReturnType<typeof databasePublicMappools>>> {
+): Promise<PublicMappools> {
   const remote = remoteMode();
   const pools = remote
-    ? await frontendResource<
-        Awaited<ReturnType<typeof databasePublicMappools>>
-      >("publicMappools", { slug, poolId })
+    ? await frontendResource<PublicMappools>("publicMappools", { slug, poolId })
     : await databasePublicMappools(slug, poolId);
   const saved = await loadSavedDifficulties(
     pools.flatMap((pool) => pool.entries.map((entry) => entry.beatmapId)),

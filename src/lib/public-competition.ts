@@ -50,6 +50,7 @@ export type {
 } from "./competition-read-contracts";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type PublicCompetition = ExplicitReadData<"publicCompetition">;
+type PublicFixtureRead = ExplicitReadData<"publicFixture">;
 async function databasePublicCompetition(
   slug: string,
   reader?: RatingReader,
@@ -376,7 +377,7 @@ export type PublicGroup = {
 async function databasePublicFixture(
   slug: string,
   id: string,
-): Promise<(PublicFixture & { details: MatchDetails | null }) | null> {
+): Promise<PublicFixtureRead> {
   if (!process.env.DATABASE_URL) return null;
   return db().transaction(
     async (tx) => {
@@ -477,12 +478,9 @@ async function databasePublicFixture(
 export async function publicFixture(
   slug: string,
   id: string,
-): Promise<Awaited<ReturnType<typeof databasePublicFixture>>> {
+): Promise<PublicFixtureRead> {
   if (remoteMode()) {
-    return frontendResource<Awaited<ReturnType<typeof databasePublicFixture>>>(
-      "publicFixture",
-      { slug, id },
-    );
+    return frontendResource<PublicFixtureRead>("publicFixture", { slug, id });
   }
   return databasePublicFixture(slug, id);
 }

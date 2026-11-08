@@ -99,6 +99,21 @@ const result: Record<string, Schema> = {};
 const explicit = new Map<string, z.ZodType>(
   Object.entries(explicitReadContracts),
 );
+const contractFile = program.getSourceFile(
+  "src/lib/explicit-read-contracts.ts",
+);
+const structuralContracts = contractFile?.statements.find(
+  (node) =>
+    ts.isTypeAliasDeclaration(node) &&
+    node.name.text === "StructuralReadContracts",
+);
+if (!structuralContracts || !ts.isTypeAliasDeclaration(structuralContracts))
+  throw Error("Missing StructuralReadContracts");
+const structural = new Map(
+  checker
+    .getPropertiesOfType(checker.getTypeAtLocation(structuralContracts))
+    .map((property) => [property.getName(), checker.getTypeOfSymbol(property)]),
+);
 function preserveReadSchema(value: unknown): void {
   if (!value || typeof value !== "object") return;
   for (const child of Object.values(value)) preserveReadSchema(child);
@@ -150,6 +165,13 @@ function preserveReadSchema(value: unknown): void {
 }
 for (const resource of definitions) {
   const contract = explicit.get(resource.id);
+  const dto = structural.get(resource.id);
+  if (contract && dto) throw Error("Duplicate read contract: " + resource.id);
+  if (dto) {
+    result[resource.id] = schema(dto);
+    structural.delete(resource.id);
+    continue;
+  }
   if (contract) {
     const { $schema, ...wire } = z.toJSONSchema(contract, {
       unrepresentable: ({ zodSchema }) =>
@@ -163,25 +185,13 @@ for (const resource of definitions) {
     explicit.delete(resource.id);
     continue;
   }
-  const file = program.getSourceFile("src/lib/" + resource.module + ".ts")!;
-  const name =
-    "model" in resource
-      ? resource.model
-      : resource.fn === "staffAccess"
-        ? "staffAccess"
-        : "database" + resource.fn[0].toUpperCase() + resource.fn.slice(1);
-  const fn = file.statements.find(
-    (n) => ts.isFunctionDeclaration(n) && n.name?.text === name,
-  ) as ts.FunctionDeclaration;
-  if (!fn) throw Error("Missing " + name);
-  const signature = checker.getSignatureFromDeclaration(fn)!;
-  const type = checker.getAwaitedType(
-    checker.getReturnTypeOfSignature(signature),
-  )!;
-  result[resource.id] = schema(type);
+  throw Error("Missing explicit read contract: " + resource.id);
 }
-if (explicit.size)
-  throw Error("Unregistered read contracts: " + [...explicit.keys()]);
+if (explicit.size || structural.size)
+  throw Error(
+    "Unregistered read contracts: " +
+      [...explicit.keys(), ...structural.keys()],
+  );
 if (unsupported.size) throw Error("Untyped DTO: " + [...unsupported]);
 // Stable structural definitions keep identical query models shared across resources.
 const counts = new Map<string, number>();

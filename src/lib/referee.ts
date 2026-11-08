@@ -55,23 +55,16 @@ import {
   validateRefereeAction,
   type RefereeEvent,
   type RefereeEventPayload,
-  type RefereeModelInput,
 } from "./referee-model";
 
 import {
   openExhibitionSides,
   exhibitionParticipants,
 } from "./exhibition-sides";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+import type { RefereeBasis } from "./fixture-read-contracts";
+export type { RefereeBasis } from "./fixture-read-contracts";
 type Reader = Pick<ReturnType<typeof db>, "select">;
-export type RefereeBasis = Pick<
-  RefereeModelInput,
-  | "policy"
-  | "teamIds"
-  | "maps"
-  | "series"
-  | "tiedMapPolicy"
-  | "exPlayersPerTeam"
->;
 const hash = (value: unknown) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const common = {
@@ -144,7 +137,7 @@ export async function readRefereeWorkspace(
   actor: User,
   slug: string,
   fixtureId: string,
-) {
+): Promise<RefereeWorkspace> {
   const access = await assertRefereeAccess(reader, actor, slug, fixtureId);
   const fixture = access.fixture;
   const edition = await editionOperationState(slug, reader);
@@ -470,7 +463,7 @@ export async function readRefereeWorkspace(
     canConfigure: access.canConfigure && !edition.hasArchive,
   };
 }
-export type RefereeWorkspace = Awaited<ReturnType<typeof readRefereeWorkspace>>;
+export type RefereeWorkspace = ExplicitReadData<"refereeWorkspace">;
 export async function refereeWorkspace(
   actor: User,
   slug: string,

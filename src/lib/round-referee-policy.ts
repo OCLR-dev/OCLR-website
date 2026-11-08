@@ -19,7 +19,6 @@ import { randomUUID } from "node:crypto";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
 import { assertCapability } from "./auth/staff";
-import type { ScoringRules } from "./competition-model";
 import { HttpError } from "./http";
 import {
   projectReferee,
@@ -28,12 +27,7 @@ import {
   type RefereeEvent,
 } from "./referee-model";
 
-export type RoundRefereeRule = {
-  roundId: string;
-  revision: number;
-  policy: RefereePolicy | null;
-  series: ScoringRules["series"] | null;
-};
+export type { RoundRefereeRule } from "./staff-workspace-read-contracts";
 type Transaction = Parameters<
   Parameters<ReturnType<typeof db>["transaction"]>[0]
 >[0];

@@ -68,8 +68,13 @@ function normalize(document: JsonObject) {
         if (key === "required" && Array.isArray(child))
           return [key, [...child].sort()];
         if (key === "anyOf" && Array.isArray(child)) {
+          // Identical alternatives match and revive values in the same way.
+          const branches: Json[] = [];
+          for (const branch of child.map(visit)) {
+            if (!branches.some((other) => isDeepStrictEqual(branch, other)))
+              branches.push(branch);
+          }
           // Reorder consecutive literal choices without moving null or other branches.
-          const branches = child.map(visit);
           const first = branches.findIndex(literal);
           const last = branches.findLastIndex(literal);
           if (first >= 0 && last > first) {

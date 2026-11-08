@@ -11,7 +11,11 @@ import {
   registrationAvailability,
   registrationOperation,
 } from "./registrations";
-async function databasePlayerApplications(userId: number) {
+import type { ExplicitReadData } from "./explicit-read-contracts";
+type PlayerApplications = ExplicitReadData<"playerApplications">;
+async function databasePlayerApplications(
+  userId: number,
+): Promise<PlayerApplications> {
   const rows = await db()
     .select({
       registration: registrationReadColumns,
@@ -70,12 +74,10 @@ async function databasePlayerApplications(userId: number) {
 }
 export async function playerApplications(
   userId: number,
-): Promise<Awaited<ReturnType<typeof databasePlayerApplications>>> {
+): Promise<PlayerApplications> {
   if (remoteMode()) {
     await assertRemoteSubject(userId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePlayerApplications>>
-    >("playerApplications", {});
+    return frontendResource<PlayerApplications>("playerApplications");
   }
   return databasePlayerApplications(userId);
 }

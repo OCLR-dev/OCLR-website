@@ -15,13 +15,17 @@ import hant from "../../messages/zh-Hant.json" with { type: "json" };
 import { z } from "zod";
 import { attachArchiveDifficulties } from "./saved-difficulty";
 import type { ExplicitReadData } from "./explicit-read-contracts";
+import type { SavedTournament } from "./configuration-read-contracts";
 type CaptainIdentities = ExplicitReadData<"captainIdentities">;
 type PublicEnrollmentState = ExplicitReadData<"publicEnrollmentState">;
 type OwnEligibility = ExplicitReadData<"ownEligibility">;
 type OwnSavedProfile = ExplicitReadData<"ownSavedProfile">;
+type PublicConfiguration = ExplicitReadData<"publicEnrollment">;
+type PublicNewsModel = ExplicitReadData<"publicNewsModel">;
+type OwnRegistrationForm = ExplicitReadData<"ownRegistrationForm">;
 async function databasePublicEnrollment(
   slug: string,
-): ReturnType<typeof readTournament> {
+): Promise<SavedTournament | undefined> {
   const record = await readTournament(slug, db(), true);
   if (!record?.edition.archive) return record;
   return {
@@ -34,16 +38,16 @@ async function databasePublicEnrollment(
 }
 export async function publicEnrollment(
   slug: string,
-): Promise<Awaited<ReturnType<typeof databasePublicEnrollment>>> {
+): Promise<SavedTournament | undefined> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicEnrollment>>
-    >("publicEnrollment", { slug });
+    return frontendResource<PublicConfiguration>("publicEnrollment", { slug });
   }
   return databasePublicEnrollment(slug);
 }
 
-async function databasePrivateSavedTournament(slug: string) {
+async function databasePrivateSavedTournament(
+  slug: string,
+): Promise<SavedTournament> {
   const record = await readTournament(slug);
   if (!record)
     throw new (await import("./http")).HttpError(404, "Tournament not found.");
@@ -51,16 +55,18 @@ async function databasePrivateSavedTournament(slug: string) {
 }
 export async function privateSavedTournament(
   slug: string,
-): Promise<Awaited<ReturnType<typeof databasePrivateSavedTournament>>> {
+): Promise<SavedTournament> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePrivateSavedTournament>>
-    >("privateSavedTournament", { slug });
+    return frontendResource<SavedTournament>("privateSavedTournament", {
+      slug,
+    });
   }
   return databasePrivateSavedTournament(slug);
 }
 
-async function databasePublicNewsModel(locale: string) {
+async function databasePublicNewsModel(
+  locale: string,
+): Promise<PublicNewsModel> {
   const selected = z.enum(["zh-Hans", "zh-Hant", "en"]).parse(locale);
   const messages =
     selected === "zh-Hans" ? hans : selected === "zh-Hant" ? hant : en;
@@ -75,11 +81,9 @@ async function databasePublicNewsModel(locale: string) {
 }
 export async function publicNewsModel(
   locale: string,
-): Promise<Awaited<ReturnType<typeof databasePublicNewsModel>>> {
+): Promise<PublicNewsModel> {
   if (remoteMode()) {
-    return frontendResource<
-      Awaited<ReturnType<typeof databasePublicNewsModel>>
-    >("publicNewsModel", { locale });
+    return frontendResource<PublicNewsModel>("publicNewsModel", { locale });
   }
   return databasePublicNewsModel(locale);
 }
@@ -191,7 +195,9 @@ export async function ownEligibility(
   return databaseOwnEligibility(actor, slug);
 }
 /** The anonymous configuration projection never releases application questions or staff eligibility settings. */
-export async function publicConfigurationModel(slug: string) {
+export async function publicConfigurationModel(
+  slug: string,
+): Promise<PublicConfiguration> {
   const record = await databasePublicEnrollment(slug);
   if (!record)
     throw new (await import("./http")).HttpError(404, "Tournament not found.");
@@ -233,22 +239,28 @@ export async function publicConfigurationModel(slug: string) {
             opensAt: registration.opensAt,
             closesAt: registration.closesAt,
             withdrawUntil: registration.withdrawUntil,
-            questions: [] as [],
+            questions: [],
           }
         : null,
     },
   };
 }
-export async function ownRegistrationForm(actor: User, slug: string) {
+export async function ownRegistrationForm(
+  actor: User,
+  slug: string,
+): Promise<OwnRegistrationForm> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseOwnRegistrationForm>>
-    >("ownRegistrationForm", { slug });
+    return frontendResource<OwnRegistrationForm>("ownRegistrationForm", {
+      slug,
+    });
   }
   return databaseOwnRegistrationForm(actor, slug);
 }
-async function databaseOwnRegistrationForm(actor: User, slug: string) {
+async function databaseOwnRegistrationForm(
+  actor: User,
+  slug: string,
+): Promise<OwnRegistrationForm> {
   void actor; // The authenticated subject is injected by the route, never selected by a query argument.
   const record = await databasePublicEnrollment(slug);
   if (!record)

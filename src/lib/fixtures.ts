@@ -35,6 +35,9 @@ import {
 } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { forceDeleteFixtureRecords } from "./fixture-force-delete";
+import type { ExplicitReadData } from "./explicit-read-contracts";
+import type { FixtureReviewContext } from "./fixture-read-contracts";
+export type { FixtureReviewContext } from "./fixture-read-contracts";
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
 import { assertOperationalEdition } from "./archive-guard";
@@ -366,7 +369,10 @@ export async function assignFixtureReferees(
   });
   return staffFixtures(actor, slug);
 }
-async function databaseStaffFixtures(actor: User, slug: string) {
+async function databaseStaffFixtures(
+  actor: User,
+  slug: string,
+): Promise<FixtureWorkspace> {
   const access = await staffAccess(actor);
   const canManage = permits(access, "manage_fixtures", slug);
   const viewAll = canRead(access, "manage_fixtures", slug);
@@ -532,18 +538,15 @@ async function databaseStaffFixtures(actor: User, slug: string) {
 export async function staffFixtures(
   actor: User,
   slug: string,
-): Promise<Awaited<ReturnType<typeof databaseStaffFixtures>>> {
+): Promise<FixtureWorkspace> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseStaffFixtures>>>(
-      "staffFixtures",
-      { slug },
-    );
+    return frontendResource<FixtureWorkspace>("staffFixtures", { slug });
   }
   return databaseStaffFixtures(actor, slug);
 }
 
-export type FixtureWorkspace = Awaited<ReturnType<typeof staffFixtures>>;
+export type FixtureWorkspace = ExplicitReadData<"staffFixtures">;
 /** Private typed contract used by the MP importer. No browser-provided identity is accepted. */
 async function databaseFixtureForReview(
   actor: User,
@@ -551,7 +554,7 @@ async function databaseFixtureForReview(
   id: string,
   reader?: Reader,
   readOnly = false,
-) {
+): Promise<FixtureReviewContext> {
   if (readOnly)
     await assertReadCapability(actor, "record_results", slug, reader);
   else await assertCapability(actor, "record_results", slug, reader);
@@ -694,17 +697,17 @@ export async function fixtureForReview(
   id: string,
   reader?: Reader,
   readOnly = false,
-): Promise<Awaited<ReturnType<typeof databaseFixtureForReview>>> {
+): Promise<FixtureReviewContext> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
-    return frontendResource<
-      Awaited<ReturnType<typeof databaseFixtureForReview>>
-    >("fixtureForReview", { slug, id });
+    return frontendResource<FixtureReviewContext>("fixtureForReview", {
+      slug,
+      id,
+    });
   }
   return databaseFixtureForReview(actor, slug, id, reader, readOnly);
 }
 
-export type FixtureReviewContext = Awaited<ReturnType<typeof fixtureForReview>>;
 function validateSources(
   rows: (typeof fixtures.$inferSelect)[],
   kinds: Map<string, string>,
