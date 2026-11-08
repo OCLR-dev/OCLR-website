@@ -52,119 +52,21 @@ import {
   permits,
   staffAccess,
 } from "./auth/staff";
-import {
-  groupConfigurationInputSchema,
-  scoringRulesSchema,
-  standingsRulesSchema,
-  validTimeZone,
-} from "./competition-model";
 import { getEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import {
+  assignFixtureRefereesWrite,
+  fixtureCommandInput,
+} from "./fixture-write-contracts";
 import { HttpError } from "./http";
 import { persistRoundRefereePolicy } from "./round-referee-policy";
 import { refereePolicyForWins } from "./referee-series";
 import { refereePolicySchema } from "./referee-model";
 import {
-  exhibitionNamesSchema,
   openExhibitionSides,
   exhibitionParticipants,
 } from "./exhibition-sides";
-const confirmation = {
-  confirmed: z.literal(true),
-};
-const fixtureFields = {
-  label: z.string().trim().min(1).max(100),
-  roundId: z.uuid(),
-  homeTeamId: z.uuid().nullable(),
-  awayTeamId: z.uuid().nullable(),
-  exhibitionNames: exhibitionNamesSchema.nullable().optional(),
-  scheduledAt: z.iso.datetime({ offset: true }).nullable(),
-  timeZone: z.string().trim().max(80).refine(validTimeZone),
-  status: z.enum(["scheduled", "in_progress", "cancelled"]),
-  mappoolId: z.uuid().nullable(),
-  position: z.number().int().min(1).max(999),
-  homeSourceId: z.uuid().nullable(),
-  homeSourceOutcome: z.enum(["winner", "loser"]).nullable(),
-  awaySourceId: z.uuid().nullable(),
-  awaySourceOutcome: z.enum(["winner", "loser"]).nullable(),
-};
-const refereeIdsSchema = z
-  .array(z.number().int().positive().max(Number.MAX_SAFE_INTEGER))
-  .max(50)
-  .refine((ids) => new Set(ids).size === ids.length);
-const commandSchema = z.discriminatedUnion("action", [
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("force_delete"),
-      fixtureId: z.uuid(),
-      expectedVersion: z.number().int().nonnegative(),
-      expectedAssignmentRevision: z.number().int().nonnegative(),
-      expectedDeletionFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-      confirmationLabel: z.string().min(1).max(100),
-      testFixtureConfirmed: z.literal(true),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("delete"),
-      fixtureId: z.uuid(),
-      expectedVersion: z.number().int().nonnegative(),
-      expectedAssignmentRevision: z.number().int().nonnegative(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("stage_groups"),
-      stageId: z.uuid(),
-      expectedVersion: z.number().int().nonnegative(),
-      configuration: groupConfigurationInputSchema.nullable(),
-      published: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...fixtureFields,
-      refereeIds: refereeIdsSchema.default([]),
-      action: z.literal("create"),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...fixtureFields,
-      action: z.literal("edit"),
-      fixtureId: z.uuid(),
-      expectedVersion: z.number().int().nonnegative(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("publish"),
-      fixtureId: z.uuid(),
-      expectedVersion: z.number().int().nonnegative(),
-      published: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("round_rules"),
-      roundId: z.uuid(),
-      expectedVersion: z.number().int().nonnegative(),
-      expectedRefereePolicyRevision: z.number().int().nonnegative().optional(),
-      scoringRules: scoringRulesSchema.partial({ version: true }).nullable(),
-      standingsRules: standingsRulesSchema
-        .partial({ version: true })
-        .nullable(),
-    })
-    .strict(),
-]);
 type Reader = Pick<ReturnType<typeof db>, "select">;
 // Keep stable policy identities on unchanged saves; changed policies get a new
 // release without asking an organizer to invent a technical identifier.
@@ -272,23 +174,17 @@ async function eligibleReferees(reader: Reader, slug: string) {
     .groupBy(users.osuId, users.username)
     .orderBy(users.username);
 }
-const assignmentInput = z
-  .object({
-    expectedAssignmentRevision: z.number().int().nonnegative(),
-    refereeIds: refereeIdsSchema,
-  })
-  .strict();
 export async function assignFixtureReferees(
   actor: User,
   slug: string,
   id: string,
   input: unknown,
-) {
+): Promise<FixtureWorkspace> {
   await assertCapability(actor, "manage_fixtures", slug);
   await configuredEdition(slug);
   if (!z.uuid().safeParse(id).success)
     throw new HttpError(404, "Fixture not found.");
-  const parsed = assignmentInput.safeParse(input);
+  const parsed = assignFixtureRefereesWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,
@@ -757,10 +653,10 @@ export async function fixtureCommand(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<FixtureWorkspace> {
   await assertCapability(actor, "manage_fixtures", slug);
   await configuredEdition(slug);
-  const parsed = commandSchema.safeParse(input);
+  const parsed = fixtureCommandInput.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Confirm valid fixture fields and rules.");
   const c = parsed.data;

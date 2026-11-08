@@ -18,6 +18,11 @@ import {
   changeDraftWrite,
   pickPlayerWrite,
 } from "../src/lib/draft-setup-write-contracts";
+import {
+  assignFixtureRefereesWrite,
+  changeFixturesWrite,
+  roundRefereePolicyWrite,
+} from "../src/lib/fixture-write-contracts";
 import { reviewBwsWrite } from "../src/lib/bws-write-contract";
 import {
   addManualRegistrationWrite,
@@ -57,6 +62,7 @@ import {
 import {
   browserWriteError,
   type WriteApiOperation,
+  type WriteResponseSchema,
 } from "../src/lib/write-api-contract";
 
 const writeMethods = ["POST", "PUT", "PATCH", "DELETE"];
@@ -90,6 +96,9 @@ const operations: readonly WriteApiOperation[] = [
   changeMappoolWrite,
   previewMappoolWrite,
   changeMappoolWorkbenchWrite,
+  changeFixturesWrite,
+  assignFixtureRefereesWrite,
+  roundRefereePolicyWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
@@ -228,11 +237,17 @@ function includeReadResponse(name: string, schema: unknown) {
     includeReadResponse(ref, readDefinitions[ref]);
 }
 
-function responseSchema(response: WriteApiOperation["response"]) {
+function responseBranchSchema(response: WriteResponseSchema) {
   if (response instanceof z.ZodType) return jsonSchema(response, "output");
   const name = response.readResource;
   includeReadResponse(name, readContracts.resources[name]);
   return { $ref: `#/components/schemas/${name}` };
+}
+
+function responseSchema(response: WriteApiOperation["response"]) {
+  return "anyOf" in response
+    ? { anyOf: response.anyOf.map(responseBranchSchema) }
+    : responseBranchSchema(response);
 }
 
 const browserOrigin = {

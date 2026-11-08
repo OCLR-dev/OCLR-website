@@ -67,6 +67,11 @@ round or pool version. The preview endpoint returns a single verified beatmap
 or per-row batch results. The separate selection workbench documents candidate
 preview, classification, round links, skillsets and versioned comments.
 
+Fixture management returns the staff workspace or a force-delete preview
+with a fingerprint and blockers. Referee assignments use a separate revision.
+Round referee policy changes can also update the best-of series under the
+current round version.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

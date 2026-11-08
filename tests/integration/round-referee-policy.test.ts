@@ -34,12 +34,21 @@ import {
 import { assertTestDatabase } from "../database";
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { s11RefereeSteps } from "../../src/lib/referee-defaults";
+import { POST as policyRoute } from "../../src/app/api/admin/tournaments/[edition]/rounds/[roundId]/referee-policy/route";
+import { roundRefereePolicyWrite } from "../../src/lib/fixture-write-contracts";
+const origin = "https://oclr.example.test";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => admin,
+}));
 const url = process.env.TEST_DATABASE_URL;
 describe.skipIf(!url)("round referee policies independent of fixtures", () => {
   let w: RefereeWorkspace;
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -187,11 +196,32 @@ describe.skipIf(!url)("round referee policies independent of fixtures", () => {
       .from(tournamentRounds)
       .where(eq(tournamentRounds.id, w.round.id));
     const nextPolicy = { ...policy, steps: s11RefereeSteps(3, "split") };
-    const saved = await saveRoundRefereePolicy(admin, "test-cup", w.round.id, {
+    const post = (input: unknown) =>
+      policyRoute(
+        new Request(
+          origin +
+            roundRefereePolicyWrite.path
+              .replace("{edition}", "test-cup")
+              .replace("{roundId}", w.round.id),
+          {
+            method: "POST",
+            headers: { origin, "content-type": "application/json" },
+            body: JSON.stringify(input),
+          },
+        ),
+        {
+          params: Promise.resolve({ edition: "test-cup", roundId: w.round.id }),
+        },
+      );
+    const response = await post({
       expectedRevision: 0,
       policy: nextPolicy,
       seriesChange: { bestOf: 5, expectedRoundVersion: before.version },
     });
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    const saved = roundRefereePolicyWrite.response.parse(body);
+    expect(saved).toEqual(body);
     expect(saved).toMatchObject({
       revision: 1,
       series: { type: "first_to", wins: 3 },
@@ -227,13 +257,12 @@ describe.skipIf(!url)("round referee policies independent of fixtures", () => {
         scoringRules: { series: { type: "first_to", wins: 3 } },
       },
     });
-    await expect(
-      saveRoundRefereePolicy(admin, "test-cup", w.round.id, {
-        expectedRevision: 1,
-        policy: nextPolicy,
-        seriesChange: { bestOf: 7, expectedRoundVersion: before.version },
-      }),
-    ).rejects.toMatchObject({ status: 409 });
+    const stale = await post({
+      expectedRevision: 1,
+      policy: nextPolicy,
+      seriesChange: { bestOf: 7, expectedRoundVersion: before.version },
+    });
+    expect(stale.status).toBe(409);
   });
   it("rejects mismatched TB, even BO and missing scoring without partially changing the round", async () => {
     const [before] = await db()

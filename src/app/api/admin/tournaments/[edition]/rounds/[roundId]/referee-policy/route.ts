@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
+import { roundRefereePolicyWrite } from "@/lib/fixture-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { saveRoundRefereePolicy } from "@/lib/round-referee-policy";
 
@@ -16,7 +17,7 @@ export async function POST(
       actor,
       edition,
       roundId,
-      await readJson(request),
+      await readJson(request, roundRefereePolicyWrite.maxBodyBytes),
     );
     revalidatePath(`/admin/tournaments/${edition}`, "layout");
     revalidatePath(`/tournaments/${edition}`, "layout");

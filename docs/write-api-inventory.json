@@ -308,7 +308,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referees/route.ts",
     "methods": {
       "PATCH": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "assignFixtureReferees",
+        "access": "browser",
+        "consumers": [
+          "src/components/referee-assignment.tsx"
+        ]
       }
     }
   },
@@ -326,7 +331,25 @@
     "source": "src/app/api/admin/tournaments/[edition]/matches/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeFixtures",
+        "access": "browser",
+        "actions": [
+          "preview_force_delete",
+          "force_delete",
+          "delete",
+          "stage_groups",
+          "create",
+          "edit",
+          "publish",
+          "round_rules"
+        ],
+        "consumers": [
+          "src/components/competition-settings.tsx",
+          "src/components/fixture-manager.tsx",
+          "src/components/force-fixture-delete.tsx",
+          "src/components/stage-groups.tsx"
+        ]
       }
     }
   },
@@ -433,7 +456,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/rounds/[roundId]/referee-policy/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "saveRoundRefereePolicy",
+        "access": "browser",
+        "consumers": [
+          "src/components/round-referee-policy.tsx"
+        ]
       }
     }
   },

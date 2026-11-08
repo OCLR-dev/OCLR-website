@@ -6834,6 +6834,851 @@
           "beatmapId"
         ],
         "additionalProperties": false
+      },
+      "staffFixtures": {
+        "type": "object",
+        "properties": {
+          "eligibleReferees": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "osuId": {
+                  "type": "number"
+                },
+                "username": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "osuId",
+                "username"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "editionSlug": {
+                  "type": "string"
+                },
+                "kind": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "group"
+                    },
+                    {
+                      "type": "string",
+                      "const": "knockout"
+                    },
+                    {
+                      "type": "string",
+                      "const": "exhibition"
+                    }
+                  ]
+                },
+                "version": {
+                  "type": "number"
+                },
+                "groupConfiguration": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "groups": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "teamIds": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "key": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "teamIds",
+                              "key"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "groups"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "groupsPublishedAt": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "x-oclr-date": true
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "editionSlug",
+                "kind",
+                "version",
+                "groupConfiguration",
+                "groupsPublishedAt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "canManage": {
+            "type": "boolean"
+          },
+          "canViewAll": {
+            "type": "boolean"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "fixtures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "referees": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "osuId": {
+                        "type": "number"
+                      },
+                      "username": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "osuId",
+                      "username"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "refereeIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "result": {
+                  "$ref": "#/components/schemas/Read4698e41ad379"
+                },
+                "exhibitionSides": {
+                  "$ref": "#/components/schemas/Readc4bfb77cf821"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "editionSlug": {
+                  "type": "string"
+                },
+                "roundId": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "homeTeamId": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "awayTeamId": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "scheduledAt": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "x-oclr-date": true
+                    }
+                  ]
+                },
+                "timeZone": {
+                  "type": "string"
+                },
+                "status": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "scheduled"
+                    },
+                    {
+                      "type": "string",
+                      "const": "in_progress"
+                    },
+                    {
+                      "type": "string",
+                      "const": "cancelled"
+                    }
+                  ]
+                },
+                "mappoolId": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "position": {
+                  "type": "number"
+                },
+                "homeSourceId": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "homeSourceOutcome": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "const": "winner"
+                    },
+                    {
+                      "type": "string",
+                      "const": "loser"
+                    }
+                  ]
+                },
+                "awaySourceId": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "awaySourceOutcome": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "const": "winner"
+                    },
+                    {
+                      "type": "string",
+                      "const": "loser"
+                    }
+                  ]
+                },
+                "publishedAt": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "x-oclr-date": true
+                    }
+                  ]
+                },
+                "assignmentRevision": {
+                  "type": "number"
+                },
+                "streamRevision": {
+                  "type": "number"
+                },
+                "version": {
+                  "type": "number"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-oclr-date": true
+                }
+              },
+              "required": [
+                "referees",
+                "refereeIds",
+                "result",
+                "id",
+                "editionSlug",
+                "roundId",
+                "label",
+                "homeTeamId",
+                "awayTeamId",
+                "scheduledAt",
+                "timeZone",
+                "status",
+                "mappoolId",
+                "position",
+                "homeSourceId",
+                "homeSourceOutcome",
+                "awaySourceId",
+                "awaySourceOutcome",
+                "publishedAt",
+                "assignmentRevision",
+                "streamRevision",
+                "version",
+                "updatedAt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "rounds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "round": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "editionSlug": {
+                      "type": "string"
+                    },
+                    "stageId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "position": {
+                      "type": "number"
+                    },
+                    "version": {
+                      "type": "number"
+                    },
+                    "scoringRules": {
+                      "$ref": "#/components/schemas/Read18a79bebc577"
+                    },
+                    "standingsRules": {
+                      "$ref": "#/components/schemas/Read33badb8d61e7"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "editionSlug",
+                    "stageId",
+                    "name",
+                    "position",
+                    "version",
+                    "scoringRules",
+                    "standingsRules"
+                  ],
+                  "additionalProperties": false
+                },
+                "stage": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "group"
+                    },
+                    {
+                      "type": "string",
+                      "const": "knockout"
+                    },
+                    {
+                      "type": "string",
+                      "const": "exhibition"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "round",
+                "stage"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "teams": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "unpublished": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "captainId": {
+                  "type": "number"
+                },
+                "members": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "osuId": {
+                        "type": "number"
+                      },
+                      "username": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "osuId",
+                      "username"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "unpublished",
+                "id",
+                "name",
+                "captainId",
+                "members"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "pools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "roundId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "roundId"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "eligibleReferees",
+          "stages",
+          "canManage",
+          "canViewAll",
+          "timeZone",
+          "fixtures",
+          "rounds",
+          "teams",
+          "pools"
+        ],
+        "additionalProperties": false
+      },
+      "Read4698e41ad379": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/components/schemas/Read6a43bf7843a8"
+          }
+        ]
+      },
+      "Read6a43bf7843a8": {
+        "type": "object",
+        "properties": {
+          "fixtureId": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "draft"
+              },
+              {
+                "type": "string",
+                "const": "approved"
+              },
+              {
+                "type": "string",
+                "const": "submitted"
+              }
+            ]
+          },
+          "version": {
+            "type": "number"
+          },
+          "currentRevision": {
+            "type": "number"
+          },
+          "latestImportId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "publishedRevision": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "publishedAt": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "date-time",
+                "x-oclr-date": true
+              }
+            ]
+          }
+        },
+        "required": [
+          "fixtureId",
+          "state",
+          "version",
+          "currentRevision",
+          "latestImportId",
+          "publishedRevision",
+          "publishedAt"
+        ],
+        "additionalProperties": false
+      },
+      "Readc4bfb77cf821": {
+        "anyOf": [
+          {
+            "type": "null",
+            "x-oclr-undefined": true
+          },
+          {
+            "$ref": "#/components/schemas/Readbe88b37f930e"
+          }
+        ]
+      },
+      "Readbe88b37f930e": {
+        "type": "object",
+        "properties": {
+          "redId": {
+            "type": "string"
+          },
+          "blueId": {
+            "type": "string"
+          },
+          "redName": {
+            "type": "string"
+          },
+          "blueName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "redId",
+          "blueId",
+          "redName",
+          "blueName"
+        ],
+        "additionalProperties": false
+      },
+      "Read18a79bebc577": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/components/schemas/Read66bb513795b2"
+          }
+        ]
+      },
+      "Read66bb513795b2": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "osu"
+              },
+              {
+                "type": "string",
+                "const": "taiko"
+              },
+              {
+                "type": "string",
+                "const": "fruits"
+              },
+              {
+                "type": "string",
+                "const": "mania"
+              }
+            ]
+          },
+          "teamType": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "team-vs"
+              },
+              {
+                "type": "string",
+                "const": "head-to-head"
+              }
+            ]
+          },
+          "scoringType": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "score"
+              },
+              {
+                "type": "string",
+                "const": "scorev2"
+              }
+            ]
+          },
+          "aggregation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "sum"
+              },
+              {
+                "type": "string",
+                "const": "average"
+              }
+            ]
+          },
+          "playersPerTeam": {
+            "type": "number"
+          },
+          "series": {
+            "$ref": "#/components/schemas/Read8403b8fab385"
+          },
+          "allowSubstitutions": {
+            "type": "boolean"
+          },
+          "allowShortHanded": {
+            "type": "boolean"
+          },
+          "failedScorePolicy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "include"
+              },
+              {
+                "type": "string",
+                "const": "zero"
+              }
+            ]
+          },
+          "tiedMapPolicy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "require_replay"
+              },
+              {
+                "type": "string",
+                "const": "count_as_draw"
+              }
+            ]
+          },
+          "exPlayersPerTeam": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "mode",
+          "teamType",
+          "scoringType",
+          "aggregation",
+          "playersPerTeam",
+          "series",
+          "allowSubstitutions",
+          "allowShortHanded",
+          "failedScorePolicy",
+          "tiedMapPolicy"
+        ],
+        "additionalProperties": false
+      },
+      "Read8403b8fab385": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "first_to"
+              },
+              "wins": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "type",
+              "wins"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "$ref": "#/components/schemas/Readb8922fa1da53"
+          }
+        ]
+      },
+      "Read33badb8d61e7": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/components/schemas/Read18c3b72eccd3"
+          }
+        ]
+      },
+      "Read18c3b72eccd3": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "winPoints": {
+            "type": "number"
+          },
+          "lossPoints": {
+            "type": "number"
+          },
+          "drawPoints": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "tiebreakers": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "wins"
+                },
+                {
+                  "type": "string",
+                  "const": "points"
+                },
+                {
+                  "type": "string",
+                  "const": "map_difference"
+                },
+                {
+                  "type": "string",
+                  "const": "maps_won"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "version",
+          "winPoints",
+          "lossPoints",
+          "drawPoints",
+          "tiebreakers"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -18643,6 +19488,2040 @@
           },
           "504": {
             "description": "The osu! lookup timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/matches": {
+      "post": {
+        "operationId": "changeFixtures",
+        "summary": "Manage fixtures, group assignments and round rules",
+        "description": "Requires manage_fixtures. Normal changes return the staff fixture workspace. The force-delete preflight returns a versioned fingerprint, counts and any blocker. Force deletion requires that fingerprint, both fixture and assignment revisions, the exact label and explicit test-fixture confirmation. Approved result history, bracket dependents and published statistics are protected.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "const": "preview_force_delete"
+                      },
+                      "fixtureId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "fixtureId"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "force_delete"
+                          },
+                          "fixtureId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "expectedAssignmentRevision": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "expectedDeletionFingerprint": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          },
+                          "confirmationLabel": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                          },
+                          "testFixtureConfirmed": {
+                            "type": "boolean",
+                            "const": true
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "action",
+                          "fixtureId",
+                          "expectedVersion",
+                          "expectedAssignmentRevision",
+                          "expectedDeletionFingerprint",
+                          "confirmationLabel",
+                          "testFixtureConfirmed"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "delete"
+                          },
+                          "fixtureId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "expectedAssignmentRevision": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "action",
+                          "fixtureId",
+                          "expectedVersion",
+                          "expectedAssignmentRevision"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "stage_groups"
+                          },
+                          "stageId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "configuration": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "version": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 80
+                                  },
+                                  "groups": {
+                                    "minItems": 1,
+                                    "maxItems": 4,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "key": {
+                                          "type": "string",
+                                          "maxLength": 60,
+                                          "pattern": "^[a-z0-9][a-z0-9-]*$"
+                                        },
+                                        "name": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 80
+                                        },
+                                        "teamIds": {
+                                          "minItems": 2,
+                                          "maxItems": 128,
+                                          "type": "array",
+                                          "items": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          }
+                                        }
+                                      },
+                                      "required": [
+                                        "name",
+                                        "teamIds"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "groups"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "published": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "action",
+                          "stageId",
+                          "expectedVersion",
+                          "configuration",
+                          "published"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                          },
+                          "roundId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "homeTeamId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awayTeamId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "exhibitionNames": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "red": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                  },
+                                  "blue": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                  }
+                                },
+                                "required": [
+                                  "red",
+                                  "blue"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "scheduledAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "timeZone": {
+                            "type": "string",
+                            "maxLength": 80
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "scheduled",
+                              "in_progress",
+                              "cancelled"
+                            ]
+                          },
+                          "mappoolId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "position": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 999
+                          },
+                          "homeSourceId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "homeSourceOutcome": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "winner",
+                                  "loser"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awaySourceId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awaySourceOutcome": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "winner",
+                                  "loser"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "refereeIds": {
+                            "default": [],
+                            "maxItems": 50,
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "create"
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "label",
+                          "roundId",
+                          "homeTeamId",
+                          "awayTeamId",
+                          "scheduledAt",
+                          "timeZone",
+                          "status",
+                          "mappoolId",
+                          "position",
+                          "homeSourceId",
+                          "homeSourceOutcome",
+                          "awaySourceId",
+                          "awaySourceOutcome",
+                          "action"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                          },
+                          "roundId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "homeTeamId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awayTeamId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "exhibitionNames": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "red": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                  },
+                                  "blue": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                  }
+                                },
+                                "required": [
+                                  "red",
+                                  "blue"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "scheduledAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "timeZone": {
+                            "type": "string",
+                            "maxLength": 80
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "scheduled",
+                              "in_progress",
+                              "cancelled"
+                            ]
+                          },
+                          "mappoolId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "position": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 999
+                          },
+                          "homeSourceId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "homeSourceOutcome": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "winner",
+                                  "loser"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awaySourceId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "awaySourceOutcome": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "winner",
+                                  "loser"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "edit"
+                          },
+                          "fixtureId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "label",
+                          "roundId",
+                          "homeTeamId",
+                          "awayTeamId",
+                          "scheduledAt",
+                          "timeZone",
+                          "status",
+                          "mappoolId",
+                          "position",
+                          "homeSourceId",
+                          "homeSourceOutcome",
+                          "awaySourceId",
+                          "awaySourceOutcome",
+                          "action",
+                          "fixtureId",
+                          "expectedVersion"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "publish"
+                          },
+                          "fixtureId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "published": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "action",
+                          "fixtureId",
+                          "expectedVersion",
+                          "published"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "round_rules"
+                          },
+                          "roundId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "expectedRefereePolicyRevision": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "scoringRules": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "version": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 80
+                                  },
+                                  "mode": {
+                                    "type": "string",
+                                    "enum": [
+                                      "osu",
+                                      "taiko",
+                                      "fruits",
+                                      "mania"
+                                    ]
+                                  },
+                                  "teamType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "team-vs",
+                                      "head-to-head"
+                                    ]
+                                  },
+                                  "scoringType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "score",
+                                      "scorev2"
+                                    ]
+                                  },
+                                  "aggregation": {
+                                    "type": "string",
+                                    "enum": [
+                                      "sum",
+                                      "average"
+                                    ]
+                                  },
+                                  "playersPerTeam": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 16
+                                  },
+                                  "exPlayersPerTeam": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 16
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "series": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "const": "first_to"
+                                          },
+                                          "wins": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 99
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "wins"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "type": {
+                                            "type": "string",
+                                            "const": "fixed_maps"
+                                          },
+                                          "count": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 99
+                                          },
+                                          "allowDraw": {
+                                            "type": "boolean"
+                                          }
+                                        },
+                                        "required": [
+                                          "type",
+                                          "count",
+                                          "allowDraw"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "allowSubstitutions": {
+                                    "type": "boolean"
+                                  },
+                                  "allowShortHanded": {
+                                    "type": "boolean"
+                                  },
+                                  "failedScorePolicy": {
+                                    "type": "string",
+                                    "enum": [
+                                      "include",
+                                      "zero"
+                                    ]
+                                  },
+                                  "tiedMapPolicy": {
+                                    "type": "string",
+                                    "enum": [
+                                      "require_replay",
+                                      "count_as_draw"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "mode",
+                                  "teamType",
+                                  "scoringType",
+                                  "aggregation",
+                                  "playersPerTeam",
+                                  "series",
+                                  "allowSubstitutions",
+                                  "allowShortHanded",
+                                  "failedScorePolicy",
+                                  "tiedMapPolicy"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "standingsRules": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "version": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 80
+                                  },
+                                  "winPoints": {
+                                    "type": "integer",
+                                    "minimum": -100,
+                                    "maximum": 100
+                                  },
+                                  "lossPoints": {
+                                    "type": "integer",
+                                    "minimum": -100,
+                                    "maximum": 100
+                                  },
+                                  "drawPoints": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": -100,
+                                        "maximum": 100
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "tiebreakers": {
+                                    "minItems": 1,
+                                    "maxItems": 4,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "enum": [
+                                        "points",
+                                        "wins",
+                                        "map_difference",
+                                        "maps_won"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "winPoints",
+                                  "lossPoints",
+                                  "drawPoints",
+                                  "tiebreakers"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "confirmed",
+                          "action",
+                          "roundId",
+                          "expectedVersion",
+                          "scoringRules",
+                          "standingsRules"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The staff fixture workspace or force-delete preflight.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "fixtureId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "assignmentRevision": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "fingerprint": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "blocker": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "official_result",
+                                "bracket",
+                                "published_statistics"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "counts": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string",
+                            "enum": [
+                              "imports",
+                              "games",
+                              "results",
+                              "resultRevisions",
+                              "refereeSessions",
+                              "refereeEvents",
+                              "reconciliations",
+                              "connections",
+                              "commands",
+                              "referees",
+                              "streams",
+                              "commentators",
+                              "statistics"
+                            ]
+                          },
+                          "additionalProperties": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "required": [
+                            "imports",
+                            "games",
+                            "results",
+                            "resultRevisions",
+                            "refereeSessions",
+                            "refereeEvents",
+                            "reconciliations",
+                            "connections",
+                            "commands",
+                            "referees",
+                            "streams",
+                            "commentators",
+                            "statistics"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "fixtureId",
+                        "label",
+                        "version",
+                        "assignmentRevision",
+                        "fingerprint",
+                        "blocker",
+                        "counts"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "$ref": "#/components/schemas/staffFixtures"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid fixture fields, round or group rules, command, or deletion confirmation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or requested fixture or round was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The revision, publication state, dependency fingerprint, or a protected record prevents the change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/matches/{fixtureId}/referees": {
+      "patch": {
+        "operationId": "assignFixtureReferees",
+        "summary": "Replace the referee assignment list for a fixture",
+        "description": "Requires manage_fixtures and the current assignment revision. The list can be empty. The transaction rechecks that all distinct referees are eligible for the edition. The assignment revision is separate from the fixture and result versions.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fixtureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedAssignmentRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "refereeIds": {
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  }
+                },
+                "required": [
+                  "expectedAssignmentRevision",
+                  "refereeIds"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The current staff fixture workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/staffFixtures"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid assignment revision or ineligible referee IDs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or requested fixture or round was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The assignment revision or edition state prevents the change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/rounds/{roundId}/referee-policy": {
+      "post": {
+        "operationId": "saveRoundRefereePolicy",
+        "summary": "Save a round referee policy and optionally change its best-of series",
+        "description": "Requires manage_fixtures and the current policy revision. An optional series change includes the current round version and an odd best-of value. Policy and scoring updates commit together. Started or protected fixtures constrain changes.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roundId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "policy": {
+                    "type": "object",
+                    "properties": {
+                      "steps": {
+                        "minItems": 1,
+                        "maxItems": 200,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "ban",
+                                "pick",
+                                "tb"
+                              ]
+                            },
+                            "actor": {
+                              "type": "string",
+                              "enum": [
+                                "firstBan",
+                                "secondBan",
+                                "firstPick",
+                                "secondPick",
+                                "neutral"
+                              ]
+                            },
+                            "categories": {
+                              "maxItems": 30,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 30
+                              }
+                            },
+                            "entryIds": {
+                              "maxItems": 200,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              }
+                            },
+                            "avoidRepeatCategory": {
+                              "type": "boolean"
+                            },
+                            "tiedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 98
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "actor",
+                            "categories",
+                            "entryIds",
+                            "avoidRepeatCategory",
+                            "tiedAt"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "commands": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "roomSize": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 16
+                              },
+                              "noFail": {
+                                "type": "boolean"
+                              },
+                              "categoryMods": {
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 50
+                                },
+                                "additionalProperties": {
+                                  "type": "object",
+                                  "properties": {
+                                    "mods": {
+                                      "maxItems": 21,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "EZ",
+                                          "HD",
+                                          "HR",
+                                          "DT",
+                                          "HT",
+                                          "NC",
+                                          "FL",
+                                          "FI",
+                                          "SD",
+                                          "PF",
+                                          "SO",
+                                          "MR",
+                                          "1K",
+                                          "2K",
+                                          "3K",
+                                          "4K",
+                                          "5K",
+                                          "6K",
+                                          "7K",
+                                          "8K",
+                                          "9K"
+                                        ]
+                                      }
+                                    },
+                                    "freemod": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "mods",
+                                    "freemod"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "banSeconds": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "maximum": 3600
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "pickSeconds": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "maximum": 3600
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "prepareSeconds": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "maximum": 3600
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "startSeconds": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "maximum": 3600
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "roomSize",
+                              "noFail",
+                              "categoryMods",
+                              "banSeconds",
+                              "pickSeconds",
+                              "prepareSeconds",
+                              "startSeconds"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "maxReplaysPerMap": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 20
+                      },
+                      "banCategoryRules": {
+                        "type": "object",
+                        "properties": {
+                          "allowRepeats": {
+                            "type": "boolean"
+                          },
+                          "repeatExceptions": {
+                            "maxItems": 5,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "NM",
+                                "HD",
+                                "HR",
+                                "DT",
+                                "FM"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "allowRepeats",
+                          "repeatExceptions"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "steps",
+                      "commands"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "seriesChange": {
+                    "type": "object",
+                    "properties": {
+                      "bestOf": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 197
+                      },
+                      "expectedRoundVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "bestOf",
+                      "expectedRoundVersion"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "expectedRevision",
+                  "policy"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved policy, series, policy revision and round version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "revision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "policy": {
+                      "type": "object",
+                      "properties": {
+                        "steps": {
+                          "minItems": 1,
+                          "maxItems": 200,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "ban",
+                                  "pick",
+                                  "tb"
+                                ]
+                              },
+                              "actor": {
+                                "type": "string",
+                                "enum": [
+                                  "firstBan",
+                                  "secondBan",
+                                  "firstPick",
+                                  "secondPick",
+                                  "neutral"
+                                ]
+                              },
+                              "categories": {
+                                "maxItems": 30,
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 30
+                                }
+                              },
+                              "entryIds": {
+                                "maxItems": 200,
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "avoidRepeatCategory": {
+                                "type": "boolean"
+                              },
+                              "tiedAt": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 98
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "actor",
+                              "categories",
+                              "entryIds",
+                              "avoidRepeatCategory",
+                              "tiedAt"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "commands": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "roomSize": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 16
+                                },
+                                "noFail": {
+                                  "type": "boolean"
+                                },
+                                "categoryMods": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 50
+                                  },
+                                  "additionalProperties": {
+                                    "type": "object",
+                                    "properties": {
+                                      "mods": {
+                                        "maxItems": 21,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "enum": [
+                                            "EZ",
+                                            "HD",
+                                            "HR",
+                                            "DT",
+                                            "HT",
+                                            "NC",
+                                            "FL",
+                                            "FI",
+                                            "SD",
+                                            "PF",
+                                            "SO",
+                                            "MR",
+                                            "1K",
+                                            "2K",
+                                            "3K",
+                                            "4K",
+                                            "5K",
+                                            "6K",
+                                            "7K",
+                                            "8K",
+                                            "9K"
+                                          ]
+                                        }
+                                      },
+                                      "freemod": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "mods",
+                                      "freemod"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "banSeconds": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 3600
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "pickSeconds": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 3600
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "prepareSeconds": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 3600
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "startSeconds": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 3600
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "roomSize",
+                                "noFail",
+                                "categoryMods",
+                                "banSeconds",
+                                "pickSeconds",
+                                "prepareSeconds",
+                                "startSeconds"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "maxReplaysPerMap": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 20
+                        },
+                        "banCategoryRules": {
+                          "type": "object",
+                          "properties": {
+                            "allowRepeats": {
+                              "type": "boolean"
+                            },
+                            "repeatExceptions": {
+                              "maxItems": 5,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "NM",
+                                  "HD",
+                                  "HR",
+                                  "DT",
+                                  "FM"
+                                ]
+                              }
+                            }
+                          },
+                          "required": [
+                            "allowRepeats",
+                            "repeatExceptions"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "steps",
+                        "commands"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "series": {
+                      "anyOf": [
+                        {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "first_to"
+                                },
+                                "wins": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 99
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "wins"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "fixed_maps"
+                                },
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 99
+                                },
+                                "allowDraw": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "count",
+                                "allowDraw"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "roundVersion": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "revision",
+                    "policy",
+                    "series",
+                    "roundVersion"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid policy, round ID, best-of, or incompatible round configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or requested fixture or round was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The policy or round revision changed, or an active or protected fixture prevents the change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
             "content": {
               "application/json": {
                 "schema": {
