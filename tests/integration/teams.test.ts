@@ -35,6 +35,14 @@ import { publicPlayers } from "../../src/lib/players";
 import { getOsuUserProfile } from "../../src/lib/osu-profiles";
 vi.mock("../../src/lib/osu-profiles", () => ({ getOsuUserProfile: vi.fn() }));
 const coach = { osuId: 90101, username: "Synthetic Coach" };
+import { POST as writeRoute } from "../../src/app/api/admin/tournaments/[edition]/teams/route";
+import { changeTeamsWrite } from "../../src/lib/draft-setup-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => staff,
+}));
 const url = process.env.TEST_DATABASE_URL;
 const staff = { osuId: 90001, username: "Synthetic Staff" };
 const a = { osuId: 90002, username: "Synthetic Captain A" };
@@ -53,6 +61,7 @@ describe.skipIf(!url)(
       assertTestDatabase(url);
       fixtureEditions = [edition];
       vi.stubEnv("DATABASE_URL", url!);
+      vi.stubEnv("APP_URL", origin);
       vi.stubEnv("ADMIN_OSU_IDS", String(staff.osuId));
     });
     beforeEach(async () => {
@@ -104,6 +113,39 @@ describe.skipIf(!url)(
         }),
       );
     }
+    it("returns the saved teams workspace from the configuration route", async () => {
+      const body = command(2, {
+        action: "configure",
+        teams: [
+          { captainId: a.osuId, name: "Synthetic Team A", capacity: 2 },
+          { captainId: b.osuId, name: "Synthetic Team B", capacity: 2 },
+        ],
+      });
+      const post = () =>
+        writeRoute(
+          new Request(
+            origin + changeTeamsWrite.path.replace("{edition}", edition.slug),
+            {
+              method: "POST",
+              headers: { origin, "content-type": "application/json" },
+              body: JSON.stringify(body),
+            },
+          ),
+          { params: Promise.resolve({ edition: edition.slug }) },
+        );
+      const response = await post();
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(
+        extendedSchemas[changeTeamsWrite.response.readResource].parse(data),
+      ).toEqual(data);
+      expect(data.version).toBe(3);
+      expect(data.teams.map((team: { name: string }) => team.name)).toEqual([
+        "Synthetic Team A",
+        "Synthetic Team B",
+      ]);
+      expect((await post()).status).toBe(409);
+    });
     it("creates a private captain team on appointment and applies tournament capacity to every team", async () => {
       const initial = await staffTeams(staff, edition.slug);
       expect(initial.teams).toHaveLength(2);
@@ -128,14 +170,12 @@ describe.skipIf(!url)(
           rosterCapacity,
         });
       const initialTeam = initial.teams[0];
-      await db()
-        .insert(memberships)
-        .values({
-          editionSlug: edition.slug,
-          teamId: initialTeam.id,
-          userId: player.osuId,
-          origin: "synthetic_test",
-        });
+      await db().insert(memberships).values({
+        editionSlug: edition.slug,
+        teamId: initialTeam.id,
+        userId: player.osuId,
+        origin: "synthetic_test",
+      });
       await expect(general(1)).rejects.toMatchObject({ status: 409 });
       expect((await readTournament(edition.slug))!.revision).toBe(
         saved.revision,

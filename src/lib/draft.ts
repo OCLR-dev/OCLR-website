@@ -12,7 +12,6 @@ import {
   users,
 } from "@/db/schema";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
-import { z } from "zod";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
 import {
@@ -31,6 +30,11 @@ import type {
   DraftTeam,
 } from "./draft-types";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import {
+  changeDraftWrite,
+  pickPlayerWrite,
+  type PickPlayerReceipt,
+} from "./draft-setup-write-contracts";
 import { HttpError } from "./http";
 import {
   draftSessionReadColumns,
@@ -383,46 +387,10 @@ export async function captainDraft(
   return databaseCaptainDraft(actor, slug);
 }
 
-const commandSchema = z
-  .object({
-    expectedVersion: z.number().int().nonnegative(),
-    confirmed: z.literal(true),
-    command: z.discriminatedUnion("action", [
-      z
-        .object({
-          action: z.literal("configure"),
-          expectedSetupVersion: z.number().int().nonnegative(),
-          turnSequence: z.array(z.uuid()).max(4096),
-        })
-        .strict(),
-      ...(["unlock", "reset"] as const).map((action) =>
-        z
-          .object({
-            action: z.literal(action),
-            expectedSetupVersion: z.number().int().nonnegative(),
-          })
-          .strict(),
-      ),
-      ...(
-        [
-          "ready",
-          "start",
-          "pause",
-          "resume",
-          "publish",
-          "undo",
-          "abort",
-          "recover",
-          "finalize",
-        ] as const
-      ).map((action) => z.object({ action: z.literal(action) }).strict()),
-    ]),
-  })
-  .strict();
 export async function draftCommand(actor: User, slug: string, input: unknown) {
   await assertCapability(actor, "manage_draft", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  const parsed = commandSchema.safeParse(input);
+  const parsed = changeDraftWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Confirm a valid draft command.");
   const { expectedVersion, command } = parsed.data;
@@ -855,19 +823,14 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
   });
   return staffDraft(actor, slug);
 }
-const pickInput = z
-  .object({
-    sessionId: z.uuid(),
-    turnIndex: z.number().int().nonnegative(),
-    candidateId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-    expectedVersion: z.number().int().nonnegative(),
-    idempotencyKey: z.uuid(),
-  })
-  .strict();
-export async function pickPlayer(actor: User, slug: string, input: unknown) {
+export async function pickPlayer(
+  actor: User,
+  slug: string,
+  input: unknown,
+): Promise<PickPlayerReceipt> {
   if (!(await getPublicEdition(slug)))
     throw new HttpError(404, "Tournament not found.");
-  const parsed = pickInput.safeParse(input);
+  const parsed = pickPlayerWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(
       400,

@@ -11,7 +11,6 @@ import {
   users,
 } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
-import { z } from "zod";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
@@ -25,6 +24,7 @@ import {
   editionSchema,
   normalizeEditionBranding,
 } from "./editions";
+import { changeTeamsWrite } from "./draft-setup-write-contracts";
 import { HttpError } from "./http";
 import { getOsuUserProfile } from "./osu-profiles";
 import type { ExplicitReadData } from "./explicit-read-contracts";
@@ -43,58 +43,6 @@ const teamReadColumns = {
   finalizedAt: teams.finalizedAt,
   archivedAt: teams.archivedAt,
 };
-const teamInput = z
-  .object({
-    captainId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-    name: z.string().trim().min(1).max(80),
-    capacity: z.number().int().min(1).max(256).nullable(),
-  })
-  .strict();
-const commandSchema = z
-  .object({
-    expectedVersion: z.number().int().nonnegative(),
-    confirmed: z.literal(true),
-    command: z.discriminatedUnion("action", [
-      z
-        .object({
-          action: z.literal("add_coach"),
-          teamId: z.uuid(),
-          userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-        })
-        .strict(),
-      z
-        .object({
-          action: z.literal("remove_coach"),
-          teamId: z.uuid(),
-          userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
-        })
-        .strict(),
-      z
-        .object({
-          action: z.literal("configure"),
-          teams: z.array(teamInput).min(1).max(256),
-        })
-        .strict(),
-      z
-        .object({
-          action: z.literal("edit"),
-          teamId: z.uuid(),
-          name: teamInput.shape.name,
-          capacity: teamInput.shape.capacity,
-          avatarKey: z.uuid().nullable(),
-        })
-        .strict(),
-      z
-        .object({
-          action: z.literal("publish"),
-          teamId: z.uuid(),
-          identityPublished: z.boolean(),
-          rosterPublished: z.boolean(),
-        })
-        .strict(),
-    ]),
-  })
-  .strict();
 async function databaseStaffTeams(
   actor: User,
   slug: string,
@@ -173,7 +121,7 @@ export async function updateTeams(
 ) {
   await assertCapability(actor, "manage_teams", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  const parsed = commandSchema.safeParse(input);
+  const parsed = changeTeamsWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Confirm valid team configuration.");
   const { command, expectedVersion } = parsed.data;

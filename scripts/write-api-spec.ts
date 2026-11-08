@@ -1,3 +1,4 @@
+import readContracts from "../src/lib/extended-read-contracts.json" with { type: "json" };
 import { globSync, readFileSync, writeFileSync } from "node:fs";
 import ts from "typescript";
 import { z } from "zod";
@@ -10,6 +11,13 @@ import {
   desktopContractVersion,
   desktopErrorSchema,
 } from "../src/lib/desktop-wire";
+import {
+  changeCaptainsWrite,
+  changeTeamsWrite,
+  editTeamIdentityWrite,
+  changeDraftWrite,
+  pickPlayerWrite,
+} from "../src/lib/draft-setup-write-contracts";
 import { reviewBwsWrite } from "../src/lib/bws-write-contract";
 import {
   addManualRegistrationWrite,
@@ -63,6 +71,11 @@ const operations: readonly WriteApiOperation[] = [
   reviewBwsWrite,
   scheduleRequestWrite,
   streamingTaskWrite,
+  changeCaptainsWrite,
+  changeTeamsWrite,
+  editTeamIdentityWrite,
+  changeDraftWrite,
+  pickPlayerWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
@@ -106,14 +119,19 @@ function exportedNames(file: string) {
   return names;
 }
 
-function commandActions(schema: z.ZodType | undefined) {
+function commandActions(schema: z.ZodType | undefined): string[] {
   const choices =
     schema instanceof z.ZodDiscriminatedUnion ? schema.options : [schema];
   return choices.flatMap((choice) => {
     if (!(choice instanceof z.ZodObject)) return [];
     const action = choice.shape.action;
-    if (action instanceof z.ZodLiteral) return [...action.values];
-    return action instanceof z.ZodEnum ? action.options : [];
+    if (choice.shape.command instanceof z.ZodType)
+      return commandActions(choice.shape.command);
+    if (action instanceof z.ZodLiteral)
+      return [...action.values].filter((value) => typeof value === "string");
+    return action instanceof z.ZodEnum
+      ? action.options.filter((value) => typeof value === "string")
+      : [];
   });
 }
 
@@ -184,6 +202,27 @@ function jsonSchema(
   return value;
 }
 
+const readResponseSchemas: Record<string, unknown> = {};
+const readDefinitions: Record<string, unknown> = readContracts.$defs;
+
+function includeReadResponse(name: string, schema: unknown) {
+  if (Object.hasOwn(readResponseSchemas, name)) return;
+  if (!schema) throw new Error(`Missing read response schema ${name}`);
+  const serialized = JSON.stringify(schema);
+  readResponseSchemas[name] = JSON.parse(
+    serialized.replaceAll("#/$defs/", "#/components/schemas/"),
+  );
+  for (const [, ref] of serialized.matchAll(/"#\/\$defs\/([^"]+)"/g))
+    includeReadResponse(ref, readDefinitions[ref]);
+}
+
+function responseSchema(response: WriteApiOperation["response"]) {
+  if (response instanceof z.ZodType) return jsonSchema(response, "output");
+  const name = response.readResource;
+  includeReadResponse(name, readContracts.resources[name]);
+  return { $ref: `#/components/schemas/${name}` };
+}
+
 const browserOrigin = {
   name: "Origin",
   in: "header",
@@ -230,6 +269,13 @@ function openapiOperation(operation: WriteApiOperation) {
               [operation.requestMediaType ?? "application/json"]: {
                 schema: jsonSchema(operation.request, "input"),
               },
+              ...(operation.urlencodedRequest
+                ? {
+                    "application/x-www-form-urlencoded": {
+                      schema: jsonSchema(operation.urlencodedRequest, "input"),
+                    },
+                  }
+                : {}),
             },
           },
         }
@@ -256,7 +302,7 @@ function openapiOperation(operation: WriteApiOperation) {
           : {}),
         content: {
           "application/json": {
-            schema: jsonSchema(operation.response, "output"),
+            schema: responseSchema(operation.response),
           },
         },
       },
@@ -331,6 +377,7 @@ const openapi = {
     schemas: {
       BrowserWriteError: jsonSchema(browserWriteError, "output"),
       DesktopWriteError: jsonSchema(desktopErrorSchema, "output"),
+      ...readResponseSchemas,
     },
   },
   paths,

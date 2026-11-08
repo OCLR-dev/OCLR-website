@@ -29,6 +29,14 @@ import {
 } from "../../src/lib/captains";
 import { withdrawRegistration } from "../../src/lib/registrations";
 import { edition } from "../fixtures/edition";
+import { POST as writeRoute } from "../../src/app/api/admin/tournaments/[edition]/captains/route";
+import { changeCaptainsWrite } from "../../src/lib/draft-setup-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => staff,
+}));
 const url = process.env.TEST_DATABASE_URL;
 const staff = { osuId: 80001, username: "Synthetic Staff" };
 const a = { osuId: 80002, username: "Synthetic Captain A" };
@@ -39,6 +47,7 @@ describe.skipIf(!url)("captain setup, publication and eligibility", () => {
     assertTestDatabase(url);
     fixtureEditions = [edition, { ...edition, slug: "second-test-cup" }];
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(staff.osuId));
   });
   beforeEach(async () => {
@@ -68,11 +77,28 @@ describe.skipIf(!url)("captain setup, publication and eligibility", () => {
     confirmed: true,
   });
   it("separates captain/staff/edition roles and excludes captains from the pool", async () => {
-    const setup = await updateCaptains(
-      staff,
-      edition.slug,
-      command(0, { action: "appoint", userId: a.osuId }),
-    );
+    const body = command(0, { action: "appoint", userId: a.osuId });
+    const post = () =>
+      writeRoute(
+        new Request(
+          origin + changeCaptainsWrite.path.replace("{edition}", edition.slug),
+          {
+            method: "POST",
+            headers: { origin, "content-type": "application/json" },
+            body: JSON.stringify(body),
+          },
+        ),
+        { params: Promise.resolve({ edition: edition.slug }) },
+      );
+    const response = await post();
+    expect(response.status).toBe(200);
+    const setup = (await response.json()) as Awaited<
+      ReturnType<typeof captainSetup>
+    >;
+    expect(
+      extendedSchemas[changeCaptainsWrite.response.readResource].parse(setup),
+    ).toEqual(setup);
+    expect((await post()).status).toBe(409);
     expect(setup.pool.map((p) => p.userId)).not.toContain(a.osuId);
     expect(await captainAppointment(a.osuId, edition.slug)).not.toBeNull();
     expect(await captainAppointment(a.osuId, "second-test-cup")).toBeNull();

@@ -34,6 +34,36 @@ import {
 import { generateTurnSequence } from "../../src/lib/draft-order";
 import { prepareDraft } from "../fixtures/draft";
 import { edition } from "../fixtures/edition";
+import { POST as draftRoute } from "../../src/app/api/admin/tournaments/[edition]/draft/route";
+import { POST as pickRoute } from "../../src/app/api/tournaments/[edition]/draft/picks/route";
+import {
+  changeDraftWrite,
+  pickPlayerWrite,
+} from "../../src/lib/draft-setup-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+import type { User } from "../../src/lib/auth/sessions";
+const origin = "https://oclr.example.test";
+let routeActor: User;
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => routeActor,
+}));
+function post(
+  route: (...args: Parameters<typeof pickRoute>) => Promise<Response>,
+  path: string,
+  body: unknown,
+  actor: User,
+) {
+  routeActor = actor;
+  return route(
+    new Request(origin + path.replace("{edition}", edition.slug), {
+      method: "POST",
+      headers: { origin, "content-type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+    { params: Promise.resolve({ edition: edition.slug }) },
+  );
+}
 const url = process.env.TEST_DATABASE_URL;
 describe.skipIf(!url)(
   "authoritative two-mode draft transactions and publication",
@@ -43,6 +73,7 @@ describe.skipIf(!url)(
       assertTestDatabase(url);
       fixtureEditions = [edition];
       vi.stubEnv("DATABASE_URL", url!);
+      vi.stubEnv("APP_URL", origin);
       vi.stubEnv("ADMIN_OSU_IDS", "100001");
     });
     beforeEach(async () => {
@@ -296,18 +327,48 @@ describe.skipIf(!url)(
     });
     it("retries are idempotent for both callers and reject altered payloads with the same key", async () => {
       const a = await input();
-      const savedA = await pickPlayer(fixture.a, edition.slug, a);
+      const pick = (value: typeof a) =>
+        post(pickRoute, pickPlayerWrite.path, value, fixture.a);
+      const response = await pick(a);
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      const savedA = pickPlayerWrite.response.parse(body);
+      expect(savedA).toEqual(body);
       expect(savedA.publicVersion).toBe(
         (await publicDraft(edition.slug))!.version,
       );
-      expect(await pickPlayer(fixture.a, edition.slug, a)).toEqual(savedA);
-      await expect(
-        pickPlayer(fixture.a, edition.slug, {
-          ...a,
-          candidateId: fixture.players[1].osuId,
-        }),
-      ).rejects.toMatchObject({ status: 409 });
-      await command("publish");
+      const retry = await pick(a);
+      expect(retry.status).toBe(200);
+      expect(await retry.json()).toEqual(savedA);
+      const conflict = await pick({
+        ...a,
+        candidateId: fixture.players[1].osuId,
+      });
+      expect(conflict.status).toBe(409);
+      expect(await conflict.json()).toEqual({
+        error: "An idempotency key cannot be reused for another request.",
+      });
+      const session = (await staffDraft(fixture.staff, edition.slug)).session!;
+      const publication = await post(
+        draftRoute,
+        changeDraftWrite.path,
+        {
+          expectedVersion: session.version,
+          confirmed: true,
+          command: { action: "publish" },
+        },
+        fixture.staff,
+      );
+      expect(publication.status).toBe(200);
+      const workspace = await publication.json();
+      expect(
+        extendedSchemas[changeDraftWrite.response.readResource].parse(
+          workspace,
+        ),
+      ).toEqual(workspace);
+      expect(workspace.picks).toContainEqual(
+        expect.objectContaining({ id: savedA.pickId }),
+      );
       const b = await input(fixture.players[1].osuId);
       const savedB = await pickPlayer(fixture.staff, edition.slug, b);
       expect(savedB.publicVersion).toBe(

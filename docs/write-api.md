@@ -51,6 +51,12 @@ staff approval. Streaming task changes cover streaming slots and commentary
 assignments. Both contracts describe fixture revision checks and repeat
 requests. Streaming responses also identify when a request was replayed.
 
+Captain appointments, team configuration and draft transitions use the same
+workspace response schemas as their saved reads. Team identity edits document
+the optional avatar file and the complete form body budget. Draft pick receipts
+include the current correction status on replay. The inventory lists commands
+inside the versioned command envelope.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

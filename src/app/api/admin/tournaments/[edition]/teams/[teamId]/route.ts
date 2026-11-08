@@ -4,11 +4,8 @@ import { teams } from "@/db/schema";
 import { NextResponse } from "next/server";
 import { assertCapability, requireStaff } from "@/lib/auth/staff";
 import { staffTeams, updateTeams } from "@/lib/teams";
-import {
-  storeTeamImage,
-  removeTeamImage,
-  TEAM_IMAGE_MAX_BYTES,
-} from "@/lib/team-media";
+import { storeTeamImage, removeTeamImage } from "@/lib/team-media";
+import { editTeamIdentityWrite } from "@/lib/draft-setup-write-contracts";
 import { apiError, HttpError, requireSameOrigin } from "@/lib/http";
 export async function PATCH(
   request: Request,
@@ -32,7 +29,7 @@ export async function PATCH(
       const { done, value } = await reader.read();
       if (done) break;
       size += value.length;
-      if (size > TEAM_IMAGE_MAX_BYTES + 8192) {
+      if (size > editTeamIdentityWrite.maxBodyBytes) {
         await reader.cancel();
         throw new HttpError(413, "The request is too large.");
       }

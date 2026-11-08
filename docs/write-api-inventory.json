@@ -81,7 +81,21 @@
     "source": "src/app/api/admin/tournaments/[edition]/captains/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeCaptains",
+        "access": "browser",
+        "actions": [
+          "appoint",
+          "revoke",
+          "replace",
+          "order",
+          "availability",
+          "lock",
+          "publish"
+        ],
+        "consumers": [
+          "src/components/captain-manager.tsx"
+        ]
       }
     }
   },
@@ -99,7 +113,27 @@
     "source": "src/app/api/admin/tournaments/[edition]/draft/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeDraft",
+        "access": "browser",
+        "actions": [
+          "configure",
+          "unlock",
+          "reset",
+          "ready",
+          "start",
+          "pause",
+          "resume",
+          "publish",
+          "undo",
+          "abort",
+          "recover",
+          "finalize"
+        ],
+        "consumers": [
+          "src/components/draft-order-editor.tsx",
+          "src/components/staff-draft.tsx"
+        ]
       }
     }
   },
@@ -389,7 +423,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/teams/[teamId]/route.ts",
     "methods": {
       "PATCH": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "editTeamIdentity",
+        "access": "browser",
+        "consumers": [
+          "src/components/team-editor.tsx"
+        ]
       }
     }
   },
@@ -398,7 +437,21 @@
     "source": "src/app/api/admin/tournaments/[edition]/teams/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeTeams",
+        "access": "browser",
+        "actions": [
+          "add_coach",
+          "remove_coach",
+          "configure",
+          "edit",
+          "publish"
+        ],
+        "consumers": [
+          "src/app/admin/tournaments/[edition]/teams/page.tsx",
+          "src/components/team-manager.tsx",
+          "src/components/team-coach-manager.tsx"
+        ]
       }
     }
   },
@@ -575,7 +628,12 @@
     "source": "src/app/api/tournaments/[edition]/draft/picks/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "pickDraftPlayer",
+        "access": "browser",
+        "consumers": [
+          "src/components/draft-pick.tsx"
+        ]
       }
     }
   },

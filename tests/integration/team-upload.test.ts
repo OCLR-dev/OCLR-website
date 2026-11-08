@@ -16,6 +16,8 @@ import { db, closeDb } from "../../src/db";
 import { editionEvents, teams } from "../../src/db/schema";
 import { prepareDraft } from "../fixtures/draft";
 import { staffTeams } from "../../src/lib/teams";
+import { editTeamIdentityWrite } from "../../src/lib/draft-setup-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { assertTestDatabase } from "../database";
 vi.mock("../../src/lib/auth/staff", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../src/lib/auth/staff")>()),
@@ -74,11 +76,17 @@ describe.skipIf(!url)(
         }),
       );
       return PATCH(
-        new Request("https://oclr.example.test/api/admin/team", {
-          method: "PATCH",
-          headers: { origin: "https://oclr.example.test" },
-          body: form,
-        }),
+        new Request(
+          "https://oclr.example.test" +
+            editTeamIdentityWrite.path
+              .replace("{edition}", edition)
+              .replace("{teamId}", teamId),
+          {
+            method: "PATCH",
+            headers: { origin: "https://oclr.example.test" },
+            body: form,
+          },
+        ),
         { params: Promise.resolve({ edition, teamId }) },
       );
     }
@@ -106,9 +114,50 @@ describe.skipIf(!url)(
         );
       }
     });
+    it("accepts a URL-encoded text-only team edit", async () => {
+      const response = await PATCH(
+        new Request(
+          "https://oclr.example.test" +
+            editTeamIdentityWrite.path
+              .replace("{edition}", slug)
+              .replace("{teamId}", teamId),
+          {
+            method: "PATCH",
+            headers: { origin: "https://oclr.example.test" },
+            body: new URLSearchParams({
+              name: "Synthetic text-only edit",
+              expectedVersion: String(version),
+            }),
+          },
+        ),
+        { params: Promise.resolve({ edition: slug, teamId }) },
+      );
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(
+        extendedSchemas[editTeamIdentityWrite.response.readResource].parse(
+          data,
+        ),
+      ).toEqual(data);
+      expect(data.teams).toContainEqual(
+        expect.objectContaining({
+          id: teamId,
+          name: "Synthetic text-only edit",
+          avatarKey: null,
+        }),
+      );
+      expect(await files()).toHaveLength(0);
+    });
     it("commits only one concurrent upload, removes loser files and rejects malformed/oversized/cross-scope requests", async () => {
       const responses = await Promise.all([request(), request()]);
       expect(responses.map((r) => r.status).sort()).toEqual([200, 409]);
+      const data = await responses.find((r) => r.ok)!.json();
+      expect(
+        extendedSchemas[editTeamIdentityWrite.response.readResource].parse(
+          data,
+        ),
+      ).toEqual(data);
+      expect(data.version).toBe(version + 1);
       const [team] = await db()
         .select()
         .from(teams)

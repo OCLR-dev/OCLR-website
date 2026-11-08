@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type readContracts from "./extended-read-contracts.json";
 
 export const browserWriteError = z.object({ error: z.string() });
 
@@ -14,7 +15,7 @@ export type WriteApiOperation = {
   parameters?: Readonly<Record<string, z.ZodType>>;
   successStatus: number;
   successDescription: string;
-  response: z.ZodType;
+  response: z.ZodType | { readResource: keyof typeof readContracts.resources };
   errors: Readonly<Record<number, string>>;
   errorResponses?: Readonly<Record<number, z.ZodType>>;
   consumers: readonly string[];
@@ -24,6 +25,12 @@ export type WriteApiOperation = {
       request: z.ZodType;
       maxBodyBytes: number;
       requestMediaType?: "multipart/form-data";
+      urlencodedRequest?: z.ZodType;
     }
-  | { request?: never; maxBodyBytes?: never; requestMediaType?: never }
+  | {
+      request?: never;
+      maxBodyBytes?: never;
+      requestMediaType?: never;
+      urlencodedRequest?: never;
+    }
 );

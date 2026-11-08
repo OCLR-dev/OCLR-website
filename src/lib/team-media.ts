@@ -4,7 +4,8 @@ import { open, rename, unlink, readFile, lstat } from "node:fs/promises";
 import { join } from "node:path";
 import sharp from "sharp";
 import { HttpError } from "./http";
-export const TEAM_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+import { TEAM_IMAGE_MAX_BYTES } from "./request-body-limits";
+export { TEAM_IMAGE_MAX_BYTES } from "./request-body-limits";
 const directory = () => mediaDirectory("teams");
 export async function normalizeTeamImage(bytes: Buffer) {
   if (!bytes.length || bytes.length > TEAM_IMAGE_MAX_BYTES)

@@ -3,8 +3,8 @@ import { withFrontendReadRequest } from "@/lib/frontend-read-context";
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff";
 import { draftCommand, staffDraft } from "@/lib/draft";
+import { changeDraftWrite } from "@/lib/draft-setup-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
-import { draftCommandBodyLimit } from "@/lib/request-body-limits";
 async function readGET(
   _request: Request,
   context: { params: Promise<{ edition: string }> },
@@ -31,7 +31,7 @@ export async function POST(
       await draftCommand(
         actor,
         edition,
-        await readJson(request, draftCommandBodyLimit),
+        await readJson(request, changeDraftWrite.maxBodyBytes),
       ),
       { headers: { "Cache-Control": "no-store" } },
     );

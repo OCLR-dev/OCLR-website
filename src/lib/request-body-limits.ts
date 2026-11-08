@@ -11,3 +11,5 @@ export const draftCommandBodyLimit = 1024 * 1024;
 
 export const MANUAL_BATCH_LIMIT = 20;
 export const MANUAL_BATCH_TEXT_LIMIT = 8192;
+
+export const TEAM_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
