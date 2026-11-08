@@ -47,6 +47,14 @@ import {
 } from "../fixtures/referee";
 import { fingerprint, mpSource } from "../fixtures/referee-mp";
 import { assertTestDatabase } from "../database";
+import { PATCH as refereeRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/route";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+import { changeRefereeWorkspaceWrite } from "../../src/lib/referee-write-contracts";
+const origin = "https://oclr.example.test";
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => referee,
+}));
 vi.mock("../../src/lib/osu-matches", async (original) => ({
   ...(await original<typeof import("../../src/lib/osu-matches")>()),
   fetchMatchSource: vi.fn(),
@@ -56,6 +64,7 @@ describe.skipIf(!url)("fixture-local open exhibition sides", () => {
   beforeAll(() => {
     assertTestDatabase(url);
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -230,7 +239,7 @@ describe.skipIf(!url)("fixture-local open exhibition sides", () => {
       edit(id, { exhibitionSides: { ...sides, redId: randomUUID() } }),
     ).rejects.toMatchObject({ status: 400 });
   });
-  it("automatically scores an exhibition pick using recorded colors without captain invitations or roster attribution", async () => {
+  it("saves a pick-only exhibition order and scores the first pick from MP colors", async () => {
     const seeded = await seedRefereeFixture(true, true);
     let w = seeded.workspace;
     const action = async (c: Record<string, unknown>) => {
@@ -248,20 +257,67 @@ describe.skipIf(!url)("fixture-local open exhibition sides", () => {
       firstBanTeamId: w.teams[0].id,
       firstPickTeamId: w.teams[1].id,
     });
-    await action({
-      action: "record_selection",
-      entryId: w.maps.find((m) => m.beatmapId === 10004)!.id,
+    expect(w.projection.nextStep?.kind).toBe("ban");
+    const input = {
+      action: "set_order",
+      skipBans: true,
+      firstBanTeamId: null,
+      firstPickTeamId: w.teams[1].id,
+      requestKey: randomUUID(),
+      expectedRevision: w.session?.revision ?? 0,
+      dependencyFingerprint: w.dependencyFingerprint,
+    };
+    const response = await refereeRoute(
+      new Request(
+        origin +
+          changeRefereeWorkspaceWrite.path
+            .replace("{edition}", "test-cup")
+            .replace("{fixtureId}", w.fixture.id),
+        {
+          method: "PATCH",
+          headers: { origin, "content-type": "application/json" },
+          body: JSON.stringify(input),
+        },
+      ),
+      {
+        params: Promise.resolve({
+          edition: "test-cup",
+          fixtureId: w.fixture.id,
+        }),
+      },
+    );
+    expect(response.status).toBe(200);
+    const saved = await response.json();
+    expect(extendedSchemas.refereeWorkspace.parse(saved.workspace)).toEqual(
+      saved.workspace,
+    );
+    expect(saved.workspace.session.basis.skipBans).toBe(true);
+    expect(saved.workspace.projection.nextStep.kind).toBe("pick");
+    w = await refereeWorkspace(referee, "test-cup", w.fixture.id);
+    expect(w.projection.nextStep).toMatchObject({
+      kind: "pick",
+      index: 1,
+      teamId: w.teams[1].id,
     });
     await action({
       action: "record_selection",
       entryId: w.maps.find((m) => m.beatmapId === 10001)!.id,
     });
+    await expect(
+      action({
+        action: "set_order",
+        skipBans: false,
+        firstBanTeamId: w.teams[0].id,
+        firstPickTeamId: w.teams[1].id,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
     const session = (await db().select().from(refereeSessions))[0];
     expect(session).toMatchObject({
       firstBanTeamId: null,
       firstPickTeamId: null,
+      basis: { skipBans: true },
       exhibitionOrder: {
-        firstBanTeamId: w.teams[0].id,
+        firstBanTeamId: null,
         firstPickTeamId: w.teams[1].id,
       },
     });
@@ -287,6 +343,11 @@ describe.skipIf(!url)("fixture-local open exhibition sides", () => {
       expectedRevision: status.binding!.revision,
     });
     expect(synced.workspace.projection.score[w.teams[1].id]).toBe(1);
+    expect(synced.workspace.projection.nextStep).toMatchObject({
+      kind: "pick",
+      index: 3,
+      teamId: w.teams[0].id,
+    });
     expect(await db().select().from(refereeMpScores)).toHaveLength(1);
     expect(await db().select().from(matchResults)).toEqual(before);
   });

@@ -150,6 +150,7 @@ export type RefereeBasis = Pick<
   | "series"
   | "tiedMapPolicy"
   | "exPlayersPerTeam"
+  | "skipBans"
 >;
 
 export type FixtureReadContracts = {
@@ -189,7 +190,7 @@ export type FixtureReadContracts = {
       homeTeamId: string | null;
       awayTeamId: string | null;
     };
-    round: LabelledId;
+    round: LabelledId & { exhibition?: true };
     teams: (LabelledId & {
       captainId: number | null;
       captainUsername: string | null;

@@ -497,6 +497,11 @@ while retaining its exact prior statistics identity through `sourceTitle`;
 existing maps without these fields remain compatible. See
 [the S2 NM2 recovery](archive-map-metadata.md#s2-nm2-official-file-recovery-852).
 
+Contract 1.30.0 exposes an optional `round.exhibition` marker and the saved
+`session.basis.skipBans` choice in referee workspaces. An order event with
+`skipBans: true` has a first Pick side and a null first Ban side. Earlier saved
+orders retain their original fields and sequence.
+
 Contract 1.29.0 exposes reviewed historical knockout paths through the existing
 `/tournaments/{edition}/bracket` resource. The optional `showAdvancement`
 flag identifies the reviewed group and `groupSeed` identifies a recorded

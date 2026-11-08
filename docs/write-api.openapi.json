@@ -9640,6 +9640,18 @@
               },
               "name": {
                 "type": "string"
+              },
+              "exhibition": {
+                "anyOf": [
+                  {
+                    "type": "null",
+                    "x-oclr-undefined": true
+                  },
+                  {
+                    "type": "boolean",
+                    "const": true
+                  }
+                ]
               }
             },
             "required": [
@@ -9827,6 +9839,18 @@
                         "items": {
                           "type": "string"
                         }
+                      },
+                      "skipBans": {
+                        "anyOf": [
+                          {
+                            "type": "null",
+                            "x-oclr-undefined": true
+                          },
+                          {
+                            "type": "boolean",
+                            "const": true
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -9901,10 +9925,29 @@
                           "const": "order_set"
                         },
                         "firstBanTeamId": {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
                         },
                         "firstPickTeamId": {
                           "type": "string"
+                        },
+                        "skipBans": {
+                          "anyOf": [
+                            {
+                              "type": "null",
+                              "x-oclr-undefined": true
+                            },
+                            {
+                              "type": "boolean",
+                              "const": true
+                            }
+                          ]
                         }
                       },
                       "required": [
@@ -27357,14 +27400,24 @@
                         "const": "set_order"
                       },
                       "firstBanTeamId": {
-                        "type": "string",
-                        "format": "uuid",
-                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "firstPickTeamId": {
                         "type": "string",
                         "format": "uuid",
                         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "skipBans": {
+                        "type": "boolean"
                       },
                       "requestKey": {
                         "type": "string",

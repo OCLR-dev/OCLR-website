@@ -8673,7 +8673,13 @@
           "type": "object",
           "properties": {
             "id": { "type": "string" },
-            "name": { "type": "string" }
+            "name": { "type": "string" },
+            "exhibition": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "boolean", "const": true }
+              ]
+            }
           },
           "required": ["id", "name"],
           "additionalProperties": false
@@ -8758,6 +8764,12 @@
                     "teamIds": {
                       "type": "array",
                       "items": { "type": "string" }
+                    },
+                    "skipBans": {
+                      "anyOf": [
+                        { "type": "null", "x-oclr-undefined": true },
+                        { "type": "boolean", "const": true }
+                      ]
                     }
                   },
                   "required": ["policy", "series", "maps", "teamIds"],
@@ -8802,8 +8814,16 @@
                     "type": "object",
                     "properties": {
                       "type": { "type": "string", "const": "order_set" },
-                      "firstBanTeamId": { "type": "string" },
-                      "firstPickTeamId": { "type": "string" }
+                      "firstBanTeamId": {
+                        "anyOf": [{ "type": "null" }, { "type": "string" }]
+                      },
+                      "firstPickTeamId": { "type": "string" },
+                      "skipBans": {
+                        "anyOf": [
+                          { "type": "null", "x-oclr-undefined": true },
+                          { "type": "boolean", "const": true }
+                        ]
+                      }
                     },
                     "required": ["type", "firstBanTeamId", "firstPickTeamId"],
                     "additionalProperties": false

@@ -603,6 +603,17 @@ describe.skipIf(!url)("private persistent referee workspace", () => {
       .from(matchResults)
       .where(eq(matchResults.fixtureId, fixtureId));
     await configure();
+    await expect(
+      command({
+        action: "set_order",
+        skipBans: true,
+        firstBanTeamId: null,
+        firstPickTeamId: w.teams[1].id,
+      }),
+    ).rejects.toMatchObject({
+      status: 409,
+      message: "Only exhibition fixtures can skip bans.",
+    });
     const home = w.teams[0].id,
       away = w.teams[1].id;
     await command({ action: "record_selection", entryId: w.maps[0].id });

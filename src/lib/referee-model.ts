@@ -107,7 +107,12 @@ export type RefereeSelection = {
 };
 export type RefereeEventPayload =
   | { type: "ex_declared"; pickId: string; enabled: boolean }
-  | { type: "order_set"; firstBanTeamId: string; firstPickTeamId: string }
+  | {
+      type: "order_set";
+      firstBanTeamId: string | null;
+      firstPickTeamId: string;
+      skipBans?: true;
+    }
   | {
       type: "selection_recorded";
       stepIndex: number;
@@ -140,6 +145,7 @@ export type RefereeEvent = {
 export type RefereeModelInput = {
   policy: RefereePolicy | null;
   orders: RefereeOrders;
+  skipBans?: true;
   events: RefereeEvent[];
   teamIds: string[];
   maps: RefereeMap[];
@@ -275,9 +281,17 @@ export function projectReferee(input: RefereeModelInput): RefereeProjection {
     issues.push("The round referee policy has not been configured.");
   if (!input.series)
     issues.push("The round scoring rules have not been configured.");
-  if (!input.orders.firstBanTeamId || !input.orders.firstPickTeamId)
+  if (input.skipBans) {
+    if (!input.orders.firstPickTeamId)
+      issues.push("Apply the first-pick team.");
+  } else if (!input.orders.firstBanTeamId || !input.orders.firstPickTeamId) {
     issues.push("Apply both the first-ban and first-pick teams.");
-  const step = input.policy?.steps[activeSelections.length];
+  }
+  // Keep each step's policy index for order conflicts, replay and withdrawal.
+  const steps = input.policy?.steps.map((step, index) => ({ ...step, index }));
+  const step = (
+    input.skipBans ? steps?.filter((s) => s.kind !== "ban") : steps
+  )?.[activeSelections.length];
   const unresolved = activeSelections.some(
     (s) =>
       s.kind !== "ban" &&
@@ -316,7 +330,6 @@ export function projectReferee(input: RefereeModelInput): RefereeProjection {
       !complete && step
         ? {
             ...step,
-            index: activeSelections.length,
             teamId: resolveRefereeActor(
               step.actor,
               input.orders,
@@ -331,8 +344,9 @@ export const refereeActionSchema = z.discriminatedUnion("action", [
   z
     .object({
       action: z.literal("set_order"),
-      firstBanTeamId: z.uuid(),
+      firstBanTeamId: z.uuid().nullable(),
       firstPickTeamId: z.uuid(),
+      skipBans: z.boolean().optional(),
     })
     .strict(),
   z
@@ -361,26 +375,38 @@ export type RefereeAction = z.infer<typeof refereeActionSchema>;
 export function validateRefereeAction(
   input: RefereeModelInput,
   action: RefereeAction,
+  allowSkipBans = false,
 ): RefereeEventPayload {
   const state = projectReferee(input);
   const fail = (message: string): never => {
     throw new Error(message);
   };
   if (action.action === "set_order") {
+    const skipBans = action.skipBans ?? input.skipBans ?? false;
+    if (skipBans && !allowSkipBans)
+      fail("Only exhibition fixtures can skip bans.");
+    if (skipBans !== Boolean(input.skipBans) && state.activeSelections.length)
+      fail("Withdraw recorded steps before changing whether bans are skipped.");
+    if (skipBans && !input.policy?.steps.some((step) => step.kind !== "ban"))
+      fail("Configure a pick or tiebreaker before skipping bans.");
+    const orders = {
+      firstBanTeamId: skipBans ? null : action.firstBanTeamId,
+      firstPickTeamId: action.firstPickTeamId,
+    };
     if (
-      !input.teamIds.includes(action.firstBanTeamId) ||
-      !input.teamIds.includes(action.firstPickTeamId)
+      (!skipBans && !input.teamIds.includes(orders.firstBanTeamId ?? "")) ||
+      !input.teamIds.includes(orders.firstPickTeamId)
     )
       fail("Choose the two teams from this fixture.");
-    const conflicts = refereeOrderConflicts(input, action);
+    const conflicts = refereeOrderConflicts(input, orders);
     if (conflicts.length)
       fail(
         `Withdraw conflicting steps in reverse order before changing the order: ${conflicts.join(", ")}.`,
       );
     return {
       type: "order_set",
-      firstBanTeamId: action.firstBanTeamId,
-      firstPickTeamId: action.firstPickTeamId,
+      ...orders,
+      ...(skipBans ? { skipBans: true } : {}),
     };
   }
   if (action.action === "void_last") {

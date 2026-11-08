@@ -408,7 +408,11 @@ export async function readRefereeWorkspace(
       ...(sides ? { openExhibition: true as const } : {}),
       version: fixture.version,
     },
-    round: { id: round.id, name: round.name },
+    round: {
+      id: round.id,
+      name: round.name,
+      ...(round.stage === "exhibition" ? { exhibition: true as const } : {}),
+    },
     teams: orderedTeams.map((t) => ({
       id: t.id,
       name: t.name,
@@ -565,6 +569,9 @@ export async function refereeCommand(
       series: workspace.series,
       tiedMapPolicy: workspace.rules?.tiedMapPolicy ?? "require_replay",
       exPlayersPerTeam: workspace.rules?.exPlayersPerTeam,
+      ...(workspace.round.exhibition && workspace.session?.basis.skipBans
+        ? { skipBans: true as const }
+        : {}),
     };
     let basis = workspace.session?.basis ?? currentBasis;
     let dependencyFingerprint =
@@ -628,6 +635,7 @@ export async function refereeCommand(
             events: workspace.events,
           },
           command,
+          workspace.round.exhibition,
         );
       } catch (error) {
         throw new HttpError(
@@ -640,6 +648,7 @@ export async function refereeCommand(
       if (payload.type === "order_set") {
         firstBanTeamId = payload.firstBanTeamId;
         firstPickTeamId = payload.firstPickTeamId;
+        basis = { ...basis, skipBans: payload.skipBans };
       }
     }
     const nextRevision = revision + 1;
