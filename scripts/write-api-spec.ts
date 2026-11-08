@@ -25,6 +25,11 @@ import {
   previewManualRegistrationWrite,
   previewManualRegistrationsWrite,
 } from "../src/lib/manual-registration-write-contract";
+import {
+  changeMappoolWrite,
+  previewMappoolWrite,
+  changeMappoolWorkbenchWrite,
+} from "../src/lib/mappool-write-contracts";
 import { refereeRelayWrite } from "../src/lib/referee-relay-contract";
 import {
   removeRegistrationWrite,
@@ -82,6 +87,9 @@ const operations: readonly WriteApiOperation[] = [
   pickPlayerWrite,
   changeAwardsWrite,
   changeHistoricalStatisticsWrite,
+  changeMappoolWrite,
+  previewMappoolWrite,
+  changeMappoolWorkbenchWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],
@@ -125,20 +133,18 @@ function exportedNames(file: string) {
   return names;
 }
 
-function commandActions(schema: z.ZodType | undefined): string[] {
-  const choices =
-    schema instanceof z.ZodDiscriminatedUnion ? schema.options : [schema];
-  return choices.flatMap((choice) => {
-    if (!(choice instanceof z.ZodObject)) return [];
-    const action = choice.shape.action;
-    if (choice.shape.command instanceof z.ZodType)
-      return commandActions(choice.shape.command);
-    if (action instanceof z.ZodLiteral)
-      return [...action.values].filter((value) => typeof value === "string");
-    return action instanceof z.ZodEnum
-      ? action.options.filter((value) => typeof value === "string")
-      : [];
-  });
+function commandActions(schema: z.core.$ZodType | undefined): string[] {
+  if (schema instanceof z.ZodUnion)
+    return schema.options.flatMap(commandActions);
+  if (!(schema instanceof z.ZodObject)) return [];
+  const action = schema.shape.action;
+  if (schema.shape.command instanceof z.ZodType)
+    return commandActions(schema.shape.command);
+  if (action instanceof z.ZodLiteral)
+    return [...action.values].filter((value) => typeof value === "string");
+  return action instanceof z.ZodEnum
+    ? action.options.filter((value) => typeof value === "string")
+    : [];
 }
 
 const matched = new Set<string>();

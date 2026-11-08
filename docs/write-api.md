@@ -62,6 +62,11 @@ withdrawal of an active release. Historical statistics document archived MP
 import, review and fixture release. Both operations return their saved staff
 workspace and retain separate capabilities for review and publication.
 
+Official mappool edits return the saved workspace and check the relevant
+round or pool version. The preview endpoint returns a single verified beatmap
+or per-row batch results. The separate selection workbench documents candidate
+preview, classification, round links, skillsets and versioned comments.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

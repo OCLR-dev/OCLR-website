@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { mappoolWorkspace, mappoolCommand } from "@/lib/mappools";
+import { changeMappoolWrite } from "@/lib/mappool-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 async function readGET(
   _request: Request,
@@ -26,7 +27,11 @@ export async function POST(
     requireSameOrigin(request);
     const user = await requireUser();
     const { edition } = await context.params;
-    const result = await mappoolCommand(user, edition, await readJson(request));
+    const result = await mappoolCommand(
+      user,
+      edition,
+      await readJson(request, changeMappoolWrite.maxBodyBytes),
+    );
     revalidatePath(`/admin/tournaments/${edition}`, "layout");
     revalidatePath(`/tournaments/${edition}`, "layout");
     return NextResponse.json(result, {

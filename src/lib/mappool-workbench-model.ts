@@ -22,7 +22,7 @@ export function parseCandidateRows(
   const seen = new Set(existing);
   return lines.map((row) => {
     const beatmapId = parseBeatmapId(row.input);
-    const status = !beatmapId
+    const status: "invalid" | "duplicate" | "ready" = !beatmapId
       ? "invalid"
       : seen.has(beatmapId)
         ? "duplicate"

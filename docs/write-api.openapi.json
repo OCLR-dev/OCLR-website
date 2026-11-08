@@ -5943,6 +5943,897 @@
           "difficulty"
         ],
         "additionalProperties": false
+      },
+      "mappoolWorkspace": {
+        "type": "object",
+        "properties": {
+          "refereeRules": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "roundId": {
+                      "type": "string"
+                    },
+                    "revision": {
+                      "type": "number"
+                    },
+                    "policy": {
+                      "$ref": "#/components/schemas/Readcae8aa1efc15"
+                    },
+                    "series": {
+                      "$ref": "#/components/schemas/Read9ee538274272"
+                    }
+                  },
+                  "required": [
+                    "roundId",
+                    "revision",
+                    "policy",
+                    "series"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            ]
+          },
+          "rounds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "stage": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "group"
+                    },
+                    {
+                      "type": "string",
+                      "const": "knockout"
+                    },
+                    {
+                      "type": "string",
+                      "const": "exhibition"
+                    }
+                  ]
+                },
+                "position": {
+                  "type": "number"
+                },
+                "version": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "stage",
+                "position",
+                "version"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "pools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "roundId": {
+                  "type": "string"
+                },
+                "fmMode": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "const": "free_mod"
+                    },
+                    {
+                      "type": "string",
+                      "const": "force_mod"
+                    }
+                  ]
+                },
+                "fmRestrictions": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "number"
+                },
+                "publishedAt": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "x-oclr-date": true
+                    }
+                  ]
+                },
+                "lockedAt": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "x-oclr-date": true
+                    }
+                  ]
+                },
+                "selectionLockedAt": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "x-oclr-date": true
+                    }
+                  ]
+                },
+                "showcaseAt": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "x-oclr-date": true
+                    }
+                  ]
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-oclr-date": true
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "roundId",
+                "fmMode",
+                "fmRestrictions",
+                "version",
+                "publishedAt",
+                "lockedAt",
+                "selectionLockedAt",
+                "showcaseAt",
+                "updatedAt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "position": {
+                  "type": "number"
+                },
+                "poolId": {
+                  "type": "string"
+                },
+                "category": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "NM"
+                    },
+                    {
+                      "type": "string",
+                      "const": "HD"
+                    },
+                    {
+                      "type": "string",
+                      "const": "DT"
+                    },
+                    {
+                      "type": "string",
+                      "const": "HR"
+                    },
+                    {
+                      "type": "string",
+                      "const": "FM"
+                    },
+                    {
+                      "type": "string",
+                      "const": "TB"
+                    }
+                  ]
+                },
+                "beatmapId": {
+                  "type": "number"
+                },
+                "metadata": {
+                  "$ref": "#/components/schemas/Read8d1fc0485252"
+                },
+                "source": {
+                  "$ref": "#/components/schemas/Readf43873178edf"
+                },
+                "downloadMirror": {
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "metadataFetchedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-oclr-date": true
+                }
+              },
+              "required": [
+                "id",
+                "position",
+                "poolId",
+                "category",
+                "beatmapId",
+                "metadata",
+                "metadataFetchedAt"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "rounds",
+          "pools",
+          "entries"
+        ],
+        "additionalProperties": false
+      },
+      "Readcae8aa1efc15": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/components/schemas/Read27c840568da0"
+          }
+        ]
+      },
+      "Read27c840568da0": {
+        "type": "object",
+        "properties": {
+          "steps": {
+            "$ref": "#/components/schemas/Readd2ffb5ec04e9"
+          },
+          "commands": {
+            "$ref": "#/components/schemas/Read46402fe1361c"
+          },
+          "maxReplaysPerMap": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "banCategoryRules": {
+            "$ref": "#/components/schemas/Read6898c06d344a"
+          }
+        },
+        "required": [
+          "steps",
+          "commands"
+        ],
+        "additionalProperties": false
+      },
+      "Readd2ffb5ec04e9": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Read049ed38679be"
+        }
+      },
+      "Read049ed38679be": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "pick"
+              },
+              {
+                "type": "string",
+                "const": "ban"
+              },
+              {
+                "type": "string",
+                "const": "tb"
+              }
+            ]
+          },
+          "actor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "firstBan"
+              },
+              {
+                "type": "string",
+                "const": "secondBan"
+              },
+              {
+                "type": "string",
+                "const": "firstPick"
+              },
+              {
+                "type": "string",
+                "const": "secondPick"
+              },
+              {
+                "type": "string",
+                "const": "neutral"
+              }
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "entryIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "avoidRepeatCategory": {
+            "type": "boolean"
+          },
+          "tiedAt": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "actor",
+          "categories",
+          "entryIds",
+          "avoidRepeatCategory",
+          "tiedAt"
+        ],
+        "additionalProperties": false
+      },
+      "Read46402fe1361c": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/components/schemas/Read6c6399d8cdf9"
+          }
+        ]
+      },
+      "Read6c6399d8cdf9": {
+        "type": "object",
+        "properties": {
+          "roomSize": {
+            "type": "number"
+          },
+          "noFail": {
+            "type": "boolean"
+          },
+          "categoryMods": {
+            "$ref": "#/components/schemas/Read712035bfa1eb"
+          },
+          "banSeconds": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "pickSeconds": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "prepareSeconds": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "startSeconds": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "roomSize",
+          "noFail",
+          "categoryMods",
+          "banSeconds",
+          "pickSeconds",
+          "prepareSeconds",
+          "startSeconds"
+        ],
+        "additionalProperties": false
+      },
+      "Read712035bfa1eb": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Read282b9f673732"
+        }
+      },
+      "Read282b9f673732": {
+        "type": "object",
+        "properties": {
+          "mods": {
+            "$ref": "#/components/schemas/Readbbdc288242d8"
+          },
+          "freemod": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mods",
+          "freemod"
+        ],
+        "additionalProperties": false
+      },
+      "Readbbdc288242d8": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Read4a9962284c09"
+        }
+      },
+      "Read4a9962284c09": {
+        "anyOf": [
+          {
+            "type": "string",
+            "const": "HD"
+          },
+          {
+            "type": "string",
+            "const": "DT"
+          },
+          {
+            "type": "string",
+            "const": "HR"
+          },
+          {
+            "type": "string",
+            "const": "EZ"
+          },
+          {
+            "type": "string",
+            "const": "HT"
+          },
+          {
+            "type": "string",
+            "const": "NC"
+          },
+          {
+            "type": "string",
+            "const": "FL"
+          },
+          {
+            "type": "string",
+            "const": "FI"
+          },
+          {
+            "type": "string",
+            "const": "SD"
+          },
+          {
+            "type": "string",
+            "const": "PF"
+          },
+          {
+            "type": "string",
+            "const": "SO"
+          },
+          {
+            "type": "string",
+            "const": "MR"
+          },
+          {
+            "type": "string",
+            "const": "1K"
+          },
+          {
+            "type": "string",
+            "const": "2K"
+          },
+          {
+            "type": "string",
+            "const": "3K"
+          },
+          {
+            "type": "string",
+            "const": "4K"
+          },
+          {
+            "type": "string",
+            "const": "5K"
+          },
+          {
+            "type": "string",
+            "const": "6K"
+          },
+          {
+            "type": "string",
+            "const": "7K"
+          },
+          {
+            "type": "string",
+            "const": "8K"
+          },
+          {
+            "type": "string",
+            "const": "9K"
+          }
+        ]
+      },
+      "Read6898c06d344a": {
+        "anyOf": [
+          {
+            "type": "null",
+            "x-oclr-undefined": true
+          },
+          {
+            "$ref": "#/components/schemas/Readf17b446bd407"
+          }
+        ]
+      },
+      "Readf17b446bd407": {
+        "type": "object",
+        "properties": {
+          "allowRepeats": {
+            "type": "boolean"
+          },
+          "repeatExceptions": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "NM"
+                },
+                {
+                  "type": "string",
+                  "const": "HD"
+                },
+                {
+                  "type": "string",
+                  "const": "DT"
+                },
+                {
+                  "type": "string",
+                  "const": "HR"
+                },
+                {
+                  "type": "string",
+                  "const": "FM"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "allowRepeats",
+          "repeatExceptions"
+        ],
+        "additionalProperties": false
+      },
+      "Read9ee538274272": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "first_to"
+              },
+              "wins": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "type",
+              "wins"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "$ref": "#/components/schemas/Readb8922fa1da53"
+          }
+        ]
+      },
+      "Readb8922fa1da53": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "fixed_maps"
+          },
+          "count": {
+            "type": "number"
+          },
+          "allowDraw": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "type",
+          "count",
+          "allowDraw"
+        ],
+        "additionalProperties": false
+      },
+      "Read8d1fc0485252": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "setId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "artist": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "string"
+          },
+          "mapper": {
+            "type": "string"
+          },
+          "stars": {
+            "type": "number"
+          },
+          "bpm": {
+            "type": "number"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "checksum": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "string",
+                "const": "osu"
+              },
+              {
+                "type": "string",
+                "const": "taiko"
+              },
+              {
+                "type": "string",
+                "const": "fruits"
+              },
+              {
+                "type": "string",
+                "const": "mania"
+              }
+            ]
+          },
+          "ar": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "od": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "cs": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "hp": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/Read46c7787f31bd"
+          },
+          "difficultySnapshot": {
+            "$ref": "#/components/schemas/Readbdf99939540e"
+          }
+        },
+        "required": [
+          "setId",
+          "title",
+          "artist",
+          "difficulty",
+          "mapper",
+          "stars",
+          "bpm",
+          "duration"
+        ],
+        "additionalProperties": false
+      },
+      "Readf43873178edf": {
+        "anyOf": [
+          {
+            "type": "null",
+            "x-oclr-undefined": true
+          },
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/components/schemas/Readed45c4cb4ec0"
+          }
+        ]
+      },
+      "Readed45c4cb4ec0": {
+        "type": "object",
+        "properties": {
+          "editionSlug": {
+            "type": "string"
+          },
+          "editionName": {
+            "type": "string"
+          },
+          "poolId": {
+            "type": "string"
+          },
+          "poolName": {
+            "type": "string"
+          },
+          "slot": {
+            "type": "string"
+          },
+          "beatmapId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "editionSlug",
+          "editionName",
+          "poolId",
+          "poolName",
+          "slot",
+          "beatmapId"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -14845,6 +15736,2913 @@
           },
           "504": {
             "description": "The osu! request timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/mappools": {
+      "post": {
+        "operationId": "changeMappool",
+        "summary": "Manage rounds and official mappools",
+        "description": "Requires manage_mappools and explicit confirmation. Existing pool and round edits check their current version. Batch and historical imports also check the resolved slots and source fingerprints. Publication and map edits enforce the current pool and fixture locks.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "history_import"
+                      },
+                      "sourceEdition": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "sourcePool": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "sourceFingerprint": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      },
+                      "sourceKeys": {
+                        "minItems": 1,
+                        "maxItems": 50,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        }
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "sourceEdition",
+                      "sourcePool",
+                      "sourceFingerprint",
+                      "sourceKeys"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "batch_import"
+                      },
+                      "text": {
+                        "type": "string",
+                        "maxLength": 16000
+                      },
+                      "category": {
+                        "type": "string",
+                        "enum": [
+                          "NM",
+                          "HD",
+                          "DT",
+                          "HR",
+                          "FM",
+                          "TB"
+                        ]
+                      },
+                      "rows": {
+                        "minItems": 1,
+                        "maxItems": 50,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "category": {
+                              "type": "string",
+                              "enum": [
+                                "NM",
+                                "HD",
+                                "DT",
+                                "HR",
+                                "FM",
+                                "TB"
+                              ]
+                            },
+                            "position": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 999
+                            },
+                            "beatmap": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 250
+                            },
+                            "expectedMetadataFingerprint": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$"
+                            }
+                          },
+                          "required": [
+                            "category",
+                            "position",
+                            "beatmap",
+                            "expectedMetadataFingerprint"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "text",
+                      "category",
+                      "rows"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "batch_remove"
+                      },
+                      "entryIds": {
+                        "minItems": 1,
+                        "maxItems": 50,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "entryIds"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "batch_move"
+                      },
+                      "entryIds": {
+                        "minItems": 1,
+                        "maxItems": 50,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                      },
+                      "category": {
+                        "type": "string",
+                        "enum": [
+                          "NM",
+                          "HD",
+                          "DT",
+                          "HR",
+                          "FM",
+                          "TB"
+                        ]
+                      },
+                      "position": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 999
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "entryIds",
+                      "category",
+                      "position"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "batch_refresh"
+                      },
+                      "entryIds": {
+                        "minItems": 1,
+                        "maxItems": 50,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "entryIds"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "round_create"
+                      },
+                      "stage": {
+                        "type": "string",
+                        "enum": [
+                          "group",
+                          "knockout",
+                          "exhibition"
+                        ]
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "position": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 999
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "action",
+                      "stage",
+                      "name",
+                      "position"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "round_edit"
+                      },
+                      "roundId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "position": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 999
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "action",
+                      "roundId",
+                      "expectedVersion",
+                      "name",
+                      "position"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "round_delete"
+                      },
+                      "roundId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "action",
+                      "roundId",
+                      "expectedVersion"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "pool_create"
+                      },
+                      "roundId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "action",
+                      "roundId",
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "pool_settings"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "fmMode": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "free_mod",
+                              "force_mod"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "fmRestrictions": {
+                        "type": "string",
+                        "maxLength": 2000
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "name",
+                      "fmMode",
+                      "fmRestrictions"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "pool_publish"
+                      },
+                      "published": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "published"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "entry_save"
+                      },
+                      "downloadMirror": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 2048,
+                            "format": "uri",
+                            "pattern": "^[^\\s\\u0000-\\u001f\\u007f]+$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "difficultyConfiguration": {
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "NM",
+                              "HD",
+                              "HR",
+                              "DT",
+                              "HDHR",
+                              "HDDT",
+                              "HRDT",
+                              "HDHRDT",
+                              "EZ",
+                              "HT"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "expectedMetadataFingerprint": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      },
+                      "entryId": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "beatmap": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 250
+                      },
+                      "category": {
+                        "type": "string",
+                        "enum": [
+                          "NM",
+                          "HD",
+                          "DT",
+                          "HR",
+                          "FM",
+                          "TB"
+                        ]
+                      },
+                      "position": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 999
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "entryId",
+                      "beatmap",
+                      "category",
+                      "position"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "entry_remove"
+                      },
+                      "entryId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "entryId"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "entry_refresh"
+                      },
+                      "entryId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "entryId"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "reorder"
+                      },
+                      "category": {
+                        "type": "string",
+                        "enum": [
+                          "NM",
+                          "HD",
+                          "DT",
+                          "HR",
+                          "FM",
+                          "TB"
+                        ]
+                      },
+                      "entryIds": {
+                        "minItems": 1,
+                        "maxItems": 999,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "category",
+                      "entryIds"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The current staff mappool workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mappoolWorkspace"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid command, source, slot, or round configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or requested resource was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A stale version, changed metadata, conflicting slot, or pool lock prevents the change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The lookup budget or refresh rate limit was reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "osu! returned unavailable or incomplete metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site or osu! provider configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The osu! lookup timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/mappools/preview": {
+      "post": {
+        "operationId": "previewMappool",
+        "summary": "Preview an official beatmap or a batch of pool slots",
+        "description": "Requires manage_mappools. A beatmap ID or canonical difficulty URL returns its verified snapshot. A body with text selects the batch branch and requires an editable pool and its current version. The batch reports per-row errors and warnings. Previewing makes no pool or audit changes.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 20000,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "beatmap": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 250
+                      },
+                      "difficultyConfiguration": {
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "NM",
+                              "HD",
+                              "HR",
+                              "DT",
+                              "HDHR",
+                              "HDDT",
+                              "HRDT",
+                              "HDHRDT",
+                              "EZ",
+                              "HT"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "beatmap"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "text": {
+                        "type": "string",
+                        "maxLength": 16000
+                      },
+                      "category": {
+                        "default": "NM",
+                        "type": "string",
+                        "enum": [
+                          "NM",
+                          "HD",
+                          "DT",
+                          "HR",
+                          "FM",
+                          "TB"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "poolId",
+                      "expectedVersion",
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A single beatmap snapshot or the batch preview.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "beatmapId": {
+                          "type": "number"
+                        },
+                        "metadata": {
+                          "type": "object",
+                          "properties": {
+                            "setId": {
+                              "type": "number"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "artist": {
+                              "type": "string"
+                            },
+                            "difficulty": {
+                              "type": "string"
+                            },
+                            "mapper": {
+                              "type": "string"
+                            },
+                            "stars": {
+                              "type": "number"
+                            },
+                            "bpm": {
+                              "type": "number"
+                            },
+                            "duration": {
+                              "type": "number"
+                            },
+                            "status": {
+                              "type": "string"
+                            },
+                            "checksum": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "mode": {
+                              "type": "string",
+                              "enum": [
+                                "osu",
+                                "taiko",
+                                "fruits",
+                                "mania"
+                              ]
+                            },
+                            "ar": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "od": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "cs": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "hp": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "configuration": {
+                                  "type": "string",
+                                  "enum": [
+                                    "NM",
+                                    "HD",
+                                    "HR",
+                                    "DT",
+                                    "HDHR",
+                                    "HDDT",
+                                    "HRDT",
+                                    "HDHRDT",
+                                    "EZ",
+                                    "HT"
+                                  ]
+                                },
+                                "mods": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "ruleset": {
+                                  "type": "string",
+                                  "enum": [
+                                    "osu",
+                                    "taiko",
+                                    "fruits",
+                                    "mania"
+                                  ]
+                                },
+                                "stars": {
+                                  "type": "number"
+                                },
+                                "maxCombo": {
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ]
+                                },
+                                "values": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "number"
+                                  }
+                                },
+                                "fetchedAt": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "configuration",
+                                "mods",
+                                "ruleset",
+                                "stars",
+                                "maxCombo",
+                                "values",
+                                "fetchedAt"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "difficultySnapshot": {
+                              "type": "object",
+                              "properties": {
+                                "beatmapId": {
+                                  "type": "number"
+                                },
+                                "ruleset": {
+                                  "type": "string",
+                                  "enum": [
+                                    "osu",
+                                    "taiko",
+                                    "fruits",
+                                    "mania"
+                                  ]
+                                },
+                                "checksum": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "fetchedAt": {
+                                  "type": "string"
+                                },
+                                "base": {
+                                  "type": "object",
+                                  "properties": {
+                                    "ar": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ]
+                                    },
+                                    "od": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ]
+                                    },
+                                    "cs": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ]
+                                    },
+                                    "hp": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ]
+                                    },
+                                    "stars": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ]
+                                    },
+                                    "bpm": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ]
+                                    },
+                                    "duration": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "ar",
+                                    "od",
+                                    "cs",
+                                    "hp",
+                                    "stars",
+                                    "bpm",
+                                    "duration"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "variants": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string",
+                                    "enum": [
+                                      "NM",
+                                      "HD",
+                                      "HR",
+                                      "DT",
+                                      "HDHR",
+                                      "HDDT",
+                                      "HRDT",
+                                      "HDHRDT",
+                                      "EZ",
+                                      "HT"
+                                    ]
+                                  },
+                                  "additionalProperties": {
+                                    "type": "object",
+                                    "properties": {
+                                      "configuration": {
+                                        "type": "string",
+                                        "enum": [
+                                          "NM",
+                                          "HD",
+                                          "HR",
+                                          "DT",
+                                          "HDHR",
+                                          "HDDT",
+                                          "HRDT",
+                                          "HDHRDT",
+                                          "EZ",
+                                          "HT"
+                                        ]
+                                      },
+                                      "mods": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "ruleset": {
+                                        "type": "string",
+                                        "enum": [
+                                          "osu",
+                                          "taiko",
+                                          "fruits",
+                                          "mania"
+                                        ]
+                                      },
+                                      "stars": {
+                                        "type": "number"
+                                      },
+                                      "maxCombo": {
+                                        "type": [
+                                          "number",
+                                          "null"
+                                        ]
+                                      },
+                                      "values": {
+                                        "type": "object",
+                                        "propertyNames": {
+                                          "type": "string"
+                                        },
+                                        "additionalProperties": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "fetchedAt": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "configuration",
+                                      "mods",
+                                      "ruleset",
+                                      "stars",
+                                      "maxCombo",
+                                      "values",
+                                      "fetchedAt"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "beatmapId",
+                                "ruleset",
+                                "checksum",
+                                "fetchedAt",
+                                "base",
+                                "variants"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "setId",
+                            "title",
+                            "artist",
+                            "difficulty",
+                            "mapper",
+                            "stars",
+                            "bpm",
+                            "duration"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "fetchedAt": {
+                          "type": "string"
+                        },
+                        "fingerprint": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "beatmapId",
+                        "metadata",
+                        "fetchedAt",
+                        "fingerprint"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "poolId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "version": {
+                          "type": "number"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "line": {
+                                "type": "number"
+                              },
+                              "beatmapId": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "error": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "snapshot": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "beatmapId": {
+                                        "type": "number"
+                                      },
+                                      "metadata": {
+                                        "type": "object",
+                                        "properties": {
+                                          "setId": {
+                                            "type": "number"
+                                          },
+                                          "title": {
+                                            "type": "string"
+                                          },
+                                          "artist": {
+                                            "type": "string"
+                                          },
+                                          "difficulty": {
+                                            "type": "string"
+                                          },
+                                          "mapper": {
+                                            "type": "string"
+                                          },
+                                          "stars": {
+                                            "type": "number"
+                                          },
+                                          "bpm": {
+                                            "type": "number"
+                                          },
+                                          "duration": {
+                                            "type": "number"
+                                          },
+                                          "status": {
+                                            "type": "string"
+                                          },
+                                          "checksum": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ]
+                                          },
+                                          "mode": {
+                                            "type": "string",
+                                            "enum": [
+                                              "osu",
+                                              "taiko",
+                                              "fruits",
+                                              "mania"
+                                            ]
+                                          },
+                                          "ar": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ]
+                                          },
+                                          "od": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ]
+                                          },
+                                          "cs": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ]
+                                          },
+                                          "hp": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ]
+                                          },
+                                          "attributes": {
+                                            "type": "object",
+                                            "properties": {
+                                              "configuration": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "NM",
+                                                  "HD",
+                                                  "HR",
+                                                  "DT",
+                                                  "HDHR",
+                                                  "HDDT",
+                                                  "HRDT",
+                                                  "HDHRDT",
+                                                  "EZ",
+                                                  "HT"
+                                                ]
+                                              },
+                                              "mods": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "ruleset": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "osu",
+                                                  "taiko",
+                                                  "fruits",
+                                                  "mania"
+                                                ]
+                                              },
+                                              "stars": {
+                                                "type": "number"
+                                              },
+                                              "maxCombo": {
+                                                "type": [
+                                                  "number",
+                                                  "null"
+                                                ]
+                                              },
+                                              "values": {
+                                                "type": "object",
+                                                "propertyNames": {
+                                                  "type": "string"
+                                                },
+                                                "additionalProperties": {
+                                                  "type": "number"
+                                                }
+                                              },
+                                              "fetchedAt": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "configuration",
+                                              "mods",
+                                              "ruleset",
+                                              "stars",
+                                              "maxCombo",
+                                              "values",
+                                              "fetchedAt"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "difficultySnapshot": {
+                                            "type": "object",
+                                            "properties": {
+                                              "beatmapId": {
+                                                "type": "number"
+                                              },
+                                              "ruleset": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "osu",
+                                                  "taiko",
+                                                  "fruits",
+                                                  "mania"
+                                                ]
+                                              },
+                                              "checksum": {
+                                                "type": [
+                                                  "string",
+                                                  "null"
+                                                ]
+                                              },
+                                              "fetchedAt": {
+                                                "type": "string"
+                                              },
+                                              "base": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "ar": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "od": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "cs": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "hp": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "stars": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "bpm": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "duration": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  }
+                                                },
+                                                "required": [
+                                                  "ar",
+                                                  "od",
+                                                  "cs",
+                                                  "hp",
+                                                  "stars",
+                                                  "bpm",
+                                                  "duration"
+                                                ],
+                                                "additionalProperties": false
+                                              },
+                                              "variants": {
+                                                "type": "object",
+                                                "propertyNames": {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "NM",
+                                                    "HD",
+                                                    "HR",
+                                                    "DT",
+                                                    "HDHR",
+                                                    "HDDT",
+                                                    "HRDT",
+                                                    "HDHRDT",
+                                                    "EZ",
+                                                    "HT"
+                                                  ]
+                                                },
+                                                "additionalProperties": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "configuration": {
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "NM",
+                                                        "HD",
+                                                        "HR",
+                                                        "DT",
+                                                        "HDHR",
+                                                        "HDDT",
+                                                        "HRDT",
+                                                        "HDHRDT",
+                                                        "EZ",
+                                                        "HT"
+                                                      ]
+                                                    },
+                                                    "mods": {
+                                                      "type": "array",
+                                                      "items": {
+                                                        "type": "string"
+                                                      }
+                                                    },
+                                                    "ruleset": {
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "osu",
+                                                        "taiko",
+                                                        "fruits",
+                                                        "mania"
+                                                      ]
+                                                    },
+                                                    "stars": {
+                                                      "type": "number"
+                                                    },
+                                                    "maxCombo": {
+                                                      "type": [
+                                                        "number",
+                                                        "null"
+                                                      ]
+                                                    },
+                                                    "values": {
+                                                      "type": "object",
+                                                      "propertyNames": {
+                                                        "type": "string"
+                                                      },
+                                                      "additionalProperties": {
+                                                        "type": "number"
+                                                      }
+                                                    },
+                                                    "fetchedAt": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "configuration",
+                                                    "mods",
+                                                    "ruleset",
+                                                    "stars",
+                                                    "maxCombo",
+                                                    "values",
+                                                    "fetchedAt"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "beatmapId",
+                                              "ruleset",
+                                              "checksum",
+                                              "fetchedAt",
+                                              "base",
+                                              "variants"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        },
+                                        "required": [
+                                          "setId",
+                                          "title",
+                                          "artist",
+                                          "difficulty",
+                                          "mapper",
+                                          "stars",
+                                          "bpm",
+                                          "duration"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "fetchedAt": {
+                                        "type": "string"
+                                      },
+                                      "fingerprint": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "beatmapId",
+                                      "metadata",
+                                      "fetchedAt",
+                                      "fingerprint"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "category": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "NM",
+                                      "HD",
+                                      "DT",
+                                      "HR",
+                                      "FM",
+                                      "TB"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "position": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "warning": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "line",
+                              "beatmapId",
+                              "error",
+                              "snapshot",
+                              "category",
+                              "position",
+                              "warning"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "poolId",
+                        "version",
+                        "rows"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid beatmap input or batch rows.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or requested resource was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The pool version is stale or the pool is locked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The lookup budget or refresh rate limit was reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "osu! returned unavailable or incomplete metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site or osu! provider configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The osu! lookup timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/mappool-workbench": {
+      "post": {
+        "operationId": "changeMappoolWorkbench",
+        "summary": "Preview and manage private selection candidates",
+        "description": "Requires select_mappools. Preview consumes provider budget without changing candidates. Candidate changes validate the submitted fingerprints or expected category, rounds or version as applicable. Comment edits and deletion require authorship. Replaying an identical comment request ID returns a skipped count without adding another comment.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 32768,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "maxLength": 16000
+                      },
+                      "category": {
+                        "default": "unassigned",
+                        "type": "string",
+                        "enum": [
+                          "unassigned",
+                          "NM",
+                          "HD",
+                          "DT",
+                          "HR",
+                          "FM",
+                          "TB"
+                        ]
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "preview"
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "action"
+                    ],
+                    "additionalProperties": {}
+                  },
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "const": "skillsets"
+                          },
+                          "candidateId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "tags": {
+                            "maxItems": 29,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "jump",
+                                "wide-angle",
+                                "awkward-aim",
+                                "snap-aim",
+                                "aim-consistency",
+                                "stream",
+                                "burst",
+                                "speed",
+                                "stamina",
+                                "deathstream",
+                                "flow-aim",
+                                "aim-control",
+                                "alternating",
+                                "finger-control",
+                                "slider-aim",
+                                "tech",
+                                "slider-tech",
+                                "rhythm-complexity",
+                                "complex-patterns",
+                                "low-ar",
+                                "high-ar",
+                                "hd-reading",
+                                "density",
+                                "overlap",
+                                "precision",
+                                "gimmick",
+                                "hybrid",
+                                "marathon",
+                                "antimod"
+                              ]
+                            }
+                          },
+                          "expectedVersion": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "candidateId",
+                          "tags",
+                          "expectedVersion"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "const": "assign_rounds"
+                          },
+                          "candidateId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "roundIds": {
+                            "maxItems": 500,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          },
+                          "expectedRoundIds": {
+                            "maxItems": 500,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "candidateId",
+                          "roundIds",
+                          "expectedRoundIds"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "const": "comment_edit"
+                          },
+                          "candidateId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "commentId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "version": {
+                            "type": "string",
+                            "pattern": "^\\d+$"
+                          },
+                          "body": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "candidateId",
+                          "commentId",
+                          "version",
+                          "body"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "const": "comment_delete"
+                          },
+                          "candidateId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "commentId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "version": {
+                            "type": "string",
+                            "pattern": "^\\d+$"
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "candidateId",
+                          "commentId",
+                          "version"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "const": "classify"
+                          },
+                          "candidateId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "unassigned",
+                              "NM",
+                              "HD",
+                              "DT",
+                              "HR",
+                              "FM",
+                              "TB"
+                            ]
+                          },
+                          "expectedCategory": {
+                            "type": "string",
+                            "enum": [
+                              "unassigned",
+                              "NM",
+                              "HD",
+                              "DT",
+                              "HR",
+                              "FM",
+                              "TB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "candidateId",
+                          "category",
+                          "expectedCategory"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "const": "add"
+                          },
+                          "category": {
+                            "default": "unassigned",
+                            "type": "string",
+                            "enum": [
+                              "unassigned",
+                              "NM",
+                              "HD",
+                              "DT",
+                              "HR",
+                              "FM",
+                              "TB"
+                            ]
+                          },
+                          "roundIds": {
+                            "default": [],
+                            "maxItems": 500,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          },
+                          "rows": {
+                            "minItems": 1,
+                            "maxItems": 50,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "beatmapId": {
+                                  "type": "integer",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 9007199254740991
+                                },
+                                "fingerprint": {
+                                  "type": "string",
+                                  "pattern": "^[a-f0-9]{64}$"
+                                }
+                              },
+                              "required": [
+                                "beatmapId",
+                                "fingerprint"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "rows"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "const": "comment"
+                          },
+                          "candidateId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "requestId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "body": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "candidateId",
+                          "requestId",
+                          "body"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Per-row preview results or counts for a completed change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "line": {
+                                "type": "number"
+                              },
+                              "beatmapId": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "error": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "snapshot": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "beatmapId": {
+                                        "type": "number"
+                                      },
+                                      "metadata": {
+                                        "type": "object",
+                                        "properties": {
+                                          "setId": {
+                                            "type": "number"
+                                          },
+                                          "title": {
+                                            "type": "string"
+                                          },
+                                          "artist": {
+                                            "type": "string"
+                                          },
+                                          "difficulty": {
+                                            "type": "string"
+                                          },
+                                          "mapper": {
+                                            "type": "string"
+                                          },
+                                          "stars": {
+                                            "type": "number"
+                                          },
+                                          "bpm": {
+                                            "type": "number"
+                                          },
+                                          "duration": {
+                                            "type": "number"
+                                          },
+                                          "status": {
+                                            "type": "string"
+                                          },
+                                          "checksum": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ]
+                                          },
+                                          "mode": {
+                                            "type": "string",
+                                            "enum": [
+                                              "osu",
+                                              "taiko",
+                                              "fruits",
+                                              "mania"
+                                            ]
+                                          },
+                                          "ar": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ]
+                                          },
+                                          "od": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ]
+                                          },
+                                          "cs": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ]
+                                          },
+                                          "hp": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ]
+                                          },
+                                          "attributes": {
+                                            "type": "object",
+                                            "properties": {
+                                              "configuration": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "NM",
+                                                  "HD",
+                                                  "HR",
+                                                  "DT",
+                                                  "HDHR",
+                                                  "HDDT",
+                                                  "HRDT",
+                                                  "HDHRDT",
+                                                  "EZ",
+                                                  "HT"
+                                                ]
+                                              },
+                                              "mods": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "ruleset": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "osu",
+                                                  "taiko",
+                                                  "fruits",
+                                                  "mania"
+                                                ]
+                                              },
+                                              "stars": {
+                                                "type": "number"
+                                              },
+                                              "maxCombo": {
+                                                "type": [
+                                                  "number",
+                                                  "null"
+                                                ]
+                                              },
+                                              "values": {
+                                                "type": "object",
+                                                "propertyNames": {
+                                                  "type": "string"
+                                                },
+                                                "additionalProperties": {
+                                                  "type": "number"
+                                                }
+                                              },
+                                              "fetchedAt": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "configuration",
+                                              "mods",
+                                              "ruleset",
+                                              "stars",
+                                              "maxCombo",
+                                              "values",
+                                              "fetchedAt"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "difficultySnapshot": {
+                                            "type": "object",
+                                            "properties": {
+                                              "beatmapId": {
+                                                "type": "number"
+                                              },
+                                              "ruleset": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "osu",
+                                                  "taiko",
+                                                  "fruits",
+                                                  "mania"
+                                                ]
+                                              },
+                                              "checksum": {
+                                                "type": [
+                                                  "string",
+                                                  "null"
+                                                ]
+                                              },
+                                              "fetchedAt": {
+                                                "type": "string"
+                                              },
+                                              "base": {
+                                                "type": "object",
+                                                "properties": {
+                                                  "ar": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "od": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "cs": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "hp": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "stars": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "bpm": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  },
+                                                  "duration": {
+                                                    "type": [
+                                                      "number",
+                                                      "null"
+                                                    ]
+                                                  }
+                                                },
+                                                "required": [
+                                                  "ar",
+                                                  "od",
+                                                  "cs",
+                                                  "hp",
+                                                  "stars",
+                                                  "bpm",
+                                                  "duration"
+                                                ],
+                                                "additionalProperties": false
+                                              },
+                                              "variants": {
+                                                "type": "object",
+                                                "propertyNames": {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "NM",
+                                                    "HD",
+                                                    "HR",
+                                                    "DT",
+                                                    "HDHR",
+                                                    "HDDT",
+                                                    "HRDT",
+                                                    "HDHRDT",
+                                                    "EZ",
+                                                    "HT"
+                                                  ]
+                                                },
+                                                "additionalProperties": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "configuration": {
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "NM",
+                                                        "HD",
+                                                        "HR",
+                                                        "DT",
+                                                        "HDHR",
+                                                        "HDDT",
+                                                        "HRDT",
+                                                        "HDHRDT",
+                                                        "EZ",
+                                                        "HT"
+                                                      ]
+                                                    },
+                                                    "mods": {
+                                                      "type": "array",
+                                                      "items": {
+                                                        "type": "string"
+                                                      }
+                                                    },
+                                                    "ruleset": {
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "osu",
+                                                        "taiko",
+                                                        "fruits",
+                                                        "mania"
+                                                      ]
+                                                    },
+                                                    "stars": {
+                                                      "type": "number"
+                                                    },
+                                                    "maxCombo": {
+                                                      "type": [
+                                                        "number",
+                                                        "null"
+                                                      ]
+                                                    },
+                                                    "values": {
+                                                      "type": "object",
+                                                      "propertyNames": {
+                                                        "type": "string"
+                                                      },
+                                                      "additionalProperties": {
+                                                        "type": "number"
+                                                      }
+                                                    },
+                                                    "fetchedAt": {
+                                                      "type": "string"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "configuration",
+                                                    "mods",
+                                                    "ruleset",
+                                                    "stars",
+                                                    "maxCombo",
+                                                    "values",
+                                                    "fetchedAt"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "beatmapId",
+                                              "ruleset",
+                                              "checksum",
+                                              "fetchedAt",
+                                              "base",
+                                              "variants"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        },
+                                        "required": [
+                                          "setId",
+                                          "title",
+                                          "artist",
+                                          "difficulty",
+                                          "mapper",
+                                          "stars",
+                                          "bpm",
+                                          "duration"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "fetchedAt": {
+                                        "type": "string"
+                                      },
+                                      "fingerprint": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "beatmapId",
+                                      "metadata",
+                                      "fetchedAt",
+                                      "fingerprint"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "input": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "ready",
+                                  "duplicate",
+                                  "invalid",
+                                  "failed"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "line",
+                              "beatmapId",
+                              "error",
+                              "snapshot",
+                              "input",
+                              "status"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "rows"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "added": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "added",
+                        "skipped"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid preview, command, or cross-edition round reference.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, authentication channel, or edition capability rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The edition or requested resource was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A stale value, changed preview, archive lock, duplicate, capacity limit, or conflicting request ID prevents the change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The JSON body exceeds the byte limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content-Type must be application/json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The lookup budget or refresh rate limit was reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "osu! returned unavailable or incomplete metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site or osu! provider configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The osu! lookup timed out.",
             "content": {
               "application/json": {
                 "schema": {

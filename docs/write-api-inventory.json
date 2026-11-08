@@ -152,7 +152,22 @@
     "source": "src/app/api/admin/tournaments/[edition]/mappool-workbench/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeMappoolWorkbench",
+        "access": "browser",
+        "actions": [
+          "preview",
+          "skillsets",
+          "assign_rounds",
+          "comment_edit",
+          "comment_delete",
+          "classify",
+          "add",
+          "comment"
+        ],
+        "consumers": [
+          "src/components/mappool-workbench.tsx"
+        ]
       }
     }
   },
@@ -189,7 +204,13 @@
     "source": "src/app/api/admin/tournaments/[edition]/mappools/preview/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "previewMappool",
+        "access": "browser",
+        "consumers": [
+          "src/components/mappool-batch.tsx",
+          "src/components/mappool-editor.tsx"
+        ]
       }
     }
   },
@@ -198,7 +219,33 @@
     "source": "src/app/api/admin/tournaments/[edition]/mappools/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeMappool",
+        "access": "browser",
+        "actions": [
+          "history_import",
+          "batch_import",
+          "batch_remove",
+          "batch_move",
+          "batch_refresh",
+          "round_create",
+          "round_edit",
+          "round_delete",
+          "pool_create",
+          "pool_settings",
+          "pool_publish",
+          "entry_save",
+          "entry_remove",
+          "entry_refresh",
+          "reorder"
+        ],
+        "consumers": [
+          "src/components/exhibition-pool-import.tsx",
+          "src/components/mappool-batch.tsx",
+          "src/components/mappool-editor.tsx",
+          "src/components/mappool-workbench.tsx",
+          "src/components/round-manager.tsx"
+        ]
       }
     }
   },

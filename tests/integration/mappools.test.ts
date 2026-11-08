@@ -39,6 +39,35 @@ vi.mock("../../src/lib/osu-beatmaps", async (original) => ({
   fetchBeatmap: vi.fn(),
   fetchBeatmaps: vi.fn(),
 }));
+import { POST as changeRoute } from "../../src/app/api/admin/tournaments/[edition]/mappools/route";
+import { POST as previewRoute } from "../../src/app/api/admin/tournaments/[edition]/mappools/preview/route";
+import {
+  beatmapPreviewResponse,
+  changeMappoolWrite,
+  mappoolBatchPreviewResponse,
+  previewMappoolWrite,
+} from "../../src/lib/mappool-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+const origin = "https://oclr.example.test";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => mapper,
+}));
+function post(
+  route: (...args: Parameters<typeof previewRoute>) => Promise<Response>,
+  path: string,
+  input: unknown,
+) {
+  return route(
+    new Request(origin + path.replace("{edition}", edition.slug), {
+      method: "POST",
+      headers: { origin, "content-type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+    { params: Promise.resolve({ edition: edition.slug }) },
+  );
+}
 const metadata = {
   setId: 1,
   artist: "Synthetic Artist",
@@ -69,6 +98,7 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
       { ...edition, slug: "private-test-cup", published: false },
     ];
     vi.stubEnv("DATABASE_URL", url!);
+    vi.stubEnv("APP_URL", origin);
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
@@ -248,11 +278,13 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
         previewBeatmap(mapper, edition.slug, input),
       ).rejects.toMatchObject({ status: 400 });
     expect(fetchBeatmap).not.toHaveBeenCalled();
-    expect(
-      await previewBeatmap(mapper, edition.slug, {
-        beatmap: "https://osu.ppy.sh/beatmapsets/42#osu/123",
-      }),
-    ).toMatchObject({ beatmapId: 123, metadata });
+    const response = await post(previewRoute, previewMappoolWrite.path, {
+      beatmap: "https://osu.ppy.sh/beatmapsets/42#osu/123",
+    });
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(beatmapPreviewResponse.parse(body)).toEqual(body);
+    expect(body).toMatchObject({ beatmapId: 123, metadata });
     expect(
       await previewBeatmap(admin, edition.slug, { beatmap: "123" }),
     ).toMatchObject({ beatmapId: 123 });
@@ -740,11 +772,15 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
   });
   it("previews mixed formats, conflicts and duplicate entries without changing saved maps", async () => {
     const pool = await create();
-    const preview = await previewMappoolBatch(mapper, edition.slug, {
+    const response = await post(previewRoute, previewMappoolWrite.path, {
       poolId: pool.id,
       expectedVersion: 0,
       text: "NM1 123\nHD1 https://osu.ppy.sh/beatmaps/456\nDT1 https://osu.ppy.sh/beatmapsets/42#osu/123\nNM1 789\nNM2 123\nTB https://osu.ppy.sh/beatmapsets/42",
     });
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    const preview = mappoolBatchPreviewResponse.parse(body);
+    expect(preview).toEqual(body);
     expect(preview.rows.slice(0, 3).every((r) => r.snapshot && !r.error)).toBe(
       true,
     );
@@ -801,14 +837,22 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
   it("saves one atomic batch revision and audit, rejects stale/colliding/forged requests", async () => {
     const pool = await create();
     const payload = await batch(pool.id);
-    const outcomes = await Promise.allSettled([
-      mappoolCommand(mapper, edition.slug, payload),
-      mappoolCommand(admin, edition.slug, payload),
-    ]);
-    expect(outcomes.filter((r) => r.status === "fulfilled")).toHaveLength(1);
-    expect(outcomes.find((r) => r.status === "rejected")).toMatchObject({
-      reason: { status: 409 },
-    });
+    const save = async () => {
+      const response = await post(
+        changeRoute,
+        changeMappoolWrite.path,
+        payload,
+      );
+      if (response.ok) {
+        const body = await response.json();
+        expect(
+          extendedSchemas[changeMappoolWrite.response.readResource].parse(body),
+        ).toEqual(body);
+      }
+      return response.status;
+    };
+    const outcomes = await Promise.all([save(), save()]);
+    expect(outcomes.sort()).toEqual([200, 409]);
     expect((await mappoolWorkspace(mapper, edition.slug)).entries).toHaveLength(
       2,
     );

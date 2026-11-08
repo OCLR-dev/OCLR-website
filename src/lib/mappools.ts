@@ -24,16 +24,21 @@ import { assertCapability, assertReadCapability } from "./auth/staff";
 import { getEdition, getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import {
+  batchBeatmapPreviewInput,
+  changeMappoolWrite,
+  mappoolBatchRow,
+  singleBeatmapPreviewInput,
+  type MappoolBatchPreview,
+} from "./mappool-write-contracts";
 import { HttpError } from "./http";
 import {
   loadSavedDifficulties,
   selectSavedDifficulty,
 } from "./saved-difficulty";
 import { previewConfigurations } from "./difficulty-display";
-import { downloadMirrorSchema } from "./mappool-download";
 import {
   categories,
-  difficultyConfigurations,
   moveMappoolEntries,
   parseBeatmapId,
   parseMappoolRows,
@@ -46,180 +51,6 @@ import {
   withBeatmapAttributes,
   refreshDifficultyPreviews,
 } from "./osu-beatmaps";
-const confirmation = {
-  confirmed: z.literal(true),
-};
-const versioned = {
-  poolId: z.uuid(),
-  expectedVersion: z.number().int().nonnegative(),
-};
-const name = z.string().trim().min(1).max(80);
-const position = z.number().int().min(1).max(999);
-const batchIds = z
-  .array(z.uuid())
-  .min(1)
-  .max(50)
-  .refine((ids) => new Set(ids).size === ids.length);
-const batchRow = z
-  .object({
-    category: z.enum(categories),
-    position,
-    beatmap: z.string().trim().min(1).max(250),
-    expectedMetadataFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-  })
-  .strict();
-const commandSchema = z.discriminatedUnion("action", [
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("history_import"),
-      sourceEdition: z.string().min(1).max(80),
-      sourcePool: z.string().min(1).max(80),
-      sourceFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-      sourceKeys: z
-        .array(z.string().min(1).max(80))
-        .min(1)
-        .max(50)
-        .refine((keys) => new Set(keys).size === keys.length),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("batch_import"),
-      text: z.string().max(16000),
-      category: z.enum(categories),
-      rows: z.array(batchRow).min(1).max(50),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("batch_remove"),
-      entryIds: batchIds,
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("batch_move"),
-      entryIds: batchIds,
-      category: z.enum(categories),
-      position,
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("batch_refresh"),
-      entryIds: batchIds,
-    })
-    .strict(),
-
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("round_create"),
-      stage: z.enum(["group", "knockout", "exhibition"]),
-      name,
-      position,
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("round_edit"),
-      roundId: z.uuid(),
-      expectedVersion: z.number().int().nonnegative(),
-      name,
-      position,
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("round_delete"),
-      roundId: z.uuid(),
-      expectedVersion: z.number().int().nonnegative(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      action: z.literal("pool_create"),
-      roundId: z.uuid(),
-      name,
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("pool_settings"),
-      name,
-      fmMode: z.enum(["free_mod", "force_mod"]).nullable(),
-      fmRestrictions: z.string().trim().max(2000),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("pool_publish"),
-      published: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("entry_save"),
-      downloadMirror: downloadMirrorSchema.nullable().optional(),
-      difficultyConfiguration: z
-        .enum(difficultyConfigurations)
-        .nullable()
-        .default(null),
-      expectedMetadataFingerprint: z
-        .string()
-        .regex(/^[a-f0-9]{64}$/)
-        .optional(),
-      entryId: z.uuid().nullable(),
-      beatmap: z.string().trim().min(1).max(250),
-      category: z.enum(categories),
-      position,
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("entry_remove"),
-      entryId: z.uuid(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("entry_refresh"),
-      entryId: z.uuid(),
-    })
-    .strict(),
-  z
-    .object({
-      ...confirmation,
-      ...versioned,
-      action: z.literal("reorder"),
-      category: z.enum(categories),
-      entryIds: z.array(z.uuid()).min(1).max(999),
-    })
-    .strict(),
-]);
 const roundFields = {
   id: tournamentRounds.id,
   name: tournamentRounds.name,
@@ -324,19 +155,10 @@ export async function previewBeatmap(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<BeatmapSnapshot> {
   await assertCapability(actor, "manage_mappools", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  const parsed = z
-    .object({
-      beatmap: z.string().trim().min(1).max(250),
-      difficultyConfiguration: z
-        .enum(difficultyConfigurations)
-        .nullable()
-        .default(null),
-    })
-    .strict()
-    .safeParse(input);
+  const parsed = singleBeatmapPreviewInput.safeParse(input);
   const id = parsed.success ? parseBeatmapId(parsed.data.beatmap) : null;
   if (!id)
     throw new HttpError(
@@ -352,18 +174,11 @@ export async function previewMappoolBatch(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<MappoolBatchPreview> {
   // Batch preview prepares an edit and spends the osu! lookup budget.
   await assertCapability(actor, "manage_mappools", slug);
   const data = await mappoolWorkspace(actor, slug);
-  const parsed = z
-    .object({
-      ...versioned,
-      text: z.string().max(16000),
-      category: z.enum(categories).default("NM"),
-    })
-    .strict()
-    .safeParse(input);
+  const parsed = batchBeatmapPreviewInput.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Choose a pool and enter 1–50 rows.");
   const c = parsed.data,
@@ -425,14 +240,12 @@ export async function previewMappoolBatch(
     }),
   };
 }
-export type MappoolBatchPreview = Awaited<
-  ReturnType<typeof previewMappoolBatch>
->;
+export type { MappoolBatchPreview } from "./mappool-write-contracts";
 function validateImport(
   command: {
     text: string;
     category: (typeof categories)[number];
-    rows: z.infer<typeof batchRow>[];
+    rows: z.infer<typeof mappoolBatchRow>[];
   },
   entries: NonNullable<Parameters<typeof parseMappoolRows>[2]>,
 ) {
@@ -474,10 +287,10 @@ export async function mappoolCommand(
   actor: User,
   slug: string,
   input: unknown,
-) {
+): Promise<MappoolWorkspace> {
   await assertCapability(actor, "manage_mappools", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  const parsed = commandSchema.safeParse(input);
+  const parsed = changeMappoolWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Confirm a valid mappool change.");
   const c = parsed.data;
