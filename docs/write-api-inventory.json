@@ -254,7 +254,12 @@
     "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/preview/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "previewMatchImport",
+        "access": "browser",
+        "consumers": [
+          "src/components/match-source-completion.tsx"
+        ]
       }
     }
   },
@@ -263,7 +268,13 @@
     "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "importMatchResult",
+        "access": "browser",
+        "consumers": [
+          "src/components/match-review.tsx",
+          "src/components/match-source-completion.tsx"
+        ]
       }
     }
   },
@@ -322,7 +333,21 @@
     "source": "src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/results/route.ts",
     "methods": {
       "POST": {
-        "status": "pending"
+        "status": "documented",
+        "operationId": "changeMatchResult",
+        "access": "browser",
+        "actions": [
+          "submit",
+          "approve",
+          "approve_publish",
+          "reject",
+          "publish",
+          "unpublish",
+          "void"
+        ],
+        "consumers": [
+          "src/components/match-review.tsx"
+        ]
       }
     }
   },

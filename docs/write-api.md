@@ -72,6 +72,12 @@ with a fingerprint and blockers. Referee assignments use a separate revision.
 Round referee policy changes can also update the best-of series under the
 current round version.
 
+Match imports save official source evidence, and preview returns participant
+attribution with the current fixture and result versions. Result commands
+document review, approval and publication as separate permissions. Import and
+result commands return the existing private review workspace and check retries
+by request key and payload.
+
 After changing a route or contract, run `npm run write-api:generate` and commit
 the generated JSON with the source. `npm run check` checks for stale files and
 contracts without a matching handler. The inventory covers HTTP write handlers.

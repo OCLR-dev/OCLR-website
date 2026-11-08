@@ -35,6 +35,11 @@ import {
   previewMappoolWrite,
   changeMappoolWorkbenchWrite,
 } from "../src/lib/mappool-write-contracts";
+import {
+  changeMatchResultWrite,
+  importMatchResultWrite,
+  previewMatchImportWrite,
+} from "../src/lib/match-result-write-contracts";
 import { refereeRelayWrite } from "../src/lib/referee-relay-contract";
 import {
   removeRegistrationWrite,
@@ -99,6 +104,9 @@ const operations: readonly WriteApiOperation[] = [
   changeFixturesWrite,
   assignFixtureRefereesWrite,
   roundRefereePolicyWrite,
+  importMatchResultWrite,
+  previewMatchImportWrite,
+  changeMatchResultWrite,
 ];
 const readOnlyAliases = new Map([
   ["src/app/api/v1/[...path]/route.ts", "readApiRoute"],

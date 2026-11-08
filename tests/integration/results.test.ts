@@ -70,6 +70,44 @@ import {
   syntheticPage,
   syntheticScoringRules,
 } from "../fixtures/match";
+import { POST as importRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/route";
+import { POST as previewRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/imports/preview/route";
+import { POST as resultRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/results/route";
+import {
+  changeMatchResultWrite,
+  importMatchResultWrite,
+  previewMatchImportWrite,
+} from "../../src/lib/match-result-write-contracts";
+import { extendedSchemas } from "../../src/lib/extended-read-resources";
+import type { User } from "../../src/lib/auth/sessions";
+const origin = "https://oclr.example.test";
+let routeActor: User;
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../../src/lib/auth/user", async (original) => ({
+  ...(await original<typeof import("../../src/lib/auth/user")>()),
+  requireUser: async () => routeActor,
+}));
+function post(
+  route: (...args: Parameters<typeof previewRoute>) => Promise<Response>,
+  path: string,
+  fixtureId: string,
+  actor: User,
+  input: unknown,
+) {
+  routeActor = actor;
+  return route(
+    new Request(
+      origin +
+        path.replace("{edition}", "test-cup").replace("{fixtureId}", fixtureId),
+      {
+        method: "POST",
+        headers: { origin, "content-type": "application/json" },
+        body: JSON.stringify(input),
+      },
+    ),
+    { params: Promise.resolve({ edition: "test-cup", fixtureId }) },
+  );
+}
 vi.mock("../../src/lib/osu-api", () => ({ osuApi: vi.fn() }));
 vi.mock("../../src/lib/osu-matches", async (original) => ({
   ...(await original<typeof import("../../src/lib/osu-matches")>()),
@@ -97,6 +135,7 @@ describe.skipIf(!url)(
       scratch = mkdtempSync(join(tmpdir(), "oclr-results-"));
       fixtureEditions = [edition];
       vi.stubEnv("DATABASE_URL", url!);
+      vi.stubEnv("APP_URL", origin);
       vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
       actualFetch = (
         await vi.importActual<typeof import("../../src/lib/osu-matches")>(
@@ -1018,15 +1057,24 @@ describe.skipIf(!url)(
       });
       view = await matchReview(admin, "test-cup", fixtureId);
       const commands = [payload(), payload()];
-      const attempts = await Promise.allSettled(
-        commands.map((c) => resultCommand(admin, "test-cup", fixtureId, c)),
+      const attempts = await Promise.all(
+        commands.map((c) =>
+          post(resultRoute, changeMatchResultWrite.path, fixtureId, admin, c),
+        ),
       );
-      expect(attempts.filter((a) => a.status === "fulfilled")).toHaveLength(1);
-      expect(attempts.filter((a) => a.status === "rejected")).toHaveLength(1);
-      const winning =
-        commands[attempts.findIndex((a) => a.status === "fulfilled")];
+      expect(attempts.map((response) => response.status).sort()).toEqual([
+        200, 409,
+      ]);
+      const winningIndex = attempts.findIndex((response) => response.ok);
+      const body = await attempts[winningIndex].json();
+      expect(
+        extendedSchemas[changeMatchResultWrite.response.readResource].parse(
+          body,
+        ),
+      ).toEqual(body);
+      expect(body.context.result.publishedRevision).toBe(1);
       await expect(
-        resultCommand(admin, "test-cup", fixtureId, winning),
+        resultCommand(admin, "test-cup", fixtureId, commands[winningIndex]),
       ).resolves.toMatchObject({ publicChanged: true });
       const saved = await matchReview(admin, "test-cup", fixtureId);
       expect(saved.context.result).toMatchObject({
@@ -1124,17 +1172,53 @@ describe.skipIf(!url)(
     it("keeps repeated imports and exact command retries idempotent without duplicating games or reports", async () => {
       const initial = await matchReview(referee, "test-cup", fixtureId);
       const payload = { ...base(initial), match: String(syntheticMatchId) };
-      let view = await importFixtureMatch(
-        referee,
-        "test-cup",
+      const preview = await post(
+        previewRoute,
+        previewMatchImportWrite.path,
         fixtureId,
-        payload,
+        referee,
+        {
+          match: payload.match,
+        },
       );
+      expect(preview.status).toBe(200);
+      const previewBody = await preview.json();
+      expect(previewMatchImportWrite.response.parse(previewBody)).toEqual(
+        previewBody,
+      );
+      expect(previewBody).toMatchObject({
+        expectedVersion: 0,
+        expectedFixtureVersion: initial.context.fixture.version,
+        suggested: {
+          homeTeamId: initial.context.fixture.homeTeamId,
+          awayTeamId: initial.context.fixture.awayTeamId,
+        },
+      });
+      expect(await db().select().from(matchImports)).toHaveLength(0);
+      const save = () =>
+        post(
+          importRoute,
+          importMatchResultWrite.path,
+          fixtureId,
+          referee,
+          payload,
+        );
+      const first = await save();
+      expect(first.status).toBe(200);
+      const body = await first.json();
+      expect(
+        extendedSchemas[importMatchResultWrite.response.readResource].parse(
+          body,
+        ),
+      ).toEqual(body);
       const calls = vi.mocked(fetchMatchSource).mock.calls.length;
-      await importFixtureMatch(referee, "test-cup", fixtureId, payload);
+      const retry = await save();
+      expect(retry.status).toBe(200);
+      expect(await retry.json()).toEqual(body);
       expect(vi.mocked(fetchMatchSource).mock.calls).toHaveLength(calls);
-      view = await importFixtureMatch(referee, "test-cup", fixtureId, {
-        ...base(view),
+      const current = await matchReview(referee, "test-cup", fixtureId);
+      const view = await importFixtureMatch(referee, "test-cup", fixtureId, {
+        ...base(current),
         match: String(syntheticMatchId),
       });
       expect(await db().select().from(matchImports)).toHaveLength(1);

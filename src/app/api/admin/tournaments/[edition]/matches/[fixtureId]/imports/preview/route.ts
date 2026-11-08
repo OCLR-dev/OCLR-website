@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { previewFixtureMatch } from "@/lib/results";
+import { previewMatchImportWrite } from "@/lib/match-result-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 export async function POST(
   request: Request,
@@ -14,7 +15,7 @@ export async function POST(
         await requireUser(),
         edition,
         fixtureId,
-        await readJson(request),
+        await readJson(request, previewMatchImportWrite.maxBodyBytes),
       ),
       { headers: { "Cache-Control": "no-store" } },
     );
