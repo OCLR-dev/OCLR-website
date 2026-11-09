@@ -20,7 +20,7 @@ import { draftAwardTiers } from "./award-tiers";
 import { HttpError } from "./http-error";
 import { draftTurnSequence } from "./live-season-columns";
 import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
-import { staffRoundRatings } from "./ratings";
+import { staffRoundRatings } from "./rating-data";
 import type { AwardReport } from "./staff-workspace-read-contracts";
 import { readTournament } from "./tournament-reads";
 import { YUMU_POLICY } from "./yumu-rating";

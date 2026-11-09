@@ -1,114 +1,21 @@
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
-import {
-  captains,
-  fixtures as fixtureTable,
-  memberships,
-  registrations,
-  tournamentRounds,
-  tournamentStages,
-  users,
-} from "@/db/schema";
-import { and, eq, inArray, ne } from "drizzle-orm";
-import { createHash } from "node:crypto";
-import {
-  approvedRatingGames,
-  type RatingReader,
-} from "./approved-rating-games";
+import { fixtures as fixtureTable } from "@/db/schema";
+import { approvedRatingGames } from "./approved-rating-games";
 import type { User } from "./auth/sessions";
 import { assertReadCapability } from "./auth/staff";
 import { remoteMode } from "./data-source";
+import type { ExplicitReadData } from "./explicit-read-contracts";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http-error";
-import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
 import { publicCompetition } from "./public-competition";
+import { ratingIdentities } from "./rating-data";
+import { ratingSnapshot, type RatingSnapshot } from "./rating-snapshot";
 import { readTournament } from "./tournament-reads";
-import { calculateRating, type RatingGame } from "./yumu-rating";
-import { STATISTICS_SCORE_POLICY } from "./statistics-score";
-import type { ExplicitReadData } from "./explicit-read-contracts";
-type RatingSnapshot = ExplicitReadData<"matchRatingWorkspace">;
+
 type PublicMatchRating = ExplicitReadData<"publicMatchRating">;
 type PublicRoundRatings = ExplicitReadData<"publicRoundRatings">;
 
-export async function ratingIdentities(
-  slug: string,
-  reader: RatingReader,
-  publicTeamIds?: string[],
-) {
-  const identities = await reader
-    .select({ userId: registrations.userId, username: users.username })
-    .from(registrations)
-    .innerJoin(users, eq(users.osuId, registrations.userId))
-    .where(
-      and(
-        eq(registrations.editionSlug, slug),
-        publicTeamIds ? eq(registrations.status, "accepted") : undefined,
-      ),
-    );
-  if (publicTeamIds) {
-    identities.push(
-      ...(await reader
-        .select({ userId: captains.userId, username: users.username })
-        .from(captains)
-        .innerJoin(users, eq(users.osuId, captains.userId))
-        .where(
-          and(eq(captains.editionSlug, slug), eq(captains.published, true)),
-        )),
-    );
-    if (publicTeamIds.length)
-      identities.push(
-        ...(await reader
-          .select({ userId: memberships.userId, username: users.username })
-          .from(memberships)
-          .innerJoin(users, eq(users.osuId, memberships.userId))
-          .where(
-            and(
-              eq(memberships.editionSlug, slug),
-              inArray(memberships.teamId, publicTeamIds),
-            ),
-          )),
-      );
-  }
-  return new Map(identities.map((p) => [p.userId, p.username]));
-}
-export function ratingSnapshot(
-  games: RatingGame[],
-  identities: Map<number, string>,
-): RatingSnapshot {
-  const report = calculateRating(games);
-  const evidence = [
-    ...new Map(
-      games.map((g) => [
-        g.gameId,
-        {
-          gameId: g.gameId,
-          fixtureId: g.fixtureId,
-          revision: g.revision,
-          fingerprint: g.approvalFingerprint ?? g.fingerprint,
-          ...(g.ezScoreMultiplier === undefined
-            ? {}
-            : {
-                ezScoreMultiplier: g.ezScoreMultiplier,
-                statisticsScorePolicy: STATISTICS_SCORE_POLICY,
-              }),
-        },
-      ]),
-    ).values(),
-  ].sort((a, b) => a.gameId - b.gameId);
-  const players = report.players.map((p) => ({
-    ...p,
-    classification: classifyPlayer(p, report.playerCount),
-    username: identities.get(p.userId) ?? String(p.userId),
-  }));
-  return {
-    ...report,
-    classificationPolicy: PLAYER_CLASS_POLICY,
-    players,
-    evidence,
-    fingerprint: createHash("sha256")
-      .update(JSON.stringify([report, evidence, players]))
-      .digest("hex"),
-  };
-}
 async function databaseMatchRatingWorkspace(
   actor: User,
   slug: string,
@@ -282,50 +189,4 @@ export async function publicRoundRatings(
     return frontendResource<PublicRoundRatings>("publicRoundRatings", { slug });
   }
   return databasePublicRoundRatings(slug);
-}
-
-export async function staffRoundRatings(
-  slug: string,
-  reader: RatingReader,
-  games: RatingGame[],
-  identities: Map<number, string>,
-) {
-  const rows = await reader
-    .select({
-      fixture: fixtureTable,
-      round: tournamentRounds,
-      stage: tournamentStages.kind,
-    })
-    .from(fixtureTable)
-    .innerJoin(tournamentRounds, eq(tournamentRounds.id, fixtureTable.roundId))
-    .innerJoin(
-      tournamentStages,
-      eq(tournamentStages.id, tournamentRounds.stageId),
-    )
-    .where(
-      and(
-        eq(fixtureTable.editionSlug, slug),
-        ne(fixtureTable.status, "cancelled"),
-        ne(tournamentStages.kind, "exhibition"),
-      ),
-    );
-  return [...new Set(rows.map((r) => r.round.id))].map((roundId) => {
-    const round = rows.filter((r) => r.round.id === roundId);
-    const source = games.filter((g) =>
-      round.some((r) => r.fixture.id === g.fixtureId),
-    );
-    const report = ratingSnapshot(source, identities);
-    const ratedFixtures = new Set(source.map((g) => g.fixtureId)).size;
-    return {
-      roundId,
-      roundName: round[0].round.name,
-      stage: round[0].stage,
-      groupKey: "",
-      groupName: "",
-      publishedFixtures: round.filter((r) => r.fixture.publishedAt).length,
-      ratedFixtures,
-      complete: ratedFixtures === round.length && !report.issues.length,
-      report,
-    };
-  });
 }

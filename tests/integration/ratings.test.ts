@@ -43,7 +43,7 @@ describe.skipIf(!url)("approved fixture ratings", () => {
     const fixture = await publicFixture("test-cup", s.fixtureId);
     expect(fixture?.details?.games).toHaveLength(6);
     expect(fixture?.details?.games[0].scores).toHaveLength(4);
-    expect(fixture?.details?.rating?.fingerprint).toBe(r!.fingerprint);
+    expect(fixture?.details?.rating).toEqual(r);
     expect(JSON.stringify(fixture?.details)).not.toContain(
       "Synthetic fixture-only review",
     );

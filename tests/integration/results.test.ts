@@ -39,11 +39,10 @@ import {
 } from "../../src/lib/public-competition";
 import { approvedRatingGames } from "../../src/lib/approved-rating-games";
 import {
-  publicMatchRating,
-  publicRoundRatings,
-  staffRoundRatings,
   ratingIdentities,
-} from "../../src/lib/ratings";
+  staffRoundRatings,
+} from "../../src/lib/rating-data";
+import { publicMatchRating, publicRoundRatings } from "../../src/lib/ratings";
 import { publicPlayer } from "../../src/lib/players";
 import { playerCompetitionRecord } from "../../src/lib/player-competition";
 import { playerMapPerformance } from "../../src/lib/player-map-performance";

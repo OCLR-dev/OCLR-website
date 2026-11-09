@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MatchDetailsView } from "../../src/components/match-details";
 import { PlayerRatings } from "../../src/components/player-ratings";
 import { archiveMatchDetails } from "../../src/lib/match-details-model";
-import { ratingSnapshot } from "../../src/lib/ratings";
+import { ratingSnapshot } from "../../src/lib/rating-snapshot";
 import {
   statisticsArchive,
   statisticsSource,

@@ -11,6 +11,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Draft | [draft-reads](../src/lib/draft-reads.ts) serves staff, captain and public reads. [draft](../src/lib/draft.ts) owns transitions, picks and publication. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench-reads](../src/lib/mappool-workbench-reads.ts) serves saved candidates and comments, [mappool-workbench-preview](../src/lib/mappool-workbench-preview.ts) handles candidate previews, and [mappool-workbench](../src/lib/mappool-workbench.ts) owns candidate and comment changes. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes. [schedule-reads](../src/lib/schedule-reads.ts) serves schedule workspaces, and [schedule](../src/lib/schedule.ts) handles requests and approvals. [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) handles MP previews and imports, [results](../src/lib/results.ts) handles review and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
+| Ratings | [ratings](../src/lib/ratings.ts) serves staff and public rating views. [rating-data](../src/lib/rating-data.ts) queries identities and staff rounds with the caller's reader. [rating-snapshot](../src/lib/rating-snapshot.ts) calculates the report and evidence fingerprint. |
 | Streaming assignments | [streaming-workspace](../src/lib/streaming-workspace.ts) serves the saved staff workspace. [streaming](../src/lib/streaming.ts) handles booking commands. [streaming-staff](../src/lib/streaming-staff.ts) provides shared staff eligibility. |
 | Weekly awards | [award-reads](../src/lib/award-reads.ts) serves published releases and the staff preview. [award-calculation](../src/lib/award-calculation.ts) calculates standings and source fingerprints from the supplied reader. [awards](../src/lib/awards.ts) owns configuration and publication commands. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace. [referee](../src/lib/referee.ts) owns referee commands. [referee-irc-reads](../src/lib/referee-irc-reads.ts) serves IRC state and room bindings, [referee-irc](../src/lib/referee-irc.ts) owns browser commands, [referee-irc-relay](../src/lib/referee-irc-relay.ts) owns desktop relay, and [referee-mp](../src/lib/referee-mp.ts) coordinates multiplayer evidence. |
@@ -187,6 +188,22 @@ publication test now injects an audit failure and verifies that the proposal,
 public result, game claims and pool lock all roll back. Its existing concurrent
 publication, exact replay and cache failure assertions still run.
 
+## Public competition and ratings
+
+Previously, `public-competition.ts` imported `ratings.ts` to attach a rating
+report, and `ratings.ts` called `publicCompetition` to check publication.
+Public fixture details now use [rating-data](../src/lib/rating-data.ts) and
+[rating-snapshot](../src/lib/rating-snapshot.ts) directly. The standalone public
+rating service still checks competition publication. Award calculations use
+the staff round query with the caller's reader, and historical match details
+use the same snapshot function with saved evidence.
+
+The snapshot accepts games and identities and can run without Next.js or a
+database. The existing rating integration test now compares the entire report
+returned by fixture details and the standalone public rating. The same suite
+still covers approved revision pointers, unpublished rosters, cancellations
+and result withdrawal.
+
 ## Weekly awards
 
 The public awards page, staff preview and versioned API previously loaded
@@ -352,3 +369,26 @@ document heads and immutable documents roll back with the generation.
   rejects the audit insert on an isolated database and checks that the team,
   setup version and draft snapshots roll back together. A pure board test
   covers the separate captain, public and pool visibility decisions.
+
+## Acceptance evidence
+
+The runtime static import graph for baseline `01bb5937` contained service cycles
+through tournament configuration and draft, and through public competition and
+ratings. Both cycles are removed. The remaining static cycle is confined to
+[Drizzle schema exports and foreign-key declarations](../src/db/schema.ts).
+
+- The [pure draft projection tests](../tests/unit/draft-board.test.ts) and
+  [rating calculation tests](../tests/unit/yumu-rating.test.ts) run without a
+  database. The [read API integration suite](../tests/integration/read-api.test.ts)
+  verifies that the read scope rejects writes and leaves ordinary writes
+  available after it ends.
+- The [draft](../tests/integration/draft.test.ts),
+  [results](../tests/integration/results.test.ts) and
+  [IRC](../tests/integration/referee-irc.test.ts) integration suites retain
+  version checks, concurrent requests, replay and transaction rollback.
+  The [archive](../tests/integration/archive-read.test.ts) and
+  [weekly awards](../tests/integration/awards.test.ts) suites verify that
+  saved projections and publication writes roll back together.
+- The refactor keeps existing test files and browser cases. Browser test edits
+  update module imports. The sections above record the surviving checks and the
+  cases strengthened to exercise transaction boundaries.
