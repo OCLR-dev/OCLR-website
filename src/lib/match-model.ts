@@ -179,7 +179,7 @@ export type MatchContext = {
     openExhibition?: boolean;
     status: string;
   };
-  round: { scoringRules: unknown };
+  round: { scoringRules: unknown; stage?: string };
   teams: readonly {
     id: string;
     name: string;
@@ -229,7 +229,7 @@ export const reviewedResultSchema = z
         z.object({ teamId: z.uuid(), osuIds: z.array(id).max(1000) }).strict(),
       )
       .length(2),
-    rulesSnapshot: scoringRulesSchema,
+    rulesSnapshot: scoringRulesSchema.nullable(),
     sourceFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
     decisions: z.array(gameDecisionSchema).max(3000),
     publicNote: z.string().trim().max(1000),

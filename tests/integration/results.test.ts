@@ -480,6 +480,14 @@ describe.skipIf(!url)(
 
     it("publishes exhibition results separately while official ratings, progression and career keep only the formal fixture", async () => {
       let view = await imported();
+      const { rulesConfirmed, ...unconfirmed } = submission(view);
+      expect(rulesConfirmed).toBe(true);
+      await expect(
+        resultCommand(referee, "test-cup", fixtureId, unconfirmed),
+      ).rejects.toMatchObject({
+        status: 400,
+        message: "Confirm the approved scoring rules before submitting.",
+      });
       view = (
         await resultCommand(referee, "test-cup", fixtureId, submission(view))
       ).review;
@@ -532,6 +540,18 @@ describe.skipIf(!url)(
       view = (
         await resultCommand(referee, "test-cup", fixtureId, submission(view))
       ).review;
+      // This fixture's compliant games produce the same scores under the
+      // older sum policy. Restore its saved rule snapshot as on a pre-upgrade submission.
+      expect(view.current?.proposal?.rulesSnapshot).toBeNull();
+      await db()
+        .update(resultRevisions)
+        .set({
+          proposal: {
+            ...view.current!.proposal!,
+            rulesSnapshot: view.context.round.scoringRules,
+          },
+        })
+        .where(eq(resultRevisions.fixtureId, fixtureId));
       await published(await approved(view));
       const competition = (await publicCompetition("test-cup"))!;
       expect(
@@ -1063,7 +1083,9 @@ describe.skipIf(!url)(
       invalidate.mockImplementationOnce(() => {
         throw new Error("Synthetic cache failure");
       });
-      const diagnostic = vi.spyOn(console, "error").mockImplementation(() => {});
+      const diagnostic = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const attempts = await Promise.all(
         commands.map((c) =>
           post(resultRoute, changeMatchResultWrite.path, fixtureId, admin, c),

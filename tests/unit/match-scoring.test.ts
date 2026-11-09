@@ -39,6 +39,74 @@ function context(change: Record<string, unknown> = {}): MatchContext {
   };
 }
 describe("fixture-bound candidate scoring and explicit game review", () => {
+  it("sums recorded exhibition scores across uneven sides and counts included games without round rules", async () => {
+    const uneven = syntheticApiGame(1, 100, 75);
+    uneven.scoring_type = "scorev2";
+    uneven.scores.splice(1, 1);
+    const source = await sourceOf([
+      {
+        ...uneven,
+        mods: null,
+        scores: uneven.scores.map((score, index) =>
+          index === 0
+            ? {
+                ...score,
+                mods: null,
+                passed: undefined,
+                match: { ...score.match, pass: undefined },
+              }
+            : score,
+        ),
+      },
+      syntheticApiGame(2, 75, 75),
+    ]);
+    source.games[0].scores[1].passed = false;
+    const c = context({
+      playersPerTeam: 4,
+      aggregation: "average",
+      failedScorePolicy: "zero",
+      series: { type: "first_to", wins: 5 },
+    });
+    c.round.stage = "exhibition";
+    c.fixture.openExhibition = true;
+    c.teams = c.teams.map((team) => ({ ...team, members: [] }));
+    c.pool = { entries: [], fmMode: "force_mod", fmRestrictions: "" };
+    const decisions = choices([1, 2]).map((d) => ({
+      ...d,
+      reason: "",
+      complianceConfirmed: false,
+    }));
+
+    const preview = previewMatch(source, c, decisions);
+    expect(preview.canSubmit).toBe(true);
+    expect(preview.games[0]).toMatchObject({
+      homeScore: 150,
+      awayScore: 100,
+      warnings: [],
+    });
+    expect(preview.series).toMatchObject({
+      homeWins: 1,
+      awayWins: 0,
+      tiedMaps: 1,
+      winnerTeamId: c.fixture.homeTeamId,
+    });
+    expect(previewMatch(source, c, decisions, true).canSubmit).toBe(false);
+    c.round.scoringRules = null;
+    expect(previewMatch(source, c, decisions).canSubmit).toBe(true);
+
+    const tieOnly = [
+      { ...decisions[0], included: false, reason: "Warmup" },
+      decisions[1],
+    ];
+    expect(previewMatch(source, c, tieOnly).series).toMatchObject({
+      complete: true,
+      draw: true,
+      tiedMaps: 1,
+      winnerTeamId: null,
+    });
+    source.games[0].scores[0].team = null;
+    expect(previewMatch(source, c, decisions).canSubmit).toBe(false);
+  });
   it("maps open exhibition players by each game's colors, including new players and side switches", async () => {
     const games = [syntheticApiGame(1), syntheticApiGame(2)];
     games[1].scores = games[1].scores.map((s, i) => ({

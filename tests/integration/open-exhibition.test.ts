@@ -148,23 +148,32 @@ describe.skipIf(!url)("fixture-local open exhibition sides", () => {
       exhibition: true,
     });
     let view = await matchReview(referee, "test-cup", id);
+    await fixtureCommand(admin, "test-cup", {
+      confirmed: true,
+      action: "round_rules",
+      roundId: view.context.round.id,
+      expectedVersion: view.context.round.version,
+      scoringRules: null,
+      standingsRules: null,
+    });
+    view = await matchReview(referee, "test-cup", id);
     view = (
       await resultCommand(referee, "test-cup", id, {
         ...command(view),
         action: "submit",
         importId: seeded.importId,
-        rulesConfirmed: true,
         sourceChangesConfirmed: true,
         publicNote: "Synthetic exhibition",
         decisions: seeded.source.games.map((g) => ({
           gameId: g.id,
           included: true,
           reason: "",
-          complianceConfirmed: true,
+          complianceConfirmed: false,
           substitutions: [],
         })),
       })
     ).review;
+    expect(view.current?.proposal?.rulesSnapshot).toBeNull();
     expect((await publicFixture("test-cup", id))?.result).toBeNull();
     const approval = {
       ...command(view),

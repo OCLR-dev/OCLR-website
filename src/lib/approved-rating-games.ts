@@ -92,7 +92,8 @@ export async function approvedRatingGames(
       winnerTeamId: null as string | null,
       ...(ezScoreMultiplier === 1 ? {} : { ezScoreMultiplier }),
     };
-    if (!proposal.success) {
+    const rules = proposal.success ? proposal.data.rulesSnapshot : null;
+    if (!proposal.success || !rules) {
       games.push({
         ...common,
         gameId: -games.length - 1,
@@ -130,9 +131,9 @@ export async function approvedRatingGames(
         if (
           !game.endTime ||
           game.problems.length ||
-          game.mode !== proposal.data.rulesSnapshot.mode ||
-          game.teamType !== proposal.data.rulesSnapshot.teamType ||
-          game.scoringType !== proposal.data.rulesSnapshot.scoringType
+          game.mode !== rules.mode ||
+          game.teamType !== rules.teamType ||
+          game.scoringType !== rules.scoringType
         )
           problem = "Unsupported or incomplete scored game.";
         for (const score of game.scores) {
@@ -148,7 +149,7 @@ export async function approvedRatingGames(
             r.osuIds.includes(id ?? -1),
           );
           const substitution =
-            proposal.data.rulesSnapshot.allowSubstitutions &&
+            rules.allowSubstitutions &&
             proposal.data.decisions
               .find((d) => d.gameId === game.id)
               ?.substitutions.filter(
@@ -165,8 +166,7 @@ export async function approvedRatingGames(
           }
           const mods = [...new Set([...game.mods, ...score.mods])].sort();
           const unadjustedTotal =
-            score.passed === false &&
-            proposal.data.rulesSnapshot.failedScorePolicy === "zero"
+            score.passed === false && rules.failedScorePolicy === "zero"
               ? 0
               : score.total;
           const adjusted = statisticsScore(

@@ -591,7 +591,7 @@ New exhibition fixtures need no official team selection. Their editable red/blue
 names default to 紅隊 / 藍隊; stable fixture-local side IDs are stored independently
 of the official team directory. Renaming either side does not change its picks,
 scores or approved result revision. A legacy exhibition with official teams keeps
-its existing reporting semantics and protected history; saving an unchanged
+its existing team attribution and protected history; saving an unchanged
 legacy side name retains those teams. Converting participants after submission
 or approval is blocked by the existing structural-history rules.
 
@@ -599,10 +599,17 @@ Open participants join the osu! MP room freely. They need no accepted registrati
 draft membership or captain assignment. Every reviewed game's saved provider
 red/blue colors determine attribution independently, so players can join, leave
 or switch sides between maps. Missing player/color evidence, duplicate scores,
-invalid modes and incomplete games still block submission. The configured round
-player count, modifiers, scoring and series rules still apply. Substitution
-assignments cannot override provider colors. Provisional referee MP scoring uses
-this same trusted exhibition mapping; no captain invites are fabricated.
+missing scores and incomplete games still block inclusion. Substitution
+assignments cannot override provider colors. Provisional referee MP scoring
+still applies the configured round rules.
+
+Post-match exhibition review sums each side’s recorded MP scores, including
+recorded scores on failed plays. Select which completed games count, and the
+series records map wins and ties even when the lineup, mods, pool, scoring mode
+or series length differs from round settings. Both sides need attributable
+scores. The referee confirms the source and game decisions before submission,
+and an Admin still approves and publishes the result. Older proposals keep
+their original scoring snapshot for approval and publication (#1032).
 
 Only approved included player scores are released. Minimal public MP participant
 IDs/names are saved with the source snapshot and link to osu!; they do not create

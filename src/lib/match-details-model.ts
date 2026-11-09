@@ -206,7 +206,7 @@ export function reviewedMatchDetails(
       const roster = proposal.rosterSnapshot.filter((r) =>
         r.osuIds.includes(s.osuId!),
       );
-      const substitution = proposal.rulesSnapshot.allowSubstitutions
+      const substitution = proposal.rulesSnapshot?.allowSubstitutions
         ? decision?.substitutions.find((a) => a.osuId === s.osuId)
         : undefined;
       const teamId =
@@ -219,7 +219,7 @@ export function reviewedMatchDetails(
           username,
           teamId,
           !!reviewed,
-          proposal.rulesSnapshot.failedScorePolicy === "zero",
+          proposal.rulesSnapshot?.failedScorePolicy === "zero",
           attribution?.evidence ??
             (roster.length === 1
               ? "roster"
@@ -245,7 +245,7 @@ export function reviewedMatchDetails(
     sources: [{ mpId, revision: String(revision), complete: true }],
     games: sortDetailGames(projected),
     teamIds: proposal.teamIds,
-    failedScorePolicy: proposal.rulesSnapshot.failedScorePolicy,
+    failedScorePolicy: proposal.rulesSnapshot?.failedScorePolicy ?? "include",
     technicalAdjudication: false,
     rating: null,
   };

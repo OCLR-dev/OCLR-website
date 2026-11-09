@@ -497,6 +497,11 @@ while retaining its exact prior statistics identity through `sourceTitle`;
 existing maps without these fields remain compatible. See
 [the S2 NM2 recovery](archive-map-metadata.md#s2-nm2-official-file-recovery-852).
 
+Contract 1.31.0 allows a null `rulesSnapshot` on a reviewed exhibition result
+computed from recorded MP scores. Existing round-scored proposals continue to
+carry their original snapshot. The write contract 0.3.0 makes `rulesConfirmed`
+optional in the submit request. The server still requires it for formal fixtures.
+
 Contract 1.30.0 exposes an optional `round.exhibition` marker and the saved
 `session.basis.skipBans` choice in referee workspaces. An order event with
 `skipBans: true` has a first Pick side and a null first Ban side. Earlier saved
