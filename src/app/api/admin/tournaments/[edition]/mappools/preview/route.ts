@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
-import { previewBeatmap, previewMappoolBatch } from "@/lib/mappools";
+import { previewBeatmap, previewMappoolBatch } from "@/lib/mappool-preview";
 import { previewMappoolWrite } from "@/lib/mappool-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 export async function POST(

@@ -8,7 +8,7 @@ import { edition } from "../fixtures/edition";
 import Overview from "../../src/app/tournaments/[edition]/page";
 import { getPublicEdition } from "../../src/lib/content";
 import { publicCompetition } from "../../src/lib/public-competition";
-import { publicMappools } from "../../src/lib/mappools";
+import { publicMappools } from "../../src/lib/mappool-reads";
 import { publishedTeams } from "../../src/lib/teams";
 import { publicStaff } from "../../src/lib/public-staff";
 import { publicDraft } from "../../src/lib/draft";
@@ -39,7 +39,7 @@ vi.mock("../../src/lib/registrations", () => ({
 vi.mock("../../src/lib/public-competition", () => ({
   publicCompetition: vi.fn(),
 }));
-vi.mock("../../src/lib/mappools", () => ({ publicMappools: vi.fn() }));
+vi.mock("../../src/lib/mappool-reads", () => ({ publicMappools: vi.fn() }));
 vi.mock("../../src/lib/teams", () => ({ publishedTeams: vi.fn() }));
 vi.mock("../../src/lib/public-staff", () => ({ publicStaff: vi.fn() }));
 vi.mock("../../src/lib/draft", () => ({ publicDraft: vi.fn() }));

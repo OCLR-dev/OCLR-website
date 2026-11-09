@@ -8,7 +8,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Edition configuration and publication | [tournaments](../src/lib/tournaments.ts) owns configuration commands and reads. [content](../src/lib/content.ts) provides edition lookups for callers. |
 | Registration, appointments and rosters | [registrations](../src/lib/registrations.ts), [staff](../src/lib/staff.ts), [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own their writes, version checks and audits. |
 | Draft | [draft](../src/lib/draft.ts) owns state transitions, staff/captain access, picks, idempotency and public reads. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
-| Mappools | [mappools](../src/lib/mappools.ts) owns official pool changes and projections. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
+| Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace, [referee](../src/lib/referee.ts) owns referee commands, and [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) coordinate IRC and multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) reads and writes the relational representation. [archive-read](../src/lib/archive-read.ts) serves saved projections. |
@@ -92,6 +92,31 @@ own transaction into the command, so the relay sequence, command status and BP
 event commit or roll back together. A synthetic test verifies that IRC waits on
 the shared lock, retries the same confirmation after an audit failure and
 records one selection when that confirmation is replayed.
+
+## Mappools
+
+Previously, loading the staff workspace or published pools also loaded the
+osu! beatmap provider and historical import commands.
+[mappool-reads](../src/lib/mappool-reads.ts) now serves the staff and public
+projections directly to the website, streaming service and versioned read API.
+Staff reads keep the edition and replay permissions. Public reads use saved
+difficulty data and return only published pools from public editions.
+
+[mappool-preview](../src/lib/mappool-preview.ts) requires edition permission
+to manage pools before spending the osu! lookup budget. Batch preview checks
+the pool version and both locks before fetching metadata.
+[mappools](../src/lib/mappools.ts) owns the write transaction. After provider
+lookup it takes the edition lock and rechecks permissions. Pool commands
+then lock the pool row and recheck its version and lock flags. The write,
+version increment and audit commit together.
+A selection lock still allows explicit publication; a pool used by an approved
+fixture also blocks publication changes.
+
+The mappool integration suite now simulates a selection lock committed during
+osu! lookup. The import returns a conflict and leaves the entries, version and
+audit intact. Explicit publication then exposes only the previously saved maps.
+Existing tests still cover stale previews, completed-fixture locks, rollback
+and visibility of draft pools and private editions.
 
 ## Transactions and read scopes
 

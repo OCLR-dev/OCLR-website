@@ -16,7 +16,7 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import { WorkspaceTabs } from "./workspace-tabs";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import type { MappoolWorkspace } from "@/lib/mappools";
+import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import {
   categories,
   difficultyConfigurations,

@@ -25,7 +25,7 @@ import {
   seasonAvailabilityMetadata,
   seasonAvailabilityReadColumns,
 } from "./live-season-columns";
-import { publicMappools } from "./mappools";
+import { publicMappools } from "./mappool-reads";
 import {
   practiceCommandSchema,
   practiceContextValue,

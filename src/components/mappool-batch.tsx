@@ -6,7 +6,8 @@ import { ReadOnlyFields } from "./staff-read-only";
 import { useAppTranslations } from "@/i18n/shared";
 
 import { useEffect, useRef, useState } from "react";
-import type { MappoolBatchPreview, MappoolWorkspace } from "@/lib/mappools";
+import type { MappoolBatchPreview } from "@/lib/mappool-write-contracts";
+import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import {
   categories,
   slotLabel,

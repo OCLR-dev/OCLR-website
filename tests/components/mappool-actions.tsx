@@ -6,7 +6,7 @@ import {
   type AppRouterInstance,
 } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { MappoolEditor } from "../../src/components/mappool-editor";
-import type { MappoolWorkspace } from "../../src/lib/mappools";
+import type { MappoolWorkspace } from "../../src/lib/mappool-reads";
 import en from "../../messages/en.json";
 import hans from "../../messages/zh-Hans.json";
 import hant from "../../messages/zh-Hant.json";

@@ -42,7 +42,7 @@ import {
 } from "../../src/lib/player-workspace-contracts";
 import { POST as savePractice } from "../../src/app/api/tournaments/[edition]/player/practice/route";
 import { POST as saveAvailability } from "../../src/app/api/tournaments/[edition]/player/availability/route";
-import { publicMappools } from "../../src/lib/mappools";
+import { publicMappools } from "../../src/lib/mappool-reads";
 import { withReadChannel } from "../../src/lib/read-channel";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";

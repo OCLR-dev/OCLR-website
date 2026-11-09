@@ -10,22 +10,7 @@ import { slotLabel, type MappoolCategory } from "./mappool-model";
 import { compareTournamentSeasons } from "./tournament-order";
 import type { Edition } from "./editions";
 
-import type { HistoricalMapSource } from "./competition-detail-read-contracts";
 export type { HistoricalMapSource } from "./competition-detail-read-contracts";
-/** Older saved-read backends omit this additive field. Current DB rows retain null. */
-export function historicalSourceRead<
-  T extends {
-    source: HistoricalMapSource | null;
-    downloadMirror: string | null;
-  },
->(
-  entry: T,
-): Omit<T, "source" | "downloadMirror"> & {
-  source?: HistoricalMapSource | null;
-  downloadMirror?: string | null;
-} {
-  return entry;
-}
 export type HistoricalPoolChoice = {
   editionSlug: string;
   editionName: string;
@@ -123,7 +108,7 @@ export async function historicalPoolChoices(slug: string) {
       choices.push(...(await savedChoices(edition, db())));
     else {
       // Public saved-read composition also works in the read-only remote frontend.
-      const { publicMappools } = await import("./mappools");
+      const { publicMappools } = await import("./mappool-reads");
       for (const pool of await publicMappools(edition.slug)) {
         const entries = pool.entries;
         choices.push({

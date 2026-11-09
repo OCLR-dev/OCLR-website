@@ -11,7 +11,7 @@ import type { FixtureWorkspace } from "@/lib/fixture-reads";
 import { ReadOnlyFields, StaffReadOnlyContext } from "./staff-read-only";
 import { useEffect, useId, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import type { MappoolWorkspace } from "@/lib/mappools";
+import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import { WorkspaceTabs } from "./workspace-tabs";
 import { ConfirmMutation } from "./confirm-mutation";
 import styles from "./round-manager.module.css";

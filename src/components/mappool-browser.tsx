@@ -4,7 +4,7 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-import type { publicMappools } from "@/lib/mappools";
+import type { publicMappools } from "@/lib/mappool-reads";
 import {
   categories,
   fmPolicyName,

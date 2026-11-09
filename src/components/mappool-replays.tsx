@@ -12,7 +12,7 @@ import {
 import { MappoolActionIcon } from "./mappool-action-icon";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { useAppTranslations } from "@/i18n/shared";
-import type { MappoolWorkspace } from "@/lib/mappools";
+import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import type { ReplayItem } from "@/lib/mappool-replays";
 import { REPLAY_MAX_BYTES, REPLAY_ENTRY_LIMIT } from "@/lib/replay-model";
 import {

@@ -1,6 +1,6 @@
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { NextResponse } from "next/server";
-import { publicMappools } from "@/lib/mappools";
+import { publicMappools } from "@/lib/mappool-reads";
 import { apiError, HttpError } from "@/lib/http";
 async function readGET(
   _request: Request,

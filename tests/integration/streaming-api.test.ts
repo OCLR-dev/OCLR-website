@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { readContractVersion } from "../../src/lib/read-api-version";
 import { emptyRefereeSettings } from "../../src/lib/referee-commands";
-import * as poolsModule from "../../src/lib/mappools";
+import * as poolsModule from "../../src/lib/mappool-reads";
 import {
   beforeAll,
   beforeEach,

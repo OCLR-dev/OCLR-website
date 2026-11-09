@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useId, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { competitionStageLabel } from "@/lib/competition-stage";
-import type { publicMappools } from "@/lib/mappools";
+import type { publicMappools } from "@/lib/mappool-reads";
 import { MappoolBrowser } from "./mappool-browser";
 import { WorkspaceTabs } from "./workspace-tabs";
 import styles from "./public-mappools.module.css";

@@ -30,7 +30,7 @@
     "scope": "tournaments:read"
   },
   {
-    "module": "mappools",
+    "module": "mappool-reads",
     "fn": "publicMappools",
     "id": "publicMappools",
     "path": "/tournaments/{edition}/mappools",
@@ -180,7 +180,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "mappools",
+    "module": "mappool-reads",
     "fn": "mappoolWorkspace",
     "id": "mappoolWorkspace",
     "path": "/staff/tournaments/{edition}/mappools",

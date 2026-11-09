@@ -1,5 +1,5 @@
 import { useAppTranslations } from "@/i18n/shared";
-import type { publicMappools } from "@/lib/mappools";
+import type { publicMappools } from "@/lib/mappool-reads";
 import {
   categories,
   categoryNames,
