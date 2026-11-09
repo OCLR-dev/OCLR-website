@@ -4,7 +4,7 @@ import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
 import { remotePage } from "@/lib/remote-page";
-import { refereeWorkspace } from "@/lib/referee";
+import { refereeWorkspace } from "@/lib/referee-workspace";
 
 export async function generateMetadata() {
   const tr = await getAppTranslations();

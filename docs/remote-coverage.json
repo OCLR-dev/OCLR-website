@@ -370,7 +370,7 @@
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/referee.ts#refereeWorkspace"
+        "src/lib/referee-workspace.ts#refereeWorkspace"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -948,7 +948,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/referee.ts#refereeWorkspace"
+        "src/lib/referee-workspace.ts#refereeWorkspace"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",

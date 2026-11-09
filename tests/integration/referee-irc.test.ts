@@ -10,14 +10,19 @@ import {
 import { randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
-import { fixtureReferees, refereeIrcCommands } from "../../src/db/schema";
+import {
+  fixtureReferees,
+  refereeIrcCommands,
+  refereeIrcConnections,
+} from "../../src/db/schema";
 import {
   seedRefereeFixture,
   refereeTestAdmin as admin,
   refereeTestUser as referee,
 } from "../fixtures/referee";
 import { assertTestDatabase } from "../database";
-import { refereeCommand, refereeWorkspace } from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace } from "../../src/lib/referee-workspace";
 import {
   refereeIrcRelay,
   refereeIrcBrowserCommand,
@@ -537,6 +542,100 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
       ).toBe("confirmed");
     },
   );
+  it("holds the shared IRC lock and rolls back relay and BP writes together", async () => {
+    await queue();
+    const dispatched = (await sync()).command!;
+    await sync([{ commandId: dispatched.id, status: "sent" }]);
+    const before = await refereeWorkspace(referee, "test-cup", fixtureId);
+    const evidence = {
+      sender: "BanchoBot",
+      target: "#mp_123",
+      text: "Beatmap changed to Test (https://osu.ppy.sh/b/10001)",
+    };
+    const confirmation = {
+      action: "sync",
+      connectionId,
+      sequence: ++seq,
+      projection: {
+        status: "connected",
+        messages: [
+          {
+            id: randomUUID(),
+            sender: evidence.sender,
+            text: evidence.text,
+            at: new Date().toISOString(),
+          },
+        ],
+      },
+      receipts: [{ commandId: dispatched.id, status: "confirmed", evidence }],
+    };
+    const confirm = () => refereeIrcRelay(actor, fixtureId, confirmation);
+    const readCommand = async () =>
+      (await db()
+        .select()
+        .from(refereeIrcCommands)
+        .where(eq(refereeIrcCommands.id, dispatched.id)))[0];
+    await db().execute(sql`
+      CREATE FUNCTION test_reject_irc_bp_audit() RETURNS trigger
+      LANGUAGE plpgsql AS $$
+      BEGIN
+        IF NEW.action = 'referee_record_selection' THEN
+          RAISE EXCEPTION 'Synthetic IRC BP audit failure';
+        END IF;
+        RETURN NEW;
+      END;
+      $$;
+      CREATE TRIGGER test_reject_irc_bp_audit BEFORE INSERT ON result_audit_events
+      FOR EACH ROW EXECUTE FUNCTION test_reject_irc_bp_audit();
+    `);
+    try {
+      await expect(confirm()).rejects.toThrow();
+      expect(await readCommand()).toMatchObject({
+        status: "sent",
+        confirmedAt: null,
+      });
+      const [connection] = await db()
+        .select({ sequence: refereeIrcConnections.sequence })
+        .from(refereeIrcConnections)
+        .where(eq(refereeIrcConnections.id, connectionId));
+      expect(connection.sequence).toBe(confirmation.sequence - 1);
+      const rolledBack = await refereeWorkspace(referee, "test-cup", fixtureId);
+      expect(rolledBack.session?.revision).toBe(before.session?.revision);
+      expect(rolledBack.events).toEqual(before.events);
+    } finally {
+      await db().execute(sql`
+        DROP TRIGGER test_reject_irc_bp_audit ON result_audit_events;
+        DROP FUNCTION test_reject_irc_bp_audit();
+      `);
+    }
+
+    let pending!: ReturnType<typeof confirm>;
+    await db().transaction(async (tx) => {
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(17301)`);
+      pending = confirm();
+      void pending.catch(() => {});
+      await vi.waitFor(async () => {
+        const {
+          rows: [lock],
+        } = await tx.execute<{ waiting: boolean }>(sql`
+          SELECT EXISTS (
+            SELECT 1 FROM pg_locks
+            WHERE locktype = 'advisory' AND NOT granted
+              AND database = (SELECT oid FROM pg_database WHERE datname = current_database())
+              AND classid = 0 AND objid = 17301 AND objsubid = 1
+          ) AS waiting
+        `);
+        expect(lock.waiting).toBe(true);
+      }, { timeout: 5_000 });
+    });
+    expect((await pending).sequence).toBe(confirmation.sequence);
+    expect(await readCommand()).toMatchObject({ status: "confirmed" });
+    await confirm();
+    const saved = await refereeWorkspace(referee, "test-cup", fixtureId);
+    expect(saved.session?.revision).toBe(before.session!.revision + 1);
+    expect(saved.projection.activeSelections).toHaveLength(1);
+  });
+
   it.each([
     "Beatmap changed to Test (https://osu.ppy.sh/b/10001)",
     "Changed beatmap to https://osu.ppy.sh/b/10001 Synthetic",

@@ -515,7 +515,7 @@
     "issues": [277]
   },
   {
-    "module": "referee",
+    "module": "referee-workspace",
     "fn": "refereeWorkspace",
     "model": "readRefereeWorkspace",
     "id": "refereeWorkspace",

@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import type { RefereeWorkspace } from "@/lib/referee";
+import type { RefereeWorkspace } from "@/lib/referee-workspace";
 import type { RefereeMpView } from "@/lib/referee-mp";
 import styles from "./referee-panel.module.css";
 

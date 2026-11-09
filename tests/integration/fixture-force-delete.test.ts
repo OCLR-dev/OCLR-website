@@ -28,11 +28,8 @@ import {
 } from "../../src/db/schema";
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { previewFixtureForceDelete } from "../../src/lib/fixture-force-delete";
-import {
-  refereeCommand,
-  refereeWorkspace,
-  type RefereeWorkspace,
-} from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace, type RefereeWorkspace } from "../../src/lib/referee-workspace";
 import {
   seedRefereeFixture,
   refereeTestAdmin as admin,

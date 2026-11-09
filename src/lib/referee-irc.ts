@@ -12,11 +12,8 @@ import type { User } from "./auth/sessions";
 import { assertCapability } from "./auth/staff";
 import { changeRefereeIrcBrowserWrite } from "./referee-irc-browser-contract";
 import { HttpError } from "./http-error";
-import {
-  assertRefereeAccess,
-  readRefereeWorkspace,
-  refereeCommand,
-} from "./referee";
+import { refereeCommand } from "./referee";
+import { assertRefereeAccess, readRefereeWorkspace } from "./referee-workspace";
 import { validateRefereeAction } from "./referee-model";
 import {
   allowedIrcCommand,

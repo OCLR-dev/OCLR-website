@@ -1,6 +1,7 @@
 import { db } from "../../src/db";
 import { mappoolEntries, users } from "../../src/db/schema";
-import { refereeCommand, refereeWorkspace } from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace } from "../../src/lib/referee-workspace";
 import type { RefereePolicy } from "../../src/lib/referee-model";
 import { randomUUID } from "node:crypto";
 import { seedResultReview } from "./results";

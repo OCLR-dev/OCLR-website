@@ -22,12 +22,12 @@ import {
 } from "./referee-write-contracts";
 export type { RefereeMpView } from "./referee-write-contracts";
 import { HttpError } from "./http-error";
+import { refereeCommand } from "./referee";
 import {
   assertRefereeAccess,
   readRefereeWorkspace,
-  refereeCommand,
   type RefereeWorkspace,
-} from "./referee";
+} from "./referee-workspace";
 import { fetchMatchSource, parseMatchId } from "./osu-matches";
 import {
   gameHash,

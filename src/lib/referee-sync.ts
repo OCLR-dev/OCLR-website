@@ -1,4 +1,4 @@
-import type { RefereeWorkspace } from "./referee";
+import type { RefereeWorkspace } from "./referee-workspace";
 
 export type BpSyncStep = "notice" | "map" | "mods";
 export type BpSyncMetadata = {

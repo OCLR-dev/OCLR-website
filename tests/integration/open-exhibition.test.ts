@@ -31,7 +31,8 @@ import {
   publicCompetition,
 } from "../../src/lib/public-competition";
 import { approvedRatingGames } from "../../src/lib/approved-rating-games";
-import { refereeCommand, refereeWorkspace } from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace } from "../../src/lib/referee-workspace";
 import { refereeMpCommand } from "../../src/lib/referee-mp";
 import { fetchMatchSource } from "../../src/lib/osu-matches";
 import {

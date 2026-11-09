@@ -1540,7 +1540,7 @@ export const refereeSessions = pgTable(
       .notNull(),
     dependencyFingerprint: text("dependency_fingerprint").notNull(),
     basis: jsonb("basis")
-      .$type<import("../lib/referee").RefereeBasis>()
+      .$type<import("../lib/fixture-read-contracts").RefereeBasis>()
       .notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

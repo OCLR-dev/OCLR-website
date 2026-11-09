@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { RefereeIrcBrowserView } from "@/lib/referee-irc-browser-contract";
-import type { RefereeWorkspace } from "@/lib/referee";
+import type { RefereeWorkspace } from "@/lib/referee-workspace";
 import { refereeMessage } from "@/i18n/referee";
 import { desktopLaunchUrl, desktopRoomJoinUrl } from "@/lib/desktop-launch";
 import styles from "./referee-panel.module.css";

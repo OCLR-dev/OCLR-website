@@ -4,7 +4,7 @@ const remote = vi.hoisted(() => ({
   frontendResource: vi.fn(async () => ({ synthetic: true })),
 }));
 vi.mock("../../src/lib/frontend-resource", () => remote);
-import { refereeWorkspace } from "../../src/lib/referee";
+import { refereeWorkspace } from "../../src/lib/referee-workspace";
 import { refereeReconciliation } from "../../src/lib/referee-reconciliation";
 import { remoteOperation } from "../../src/lib/remote-transport";
 import {
