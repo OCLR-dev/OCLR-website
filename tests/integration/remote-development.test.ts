@@ -23,7 +23,7 @@ import { remoteRead, remoteMedia } from "../../src/lib/remote-transport";
 import {
   publicArchiveStatistics,
   statisticsWorkspace,
-} from "../../src/lib/archive-statistics";
+} from "../../src/lib/archive-statistics-reads";
 import { publicPlayer } from "../../src/lib/players";
 import {
   connectRemote,

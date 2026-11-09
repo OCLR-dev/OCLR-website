@@ -20,7 +20,7 @@ import { backfillArchiveReads } from "../../src/lib/archive-read";
 import {
   publicArchiveStatistics,
   publicArchivePlayerPlays,
-} from "../../src/lib/archive-statistics";
+} from "../../src/lib/archive-statistics-reads";
 import {
   mapPerformance,
   minimumCountedScore,

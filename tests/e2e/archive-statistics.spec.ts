@@ -451,7 +451,7 @@ test.describe("historical statistics review and public exploration", () => {
     const { historicalStatistics } = await import("../../src/db/schema");
     const { eq } = await import("drizzle-orm");
     const { statisticsArchiveKey } =
-      await import("../../src/lib/archive-statistics");
+      await import("../../src/lib/archive-statistics-key");
     const source = statisticsSource();
     source.games[0].scores[0].team = "red";
     source.games[0].scores.push({
@@ -608,7 +608,7 @@ test.describe("historical statistics review and public exploration", () => {
     const { historicalStatistics } = await import("../../src/db/schema");
     const { eq } = await import("drizzle-orm");
     const { statisticsArchiveKey } =
-      await import("../../src/lib/archive-statistics");
+      await import("../../src/lib/archive-statistics-key");
     await db()
       .delete(historicalStatistics)
       .where(eq(historicalStatistics.editionSlug, "s7"));

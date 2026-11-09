@@ -71,7 +71,7 @@ export async function extendedRead(
     case "publicAwards":
       return (await import("./awards")).publicAwards(slug);
     case "publicArchiveStatistics":
-      return (await import("./archive-statistics")).publicArchiveStatistics(
+      return (await import("./archive-statistics-reads")).publicArchiveStatistics(
         slug,
         query.get("fixtureId") ?? undefined,
       );
@@ -116,7 +116,7 @@ export async function extendedRead(
     case "awardWorkspace":
       return (await import("./awards")).awardWorkspace(actor!, slug);
     case "statisticsWorkspace":
-      return (await import("./archive-statistics")).statisticsWorkspace(
+      return (await import("./archive-statistics-reads")).statisticsWorkspace(
         actor!,
         slug,
         query.get("fixtureId") ?? "",

@@ -48,7 +48,7 @@ import {
   validStatisticsExclusions,
   type StatisticsSnapshot,
 } from "../src/lib/archive-statistics-model";
-import { statisticsArchiveKey } from "../src/lib/archive-statistics";
+import { statisticsArchiveKey } from "../src/lib/archive-statistics-key";
 import { fetchMatchSource } from "../src/lib/osu-matches";
 import type { MatchSource } from "../src/lib/match-model";
 import type { HistoricalArchive } from "../src/lib/historical-archive";

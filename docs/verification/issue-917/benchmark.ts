@@ -8,7 +8,9 @@ import {
   playerLeaderboardVersions,
   userProfileCache,
 } from "../../../src/db/schema";
-import { publicArchiveStatistics } from "../../../src/lib/archive-statistics";
+import {
+  publicArchiveStatistics,
+} from "../../../src/lib/archive-statistics-reads";
 import { backfillArchiveRelations } from "../../../src/lib/archive-relations";
 import { statisticsArchiveKey } from "../../../src/lib/archive-statistics-key";
 import { databasePlayerLeaderboard } from "../../../src/lib/player-leaderboard";

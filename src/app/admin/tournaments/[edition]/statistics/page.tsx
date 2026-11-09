@@ -1,7 +1,7 @@
 import { StatisticsManager } from "@/components/statistics-manager";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { statisticsWorkspace } from "@/lib/archive-statistics";
+import { statisticsWorkspace } from "@/lib/archive-statistics-reads";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";

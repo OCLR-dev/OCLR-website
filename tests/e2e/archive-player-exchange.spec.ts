@@ -5,8 +5,8 @@ import { db, closeDb } from "../../src/db";
 import { editionRevisions, historicalStatistics } from "../../src/db/schema";
 import {
   publicArchiveStatistics,
-  statisticsArchiveKey,
-} from "../../src/lib/archive-statistics";
+} from "../../src/lib/archive-statistics-reads";
+import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import {

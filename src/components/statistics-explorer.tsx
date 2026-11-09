@@ -3,7 +3,7 @@ import { StatisticsNotice } from "./statistics-notice";
 import { useMemo, useState } from "react";
 import Link from "./pending-link";
 import { useAppTranslations } from "@/i18n/shared";
-import type { PublicArchiveStatistics } from "@/lib/archive-statistics";
+import type { PublicArchiveStatistics } from "@/lib/archive-statistics-reads";
 import { aggregateStatistics } from "@/lib/archive-statistics-model";
 import { Avatar } from "./avatar";
 export function StatisticsExplorer({

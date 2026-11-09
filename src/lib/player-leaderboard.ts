@@ -119,7 +119,7 @@ export async function playerLeaderboard(): Promise<PlayerLeaderboard> {
   if (remoteMode() && !(await supportsBackgroundReads())) {
     // Compatibility with older read-only backends; current backends use saved results.
     const { getPublicEditions } = await import("./content");
-    const { publicArchiveStatistics } = await import("./archive-statistics");
+    const { publicArchiveStatistics } = await import("./archive-statistics-reads");
     const { projectPlayerLeaderboard } =
       await import("./player-leaderboard-projector");
     const legacy = await decorate(

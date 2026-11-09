@@ -24,12 +24,12 @@ import {
   statisticsArchive,
   statisticsSource,
 } from "../fixtures/archive-statistics";
+import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 import {
-  statisticsArchiveKey,
   publicArchiveStatistics,
-  statisticsCommand,
   statisticsWorkspace,
-} from "../../src/lib/archive-statistics";
+} from "../../src/lib/archive-statistics-reads";
+import { statisticsCommand } from "../../src/lib/archive-statistics";
 import {
   backfillArchiveReads,
   relationalArchive,

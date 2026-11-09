@@ -13,7 +13,7 @@ import snapshot from "../../src/data/archive-beatmaps.json";
 import supplements from "../../src/data/archive-map-supplements.json";
 import early from "../../docs/imports/early-season-mappools.json";
 import { correctS2PoolArchive } from "../../src/lib/archive-pool-correction-model";
-import { statisticsArchiveKey } from "../../src/lib/archive-statistics";
+import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 
 function archive(season: string) {
   return historicalArchiveSchema.parse(

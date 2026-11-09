@@ -2,7 +2,7 @@ import { EventStatistics } from "@/components/event-statistics";
 import {
   publicArchiveStatistics,
   type PublicArchiveStatistics,
-} from "@/lib/archive-statistics";
+} from "@/lib/archive-statistics-reads";
 import { getPublicEdition } from "@/lib/content";
 import { previewScores, type EventScore } from "@/lib/event-statistics";
 import { HttpError } from "@/lib/http";
