@@ -4,7 +4,7 @@ import {
   desktopError,
 } from "@/lib/desktop-auth";
 import { readJson } from "@/lib/http";
-import { refereeIrcRelay } from "@/lib/referee-irc";
+import { refereeIrcRelay } from "@/lib/referee-irc-relay";
 import { refereeRelayWrite } from "@/lib/referee-relay-contract";
 export async function POST(
   request: Request,

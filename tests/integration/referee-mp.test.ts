@@ -34,7 +34,7 @@ import {
   refereeTestUser as actor,
 } from "../fixtures/referee";
 import { assertTestDatabase } from "../database";
-import { refereeIrcRelay } from "../../src/lib/referee-irc";
+import { refereeIrcRelay } from "../../src/lib/referee-irc-relay";
 vi.mock("../../src/lib/osu-matches", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../../src/lib/osu-matches")>()),
   fetchMatchSource: vi.fn(),

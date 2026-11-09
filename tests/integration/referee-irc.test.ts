@@ -23,12 +23,13 @@ import {
 import { assertTestDatabase } from "../database";
 import { refereeCommand } from "../../src/lib/referee";
 import { refereeWorkspace } from "../../src/lib/referee-workspace";
+import { refereeIrcBrowserCommand } from "../../src/lib/referee-irc";
+import { refereeIrcView } from "../../src/lib/referee-irc-reads";
+import { refereeIrcRelay } from "../../src/lib/referee-irc-relay";
 import {
-  refereeIrcRelay,
-  refereeIrcBrowserCommand,
-  refereeIrcView,
-} from "../../src/lib/referee-irc";
-import { POST as ircRoute } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/irc/route";
+  GET as readIrcRoute,
+  POST as ircRoute,
+} from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/irc/route";
 import { changeRefereeIrcBrowserWrite } from "../../src/lib/referee-irc-browser-contract";
 import { extendedSchemas } from "../../src/lib/extended-read-resources";
 const origin = "https://oclr.example.test";
@@ -36,23 +37,25 @@ vi.mock("../../src/lib/auth/user", async (original) => ({
   ...(await original<typeof import("../../src/lib/auth/user")>()),
   requireUser: async () => referee,
 }));
+function ircUrl(fixtureId: string) {
+  return (
+    origin +
+    changeRefereeIrcBrowserWrite.path
+      .replace("{edition}", "test-cup")
+      .replace("{fixtureId}", fixtureId)
+  );
+}
 function post(fixtureId: string, input: unknown, bearer = false) {
   return ircRoute(
-    new Request(
-      origin +
-        changeRefereeIrcBrowserWrite.path
-          .replace("{edition}", "test-cup")
-          .replace("{fixtureId}", fixtureId),
-      {
-        method: "POST",
-        headers: {
-          origin,
-          "content-type": "application/json",
-          ...(bearer ? { authorization: "Bearer synthetic-only" } : {}),
-        },
-        body: JSON.stringify(input),
+    new Request(ircUrl(fixtureId), {
+      method: "POST",
+      headers: {
+        origin,
+        "content-type": "application/json",
+        ...(bearer ? { authorization: "Bearer synthetic-only" } : {}),
       },
-    ),
+      body: JSON.stringify(input),
+    }),
     { params: Promise.resolve({ edition: "test-cup", fixtureId }) },
   );
 }
@@ -156,7 +159,11 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
       .update(refereeIrcCommands)
       .set({ createdAt: new Date(Date.now() - 31000) })
       .where(eq(refereeIrcCommands.requestKey, request.requestKey));
-    const view = await refereeIrcView(referee, "test-cup", fixtureId);
+    const response = await readIrcRoute(new Request(ircUrl(fixtureId)), {
+      params: Promise.resolve({ edition: "test-cup", fixtureId }),
+    });
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    const view = await parseIrcResponse(response);
     expect(view.commands.at(-1)?.status).toBe("failed");
     const [stored] = await db()
       .select()
