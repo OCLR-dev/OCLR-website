@@ -9,7 +9,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Registration | [registration-reads](../src/lib/registration-reads.ts) serves availability and personal applications. [staff-registration-reads](../src/lib/staff-registration-reads.ts) serves staff lists, details and export. [registrations](../src/lib/registrations.ts) and [staff](../src/lib/staff.ts) own player and staff commands. |
 | Appointments and rosters | [captain-reads](../src/lib/captain-reads.ts) and [team-reads](../src/lib/team-reads.ts) serve staff, personal and public queries. [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own the commands. |
 | Draft | [draft-reads](../src/lib/draft-reads.ts) serves staff, captain and public reads. [draft](../src/lib/draft.ts) owns transitions, picks and publication. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
-| Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
+| Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench-reads](../src/lib/mappool-workbench-reads.ts) serves saved candidates and comments, [mappool-workbench-preview](../src/lib/mappool-workbench-preview.ts) handles candidate previews, and [mappool-workbench](../src/lib/mappool-workbench.ts) owns candidate and comment changes. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes. [schedule-reads](../src/lib/schedule-reads.ts) serves schedule workspaces, and [schedule](../src/lib/schedule.ts) handles requests and approvals. [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) handles MP previews and imports, [results](../src/lib/results.ts) handles review and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace, [referee](../src/lib/referee.ts) owns referee commands, and [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) coordinate IRC and multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) and [archive-read](../src/lib/archive-read.ts) read typed sources and saved projections. [archive-relation-writes](../src/lib/archive-relation-writes.ts) synchronizes typed documents. [archive-statistics-reads](../src/lib/archive-statistics-reads.ts) reads statistics, and [archive-statistics](../src/lib/archive-statistics.ts) owns statistics commands. |
@@ -210,6 +210,26 @@ osu! lookup. The import returns a conflict and leaves the entries, version and
 audit intact. Explicit publication then exposes only the previously saved maps.
 Existing tests still cover stale previews, completed-fixture locks, rollback
 and visibility of draft pools and private editions.
+
+## Candidate workbench
+
+The workbench page and both versioned workbench read resources previously
+loaded the beatmap provider and workbench commands. They now share
+[mappool-workbench-reads](../src/lib/mappool-workbench-reads.ts) with the
+browser GET handlers. Candidate and comment reads retain the edition and
+Developer read checks. Remote reads still check the authenticated subject.
+
+POST loads the requested preview or command after checking origin and
+parsing the bounded request. Candidate preview checks the live edition
+capability and archive status before calling osu!. Candidate writes recheck
+the capability under the edition lock after any provider lookup.
+The existing skillset and comment versions, round assignment checks,
+candidate deduplication and comment request identity stay in the command.
+Writes and audit entries share its transaction.
+
+The versioned API integration test now fails if a saved read loads either
+the beatmap provider or the workbench command module. Existing tests still
+cover stale and competing edits, audit rollback, request replay and deletion.
 
 ## Historical statistics
 

@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { NextIntlClientProvider } from "next-intl";
 import { SelectionWorkbench } from "../../src/components/mappool-workbench";
-import type { SelectionWorkspace } from "../../src/lib/mappool-workbench";
+import type { SelectionWorkspace } from "../../src/lib/mappool-workbench-reads";
 import en from "../../messages/en.json";
 import hans from "../../messages/zh-Hans.json";
 import hant from "../../messages/zh-Hant.json";

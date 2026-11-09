@@ -93,7 +93,7 @@ export async function extendedRead(
     case "staffDraft":
       return (await import("./draft-reads")).staffDraft(actor!, slug);
     case "selectionWorkspace":
-      return (await import("./mappool-workbench")).selectionWorkspace(
+      return (await import("./mappool-workbench-reads")).selectionWorkspace(
         actor!,
         slug,
       );
@@ -104,7 +104,7 @@ export async function extendedRead(
         target,
       );
     case "candidateComments":
-      return (await import("./mappool-workbench")).candidateComments(
+      return (await import("./mappool-workbench-reads")).candidateComments(
         actor!,
         slug,
         target,

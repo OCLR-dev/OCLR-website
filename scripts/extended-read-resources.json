@@ -549,7 +549,7 @@
     "issues": [540]
   },
   {
-    "module": "mappool-workbench",
+    "module": "mappool-workbench-reads",
     "fn": "selectionWorkspace",
     "id": "selectionWorkspace",
     "path": "/staff/tournaments/{edition}/mappool-workbench",
@@ -559,7 +559,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "mappool-workbench",
+    "module": "mappool-workbench-reads",
     "fn": "candidateComments",
     "id": "candidateComments",
     "path": "/staff/tournaments/{edition}/mappool-workbench/{id}/comments",

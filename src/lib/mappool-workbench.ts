@@ -1,218 +1,28 @@
+import { createHash } from "node:crypto";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   editionState,
-  tournamentRounds,
-  tournamentStages,
+  mappoolCandidateComments,
   mappoolCandidateRounds,
   mappoolCandidates,
-  mappoolCandidateComments,
   mappoolEvents,
+  tournamentRounds,
 } from "@/db/schema";
-import { createHash } from "node:crypto";
-import { and, eq, inArray, sql } from "drizzle-orm";
-import { z } from "zod";
-import type { User } from "./auth/sessions";
-import { assertCapability, assertReadCapability } from "./auth/staff";
 import { assertOperationalEdition } from "./archive-guard";
+import type { User } from "./auth/sessions";
+import { assertCapability } from "./auth/staff";
 import { getEdition } from "./content";
-import { remoteMode } from "./data-source";
-import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import {
-  candidatePreviewInput,
-  selectionCommandInput,
-  type CandidatePreview,
-  type SelectionReceipt,
-} from "./mappool-write-contracts";
 import { HttpError } from "./http-error";
-import { fetchBeatmaps } from "./osu-beatmaps";
 import type { BeatmapSnapshot } from "./mappool-model";
 import { canonicalSkillsets } from "./mappool-skillsets";
+import { candidateLimit, commentLimit } from "./mappool-workbench-model";
 import {
-  candidateLimit,
-  commentLimit,
-  parseCandidateRows,
-} from "./mappool-workbench-model";
+  selectionCommandInput,
+  type SelectionReceipt,
+} from "./mappool-write-contracts";
+import { fetchBeatmaps } from "./osu-beatmaps";
 
-async function databaseSelectionWorkspace(
-  actor: User,
-  slug: string,
-): Promise<SelectionWorkspace> {
-  await assertReadCapability(actor, "select_mappools", slug);
-  const edition = await getEdition(slug);
-  if (!edition) throw new HttpError(404, "Edition not found.");
-  return db().transaction(
-    async (tx) => {
-      const candidates = await tx
-        .select({
-          id: mappoolCandidates.id,
-          beatmapId: mappoolCandidates.beatmapId,
-          category: mappoolCandidates.category,
-          skillsetTags: mappoolCandidates.skillsetTags,
-          skillsetVersion: mappoolCandidates.skillsetVersion,
-          metadata: mappoolCandidates.metadata,
-          metadataFetchedAt: mappoolCandidates.metadataFetchedAt,
-          authorId: mappoolCandidates.authorId,
-          authorName: mappoolCandidates.authorName,
-          createdAt: mappoolCandidates.createdAt,
-          commentCount: sql<number>`count(${mappoolCandidateComments.id})::int`,
-        })
-        .from(mappoolCandidates)
-        .leftJoin(
-          mappoolCandidateComments,
-          eq(mappoolCandidateComments.candidateId, mappoolCandidates.id),
-        )
-        .where(eq(mappoolCandidates.editionSlug, slug))
-        .groupBy(mappoolCandidates.id)
-        .orderBy(mappoolCandidates.createdAt, mappoolCandidates.id)
-        .limit(candidateLimit);
-      const rounds = await tx
-        .select({
-          id: tournamentRounds.id,
-          name: tournamentRounds.name,
-          stage: tournamentStages.kind,
-          position: tournamentRounds.position,
-        })
-        .from(tournamentRounds)
-        .innerJoin(
-          tournamentStages,
-          eq(tournamentStages.id, tournamentRounds.stageId),
-        )
-        .where(eq(tournamentRounds.editionSlug, slug))
-        .orderBy(
-          tournamentStages.kind,
-          tournamentRounds.position,
-          tournamentRounds.id,
-        );
-      const links = await tx
-        .select({
-          candidateId: mappoolCandidateRounds.candidateId,
-          roundId: mappoolCandidateRounds.roundId,
-        })
-        .from(mappoolCandidateRounds)
-        .where(eq(mappoolCandidateRounds.editionSlug, slug));
-      const byCandidate = new Map<string, string[]>();
-      for (const link of links) {
-        const ids = byCandidate.get(link.candidateId) ?? [];
-        ids.push(link.roundId);
-        byCandidate.set(link.candidateId, ids);
-      }
-      return {
-        candidates: candidates.map((c) => ({
-          ...c,
-          roundIds: (byCandidate.get(c.id) ?? []).sort(),
-        })),
-        rounds,
-        asOf: new Date(),
-        archived: Boolean(edition.archive),
-      };
-    },
-    { isolationLevel: "repeatable read", accessMode: "read only" },
-  );
-}
-export async function selectionWorkspace(
-  actor: User,
-  slug: string,
-): Promise<SelectionWorkspace> {
-  if (remoteMode()) {
-    await assertRemoteSubject(actor.osuId);
-    return frontendResource("selectionWorkspace", { slug });
-  }
-  return databaseSelectionWorkspace(actor, slug);
-}
-export type SelectionWorkspace =
-  import("./explicit-read-contracts").ExplicitReadData<"selectionWorkspace">;
-export type CandidateComments =
-  import("./explicit-read-contracts").ExplicitReadData<"candidateComments">;
-async function databaseCandidateComments(
-  actor: User,
-  slug: string,
-  id: string,
-): Promise<CandidateComments> {
-  await assertReadCapability(actor, "select_mappools", slug);
-  if (!z.uuid().safeParse(id).success)
-    throw new HttpError(400, "Invalid candidate.");
-  const [candidate] = await db()
-    .select({ id: mappoolCandidates.id })
-    .from(mappoolCandidates)
-    .where(
-      and(
-        eq(mappoolCandidates.id, id),
-        eq(mappoolCandidates.editionSlug, slug),
-      ),
-    );
-  if (!candidate) throw new HttpError(404, "Candidate not found.");
-  return db()
-    .select({
-      id: mappoolCandidateComments.id,
-      authorId: mappoolCandidateComments.authorId,
-      authorName: mappoolCandidateComments.authorName,
-      body: mappoolCandidateComments.body,
-      version: sql<string>`xmin::text`,
-      createdAt: mappoolCandidateComments.createdAt,
-    })
-    .from(mappoolCandidateComments)
-    .where(eq(mappoolCandidateComments.candidateId, id))
-    .orderBy(mappoolCandidateComments.createdAt, mappoolCandidateComments.id)
-    .limit(commentLimit);
-}
-export async function candidateComments(
-  actor: User,
-  slug: string,
-  id: string,
-): Promise<CandidateComments> {
-  if (remoteMode()) {
-    await assertRemoteSubject(actor.osuId);
-    return frontendResource("candidateComments", { slug, id });
-  }
-  return databaseCandidateComments(actor, slug, id);
-}
-export async function previewCandidates(
-  actor: User,
-  slug: string,
-  input: unknown,
-): Promise<CandidatePreview> {
-  // Preview spends provider budget, so it requires the same live write grant.
-  await assertCapability(actor, "select_mappools", slug);
-  const parsed = candidatePreviewInput.safeParse(input);
-  if (!parsed.success)
-    throw new HttpError(400, "Enter between 1 and 50 map rows.");
-  const data = await selectionWorkspace(actor, slug);
-  if (data.archived)
-    throw new HttpError(
-      409,
-      "Historical archives are read-only in the selection workbench.",
-    );
-  let rows;
-  try {
-    rows = parseCandidateRows(
-      parsed.data.text,
-      data.candidates
-        .filter((c) => c.category === parsed.data.category)
-        .map((c) => c.beatmapId),
-    );
-  } catch {
-    throw new HttpError(400, "Enter between 1 and 50 map rows.");
-  }
-  const ids = rows.filter((r) => r.status === "ready").map((r) => r.beatmapId!);
-  const snapshots = ids.length
-    ? await fetchBeatmaps(ids)
-    : new Map<number, BeatmapSnapshot | HttpError>();
-  return {
-    rows: rows.map((r) => {
-      const result = snapshots.get(r.beatmapId!);
-      return {
-        ...r,
-        status:
-          r.status === "ready" && (!result || result instanceof HttpError)
-            ? "failed"
-            : r.status,
-        snapshot: result && !(result instanceof HttpError) ? result : null,
-        error: result instanceof HttpError ? result.message : null,
-      };
-    }),
-  };
-}
-export type { CandidatePreview } from "./mappool-write-contracts";
 export async function selectionCommand(
   actor: User,
   slug: string,
