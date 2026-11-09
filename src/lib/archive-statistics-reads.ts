@@ -35,7 +35,7 @@ import {
   archiveMatchDetails,
   withStatisticsScores,
 } from "./match-details-model";
-import { ratingSnapshot } from "./ratings";
+import { ratingSnapshot } from "./rating-snapshot";
 import { statisticsScore } from "./statistics-score";
 import { hasStatisticsAdjudication } from "./statistics-snapshot";
 import { readTournament } from "./tournament-reads";

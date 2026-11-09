@@ -5,14 +5,14 @@ import { InfoNote } from "@/components/info-note";
 import { PlayerClassBadge } from "./player-class-badge";
 import Link from "./pending-link";
 import { useAppTranslations } from "@/i18n/shared";
-import type { ratingSnapshot } from "@/lib/ratings";
+import type { RatingSnapshot } from "@/lib/rating-snapshot";
 export function PlayerRatings({
   report,
   slug,
   historical = false,
   compact = false,
 }: {
-  report: ReturnType<typeof ratingSnapshot>;
+  report: RatingSnapshot;
   slug: string;
   historical?: boolean;
   compact?: boolean;

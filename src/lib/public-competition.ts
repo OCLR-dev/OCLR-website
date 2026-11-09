@@ -27,7 +27,8 @@ import {
   reviewedResultSchema,
 } from "./match-model";
 import { approvedRatingGames } from "./approved-rating-games";
-import { ratingIdentities, ratingSnapshot } from "./ratings";
+import { ratingIdentities } from "./rating-data";
+import { ratingSnapshot } from "./rating-snapshot";
 import {
   reviewedMatchDetails,
   withStatisticsScores,
