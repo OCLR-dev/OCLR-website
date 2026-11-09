@@ -6,7 +6,7 @@ import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { awardValue } from "@/lib/award-model";
 import { awardTierLabel } from "@/lib/award-tiers";
-import { publicAwards } from "@/lib/awards";
+import { publicAwards } from "@/lib/award-reads";
 import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 import { notFound } from "next/navigation";

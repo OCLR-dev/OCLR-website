@@ -3,7 +3,7 @@ import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
-import { awardWorkspace } from "@/lib/awards";
+import { awardWorkspace } from "@/lib/award-reads";
 import { remotePage } from "@/lib/remote-page";
 async function Issue271Page({
   params,

@@ -1,4 +1,4 @@
-import type { awardWorkspace } from "../../src/lib/awards";
+import type { awardWorkspace } from "../../src/lib/award-reads";
 import { weeklyStandings, AWARD_POLICY } from "../../src/lib/award-model";
 
 export function syntheticAwardWorkspace(

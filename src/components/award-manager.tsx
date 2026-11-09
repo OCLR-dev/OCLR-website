@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { awardTierLabel } from "@/lib/award-tiers";
-import type { awardWorkspace } from "@/lib/awards";
+import type { awardWorkspace } from "@/lib/award-reads";
 import type { AwardWeek, AwardPolicy as Policy } from "@/lib/award-model";
 import { ZonedDateInput } from "./zoned-date-input";
 import { AwardPolicy } from "./award-policy";

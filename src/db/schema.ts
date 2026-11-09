@@ -1373,7 +1373,7 @@ export const weeklyAwardReleases = pgTable(
     revision: integer("revision").notNull(),
     fingerprint: text("fingerprint").notNull(),
     report: jsonb("report")
-      .$type<import("@/lib/awards").AwardReport>()
+      .$type<import("@/lib/staff-workspace-read-contracts").AwardReport>()
       .notNull(),
     publishedBy: bigint("published_by", { mode: "number" }).notNull(),
     publishedAt: timestamp("published_at", { withTimezone: true })

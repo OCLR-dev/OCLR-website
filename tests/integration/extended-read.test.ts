@@ -95,9 +95,13 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
     vi.doMock("../../src/lib/streaming", () => {
       throw new Error("Saved reads must not load streaming commands");
     });
+    vi.doMock("../../src/lib/awards", () => {
+      throw new Error("Saved reads must not load award commands");
+    });
     try {
       return await request(path);
     } finally {
+      vi.doUnmock("../../src/lib/awards");
       vi.doUnmock("../../src/lib/streaming");
       vi.doUnmock("../../src/lib/mappool-workbench");
       vi.doUnmock("../../src/lib/osu-beatmaps");
@@ -133,6 +137,8 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
         "selectionWorkspace",
         "candidateComments",
         "streamingWorkspace",
+        "publicAwards",
+        "awardWorkspace",
       ].includes(resource.id);
       const response = guardedRead
         ? await requestWithoutCommands(path)

@@ -90,7 +90,7 @@
     "scope": "tournaments:read"
   },
   {
-    "module": "awards",
+    "module": "award-reads",
     "fn": "publicAwards",
     "id": "publicAwards",
     "path": "/tournaments/{edition}/awards",
@@ -200,7 +200,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "awards",
+    "module": "award-reads",
     "fn": "awardWorkspace",
     "id": "awardWorkspace",
     "path": "/staff/tournaments/{edition}/awards",

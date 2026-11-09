@@ -12,6 +12,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench-reads](../src/lib/mappool-workbench-reads.ts) serves saved candidates and comments, [mappool-workbench-preview](../src/lib/mappool-workbench-preview.ts) handles candidate previews, and [mappool-workbench](../src/lib/mappool-workbench.ts) owns candidate and comment changes. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes. [schedule-reads](../src/lib/schedule-reads.ts) serves schedule workspaces, and [schedule](../src/lib/schedule.ts) handles requests and approvals. [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) handles MP previews and imports, [results](../src/lib/results.ts) handles review and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
 | Streaming assignments | [streaming-workspace](../src/lib/streaming-workspace.ts) serves the saved staff workspace. [streaming](../src/lib/streaming.ts) handles booking commands. [streaming-staff](../src/lib/streaming-staff.ts) provides shared staff eligibility. |
+| Weekly awards | [award-reads](../src/lib/award-reads.ts) serves published releases and the staff preview. [award-calculation](../src/lib/award-calculation.ts) calculates standings and source fingerprints from the supplied reader. [awards](../src/lib/awards.ts) owns configuration and publication commands. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace. [referee](../src/lib/referee.ts) owns referee commands. [referee-irc-reads](../src/lib/referee-irc-reads.ts) serves IRC state and room bindings, [referee-irc](../src/lib/referee-irc.ts) owns browser commands, [referee-irc-relay](../src/lib/referee-irc-relay.ts) owns desktop relay, and [referee-mp](../src/lib/referee-mp.ts) coordinates multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) and [archive-read](../src/lib/archive-read.ts) read typed sources and saved projections. [archive-relation-writes](../src/lib/archive-relation-writes.ts) synchronizes typed documents. [archive-statistics-reads](../src/lib/archive-statistics-reads.ts) reads statistics, and [archive-statistics](../src/lib/archive-statistics.ts) owns statistics commands. |
 
@@ -185,6 +186,25 @@ The existing completion test covers rollback when import storage fails. The
 publication test now injects an audit failure and verifies that the proposal,
 public result, game claims and pool lock all roll back. Its existing concurrent
 publication, exact replay and cache failure assertions still run.
+
+## Weekly awards
+
+The public awards page, staff preview and versioned API previously loaded
+the publication command. They now call [award-reads](../src/lib/award-reads.ts),
+which keeps the existing read-only snapshots and separate permissions. The
+public query serves saved releases and compares their fingerprints with the
+current calculation to withhold candidates and winners for stale releases.
+Staff preview, public freshness checks and publication use the same
+calculation with the reader supplied by each caller.
+
+[awards](../src/lib/awards.ts) locks the edition and rechecks authorization,
+configuration version and the reviewed fingerprint before publishing. A
+replacement deactivates the earlier release and saves the new revision and
+audit in one transaction. Repeating the current fingerprint reuses the saved
+release. The existing republication test now rejects the audit write and
+verifies that the earlier release remains active and stale until the same
+publication succeeds. The versioned API test guards both award read resources
+against loading the publication command.
 
 ## Referee workspace
 
