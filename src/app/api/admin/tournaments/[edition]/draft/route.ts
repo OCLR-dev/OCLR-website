@@ -2,7 +2,7 @@ import { liveSnapshot } from "@/lib/live-snapshot";
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff-request";
-import { draftCommand, staffDraft } from "@/lib/draft";
+import { staffDraft } from "@/lib/draft-reads";
 import { changeDraftWrite } from "@/lib/draft-setup-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 async function readGET(
@@ -27,14 +27,11 @@ export async function POST(
     requireSameOrigin(request);
     const actor = await requireStaff();
     const { edition } = await context.params;
-    return NextResponse.json(
-      await draftCommand(
-        actor,
-        edition,
-        await readJson(request, changeDraftWrite.maxBodyBytes),
-      ),
-      { headers: { "Cache-Control": "no-store" } },
-    );
+    const input = await readJson(request, changeDraftWrite.maxBodyBytes);
+    const { draftCommand } = await import("@/lib/draft");
+    return NextResponse.json(await draftCommand(actor, edition, input), {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     return apiError(error);
   }

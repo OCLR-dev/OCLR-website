@@ -12,6 +12,16 @@ export function availableDraftPool(data: DraftData) {
     (p) => !data.members.some((m) => m.membership.userId === p.osuId),
   );
 }
+export function unassignedPlayers(
+  accepted: readonly { userId: number }[],
+  data: DraftData,
+) {
+  return accepted.filter(
+    (p) =>
+      !data.teams.some((t) => t.team.captainId === p.userId) &&
+      !data.members.some((m) => m.membership.userId === p.userId),
+  );
+}
 function board(data: DraftData): DraftBoard {
   const session = data.session!;
   const teamMap = new Map<string, DraftTeam>(

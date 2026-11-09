@@ -12,7 +12,7 @@ import { db, closeDb } from "../../src/db";
 import { draftSessions, registrations, users } from "../../src/db/schema";
 import { POST as register } from "../../src/app/api/tournaments/[edition]/registrations/route";
 import { POST as configureDraft } from "../../src/app/api/admin/tournaments/[edition]/draft/route";
-import { staffDraft } from "../../src/lib/draft";
+import { staffDraft } from "../../src/lib/draft-reads";
 import { assertTestDatabase } from "../database";
 import { seedEditions } from "../fixtures/editions";
 import { prepareDraft } from "../fixtures/draft";

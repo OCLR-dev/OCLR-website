@@ -25,12 +25,8 @@ import {
   matchResults,
 } from "../../src/db/schema";
 import { prepareDraft } from "../fixtures/draft";
-import {
-  draftCommand,
-  staffDraft,
-  pickPlayer,
-  publicDraft,
-} from "../../src/lib/draft";
+import { draftCommand, pickPlayer } from "../../src/lib/draft";
+import { staffDraft, publicDraft } from "../../src/lib/draft-reads";
 import { updateTeams, staffTeams } from "../../src/lib/teams";
 import { updateCaptains } from "../../src/lib/captains";
 import { readTournament, tournamentCommand } from "../../src/lib/tournaments";

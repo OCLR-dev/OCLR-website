@@ -5,6 +5,7 @@ import {
   draftSessions,
   editionState,
   memberships,
+  registrations,
   teams,
   users,
 } from "@/db/schema";
@@ -12,6 +13,19 @@ import { and, eq, inArray, isNull } from "drizzle-orm";
 import { draftSessionReadColumns } from "./live-season-columns";
 
 type Reader = Pick<ReturnType<typeof db>, "select">;
+
+export async function acceptedPlayers(tx: Reader, slug: string) {
+  return tx
+    .select({ userId: registrations.userId })
+    .from(registrations)
+    .where(
+      and(
+        eq(registrations.editionSlug, slug),
+        eq(registrations.status, "accepted"),
+        isNull(registrations.draftUnavailableReason),
+      ),
+    );
+}
 
 export async function readDraftData(tx: Reader, slug: string) {
   const [session] = await tx

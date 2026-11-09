@@ -24,13 +24,8 @@ import {
   memberships,
   teams,
 } from "../../src/db/schema";
-import {
-  captainDraft,
-  draftCommand,
-  pickPlayer,
-  publicDraft,
-  staffDraft,
-} from "../../src/lib/draft";
+import { captainDraft, publicDraft, staffDraft } from "../../src/lib/draft-reads";
+import { draftCommand, pickPlayer } from "../../src/lib/draft";
 import { generateTurnSequence } from "../../src/lib/draft-order";
 import { prepareDraft } from "../fixtures/draft";
 import { edition } from "../fixtures/edition";
@@ -383,9 +378,47 @@ describe.skipIf(!url)(
       ).rejects.toMatchObject({ status: 409 });
       expect(await db().select().from(draftPicks)).toHaveLength(2);
     });
-    it("atomically publishes live picks without exposing private pool or operator details", async () => {
+    it("rolls back a pick and both snapshots on audit failure, then publishes the retried pick", async () => {
       const original = await publicDraft(edition.slug);
-      await pickPlayer(fixture.staff, edition.slug, await input());
+      const originalCaptain = await captainDraft(fixture.b, edition.slug);
+      const originalStaff = await staffDraft(fixture.staff, edition.slug);
+      const value = await input();
+      await db().execute(sql`
+        CREATE FUNCTION oclr_test_reject_draft_pick_audit() RETURNS trigger
+        LANGUAGE plpgsql AS $$ BEGIN
+          IF NEW.kind = 'draft_pick' THEN
+            RAISE EXCEPTION 'Synthetic draft pick audit failure';
+          END IF;
+          RETURN NEW;
+        END $$;
+        CREATE TRIGGER oclr_test_reject_draft_pick_audit
+          BEFORE INSERT ON edition_events FOR EACH ROW
+          EXECUTE FUNCTION oclr_test_reject_draft_pick_audit()
+      `);
+      try {
+        await expect(
+          pickPlayer(fixture.staff, edition.slug, value),
+        ).rejects.toThrow();
+        expect(await staffDraft(fixture.staff, edition.slug)).toEqual(
+          originalStaff,
+        );
+        expect(await captainDraft(fixture.b, edition.slug)).toEqual(
+          originalCaptain,
+        );
+        expect(await publicDraft(edition.slug)).toEqual(original);
+      } finally {
+        await db().execute(sql`
+          DROP TRIGGER oclr_test_reject_draft_pick_audit ON edition_events;
+          DROP FUNCTION oclr_test_reject_draft_pick_audit()
+        `);
+      }
+      await pickPlayer(fixture.staff, edition.slug, value);
+      expect(
+        await db()
+          .select()
+          .from(editionEvents)
+          .where(eq(editionEvents.kind, "draft_pick")),
+      ).toHaveLength(1);
       expect((await publicDraft(edition.slug))?.version).toBeGreaterThan(
         original!.version,
       );
@@ -506,7 +539,7 @@ describe.skipIf(!url)(
           }),
         )
         .digest("hex");
-      const code = `import { staffDraft } from './src/lib/draft.ts'; import { closeDb } from './src/db/index.ts'; import { createHash } from 'node:crypto'; const data = await staffDraft(${JSON.stringify(fixture.staff)}, ${JSON.stringify(edition.slug)}); console.log(createHash('sha256').update(JSON.stringify({session:data.session,picks:data.picks,members:data.members})).digest('hex')); await closeDb();`;
+      const code = `import { staffDraft } from './src/lib/draft-reads.ts'; import { closeDb } from './src/db/index.ts'; import { createHash } from 'node:crypto'; const data = await staffDraft(${JSON.stringify(fixture.staff)}, ${JSON.stringify(edition.slug)}); console.log(createHash('sha256').update(JSON.stringify({session:data.session,picks:data.picks,members:data.members})).digest('hex')); await closeDb();`;
       const fresh = execFileSync(
         process.execPath,
         ["--import", "tsx", "--input-type=module", "-e", code],

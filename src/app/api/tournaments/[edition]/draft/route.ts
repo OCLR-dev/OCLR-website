@@ -1,7 +1,7 @@
 import { liveSnapshot } from "@/lib/live-snapshot";
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { after, NextResponse } from "next/server";
-import { publicDraft } from "@/lib/draft";
+import { publicDraft } from "@/lib/draft-reads";
 import { publicBroadcastDraft } from "@/lib/broadcast";
 import { apiError } from "@/lib/http";
 async function readGET(

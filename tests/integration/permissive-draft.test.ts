@@ -19,13 +19,8 @@ import {
   memberships,
   editionEvents,
 } from "../../src/db/schema";
-import {
-  draftCommand,
-  staffDraft,
-  publicDraft,
-  captainDraft,
-  pickPlayer,
-} from "../../src/lib/draft";
+import { draftCommand, pickPlayer } from "../../src/lib/draft";
+import { staffDraft, publicDraft, captainDraft } from "../../src/lib/draft-reads";
 import { prepareDraft } from "../fixtures/draft";
 import { assertTestDatabase } from "../database";
 const url = process.env.TEST_DATABASE_URL;

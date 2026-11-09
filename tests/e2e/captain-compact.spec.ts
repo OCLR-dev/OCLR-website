@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { createSession } from "../../src/lib/auth/sessions";
-import { captainDraft } from "../../src/lib/draft";
+import { captainDraft } from "../../src/lib/draft-reads";
 import type { CaptainBoard } from "../../src/lib/draft-types";
 import { prepareDraft } from "../fixtures/draft";
 import { assertTestDatabase } from "../database";

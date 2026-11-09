@@ -6,7 +6,7 @@ import { currentUser } from "../../src/lib/auth/user";
 import { captainAppointment } from "../../src/lib/captains";
 import { getPublicEdition } from "../../src/lib/content";
 import { remoteMode } from "../../src/lib/data-source";
-import { publicDraft } from "../../src/lib/draft";
+import { publicDraft } from "../../src/lib/draft-reads";
 import { frontendTournament } from "../../src/lib/frontend-data";
 import { edition } from "../fixtures/edition";
 import { english } from "../../src/i18n/translate";
@@ -26,7 +26,7 @@ vi.mock("../../src/lib/auth/user", () => ({ currentUser: vi.fn() }));
 vi.mock("../../src/lib/captains", () => ({ captainAppointment: vi.fn() }));
 vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
 vi.mock("../../src/lib/data-source", () => ({ remoteMode: vi.fn() }));
-vi.mock("../../src/lib/draft", () => ({ publicDraft: vi.fn() }));
+vi.mock("../../src/lib/draft-reads", () => ({ publicDraft: vi.fn() }));
 vi.mock("../../src/lib/frontend-data", () => ({ frontendTournament: vi.fn() }));
 vi.mock("../../src/lib/tournament-information", () => ({
   informationPreview: () => null,

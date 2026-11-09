@@ -10,7 +10,8 @@ import {
 import { sql, eq } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { teams, memberships, editionEvents } from "../../src/db/schema";
-import { draftCommand, publicDraft, staffDraft } from "../../src/lib/draft";
+import { draftCommand } from "../../src/lib/draft";
+import { publicDraft, staffDraft } from "../../src/lib/draft-reads";
 import { prepareDraft } from "../fixtures/draft";
 import { staffTeams, updateTeams, publishedTeams } from "../../src/lib/teams";
 import { assertTestDatabase } from "../database";

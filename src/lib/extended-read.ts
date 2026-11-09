@@ -63,7 +63,7 @@ export async function extendedRead(
     case "publicCaptains":
       return (await import("./captains")).publicCaptains(slug);
     case "publicDraft":
-      return (await import("./draft")).publicDraft(slug);
+      return (await import("./draft-reads")).publicDraft(slug);
     case "publicBroadcastDraft":
       return (await import("./broadcast")).publicBroadcastDraft(slug);
     case "publicRoundRatings":
@@ -91,7 +91,7 @@ export async function extendedRead(
     case "staffTeams":
       return (await import("./teams")).staffTeams(actor!, slug);
     case "staffDraft":
-      return (await import("./draft")).staffDraft(actor!, slug);
+      return (await import("./draft-reads")).staffDraft(actor!, slug);
     case "selectionWorkspace":
       return (await import("./mappool-workbench")).selectionWorkspace(
         actor!,
@@ -176,7 +176,7 @@ export async function extendedRead(
         slug,
       );
     case "captainDraft":
-      return (await import("./draft")).captainDraft(actor!, slug);
+      return (await import("./draft-reads")).captainDraft(actor!, slug);
     case "publicEnrollment":
       return (await import("./frontend-read-models")).publicConfigurationModel(
         slug,

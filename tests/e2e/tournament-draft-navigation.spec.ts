@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { closeDb } from "../../src/db";
-import { draftCommand, pickPlayer, staffDraft } from "../../src/lib/draft";
+import { draftCommand, pickPlayer } from "../../src/lib/draft";
+import { staffDraft } from "../../src/lib/draft-reads";
 import { prepareDraft } from "../fixtures/draft";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";

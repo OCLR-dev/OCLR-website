@@ -1,4 +1,4 @@
-import { db, readOnlyData } from "@/db";
+import { db } from "@/db";
 import {
   captains,
   draftPicks,
@@ -7,35 +7,25 @@ import {
   editionState,
   fixtures,
   memberships,
-  registrations,
   teams,
 } from "@/db/schema";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
-import {
-  assertCapability,
-  assertReadCapability,
-  hasCapability,
-} from "./auth/staff";
+import { assertCapability, hasCapability } from "./auth/staff";
 import { hashToken } from "./auth/tokens";
 import { getEdition, getPublicEdition } from "./content";
-import { remoteMode } from "./data-source";
 import { turnSequenceStructureProblem } from "./draft-order";
-import { availableDraftPool, buildDraftSnapshots } from "./draft-board";
-import { readDraftData, type DraftData } from "./draft-data";
-import type { CaptainBoard } from "./draft-types";
-import { assertRemoteSubject, frontendResource } from "./frontend-resource";
+import { buildDraftSnapshots, unassignedPlayers } from "./draft-board";
+import { acceptedPlayers, readDraftData, type DraftData } from "./draft-data";
+import { staffDraft } from "./draft-reads";
 import {
   changeDraftWrite,
   pickPlayerWrite,
   type PickPlayerReceipt,
 } from "./draft-setup-write-contracts";
 import { HttpError } from "./http-error";
-import {
-  draftSessionReadColumns,
-  draftTurnSequence,
-} from "./live-season-columns";
+import { draftSessionReadColumns } from "./live-season-columns";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 async function lockDraftSession(tx: Reader, slug: string, id?: string) {
   const [locked] = await tx
@@ -56,28 +46,6 @@ async function lockDraftSession(tx: Reader, slug: string, id?: string) {
     .where(eq(draftSessions.id, locked.id));
   return session;
 }
-async function acceptedPlayers(tx: Reader, slug: string) {
-  return tx
-    .select({ userId: registrations.userId })
-    .from(registrations)
-    .where(
-      and(
-        eq(registrations.editionSlug, slug),
-        eq(registrations.status, "accepted"),
-        isNull(registrations.draftUnavailableReason),
-      ),
-    );
-}
-function unassignedPlayers(
-  accepted: Awaited<ReturnType<typeof acceptedPlayers>>,
-  data: DraftData,
-) {
-  return accepted.filter(
-    (p) =>
-      !data.teams.some((t) => t.team.captainId === p.userId) &&
-      !data.members.some((m) => m.membership.userId === p.userId),
-  );
-}
 function sequenceTeams(data: DraftData) {
   return data.teams.map(({ team }) => ({
     id: team.id,
@@ -85,151 +53,6 @@ function sequenceTeams(data: DraftData) {
     members: data.members.filter((m) => m.membership.teamId === team.id).length,
   }));
 }
-async function databaseStaffDraft(
-  actor: User,
-  slug: string,
-): Promise<StaffDraft> {
-  await assertReadCapability(actor, "manage_draft", slug);
-  if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  return db().transaction(
-    async (tx) => {
-      const data = await readDraftData(tx, slug);
-      return {
-        ...data,
-        canConfigure: await hasCapability(
-          actor,
-          "configure_tournament",
-          slug,
-          tx,
-        ),
-        availablePool: availableDraftPool(data),
-        setupPoolSize:
-          !data.session || data.session.state === "setup"
-            ? unassignedPlayers(await acceptedPlayers(tx, slug), data).length
-            : null,
-      };
-    },
-    { isolationLevel: "repeatable read" },
-  );
-}
-export async function staffDraft(
-  actor: User,
-  slug: string,
-): Promise<StaffDraft> {
-  if (remoteMode()) {
-    await assertRemoteSubject(actor.osuId);
-    return frontendResource<StaffDraft>("staffDraft", { slug });
-  }
-  return databaseStaffDraft(actor, slug);
-}
-
-export type StaffDraft =
-  import("./explicit-read-contracts").ExplicitReadData<"staffDraft">;
-type PublicDraft =
-  import("./explicit-read-contracts").ExplicitReadData<"publicDraft">;
-async function databasePublicDraft(slug: string): Promise<PublicDraft> {
-  if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return null;
-  return (await releasedDraftData(slug))?.snapshot ?? null;
-}
-
-/** Read publication, pool visibility and Tier evidence from one database snapshot. */
-export async function releasedDraftData(slug: string, includeTurns = false) {
-  return readOnlyData(async () => {
-    const [row] = await db()
-      .select({
-        snapshot: draftSessions.publicSnapshot,
-        captain: draftSessions.captainSnapshot,
-        poolPublished: editionState.poolPublished,
-        turnSequence: includeTurns
-          ? draftTurnSequence
-          : sql<string[]>`'[]'::jsonb`,
-        revision: draftSessions.version,
-        publishedRevision: draftSessions.publishedRevision,
-      })
-      .from(draftSessions)
-      .innerJoin(editionState, eq(editionState.slug, draftSessions.editionSlug))
-      .where(
-        and(
-          eq(draftSessions.editionSlug, slug),
-          sql`${editionState.configuration}->>'published' = 'true'`,
-        ),
-      );
-    if (!row?.snapshot) return null;
-    const approved = await db()
-      .select({ id: teams.id })
-      .from(teams)
-      .innerJoin(
-        captains,
-        and(
-          eq(captains.editionSlug, teams.editionSlug),
-          eq(captains.userId, teams.captainId),
-        ),
-      )
-      .where(
-        and(
-          eq(teams.editionSlug, slug),
-          isNull(teams.archivedAt),
-          eq(teams.identityPublished, true),
-          eq(captains.published, true),
-        ),
-      );
-    if (
-      !row.snapshot.rosters.every((r) =>
-        approved.some((t) => t.id === r.team.id),
-      )
-    )
-      return null;
-    return {
-      snapshot: {
-        ...row.snapshot,
-        pool: row.poolPublished
-          ? (row.captain?.eligiblePool ?? row.snapshot.pool)
-          : null,
-      },
-      turnSequence:
-        row.revision === row.publishedRevision ? row.turnSequence : [],
-    };
-  });
-}
-export async function publicDraft(slug: string): Promise<PublicDraft> {
-  if (remoteMode()) {
-    return frontendResource<PublicDraft>("publicDraft", { slug });
-  }
-  return databasePublicDraft(slug);
-}
-
-async function databaseCaptainDraft(
-  actor: User,
-  slug: string,
-): Promise<CaptainBoard | null> {
-  const [appointment] = await db()
-    .select()
-    .from(captains)
-    .where(
-      and(eq(captains.editionSlug, slug), eq(captains.userId, actor.osuId)),
-    );
-  if (!appointment)
-    throw new HttpError(403, "Captain access for this edition is required.");
-  const [session] = await db()
-    .select({ snapshot: draftSessions.captainSnapshot })
-    .from(draftSessions)
-    .where(eq(draftSessions.editionSlug, slug));
-  return session?.snapshot ?? null;
-}
-export async function captainDraft(
-  actor: User,
-  slug: string,
-): Promise<Awaited<ReturnType<typeof databaseCaptainDraft>>> {
-  if (remoteMode()) {
-    await assertRemoteSubject(actor.osuId);
-    return frontendResource<Awaited<ReturnType<typeof databaseCaptainDraft>>>(
-      "captainDraft",
-      { slug },
-    );
-  }
-  return databaseCaptainDraft(actor, slug);
-}
-
 export async function draftCommand(actor: User, slug: string, input: unknown) {
   await assertCapability(actor, "manage_draft", slug);
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");

@@ -60,7 +60,7 @@
     "scope": "tournaments:read"
   },
   {
-    "module": "draft",
+    "module": "draft-reads",
     "fn": "publicDraft",
     "id": "publicDraft",
     "path": "/tournaments/{edition}/draft",
@@ -170,7 +170,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "draft",
+    "module": "draft-reads",
     "fn": "staffDraft",
     "id": "staffDraft",
     "path": "/staff/tournaments/{edition}/draft",
@@ -370,7 +370,7 @@
     "scope": "identity:read"
   },
   {
-    "module": "draft",
+    "module": "draft-reads",
     "fn": "captainDraft",
     "id": "captainDraft",
     "path": "/me/tournaments/{edition}/draft",

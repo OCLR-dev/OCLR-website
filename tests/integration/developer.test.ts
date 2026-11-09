@@ -42,7 +42,7 @@ import { siteSettingsForAdmin } from "../../src/lib/site-settings";
 import { auditLog } from "../../src/lib/audit";
 import { staffTeams } from "../../src/lib/teams";
 import { captainSetup } from "../../src/lib/captains";
-import { staffDraft } from "../../src/lib/draft";
+import { staffDraft } from "../../src/lib/draft-reads";
 import { mappoolWorkspace } from "../../src/lib/mappool-reads";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { staffFixtures } from "../../src/lib/fixture-reads";

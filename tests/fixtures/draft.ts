@@ -12,7 +12,8 @@ import {
 } from "../../src/db/schema";
 import { captainSetup, updateCaptains } from "../../src/lib/captains";
 import { updateTeams } from "../../src/lib/teams";
-import { draftCommand, staffDraft } from "../../src/lib/draft";
+import { draftCommand } from "../../src/lib/draft";
+import { staffDraft } from "../../src/lib/draft-reads";
 // Fixture provisioner for isolated databases only; never imported by application code.
 export async function prepareDraft(
   slug: string,

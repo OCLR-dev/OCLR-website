@@ -29,7 +29,6 @@ vi.mock("../../src/lib/registrations", async (original) => ({
 }));
 vi.mock("../../src/lib/draft", () => ({
   draftCommand: vi.fn(),
-  staffDraft: vi.fn(),
 }));
 
 const actor = { osuId: 443001, username: "Synthetic body-budget tester" };
