@@ -15,7 +15,8 @@ it("registers the schedule array labels and first-pick branches for extraction",
   const messages = sourceMessages();
   for (const label of [
     "Mappool",
-    "Match number & time",
+    "Match time",
+    "Match result",
     "Red team",
     "Score",
     "Blue team",
@@ -31,12 +32,12 @@ it("registers the schedule array labels and first-pick branches for extraction",
 });
 
 it.each([
-  ["en", en, "Red team", "Blue team"],
-  ["zh-Hans", hans, "红方", "蓝方"],
-  ["zh-Hant", hant, "紅方", "藍方"],
+  ["en", en, "Red team", "Blue team", "Match time", "Match result"],
+  ["zh-Hans", hans, "红方", "蓝方", "比赛时间", "比赛结果"],
+  ["zh-Hant", hant, "紅方", "藍方", "比賽時間", "比賽結果"],
 ] as const)(
   "translates headers and both first-pick branches in %s",
-  (locale, messages, red, blue) => {
+  (locale, messages, red, blue, time, result) => {
     const html = renderToStaticMarkup(
       <NextIntlClientProvider
         locale={locale}
@@ -59,6 +60,8 @@ it.each([
         />
       </NextIntlClientProvider>,
     );
+    expect(html).toContain(`<th scope="col">${time}</th>`);
+    expect(html).toContain(`<th scope="col">${result}</th>`);
     expect(html).toContain(`<th scope="col">${red}</th>`);
     expect(html).toContain(`<th scope="col">${blue}</th>`);
     expect(html).toContain(`<td>${red}</td>`);

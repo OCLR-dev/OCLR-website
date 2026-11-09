@@ -134,7 +134,28 @@ test.describe("open exhibition editing and reviewed publication", () => {
         (s: { osuId: number }) => s.osuId === 9901001,
       ).teamId,
     ).toBe(seeded.context.fixture.homeTeamId);
-    await page.goto(`/tournaments/test-cup/matches/${seeded.fixtureId}`);
+    await page.goto("/tournaments/test-cup/schedule");
+    await expect(
+      page.getByRole("button", { name: "Exhibition", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    const fixtureName = "Synthetic Reviewed Fixture";
+    const card = page.getByRole("article").filter({ hasText: fixtureName });
+    await expect(card.locator(".event-match-side b")).toHaveText(["1", "2"]);
+    const summary = page.getByRole("table");
+    await expect(
+      summary.getByRole("columnheader", { name: "Match result" }),
+    ).toBeVisible();
+    const row = summary.getByRole("row").filter({ hasText: fixtureName });
+    await expect(
+      row.getByRole("cell", { name: "1 : 2", exact: true }),
+    ).toBeVisible();
+    const result = row.getByRole("link", { name: fixtureName, exact: true });
+    const resultPath = `/tournaments/test-cup/matches/${seeded.fixtureId}`;
+    await expect(result).toHaveAttribute("href", resultPath);
+    await expect(row).not.toContainText(seeded.fixtureId);
+    await expectWorkflowFits(page);
+    await result.click();
+    await expect(page).toHaveURL(`${origin}${resultPath}`);
     await expect(
       page.getByText(
         "Exhibition results do not count toward official standings or career history.",

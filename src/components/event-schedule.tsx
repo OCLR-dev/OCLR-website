@@ -27,11 +27,18 @@ export function EventSchedule({
   competition?: ReactNode;
 }) {
   const tr = useAppTranslations();
+  const stages = new Set(matches.map((match) => match.stage));
+  const hasExhibition = stages.has("exhibition");
   const phaseOptions = phases ?? [
     { id: "group", label: tr("Group stage / Swiss") },
     { id: "knockout", label: tr("Double elimination") },
+    ...(hasExhibition ? [{ id: "exhibition", label: tr("Exhibition") }] : []),
   ];
-  const [phase, setPhase] = useState(phaseOptions[0]?.id ?? "");
+  const [phase, setPhase] = useState(
+    !phases && hasExhibition && stages.size === 1
+      ? "exhibition"
+      : (phaseOptions[0]?.id ?? ""),
+  );
   const [status, setStatus] = useState(initialStatus);
   const listed = matches.filter(
     (m) => status === "all" || m.recorded === (status === "recorded"),
@@ -71,10 +78,11 @@ export function EventSchedule({
   const structured = phase === "knockout" && selected.length > 0;
   const columns = [
     tr("Mappool"),
-    tr("Match number & time"),
+    tr("Match time"),
     tr("Red team"),
     tr("Score"),
     tr("Blue team"),
+    tr("Match result"),
     tr("First pick"),
     tr("Red bans"),
     tr("Blue bans"),
@@ -83,11 +91,15 @@ export function EventSchedule({
     tr("Referee"),
     tr("Streamer"),
   ];
+  function matchName(match: EventMatch) {
+    return match.label || `${match.red} ${tr("vs")} ${match.blue}`;
+  }
+
   function card(m: EventMatch) {
     return (
       <article className="event-match-card" id={`match-${m.id}`} key={m.id}>
         <header>
-          <a href={m.href ?? `#row-${m.id}`}>{m.label ?? `#${m.id}`}</a>
+          <a href={m.href ?? `#row-${m.id}`}>{matchName(m)}</a>
           {m.status === "cancelled" ? (
             <span>{tr("Cancelled")}</span>
           ) : (
@@ -345,14 +357,6 @@ export function EventSchedule({
                       <small>{m.round}</small>
                     </td>
                     <td>
-                      <a
-                        href={m.href ?? `#match-${m.id}`}
-                        onClick={() => {
-                          if (!m.href) setPhase(m.stage);
-                        }}
-                      >
-                        {m.label ?? `#${m.id}`}
-                      </a>
                       <time>{m.time}</time>
                       {m.roomOpenedAt && (
                         <small>
@@ -380,6 +384,16 @@ export function EventSchedule({
                     </td>
                     <td>
                       {m.blueHref ? <a href={m.blueHref}>{m.blue}</a> : m.blue}
+                    </td>
+                    <td>
+                      <a
+                        href={m.href ?? `#match-${m.id}`}
+                        onClick={() => {
+                          if (!m.href) setPhase(m.stage);
+                        }}
+                      >
+                        {matchName(m)}
+                      </a>
                     </td>
                     <td>
                       {m.first
