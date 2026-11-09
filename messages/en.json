@@ -3980,6 +3980,11 @@
     "m4f6fbce25122": "Apply the first-pick team.",
     "m4ab0e17eb7a5": "Only exhibition fixtures can skip bans.",
     "m1d4873e931ca": "Withdraw recorded steps before changing whether bans are skipped.",
-    "m58862466a673": "Configure a pick or tiebreaker before skipping bans."
+    "m58862466a673": "Configure a pick or tiebreaker before skipping bans.",
+    "m153b1a0f34e5": "Identify the player’s side and give a reason.",
+    "m3e44c3e06493": "Exhibition sides",
+    "mcacde301b5d5": "Exhibition results sum each side’s recorded MP scores per game and count wins and ties across the games you include.",
+    "me770ac0134f7": "Recorded MP scores",
+    "mcd41184d4a88": "Confirm the approved scoring rules before submitting."
   }
 }

@@ -80,7 +80,8 @@ Match imports save official source evidence, and preview returns participant
 attribution with the current fixture and result versions. Result commands
 document review, approval and publication as separate permissions. Import and
 result commands return the existing private review workspace and check retries
-by request key and payload.
+by request key and payload. Exhibition submissions can omit `rulesConfirmed`
+and use recorded MP scores. Formal submissions require that confirmation.
 
 Referee events, MP bindings and saved evidence reconciliation return their
 private workspace together with a receipt or binding. MP status reads through

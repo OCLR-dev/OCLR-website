@@ -256,6 +256,58 @@
       "required": ["name", "poolId", "source", "records"],
       "additionalProperties": false
     },
+    "Read114556a5556f": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": { "type": "number", "const": 1 },
+        "fixtureVersion": { "type": "number" },
+        "roundId": { "type": "string" },
+        "poolVersion": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "poolSnapshot": { "$ref": "#/$defs/Read4e7529ac2a29" },
+        "teamIds": {
+          "type": "array",
+          "prefixItems": [{ "type": "string" }, { "type": "string" }],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "rosterSnapshot": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "teamId": { "type": "string" },
+              "osuIds": { "type": "array", "items": { "type": "number" } }
+            },
+            "required": ["teamId", "osuIds"],
+            "additionalProperties": false
+          }
+        },
+        "rulesSnapshot": { "$ref": "#/$defs/Read18a79bebc577" },
+        "sourceFingerprint": { "type": "string" },
+        "decisions": { "$ref": "#/$defs/Read02651fcde76e" },
+        "publicNote": { "type": "string" },
+        "games": { "$ref": "#/$defs/Readb816614b908d" },
+        "series": { "$ref": "#/$defs/Readef880e72cb52" },
+        "exDeclarations": { "$ref": "#/$defs/Read398c4afb2a22" }
+      },
+      "required": [
+        "schemaVersion",
+        "fixtureVersion",
+        "roundId",
+        "poolVersion",
+        "poolSnapshot",
+        "teamIds",
+        "rosterSnapshot",
+        "rulesSnapshot",
+        "sourceFingerprint",
+        "decisions",
+        "publicNote",
+        "games",
+        "series"
+      ],
+      "additionalProperties": false
+    },
     "Read120e18be4ad4": {
       "type": "object",
       "properties": {
@@ -1792,9 +1844,6 @@
         { "$ref": "#/$defs/Readf17b446bd407" }
       ]
     },
-    "Read68c778758ccb": {
-      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readfa6d1949dfe4" }]
-    },
     "Read6958f2767dac": {
       "type": "object",
       "properties": {
@@ -2432,9 +2481,6 @@
       "type": "array",
       "items": { "$ref": "#/$defs/Readf3015f0447f3" }
     },
-    "Read8f97191cc88f": {
-      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read94ff3da94f55" }]
-    },
     "Read90b4760f70c0": {
       "type": "object",
       "properties": {
@@ -2489,41 +2535,6 @@
         "previousAppearances",
         "previousPerformance",
         "improvement"
-      ],
-      "additionalProperties": false
-    },
-    "Read94ff3da94f55": {
-      "type": "object",
-      "properties": {
-        "proposal": { "$ref": "#/$defs/Read68c778758ccb" },
-        "fixtureId": { "type": "string" },
-        "revision": { "type": "number" },
-        "importId": { "type": "string" },
-        "reason": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "createdBy": { "type": "number" },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "approvedBy": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-        "approvedAt": {
-          "anyOf": [
-            { "type": "null" },
-            { "type": "string", "format": "date-time", "x-oclr-date": true }
-          ]
-        }
-      },
-      "required": [
-        "proposal",
-        "fixtureId",
-        "revision",
-        "importId",
-        "reason",
-        "createdBy",
-        "createdAt",
-        "approvedBy",
-        "approvedAt"
       ],
       "additionalProperties": false
     },
@@ -4043,6 +4054,41 @@
       "required": ["category", "label", "text", "source"],
       "additionalProperties": false
     },
+    "Readf3b0cbd6f86e": {
+      "type": "object",
+      "properties": {
+        "proposal": { "$ref": "#/$defs/Readf8b47a7c717e" },
+        "fixtureId": { "type": "string" },
+        "revision": { "type": "number" },
+        "importId": { "type": "string" },
+        "reason": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "createdBy": { "type": "number" },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "approvedBy": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
+        "approvedAt": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date-time", "x-oclr-date": true }
+          ]
+        }
+      },
+      "required": [
+        "proposal",
+        "fixtureId",
+        "revision",
+        "importId",
+        "reason",
+        "createdBy",
+        "createdAt",
+        "approvedBy",
+        "approvedAt"
+      ],
+      "additionalProperties": false
+    },
     "Readf43873178edf": {
       "anyOf": [
         { "type": "null", "x-oclr-undefined": true },
@@ -4073,6 +4119,9 @@
       "required": ["type", "options", "id", "label", "required"],
       "additionalProperties": false
     },
+    "Readf61efb553b24": {
+      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readf3b0cbd6f86e" }]
+    },
     "Readf72073071c18": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readd5a1fcb00767" }]
     },
@@ -4098,6 +4147,9 @@
       },
       "required": ["id", "name"],
       "additionalProperties": false
+    },
+    "Readf8b47a7c717e": {
+      "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read114556a5556f" }]
     },
     "Readf8f63afe963c": {
       "type": "object",
@@ -4207,58 +4259,6 @@
         { "type": "string", "const": "LSP" },
         { "type": "string", "const": "BDT" }
       ]
-    },
-    "Readfa6d1949dfe4": {
-      "type": "object",
-      "properties": {
-        "schemaVersion": { "type": "number", "const": 1 },
-        "fixtureVersion": { "type": "number" },
-        "roundId": { "type": "string" },
-        "poolVersion": { "anyOf": [{ "type": "null" }, { "type": "number" }] },
-        "poolSnapshot": { "$ref": "#/$defs/Read4e7529ac2a29" },
-        "teamIds": {
-          "type": "array",
-          "prefixItems": [{ "type": "string" }, { "type": "string" }],
-          "items": false,
-          "minItems": 2,
-          "maxItems": 2
-        },
-        "rosterSnapshot": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "teamId": { "type": "string" },
-              "osuIds": { "type": "array", "items": { "type": "number" } }
-            },
-            "required": ["teamId", "osuIds"],
-            "additionalProperties": false
-          }
-        },
-        "rulesSnapshot": { "$ref": "#/$defs/Read66bb513795b2" },
-        "sourceFingerprint": { "type": "string" },
-        "decisions": { "$ref": "#/$defs/Read02651fcde76e" },
-        "publicNote": { "type": "string" },
-        "games": { "$ref": "#/$defs/Readb816614b908d" },
-        "series": { "$ref": "#/$defs/Readef880e72cb52" },
-        "exDeclarations": { "$ref": "#/$defs/Read398c4afb2a22" }
-      },
-      "required": [
-        "schemaVersion",
-        "fixtureVersion",
-        "roundId",
-        "poolVersion",
-        "poolSnapshot",
-        "teamIds",
-        "rosterSnapshot",
-        "rulesSnapshot",
-        "sourceFingerprint",
-        "decisions",
-        "publicNote",
-        "games",
-        "series"
-      ],
-      "additionalProperties": false
     },
     "Readfbf98bdae6d4": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Read6cac440a6cdd" }]
@@ -7299,10 +7299,10 @@
         },
         "revisions": {
           "type": "array",
-          "items": { "$ref": "#/$defs/Read94ff3da94f55" }
+          "items": { "$ref": "#/$defs/Readf3b0cbd6f86e" }
         },
-        "current": { "$ref": "#/$defs/Read8f97191cc88f" },
-        "published": { "$ref": "#/$defs/Read8f97191cc88f" },
+        "current": { "$ref": "#/$defs/Readf61efb553b24" },
+        "published": { "$ref": "#/$defs/Readf61efb553b24" },
         "diff": {
           "anyOf": [
             { "type": "null" },

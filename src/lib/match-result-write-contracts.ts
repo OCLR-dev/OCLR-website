@@ -31,7 +31,7 @@ const resultRequest = z.discriminatedUnion("action", [
       ...common,
       action: z.literal("submit"),
       importId: z.uuid(),
-      rulesConfirmed: z.literal(true),
+      rulesConfirmed: z.literal(true).optional(),
       sourceChangesConfirmed: z.literal(true),
       decisions: z.array(gameDecisionSchema).max(3000),
       publicNote: z.string().trim().max(1000),

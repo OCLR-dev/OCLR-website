@@ -234,6 +234,7 @@ async function databasePublicCompetition(
       const p = parsed.success ? parsed.data : null;
       const aligned =
         p &&
+        (p.rulesSnapshot !== null || row.stage === "exhibition") &&
         p.roundId === f.roundId &&
         p.teamIds[0] === homeId &&
         p.teamIds[1] === awayId;
@@ -449,8 +450,10 @@ async function databasePublicFixture(
             ),
           )
         : await ratingIdentities(slug, tx, proposal.data.teamIds);
-      const ezScoreMultiplier =
-        (await readTournament(slug, tx, true))?.edition.ezScoreMultiplier ?? 1;
+      const ezScoreMultiplier = proposal.data.rulesSnapshot
+        ? ((await readTournament(slug, tx, true))?.edition.ezScoreMultiplier ??
+          1)
+        : 1;
       const details = withStatisticsScores(
         reviewedMatchDetails(
           proposal.data,

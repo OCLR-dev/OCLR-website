@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { test, expect } from "@playwright/test";
-import { closeDb } from "../../src/db";
+import { eq } from "drizzle-orm";
+import { db, closeDb } from "../../src/db";
+import { tournamentRounds } from "../../src/db/schema";
+import { syntheticScoringRules } from "../fixtures/match";
 import { seedSession } from "./session";
 import { seedResultReview } from "../fixtures/results";
 import { expectWorkflowFits } from "./responsive";
@@ -27,6 +30,10 @@ test.describe("open exhibition editing and reviewed publication", () => {
       true,
       true,
     );
+    await db()
+      .update(tournamentRounds)
+      .set({ scoringRules: { ...syntheticScoringRules, playersPerTeam: 3 } })
+      .where(eq(tournamentRounds.id, seeded.context.round.id));
     await context.addCookies([adminCookie]);
     const endpoint = `/api/admin/tournaments/test-cup/matches/${seeded.fixtureId}/results`;
     await page.goto("/admin/tournaments/test-cup/matches");
@@ -69,7 +76,7 @@ test.describe("open exhibition editing and reviewed publication", () => {
     await page.goto(`/admin/tournaments/test-cup/matches/${seeded.fixtureId}`);
     await expect(
       page.getByRole("heading", {
-        name: "Exhibition sides and scoring rules",
+        name: "Exhibition sides",
         exact: true,
       }),
     ).toBeVisible();
@@ -83,22 +90,13 @@ test.describe("open exhibition editing and reviewed publication", () => {
       await page
         .getByRole("combobox", { name: new RegExp(`^Game ${i} decision`) })
         .selectOption("true");
-      await page
-        .getByLabel(
-          `Game ${i}: I verified mods and the approved tournament rules`,
-          { exact: true },
-        )
-        .check();
     }
     await expect(
       page.getByText("Synthetic Open Player 9901001", { exact: true }).first(),
     ).toBeVisible();
-    await page
-      .getByLabel(
-        "I verified the configured scoring rules against the approved OCLR rules",
-        { exact: true },
-      )
-      .check();
+    await expect(
+      page.getByRole("checkbox", { name: /verified.*approved.*rules/i }),
+    ).toHaveCount(0);
     await page
       .getByLabel(
         "I reviewed the current source snapshot and all reported changes",
@@ -130,6 +128,7 @@ test.describe("open exhibition editing and reviewed publication", () => {
       page.getByText("Approved result · Published result"),
     ).toBeVisible();
     const review = await (await context.request.get(endpoint)).json();
+    expect(review.published.proposal.rulesSnapshot).toBeNull();
     expect(
       review.published.proposal.games[1].attribution.find(
         (s: { osuId: number }) => s.osuId === 9901001,

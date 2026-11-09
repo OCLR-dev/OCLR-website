@@ -102,15 +102,17 @@ function proposalFrom(
   source: MatchSource,
   decisions: GameDecision[],
   publicNote: string,
+  useRoundRules = false,
 ): ReviewedResult {
-  const preview = previewMatch(source, context, decisions);
+  const exhibitionMp = context.round.stage === "exhibition" && !useRoundRules;
+  const preview = previewMatch(source, context, decisions, useRoundRules);
   if (!preview.canSubmit)
     throw new HttpError(
       400,
       preview.blockers[0] ?? "Resolve the game review before submitting.",
     );
   return reviewedResultSchema.parse({
-    ...(context.exDeclarations.some((p) => p.exMode)
+    ...(!exhibitionMp && context.exDeclarations.some((p) => p.exMode)
       ? { exDeclarations: context.exDeclarations }
       : {}),
     schemaVersion: 1,
@@ -141,7 +143,9 @@ function proposalFrom(
         osuIds: t.members.map((m) => m.osuId).sort((a, b) => a - b),
       }))
       .sort((a, b) => a.teamId.localeCompare(b.teamId)),
-    rulesSnapshot: scoringRulesSchema.parse(context.round.scoringRules),
+    rulesSnapshot: exhibitionMp
+      ? null
+      : scoringRulesSchema.parse(context.round.scoringRules),
     sourceFingerprint: source.fingerprint,
     decisions,
     publicNote,
@@ -633,6 +637,11 @@ export async function resultCommand(
       const before = { ...state };
       let detail: Record<string, unknown> = {};
       if (c.action === "submit") {
+        if (context.round.stage !== "exhibition" && c.rulesConfirmed !== true)
+          throw new HttpError(
+            400,
+            "Confirm the approved scoring rules before submitting.",
+          );
         if (!state.latestImportId || c.importId !== state.latestImportId)
           throw new HttpError(
             409,
@@ -713,7 +722,9 @@ export async function resultCommand(
             context.fixture.homeTeamId,
             context.fixture.awayTeamId,
           ]) ||
-          !isDeepStrictEqual(p.rulesSnapshot, context.round.scoringRules)
+          (p.rulesSnapshot === null
+            ? context.round.stage !== "exhibition"
+            : !isDeepStrictEqual(p.rulesSnapshot, context.round.scoringRules))
         )
           throw new HttpError(
             409,
@@ -739,6 +750,7 @@ export async function resultCommand(
           source,
           p.decisions,
           p.publicNote,
+          p.rulesSnapshot !== null,
         );
         if (
           !isDeepStrictEqual(

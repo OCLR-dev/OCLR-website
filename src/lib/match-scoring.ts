@@ -8,18 +8,35 @@ import type {
   MatchSource,
   SeriesOutcome,
 } from "./match-model";
+
+// Stored source snapshots retain these diagnostics as text. Neither mods nor
+// pass flags are needed to sum a verified recorded score.
+const exhibitionMetadataProblems = new Set([
+  "Game mod data is unavailable.",
+  "Player mod data is unavailable.",
+  "Player pass/fail state is unavailable.",
+  "Provider pass flags conflict.",
+]);
+
 function gamePreview(
   game: MatchGame,
   context: MatchContext,
   rules: ScoringRules | null,
   decision: GameDecision | null,
   repeated: boolean,
+  exhibitionMp: boolean,
 ): GamePreview {
   const openExhibition = context.fixture.openExhibition === true;
-  const problems = [...game.problems];
+  const scoringProblems = (problems: string[]) =>
+    exhibitionMp
+      ? problems.filter((problem) => !exhibitionMetadataProblems.has(problem))
+      : problems;
+  const problems = [...scoringProblems(game.problems)];
   const warnings: string[] = [];
-  const declarations =
-    context.exDeclarations?.filter((p) => p.beatmapId === game.beatmapId) ?? [];
+  const declarations = exhibitionMp
+    ? []
+    : (context.exDeclarations?.filter((p) => p.beatmapId === game.beatmapId) ??
+      []);
   const exMode = declarations.some((p) => p.exMode);
   if (exMode && declarations.some((p) => !p.exMode))
     problems.push(
@@ -42,9 +59,13 @@ function gamePreview(
     problems.push(
       "Open exhibition sides are determined by the recorded red and blue colors, not substitutions.",
     );
-  if (openExhibition && rules?.teamType !== "team-vs")
+  const teamType = exhibitionMp ? game.teamType : rules?.teamType;
+  const allowSubstitutions = exhibitionMp || rules?.allowSubstitutions;
+  if (openExhibition && teamType !== "team-vs")
     problems.push(
-      "Open exhibitions require red/blue team-versus scoring rules.",
+      exhibitionMp
+        ? "Choose a recorded red/blue Team Vs game."
+        : "Open exhibitions require red/blue team-versus scoring rules.",
     );
   for (const sub of decision?.substitutions ?? []) {
     if (
@@ -59,9 +80,9 @@ function gamePreview(
       );
     substitutions.set(sub.osuId, sub);
   }
-  if (!rules)
+  if (!rules && !exhibitionMp)
     problems.push("Approved scoring rules are missing or incomplete.");
-  if (substitutions.size && !rules?.allowSubstitutions)
+  if (substitutions.size && !allowSubstitutions)
     problems.push("The approved rules do not permit substitutions.");
   if (!game.endTime)
     problems.push(
@@ -81,7 +102,7 @@ function gamePreview(
   const seen = new Set<number>();
   const slots = new Set<number>();
   const players = game.scores.map((score) => {
-    problems.push(...score.problems);
+    problems.push(...scoringProblems(score.problems));
     if (score.osuId && seen.has(score.osuId))
       problems.push("A player has duplicate scores in this game.");
     if (score.osuId) seen.add(score.osuId);
@@ -96,20 +117,18 @@ function gamePreview(
         : score.osuId && score.team === "blue"
           ? teamIds[1]
           : null
-      : (ownTeam ??
-        (rules?.allowSubstitutions ? sub?.teamId : undefined) ??
-        null);
+      : (ownTeam ?? (allowSubstitutions ? sub?.teamId : undefined) ?? null);
     if (!teamId)
       problems.push(
         `Player ${score.osuId ?? "unknown"} has no verified fixture-team attribution.`,
       );
-    if (sub && !ownTeam && rules?.allowSubstitutions)
+    if (sub && !ownTeam && allowSubstitutions)
       warnings.push(
         `Player ${score.osuId} is explicitly attributed as a substitute; Admin approval is required.`,
       );
     if (score.total === null)
       problems.push("At least one player score is unavailable or ambiguous.");
-    if (score.passed === false)
+    if (!exhibitionMp && score.passed === false)
       warnings.push(
         `Failed scores use the configured ${rules?.failedScorePolicy === "zero" ? "zero" : "recorded-score"} policy.`,
       );
@@ -132,7 +151,7 @@ function gamePreview(
     );
   const blue = colorTeams("blue");
   const red = colorTeams("red");
-  if (rules?.teamType === "team-vs") {
+  if (teamType === "team-vs") {
     if (
       blue.size > 1 ||
       red.size > 1 ||
@@ -148,6 +167,8 @@ function gamePreview(
   }
   const home = players.filter((p) => p.teamId === teamIds[0]);
   const away = players.filter((p) => p.teamId === teamIds[1]);
+  if (exhibitionMp && (!home.length || !away.length))
+    problems.push("Recorded scores are required for both sides.");
   if (rules)
     for (const [label, group] of [
       ["Home", home],
@@ -169,45 +190,48 @@ function gamePreview(
           );
       }
     }
-  if (repeated)
-    warnings.push(
-      "This beatmap appears more than once. Review warmup, rematch and replay exclusions.",
-    );
-  const matchingSlots =
-    context.pool?.entries.filter((e) => e.beatmapId === game.beatmapId) ?? [];
-  const slot =
-    matchingSlots.find((e) => e.category === "FM") ?? matchingSlots[0];
-  if (matchingSlots.length > 1)
-    warnings.push(
-      "This beatmap occupies multiple pool slots. Document the played slot and verify its mod policy explicitly.",
-    );
-  if (context.pool && !slot)
-    warnings.push(
-      "This beatmap is outside the associated pool. Explain any inclusion override.",
-    );
-  if (
-    slot?.category === "FM" &&
-    context.pool?.fmMode === "force_mod" &&
-    !context.pool.fmRestrictions.trim()
-  )
-    problems.push(
-      "Force Mod restrictions are unconfirmed; compliance cannot be verified.",
-    );
-  if (slot?.category === "FM")
-    warnings.push(
-      `Verify the configured ${context.pool?.fmMode === "force_mod" ? "Force Mod" : "Free Mod"} restrictions against the recorded player mods.`,
-    );
+  if (!exhibitionMp) {
+    if (repeated)
+      warnings.push(
+        "This beatmap appears more than once. Review warmup, rematch and replay exclusions.",
+      );
+    const matchingSlots =
+      context.pool?.entries.filter((e) => e.beatmapId === game.beatmapId) ?? [];
+    const slot =
+      matchingSlots.find((e) => e.category === "FM") ?? matchingSlots[0];
+    if (matchingSlots.length > 1)
+      warnings.push(
+        "This beatmap occupies multiple pool slots. Document the played slot and verify its mod policy explicitly.",
+      );
+    if (context.pool && !slot)
+      warnings.push(
+        "This beatmap is outside the associated pool. Explain any inclusion override.",
+      );
+    if (
+      slot?.category === "FM" &&
+      context.pool?.fmMode === "force_mod" &&
+      !context.pool.fmRestrictions.trim()
+    )
+      problems.push(
+        "Force Mod restrictions are unconfirmed; compliance cannot be verified.",
+      );
+    if (slot?.category === "FM")
+      warnings.push(
+        `Verify the configured ${context.pool?.fmMode === "force_mod" ? "Force Mod" : "Free Mod"} restrictions against the recorded player mods.`,
+      );
+  }
   let homeScore: number | null = null;
   let awayScore: number | null = null;
   let winnerTeamId: string | null = null;
   let tied = false;
-  if (rules && !problems.length) {
+  if ((rules || exhibitionMp) && !problems.length) {
+    const average = rules?.aggregation === "average";
     const total = (group: typeof players) =>
       group.reduce(
         (sum, p) =>
           sum +
           BigInt(
-            p.passed === false && rules.failedScorePolicy === "zero"
+            p.passed === false && rules?.failedScorePolicy === "zero"
               ? 0
               : p.total!,
           ),
@@ -221,21 +245,17 @@ function gamePreview(
     )
       problems.push("Team totals exceed the supported exact score range.");
     else {
-      homeScore =
-        Number(h) / (rules.aggregation === "average" ? home.length : 1);
-      awayScore =
-        Number(a) / (rules.aggregation === "average" ? away.length : 1);
-      const left =
-        rules.aggregation === "average" ? h * BigInt(away.length) : h;
-      const right =
-        rules.aggregation === "average" ? a * BigInt(home.length) : a;
+      homeScore = Number(h) / (average ? home.length : 1);
+      awayScore = Number(a) / (average ? away.length : 1);
+      const left = average ? h * BigInt(away.length) : h;
+      const right = average ? a * BigInt(home.length) : a;
       tied = left === right;
       winnerTeamId = tied ? null : left > right ? teamIds[0] : teamIds[1];
-      if (tied && rules.tiedMapPolicy === "require_replay")
+      if (tied && rules?.tiedMapPolicy === "require_replay")
         problems.push(
           "A tied game requires an explicitly reviewed replay; exclude the tied original.",
         );
-      if (tied)
+      if (tied && !exhibitionMp)
         warnings.push("This game is tied. No map winner has been invented.");
     }
   }
@@ -268,11 +288,13 @@ export function previewMatch(
   source: MatchSource,
   context: MatchContext,
   decisions?: readonly GameDecision[],
+  useRoundRules = false,
 ): MatchImportPreview {
   const blockers: string[] = [];
+  const exhibitionMp = context.round.stage === "exhibition" && !useRoundRules;
   const parsed = scoringRulesSchema.safeParse(context.round.scoringRules);
-  const rules = parsed.success ? parsed.data : null;
-  if (!rules)
+  const rules = !exhibitionMp && parsed.success ? parsed.data : null;
+  if (!rules && !exhibitionMp)
     blockers.push(
       "Configure complete organizer-approved scoring rules before submitting.",
     );
@@ -313,6 +335,7 @@ export function previewMatch(
       g.beatmapId !== null &&
         source.games.filter((other) => other.beatmapId === g.beatmapId).length >
           1,
+      exhibitionMp,
     ),
   );
   const series: SeriesOutcome = {
@@ -334,9 +357,9 @@ export function previewMatch(
       continue;
     }
     series.includedGames++;
-    if (!decision.complianceConfirmed)
+    if (!exhibitionMp && !decision.complianceConfirmed)
       blockers.push(`Game ${g.game.id}: confirm mod and rule compliance.`);
-    if (g.warnings.length && !decision.reason.trim())
+    if (!exhibitionMp && g.warnings.length && !decision.reason.trim())
       blockers.push(
         `Game ${g.game.id}: document the warning or attribution resolution.`,
       );
@@ -358,7 +381,9 @@ export function previewMatch(
     )
       firstToReached = true;
   }
-  if (rules?.series.type === "first_to") {
+  if (exhibitionMp) {
+    series.complete = series.includedGames > 0;
+  } else if (rules?.series.type === "first_to") {
     series.complete =
       (series.homeWins === rules.series.wins &&
         series.awayWins < rules.series.wins) ||
@@ -375,7 +400,9 @@ export function previewMatch(
   }
   if (!series.complete)
     blockers.push(
-      "The reviewed games do not complete the configured series. No match winner is assumed.",
+      exhibitionMp
+        ? "Include at least one completed game."
+        : "The reviewed games do not complete the configured series. No match winner is assumed.",
     );
   if (blockers.length) series.complete = false;
   if (series.complete) {

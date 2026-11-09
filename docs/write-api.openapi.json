@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OCLR write API",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Incremental documentation of existing OCLR browser and desktop routes. See write-api-inventory.json for coverage."
   },
   "components": {
@@ -8417,14 +8417,14 @@
           "revisions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Read94ff3da94f55"
+              "$ref": "#/components/schemas/Readf3b0cbd6f86e"
             }
           },
           "current": {
-            "$ref": "#/components/schemas/Read8f97191cc88f"
+            "$ref": "#/components/schemas/Readf61efb553b24"
           },
           "published": {
-            "$ref": "#/components/schemas/Read8f97191cc88f"
+            "$ref": "#/components/schemas/Readf61efb553b24"
           },
           "diff": {
             "anyOf": [
@@ -9080,11 +9080,11 @@
           "additionalProperties": false
         }
       },
-      "Read94ff3da94f55": {
+      "Readf3b0cbd6f86e": {
         "type": "object",
         "properties": {
           "proposal": {
-            "$ref": "#/components/schemas/Read68c778758ccb"
+            "$ref": "#/components/schemas/Readf8b47a7c717e"
           },
           "fixtureId": {
             "type": "string"
@@ -9149,17 +9149,17 @@
         ],
         "additionalProperties": false
       },
-      "Read68c778758ccb": {
+      "Readf8b47a7c717e": {
         "anyOf": [
           {
             "type": "null"
           },
           {
-            "$ref": "#/components/schemas/Readfa6d1949dfe4"
+            "$ref": "#/components/schemas/Read114556a5556f"
           }
         ]
       },
-      "Readfa6d1949dfe4": {
+      "Read114556a5556f": {
         "type": "object",
         "properties": {
           "schemaVersion": {
@@ -9222,7 +9222,7 @@
             }
           },
           "rulesSnapshot": {
-            "$ref": "#/components/schemas/Read66bb513795b2"
+            "$ref": "#/components/schemas/Read18a79bebc577"
           },
           "sourceFingerprint": {
             "type": "string"
@@ -9588,13 +9588,13 @@
           }
         ]
       },
-      "Read8f97191cc88f": {
+      "Readf61efb553b24": {
         "anyOf": [
           {
             "type": "null"
           },
           {
-            "$ref": "#/components/schemas/Read94ff3da94f55"
+            "$ref": "#/components/schemas/Readf3b0cbd6f86e"
           }
         ]
       },
@@ -28149,7 +28149,6 @@
                       "confirmed",
                       "action",
                       "importId",
-                      "rulesConfirmed",
                       "sourceChangesConfirmed",
                       "decisions",
                       "publicNote"

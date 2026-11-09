@@ -98,6 +98,7 @@ function SourceReview({
   const tr = useAppTranslations();
 
   const source = data.source!;
+  const exhibition = data.context.round.stage === "exhibition";
   const [decisions, setDecisions] = useState<Record<number, GameDecision>>({});
   const [rulesConfirmed, setRules] = useState(false);
   const [sourceConfirmed, setSource] = useState(false);
@@ -185,7 +186,9 @@ function SourceReview({
                   {tr("Game ID ")}
                   {g.game.id} · {g.game.teamType ?? tr("Unknown team mode")} ·{" "}
                   {g.game.scoringType ?? tr("Unknown scoring")} ·{" "}
-                  {g.game.mods.join(", ") || "NM"}
+                  {g.game.problems.includes("Game mod data is unavailable.")
+                    ? tr("Unavailable")
+                    : g.game.mods.join(", ") || "NM"}
                 </p>
                 {g.game.beatmapId && (
                   <a
@@ -283,38 +286,42 @@ function SourceReview({
                     <option value="false">{tr("Exclude from result")}</option>
                   </select>
                 </label>
-                {decision && (!decision.included || g.warnings.length > 0) && (
-                  <label className="field">
-                    <span>
-                      {tr("Game ")}
-                      {i + 1}{" "}
-                      {decision.included
-                        ? tr("scoring decision explanation")
-                        : tr("exclusion explanation")}
-                    </span>
-                    <textarea
-                      maxLength={1000}
-                      value={decision?.reason ?? ""}
+                {decision &&
+                  (!decision.included ||
+                    (!exhibition && g.warnings.length > 0)) && (
+                    <label className="field">
+                      <span>
+                        {tr("Game ")}
+                        {i + 1}{" "}
+                        {decision.included
+                          ? tr("scoring decision explanation")
+                          : tr("exclusion explanation")}
+                      </span>
+                      <textarea
+                        maxLength={1000}
+                        value={decision?.reason ?? ""}
+                        onChange={(e) =>
+                          update(g.game.id, { reason: e.target.value })
+                        }
+                      />
+                    </label>
+                  )}
+                {!exhibition && (
+                  <label className="check-label">
+                    <input
+                      type="checkbox"
+                      checked={decision?.complianceConfirmed ?? false}
                       onChange={(e) =>
-                        update(g.game.id, { reason: e.target.value })
+                        update(g.game.id, {
+                          complianceConfirmed: e.target.checked,
+                        })
                       }
                     />
+                    {tr("Game ")}
+                    {i + 1}
+                    {tr(": I verified mods and the approved tournament rules")}
                   </label>
                 )}
-                <label className="check-label">
-                  <input
-                    type="checkbox"
-                    checked={decision?.complianceConfirmed ?? false}
-                    onChange={(e) =>
-                      update(g.game.id, {
-                        complianceConfirmed: e.target.checked,
-                      })
-                    }
-                  />
-                  {tr("Game ")}
-                  {i + 1}
-                  {tr(": I verified mods and the approved tournament rules")}
-                </label>
                 {unknown.map((p) => {
                   const existing = decision?.substitutions.find(
                     (s) => s.osuId === p.osuId,
@@ -339,9 +346,13 @@ function SourceReview({
                       </legend>
                       <InfoNote>
                         <p className="muted">
-                          {tr(
-                            "Requires a configured substitution policy. This does not change the official roster.",
-                          )}
+                          {exhibition
+                            ? tr(
+                                "Identify the player’s side and give a reason.",
+                              )
+                            : tr(
+                                "Requires a configured substitution policy. This does not change the official roster.",
+                              )}
                         </p>
                       </InfoNote>
                       <label className="field">
@@ -435,16 +446,18 @@ function SourceReview({
               onChange={(e) => setNote(e.target.value)}
             />
           </label>
-          <label className="check-label">
-            <input
-              type="checkbox"
-              checked={rulesConfirmed}
-              onChange={(e) => setRules(e.target.checked)}
-            />
-            {tr(
-              "I verified the configured scoring rules against the approved OCLR rules",
-            )}
-          </label>
+          {!exhibition && (
+            <label className="check-label">
+              <input
+                type="checkbox"
+                checked={rulesConfirmed}
+                onChange={(e) => setRules(e.target.checked)}
+              />
+              {tr(
+                "I verified the configured scoring rules against the approved OCLR rules",
+              )}
+            </label>
+          )}
           <label className="check-label">
             <input
               type="checkbox"
@@ -455,7 +468,9 @@ function SourceReview({
               "I reviewed the current source snapshot and all reported changes",
             )}
           </label>
-          {preview.canSubmit && rulesConfirmed && sourceConfirmed ? (
+          {preview.canSubmit &&
+          (exhibition || rulesConfirmed) &&
+          sourceConfirmed ? (
             <Operation
               label={tr("Submit proposed result")}
               action="submit"
@@ -464,7 +479,7 @@ function SourceReview({
               extra={{
                 importId: data.importId,
                 decisions: list,
-                rulesConfirmed: true,
+                ...(exhibition ? {} : { rulesConfirmed: true }),
                 sourceChangesConfirmed: true,
                 publicNote,
               }}
@@ -589,8 +604,8 @@ export function MatchReviewPanel({
         </section>
         <section className="panel stack">
           <h2>
-            {context.fixture.openExhibition
-              ? tr("Exhibition sides and scoring rules")
+            {context.round.stage === "exhibition"
+              ? tr("Exhibition sides")
               : tr("Official teams and scoring rules")}
           </h2>
           {context.teams.map((t) => (
@@ -608,20 +623,28 @@ export function MatchReviewPanel({
               </p>
             </div>
           ))}
-          <details>
-            <summary>{tr("Configured round scoring rules")}</summary>
-            {context.round.scoringRules ? (
-              <pre className="rules-json">
-                {JSON.stringify(context.round.scoringRules, null, 2)}
-              </pre>
-            ) : (
-              <p className="notice">
-                {tr(
-                  "Awaiting approved scoring configuration. No winner will be assumed.",
-                )}
-              </p>
-            )}
-          </details>
+          {context.round.stage === "exhibition" ? (
+            <p className="muted">
+              {tr(
+                "Exhibition results sum each side’s recorded MP scores per game and count wins and ties across the games you include.",
+              )}
+            </p>
+          ) : (
+            <details>
+              <summary>{tr("Configured round scoring rules")}</summary>
+              {context.round.scoringRules ? (
+                <pre className="rules-json">
+                  {JSON.stringify(context.round.scoringRules, null, 2)}
+                </pre>
+              ) : (
+                <p className="notice">
+                  {tr(
+                    "Awaiting approved scoring configuration. No winner will be assumed.",
+                  )}
+                </p>
+              )}
+            </details>
+          )}
         </section>
         {data.source && (
           <SourceReview
@@ -806,7 +829,10 @@ export function MatchReviewPanel({
                   <p>
                     {tr("Result reference: ")}
                     {r.revision} {tr(" · Scoring release:")}{" "}
-                    {r.proposal?.rulesSnapshot.version ?? tr("Unavailable")}
+                    {r.proposal
+                      ? (r.proposal.rulesSnapshot?.version ??
+                        tr("Recorded MP scores"))
+                      : tr("Unavailable")}
                   </p>
                 </details>
               </details>
