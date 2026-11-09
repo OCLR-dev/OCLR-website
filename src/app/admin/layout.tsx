@@ -4,7 +4,7 @@ import { getAppTranslations } from "@/i18n/server";
 import { globalNavigation, tournamentNavigation } from "@/lib/admin-navigation";
 import { canRead, isDeveloper, permits, staffAccess } from "@/lib/auth/staff";
 import { currentUser } from "@/lib/auth/user";
-import { tournamentList } from "@/lib/tournaments";
+import { tournamentList } from "@/lib/tournament-reads";
 import { notFound, redirect } from "next/navigation";
 export async function generateMetadata() {
   const tr = await getAppTranslations();

@@ -7,7 +7,7 @@ vi.mock("../../src/lib/auth/staff", () => ({
   assertReadCapability: vi.fn(),
   hasCapability: vi.fn(),
 }));
-vi.mock("../../src/lib/tournaments", () => ({
+vi.mock("../../src/lib/tournament-reads", () => ({
   readTournament: async () => ({ edition: { archive: statisticsArchive } }),
 }));
 vi.mock("../../src/db", () => ({

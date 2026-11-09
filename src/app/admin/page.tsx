@@ -5,7 +5,7 @@ import { staffAccess } from "@/lib/auth/staff";
 import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";
 import { listApplications, parseFilters } from "@/lib/staff";
-import { tournamentList } from "@/lib/tournaments";
+import { tournamentList } from "@/lib/tournament-reads";
 import { AdminOverviewTournaments } from "@/components/admin-overview-tournaments";
 import Link from "next/link";
 import { redirect } from "next/navigation";

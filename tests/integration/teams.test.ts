@@ -30,7 +30,8 @@ import {
   publishedTeams,
 } from "../../src/lib/teams";
 import { edition } from "../fixtures/edition";
-import { tournamentCommand, readTournament } from "../../src/lib/tournaments";
+import { tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
 import { publicPlayers } from "../../src/lib/players";
 import { getOsuUserProfile } from "../../src/lib/osu-profiles";
 vi.mock("../../src/lib/osu-profiles", () => ({ getOsuUserProfile: vi.fn() }));

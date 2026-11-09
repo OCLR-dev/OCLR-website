@@ -5,7 +5,7 @@ import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";
-import { tournamentForAdmin } from "@/lib/tournaments";
+import { tournamentForAdmin } from "@/lib/tournament-reads";
 async function Issue271Page({
   params,
 }: {

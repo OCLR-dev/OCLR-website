@@ -140,7 +140,7 @@
     "scope": "tournaments:read"
   },
   {
-    "module": "tournaments",
+    "module": "tournament-reads",
     "fn": "tournamentForAdmin",
     "id": "tournamentForAdmin",
     "path": "/staff/tournaments/{edition}/workspace",
@@ -260,7 +260,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "tournaments",
+    "module": "tournament-reads",
     "fn": "tournamentList",
     "id": "tournamentList",
     "path": "/staff/tournament-workspace",

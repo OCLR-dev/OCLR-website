@@ -14,7 +14,7 @@ import {
   publishesTournamentNews,
   type OfficialNewsEvent,
 } from "./public-news-model";
-import { readTournaments } from "./tournaments";
+import { readTournaments } from "./tournament-reads";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type PublicNewsModel = ExplicitReadData<"publicNewsModel">;
 async function loadNews(

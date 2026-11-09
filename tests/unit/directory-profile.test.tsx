@@ -43,8 +43,8 @@ vi.mock("../../src/db", () => ({
   db: () => ({ transaction: (read: () => unknown) => read() }),
   readOnlyData: (read: () => unknown) => read(),
 }));
-vi.mock("../../src/lib/tournaments", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../../src/lib/tournaments")>()),
+vi.mock("../../src/lib/tournament-reads", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/lib/tournament-reads")>()),
   readTournament: vi.fn(async () => {
     const current = await getPublicEdition(edition.slug);
     return current

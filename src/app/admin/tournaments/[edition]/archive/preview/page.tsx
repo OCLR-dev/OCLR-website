@@ -5,7 +5,7 @@ import {
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";
-import { tournamentForAdmin } from "@/lib/tournaments";
+import { tournamentForAdmin } from "@/lib/tournament-reads";
 import { notFound } from "next/navigation";
 const sections = new Set<ArchiveSection>([
   "overview",

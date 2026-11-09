@@ -5,13 +5,31 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 
 | Responsibility | Current entry points |
 | --- | --- |
-| Edition configuration and publication | [tournaments](../src/lib/tournaments.ts) owns configuration commands and reads. [content](../src/lib/content.ts) provides edition lookups for callers. |
+| Edition configuration and publication | [tournament-reads](../src/lib/tournament-reads.ts) serves saved configuration and staff workspaces. [tournaments](../src/lib/tournaments.ts) owns configuration and publication commands. [content](../src/lib/content.ts) provides edition lookups for callers. |
 | Registration, appointments and rosters | [registrations](../src/lib/registrations.ts), [staff](../src/lib/staff.ts), [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own their writes, version checks and audits. |
 | Draft | [draft-reads](../src/lib/draft-reads.ts) serves staff, captain and public reads. [draft](../src/lib/draft.ts) owns transitions, picks and publication. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace, [referee](../src/lib/referee.ts) owns referee commands, and [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) coordinate IRC and multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) reads and writes the relational representation. [archive-read](../src/lib/archive-read.ts) serves saved projections. |
+
+## Tournament configuration
+
+Previously, reading a saved edition or the staff workspace loaded the
+tournament commands and draft snapshot writer. The website and versioned API
+now call [tournament-reads](../src/lib/tournament-reads.ts) directly. Public
+reads still filter publication in the database and project historical data
+through the public archive view. Staff reads retain edition authorization,
+and transaction callers can pass their reader to the same saved edition query.
+
+[tournaments](../src/lib/tournaments.ts) owns the write transaction. Updates
+lock the edition and recheck capability and the expected configuration
+revision before changing settings. A capacity edit refreshes team capacity,
+setup version and draft snapshots in that same transaction as configuration
+history and audit. Historical relation updates stay in the transaction.
+The capacity test rejects the audit insert and confirms that all of those
+capacity-related writes roll back. Retrying the update commits one revision
+and advances both draft views.
 
 ## Draft reads and snapshots
 

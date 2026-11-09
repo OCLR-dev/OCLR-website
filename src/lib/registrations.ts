@@ -27,7 +27,7 @@ import {
   submitRegistrationWrite,
   withdrawRegistrationWrite,
 } from "./registration-write-contract";
-import { readTournament, storedEdition } from "./tournaments";
+import { readTournament, storedEdition } from "./tournament-reads";
 import type { RegistrationReadOperation } from "./configuration-read-contracts";
 // Latest explicit provenance, without rewriting legacy audit records or storing
 // a second registration status. Mutations timestamp the event and row together.

@@ -31,7 +31,8 @@ import {
 import { seedEditions } from "../fixtures/editions";
 import { seedAwardReview, awardWeeks } from "../fixtures/awards";
 import { assertTestDatabase } from "../database";
-import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
+import { tournamentCommand } from "../../src/lib/tournaments";
 import { POST as awardsRoute } from "../../src/app/api/admin/tournaments/[edition]/awards/route";
 import { changeAwardsWrite } from "../../src/lib/results-publication-write-contracts";
 import { extendedSchemas } from "../../src/lib/extended-read-resources";

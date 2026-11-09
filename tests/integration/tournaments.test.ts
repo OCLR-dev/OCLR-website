@@ -10,15 +10,14 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import { assertTestDatabase } from "../database";
 import { db, closeDb } from "../../src/db";
+import { createTournament, tournamentCommand } from "../../src/lib/tournaments";
 import {
-  createTournament,
-  tournamentCommand,
   tournamentForAdmin,
   tournamentList,
   readTournament,
   readTournaments,
   tournamentAppearanceScopes,
-} from "../../src/lib/tournaments";
+} from "../../src/lib/tournament-reads";
 import {
   users,
   staffRoles,
@@ -34,6 +33,9 @@ import {
 } from "../../src/lib/public-read-models";
 import { collectionPage } from "../../src/lib/read-api";
 import { getPublicEdition } from "../../src/lib/content";
+import { draftCommand, pickPlayer } from "../../src/lib/draft";
+import { publicDraft, staffDraft } from "../../src/lib/draft-reads";
+import { prepareDraft } from "../fixtures/draft";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { seasonAppearances } from "../../src/lib/preferences";
@@ -705,6 +707,90 @@ describe.skipIf(!url)("authoritative tournament edition storage", () => {
       );
       await db().execute(sql`DROP FUNCTION oclr_test_reject_edition_event()`);
     }
+  });
+  it("commits capacity, configuration revision and draft snapshots together", async () => {
+    const slug = "s12";
+    const fixture = await prepareDraft(slug, admin.osuId);
+    const { session } = await staffDraft(admin, slug);
+    await pickPlayer(admin, slug, {
+      sessionId: session!.id,
+      turnIndex: session!.turnIndex,
+      candidateId: fixture.players[0].osuId,
+      expectedVersion: session!.version,
+      idempotencyKey: crypto.randomUUID(),
+    });
+    const picked = await staffDraft(admin, slug);
+    const before = await draftCommand(admin, slug, {
+      confirmed: true,
+      expectedVersion: picked.session!.version,
+      command: {
+        action: "unlock",
+        expectedSetupVersion: picked.edition!.setupVersion,
+      },
+    });
+    const published = (await publicDraft(slug))!;
+    expect(published.picks).toHaveLength(1);
+    const saved = (await readTournament(slug))!;
+    const { name, season, summary, status, timeZone, branding } = saved.edition;
+    const update = () =>
+      change(saved.revision, "general", {
+        name, season, summary, status, timeZone, branding, rosterCapacity: 4,
+      });
+    const revisions = () =>
+      db()
+        .select({ version: editionRevisions.version })
+        .from(editionRevisions)
+        .where(eq(editionRevisions.editionSlug, slug))
+        .orderBy(editionRevisions.version);
+    const history = await revisions();
+    const audits = (await auditEvents()).length;
+
+    await db().execute(sql`
+      CREATE FUNCTION oclr_test_reject_capacity_audit() RETURNS trigger
+      LANGUAGE plpgsql AS $$ BEGIN
+        IF NEW.kind = 'tournament_general' THEN
+          RAISE EXCEPTION 'Synthetic capacity audit failure';
+        END IF;
+        RETURN NEW;
+      END $$;
+      CREATE TRIGGER oclr_test_reject_capacity_audit
+        BEFORE INSERT ON edition_events FOR EACH ROW
+        EXECUTE FUNCTION oclr_test_reject_capacity_audit()
+    `);
+    try {
+      await expect(update()).rejects.toThrow();
+      expect(await readTournament(slug)).toEqual(saved);
+      expect(await revisions()).toEqual(history);
+      expect(await staffDraft(admin, slug)).toEqual(before);
+      expect(await publicDraft(slug)).toEqual(published);
+      expect(await auditEvents()).toHaveLength(audits);
+    } finally {
+      await db().execute(sql`
+        DROP TRIGGER oclr_test_reject_capacity_audit ON edition_events;
+        DROP FUNCTION oclr_test_reject_capacity_audit()
+      `);
+    }
+
+    const updated = await update();
+    expect(updated.revision).toBe(saved.revision + 1);
+    expect(updated.edition.rosterCapacity).toBe(4);
+    expect(await revisions()).toEqual([...history, { version: updated.revision }]);
+    const after = await staffDraft(admin, slug);
+    expect(after.edition?.setupVersion).toBe(before.edition!.setupVersion + 1);
+    expect(after.teams.map(({ team }) => team.capacity)).toEqual([4, 4]);
+    expect(after.session).toMatchObject({
+      version: before.session!.version + 1,
+      captainSnapshot: {
+        capacities: Object.fromEntries(
+          after.teams.map(({ team }) => [team.id, 4]),
+        ),
+      },
+    });
+    expect(await publicDraft(slug)).toEqual({
+      ...published,
+      version: published.version + 1,
+    });
+    expect(await auditEvents()).toHaveLength(audits + 1);
   });
   it("does not manufacture configuration changes or audit events for identical saves", async () => {
     await create();

@@ -116,7 +116,7 @@ export async function staffOclrPlayerProfile(
   const { db } = await import("@/db");
   const { registrations } = await import("@/db/schema");
   const { and, eq } = await import("drizzle-orm");
-  const { readTournament } = await import("./tournaments");
+  const { readTournament } = await import("./tournament-reads");
   const identity = parseOsuProfile(input, mode);
   const row = await readTournament(edition);
   const [application] = await db()

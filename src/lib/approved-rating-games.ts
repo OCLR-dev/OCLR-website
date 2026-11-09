@@ -13,7 +13,7 @@ import {
 } from "@/db/schema";
 import { matchGameSchema, reviewedResultSchema } from "./match-model";
 import type { RatingGame } from "./yumu-rating";
-import { readTournament } from "./tournaments";
+import { readTournament } from "./tournament-reads";
 import { statisticsScore } from "./statistics-score";
 import { slotLabel } from "./mappool-model";
 export type RatingReader = Pick<ReturnType<typeof db>, "select">;

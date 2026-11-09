@@ -5,7 +5,7 @@ import { authorizedPage } from "@/lib/auth/page";
 import { hasCapability } from "@/lib/auth/staff";
 import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";
-import { tournamentForAdmin } from "@/lib/tournaments";
+import { tournamentForAdmin } from "@/lib/tournament-reads";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Tournament settings") };

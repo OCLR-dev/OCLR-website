@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { db } from "@/db";
 import { remoteMode } from "./data-source";
-import { readTournament, readTournaments } from "./tournaments";
+import { readTournament, readTournaments } from "./tournament-reads";
 // PostgreSQL is authoritative. No JSON fallback, process cache or automatic seed.
 export async function getEditions() {
   if (remoteMode()) {

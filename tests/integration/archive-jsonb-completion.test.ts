@@ -31,7 +31,8 @@ import {
 } from "../../src/lib/archive-statistics";
 import { publicPlayer } from "../../src/lib/players";
 import { playerMapPerformance } from "../../src/lib/player-map-performance";
-import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
+import { tournamentCommand } from "../../src/lib/tournaments";
 import { leaderboardSource } from "../../src/lib/player-leaderboard-cache";
 import { archiveContentHash } from "../../src/lib/archive-read-model";
 import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";

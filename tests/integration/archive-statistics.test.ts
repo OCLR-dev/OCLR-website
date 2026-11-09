@@ -16,11 +16,11 @@ import {
   editionEvents,
   historicalStatistics,
 } from "../../src/db/schema";
+import { tournamentCommand } from "../../src/lib/tournaments";
 import {
-  tournamentCommand,
   readTournament,
   tournamentLinks,
-} from "../../src/lib/tournaments";
+} from "../../src/lib/tournament-reads";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";

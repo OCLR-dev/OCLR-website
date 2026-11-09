@@ -2,7 +2,7 @@ import { createTournamentWrite } from "@/lib/tournament-write-contracts";
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
-import { tournamentList, createTournament } from "@/lib/tournaments";
+import { tournamentList } from "@/lib/tournament-reads";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 async function readGET() {
   try {
@@ -16,16 +16,13 @@ async function readGET() {
 export async function POST(request: Request) {
   try {
     requireSameOrigin(request);
-    return NextResponse.json(
-      await createTournament(
-        await requireUser(),
-        await readJson(request, createTournamentWrite.maxBodyBytes),
-      ),
-      {
-        status: createTournamentWrite.successStatus,
-        headers: { "Cache-Control": "no-store" },
-      },
-    );
+    const actor = await requireUser();
+    const input = await readJson(request, createTournamentWrite.maxBodyBytes);
+    const { createTournament } = await import("@/lib/tournaments");
+    return NextResponse.json(await createTournament(actor, input), {
+      status: createTournamentWrite.successStatus,
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     return apiError(error);
   }

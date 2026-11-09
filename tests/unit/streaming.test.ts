@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { canViewStreaming } from "../../src/lib/streaming";
 import { permits, type StaffGrant } from "../../src/lib/auth/staff";
-import { tournamentLinks } from "../../src/lib/tournaments";
+import { tournamentLinks } from "../../src/lib/tournament-reads";
 describe("streaming role boundaries", () => {
   it.each(["streamer", "commentator"] as const)(
     "gives %s only edition-scoped broadcast reads and self-service",
