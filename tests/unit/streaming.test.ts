@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canViewStreaming } from "../../src/lib/streaming";
+import { canViewStreaming } from "../../src/lib/streaming-staff";
 import { permits, type StaffGrant } from "../../src/lib/auth/staff";
 import { tournamentLinks } from "../../src/lib/tournament-reads";
 describe("streaming role boundaries", () => {

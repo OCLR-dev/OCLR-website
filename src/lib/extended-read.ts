@@ -122,7 +122,7 @@ export async function extendedRead(
         query.get("fixtureId") ?? "",
       );
     case "streamingWorkspace":
-      return (await import("./streaming")).streamingWorkspace(
+      return (await import("./streaming-workspace")).streamingWorkspace(
         actor!,
         slug,
         Object.fromEntries([...query].filter(([key]) => key !== "fixtureId")),

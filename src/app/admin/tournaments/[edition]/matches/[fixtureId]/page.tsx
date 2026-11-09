@@ -16,7 +16,8 @@ import { HttpError } from "@/lib/http";
 import { matchRatingWorkspace } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";
 import { matchReview } from "@/lib/result-review";
-import { canViewStreaming, streamingWorkspace } from "@/lib/streaming";
+import { canViewStreaming } from "@/lib/streaming-staff";
+import { streamingWorkspace } from "@/lib/streaming-workspace";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Fixture review") };

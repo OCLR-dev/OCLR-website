@@ -7,7 +7,7 @@ import {
 } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { StreamingManager } from "../../src/components/streaming-manager";
 import { StaffReadOnlyContext } from "../../src/components/staff-read-only";
-import type { StreamingWorkspace } from "../../src/lib/streaming";
+import type { StreamingWorkspace } from "../../src/lib/streaming-workspace";
 import en from "../../messages/en.json";
 import hans from "../../messages/zh-Hans.json";
 import hant from "../../messages/zh-Hant.json";

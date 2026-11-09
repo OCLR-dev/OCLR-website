@@ -3,7 +3,7 @@ import styles from "./streaming-manager.module.css";
 import Link from "next/link";
 import { useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import type { StreamingWorkspace } from "@/lib/streaming";
+import type { StreamingWorkspace } from "@/lib/streaming-workspace";
 import { formatDate } from "@/lib/editions";
 import { ConfirmMutation } from "./confirm-mutation";
 import { ReadOnlyFields } from "./staff-read-only";

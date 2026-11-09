@@ -220,7 +220,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "streaming",
+    "module": "streaming-workspace",
     "fn": "streamingWorkspace",
     "id": "streamingWorkspace",
     "path": "/staff/tournaments/{edition}/streaming",
