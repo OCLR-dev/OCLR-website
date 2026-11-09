@@ -5,7 +5,7 @@ import { closeDb, db } from "../../src/db";
 import { editionState } from "../../src/db/schema";
 import { archiveBracket } from "../../src/lib/archive-bracket";
 import { readArchiveProgression } from "../../src/lib/archive-progression";
-import { syncArchiveRelations } from "../../src/lib/archive-relations";
+import { syncArchiveRelations } from "../../src/lib/archive-relation-writes";
 import { bracketRouting } from "../../src/lib/bracket-routing";
 import { publicBracket } from "../../src/lib/brackets";
 import { readApiRoute } from "../../src/lib/read-api";

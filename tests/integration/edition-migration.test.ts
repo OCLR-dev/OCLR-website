@@ -20,7 +20,7 @@ import { archiveQueryFixture } from "../fixtures/archive-query";
 import {
   backfillArchiveRelations,
   verifyArchiveRelations,
-} from "../../src/lib/archive-relations";
+} from "../../src/lib/archive-relation-maintenance";
 import bootstrap from "../../drizzle/legacy-editions.json" with { type: "json" };
 import s10Archive from "../../docs/imports/s10-archive.json" with { type: "json" };
 const base = process.env.TEST_DATABASE_URL;

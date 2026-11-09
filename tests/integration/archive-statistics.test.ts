@@ -1,4 +1,4 @@
-import { verifyArchiveRelations } from "../../src/lib/archive-relations";
+import { verifyArchiveRelations } from "../../src/lib/archive-relation-maintenance";
 import {
   beforeAll,
   beforeEach,

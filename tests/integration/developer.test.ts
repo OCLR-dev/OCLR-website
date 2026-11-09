@@ -52,7 +52,7 @@ import { staffFixtures } from "../../src/lib/fixture-reads";
 import { matchReview } from "../../src/lib/result-review";
 import { previewFixtureMatch } from "../../src/lib/result-import";
 import { statisticsWorkspace } from "../../src/lib/archive-statistics-reads";
-import { backfillArchiveRelations } from "../../src/lib/archive-relations";
+import { backfillArchiveRelations } from "../../src/lib/archive-relation-maintenance";
 import { awardWorkspace } from "../../src/lib/awards";
 import { HttpError } from "../../src/lib/http";
 

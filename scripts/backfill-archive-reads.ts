@@ -4,8 +4,8 @@ import { closeDb, db } from "../src/db";
 import {
   backfillArchiveReads,
   verifyArchiveReads,
-} from "../src/lib/archive-read";
-import { historicalArchiveSlugs } from "../src/lib/archive-relations";
+} from "../src/lib/archive-read-maintenance";
+import { historicalArchiveSlugs } from "../src/lib/archive-relation-maintenance";
 import {
   assertArchiveOperatorEnvironment,
   archiveOperatorDiagnostic,

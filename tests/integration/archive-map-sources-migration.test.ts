@@ -31,12 +31,12 @@ import {
   publicHistoricalArchive,
   type HistoricalArchive,
 } from "../../src/lib/historical-archive";
+import { archiveEditionStates } from "../../src/lib/archive-relations";
 import {
-  archiveEditionStates,
   backfillArchiveRelations,
-  syncArchiveRelations,
   verifyArchiveRelations,
-} from "../../src/lib/archive-relations";
+} from "../../src/lib/archive-relation-maintenance";
+import { syncArchiveRelations } from "../../src/lib/archive-relation-writes";
 import supplements from "../../src/data/archive-map-supplements.json";
 
 const url = process.env.TEST_DATABASE_URL;

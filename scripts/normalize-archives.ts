@@ -4,7 +4,7 @@ import {
   backfillArchiveRelations,
   verifyArchiveRelations,
   historicalArchiveSlugs,
-} from "../src/lib/archive-relations";
+} from "../src/lib/archive-relation-maintenance";
 import { HttpError } from "../src/lib/http";
 import {
   assertArchiveOperatorEnvironment,

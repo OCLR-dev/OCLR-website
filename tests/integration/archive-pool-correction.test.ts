@@ -31,7 +31,7 @@ import {
 } from "../../src/lib/archive-statistics-reads";
 import { readTournament } from "../../src/lib/tournament-reads";
 import { tournamentCommand } from "../../src/lib/tournaments";
-import { verifyArchiveRelations } from "../../src/lib/archive-relations";
+import { verifyArchiveRelations } from "../../src/lib/archive-relation-maintenance";
 
 const url = process.env.TEST_DATABASE_URL;
 function archive() {

@@ -7,7 +7,7 @@ import {
   lockHistoricalStatistics,
   persistHistoricalStatistics,
   syncArchiveRelations,
-} from "./archive-relations";
+} from "./archive-relation-writes";
 import {
   readStatisticsArchive,
   readStatisticsSources,

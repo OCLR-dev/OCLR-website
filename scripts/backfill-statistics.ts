@@ -60,10 +60,10 @@ import {
 } from "../src/db/schema";
 import {
   syncArchiveRelations,
-  readHistoricalStatistics,
   lockHistoricalStatistics,
   persistHistoricalStatistics,
-} from "../src/lib/archive-relations";
+} from "../src/lib/archive-relation-writes";
+import { readHistoricalStatistics } from "../src/lib/archive-relations";
 import { readTournament } from "../src/lib/tournament-reads";
 
 type Options = {

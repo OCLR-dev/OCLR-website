@@ -1,4 +1,4 @@
-import { syncArchiveRelations } from "./archive-relations";
+import { syncArchiveRelations } from "./archive-relation-writes";
 import { and, eq } from "drizzle-orm";
 import { isDeepStrictEqual } from "node:util";
 import { db } from "@/db";

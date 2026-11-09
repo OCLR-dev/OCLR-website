@@ -12,7 +12,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace, [referee](../src/lib/referee.ts) owns referee commands, and [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) coordinate IRC and multiplayer evidence. |
-| Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) and [archive-read](../src/lib/archive-read.ts) manage the relational representation and saved projections. [archive-statistics-reads](../src/lib/archive-statistics-reads.ts) reads statistics, and [archive-statistics](../src/lib/archive-statistics.ts) owns statistics commands. |
+| Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) and [archive-read](../src/lib/archive-read.ts) read typed sources and saved projections. [archive-relation-writes](../src/lib/archive-relation-writes.ts) synchronizes typed documents. [archive-statistics-reads](../src/lib/archive-statistics-reads.ts) reads statistics, and [archive-statistics](../src/lib/archive-statistics.ts) owns statistics commands. |
 
 ## Tournament configuration
 
@@ -207,6 +207,29 @@ fingerprint, permissions and source versions. Source updates, audit and
 relational projections commit together. The publication test now verifies
 that an audit failure preserves the reviewed versions and public projection.
 It then retries with the same expected versions and releases the saved games.
+
+## Historical archive storage
+
+Edition reads, statistics pages and the leaderboard worker previously reached
+document synchronization and backfill through the archive read modules. They
+now depend on read entry points and shared storage queries. Typed document
+validation and retained JSONB fallback still use the supplied read snapshot.
+The callers continue to enforce publication and permission checks.
+
+Edition and statistics commands pass their transaction to
+[archive-relation-writes](../src/lib/archive-relation-writes.ts) after locking
+the edition. Source mirrors, digests and document heads are updated within
+that transaction. The write helpers also retain the existing statistics row
+locks for callers that can encounter legacy MP updates.
+
+The normalization and projection backfill scripts call
+[archive-relation-maintenance](../src/lib/archive-relation-maintenance.ts) and
+[archive-read-maintenance](../src/lib/archive-read-maintenance.ts), respectively.
+Previews use a read-only repeatable-read transaction. Apply locks the edition
+under read committed. When projection backfill also synchronizes sources,
+both stages use the same transaction. Existing tests cover preview, concurrent
+apply, verification and fallback. The failed projection test also checks that
+document heads and immutable documents roll back with the generation.
 
 ## Transactions and read scopes
 

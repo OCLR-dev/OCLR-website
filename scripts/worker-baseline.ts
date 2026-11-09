@@ -5,7 +5,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { sql } from "drizzle-orm";
 import { closeDb, db } from "../src/db";
 import { editionState, historicalStatistics, users } from "../src/db/schema";
-import { backfillArchiveRelations } from "../src/lib/archive-relations";
+import { backfillArchiveRelations } from "../src/lib/archive-relation-maintenance";
 import { statisticsArchiveKey } from "../src/lib/archive-statistics-key";
 import { refreshBeatmapDifficulties } from "../src/lib/difficulty-worker";
 import { HttpError } from "../src/lib/http";

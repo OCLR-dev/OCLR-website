@@ -20,12 +20,12 @@ import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { statisticsArchive } from "../fixtures/archive-statistics";
 import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
+import { archiveEditionStates } from "../../src/lib/archive-relations";
 import {
-  archiveEditionStates,
   backfillArchiveRelations,
-  syncArchiveRelations,
   verifyArchiveRelations,
-} from "../../src/lib/archive-relations";
+} from "../../src/lib/archive-relation-maintenance";
+import { syncArchiveRelations } from "../../src/lib/archive-relation-writes";
 import backgrounds from "../../src/data/archive-background-supplements.json";
 
 const url = process.env.TEST_DATABASE_URL;
