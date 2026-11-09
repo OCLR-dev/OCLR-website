@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { userProfileCache } from "@/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { remoteMode } from "./data-source";
-import { publicDraft } from "./draft";
+import { publicDraft } from "./draft-reads";
 import type { DraftBoard, DraftIdentity } from "./draft-types";
 import { frontendResource } from "./frontend-resource";
 import { getOsuUserProfile, PROFILE_TTL_MS } from "./osu-profiles";

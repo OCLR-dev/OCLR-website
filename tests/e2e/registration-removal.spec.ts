@@ -15,7 +15,8 @@ import {
 } from "../../src/db/schema";
 import { createSession } from "../../src/lib/auth/sessions";
 import { prepareDraft } from "../fixtures/draft";
-import { pickPlayer, staffDraft } from "../../src/lib/draft";
+import { pickPlayer } from "../../src/lib/draft";
+import { staffDraft } from "../../src/lib/draft-reads";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";

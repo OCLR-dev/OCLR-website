@@ -4,7 +4,7 @@ import { useStaffReadOnly } from "./staff-read-only";
 import { useAppTranslations } from "@/i18n/shared";
 
 import { useState } from "react";
-import type { StaffDraft } from "@/lib/draft";
+import type { StaffDraft } from "@/lib/draft-reads";
 import type { DraftBoard, DraftTeam } from "@/lib/draft-types";
 import { usePoll } from "./use-poll";
 import { DraftPick } from "./draft-pick";

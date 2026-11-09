@@ -7,13 +7,13 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | --- | --- |
 | Edition configuration and publication | [tournaments](../src/lib/tournaments.ts) owns configuration commands and reads. [content](../src/lib/content.ts) provides edition lookups for callers. |
 | Registration, appointments and rosters | [registrations](../src/lib/registrations.ts), [staff](../src/lib/staff.ts), [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own their writes, version checks and audits. |
-| Draft | [draft](../src/lib/draft.ts) owns state transitions, staff/captain access, picks, idempotency and public reads. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
+| Draft | [draft-reads](../src/lib/draft-reads.ts) serves staff, captain and public reads. [draft](../src/lib/draft.ts) owns transitions, picks and publication. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace, [referee](../src/lib/referee.ts) owns referee commands, and [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) coordinate IRC and multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) reads and writes the relational representation. [archive-read](../src/lib/archive-read.ts) serves saved projections. |
 
-## Draft snapshots
+## Draft reads and snapshots
 
 Previously, `tournaments.ts` imported the draft service to update snapshots
 after a capacity change. That service imported `content.ts` for edition reads,
@@ -25,10 +25,25 @@ Tournament, captain and team commands now call
 [draft-snapshot](../src/lib/draft-snapshot.ts), which updates the draft version
 and the captain and public snapshots on the caller's transaction. It reads
 the same stored state through [draft-data](../src/lib/draft-data.ts) and
-projects it through [draft-board](../src/lib/draft-board.ts). The draft service
-uses those same read and projection functions for its own commands. The board
-projection accepts data and can run without a database connection. The original
-draft API entry points stay in `draft.ts`.
+projects it through [draft-board](../src/lib/draft-board.ts). The board
+projection accepts data and can run without a database connection.
+
+Previously, loading the public board, captain board or staff workspace also
+loaded the draft commands. [draft-reads](../src/lib/draft-reads.ts) now serves
+those saved reads directly to the pages, broadcast and versioned API. Staff
+reads keep their edition capability and repeatable-read scope. Captain reads
+require an appointment; public reads check release, team visibility and pool
+visibility in the existing snapshot scope. Staff setup and draft commands share
+the eligible registration query in `draft-data.ts` and the roster filter in
+`draft-board.ts`.
+
+[draft](../src/lib/draft.ts) owns writes. It locks the edition and then the draft
+session before reading the state used to validate the revision. Picks look up
+the actor's request key and compare the saved request hash before validating a
+new pick. A successful pick commits the pick, membership, version, both
+snapshots and audit together. The existing publication test now rejects the
+audit insert and verifies that both views and the stored draft state roll back.
+Retrying with the same key then commits one pick and audit.
 
 ## Fixture reads
 

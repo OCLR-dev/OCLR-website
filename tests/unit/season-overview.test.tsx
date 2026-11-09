@@ -11,7 +11,7 @@ import { publicCompetition } from "../../src/lib/public-competition";
 import { publicMappools } from "../../src/lib/mappool-reads";
 import { publishedTeams } from "../../src/lib/teams";
 import { publicStaff } from "../../src/lib/public-staff";
-import { publicDraft } from "../../src/lib/draft";
+import { publicDraft } from "../../src/lib/draft-reads";
 import { formatDate } from "../../src/lib/editions";
 import { InformationDocument } from "../../src/components/tournament-information";
 import { syntheticPublicPools } from "../fixtures/public-mappools";
@@ -42,7 +42,7 @@ vi.mock("../../src/lib/public-competition", () => ({
 vi.mock("../../src/lib/mappool-reads", () => ({ publicMappools: vi.fn() }));
 vi.mock("../../src/lib/teams", () => ({ publishedTeams: vi.fn() }));
 vi.mock("../../src/lib/public-staff", () => ({ publicStaff: vi.fn() }));
-vi.mock("../../src/lib/draft", () => ({ publicDraft: vi.fn() }));
+vi.mock("../../src/lib/draft-reads", () => ({ publicDraft: vi.fn() }));
 // The server composition test isolates client timer behavior (covered by browser tests).
 vi.mock("../../src/components/season-countdown", () => ({
   SeasonCountdown: () => null,

@@ -2,7 +2,7 @@ import { liveSnapshot } from "@/lib/live-snapshot";
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
-import { captainDraft } from "@/lib/draft";
+import { captainDraft } from "@/lib/draft-reads";
 import { apiError } from "@/lib/http";
 async function readGET(
   _request: Request,

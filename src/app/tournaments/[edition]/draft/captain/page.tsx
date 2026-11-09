@@ -3,7 +3,7 @@ import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { currentUser } from "@/lib/auth/user";
 import { captainAppointment } from "@/lib/captains";
-import { captainDraft } from "@/lib/draft";
+import { captainDraft } from "@/lib/draft-reads";
 import { remotePage } from "@/lib/remote-page";
 import { notFound, redirect } from "next/navigation";
 export async function generateMetadata() {

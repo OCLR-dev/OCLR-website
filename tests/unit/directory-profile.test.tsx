@@ -37,7 +37,7 @@ vi.mock("../../src/lib/players", async (importOriginal) => ({
   publicPlayers: vi.fn(),
   publicPlayersForEditions: vi.fn(),
 }));
-vi.mock("../../src/lib/draft", () => ({ releasedDraftData: async () => null }));
+vi.mock("../../src/lib/draft-reads", () => ({ releasedDraftData: async () => null }));
 vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
 vi.mock("../../src/db", () => ({
   db: () => ({ transaction: (read: () => unknown) => read() }),

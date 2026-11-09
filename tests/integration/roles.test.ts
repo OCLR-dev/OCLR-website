@@ -28,7 +28,8 @@ import {
 } from "../../src/lib/staff";
 import { captainSetup, updateCaptains } from "../../src/lib/captains";
 import { staffTeams, updateTeams } from "../../src/lib/teams";
-import { staffDraft, draftCommand } from "../../src/lib/draft";
+import { staffDraft } from "../../src/lib/draft-reads";
+import { draftCommand } from "../../src/lib/draft";
 import { edition } from "../fixtures/edition";
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 170001, username: "Synthetic Bootstrap" };

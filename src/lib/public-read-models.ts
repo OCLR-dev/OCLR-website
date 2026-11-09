@@ -19,7 +19,7 @@ import { profileBws } from "./bws";
 import { publishedTeams } from "./teams";
 import { publicMappools } from "./mappool-reads";
 import { publicStaff } from "./public-staff";
-import { publicDraft, releasedDraftData } from "./draft";
+import { publicDraft, releasedDraftData } from "./draft-reads";
 import { publicCompetition } from "./public-competition";
 import { draftAwardTiers, awardTierLabel } from "./award-tiers";
 import { archiveCounts, type HistoricalArchive } from "./historical-archive";

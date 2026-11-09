@@ -5,7 +5,7 @@ import { remotePage } from "@/lib/remote-page";
 import { getAppTranslations } from "@/i18n/server";
 import { TournamentShell } from "@/components/tournament-navigation";
 import { notFound } from "next/navigation";
-import { publicDraft } from "@/lib/draft";
+import { publicDraft } from "@/lib/draft-reads";
 import { getPublicEdition } from "@/lib/content";
 import { informationPreview } from "@/lib/tournament-information";
 import { currentUser } from "@/lib/auth/user";

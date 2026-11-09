@@ -4,7 +4,7 @@ import { ReadOnlyFields } from "./staff-read-only";
 import { useAppTranslations } from "@/i18n/shared";
 
 import { useState } from "react";
-import type { StaffDraft } from "@/lib/draft";
+import type { StaffDraft } from "@/lib/draft-reads";
 import {
   generateTurnSequence,
   initialDraftOrderMode,
