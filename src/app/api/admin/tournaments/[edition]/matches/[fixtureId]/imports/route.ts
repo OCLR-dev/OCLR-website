@@ -1,7 +1,7 @@
 import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
-import { importFixtureMatch } from "@/lib/results";
+import { importFixtureMatch } from "@/lib/result-import";
 import { importMatchResultWrite } from "@/lib/match-result-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 export async function POST(

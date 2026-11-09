@@ -35,7 +35,8 @@ import {
   fixtureBracket,
 } from "../../src/lib/fixture-views";
 import { publicFixture } from "../../src/lib/public-competition";
-import { importFixtureMatch, resultCommand } from "../../src/lib/results";
+import { resultCommand } from "../../src/lib/results";
+import { importFixtureMatch } from "../../src/lib/result-import";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { seedPublicDirectory } from "../fixtures/players";
 import { edition } from "../fixtures/edition";

@@ -437,17 +437,3 @@ export async function fetchMatchSource(matchId: number): Promise<MatchSource> {
     warnings: [...warnings],
   });
 }
-export function compareMatchSources(before: MatchSource, after: MatchSource) {
-  const oldGames = new Map(before.games.map((g) => [g.id, g]));
-  const newGames = new Map(after.games.map((g) => [g.id, g]));
-  return {
-    added: after.games.filter((g) => !oldGames.has(g.id)).map((g) => g.id),
-    removed: before.games.filter((g) => !newGames.has(g.id)).map((g) => g.id),
-    changed: after.games
-      .filter(
-        (g) => oldGames.has(g.id) && !isDeepStrictEqual(oldGames.get(g.id), g),
-      )
-      .map((g) => g.id),
-    historyChanged: before.fingerprint !== after.fingerprint,
-  };
-}

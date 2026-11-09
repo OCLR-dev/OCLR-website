@@ -12,7 +12,8 @@ import {
 import { assertTestDatabase } from "../database";
 import { seedResultReview } from "../fixtures/results";
 import { publicNews, publicNewsItem } from "../../src/lib/public-news";
-import { matchReview, resultCommand } from "../../src/lib/results";
+import { resultCommand } from "../../src/lib/results";
+import { matchReview } from "../../src/lib/result-review";
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 481001, username: "Synthetic News Admin" };
 const referee = { osuId: 481002, username: "Synthetic News Referee" };

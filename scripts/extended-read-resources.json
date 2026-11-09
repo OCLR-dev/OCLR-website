@@ -240,7 +240,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "results",
+    "module": "result-review",
     "fn": "matchReview",
     "id": "matchReview",
     "path": "/staff/tournaments/{edition}/matches/{id}/review",

@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { osuApi } from "../../src/lib/osu-api";
-import {
-  compareMatchSources,
-  fetchMatchSource,
-  parseMatchId,
-} from "../../src/lib/osu-matches";
+import { fetchMatchSource, parseMatchId } from "../../src/lib/osu-matches";
+import { compareMatchSources } from "../../src/lib/match-source";
 import { HttpError } from "../../src/lib/http";
 import {
   syntheticApiGame,

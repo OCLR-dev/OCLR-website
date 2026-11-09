@@ -22,7 +22,7 @@ import { seedResultReview } from "../fixtures/results";
 import { seedEditions } from "../fixtures/editions";
 import { assertTestDatabase } from "../database";
 import { fixtureCommand } from "../../src/lib/fixtures";
-import { previewFixtureMatch, importFixtureMatch } from "../../src/lib/results";
+import { previewFixtureMatch, importFixtureMatch } from "../../src/lib/result-import";
 import { fetchMatchSource } from "../../src/lib/osu-matches";
 import { HttpError } from "../../src/lib/http";
 import type { MatchSource } from "../../src/lib/match-model";

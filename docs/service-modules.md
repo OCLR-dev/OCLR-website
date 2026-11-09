@@ -9,7 +9,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Registration, appointments and rosters | [registrations](../src/lib/registrations.ts), [staff](../src/lib/staff.ts), [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own their writes, version checks and audits. |
 | Draft | [draft](../src/lib/draft.ts) owns state transitions, staff/captain access, picks, idempotency and public reads. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappools](../src/lib/mappools.ts) owns official pool changes and projections. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
-| Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [results](../src/lib/results.ts) owns import, review and result publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
+| Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
 | Referee | [referee](../src/lib/referee.ts), [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) handle assigned match work, IRC coordination and multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) reads and writes the relational representation. [archive-read](../src/lib/archive-read.ts) serves saved projections. |
 
@@ -50,6 +50,29 @@ can therefore reuse the caller's transaction. A standalone review opens its own
 repeatable-read transaction. The existing fixture test now verifies that the
 review sees an uncommitted fixture update through the supplied transaction,
 retains assignment checks, and reads the original value after rollback.
+
+## Match results
+
+Previously, loading a saved review also loaded the import provider and the
+publication commands. [result-review](../src/lib/result-review.ts) now reads
+the fixture context, source, revisions and dependency information in one
+repeatable-read transaction. It uses [match-source](../src/lib/match-source.ts)
+to compare stored sources. The comparison has no provider or database dependency.
+
+[result-import](../src/lib/result-import.ts) owns the MP preview and import.
+It fetches the source before opening the write transaction, then rechecks
+authorization, fixture and result versions under the edition and fixture
+locks. Fixture completion, saved source, games and audit use that transaction.
+[results](../src/lib/results.ts) owns submission, approval, publication and
+withdrawal. Approval and publication keep the proposal, game claims, pool
+lock and result audit in one transaction. Both command modules use the same
+[request receipts](../src/lib/result-command-receipts.ts) scoped to the fixture,
+actor and request key, then read the saved review after commit.
+
+The existing completion test covers rollback when import storage fails. The
+publication test now injects an audit failure and verifies that the proposal,
+public result, game claims and pool lock all roll back. Its existing concurrent
+publication, exact replay and cache failure assertions still run.
 
 ## Transactions and read scopes
 
