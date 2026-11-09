@@ -1,3 +1,4 @@
+import type { PublicSlot } from "./competition-read-contracts";
 import { informationPreview } from "./tournament-information";
 export type EventPlayer = {
   id: number;
@@ -14,7 +15,9 @@ export type EventPlayer = {
 export type EventMatch = {
   id: string;
   round: string;
+  roundId?: string;
   stage: string;
+  sides?: [PublicSlot, PublicSlot];
   label?: string;
   redHref?: string;
   blueHref?: string;

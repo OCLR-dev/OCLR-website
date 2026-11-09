@@ -127,9 +127,10 @@ describe("published schedule semantics", () => {
       ),
     );
     const html = await render();
-    expect(html.indexOf(">Blue</a>")).toBeLessThan(html.indexOf(">Red</a>"));
-    expect(html).toContain(`/tournaments/${edition.slug}/teams/blue`);
-    expect(html).toContain("Group A");
+    const standings =
+      html.match(/<table><caption>Group A<\/caption>.*?<\/table>/s)?.[0] ?? "";
+    expect(standings).toMatch(/>Blue<\/a>.*>Red<\/a>/s);
+    expect(standings).toContain(`/tournaments/${edition.slug}/teams/blue`);
     expect(html).not.toContain("Ranking pending:");
   });
   it("keeps equal authoritative ranks tied", async () => {

@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 import { eq } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { tournamentRounds } from "../../src/db/schema";
+import { setEditionAppearance } from "../fixtures/editions";
 import { syntheticScoringRules } from "../fixtures/match";
 import { seedSession } from "./session";
 import { seedResultReview } from "../fixtures/results";
@@ -134,13 +135,21 @@ test.describe("open exhibition editing and reviewed publication", () => {
         (s: { osuId: number }) => s.osuId === 9901001,
       ).teamId,
     ).toBe(seeded.context.fixture.homeTeamId);
+    await setEditionAppearance("test-cup", "nebula-bloom");
     await page.goto("/tournaments/test-cup/schedule");
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-appearance",
+      "nebula-bloom",
+    );
     await expect(
       page.getByRole("button", { name: "Exhibition", exact: true }),
     ).toHaveAttribute("aria-pressed", "true");
     const fixtureName = "Synthetic Reviewed Fixture";
-    const card = page.getByRole("article").filter({ hasText: fixtureName });
-    await expect(card.locator(".event-match-side b")).toHaveText(["1", "2"]);
+    const card = page.getByRole("article", { name: fixtureName });
+    await expect(card.locator(".match-slot strong")).toHaveText(["1", "2"]);
+    const resultPath = `/tournaments/test-cup/matches/${seeded.fixtureId}`;
+    const details = card.getByRole("link", { name: "Match details" });
+    await expect(details).toHaveAttribute("href", resultPath);
     const summary = page.getByRole("table");
     await expect(
       summary.getByRole("columnheader", { name: "Match result" }),
@@ -150,11 +159,10 @@ test.describe("open exhibition editing and reviewed publication", () => {
       row.getByRole("cell", { name: "1 : 2", exact: true }),
     ).toBeVisible();
     const result = row.getByRole("link", { name: fixtureName, exact: true });
-    const resultPath = `/tournaments/test-cup/matches/${seeded.fixtureId}`;
     await expect(result).toHaveAttribute("href", resultPath);
     await expect(row).not.toContainText(seeded.fixtureId);
     await expectWorkflowFits(page);
-    await result.click();
+    await details.click();
     await expect(page).toHaveURL(`${origin}${resultPath}`);
     await expect(
       page.getByText(
