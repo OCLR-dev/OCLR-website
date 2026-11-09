@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import type { PublicTournamentSummary } from "@/lib/read-api-contract";
 import { getAppTranslations } from "@/i18n/server";
-import { registrationAvailability } from "@/lib/registrations";
+import { registrationAvailability } from "@/lib/registration-reads";
 import { archiveKeyVisual } from "@/lib/archive-key-visual";
 import { seasonAppearanceFor, seasonNumber } from "@/lib/player-timeline";
 import { seasonAccentPair } from "@/lib/season-accent";

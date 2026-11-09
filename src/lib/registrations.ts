@@ -12,50 +12,22 @@ import { z } from "zod";
 import { privacyReady } from "./auth/config";
 import type { User } from "./auth/sessions";
 import { assertUserWriteChannel } from "./auth/staff";
-import { remoteMode } from "./data-source";
 import { enrollmentState, type Edition } from "./editions";
 import { verifyEligibility } from "./eligibility";
 import { ELIGIBILITY_FRESH_MS, withinRankGrace } from "./eligibility-model";
-import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http-error";
 import {
   registrationAnswerValues,
   registrationMetadata,
   registrationReadColumns,
 } from "./live-season-columns";
+import { canWithdraw } from "./registration-reads";
 import {
   submitRegistrationWrite,
   withdrawRegistrationWrite,
 } from "./registration-write-contract";
 import { readTournament, storedEdition } from "./tournament-reads";
-import type { RegistrationReadOperation } from "./configuration-read-contracts";
-// Latest explicit provenance, without rewriting legacy audit records or storing
-// a second registration status. Mutations timestamp the event and row together.
-// Keep the outer qualifier literal: single-table projections otherwise strip it.
-export const registrationOperation = sql<RegistrationReadOperation | null>`(
-  SELECT e.operation FROM registration_events e WHERE e.registration_id = "registrations"."id"
-  ORDER BY e.created_at DESC, e.id DESC LIMIT 1
-)`;
-export async function registrationAvailability(
-  edition: Edition,
-): Promise<ReturnType<typeof enrollmentState> | "unavailable"> {
-  if (remoteMode())
-    return (await import("./frontend-read-models")).publicEnrollmentState(
-      edition.slug,
-    );
-  const state = enrollmentState(edition);
-  if (state !== "open") return state;
-  if (!privacyReady() || !process.env.DATABASE_URL) return "unavailable";
-  try {
-    const [saved] = await db()
-      .select({ registrationPausedAt: editionState.registrationPausedAt })
-      .from(editionState)
-      .where(eq(editionState.slug, edition.slug));
-    return saved?.registrationPausedAt ? "closed" : "open";
-  } catch {
-    return "unavailable";
-  }
-}
+
 export class ApplicationFieldError extends HttpError {
   constructor(
     public field: string,
@@ -304,20 +276,7 @@ export async function submitRegistration(
     return { ...registration, answers: active.answers };
   });
 }
-export function canWithdraw(
-  edition: Edition | undefined,
-  registration: { status: string },
-  locked: boolean,
-  now = new Date(),
-) {
-  return Boolean(
-    edition?.published &&
-    !locked &&
-    ["pending", "deferred", "accepted"].includes(registration.status) &&
-    edition.registration?.withdrawUntil &&
-    now.getTime() < Date.parse(edition.registration.withdrawUntil),
-  );
-}
+
 export async function withdrawRegistration(
   user: User,
   id: string,
@@ -397,42 +356,6 @@ export async function withdrawRegistration(
     return updated;
   });
 }
-type OwnRegistrations =
-  import("./explicit-read-contracts").ExplicitReadData<"ownRegistrations">;
-async function databaseOwnRegistrations(
-  userId: number,
-): Promise<OwnRegistrations> {
-  return db()
-    .select({
-      id: registrations.id,
-      lastOperation: registrationOperation,
-      userId: registrations.userId,
-      editionSlug: registrations.editionSlug,
-      status: registrations.status,
-      source: registrations.source,
-      attempt: registrations.attempt,
-      rulesVersion: registrations.rulesVersion,
-      eligibilityAcknowledged: registrations.eligibilityAcknowledged,
-      configurationVersion: registrations.configurationVersion,
-      answers: registrationAnswerValues,
-      statusReason: registrations.statusReason,
-      createdAt: registrations.createdAt,
-      updatedAt: registrations.updatedAt,
-    })
-    .from(registrations)
-    .where(eq(registrations.userId, userId))
-    .orderBy(registrations.createdAt);
-}
-export async function ownRegistrations(
-  userId: number,
-): Promise<OwnRegistrations> {
-  if (remoteMode()) {
-    await assertRemoteSubject(userId);
-    return frontendResource<OwnRegistrations>("ownRegistrations");
-  }
-  return databaseOwnRegistrations(userId);
-}
-
 export async function assertRegistrationUnassigned(
   tx: Pick<ReturnType<typeof db>, "execute">,
   slug: string,

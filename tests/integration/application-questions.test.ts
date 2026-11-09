@@ -27,7 +27,7 @@ import {
   applicationDetails,
   exportApplications,
   listApplications,
-} from "../../src/lib/staff";
+} from "../../src/lib/staff-registration-reads";
 import { playerApplications } from "../../src/lib/dashboard";
 import { applicationAnswers } from "../../src/lib/application-answers";
 import { publicPlayers } from "../../src/lib/players";

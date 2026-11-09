@@ -4,7 +4,7 @@ import { Avatar } from "@/components/avatar";
 import { authorizedPage } from "@/lib/auth/page";
 import type { User } from "@/lib/auth/sessions";
 import { canRead, permits, staffAccess } from "@/lib/auth/staff";
-import { listApplications } from "@/lib/staff";
+import { listApplications } from "@/lib/staff-registration-reads";
 import { getEditionChoices } from "@/lib/content";
 import { formatDate } from "@/lib/editions";
 import { BulkManualRegistration } from "./bulk-manual-registration";

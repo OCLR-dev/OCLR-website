@@ -1,7 +1,7 @@
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
-import { ownRegistrations } from "@/lib/registrations";
+import { ownRegistrations } from "@/lib/registration-reads";
 import { apiError } from "@/lib/http";
 async function readGET() {
   try {

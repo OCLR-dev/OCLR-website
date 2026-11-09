@@ -6,7 +6,8 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Responsibility | Current entry points |
 | --- | --- |
 | Edition configuration and publication | [tournament-reads](../src/lib/tournament-reads.ts) serves saved configuration and staff workspaces. [tournaments](../src/lib/tournaments.ts) owns configuration and publication commands. [content](../src/lib/content.ts) provides edition lookups for callers. |
-| Registration, appointments and rosters | [registrations](../src/lib/registrations.ts), [staff](../src/lib/staff.ts), [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own their writes, version checks and audits. |
+| Registration | [registration-reads](../src/lib/registration-reads.ts) serves availability and personal applications. [staff-registration-reads](../src/lib/staff-registration-reads.ts) serves staff lists, details and export. [registrations](../src/lib/registrations.ts) and [staff](../src/lib/staff.ts) own player and staff commands. |
+| Appointments and rosters | [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own their writes, version checks and audits. |
 | Draft | [draft-reads](../src/lib/draft-reads.ts) serves staff, captain and public reads. [draft](../src/lib/draft.ts) owns transitions, picks and publication. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
@@ -30,6 +31,25 @@ history and audit. Historical relation updates stay in the transaction.
 The capacity test rejects the audit insert and confirms that all of those
 capacity-related writes roll back. Retrying the update commits one revision
 and advances both draft views.
+
+## Registration
+
+Previously, registration availability, personal applications and staff
+queries loaded submission or review commands. The website and versioned
+API now use [registration-reads](../src/lib/registration-reads.ts) and
+[staff-registration-reads](../src/lib/staff-registration-reads.ts). Detail
+and export queries resolve the configuration revision saved with the
+application or attempt. Staff export keeps its authorization and
+repeatable-read scope.
+
+Submission runs provider eligibility checks before taking the edition lock.
+The transaction rechecks configuration version, eligibility freshness and
+registration availability before saving the application, attempt history and
+audit. Review checks the application's timestamp under the edition and
+registration locks, then commits the decision and audit together. An
+integration test verifies that a failed review audit leaves the application
+and its acknowledged configuration and eligibility intact. Retrying commits
+one decision against the original application snapshot.
 
 ## Draft reads and snapshots
 

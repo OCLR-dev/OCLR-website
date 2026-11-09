@@ -24,8 +24,8 @@ import { changeStaffRole, listStaffRoles } from "../../src/lib/staff-roles";
 import {
   listApplications,
   applicationDetails,
-  reviewApplication,
-} from "../../src/lib/staff";
+} from "../../src/lib/staff-registration-reads";
+import { reviewApplication } from "../../src/lib/staff";
 import { captainSetup, updateCaptains } from "../../src/lib/captains";
 import { staffTeams, updateTeams } from "../../src/lib/teams";
 import { staffDraft } from "../../src/lib/draft-reads";

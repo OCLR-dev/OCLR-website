@@ -95,7 +95,7 @@
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/staff.ts#listApplications",
+        "src/lib/staff-registration-reads.ts#listApplications",
         "src/lib/tournament-reads.ts#tournamentList"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
@@ -113,7 +113,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/staff.ts#applicationDetails"
+        "src/lib/staff-registration-reads.ts#applicationDetails"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -129,7 +129,7 @@
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
-        "src/lib/staff.ts#listApplications",
+        "src/lib/staff-registration-reads.ts#listApplications",
         "src/lib/public-read-models.ts / frontend-data.ts (listStaffTournaments)",
         "src/lib/auth/staff.ts#staffAccess"
       ],
@@ -453,7 +453,7 @@
         "src/lib/auth/staff.ts#staffAccess",
         "src/lib/public-read-models.ts / frontend-data.ts (getSavedProfile)",
         "src/lib/frontend-read-models.ts#ownSavedProfile",
-        "src/lib/staff.ts#applicationDetails",
+        "src/lib/staff-registration-reads.ts#applicationDetails",
         "src/lib/frontend-read-models.ts#privateSavedTournament"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
@@ -470,7 +470,7 @@
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
-        "src/lib/staff.ts#listApplications",
+        "src/lib/staff-registration-reads.ts#listApplications",
         "src/lib/public-read-models.ts / frontend-data.ts (listStaffTournaments)",
         "src/lib/auth/staff.ts#staffAccess"
       ],
@@ -687,7 +687,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/staff.ts#listApplications"
+        "src/lib/staff-registration-reads.ts#listApplications"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -1285,7 +1285,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/registrations.ts#ownRegistrations"
+        "src/lib/registration-reads.ts#ownRegistrations"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -2242,7 +2242,7 @@
         "src/lib/frontend-read-models.ts#ownRegistrationForm",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
         "src/lib/frontend-read-models.ts#ownEligibility",
-        "src/lib/registrations.ts#ownRegistrations",
+        "src/lib/registration-reads.ts#ownRegistrations",
         "src/lib/frontend-read-models.ts#publicEnrollment",
         "src/lib/frontend-read-models.ts#publicEnrollmentState"
       ],

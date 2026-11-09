@@ -136,7 +136,7 @@ async function databasePublicEnrollmentState(
   const edition = await (await import("./content")).getPublicEdition(slug);
   if (!edition)
     throw new HttpError(404, "Tournament not found.");
-  return (await import("./registrations")).registrationAvailability(edition);
+  return (await import("./registration-reads")).registrationAvailability(edition);
 }
 export async function publicEnrollmentState(
   slug: string,
@@ -267,7 +267,7 @@ async function databaseOwnRegistrationForm(
   if (!record)
     throw new HttpError(404, "Tournament not found.");
   return (await (
-    await import("./registrations")
+    await import("./registration-reads")
   ).registrationAvailability(record.edition)) === "open"
     ? record
     : publicConfigurationModel(slug);

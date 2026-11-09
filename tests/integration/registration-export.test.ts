@@ -17,7 +17,10 @@ import {
   userProfileCache,
   users,
 } from "../../src/db/schema";
-import { exportApplications, listApplications } from "../../src/lib/staff";
+import {
+  exportApplications,
+  listApplications,
+} from "../../src/lib/staff-registration-reads";
 import {
   cachedDirectoryStatistics,
   cachedExportStatistics,

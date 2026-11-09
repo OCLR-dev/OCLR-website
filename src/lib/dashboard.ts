@@ -10,7 +10,7 @@ import {
   canWithdraw,
   registrationAvailability,
   registrationOperation,
-} from "./registrations";
+} from "./registration-reads";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type PlayerApplications = ExplicitReadData<"playerApplications">;
 async function databasePlayerApplications(

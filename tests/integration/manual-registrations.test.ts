@@ -25,8 +25,8 @@ import {
   previewManualRegistrations,
   addManualRegistrations,
 } from "../../src/lib/manual-registrations";
+import { ownRegistrations } from "../../src/lib/registration-reads";
 import {
-  ownRegistrations,
   submitRegistration,
   withdrawRegistration,
 } from "../../src/lib/registrations";

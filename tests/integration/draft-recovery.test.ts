@@ -31,8 +31,8 @@ import { updateTeams, staffTeams } from "../../src/lib/teams";
 import { updateCaptains } from "../../src/lib/captains";
 import { readTournament } from "../../src/lib/tournament-reads";
 import { tournamentCommand } from "../../src/lib/tournaments";
+import { registrationAvailability } from "../../src/lib/registration-reads";
 import {
-  registrationAvailability,
   submitRegistration,
   withdrawRegistration,
 } from "../../src/lib/registrations";
