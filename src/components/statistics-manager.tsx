@@ -4,7 +4,7 @@ import { ReadOnlyFields, MutationButton } from "./staff-read-only";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
-import type { StatisticsWorkspace } from "@/lib/archive-statistics";
+import type { StatisticsWorkspace } from "@/lib/archive-statistics-reads";
 import { canExcludeStatisticsScore } from "@/lib/archive-statistics-model";
 import { ConfirmMutation } from "./confirm-mutation";
 type Review = StatisticsWorkspace["reviews"][number];

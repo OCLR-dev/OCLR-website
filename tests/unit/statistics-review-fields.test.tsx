@@ -2,7 +2,9 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it, vi } from "vitest";
 import { english } from "../../src/i18n/translate";
-import type { StatisticsWorkspace } from "../../src/lib/archive-statistics";
+import type {
+  StatisticsWorkspace,
+} from "../../src/lib/archive-statistics-reads";
 import { statisticsSource } from "../fixtures/archive-statistics";
 vi.mock("../../src/i18n/shared", () => ({ useAppTranslations: () => english }));
 import { SourceReview } from "../../src/components/statistics-manager";

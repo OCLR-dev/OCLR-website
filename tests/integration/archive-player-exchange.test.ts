@@ -20,10 +20,12 @@ import { tournamentCommand } from "../../src/lib/tournaments";
 import { readTournament } from "../../src/lib/tournament-reads";
 import {
   statisticsCommand,
-  statisticsWorkspace,
-  publicArchiveStatistics,
   preserveStatisticsForRosterExchange,
 } from "../../src/lib/archive-statistics";
+import {
+  statisticsWorkspace,
+  publicArchiveStatistics,
+} from "../../src/lib/archive-statistics-reads";
 import { exchangeArchivePlayers } from "../../src/lib/historical-archive";
 import { extendedRead } from "../../src/lib/extended-read";
 import { fetchMatchSource } from "../../src/lib/osu-matches";

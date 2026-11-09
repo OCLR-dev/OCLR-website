@@ -1,10 +1,8 @@
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { PageNotes } from "./page-notes";
 import { MatchDetailsView } from "./match-details";
-import {
-  publicArchiveStatistics,
-  statisticsArchiveKey,
-} from "@/lib/archive-statistics";
+import { publicArchiveStatistics } from "@/lib/archive-statistics-reads";
+import { statisticsArchiveKey } from "@/lib/archive-statistics-key";
 import { supportsArchiveStatistics } from "@/lib/archive-statistics-model";
 import { getAppTranslations } from "@/i18n/server";
 import { archivePoolMetadata } from "@/lib/archive-map-metadata";

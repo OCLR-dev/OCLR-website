@@ -24,7 +24,7 @@ import {
   databasePublicPlayerMra,
 } from "../../src/lib/player-leaderboard";
 import { projectPlayerLeaderboard } from "../../src/lib/player-leaderboard-projector";
-import * as statistics from "../../src/lib/archive-statistics";
+import * as statistics from "../../src/lib/archive-statistics-reads";
 import { readTournaments } from "../../src/lib/tournament-reads";
 import { withReadChannel } from "../../src/lib/read-channel";
 import { readApiRoute } from "../../src/lib/read-api";

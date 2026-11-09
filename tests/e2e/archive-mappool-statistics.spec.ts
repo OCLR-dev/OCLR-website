@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { db, closeDb } from "../../src/db";
 import { historicalStatistics } from "../../src/db/schema";
 import { eq } from "drizzle-orm";
-import { statisticsArchiveKey } from "../../src/lib/archive-statistics";
+import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 import { eventMapKey } from "../../src/lib/event-statistics-model";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";

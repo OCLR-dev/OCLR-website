@@ -1,6 +1,6 @@
 import maxCombos from "@/data/beatmap-max-combos.json";
 import type { Edition } from "./editions";
-import type { PublicArchiveStatistics } from "./archive-statistics";
+import type { PublicArchiveStatistics } from "./archive-statistics-reads";
 import type {
   PlayerLeaderboardCore,
   PlayerLeaderboardRow,

@@ -2,7 +2,7 @@ import { isDeepStrictEqual } from "node:util";
 import { eq, sql } from "drizzle-orm";
 import { db, readOnlyData } from "@/db";
 import { playerLeaderboardRows, playerLeaderboardVersions } from "@/db/schema";
-import { publicArchiveStatistics } from "./archive-statistics";
+import { publicArchiveStatistics } from "./archive-statistics-reads";
 import { readTournaments } from "./tournament-reads";
 import { remoteMode } from "./data-source";
 import { inReadChannel } from "./read-channel";

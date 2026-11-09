@@ -2,7 +2,7 @@ import { applicationQuestions } from "./application-questions";
 import { readdir, readFile, lstat } from "node:fs/promises";
 import { join } from "node:path";
 import { statisticsArchive, statisticsSource } from "./archive-statistics";
-import { statisticsArchiveKey } from "../../src/lib/archive-statistics";
+import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 import { randomUUID, createHash } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 import sharp from "sharp";

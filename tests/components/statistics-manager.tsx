@@ -2,7 +2,9 @@ import { createRoot } from "react-dom/client";
 import { NextIntlClientProvider } from "next-intl";
 import { StatisticsManager } from "../../src/components/statistics-manager";
 import en from "../../messages/en.json";
-import type { StatisticsWorkspace } from "../../src/lib/archive-statistics";
+import type {
+  StatisticsWorkspace,
+} from "../../src/lib/archive-statistics-reads";
 const initial = {
   slug: "synthetic",
   fixtures: [

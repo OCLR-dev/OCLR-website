@@ -100,7 +100,7 @@
     "scope": "tournaments:read"
   },
   {
-    "module": "archive-statistics",
+    "module": "archive-statistics-reads",
     "fn": "publicArchiveStatistics",
     "id": "publicArchiveStatistics",
     "path": "/tournaments/{edition}/statistics",
@@ -210,7 +210,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "archive-statistics",
+    "module": "archive-statistics-reads",
     "fn": "statisticsWorkspace",
     "id": "statisticsWorkspace",
     "path": "/staff/tournaments/{edition}/statistics",

@@ -23,7 +23,7 @@ import {
 import {
   publicArchivePlayerPlays,
   publicArchiveStatistics,
-} from "../../src/lib/archive-statistics";
+} from "../../src/lib/archive-statistics-reads";
 import {
   mapPerformance,
   minimumCountedScore,

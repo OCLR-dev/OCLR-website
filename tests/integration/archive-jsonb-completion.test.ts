@@ -26,9 +26,9 @@ import {
 } from "../../src/lib/archive-read";
 import {
   publicArchiveStatistics,
-  statisticsCommand,
   statisticsWorkspace,
-} from "../../src/lib/archive-statistics";
+} from "../../src/lib/archive-statistics-reads";
+import { statisticsCommand } from "../../src/lib/archive-statistics";
 import { publicPlayer } from "../../src/lib/players";
 import { playerMapPerformance } from "../../src/lib/player-map-performance";
 import { readTournament } from "../../src/lib/tournament-reads";

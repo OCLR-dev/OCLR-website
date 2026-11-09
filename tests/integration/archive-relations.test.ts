@@ -28,7 +28,9 @@ import {
   syncArchiveRelations,
   normalizedStatistics,
 } from "../../src/lib/archive-relations";
-import { publicArchiveStatistics } from "../../src/lib/archive-statistics";
+import {
+  publicArchiveStatistics,
+} from "../../src/lib/archive-statistics-reads";
 import {
   readTournament,
   readTournaments,

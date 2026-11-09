@@ -25,10 +25,10 @@ import {
 } from "../fixtures/archive-statistics";
 import { correctS2PoolData } from "../../src/lib/archive-pool-correction";
 import { correctS2PoolArchive } from "../../src/lib/archive-pool-correction-model";
+import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 import {
-  statisticsArchiveKey,
   publicArchiveStatistics,
-} from "../../src/lib/archive-statistics";
+} from "../../src/lib/archive-statistics-reads";
 import { readTournament } from "../../src/lib/tournament-reads";
 import { tournamentCommand } from "../../src/lib/tournaments";
 import { verifyArchiveRelations } from "../../src/lib/archive-relations";

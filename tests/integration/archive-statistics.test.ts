@@ -30,11 +30,11 @@ import {
 } from "../fixtures/archive-statistics";
 import { extendedRead } from "../../src/lib/extended-read";
 import { fetchMatchSource } from "../../src/lib/osu-matches";
+import { statisticsCommand } from "../../src/lib/archive-statistics";
 import {
-  statisticsCommand,
   statisticsWorkspace,
   publicArchiveStatistics,
-} from "../../src/lib/archive-statistics";
+} from "../../src/lib/archive-statistics-reads";
 import { POST as statisticsRoute } from "../../src/app/api/admin/tournaments/[edition]/statistics/route";
 import { changeHistoricalStatisticsWrite } from "../../src/lib/results-publication-write-contracts";
 import { extendedSchemas } from "../../src/lib/extended-read-resources";
@@ -699,6 +699,33 @@ describe.skipIf(!url)("historical statistics transactions", () => {
     await statisticsCommand(referee, "s7", imported);
     expect((await publicArchiveStatistics("s7", "one")).plays).toEqual([]);
     await statisticsCommand(referee, "s7", reviewed);
+    const workspaceBefore = await statisticsWorkspace(admin, "s7", "one");
+    const publicBefore = await publicArchiveStatistics("s7", "one");
+    await db().execute(sql`
+      CREATE FUNCTION oclr_test_reject_statistics_publish_audit() RETURNS trigger
+      LANGUAGE plpgsql AS $$ BEGIN
+        IF NEW.kind = 'statistics_publish' THEN
+          RAISE EXCEPTION 'Synthetic statistics publication audit failure';
+        END IF;
+        RETURN NEW;
+      END $$;
+      CREATE TRIGGER oclr_test_reject_statistics_publish_audit
+        BEFORE INSERT ON edition_events FOR EACH ROW
+        EXECUTE FUNCTION oclr_test_reject_statistics_publish_audit()
+    `);
+    try {
+      await expect(statisticsCommand(admin, "s7", publish)).rejects.toThrow();
+      expect(await statisticsWorkspace(admin, "s7", "one")).toEqual(
+        workspaceBefore,
+      );
+      expect(await publicArchiveStatistics("s7", "one")).toEqual(publicBefore);
+      expect(await db().select().from(editionEvents)).toHaveLength(2);
+    } finally {
+      await db().execute(sql`
+        DROP TRIGGER oclr_test_reject_statistics_publish_audit ON edition_events;
+        DROP FUNCTION oclr_test_reject_statistics_publish_audit()
+      `);
+    }
     await statisticsCommand(admin, "s7", publish);
     const publicData = await publicArchiveStatistics("s7", "one");
     expect(publicData.plays).toHaveLength(8);

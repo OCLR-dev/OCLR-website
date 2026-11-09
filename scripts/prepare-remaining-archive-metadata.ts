@@ -8,7 +8,7 @@ import {
   type HistoricalArchive,
 } from "../src/lib/historical-archive";
 import { deriveS8Standings } from "../src/lib/s8-standings";
-import { statisticsArchiveKey } from "../src/lib/archive-statistics";
+import { statisticsArchiveKey } from "../src/lib/archive-statistics-key";
 import { editionSchema } from "../src/lib/editions";
 
 type Match = HistoricalArchive["matches"][number];

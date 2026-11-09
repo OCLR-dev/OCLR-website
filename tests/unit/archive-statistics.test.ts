@@ -4,7 +4,7 @@ import {
   statisticsArchive as a,
   statisticsSource,
 } from "../fixtures/archive-statistics";
-import { statisticsArchiveKey } from "../../src/lib/archive-statistics";
+import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 import {
   aggregateStatistics,
   fixtureStatisticsIssues,

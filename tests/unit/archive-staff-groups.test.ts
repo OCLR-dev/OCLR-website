@@ -5,7 +5,7 @@ import {
 } from "../../src/lib/archive-staff-groups";
 import { confirmArchiveStaffIdentity } from "../../src/lib/archive-staff-identity-model";
 import { publicHistoricalArchive } from "../../src/lib/historical-archive";
-import { statisticsArchiveKey } from "../../src/lib/archive-statistics";
+import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 import { historicalArchive } from "../fixtures/historical-archive";
 
 describe("historical staff presentation", () => {

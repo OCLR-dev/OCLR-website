@@ -12,7 +12,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace, [referee](../src/lib/referee.ts) owns referee commands, and [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) coordinate IRC and multiplayer evidence. |
-| Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) reads and writes the relational representation. [archive-read](../src/lib/archive-read.ts) serves saved projections. |
+| Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) and [archive-read](../src/lib/archive-read.ts) manage the relational representation and saved projections. [archive-statistics-reads](../src/lib/archive-statistics-reads.ts) reads statistics, and [archive-statistics](../src/lib/archive-statistics.ts) owns statistics commands. |
 
 ## Tournament configuration
 
@@ -188,6 +188,25 @@ osu! lookup. The import returns a conflict and leaves the entries, version and
 audit intact. Explicit publication then exposes only the previously saved maps.
 Existing tests still cover stale previews, completed-fixture locks, rollback
 and visibility of draft pools and private editions.
+
+## Historical statistics
+
+Previously, the public archive, player map statistics and leaderboard worker
+loaded the MP provider and publication commands when reading saved data.
+[archive-statistics-reads](../src/lib/archive-statistics-reads.ts) now serves
+the workspace, public statistics and player projections. Public queries keep
+their read-only repeatable-read scope and release checks.
+[archive-statistics-data](../src/lib/archive-statistics-data.ts) loads the
+saved edition and parses saved sources using the supplied transaction when
+called from a command.
+
+[archive-statistics](../src/lib/archive-statistics.ts) imports, reviews,
+publishes and withdraws statistics. It fetches MP data before locking the
+edition and statistics rows. Inside the transaction it checks the archive
+fingerprint, permissions and source versions. Source updates, audit and
+relational projections commit together. The publication test now verifies
+that an audit failure preserves the reviewed versions and public projection.
+It then retries with the same expected versions and releases the saved games.
 
 ## Transactions and read scopes
 

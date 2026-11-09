@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { chromium } from "@playwright/test";
 import { db, closeDb } from "../../../src/db";
 import { historicalStatistics } from "../../../src/db/schema";
-import { statisticsArchiveKey } from "../../../src/lib/archive-statistics";
+import { statisticsArchiveKey } from "../../../src/lib/archive-statistics-key";
 import { historicalArchiveSchema } from "../../../src/lib/historical-archive";
 import { seedEditions } from "../../../tests/fixtures/editions";
 import { edition } from "../../../tests/fixtures/edition";

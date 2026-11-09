@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { eq } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { historicalStatistics, users } from "../../src/db/schema";
-import { statisticsArchiveKey } from "../../src/lib/archive-statistics";
+import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import {
