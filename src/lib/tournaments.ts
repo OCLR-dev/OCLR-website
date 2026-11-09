@@ -40,7 +40,7 @@ import {
 import { compareTournamentSeasons } from "./tournament-order";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { draftSetupProtection } from "./draft-setup";
-import { refreshDraftSnapshot } from "./draft";
+import { refreshDraftSnapshot } from "./draft-snapshot";
 import { HttpError } from "./http-error";
 import { confirmArchiveStaffIdentity } from "./archive-staff-identity-model";
 import {

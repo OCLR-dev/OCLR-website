@@ -21,6 +21,7 @@ The repository root README ([English](../README.md) / [简体中文](../README.z
 - [CI coverage and acceptance](ci.md) — core/full lanes, scope selection, main checks and maintainer workflow.
 - [Country flags](country-flags.md) — pinned osu!-style Twemoji artwork, licensing, shared component and integration inventory.
 - [Write API inventory and contracts](write-api.md) — coverage of existing write routes and the generated browser OpenAPI.
+- [Competition service modules](service-modules.md) — ownership of draft snapshots, commands and read transactions.
 
 ## Developer read API and remote frontend
 

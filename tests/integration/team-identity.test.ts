@@ -10,7 +10,7 @@ import {
 import { sql, eq } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { teams, memberships, editionEvents } from "../../src/db/schema";
-import { draftCommand, staffDraft } from "../../src/lib/draft";
+import { draftCommand, publicDraft, staffDraft } from "../../src/lib/draft";
 import { prepareDraft } from "../fixtures/draft";
 import { staffTeams, updateTeams, publishedTeams } from "../../src/lib/teams";
 import { assertTestDatabase } from "../database";
@@ -49,7 +49,50 @@ describe.skipIf(!url)("targeted team identity corrections", () => {
         avatarKey: null,
       },
     };
+    const teamsBefore = await staffTeams(f.staff, "team-identity-test");
+    const sessionBefore = (
+      await staffDraft(f.staff, "team-identity-test")
+    ).session!;
+    await db().execute(sql`
+      CREATE FUNCTION test_reject_team_edit_audit() RETURNS trigger
+      LANGUAGE plpgsql AS $$
+      BEGIN
+        IF NEW.kind = 'team_edit' THEN RAISE EXCEPTION 'Synthetic audit failure'; END IF;
+        RETURN NEW;
+      END;
+      $$;
+      CREATE TRIGGER test_reject_team_edit_audit BEFORE INSERT ON edition_events
+      FOR EACH ROW EXECUTE FUNCTION test_reject_team_edit_audit();
+    `);
+    try {
+      await expect(
+        updateTeams(f.staff, "team-identity-test", input),
+      ).rejects.toThrow();
+      expect(await staffTeams(f.staff, "team-identity-test")).toEqual(
+        teamsBefore,
+      );
+      expect((await staffDraft(f.staff, "team-identity-test")).session).toEqual(
+        sessionBefore,
+      );
+    } finally {
+      await db().execute(sql`
+        DROP TRIGGER test_reject_team_edit_audit ON edition_events;
+        DROP FUNCTION test_reject_team_edit_audit();
+      `);
+    }
     const updated = await updateTeams(f.staff, "team-identity-test", input);
+    const sessionAfter = (await staffDraft(f.staff, "team-identity-test"))
+      .session;
+    expect(sessionAfter).toMatchObject({
+      version: sessionBefore.version + 1,
+      publicVersion: sessionBefore.publicVersion + 1,
+      publishedRevision: sessionBefore.version + 1,
+    });
+    expect(
+      (await publicDraft("team-identity-test"))?.rosters.find(
+        (r) => r.team.id === team.id,
+      )?.team.name,
+    ).toBe("Synthetic corrected identity");
     expect(updated.teams.find((t) => t.id === team.id)?.name).toBe(
       "Synthetic corrected identity",
     );
