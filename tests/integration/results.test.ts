@@ -51,12 +51,9 @@ import { publicBracket } from "../../src/lib/brackets";
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { fixtureForReview } from "../../src/lib/fixture-reads";
 import { mappoolCommand } from "../../src/lib/mappools";
-import {
-  importFixtureMatch,
-  matchReview,
-  resultCommand,
-  type MatchReview,
-} from "../../src/lib/results";
+import { resultCommand } from "../../src/lib/results";
+import { matchReview, type MatchReview } from "../../src/lib/result-review";
+import { importFixtureMatch } from "../../src/lib/result-import";
 import { fetchMatchSource } from "../../src/lib/osu-matches";
 import { osuApi } from "../../src/lib/osu-api";
 import { HttpError } from "../../src/lib/http";
@@ -1078,6 +1075,52 @@ describe.skipIf(!url)(
         published: true,
       });
       view = await matchReview(admin, "test-cup", fixtureId);
+      const poolBefore = await db()
+        .select()
+        .from(mappools)
+        .where(eq(mappools.id, poolId));
+      const claimsBefore = await db()
+        .select()
+        .from(resultGameClaims)
+        .where(eq(resultGameClaims.fixtureId, fixtureId));
+      await db().execute(sql`
+        CREATE FUNCTION test_reject_publication_audit() RETURNS trigger
+        LANGUAGE plpgsql AS $$
+        BEGIN
+          IF NEW.action = 'result_approve_publish' THEN
+            RAISE EXCEPTION 'Synthetic publication audit failure';
+          END IF;
+          RETURN NEW;
+        END;
+        $$;
+        CREATE TRIGGER test_reject_publication_audit
+        BEFORE INSERT ON result_audit_events
+        FOR EACH ROW EXECUTE FUNCTION test_reject_publication_audit();
+      `);
+      try {
+        await expect(
+          resultCommand(admin, "test-cup", fixtureId, payload()),
+        ).rejects.toThrow();
+        const rolledBack = await matchReview(admin, "test-cup", fixtureId);
+        expect(rolledBack.context.result).toEqual(view.context.result);
+        expect(rolledBack.current).toEqual(view.current);
+        expect(rolledBack.published).toBeNull();
+        expect((await publicFixture("test-cup", fixtureId))?.result).toBeNull();
+        expect(
+          await db().select().from(mappools).where(eq(mappools.id, poolId)),
+        ).toEqual(poolBefore);
+        expect(
+          await db()
+            .select()
+            .from(resultGameClaims)
+            .where(eq(resultGameClaims.fixtureId, fixtureId)),
+        ).toEqual(claimsBefore);
+      } finally {
+        await db().execute(sql`
+          DROP TRIGGER test_reject_publication_audit ON result_audit_events;
+          DROP FUNCTION test_reject_publication_audit();
+        `);
+      }
       const commands = [payload(), payload()];
       const invalidate = vi.mocked(revalidatePath);
       invalidate.mockClear();

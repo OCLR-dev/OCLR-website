@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
-import { previewFixtureMatch } from "@/lib/results";
+import { previewFixtureMatch } from "@/lib/result-import";
 import { previewMatchImportWrite } from "@/lib/match-result-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 export async function POST(

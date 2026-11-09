@@ -20,7 +20,7 @@ import {
 import { HttpError } from "./http-error";
 import { matchSourceSchema } from "./match-model";
 import { previewMatch } from "./match-scoring";
-import { matchReview } from "./results";
+import { matchReview } from "./result-review";
 import {
   assertRefereeAccess,
   readRefereeWorkspace,

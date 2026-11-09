@@ -41,7 +41,7 @@ import {
 import { assertTestDatabase } from "../database";
 import type { RefereeWorkspace } from "../../src/lib/referee";
 import type { RefereeReconciliation } from "../../src/lib/referee-reconciliation";
-import type { MatchReview } from "../../src/lib/results";
+import type { MatchReview } from "../../src/lib/result-review";
 import type { RefereeMpView } from "../../src/lib/referee-mp";
 import { englishStorage } from "../fixtures/preferences";
 

@@ -24,11 +24,8 @@ import {
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { fixtureForReview, staffFixtures } from "../../src/lib/fixture-reads";
 import { mappoolCommand } from "../../src/lib/mappools";
-import {
-  matchReview,
-  resultCommand,
-  type MatchReview,
-} from "../../src/lib/results";
+import { resultCommand } from "../../src/lib/results";
+import { matchReview, type MatchReview } from "../../src/lib/result-review";
 import {
   publicFixture,
   publicCompetition,

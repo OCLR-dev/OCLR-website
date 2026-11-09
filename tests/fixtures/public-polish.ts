@@ -11,7 +11,8 @@ import { eq } from "drizzle-orm";
 import { seedResultReview } from "./results";
 import { seedEditions } from "./editions";
 import { edition } from "./edition";
-import { matchReview, resultCommand } from "../../src/lib/results";
+import { resultCommand } from "../../src/lib/results";
+import { matchReview } from "../../src/lib/result-review";
 import { assertTestDatabase } from "../database";
 
 export async function seedPublicPolish(

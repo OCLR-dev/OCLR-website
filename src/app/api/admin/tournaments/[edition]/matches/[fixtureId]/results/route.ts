@@ -2,7 +2,8 @@ import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { NextResponse } from "next/server";
 import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { requireUser } from "@/lib/auth/user";
-import { matchReview, resultCommand } from "@/lib/results";
+import { resultCommand } from "@/lib/results";
+import { matchReview } from "@/lib/result-review";
 import { changeMatchResultWrite } from "@/lib/match-result-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 async function readGET(

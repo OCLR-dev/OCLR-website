@@ -15,7 +15,7 @@ import { staffFixtures } from "@/lib/fixture-reads";
 import { HttpError } from "@/lib/http";
 import { matchRatingWorkspace } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";
-import { matchReview } from "@/lib/results";
+import { matchReview } from "@/lib/result-review";
 import { canViewStreaming, streamingWorkspace } from "@/lib/streaming";
 export async function generateMetadata() {
   const tr = await getAppTranslations();

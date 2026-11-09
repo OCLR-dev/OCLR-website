@@ -28,7 +28,7 @@ import {
 import { streamingCommand, streamingWorkspace } from "../../src/lib/streaming";
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { staffFixtures } from "../../src/lib/fixture-reads";
-import { importFixtureMatch } from "../../src/lib/results";
+import { importFixtureMatch } from "../../src/lib/result-import";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { changeStaffRole } from "../../src/lib/staff-roles";
 import { hasStreamingAccess } from "../../src/lib/streaming-api";

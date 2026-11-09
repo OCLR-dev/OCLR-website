@@ -143,7 +143,7 @@ export async function extendedRead(
         target,
       );
     case "matchReview":
-      return (await import("./results")).matchReview(actor!, slug, target);
+      return (await import("./result-review")).matchReview(actor!, slug, target);
     case "replayList":
       return (await import("./mappool-replays")).replayList(
         actor!,

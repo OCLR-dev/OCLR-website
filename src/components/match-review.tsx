@@ -12,7 +12,7 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import Link from "next/link";
 import { useState } from "react";
-import type { MatchReview } from "@/lib/results";
+import type { MatchReview } from "@/lib/result-review";
 import type { GameDecision } from "@/lib/match-model";
 import { previewMatch } from "@/lib/match-scoring";
 import { ConfirmMutation } from "./confirm-mutation";
