@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import {
   mkdtempSync,
@@ -13,7 +13,7 @@ import {
   existsSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const source = fileURLToPath(new URL("../../scripts/", import.meta.url));
@@ -33,7 +33,12 @@ function rehearsal(failure = "", initial = false) {
     join(archive, "scripts"),
   ])
     mkdirSync(path, { recursive: true });
-  for (const file of ["update.sh", "production.sh", "backup-release-access.sh"])
+  for (const file of [
+    "update.sh",
+    "production.sh",
+    "backup-release-access.sh",
+    "archive-website-release.sh",
+  ])
     copyFileSync(join(source, file), join(repo, "scripts", file));
   copyFileSync(
     join(source, "production.sh"),
@@ -166,6 +171,74 @@ else throw new Error('Unexpected external backup command');
   }
 }
 describe("Bash site updates", () => {
+  it("packages the selected commit's exclusions and keeps legacy archives complete", () => {
+    const repo = mkdtempSync(join(tmpdir(), "oclr-release-archive-"));
+    const git = (...args: string[]) => execFileSync("git", ["-C", repo, ...args]);
+    const write = (file: string, content: string) => {
+      const path = join(repo, file);
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, content);
+    };
+    const commit = () => {
+      git("add", ".");
+      git(
+        "-c",
+        "user.name=OCLR Test",
+        "-c",
+        "user.email=test@example.invalid",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-qm",
+        "Release fixture",
+      );
+      return git("rev-parse", "HEAD").toString().trim();
+    };
+    const policy = "scripts/website-release-excludes.txt";
+    const attachments = [
+      "design/preview.svg",
+      "docs/design/mockup.webp",
+      "output/imagegen/source.png",
+    ];
+    const required = [
+      "docs/read-api.openapi.json",
+      "docs/verification/issue-969/selection.json",
+      "drizzle/migration.sql",
+      "public/fonts/example.woff2",
+      "public/fonts/OFL.txt",
+    ];
+    try {
+      git("init", "-q");
+      for (const file of [...attachments, ...required]) write(file, "fixture");
+      const script = "archive-website-release.sh";
+      write(`scripts/${script}`, readFileSync(join(source, script), "utf8"));
+      const legacy = commit();
+      write(
+        policy,
+        readFileSync(join(source, "website-release-excludes.txt"), "utf8"),
+      );
+      const selected = commit();
+      // A different policy in the operator checkout must never change this archive.
+      write(policy, "public\n");
+      const archive = (sha: string) =>
+        execFileSync("/bin/bash", [join(repo, "scripts", script), sha]);
+      const paths = execFileSync("tar", ["-tf", "-"], { input: archive(selected) })
+        .toString()
+        .split("\n");
+      for (const file of required) expect(paths).toContain(file);
+      for (const file of attachments) expect(paths).not.toContain(file);
+      expect(archive(legacy)).toEqual(git("archive", legacy));
+      const fullPaths = execFileSync("tar", ["-tf", "-"], {
+        input: git("archive", selected),
+      })
+        .toString()
+        .split("\n");
+      for (const file of attachments) expect(fullPaths).toContain(file);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
+  });
+
   it("previews a pinned update without commands, dependencies or credentials", () => {
     const result = spawnSync(
       "/bin/bash",
