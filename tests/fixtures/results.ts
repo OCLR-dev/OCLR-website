@@ -9,7 +9,8 @@ import {
   matchResults,
   staffRoles,
 } from "../../src/db/schema";
-import { fixtureCommand, fixtureForReview } from "../../src/lib/fixtures";
+import { fixtureCommand } from "../../src/lib/fixtures";
+import { fixtureForReview } from "../../src/lib/fixture-reads";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { matchSourceSchema } from "../../src/lib/match-model";
 import { seedPublicDirectory } from "./players";

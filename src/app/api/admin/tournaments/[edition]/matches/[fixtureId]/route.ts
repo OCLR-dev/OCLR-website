@@ -1,7 +1,7 @@
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
-import { fixtureForReview } from "@/lib/fixtures";
+import { fixtureForReview } from "@/lib/fixture-reads";
 import { apiError } from "@/lib/http";
 async function readGET(
   _request: Request,

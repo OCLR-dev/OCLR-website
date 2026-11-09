@@ -7,7 +7,7 @@ import { useId, useRef, useState } from "react";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { LoadingRegion } from "./loading-region";
 import { PendingButtonLabel } from "./pending-button-label";
-import type { FixtureWorkspace } from "@/lib/fixtures";
+import type { FixtureWorkspace } from "@/lib/fixture-reads";
 import { formatDate } from "@/lib/editions";
 export function RefereeAssignment({
   slug,

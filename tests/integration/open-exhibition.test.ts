@@ -21,11 +21,8 @@ import {
   refereeMpScores,
   resultRevisions,
 } from "../../src/db/schema";
-import {
-  fixtureCommand,
-  fixtureForReview,
-  staffFixtures,
-} from "../../src/lib/fixtures";
+import { fixtureCommand } from "../../src/lib/fixtures";
+import { fixtureForReview, staffFixtures } from "../../src/lib/fixture-reads";
 import { mappoolCommand } from "../../src/lib/mappools";
 import {
   matchReview,

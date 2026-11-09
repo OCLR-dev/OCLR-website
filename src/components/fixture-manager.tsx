@@ -25,7 +25,7 @@ import {
   groupedFixtures,
 } from "@/lib/fixture-views";
 import { formatDate } from "@/lib/editions";
-import type { FixtureWorkspace } from "@/lib/fixtures";
+import type { FixtureWorkspace } from "@/lib/fixture-reads";
 import { RefereeAssignment } from "./referee-assignment";
 import { TimeZonePicker } from "./time-zone-picker";
 import { ZonedDateInput } from "./zoned-date-input";

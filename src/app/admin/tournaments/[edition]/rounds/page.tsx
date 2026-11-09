@@ -1,4 +1,4 @@
-import { staffFixtures } from "@/lib/fixtures";
+import { staffFixtures } from "@/lib/fixture-reads";
 import { RoundManager } from "@/components/round-manager";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";

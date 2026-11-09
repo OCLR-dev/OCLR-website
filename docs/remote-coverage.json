@@ -351,7 +351,7 @@
         "src/lib/streaming.ts#streamingWorkspace",
         "src/lib/auth/staff.ts#staffAccess",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/fixtures.ts#staffFixtures",
+        "src/lib/fixture-reads.ts#staffFixtures",
         "src/lib/ratings.ts#matchRatingWorkspace",
         "src/lib/results.ts#matchReview"
       ],
@@ -394,7 +394,7 @@
         "src/lib/streaming.ts#streamingWorkspace",
         "src/lib/auth/staff.ts#staffAccess",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/fixtures.ts#staffFixtures"
+        "src/lib/fixture-reads.ts#staffFixtures"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -494,7 +494,7 @@
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
-        "src/lib/fixtures.ts#staffFixtures",
+        "src/lib/fixture-reads.ts#staffFixtures",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
         "src/lib/mappools.ts#mappoolWorkspace",
         "src/lib/frontend-read-models.ts#privateSavedTournament",
@@ -571,7 +571,7 @@
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
       "services": [
-        "src/lib/fixtures.ts#staffFixtures",
+        "src/lib/fixture-reads.ts#staffFixtures",
         "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)",
         "src/lib/auth/staff.ts#staffAccess",
         "src/lib/captains.ts#captainSetup",
@@ -982,7 +982,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/fixtures.ts#fixtureForReview"
+        "src/lib/fixture-reads.ts#fixtureForReview"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -999,7 +999,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/fixtures.ts#staffFixtures"
+        "src/lib/fixture-reads.ts#staffFixtures"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",

@@ -112,7 +112,7 @@ export async function extendedRead(
     case "mappoolWorkspace":
       return (await import("./mappools")).mappoolWorkspace(actor!, slug);
     case "staffFixtures":
-      return (await import("./fixtures")).staffFixtures(actor!, slug);
+      return (await import("./fixture-reads")).staffFixtures(actor!, slug);
     case "awardWorkspace":
       return (await import("./awards")).awardWorkspace(actor!, slug);
     case "statisticsWorkspace":
@@ -211,7 +211,7 @@ export async function extendedRead(
         slug,
       );
     case "fixtureForReview":
-      return (await import("./fixtures")).fixtureForReview(
+      return (await import("./fixture-reads")).fixtureForReview(
         actor!,
         slug,
         target,

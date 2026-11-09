@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { maxStageGroups } from "@/lib/competition-model";
-import type { FixtureWorkspace } from "@/lib/fixtures";
+import type { FixtureWorkspace } from "@/lib/fixture-reads";
 import { ReadOnlyFields, useStaffReadOnly } from "./staff-read-only";
 import { ConfirmMutation } from "./confirm-mutation";
 import { TeamAvatar } from "./team-avatar";

@@ -1,6 +1,6 @@
 # Competition service modules
 
-This inventory records the first service split under #1013. Browser and API
+This inventory records the service splits under #1013. Browser and API
 entry points are described in [Service and Next.js boundaries](next-service-boundaries.md).
 
 | Responsibility | Current entry points |
@@ -29,6 +29,27 @@ projects it through [draft-board](../src/lib/draft-board.ts). The draft service
 uses those same read and projection functions for its own commands. The board
 projection accepts data and can run without a database connection. The original
 draft API entry points stay in `draft.ts`.
+
+## Fixture reads
+
+Previously, result import, result review and referee reconciliation imported
+`fixtures.ts` to read an assigned fixture, its published rosters and scoring
+context. That module also loaded fixture commands, round policy writes and
+deletion logic.
+
+[fixture-reads](../src/lib/fixture-reads.ts) now provides the staff workspace,
+published official teams and the private review context. The staff pages,
+read API, result service and referee reconciliation use these queries directly.
+`fixtures.ts` owns fixture changes, referee assignments and their audit entries.
+The command module also uses the shared queries when checking eligible officials,
+published teams and the resulting staff workspace.
+
+A review with a supplied reader uses that reader for the fixture, assignment,
+round, pool and result queries. Result import, result commands and reconciliation
+can therefore reuse the caller's transaction. A standalone review opens its own
+repeatable-read transaction. The existing fixture test now verifies that the
+review sees an uncommitted fixture update through the supplied transaction,
+retains assignment checks, and reads the original value after rollback.
 
 ## Transactions and read scopes
 

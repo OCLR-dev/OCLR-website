@@ -33,10 +33,8 @@ import {
   refereeWorkspace,
   type RefereeWorkspace,
 } from "../../src/lib/referee";
-import {
-  fixtureForReview,
-  assignFixtureReferees,
-} from "../../src/lib/fixtures";
+import { assignFixtureReferees } from "../../src/lib/fixtures";
+import { fixtureForReview } from "../../src/lib/fixture-reads";
 import {
   refereeCommands,
   emptyRefereeSettings,

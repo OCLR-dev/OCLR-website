@@ -26,7 +26,8 @@ import {
   users,
 } from "../../src/db/schema";
 import { streamingCommand, streamingWorkspace } from "../../src/lib/streaming";
-import { fixtureCommand, staffFixtures } from "../../src/lib/fixtures";
+import { fixtureCommand } from "../../src/lib/fixtures";
+import { staffFixtures } from "../../src/lib/fixture-reads";
 import { importFixtureMatch } from "../../src/lib/results";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { changeStaffRole } from "../../src/lib/staff-roles";

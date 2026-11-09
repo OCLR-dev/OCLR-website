@@ -27,7 +27,7 @@ import {
   officialTeams,
   staffFixtures,
   type FixtureReviewContext,
-} from "./fixtures";
+} from "./fixture-reads";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import {
   changeMatchResultWrite,

@@ -1,4 +1,4 @@
-import type { FixtureWorkspace } from "./fixtures";
+import type { FixtureWorkspace } from "./fixture-reads";
 import type { ResolvedBracket, ResolvedSlot } from "./bracket-model";
 import { openExhibitionSides } from "./exhibition-sides";
 type Fixture = FixtureWorkspace["fixtures"][number];

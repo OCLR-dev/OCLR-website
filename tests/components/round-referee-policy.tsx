@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { FixtureWorkspace } from "../../src/lib/fixtures";
+import type { FixtureWorkspace } from "../../src/lib/fixture-reads";
 import { createRoot } from "react-dom/client";
 import { NextIntlClientProvider } from "next-intl";
 import {
