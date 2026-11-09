@@ -13,6 +13,8 @@ import {
   archiveReadVersions,
   archiveReadScores,
   archiveReadPeople,
+  archiveRelationDocuments,
+  archiveRelationHeads,
   editionState,
   historicalStatistics,
   users,
@@ -30,8 +32,8 @@ import {
   statisticsWorkspace,
 } from "../../src/lib/archive-statistics-reads";
 import { statisticsCommand } from "../../src/lib/archive-statistics";
+import { backfillArchiveReads } from "../../src/lib/archive-read-maintenance";
 import {
-  backfillArchiveReads,
   relationalArchive,
   relationalPublicPlays,
 } from "../../src/lib/archive-read";
@@ -218,6 +220,13 @@ describe.skipIf(!url)("versioned historical relational reads", () => {
     await backfillArchiveReads("s7", true);
     const before = await publicArchiveStatistics("s7");
     const source = await db().select().from(historicalStatistics);
+    const readHeads = () =>
+      db()
+        .select()
+        .from(archiveRelationHeads)
+        .orderBy(archiveRelationHeads.editionSlug, archiveRelationHeads.documentKey);
+    const heads = await readHeads();
+    const documents = await db().$count(archiveRelationDocuments);
     await db().execute(
       sql`CREATE FUNCTION public.synthetic_archive_write_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'synthetic derived write failure'; END; $$`,
     );
@@ -228,6 +237,8 @@ describe.skipIf(!url)("versioned historical relational reads", () => {
       await expect(backfillArchiveReads("s7", true, true)).rejects.toThrow();
       expect(await db().select().from(archiveReadVersions)).toHaveLength(1);
       expect(await db().select().from(historicalStatistics)).toEqual(source);
+      expect(await readHeads()).toEqual(heads);
+      expect(await db().$count(archiveRelationDocuments)).toBe(documents);
     } finally {
       await db().execute(
         sql`DROP TRIGGER synthetic_archive_write_failure ON archive_read_plays`,

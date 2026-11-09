@@ -27,12 +27,12 @@ import { statisticsArchiveKey } from "../../src/lib/archive-statistics-key";
 import {
   publicArchiveStatistics,
 } from "../../src/lib/archive-statistics-reads";
+import { archiveEditionStates } from "../../src/lib/archive-relations";
 import {
-  archiveEditionStates,
   backfillArchiveRelations,
-  syncArchiveRelations,
   verifyArchiveRelations,
-} from "../../src/lib/archive-relations";
+} from "../../src/lib/archive-relation-maintenance";
+import { syncArchiveRelations } from "../../src/lib/archive-relation-writes";
 import { publicHistoricalArchive } from "../../src/lib/historical-archive";
 import file from "../../src/data/archive-file-supplements.json";
 

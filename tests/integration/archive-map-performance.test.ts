@@ -15,7 +15,7 @@ import {
   editionState,
   historicalStatistics,
 } from "../../src/db/schema";
-import { backfillArchiveReads } from "../../src/lib/archive-read";
+import { backfillArchiveReads } from "../../src/lib/archive-read-maintenance";
 import {
   archiveMapPerformanceQuery,
   relationalArchiveMapPerformance,

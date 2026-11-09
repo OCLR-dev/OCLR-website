@@ -23,7 +23,7 @@ import { readHistoricalStatistics } from "../../src/lib/archive-relations";
 import {
   backfillArchiveReads,
   verifyArchiveReads,
-} from "../../src/lib/archive-read";
+} from "../../src/lib/archive-read-maintenance";
 import {
   publicArchiveStatistics,
   statisticsWorkspace,

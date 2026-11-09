@@ -25,9 +25,9 @@ import {
 import {
   backfillArchiveRelations,
   verifyArchiveRelations,
-  syncArchiveRelations,
-  normalizedStatistics,
-} from "../../src/lib/archive-relations";
+} from "../../src/lib/archive-relation-maintenance";
+import { syncArchiveRelations } from "../../src/lib/archive-relation-writes";
+import { normalizedStatistics } from "../../src/lib/archive-relations";
 import {
   publicArchiveStatistics,
 } from "../../src/lib/archive-statistics-reads";

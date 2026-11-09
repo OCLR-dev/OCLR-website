@@ -11,7 +11,7 @@ import {
 import {
   publicArchiveStatistics,
 } from "../../../src/lib/archive-statistics-reads";
-import { backfillArchiveRelations } from "../../../src/lib/archive-relations";
+import { backfillArchiveRelations } from "../../../src/lib/archive-relation-maintenance";
 import { statisticsArchiveKey } from "../../../src/lib/archive-statistics-key";
 import { databasePlayerLeaderboard } from "../../../src/lib/player-leaderboard";
 import { projectPlayerLeaderboard } from "../../../src/lib/player-leaderboard-projector";

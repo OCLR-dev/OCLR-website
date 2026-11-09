@@ -1,7 +1,5 @@
-import {
-  syncArchiveRelations,
-  archiveEditionStates,
-} from "../src/lib/archive-relations";
+import { syncArchiveRelations } from "../src/lib/archive-relation-writes";
+import { archiveEditionStates } from "../src/lib/archive-relations";
 /** One-time migration command. The web application never imports this module or reads this JSON. */
 import { readFileSync } from "node:fs";
 import { and, eq } from "drizzle-orm";
