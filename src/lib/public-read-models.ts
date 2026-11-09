@@ -16,7 +16,7 @@ import { parseOsuProfile, type ProfileMode } from "./osu-profile-model";
 import { readSavedPlayerProfile } from "./player-profiles";
 import { defaultLocale, locales } from "@/i18n/config";
 import { profileBws } from "./bws";
-import { publishedTeams } from "./teams";
+import { publishedTeams } from "./team-reads";
 import { publicMappools } from "./mappool-reads";
 import { publicStaff } from "./public-staff";
 import { publicDraft, releasedDraftData } from "./draft-reads";

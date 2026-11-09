@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { statisticsArchive, statisticsSource } from "./archive-statistics";
 import { statisticsArchiveKey } from "../../src/lib/archive-statistics";
 import { randomUUID, createHash } from "node:crypto";
-import { sql, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import sharp from "sharp";
 import { db } from "../../src/db";
 import {
@@ -188,7 +188,12 @@ export async function seedRemoteSite(base = 2711000) {
   const [registration] = await db()
     .select()
     .from(registrations)
-    .where(eq(registrations.userId, base));
+    .where(
+      and(
+        eq(registrations.userId, base),
+        eq(registrations.editionSlug, "test-cup"),
+      ),
+    );
   return {
     ...site,
     draft,

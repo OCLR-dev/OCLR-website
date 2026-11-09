@@ -9,7 +9,7 @@ import { publicDraft } from "@/lib/draft-reads";
 import { getPublicEdition } from "@/lib/content";
 import { informationPreview } from "@/lib/tournament-information";
 import { currentUser } from "@/lib/auth/user";
-import { captainAppointment } from "@/lib/captains";
+import { captainAppointment } from "@/lib/captain-reads";
 import { playerWorkspaceEligible } from "@/lib/player-workspace";
 export const dynamic = "force-dynamic";
 

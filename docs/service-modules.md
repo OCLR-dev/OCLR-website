@@ -7,7 +7,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | --- | --- |
 | Edition configuration and publication | [tournament-reads](../src/lib/tournament-reads.ts) serves saved configuration and staff workspaces. [tournaments](../src/lib/tournaments.ts) owns configuration and publication commands. [content](../src/lib/content.ts) provides edition lookups for callers. |
 | Registration | [registration-reads](../src/lib/registration-reads.ts) serves availability and personal applications. [staff-registration-reads](../src/lib/staff-registration-reads.ts) serves staff lists, details and export. [registrations](../src/lib/registrations.ts) and [staff](../src/lib/staff.ts) own player and staff commands. |
-| Appointments and rosters | [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own their writes, version checks and audits. |
+| Appointments and rosters | [captain-reads](../src/lib/captain-reads.ts) and [team-reads](../src/lib/team-reads.ts) serve staff, personal and public queries. [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own the commands. |
 | Draft | [draft-reads](../src/lib/draft-reads.ts) serves staff, captain and public reads. [draft](../src/lib/draft.ts) owns transitions, picks and publication. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
@@ -50,6 +50,24 @@ registration locks, then commits the decision and audit together. An
 integration test verifies that a failed review audit leaves the application
 and its acknowledged configuration and eligibility intact. Retrying commits
 one decision against the original application snapshot.
+
+## Captain appointments and teams
+
+Previously, reading an appointment, team or staff setup also loaded the
+captain and team commands. The pages and versioned API now call
+[captain-reads](../src/lib/captain-reads.ts) and
+[team-reads](../src/lib/team-reads.ts) directly. Staff queries keep their
+edition capability checks and repeatable-read scope. Public roster and coach
+details still require published captain and team identities and a finalized,
+published roster. The owner's team view reads the saved captain snapshot.
+
+The command modules lock the edition and check the shared setup version.
+Changes that affect the draft call the snapshot writer with the same
+transaction that updates the setup and records the audit. The existing
+captain publication test now verifies that an audit failure leaves the
+appointment private and the setup version unchanged. Retrying publishes the
+captain and records one audit. The team identity test retains rollback
+coverage for the team, setup version and draft snapshots.
 
 ## Draft reads and snapshots
 

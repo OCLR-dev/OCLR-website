@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { editionRevisions, editionState, registrations } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
-import { captainAppointment } from "./captains";
+import { captainAppointment } from "./captain-reads";
 import { getPublicEditions } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";

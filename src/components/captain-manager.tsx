@@ -8,7 +8,7 @@ import Link from "next/link";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { LoadingRegion } from "./loading-region";
 import { CaptainPlayerCard, type CaptainIdentity } from "./captain-player-card";
-import type { captainSetup } from "@/lib/captains";
+import type { captainSetup } from "@/lib/captain-reads";
 import { ConfirmMutation } from "./confirm-mutation";
 import { PublicationSwitch } from "./publication-switch";
 import styles from "./captain-manager.module.css";

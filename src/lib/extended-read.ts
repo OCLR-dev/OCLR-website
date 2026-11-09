@@ -59,9 +59,9 @@ export async function extendedRead(
         query.get("poolId") ?? undefined,
       );
     case "publishedTeams":
-      return (await import("./teams")).publishedTeams(slug);
+      return (await import("./team-reads")).publishedTeams(slug);
     case "publicCaptains":
-      return (await import("./captains")).publicCaptains(slug);
+      return (await import("./captain-reads")).publicCaptains(slug);
     case "publicDraft":
       return (await import("./draft-reads")).publicDraft(slug);
     case "publicBroadcastDraft":
@@ -87,9 +87,9 @@ export async function extendedRead(
     case "tournamentForAdmin":
       return (await import("./tournament-reads")).tournamentForAdmin(actor!, slug);
     case "captainSetup":
-      return (await import("./captains")).captainSetup(actor!, slug);
+      return (await import("./captain-reads")).captainSetup(actor!, slug);
     case "staffTeams":
-      return (await import("./teams")).staffTeams(actor!, slug);
+      return (await import("./team-reads")).staffTeams(actor!, slug);
     case "staffDraft":
       return (await import("./draft-reads")).staffDraft(actor!, slug);
     case "selectionWorkspace":
@@ -169,9 +169,9 @@ export async function extendedRead(
     case "ownRegistrations":
       return (await import("./registration-reads")).ownRegistrations(actor!.osuId);
     case "ownTeam":
-      return (await import("./teams")).ownTeam(actor!.osuId, slug);
+      return (await import("./team-reads")).ownTeam(actor!.osuId, slug);
     case "captainAppointment":
-      return (await import("./captains")).captainAppointment(
+      return (await import("./captain-reads")).captainAppointment(
         actor!.osuId,
         slug,
       );

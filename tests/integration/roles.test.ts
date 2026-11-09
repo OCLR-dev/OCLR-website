@@ -26,8 +26,10 @@ import {
   applicationDetails,
 } from "../../src/lib/staff-registration-reads";
 import { reviewApplication } from "../../src/lib/staff";
-import { captainSetup, updateCaptains } from "../../src/lib/captains";
-import { staffTeams, updateTeams } from "../../src/lib/teams";
+import { captainSetup } from "../../src/lib/captain-reads";
+import { updateCaptains } from "../../src/lib/captains";
+import { staffTeams } from "../../src/lib/team-reads";
+import { updateTeams } from "../../src/lib/teams";
 import { staffDraft } from "../../src/lib/draft-reads";
 import { draftCommand } from "../../src/lib/draft";
 import { edition } from "../fixtures/edition";

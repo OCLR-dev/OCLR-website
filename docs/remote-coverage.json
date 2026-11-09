@@ -242,7 +242,7 @@
       "services": [
         "src/lib/frontend-read-models.ts#captainIdentities",
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/captains.ts#captainSetup"
+        "src/lib/captain-reads.ts#captainSetup"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -574,8 +574,8 @@
         "src/lib/fixture-reads.ts#staffFixtures",
         "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)",
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/captains.ts#captainSetup",
-        "src/lib/teams.ts#staffTeams"
+        "src/lib/captain-reads.ts#captainSetup",
+        "src/lib/team-reads.ts#staffTeams"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -755,7 +755,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/captains.ts#captainSetup"
+        "src/lib/captain-reads.ts#captainSetup"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -1101,7 +1101,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/teams.ts#staffTeams"
+        "src/lib/team-reads.ts#staffTeams"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -2023,7 +2023,7 @@
         "src/lib/draft-reads.ts#publicDraft",
         "src/lib/draft-reads.ts#captainDraft",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/captains.ts#captainAppointment"
+        "src/lib/captain-reads.ts#captainAppointment"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Actual token subject; existing appointment checks",
@@ -2090,7 +2090,7 @@
         "src/lib/draft-reads.ts#publicDraft",
         "src/lib/frontend-read-models.ts#publicEnrollment",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/captains.ts#captainAppointment"
+        "src/lib/captain-reads.ts#captainAppointment"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -2380,7 +2380,7 @@
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/teams.ts#ownTeam"
+        "src/lib/team-reads.ts#ownTeam"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Actual token subject; existing appointment checks",
@@ -2397,7 +2397,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/frontend-read-models.ts#publicEnrollment",
-        "src/lib/teams.ts#publishedTeams"
+        "src/lib/team-reads.ts#publishedTeams"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -2421,7 +2421,7 @@
         "src/lib/frontend-read-models.ts#publicEnrollment",
         "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)",
         "src/lib/public-competition.ts#publicCompetition",
-        "src/lib/teams.ts#publishedTeams"
+        "src/lib/team-reads.ts#publishedTeams"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -2620,7 +2620,7 @@
       "operations": ["captainSetup"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
-      "services": ["src/lib/captains.ts#captainSetup"],
+      "services": ["src/lib/captain-reads.ts#captainSetup"],
       "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
       "authorization": "Existing publication/subject boundaries",
       "adapter": "shared service wrapper → fixed v1 resource",
@@ -3055,7 +3055,7 @@
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
       "services": [
-        "src/lib/teams.ts#staffTeams",
+        "src/lib/team-reads.ts#staffTeams",
         "src/lib/public-read-models.ts / frontend-data.ts (getTeamAvatar)"
       ],
       "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",

@@ -12,7 +12,7 @@ import { getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { frontendResource } from "./frontend-resource";
 import { publicCompetition } from "./public-competition";
-import { publishedTeams } from "./teams";
+import { publishedTeams } from "./team-reads";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 type PublicBracket = ExplicitReadData<"publicBracket">;
 export function getBrackets() {

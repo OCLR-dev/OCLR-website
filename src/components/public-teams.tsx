@@ -5,7 +5,7 @@ import { useAppTranslations } from "@/i18n/shared";
 
 import Link from "./pending-link";
 import { useState } from "react";
-import type { publishedTeams } from "@/lib/teams";
+import type { publishedTeams } from "@/lib/team-reads";
 import type { PublicGroup } from "@/lib/public-competition";
 import { GroupStandings } from "./public-matches";
 export function PublicTeams({

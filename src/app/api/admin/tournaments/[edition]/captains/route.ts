@@ -1,7 +1,7 @@
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff-request";
-import { captainSetup, updateCaptains } from "@/lib/captains";
+import { captainSetup } from "@/lib/captain-reads";
 import { changeCaptainsWrite } from "@/lib/draft-setup-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 async function readGET(
@@ -26,14 +26,11 @@ export async function POST(
     requireSameOrigin(request);
     const actor = await requireStaff();
     const { edition } = await context.params;
-    return NextResponse.json(
-      await updateCaptains(
-        actor,
-        edition,
-        await readJson(request, changeCaptainsWrite.maxBodyBytes),
-      ),
-      { headers: { "Cache-Control": "no-store" } },
-    );
+    const input = await readJson(request, changeCaptainsWrite.maxBodyBytes);
+    const { updateCaptains } = await import("@/lib/captains");
+    return NextResponse.json(await updateCaptains(actor, edition, input), {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     return apiError(error);
   }

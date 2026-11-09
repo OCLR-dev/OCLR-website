@@ -4,7 +4,7 @@ import { TeamAvatar } from "@/components/team-avatar";
 import { EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { remotePage } from "@/lib/remote-page";
-import { publishedTeams } from "@/lib/teams";
+import { publishedTeams } from "@/lib/team-reads";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 async function Issue271Page({

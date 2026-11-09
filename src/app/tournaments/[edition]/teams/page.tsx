@@ -4,7 +4,7 @@ import { EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { publicCompetition } from "@/lib/public-competition";
 import { remotePage } from "@/lib/remote-page";
-import { publishedTeams } from "@/lib/teams";
+import { publishedTeams } from "@/lib/team-reads";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Published teams") };

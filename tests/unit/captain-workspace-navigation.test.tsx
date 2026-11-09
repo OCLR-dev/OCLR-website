@@ -3,7 +3,7 @@ import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import EditionLayout from "../../src/app/tournaments/[edition]/layout";
 import type { TournamentShell } from "../../src/components/tournament-navigation";
 import { currentUser } from "../../src/lib/auth/user";
-import { captainAppointment } from "../../src/lib/captains";
+import { captainAppointment } from "../../src/lib/captain-reads";
 import { getPublicEdition } from "../../src/lib/content";
 import { remoteMode } from "../../src/lib/data-source";
 import { publicDraft } from "../../src/lib/draft-reads";
@@ -23,7 +23,7 @@ vi.mock("../../src/i18n/server", () => ({
   getAppTranslations: async () => english,
 }));
 vi.mock("../../src/lib/auth/user", () => ({ currentUser: vi.fn() }));
-vi.mock("../../src/lib/captains", () => ({ captainAppointment: vi.fn() }));
+vi.mock("../../src/lib/captain-reads", () => ({ captainAppointment: vi.fn() }));
 vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
 vi.mock("../../src/lib/data-source", () => ({ remoteMode: vi.fn() }));
 vi.mock("../../src/lib/draft-reads", () => ({ publicDraft: vi.fn() }));

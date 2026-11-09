@@ -6,7 +6,7 @@ import { desc, inArray, sql } from "drizzle-orm";
 import { userProfileCache } from "@/db/schema";
 import type { User } from "./auth/sessions";
 import { readTournament } from "./tournament-reads";
-import { captainSetup } from "./captains";
+import { captainSetup } from "./captain-reads";
 import { publicNewsContext } from "./public-news";
 import { createTranslator } from "next-intl";
 import { appTranslator } from "@/i18n/translate";

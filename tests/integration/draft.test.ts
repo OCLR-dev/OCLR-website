@@ -2,7 +2,7 @@ let fixtureEditions: unknown[];
 import { seedEditions } from "../fixtures/editions";
 import { assertTestDatabase } from "../database";
 import { updateCaptains } from "../../src/lib/captains";
-import { ownTeam } from "../../src/lib/teams";
+import { ownTeam } from "../../src/lib/team-reads";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {

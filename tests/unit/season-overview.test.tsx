@@ -9,7 +9,7 @@ import Overview from "../../src/app/tournaments/[edition]/page";
 import { getPublicEdition } from "../../src/lib/content";
 import { publicCompetition } from "../../src/lib/public-competition";
 import { publicMappools } from "../../src/lib/mappool-reads";
-import { publishedTeams } from "../../src/lib/teams";
+import { publishedTeams } from "../../src/lib/team-reads";
 import { publicStaff } from "../../src/lib/public-staff";
 import { publicDraft } from "../../src/lib/draft-reads";
 import { formatDate } from "../../src/lib/editions";
@@ -40,7 +40,7 @@ vi.mock("../../src/lib/public-competition", () => ({
   publicCompetition: vi.fn(),
 }));
 vi.mock("../../src/lib/mappool-reads", () => ({ publicMappools: vi.fn() }));
-vi.mock("../../src/lib/teams", () => ({ publishedTeams: vi.fn() }));
+vi.mock("../../src/lib/team-reads", () => ({ publishedTeams: vi.fn() }));
 vi.mock("../../src/lib/public-staff", () => ({ publicStaff: vi.fn() }));
 vi.mock("../../src/lib/draft-reads", () => ({ publicDraft: vi.fn() }));
 // The server composition test isolates client timer behavior (covered by browser tests).

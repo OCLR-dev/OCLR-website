@@ -22,13 +22,10 @@ import {
   staffRoles,
   editionEvents,
 } from "../../src/db/schema";
-import { captainSetup, updateCaptains } from "../../src/lib/captains";
-import {
-  staffTeams,
-  updateTeams,
-  ownTeam,
-  publishedTeams,
-} from "../../src/lib/teams";
+import { captainSetup } from "../../src/lib/captain-reads";
+import { updateCaptains } from "../../src/lib/captains";
+import { staffTeams, ownTeam, publishedTeams } from "../../src/lib/team-reads";
+import { updateTeams } from "../../src/lib/teams";
 import { edition } from "../fixtures/edition";
 import { tournamentCommand } from "../../src/lib/tournaments";
 import { readTournament } from "../../src/lib/tournament-reads";
