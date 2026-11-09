@@ -12,7 +12,7 @@ import {
   matchResults,
 } from "@/db/schema";
 import { DesktopError, digest, requireDesktopUser } from "./desktop-auth";
-import { refereeWorkspace } from "./referee";
+import { refereeWorkspace } from "./referee-workspace";
 import { appUrl } from "./app-url";
 export async function assignedDesktopFixture(
   actor: { osuId: number },

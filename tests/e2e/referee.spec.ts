@@ -18,7 +18,7 @@ import { seedBrowserEditions } from "./setup";
 import { assertTestDatabase } from "../database";
 import { appearances } from "../../src/lib/preferences";
 import { englishStorage } from "../fixtures/preferences";
-import type { RefereeWorkspace } from "../../src/lib/referee";
+import type { RefereeWorkspace } from "../../src/lib/referee-workspace";
 
 async function seed() {
   assertTestDatabase(process.env.TEST_DATABASE_URL);

@@ -28,11 +28,8 @@ import {
   staffRoles,
   users,
 } from "../../src/db/schema";
-import {
-  refereeCommand,
-  refereeWorkspace,
-  type RefereeWorkspace,
-} from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace, type RefereeWorkspace } from "../../src/lib/referee-workspace";
 import { assignFixtureReferees } from "../../src/lib/fixtures";
 import { fixtureForReview } from "../../src/lib/fixture-reads";
 import {

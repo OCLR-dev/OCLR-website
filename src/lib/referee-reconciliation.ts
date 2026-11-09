@@ -25,7 +25,7 @@ import {
   assertRefereeAccess,
   readRefereeWorkspace,
   refereeWorkspace,
-} from "./referee";
+} from "./referee-workspace";
 import {
   compareRefereeAttempts,
   type ReconciliationSource,

@@ -39,7 +39,7 @@ import {
   apiGame,
 } from "../fixtures/referee-acceptance";
 import { assertTestDatabase } from "../database";
-import type { RefereeWorkspace } from "../../src/lib/referee";
+import type { RefereeWorkspace } from "../../src/lib/referee-workspace";
 import type { RefereeReconciliation } from "../../src/lib/referee-reconciliation";
 import type { MatchReview } from "../../src/lib/result-review";
 import type { RefereeMpView } from "../../src/lib/referee-mp";

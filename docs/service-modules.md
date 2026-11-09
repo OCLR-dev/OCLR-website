@@ -10,7 +10,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Draft | [draft](../src/lib/draft.ts) owns state transitions, staff/captain access, picks, idempotency and public reads. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappools](../src/lib/mappools.ts) owns official pool changes and projections. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
-| Referee | [referee](../src/lib/referee.ts), [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) handle assigned match work, IRC coordination and multiplayer evidence. |
+| Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace, [referee](../src/lib/referee.ts) owns referee commands, and [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) coordinate IRC and multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) reads and writes the relational representation. [archive-read](../src/lib/archive-read.ts) serves saved projections. |
 
 ## Draft snapshots
@@ -73,6 +73,25 @@ The existing completion test covers rollback when import storage fails. The
 publication test now injects an audit failure and verifies that the proposal,
 public result, game claims and pool lock all roll back. Its existing concurrent
 publication, exact replay and cache failure assertions still run.
+
+## Referee workspace
+
+Previously, reading a referee workspace loaded the commands and round policy
+writes. [referee-workspace](../src/lib/referee-workspace.ts) now owns the saved
+workspace, projection and shared assignment checks. The website, desktop
+reader and remote API use this module directly. A standalone local read uses
+a read-only repeatable-read transaction. IRC, MP, reconciliation and referee
+commands pass their own reader to check the current state in their transaction.
+
+[referee](../src/lib/referee.ts) owns referee mutations. It takes the existing
+transaction advisory lock `17301`, then locks the edition and fixture rows.
+It rechecks authorization and compares the saved request receipt before
+checking the current revision and dependency fingerprint. The session update,
+event and audit entry commit together. A desktop IRC confirmation passes its
+own transaction into the command, so the relay sequence, command status and BP
+event commit or roll back together. A synthetic test verifies that IRC waits on
+the shared lock, retries the same confirmation after an audit failure and
+records one selection when that confirmation is replayed.
 
 ## Transactions and read scopes
 

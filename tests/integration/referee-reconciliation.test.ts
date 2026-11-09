@@ -25,7 +25,8 @@ import {
   refereeTestUser as actor,
 } from "../fixtures/referee";
 import { assertTestDatabase } from "../database";
-import { refereeCommand, type RefereeWorkspace } from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { type RefereeWorkspace } from "../../src/lib/referee-workspace";
 import {
   refereeReconciliation,
   reconcileRefereeAttempt,

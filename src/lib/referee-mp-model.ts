@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { RefereeWorkspace } from "./referee";
+import type { RefereeWorkspace } from "./referee-workspace";
 import {
   OPEN_MATCH_WARNING,
   type MatchGame,

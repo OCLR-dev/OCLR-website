@@ -31,7 +31,8 @@ import {
 } from "../../src/db/schema";
 import { scheduleCommand, scheduleWorkspace } from "../../src/lib/schedule";
 import { fixtureCommand } from "../../src/lib/fixtures";
-import { refereeCommand, refereeWorkspace } from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace } from "../../src/lib/referee-workspace";
 import { publicFixture } from "../../src/lib/public-competition";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";

@@ -23,11 +23,8 @@ import {
   refereeReconciliations,
   refereeIrcConnections,
 } from "../../src/db/schema";
-import {
-  refereeCommand,
-  refereeWorkspace,
-  type RefereeWorkspace,
-} from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace, type RefereeWorkspace } from "../../src/lib/referee-workspace";
 import { refereeMpCommand } from "../../src/lib/referee-mp";
 import { fetchMatchSource } from "../../src/lib/osu-matches";
 import { mpSource, fingerprint } from "../fixtures/referee-mp";

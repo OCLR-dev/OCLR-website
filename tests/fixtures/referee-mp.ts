@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { RefereeWorkspace } from "../../src/lib/referee";
+import type { RefereeWorkspace } from "../../src/lib/referee-workspace";
 import {
   OPEN_MATCH_WARNING,
   type MatchSource,

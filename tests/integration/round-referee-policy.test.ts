@@ -18,11 +18,8 @@ import {
   refereeSessions,
   tournamentRounds,
 } from "../../src/db/schema";
-import {
-  refereeCommand,
-  refereeWorkspace,
-  type RefereeWorkspace,
-} from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace, type RefereeWorkspace } from "../../src/lib/referee-workspace";
 import { saveRoundRefereePolicy } from "../../src/lib/round-referee-policy";
 import { mappoolCommand, mappoolWorkspace } from "../../src/lib/mappools";
 import {

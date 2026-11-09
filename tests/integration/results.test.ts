@@ -1,4 +1,5 @@
-import { refereeCommand, refereeWorkspace } from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace } from "../../src/lib/referee-workspace";
 let fixtureEditions: unknown[];
 import { seedEditions } from "../fixtures/editions";
 import { assertTestDatabase } from "../database";

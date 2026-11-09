@@ -1,4 +1,4 @@
-import type { RefereeWorkspace } from "../../src/lib/referee";
+import type { RefereeWorkspace } from "../../src/lib/referee-workspace";
 import {
   projectReferee,
   type RefereeEvent,

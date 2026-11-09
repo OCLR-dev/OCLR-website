@@ -6,7 +6,8 @@ import Link from "next/link";
 import { refereeMessage } from "@/i18n/referee";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import type { RefereeWorkspace, RefereeCommand } from "@/lib/referee";
+import type { RefereeWorkspace } from "@/lib/referee-workspace";
+import type { RefereeCommand } from "@/lib/referee-write-contracts";
 import {
   refereeOrderConflicts,
   projectReferee,

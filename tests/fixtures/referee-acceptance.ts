@@ -15,7 +15,8 @@ import {
   fixtures,
 } from "../../src/db/schema";
 import { fixtureCommand } from "../../src/lib/fixtures";
-import { refereeCommand, refereeWorkspace } from "../../src/lib/referee";
+import { refereeCommand } from "../../src/lib/referee";
+import { refereeWorkspace } from "../../src/lib/referee-workspace";
 import { syntheticScoringRules } from "./match";
 import {
   seedRefereeFixture,

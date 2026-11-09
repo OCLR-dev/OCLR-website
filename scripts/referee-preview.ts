@@ -14,7 +14,8 @@ import {
   mappools,
   mappoolEntries,
 } from "../src/db/schema";
-import { refereeWorkspace, refereeCommand } from "../src/lib/referee";
+import { refereeCommand } from "../src/lib/referee";
+import { refereeWorkspace } from "../src/lib/referee-workspace";
 import { refereePolicySchema } from "../src/lib/referee-model";
 
 const target = new URL(process.env.DATABASE_URL ?? "http://invalid");
