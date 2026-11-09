@@ -50,8 +50,6 @@ export const directorySorts = [
   "name-desc",
   "rank-asc",
   "rank-desc",
-  "pp-desc",
-  "pp-asc",
 ] as const;
 export const directoryKeys = [
   "q",
@@ -70,17 +68,21 @@ export function directoryState(
   params: Pick<URLSearchParams, "get">,
   grouped = false,
 ): DirectoryState {
+  // Keep shared links from the former PP sorting options usable.
+  const requestedSort = params.get("sort") ?? "default";
+  const sort =
+    requestedSort === "pp-desc"
+      ? "rank-asc"
+      : requestedSort === "pp-asc"
+        ? "rank-desc"
+        : requestedSort;
   return Object.fromEntries(
     directoryKeys.map((key) => [
       key,
-      params.get(key) ??
-        (key === "sort"
-          ? "default"
-          : key === "group"
-            ? grouped
-              ? "team"
-              : "list"
-            : ""),
+      key === "sort"
+        ? sort
+        : (params.get(key) ??
+          (key === "group" ? (grouped ? "team" : "list") : "")),
     ]),
   ) as DirectoryState;
 }

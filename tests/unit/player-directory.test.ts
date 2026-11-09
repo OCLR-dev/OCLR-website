@@ -59,13 +59,23 @@ describe("complete public player directory selection", () => {
     }));
     expect(ids("", many)).toHaveLength(101);
   });
-  it("sorts names, raw rank and PP with ascending UID ties and missing values always last", () => {
+  it("sorts names and raw rank with ascending UID ties and missing values always last", () => {
     expect(ids("sort=name-asc")).toEqual([2, 3, 4, 5, 1]);
     expect(ids("sort=name-desc")).toEqual([1, 5, 4, 2, 3]);
     expect(ids("sort=rank-asc")).toEqual([2, 3, 1, 4, 5]);
     expect(ids("sort=rank-desc")).toEqual([1, 2, 3, 4, 5]);
     expect(ids("sort=pp-asc")).toEqual([1, 2, 3, 4, 5]);
     expect(ids("sort=pp-desc")).toEqual([2, 3, 1, 4, 5]);
+  });
+  it("maps legacy PP links to the corresponding rank direction", () => {
+    expect(state("sort=pp-desc").sort).toBe("rank-asc");
+    expect(state("sort=pp-asc").sort).toBe("rank-desc");
+    const differingSnapshots = [
+      { ...players[0], rank: 10, pp: 10 },
+      { ...players[1], rank: 20, pp: 20 },
+    ];
+    expect(ids("sort=pp-desc", differingSnapshots)).toEqual([4, 3]);
+    expect(ids("sort=pp-asc", differingSnapshots)).toEqual([3, 4]);
   });
   it("combines aliases, public team names, identities and data filters", () => {
     expect(ids("q=FORMER&team=alpha&role=coach")).toEqual([3]);
