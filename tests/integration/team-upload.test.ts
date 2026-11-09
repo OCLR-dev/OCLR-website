@@ -15,7 +15,7 @@ import { sql, eq } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import { editionEvents, teams } from "../../src/db/schema";
 import { prepareDraft } from "../fixtures/draft";
-import { staffTeams } from "../../src/lib/teams";
+import { staffTeams } from "../../src/lib/team-reads";
 import { editTeamIdentityWrite } from "../../src/lib/draft-setup-write-contracts";
 import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { assertTestDatabase } from "../database";

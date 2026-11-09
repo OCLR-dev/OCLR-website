@@ -27,7 +27,8 @@ import {
 import { prepareDraft } from "../fixtures/draft";
 import { draftCommand, pickPlayer } from "../../src/lib/draft";
 import { staffDraft, publicDraft } from "../../src/lib/draft-reads";
-import { updateTeams, staffTeams } from "../../src/lib/teams";
+import { updateTeams } from "../../src/lib/teams";
+import { staffTeams } from "../../src/lib/team-reads";
 import { updateCaptains } from "../../src/lib/captains";
 import { readTournament } from "../../src/lib/tournament-reads";
 import { tournamentCommand } from "../../src/lib/tournaments";

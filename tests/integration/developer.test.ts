@@ -43,8 +43,8 @@ import {
 } from "../../src/lib/tournament-reads";
 import { siteSettingsForAdmin } from "../../src/lib/site-settings";
 import { auditLog } from "../../src/lib/audit";
-import { staffTeams } from "../../src/lib/teams";
-import { captainSetup } from "../../src/lib/captains";
+import { staffTeams } from "../../src/lib/team-reads";
+import { captainSetup } from "../../src/lib/captain-reads";
 import { staffDraft } from "../../src/lib/draft-reads";
 import { mappoolWorkspace } from "../../src/lib/mappool-reads";
 import { mappoolCommand } from "../../src/lib/mappools";

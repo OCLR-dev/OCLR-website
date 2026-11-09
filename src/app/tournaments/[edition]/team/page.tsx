@@ -3,7 +3,7 @@ import { OwnTeam } from "@/components/own-team";
 import { getAppTranslations } from "@/i18n/server";
 import { currentUser } from "@/lib/auth/user";
 import { remotePage } from "@/lib/remote-page";
-import { ownTeam } from "@/lib/teams";
+import { ownTeam } from "@/lib/team-reads";
 import { redirect } from "next/navigation";
 export async function generateMetadata() {
   const tr = await getAppTranslations();

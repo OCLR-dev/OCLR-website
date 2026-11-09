@@ -1,5 +1,5 @@
 import { useAppTranslations } from "@/i18n/shared";
-import type { ownTeam } from "@/lib/teams";
+import type { ownTeam } from "@/lib/team-reads";
 import { PlayerCard } from "./player-card";
 import styles from "./own-team.module.css";
 

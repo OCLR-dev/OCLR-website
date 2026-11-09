@@ -23,10 +23,10 @@ import {
 } from "../../src/db/schema";
 import {
   captainSetup,
-  updateCaptains,
   publicCaptains,
   captainAppointment,
-} from "../../src/lib/captains";
+} from "../../src/lib/captain-reads";
+import { updateCaptains } from "../../src/lib/captains";
 import { withdrawRegistration } from "../../src/lib/registrations";
 import { edition } from "../fixtures/edition";
 import { POST as writeRoute } from "../../src/app/api/admin/tournaments/[edition]/captains/route";
@@ -385,11 +385,44 @@ describe.skipIf(!url)("captain setup, publication and eligibility", () => {
     expect(
       (await captainSetup(staff, edition.slug)).pool.map((p) => p.userId),
     ).toEqual([a.osuId]);
-    await updateCaptains(
-      staff,
-      edition.slug,
-      command(3, { action: "publish", published: true, poolPublished: false }),
-    );
+    const before = await captainSetup(staff, edition.slug);
+    const publish = () =>
+      updateCaptains(
+        staff,
+        edition.slug,
+        command(before.version, {
+          action: "publish",
+          published: true,
+          poolPublished: false,
+        }),
+      );
+    await db().execute(sql`
+      CREATE FUNCTION oclr_test_reject_captain_publish_audit() RETURNS trigger
+      LANGUAGE plpgsql AS $$ BEGIN
+        IF NEW.kind = 'captain_publish' THEN
+          RAISE EXCEPTION 'Synthetic captain publication audit failure';
+        END IF;
+        RETURN NEW;
+      END $$;
+      CREATE TRIGGER oclr_test_reject_captain_publish_audit
+        BEFORE INSERT ON edition_events FOR EACH ROW
+        EXECUTE FUNCTION oclr_test_reject_captain_publish_audit()
+    `);
+    try {
+      await expect(publish()).rejects.toThrow();
+      expect(await captainSetup(staff, edition.slug)).toEqual(before);
+      expect(await publicCaptains(edition.slug)).toEqual([]);
+      expect(await captainAppointment(b.osuId, edition.slug)).toMatchObject({
+        published: false,
+      });
+      expect(await db().select().from(editionEvents)).toHaveLength(3);
+    } finally {
+      await db().execute(sql`
+        DROP TRIGGER oclr_test_reject_captain_publish_audit ON edition_events;
+        DROP FUNCTION oclr_test_reject_captain_publish_audit()
+      `);
+    }
+    expect((await publish()).version).toBe(before.version + 1);
     expect(await publicCaptains(edition.slug)).toEqual([
       { osuId: b.osuId, username: b.username, position: 0 },
     ]);

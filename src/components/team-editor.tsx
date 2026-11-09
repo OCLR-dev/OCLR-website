@@ -9,7 +9,7 @@ import { usePendingRefresh } from "./use-pending-refresh";
 import { LoadingRegion } from "./loading-region";
 import { PendingButtonLabel } from "./pending-button-label";
 import { useAppTranslations } from "@/i18n/shared";
-import type { staffTeams } from "@/lib/teams";
+import type { staffTeams } from "@/lib/team-reads";
 import { TeamAvatar } from "./team-avatar";
 export function TeamEditor({
   slug,

@@ -40,7 +40,7 @@
     "scope": "tournaments:read"
   },
   {
-    "module": "teams",
+    "module": "team-reads",
     "fn": "publishedTeams",
     "id": "publishedTeams",
     "path": "/tournaments/{edition}/teams",
@@ -50,7 +50,7 @@
     "scope": "tournaments:read"
   },
   {
-    "module": "captains",
+    "module": "captain-reads",
     "fn": "publicCaptains",
     "id": "publicCaptains",
     "path": "/tournaments/{edition}/captains",
@@ -150,7 +150,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "captains",
+    "module": "captain-reads",
     "fn": "captainSetup",
     "id": "captainSetup",
     "path": "/staff/tournaments/{edition}/captains",
@@ -160,7 +160,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "teams",
+    "module": "team-reads",
     "fn": "staffTeams",
     "id": "staffTeams",
     "path": "/staff/tournaments/{edition}/teams",
@@ -350,7 +350,7 @@
     "scope": "identity:read"
   },
   {
-    "module": "teams",
+    "module": "team-reads",
     "fn": "ownTeam",
     "id": "ownTeam",
     "path": "/me/tournaments/{edition}/team",
@@ -360,7 +360,7 @@
     "scope": "identity:read"
   },
   {
-    "module": "captains",
+    "module": "captain-reads",
     "fn": "captainAppointment",
     "id": "captainAppointment",
     "path": "/me/tournaments/{edition}/captain",

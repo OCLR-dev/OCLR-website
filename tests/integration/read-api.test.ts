@@ -37,8 +37,8 @@ import {
 } from "../../src/lib/player-profiles";
 import { publicPlayers } from "../../src/lib/players";
 import { publicStaff } from "../../src/lib/public-staff";
-import { publicCaptains } from "../../src/lib/captains";
-import { publishedTeams } from "../../src/lib/teams";
+import { publicCaptains } from "../../src/lib/captain-reads";
+import { publishedTeams } from "../../src/lib/team-reads";
 import {
   publicPlayerDirectoryModel,
   publicTournamentListModel,

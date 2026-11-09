@@ -13,7 +13,8 @@ import { teams, memberships, editionEvents } from "../../src/db/schema";
 import { draftCommand } from "../../src/lib/draft";
 import { publicDraft, staffDraft } from "../../src/lib/draft-reads";
 import { prepareDraft } from "../fixtures/draft";
-import { staffTeams, updateTeams, publishedTeams } from "../../src/lib/teams";
+import { staffTeams, publishedTeams } from "../../src/lib/team-reads";
+import { updateTeams } from "../../src/lib/teams";
 import { assertTestDatabase } from "../database";
 const url = process.env.TEST_DATABASE_URL;
 describe.skipIf(!url)("targeted team identity corrections", () => {

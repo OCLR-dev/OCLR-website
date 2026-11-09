@@ -13,7 +13,7 @@ import {
   type PlayerCompetitionRecord,
 } from "./player-competition-model";
 import type { PublishedPlayer } from "./players";
-import { publishedTeams } from "./teams";
+import { publishedTeams } from "./team-reads";
 import { publicCompetition } from "./public-competition";
 import { archiveKeyVisual } from "./archive-key-visual";
 

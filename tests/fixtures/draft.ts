@@ -10,7 +10,8 @@ import {
   teams,
   users,
 } from "../../src/db/schema";
-import { captainSetup, updateCaptains } from "../../src/lib/captains";
+import { captainSetup } from "../../src/lib/captain-reads";
+import { updateCaptains } from "../../src/lib/captains";
 import { updateTeams } from "../../src/lib/teams";
 import { draftCommand } from "../../src/lib/draft";
 import { staffDraft } from "../../src/lib/draft-reads";
