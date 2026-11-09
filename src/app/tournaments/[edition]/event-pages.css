@@ -204,13 +204,17 @@
 .event-match-card header {
   display: flex;
   justify-content: space-between;
+  gap: 0.5rem;
   padding: 0.5rem 0.7rem;
   font-size: var(--text-label);
   color: var(--site-muted);
   border-bottom: 1px solid var(--site-border);
+  white-space: nowrap;
 }
 .event-match-card header a {
+  overflow: hidden;
   color: var(--site-accent);
+  text-overflow: ellipsis;
 }
 .event-match-side {
   display: grid;

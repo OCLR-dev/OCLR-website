@@ -30,6 +30,7 @@ async function Issue271Page({
   const competition = await publicCompetition(slug);
   const matches: EventMatch[] = (competition?.fixtures ?? []).map((f) => ({
     id: f.id,
+    label: f.label,
     round: f.roundName,
     stage: f.stage,
     pool: f.pool?.name ?? "—",
