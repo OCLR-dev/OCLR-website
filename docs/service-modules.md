@@ -11,7 +11,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Draft | [draft-reads](../src/lib/draft-reads.ts) serves staff, captain and public reads. [draft](../src/lib/draft.ts) owns transitions, picks and publication. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench-reads](../src/lib/mappool-workbench-reads.ts) serves saved candidates and comments, [mappool-workbench-preview](../src/lib/mappool-workbench-preview.ts) handles candidate previews, and [mappool-workbench](../src/lib/mappool-workbench.ts) owns candidate and comment changes. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes. [schedule-reads](../src/lib/schedule-reads.ts) serves schedule workspaces, and [schedule](../src/lib/schedule.ts) handles requests and approvals. [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) handles MP previews and imports, [results](../src/lib/results.ts) handles review and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
-| Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace, [referee](../src/lib/referee.ts) owns referee commands, and [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) coordinate IRC and multiplayer evidence. |
+| Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace. [referee](../src/lib/referee.ts) owns referee commands. [referee-irc-reads](../src/lib/referee-irc-reads.ts) serves IRC state and room bindings, [referee-irc](../src/lib/referee-irc.ts) owns browser commands, [referee-irc-relay](../src/lib/referee-irc-relay.ts) owns desktop relay, and [referee-mp](../src/lib/referee-mp.ts) coordinates multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) and [archive-read](../src/lib/archive-read.ts) read typed sources and saved projections. [archive-relation-writes](../src/lib/archive-relation-writes.ts) synchronizes typed documents. [archive-statistics-reads](../src/lib/archive-statistics-reads.ts) reads statistics, and [archive-statistics](../src/lib/archive-statistics.ts) owns statistics commands. |
 
 ## Tournament configuration
@@ -185,6 +185,28 @@ own transaction into the command, so the relay sequence, command status and BP
 event commit or roll back together. A synthetic test verifies that IRC waits on
 the shared lock, retries the same confirmation after an audit failure and
 records one selection when that confirmation is replayed.
+
+## Referee IRC
+
+The browser GET and the MP room lookup previously loaded browser commands and
+desktop relay. They now use [referee-irc-reads](../src/lib/referee-irc-reads.ts).
+Browser GET keeps its read-only repeatable-read transaction and assignment
+check. The MP command reads the room using its existing transaction. GET
+projects timed-out command status from saved data, while relay and browser
+commands can persist expiry using the same rule.
+
+Browser POST loads [referee-irc](../src/lib/referee-irc.ts) after checking origin
+and parsing the bounded JSON body. It returns state from the command transaction
+and retains the live assignment, request key and workspace revision checks.
+The desktop endpoint calls [referee-irc-relay](../src/lib/referee-irc-relay.ts)
+after checking its desktop credential and scope. Both commands take the same
+advisory lock. Relay checks the assigned fixture, session and sequence, and
+records confirmed BP evidence through the caller's transaction.
+
+The existing expiry test now uses the actual browser GET and checks that it
+returns the derived timeout while the stored status remains queued. Existing
+tests still cover shared locking, rollback of relay and BP together, sequence
+replay and the legacy desktop receipt.
 
 ## Mappools
 

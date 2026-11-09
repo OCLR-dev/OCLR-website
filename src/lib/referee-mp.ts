@@ -36,7 +36,7 @@ import {
   type MpReceipt,
 } from "./referee-mp-model";
 import type { RefereeEventPayload } from "./referee-model";
-import { refereeIrcRoomId } from "./referee-irc";
+import { refereeIrcRoomId } from "./referee-irc-reads";
 
 type Tx = Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0];
 async function lock(tx: Tx, actor: User, slug: string, fixtureId: string) {
