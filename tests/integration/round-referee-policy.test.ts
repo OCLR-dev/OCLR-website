@@ -21,7 +21,8 @@ import {
 import { refereeCommand } from "../../src/lib/referee";
 import { refereeWorkspace, type RefereeWorkspace } from "../../src/lib/referee-workspace";
 import { saveRoundRefereePolicy } from "../../src/lib/round-referee-policy";
-import { mappoolCommand, mappoolWorkspace } from "../../src/lib/mappools";
+import { mappoolCommand } from "../../src/lib/mappools";
+import { mappoolWorkspace } from "../../src/lib/mappool-reads";
 import {
   seedRefereeFixture,
   refereeTestAdmin as admin,

@@ -11,7 +11,7 @@ import {
   refereeEvents,
 } from "@/db/schema";
 import { publicCompetition, type PublicFixture } from "./public-competition";
-import { publicMappools } from "./mappools";
+import { publicMappools } from "./mappool-reads";
 import { assertStreamer } from "./streaming-api";
 import { projectReferee } from "./referee-model";
 import { editionSchema } from "./editions";

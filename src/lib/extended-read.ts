@@ -54,7 +54,7 @@ export async function extendedRead(
     case "publicBracket":
       return (await import("./brackets")).publicBracket(slug);
     case "publicMappools":
-      return (await import("./mappools")).publicMappools(
+      return (await import("./mappool-reads")).publicMappools(
         slug,
         query.get("poolId") ?? undefined,
       );
@@ -110,7 +110,7 @@ export async function extendedRead(
         target,
       );
     case "mappoolWorkspace":
-      return (await import("./mappools")).mappoolWorkspace(actor!, slug);
+      return (await import("./mappool-reads")).mappoolWorkspace(actor!, slug);
     case "staffFixtures":
       return (await import("./fixture-reads")).staffFixtures(actor!, slug);
     case "awardWorkspace":

@@ -301,7 +301,7 @@
         "src/lib/mappool-workbench.ts#selectionWorkspace",
         "src/lib/mappool-workbench.ts#candidateComments",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/mappools.ts#mappoolWorkspace"
+        "src/lib/mappool-reads.ts#mappoolWorkspace"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -325,7 +325,7 @@
         "src/lib/mappool-replays.ts#replayList",
         "src/lib/public-read-models.ts / frontend-data.ts (downloadReplay)",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/mappools.ts#mappoolWorkspace"
+        "src/lib/mappool-reads.ts#mappoolWorkspace"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -496,7 +496,7 @@
       "services": [
         "src/lib/fixture-reads.ts#staffFixtures",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/mappools.ts#mappoolWorkspace",
+        "src/lib/mappool-reads.ts#mappoolWorkspace",
         "src/lib/frontend-read-models.ts#privateSavedTournament",
         "src/lib/auth/staff.ts#staffAccess"
       ],
@@ -881,7 +881,7 @@
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
         "src/lib/public-read-models.ts / frontend-data.ts (listPublicTournaments)",
         "src/lib/frontend-read-models.ts#publicEnrollment",
-        "src/lib/mappools.ts#publicMappools"
+        "src/lib/mappool-reads.ts#publicMappools"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -898,7 +898,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/mappools.ts#mappoolWorkspace"
+        "src/lib/mappool-reads.ts#mappoolWorkspace"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -1425,7 +1425,7 @@
       "operations": ["publicMappools"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
-      "services": ["src/lib/mappools.ts#publicMappools"],
+      "services": ["src/lib/mappool-reads.ts#publicMappools"],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
       "adapter": "shared service wrapper → fixed v1 resource",
@@ -1439,7 +1439,7 @@
       "operations": ["publicMappools"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
-      "services": ["src/lib/mappools.ts#publicMappools"],
+      "services": ["src/lib/mappool-reads.ts#publicMappools"],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
       "adapter": "shared service wrapper → fixed v1 resource",
@@ -2107,7 +2107,7 @@
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/frontend-read-models.ts#publicEnrollment",
-        "src/lib/mappools.ts#publicMappools"
+        "src/lib/mappool-reads.ts#publicMappools"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -2124,7 +2124,7 @@
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/frontend-read-models.ts#publicEnrollment",
-        "src/lib/mappools.ts#publicMappools"
+        "src/lib/mappool-reads.ts#publicMappools"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -2725,7 +2725,7 @@
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (listPublicTournaments)",
         "src/lib/frontend-read-models.ts#publicEnrollment",
-        "src/lib/mappools.ts#publicMappools"
+        "src/lib/mappool-reads.ts#publicMappools"
       ],
       "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
       "authorization": "Existing publication/subject boundaries",

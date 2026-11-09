@@ -17,7 +17,7 @@ import { readSavedPlayerProfile } from "./player-profiles";
 import { defaultLocale, locales } from "@/i18n/config";
 import { profileBws } from "./bws";
 import { publishedTeams } from "./teams";
-import { publicMappools } from "./mappools";
+import { publicMappools } from "./mappool-reads";
 import { publicStaff } from "./public-staff";
 import { publicDraft, releasedDraftData } from "./draft";
 import { publicCompetition } from "./public-competition";

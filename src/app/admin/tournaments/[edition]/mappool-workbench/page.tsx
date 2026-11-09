@@ -5,7 +5,7 @@ import { authorizedPage } from "@/lib/auth/page";
 import { hasCapability } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
 import { selectionWorkspace } from "@/lib/mappool-workbench";
-import { mappoolWorkspace } from "@/lib/mappools";
+import { mappoolWorkspace } from "@/lib/mappool-reads";
 import { remotePage } from "@/lib/remote-page";
 export async function generateMetadata() {
   const tr = await getAppTranslations();

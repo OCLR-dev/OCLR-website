@@ -3,7 +3,7 @@ import { historicalPage } from "@/components/historical-archive";
 import { MappoolBrowser } from "@/components/mappool-browser";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { publicMappools } from "@/lib/mappools";
+import { publicMappools } from "@/lib/mappool-reads";
 import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
 import { notFound } from "next/navigation";

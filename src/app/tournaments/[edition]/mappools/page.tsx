@@ -2,7 +2,7 @@ import { historicalPage } from "@/components/historical-archive";
 import { PublicMappools } from "@/components/public-mappools";
 import { EmptyState, PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
-import { publicMappools } from "@/lib/mappools";
+import { publicMappools } from "@/lib/mappool-reads";
 import { remotePage } from "@/lib/remote-page";
 export async function generateMetadata() {
   const tr = await getAppTranslations();

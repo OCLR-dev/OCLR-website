@@ -38,11 +38,8 @@ import {
   downloadMappoolReplay,
 } from "../../src/lib/mappool-replays";
 import { cleanupReplayFiles } from "../../src/lib/replay-storage";
-import {
-  mappoolCommand,
-  mappoolWorkspace,
-  publicMappools,
-} from "../../src/lib/mappools";
+import { mappoolCommand } from "../../src/lib/mappools";
+import { mappoolWorkspace, publicMappools } from "../../src/lib/mappool-reads";
 import { statisticsArchive } from "../fixtures/archive-statistics";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";

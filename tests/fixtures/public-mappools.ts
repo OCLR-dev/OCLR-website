@@ -1,4 +1,4 @@
-import type { publicMappools } from "../../src/lib/mappools";
+import type { publicMappools } from "../../src/lib/mappool-reads";
 
 type Pool = Awaited<ReturnType<typeof publicMappools>>[number];
 const date = new Date("2026-11-04T00:00:00Z");

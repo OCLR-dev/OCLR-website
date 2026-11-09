@@ -2,7 +2,8 @@ import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { revalidateCommittedPath } from "@/lib/next-revalidation";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
-import { mappoolWorkspace, mappoolCommand } from "@/lib/mappools";
+import { mappoolWorkspace } from "@/lib/mappool-reads";
+import { mappoolCommand } from "@/lib/mappools";
 import { changeMappoolWrite } from "@/lib/mappool-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 async function readGET(

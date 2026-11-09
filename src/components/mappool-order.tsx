@@ -12,7 +12,7 @@ import {
 } from "react";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { LoadingRegion } from "./loading-region";
-import type { MappoolWorkspace } from "@/lib/mappools";
+import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import { slotLabel, type MappoolCategory } from "@/lib/mappool-model";
 import { BeatmapDetails } from "./beatmap-details";
 

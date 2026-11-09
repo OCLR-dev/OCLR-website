@@ -21,13 +21,9 @@ import {
   mappoolEvents,
   tournamentRounds,
 } from "../../src/db/schema";
-import {
-  previewBeatmap,
-  previewMappoolBatch,
-  mappoolCommand,
-  mappoolWorkspace,
-  publicMappools,
-} from "../../src/lib/mappools";
+import { previewBeatmap, previewMappoolBatch } from "../../src/lib/mappool-preview";
+import { mappoolCommand } from "../../src/lib/mappools";
+import { mappoolWorkspace, publicMappools } from "../../src/lib/mappool-reads";
 import { fetchBeatmap, fetchBeatmaps } from "../../src/lib/osu-beatmaps";
 import { osuApi } from "../../src/lib/osu-api";
 import { syntheticScoringRules } from "../fixtures/match";
@@ -881,6 +877,46 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
       text: "NM1 789",
     });
     expect(p.rows[0].error).toContain("exists");
+  });
+  it("rechecks the selection lock after batch lookup and still allows explicit publication", async () => {
+    const pool = await create();
+    const saved = await mappoolCommand(mapper, edition.slug, add(pool.id, 0));
+    const payload = await batch(pool.id, 1, "HD1 456");
+    const before = await auditEvents();
+    const selectionLockedAt = new Date();
+    const lookup = vi.mocked(fetchBeatmaps).getMockImplementation()!;
+    vi.mocked(fetchBeatmaps).mockImplementationOnce(async (ids) => {
+      const snapshots = await lookup(ids);
+      await db().transaction(async (tx) => {
+        await tx.execute(sql`SET LOCAL lock_timeout = '1s'`);
+        await tx
+          .update(mappools)
+          .set({ selectionLockedAt })
+          .where(eq(mappools.id, pool.id));
+      });
+      return snapshots;
+    });
+
+    await expect(
+      mappoolCommand(mapper, edition.slug, payload),
+    ).rejects.toMatchObject({ status: 409 });
+    const stored = await mappoolWorkspace(mapper, edition.slug);
+    expect(stored.pools[0]).toMatchObject({ version: 1, selectionLockedAt });
+    expect(stored.entries).toEqual(saved.entries);
+    expect(await auditEvents()).toEqual(before);
+    expect(await publicMappools(edition.slug, pool.id)).toEqual([]);
+
+    await mappoolCommand(mapper, edition.slug, {
+      ...confirm,
+      action: "pool_publish",
+      poolId: pool.id,
+      expectedVersion: 1,
+      published: true,
+    });
+    const [published] = await publicMappools(edition.slug, pool.id);
+    expect(published.entries.map((entry) => entry.id)).toEqual(
+      saved.entries.map((entry) => entry.id),
+    );
   });
   it("resolves plain imports on the server, rejects forged slots before lookup and protects stale previews", async () => {
     const pool = await create();

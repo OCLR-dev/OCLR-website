@@ -1,10 +1,5 @@
 import { db } from "@/db";
 import {
-  historicalSourceRead,
-  resolveHistoricalPool,
-} from "./exhibition-pools";
-import type { RoundRefereeRule } from "./round-referee-policy";
-import {
   editionState,
   fixtures,
   mappoolEntries,
@@ -17,26 +12,13 @@ import {
   tournamentStages,
 } from "@/db/schema";
 import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
-import { z } from "zod";
+import type { z } from "zod";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
-import { assertCapability, assertReadCapability } from "./auth/staff";
-import { getEdition, getPublicEdition } from "./content";
-import { remoteMode } from "./data-source";
-import { assertRemoteSubject, frontendResource } from "./frontend-resource";
-import {
-  batchBeatmapPreviewInput,
-  changeMappoolWrite,
-  mappoolBatchRow,
-  singleBeatmapPreviewInput,
-  type MappoolBatchPreview,
-} from "./mappool-write-contracts";
+import { assertCapability } from "./auth/staff";
+import { getEdition } from "./content";
+import { resolveHistoricalPool } from "./exhibition-pools";
 import { HttpError } from "./http-error";
-import {
-  loadSavedDifficulties,
-  selectSavedDifficulty,
-} from "./saved-difficulty";
-import { previewConfigurations } from "./difficulty-display";
 import {
   categories,
   moveMappoolEntries,
@@ -45,202 +27,18 @@ import {
   type BeatmapMetadata,
   type BeatmapSnapshot,
 } from "./mappool-model";
+import { mappoolWorkspace, type MappoolWorkspace } from "./mappool-reads";
+import {
+  changeMappoolWrite,
+  type mappoolBatchRow,
+} from "./mappool-write-contracts";
 import {
   fetchBeatmap,
   fetchBeatmaps,
   withBeatmapAttributes,
   refreshDifficultyPreviews,
 } from "./osu-beatmaps";
-const roundFields = {
-  id: tournamentRounds.id,
-  name: tournamentRounds.name,
-  stage: tournamentStages.kind,
-  position: tournamentRounds.position,
-  version: tournamentRounds.version,
-};
-const poolFields = {
-  id: mappools.id,
-  name: mappools.name,
-  roundId: mappools.roundId,
-  fmMode: mappools.fmMode,
-  fmRestrictions: mappools.fmRestrictions,
-  version: mappools.version,
-  publishedAt: mappools.publishedAt,
-  lockedAt: mappools.lockedAt,
-  selectionLockedAt: mappools.selectionLockedAt,
-  showcaseAt: mappools.showcaseAt,
-  updatedAt: mappools.updatedAt,
-};
-async function databaseMappoolWorkspace(
-  actor: User,
-  slug: string,
-): Promise<MappoolWorkspace> {
-  await assertReadCapability(actor, "view_replays", slug);
-  if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  return db().transaction(
-    async (tx) => {
-      const rounds = await tx
-        .select(roundFields)
-        .from(tournamentRounds)
-        .innerJoin(
-          tournamentStages,
-          eq(tournamentStages.id, tournamentRounds.stageId),
-        )
-        .where(eq(tournamentRounds.editionSlug, slug))
-        .orderBy(tournamentStages.kind, tournamentRounds.position);
-      const pools = await tx
-        .select(poolFields)
-        .from(mappools)
-        .where(eq(mappools.editionSlug, slug))
-        .orderBy(mappools.name);
-      const entries = pools.length
-        ? await tx
-            .select()
-            .from(mappoolEntries)
-            .where(
-              inArray(
-                mappoolEntries.poolId,
-                pools.map((p) => p.id),
-              ),
-            )
-            .orderBy(mappoolEntries.category, mappoolEntries.position)
-        : [];
-      const refereeRules = await tx
-        .select({
-          roundId: tournamentRounds.id,
-          policy: refereeRoundPolicies.policy,
-          revision: refereeRoundPolicies.revision,
-          rules: tournamentRounds.scoringRules,
-        })
-        .from(tournamentRounds)
-        .leftJoin(
-          refereeRoundPolicies,
-          eq(refereeRoundPolicies.roundId, tournamentRounds.id),
-        )
-        .where(eq(tournamentRounds.editionSlug, slug));
-      return {
-        rounds,
-        pools,
-        entries: entries.map(historicalSourceRead),
-        ...({
-          refereeRules: refereeRules.map(
-            ({ roundId, policy, revision, rules }) => ({
-              roundId,
-              policy,
-              revision: revision ?? 0,
-              series: rules?.series ?? null,
-            }),
-          ),
-        } as { refereeRules?: RoundRefereeRule[] }),
-      };
-    },
-    { isolationLevel: "repeatable read" },
-  );
-}
-export async function mappoolWorkspace(
-  actor: User,
-  slug: string,
-): Promise<MappoolWorkspace> {
-  if (remoteMode()) {
-    await assertRemoteSubject(actor.osuId);
-    return frontendResource<MappoolWorkspace>("mappoolWorkspace", { slug });
-  }
-  return databaseMappoolWorkspace(actor, slug);
-}
 
-export type MappoolWorkspace =
-  import("./explicit-read-contracts").ExplicitReadData<"mappoolWorkspace">;
-// Preview is a protected read, not a mutation. No registration or audit data is returned.
-export async function previewBeatmap(
-  actor: User,
-  slug: string,
-  input: unknown,
-): Promise<BeatmapSnapshot> {
-  await assertCapability(actor, "manage_mappools", slug);
-  if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
-  const parsed = singleBeatmapPreviewInput.safeParse(input);
-  const id = parsed.success ? parseBeatmapId(parsed.data.beatmap) : null;
-  if (!id)
-    throw new HttpError(
-      400,
-      "Enter an osu! beatmap ID or canonical difficulty URL.",
-    );
-  return withBeatmapAttributes(
-    await fetchBeatmap(id),
-    parsed.data!.difficultyConfiguration,
-  );
-}
-export async function previewMappoolBatch(
-  actor: User,
-  slug: string,
-  input: unknown,
-): Promise<MappoolBatchPreview> {
-  // Batch preview prepares an edit and spends the osu! lookup budget.
-  await assertCapability(actor, "manage_mappools", slug);
-  const data = await mappoolWorkspace(actor, slug);
-  const parsed = batchBeatmapPreviewInput.safeParse(input);
-  if (!parsed.success)
-    throw new HttpError(400, "Choose a pool and enter 1–50 rows.");
-  const c = parsed.data,
-    pool = data.pools.find((p) => p.id === c.poolId);
-  if (!pool) throw new HttpError(404, "Mappool not found.");
-  if (
-    pool.version !== c.expectedVersion ||
-    pool.lockedAt ||
-    pool.selectionLockedAt
-  )
-    throw new HttpError(
-      409,
-      "Refresh the pool. Stale or completed-fixture pools cannot be edited.",
-    );
-  let rows;
-  try {
-    rows = parseMappoolRows(
-      c.text,
-      c.category,
-      data.entries.filter((e) => e.poolId === pool.id),
-    );
-  } catch {
-    throw new HttpError(400, "Enter between 1 and 50 map rows.");
-  }
-  const [round] = await db()
-    .select({ rules: tournamentRounds.scoringRules })
-    .from(tournamentRounds)
-    .where(eq(tournamentRounds.id, pool.roundId));
-  rows = rows.map((r) => ({
-    ...r,
-    error:
-      r.error ??
-      (r.category === "FM" && !pool.fmMode
-        ? "Configure Free Mod or Force Mod first."
-        : null),
-  }));
-  const ids = rows.filter((r) => !r.error).map((r) => r.beatmapId!);
-  const snapshots = ids.length
-    ? await fetchBeatmaps(ids)
-    : new Map<number, BeatmapSnapshot | HttpError>();
-  return {
-    poolId: pool.id,
-    version: pool.version,
-    rows: rows.map((r) => {
-      const snapshot = snapshots.get(r.beatmapId!);
-      return {
-        ...r,
-        snapshot: snapshot instanceof HttpError ? null : (snapshot ?? null),
-        error:
-          r.error ??
-          (snapshot instanceof HttpError
-            ? snapshot.message
-            : snapshot &&
-                round.rules &&
-                snapshot.metadata.mode !== round.rules.mode
-              ? "Beatmap ruleset does not match the configured round."
-              : null),
-      };
-    }),
-  };
-}
-export type { MappoolBatchPreview } from "./mappool-write-contracts";
 function validateImport(
   command: {
     text: string;
@@ -1051,111 +849,4 @@ export async function mappoolCommand(
     throw error;
   }
   return mappoolWorkspace(actor, slug);
-}
-type PublicMappools =
-  import("./explicit-read-contracts").ExplicitReadData<"publicMappools">;
-async function databasePublicMappools(
-  slug: string,
-  poolId?: string,
-): Promise<PublicMappools> {
-  if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return [];
-  if (poolId && !z.uuid().safeParse(poolId).success) return [];
-  return db().transaction(
-    async (tx) => {
-      const pools = await tx
-        .select({
-          id: mappools.id,
-          name: mappools.name,
-          roundId: mappools.roundId,
-          fmMode: mappools.fmMode,
-          fmRestrictions: mappools.fmRestrictions,
-          publishedAt: mappools.publishedAt,
-          updatedAt: mappools.updatedAt,
-          roundName: tournamentRounds.name,
-          roundPosition: tournamentRounds.position,
-          stage: tournamentStages.kind,
-        })
-        .from(mappools)
-        .innerJoin(tournamentRounds, eq(tournamentRounds.id, mappools.roundId))
-        .innerJoin(
-          tournamentStages,
-          eq(tournamentStages.id, tournamentRounds.stageId),
-        )
-        .where(
-          and(
-            eq(mappools.editionSlug, slug),
-            isNotNull(mappools.publishedAt),
-            poolId ? eq(mappools.id, poolId) : undefined,
-          ),
-        )
-        .orderBy(
-          tournamentStages.kind,
-          tournamentRounds.position,
-          mappools.name,
-        );
-      const entries = pools.length
-        ? await tx
-            .select({
-              id: mappoolEntries.id,
-              poolId: mappoolEntries.poolId,
-              category: mappoolEntries.category,
-              position: mappoolEntries.position,
-              beatmapId: mappoolEntries.beatmapId,
-              downloadMirror: mappoolEntries.downloadMirror,
-              metadata: mappoolEntries.metadata,
-              source: mappoolEntries.source,
-            })
-            .from(mappoolEntries)
-            .where(
-              inArray(
-                mappoolEntries.poolId,
-                pools.map((p) => p.id),
-              ),
-            )
-            .orderBy(mappoolEntries.category, mappoolEntries.position)
-        : [];
-      return pools.map((p) => ({
-        ...p,
-        entries: entries
-          .filter((e) => e.poolId === p.id)
-          .map(historicalSourceRead),
-      }));
-    },
-    { isolationLevel: "repeatable read" },
-  );
-}
-export async function publicMappools(
-  slug: string,
-  poolId?: string,
-): Promise<PublicMappools> {
-  const remote = remoteMode();
-  const pools = remote
-    ? await frontendResource<PublicMappools>("publicMappools", { slug, poolId })
-    : await databasePublicMappools(slug, poolId);
-  const saved = await loadSavedDifficulties(
-    pools.flatMap((pool) => pool.entries.map((entry) => entry.beatmapId)),
-  );
-  return pools.map((pool) => ({
-    ...pool,
-    entries: pool.entries.map((entry) => {
-      if (remote && entry.metadata.difficultySnapshot) return entry;
-      const snapshot = selectSavedDifficulty(
-        saved,
-        entry.beatmapId,
-        previewConfigurations(
-          entry.category,
-          entry.metadata.attributes?.configuration,
-        ),
-        entry.metadata.difficultySnapshot,
-        entry.metadata.checksum,
-        entry.metadata.mode,
-      );
-      return snapshot
-        ? {
-            ...entry,
-            metadata: { ...entry.metadata, difficultySnapshot: snapshot },
-          }
-        : entry;
-    }),
-  }));
 }

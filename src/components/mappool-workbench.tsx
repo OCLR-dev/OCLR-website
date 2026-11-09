@@ -19,7 +19,7 @@ import {
   commentLength,
   commentLimit,
 } from "@/lib/mappool-workbench-model";
-import type { MappoolWorkspace } from "@/lib/mappools";
+import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import { EntryForm } from "./mappool-editor";
 import { WorkspaceTabs } from "./workspace-tabs";
 import { WorkbenchActionIcon } from "./workbench-action-icon";

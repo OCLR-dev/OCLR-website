@@ -4,7 +4,7 @@ import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { hasCapability } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
-import { mappoolWorkspace } from "@/lib/mappools";
+import { mappoolWorkspace } from "@/lib/mappool-reads";
 import { remotePage } from "@/lib/remote-page";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
