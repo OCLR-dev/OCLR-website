@@ -6,7 +6,7 @@ import {
   overviewTournamentStatuses,
   type OverviewParams,
 } from "@/lib/admin-overview-tournaments";
-import type { tournamentList } from "@/lib/tournaments";
+import type { tournamentList } from "@/lib/tournament-reads";
 import styles from "./admin-overview-tournaments.module.css";
 
 export async function AdminOverviewTournaments({

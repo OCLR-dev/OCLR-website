@@ -4,7 +4,7 @@ import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
 import { formatDate } from "@/lib/editions";
 import { remotePage } from "@/lib/remote-page";
-import { tournamentList } from "@/lib/tournaments";
+import { tournamentList } from "@/lib/tournament-reads";
 import Link from "next/link";
 export async function generateMetadata() {
   const tr = await getAppTranslations();

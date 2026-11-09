@@ -9,7 +9,7 @@ import {
   hasCapability,
 } from "../../src/lib/auth/staff";
 import { applicationDetails } from "../../src/lib/staff";
-import { readTournament } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
 import {
   getOsuUserProfile,
   cachedOsuUserProfile,
@@ -34,7 +34,7 @@ vi.mock("../../src/lib/auth/staff", () => ({
   hasCapability: vi.fn(async () => true),
 }));
 vi.mock("../../src/lib/staff", () => ({ applicationDetails: vi.fn() }));
-vi.mock("../../src/lib/tournaments", () => ({ readTournament: vi.fn() }));
+vi.mock("../../src/lib/tournament-reads", () => ({ readTournament: vi.fn() }));
 vi.mock("../../src/lib/osu-profiles", () => ({
   getOsuUserProfile: vi.fn(),
   cachedOsuUserProfile: vi.fn(),

@@ -34,7 +34,7 @@ import {
   type MatchDetails,
 } from "./match-details-model";
 import { calculateStandings } from "./standings";
-import { readTournament } from "./tournaments";
+import { readTournament } from "./tournament-reads";
 import { openExhibitionSides } from "./exhibition-sides";
 import type {
   PublicTeam,

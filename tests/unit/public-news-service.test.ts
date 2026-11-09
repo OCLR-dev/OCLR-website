@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   publicCompetition: vi.fn(),
   getAnnouncements: vi.fn(),
 }));
-vi.mock("../../src/lib/tournaments", () => ({
+vi.mock("../../src/lib/tournament-reads", () => ({
   readTournaments: mocks.readTournaments,
 }));
 vi.mock("../../src/db", () => ({ db: mocks.db }));

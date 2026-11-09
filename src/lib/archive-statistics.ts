@@ -62,7 +62,7 @@ import { changeHistoricalStatisticsWrite } from "./results-publication-write-con
 import { HttpError } from "./http-error";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 import { fetchMatchSource } from "./osu-matches";
-import { readTournament } from "./tournaments";
+import { readTournament } from "./tournament-reads";
 import { statisticsScore } from "./statistics-score";
 
 type Reader = Pick<ReturnType<typeof db>, "select">;

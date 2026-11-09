@@ -85,7 +85,7 @@ export async function extendedRead(
         playerId,
       );
     case "tournamentForAdmin":
-      return (await import("./tournaments")).tournamentForAdmin(actor!, slug);
+      return (await import("./tournament-reads")).tournamentForAdmin(actor!, slug);
     case "captainSetup":
       return (await import("./captains")).captainSetup(actor!, slug);
     case "staffTeams":
@@ -151,7 +151,7 @@ export async function extendedRead(
         target,
       );
     case "tournamentList":
-      return (await import("./tournaments")).tournamentList(actor!);
+      return (await import("./tournament-reads")).tournamentList(actor!);
     case "listStaffRoles":
       return (await import("./staff-roles")).listStaffRoles(actor!);
     case "siteSettingsForAdmin":

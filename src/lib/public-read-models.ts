@@ -4,7 +4,7 @@ import {
   readTournament,
   readTournaments,
   publicEditionSummary,
-} from "./tournaments";
+} from "./tournament-reads";
 import { registrationAvailability } from "./registrations";
 import { privacyContact, privacyReady } from "./auth/config";
 import { readSiteSettings } from "./site-settings";

@@ -21,7 +21,7 @@ import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http-error";
 import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
 import { publicCompetition } from "./public-competition";
-import { readTournament } from "./tournaments";
+import { readTournament } from "./tournament-reads";
 import { calculateRating, type RatingGame } from "./yumu-rating";
 import { STATISTICS_SCORE_POLICY } from "./statistics-score";
 import type { ExplicitReadData } from "./explicit-read-contracts";

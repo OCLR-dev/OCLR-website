@@ -16,7 +16,8 @@ import {
   registrations,
   teams,
 } from "../../src/db/schema";
-import { tournamentCommand, readTournament } from "../../src/lib/tournaments";
+import { tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
 import { getPublicEdition } from "../../src/lib/content";
 import { assertOperationalEdition } from "../../src/lib/archive-guard";
 import { mappoolCommand } from "../../src/lib/mappools";

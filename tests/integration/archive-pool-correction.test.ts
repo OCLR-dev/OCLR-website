@@ -29,7 +29,8 @@ import {
   statisticsArchiveKey,
   publicArchiveStatistics,
 } from "../../src/lib/archive-statistics";
-import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
+import { tournamentCommand } from "../../src/lib/tournaments";
 import { verifyArchiveRelations } from "../../src/lib/archive-relations";
 
 const url = process.env.TEST_DATABASE_URL;

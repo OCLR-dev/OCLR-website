@@ -1,6 +1,6 @@
 import type { User } from "./auth/sessions";
 import { assertBusinessWrite, assertCapability } from "./auth/staff";
-import { readTournament } from "./tournaments";
+import { readTournament } from "./tournament-reads";
 import { getOsuProfileByUsername } from "./osu-profiles";
 import {
   lookupArchiveStaffWrite,

@@ -26,7 +26,8 @@ import {
   applicationDetails,
   reviewApplication,
 } from "../../src/lib/staff";
-import { tournamentCommand, readTournament } from "../../src/lib/tournaments";
+import { tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
 import { publicPlayers } from "../../src/lib/players";
 import { auditLog } from "../../src/lib/audit";
 import { seedEditions } from "../fixtures/editions";

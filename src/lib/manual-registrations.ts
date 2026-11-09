@@ -9,7 +9,10 @@ import {
 import { assertCapability } from "./auth/staff";
 import type { User } from "./auth/sessions";
 import { privacyReady } from "./auth/config";
-import { competitionStructureProtected, storedEdition } from "./tournaments";
+import {
+  competitionStructureProtected,
+  storedEdition,
+} from "./tournament-reads";
 import { enrollmentState } from "./editions";
 import { getOsuUserProfile, getOsuProfileByUsername } from "./osu-profiles";
 import { parseOsuProfile } from "./osu-profile-model";

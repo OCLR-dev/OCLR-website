@@ -23,13 +23,12 @@ import {
 } from "../../src/db/schema";
 import { assertEditionConfigurationsReady } from "../../scripts/release-editions-check";
 import { deleteUnusedTournamentDraft } from "../../src/lib/delete-tournament-draft";
+import { createTournament, tournamentCommand } from "../../src/lib/tournaments";
 import {
-  createTournament,
   readTournament,
-  tournamentCommand,
   tournamentForAdmin,
   tournamentList,
-} from "../../src/lib/tournaments";
+} from "../../src/lib/tournament-reads";
 import { assertOperationalEdition } from "../../src/lib/archive-guard";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { changeStaffRole } from "../../src/lib/staff-roles";

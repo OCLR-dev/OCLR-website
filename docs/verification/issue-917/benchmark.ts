@@ -16,7 +16,7 @@ import { projectPlayerLeaderboard } from "../../../src/lib/player-leaderboard-pr
 import { refreshPlayerLeaderboard } from "../../../src/lib/player-leaderboard-worker";
 import { normalizeOsuProfile } from "../../../src/lib/osu-profile-model";
 import { cachedDirectoryStatistics } from "../../../src/lib/osu-profiles";
-import { readTournaments } from "../../../src/lib/tournaments";
+import { readTournaments } from "../../../src/lib/tournament-reads";
 import { assertTestDatabase } from "../../../tests/database";
 import { archiveQueryFixture } from "../../../tests/fixtures/archive-query";
 import { edition } from "../../../tests/fixtures/edition";

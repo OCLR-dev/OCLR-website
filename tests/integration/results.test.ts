@@ -47,7 +47,8 @@ import {
 import { publicPlayer } from "../../src/lib/players";
 import { playerCompetitionRecord } from "../../src/lib/player-competition";
 import { playerMapPerformance } from "../../src/lib/player-map-performance";
-import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
+import { tournamentCommand } from "../../src/lib/tournaments";
 import { publicBracket } from "../../src/lib/brackets";
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { fixtureForReview } from "../../src/lib/fixture-reads";

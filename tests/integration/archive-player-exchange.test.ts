@@ -16,7 +16,8 @@ import {
   editionRevisions,
   historicalStatistics,
 } from "../../src/db/schema";
-import { tournamentCommand, readTournament } from "../../src/lib/tournaments";
+import { tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
 import {
   statisticsCommand,
   statisticsWorkspace,

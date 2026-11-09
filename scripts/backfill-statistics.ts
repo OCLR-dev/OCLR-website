@@ -64,7 +64,7 @@ import {
   lockHistoricalStatistics,
   persistHistoricalStatistics,
 } from "../src/lib/archive-relations";
-import { readTournament } from "../src/lib/tournaments";
+import { readTournament } from "../src/lib/tournament-reads";
 
 type Options = {
   slugs: string[];

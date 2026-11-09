@@ -12,7 +12,7 @@ import { formatDate } from "@/lib/editions";
 import { cachedOsuUserProfile, getOsuUserProfile } from "@/lib/osu-profiles";
 import { remotePage } from "@/lib/remote-page";
 import { applicationDetails } from "@/lib/staff";
-import { readTournament } from "@/lib/tournaments";
+import { readTournament } from "@/lib/tournament-reads";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 async function Issue271Page({

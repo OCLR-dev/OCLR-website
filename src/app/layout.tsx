@@ -24,7 +24,7 @@ import { SiteFrame } from "@/components/site-frame";
 import { Header } from "@/components/header";
 import { AppearanceProvider } from "@/components/appearance-provider";
 import { inheritedAppearance } from "@/lib/appearance-scope";
-import { tournamentAppearanceScopes } from "@/lib/tournaments";
+import { tournamentAppearanceScopes } from "@/lib/tournament-reads";
 import { cookies, headers } from "next/headers";
 import {
   readThemePreference,

@@ -37,7 +37,10 @@ import {
   listApplications,
   exportApplications,
 } from "../../src/lib/staff";
-import { tournamentForAdmin, tournamentList } from "../../src/lib/tournaments";
+import {
+  tournamentForAdmin,
+  tournamentList,
+} from "../../src/lib/tournament-reads";
 import { siteSettingsForAdmin } from "../../src/lib/site-settings";
 import { auditLog } from "../../src/lib/audit";
 import { staffTeams } from "../../src/lib/teams";

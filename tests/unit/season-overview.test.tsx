@@ -20,8 +20,8 @@ vi.mock("../../src/i18n/server", () => ({
 }));
 vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
 vi.mock("../../src/db", () => ({ db: () => ({}) }));
-vi.mock("../../src/lib/tournaments", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../../src/lib/tournaments")>()),
+vi.mock("../../src/lib/tournament-reads", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/lib/tournament-reads")>()),
   readTournament: vi.fn(async () => {
     const current = await getPublicEdition(edition.slug);
     return current

@@ -3,7 +3,7 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { mappools, mappoolEntries } from "@/db/schema";
 import { getPublicEditions } from "./content";
-import { readTournament } from "./tournaments";
+import { readTournament } from "./tournament-reads";
 import { HttpError } from "./http-error";
 import { remoteMode } from "./data-source";
 import { slotLabel, type MappoolCategory } from "./mappool-model";

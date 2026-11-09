@@ -28,7 +28,7 @@ import { HttpError } from "./http-error";
 import { draftTurnSequence } from "./live-season-columns";
 import { classifyPlayer, PLAYER_CLASS_POLICY } from "./player-class";
 import { staffRoundRatings } from "./ratings";
-import { readTournament } from "./tournaments";
+import { readTournament } from "./tournament-reads";
 import { YUMU_POLICY } from "./yumu-rating";
 import type { AwardReport } from "./staff-workspace-read-contracts";
 export type { AwardReport } from "./staff-workspace-read-contracts";

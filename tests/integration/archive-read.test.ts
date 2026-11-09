@@ -35,7 +35,10 @@ import {
   relationalArchive,
   relationalPublicPlays,
 } from "../../src/lib/archive-read";
-import { readTournament, readTournaments } from "../../src/lib/tournaments";
+import {
+  readTournament,
+  readTournaments,
+} from "../../src/lib/tournament-reads";
 import { publicPlayer } from "../../src/lib/players";
 import { playerParticipationHistory } from "../../src/lib/player-history";
 import { playerCompetitionRecord } from "../../src/lib/player-competition";

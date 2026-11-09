@@ -29,7 +29,7 @@
       "services": [
         "src/lib/audit.ts#auditLog",
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/tournaments.ts#tournamentList"
+        "src/lib/tournament-reads.ts#tournamentList"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -78,7 +78,7 @@
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/tournaments.ts#tournamentList"
+        "src/lib/tournament-reads.ts#tournamentList"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -96,7 +96,7 @@
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
         "src/lib/staff.ts#listApplications",
-        "src/lib/tournaments.ts#tournamentList"
+        "src/lib/tournament-reads.ts#tournamentList"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -189,7 +189,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/tournaments.ts#tournamentForAdmin"
+        "src/lib/tournament-reads.ts#tournamentForAdmin"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -207,7 +207,7 @@
       "services": [
         "src/lib/frontend-read-models.ts#publicEnrollment",
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/tournaments.ts#tournamentForAdmin"
+        "src/lib/tournament-reads.ts#tournamentForAdmin"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -277,7 +277,7 @@
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getStaffTournament)",
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/tournaments.ts#tournamentList"
+        "src/lib/tournament-reads.ts#tournamentList"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -427,8 +427,8 @@
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/tournaments.ts#tournamentForAdmin",
-        "src/lib/tournaments.ts#tournamentList"
+        "src/lib/tournament-reads.ts#tournamentForAdmin",
+        "src/lib/tournament-reads.ts#tournamentList"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -515,7 +515,7 @@
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
-        "src/lib/tournaments.ts#tournamentForAdmin"
+        "src/lib/tournament-reads.ts#tournamentForAdmin"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -608,7 +608,7 @@
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/tournaments.ts#tournamentList"
+        "src/lib/tournament-reads.ts#tournamentList"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -1033,7 +1033,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/tournaments.ts#tournamentForAdmin"
+        "src/lib/tournament-reads.ts#tournamentForAdmin"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -1118,7 +1118,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/tournaments.ts#tournamentList"
+        "src/lib/tournament-reads.ts#tournamentList"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -3071,7 +3071,7 @@
       "operations": ["tournamentForAdmin"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
-      "services": ["src/lib/tournaments.ts#tournamentForAdmin"],
+      "services": ["src/lib/tournament-reads.ts#tournamentForAdmin"],
       "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
       "authorization": "Existing publication/subject boundaries",
       "adapter": "shared service wrapper → fixed v1 resource",

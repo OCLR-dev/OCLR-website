@@ -22,7 +22,7 @@ import {
   suggestEditionSlug,
   type Edition,
 } from "@/lib/editions";
-import type { tournamentForAdmin } from "@/lib/tournaments";
+import type { tournamentForAdmin } from "@/lib/tournament-reads";
 import type {
   CreateTournamentInput,
   DeleteTournamentDraftInput,

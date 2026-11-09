@@ -16,7 +16,8 @@ import {
   editionRevisions,
   editionState,
 } from "../../src/db/schema";
-import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
+import { tournamentCommand } from "../../src/lib/tournaments";
 import { lookupArchiveStaffIdentity } from "../../src/lib/archive-staff-identity";
 import { lookupArchiveStaffWrite } from "../../src/lib/archive-staff-write-contract";
 import type { ResolveArchiveStaffInput } from "../../src/lib/archive-staff-identity-model";

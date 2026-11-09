@@ -20,7 +20,8 @@ import { assertTestDatabase } from "../database";
 import { edition } from "../fixtures/edition";
 import { applicationQuestions } from "../fixtures/application-questions";
 import { seedEditions } from "../fixtures/editions";
-import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
+import { readTournament } from "../../src/lib/tournament-reads";
+import { tournamentCommand } from "../../src/lib/tournaments";
 import { submitRegistration } from "../../src/lib/registrations";
 import {
   applicationDetails,

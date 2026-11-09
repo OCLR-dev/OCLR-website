@@ -13,7 +13,7 @@ import {
 } from "@/db/schema";
 import { getPublicEditions } from "./content";
 import type { Edition } from "./editions";
-import { readTournament } from "./tournaments";
+import { readTournament } from "./tournament-reads";
 import { HttpError } from "./http-error";
 import { parseOsuProfile } from "./osu-profile-model";
 import { remoteMode } from "./data-source";

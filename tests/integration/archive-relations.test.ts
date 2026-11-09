@@ -29,7 +29,10 @@ import {
   normalizedStatistics,
 } from "../../src/lib/archive-relations";
 import { publicArchiveStatistics } from "../../src/lib/archive-statistics";
-import { readTournament, readTournaments } from "../../src/lib/tournaments";
+import {
+  readTournament,
+  readTournaments,
+} from "../../src/lib/tournament-reads";
 import { publicPlayer } from "../../src/lib/players";
 import { playerMapPerformance } from "../../src/lib/player-map-performance";
 import { archiveContentHash } from "../../src/lib/archive-read-model";

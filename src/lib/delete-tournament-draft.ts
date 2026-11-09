@@ -7,7 +7,7 @@ import { assertBusinessWrite, assertCapability } from "./auth/staff";
 import { editionSchema, normalizeEditionBranding } from "./editions";
 import { HttpError } from "./http-error";
 import { isBlankTournamentDraft } from "./tournament-draft";
-import { storedEdition } from "./tournaments";
+import { storedEdition } from "./tournament-reads";
 import { deleteTournamentDraftWrite } from "./tournament-write-contracts";
 
 /** Retire only an unused draft; never delete revisions, audit events or reuse its slug. */
