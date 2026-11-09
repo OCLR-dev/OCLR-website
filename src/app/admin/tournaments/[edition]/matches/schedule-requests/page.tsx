@@ -4,7 +4,7 @@ import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
 import { assertCapability } from "@/lib/auth/staff";
-import { scheduleWorkspace } from "@/lib/schedule";
+import { scheduleWorkspace } from "@/lib/schedule-reads";
 export default async function Page({
   params,
 }: {

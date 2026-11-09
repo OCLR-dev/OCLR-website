@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type ComponentProps } from "react";
 import dynamic from "next/dynamic";
 import { useAppTranslations } from "@/i18n/shared";
-import type { ScheduleWorkspace } from "@/lib/schedule";
+import type { ScheduleWorkspace } from "@/lib/schedule-reads";
 import type { ScheduleStatus } from "@/lib/schedule-model";
 import { activeSchedule } from "@/lib/schedule-model";
 import { ConfirmMutation } from "./confirm-mutation";

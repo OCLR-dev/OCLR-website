@@ -1,5 +1,5 @@
 import { expect, test, type Route } from "@playwright/test";
-import type { ScheduleWorkspace } from "../../src/lib/schedule";
+import type { ScheduleWorkspace } from "../../src/lib/schedule-reads";
 
 function snapshot(version: number): ScheduleWorkspace {
   return {

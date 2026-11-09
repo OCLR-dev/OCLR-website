@@ -3,7 +3,7 @@ import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
-import { scheduleWorkspace } from "@/lib/schedule";
+import { scheduleWorkspace } from "@/lib/schedule-reads";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return {

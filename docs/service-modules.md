@@ -10,7 +10,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Appointments and rosters | [captain-reads](../src/lib/captain-reads.ts) and [team-reads](../src/lib/team-reads.ts) serve staff, personal and public queries. [captains](../src/lib/captains.ts) and [teams](../src/lib/teams.ts) own the commands. |
 | Draft | [draft-reads](../src/lib/draft-reads.ts) serves staff, captain and public reads. [draft](../src/lib/draft.ts) owns transitions, picks and publication. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench](../src/lib/mappool-workbench.ts) handles candidate work. |
-| Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes, [schedule](../src/lib/schedule.ts) owns requests, [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) owns MP previews and imports, and [results](../src/lib/results.ts) owns review commands and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
+| Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes. [schedule-reads](../src/lib/schedule-reads.ts) serves schedule workspaces, and [schedule](../src/lib/schedule.ts) handles requests and approvals. [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) handles MP previews and imports, [results](../src/lib/results.ts) handles review and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace, [referee](../src/lib/referee.ts) owns referee commands, and [referee-irc](../src/lib/referee-irc.ts) and [referee-mp](../src/lib/referee-mp.ts) coordinate IRC and multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) and [archive-read](../src/lib/archive-read.ts) read typed sources and saved projections. [archive-relation-writes](../src/lib/archive-relation-writes.ts) synchronizes typed documents. [archive-statistics-reads](../src/lib/archive-statistics-reads.ts) reads statistics, and [archive-statistics](../src/lib/archive-statistics.ts) owns statistics commands. |
 
@@ -121,6 +121,28 @@ can therefore reuse the caller's transaction. A standalone review opens its own
 repeatable-read transaction. The existing fixture test now verifies that the
 review sees an uncommitted fixture update through the supplied transaction,
 retains assignment checks, and reads the original value after rollback.
+
+## Schedule negotiation
+
+The participant and staff pages and the schedule API GET previously loaded
+the rescheduling command. They now call
+[schedule-reads](../src/lib/schedule-reads.ts), which uses a read-only
+repeatable-read transaction. It retains the existing membership and staff
+checks, personal availability scope, and direct browser session requirement.
+POST loads the command after validating the request origin and reading the
+bounded JSON body.
+
+[schedule-data](../src/lib/schedule-data.ts) reads current fixture eligibility
+using the caller's transaction. The command takes advisory lock `17301` and
+the edition row lock before calling it. The command keeps fixture and request
+version checks and actor-scoped request receipts. Approval writes the official
+time, request decision, receipt and audit entries in one transaction.
+
+The existing approval test now rejects the final audit insert and confirms the
+GET and public fixture retain the original time, the request stays pending,
+and the earlier audit and receipt are absent. The same request key then
+commits once and replays successfully. Existing concurrency tests still cover
+approval racing the fixture editor and referee start.
 
 ## Match results
 

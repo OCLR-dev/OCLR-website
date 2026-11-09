@@ -12,6 +12,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import {
   captains,
+  editionEvents,
   editionState,
   fixtures,
   fixtureStreams,
@@ -29,7 +30,8 @@ import {
   tournamentRounds,
   users,
 } from "../../src/db/schema";
-import { scheduleCommand, scheduleWorkspace } from "../../src/lib/schedule";
+import { scheduleCommand } from "../../src/lib/schedule";
+import { scheduleWorkspace } from "../../src/lib/schedule-reads";
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { refereeCommand } from "../../src/lib/referee";
 import { refereeWorkspace } from "../../src/lib/referee-workspace";
@@ -38,7 +40,10 @@ import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
 import { withReadChannel } from "../../src/lib/read-channel";
-import { POST as scheduleRoute } from "../../src/app/api/tournaments/[edition]/schedule/requests/route";
+import {
+  GET as scheduleReadRoute,
+  POST as scheduleRoute,
+} from "../../src/app/api/tournaments/[edition]/schedule/requests/route";
 import { scheduleRequestWrite } from "../../src/lib/scheduling-write-contracts";
 const url = process.env.TEST_DATABASE_URL;
 const origin = "https://oclr.example.test";
@@ -302,18 +307,54 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
       (await db().select().from(fixtures))[0].scheduledAt?.toISOString(),
     ).toBe(official);
     const cmd = command("approve", { requestId: r.id, expectedVersion: 2 });
+    const requestUrl =
+      origin + scheduleRequestWrite.path.replace("{edition}", slug);
+    const routeContext = { params: Promise.resolve({ edition: slug }) };
     const post = (input: unknown) =>
       scheduleRoute(
-        new Request(
-          origin + scheduleRequestWrite.path.replace("{edition}", slug),
-          {
-            method: "POST",
-            headers: { origin, "content-type": "application/json" },
-            body: JSON.stringify(input),
-          },
-        ),
-        { params: Promise.resolve({ edition: slug }) },
+        new Request(requestUrl, {
+          method: "POST",
+          headers: { origin, "content-type": "application/json" },
+          body: JSON.stringify(input),
+        }),
+        routeContext,
       );
+    await db().execute(sql`
+      CREATE FUNCTION public.synthetic_schedule_audit_failure() RETURNS trigger LANGUAGE plpgsql AS $$
+      BEGIN
+        IF NEW.kind = 'competition_schedule' AND NEW.detail->>'action' = 'approve' THEN
+          RAISE EXCEPTION 'synthetic schedule audit failure';
+        END IF;
+        RETURN NEW;
+      END; $$`);
+    await db().execute(sql`
+      CREATE TRIGGER synthetic_schedule_audit_failure BEFORE INSERT ON edition_events
+      FOR EACH ROW EXECUTE FUNCTION public.synthetic_schedule_audit_failure()`);
+    try {
+      expect((await post(cmd)).status).toBe(500);
+      const saved = await scheduleReadRoute(new Request(requestUrl), routeContext);
+      expect(saved.status).toBe(200);
+      expect(saved.headers.get("cache-control")).toBe("private, no-store");
+      expect(await saved.json()).toMatchObject({
+        fixtures: [{ id, scheduledAt: official, version: 0 }],
+        requests: [{ id: r.id, status: "pending", version: 2 }],
+      });
+      expect((await publicFixture(slug, id))?.scheduledAt).toBe(official);
+      expect(await db().select().from(resultAuditEvents)).toHaveLength(0);
+      expect(
+        await db()
+          .select()
+          .from(scheduleEvents)
+          .where(eq(scheduleEvents.requestKey, cmd.requestKey)),
+      ).toHaveLength(0);
+    } finally {
+      await db().execute(
+        sql`DROP TRIGGER synthetic_schedule_audit_failure ON edition_events`,
+      );
+      await db().execute(
+        sql`DROP FUNCTION public.synthetic_schedule_audit_failure()`,
+      );
+    }
     for (const input of [cmd, cmd]) {
       const response = await post(input);
       expect(response.status).toBe(200);
@@ -349,6 +390,14 @@ describe.skipIf(!url)("private schedule negotiation #591", () => {
         (e) => e.action === "approve",
       ),
     ).toHaveLength(1);
+    expect(
+      (await db().select().from(editionEvents)).filter(
+        (event) =>
+          event.kind === "competition_schedule" &&
+          event.detail.action === "approve",
+      ),
+    ).toHaveLength(1);
+    expect(await db().select().from(resultAuditEvents)).toHaveLength(1);
   });
   it("protects personal slots and ignores overlapping duplicate intervals when counting people", async () => {
     const intervals = [{ start: official, end: "2090-01-01T14:00:00Z" }];

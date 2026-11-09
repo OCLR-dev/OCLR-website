@@ -7,7 +7,7 @@ import {
 import { PlayerTimetable } from "../../src/components/player-timetable";
 import { ScheduleManager } from "../../src/components/schedule-manager";
 import type { TimetableWorkspace } from "../../src/lib/player-workspace";
-import type { ScheduleWorkspace } from "../../src/lib/schedule";
+import type { ScheduleWorkspace } from "../../src/lib/schedule-reads";
 import en from "../../messages/en.json";
 import zhHans from "../../messages/zh-Hans.json";
 import zhHant from "../../messages/zh-Hant.json";
