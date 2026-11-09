@@ -23,11 +23,8 @@ import {
   draftSessions,
   draftPicks,
 } from "../../src/db/schema";
-import {
-  awardCommand,
-  awardWorkspace,
-  publicAwards,
-} from "../../src/lib/awards";
+import { awardCommand } from "../../src/lib/awards";
+import { awardWorkspace, publicAwards } from "../../src/lib/award-reads";
 import { seedEditions } from "../fixtures/editions";
 import { seedAwardReview, awardWeeks } from "../fixtures/awards";
 import { assertTestDatabase } from "../database";
@@ -305,7 +302,43 @@ describe.skipIf(!url)("edition weekly award review and publication", () => {
       error: "Award source data changed. Review the refreshed calculation.",
     });
     const refreshed = await awardWorkspace(admin, "test-cup");
-    await publish(refreshed.reports[0].fingerprint);
+    const replacement = refreshed.reports[0].fingerprint;
+    const before = await db().select().from(weeklyAwardReleases);
+    const publicationAudits = () =>
+      db()
+        .select({ id: editionEvents.id })
+        .from(editionEvents)
+        .where(eq(editionEvents.kind, "awards_publish"));
+    await db().execute(sql`
+      CREATE FUNCTION test_reject_award_audit() RETURNS trigger
+      LANGUAGE plpgsql AS $$
+      BEGIN
+        IF NEW.kind = 'awards_publish' THEN
+          RAISE EXCEPTION 'Synthetic award audit failure';
+        END IF;
+        RETURN NEW;
+      END;
+      $$;
+      CREATE TRIGGER test_reject_award_audit BEFORE INSERT ON edition_events
+      FOR EACH ROW EXECUTE FUNCTION test_reject_award_audit();
+    `);
+    try {
+      expect((await post(replacement)).status).toBe(500);
+      expect(await db().select().from(weeklyAwardReleases)).toEqual(before);
+      expect(await publicAwards(slug)).toEqual([stale]);
+      expect(await publicationAudits()).toHaveLength(1);
+    } finally {
+      await db().execute(sql`
+        DROP TRIGGER test_reject_award_audit ON edition_events;
+        DROP FUNCTION test_reject_award_audit();
+      `);
+    }
+    expect((await post(replacement)).status).toBe(200);
+    expect((await publicAwards(slug))?.[0]).toMatchObject({
+      revision: 2,
+      stale: false,
+    });
+    expect(await publicationAudits()).toHaveLength(2);
     expect(await db().select().from(weeklyAwardReleases)).toHaveLength(2);
     const release = (await awardWorkspace(admin, "test-cup")).releases[0];
     await awardCommand(admin, "test-cup", {

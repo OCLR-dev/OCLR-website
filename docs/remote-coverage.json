@@ -224,7 +224,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/awards.ts#awardWorkspace"
+        "src/lib/award-reads.ts#awardWorkspace"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -738,7 +738,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)",
-        "src/lib/awards.ts#awardWorkspace"
+        "src/lib/award-reads.ts#awardWorkspace"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
@@ -1360,7 +1360,7 @@
       "operations": ["publicAwards"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
-      "services": ["src/lib/awards.ts#publicAwards"],
+      "services": ["src/lib/award-reads.ts#publicAwards"],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
       "adapter": "shared service wrapper → fixed v1 resource",
@@ -2261,7 +2261,7 @@
       "metadata": "Inherited or static",
       "services": [
         "src/lib/frontend-read-models.ts#publicEnrollment",
-        "src/lib/awards.ts#publicAwards"
+        "src/lib/award-reads.ts#publicAwards"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -2522,7 +2522,7 @@
       "operations": ["awardWorkspace"],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Inherited or static",
-      "services": ["src/lib/awards.ts#awardWorkspace"],
+      "services": ["src/lib/award-reads.ts#awardWorkspace"],
       "test": "remote-e2e/interactions.spec.ts + existing e2e interaction tests",
       "authorization": "Existing publication/subject boundaries",
       "adapter": "shared service wrapper → fixed v1 resource",

@@ -53,7 +53,7 @@ import { matchReview } from "../../src/lib/result-review";
 import { previewFixtureMatch } from "../../src/lib/result-import";
 import { statisticsWorkspace } from "../../src/lib/archive-statistics-reads";
 import { backfillArchiveRelations } from "../../src/lib/archive-relation-maintenance";
-import { awardWorkspace } from "../../src/lib/awards";
+import { awardWorkspace } from "../../src/lib/award-reads";
 import { HttpError } from "../../src/lib/http";
 
 const session = vi.hoisted(() => ({

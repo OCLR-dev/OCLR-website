@@ -16,11 +16,8 @@ import {
   awardSettings,
 } from "../../src/db/schema";
 import { publicRoundRatings } from "../../src/lib/ratings";
-import {
-  awardCommand,
-  publicAwards,
-  awardWorkspace,
-} from "../../src/lib/awards";
+import { awardCommand } from "../../src/lib/awards";
+import { awardWorkspace, publicAwards } from "../../src/lib/award-reads";
 import { seedEditions } from "../fixtures/editions";
 import { seedAwardReview, awardWeeks } from "../fixtures/awards";
 import { assertTestDatabase } from "../database";
