@@ -235,6 +235,7 @@ function liruArticle(tr: AppTranslator): WikiArticle {
         id: "profile",
         title: tr("Profile"),
         paragraphs: [
+          tr("Birthday: October 25"),
           tr(
             "A first-year university student who has just started playing osu! and is entering OCLR for the first time: a rookie, like the players the tournament is for.",
           ),
