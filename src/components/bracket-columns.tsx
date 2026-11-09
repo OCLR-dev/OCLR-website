@@ -17,7 +17,7 @@ export function BracketColumns({
   teamUrls,
   hideGroupTabs = false,
 }: {
-  bracket: BracketDisplay;
+  bracket: Pick<BracketDisplay, "editionSlug" | "groups">;
   hideGroupTabs?: boolean;
   teamUrls?: Record<string, string>;
   renderMatch?: (match: ResolvedMatch) => ReactNode;
@@ -168,9 +168,10 @@ export function BracketColumns({
                   <div className="match-meta">
                     <h3 id={`match-${match.id}`}>{match.label}</h3>
                     <span>
-                      {match.status === "completed"
-                        ? tr("Completed")
-                        : tr("Pending")}
+                      {match.statusLabel ??
+                        (match.status === "completed"
+                          ? tr("Completed")
+                          : tr("Pending"))}
                     </span>
                   </div>
                   {match.slots.map((slot, index) => {
@@ -228,11 +229,22 @@ export function BracketColumns({
                     );
                   })}
                   {match.note && <p className="match-note">{match.note}</p>}
-                  {match.detailsUrl && (
-                    <p className="match-note">
-                      <Link className="text-link" href={match.detailsUrl}>
-                        {tr("Match details")}
-                      </Link>
+                  {(match.detailsUrl || match.scheduledTime) && (
+                    <p
+                      className={
+                        match.scheduledTime
+                          ? "match-note match-schedule"
+                          : "match-note"
+                      }
+                    >
+                      {match.scheduledTime && (
+                        <time>{match.scheduledTime}</time>
+                      )}
+                      {match.detailsUrl && (
+                        <Link className="text-link" href={match.detailsUrl}>
+                          {tr("Match details")}
+                        </Link>
+                      )}
                     </p>
                   )}
                 </>

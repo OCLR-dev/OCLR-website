@@ -89,6 +89,8 @@ export type ResolvedBracket = Omit<Bracket, "groups"> & {
 type BracketDisplaySlot = ResolvedSlot & { groupSeed?: string };
 export type BracketDisplayMatch = Omit<ResolvedMatch, "slots"> & {
   slots: [BracketDisplaySlot, BracketDisplaySlot];
+  scheduledTime?: string;
+  statusLabel?: string;
 };
 export type BracketDisplay = Omit<ResolvedBracket, "groups"> & {
   groups: (Omit<ResolvedBracket["groups"][number], "rounds"> & {

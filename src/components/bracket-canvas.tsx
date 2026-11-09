@@ -64,14 +64,7 @@ export function BracketCanvas({
   )
     return (
       <BracketColumns
-        bracket={{
-          editionSlug,
-          published: true,
-          formatLabel: "",
-          updatedAt: "2026-01-01T00:00:00Z",
-          source: { label: "Source", url: null },
-          groups: [group],
-        }}
+        bracket={{ editionSlug, groups: [group] }}
         teamUrls={teamUrls}
         hideGroupTabs
       />
@@ -92,14 +85,7 @@ export function BracketCanvas({
           </p>
         )}
         <BracketColumns
-          bracket={{
-            editionSlug,
-            published: true,
-            formatLabel: "Historical archive",
-            updatedAt: "2026-01-01T00:00:00Z",
-            source: { label: "Source", url: null },
-            groups: [group],
-          }}
+          bracket={{ editionSlug, groups: [group] }}
           teamUrls={teamUrls}
           hideGroupTabs
         />

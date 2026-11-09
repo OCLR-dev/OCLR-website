@@ -26,13 +26,17 @@ async function Issue271Page({
   if (!(await getPublicEdition(slug))) notFound();
   const preview = eventPreview(slug);
   if (preview)
-    return <EventSchedule edition={slug} matches={preview.matches} />;
+    return (
+      <EventSchedule edition={slug} matches={preview.matches} seededPreview />
+    );
   const competition = await publicCompetition(slug);
   const matches: EventMatch[] = (competition?.fixtures ?? []).map((f) => ({
     id: f.id,
     label: f.label,
     round: f.roundName,
+    roundId: f.roundId,
     stage: f.stage,
+    sides: [f.home, f.away],
     pool: f.pool?.name ?? "—",
     time:
       f.confirmed && f.scheduledAt
@@ -43,6 +47,13 @@ async function Issue271Page({
     red: f.home.team?.name ?? f.home.label,
     blue: f.away.team?.name ?? f.away.label,
     score: f.result ? [f.result.homeWins, f.result.awayWins] : null,
+    winner: f.result?.winnerTeamId
+      ? f.result.winnerTeamId === f.home.team?.id
+        ? 0
+        : f.result.winnerTeamId === f.away.team?.id
+          ? 1
+          : null
+      : null,
     status: f.status,
     mp: f.result?.mpUrl,
     sourceRed: f.home.sourceId ?? undefined,

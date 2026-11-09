@@ -142,7 +142,9 @@ test.describe("PR 191 public data regressions", () => {
       })
       .where(eq(fixtures.id, seed.fixtureId));
     await page.goto("/tournaments/test-cup/schedule");
-    await expect(page.locator(".event-match-card")).toContainText("Cancelled");
+    await expect(
+      page.getByRole("article", { name: "Synthetic Reviewed Fixture" }),
+    ).toContainText("Cancelled");
     await expect(
       page.locator('.event-matches tr[data-status="cancelled"]'),
     ).toContainText("Cancelled");

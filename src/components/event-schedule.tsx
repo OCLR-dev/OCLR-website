@@ -2,8 +2,10 @@
 import "../app/tournaments/[edition]/event-pages.css";
 import { useState, type ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
+import type { BracketDisplay, BracketDisplayMatch } from "@/lib/bracket-model";
 import type { EventMatch } from "@/lib/event-preview";
 import type { PublicGroup } from "@/lib/public-competition";
+import { BracketColumns } from "./bracket-columns";
 import { GroupStandings } from "./public-matches";
 export function EventSchedule({
   matches,
@@ -15,6 +17,7 @@ export function EventSchedule({
   reviewMode = false,
   initialStatus = "all",
   competition,
+  seededPreview = false,
 }: {
   matches: EventMatch[];
   groups?: PublicGroup[];
@@ -25,6 +28,7 @@ export function EventSchedule({
   reviewMode?: boolean;
   initialStatus?: "all" | "recorded" | "unconfirmed";
   competition?: ReactNode;
+  seededPreview?: boolean;
 }) {
   const tr = useAppTranslations();
   const stages = new Set(matches.map((match) => match.stage));
@@ -45,6 +49,7 @@ export function EventSchedule({
   );
   const [filter, setFilter] = useState("");
   const selected = listed.filter((m) => m.stage === phase);
+  const showMatchCards = !seededPreview && selected.length > 0;
   const rounds = [...new Set(selected.map((m) => m.round))];
   const positions: Record<string, [number, number]> = {
     W1: [20, 56],
@@ -93,6 +98,73 @@ export function EventSchedule({
   ];
   function matchName(match: EventMatch) {
     return match.label || `${match.red} ${tr("vs")} ${match.blue}`;
+  }
+
+  function matchRounds() {
+    type Round = BracketDisplay["groups"][number]["rounds"][number];
+    const roundsById = new Map<string, Round>();
+    for (const match of selected) {
+      const id = match.roundId ?? match.round;
+      const round = roundsById.get(id) ?? {
+        id,
+        label: match.round,
+        matches: [],
+      };
+      const slot = (
+        index: 0 | 1,
+        label: string,
+      ): BracketDisplayMatch["slots"][number] => {
+        const side = match.sides?.[index];
+        const team = side?.team;
+        return {
+          teamId: team?.exhibition ? null : (team?.id ?? null),
+          avatarKey: team?.avatarKey,
+          label,
+          sourceMatchId: side?.sourceId ?? null,
+          kind: side?.outcome ?? (team ? "team" : "tba"),
+        };
+      };
+      round.matches.push({
+        id: match.id,
+        label: matchName(match),
+        status: match.score ? "completed" : "pending",
+        statusLabel:
+          match.status === "cancelled"
+            ? tr("Cancelled")
+            : !match.score && match.status === "in_progress"
+              ? tr("In progress")
+              : undefined,
+        slots: [slot(0, match.red), slot(1, match.blue)],
+        scores: match.score ?? [null, null],
+        winnerSlot: match.winner ?? null,
+        note: null,
+        detailsUrl: match.href,
+        scheduledTime:
+          match.time !== "—" && match.status !== "cancelled"
+            ? match.time
+            : undefined,
+      });
+      roundsById.set(id, round);
+    }
+    return (
+      <BracketColumns
+        key={phase}
+        bracket={{
+          editionSlug: edition,
+          groups: [
+            {
+              id: phase,
+              label:
+                phaseOptions.find((option) => option.id === phase)?.label ??
+                phase,
+              layout: phase === "knockout" ? undefined : "grid",
+              rounds: [...roundsById.values()],
+            },
+          ],
+        }}
+        hideGroupTabs
+      />
+    );
   }
 
   function card(m: EventMatch) {
@@ -179,12 +251,14 @@ export function EventSchedule({
             ))}
           </div>
           <div
-            className="event-bracket-scroll"
-            tabIndex={0}
-            role="region"
-            aria-label={tr("Bracket")}
+            className={showMatchCards ? undefined : "event-bracket-scroll"}
+            tabIndex={showMatchCards ? undefined : 0}
+            role={showMatchCards ? undefined : "region"}
+            aria-label={showMatchCards ? undefined : tr("Bracket")}
           >
-            {!selected.length ? (
+            {showMatchCards ? (
+              matchRounds()
+            ) : !selected.length ? (
               <p className="event-schedule-empty muted">
                 {tr("No matches in this view.")}
               </p>
