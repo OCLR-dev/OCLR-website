@@ -135,7 +135,7 @@ database() {
 }
 log "Environment: $OCLR_ENVIRONMENT; reviewed release: $sha; previous: $old_sha"
 log "Release directory: $release; backup/log directory: $backup_dir"
-git -C "$source_dir" archive "$sha" | tar -x -C "$release"
+bash "$source_dir/scripts/archive-website-release.sh" "$sha" | tar -x -C "$release"
 [[ -f "$release/scripts/deployment-db.ts" && -f "$release/scripts/production.sh" ]] || fail 'The selected release does not include the update/preparation contract.'
 for name in .env .env.local .env.production .env.production.local; do
   [[ ! -e "$release/$name" ]] || fail 'Production secrets must stay outside the release.'
