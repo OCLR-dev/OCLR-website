@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/user";
 import { apiError } from "@/lib/http";
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
-import { candidateComments } from "@/lib/mappool-workbench";
+import { candidateComments } from "@/lib/mappool-workbench-reads";
 export async function GET(
   _request: Request,
   context: { params: Promise<{ edition: string; candidateId: string }> },

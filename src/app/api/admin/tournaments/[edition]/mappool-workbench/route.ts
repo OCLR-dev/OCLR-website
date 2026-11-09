@@ -4,11 +4,7 @@ import { requireUser } from "@/lib/auth/user";
 import { changeMappoolWorkbenchWrite } from "@/lib/mappool-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
-import {
-  selectionWorkspace,
-  previewCandidates,
-  selectionCommand,
-} from "@/lib/mappool-workbench";
+import { selectionWorkspace } from "@/lib/mappool-workbench-reads";
 type Context = { params: Promise<{ edition: string }> };
 export async function GET(_request: Request, context: Context) {
   return withFrontendReadRequest(async () => {
@@ -40,11 +36,17 @@ export async function POST(request: Request, context: Context) {
       "action" in input &&
       input.action === "preview";
     const result = preview
-      ? await previewCandidates(actor, edition, {
+      ? await (
+          await import("@/lib/mappool-workbench-preview")
+        ).previewCandidates(actor, edition, {
           text: "text" in input ? input.text : null,
           category: "category" in input ? input.category : undefined,
         })
-      : await selectionCommand(actor, edition, input);
+      : await (await import("@/lib/mappool-workbench")).selectionCommand(
+          actor,
+          edition,
+          input,
+        );
     if (!preview)
       revalidateCommittedPath(`/admin/tournaments/${edition}/mappool-workbench`);
     return NextResponse.json(result, {

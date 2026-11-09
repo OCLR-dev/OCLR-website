@@ -24,12 +24,12 @@ import {
   tournamentRounds,
   editionState,
 } from "../../src/db/schema";
+import { selectionCommand } from "../../src/lib/mappool-workbench";
+import { previewCandidates } from "../../src/lib/mappool-workbench-preview";
 import {
-  selectionWorkspace,
-  previewCandidates,
-  selectionCommand,
   candidateComments,
-} from "../../src/lib/mappool-workbench";
+  selectionWorkspace,
+} from "../../src/lib/mappool-workbench-reads";
 import { candidateHistory } from "../../src/lib/mappool-history";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { fetchBeatmaps } from "../../src/lib/osu-beatmaps";
@@ -543,6 +543,12 @@ describe.skipIf(!url)("private selection collaboration", () => {
     expect((await selectionWorkspace(developer, slug)).candidates).toHaveLength(
       1,
     );
+    await expect(
+      previewCandidates(developer, slug, { text: "99" }),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      withReadChannel(() => previewCandidates(pooler, slug, { text: "99" })),
+    ).rejects.toMatchObject({ status: 403 });
     await expect(
       withReadChannel(() => selectionCommand(admin, slug, add())),
     ).rejects.toMatchObject({ status: 403 });

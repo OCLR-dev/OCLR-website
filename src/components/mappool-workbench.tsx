@@ -4,9 +4,9 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type {
   CandidateComments,
-  CandidatePreview,
   SelectionWorkspace,
-} from "@/lib/mappool-workbench";
+} from "@/lib/mappool-workbench-reads";
+import type { CandidatePreview } from "@/lib/mappool-write-contracts";
 import type { BeatmapMetadata } from "@/lib/mappool-model";
 import {
   formatBeatmapDuration,

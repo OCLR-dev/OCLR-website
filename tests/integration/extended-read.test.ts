@@ -83,6 +83,22 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
         },
       }),
     );
+  async function requestWorkbenchRead(path: string) {
+    // The fixture setup also uses the official pool service. Guard these
+    // versioned requests after the fixtures have been created.
+    vi.doMock("../../src/lib/osu-beatmaps", () => {
+      throw new Error("Saved reads must not load the beatmap provider");
+    });
+    vi.doMock("../../src/lib/mappool-workbench", () => {
+      throw new Error("Saved reads must not load workbench commands");
+    });
+    try {
+      return await request(path);
+    } finally {
+      vi.doUnmock("../../src/lib/mappool-workbench");
+      vi.doUnmock("../../src/lib/osu-beatmaps");
+    }
+  }
   it("validates every registered domain response, revives dates, preserves actual identity and never changes saved state", async () => {
     const before = await remoteBusinessState(true);
     const files = await remoteFileState();
@@ -109,7 +125,12 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
         .replace("{edition}", edition)
         .replace("{id}", id)
         .replace("{osuId}", String(fixture.owner));
-      const response = await request(path);
+      const workbenchRead = ["selectionWorkspace", "candidateComments"].includes(
+        resource.id,
+      );
+      const response = workbenchRead
+        ? await requestWorkbenchRead(path)
+        : await request(path);
       const body = await response.json();
       expect(
         response.status,
