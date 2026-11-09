@@ -9,7 +9,6 @@ import {
   memberships,
   registrations,
   teams,
-  users,
 } from "@/db/schema";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { assertOperationalEdition } from "./archive-guard";
@@ -23,12 +22,9 @@ import { hashToken } from "./auth/tokens";
 import { getEdition, getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { turnSequenceStructureProblem } from "./draft-order";
-import type {
-  CaptainBoard,
-  DraftBoard,
-  DraftIdentity,
-  DraftTeam,
-} from "./draft-types";
+import { availableDraftPool, buildDraftSnapshots } from "./draft-board";
+import { readDraftData, type DraftData } from "./draft-data";
+import type { CaptainBoard } from "./draft-types";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import {
   changeDraftWrite,
@@ -60,159 +56,6 @@ async function lockDraftSession(tx: Reader, slug: string, id?: string) {
     .where(eq(draftSessions.id, locked.id));
   return session;
 }
-async function draftData(tx: Reader, slug: string) {
-  const [session] = await tx
-    .select(draftSessionReadColumns)
-    .from(draftSessions)
-    .where(eq(draftSessions.editionSlug, slug));
-  const [edition] = await tx
-    .select()
-    .from(editionState)
-    .where(eq(editionState.slug, slug));
-  const teamRows = await tx
-    .select({
-      team: teams,
-      captainName: users.username,
-      captainPublished: captains.published,
-    })
-    .from(teams)
-    .innerJoin(
-      captains,
-      and(
-        eq(captains.editionSlug, teams.editionSlug),
-        eq(captains.userId, teams.captainId),
-      ),
-    )
-    .innerJoin(users, eq(users.osuId, teams.captainId))
-    .where(and(eq(teams.editionSlug, slug), isNull(teams.archivedAt)))
-    .orderBy(captains.position);
-  const members = await tx
-    .select({ membership: memberships, username: users.username })
-    .from(memberships)
-    .innerJoin(users, eq(users.osuId, memberships.userId))
-    .where(and(eq(memberships.editionSlug, slug), isNull(memberships.leftAt)))
-    .orderBy(memberships.joinedAt);
-  const picks = session
-    ? await tx
-        .select()
-        .from(draftPicks)
-        .where(eq(draftPicks.sessionId, session.id))
-        .orderBy(draftPicks.turnIndex, draftPicks.createdAt)
-    : [];
-  const identities = session?.pool.length
-    ? await tx
-        .select({ osuId: users.osuId, username: users.username })
-        .from(users)
-        .where(inArray(users.osuId, session.pool))
-    : [];
-  return {
-    session: session ?? null,
-    edition: edition ?? null,
-    teams: teamRows,
-    members,
-    picks,
-    identities,
-  };
-}
-type Data = Awaited<ReturnType<typeof draftData>>;
-function availablePool(data: Data) {
-  return data.identities.filter(
-    (p) => !data.members.some((m) => m.membership.userId === p.osuId),
-  );
-}
-function board(data: Data): DraftBoard {
-  const session = data.session!;
-  const teamMap = new Map<string, DraftTeam>(
-    data.teams.map(({ team, captainName }) => [
-      team.id,
-      {
-        id: team.id,
-        name: team.name,
-        captain: { osuId: team.captainId, username: captainName },
-      },
-    ]),
-  );
-  const identityMap = new Map<number, DraftIdentity>(
-    data.identities.map((p) => [p.osuId, p]),
-  );
-  return {
-    sessionId: session.id,
-    version: session.publicVersion + 1,
-    state: session.state,
-    turnIndex: session.turnIndex,
-    turnCount: session.turnSequence.length,
-    activeTeam: ["ready", "live", "paused"].includes(session.state)
-      ? (teamMap.get(session.turnSequence[session.turnIndex]) ?? null)
-      : null,
-    picks: data.picks
-      .filter((p) => !p.voidedAt)
-      .map((p) => {
-        const team = teamMap.get(p.teamId);
-        const player = identityMap.get(p.playerId);
-        if (!team || !player)
-          throw new HttpError(
-            409,
-            "Draft identity integrity requires staff recovery.",
-          );
-        return { id: p.id, turnIndex: p.turnIndex, team, player };
-      }),
-    rosters: data.teams.map(({ team }) => ({
-      team: teamMap.get(team.id)!,
-      players: data.members
-        .filter((m) => m.membership.teamId === team.id)
-        .map((m) => ({ osuId: m.membership.userId, username: m.username })),
-    })),
-    pool: data.edition?.poolPublished ? availablePool(data) : null,
-  };
-}
-function snapshotUpdate(
-  data: Data,
-  release = Boolean(data.session?.publicSnapshot),
-) {
-  const session = data.session!;
-  const snapshot = board(data);
-  const published =
-    release &&
-    data.teams.every((t) => t.team.identityPublished && t.captainPublished);
-  const captainSnapshot: CaptainBoard = {
-    ...snapshot,
-    capacities: Object.fromEntries(
-      data.teams.map(({ team }) => [team.id, team.capacity]),
-    ),
-    engineRevision: session.version,
-    turnSequence: session.turnSequence,
-    eligiblePool: availablePool(data),
-  };
-  return {
-    publicSnapshot: published ? snapshot : null,
-    captainSnapshot,
-    publicVersion: snapshot.version,
-    publishedRevision: published ? session.version : -1,
-  };
-}
-/** Caller holds the edition row lock. Keep approved identity corrections and
- * operational snapshots consistent without adding a parallel publication path. */
-export async function refreshDraftSnapshot(
-  tx: Pick<ReturnType<typeof db>, "select" | "update">,
-  slug: string,
-) {
-  const data = await draftData(tx, slug);
-  if (!data.session?.captainSnapshot) return;
-  await tx
-    .update(draftSessions)
-    .set({ version: data.session.version + 1 })
-    .where(eq(draftSessions.id, data.session.id));
-  const current = await draftData(tx, slug);
-  await tx
-    .update(draftSessions)
-    .set(snapshotUpdate(current))
-    .where(eq(draftSessions.id, current.session!.id));
-  return {
-    fromVersion: data.session.version,
-    toVersion: current.session!.version,
-    publicVersion: current.session!.publicVersion + 1,
-  };
-}
 async function acceptedPlayers(tx: Reader, slug: string) {
   return tx
     .select({ userId: registrations.userId })
@@ -227,7 +70,7 @@ async function acceptedPlayers(tx: Reader, slug: string) {
 }
 function unassignedPlayers(
   accepted: Awaited<ReturnType<typeof acceptedPlayers>>,
-  data: Data,
+  data: DraftData,
 ) {
   return accepted.filter(
     (p) =>
@@ -235,7 +78,7 @@ function unassignedPlayers(
       !data.members.some((m) => m.membership.userId === p.userId),
   );
 }
-function sequenceTeams(data: Data) {
+function sequenceTeams(data: DraftData) {
   return data.teams.map(({ team }) => ({
     id: team.id,
     capacity: team.capacity,
@@ -250,7 +93,7 @@ async function databaseStaffDraft(
   if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
   return db().transaction(
     async (tx) => {
-      const data = await draftData(tx, slug);
+      const data = await readDraftData(tx, slug);
       return {
         ...data,
         canConfigure: await hasCapability(
@@ -259,7 +102,7 @@ async function databaseStaffDraft(
           slug,
           tx,
         ),
-        availablePool: availablePool(data),
+        availablePool: availableDraftPool(data),
         setupPoolSize:
           !data.session || data.session.state === "setup"
             ? unassignedPlayers(await acceptedPlayers(tx, slug), data).length
@@ -432,7 +275,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
     if (command.action === "publish") {
       if (session.state === "setup")
         throw new HttpError(409, "Freeze and review setup before publication.");
-      const data = await draftData(tx, slug);
+      const data = await readDraftData(tx, slug);
       if (
         data.teams.some((t) => !t.team.identityPublished || !t.captainPublished)
       )
@@ -440,7 +283,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
           409,
           "Approve and publish all captain/team identities before publishing the draft.",
         );
-      const publication = snapshotUpdate(data, true);
+      const publication = buildDraftSnapshots(data, true);
       const snapshot = publication.publicSnapshot!;
       await tx
         .update(draftSessions)
@@ -475,7 +318,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
           409,
           "Captain/team setup changed. Refresh before saving the order.",
         );
-      const data = await draftData(tx, slug);
+      const data = await readDraftData(tx, slug);
       const [competition] = await tx
         .select({ id: fixtures.id })
         .from(fixtures)
@@ -572,7 +415,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
           409,
           "Captain/team setup changed. Refresh before saving the order.",
         );
-      const data = await draftData(tx, slug);
+      const data = await readDraftData(tx, slug);
       const problem = turnSequenceStructureProblem(
         command.turnSequence,
         sequenceTeams(data),
@@ -591,7 +434,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
     } else if (command.action === "ready" || command.action === "start") {
       if (!["setup", "ready"].includes(session.state))
         throw new HttpError(409, "Only a saved draft setup can start.");
-      const data = await draftData(tx, slug);
+      const data = await readDraftData(tx, slug);
       const problem = turnSequenceStructureProblem(
         session.turnSequence,
         sequenceTeams(data),
@@ -618,7 +461,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
     } else if (command.action === "resume") {
       if (session.state !== "paused")
         throw new HttpError(409, "Only a paused draft can resume.");
-      const data = await draftData(tx, slug);
+      const data = await readDraftData(tx, slug);
       const problem = turnSequenceStructureProblem(
         session.turnSequence,
         sequenceTeams(data),
@@ -653,7 +496,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
           409,
           "Pause before supervised correction. Finalized drafts cannot be edited.",
         );
-      const data = await draftData(tx, slug);
+      const data = await readDraftData(tx, slug);
       const active = data.picks.filter((p) => !p.voidedAt);
       const last = active.at(-1);
       if (!last || last.turnIndex !== session.turnIndex - 1)
@@ -697,7 +540,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
           409,
           "Pause before aborting; finalized drafts cannot be aborted.",
         );
-      const data = await draftData(tx, slug);
+      const data = await readDraftData(tx, slug);
       await tx
         .update(draftPicks)
         .set({ voidedAt: new Date() })
@@ -755,7 +598,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
           409,
           "Complete and publish all picks before finalization.",
         );
-      const data = await draftData(tx, slug);
+      const data = await readDraftData(tx, slug);
       const active = data.picks.filter((p) => !p.voidedAt);
       if (
         data.members.length !== data.teams.length + active.length ||
@@ -795,7 +638,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
       ) &&
       (session.captainSnapshot || ["start", "ready"].includes(command.action))
     ) {
-      const publication = snapshotUpdate(await draftData(tx, slug));
+      const publication = buildDraftSnapshots(await readDraftData(tx, slug));
       await tx
         .update(draftSessions)
         .set(publication)
@@ -975,7 +818,7 @@ export async function pickPlayer(
         state: nextTurn === session.turnSequence.length ? "completed" : "live",
       })
       .where(eq(draftSessions.id, session.id));
-    const publication = snapshotUpdate(await draftData(tx, slug));
+    const publication = buildDraftSnapshots(await readDraftData(tx, slug));
     await tx
       .update(draftSessions)
       .set(publication)

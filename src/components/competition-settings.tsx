@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
-import type { FixtureWorkspace } from "@/lib/fixtures";
+import type { FixtureWorkspace } from "@/lib/fixture-reads";
 import { ReadOnlyFields } from "./staff-read-only";
 import { ConfirmMutation } from "./confirm-mutation";
 import { InfoNote } from "./info-note";

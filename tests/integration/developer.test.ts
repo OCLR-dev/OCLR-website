@@ -44,7 +44,7 @@ import { staffTeams } from "../../src/lib/teams";
 import { captainSetup } from "../../src/lib/captains";
 import { staffDraft } from "../../src/lib/draft";
 import { mappoolWorkspace, mappoolCommand } from "../../src/lib/mappools";
-import { staffFixtures } from "../../src/lib/fixtures";
+import { staffFixtures } from "../../src/lib/fixture-reads";
 import { matchReview, previewFixtureMatch } from "../../src/lib/results";
 import { statisticsWorkspace } from "../../src/lib/archive-statistics";
 import { backfillArchiveRelations } from "../../src/lib/archive-relations";

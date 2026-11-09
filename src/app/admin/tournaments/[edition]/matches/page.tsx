@@ -6,7 +6,7 @@ import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { canRead, staffAccess } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
-import { staffFixtures } from "@/lib/fixtures";
+import { staffFixtures } from "@/lib/fixture-reads";
 import { remotePage } from "@/lib/remote-page";
 import { canViewStreaming, streamingWorkspace } from "@/lib/streaming";
 export async function generateMetadata() {

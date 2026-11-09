@@ -1,7 +1,7 @@
 import styles from "@/components/team-management.module.css";
 import { StageGroups } from "@/components/stage-groups";
 import { StaffReadOnlyContext } from "@/components/staff-read-only";
-import { staffFixtures } from "@/lib/fixtures";
+import { staffFixtures } from "@/lib/fixture-reads";
 import { ConfirmMutation } from "@/components/confirm-mutation";
 import { TeamAvatar } from "@/components/team-avatar";
 import { TeamCoachManager } from "@/components/team-coach-manager";

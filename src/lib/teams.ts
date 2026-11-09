@@ -16,7 +16,7 @@ import type { User } from "./auth/sessions";
 import { assertCapability, assertReadCapability } from "./auth/staff";
 import { getEdition, getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
-import { refreshDraftSnapshot } from "./draft";
+import { refreshDraftSnapshot } from "./draft-snapshot";
 import { draftSetupProtection } from "./draft-setup";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import {

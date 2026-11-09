@@ -190,7 +190,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "fixtures",
+    "module": "fixture-reads",
     "fn": "staffFixtures",
     "id": "staffFixtures",
     "path": "/staff/tournaments/{edition}/fixtures",
@@ -451,7 +451,7 @@
     "scope": "identity:read"
   },
   {
-    "module": "fixtures",
+    "module": "fixture-reads",
     "fn": "fixtureForReview",
     "id": "fixtureForReview",
     "path": "/staff/tournaments/{edition}/matches/{id}",

@@ -6,7 +6,7 @@ import {
 } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { SearchParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { FixtureManager } from "../../src/components/fixture-manager";
-import type { FixtureWorkspace } from "../../src/lib/fixtures";
+import type { FixtureWorkspace } from "../../src/lib/fixture-reads";
 import en from "../../messages/en.json";
 import "../../src/app/globals.css";
 import "../../src/app/public-tournament.css";

@@ -7,7 +7,7 @@ import {
   type CompetitionStageKind,
 } from "@/lib/competition-stage";
 import { RoundRules } from "./competition-settings";
-import type { FixtureWorkspace } from "@/lib/fixtures";
+import type { FixtureWorkspace } from "@/lib/fixture-reads";
 import { ReadOnlyFields, StaffReadOnlyContext } from "./staff-read-only";
 import { useEffect, useId, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";

@@ -11,7 +11,7 @@ import { canRead, staffAccess } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
 import { formatDate } from "@/lib/editions";
 import { fixtureSlot } from "@/lib/fixture-views";
-import { staffFixtures } from "@/lib/fixtures";
+import { staffFixtures } from "@/lib/fixture-reads";
 import { HttpError } from "@/lib/http";
 import { matchRatingWorkspace } from "@/lib/ratings";
 import { remotePage } from "@/lib/remote-page";

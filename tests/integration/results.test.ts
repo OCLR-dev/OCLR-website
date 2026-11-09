@@ -48,7 +48,8 @@ import { playerCompetitionRecord } from "../../src/lib/player-competition";
 import { playerMapPerformance } from "../../src/lib/player-map-performance";
 import { readTournament, tournamentCommand } from "../../src/lib/tournaments";
 import { publicBracket } from "../../src/lib/brackets";
-import { fixtureCommand, fixtureForReview } from "../../src/lib/fixtures";
+import { fixtureCommand } from "../../src/lib/fixtures";
+import { fixtureForReview } from "../../src/lib/fixture-reads";
 import { mappoolCommand } from "../../src/lib/mappools";
 import {
   importFixtureMatch,

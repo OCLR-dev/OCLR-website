@@ -27,12 +27,8 @@ import {
   tournamentRounds,
   users,
 } from "../../src/db/schema";
-import {
-  assignFixtureReferees,
-  fixtureCommand,
-  fixtureForReview,
-  staffFixtures,
-} from "../../src/lib/fixtures";
+import { assignFixtureReferees, fixtureCommand } from "../../src/lib/fixtures";
+import { fixtureForReview, staffFixtures } from "../../src/lib/fixture-reads";
 import {
   chronologicalFixtures,
   groupedFixtures,
@@ -268,6 +264,31 @@ describe.skipIf(!url)(
       expect(
         (await fixtureForReview(referee, "test-cup", fixture.id)).fixture,
       ).not.toHaveProperty("exhibitionSides");
+
+      const rollback = new Error("Synthetic caller rollback");
+      await expect(
+        db().transaction(async (tx) => {
+          await tx
+            .update(fixtures)
+            .set({ label: "Synthetic uncommitted label" })
+            .where(eq(fixtures.id, fixture.id));
+          const review = await fixtureForReview(
+            referee,
+            "test-cup",
+            fixture.id,
+            tx,
+            true,
+          );
+          expect(review.fixture.label).toBe("Synthetic uncommitted label");
+          await expect(
+            fixtureForReview(otherRef, "test-cup", fixture.id, tx, true),
+          ).rejects.toMatchObject({ status: 403 });
+          throw rollback;
+        }),
+      ).rejects.toBe(rollback);
+      expect(
+        (await fixtureForReview(referee, "test-cup", fixture.id)).fixture.label,
+      ).toBe(fixture.label);
       await closeDb();
       expect(
         (await fixtureForReview(referee, "test-cup", fixture.id)).fixture.id,
