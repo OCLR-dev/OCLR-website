@@ -8,7 +8,8 @@ import { canRead, staffAccess } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
 import { staffFixtures } from "@/lib/fixture-reads";
 import { remotePage } from "@/lib/remote-page";
-import { canViewStreaming, streamingWorkspace } from "@/lib/streaming";
+import { canViewStreaming } from "@/lib/streaming-staff";
+import { streamingWorkspace } from "@/lib/streaming-workspace";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Competition fixtures") };

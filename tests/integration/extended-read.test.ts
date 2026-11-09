@@ -83,7 +83,7 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
         },
       }),
     );
-  async function requestWorkbenchRead(path: string) {
+  async function requestWithoutCommands(path: string) {
     // The fixture setup also uses the official pool service. Guard these
     // versioned requests after the fixtures have been created.
     vi.doMock("../../src/lib/osu-beatmaps", () => {
@@ -92,9 +92,13 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
     vi.doMock("../../src/lib/mappool-workbench", () => {
       throw new Error("Saved reads must not load workbench commands");
     });
+    vi.doMock("../../src/lib/streaming", () => {
+      throw new Error("Saved reads must not load streaming commands");
+    });
     try {
       return await request(path);
     } finally {
+      vi.doUnmock("../../src/lib/streaming");
       vi.doUnmock("../../src/lib/mappool-workbench");
       vi.doUnmock("../../src/lib/osu-beatmaps");
     }
@@ -125,11 +129,13 @@ describe.skipIf(!url)("full-site saved-only read services", () => {
         .replace("{edition}", edition)
         .replace("{id}", id)
         .replace("{osuId}", String(fixture.owner));
-      const workbenchRead = ["selectionWorkspace", "candidateComments"].includes(
-        resource.id,
-      );
-      const response = workbenchRead
-        ? await requestWorkbenchRead(path)
+      const guardedRead = [
+        "selectionWorkspace",
+        "candidateComments",
+        "streamingWorkspace",
+      ].includes(resource.id);
+      const response = guardedRead
+        ? await requestWithoutCommands(path)
         : await request(path);
       const body = await response.json();
       expect(

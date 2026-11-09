@@ -25,7 +25,8 @@ import {
   tournamentStages,
   users,
 } from "../../src/db/schema";
-import { streamingCommand, streamingWorkspace } from "../../src/lib/streaming";
+import { streamingCommand } from "../../src/lib/streaming";
+import { streamingWorkspace } from "../../src/lib/streaming-workspace";
 import { fixtureCommand } from "../../src/lib/fixtures";
 import { staffFixtures } from "../../src/lib/fixture-reads";
 import { importFixtureMatch } from "../../src/lib/result-import";
@@ -702,6 +703,44 @@ describe.skipIf(!url)("authoritative edition streaming tasks", () => {
       task: "commentary",
       userIds: [secondCommentator.osuId, outsider.osuId],
     });
+    await db().execute(sql`
+      CREATE FUNCTION test_reject_streaming_audit() RETURNS trigger
+      LANGUAGE plpgsql AS $$
+      BEGIN
+        IF NEW.kind = 'streaming_task' THEN
+          RAISE EXCEPTION 'Synthetic streaming audit failure';
+        END IF;
+        RETURN NEW;
+      END;
+      $$;
+      CREATE TRIGGER test_reject_streaming_audit BEFORE INSERT ON edition_events
+      FOR EACH ROW EXECUTE FUNCTION test_reject_streaming_audit();
+    `);
+    try {
+      await expect(streamingCommand(admin, slug, id, batch)).rejects.toThrow();
+      const { fixtures: [fixture] } = await streamingWorkspace(
+        admin,
+        slug,
+        {},
+        id,
+      );
+      expect(fixture.streamRevision).toBe(2);
+      expect(fixture.assignment?.userId).toBe(streamer.osuId);
+      expect(fixture.commentators.map((task) => task.userId)).toEqual([
+        commentator.osuId,
+      ]);
+      expect(
+        await db()
+          .select({ id: editionEvents.id })
+          .from(editionEvents)
+          .where(eq(editionEvents.id, batch.requestKey)),
+      ).toEqual([]);
+    } finally {
+      await db().execute(sql`
+        DROP TRIGGER test_reject_streaming_audit ON edition_events;
+        DROP FUNCTION test_reject_streaming_audit();
+      `);
+    }
     const results = await Promise.all([
       streamingCommand(admin, slug, id, batch),
       streamingCommand(admin, slug, id, batch),

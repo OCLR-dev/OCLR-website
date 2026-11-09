@@ -11,6 +11,7 @@ entry points are described in [Service and Next.js boundaries](next-service-boun
 | Draft | [draft-reads](../src/lib/draft-reads.ts) serves staff, captain and public reads. [draft](../src/lib/draft.ts) owns transitions, picks and publication. [draft-setup](../src/lib/draft-setup.ts) checks structural locks. |
 | Mappools | [mappool-reads](../src/lib/mappool-reads.ts) reads saved pools, [mappool-preview](../src/lib/mappool-preview.ts) handles protected beatmap lookups, and [mappools](../src/lib/mappools.ts) owns official pool changes. [mappool-workbench-reads](../src/lib/mappool-workbench-reads.ts) serves saved candidates and comments, [mappool-workbench-preview](../src/lib/mappool-workbench-preview.ts) handles candidate previews, and [mappool-workbench](../src/lib/mappool-workbench.ts) owns candidate and comment changes. |
 | Schedule and results | [fixtures](../src/lib/fixtures.ts) owns official fixture changes. [schedule-reads](../src/lib/schedule-reads.ts) serves schedule workspaces, and [schedule](../src/lib/schedule.ts) handles requests and approvals. [result-review](../src/lib/result-review.ts) reads saved reviews, [result-import](../src/lib/result-import.ts) handles MP previews and imports, [results](../src/lib/results.ts) handles review and publication, and [public-competition](../src/lib/public-competition.ts) serves published competition data. |
+| Streaming assignments | [streaming-workspace](../src/lib/streaming-workspace.ts) serves the saved staff workspace. [streaming](../src/lib/streaming.ts) handles booking commands. [streaming-staff](../src/lib/streaming-staff.ts) provides shared staff eligibility. |
 | Referee | [referee-workspace](../src/lib/referee-workspace.ts) reads the assigned workspace. [referee](../src/lib/referee.ts) owns referee commands. [referee-irc-reads](../src/lib/referee-irc-reads.ts) serves IRC state and room bindings, [referee-irc](../src/lib/referee-irc.ts) owns browser commands, [referee-irc-relay](../src/lib/referee-irc-relay.ts) owns desktop relay, and [referee-mp](../src/lib/referee-mp.ts) coordinates multiplayer evidence. |
 | Historical data | [historical-archive](../src/lib/historical-archive.ts) defines archive records and publication rules. [archive-relations](../src/lib/archive-relations.ts) and [archive-read](../src/lib/archive-read.ts) read typed sources and saved projections. [archive-relation-writes](../src/lib/archive-relation-writes.ts) synchronizes typed documents. [archive-statistics-reads](../src/lib/archive-statistics-reads.ts) reads statistics, and [archive-statistics](../src/lib/archive-statistics.ts) owns statistics commands. |
 
@@ -143,6 +144,24 @@ GET and public fixture retain the original time, the request stays pending,
 and the earlier audit and receipt are absent. The same request key then
 commits once and replays successfully. Existing concurrency tests still cover
 approval racing the fixture editor and referee start.
+
+## Streaming assignments
+
+The staff pages, GET handlers and versioned API previously loaded the booking
+command through the workspace. They now use
+[streaming-workspace](../src/lib/streaming-workspace.ts), which retains the
+repeatable-read snapshot, edition checks, task filters and history visibility.
+The staff eligibility query accepts the reader from either the workspace or
+the command transaction.
+
+POST loads the command after origin and body checks. Booking commands take
+the shared role lock and recheck the current grant. They check both the
+fixture version and streaming revision, and bind request keys to the same
+actor, edition, fixture and payload. Assignments, the streaming revision and
+the audit entry commit together. The existing batch test now rejects the audit
+insert and verifies that the prior assignments and revision survive, then
+retries with the same key and verifies one successful booking and audit entry.
+The versioned API test rejects any attempt to load the booking command module.
 
 ## Match results
 

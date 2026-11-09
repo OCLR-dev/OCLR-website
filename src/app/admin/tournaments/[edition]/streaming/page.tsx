@@ -5,7 +5,7 @@ import { getAppTranslations } from "@/i18n/server";
 import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
 import { remotePage } from "@/lib/remote-page";
-import { streamingWorkspace } from "@/lib/streaming";
+import { streamingWorkspace } from "@/lib/streaming-workspace";
 import Link from "next/link";
 async function Issue271Page({
   params,
