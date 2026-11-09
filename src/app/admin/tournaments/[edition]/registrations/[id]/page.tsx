@@ -11,7 +11,7 @@ import { requireStaff } from "@/lib/auth/staff-request";
 import { formatDate } from "@/lib/editions";
 import { cachedOsuUserProfile, getOsuUserProfile } from "@/lib/osu-profiles";
 import { remotePage } from "@/lib/remote-page";
-import { applicationDetails } from "@/lib/staff";
+import { applicationDetails } from "@/lib/staff-registration-reads";
 import { readTournament } from "@/lib/tournament-reads";
 import Link from "next/link";
 import { notFound } from "next/navigation";

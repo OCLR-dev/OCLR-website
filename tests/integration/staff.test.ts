@@ -19,8 +19,8 @@ import {
 import {
   applicationDetails,
   listApplications,
-  reviewApplication,
-} from "../../src/lib/staff";
+} from "../../src/lib/staff-registration-reads";
+import { reviewApplication } from "../../src/lib/staff";
 const url = process.env.TEST_DATABASE_URL;
 const staff = { osuId: 50001, username: "Synthetic Staff" };
 const player = { osuId: 50002, username: "=Synthetic Player" };

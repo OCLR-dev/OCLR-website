@@ -290,7 +290,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "staff",
+    "module": "staff-registration-reads",
     "fn": "listApplications",
     "id": "listApplications",
     "path": "/staff/registrations",
@@ -300,7 +300,7 @@
     "scope": "tournaments:private:read"
   },
   {
-    "module": "staff",
+    "module": "staff-registration-reads",
     "fn": "applicationDetails",
     "id": "applicationDetails",
     "path": "/staff/registrations/{id}",
@@ -340,7 +340,7 @@
     "scope": "identity:read"
   },
   {
-    "module": "registrations",
+    "module": "registration-reads",
     "fn": "ownRegistrations",
     "id": "ownRegistrations",
     "path": "/me/registrations",

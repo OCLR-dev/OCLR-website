@@ -12,11 +12,16 @@ import { db, closeDb } from "../../src/db";
 import {
   users,
   registrations,
+  registrationEvents,
+  staffRoles,
   editionState,
   userProfileCache,
 } from "../../src/db/schema";
 import { addManualRegistration } from "../../src/lib/manual-registrations";
 import { submitRegistration } from "../../src/lib/registrations";
+import { reviewApplication } from "../../src/lib/staff";
+import { applicationDetails } from "../../src/lib/staff-registration-reads";
+import { tournamentCommand } from "../../src/lib/tournaments";
 import { noEligibilityLimits } from "../../src/lib/eligibility-model";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
@@ -149,6 +154,84 @@ describe.skipIf(!url)("authoritative registration eligibility", () => {
       submitRegistration(user, edition.slug, input),
     ).rejects.toMatchObject({ status: 409 });
     expect(await db().select().from(registrations)).toHaveLength(0);
+  });
+  it("keeps the verified submission snapshot when a review audit rolls back and is retried", async () => {
+    const reviewer = { osuId: 997002, username: "Synthetic Reviewer" };
+    await db().insert(users).values(reviewer);
+    await db().insert(staffRoles).values({
+      userId: reviewer.osuId,
+      role: "admin",
+      editionSlug: edition.slug,
+      grantedBy: user.osuId,
+    });
+    const saved = await submitRegistration(user, edition.slug, input);
+    const changed = await tournamentCommand(user, edition.slug, {
+      action: "schedule",
+      expectedRevision: 0,
+      confirmed: true,
+      schedule: [{ label: "Synthetic later milestone", at: null }],
+    });
+    expect(changed.revision).toBe(1);
+
+    const before = await applicationDetails(reviewer, saved.id);
+    expect(before.acknowledgedConfiguration?.schedule).toEqual(limited.schedule);
+    expect(before.registration).toMatchObject({
+      configurationVersion: 0,
+      eligibilityVerification: { status: "pass", configurationVersion: 0 },
+    });
+    const review = () =>
+      reviewApplication(reviewer, saved.id, {
+        status: "accepted",
+        expectedUpdatedAt: saved.updatedAt.toISOString(),
+        confirmed: true,
+      });
+    const events = () =>
+      db()
+        .select()
+        .from(registrationEvents)
+        .where(eq(registrationEvents.registrationId, saved.id));
+
+    await db().execute(sql`
+      CREATE FUNCTION oclr_test_reject_review_audit() RETURNS trigger
+      LANGUAGE plpgsql AS $$ BEGIN
+        IF NEW.to_status = 'accepted' THEN
+          RAISE EXCEPTION 'Synthetic review audit failure';
+        END IF;
+        RETURN NEW;
+      END $$;
+      CREATE TRIGGER oclr_test_reject_review_audit
+        BEFORE INSERT ON registration_events FOR EACH ROW
+        EXECUTE FUNCTION oclr_test_reject_review_audit()
+    `);
+    try {
+      await expect(review()).rejects.toThrow();
+      expect(await applicationDetails(reviewer, saved.id)).toEqual(before);
+      expect(await events()).toHaveLength(1);
+    } finally {
+      await db().execute(sql`
+        DROP TRIGGER oclr_test_reject_review_audit ON registration_events;
+        DROP FUNCTION oclr_test_reject_review_audit()
+      `);
+    }
+    const accepted = await review();
+    expect(accepted).toMatchObject({
+      status: "accepted",
+      configurationVersion: 0,
+      eligibilityVerification: before.registration.eligibilityVerification,
+    });
+    expect(
+      (await applicationDetails(reviewer, saved.id)).acknowledgedConfiguration,
+    ).toEqual(before.acknowledgedConfiguration);
+    const history = await events();
+    expect(history).toHaveLength(2);
+    expect(history).toContainEqual(
+      expect.objectContaining({
+        actorId: reviewer.osuId,
+        fromStatus: "pending",
+        toStatus: "accepted",
+        attempt: saved.attempt,
+      }),
+    );
   });
   it("requires an explicit manual exception and preserves a failed check as staff_override", async () => {
     provider.mockResolvedValue({

@@ -157,9 +157,9 @@ export async function extendedRead(
     case "siteSettingsForAdmin":
       return (await import("./site-settings")).siteSettingsForAdmin(actor!);
     case "listApplications":
-      return (await import("./staff")).listApplications(actor!, filters);
+      return (await import("./staff-registration-reads")).listApplications(actor!, filters);
     case "applicationDetails":
-      return (await import("./staff")).applicationDetails(actor!, target);
+      return (await import("./staff-registration-reads")).applicationDetails(actor!, target);
     case "auditLog":
       return (await import("./audit")).auditLog(actor!, filters);
     case "staffAccess":
@@ -167,7 +167,7 @@ export async function extendedRead(
     case "playerApplications":
       return (await import("./dashboard")).playerApplications(actor!.osuId);
     case "ownRegistrations":
-      return (await import("./registrations")).ownRegistrations(actor!.osuId);
+      return (await import("./registration-reads")).ownRegistrations(actor!.osuId);
     case "ownTeam":
       return (await import("./teams")).ownTeam(actor!.osuId, slug);
     case "captainAppointment":

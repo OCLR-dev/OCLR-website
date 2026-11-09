@@ -28,14 +28,14 @@ import {
 } from "../../src/db/schema";
 import {
   applicationDetails,
-  changeRegistrationParticipation,
   listApplications,
+} from "../../src/lib/staff-registration-reads";
+import {
+  changeRegistrationParticipation,
   reviewApplication,
 } from "../../src/lib/staff";
-import {
-  ownRegistrations,
-  withdrawRegistration,
-} from "../../src/lib/registrations";
+import { ownRegistrations } from "../../src/lib/registration-reads";
+import { withdrawRegistration } from "../../src/lib/registrations";
 import { playerApplications } from "../../src/lib/dashboard";
 import { publicPlayers } from "../../src/lib/players";
 import { auditLog } from "../../src/lib/audit";

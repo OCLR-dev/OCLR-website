@@ -36,7 +36,7 @@ import {
   applicationDetails,
   listApplications,
   exportApplications,
-} from "../../src/lib/staff";
+} from "../../src/lib/staff-registration-reads";
 import {
   tournamentForAdmin,
   tournamentList,

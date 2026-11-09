@@ -20,7 +20,7 @@ import {
 import { assertTestDatabase } from "../database";
 import { edition } from "../fixtures/edition";
 import { seedEditions } from "../fixtures/editions";
-import { exportApplications } from "../../src/lib/staff";
+import { exportApplications } from "../../src/lib/staff-registration-reads";
 import { submitRegistration } from "../../src/lib/registrations";
 const target = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 452001, username: "Synthetic Export Admin" };

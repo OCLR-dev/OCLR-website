@@ -1,7 +1,7 @@
 import { authorizedPage } from "@/lib/auth/page";
 import { requireStaff } from "@/lib/auth/staff-request";
 import { remotePage } from "@/lib/remote-page";
-import { applicationDetails } from "@/lib/staff";
+import { applicationDetails } from "@/lib/staff-registration-reads";
 import { redirect } from "next/navigation";
 async function Issue271Page({ params }: { params: Promise<{ id: string }> }) {
   return authorizedPage(async () => {

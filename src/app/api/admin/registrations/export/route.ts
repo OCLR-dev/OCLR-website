@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff-request";
-import { exportApplications } from "@/lib/staff";
+import { exportApplications } from "@/lib/staff-registration-reads";
 import { csv } from "@/lib/csv";
 import { apiError } from "@/lib/http";
 export async function GET(request: NextRequest) {

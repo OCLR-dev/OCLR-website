@@ -33,7 +33,7 @@ vi.mock("../../src/lib/tournament-reads", async (importOriginal) => ({
       : undefined;
   }),
 }));
-vi.mock("../../src/lib/registrations", () => ({
+vi.mock("../../src/lib/registration-reads", () => ({
   registrationAvailability: async () => "unavailable",
 }));
 vi.mock("../../src/lib/public-competition", () => ({

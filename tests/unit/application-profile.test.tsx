@@ -8,7 +8,7 @@ import {
   isDeveloper,
   hasCapability,
 } from "../../src/lib/auth/staff";
-import { applicationDetails } from "../../src/lib/staff";
+import { applicationDetails } from "../../src/lib/staff-registration-reads";
 import { readTournament } from "../../src/lib/tournament-reads";
 import {
   getOsuUserProfile,
@@ -33,7 +33,7 @@ vi.mock("../../src/lib/auth/staff", () => ({
   isDeveloper: vi.fn(() => false),
   hasCapability: vi.fn(async () => true),
 }));
-vi.mock("../../src/lib/staff", () => ({ applicationDetails: vi.fn() }));
+vi.mock("../../src/lib/staff-registration-reads", () => ({ applicationDetails: vi.fn() }));
 vi.mock("../../src/lib/tournament-reads", () => ({ readTournament: vi.fn() }));
 vi.mock("../../src/lib/osu-profiles", () => ({
   getOsuUserProfile: vi.fn(),

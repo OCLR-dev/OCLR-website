@@ -4,7 +4,7 @@ import { frontendLegacyTournaments } from "@/lib/frontend-legacy";
 import { NextResponse } from "next/server";
 import { getPublicEditions } from "@/lib/content";
 import { publicEditionSummary } from "@/lib/tournament-reads";
-import { registrationAvailability } from "@/lib/registrations";
+import { registrationAvailability } from "@/lib/registration-reads";
 import { apiError } from "@/lib/http";
 async function readGET() {
   try {

@@ -8,7 +8,7 @@ import { verifyEligibility } from "@/lib/eligibility";
 import {
   ownRegistrations,
   registrationAvailability,
-} from "@/lib/registrations";
+} from "@/lib/registration-reads";
 import { remotePage } from "@/lib/remote-page";
 import { notFound } from "next/navigation";
 export async function generateMetadata() {

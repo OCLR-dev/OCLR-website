@@ -5,7 +5,7 @@ import {
   readTournaments,
   publicEditionSummary,
 } from "./tournament-reads";
-import { registrationAvailability } from "./registrations";
+import { registrationAvailability } from "./registration-reads";
 import { privacyContact, privacyReady } from "./auth/config";
 import { readSiteSettings } from "./site-settings";
 import { enrollmentState, type Edition } from "./editions";

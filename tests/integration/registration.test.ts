@@ -20,9 +20,11 @@ import {
 } from "../../src/db/schema";
 import {
   registrationAvailability,
+  ownRegistrations,
+} from "../../src/lib/registration-reads";
+import {
   submitRegistration,
   withdrawRegistration,
-  ownRegistrations,
 } from "../../src/lib/registrations";
 import { edition } from "../fixtures/edition";
 import { withReadChannel } from "../../src/lib/read-channel";

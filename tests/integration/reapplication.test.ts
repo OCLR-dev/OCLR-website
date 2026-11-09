@@ -19,13 +19,13 @@ import {
 import {
   submitRegistration,
   withdrawRegistration,
-  ownRegistrations,
 } from "../../src/lib/registrations";
+import { ownRegistrations } from "../../src/lib/registration-reads";
 import {
   changeRegistrationParticipation,
-  applicationDetails,
   reviewApplication,
 } from "../../src/lib/staff";
+import { applicationDetails } from "../../src/lib/staff-registration-reads";
 import { tournamentCommand } from "../../src/lib/tournaments";
 import { readTournament } from "../../src/lib/tournament-reads";
 import { publicPlayers } from "../../src/lib/players";
