@@ -85,8 +85,6 @@ export function PlayerDirectoryTools({
     "name-desc": tr("Username Z–A"),
     "rank-asc": tr("Global rank: best first"),
     "rank-desc": tr("Global rank: reverse order"),
-    "pp-desc": tr("PP: high to low"),
-    "pp-asc": tr("PP: low to high"),
   };
   const roleLabels: Record<string, string> = {
     player: tr("Player"),
@@ -151,11 +149,7 @@ export function PlayerDirectoryTools({
             onChange={(e) => update({ sort: e.target.value })}
           >
             {directorySorts
-              .filter(
-                (sort) =>
-                  (!sort.startsWith("rank") || options.rank) &&
-                  (!sort.startsWith("pp") || options.pp),
-              )
+              .filter((sort) => !sort.startsWith("rank") || options.rank)
               .map((sort) => (
                 <option value={sort} key={sort}>
                   {labels[sort]}
