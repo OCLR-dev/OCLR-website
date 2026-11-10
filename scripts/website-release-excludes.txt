@@ -1,4 +1,5 @@
 design
 docs/design
+docs/imports/beatmaps
 docs/verification
 output/imagegen

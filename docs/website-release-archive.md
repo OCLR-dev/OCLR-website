@@ -2,20 +2,26 @@
 
 The Rocky website updater builds from a tar stream extracted into a new release
 directory. The backup operator installer and ordinary `git archive` exports
-still use the full source tree. The website updater reads
-[`scripts/website-release-excludes.txt`](../scripts/website-release-excludes.txt)
-from the selected commit. Each line is a literal repository-relative path.
-Add a path only after checking its source, build, runtime, verification and
-licensing references. Older commits without the manifest use their full archive.
+still use the full source tree. The website updater reads the
+[allowlist](../scripts/website-release-paths.txt) and
+[exclusions](../scripts/website-release-excludes.txt) from the selected commit.
+Each line is a literal repository-relative path. The allowlist includes
+directories recursively, and exclusions remove specific subtrees such as offline
+beatmap packages. Check build, runtime, verification and licensing references
+when changing either list. Commits with only exclusions use their existing
+policy. Commits with neither list use the full source archive. Updaters from
+before the allowlist continue to apply the exclusions when packaging a new commit.
 
 | Paths | Purpose | Website archive |
 | --- | --- | --- |
 | `design/`, `docs/design/`, `output/imagegen/` | Offline artwork, mockups, raw images, design tools and their source notices | Excluded. Retrieve from Git at the selected commit. |
 | `docs/verification/` | Historical review notes, screenshots and reproduction scripts | Excluded. Read and run them from the Git checkout at the selected commit. |
 | `public/`, `LICENSES/` | Published artwork, archived rules, fonts and required notices | Included |
-| `tests/fixtures/`, `docs/imports/` | Test inputs and source material used by archive tools | Included. The player reactions test reads [the original reviewed export](../tests/fixtures/player-reaction-selection.json). |
-| `src/lib/extended-read-contracts.json`, `docs/read-api.openapi.json`, `docs/write-api.openapi.json`, `docs/remote-coverage.json` | Versioned contracts and coverage inventory | Included |
-| `drizzle/`, `scripts/`, package and build inputs | Migrations, release tooling and build configuration | Included |
+| `docs/imports/beatmaps/` | Original `.osz` packages used by offline review scripts | Excluded. The website's download links use the packages at their pinned Git revision. |
+| `tests/`, other `docs/imports/` | Source validation, test fixtures and historical inputs | Included. The current type check covers test sources and their imports. |
+| `src/lib/extended-read-contracts.json`, `scripts/extended-read-resources.json`, generated API files under `docs/` | Versioned contracts, inventories and coverage | Included |
+| `drizzle/`, `scripts/`, `operator/`, package and build inputs | Migrations, release tooling, shared backup identity and build configuration | Included |
+| Development guides, design work and repository metadata | Contributor reference and tooling | The allowlist keeps the operational guides, build inputs and files read by the test suite. Other references remain in Git. |
 
 ## Baseline
 
@@ -57,6 +63,19 @@ tar from 478.0 to 258.2 MiB (46.0%) and gzip from 404.4 to 210.5 MiB (48.0%).
 The updater extracts the uncompressed stream. Gzip is included as a separate
 comparison.
 
+| Website tar policy | Uncompressed MiB | Gzip MiB |
+| --- | ---: | ---: |
+| Full source | 478.0 | 404.4 |
+| Design and original artwork excluded | 258.2 | 210.5 |
+| Verification evidence also excluded | 139.7 | 99.1 |
+| Allowlist and offline beatmap exclusion | 124.9 | 84.8 |
+
+The last step removes about 14.8 MiB from the previous website tar. The two
+`.osz` packages account for 13.8 MiB. Both match the Git blobs at
+`8e8416c3003795665b148208f6ecd94137ed812a`, the revision used by the
+[published download catalog](../src/data/archive-map-downloads.json).
+The archive tools can read the originals from a full checkout.
+
 ## Verification evidence
 
 The design-only archive at `6ead6a06131577f3112bbee3fd1d33f345b951d5`
@@ -85,12 +104,31 @@ The two identical S11 key visual files also serve separate URLs in the
 [branding notes](../public/branding/README.md). The website archive retains
 the published paths and their notices.
 
-The website updater builds the current full-stack production application.
-The [remote frontend](remote-development.md) uses the shared contracts and
-static assets, consumes saved-data HTTP resources, and runs in development
-with its separate `.next-remote` output. A separately delivered production
-frontend would need its own build and startup path, plus contract and asset
-compatibility checks against the database-backed application.
+| Delivery surface | Inputs and boundary |
+| --- | --- |
+| Database-backed website | Next routes and server rendering, domain services, PostgreSQL schema and migrations, backup identity, static assets and operator scripts. It owns authorization, writes and published data. |
+| Remote frontend development | Next pages, components, adapters, messages, public assets, lockfile and appearance generation. The shared source graph still includes local branches and the backup identity module. At runtime it uses a compatible versioned saved-data HTTP backend and the separate `.next-remote` output. |
+| Shared contract | Resource definitions, response validation and generated OpenAPI and coverage. The frontend and backend need compatible v1 contracts and the same published asset paths. |
+
+A clean 94.7 MiB remote source archive from `d3924836532b04a8d26462691ce50a3f38353957`
+passed the synthetic SSR, identity, revocation and read-only HTTP checks with
+zero local database connection attempts. The subset keeps the existing lockfile
+and source graph but omits migrations, the backup worker and release tooling.
+Follow the [remote development setup](remote-development.md) to run it with
+`next dev`. Production remote mode requires a separate build and startup path
+and its own compatibility checks. The supported production build is the
+database-backed application.
+
+The remote development subset can be reproduced from the reviewed checkout:
+
+```bash
+git archive --format=tar HEAD -- \
+  .gitignore LICENSE LICENSES package.json package-lock.json \
+  next-env.d.ts next.config.ts tsconfig.json postcss.config.mjs \
+  messages operator/identity.ts public src \
+  scripts/build-appearance-styles.ts scripts/extended-read-resources.json \
+  tests/fixtures/no-local-database.ts > remote-source.tar
+```
 
 ## Reproduce
 
@@ -124,5 +162,7 @@ diff -u "$scratch/full.paths" "$scratch/website.paths" || test "$?" -eq 1
 ```
 
 Use `git ls-tree -r -l "$sha" -- PATH` for tracked path sizes or
-`git archive "$sha" -- docs/verification > verification.tar` to retrieve the
-verification tree from the original commit.
+`git archive "$sha" -- PATH` to retrieve an omitted directory or file from the
+reviewed Git commit. For example, the acceptance record is under
+`docs/verification/` and the original beatmap packages are under
+`docs/imports/beatmaps/`.

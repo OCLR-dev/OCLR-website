@@ -421,10 +421,11 @@ Replace the SHA/host examples; a floating `main` is deliberately rejected. The n
 
 `--dry-run` prints the sequence without commands/network/filesystem changes; it does **not** validate live connectivity. `--apply` acquires an installation file lock, verifies a clean operator checkout/service target, archives the exact commit to a new directory, then runs `production.sh prepare --apply` (install/check/build, no DB changes). It checks both DB targets and the applied Drizzle hash/timestamp prefix, prints pending IDs, stops the old service, takes a custom-format dump and verifies both its table of contents and full decoding using pg_restore. A SHA-256 sidecar detects later archive changes. This archive verification is not a substitute for a real restore drill. Pending SQL runs with an advisory DB lock; an already-applied journal is a no-op. Runtime preflight then runs before atomic symlink activation/start.
 
-The website updater uses the selected commit's [archive exclusions](../scripts/website-release-excludes.txt).
-Design references, original image outputs and verification evidence remain
-available in Git at that commit. Releases from commits without the manifest use
-the full source archive. See the [archive inventory and comparison](website-release-archive.md)
+The website updater uses the selected commit's [archive allowlist](../scripts/website-release-paths.txt)
+and [exclusions](../scripts/website-release-excludes.txt). Design references,
+original image outputs, verification evidence and offline beatmap packages
+remain available in Git at that commit. Earlier commits use their exclusions
+or full source archive. See the [archive inventory and comparison](website-release-archive.md)
 for the retained paths and the command to inspect a website archive locally.
 
 When the separate `oclr-backup` account is installed, updates require `setfacl`
