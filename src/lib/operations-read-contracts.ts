@@ -1,3 +1,4 @@
+import { fixtureStatuses } from "./fixture-status";
 import { z } from "zod";
 import { profileSnapshotReadContract } from "./profile-read-contract";
 
@@ -55,7 +56,7 @@ export const operationsReadContracts = {
         roundName: text,
         scheduledAt: nullableString,
         timeZone: text,
-        status: literals(["scheduled", "in_progress", "cancelled"]),
+        status: z.enum(fixtureStatuses),
         completed: flag,
         version: number,
         streamRevision: number,

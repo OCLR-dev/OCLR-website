@@ -1,3 +1,4 @@
+import { fixtureStatuses } from "./fixture-status";
 import { z } from "zod";
 
 const text = z.string();
@@ -70,11 +71,7 @@ const publicFixture = z.strictObject({
   confirmed: flag,
   scheduledAt: nullableString,
   timeZone: text,
-  status: z.union([
-    z.literal("scheduled"),
-    z.literal("in_progress"),
-    z.literal("cancelled"),
-  ]),
+  status: z.enum(fixtureStatuses),
   result: z.union([z.null(), publicMatchResult]),
   updatedAt: text,
 });

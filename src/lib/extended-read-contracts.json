@@ -1299,31 +1299,6 @@
       "type": "array",
       "items": { "$ref": "#/$defs/Readf8f63afe963c" }
     },
-    "Read41392380f875": {
-      "type": "object",
-      "properties": {
-        "exDeclarations": { "$ref": "#/$defs/Read79d40c7d2bfd" },
-        "fixture": { "$ref": "#/$defs/Readbe0917a67ca0" },
-        "round": { "$ref": "#/$defs/Read140126bb5ad1" },
-        "teams": { "$ref": "#/$defs/Read4265a4521f8d" },
-        "pool": { "$ref": "#/$defs/Read26a330daa23a" },
-        "result": { "$ref": "#/$defs/Read4698e41ad379" },
-        "canApprove": { "type": "boolean" },
-        "canRecord": { "type": "boolean" },
-        "canViewAll": { "type": "boolean" }
-      },
-      "required": [
-        "exDeclarations",
-        "fixture",
-        "teams",
-        "pool",
-        "result",
-        "canApprove",
-        "canRecord",
-        "canViewAll"
-      ],
-      "additionalProperties": false
-    },
     "Read420329d2da53": {
       "type": "object",
       "properties": {
@@ -2538,6 +2513,94 @@
       ],
       "additionalProperties": false
     },
+    "Read96d9ff4335da": {
+      "type": "object",
+      "properties": {
+        "exhibitionSides": { "$ref": "#/$defs/Readc4bfb77cf821" },
+        "openExhibition": {
+          "anyOf": [
+            { "type": "null", "x-oclr-undefined": true },
+            { "type": "boolean", "const": true }
+          ]
+        },
+        "homeTeamId": { "type": "string" },
+        "awayTeamId": { "type": "string" },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-oclr-date": true
+        },
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "publishedAt": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date-time", "x-oclr-date": true }
+          ]
+        },
+        "roundId": { "type": "string" },
+        "position": { "type": "number" },
+        "scheduledAt": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date-time", "x-oclr-date": true }
+          ]
+        },
+        "timeZone": { "type": "string" },
+        "status": {
+          "anyOf": [
+            { "type": "string", "const": "scheduled" },
+            { "type": "string", "const": "in_progress" },
+            { "type": "string", "const": "cancelled" },
+            { "type": "string", "const": "ended" }
+          ]
+        },
+        "editionSlug": { "type": "string" },
+        "version": { "type": "number" },
+        "streamRevision": { "type": "number" },
+        "mappoolId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "homeSourceId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "homeSourceOutcome": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "const": "winner" },
+            { "type": "string", "const": "loser" }
+          ]
+        },
+        "awaySourceId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "awaySourceOutcome": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "const": "winner" },
+            { "type": "string", "const": "loser" }
+          ]
+        },
+        "assignmentRevision": { "type": "number" }
+      },
+      "required": [
+        "homeTeamId",
+        "awayTeamId",
+        "updatedAt",
+        "id",
+        "label",
+        "publishedAt",
+        "roundId",
+        "position",
+        "scheduledAt",
+        "timeZone",
+        "status",
+        "editionSlug",
+        "version",
+        "streamRevision",
+        "mappoolId",
+        "homeSourceId",
+        "homeSourceOutcome",
+        "awaySourceId",
+        "awaySourceOutcome",
+        "assignmentRevision"
+      ],
+      "additionalProperties": false
+    },
     "Read99e202cb645f": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read0ffbed7abc76" }
@@ -2634,6 +2697,31 @@
     "Reada620a0db3e4d": {
       "type": "array",
       "items": { "$ref": "#/$defs/Readc67080690777" }
+    },
+    "Reada643902d3c68": {
+      "type": "object",
+      "properties": {
+        "exDeclarations": { "$ref": "#/$defs/Read79d40c7d2bfd" },
+        "fixture": { "$ref": "#/$defs/Read96d9ff4335da" },
+        "round": { "$ref": "#/$defs/Read140126bb5ad1" },
+        "teams": { "$ref": "#/$defs/Read4265a4521f8d" },
+        "pool": { "$ref": "#/$defs/Read26a330daa23a" },
+        "result": { "$ref": "#/$defs/Read4698e41ad379" },
+        "canApprove": { "type": "boolean" },
+        "canRecord": { "type": "boolean" },
+        "canViewAll": { "type": "boolean" }
+      },
+      "required": [
+        "exDeclarations",
+        "fixture",
+        "teams",
+        "pool",
+        "result",
+        "canApprove",
+        "canRecord",
+        "canViewAll"
+      ],
+      "additionalProperties": false
     },
     "Reada7e0af6e17e2": {
       "type": "array",
@@ -2963,93 +3051,6 @@
         { "type": "null", "x-oclr-undefined": true },
         { "$ref": "#/$defs/Read33740056e213" }
       ]
-    },
-    "Readbe0917a67ca0": {
-      "type": "object",
-      "properties": {
-        "exhibitionSides": { "$ref": "#/$defs/Readc4bfb77cf821" },
-        "openExhibition": {
-          "anyOf": [
-            { "type": "null", "x-oclr-undefined": true },
-            { "type": "boolean", "const": true }
-          ]
-        },
-        "homeTeamId": { "type": "string" },
-        "awayTeamId": { "type": "string" },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-oclr-date": true
-        },
-        "id": { "type": "string" },
-        "label": { "type": "string" },
-        "publishedAt": {
-          "anyOf": [
-            { "type": "null" },
-            { "type": "string", "format": "date-time", "x-oclr-date": true }
-          ]
-        },
-        "roundId": { "type": "string" },
-        "position": { "type": "number" },
-        "scheduledAt": {
-          "anyOf": [
-            { "type": "null" },
-            { "type": "string", "format": "date-time", "x-oclr-date": true }
-          ]
-        },
-        "timeZone": { "type": "string" },
-        "status": {
-          "anyOf": [
-            { "type": "string", "const": "scheduled" },
-            { "type": "string", "const": "in_progress" },
-            { "type": "string", "const": "cancelled" }
-          ]
-        },
-        "editionSlug": { "type": "string" },
-        "version": { "type": "number" },
-        "streamRevision": { "type": "number" },
-        "mappoolId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "homeSourceId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "homeSourceOutcome": {
-          "anyOf": [
-            { "type": "null" },
-            { "type": "string", "const": "winner" },
-            { "type": "string", "const": "loser" }
-          ]
-        },
-        "awaySourceId": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
-        "awaySourceOutcome": {
-          "anyOf": [
-            { "type": "null" },
-            { "type": "string", "const": "winner" },
-            { "type": "string", "const": "loser" }
-          ]
-        },
-        "assignmentRevision": { "type": "number" }
-      },
-      "required": [
-        "homeTeamId",
-        "awayTeamId",
-        "updatedAt",
-        "id",
-        "label",
-        "publishedAt",
-        "roundId",
-        "position",
-        "scheduledAt",
-        "timeZone",
-        "status",
-        "editionSlug",
-        "version",
-        "streamRevision",
-        "mappoolId",
-        "homeSourceId",
-        "homeSourceOutcome",
-        "awaySourceId",
-        "awaySourceOutcome",
-        "assignmentRevision"
-      ],
-      "additionalProperties": false
     },
     "Readbe633062b6e6": {
       "type": "array",
@@ -4353,11 +4354,8 @@
                   },
                   "timeZone": { "type": "string" },
                   "status": {
-                    "anyOf": [
-                      { "type": "string", "const": "scheduled" },
-                      { "type": "string", "const": "in_progress" },
-                      { "type": "string", "const": "cancelled" }
-                    ]
+                    "type": "string",
+                    "enum": ["scheduled", "in_progress", "cancelled", "ended"]
                   },
                   "result": { "$ref": "#/$defs/Readbcbbfd10e5db" },
                   "updatedAt": { "type": "string" }
@@ -5183,7 +5181,8 @@
               "anyOf": [
                 { "type": "string", "const": "scheduled" },
                 { "type": "string", "const": "in_progress" },
-                { "type": "string", "const": "cancelled" }
+                { "type": "string", "const": "cancelled" },
+                { "type": "string", "const": "ended" }
               ]
             },
             "result": { "$ref": "#/$defs/Readbcbbfd10e5db" },
@@ -6116,7 +6115,8 @@
                 "anyOf": [
                   { "type": "string", "const": "scheduled" },
                   { "type": "string", "const": "in_progress" },
-                  { "type": "string", "const": "cancelled" }
+                  { "type": "string", "const": "cancelled" },
+                  { "type": "string", "const": "ended" }
                 ]
               },
               "mappoolId": {
@@ -6742,11 +6742,8 @@
               },
               "timeZone": { "type": "string" },
               "status": {
-                "anyOf": [
-                  { "type": "string", "const": "scheduled" },
-                  { "type": "string", "const": "in_progress" },
-                  { "type": "string", "const": "cancelled" }
-                ]
+                "type": "string",
+                "enum": ["scheduled", "in_progress", "cancelled", "ended"]
               },
               "completed": { "type": "boolean" },
               "version": { "type": "number" },
@@ -6919,7 +6916,7 @@
     "matchReview": {
       "type": "object",
       "properties": {
-        "context": { "$ref": "#/$defs/Read41392380f875" },
+        "context": { "$ref": "#/$defs/Reada643902d3c68" },
         "source": {
           "anyOf": [
             { "type": "null" },
@@ -8308,7 +8305,7 @@
         }
       ]
     },
-    "fixtureForReview": { "$ref": "#/$defs/Read41392380f875" },
+    "fixtureForReview": { "$ref": "#/$defs/Reada643902d3c68" },
     "staffBws": {
       "type": "object",
       "properties": {
@@ -8648,7 +8645,8 @@
               "anyOf": [
                 { "type": "string", "const": "scheduled" },
                 { "type": "string", "const": "in_progress" },
-                { "type": "string", "const": "cancelled" }
+                { "type": "string", "const": "cancelled" },
+                { "type": "string", "const": "ended" }
               ]
             },
             "homeTeamId": {
@@ -9343,7 +9341,8 @@
                   "anyOf": [
                     { "type": "string", "const": "scheduled" },
                     { "type": "string", "const": "in_progress" },
-                    { "type": "string", "const": "cancelled" }
+                    { "type": "string", "const": "cancelled" },
+                    { "type": "string", "const": "ended" }
                   ]
                 },
                 "result": { "$ref": "#/$defs/Readbcbbfd10e5db" },

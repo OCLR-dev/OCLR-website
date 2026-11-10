@@ -1,3 +1,4 @@
+import { isActiveFixtureStatus } from "./fixture-status";
 import { and, eq, isNotNull } from "drizzle-orm";
 import { z } from "zod";
 import { db, readOnlyData } from "@/db";
@@ -45,7 +46,8 @@ export function selectNextStreamingFixture(
     ordered
       .slice(anchor + 1)
       .find(
-        (f) => f.status !== "cancelled" && !f.result && !completed.has(f.id),
+        (f) =>
+          isActiveFixtureStatus(f.status) && !f.result && !completed.has(f.id),
       ) ?? null
   );
 }

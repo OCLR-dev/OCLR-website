@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OCLR write API",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "Incremental documentation of existing OCLR browser and desktop routes. See write-api-inventory.json for coverage."
   },
   "components": {
@@ -7106,6 +7106,10 @@
                     {
                       "type": "string",
                       "const": "cancelled"
+                    },
+                    {
+                      "type": "string",
+                      "const": "ended"
                     }
                   ]
                 },
@@ -7728,7 +7732,7 @@
         "type": "object",
         "properties": {
           "context": {
-            "$ref": "#/components/schemas/Read41392380f875"
+            "$ref": "#/components/schemas/Reada643902d3c68"
           },
           "source": {
             "anyOf": [
@@ -8505,14 +8509,14 @@
         ],
         "additionalProperties": false
       },
-      "Read41392380f875": {
+      "Reada643902d3c68": {
         "type": "object",
         "properties": {
           "exDeclarations": {
             "$ref": "#/components/schemas/Read79d40c7d2bfd"
           },
           "fixture": {
-            "$ref": "#/components/schemas/Readbe0917a67ca0"
+            "$ref": "#/components/schemas/Read96d9ff4335da"
           },
           "round": {
             "$ref": "#/components/schemas/Read140126bb5ad1"
@@ -8571,7 +8575,7 @@
           "additionalProperties": false
         }
       },
-      "Readbe0917a67ca0": {
+      "Read96d9ff4335da": {
         "type": "object",
         "properties": {
           "exhibitionSides": {
@@ -8652,6 +8656,10 @@
               {
                 "type": "string",
                 "const": "cancelled"
+              },
+              {
+                "type": "string",
+                "const": "ended"
               }
             ]
           },
@@ -9641,6 +9649,10 @@
                   {
                     "type": "string",
                     "const": "cancelled"
+                  },
+                  {
+                    "type": "string",
+                    "const": "ended"
                   }
                 ]
               },
@@ -24788,7 +24800,8 @@
                             "enum": [
                               "scheduled",
                               "in_progress",
-                              "cancelled"
+                              "cancelled",
+                              "ended"
                             ]
                           },
                           "mappoolId": {
@@ -24983,7 +24996,8 @@
                             "enum": [
                               "scheduled",
                               "in_progress",
-                              "cancelled"
+                              "cancelled",
+                              "ended"
                             ]
                           },
                           "mappoolId": {
@@ -27533,7 +27547,8 @@
                           "enum": [
                             "scheduled",
                             "in_progress",
-                            "cancelled"
+                            "cancelled",
+                            "ended"
                           ]
                         },
                         "mappoolId": {

@@ -4,6 +4,7 @@ import type {
   StandingsRules,
 } from "./competition-model";
 import type { ExhibitionSides } from "./exhibition-sides";
+import type { FixtureStatus } from "./fixture-status";
 import type { BeatmapMetadata, MappoolCategory } from "./mappool-model";
 import type {
   MatchImportPreview,
@@ -22,7 +23,6 @@ import type {
 type Stage = "group" | "knockout" | "exhibition";
 type Identity = { osuId: number; username: string };
 type LabelledId = { id: string; name: string };
-type FixtureStatus = "scheduled" | "in_progress" | "cancelled";
 type Outcome = "winner" | "loser";
 type Fixture = {
   id: string;

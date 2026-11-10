@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import { fixtureStatuses } from "../lib/fixture-status";
 import {
   pgEnum,
   doublePrecision,
@@ -1047,11 +1048,7 @@ export const mappoolEvents = pgTable(
   (t) => [index("mappool_events_pool_idx").on(t.poolId)],
 );
 
-export const fixtureStatus = pgEnum("fixture_status", [
-  "scheduled",
-  "in_progress",
-  "cancelled",
-]);
+export const fixtureStatus = pgEnum("fixture_status", fixtureStatuses);
 export const fixtures = pgTable(
   "fixtures",
   {

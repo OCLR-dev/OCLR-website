@@ -1,3 +1,4 @@
+import { isActiveFixtureStatus } from "./fixture-status";
 import { and, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -136,12 +137,13 @@ async function databaseStreamingWorkspace(
           };
         };
         const task = f.assignment;
-        const done = completed.some((r) => r.id === f.id);
+        const done =
+          f.status === "ended" || completed.some((r) => r.id === f.id);
         const otherBookings = f.scheduledAt
           ? rows.filter(
               (other) =>
                 other.id !== f.id &&
-                other.status !== "cancelled" &&
+                isActiveFixtureStatus(other.status) &&
                 !completed.some((r) => r.id === other.id) &&
                 other.scheduledAt?.getTime() === f.scheduledAt?.getTime(),
             )
@@ -155,7 +157,7 @@ async function databaseStreamingWorkspace(
             .map((row) => row.userId),
         ];
         const conflictsFor = (userId: number) =>
-          f.status !== "cancelled" && !done
+          isActiveFixtureStatus(f.status) && !done
             ? otherBookings
                 .filter((other) => bookedUsers(other.id).includes(userId))
                 .map((other) => ({ id: other.id, label: other.label }))

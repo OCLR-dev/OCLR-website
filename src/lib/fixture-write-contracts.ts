@@ -1,3 +1,4 @@
+import { fixtureStatuses } from "./fixture-status";
 import { z } from "zod";
 import {
   groupConfigurationInputSchema,
@@ -25,7 +26,7 @@ const fixtureFields = {
   exhibitionNames: exhibitionNamesSchema.nullable().optional(),
   scheduledAt: z.iso.datetime({ offset: true }).nullable(),
   timeZone: z.string().trim().max(80).refine(validTimeZone),
-  status: z.enum(["scheduled", "in_progress", "cancelled"]),
+  status: z.enum(fixtureStatuses),
   mappoolId: z.uuid().nullable(),
   position: z.number().int().min(1).max(999),
   homeSourceId: z.uuid().nullable(),

@@ -98,16 +98,24 @@ async function render() {
 describe("published schedule semantics", () => {
   beforeEach(() => vi.stubGlobal("React", React));
   afterEach(() => vi.unstubAllGlobals());
-  it("labels a cancelled confirmed fixture in both the chart and match table", async () => {
-    const match = { ...fixture(), status: "cancelled" as const, result: null };
-    vi.mocked(publicCompetition).mockResolvedValue(
-      competition([match], policy),
-    );
-    const html = await render();
-    expect(html.match(/Cancelled/g)).toHaveLength(2);
-    expect(html).toContain('data-status="cancelled"');
-    expect(html).toContain(`/tournaments/${edition.slug}/matches/${match.id}`);
-  });
+  it.each([
+    ["cancelled", "Cancelled"],
+    ["ended", "Ended"],
+  ] as const)(
+    "labels a %s fixture in both the chart and match table",
+    async (status, label) => {
+      const match = { ...fixture(), status, result: null };
+      vi.mocked(publicCompetition).mockResolvedValue(
+        competition([match], policy),
+      );
+      const html = await render();
+      expect(html.match(new RegExp(label, "g"))).toHaveLength(2);
+      expect(html).toContain(`data-status="${status}"`);
+      expect(html).toContain(
+        `/tournaments/${edition.slug}/matches/${match.id}`,
+      );
+    },
+  );
   it("retains pending ranks instead of inferring ranks from wins", async () => {
     vi.mocked(publicCompetition).mockResolvedValue(
       competition([fixture()], null),

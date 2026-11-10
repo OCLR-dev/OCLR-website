@@ -4,7 +4,7 @@ import { beforeEach, afterAll, describe, it, expect, vi } from "vitest";
 import type { z } from "zod";
 import { and, eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
-import { fixtureReferees, staffRoles } from "../../src/db/schema";
+import { fixtureReferees, fixtures, staffRoles } from "../../src/db/schema";
 import {
   desktopAuthorizations,
   desktopSessions,
@@ -456,6 +456,26 @@ describe.skipIf(!enabled)(
         seeded.workspace.session?.revision,
       );
       expect(JSON.stringify(panel)).not.toContain("oclr_desk_");
+      await db()
+        .update(fixtures)
+        .set({ status: "ended" })
+        .where(eq(fixtures.id, seeded.fixtureId));
+      expect(
+        (await desktopFixtures(bearer(r.token.access_token))).items,
+      ).toHaveLength(0);
+      await expect(
+        desktopPanel(
+          bearer(
+            r.token.access_token,
+            `/api/referee/v1/fixtures/${seeded.fixtureId}/panel`,
+          ),
+          seeded.fixtureId,
+        ),
+      ).rejects.toMatchObject({ status: 404, code: "FIXTURE_NOT_AVAILABLE" });
+      await db()
+        .update(fixtures)
+        .set({ status: "scheduled" })
+        .where(eq(fixtures.id, seeded.fixtureId));
       // Cross-repository schema validation consumes only fictional fixtures and unusable tokens.
       for (const [name, data] of Object.entries({
         fixtures: list,

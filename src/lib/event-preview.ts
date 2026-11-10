@@ -1,4 +1,5 @@
 import type { PublicSlot } from "./competition-read-contracts";
+import type { FixtureStatus } from "./fixture-status";
 import { informationPreview } from "./tournament-information";
 export type EventPlayer = {
   id: number;
@@ -33,7 +34,7 @@ export type EventMatch = {
   blue: string;
   score: [number, number] | null;
   reviewScore?: [number, number] | null;
-  status?: "scheduled" | "in_progress" | "cancelled";
+  status?: FixtureStatus;
   first?: string;
   redBan?: string;
   blueBan?: string;

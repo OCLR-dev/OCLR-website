@@ -1,0 +1,1 @@
+ALTER TYPE "public"."fixture_status" ADD VALUE 'ended';

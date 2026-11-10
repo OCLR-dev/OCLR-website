@@ -131,9 +131,11 @@ export function EventSchedule({
         statusLabel:
           match.status === "cancelled"
             ? tr("Cancelled")
-            : !match.score && match.status === "in_progress"
-              ? tr("In progress")
-              : undefined,
+            : match.status === "ended"
+              ? tr("Ended")
+              : !match.score && match.status === "in_progress"
+                ? tr("In progress")
+                : undefined,
         slots: [slot(0, match.red), slot(1, match.blue)],
         scores: match.score ?? [null, null],
         winnerSlot: match.winner ?? null,
@@ -440,6 +442,7 @@ export function EventSchedule({
                       {m.status === "cancelled" && (
                         <small>{tr("Cancelled")}</small>
                       )}
+                      {m.status === "ended" && <small>{tr("Ended")}</small>}
                     </td>
                     <td>
                       {m.redHref ? <a href={m.redHref}>{m.red}</a> : m.red}
