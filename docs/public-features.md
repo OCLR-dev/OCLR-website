@@ -42,7 +42,7 @@ About lists active persistent staff grants with public visibility in `/admin/sta
 
 The player-list reaction picker contains 407 bundled image entries: 395 QQ
 resources, 11 osu! Mod icons and the Twemoji circled congratulation. The 33
-selectable entries in [the reviewed export](verification/issue-969/selection.json)
+selectable entries in [the reviewed export](../tests/fixtures/player-reaction-selection.json)
 appear first in export order, followed by the other images in catalog order. Entries
 without an image are omitted. Names remain literal asset names; search also
 recognizes IDs and the aliases 按按钮 / 跪拜. Search and empty-state controls use

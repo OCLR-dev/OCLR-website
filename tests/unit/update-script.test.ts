@@ -173,7 +173,8 @@ else throw new Error('Unexpected external backup command');
 describe("Bash site updates", () => {
   it("packages the selected commit's exclusions and keeps legacy archives complete", () => {
     const repo = mkdtempSync(join(tmpdir(), "oclr-release-archive-"));
-    const git = (...args: string[]) => execFileSync("git", ["-C", repo, ...args]);
+    const git = (...args: string[]) =>
+      execFileSync("git", ["-c", "core.hooksPath=/dev/null", "-C", repo, ...args]);
     const write = (file: string, content: string) => {
       const path = join(repo, file);
       mkdirSync(dirname(path), { recursive: true });
@@ -195,14 +196,16 @@ describe("Bash site updates", () => {
       return git("rev-parse", "HEAD").toString().trim();
     };
     const policy = "scripts/website-release-excludes.txt";
+    const evidence = "docs/verification/issue-969/preview.png";
     const attachments = [
       "design/preview.svg",
       "docs/design/mockup.webp",
+      evidence,
       "output/imagegen/source.png",
     ];
     const required = [
       "docs/read-api.openapi.json",
-      "docs/verification/issue-969/selection.json",
+      "tests/fixtures/player-reaction-selection.json",
       "drizzle/migration.sql",
       "public/fonts/example.woff2",
       "public/fonts/OFL.txt",
@@ -213,6 +216,8 @@ describe("Bash site updates", () => {
       const script = "archive-website-release.sh";
       write(`scripts/${script}`, readFileSync(join(source, script), "utf8"));
       const legacy = commit();
+      write(policy, "design\ndocs/design\noutput/imagegen\n");
+      const designOnly = commit();
       write(
         policy,
         readFileSync(join(source, "website-release-excludes.txt"), "utf8"),
@@ -222,17 +227,14 @@ describe("Bash site updates", () => {
       write(policy, "public\n");
       const archive = (sha: string) =>
         execFileSync("/bin/bash", [join(repo, "scripts", script), sha]);
-      const paths = execFileSync("tar", ["-tf", "-"], { input: archive(selected) })
-        .toString()
-        .split("\n");
+      const listPaths = (input: Buffer) =>
+        execFileSync("tar", ["-tf", "-"], { input }).toString().split("\n");
+      const paths = listPaths(archive(selected));
       for (const file of required) expect(paths).toContain(file);
       for (const file of attachments) expect(paths).not.toContain(file);
+      expect(listPaths(archive(designOnly))).toContain(evidence);
       expect(archive(legacy)).toEqual(git("archive", legacy));
-      const fullPaths = execFileSync("tar", ["-tf", "-"], {
-        input: git("archive", selected),
-      })
-        .toString()
-        .split("\n");
+      const fullPaths = listPaths(git("archive", selected));
       for (const file of attachments) expect(fullPaths).toContain(file);
     } finally {
       rmSync(repo, { recursive: true, force: true });
