@@ -2,7 +2,8 @@
 
 Implementation branch: `选手页面贴表情优化`, based on upstream main `52e869c1`.
 
-The user reviewed the separate image gallery and exported `selection.json` on
+The user reviewed the separate image gallery and exported [the selection used
+by the tests](../../../tests/fixtures/player-reaction-selection.json) on
 2026-11-06. Its 34 keys appear first, in their exported order. The remaining
 374 image-backed entries follow in gallery order. The 45 missing-image and 97
 system-Unicode-only entries are not candidates. The total is 408: 395 QQ images,

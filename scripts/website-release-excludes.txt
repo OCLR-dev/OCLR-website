@@ -1,3 +1,4 @@
 design
 docs/design
+docs/verification
 output/imagegen

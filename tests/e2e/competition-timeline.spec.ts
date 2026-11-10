@@ -4,7 +4,6 @@ import { edition } from "../fixtures/edition";
 import { seedSession } from "./session";
 import { randomUUID } from "node:crypto";
 import { closeDb } from "../../src/db";
-import { mkdirSync } from "node:fs";
 
 test.describe("competition times and overview synchronization #430", () => {
   test.skip(!process.env.TEST_DATABASE_URL, "Requires isolated PostgreSQL");
@@ -70,7 +69,6 @@ test.describe("competition times and overview synchronization #430", () => {
       .getByRole("heading", { name: "Competition times and milestones" })
       .click();
     await page.evaluate(() => window.scrollTo(0, 0));
-    mkdirSync("docs/verification/issue-430", { recursive: true });
     await page.goto(`/tournaments/${slug}`);
     const rows = page.locator("#schedule tbody tr");
     await expect(rows).toHaveCount(4);

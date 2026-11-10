@@ -8,8 +8,8 @@ import {
   playerReactions,
   searchPlayerReactions,
 } from "../../src/lib/player-reactions";
-import selection from "../../docs/verification/issue-969/selection.json";
 import manifest from "../../public/reactions/manifest.json";
+import selection from "../fixtures/player-reaction-selection.json";
 
 function pngChunks(bytes: Buffer) {
   expect(bytes.subarray(0, 8)).toEqual(
