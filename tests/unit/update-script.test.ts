@@ -171,7 +171,7 @@ else throw new Error('Unexpected external backup command');
   }
 }
 describe("Bash site updates", () => {
-  it("packages the selected commit's exclusions and keeps legacy archives complete", () => {
+  it("packages each selected commit using its own inclusion and exclusion rules", () => {
     const repo = mkdtempSync(join(tmpdir(), "oclr-release-archive-"));
     const git = (...args: string[]) =>
       execFileSync("git", ["-c", "core.hooksPath=/dev/null", "-C", repo, ...args]);
@@ -195,15 +195,21 @@ describe("Bash site updates", () => {
       );
       return git("rev-parse", "HEAD").toString().trim();
     };
-    const policy = "scripts/website-release-excludes.txt";
+    const excludes = "scripts/website-release-excludes.txt";
+    const includes = "scripts/website-release-paths.txt";
     const evidence = "docs/verification/issue-969/preview.png";
+    const beatmap = "docs/imports/beatmaps/source.osz";
+    const guide = "docs/development.md";
     const attachments = [
       "design/preview.svg",
       "docs/design/mockup.webp",
       evidence,
+      beatmap,
+      guide,
       "output/imagegen/source.png",
     ];
     const required = [
+      "docs/imports/reviewed.json",
       "docs/read-api.openapi.json",
       "tests/fixtures/player-reaction-selection.json",
       "drizzle/migration.sql",
@@ -216,15 +222,22 @@ describe("Bash site updates", () => {
       const script = "archive-website-release.sh";
       write(`scripts/${script}`, readFileSync(join(source, script), "utf8"));
       const legacy = commit();
-      write(policy, "design\ndocs/design\noutput/imagegen\n");
+      write(excludes, "design\ndocs/design\noutput/imagegen\n");
       const designOnly = commit();
+      write(excludes, "design\ndocs/design\ndocs/verification\noutput/imagegen\n");
+      const evidenceExcluded = commit();
       write(
-        policy,
+        excludes,
         readFileSync(join(source, "website-release-excludes.txt"), "utf8"),
+      );
+      write(
+        includes,
+        "docs/imports\ndocs/read-api.openapi.json\ndrizzle\npublic\nscripts\ntests\n",
       );
       const selected = commit();
       // A different policy in the operator checkout must never change this archive.
-      write(policy, "public\n");
+      write(excludes, "public\n");
+      write(includes, "docs\n");
       const archive = (sha: string) =>
         execFileSync("/bin/bash", [join(repo, "scripts", script), sha]);
       const listPaths = (input: Buffer) =>
@@ -233,6 +246,9 @@ describe("Bash site updates", () => {
       for (const file of required) expect(paths).toContain(file);
       for (const file of attachments) expect(paths).not.toContain(file);
       expect(listPaths(archive(designOnly))).toContain(evidence);
+      expect(listPaths(archive(evidenceExcluded))).toEqual(
+        expect.arrayContaining([guide, beatmap]),
+      );
       expect(archive(legacy)).toEqual(git("archive", legacy));
       const fullPaths = listPaths(git("archive", selected));
       for (const file of attachments) expect(fullPaths).toContain(file);
