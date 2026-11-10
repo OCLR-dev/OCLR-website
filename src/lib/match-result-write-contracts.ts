@@ -1,3 +1,4 @@
+import { fixtureStatuses } from "./fixture-status";
 import { z } from "zod";
 import { exhibitionSidesSchema } from "./exhibition-sides";
 import type { FixtureReadContracts } from "./fixture-read-contracts";
@@ -107,7 +108,7 @@ const matchPreview = z.object({
     awayTeamId: nullableId,
     scheduledAt: instant,
     timeZone: z.string(),
-    status: z.enum(["scheduled", "in_progress", "cancelled"]),
+    status: z.enum(fixtureStatuses),
     mappoolId: nullableId,
     position: z.number(),
     homeSourceId: nullableId,

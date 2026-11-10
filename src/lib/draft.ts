@@ -148,7 +148,7 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
         .where(
           and(
             eq(fixtures.editionSlug, slug),
-            sql`(${fixtures.status} = 'in_progress' OR EXISTS(SELECT 1 FROM match_results r WHERE r.fixture_id = ${fixtures.id}) OR EXISTS(SELECT 1 FROM match_imports i WHERE i.fixture_id = ${fixtures.id}))`,
+            sql`(${fixtures.status} IN ('in_progress', 'ended') OR EXISTS(SELECT 1 FROM match_results r WHERE r.fixture_id = ${fixtures.id}) OR EXISTS(SELECT 1 FROM match_imports i WHERE i.fixture_id = ${fixtures.id}))`,
           ),
         )
         .limit(1);

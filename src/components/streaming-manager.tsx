@@ -393,7 +393,11 @@ function StreamingTask({
               : tr("Match time TBA")}
           </p>
           <span className="badge">
-            {f.completed ? tr("Completed") : tr(f.status)}
+            {f.status === "ended"
+              ? tr("Ended")
+              : f.completed
+                ? tr("Completed")
+                : tr(f.status)}
           </span>
         </div>
       </div>

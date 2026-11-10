@@ -659,6 +659,13 @@
       "when": 1794069643019,
       "tag": "0093_live_score_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 94,
+      "version": "7",
+      "when": 1794274462051,
+      "tag": "0094_fixture_ended_status",
+      "breakpoints": true
     }
   ]
 }

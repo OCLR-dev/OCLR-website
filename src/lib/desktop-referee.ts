@@ -1,5 +1,5 @@
 import { openExhibitionSides } from "./exhibition-sides";
-import { and, eq, isNull, inArray, or, asc } from "drizzle-orm";
+import { and, eq, isNull, inArray, or, asc, ne } from "drizzle-orm";
 import { z } from "zod";
 import { db, readOnlyData } from "@/db";
 import {
@@ -53,6 +53,9 @@ export async function desktopPanel(request: Request, id: string) {
       throw new DesktopError(400, "INVALID_REQUEST");
     const actor = await requireDesktopUser(request, "referee:panel:read"),
       fixture = await assignedDesktopFixture(actor, id);
+    // The desktop v1 panel is for live operations and has no ended status.
+    if (fixture.status === "ended")
+      throw new DesktopError(404, "FIXTURE_NOT_AVAILABLE");
     const workspace = await refereeWorkspace(actor, fixture.editionSlug, id);
     const [edition] = await db()
       .select()
@@ -107,6 +110,7 @@ export async function desktopFixtures(request: Request) {
       .innerJoin(editionState, eq(editionState.slug, fixtures.editionSlug))
       .innerJoin(tournamentRounds, eq(tournamentRounds.id, fixtures.roundId))
       .leftJoin(matchResults, eq(matchResults.fixtureId, fixtures.id))
+      .where(ne(fixtures.status, "ended"))
       .orderBy(asc(fixtures.id))
       .limit(501);
     if (rows.length > 500) throw new DesktopError(413, "RESPONSE_TOO_LARGE");

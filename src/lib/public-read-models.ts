@@ -1,3 +1,4 @@
+import { isActiveFixtureStatus } from "./fixture-status";
 import { compareTournamentSeasons } from "./tournament-order";
 import { db, readOnlyData } from "@/db";
 import {
@@ -194,7 +195,9 @@ async function databaseOverview(
     null,
   );
   const next = competition?.fixtures
-    .filter((fixture) => !fixture.result && fixture.status !== "cancelled")
+    .filter(
+      (fixture) => !fixture.result && isActiveFixtureStatus(fixture.status),
+    )
     .sort((a, b) =>
       (a.scheduledAt ?? "9999").localeCompare(b.scheduledAt ?? "9999"),
     )[0];

@@ -326,6 +326,7 @@ function FixtureForm({
               >
                 <option value="scheduled">{tr("Scheduled")}</option>
                 <option value="in_progress">{tr("In progress")}</option>
+                <option value="ended">{tr("Ended")}</option>
                 <option value="cancelled">{tr("Cancelled")}</option>
               </select>
             </label>
@@ -432,6 +433,7 @@ export function FixtureManager({
               {
                 scheduled: tr("Scheduled"),
                 in_progress: tr("In progress"),
+                ended: tr("Ended"),
                 cancelled: tr("Cancelled"),
               }[f.status]
             }

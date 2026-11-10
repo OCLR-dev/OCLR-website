@@ -532,7 +532,36 @@ describe.skipIf(!url)(
         mappoolId: null,
         label: "Exhibition Final",
       });
-      fixtureId = workspace.fixtures.find((f) => f.roundId === round.id)!.id;
+      const exhibition = workspace.fixtures.find(
+        (f) => f.roundId === round.id,
+      )!;
+      fixtureId = exhibition.id;
+      const { refereeIds, ...fields } = fixtureBody;
+      const edited = await fixtureCommand(admin, "test-cup", {
+        ...fields,
+        action: "edit",
+        fixtureId,
+        expectedVersion: exhibition.version,
+        roundId: round.id,
+        mappoolId: null,
+        label: exhibition.label,
+        status: "ended",
+      });
+      expect(edited.fixtures.find((f) => f.id === fixtureId)).toMatchObject({
+        status: "ended",
+        refereeIds,
+      });
+      await fixtureCommand(admin, "test-cup", {
+        ...confirm,
+        action: "publish",
+        fixtureId,
+        expectedVersion: exhibition.version + 1,
+        published: true,
+      });
+      expect(await publicFixture("test-cup", fixtureId)).toMatchObject({
+        status: "ended",
+        result: null,
+      });
       source = await makeSource(false, 10000);
       vi.mocked(fetchMatchSource).mockResolvedValue(source);
       view = await imported();

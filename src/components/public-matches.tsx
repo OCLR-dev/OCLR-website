@@ -28,9 +28,11 @@ export function MatchCard({
       ? "Cancelled"
       : f.result
         ? "Published result"
-        : f.confirmed
-          ? f.status.replaceAll("_", " ")
-          : "Awaiting fixture confirmation";
+        : f.status === "ended"
+          ? "Ended"
+          : f.confirmed
+            ? f.status.replaceAll("_", " ")
+            : "Awaiting fixture confirmation";
   return (
     <article className="panel public-match-card">
       <div className="match-meta">

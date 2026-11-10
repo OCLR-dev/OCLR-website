@@ -48,11 +48,16 @@ async function Issue271Page({
         eyebrow={`${tr(competitionStageLabel(f.stage))} / ${f.roundName}`}
         title={f.label}
       >
-        {f.status === "cancelled"
-          ? tr("Cancelled — no winner assumed")
-          : result
-            ? tr("Approved and published result")
-            : tr("Awaiting published result")}
+        {f.status === "cancelled" ? (
+          tr("Cancelled — no winner assumed")
+        ) : result ? (
+          tr("Approved and published result")
+        ) : (
+          <>
+            {f.status === "ended" && <>{tr("Ended")} · </>}
+            {tr("Awaiting published result")}
+          </>
+        )}
       </PageHeading>
       <section className="panel stack">
         <div className="match-versus">

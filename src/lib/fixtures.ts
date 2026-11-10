@@ -487,6 +487,11 @@ export async function fixtureCommand(
             409,
             "An in-progress fixture cannot be deleted. Use the established match correction workflow.",
           );
+        if (c.action === "delete" && before!.status === "ended")
+          throw new HttpError(
+            409,
+            "An ended fixture cannot be deleted. Use the established match correction workflow.",
+          );
         if (before!.assignmentRevision !== c.expectedAssignmentRevision)
           throw new HttpError(
             409,

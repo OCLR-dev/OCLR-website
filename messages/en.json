@@ -3988,6 +3988,8 @@
     "mcd41184d4a88": "Confirm the approved scoring rules before submitting.",
     "m21f224f30e1f": "Match time",
     "m78094b85cfeb": "Match result",
-    "m7b8b76121ae2": "Birthday: October 25"
+    "m7b8b76121ae2": "Birthday: October 25",
+    "m7cdc804e6996": "Ended",
+    "m73097de23ecf": "An ended fixture cannot be deleted. Use the established match correction workflow."
   }
 }
