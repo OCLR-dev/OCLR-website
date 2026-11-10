@@ -3146,7 +3146,7 @@ html[data-appearance]
 .profile-cover-content .bws-card-divider {
   background: rgb(255 255 255 / 22%);
 }
-@media (max-width: 40rem) {
+@media (max-width: 48rem) {
   .profile-cover-content {
     align-items: stretch;
   }
@@ -3154,8 +3154,7 @@ html[data-appearance]
     margin-inline-start: 0;
     width: 100%;
   }
-  /* Too narrow for two metrics side by side: stack them and turn the
-     separator into a horizontal rule. */
+  /* Stack the metrics and use horizontal dividers on narrow covers. */
   .bws-card {
     flex-direction: column;
     gap: 0.45rem;
