@@ -101,6 +101,14 @@ Published directory and team entries link to `/players/[osuId]`; `?edition=<slug
 
 Snapshots expire after **30 minutes** and are labeled with their source, ruleset and last successful update. The PostgreSQL cache holds at most **1,000 ID/ruleset keys**, evicting oldest attempts. In-process coalescing and database refresh claims deduplicate requests across instances; late claims cannot overwrite newer work. Refresh attempts are spaced by at least one minute per key, with five-minute backoff after failure. Temporary failures retain the last good snapshot with a stale notice; closed/deleted profiles are unavailable while their previous snapshot remains stored. Per-process provider pacing/queue limits still apply; account for aggregate traffic when scaling processes.
 
+The player profile summary can also show the current osu!standard tournament
+rating from [o!TR](https://otr.stagec.net). Set `OTR_API_KEY` in the server's
+runtime environment to enable lookups for publicly listed players. The note
+links to the provider profile and shows when the rating was fetched. The
+server caches the public result for up to five minutes. The column shows
+“No rating data” when the key or rating is unavailable, including in saved
+remote development mode.
+
 Profile lookup is API-only: the protected `POST /api/admin/profiles` supplies in-context Captain identity enrichment and throttled refresh for Admins with registration permissions. There is no standalone Profile or Beatmap lookup page; beatmap previews and bulk lookup stay in the Mappool workflow. Mappoolers, Referees, captains and ordinary accounts have no lookup privilege through those roles. Lookup never creates a user, publishes participation, changes eligibility or approves a registration. Use the organizer regression input `https://osu.ppy.sh/users/651307/osu` after configuring real API credentials. Automated fixtures are synthetic; the unauthenticated official request returned HTTP 403, so that player's current statistics remain unverified.
 
 ## Public competition center and group standings

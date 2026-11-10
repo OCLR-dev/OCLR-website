@@ -6,6 +6,7 @@ import {
   type BwsSummary as Summary,
 } from "@/lib/bws-model";
 import type { ProfileBadge } from "@/lib/osu-profile-model";
+import type { OtrRating } from "@/lib/otr-rating";
 import { isGameplayBadge } from "@/lib/badge-activity";
 import { globalRankTier, type GlobalRankTier } from "@/lib/rank-tier";
 
@@ -157,12 +158,14 @@ function CompactBwsSummary({
   countryRank,
   globalRankPercent,
   oii,
+  otrRating,
   badges,
 }: {
   value: Summary;
   countryRank: number | null;
   globalRankPercent: number | null;
   oii: number | null;
+  otrRating?: OtrRating | null;
   badges: ProfileBadge[] | null;
 }) {
   // The index carries the rank-tier gradient only where it says something:
@@ -351,6 +354,54 @@ function CompactBwsSummary({
           )}
         </div>
       </div>
+      {otrRating !== undefined && (
+        <>
+          <span className="bws-card-divider" aria-hidden="true" />
+          <div className="bws-card-metric">
+            <div className="bws-card-label-row">
+              <span className="bws-card-label">o!TR</span>
+              <div className="bws-card-note">
+                <InfoTrigger onOpenLabel={tr("About the o!TR rating")} />
+                <div className="bws-card-note-panel" role="note">
+                  <p className="small muted">
+                    {tr("osu!standard tournament rating from o!TR.")}
+                  </p>
+                  {otrRating && (
+                    <p className="small muted">
+                      {tr("Rating fetched")}:{" "}
+                      <time dateTime={otrRating.fetchedAt}>
+                        {new Intl.DateTimeFormat(tr.locale, {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                          timeZone: "UTC",
+                        }).format(new Date(otrRating.fetchedAt))}{" "}
+                        UTC
+                      </time>
+                    </p>
+                  )}
+                  <p className="small muted">
+                    <a
+                      className="text-link"
+                      href={otrRating?.profileUrl ?? "https://otr.stagec.net"}
+                    >
+                      {tr("View on o!TR")}
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="bws-card-value-row">
+              {otrRating ? (
+                <strong className="bws-value">
+                  {number(otrRating.value, 2)}
+                </strong>
+              ) : (
+                <span className="bws-card-state">{tr("No rating data")}</span>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </section>
   );
 }
@@ -361,6 +412,7 @@ export function BwsSummary({
   countryRank = null,
   globalRankPercent = null,
   oii = null,
+  otrRating,
   badges = null,
 }: {
   value: Summary;
@@ -368,6 +420,7 @@ export function BwsSummary({
   countryRank?: number | null;
   globalRankPercent?: number | null;
   oii?: number | null;
+  otrRating?: OtrRating | null;
   badges?: ProfileBadge[] | null;
 }) {
   const tr = useAppTranslations();
@@ -378,6 +431,7 @@ export function BwsSummary({
         countryRank={countryRank}
         globalRankPercent={globalRankPercent}
         oii={oii}
+        otrRating={otrRating}
         badges={badges}
       />
     );

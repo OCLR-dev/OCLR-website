@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { useAppTranslations } from "@/i18n/shared";
 import type { BwsSummary as BwsData } from "@/lib/bws-model";
 import type { ProfileSnapshot } from "@/lib/osu-profile-model";
+import type { OtrRating } from "@/lib/otr-rating";
 import {
   summarizePlayerCompetition,
   type PlayerCompetitionRecord,
@@ -39,6 +40,7 @@ export function PlayerEditionView({
   snapshot,
   heading,
   bws,
+  otrRating,
   bwsByEdition,
   competition,
   staffHistory = [],
@@ -55,6 +57,7 @@ export function PlayerEditionView({
   snapshot: ProfileSnapshot | null;
   heading: ReactNode;
   bws?: BwsData | null;
+  otrRating: OtrRating | null;
   bwsByEdition: Record<string, BwsData | null>;
   competition: PlayerCompetitionRecord | null;
   staffHistory?: StaffHistory;
@@ -171,6 +174,7 @@ export function PlayerEditionView({
             heading={heading}
             snapshot={snapshot}
             bws={selected ? (bwsByEdition[selected] ?? null) : bws}
+            otrRating={otrRating}
           />
         ) : (
           <>

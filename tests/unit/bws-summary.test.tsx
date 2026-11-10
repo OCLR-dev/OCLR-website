@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { BwsSummary } from "../../src/components/bws-summary";
 import { summarizeBws } from "../../src/lib/bws-model";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
+import type { OtrRating } from "../../src/lib/otr-rating";
 import messages from "../../messages/en.json";
 
 function render(
@@ -13,6 +14,7 @@ function render(
   pending = false,
   variant: "detail" | "compact" = "detail",
   globalRankPercent: number | null = null,
+  otrRating?: OtrRating | null,
 ) {
   const profile = normalizeOsuProfile(
     {
@@ -35,6 +37,7 @@ function render(
         variant={variant}
         countryRank={profile.statistics.countryRank}
         globalRankPercent={profile.statistics.globalRankPercent}
+        otrRating={otrRating}
         value={summarizeBws({ profile, stale: true, notice: null }, null)}
       />
     </NextIntlClientProvider>,
@@ -73,6 +76,22 @@ describe("shared public and staff BWS display", () => {
     const html = render(10000, 1234.567, false, "compact");
     expect(html).toContain('<strong class="bws-value">');
     expect(html).not.toContain("bws-value--rank-tier");
+  });
+  it("shows the o!TR rating in the last column with its source and fetch time", () => {
+    const html = render(10000, 1234, false, "compact", null, {
+      value: 1572.48,
+      fetchedAt: "2026-11-10T02:30:00.000Z",
+      profileUrl: "https://otr.stagec.net/players/321?ruleset=0",
+    });
+    expect(html.indexOf(">o!TR<")).toBeGreaterThan(html.indexOf(">OII<"));
+    expect(html).toContain(">1,572.48</strong>");
+    expect(html).toContain(
+      'href="https://otr.stagec.net/players/321?ruleset=0"',
+    );
+    expect(html).toContain('dateTime="2026-11-10T02:30:00.000Z"');
+    expect(render(10000, 1234, false, "compact", null, null)).toContain(
+      "No rating data",
+    );
   });
   it("shows the plain rank and pp while badges await review", () => {
     expect(render(null, 0)).toContain('class="bws-value">0</strong>');
@@ -123,10 +142,10 @@ describe("shared public and staff BWS display", () => {
           globalRankPercent={0.01}
           oii={1.35}
           badges={profile.badges}
-          value={summarizeBws(
-            { profile, stale: false, notice: null },
-            ["osu", "other"],
-          )}
+          value={summarizeBws({ profile, stale: false, notice: null }, [
+            "osu",
+            "other",
+          ])}
         />
       </NextIntlClientProvider>,
     );

@@ -11,14 +11,17 @@ import type { BwsSummary as BwsData } from "@/lib/bws-model";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { ProfileSnapshot } from "@/lib/osu-profile-model";
+import type { OtrRating } from "@/lib/otr-rating";
 import { calculateOii, oiiMode } from "@/lib/oii";
 export function PlayerProfile({
   snapshot,
   bws,
+  otrRating,
   heading,
 }: {
   snapshot: ProfileSnapshot;
   bws?: BwsData | null;
+  otrRating?: OtrRating | null;
   heading?: ReactNode;
 }) {
   const tr = useAppTranslations();
@@ -104,6 +107,7 @@ export function PlayerProfile({
                 countryRank={s.countryRank}
                 globalRankPercent={s.globalRankPercent}
                 oii={oii}
+                otrRating={otrRating}
                 badges={p.badges}
               />
             )}
