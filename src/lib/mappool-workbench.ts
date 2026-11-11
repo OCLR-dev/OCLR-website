@@ -159,7 +159,59 @@ export async function selectionCommand(
           eq(mappoolCandidates.editionSlug, slug),
         ),
       );
-    if (!candidate) throw new HttpError(404, "Candidate not found.");
+    if (!candidate) {
+      if (c.action === "delete") {
+        const [deleted] = await tx
+          .select({ id: mappoolEvents.id })
+          .from(mappoolEvents)
+          .where(
+            and(
+              eq(mappoolEvents.editionSlug, slug),
+              eq(mappoolEvents.actorId, actor.osuId),
+              eq(mappoolEvents.action, "candidate_delete"),
+              sql`${mappoolEvents.after}->>'id' = ${c.candidateId}`,
+            ),
+          )
+          .limit(1);
+        if (deleted) return { added: 0, skipped: 1 };
+      }
+      throw new HttpError(404, "Candidate not found.");
+    }
+    if (c.action === "delete") {
+      if (candidate.authorId !== actor.osuId)
+        await assertCapability(actor, "manage_mappools", slug, tx);
+      const [comments] = await tx
+        .select({ count: sql<number>`count(*)::int` })
+        .from(mappoolCandidateComments)
+        .where(eq(mappoolCandidateComments.candidateId, candidate.id));
+      if (
+        candidate.category !== c.expectedCategory ||
+        comments.count !== c.expectedCommentCount
+      )
+        throw new HttpError(
+          409,
+          "This candidate has changed. Refresh the list before trying again.",
+        );
+      await tx
+        .delete(mappoolCandidateComments)
+        .where(eq(mappoolCandidateComments.candidateId, candidate.id));
+      await tx
+        .delete(mappoolCandidates)
+        .where(eq(mappoolCandidates.id, candidate.id));
+      await tx.insert(mappoolEvents).values({
+        editionSlug: slug,
+        actorId: actor.osuId,
+        action: "candidate_delete",
+        before: {
+          candidateId: candidate.id,
+          beatmapId: candidate.beatmapId,
+          category: candidate.category,
+          commentCount: comments.count,
+        },
+        after: { id: candidate.id, deleted: true },
+      });
+      return { added: 0, skipped: 0 };
+    }
     if (c.action === "skillsets") {
       if (candidate.skillsetVersion !== c.expectedVersion)
         throw new HttpError(

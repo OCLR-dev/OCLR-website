@@ -3996,6 +3996,11 @@
     "md33345407025": "Rating fetched",
     "m2d320dcb00d5": "View on o!TR",
     "m01963f122717": "No rating data",
-    "m12616bf377c0": "{years} historical tournament archive."
+    "m12616bf377c0": "{years} historical tournament archive.",
+    "ma312d060dcde": "Beatmap ID or difficulty URL",
+    "mb9eee9822653": "Delete candidate",
+    "mae8fc3f97dd6": "This will remove the candidate and its comments from the workbench.",
+    "mdf5f8ba03f2d": "Candidate deleted.",
+    "md62d2014d9a3": "This candidate has changed. Refresh the list before trying again."
   }
 }

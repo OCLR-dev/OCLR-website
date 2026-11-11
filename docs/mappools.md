@@ -279,7 +279,7 @@ Candidates reuse the historical mappool `MapCardBand` with its workbench variant
 the cover image and placeholder are omitted while the original faded background
 art remains. Mod, copyable BID and the ellipsized map title share one header row.
 Artist and adder share the credit row, followed by difficulty/mapper and saved
-base parameters (including HP). Parameters and four compact actions share one
+base parameters (including HP). Parameters and compact actions share one
 row, with actions on the right; narrow cards scroll that row horizontally rather
 than adding an action row. The row is keyboard-focusable and controls remain
 reachable. Saved intended rounds appear as wrapping name chips directly below
@@ -318,6 +318,17 @@ same transaction. Conflicts retain the draft; cancel and refresh before starting
 a new edit against the reviewed text. Deleted comments disappear from the thread
 and count. Replaying a deleted comment's creation request is rejected rather than
 recreating it. No deleted comment text is copied into audit metadata.
+Use **Delete candidate** on a candidate card to remove the candidate, its round
+assignments and its comments. The candidate author can delete it with an active
+workbench write grant. Admins and Poolers can also delete other candidates in
+their edition. Deletion requires confirmation, checks the saved category and
+comment count, and records an audit event without comment text. Official pools
+and their entries are separate records.
+
+Use **Check history** above the Mod tabs with a BID or an official difficulty
+URL to search published historical pools before adding a candidate. Results
+identify the edition, pool and slot, including archived original BIDs.
+The search reads saved records without fetching osu! metadata.
 Candidate intent can include multiple existing rounds from the same edition, or
 remain unassigned. Set it for a new batch or edit an individual candidate. These
 are planning labels, independent of formal pool/slot assignment; adding an existing
@@ -356,12 +367,15 @@ to the published entry. Refresh the pool after a conflict or uncertain response.
 
 Candidate metadata, comments and authors remain private even after an edition
 or official pool is published. The browser-session API is
-`/api/admin/tournaments/{edition}/mappool-workbench`: GET saved candidates; POST
+`/api/admin/tournaments/{edition}/mappool-workbench`: GET saved candidates or
+pass `?beatmap=` with a BID or official difficulty URL to check history. POST
 `preview` (text/category), `add` (category and selected BID/fingerprint pairs),
 `classify` (candidate UUID, expected/new category), `assign_rounds` (candidate UUID,
 new/expected round UUID arrays), or `comment`
 (candidate UUID, request UUID and body), `comment_edit` (candidate/comment UUIDs,
-version and body), or `comment_delete` (candidate/comment UUIDs and version). GET `/{candidateId}/comments` loads a
+version and body), `comment_delete` (candidate/comment UUIDs and version), or
+`delete` (candidate UUID, expected category, expected comment count and
+confirmation). GET `/{candidateId}/comments` loads a
 thread. POST requires same-origin and fresh write authorization; no Bearer
 business writes are accepted. Reads never query osu! or mutate official pools.
 Historical archives are readable but cannot receive new candidates/comments.
