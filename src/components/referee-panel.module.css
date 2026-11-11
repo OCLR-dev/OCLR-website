@@ -237,7 +237,7 @@
   outline: 2px solid var(--site-accent-strong);
   outline-offset: 2px;
 }
-.irc header {
+.irc > header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -723,16 +723,89 @@
   padding: 0.25rem 0.5rem;
   font-size: var(--text-label);
 }
-.ircHelp {
-  font-size: var(--text-label);
+.ircTitle,
+.ircHelpHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
-.ircHelp[open] {
-  max-height: 9rem;
+.ircHelpHeading {
+  justify-content: space-between;
+}
+.ircHelpHeading h3 {
+  margin: 0;
+  font-size: var(--text-body);
+}
+.irc .ircHelpTrigger {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--site-accent-strong);
+  box-shadow: none;
+  line-height: 1;
+}
+.irc .ircHelpTrigger:is(:hover, :focus-visible) {
+  background: var(--site-tint);
+}
+.irc .ircHelpTrigger span {
+  font-size: var(--text-heading);
+}
+@media (pointer: coarse) {
+  .irc .ircHelpTrigger {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+}
+.ircHelp {
+  position: fixed;
+  box-sizing: border-box;
+  inline-size: min(22rem, calc(100vw - 2rem));
+  max-block-size: calc(100dvh - 2rem);
+  padding: 0.75rem 1rem 1rem;
+  border: 1px solid var(--site-control-border);
+  border-radius: 0.75rem;
+  background: var(--site-surface);
+  color: var(--site-foreground);
+  box-shadow: 0 8px 32px var(--site-dialog-shadow);
+  font-size: var(--text-small);
   overflow: auto;
+  overflow-wrap: anywhere;
 }
 .ircHelp ol {
-  padding-left: 1.25rem;
-  margin-block: 0.5rem;
+  padding-inline-start: 1.25rem;
+  margin: 0.5rem 0 0;
+  list-style: decimal;
+}
+.ircHelp li + li {
+  margin-block-start: 0.25rem;
+}
+.ircHelp a {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+@supports (position-area: block-end span-inline-end) {
+  .ircHelp {
+    inset: auto;
+    margin: 0.375rem 0;
+    max-block-size: min(24rem, 45dvh);
+    position-area: block-end span-inline-end;
+    position-try-fallbacks:
+      flip-inline,
+      flip-block,
+      flip-inline flip-block;
+  }
+  @media (max-width: 44rem) {
+    .ircHelp {
+      position-area: block-end span-all;
+      justify-self: center;
+      position-try-fallbacks: flip-block;
+    }
+  }
 }
 .ircReceipts > summary {
   font-size: var(--text-label);

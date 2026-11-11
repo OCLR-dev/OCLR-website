@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, type Ref } from "react";
+import { useEffect, useId, useRef, useState, type Ref } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { RefereeIrcBrowserView } from "@/lib/referee-irc-browser-contract";
 import type { RefereeWorkspace } from "@/lib/referee-workspace";
@@ -56,6 +56,7 @@ export function RefereeIrc({
   onRoomChange?: (roomId: number | null) => void;
 }) {
   const tr = useAppTranslations();
+  const helpId = useId();
   const [history, setHistory] = useState<
     { text: string; time: string; selection: string | null }[]
   >([]);
@@ -361,7 +362,84 @@ export function RefereeIrc({
       aria-label={tr("IRC console")}
     >
       <header>
-        <h2>{"IRC"}</h2>
+        <div className={styles.ircTitle}>
+          <h2>{"IRC"}</h2>
+          {!simulation && (
+            <>
+              <button
+                type="button"
+                className={styles.ircHelpTrigger}
+                popoverTarget={helpId}
+                aria-haspopup="dialog"
+                aria-label={tr("Connection setup")}
+                title={tr("Connection setup")}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M9.6 9a2.45 2.45 0 1 1 3.8 2.7c-.9.6-1.4 1.1-1.4 2.05m0 2.55h.01" />
+                </svg>
+              </button>
+              <div
+                id={helpId}
+                popover="auto"
+                role="dialog"
+                aria-labelledby={`${helpId}-title`}
+                className={styles.ircHelp}
+              >
+                <div className={styles.ircHelpHeading}>
+                  <h3 id={`${helpId}-title`}>{tr("Connection setup")}</h3>
+                  <button
+                    type="button"
+                    className={styles.ircHelpTrigger}
+                    popoverTarget={helpId}
+                    popoverTargetAction="hide"
+                    aria-label={tr("Close")}
+                  >
+                    <span aria-hidden="true">{"×"}</span>
+                  </button>
+                </div>
+                {!connected && (
+                  <p className="small muted">
+                    {tr(
+                      "If the app does not open, install the latest OCLR IRC and launch it once, then try again.",
+                    )}{" "}
+                    <a
+                      href="https://github.com/OCLR-dev/OCLR-IRC/actions/workflows/test-builds.yml"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {tr("Get OCLR IRC")}
+                    </a>
+                  </p>
+                )}
+                <ol>
+                  <li>
+                    {tr("Open oclr-irc and sign in to osu! IRC locally.")}
+                  </li>
+                  <li>
+                    {tr(
+                      "Authorize OCLR in the browser and select this assigned match.",
+                    )}
+                  </li>
+                  <li>
+                    {tr(
+                      "Confirm the accounts and enable website IRC. You can then create a room from this page.",
+                    )}
+                  </li>
+                </ol>
+              </div>
+            </>
+          )}
+        </div>
         <span className="badge">
           {simulation
             ? tr("Simulation only")
@@ -438,36 +516,6 @@ export function RefereeIrc({
               </div>
             </div>
           )}
-          <details className={styles.ircHelp}>
-            <summary>{tr("Connection setup")}</summary>
-            {!connected && (
-              <p className="small muted">
-                {tr(
-                  "If the app does not open, install the latest OCLR IRC and launch it once, then try again.",
-                )}{" "}
-                <a
-                  href="https://github.com/OCLR-dev/OCLR-IRC/actions/workflows/test-builds.yml"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {tr("Get OCLR IRC")}
-                </a>
-              </p>
-            )}
-            <ol>
-              <li>{tr("Open oclr-irc and sign in to osu! IRC locally.")}</li>
-              <li>
-                {tr(
-                  "Authorize OCLR in the browser and select this assigned match.",
-                )}
-              </li>
-              <li>
-                {tr(
-                  "Confirm the accounts and enable website IRC. You can then create a room from this page.",
-                )}
-              </li>
-            </ol>
-          </details>
         </>
       )}
       <div

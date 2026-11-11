@@ -693,10 +693,31 @@ for (const locale of ["en", "zh-Hans", "zh-Hant"] as const) {
       await expect(control).toHaveCSS("font-size", "12px");
       await expect(control).toHaveCSS("white-space", "nowrap");
     }
-    await console.getByText(text("Connection setup"), { exact: true }).click();
-    const help = console.locator("details").filter({
-      has: page.getByText(text("Connection setup"), { exact: true }),
+    const trigger = console.getByRole("button", {
+      name: text("Connection setup"),
+      exact: true,
     });
+    const help = console.getByRole("dialog", {
+      name: text("Connection setup"),
+      exact: true,
+    });
+    const log = console.getByRole("log");
+    const logOffset = () =>
+      log.evaluate((node) => {
+        const panel = node.closest("aside")!;
+        return node.getBoundingClientRect().top - panel.getBoundingClientRect().top;
+      });
+    const initialOffset = await logOffset();
+    await expect(help).toBeHidden();
+    await trigger.press("Enter");
+    await expect(help).toBeVisible();
+    expect(await logOffset()).toBe(initialOffset);
+    const helpBox = (await help.boundingBox())!;
+    const viewport = page.viewportSize()!;
+    expect(helpBox.x).toBeGreaterThanOrEqual(0);
+    expect(helpBox.y).toBeGreaterThanOrEqual(0);
+    expect(helpBox.x + helpBox.width).toBeLessThanOrEqual(viewport.width);
+    expect(helpBox.y + helpBox.height).toBeLessThanOrEqual(viewport.height);
     await expect(help.getByRole("listitem")).toHaveCount(3);
     for (const source of [
       "Open oclr-irc and sign in to osu! IRC locally.",
@@ -732,9 +753,12 @@ for (const locale of ["en", "zh-Hans", "zh-Hant"] as const) {
       .include('[class*="ircLaunchActions"]')
       .analyze();
     expect(accessibility.violations).toEqual([]);
-    await console.screenshot({
+    await page.screenshot({
       path: info.outputPath(`${locale}-${theme}-irc-help.png`),
     });
+    await page.keyboard.press("Escape");
+    await expect(help).toBeHidden();
+    await expect(trigger).toBeFocused();
   });
 }
 test("IRC help keeps connection management available when connected and hidden in simulation", async ({
@@ -755,9 +779,15 @@ test("IRC help keeps connection management available when connected and hidden i
   await expect(
     console.getByRole("link", { name: "Manage connections", exact: true }),
   ).toBeVisible();
+  await expect(
+    console.getByRole("button", { name: "Connection setup", exact: true }),
+  ).toBeVisible();
   await page.goto("/referee-panel?simulation");
   await expect(
     page.getByRole("link", { name: "Manage connections", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Connection setup", exact: true }),
   ).toHaveCount(0);
 });
 test("records Ban and Pick without an IRC connection or queue request", async ({
