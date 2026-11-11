@@ -4003,6 +4003,19 @@
     "mdf5f8ba03f2d": "Candidate deleted.",
     "md62d2014d9a3": "This candidate has changed. Refresh the list before trying again.",
     "m97cf7ce375a7": "Return to setup and void confirmed picks. Draft assignments and roster finalization are cleared, and the draft board and team rosters are unpublished. Saved order, registration status, fixtures, match evidence, and audit history are preserved.",
-    "m797752141ec2": "Choose a command or pool map."
+    "m797752141ec2": "Choose a command or pool map.",
+    "m74b2dc353ebe": "Career leaderboard",
+    "m6b25a21b7131": "1st place",
+    "maaeaebca09cb": "2nd place",
+    "mbb8a4734dcc3": "3rd place",
+    "m8b8fd742c2d6": "Map win rate",
+    "mb947bf49a032": "Tournament and map career totals built from published results.",
+    "m43991c6f1e82": "Championships, runner-up and third place follow each edition's published final placements. Map places rank every counted score on the map.",
+    "me52c272c442d": "Maps won, maps lost and map win rate follow the map result for the player's team. Average accuracy only includes counted maps with a recorded accuracy.",
+    "ma3fcd89be1f2": "Tournament appearances count editions with a published roster. Longest win streak counts consecutive series wins across editions.",
+    "mb1e29337fb04": "{value0} players · {value1} editions",
+    "m26e026bcd52e": "{value0} editions unavailable",
+    "m219603b36828": "No career statistics yet",
+    "maf87496f2575": "The career ranking appears after a season publishes its rosters and match statistics."
   }
 }

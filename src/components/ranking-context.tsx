@@ -7,8 +7,14 @@ import { useAppTranslations } from "@/i18n/shared";
 import styles from "./ranking-context.module.css";
 
 /** Context tabs that match the tournament event bar on the public ranking page. */
-export function RankingContext() {
+export function RankingContext({
+  current = "performance",
+}: {
+  current?: "performance" | "career";
+}) {
   const tr = useAppTranslations();
+  const career = current === "career";
+  const currentLabel = career ? tr("Career") : tr("Performance");
   const context = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const bar = context.current;
@@ -42,20 +48,23 @@ export function RankingContext() {
         </Link>
         <span aria-hidden="true">/</span>
         <Link
-          href="/ranking/performance"
+          href={career ? "/ranking/career" : "/ranking/performance"}
           className="context-link"
           aria-current="page"
         >
-          {tr("Performance")}
+          {currentLabel}
         </Link>
       </div>
       <nav className={styles.tabs} aria-label={tr("Player leaderboard")}>
-        <Link href="/ranking/performance" aria-current="page">
+        <Link
+          href="/ranking/performance"
+          aria-current={career ? undefined : "page"}
+        >
           {tr("Performance")}
         </Link>
-        <button type="button" disabled title={tr("Coming soon")}>
+        <Link href="/ranking/career" aria-current={career ? "page" : undefined}>
           {tr("Career")}
-        </button>
+        </Link>
         <button type="button" disabled title={tr("Coming soon")}>
           {tr("Beatmaps")}
         </button>

@@ -300,10 +300,46 @@
   flex: none;
 }
 
+/* Twelve career values stay compact: six per row until the card is wide
+   enough for a single row. The base 15px padding keeps the card's top and
+   bottom spacing identical to the performance card; only wrapped labels
+   extend into that space. */
+.card[data-variant="career"] .stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 26px 6px;
+}
+
+.card[data-variant="career"] .statLabel {
+  line-height: 1.1;
+  white-space: normal;
+}
+
+.statLabelText {
+  min-width: 0;
+}
+
+@media (min-width: 641px) and (max-width: 899px) {
+  .card[data-variant="career"] .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .card[data-variant="career"] .stats {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 18px 6px;
+  }
+}
+
 .statLabel {
   position: absolute;
   inset-block-end: calc(100% + 0.25rem);
   inset-inline: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
   color: rgb(255 255 255 / 78%);
   font-size: 0.5625rem;
   font-weight: 700;
@@ -311,6 +347,12 @@
   text-align: center;
   text-shadow: 0 1px 6px rgb(0 0 0 / 55%);
   white-space: nowrap;
+}
+
+.statLabel svg {
+  width: 0.7rem;
+  height: 0.7rem;
+  flex: none;
 }
 
 .mraLabel {
@@ -377,11 +419,28 @@
     inset-block-start: 30px;
     inset-inline-end: 12px;
   }
+
+  /* Career cards have no MRA box, so the first value stays in the grid. */
+  .card[data-variant="career"] .stats > .statItem:first-child {
+    position: static;
+    inset: auto;
+  }
 }
 
 /* With 11 boxes, six columns read as 6 + 5 (two even rows). */
 @media (min-width: 500px) and (max-width: 640px) {
   .stats {
     grid-template-columns: repeat(6, auto);
+  }
+
+  .card[data-variant="career"] .stats {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/* Narrow phones keep three career values per row so long labels stay readable. */
+@media (max-width: 499px) {
+  .card[data-variant="career"] .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

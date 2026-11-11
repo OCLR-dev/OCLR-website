@@ -2,7 +2,7 @@ import { EmptyState, PageHeading } from "@/components/ui";
 import { InfoNote } from "@/components/info-note";
 import {
   type PlayerRankCardData,
-  type RankStatAnchors,
+  type RankStatKey,
 } from "@/components/player-rank-card";
 import { PlayerLeaderboardCards } from "@/components/player-leaderboard-cards";
 import { RankingContext } from "@/components/ranking-context";
@@ -16,13 +16,74 @@ import { remotePage } from "@/lib/remote-page";
 
 import styles from "./page.module.css";
 
+/** Value used to rank each stat; lower values get the cool end of the scale. */
+const STAT_ACCESSORS: Record<
+  RankStatKey,
+  (row: PlayerLeaderboardRow) => number | null
+> = {
+  rws: (row) => (row.rws === null ? null : row.rws * 100),
+  wins: (row) => row.wins,
+  losses: (row) => row.losses,
+  appearances: (row) => row.appearances,
+  winRate: (row) => (row.winRate === null ? null : row.winRate * 100),
+  participation: (row) =>
+    row.participation === null ? null : row.participation * 100,
+  nm: (row) => row.nm,
+  mod: (row) => row.mod,
+  hd: (row) => row.hd,
+  hr: (row) => row.hr,
+  dt: (row) => row.dt,
+};
+
+/**
+ * Map each player to a 0-1 position for one stat. Players are ranked by value
+ * ascending; equal values share a rank, and positions span 0-1 across the
+ * assigned ranks so the minimum and maximum groups reach the end bands.
+ */
+function positionsFor(
+  rows: PlayerLeaderboardRow[],
+  pick: (row: PlayerLeaderboardRow) => number | null,
+): Map<number, number> {
+  const entries = rows
+    .map((row) => ({ osuId: row.osuId, value: pick(row) }))
+    .filter(
+      (entry): entry is { osuId: number; value: number } =>
+        entry.value !== null && Number.isFinite(entry.value),
+    )
+    .sort(
+      (left, right) => left.value - right.value || left.osuId - right.osuId,
+    );
+  const positions = new Map<number, number>();
+  let rank = 0;
+  let previous: number | undefined;
+  for (const entry of entries) {
+    if (previous === undefined || entry.value !== previous) rank += 1;
+    previous = entry.value;
+    positions.set(entry.osuId, rank);
+  }
+  const lastRank = rank;
+  for (const [osuId, rawRank] of positions) {
+    positions.set(osuId, lastRank > 1 ? (rawRank - 1) / (lastRank - 1) : 0.5);
+  }
+  return positions;
+}
+
 /** Build the card props for every ranked row, using the bulk saved artwork. */
 function rankCards(
   rows: PlayerLeaderboardRow[],
   art: Map<number, DirectoryArt>,
 ): PlayerRankCardData[] {
+  const mraPositions = positionsFor(rows, (row) => row.mra);
+  const statMaps = {} as Record<RankStatKey, Map<number, number>>;
+  for (const key of Object.keys(STAT_ACCESSORS) as RankStatKey[]) {
+    statMaps[key] = positionsFor(rows, STAT_ACCESSORS[key]);
+  }
   return rows.map((row, index) => {
     const saved = art.get(row.osuId);
+    const statPositions = {} as Record<RankStatKey, number | null>;
+    for (const key of Object.keys(STAT_ACCESSORS) as RankStatKey[]) {
+      statPositions[key] = statMaps[key].get(row.osuId) ?? null;
+    }
     return {
       rank: index + 1,
       osuId: row.osuId,
@@ -42,70 +103,13 @@ function rankCards(
         hr: row.hr,
         dt: row.dt,
       },
+      mraPosition: mraPositions.get(row.osuId) ?? 0.5,
+      statPositions,
       classification: row.classification,
       avatarUrl: saved?.avatarUrl ?? null,
       coverUrl: saved?.coverUrl ?? null,
     };
   });
-}
-
-/** Per-stat colour anchors shared by every ranked card on the page. */
-function rankStatAnchors(rows: PlayerLeaderboardRow[]): RankStatAnchors {
-  const average = (pick: (row: PlayerLeaderboardRow) => number | null) => {
-    let sum = 0;
-    let count = 0;
-    for (const row of rows) {
-      const value = pick(row);
-      if (value === null || !Number.isFinite(value)) continue;
-      sum += value;
-      count += 1;
-    }
-    return count ? sum / count : null;
-  };
-  const maximum = (pick: (row: PlayerLeaderboardRow) => number) =>
-    rows.reduce((top, row) => Math.max(top, pick(row)), 0);
-
-  return {
-    average: {
-      rws: average((row) => (row.rws === null ? null : row.rws * 100)),
-      wins: average((row) => row.wins),
-      losses: average((row) => row.losses),
-      appearances: average((row) => row.appearances),
-      winRate: average((row) =>
-        row.winRate === null ? null : row.winRate * 100,
-      ),
-      participation: average((row) =>
-        row.participation === null ? null : row.participation * 100,
-      ),
-      nm: average((row) => row.nm),
-      mod: average((row) => row.mod),
-      hd: average((row) => row.hd),
-      hr: average((row) => row.hr),
-      dt: average((row) => row.dt),
-    },
-    maximum: {
-      rws: 30,
-      wins: Math.max(
-        10,
-        maximum((row) => row.wins),
-      ),
-      losses: Math.max(
-        10,
-        maximum((row) => row.losses),
-      ),
-      appearances: Math.max(
-        10,
-        maximum((row) => row.appearances),
-      ),
-      winRate: 100,
-      participation: 100,
-      nm: 2,
-      mod: 2,
-      hd: 2,
-      hr: 2,
-      dt: 2,
-    },
-  };
 }
 
 export async function generateMetadata() {
@@ -122,7 +126,6 @@ async function LeaderboardContent() {
   const tr = await getAppTranslations();
   const data = await playerLeaderboard();
   const cards = rankCards(data.players, data.art);
-  const anchors = data.players.length ? rankStatAnchors(data.players) : null;
   return (
     <div className={`container page ${styles.page}`}>
       <RankingContext />
@@ -167,8 +170,8 @@ async function LeaderboardContent() {
             "The leaderboard is calculated in the background. Please check again shortly.",
           )}
         </EmptyState>
-      ) : data.players.length && anchors ? (
-        <PlayerLeaderboardCards players={cards} anchors={anchors} />
+      ) : data.players.length ? (
+        <PlayerLeaderboardCards players={cards} />
       ) : (
         <EmptyState title={tr("No player statistics yet")}>
           {tr(
