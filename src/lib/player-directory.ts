@@ -10,6 +10,7 @@ export type DirectoryPlayer = {
   freeAgent?: boolean;
   rank: number | null;
   pp: number | null;
+  otr?: number;
 };
 
 export function publicDirectoryPlayer(
@@ -50,7 +51,12 @@ export const directorySorts = [
   "name-desc",
   "rank-asc",
   "rank-desc",
+  "otr-desc",
+  "otr-asc",
 ] as const;
+export const directoryMetrics = ["rank", "pp", "otr"] as const;
+type DirectoryMetric = (typeof directoryMetrics)[number];
+export type DirectoryRangeKey = `${DirectoryMetric}${"Min" | "Max"}`;
 export const directoryKeys = [
   "q",
   "team",
@@ -61,6 +67,8 @@ export const directoryKeys = [
   "rankMax",
   "ppMin",
   "ppMax",
+  "otrMin",
+  "otrMax",
 ] as const;
 export type DirectoryState = Record<(typeof directoryKeys)[number], string>;
 
@@ -88,8 +96,8 @@ export function directoryState(
 }
 
 export function directoryErrors(state: DirectoryState) {
-  const errors: ("rank" | "pp" | "sort" | "filter")[] = [];
-  for (const metric of ["rank", "pp"] as const) {
+  const errors: (DirectoryMetric | "sort" | "filter")[] = [];
+  for (const metric of directoryMetrics) {
     const min = state[`${metric}Min`],
       max = state[`${metric}Max`];
     const valid = (value: string) =>
@@ -97,7 +105,7 @@ export function directoryErrors(state: DirectoryState) {
       (/^\d+(?:\.\d+)?$/.test(value) &&
         Number.isFinite(Number(value)) &&
         Number(value) >= (metric === "rank" ? 1 : 0) &&
-        (metric === "pp" || Number.isSafeInteger(Number(value))));
+        (metric !== "rank" || Number.isSafeInteger(Number(value))));
     if (
       !valid(min) ||
       !valid(max) ||
@@ -122,11 +130,12 @@ export function directoryOptions(players: DirectoryPlayer[]) {
     freeAgent: players.some((p) => p.freeAgent),
     rank: players.some((p) => validMetric(p.rank, "rank") !== null),
     pp: players.some((p) => validMetric(p.pp, "pp") !== null),
+    otr: players.some((p) => validMetric(p.otr, "otr") !== null),
   };
 }
 
-function validMetric(value: number | null, key: "rank" | "pp") {
-  return value !== null &&
+function validMetric(value: number | null | undefined, key: DirectoryMetric) {
+  return value != null &&
     Number.isFinite(value) &&
     value >= (key === "rank" ? 1 : 0)
     ? value
@@ -182,7 +191,7 @@ export function selectDirectoryPlayers<T extends DirectoryPlayer>(
     )
       return false;
     if (state.role && !p.roles.includes(state.role)) return false;
-    for (const key of ["rank", "pp"] as const) {
+    for (const key of directoryMetrics) {
       const value = validMetric(p[key], key),
         min = state[`${key}Min`],
         max = state[`${key}Max`];
@@ -204,8 +213,9 @@ export function selectDirectoryPlayers<T extends DirectoryPlayer>(
           a.name.toLowerCase().localeCompare(b.name.toLowerCase(), "en") *
             (direction === "asc" ? 1 : -1) || a.id - b.id
         );
-      const x = validMetric(a[key as "rank" | "pp"], key as "rank" | "pp");
-      const y = validMetric(b[key as "rank" | "pp"], key as "rank" | "pp");
+      const metric = key === "rank" ? "rank" : "otr";
+      const x = validMetric(a[metric], metric);
+      const y = validMetric(b[metric], metric);
       if (x === null || y === null)
         return x === y ? a.id - b.id : x === null ? 1 : -1;
       return (x - y) * (direction === "asc" ? 1 : -1) || a.id - b.id;

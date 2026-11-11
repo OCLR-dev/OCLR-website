@@ -20,6 +20,7 @@ export function EventPlayers({
   preview = false,
   signedIn = false,
   viewerId,
+  otrRatings,
 }: {
   remote?: boolean;
   players: (EventPlayer &
@@ -29,15 +30,40 @@ export function EventPlayers({
   preview?: boolean;
   signedIn?: boolean;
   viewerId?: number;
+  otrRatings?: Promise<Record<number, number>>;
 }) {
   const tr = useAppTranslations();
+  const [ratingSnapshot, setRatingSnapshot] = useState<{
+    source: typeof otrRatings;
+    values: Record<number, number>;
+  }>();
+  const ratingValues =
+    ratingSnapshot?.source === otrRatings ? ratingSnapshot?.values : undefined;
+  const otrLoading = Boolean(otrRatings && !ratingValues);
+  useEffect(() => {
+    if (!otrRatings) return;
+    let active = true;
+    void otrRatings.then(
+      (values) => {
+        if (active) setRatingSnapshot({ source: otrRatings, values });
+      },
+      () => {
+        if (active) setRatingSnapshot({ source: otrRatings, values: {} });
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, [otrRatings]);
   const directory = usePlayerDirectory(
     players.map((p) => ({
       ...p,
+      otr: ratingValues?.[p.id],
       teams: p.teams ?? (p.team ? [{ id: p.team, name: p.team }] : []),
       roles: p.roles ?? ["player", ...(p.captain ? ["captain"] : [])],
     })),
     grouped,
+    otrLoading,
   );
   const { rows } = directory;
   const byTeam = directory.state.group === "team";
@@ -146,6 +172,16 @@ export function EventPlayers({
                         <dt>PP</dt>
                         <dd>{p.pp?.toLocaleString(tr.locale) ?? "—"}</dd>
                       </div>
+                      {otrRatings && (
+                        <div>
+                          <dt>o!TR</dt>
+                          <dd>
+                            {p.otr?.toLocaleString(tr.locale, {
+                              maximumFractionDigits: 2,
+                            }) ?? (otrLoading ? "…" : "—")}
+                          </dd>
+                        </div>
+                      )}
                     </dl>
                   </div>
                 </div>

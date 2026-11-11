@@ -85,6 +85,8 @@ Page URL state uses `q`, `team`, `role`, `sort`, `group`, `rankMin`, `rankMax`, 
 
 The removed `ranked` and `hasPp` presence filters are ignored in old links and cleared on the next filter update. Advanced rank/PP ranges are grouped in a shared collapsible panel.
 
+The S11 directory also shows the current osu!standard o!TR rating from the same lookup used by the OCLR player profile. It loads ratings for the complete public roster using the server's `OTR_API_KEY`. When ratings are available, visitors can sort by highest or lowest (`otr-desc` or `otr-asc`) and set inclusive decimal bounds (`otrMin` and `otrMax`) under Advanced filters. Players without a rating appear last in either sort direction and are excluded from rating ranges. Saved remote mode and synthetic previews skip these live lookups.
+
 These extended query parameters belong to the page UI, not new API filters. The page loads the full publication-checked read model once (completing remote collection pages when needed) and changes URL state through native browser history. Filter changes do not reload the page or fetch provider statistics; message boards retain their keyed identity across sorting/group changes. Mobile keeps search and sorting visible and can collapse other controls. Existing directory API contracts and background statistics refresh/revalidation remain in place.
 
 ## Dashboard participation history (#361)

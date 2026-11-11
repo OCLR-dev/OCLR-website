@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getOtrRating } from "../../src/lib/otr-rating";
+import { getDirectoryOtrRatings, getOtrRating } from "../../src/lib/otr-rating";
 
 vi.mock("server-only", () => ({}));
 
@@ -85,5 +85,28 @@ describe("public o!TR player rating", () => {
     vi.stubEnv("OTR_API_KEY", "synthetic-key");
     await expect(getOtrRating(1062)).resolves.toBeNull();
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("shares profile ratings with the directory and deduplicates concurrent directory reads", async () => {
+    vi.stubEnv("OTR_API_KEY", "synthetic-key");
+    const fetch = vi.fn(async (url: URL) =>
+      url.pathname === "/api/players/1063/stats"
+        ? Response.json({
+            ...stats,
+            playerInfo: { id: 321, osuId: 1063 },
+          })
+        : new Response(null, { status: 404 }),
+    );
+    vi.stubGlobal("fetch", fetch);
+
+    const rating = await getOtrRating(1063);
+    const [first, second] = await Promise.all([
+      getDirectoryOtrRatings([1063, 1064, 1063]),
+      getDirectoryOtrRatings([1064, 1063]),
+    ]);
+
+    expect(first).toEqual({ 1063: rating?.value });
+    expect(second).toEqual(first);
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 });

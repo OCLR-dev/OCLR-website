@@ -94,6 +94,19 @@ describe("complete public player directory selection", () => {
     expect(ids("ppMax=20")).toEqual([3, 2, 1]);
     expect(ids("rankMax=1000")).toEqual([3, 2, 1]);
   });
+  it("combines o!TR ranges with team filters and sorts missing ratings last", () => {
+    const rated = players.map((player) => ({
+      ...player,
+      otr: { 1: 1600, 2: 1572.48, 3: 1572.48, 5: 0 }[player.id],
+    }));
+    expect(directoryOptions(rated).otr).toBe(true);
+    expect(ids("sort=otr-desc", rated)).toEqual([1, 2, 3, 5, 4]);
+    expect(ids("sort=otr-asc", rated)).toEqual([5, 2, 3, 1, 4]);
+    expect(
+      ids("team=alpha&otrMin=1572.48&otrMax=1572.48&sort=otr-desc", rated),
+    ).toEqual([2, 3]);
+    expect(ids("otrMax=0", rated)).toEqual([5]);
+  });
   it.each([
     "rankMin=2&rankMax=1",
     "rankMin=0",
@@ -103,6 +116,8 @@ describe("complete public player directory selection", () => {
     "ppMax=Infinity",
     "ppMin=0x10",
     "ppMin=1e3",
+    "otrMin=-1",
+    "otrMin=1600&otrMax=1500",
     "sort=bad",
     "group=bad",
   ])("rejects invalid URL input: %s", (query) => {
@@ -131,6 +146,7 @@ describe("complete public player directory selection", () => {
     expect(directoryOptions([players[0]])).toMatchObject({
       rank: false,
       pp: false,
+      otr: false,
       freeAgent: false,
     });
     expect(directoryOptions([players[3]])).toMatchObject({
@@ -143,6 +159,7 @@ describe("complete public player directory selection", () => {
       roles: [],
       rank: false,
       pp: false,
+      otr: false,
       freeAgent: false,
     });
   });

@@ -1,8 +1,5 @@
 import { currentUser } from "@/lib/auth/user";
-import {
-  frontendPlayers,
-  frontendTournament,
-} from "@/lib/frontend-data";
+import { frontendPlayers, frontendTournament } from "@/lib/frontend-data";
 import { remoteMode } from "@/lib/data-source";
 import { remotePage } from "@/lib/remote-page";
 
@@ -21,6 +18,7 @@ import { notFound } from "next/navigation";
 import { Action, PageHeading } from "@/components/ui";
 import { after } from "next/server";
 import { refreshDirectoryStatistics } from "@/lib/osu-profiles";
+import { getDirectoryOtrRatings } from "@/lib/otr-rating";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return {
@@ -90,6 +88,10 @@ async function PlayersContent({
   }
   // Filtering runs over the complete public collection, including remote pages.
   const { rows, refreshIds } = await frontendPlayers(edition);
+  const otrRatings =
+    edition === "s11" && !remote
+      ? getDirectoryOtrRatings(rows.map((player) => player.osuId))
+      : undefined;
   if (refreshIds.length)
     after(async () => {
       try {
@@ -112,6 +114,7 @@ async function PlayersContent({
         signedIn={Boolean(viewer)}
         viewerId={viewer?.osuId}
         grouped={rows.some((p) => p.participation === "finalized_roster")}
+        otrRatings={otrRatings}
         players={rows.map((p) => ({
           ...publicDirectoryPlayer(p),
           team: p.team?.name ?? null,

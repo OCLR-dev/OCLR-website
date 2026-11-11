@@ -6,6 +6,7 @@ import { RemotePublicCache } from "./remote-public-cache";
 const origin = "https://otr.stagec.net";
 const standardRuleset = 0;
 const ratings = new RemotePublicCache();
+const directoryRatings = new RemotePublicCache();
 const playerStats = z.object({
   playerInfo: z.object({ id: z.int().positive(), osuId: z.int().positive() }),
   ruleset: z.literal(standardRuleset),
@@ -53,4 +54,25 @@ export async function getOtrRating(osuId: number): Promise<OtrRating | null> {
       };
     })
     .catch(() => null);
+}
+
+export async function getDirectoryOtrRatings(osuIds: number[]) {
+  if (!process.env.OTR_API_KEY?.trim()) return {};
+  const ids = [...new Set(osuIds)].sort((a, b) => a - b);
+
+  // Share an in-flight directory lookup across visitors and keep it cached even
+  // when the roster exceeds the individual profile cache's capacity.
+  return directoryRatings.read(ids.join(","), async () => {
+    const values: Record<number, number> = {};
+    const batchSize = 6;
+    for (let offset = 0; offset < ids.length; offset += batchSize) {
+      await Promise.all(
+        ids.slice(offset, offset + batchSize).map(async (id) => {
+          const rating = await getOtrRating(id);
+          if (rating) values[id] = rating.value;
+        }),
+      );
+    }
+    return values;
+  });
 }
