@@ -142,25 +142,6 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
           "Captain/team setup changed. Refresh before saving the order.",
         );
       const data = await readDraftData(tx, slug);
-      const [competition] = await tx
-        .select({ id: fixtures.id })
-        .from(fixtures)
-        .where(
-          and(
-            eq(fixtures.editionSlug, slug),
-            sql`(${fixtures.status} IN ('in_progress', 'ended') OR EXISTS(SELECT 1 FROM match_results r WHERE r.fixture_id = ${fixtures.id}) OR EXISTS(SELECT 1 FROM match_imports i WHERE i.fixture_id = ${fixtures.id}))`,
-          ),
-        )
-        .limit(1);
-      if (
-        session.state === "finalized" ||
-        data.teams.some((t) => t.team.finalizedAt) ||
-        competition
-      )
-        throw new HttpError(
-          409,
-          "Finalized rosters or match evidence protect this draft. Use supervised competition recovery.",
-        );
       const active = data.picks.filter((p) => !p.voidedAt);
       if (command.action === "reset") {
         if (session.state === "live")
@@ -212,10 +193,35 @@ export async function draftCommand(actor: User, slug: string, input: unknown) {
               ),
             );
         }
+        await tx
+          .update(teams)
+          .set({ finalizedAt: null, rosterPublished: false })
+          .where(and(eq(teams.editionSlug, slug), isNull(teams.archivedAt)));
         update.state = "setup";
         update.turnIndex = 0;
         update.pool = [];
-      } else update.state = active.length ? "paused" : "setup";
+      } else {
+        const [competition] = await tx
+          .select({ id: fixtures.id })
+          .from(fixtures)
+          .where(
+            and(
+              eq(fixtures.editionSlug, slug),
+              sql`(${fixtures.status} IN ('in_progress', 'ended') OR EXISTS(SELECT 1 FROM match_results r WHERE r.fixture_id = ${fixtures.id}) OR EXISTS(SELECT 1 FROM match_imports i WHERE i.fixture_id = ${fixtures.id}))`,
+            ),
+          )
+          .limit(1);
+        if (
+          session.state === "finalized" ||
+          data.teams.some((t) => t.team.finalizedAt) ||
+          competition
+        )
+          throw new HttpError(
+            409,
+            "Finalized rosters or match evidence protect this draft. Use supervised competition recovery.",
+          );
+        update.state = active.length ? "paused" : "setup";
+      }
       if (update.state === "setup") {
         update.turnIndex = 0;
         update.publicSnapshot = null;
