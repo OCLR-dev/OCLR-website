@@ -9,6 +9,7 @@ import {
   cachedDirectoryStatistics,
   refreshDirectoryStatistics,
 } from "../../src/lib/osu-profiles";
+import { getDirectoryOtrRatings } from "../../src/lib/otr-rating";
 import { english } from "../../src/i18n/translate";
 import messages from "../../messages/en.json";
 import { edition } from "../fixtures/edition";
@@ -37,7 +38,9 @@ vi.mock("../../src/lib/players", async (importOriginal) => ({
   publicPlayers: vi.fn(),
   publicPlayersForEditions: vi.fn(),
 }));
-vi.mock("../../src/lib/draft-reads", () => ({ releasedDraftData: async () => null }));
+vi.mock("../../src/lib/draft-reads", () => ({
+  releasedDraftData: async () => null,
+}));
 vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
 vi.mock("../../src/db", () => ({
   db: () => ({ transaction: (read: () => unknown) => read() }),
@@ -60,6 +63,9 @@ vi.mock("../../src/lib/osu-profiles", () => ({
   cachedDirectoryStatistics: vi.fn(),
   refreshDirectoryStatistics: vi.fn(),
 }));
+vi.mock("../../src/lib/otr-rating", () => ({
+  getDirectoryOtrRatings: vi.fn(),
+}));
 function result() {
   return {
     rows: [
@@ -77,11 +83,11 @@ function result() {
     filters: { edition: edition.slug, q: "", page: 1 },
   };
 }
-async function html(query = {}) {
+async function html(query = {}, slug = edition.slug) {
   return renderToStaticMarkup(
     <NextIntlClientProvider locale="en" messages={messages} timeZone="UTC">
       {await Players({
-        params: Promise.resolve({ edition: edition.slug }),
+        params: Promise.resolve({ edition: slug }),
         searchParams: Promise.resolve(query),
       })}
     </NextIntlClientProvider>,
@@ -131,6 +137,7 @@ describe("cache-first edition player cards", () => {
       undefined,
     );
     expect(refreshDirectoryStatistics).not.toHaveBeenCalled();
+    expect(getDirectoryOtrRatings).not.toHaveBeenCalled();
     expect(callbacks).toHaveLength(1);
     await callbacks[0]();
     expect(refreshDirectoryStatistics).toHaveBeenCalledExactlyOnceWith(
@@ -165,9 +172,21 @@ describe("cache-first edition player cards", () => {
   });
   it("never queries stats for a private edition or malformed filters", async () => {
     vi.mocked(getPublicEdition).mockResolvedValueOnce(undefined);
-    await expect(html()).rejects.toThrow("NOT_FOUND");
+    await expect(html({}, "s11")).rejects.toThrow("NOT_FOUND");
     expect(cachedDirectoryStatistics).not.toHaveBeenCalled();
-    expect(await html({ unsupported: "private" })).toContain("Clear filters");
+    expect(await html({ unsupported: "private" }, "s11")).toContain(
+      "Clear filters",
+    );
     expect(cachedDirectoryStatistics).not.toHaveBeenCalled();
+    expect(getDirectoryOtrRatings).not.toHaveBeenCalled();
+  });
+  it("loads o!TR for the public S11 directory by osu! ID", async () => {
+    vi.mocked(getPublicEdition).mockResolvedValue({ ...edition, slug: "s11" });
+    vi.mocked(getDirectoryOtrRatings).mockResolvedValue({ 1220001: 1572.48 });
+
+    const page = await html({}, "s11");
+    expect(page).toContain("<dt>o!TR</dt>");
+    expect(page).toContain("Synthetic Player");
+    expect(getDirectoryOtrRatings).toHaveBeenCalledExactlyOnceWith([1220001]);
   });
 });
