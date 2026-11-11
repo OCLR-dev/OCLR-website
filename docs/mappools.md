@@ -279,12 +279,10 @@ Candidates reuse the historical mappool `MapCardBand` with its workbench variant
 the cover image and placeholder are omitted while the original faded background
 art remains. Mod, copyable BID and the ellipsized map title share one header row.
 Artist and adder share the credit row, followed by difficulty/mapper and saved
-base parameters (including HP). Parameters and compact actions share one
-row, with actions on the right; narrow cards scroll that row horizontally rather
-than adding an action row. The row is keyboard-focusable and controls remain
-reachable. Saved intended rounds appear as wrapping name chips directly below
-the parameters; all selected round names stay literal, and empty selections show
-the localized Unassigned state. The summary is also visible to read-only staff
+base parameters (including HP). The compact actions sit to the right of the
+saved intended rounds below the parameters. On narrow cards the actions wrap
+within the card. Saved intended rounds appear as wrapping name chips, and empty
+selections show the localized Unassigned state. The summary is also visible to read-only staff
 and updates after saving the existing multi-select editor. Unsaved drafts do not
 change the summary. At a list width of 52rem or more, each candidate places the map on the
 left, skillsets in the middle and always-visible comments on the right, separated
