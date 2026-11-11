@@ -25,6 +25,7 @@ import { WorkspaceTabs } from "./workspace-tabs";
 import { WorkbenchActionIcon } from "./workbench-action-icon";
 import { MappoolActionIcon } from "./mappool-action-icon";
 import { CandidateHistory } from "./candidate-history";
+import { ConfirmMutation } from "./confirm-mutation";
 import { CandidateSkillsets } from "./candidate-skillsets";
 import { MapCardBand } from "./map-card-band";
 import { BeatmapCover } from "./beatmap-cover";
@@ -772,6 +773,7 @@ export function SelectionWorkbench({
   const [importRoundIds, setImportRoundIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
+  const listRefresh = useRef<HTMLButtonElement>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const base = `/api/admin/tournaments/${slug}/mappool-workbench`;
@@ -798,6 +800,7 @@ export function SelectionWorkbench({
             : tr("This workbench is read-only.")}
         </p>
       )}
+      <CandidateHistory slug={slug} />
       <WorkspaceTabs
         id="candidate-mods"
         label="Mod category"
@@ -1004,6 +1007,7 @@ export function SelectionWorkbench({
               })}
             </h2>
             <button
+              ref={listRefresh}
               type="button"
               className="secondary mappool-icon-action"
               aria-label={tr("Refresh list")}
@@ -1096,11 +1100,7 @@ export function SelectionWorkbench({
                     }
                     actions={
                       <>
-                        <CandidateHistory
-                          slug={slug}
-                          candidateId={c.id}
-                          beatmapId={c.beatmapId}
-                        />
+                        <CandidateHistory slug={slug} candidate={c} />
                         {writable && (
                           <CandidateRounds
                             candidate={c}
@@ -1117,6 +1117,43 @@ export function SelectionWorkbench({
                             initialPools={officialPools}
                           />
                         )}
+                        {writable &&
+                          (c.authorId === viewerId || officialPools) && (
+                            <ConfirmMutation
+                              label={tr("Delete candidate")}
+                              title={tr("Delete candidate")}
+                              description={tr(
+                                "This will remove the candidate and its comments from the workbench.",
+                              )}
+                              className={`secondary ${styles.iconButton}`}
+                              icon={<MappoolActionIcon kind="remove" />}
+                              disabled={busy}
+                              url={base}
+                              payload={{
+                                action: "delete",
+                                confirmed: true,
+                                candidateId: c.id,
+                                expectedCategory: c.category,
+                                expectedCommentCount: c.commentCount,
+                              }}
+                              onSuccess={() => {
+                                setData((current) => ({
+                                  ...current,
+                                  candidates: current.candidates.filter(
+                                    (candidate) => candidate.id !== c.id,
+                                  ),
+                                }));
+                                setNotice(tr("Candidate deleted."));
+                                requestAnimationFrame(() =>
+                                  listRefresh.current?.focus(),
+                                );
+                              }}
+                            >
+                              <p>
+                                {c.metadata.title} · {tr("BID")} {c.beatmapId}
+                              </p>
+                            </ConfirmMutation>
+                          )}
                       </>
                     }
                     chips={

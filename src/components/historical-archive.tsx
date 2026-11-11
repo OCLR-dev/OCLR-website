@@ -28,6 +28,7 @@ import { remoteMode } from "@/lib/data-source";
 import { formatDate, type Edition } from "@/lib/editions";
 import {
   archiveWinner,
+  historicalOverviewSummary,
   recordedArchiveMatch,
   type HistoricalArchive,
 } from "@/lib/historical-archive";
@@ -946,7 +947,9 @@ async function HistoricalArchiveContent({
       className={`historical-archive stack${section === "mappools" || section === "pool" ? " archive-pool-page" : ""}`}
     >
       <PageHeading eyebrow={tr("Historical archive")} title={title}>
-        {section === "overview" ? edition.summary : undefined}
+        {section === "overview"
+          ? historicalOverviewSummary(edition.summary, tr)
+          : undefined}
       </PageHeading>
       {preview && <p className="notice">{tr("Private archive preview")}</p>}
       {section !== "overview" && preview && (

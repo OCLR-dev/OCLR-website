@@ -11,6 +11,59 @@ test.beforeEach(async ({ page }) => {
   await page.route("https://assets.ppy.sh/**", (route) => route.abort());
 });
 
+test("checks history before adding and confirms candidate deletion", async ({
+  page,
+}) => {
+  const writes: unknown[] = [];
+  await page.route(
+    "**/api/admin/tournaments/synthetic/mappool-workbench*",
+    async (route) => {
+      const request = route.request();
+      if (request.method() === "POST") {
+        writes.push(request.postDataJSON());
+        await route.fulfill({ json: { added: 0, skipped: 0 } });
+        return;
+      }
+      expect(new URL(request.url()).searchParams.get("beatmap")).toBe("75");
+      await route.fulfill({ json: { beatmapId: 75, matches: [] } });
+    },
+  );
+  await page.goto("/workbench-compact?locale=en");
+  const search = page.getByRole("search", { name: "Historical mappool usage" });
+  await search.getByRole("searchbox").fill("https://osu.ppy.sh/beatmaps/75");
+  await search.getByRole("button", { name: "Check history" }).click();
+  const history = page.getByRole("dialog", {
+    name: "Historical mappool usage",
+  });
+  await expect(history.getByText("No historical records found.")).toBeVisible();
+  await history.getByRole("button", { name: "Close" }).click();
+  expect(writes).toEqual([]);
+
+  const candidate = page.getByRole("article", { name: "BID 5722291" });
+  await candidate.getByRole("button", { name: "Delete candidate" }).click();
+  const confirmation = page.getByRole("dialog", { name: "Delete candidate" });
+  await confirmation.getByRole("button", { name: "Cancel" }).click();
+  await expect(candidate).toBeVisible();
+  expect(writes).toEqual([]);
+  await candidate.getByRole("button", { name: "Delete candidate" }).click();
+  await confirmation
+    .getByRole("button", { name: "Confirm", exact: true })
+    .click();
+  await expect(candidate).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Refresh list" }),
+  ).toBeFocused();
+  expect(writes).toEqual([
+    {
+      action: "delete",
+      candidateId: "candidate-1",
+      confirmed: true,
+      expectedCategory: "unassigned",
+      expectedCommentCount: 0,
+    },
+  ]);
+});
+
 test("skillset dialog keeps drafts local and submits a versioned multi-selection", async ({
   page,
 }) => {
@@ -235,7 +288,7 @@ for (const theme of ["light", "dark"]) {
         ),
       ).toBeLessThan(2);
       const controls = toolbar.locator("button:visible, a.button:visible");
-      await expect(controls).toHaveCount(5);
+      await expect(controls).toHaveCount(6);
       await expect(
         toolbar.locator('a[href^="https://osu.ppy.sh/"]'),
       ).toHaveCount(0);

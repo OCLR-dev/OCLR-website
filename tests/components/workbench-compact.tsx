@@ -1,5 +1,9 @@
 import { createRoot } from "react-dom/client";
 import { NextIntlClientProvider } from "next-intl";
+import {
+  AppRouterContext,
+  type AppRouterInstance,
+} from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { SelectionWorkbench } from "../../src/components/mappool-workbench";
 import type { SelectionWorkspace } from "../../src/lib/mappool-workbench-reads";
 import en from "../../messages/en.json";
@@ -14,6 +18,15 @@ document.documentElement.lang = locale;
 document.documentElement.dataset.theme = params.get("theme") ?? "light";
 document.documentElement.dataset.appearance = "default";
 const date = new Date("2026-01-01T00:00:00Z");
+const router = {
+  back() {},
+  forward() {},
+  refresh() {},
+  push() {},
+  replace() {},
+  prefetch() {},
+  bfcacheId: "synthetic",
+} as AppRouterInstance;
 const data: SelectionWorkspace = {
   archived: false,
   asOf: date,
@@ -64,24 +77,31 @@ const data: SelectionWorkspace = {
   })),
 };
 createRoot(document.getElementById("root")!).render(
-  <NextIntlClientProvider
-    locale={locale}
-    messages={locale === "en" ? en : locale === "zh-Hans" ? hans : hant}
-    timeZone="UTC"
-  >
-    <main
-      className="themed-site private-site"
-      style={{ padding: 16, maxWidth: params.has("narrow") ? 800 : undefined }}
+  <AppRouterContext value={router}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={locale === "en" ? en : locale === "zh-Hans" ? hans : hant}
+      timeZone="UTC"
     >
-      <SelectionWorkbench
-        slug="synthetic"
-        initialData={data}
-        writable={!params.has("readOnly")}
-        viewerId={1}
-        officialPools={
-          params.has("readOnly") ? null : { rounds: [], pools: [], entries: [] }
-        }
-      />
-    </main>
-  </NextIntlClientProvider>,
+      <main
+        className="themed-site private-site"
+        style={{
+          padding: 16,
+          maxWidth: params.has("narrow") ? 800 : undefined,
+        }}
+      >
+        <SelectionWorkbench
+          slug="synthetic"
+          initialData={data}
+          writable={!params.has("readOnly")}
+          viewerId={1}
+          officialPools={
+            params.has("readOnly")
+              ? null
+              : { rounds: [], pools: [], entries: [] }
+          }
+        />
+      </main>
+    </NextIntlClientProvider>
+  </AppRouterContext>,
 );

@@ -6,7 +6,11 @@ import {
   type BeatmapMetadata,
 } from "./mappool-model";
 import { skillsetTags } from "./mappool-skillsets";
-import { candidateCategories, commentLength } from "./mappool-workbench-model";
+import {
+  candidateCategories,
+  commentLength,
+  commentLimit,
+} from "./mappool-workbench-model";
 import { defaultJsonBodyLimit } from "./request-body-limits";
 import type { WriteApiOperation } from "./write-api-contract";
 
@@ -190,6 +194,13 @@ const roundIdsSchema = z
   .max(500)
   .refine((ids) => new Set(ids).size === ids.length);
 export const selectionCommandInput = z.discriminatedUnion("action", [
+  z.strictObject({
+    action: z.literal("delete"),
+    ...confirmation,
+    candidateId: z.uuid(),
+    expectedCategory: z.enum(candidateCategories),
+    expectedCommentCount: z.number().int().min(0).max(commentLimit),
+  }),
   z
     .object({
       action: z.literal("skillsets"),
@@ -464,7 +475,7 @@ export const changeMappoolWorkbenchWrite = {
   ]),
   summary: "Preview and manage private selection candidates",
   description:
-    "Requires select_mappools. Preview consumes provider budget without changing candidates. Candidate changes validate the submitted fingerprints or expected category, rounds or version as applicable. Comment edits and deletion require authorship. Replaying an identical comment request ID returns a skipped count without adding another comment.",
+    "Requires select_mappools. Preview consumes provider budget without changing candidates. Candidate changes validate the submitted fingerprints or expected category, rounds or version as applicable. Candidate deletion requires authorship or manage_mappools and checks the comment count. Comment edits and deletion require authorship. Replaying an identical comment request ID returns a skipped count without adding another comment.",
   successDescription:
     "Per-row preview results or counts for a completed change.",
   response: z.union([candidatePreviewResponse, selectionReceipt]),

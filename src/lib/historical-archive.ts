@@ -8,6 +8,8 @@ import {
   archiveTimeZone,
 } from "./archive-metadata";
 import { z } from "zod";
+import type { AppTranslator } from "@/i18n/translate";
+
 import { downloadMirrorSchema } from "./mappool-download";
 import { difficultySnapshotSchema } from "./difficulty-snapshot";
 import {
@@ -18,6 +20,18 @@ import {
   archiveReviewTable,
   archiveSourceFact,
 } from "./historical-source-details";
+
+export function historicalOverviewSummary(summary: string, tr: AppTranslator) {
+  // The imported seasons share this fixed caption. Preserve other summaries
+  // as written, including any organizer text surrounding similar wording.
+  const legacy =
+    /^(osu! Chinese League Rookie — Season \d+(?: \(OCLR β\))?\.) (\d{4}(?:–\d{4})?) 年(?:歷史賽事歸檔|历史赛事归档)。$/.exec(
+      summary,
+    );
+  return legacy
+    ? `${legacy[1]} ${tr("{years} historical tournament archive.", { years: legacy[2] })}`
+    : summary;
+}
 
 const text = z.string().trim().min(1).max(300);
 const key = z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/);

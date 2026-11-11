@@ -203,6 +203,7 @@
         "access": "browser",
         "actions": [
           "preview",
+          "delete",
           "skillsets",
           "assign_rounds",
           "comment_edit",

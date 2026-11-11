@@ -10,8 +10,38 @@ import { defaultLocale, locales, readLocale } from "../../src/i18n/config";
 import { appTranslator } from "../../src/i18n/translate";
 import { readThemePreference } from "../../src/lib/preferences";
 import { formatDate } from "../../src/lib/editions";
+import { historicalOverviewSummary } from "../../src/lib/historical-archive";
 
 describe("localized interface catalogs", () => {
+  it("localizes the standard archive caption across seasons and preserves authored summaries", () => {
+    const native = createTranslator({ locale: "zh-Hans", messages: hans.ui });
+    const tr = appTranslator(
+      (key, values) => native(key as keyof typeof hans.ui, values),
+      "zh-Hans",
+    );
+    for (const [index, years] of [
+      "2018",
+      "2019",
+      "2019",
+      "2020",
+      "2020–2021",
+      "2021",
+      "2021–2022",
+      "2023",
+      "2023",
+      "2025",
+    ].entries()) {
+      const season = index + 1;
+      const prefix = `osu! Chinese League Rookie — Season ${season}${season === 5 ? " (OCLR β)" : ""}.`;
+      const summary = `${prefix} ${years} 年歷史賽事歸檔。`;
+      expect(historicalOverviewSummary(summary, tr)).toBe(
+        `${prefix} ${years} 年历史赛事归档。`,
+      );
+      expect(historicalOverviewSummary(`${summary} 主辦附註。`, tr)).toBe(
+        `${summary} 主辦附註。`,
+      );
+    }
+  });
   it("uses the organizer-approved Simplified Chinese default with strict cookie allowlists", () => {
     expect(defaultLocale).toBe("zh-Hans");
     for (const locale of locales) expect(readLocale(locale)).toBe(locale);

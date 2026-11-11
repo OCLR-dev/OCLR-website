@@ -4,12 +4,12 @@ import { db } from "@/db";
 import { mappoolCandidates } from "@/db/schema";
 import type { User } from "./auth/sessions";
 import { assertReadCapability } from "./auth/staff";
-import { getPublicEditions } from "./content";
+import { getEdition, getPublicEditions } from "./content";
 import { remoteMode } from "./data-source";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { HttpError } from "./http-error";
 import { publicMappools } from "./mappool-reads";
-import { slotLabel } from "./mappool-model";
+import { parseBeatmapId, slotLabel } from "./mappool-model";
 import { compareTournamentSeasons } from "./tournament-order";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 export type CandidateHistory = ExplicitReadData<"candidateHistory">;
@@ -32,10 +32,17 @@ async function databaseCandidateHistory(
       ),
     );
   if (!candidate) throw new HttpError(404, "Candidate not found.");
+  return publishedBeatmapHistory(candidate.beatmapId, slug);
+}
+
+async function publishedBeatmapHistory(
+  beatmapId: number,
+  excludeEdition?: string,
+): Promise<CandidateHistory> {
   const editions = (await getPublicEditions())
     .filter(
       (edition) =>
-        edition.slug !== slug &&
+        edition.slug !== excludeEdition &&
         (edition.archive || edition.status === "completed"),
     )
     .sort(compareTournamentSeasons);
@@ -49,8 +56,7 @@ async function databaseCandidateHistory(
       if (edition.archive) {
         return edition.archive.pools.flatMap((pool) =>
           pool.maps.flatMap((map) =>
-            map.beatmapId === candidate.beatmapId ||
-            map.originalId === candidate.beatmapId
+            map.beatmapId === beatmapId || map.originalId === beatmapId
               ? [
                   {
                     ...identity,
@@ -59,7 +65,7 @@ async function databaseCandidateHistory(
                     roundName: null,
                     slot: map.slot,
                     matchedBy:
-                      map.beatmapId === candidate.beatmapId
+                      map.beatmapId === beatmapId
                         ? ("beatmap" as const)
                         : ("original" as const),
                   },
@@ -70,7 +76,7 @@ async function databaseCandidateHistory(
       }
       return (await publicMappools(edition.slug)).flatMap((pool) =>
         pool.entries
-          .filter((entry) => entry.beatmapId === candidate.beatmapId)
+          .filter((entry) => entry.beatmapId === beatmapId)
           .map((entry) => ({
             ...identity,
             poolId: pool.id,
@@ -82,7 +88,15 @@ async function databaseCandidateHistory(
       );
     }),
   );
-  return { beatmapId: candidate.beatmapId, matches: matches.flat() };
+  return { beatmapId, matches: matches.flat() };
+}
+
+export async function beatmapHistory(actor: User, slug: string, input: string) {
+  await assertReadCapability(actor, "select_mappools", slug);
+  const beatmapId = parseBeatmapId(input);
+  if (!beatmapId) throw new HttpError(400, "Invalid BID");
+  if (!(await getEdition(slug))) throw new HttpError(404, "Edition not found.");
+  return publishedBeatmapHistory(beatmapId);
 }
 
 export async function candidateHistory(

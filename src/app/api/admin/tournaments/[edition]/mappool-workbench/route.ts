@@ -5,15 +5,18 @@ import { changeMappoolWorkbenchWrite } from "@/lib/mappool-write-contracts";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { withFrontendReadRequest } from "@/lib/next-frontend-request";
 import { selectionWorkspace } from "@/lib/mappool-workbench-reads";
+import { beatmapHistory } from "@/lib/mappool-history";
 type Context = { params: Promise<{ edition: string }> };
-export async function GET(_request: Request, context: Context) {
+export async function GET(request: Request, context: Context) {
   return withFrontendReadRequest(async () => {
     try {
+      const actor = await requireUser();
+      const { edition } = await context.params;
+      const beatmap = new URL(request.url).searchParams.get("beatmap");
       return NextResponse.json(
-        await selectionWorkspace(
-          await requireUser(),
-          (await context.params).edition,
-        ),
+        beatmap === null
+          ? await selectionWorkspace(actor, edition)
+          : await beatmapHistory(actor, edition, beatmap),
         { headers: { "Cache-Control": "no-store" } },
       );
     } catch (error) {
@@ -42,13 +45,13 @@ export async function POST(request: Request, context: Context) {
           text: "text" in input ? input.text : null,
           category: "category" in input ? input.category : undefined,
         })
-      : await (await import("@/lib/mappool-workbench")).selectionCommand(
-          actor,
-          edition,
-          input,
-        );
+      : await (
+          await import("@/lib/mappool-workbench")
+        ).selectionCommand(actor, edition, input);
     if (!preview)
-      revalidateCommittedPath(`/admin/tournaments/${edition}/mappool-workbench`);
+      revalidateCommittedPath(
+        `/admin/tournaments/${edition}/mappool-workbench`,
+      );
     return NextResponse.json(result, {
       headers: { "Cache-Control": "no-store" },
     });

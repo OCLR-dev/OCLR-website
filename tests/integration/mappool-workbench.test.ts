@@ -39,7 +39,10 @@ import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { statisticsArchive } from "../fixtures/archive-statistics";
 import { assertTestDatabase } from "../database";
-import { POST as workbenchRoute } from "../../src/app/api/admin/tournaments/[edition]/mappool-workbench/route";
+import {
+  GET as workbenchGet,
+  POST as workbenchRoute,
+} from "../../src/app/api/admin/tournaments/[edition]/mappool-workbench/route";
 import {
   candidatePreviewResponse,
   changeMappoolWorkbenchWrite,
@@ -185,9 +188,6 @@ describe.skipIf(!url)("private selection collaboration", () => {
     vi.unstubAllEnvs();
   });
   it("finds exact and original BIDs only in other published historical pools, without provider calls or writes", async () => {
-    await selectionCommand(tester, slug, add([75, 77]));
-    const candidates = (await selectionWorkspace(tester, slug)).candidates;
-    const candidate = candidates.find((c) => c.beatmapId === 75)!;
     const archive = {
       ...structuredClone(statisticsArchive),
       editionSlug: "history-public",
@@ -280,8 +280,39 @@ describe.skipIf(!url)("private selection collaboration", () => {
         );
     }
     vi.mocked(fetchBeatmaps).mockClear();
+    const lookup = (actor: User, beatmap: string) => {
+      routeActor = actor;
+      const url = new URL(
+        origin + changeMappoolWorkbenchWrite.path.replace("{edition}", slug),
+      );
+      url.searchParams.set("beatmap", beatmap);
+      return workbenchGet(new Request(url), {
+        params: Promise.resolve({ edition: slug }),
+      });
+    };
+    const direct = await lookup(
+      tester,
+      "https://osu.ppy.sh/beatmapsets/12#osu/75",
+    );
+    expect(direct.status).toBe(200);
+    const directResult = await direct.json();
+    expect(
+      (await lookup(tester, "https://osu.ppy.sh/beatmapsets/12")).status,
+    ).toBe(400);
+    expect(
+      (await lookup({ osuId: 123, username: "Unassigned" }, "75")).status,
+    ).toBe(403);
+    expect(await db().select().from(mappoolCandidates)).toEqual([]);
+    expect(await db().select().from(mappoolEvents)).toEqual([]);
+    expect(fetchBeatmaps).not.toHaveBeenCalled();
+
+    await selectionCommand(tester, slug, add([75, 77]));
+    const candidates = (await selectionWorkspace(tester, slug)).candidates;
+    const candidate = candidates.find((c) => c.beatmapId === 75)!;
+    vi.mocked(fetchBeatmaps).mockClear();
     const eventsBefore = await db().select().from(mappoolEvents);
     const result = await candidateHistory(tester, slug, candidate.id);
+    expect(directResult).toEqual(result);
     expect(result.beatmapId).toBe(75);
     expect(result.matches).toHaveLength(3);
     expect(
@@ -372,6 +403,123 @@ describe.skipIf(!url)("private selection collaboration", () => {
     await expect(mappoolCommand(tester, slug, {})).rejects.toMatchObject({
       status: 403,
     });
+  });
+
+  it("deletes only the confirmed candidate and its collaboration data, with scoped authorization and safe retries", async () => {
+    const [stage] = await db()
+      .insert(tournamentStages)
+      .values({ editionSlug: slug, kind: "group" })
+      .returning();
+    const [round] = await db()
+      .insert(tournamentRounds)
+      .values({
+        editionSlug: slug,
+        stageId: stage.id,
+        name: "Synthetic round",
+        position: 1,
+      })
+      .returning();
+    const [officialPool] = await db()
+      .insert(mappools)
+      .values({
+        editionSlug: slug,
+        roundId: round.id,
+        name: "Synthetic pool",
+      })
+      .returning();
+    await db().insert(mappoolEntries).values({
+      poolId: officialPool.id,
+      category: "NM",
+      position: 1,
+      beatmapId: 75,
+      metadata,
+    });
+    await selectionCommand(tester, slug, {
+      ...add([75, 77]),
+      roundIds: [round.id],
+    });
+    await selectionCommand(pooler, slug, { ...add(), category: "HD" });
+    const workspace = await selectionWorkspace(tester, slug);
+    const candidate = workspace.candidates.find(
+      (map) => map.beatmapId === 75 && map.category === "unassigned",
+    )!;
+    const otherCategory = workspace.candidates.find(
+      (map) => map.category === "HD",
+    )!;
+    await selectionCommand(pooler, slug, {
+      action: "comment",
+      candidateId: candidate.id,
+      requestId: randomUUID(),
+      body: "Synthetic private feedback",
+    });
+
+    const deletion = {
+      action: "delete",
+      confirmed: true,
+      candidateId: candidate.id,
+      expectedCategory: candidate.category,
+      expectedCommentCount: 1,
+    };
+    expect((await post(tester, { ...deletion, confirmed: false })).status).toBe(
+      400,
+    );
+    expect(
+      (
+        await post(tester, {
+          ...deletion,
+          candidateId: otherCategory.id,
+          expectedCategory: "HD",
+          expectedCommentCount: 0,
+        })
+      ).status,
+    ).toBe(403);
+    expect((await post(developer, deletion)).status).toBe(403);
+    expect(
+      (await post(tester, { ...deletion, expectedCommentCount: 0 })).status,
+    ).toBe(409);
+    await expect(
+      selectionCommand(admin, "other-test-cup", deletion),
+    ).rejects.toMatchObject({ status: 404 });
+    expect((await post(tester, deletion)).status).toBe(200);
+    expect(await (await post(tester, deletion)).json()).toEqual({
+      added: 0,
+      skipped: 1,
+    });
+    expect(await candidateComments(tester, slug, otherCategory.id)).toEqual([]);
+    expect(await db().select().from(mappoolCandidateComments)).toEqual([]);
+    expect(
+      await db()
+        .select()
+        .from(mappoolCandidateRounds)
+        .where(eq(mappoolCandidateRounds.candidateId, candidate.id)),
+    ).toEqual([]);
+    expect(await db().select().from(mappoolEntries)).toMatchObject([
+      { beatmapId: 75, poolId: officialPool.id },
+    ]);
+    const events = await db()
+      .select()
+      .from(mappoolEvents)
+      .where(eq(mappoolEvents.action, "candidate_delete"));
+    expect(events).toMatchObject([
+      { actorId: tester.osuId, after: { id: candidate.id, deleted: true } },
+    ]);
+    expect(JSON.stringify(events)).not.toContain("Synthetic private feedback");
+
+    const remaining = (await selectionWorkspace(pooler, slug)).candidates.find(
+      (map) => map.beatmapId === 77,
+    )!;
+    expect(
+      (
+        await post(pooler, {
+          ...deletion,
+          candidateId: remaining.id,
+          expectedCommentCount: 0,
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      (await selectionWorkspace(pooler, slug)).candidates.map((map) => map.id),
+    ).toEqual([otherCategory.id]);
   });
   it("serializes overlapping adds, retries without provider work and never overwrites saved metadata or audit", async () => {
     const result = await Promise.all([

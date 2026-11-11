@@ -23531,7 +23531,7 @@
       "post": {
         "operationId": "changeMappoolWorkbench",
         "summary": "Preview and manage private selection candidates",
-        "description": "Requires select_mappools. Preview consumes provider budget without changing candidates. Candidate changes validate the submitted fingerprints or expected category, rounds or version as applicable. Comment edits and deletion require authorship. Replaying an identical comment request ID returns a skipped count without adding another comment.",
+        "description": "Requires select_mappools. Preview consumes provider budget without changing candidates. Candidate changes validate the submitted fingerprints or expected category, rounds or version as applicable. Candidate deletion requires authorship or manage_mappools and checks the comment count. Comment edits and deletion require authorship. Replaying an identical comment request ID returns a skipped count without adding another comment.",
         "security": [
           {
             "browserSession": []
@@ -23599,6 +23599,49 @@
                   },
                   {
                     "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "const": "delete"
+                          },
+                          "confirmed": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "candidateId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "expectedCategory": {
+                            "type": "string",
+                            "enum": [
+                              "unassigned",
+                              "NM",
+                              "HD",
+                              "DT",
+                              "HR",
+                              "FM",
+                              "TB"
+                            ]
+                          },
+                          "expectedCommentCount": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 200
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "confirmed",
+                          "candidateId",
+                          "expectedCategory",
+                          "expectedCommentCount"
+                        ],
+                        "additionalProperties": false
+                      },
                       {
                         "type": "object",
                         "properties": {
