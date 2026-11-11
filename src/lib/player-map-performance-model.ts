@@ -30,8 +30,8 @@ export type MapPlay = {
   /** Winning team for this map, when the source already resolved it. */
   winnerTeamId?: string | null;
   score: number;
-  rawScore?: number;
-  scoreMultiplier?: number;
+  rawScore?: number | null;
+  scoreMultiplier?: number | null;
   accuracy: number | null;
   /** Mods recorded for this score; merged with lobby mods where available. */
   mods?: string[];
@@ -137,7 +137,7 @@ function mapTeamSize(scoreCount: number): 3 | 4 | null {
 }
 
 /** Competition ranking (1, 1, 3), matching standings and the statistics views. */
-function placements(
+export function placements(
   scores: { osuId: number; total: number }[],
 ): Map<number, number> {
   const ranked = [...scores].sort((a, b) => b.total - a.total);
@@ -155,7 +155,10 @@ function placements(
  * Resolves a map's winning team. Approved live results carry the winner;
  * published archive snapshots are compared by team score totals.
  */
-function mapResult(game: MapPlay[], teamId: string): PlayerMapRow["result"] {
+export function mapResult(
+  game: MapPlay[],
+  teamId: string,
+): PlayerMapRow["result"] {
   const explicit = game.find((play) => play.winnerTeamId)?.winnerTeamId;
   if (explicit) return explicit === teamId ? "win" : "loss";
   const totals = new Map<string, number>();

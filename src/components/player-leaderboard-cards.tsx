@@ -5,13 +5,14 @@ import { useAppTranslations } from "@/i18n/shared";
 import { classRules, type PlayerClass } from "@/lib/player-class";
 import {
   PlayerRankCard,
+  type PlayerCareerRankCardData,
   type PlayerRankCardData,
-  type RankStatAnchors,
 } from "./player-rank-card";
+import { PlacementTrophy } from "./player-trophy";
 import styles from "./player-leaderboard-cards.module.css";
 
-type SortKey =
-  | "rank"
+export type SortKey =
+  | "uid"
   | "player"
   | "pp"
   | "mra"
@@ -26,11 +27,34 @@ type SortKey =
   | "mod"
   | "hd"
   | "hr"
-  | "dt";
+  | "dt"
+  | "championships"
+  | "runnerUps"
+  | "thirdPlaces"
+  | "seasons"
+  | "firstPlaces"
+  | "secondPlaces"
+  | "thirdPlaceMaps"
+  | "mapsWon"
+  | "mapsLost"
+  | "mapWinRate"
+  | "averageAccuracy"
+  | "longestWinStreak";
 
 type Direction = "desc" | "asc";
-type Sort = { key: SortKey; dir: Direction };
-type Ranked = { player: PlayerRankCardData; rank: number };
+export type Sort = { key: SortKey; dir: Direction };
+type Ranked = {
+  player: PlayerRankCardData | PlayerCareerRankCardData;
+  rank: number;
+};
+
+export type LeaderboardColumn = {
+  key: SortKey;
+  label: string;
+  trophy?: "champion" | "runnerUp" | "third";
+};
+
+type AnyRankCardData = PlayerRankCardData | PlayerCareerRankCardData;
 
 // The list starts on MRA descending; that is also how the table ranks players.
 const DEFAULT_SORT: Sort = { key: "mra", dir: "desc" };
@@ -87,7 +111,38 @@ function classKey(classification: PlayerClass | null) {
   return [category, codes.indexOf(classification.code)] as const;
 }
 
-function numericValue(player: PlayerRankCardData, key: SortKey) {
+function numericValue(player: AnyRankCardData, key: SortKey) {
+  if ("career" in player) {
+    if (key === "pp") return player.pp;
+    switch (key) {
+      case "championships":
+        return player.career.championships;
+      case "runnerUps":
+        return player.career.runnerUps;
+      case "thirdPlaces":
+        return player.career.thirdPlaces;
+      case "seasons":
+        return player.career.seasons;
+      case "firstPlaces":
+        return player.career.firstPlaces;
+      case "secondPlaces":
+        return player.career.secondPlaces;
+      case "thirdPlaceMaps":
+        return player.career.thirdPlaceMaps;
+      case "mapsWon":
+        return player.career.mapsWon;
+      case "mapsLost":
+        return player.career.mapsLost;
+      case "mapWinRate":
+        return player.career.mapWinRate;
+      case "averageAccuracy":
+        return player.career.averageAccuracy;
+      case "longestWinStreak":
+        return player.career.longestWinStreak;
+      default:
+        return null;
+    }
+  }
   switch (key) {
     case "pp":
       return player.pp;
@@ -122,7 +177,9 @@ function numericValue(player: PlayerRankCardData, key: SortKey) {
 
 function compareRows(a: Ranked, b: Ranked, sort: Sort) {
   const direction = sort.dir === "desc" ? -1 : 1;
-  if (sort.key === "rank") return (a.rank - b.rank) * direction;
+  // The "#" control sorts by the stable osu! UID; the card order itself still
+  // starts on MRA descending.
+  if (sort.key === "uid") return (a.player.osuId - b.player.osuId) * direction;
   if (sort.key === "player")
     return a.player.username.localeCompare(b.player.username) * direction;
   if (sort.key === "type") {
@@ -131,7 +188,10 @@ function compareRows(a: Ranked, b: Ranked, sort: Sort) {
     if (!left && !right) return 0;
     if (!left) return 1;
     if (!right) return -1;
-    return (left[0] - right[0] || left[1] - right[1]) * direction;
+    // Categories run best (BC) to worst (FU), so the descending arrow shows
+    // the strong classes first; the numeric multiplier would reverse that.
+    const cmp = left[0] - right[0] || left[1] - right[1];
+    return sort.dir === "desc" ? cmp : -cmp;
   }
   const left = numericValue(a.player, sort.key);
   const right = numericValue(b.player, sort.key);
@@ -144,10 +204,14 @@ function compareRows(a: Ranked, b: Ranked, sort: Sort) {
 
 export function PlayerLeaderboardCards({
   players,
-  anchors,
+  columns: providedColumns,
+  defaultSort = DEFAULT_SORT,
+  ariaLabel,
 }: {
-  players: PlayerRankCardData[];
-  anchors: RankStatAnchors;
+  players: AnyRankCardData[];
+  columns?: LeaderboardColumn[];
+  defaultSort?: Sort;
+  ariaLabel?: string;
 }) {
   const tr = useAppTranslations();
   const [sort, setSort] = useState<Sort | null>(null);
@@ -156,10 +220,10 @@ export function PlayerLeaderboardCards({
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const sortBarRef = useRef<HTMLDivElement | null>(null);
   const sortWidthsRef = useRef<number[] | null>(null);
-  const activeSort = sort ?? DEFAULT_SORT;
+  const activeSort = sort ?? defaultSort;
 
-  const columns: { key: SortKey; label: string }[] = [
-    { key: "rank", label: "#" },
+  const columns: LeaderboardColumn[] = providedColumns ?? [
+    { key: "uid", label: "#" },
     { key: "player", label: tr("Player") },
     { key: "pp", label: tr("pp") },
     { key: "type", label: tr("type") },
@@ -177,7 +241,9 @@ export function PlayerLeaderboardCards({
     { key: "dt", label: tr("DT force") },
   ];
 
-  const labelKey = columns.map((column) => column.label).join("\u0001");
+  const labelKey = columns
+    .map((column) => `${column.key}:${column.label}:${column.trophy ?? ""}`)
+    .join("\u0001");
 
   useLayoutEffect(() => {
     const bar = sortBarRef.current;
@@ -290,12 +356,15 @@ export function PlayerLeaderboardCards({
     setSort((current) => {
       // MRA is the default order, so it only switches between descending and
       // ascending. It goes dark only while another column owns the sort.
-      if (key === "mra") {
-        const effective = current ?? DEFAULT_SORT;
-        if (effective.key !== "mra") {
-          return { key: "mra", dir: "desc" };
+      if (key === defaultSort.key) {
+        const effective = current ?? defaultSort;
+        if (effective.key !== defaultSort.key) {
+          return { key: defaultSort.key, dir: defaultSort.dir };
         }
-        return { key: "mra", dir: effective.dir === "desc" ? "asc" : "desc" };
+        return {
+          key: defaultSort.key,
+          dir: effective.dir === "desc" ? "asc" : "desc",
+        };
       }
       if (!current || current.key !== key) return { key, dir: "desc" };
       if (current.dir === "desc") return { key, dir: "asc" };
@@ -309,7 +378,7 @@ export function PlayerLeaderboardCards({
         ref={sortBarRef}
         className={styles.sortBar}
         role="toolbar"
-        aria-label={tr("Player leaderboard")}
+        aria-label={ariaLabel ?? tr("Player leaderboard")}
       >
         {sortRows.map((row) => (
           <div
@@ -337,7 +406,10 @@ export function PlayerLeaderboardCards({
                   >
                     ▲
                   </span>
-                  <span className={styles.label}>{column.label}</span>
+                  <span className={styles.label}>
+                    {column.trophy && <PlacementTrophy tier={column.trophy} />}
+                    {column.label}
+                  </span>
                   <span
                     className={styles.arrow}
                     data-active={descending || undefined}
@@ -353,11 +425,7 @@ export function PlayerLeaderboardCards({
       </div>
       <div className={styles.list}>
         {shown.map(({ player }) => (
-          <PlayerRankCard
-            key={player.osuId}
-            player={player}
-            anchors={anchors}
-          />
+          <PlayerRankCard key={player.osuId} player={player} />
         ))}
       </div>
       {hasMore ? (

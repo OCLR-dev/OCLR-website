@@ -17,6 +17,19 @@ const stats = {
   hr: 1,
   dt: 1,
 };
+const statPositions = {
+  rws: 0.5,
+  wins: 0.5,
+  losses: 0.5,
+  appearances: 0.5,
+  winRate: 0.5,
+  participation: 0.5,
+  nm: 0.5,
+  mod: 0.5,
+  hd: 0.5,
+  hr: 0.5,
+  dt: 0.5,
+};
 const players: PlayerRankCardData[] = [3, 2, 1].map((mra, index) => ({
   rank: index + 1,
   osuId: 990001 + index,
@@ -24,15 +37,14 @@ const players: PlayerRankCardData[] = [3, 2, 1].map((mra, index) => ({
   pp: mra * 1000,
   mra,
   stats,
+  mraPosition: 0.5,
+  statPositions,
   classification: null,
   avatarUrl: null,
   coverUrl: null,
 }));
 createRoot(document.getElementById("root")!).render(
   <NextIntlClientProvider locale="en" messages={en} timeZone="UTC">
-    <PlayerLeaderboardCards
-      players={players}
-      anchors={{ average: stats, maximum: stats }}
-    />
+    <PlayerLeaderboardCards players={players} />
   </NextIntlClientProvider>,
 );

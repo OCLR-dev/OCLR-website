@@ -66,6 +66,13 @@
   white-space: nowrap;
 }
 
+.label svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-inline-end: 0.15rem;
+  flex: none;
+}
+
 .sortButton:hover,
 .sortButton:focus-visible {
   border-color: transparent;
