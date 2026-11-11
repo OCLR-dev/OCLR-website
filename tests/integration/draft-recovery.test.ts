@@ -402,13 +402,12 @@ describe.skipIf(!url)(
         );
       }
     });
-    it("refuses unlock/reset for finalized teams or existing result evidence without changing history", async () => {
+    it("requires explicit reset when finalized teams or result evidence protect the draft", async () => {
       await db()
         .update(teams)
         .set({ finalizedAt: new Date() })
         .where(eq(teams.id, f.teamRows[0].id));
       await expect(action("unlock")).rejects.toMatchObject({ status: 409 });
-      await expect(action("reset")).rejects.toMatchObject({ status: 409 });
       await db().update(teams).set({ finalizedAt: null });
       const [stage] = await db()
         .insert(tournamentStages)
@@ -435,9 +434,18 @@ describe.skipIf(!url)(
           position: 1,
         })
         .returning();
-      await db().insert(matchResults).values({ fixtureId: fixture.id });
+      const [result] = await db()
+        .insert(matchResults)
+        .values({ fixtureId: fixture.id })
+        .returning();
       await expect(action("unlock")).rejects.toMatchObject({ status: 409 });
-      expect(await db().select().from(matchResults)).toHaveLength(1);
+      await pick();
+      await action("pause");
+      const reset = await action("reset");
+      expect(reset.session!.state).toBe("setup");
+      expect(reset.picks[0].voidedAt).not.toBeNull();
+      expect(await db().select().from(fixtures)).toEqual([fixture]);
+      expect(await db().select().from(matchResults)).toEqual([result]);
     });
 
     it("unlocks explicit pre-pick locks and Ready without discarding the saved order", async () => {
@@ -466,7 +474,7 @@ describe.skipIf(!url)(
         original.edition!.registrationPausedAt,
       );
     });
-    it("allows an unfinalized completed draft to add future turns, then protects actual finalized history", async () => {
+    it("allows future turns and explicitly resets finalized rosters for a new draft", async () => {
       for (const player of f.players.slice(0, 4)) await pick(player.osuId);
       const complete = await state();
       expect(complete.session!.state).toBe("completed");
@@ -492,8 +500,35 @@ describe.skipIf(!url)(
         complete.picks.map((p) => p.id),
       );
       await expect(action("unlock")).rejects.toMatchObject({ status: 409 });
-      await expect(action("reset")).rejects.toMatchObject({ status: 409 });
-      expect((await state()).session).toEqual(final.session);
+      await db()
+        .update(teams)
+        .set({ rosterPublished: true })
+        .where(eq(teams.editionSlug, slug));
+      await expect(action("reset", f.a)).rejects.toMatchObject({ status: 403 });
+      const reset = await action("reset");
+      expect(reset.session).toMatchObject({
+        state: "setup",
+        turnSequence: final.session!.turnSequence,
+        publicSnapshot: null,
+        captainSnapshot: null,
+      });
+      expect(reset.picks.map((p) => p.id)).toEqual(
+        final.picks.map((p) => p.id),
+      );
+      expect(reset.picks.every((p) => p.voidedAt)).toBe(true);
+      expect(reset.members.map((m) => m.membership.origin)).toEqual([
+        "captain",
+        "captain",
+      ]);
+      for (const { team } of reset.teams) {
+        expect(team).toMatchObject({
+          finalizedAt: null,
+          rosterPublished: false,
+          identityPublished: true,
+        });
+      }
+      await action("start");
+      await pick();
     });
 
     it("serializes a live captain pick against Pause and edit with one winner", async () => {

@@ -21,11 +21,7 @@ function Controls({ slug, data }: { slug: string; data: StaffDraft }) {
     ...(data.canConfigure && data.edition?.lockedAt && state !== "finalized"
       ? ["unlock"]
       : []),
-    ...(data.canConfigure &&
-    data.session &&
-    !["live", "finalized"].includes(state)
-      ? ["reset"]
-      : []),
+    ...(data.canConfigure && data.session && state !== "live" ? ["reset"] : []),
     ...(state === "ready" && data.session?.turnSequence.length
       ? ["start"]
       : []),
@@ -96,7 +92,7 @@ function Controls({ slug, data }: { slug: string; data: StaffDraft }) {
                   )
                 : action === "reset"
                   ? tr(
-                      "Reset this draft and return to setup. Picks are voided and draft roster assignments removed; saved order and audit history are retained. Registration stays unchanged.",
+                      "Return to setup and void confirmed picks. Draft assignments and roster finalization are cleared, and the draft board and team rosters are unpublished. Saved order, registration status, fixtures, match evidence, and audit history are preserved.",
                     )
                   : action === "undo"
                     ? tr(
