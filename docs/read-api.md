@@ -497,6 +497,10 @@ while retaining its exact prior statistics identity through `sourceTitle`;
 existing maps without these fields remain compatible. See
 [the S2 NM2 recovery](archive-map-metadata.md#s2-nm2-official-file-recovery-852).
 
+Contract 1.33.0 adds an optional positive integer `tier` to each published
+broadcast draft pick. It represents the confirmed draft round and is omitted
+when the published board lacks matching round evidence.
+
 Contract 1.32.0 adds the `ended` fixture status for a match that has ended.
 The write contract 0.4.0 accepts this status when creating or editing a fixture.
 It is independent of result review and publication. An ended public fixture can

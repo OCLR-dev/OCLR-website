@@ -1,6 +1,7 @@
 "use client";
 
 import { useAppTranslations } from "@/i18n/shared";
+import { draftBoardTiers } from "@/lib/award-tiers";
 
 import type { CaptainBoard, DraftBoard } from "@/lib/draft-types";
 import { useState } from "react";
@@ -141,6 +142,7 @@ export function LiveDraft({
                     turnIndex={board.turnIndex}
                     team={own.team}
                     players={own.players}
+                    tiers={draftBoardTiers(board, board.turnSequence ?? [])}
                     capacity={board.capacities?.[own.team.id]}
                     pool={board.eligiblePool}
                     staff={false}

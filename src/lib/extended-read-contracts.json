@@ -4733,7 +4733,30 @@
             "turnIndex": { "type": "number" },
             "turnCount": { "type": "number" },
             "activeTeam": { "$ref": "#/$defs/Read5ec85bc6b25c" },
-            "picks": { "$ref": "#/$defs/Read1f938af86459" },
+            "picks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "turnIndex": { "type": "number" },
+                  "team": { "$ref": "#/$defs/Readaa1ac81e796b" },
+                  "player": { "$ref": "#/$defs/Readd988f71c5ebc" },
+                  "tier": {
+                    "anyOf": [
+                      { "type": "null", "x-oclr-undefined": true },
+                      {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    ]
+                  }
+                },
+                "required": ["id", "turnIndex", "team", "player"],
+                "additionalProperties": false
+              }
+            },
             "rosters": { "$ref": "#/$defs/Reade8074981c738" },
             "pool": { "$ref": "#/$defs/Readf25d5821cb15" }
           },

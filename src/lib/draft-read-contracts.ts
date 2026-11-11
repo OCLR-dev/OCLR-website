@@ -27,6 +27,12 @@ export const draftTeamReadContract = z.strictObject({
   captain: identity,
 });
 const team = draftTeamReadContract;
+const pick = z.strictObject({
+  id: z.string(),
+  turnIndex: z.number(),
+  team,
+  player: identity,
+});
 const core = {
   sessionId: z.string(),
   version: z.number(),
@@ -42,18 +48,14 @@ const core = {
   turnIndex: z.number(),
   turnCount: z.number(),
   activeTeam: z.union([z.null(), team]),
-  picks: z.array(
-    z.strictObject({
-      id: z.string(),
-      turnIndex: z.number(),
-      team,
-      player: identity,
-    }),
-  ),
+  picks: z.array(pick),
   rosters: z.array(z.strictObject({ team, players: z.array(identity) })),
 };
 const pool = z.union([z.null(), z.array(identity)]);
 export const draftBoardReadContract = z.strictObject({ ...core, pool });
+export const broadcastDraftReadContract = draftBoardReadContract.extend({
+  picks: z.array(pick.extend({ tier: z.number().int().positive().optional() })),
+});
 export const captainBoardReadContract = draftBoardReadContract.extend({
   // Snapshots published before roster capacity was included omit this field.
   capacities: z.record(z.string(), nullableNumber).optional(),
@@ -63,6 +65,6 @@ export const captainBoardReadContract = draftBoardReadContract.extend({
 });
 export const draftReadContracts = {
   publicDraft: z.union([z.null(), z.strictObject({ pool, ...core })]),
-  publicBroadcastDraft: z.union([z.null(), draftBoardReadContract]),
+  publicBroadcastDraft: z.union([z.null(), broadcastDraftReadContract]),
   captainDraft: z.union([z.null(), captainBoardReadContract]),
 } as const;
