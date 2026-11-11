@@ -437,12 +437,19 @@
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-footer) {
   margin-top: 0;
 }
+.workbenchCard:global(.map-browse-card--band) :global(.map-card-action-row) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem 0.5rem;
+}
 .assignedRounds {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.25rem 0.5rem;
-  padding: 0 0.75rem 0.5rem;
+  min-width: 0;
   color: var(--site-muted);
   font-size: var(--text-support);
   overflow-wrap: anywhere;
@@ -462,19 +469,14 @@
   overflow-wrap: anywhere;
 }
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-values) {
-  flex-wrap: nowrap;
   align-items: center;
   gap: 0.5rem;
-  /* Horizontal scrolling also clips vertically; leave room for lifted buttons
-     and their keyboard focus outlines inside the scrollport. */
-  padding: 0.625rem 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  padding: 0.25rem 0;
   font-size: var(--text-support);
 }
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-parameters) {
   display: flex;
-  flex: 1 0 auto;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   white-space: nowrap;
@@ -496,13 +498,12 @@
   text-overflow: ellipsis;
 }
 .workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-values)
+  :global(.map-card-action-row)
   > :global(.beatmap-actions) {
-  position: static;
-  flex: none;
-  flex-wrap: nowrap;
+  min-width: 0;
+  justify-content: flex-end;
   gap: 0.25rem;
-  margin: 0;
+  margin: 0 0 0 auto;
 }
 .workbenchCard:global(.map-browse-card--band) :global(.map-slot-badge),
 .workbenchCard:global(.map-browse-card--band) :global(.map-card-id) {
@@ -579,11 +580,11 @@
 
 /* Candidate toolbars are denser than public map actions and dialog controls. */
 .workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-values)
+  :global(.map-card-action-row)
   > :global(.beatmap-actions)
   > :is(button, a),
 .workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-values)
+  :global(.map-card-action-row)
   > :global(.beatmap-actions)
   > :is(.candidateRounds, .promotion)
   > button {
@@ -595,12 +596,12 @@
   padding: 0.375rem;
 }
 .workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-values)
+  :global(.map-card-action-row)
   > :global(.beatmap-actions)
   > :is(button, a)
   svg,
 .workbenchCard:global(.map-browse-card--band)
-  :global(.map-card-values)
+  :global(.map-card-action-row)
   > :global(.beatmap-actions)
   > :is(.candidateRounds, .promotion)
   > button
@@ -610,11 +611,11 @@
 }
 @media (pointer: coarse) {
   .workbenchCard:global(.map-browse-card--band)
-    :global(.map-card-values)
+    :global(.map-card-action-row)
     > :global(.beatmap-actions)
     > :is(button, a),
   .workbenchCard:global(.map-browse-card--band)
-    :global(.map-card-values)
+    :global(.map-card-action-row)
     > :global(.beatmap-actions)
     > :is(.candidateRounds, .promotion)
     > button {

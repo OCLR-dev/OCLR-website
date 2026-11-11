@@ -259,34 +259,34 @@ for (const theme of ["light", "dark"]) {
         ),
       ).toBeLessThan(2);
       const values = card.locator(".map-card-values");
-      const roundSummary = card
-        .locator(".map-card-extension")
-        .getByRole("group", {
-          name: "指定輪次",
-          exact: true,
-        });
+      const actionRow = card.locator(".map-card-action-row");
+      const roundSummary = actionRow.locator(":scope > [role=group]");
+      await expect(roundSummary).toHaveAccessibleName("指定輪次");
       await expect(roundSummary).toContainText("Grand Final");
       const summaryBox = (await roundSummary.boundingBox())!;
       const valuesBox = (await values.boundingBox())!;
       expect(summaryBox.y).toBeGreaterThanOrEqual(
         valuesBox.y + valuesBox.height,
       );
-      const toolbar = values.locator(".beatmap-actions");
-      const parameters = (await values
-        .locator(".map-card-parameters")
-        .boundingBox())!;
+      await expect(values.locator(".beatmap-actions")).toHaveCount(0);
+      const toolbar = actionRow.locator(".beatmap-actions");
       const toolbarBox = (await toolbar.boundingBox())!;
-      expect(toolbarBox.x).toBeGreaterThanOrEqual(
-        parameters.x + parameters.width,
-      );
-      expect(
-        Math.abs(
-          toolbarBox.y +
-            toolbarBox.height / 2 -
-            parameters.y -
-            parameters.height / 2,
-        ),
-      ).toBeLessThan(2);
+      const actionRowBox = (await actionRow.boundingBox())!;
+      if (actionRowBox.width >= summaryBox.width + toolbarBox.width + 32) {
+        expect(toolbarBox.x).toBeGreaterThanOrEqual(
+          summaryBox.x + summaryBox.width,
+        );
+        expect(
+          Math.abs(
+            toolbarBox.y +
+              toolbarBox.height / 2 -
+              summaryBox.y -
+              summaryBox.height / 2,
+          ),
+        ).toBeLessThan(2);
+      } else {
+        expect(toolbarBox.y).toBeGreaterThanOrEqual(summaryBox.y);
+      }
       const controls = toolbar.locator("button:visible, a.button:visible");
       await expect(controls).toHaveCount(6);
       await expect(
@@ -301,9 +301,6 @@ for (const theme of ["light", "dark"]) {
       await expect(promotion).toBeVisible();
       for (const control of await controls.all()) {
         if (!(await control.isVisible())) continue;
-        await control.evaluate((node) =>
-          node.scrollIntoView({ block: "nearest", inline: "nearest" }),
-        );
         const box = (await control.boundingBox())!;
         const touch = await page.evaluate(
           () => matchMedia("(pointer: coarse)").matches,
@@ -311,6 +308,7 @@ for (const theme of ["light", "dark"]) {
         expect(box.width).toBe(touch ? 44 : 32);
         expect(box.height).toBe(touch ? 44 : 32);
         await expect(control.locator("svg")).toHaveCSS("width", "16px");
+        expect(box.x).toBeGreaterThanOrEqual(mapBox.x);
         expect(box.x + box.width).toBeLessThanOrEqual(
           mapBox.x + mapBox.width + 1,
         );
@@ -338,9 +336,6 @@ for (const theme of ["light", "dark"]) {
           .analyze()
       ).violations;
       expect(violations).toEqual([]);
-      await values.evaluate((node) => {
-        node.scrollLeft = 0;
-      });
       await row.screenshot({
         path: info.outputPath(`workbench-${theme}-${width}.png`),
       });

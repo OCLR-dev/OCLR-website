@@ -1070,33 +1070,33 @@ export function SelectionWorkbench({
                     openHref={`https://osu.ppy.sh/beatmaps/${c.beatmapId}`}
                     openLabel={`${c.metadata.artist} — ${c.metadata.title}`}
                     note={tr("★ base")}
+                    actionContext={
+                      <div
+                        className={styles.assignedRounds}
+                        role="group"
+                        aria-label={tr("Intended rounds")}
+                      >
+                        <span>{tr("Intended rounds")}:</span>
+                        {c.roundIds.length ? (
+                          data.rounds
+                            .filter((round) => c.roundIds.includes(round.id))
+                            .map((round) => (
+                              <span
+                                key={round.id}
+                                className={styles.assignedRound}
+                              >
+                                {round.name}
+                              </span>
+                            ))
+                        ) : (
+                          <span>{tr("Unassigned")}</span>
+                        )}
+                      </div>
+                    }
                     footer={
-                      <>
-                        <div
-                          className={styles.assignedRounds}
-                          role="group"
-                          aria-label={tr("Intended rounds")}
-                        >
-                          <span>{tr("Intended rounds")}:</span>
-                          {c.roundIds.length ? (
-                            data.rounds
-                              .filter((round) => c.roundIds.includes(round.id))
-                              .map((round) => (
-                                <span
-                                  key={round.id}
-                                  className={styles.assignedRound}
-                                >
-                                  {round.name}
-                                </span>
-                              ))
-                          ) : (
-                            <span>{tr("Unassigned")}</span>
-                          )}
-                        </div>
-                        <div className={styles.createdAt}>
-                          {tr("Added at")}: <Stamp value={c.createdAt} />
-                        </div>
-                      </>
+                      <div className={styles.createdAt}>
+                        {tr("Added at")}: <Stamp value={c.createdAt} />
+                      </div>
                     }
                     actions={
                       <>

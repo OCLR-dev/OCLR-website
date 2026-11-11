@@ -571,15 +571,13 @@ test.describe("private Pooler/Tester selection workbench", () => {
         .click();
       const card = candidate.locator(".map-browse-card--band");
       await expect(card).toBeVisible();
-      const cardRounds = card.getByRole("group", {
-        name: "Intended rounds",
-        exact: true,
-      });
+      const cardRounds = card.locator(".map-card-action-row > [role=group]");
       const cardCategory = card.getByRole("combobox", {
         name: "Mod category",
         exact: true,
       });
       await expect(cardRounds).toBeVisible();
+      await expect(cardRounds).toHaveAccessibleName("Intended rounds");
       await expect(cardCategory).toBeVisible();
       await expect(
         card.getByRole("link", {
@@ -587,8 +585,9 @@ test.describe("private Pooler/Tester selection workbench", () => {
         }),
       ).toHaveAttribute("href", "https://osu.ppy.sh/beatmaps/123");
       await expect(card.locator(".map-card-mode")).toHaveCount(0);
-      await expect(card.locator(".map-card-extension")).toHaveCount(0);
-      await expect(card.locator("time")).toHaveCount(0);
+      await expect(
+        card.locator(".map-card-extension > div > time"),
+      ).toBeVisible();
       await expect(
         card.locator(".map-card-side").getByText("Added by", { exact: false }),
       ).toBeVisible();
@@ -622,15 +621,17 @@ test.describe("private Pooler/Tester selection workbench", () => {
         headerBox!.y + headerBox!.height,
       );
       const roundBox = await cardRounds.boundingBox();
-      const hpBox = await card
-        .locator(".map-card-parameters > span")
-        .last()
+      const parametersBox = await card
+        .locator(".map-card-parameters")
         .boundingBox();
-      expect(
-        Math.abs(
-          roundBox!.y + roundBox!.height / 2 - hpBox!.y - hpBox!.height / 2,
-        ),
-      ).toBeLessThan(2);
+      await expect(
+        card.locator(".map-card-action-row").getByRole("button", {
+          name: /^Intended rounds:/,
+        }),
+      ).toBeVisible();
+      expect(roundBox!.y).toBeGreaterThanOrEqual(
+        parametersBox!.y + parametersBox!.height,
+      );
 
       for (const control of [cardRounds, cardCategory]) {
         await control.evaluate((node) =>
@@ -868,20 +869,19 @@ test.describe("private Pooler/Tester selection workbench", () => {
           await expect(control).toHaveText("");
           await expect(control).toHaveAttribute("title", /.+/);
           const iconBox = await control.boundingBox();
-          expect(iconBox!.width).toBe(44);
-          expect(iconBox!.height).toBe(44);
+          const touch = await poolerPage.evaluate(
+            () => matchMedia("(pointer: coarse)").matches,
+          );
+          expect(iconBox!.width).toBe(touch ? 44 : 32);
+          expect(iconBox!.height).toBe(touch ? 44 : 32);
         }
 
-        if (isMobile) {
-          const roundIcon = await previewCard
-            .getByRole("button", { name: /^指定輪次:/ })
-            .boundingBox();
-          const poolIcon = await promotion.boundingBox();
-          expect(Math.abs(roundIcon!.y - poolIcon!.y)).toBeLessThan(2);
-        }
-        await expect(previewCard.locator(".map-card-extension")).toHaveCount(0);
-        await expect(previewCard.locator("time")).toHaveCount(0);
-        const toolbar = previewCard.locator(".beatmap-actions");
+        await expect(
+          previewCard.locator(".map-card-extension > div > time"),
+        ).toBeVisible();
+        const toolbar = previewCard.locator(
+          ".map-card-action-row > .beatmap-actions",
+        );
         await expect(
           toolbar.getByRole("group", { name: "指定輪次", exact: true }),
         ).toHaveCount(1);

@@ -59,6 +59,7 @@ export function MapCardBand({
   sidePlacement = "panel",
   slotControl,
   actions,
+  actionContext,
 }: {
   as?: "article" | "li";
   className?: string;
@@ -98,6 +99,7 @@ export function MapCardBand({
   sidePlacement?: "panel" | "values" | "artist";
   slotControl?: ReactNode;
   actions?: ReactNode;
+  actionContext?: ReactNode;
 } & (
   | { onOpen: () => void; openHref?: never }
   | { onOpen?: never; openHref: string }
@@ -367,12 +369,7 @@ export function MapCardBand({
               </div>
             ) : null}
           </div>
-          <div
-            className="map-card-values"
-            role={variant === "workbench" ? "group" : undefined}
-            aria-label={variant === "workbench" ? tr("Details") : undefined}
-            tabIndex={variant === "workbench" ? 0 : undefined}
-          >
+          <div className="map-card-values">
             {variant === "workbench" ? (
               <div className="map-card-parameters">{parameters}</div>
             ) : (
@@ -381,7 +378,6 @@ export function MapCardBand({
             {side && sidePlacement === "values" ? (
               <div className="map-card-side">{side}</div>
             ) : null}
-            {variant === "workbench" ? beatmapActions : null}
           </div>
         </div>
         {showMode && (
@@ -394,7 +390,17 @@ export function MapCardBand({
       {side && sidePlacement === "panel" ? (
         <div className="map-card-side">{side}</div>
       ) : null}
-      {footer ? <div className="map-card-extension">{footer}</div> : null}
+      {footer || variant === "workbench" ? (
+        <div className="map-card-extension">
+          {variant === "workbench" && (
+            <div className="map-card-action-row">
+              {actionContext}
+              {beatmapActions}
+            </div>
+          )}
+          {footer}
+        </div>
+      ) : null}
     </Tag>
   );
 }
