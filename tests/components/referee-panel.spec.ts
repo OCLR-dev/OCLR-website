@@ -1035,6 +1035,39 @@ test(`records with localized feedback in ${locale} at the workflow viewport`, as
   });
 });
 
+test("IRC sits beside the workflow or is reachable from the stage navigation", async ({
+  page,
+  isMobile,
+}) => {
+  await setup(page, { connected: true });
+  await page.goto("/referee-panel");
+  const stages = page.getByRole("navigation", { name: "Referee stages" });
+  const preparation = page.locator("#referee-preparation");
+  const irc = page.getByRole("complementary", { name: "IRC console" });
+  const ircLink = stages.getByRole("link", { name: "IRC console" });
+
+  if (isMobile) {
+    await ircLink.click();
+    await expect(irc.getByRole("heading", { name: "IRC", exact: true }))
+      .toBeInViewport();
+    await stages.getByRole("link", { name: "Pre-match preparation" }).click();
+    await expect(preparation.getByRole("heading", { level: 2 }))
+      .toBeInViewport();
+    await preparation.getByRole("button", { name: "Prepare Room rules in IRC" }).click();
+    await expect(irc.getByLabel("IRC command")).toHaveValue(/^!mp set /);
+    await expect(irc.getByRole("button", { name: "Send to local IRC" }))
+      .toBeInViewport();
+  } else {
+    const workflowBox = (await preparation.boundingBox())!;
+    const ircBox = (await irc.boundingBox())!;
+    expect(ircBox.x).toBeGreaterThan(workflowBox.x + workflowBox.width);
+    await stages.getByRole("link", { name: "BP stage" }).click();
+    await expect(page.locator("#referee-bp-title")).toBeInViewport();
+    await expect(irc.getByRole("heading", { name: "IRC", exact: true }))
+      .toBeInViewport();
+  }
+});
+
 test("withdraw stays outside collapsed details and score floats only within BP", async ({
   page,
 }, info) => {
@@ -1062,8 +1095,11 @@ test("withdraw stays outside collapsed details and score floats only within BP",
     "sticky",
   );
   const box = await summary.boundingBox();
-  expect(box!.y).toBeGreaterThanOrEqual(95);
-  expect(box!.y).toBeLessThanOrEqual(97);
+  const nav = (await page
+    .getByRole("navigation", { name: "Referee stages" })
+    .boundingBox())!;
+  expect(box!.y).toBeGreaterThanOrEqual(nav.y + nav.height);
+  expect(box!.y).toBeLessThanOrEqual(nav.y + nav.height + 24);
   await summary.screenshot({ path: info.outputPath("scoreboard.png") });
   await undo.click();
   await expect

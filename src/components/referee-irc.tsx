@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type Ref } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { RefereeIrcBrowserView } from "@/lib/referee-irc-browser-contract";
 import type { RefereeWorkspace } from "@/lib/referee-workspace";
@@ -13,6 +13,8 @@ type QueueRequest = {
   text: string;
 };
 export function RefereeIrc({
+  id,
+  composerRef,
   syncEvents = [],
   onSynced,
   draft,
@@ -32,6 +34,8 @@ export function RefereeIrc({
   onConfirmed,
   onRoomChange,
 }: {
+  id?: string;
+  composerRef?: Ref<HTMLFormElement>;
   syncEvents?: readonly { id: string; text: string }[];
   onSynced?: (eventId: string) => void;
   draft: string;
@@ -350,7 +354,12 @@ export function RefereeIrc({
   }
   const locked = disabled || sending || !!retry;
   return (
-    <aside className={`panel ${styles.irc}`} aria-label={tr("IRC console")}>
+    <aside
+      id={id}
+      tabIndex={-1}
+      className={`panel ${styles.irc}`}
+      aria-label={tr("IRC console")}
+    >
       <header>
         <h2>{"IRC"}</h2>
         <span className="badge">
@@ -512,12 +521,12 @@ export function RefereeIrc({
         )}
         {((!simulation && !relay?.messages.length && !relay?.commands.length) ||
           (simulation && !history.length)) && (
-          <p className="muted">
-            {tr("Choose a command or pool map on the left.")}
-          </p>
+          <p className="muted">{tr("Choose a command or pool map.")}</p>
         )}
       </div>
       <form
+        ref={composerRef}
+        tabIndex={-1}
         onSubmit={(event) => {
           event.preventDefault();
           void submit();

@@ -23,6 +23,13 @@ import { RefereeCommands } from "./referee-commands";
 import { RefereeReconciliation } from "./referee-reconciliation";
 import styles from "./referee-panel.module.css";
 
+const stageIds = [
+  "referee-preparation",
+  "referee-bp",
+  "referee-post-match",
+] as const;
+const ircId = "referee-irc";
+
 const dependencyChangedMessage =
   "Fixture dependencies changed. Withdraw affected steps and recheck the saved configuration.";
 
@@ -53,26 +60,61 @@ export function RefereePanel({
     initial.session?.firstPickTeamId ?? "",
   );
   const [draftSkipBans, setDraftSkipBans] = useState<boolean | null>(null);
-  const [activeStage, setActiveStage] = useState("referee-preparation");
+  const [activeStage, setActiveStage] = useState<string>(stageIds[0]);
+  const workspace = useRef<HTMLDivElement>(null);
+  const stageNav = useRef<HTMLElement>(null);
+  const ircJump = useRef<HTMLAnchorElement>(null);
+  const ircComposer = useRef<HTMLFormElement>(null);
   useEffect(() => {
-    const ids = ["referee-preparation", "referee-bp", "referee-post-match"];
-    const updateStage = () => {
-      const current = ids
-        .filter(
-          (id) =>
-            (document.getElementById(id)?.getBoundingClientRect().top ??
-              Infinity) <= 180,
-        )
-        .at(-1);
-      const atEnd =
-        window.scrollY + window.innerHeight >=
-        document.documentElement.scrollHeight - 2;
-      setActiveStage(atEnd ? ids[2] : (current ?? ids[0]));
+    const node = workspace.current;
+    const nav = stageNav.current;
+    const header = document.querySelector<HTMLElement>(".site-header");
+    if (!node || !nav || accessLost) return;
+
+    let stickyBottom = 0;
+    function updateStage() {
+      const ids = ircJump.current?.getClientRects().length
+        ? [...stageIds, ircId]
+        : stageIds;
+      const current = ids.findLast((id) => {
+        const top = document.getElementById(id)?.getBoundingClientRect().top;
+        const threshold =
+          id === ircId
+            ? Math.max(stickyBottom + 24, window.innerHeight * 0.4)
+            : stickyBottom + 24;
+        return top !== undefined && top <= threshold;
+      });
+      setActiveStage(current ?? stageIds[0]);
+    }
+    const measure = () => {
+      const headerHeight =
+        header?.dataset.scrollHidden === "true" &&
+        window.matchMedia("(max-width: 760px)").matches
+          ? 0
+          : (header?.getBoundingClientRect().height ?? 0);
+      stickyBottom = headerHeight + nav.getBoundingClientRect().height;
+      node.style.setProperty("--referee-header-height", `${headerHeight}px`);
+      node.style.setProperty("--referee-sticky-bottom", `${stickyBottom}px`);
+      updateStage();
     };
-    updateStage();
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(nav);
+    const headerVisibility = new MutationObserver(measure);
+    if (header) {
+      observer.observe(header);
+      headerVisibility.observe(header, {
+        attributes: true,
+        attributeFilter: ["data-scroll-hidden"],
+      });
+    }
     window.addEventListener("scroll", updateStage, { passive: true });
-    return () => window.removeEventListener("scroll", updateStage);
-  }, []);
+    return () => {
+      observer.disconnect();
+      headerVisibility.disconnect();
+      window.removeEventListener("scroll", updateStage);
+    };
+  }, [accessLost]);
   const [selected, setSelected] = useState("");
   const [simulationEpoch, setSimulationEpoch] = useState(0);
   const [simulationEvents, setSimulationEvents] = useState<RefereeEvent[]>([]);
@@ -460,7 +502,10 @@ export function RefereePanel({
       aria-label={tr("Referee records")}
     >
       <div className={styles.summaryHeading}>
-        <span className="eyebrow">{tr("Series score")}</span>
+        <h3>{tr("Referee temporary score")}</h3>
+        {state.complete && (
+          <span className="badge">{tr("Temporary series complete")}</span>
+        )}
         <div className={styles.summaryActions}>
           {exPick &&
             exPick.kind === "pick" &&
@@ -596,54 +641,32 @@ export function RefereePanel({
       {syncFeedback}
     </section>
   );
-  if (accessLost)
-    return (
-      <p className="notice" role="alert">
-        {tr(
-          "Staff access is unavailable. Sign in again or contact the organizer.",
-        )}
-      </p>
-    );
-  return (
-    <div className={styles.workspace}>
-      <nav className={styles.stageNav} aria-label={tr("Referee stages")}>
-        {[
-          { id: "referee-preparation", label: tr("Pre-match preparation") },
-          { id: "referee-bp", label: tr("BP stage") },
-          { id: "referee-post-match", label: tr("Post-match calculation") },
-        ].map((stage, index) => (
-          <a
-            key={stage.id}
-            href={`#${stage.id}`}
-            aria-current={activeStage === stage.id ? "location" : undefined}
-            onClick={() => setActiveStage(stage.id)}
-          >
-            <span className={styles.navNumber}>
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <span>{stage.label}</span>
-          </a>
-        ))}
-      </nav>
-      <div className={styles.stageContent}>
-        {simulation && (
-          <p className="notice">
-            {tr(
-              "Simulation records stay in this page and reset on reload. No IRC command or match result is submitted.",
-            )}
-          </p>
-        )}
-        <div className="actions">
-          <Link
-            className="button secondary"
-            href={`/admin/tournaments/${slug}/matches`}
-          >
+  const matchHeader = (
+    <header className={styles.matchHeader}>
+      <div className={styles.matchIdentity}>
+        <p className="eyebrow">{tr("REFEREE WORKSPACE")}</p>
+        <h1>{data.fixture.label}</h1>
+        <p className="muted">
+          {[
+            data.round.name,
+            data.rules &&
+              `${data.rules.playersPerTeam}v${data.rules.playersPerTeam}`,
+            data.series?.type === "first_to" && `BO${data.series.wins * 2 - 1}`,
+            data.policy?.maxReplaysPerMap !== undefined &&
+              tr("Up to {count} replays per map", {
+                count: data.policy.maxReplaysPerMap,
+              }),
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      </div>
+      {!accessLost && (
+        <div className={styles.matchActions}>
+          <Link href={`/admin/tournaments/${slug}/matches`}>
             {tr("My assigned matches")}
           </Link>
-          <Link
-            className="button secondary"
-            href={`/admin/tournaments/${slug}/matches/${data.fixture.id}`}
-          >
+          <Link href={`/admin/tournaments/${slug}/matches/${data.fixture.id}`}>
             {tr("Post-match review")}
           </Link>
           <button
@@ -655,7 +678,63 @@ export function RefereePanel({
             {tr("Reload saved state")}
           </button>
         </div>
-
+      )}
+    </header>
+  );
+  if (accessLost)
+    return (
+      <div className={styles.workspace}>
+        {matchHeader}
+        <p className="notice" role="alert">
+          {tr(
+            "Staff access is unavailable. Sign in again or contact the organizer.",
+          )}
+        </p>
+      </div>
+    );
+  return (
+    <div className={styles.workspace} ref={workspace}>
+      {matchHeader}
+      <nav
+        ref={stageNav}
+        className={styles.stageNav}
+        aria-label={tr("Referee stages")}
+      >
+        {[
+          tr("Pre-match preparation"),
+          tr("BP stage"),
+          tr("Post-match calculation"),
+        ].map((label, index) => (
+          <a
+            key={stageIds[index]}
+            href={`#${stageIds[index]}`}
+            aria-current={
+              activeStage === stageIds[index] ? "location" : undefined
+            }
+            onClick={() => setActiveStage(stageIds[index])}
+          >
+            {label}
+          </a>
+        ))}
+        <a
+          ref={ircJump}
+          className={styles.ircJump}
+          href={`#${ircId}`}
+          aria-label={tr("IRC console")}
+          aria-current={activeStage === ircId ? "location" : undefined}
+          onClick={() => setActiveStage(ircId)}
+        >
+          {"IRC"}
+        </a>
+      </nav>
+      <div className={styles.stageContent}>
+        {simulation && (
+          <p className="notice">
+            {tr(
+              "Simulation records stay in this page and reset on reload. No IRC command or match result is submitted.",
+            )}
+          </p>
+        )}
         {(stale || dependencyTargeted) && (
           <section
             id="referee-dependencies"
@@ -708,7 +787,6 @@ export function RefereePanel({
           aria-labelledby="referee-preparation-title"
         >
           <header className={styles.stageHeading}>
-            <span className={styles.stageNumber}>01</span>
             <h2 id="referee-preparation-title">
               {tr("Pre-match preparation")}
             </h2>
@@ -716,7 +794,13 @@ export function RefereePanel({
           <RefereeCommands
             key={`preparation-${data.session?.revision ?? 0}`}
             stage="preparation"
-            onPrepare={prepareCommand}
+            onPrepare={(text) => {
+              prepareCommand(text);
+              if (ircJump.current?.getClientRects().length) {
+                ircComposer.current?.focus({ preventScroll: true });
+                ircComposer.current?.scrollIntoView({ block: "nearest" });
+              }
+            }}
             sentCommands={sentCommands}
             mapSelector={
               <label className="field" htmlFor={`${controlId}-preparation-map`}>
@@ -752,27 +836,21 @@ export function RefereePanel({
           aria-labelledby="referee-bp-title"
         >
           <header className={styles.stageHeading}>
-            <span className={styles.stageNumber}>02</span>
             <h2 id="referee-bp-title">{tr("BP stage")}</h2>
           </header>
-          <section className="panel form-stack" aria-labelledby="referee-score">
-            <div className={styles.topline}>
-              <div>
-                <p className="eyebrow" id="referee-score">
-                  {tr("Referee temporary score")}
-                </p>
-                <div className={styles.score}>
-                  {data.teams
-                    .map((t) => `${t.name} ${state.score[t.id] ?? 0}`)
-                    .join(" — ") || tr("Teams not resolved")}
-                </div>
-              </div>
-              <span className="badge">
-                {state.complete
-                  ? tr("Temporary series complete")
-                  : tr("Private Staff workspace")}
-              </span>
-            </div>
+          {!simulation && data.canRecord && !readOnly ? (
+            <RefereeMp
+              endpoint={`${endpoint}/mp`}
+              disabled={disabled}
+              roomId={ircRoomId}
+              onWorkspace={(next) => accept(next, true)}
+            >
+              {renderSummary}
+            </RefereeMp>
+          ) : (
+            renderSummary()
+          )}
+          <div className="panel form-stack">
             <p className="muted">
               {tr(
                 "Prepare a map command, then confirm it in IRC to advance the Ban / Pick record.",
@@ -955,7 +1033,7 @@ export function RefereePanel({
                 </ol>
               </details>
             )}
-          </section>
+          </div>
           <div aria-live="polite">
             {notice && <p className="notice">{notice}</p>}
             {error && (
@@ -976,19 +1054,7 @@ export function RefereePanel({
               </div>
             )}
           </div>
-          <div className={styles.columns}>
-            {!simulation && data.canRecord && !readOnly ? (
-              <RefereeMp
-                endpoint={`${endpoint}/mp`}
-                disabled={disabled}
-                roomId={ircRoomId}
-                onWorkspace={(next) => accept(next, true)}
-              >
-                {renderSummary}
-              </RefereeMp>
-            ) : (
-              renderSummary()
-            )}
+          <div className={styles.bpFlow}>
             <section
               className={`panel ${styles.pool}`}
               aria-labelledby="referee-pool"
@@ -1297,7 +1363,6 @@ export function RefereePanel({
           aria-labelledby="referee-post-match-title"
         >
           <header className={styles.stageHeading}>
-            <span className={styles.stageNumber}>03</span>
             <h2 id="referee-post-match-title">
               {tr("Post-match calculation")}
             </h2>
@@ -1318,6 +1383,8 @@ export function RefereePanel({
         </section>
       </div>
       <RefereeIrc
+        id={ircId}
+        composerRef={ircComposer}
         syncEvents={syncEvents}
         onSynced={(id) =>
           setSyncEvents((current) => current.filter((e) => e.id !== id))
