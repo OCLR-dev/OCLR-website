@@ -13,11 +13,11 @@ export function AwardPolicy({
   const tr = useAppTranslations();
   const id = useId();
   return (
-    <section className={styles.policy} aria-labelledby={id}>
-      <h2 id={id}>{tr("Award policy and calculation")}</h2>
-      <p className="muted small">
-        <code>{policy}</code>
-      </p>
+    <section className={`panel ${styles.policy}`} aria-labelledby={id}>
+      <header className={styles.heading}>
+        <h2 id={id}>{tr("Award policy and calculation")}</h2>
+        <code className={styles.version}>{policy}</code>
+      </header>
       <p>
         {policy === "yumu-mra-v1"
           ? tr(
@@ -40,20 +40,22 @@ export function AwardPolicy({
           )}
         </li>
       </ul>
-      <p className={styles.shared}>
-        {tr("Awards are independent; ties remain tied.")}
-      </p>
-      <InfoNote>
-        <p className="muted small">
-          {policy === "yumu-mra-v1"
-            ? tr(
-                "MRA is rounded to 9 decimal places. MIP uses the absolute MRA gain between adjacent weeks. Different comparison groups can affect relative ratings. Only reviewed and published awards are public.",
-              )
-            : tr(
-                "Ratios and weekly means are rounded half up to 9 decimal places. Unverified games require review. Only reviewed and published awards are public.",
-              )}
+      <div className={styles.notes}>
+        <p className={styles.shared}>
+          {tr("Awards are independent; ties remain tied.")}
         </p>
-      </InfoNote>
+        <InfoNote>
+          <p className="muted small">
+            {policy === "yumu-mra-v1"
+              ? tr(
+                  "MRA is rounded to 9 decimal places. MIP uses the absolute MRA gain between adjacent weeks. Different comparison groups can affect relative ratings. Only reviewed and published awards are public.",
+                )
+              : tr(
+                  "Ratios and weekly means are rounded half up to 9 decimal places. Unverified games require review. Only reviewed and published awards are public.",
+                )}
+          </p>
+        </InfoNote>
+      </div>
     </section>
   );
 }

@@ -18,6 +18,8 @@ import { remotePage } from "@/lib/remote-page";
 import { matchReview } from "@/lib/result-review";
 import { canViewStreaming } from "@/lib/streaming-staff";
 import { streamingWorkspace } from "@/lib/streaming-workspace";
+import styles from "./fixture-overview.module.css";
+
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Fixture review") };
@@ -131,33 +133,45 @@ async function Issue271Page({
           {data.teams.map((t) => t.name).join(" vs ")} ·{" "}
           {tr(data.fixture.status)}
         </PageHeading>
-        <div className="panel">
-          <p>
-            {data.fixture.scheduledAt
-              ? tr(
-                  formatDate(
-                    data.fixture.scheduledAt,
-                    data.fixture.timeZone,
-                    tr.locale,
-                  ),
-                )
-              : tr("Match time TBA ({value0})", {
-                  value0: data.fixture.timeZone,
-                })}
-          </p>
-          <p>
-            {data.pool
-              ? tr("Associated pool: {value0}", { value0: data.pool.name })
-              : tr("No mappool associated")}
-          </p>
-        </div>
-        <div className="actions">
-          <Link
-            className="button"
-            href={`/admin/tournaments/${edition}/matches/${fixtureId}/referee`}
-          >
-            {tr("Referee panel")}
-          </Link>
+        <div className={`panel ${styles.overview}`}>
+          <div className={styles.layout}>
+            <dl className={styles.details}>
+              <div>
+                <dt>{tr("Match time")}</dt>
+                <dd>
+                  {data.fixture.scheduledAt ? (
+                    <time
+                      dateTime={new Date(
+                        data.fixture.scheduledAt,
+                      ).toISOString()}
+                    >
+                      {formatDate(
+                        data.fixture.scheduledAt,
+                        data.fixture.timeZone,
+                        tr.locale,
+                      )}
+                    </time>
+                  ) : (
+                    <>
+                      {tr("TBA")} · {data.fixture.timeZone}
+                    </>
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt>{tr("Mappool")}</dt>
+                <dd>{data.pool?.name ?? tr("No mappool associated")}</dd>
+              </div>
+            </dl>
+            <div className={styles.action}>
+              <Link
+                className="button"
+                href={`/admin/tournaments/${edition}/matches/${fixtureId}/referee`}
+              >
+                {tr("Referee panel")}
+              </Link>
+            </div>
+          </div>
         </div>
         {streamingPanel}
         <MatchReviewPanel data={review} slug={edition} />
