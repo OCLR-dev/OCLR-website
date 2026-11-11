@@ -12,7 +12,8 @@ import { db, closeDb } from "../../src/db";
 import { userProfileCache, teams, draftSessions } from "../../src/db/schema";
 import { prepareDraft } from "../fixtures/draft";
 import { pickPlayer } from "../../src/lib/draft";
-import { staffDraft } from "../../src/lib/draft-reads";
+import { captainDraft, staffDraft } from "../../src/lib/draft-reads";
+import { draftBoardTiers } from "../../src/lib/award-tiers";
 import { publicBroadcastDraft } from "../../src/lib/broadcast";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
 import { getOsuUserProfile } from "../../src/lib/osu-profiles";
@@ -82,6 +83,7 @@ describe.skipIf(!url)("public broadcast profile projection", () => {
     const board = await publicBroadcastDraft(slug, (w) => {
       deferred.push(w);
     });
+    expect(board!.picks[0].tier).toBe(1);
     expect(board!.picks[0].player.profile).toEqual({
       avatarUrl: `https://a.ppy.sh/${f.players[0].osuId}`,
       pp: 1234.56,
@@ -100,12 +102,46 @@ describe.skipIf(!url)("public broadcast profile projection", () => {
       "MUST_NOT_CACHE_PRIVATE_CONTACT",
       "actorId",
       "staff_on_behalf",
+      "turnSequence",
     ])
       expect(text).not.toContain(hidden);
     expect(board!.pool).toBeNull();
     expect(deferred).toHaveLength(0);
     expect(getOsuUserProfile).not.toHaveBeenCalled();
     expect((await db().select().from(draftSessions))[0]).toEqual(before);
+  });
+  it("uses the released round for each pick and omits Tier when the order is newer than the board", async () => {
+    for (const player of f.players.slice(1, 3)) {
+      const session = (await staffDraft(f.staff, slug)).session!;
+      await pickPlayer(f.staff, slug, {
+        sessionId: session.id,
+        turnIndex: session.turnIndex,
+        candidateId: player.osuId,
+        expectedVersion: session.version,
+        idempotencyKey: randomUUID(),
+      });
+    }
+    const published = (await publicBroadcastDraft(slug))!;
+    expect(published.picks.map(({ tier }) => tier)).toEqual([1, 1, 2]);
+    const captainBoard = (await captainDraft(f.a, slug))!;
+    const captainTiers = draftBoardTiers(
+      captainBoard,
+      captainBoard.turnSequence,
+    );
+    expect(
+      f.players.slice(0, 3).map(({ osuId }) => captainTiers.get(osuId)),
+    ).toEqual([1, 1, 2]);
+    expect(captainTiers.get(f.a.osuId)).toBe(0);
+    expect(captainTiers.has(f.players[3].osuId)).toBe(false);
+    await db()
+      .update(draftSessions)
+      .set({ version: sql`${draftSessions.version} + 1` })
+      .where(eq(draftSessions.editionSlug, slug));
+    const held = (await publicBroadcastDraft(slug))!;
+    expect(held.picks.map(({ id }) => id)).toEqual(
+      published.picks.map(({ id }) => id),
+    );
+    expect(held.picks.every((pick) => pick.tier === undefined)).toBe(true);
   });
   it("keeps the board available with stale/missing/error data and defers at most the featured refresh using existing backoff", async () => {
     await cache(f.players[0].osuId, "osu", 31 * 60000, 503);

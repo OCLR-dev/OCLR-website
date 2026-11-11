@@ -2,7 +2,7 @@ import { BroadcastDraft } from "@/components/broadcast-draft";
 import { getAppTranslations } from "@/i18n/server";
 import { publicBroadcastDraft } from "@/lib/broadcast";
 import { getPublicEdition } from "@/lib/content";
-import type { DraftBoard } from "@/lib/draft-types";
+import type { BroadcastBoard } from "@/lib/draft-types";
 import { remotePage } from "@/lib/remote-page";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
@@ -25,7 +25,7 @@ async function Issue271Page({
   const { edition: slug } = await params;
   const edition = await getPublicEdition(slug);
   if (!edition) notFound();
-  let initial: DraftBoard | null = null;
+  let initial: BroadcastBoard | null = null;
   let available = true;
   try {
     initial = await publicBroadcastDraft(slug, after);

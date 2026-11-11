@@ -2,7 +2,11 @@
 import { useAppTranslations } from "@/i18n/shared";
 
 import { useContext, useEffect, useRef, useState } from "react";
-import type { DraftBoard, DraftIdentity } from "@/lib/draft-types";
+import type {
+  BroadcastBoard,
+  DraftBoard,
+  DraftIdentity,
+} from "@/lib/draft-types";
 import { Avatar } from "./avatar";
 import { draftLabels } from "./draft-board";
 import { RemoteReadOnlyContext } from "./staff-read-only";
@@ -86,7 +90,7 @@ export function BroadcastDraft({
 }: {
   slug: string;
   name: string;
-  initial: DraftBoard | null;
+  initial: BroadcastBoard | null;
   available: boolean;
   background: "opaque" | "transparent";
 }) {
@@ -97,12 +101,16 @@ export function BroadcastDraft({
     value: board,
     connected,
     received,
-  } = usePoll<DraftBoard>(`/api/tournaments/${slug}/draft?overlay=1`, initial, {
-    accept: acceptBroadcastSnapshot,
-    credentials: remote ? "same-origin" : "omit",
-    initiallyConnected: available,
-    refreshBroadcastProfile: true,
-  });
+  } = usePoll<BroadcastBoard>(
+    `/api/tournaments/${slug}/draft?overlay=1`,
+    initial,
+    {
+      accept: acceptBroadcastSnapshot,
+      credentials: remote ? "same-origin" : "omit",
+      initiallyConnected: available,
+      refreshBroadcastProfile: true,
+    },
+  );
   const previous = useRef(initial);
   const wasConnected = useRef(available);
   const wasReceived = useRef(false);
@@ -225,6 +233,12 @@ export function BroadcastDraft({
     return () => animations.forEach((a) => a.cancel());
   }, [board, connected, received]);
   const latest = board?.picks.at(-1);
+  const tiers = new Map(
+    board?.picks.map(({ team, player, tier }) => [
+      `${team.id}:${player.osuId}`,
+      tier,
+    ]),
+  );
   const [rosterPage, setRosterPage] = useState<{
     key: string;
     page: number;
@@ -283,6 +297,7 @@ export function BroadcastDraft({
                   value0: String(latest.turnIndex + 1).padStart(2, "0"),
                 })
               : tr("THE NEXT TEAM STORY")}
+            {latest?.tier ? ` · Tier ${latest.tier}` : null}
           </p>
           <div
             className={styles.featured}
@@ -440,19 +455,24 @@ export function BroadcastDraft({
                     {players.length === 1 ? tr("player") : tr("players")}
                   </p>
                   <ul data-dense={players.length > 6}>
-                    {players.map((player) => (
-                      <li
-                        key={player.osuId}
-                        data-roster-player={player.osuId}
-                        data-team={team.id}
-                      >
-                        <Portrait player={player} />
-                        <span title={player.username}>{player.username}</span>
-                        {player.osuId === team.captain.osuId && (
-                          <small>{tr("Captain")}</small>
-                        )}
-                      </li>
-                    ))}
+                    {players.map((player) => {
+                      const tier = tiers.get(`${team.id}:${player.osuId}`);
+                      return (
+                        <li
+                          key={player.osuId}
+                          data-roster-player={player.osuId}
+                          data-team={team.id}
+                        >
+                          <Portrait player={player} />
+                          <span title={player.username}>{player.username}</span>
+                          {player.osuId === team.captain.osuId ? (
+                            <small>{tr("Captain")}</small>
+                          ) : tier ? (
+                            <small>{`Tier ${tier}`}</small>
+                          ) : null}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </article>
               ))}
@@ -483,6 +503,11 @@ export function BroadcastDraft({
                     <Portrait player={pick.player} />
                     <div>
                       <strong>{pick.player.username}</strong>
+                      {pick.tier ? (
+                        <small
+                          className={styles.historyTier}
+                        >{`Tier ${pick.tier}`}</small>
+                      ) : null}
                       <p>
                         {pick.team.name} {tr(" · Captain ")}
                         {pick.team.captain.username}

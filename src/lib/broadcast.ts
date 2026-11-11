@@ -1,9 +1,11 @@
 import { db } from "@/db";
 import { userProfileCache } from "@/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
+import { draftBoardTiers } from "./award-tiers";
+import { getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
-import { publicDraft } from "./draft-reads";
-import type { DraftBoard, DraftIdentity } from "./draft-types";
+import { releasedDraftData } from "./draft-reads";
+import type { BroadcastBoard, DraftIdentity } from "./draft-types";
 import { frontendResource } from "./frontend-resource";
 import { getOsuUserProfile, PROFILE_TTL_MS } from "./osu-profiles";
 
@@ -12,9 +14,19 @@ import { getOsuUserProfile, PROFILE_TTL_MS } from "./osu-profiles";
 async function databasePublicBroadcastDraft(
   slug: string,
   defer?: (work: () => Promise<void>) => void,
-): Promise<DraftBoard | null> {
-  const board = await publicDraft(slug);
-  if (!board) return null;
+): Promise<BroadcastBoard | null> {
+  if (!(await getPublicEdition(slug)) || !process.env.DATABASE_URL) return null;
+  const released = await releasedDraftData(slug, true);
+  if (!released) return null;
+  const { snapshot, turnSequence } = released;
+  const tiers = draftBoardTiers(snapshot, turnSequence);
+  const board: BroadcastBoard = {
+    ...snapshot,
+    picks: snapshot.picks.map((pick) => {
+      const tier = tiers.get(pick.player.osuId);
+      return tier ? { ...pick, tier } : pick;
+    }),
+  };
   const identities = [
     ...board.picks.map((p) => p.player),
     ...board.rosters.flatMap((r) => [r.team.captain, ...r.players]),
@@ -103,9 +115,9 @@ async function databasePublicBroadcastDraft(
 export async function publicBroadcastDraft(
   slug: string,
   defer?: (work: () => Promise<void>) => void,
-): Promise<DraftBoard | null> {
+): Promise<BroadcastBoard | null> {
   if (remoteMode()) {
-    return frontendResource<DraftBoard | null>("publicBroadcastDraft", {
+    return frontendResource<BroadcastBoard | null>("publicBroadcastDraft", {
       slug,
     });
   }

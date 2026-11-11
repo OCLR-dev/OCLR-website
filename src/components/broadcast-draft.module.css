@@ -200,6 +200,7 @@
   color: #bdc2d8;
   font-size: 12px;
   margin-left: auto;
+  white-space: nowrap;
 }
 .history li {
   align-items: center;
@@ -221,6 +222,13 @@
 .history strong {
   font-size: clamp(14px, 1vw, 18px);
   overflow-wrap: anywhere;
+}
+.historyTier {
+  display: inline-block;
+  color: #bdc2d8;
+  font-size: 12px;
+  margin-inline-start: 8px;
+  white-space: nowrap;
 }
 .history li p {
   white-space: nowrap;

@@ -1,4 +1,22 @@
 import type { AwardTier } from "./award-model";
+import type { DraftBoard } from "./draft-types";
+
+export function draftBoardTiers(
+  board: Pick<DraftBoard, "picks" | "rosters">,
+  turnSequence: string[],
+) {
+  return new Map(
+    draftAwardTiers(
+      turnSequence,
+      board.picks.map(({ player, team, turnIndex }) => ({
+        playerId: player.osuId,
+        teamId: team.id,
+        turnIndex,
+      })),
+      board.rosters.map(({ team }) => team.captain.osuId),
+    ).map(({ userId, tier }) => [userId, tier]),
+  );
+}
 /** Only complete, explicit passes over the same teams establish draft rounds.
  * Irregular custom orders have no inferred round: never guess a Tier. */
 export function draftAwardTiers(

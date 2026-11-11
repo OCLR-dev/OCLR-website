@@ -31,6 +31,7 @@ export function DraftPick({
   team,
   pool,
   players,
+  tiers,
   capacity,
   teamAnchorId,
   staff,
@@ -45,6 +46,7 @@ export function DraftPick({
   team: DraftTeam;
   pool: DraftIdentity[];
   players: DraftIdentity[];
+  tiers?: ReadonlyMap<number, number>;
   capacity?: number | null;
   teamAnchorId?: string;
   staff: boolean;
@@ -300,14 +302,19 @@ export function DraftPick({
             staff ? tr("Receiving team roster") : tr("My team roster")
           }
         >
-          {roster.map((p) => (
-            <li key={p.osuId}>
-              <PlayerIdentity player={p} />
-              {p.osuId === team.captain.osuId && (
-                <span className="badge">{tr("Captain")}</span>
-              )}
-            </li>
-          ))}
+          {roster.map((p) => {
+            const tier = tiers?.get(p.osuId);
+            return (
+              <li key={p.osuId}>
+                <PlayerIdentity player={p} />
+                {p.osuId === team.captain.osuId ? (
+                  <span className="badge">{tr("Captain")}</span>
+                ) : tier ? (
+                  <span className="badge">{`Tier ${tier}`}</span>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
         {capacity != null && (
           <p className="muted small">
