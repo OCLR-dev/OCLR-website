@@ -4016,6 +4016,12 @@
     "mb1e29337fb04": "{value0} players · {value1} editions",
     "m26e026bcd52e": "{value0} editions unavailable",
     "m219603b36828": "No career statistics yet",
-    "maf87496f2575": "The career ranking appears after a season publishes its rosters and match statistics."
+    "maf87496f2575": "The career ranking appears after a season publishes its rosters and match statistics.",
+    "mb150eed73014": "o!TR: highest first",
+    "m11c4201ff324": "o!TR: lowest first",
+    "m740262c79ed2": "o!TR minimum",
+    "mfda95e072693": "o!TR maximum",
+    "m0c9ea5ea1203": "Enter nonnegative o!TR numbers, with minimum no greater than maximum.",
+    "m6265e9748d05": "Loading o!TR ratings…"
   }
 }

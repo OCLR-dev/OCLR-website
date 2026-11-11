@@ -8,11 +8,13 @@ import { useAppTranslations } from "@/i18n/shared";
 import {
   directoryErrors,
   directoryKeys,
+  directoryMetrics,
   directoryOptions,
   directorySorts,
   directoryState,
   selectDirectoryPlayers,
   type DirectoryPlayer,
+  type DirectoryRangeKey,
 } from "@/lib/player-directory";
 import styles from "./player-directory-tools.module.css";
 
@@ -30,6 +32,7 @@ const browserQuery = () => window.location.search.slice(1);
 export function usePlayerDirectory<T extends DirectoryPlayer>(
   players: T[],
   grouped = false,
+  otrLoading = false,
 ) {
   const params = useSearchParams();
   // History updates are transitions in Next. Subscribe synchronously as well so
@@ -40,6 +43,9 @@ export function usePlayerDirectory<T extends DirectoryPlayer>(
     () => params?.toString() ?? "",
   );
   const state = directoryState(new URLSearchParams(query), grouped);
+  const waitingForRating =
+    otrLoading &&
+    Boolean(state.otrMin || state.otrMax || state.sort.startsWith("otr-"));
   function update(values: Partial<typeof state>, reset = false) {
     const next = new URLSearchParams(query);
     // Retain edition/preview context and unrelated legacy display parameters.
@@ -62,10 +68,11 @@ export function usePlayerDirectory<T extends DirectoryPlayer>(
   return {
     state,
     update,
-    rows: selectDirectoryPlayers(players, state),
+    rows: waitingForRating ? [] : selectDirectoryPlayers(players, state),
     options: directoryOptions(players),
     errors: directoryErrors(state),
     total: new Set(players.map((p) => p.id)).size,
+    waitingForRating,
   };
 }
 
@@ -78,14 +85,26 @@ export function PlayerDirectoryTools({
 }) {
   const tr = useAppTranslations();
   const id = useId();
-  const { state, update, rows, total, options, errors } = directory;
+  const { state, update, rows, total, options, errors, waitingForRating } =
+    directory;
   const labels = {
     default: tr("Default order"),
     "name-asc": tr("Username A–Z"),
     "name-desc": tr("Username Z–A"),
     "rank-asc": tr("Global rank: best first"),
     "rank-desc": tr("Global rank: reverse order"),
+    "otr-desc": tr("o!TR: highest first"),
+    "otr-asc": tr("o!TR: lowest first"),
   };
+  const rangeLabels = {
+    rankMin: tr("Global rank minimum (number)"),
+    rankMax: tr("Global rank maximum (number)"),
+    ppMin: tr("PP minimum"),
+    ppMax: tr("PP maximum"),
+    otrMin: tr("o!TR minimum"),
+    otrMax: tr("o!TR maximum"),
+  };
+  const metricLabels = { rank: tr("Global rank"), pp: "PP", otr: "o!TR" };
   const roleLabels: Record<string, string> = {
     player: tr("Player"),
     captain: "Captain",
@@ -98,29 +117,28 @@ export function PlayerDirectoryTools({
       state[key] &&
       !(key === "sort" && state.sort === "default"),
   );
-  const rangeActive = [
-    state.rankMin,
-    state.rankMax,
-    state.ppMin,
-    state.ppMax,
-  ].filter(Boolean).length;
+  const rangeActive = Object.keys(rangeLabels).filter(
+    (key) => state[key as DirectoryRangeKey],
+  ).length;
+  const visibleMetrics = directoryMetrics.filter(
+    (metric) =>
+      options[metric] || state[`${metric}Min`] || state[`${metric}Max`],
+  );
   const [expanded, setExpanded] = useState(
     () => errors.length > 0 || rangeActive > 0,
   );
   const reset = () => update({}, true);
   const field = (
-    key: "rankMin" | "rankMax" | "ppMin" | "ppMax",
-    label: string,
+    metric: (typeof directoryMetrics)[number],
+    bound: "Min" | "Max",
   ) => (
     <label className="field">
-      <span>{label}</span>
+      <span>{rangeLabels[`${metric}${bound}`]}</span>
       <input
-        inputMode={key.startsWith("rank") ? "numeric" : "decimal"}
-        value={state[key]}
-        onChange={(e) => update({ [key]: e.target.value })}
-        aria-invalid={
-          errors.includes(key.startsWith("rank") ? "rank" : "pp") || undefined
-        }
+        inputMode={metric === "rank" ? "numeric" : "decimal"}
+        value={state[`${metric}${bound}`]}
+        onChange={(e) => update({ [`${metric}${bound}`]: e.target.value })}
+        aria-invalid={errors.includes(metric) || undefined}
         aria-describedby={errors.length ? `${id}-errors` : undefined}
       />
     </label>
@@ -149,7 +167,12 @@ export function PlayerDirectoryTools({
             onChange={(e) => update({ sort: e.target.value })}
           >
             {directorySorts
-              .filter((sort) => !sort.startsWith("rank") || options.rank)
+              .filter((sort) => {
+                if (sort.startsWith("rank")) return options.rank;
+                if (sort.startsWith("otr-"))
+                  return options.otr || sort === state.sort;
+                return true;
+              })
               .map((sort) => (
                 <option value={sort} key={sort}>
                   {labels[sort]}
@@ -208,7 +231,7 @@ export function PlayerDirectoryTools({
             </select>
           </label>
         )}
-        {(options.rank || options.pp) && (
+        {visibleMetrics.length > 0 && (
           <details
             className={styles.advanced}
             open={errors.length > 0 || rangeActive > 0 || undefined}
@@ -247,30 +270,18 @@ export function PlayerDirectoryTools({
               </svg>
             </summary>
             <div className={styles.ranges}>
-              {options.rank && (
-                <fieldset className={styles.rangeGroup}>
-                  <legend>{tr("Global rank")}</legend>
+              {visibleMetrics.map((metric) => (
+                <fieldset key={metric} className={styles.rangeGroup}>
+                  <legend>{metricLabels[metric]}</legend>
                   <div className={styles.rangeFields}>
-                    {field("rankMin", tr("Global rank minimum (number)"))}
+                    {field(metric, "Min")}
                     <span className={styles.rangeSeparator} aria-hidden="true">
                       –
                     </span>
-                    {field("rankMax", tr("Global rank maximum (number)"))}
+                    {field(metric, "Max")}
                   </div>
                 </fieldset>
-              )}
-              {options.pp && (
-                <fieldset className={styles.rangeGroup}>
-                  <legend>PP</legend>
-                  <div className={styles.rangeFields}>
-                    {field("ppMin", tr("PP minimum"))}
-                    <span className={styles.rangeSeparator} aria-hidden="true">
-                      –
-                    </span>
-                    {field("ppMax", tr("PP maximum"))}
-                  </div>
-                </fieldset>
-              )}
+              ))}
               <InfoNote>
                 <p className="muted small">
                   {tr(
@@ -314,6 +325,13 @@ export function PlayerDirectoryTools({
               )}
             </p>
           )}
+          {errors.includes("otr") && (
+            <p>
+              {tr(
+                "Enter nonnegative o!TR numbers, with minimum no greater than maximum.",
+              )}
+            </p>
+          )}
           {(errors.includes("sort") || errors.includes("filter")) && (
             <p>{tr("Choose valid player filters and sorting.")}</p>
           )}
@@ -326,7 +344,9 @@ export function PlayerDirectoryTools({
           aria-live="polite"
           aria-atomic="true"
         >
-          {rows.length} / {total} {tr("Players")}
+          {waitingForRating
+            ? tr("Loading o!TR ratings…")
+            : `${rows.length} / ${total} ${tr("Players")}`}
         </p>
         {active.length > 0 && (
           <button type="button" onClick={reset}>
@@ -350,10 +370,7 @@ export function PlayerDirectoryTools({
                     team: tr("Team"),
                     role: tr("Role"),
                     sort: tr("Sort players"),
-                    rankMin: tr("Global rank minimum (number)"),
-                    rankMax: tr("Global rank maximum (number)"),
-                    ppMin: tr("PP minimum"),
-                    ppMax: tr("PP maximum"),
+                    ...rangeLabels,
                     group: "",
                   }[key]
                 }
@@ -365,7 +382,7 @@ export function PlayerDirectoryTools({
           ))}
         </ul>
       )}
-      {rows.length === 0 && (
+      {rows.length === 0 && !waitingForRating && (
         <div className="notice">
           <p>
             {total === 0

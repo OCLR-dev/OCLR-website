@@ -805,7 +805,11 @@
 }
 .event-player-row dl {
   margin-top: 0.4rem;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+}
+.event-player-row dl > div {
+  white-space: nowrap;
 }
 .event-player-identity {
   gap: 0.75rem;
