@@ -11,6 +11,8 @@ export type DirectoryPlayer = {
   rank: number | null;
   pp: number | null;
   otr?: number;
+  sip?: number;
+  etx?: number;
 };
 
 export function publicDirectoryPlayer(
@@ -42,6 +44,8 @@ export function publicDirectoryPlayer(
     freeAgent: player.role === "free_agent",
     rank: player.statistics.globalRank,
     pp: player.statistics.pp,
+    sip: player.importedRatings?.sip,
+    etx: player.importedRatings?.etx?.value,
   };
 }
 
@@ -53,8 +57,12 @@ export const directorySorts = [
   "rank-desc",
   "otr-desc",
   "otr-asc",
+  "sip-desc",
+  "sip-asc",
+  "etx-desc",
+  "etx-asc",
 ] as const;
-export const directoryMetrics = ["rank", "pp", "otr"] as const;
+export const directoryMetrics = ["rank", "pp", "otr", "sip", "etx"] as const;
 type DirectoryMetric = (typeof directoryMetrics)[number];
 export type DirectoryRangeKey = `${DirectoryMetric}${"Min" | "Max"}`;
 export const directoryKeys = [
@@ -69,6 +77,10 @@ export const directoryKeys = [
   "ppMax",
   "otrMin",
   "otrMax",
+  "sipMin",
+  "sipMax",
+  "etxMin",
+  "etxMax",
 ] as const;
 export type DirectoryState = Record<(typeof directoryKeys)[number], string>;
 
@@ -100,11 +112,12 @@ export function directoryErrors(state: DirectoryState) {
   for (const metric of directoryMetrics) {
     const min = state[`${metric}Min`],
       max = state[`${metric}Max`];
+    const format = metric === "sip" ? /^-?\d+(?:\.\d+)?$/ : /^\d+(?:\.\d+)?$/;
     const valid = (value: string) =>
       value === "" ||
-      (/^\d+(?:\.\d+)?$/.test(value) &&
+      (format.test(value) &&
         Number.isFinite(Number(value)) &&
-        Number(value) >= (metric === "rank" ? 1 : 0) &&
+        (metric === "sip" || Number(value) >= (metric === "rank" ? 1 : 0)) &&
         (metric !== "rank" || Number.isSafeInteger(Number(value))));
     if (
       !valid(min) ||
@@ -131,13 +144,15 @@ export function directoryOptions(players: DirectoryPlayer[]) {
     rank: players.some((p) => validMetric(p.rank, "rank") !== null),
     pp: players.some((p) => validMetric(p.pp, "pp") !== null),
     otr: players.some((p) => validMetric(p.otr, "otr") !== null),
+    sip: players.some((p) => validMetric(p.sip, "sip") !== null),
+    etx: players.some((p) => validMetric(p.etx, "etx") !== null),
   };
 }
 
 function validMetric(value: number | null | undefined, key: DirectoryMetric) {
   return value != null &&
     Number.isFinite(value) &&
-    value >= (key === "rank" ? 1 : 0)
+    (key === "sip" || value >= (key === "rank" ? 1 : 0))
     ? value
     : null;
 }
@@ -213,7 +228,7 @@ export function selectDirectoryPlayers<T extends DirectoryPlayer>(
           a.name.toLowerCase().localeCompare(b.name.toLowerCase(), "en") *
             (direction === "asc" ? 1 : -1) || a.id - b.id
         );
-      const metric = key === "rank" ? "rank" : "otr";
+      const metric = key as DirectoryMetric;
       const x = validMetric(a[metric], metric);
       const y = validMetric(b[metric], metric);
       if (x === null || y === null)

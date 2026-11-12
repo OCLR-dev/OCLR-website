@@ -7,6 +7,7 @@ import {
   practiceWrite,
 } from "../src/lib/player-workspace-contracts";
 import { practiceValueSchema } from "../src/lib/player-workspace-model";
+import { importPlayerRatingsWrite } from "../src/lib/player-rating-import-contract";
 import {
   desktopContractVersion,
   desktopErrorSchema,
@@ -141,6 +142,7 @@ const operations: readonly WriteApiOperation[] = [
   previewManualRegistrationsWrite,
   addManualRegistrationsWrite,
   reviewBwsWrite,
+  importPlayerRatingsWrite,
   scheduleRequestWrite,
   streamingTaskWrite,
   changeCaptainsWrite,
@@ -537,7 +539,7 @@ const openapi = {
   openapi: "3.1.0",
   info: {
     title: "OCLR write API",
-    version: "0.4.0",
+    version: "0.5.0",
     description:
       "Incremental documentation of existing OCLR browser and desktop routes. See write-api-inventory.json for coverage.",
   },

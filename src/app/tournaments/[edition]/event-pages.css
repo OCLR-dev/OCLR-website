@@ -811,6 +811,9 @@
 .event-player-row dl > div {
   white-space: nowrap;
 }
+.event-player-row dd small {
+  display: block;
+}
 .event-player-identity {
   gap: 0.75rem;
 }

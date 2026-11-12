@@ -497,6 +497,10 @@ while retaining its exact prior statistics identity through `sourceTitle`;
 existing maps without these fields remain compatible. See
 [the S2 NM2 recovery](archive-map-metadata.md#s2-nm2-official-file-recovery-852).
 
+Contract 1.34.0 adds optional `importedRatings` to published S11 player rows.
+It contains the imported SIP total and ETX total with provisional and outdated
+flags when available. The browser write contract 0.5.0 adds the Admin CSV import.
+
 Contract 1.33.0 adds an optional positive integer `tier` to each published
 broadcast draft pick. It represents the confirmed draft round and is omitted
 when the published board lacks matching round evidence.

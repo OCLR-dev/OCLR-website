@@ -19,6 +19,7 @@ import { Action, PageHeading } from "@/components/ui";
 import { after } from "next/server";
 import { refreshDirectoryStatistics } from "@/lib/osu-profiles";
 import { getDirectoryOtrRatings } from "@/lib/otr-rating";
+import { importedRatingsEdition } from "@/lib/player-rating-import-contract";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return {
@@ -89,7 +90,7 @@ async function PlayersContent({
   // Filtering runs over the complete public collection, including remote pages.
   const { rows, refreshIds } = await frontendPlayers(edition);
   const otrRatings =
-    edition === "s11" && !remote
+    edition === importedRatingsEdition && !remote
       ? getDirectoryOtrRatings(rows.map((player) => player.osuId))
       : undefined;
   if (refreshIds.length)
@@ -115,8 +116,11 @@ async function PlayersContent({
         viewerId={viewer?.osuId}
         grouped={rows.some((p) => p.participation === "finalized_roster")}
         otrRatings={otrRatings}
+        showImportedRatings={edition === importedRatingsEdition}
         players={rows.map((p) => ({
           ...publicDirectoryPlayer(p),
+          etxProvisional: p.importedRatings?.etx?.provisional,
+          etxOutdated: p.importedRatings?.etx?.outdated,
           team: p.team?.name ?? null,
           captain: p.captain,
           bio: p.bio ?? undefined,

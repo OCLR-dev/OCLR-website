@@ -107,6 +107,18 @@ describe("complete public player directory selection", () => {
     ).toEqual([2, 3]);
     expect(ids("otrMax=0", rated)).toEqual([5]);
   });
+  it("combines SIP and ETX ranges and orders unscored players last", () => {
+    const rated = [
+      { ...players[0], sip: 5200, etx: 6.1 },
+      { ...players[1], sip: 5500, etx: 6.1 },
+      { ...players[2], sip: -2563, etx: 5.5 },
+      players[3],
+    ];
+    expect(ids("sort=sip-desc", rated)).toEqual([3, 4, 2, 1]);
+    expect(ids("sort=etx-asc", rated)).toEqual([2, 3, 4, 1]);
+    expect(ids("sipMin=5200&etxMax=6.1&sort=sip-asc", rated)).toEqual([4, 3]);
+    expect(ids("sipMax=-1", rated)).toEqual([2]);
+  });
   it.each([
     "rankMin=2&rankMax=1",
     "rankMin=0",
@@ -160,6 +172,8 @@ describe("complete public player directory selection", () => {
       rank: false,
       pp: false,
       otr: false,
+      sip: false,
+      etx: false,
       freeAgent: false,
     });
   });

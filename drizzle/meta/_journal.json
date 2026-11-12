@@ -666,6 +666,13 @@
       "when": 1794274462051,
       "tag": "0094_fixture_ended_status",
       "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1794451110389,
+      "tag": "0095_s11_imported_player_ratings",
+      "breakpoints": true
     }
   ]
 }

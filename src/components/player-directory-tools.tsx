@@ -95,6 +95,10 @@ export function PlayerDirectoryTools({
     "rank-desc": tr("Global rank: reverse order"),
     "otr-desc": tr("o!TR: highest first"),
     "otr-asc": tr("o!TR: lowest first"),
+    "sip-desc": tr("SIP: highest first"),
+    "sip-asc": tr("SIP: lowest first"),
+    "etx-desc": tr("ETX: highest first"),
+    "etx-asc": tr("ETX: lowest first"),
   };
   const rangeLabels = {
     rankMin: tr("Global rank minimum (number)"),
@@ -103,8 +107,18 @@ export function PlayerDirectoryTools({
     ppMax: tr("PP maximum"),
     otrMin: tr("o!TR minimum"),
     otrMax: tr("o!TR maximum"),
+    sipMin: tr("SIP minimum"),
+    sipMax: tr("SIP maximum"),
+    etxMin: tr("ETX minimum"),
+    etxMax: tr("ETX maximum"),
   };
-  const metricLabels = { rank: tr("Global rank"), pp: "PP", otr: "o!TR" };
+  const metricLabels = {
+    rank: tr("Global rank"),
+    pp: "PP",
+    otr: "o!TR",
+    sip: "SIP",
+    etx: "ETX",
+  };
   const roleLabels: Record<string, string> = {
     player: tr("Player"),
     captain: "Captain",
@@ -135,7 +149,13 @@ export function PlayerDirectoryTools({
     <label className="field">
       <span>{rangeLabels[`${metric}${bound}`]}</span>
       <input
-        inputMode={metric === "rank" ? "numeric" : "decimal"}
+        inputMode={
+          metric === "sip"
+            ? undefined
+            : metric === "rank"
+              ? "numeric"
+              : "decimal"
+        }
         value={state[`${metric}${bound}`]}
         onChange={(e) => update({ [`${metric}${bound}`]: e.target.value })}
         aria-invalid={errors.includes(metric) || undefined}
@@ -169,9 +189,10 @@ export function PlayerDirectoryTools({
             {directorySorts
               .filter((sort) => {
                 if (sort.startsWith("rank")) return options.rank;
-                if (sort.startsWith("otr-"))
-                  return options.otr || sort === state.sort;
-                return true;
+                const metric = directoryMetrics.find((key) =>
+                  sort.startsWith(`${key}-`),
+                );
+                return !metric || options[metric] || sort === state.sort;
               })
               .map((sort) => (
                 <option value={sort} key={sort}>
@@ -329,6 +350,13 @@ export function PlayerDirectoryTools({
             <p>
               {tr(
                 "Enter nonnegative o!TR numbers, with minimum no greater than maximum.",
+              )}
+            </p>
+          )}
+          {(errors.includes("sip") || errors.includes("etx")) && (
+            <p>
+              {tr(
+                "Enter valid rating bounds, with minimum no greater than maximum.",
               )}
             </p>
           )}

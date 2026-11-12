@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OCLR write API",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "description": "Incremental documentation of existing OCLR browser and desktop routes. See write-api-inventory.json for coverage."
   },
   "components": {
@@ -18841,6 +18841,191 @@
           },
           "504": {
             "description": "The osu! lookup timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tournaments/{edition}/player-ratings": {
+      "post": {
+        "operationId": "importPlayerRatings",
+        "summary": "Import S11 SIP or ETX ratings",
+        "description": "Requires manage_registrations in S11. Imports the selected source for matched accepted registrations. SIP matches a unique case-insensitive current username and ETX matches osu! ID. Changes and their audit event commit together.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 4259840,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "sip",
+                      "etx"
+                    ]
+                  },
+                  "csv": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2097152
+                  }
+                },
+                "required": [
+                  "source",
+                  "csv"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Counts and a sample of unmatched CSV row numbers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "matched": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "updated": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "unmatched": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "unmatchedRows": {
+                      "maxItems": 10,
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "missing": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "matched",
+                    "updated",
+                    "unmatched",
+                    "unmatchedRows",
+                    "missing"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or conflicting CSV records.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign in as staff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Edition-scoped Admin permission and a same-origin browser are required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "S11 is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The tournament is archived.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The request exceeds the import limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "A JSON request is required.",
             "content": {
               "application/json": {
                 "schema": {

@@ -1,6 +1,9 @@
 import { isActiveFixtureStatus } from "./fixture-status";
 import { compareTournamentSeasons } from "./tournament-order";
 import { db, readOnlyData } from "@/db";
+import { importedPlayerRatings } from "@/db/schema";
+import { and, eq, inArray } from "drizzle-orm";
+import { importedRatingsEdition } from "./player-rating-import-contract";
 import {
   readTournament,
   readTournaments,
@@ -443,6 +446,30 @@ async function readPublicPlayerDirectory(
     row.edition.registration?.publicIntroductionQuestionId,
   );
   const tiers = await releasedTiers(slug, result.rows);
+  const imported = new Map<
+    number,
+    NonNullable<PublicPlayer["importedRatings"]>
+  >();
+  if (slug === importedRatingsEdition && result.rows.length) {
+    const rows = await db()
+      .select()
+      .from(importedPlayerRatings)
+      .where(
+        and(
+          eq(importedPlayerRatings.editionSlug, slug),
+          inArray(
+            importedPlayerRatings.userId,
+            result.rows.map((player) => player.osuId),
+          ),
+        ),
+      );
+    for (const { userId, source, value, provisional, outdated } of rows) {
+      const ratings = imported.get(userId) ?? {};
+      if (source === "sip") ratings.sip = value;
+      else ratings.etx = { value, provisional, outdated };
+      imported.set(userId, ratings);
+    }
+  }
   return {
     source: row.source,
     refreshIds,
@@ -450,8 +477,10 @@ async function readPublicPlayerDirectory(
     rows: result.rows.map((player): PublicPlayer => {
       const saved = statistics.get(player.osuId);
       const tier = tiers.get(player.osuId) ?? null;
+      const importedRatings = imported.get(player.osuId);
       return publicPlayerSchema.parse({
         ...player,
+        ...(importedRatings && { importedRatings }),
         previousUsernames: aliases
           .filter((n) => n.osuId === player.osuId)
           .map((n) => n.username),
