@@ -682,7 +682,8 @@
           "remove_coach",
           "configure",
           "edit",
-          "publish"
+          "publish",
+          "publish_all_identities"
         ],
         "consumers": [
           "src/app/admin/tournaments/[edition]/teams/page.tsx",

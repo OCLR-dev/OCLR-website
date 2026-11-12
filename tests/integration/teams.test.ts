@@ -13,6 +13,7 @@ import {
 import { eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import {
+  captains,
   editionState,
   registrations,
   users,
@@ -312,6 +313,85 @@ describe.skipIf(!url)(
         }),
       );
       expect((await publishedTeams(edition.slug))[0].members).toHaveLength(1);
+    });
+    it("publishes the remaining team identities atomically and preserves roster approvals", async () => {
+      const { version, teams: configured } = await configure();
+      await db()
+        .update(captains)
+        .set({ published: true })
+        .where(eq(captains.userId, a.osuId));
+      const publishAll = { action: "publish_all_identities" };
+
+      await expect(
+        updateTeams(a, edition.slug, command(version, publishAll)),
+      ).rejects.toMatchObject({ status: 403 });
+      await expect(
+        updateTeams(staff, edition.slug, command(version, publishAll)),
+      ).rejects.toMatchObject({ status: 409 });
+      expect(await publishedTeams(edition.slug)).toEqual([]);
+      expect((await staffTeams(staff, edition.slug)).version).toBe(version);
+
+      await updateCaptains(
+        staff,
+        edition.slug,
+        command(version, {
+          action: "publish",
+          published: true,
+          poolPublished: false,
+        }),
+      );
+      await db()
+        .update(teams)
+        .set({ finalizedAt: new Date() })
+        .where(eq(teams.id, configured[0].id));
+      // An inconsistent saved roster flag cannot release a newly published team.
+      await db()
+        .update(teams)
+        .set({ finalizedAt: new Date(), rosterPublished: true })
+        .where(eq(teams.id, configured[1].id));
+      const approved = await updateTeams(
+        staff,
+        edition.slug,
+        command(version + 1, {
+          action: "publish",
+          teamId: configured[0].id,
+          identityPublished: true,
+          rosterPublished: true,
+        }),
+      );
+      const result = await updateTeams(
+        staff,
+        edition.slug,
+        command(approved.version, publishAll),
+      );
+      expect(result.version).toBe(approved.version + 1);
+      const publicRows = await publishedTeams(edition.slug);
+      expect(publicRows.map((team) => team.id)).toEqual(
+        configured.map((team) => team.id),
+      );
+      expect(publicRows[0].members).toHaveLength(1);
+      expect(publicRows[1].members).toBeNull();
+      await expect(
+        updateTeams(staff, edition.slug, command(approved.version, publishAll)),
+      ).rejects.toMatchObject({ status: 409 });
+      expect(
+        (
+          await updateTeams(
+            staff,
+            edition.slug,
+            command(result.version, publishAll),
+          )
+        ).version,
+      ).toBe(result.version);
+      const events = await db()
+        .select()
+        .from(editionEvents)
+        .where(eq(editionEvents.kind, "team_publish_all_identities"));
+      expect(events).toHaveLength(1);
+      expect(events[0].detail).toMatchObject({
+        fromVersion: approved.version,
+        toVersion: result.version,
+      });
     });
     it("locks coach writes when disabled and retains assignments for re-enabling", async () => {
       const data = await configure();

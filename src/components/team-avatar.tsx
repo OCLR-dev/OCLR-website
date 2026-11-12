@@ -4,19 +4,30 @@ import { useState } from "react";
 export function TeamAvatar({
   team,
 }: {
-  team: { id: string; name: string; avatarKey?: string | null };
+  team: {
+    id: string;
+    name: string;
+    avatarKey?: string | null;
+    captainId?: number | null;
+  };
 }) {
-  const [failed, setFailed] = useState<string | null>(null);
+  const [failed, setFailed] = useState<string[]>([]);
+  const custom = team.avatarKey
+    ? `/api/teams/${team.id}/avatar?v=${team.avatarKey}`
+    : null;
+  const captain = team.captainId ? `https://a.ppy.sh/${team.captainId}` : null;
+  const src = [custom, captain].find((url) => url && !failed.includes(url));
   return (
     <span className="team-monogram" aria-hidden="true">
-      {team.avatarKey && failed !== team.avatarKey ? (
+      {src ? (
         <Image
-          src={`/api/teams/${team.id}/avatar?v=${team.avatarKey}`}
+          key={src}
+          src={src}
           width={64}
           height={64}
           unoptimized
           alt=""
-          onError={() => setFailed(team.avatarKey!)}
+          onError={() => setFailed((urls) => [...urls, src])}
         />
       ) : (
         team.name.trim().slice(0, 2).toLocaleUpperCase()
