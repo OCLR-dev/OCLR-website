@@ -811,8 +811,16 @@
 .event-player-row dl > div {
   white-space: nowrap;
 }
-.event-player-row dd small {
+.event-player-row .event-player-ratings {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+.event-player-ratings dd small {
   display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .event-player-identity {
   gap: 0.75rem;
