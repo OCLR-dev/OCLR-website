@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, ne, notLike, or } from "drizzle-orm";
 import { db } from "@/db";
 import {
   refereeIrcCommands as commands,
@@ -19,7 +19,7 @@ import {
 } from "./referee-irc-reads";
 import { expireIrcCommands, lockRefereeIrc } from "./referee-irc-transaction";
 import { validateRefereeAction } from "./referee-model";
-import { bpSyncSource } from "./referee-sync";
+import { bpSyncSource, scoreNoticePrefix } from "./referee-sync";
 import { assertRefereeAccess, readRefereeWorkspace } from "./referee-workspace";
 
 const digest = (value: unknown) =>
@@ -205,6 +205,10 @@ export async function refereeIrcBrowserCommand(
             and(
               eq(commands.connectionId, c.id),
               inArray(commands.status, ["queued", "sending", "sent"]),
+              or(
+                ne(commands.status, "queued"),
+                notLike(commands.text, `${scoreNoticePrefix}%`),
+              ),
             ),
           )
       ).length

@@ -15,6 +15,7 @@ const relayReceipt = z.object({
     .nullable(),
   receiptReasons: z.boolean().optional(),
   bpSync: z.boolean().optional(),
+  scoreNotices: z.boolean().optional(),
 });
 
 export type RefereeRelayReceipt = z.infer<typeof relayReceipt>;

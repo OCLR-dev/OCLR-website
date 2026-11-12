@@ -61,6 +61,7 @@ export const relaySchema = z.discriminatedUnion("action", [
         .max(Number.MAX_SAFE_INTEGER)
         .optional(),
       bpSync: z.literal(true).optional(),
+      scoreNotices: z.literal(true).optional(),
       projection: z
         .object({
           status: z.enum(["connected", "disconnected"]),

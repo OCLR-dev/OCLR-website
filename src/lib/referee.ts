@@ -3,10 +3,11 @@ import {
   editionState,
   fixtures,
   refereeEvents,
+  refereeIrcCommands,
   refereeSessions,
   resultAuditEvents,
 } from "@/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
@@ -16,10 +17,12 @@ import { assertCapability } from "./auth/staff";
 import { hashToken } from "./auth/tokens";
 import type { RefereeBasis } from "./fixture-read-contracts";
 import { HttpError } from "./http-error";
+import { isIrcConnected, readLatestIrcConnection } from "./referee-irc-reads";
 import {
   validateRefereeAction,
   type RefereeEventPayload,
 } from "./referee-model";
+import { scoreNoticeSource } from "./referee-sync";
 import { assertRefereeAccess, readRefereeWorkspace } from "./referee-workspace";
 import {
   changeRefereeWorkspaceWrite,
@@ -262,13 +265,62 @@ export async function refereeCommand(
         },
       },
     });
+    const updated = await readRefereeWorkspace(tx, actor, slug, fixtureId);
+    if (payload.type === "attempt_resolved") {
+      const previous = workspace.projection.activeSelections
+        .find((selection) => selection.id === payload.pickId)
+        ?.attempts.at(-1);
+      const event = updated.events.find((item) => item.id === eventId);
+      if (
+        event &&
+        (previous?.status !== payload.status ||
+          previous.winnerTeamId !== payload.winnerTeamId)
+      ) {
+        const text = scoreNoticeSource(updated, event);
+        const connection =
+          text && (await readLatestIrcConnection(tx, fixtureId));
+        if (
+          text &&
+          connection &&
+          connection.roomId &&
+          connection.bpSync &&
+          isIrcConnected(connection)
+        ) {
+          const [last] = await tx
+            .select({ createdAt: refereeIrcCommands.createdAt })
+            .from(refereeIrcCommands)
+            .where(eq(refereeIrcCommands.connectionId, connection.id))
+            .orderBy(desc(refereeIrcCommands.createdAt))
+            .limit(1);
+          await tx.insert(refereeIrcCommands).values({
+            fixtureId,
+            actorId: actor.osuId,
+            connectionId: connection.id,
+            requestKey: eventId,
+            requestHash: hashToken(text),
+            text,
+            target: `#mp_${connection.roomId}`,
+            createdAt: new Date(
+              Math.max(Date.now(), (last?.createdAt.getTime() ?? 0) + 1),
+            ),
+            automation: {
+              eventId,
+              selectionId: payload.pickId,
+              withdrawn: false,
+              step: "notice",
+              predecessorId: null,
+            },
+          });
+        }
+      }
+    }
     return {
       receipt: {
         requestKey: command.requestKey,
         revision: nextRevision,
         eventId,
       },
-      workspace: await readRefereeWorkspace(tx, actor, slug, fixtureId),
+      workspace: updated,
     };
   };
   return transaction ? execute(transaction) : db().transaction(execute);
