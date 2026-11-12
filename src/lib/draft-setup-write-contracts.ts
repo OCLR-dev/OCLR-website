@@ -93,6 +93,7 @@ const teamCommand = z
           rosterPublished: z.boolean(),
         })
         .strict(),
+      z.object({ action: z.literal("publish_all_identities") }).strict(),
     ]),
   })
   .strict();
@@ -186,7 +187,7 @@ export const changeTeamsWrite = {
   request: teamCommand,
   summary: "Configure teams, coaches and publication",
   description:
-    "Requires manage_teams, confirmation and the current setup version. Team identity and roster publication are checked separately. The JSON edit command can keep or clear an avatar. A new avatar is uploaded through the team identity endpoint. Adding a coach requires a verified current osu! profile.",
+    "Requires manage_teams, confirmation and the current setup version. The publish_all_identities command publishes every remaining active team identity together after its captain is public. Roster publication remains a separate command. The JSON edit command can keep or clear an avatar. A new avatar is uploaded through the team identity endpoint. Adding a coach requires a verified current osu! profile.",
   successDescription: "The current staff teams workspace.",
   response: { readResource: "staffTeams" },
   errors: {

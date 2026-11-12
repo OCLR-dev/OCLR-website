@@ -27,6 +27,16 @@ async function Issue271Page({
     const setup = await captainSetup(actor, edition);
     const data = await staffTeams(actor, edition);
     const competition = await staffFixtures(actor, edition);
+    const teamAvatars = new Map(
+      data.teams.map((team) => [team.id, team.avatarKey]),
+    );
+    const groupTeams = competition.teams.map((team) => ({
+      ...team,
+      avatarKey: teamAvatars.get(team.id),
+    }));
+    const hasUnpublishedTeams = data.teams.some(
+      (team) => !team.identityPublished,
+    );
     return (
       <>
         <PageHeading
@@ -88,16 +98,41 @@ async function Issue271Page({
                 key={`${stage.id}:${stage.version}`}
                 value={!competition.canManage}
               >
-                <StageGroups slug={edition} stage={stage} data={competition} />
+                <StageGroups
+                  slug={edition}
+                  stage={stage}
+                  data={{ teams: groupTeams }}
+                />
               </StaffReadOnlyContext>
             ))}
           {!competition.stages.some((s) => s.kind === "group") && (
             <p className="muted">{tr("No Group Stage configured yet.")}</p>
           )}
         </section>
+        <div className={styles.tableHeading}>
+          <h2 id="team-management-table-heading">{tr("Team management")}</h2>
+          {hasUnpublishedTeams && (
+            <ConfirmMutation
+              loadingFeedback="button"
+              label={tr("Publish all team identities")}
+              title={tr("Publish all team identities?")}
+              description={tr(
+                "Each team’s captain must already be public. Rosters require separate approval.",
+              )}
+              url={`/api/admin/tournaments/${edition}/teams`}
+              payload={{
+                command: { action: "publish_all_identities" },
+                expectedVersion: data.version,
+                confirmed: true,
+              }}
+            />
+          )}
+        </div>
         <div className={styles.tableScroll}>
-          <table className={styles.teams}>
-            <caption>{tr("Team management")}</caption>
+          <table
+            className={styles.teams}
+            aria-labelledby="team-management-table-heading"
+          >
             <thead>
               <tr>
                 <th scope="col">{tr("Team")}</th>

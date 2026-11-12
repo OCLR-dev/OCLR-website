@@ -8,7 +8,7 @@ import {
   teams,
   users,
 } from "@/db/schema";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
 import { assertCapability } from "./auth/staff";
@@ -226,6 +226,29 @@ export async function updateTeams(
           avatarKey: command.avatarKey,
         })
         .where(eq(teams.id, team.id));
+    } else if (command.action === "publish_all_identities") {
+      const pending = before.filter((team) => !team.identityPublished);
+      if (!pending.length) return;
+      const publishedCaptains = await tx
+        .select({ userId: captains.userId })
+        .from(captains)
+        .where(
+          and(eq(captains.editionSlug, slug), eq(captains.published, true)),
+        );
+      const publishedIds = new Set(
+        publishedCaptains.map((captain) => captain.userId),
+      );
+      if (pending.some((team) => !publishedIds.has(team.captainId)))
+        throw new HttpError(409, "Publish all team captains first.");
+      await tx
+        .update(teams)
+        .set({ identityPublished: true, rosterPublished: false })
+        .where(
+          inArray(
+            teams.id,
+            pending.map((team) => team.id),
+          ),
+        );
     } else {
       const team = before.find((t) => t.id === command.teamId);
       if (!team) throw new HttpError(404, "Team not found.");

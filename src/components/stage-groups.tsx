@@ -15,7 +15,7 @@ import { TeamAvatar } from "./team-avatar";
 import { PublicationSwitch } from "./publication-switch";
 
 type Group = { key?: string; name: string; teamIds: string[] };
-type Team = FixtureWorkspace["teams"][number];
+type Team = FixtureWorkspace["teams"][number] & { avatarKey?: string | null };
 type Destination = number | "unassigned";
 function groupLetter(index: number): string {
   return index < 26
@@ -28,7 +28,7 @@ export function StageGroups({
   stage,
 }: {
   slug: string;
-  data: Pick<FixtureWorkspace, "teams">;
+  data: { teams: Team[] };
   stage: FixtureWorkspace["stages"][number];
 }) {
   const tr = useAppTranslations();

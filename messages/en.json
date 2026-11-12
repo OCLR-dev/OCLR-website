@@ -4022,6 +4022,10 @@
     "m740262c79ed2": "o!TR minimum",
     "mfda95e072693": "o!TR maximum",
     "m0c9ea5ea1203": "Enter nonnegative o!TR numbers, with minimum no greater than maximum.",
-    "m6265e9748d05": "Loading o!TR ratings…"
+    "m6265e9748d05": "Loading o!TR ratings…",
+    "m8a6ac00f00b4": "Publish all team captains first.",
+    "mddfc75f2e0b1": "Publish all team identities",
+    "m040f52c064aa": "Publish all team identities?",
+    "m3efb01053139": "Each team’s captain must already be public. Rosters require separate approval."
   }
 }
