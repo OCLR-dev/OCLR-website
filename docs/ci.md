@@ -103,12 +103,13 @@ The intended GitHub configuration is recorded in
 checks, per the organizer's 2026-10-27 decision. Other protections, including
 restrictions on force pushes/deletion, remain unchanged.
 
-Follow the existing authorization/review scope, report the exact commit and real
-CI status, and fix failures. Pending or failed CI alone does not block an otherwise
-authorized merge. For an authorized main update, fetch main, integrate a changed
-base safely and use a normal fast-forward push. Synchronize the organizer's main
-checkout when safe and preserve unrelated work. Do not open a PR unless requested.
-Review acceptance, issue closure and release acceptance need their own evidence.
+For organizer-requested changes in maintainer-authorized sessions, push a feature
+branch, open a PR to `main` and merge it by default. Follow task-specific review
+or publishing instructions and respect branch protections. After merging,
+fast-forward the organizer's local `main` when safe and preserve unrelated work.
+Report the exact commit and CI status, and fix failures. Pending or failed CI
+alone does not block an otherwise authorized merge. Review acceptance, issue
+closure and release acceptance need their own evidence.
 
 ## Local verification
 
