@@ -151,35 +151,37 @@ export function EventPlayers({
                         {p.team ?? ""}
                       </span>
                     )}
-                    {p.href && (
-                      <Link
-                        className="text-link small"
-                        href={p.href}
-                        prefetch={false}
-                        aria-label={tr("OCLR profile")}
-                      >
-                        {tr("OCLR profile")} ↗
-                      </Link>
-                    )}
                     {p.fetchedAt && (
                       <time className="sr-only" dateTime={p.fetchedAt}>
                         {p.fetchedAt}
                       </time>
                     )}
-                    <dl>
-                      <div>
-                        <dt>{tr("Global rank")}</dt>
-                        <dd>
-                          {p.rank
-                            ? `#${p.rank.toLocaleString(tr.locale)}`
-                            : "—"}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>PP</dt>
-                        <dd>{p.pp?.toLocaleString(tr.locale) ?? "—"}</dd>
-                      </div>
-                    </dl>
+                    <div className="event-player-summary">
+                      {p.href && (
+                        <Link
+                          className="text-link small"
+                          href={p.href}
+                          prefetch={false}
+                          aria-label={tr("OCLR profile")}
+                        >
+                          {tr("OCLR profile")} ↗
+                        </Link>
+                      )}
+                      <dl>
+                        <div>
+                          <dt>{tr("Global rank")}</dt>
+                          <dd>
+                            {p.rank
+                              ? `#${p.rank.toLocaleString(tr.locale)}`
+                              : "—"}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>PP</dt>
+                          <dd>{p.pp?.toLocaleString(tr.locale) ?? "—"}</dd>
+                        </div>
+                      </dl>
+                    </div>
                     {(otrRatings || showImportedRatings) && (
                       <dl className="event-player-ratings">
                         {otrRatings && (
