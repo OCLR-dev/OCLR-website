@@ -64,7 +64,11 @@ export async function playerWorkspaceEligible(
     .select({ userId: captains.userId })
     .from(captains)
     .where(
-      and(eq(captains.userId, actor.osuId), eq(captains.editionSlug, slug)),
+      and(
+        eq(captains.userId, actor.osuId),
+        eq(captains.editionSlug, slug),
+        eq(captains.published, true),
+      ),
     );
   return {
     eligible: registration?.status === "accepted" || Boolean(appointment),
@@ -92,6 +96,14 @@ async function context(reader: Reader, actor: User, slug: string) {
       and(
         eq(teams.id, memberships.teamId),
         eq(teams.editionSlug, memberships.editionSlug),
+      ),
+    )
+    .innerJoin(
+      captains,
+      and(
+        eq(captains.editionSlug, teams.editionSlug),
+        eq(captains.userId, teams.captainId),
+        eq(captains.published, true),
       ),
     )
     .where(

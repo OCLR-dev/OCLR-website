@@ -3,6 +3,7 @@ import { captains, draftSessions, editionState, teams } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import type { User } from "./auth/sessions";
 import { assertReadCapability, hasCapability } from "./auth/staff";
+import { captainAppointment } from "./captain-reads";
 import { getEdition, getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { availableDraftPool, unassignedPlayers } from "./draft-board";
@@ -129,13 +130,7 @@ async function databaseCaptainDraft(
   actor: User,
   slug: string,
 ): Promise<CaptainBoard | null> {
-  const [appointment] = await db()
-    .select()
-    .from(captains)
-    .where(
-      and(eq(captains.editionSlug, slug), eq(captains.userId, actor.osuId)),
-    );
-  if (!appointment)
+  if (!(await captainAppointment(actor.osuId, slug)))
     throw new HttpError(403, "Captain access for this edition is required.");
   const [session] = await db()
     .select({ snapshot: draftSessions.captainSnapshot })
@@ -148,11 +143,12 @@ export async function captainDraft(
   slug: string,
 ): Promise<Awaited<ReturnType<typeof databaseCaptainDraft>>> {
   if (remoteMode()) {
-    await assertRemoteSubject(actor.osuId);
+    if (!(await captainAppointment(actor.osuId, slug)))
+      throw new HttpError(403, "Captain access for this edition is required.");
     return frontendResource<Awaited<ReturnType<typeof databaseCaptainDraft>>>(
       "captainDraft",
       { slug },
     );
   }
-  return databaseCaptainDraft(actor, slug);
+  return readOnlyData(() => databaseCaptainDraft(actor, slug));
 }

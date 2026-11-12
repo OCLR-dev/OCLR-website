@@ -530,7 +530,11 @@ export async function pickPlayer(
       .select()
       .from(captains)
       .where(
-        and(eq(captains.editionSlug, slug), eq(captains.userId, actor.osuId)),
+        and(
+          eq(captains.editionSlug, slug),
+          eq(captains.userId, actor.osuId),
+          eq(captains.published, true),
+        ),
       );
     const staff = await hasCapability(actor, "manage_draft", slug, tx);
     if (!staff && !appointment)

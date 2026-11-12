@@ -327,11 +327,14 @@ export async function withdrawRegistration(
           isNull(memberships.leftAt),
         ),
       );
-    if (membership)
+    if (membership && captain?.published !== false)
       throw new HttpError(409, "Roster withdrawal requires staff review.");
-    if (captain)
+    if (captain?.published)
       throw new HttpError(409, "Captain withdrawal requires staff review.");
-    if (!canWithdraw(edition, current, Boolean(state.registrationPausedAt)))
+    if (
+      captain ||
+      !canWithdraw(edition, current, Boolean(state.registrationPausedAt))
+    )
       throw new HttpError(
         409,
         "Withdrawal is not available. Contact tournament staff for review.",

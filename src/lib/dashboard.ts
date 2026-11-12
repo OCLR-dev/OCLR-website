@@ -1,5 +1,10 @@
 import { db } from "@/db";
-import { editionRevisions, editionState, registrations } from "@/db/schema";
+import {
+  captains,
+  editionRevisions,
+  editionState,
+  registrations,
+} from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { captainAppointment } from "./captain-reads";
 import { getPublicEditions } from "./content";
@@ -21,11 +26,25 @@ async function databasePlayerApplications(
       registration: registrationReadColumns,
       lastOperation: registrationOperation,
       registrationPausedAt: editionState.registrationPausedAt,
-      assigned: sql<boolean>`EXISTS(SELECT 1 FROM memberships m WHERE m.edition_slug=${registrations.editionSlug} AND m.user_id=${registrations.userId} AND m.left_at IS NULL)`,
+      publishedCaptainId: captains.userId,
+      // The withdrawal command checks pending appointments without disclosing them.
+      assigned: sql<boolean>`EXISTS(
+        SELECT 1 FROM memberships m WHERE m.edition_slug=${registrations.editionSlug}
+        AND m.user_id=${registrations.userId} AND m.left_at IS NULL
+        AND (m.origin <> 'captain' OR ${captains.userId} IS NOT NULL)
+      )`,
       acknowledgedConfiguration: editionRevisions.configuration,
     })
     .from(registrations)
     .innerJoin(editionState, eq(registrations.editionSlug, editionState.slug))
+    .leftJoin(
+      captains,
+      and(
+        eq(captains.editionSlug, registrations.editionSlug),
+        eq(captains.userId, registrations.userId),
+        eq(captains.published, true),
+      ),
+    )
     .leftJoin(
       editionRevisions,
       and(
@@ -41,6 +60,7 @@ async function databasePlayerApplications(
       async ({
         registration,
         registrationPausedAt,
+        publishedCaptainId,
         lastOperation,
         assigned,
         acknowledgedConfiguration,
@@ -48,12 +68,11 @@ async function databasePlayerApplications(
         const edition = editions.find(
           (e) => e.slug === registration.editionSlug,
         );
-        const appointment = await captainAppointment(
-          userId,
-          registration.editionSlug,
+        const captainAssigned = Boolean(
+          edition && !edition.archive && publishedCaptainId,
         );
         return {
-          captainAssigned: Boolean(appointment),
+          captainAssigned,
           registration,
           lastOperation,
           acknowledgedConfiguration,
@@ -61,7 +80,7 @@ async function databasePlayerApplications(
           withdrawable: canWithdraw(
             edition,
             registration,
-            Boolean(registrationPausedAt) || Boolean(appointment) || assigned,
+            Boolean(registrationPausedAt) || captainAssigned || assigned,
           ),
           reapplyAvailable:
             registration.status === "withdrawn" && edition
@@ -77,7 +96,23 @@ export async function playerApplications(
 ): Promise<PlayerApplications> {
   if (remoteMode()) {
     await assertRemoteSubject(userId);
-    return frontendResource<PlayerApplications>("playerApplications");
+    const applications =
+      await frontendResource<PlayerApplications>("playerApplications");
+    return Promise.all(
+      applications.map(async (application) =>
+        application.captainAssigned
+          ? {
+              ...application,
+              captainAssigned: Boolean(
+                await captainAppointment(
+                  userId,
+                  application.registration.editionSlug,
+                ),
+              ),
+            }
+          : application,
+      ),
+    );
   }
   return databasePlayerApplications(userId);
 }

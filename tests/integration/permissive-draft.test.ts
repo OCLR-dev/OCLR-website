@@ -68,9 +68,9 @@ describe.skipIf(!url)("save/start without artificial readiness gates", () => {
     expect(started.availablePool).toHaveLength(1);
     expect(started.edition?.lockedAt).not.toBeNull();
     expect(await publicDraft("permissive-test")).toBeNull();
-    expect(
-      (await captainDraft(f.a, "permissive-test"))?.eligiblePool,
-    ).toHaveLength(1);
+    await expect(captainDraft(f.a, "permissive-test")).rejects.toMatchObject({
+      status: 403,
+    });
     const input = {
       sessionId: started.session!.id,
       turnIndex: 0,
@@ -78,8 +78,11 @@ describe.skipIf(!url)("save/start without artificial readiness gates", () => {
       expectedVersion: started.session!.version,
       idempotencyKey: randomUUID(),
     };
-    const results = await Promise.allSettled([
+    await expect(
       pickPlayer(f.a, "permissive-test", input),
+    ).rejects.toMatchObject({ status: 403 });
+    const results = await Promise.allSettled([
+      pickPlayer(f.staff, "permissive-test", input),
       pickPlayer(f.staff, "permissive-test", {
         ...input,
         idempotencyKey: randomUUID(),

@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { db, readOnlyData } from "@/db";
 import {
   captains,
   draftSessions,
@@ -12,6 +12,7 @@ import {
 import { and, eq, isNull, sql } from "drizzle-orm";
 import type { User } from "./auth/sessions";
 import { assertReadCapability } from "./auth/staff";
+import { captainAppointment } from "./captain-reads";
 import { getEdition, getPublicEdition } from "./content";
 import { remoteMode } from "./data-source";
 import { draftSetupProtection } from "./draft-setup";
@@ -110,6 +111,7 @@ export async function staffTeams(
 }
 
 async function databaseOwnTeam(userId: number, slug: string): Promise<OwnTeam> {
+  if (!(await captainAppointment(userId, slug))) return null;
   const [team] = await db()
     .select(teamReadColumns)
     .from(teams)
@@ -153,10 +155,10 @@ async function databaseOwnTeam(userId: number, slug: string): Promise<OwnTeam> {
 }
 export async function ownTeam(userId: number, slug: string): Promise<OwnTeam> {
   if (remoteMode()) {
-    await assertRemoteSubject(userId);
+    if (!(await captainAppointment(userId, slug))) return null;
     return frontendResource<OwnTeam>("ownTeam", { slug });
   }
-  return databaseOwnTeam(userId, slug);
+  return readOnlyData(() => databaseOwnTeam(userId, slug));
 }
 
 async function databasePublishedTeams(slug: string): Promise<PublishedTeams> {
