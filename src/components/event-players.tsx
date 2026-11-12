@@ -157,16 +157,6 @@ export function EventPlayers({
                       </time>
                     )}
                     <div className="event-player-summary">
-                      {p.href && (
-                        <Link
-                          className="text-link small"
-                          href={p.href}
-                          prefetch={false}
-                          aria-label={tr("OCLR profile")}
-                        >
-                          {tr("OCLR profile")} ↗
-                        </Link>
-                      )}
                       <dl>
                         <div>
                           <dt>{tr("Global rank")}</dt>
@@ -181,6 +171,16 @@ export function EventPlayers({
                           <dd>{p.pp?.toLocaleString(tr.locale) ?? "—"}</dd>
                         </div>
                       </dl>
+                      {p.href && (
+                        <Link
+                          className="text-link small"
+                          href={p.href}
+                          prefetch={false}
+                          aria-label={tr("OCLR profile")}
+                        >
+                          {tr("OCLR profile")} ↗
+                        </Link>
+                      )}
                     </div>
                     {(otrRatings || showImportedRatings) && (
                       <dl className="event-player-ratings">
@@ -227,15 +227,15 @@ export function EventPlayers({
                         )}
                       </dl>
                     )}
+                    {!remote && (
+                      <PlayerReactions
+                        edition={edition}
+                        playerId={p.id}
+                        name={p.name}
+                      />
+                    )}
                   </div>
                 </div>
-                {!remote && (
-                  <PlayerReactions
-                    edition={edition}
-                    playerId={p.id}
-                    name={p.name}
-                  />
-                )}
               </div>
               <div className="event-player-bio">
                 <h4>{tr("Self introduction")}</h4>
