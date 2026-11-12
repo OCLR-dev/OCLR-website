@@ -128,6 +128,8 @@ async function databaseCaptainAppointment(
   userId: number,
   slug: string,
 ): Promise<CaptainAppointment> {
+  const edition = await getPublicEdition(slug);
+  if (!edition || edition.archive) return null;
   return (
     (
       await db()
@@ -138,7 +140,13 @@ async function databaseCaptainAppointment(
           published: captains.published,
         })
         .from(captains)
-        .where(and(eq(captains.editionSlug, slug), eq(captains.userId, userId)))
+        .where(
+          and(
+            eq(captains.editionSlug, slug),
+            eq(captains.userId, userId),
+            eq(captains.published, true),
+          ),
+        )
     )[0] ?? null
   );
 }
@@ -148,7 +156,11 @@ export async function captainAppointment(
 ): Promise<CaptainAppointment> {
   if (remoteMode()) {
     await assertRemoteSubject(userId);
-    return frontendResource<CaptainAppointment>("captainAppointment", { slug });
+    const appointment = await frontendResource<CaptainAppointment>(
+      "captainAppointment",
+      { slug },
+    );
+    return appointment?.published ? appointment : null;
   }
   return databaseCaptainAppointment(userId, slug);
 }

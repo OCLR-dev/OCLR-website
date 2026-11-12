@@ -217,7 +217,7 @@ describe.skipIf(!url)(
       const data = await configure();
       expect(data.teams).toHaveLength(2);
       expect(data.teams.every((t) => t.members.length === 1)).toBe(true);
-      expect((await ownTeam(a.osuId, edition.slug))?.captainId).toBe(a.osuId);
+      expect(await ownTeam(a.osuId, edition.slug)).toBeNull();
       expect(await ownTeam(player.osuId, edition.slug)).toBeNull();
       await expect(staffTeams(a, edition.slug)).rejects.toMatchObject({
         status: 403,

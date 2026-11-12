@@ -66,7 +66,12 @@ export async function readScheduleContext(
   const own = memberRows.find(
     (m) =>
       m.membership.userId === actor.osuId &&
-      teamRows.some((t) => t.id === m.membership.teamId && !t.archivedAt),
+      teamRows.some(
+        (t) =>
+          t.id === m.membership.teamId &&
+          !t.archivedAt &&
+          appointments.some((c) => c.userId === t.captainId && c.published),
+      ),
   );
   if (!admin && (!own || !state.configuration.published))
     throw new HttpError(

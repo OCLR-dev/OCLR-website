@@ -27,7 +27,15 @@ import {
   captainAppointment,
 } from "../../src/lib/captain-reads";
 import { updateCaptains } from "../../src/lib/captains";
+import { playerApplications } from "../../src/lib/dashboard";
+import { captainDraft } from "../../src/lib/draft-reads";
+import {
+  playerPracticeWorkspace,
+  playerTimetableWorkspace,
+} from "../../src/lib/player-workspace";
 import { withdrawRegistration } from "../../src/lib/registrations";
+import { scheduleWorkspace } from "../../src/lib/schedule-reads";
+import { ownTeam } from "../../src/lib/team-reads";
 import { edition } from "../fixtures/edition";
 import { POST as writeRoute } from "../../src/app/api/admin/tournaments/[edition]/captains/route";
 import { changeCaptainsWrite } from "../../src/lib/draft-setup-write-contracts";
@@ -100,7 +108,7 @@ describe.skipIf(!url)("captain setup, publication and eligibility", () => {
     ).toEqual(setup);
     expect((await post()).status).toBe(409);
     expect(setup.pool.map((p) => p.userId)).not.toContain(a.osuId);
-    expect(await captainAppointment(a.osuId, edition.slug)).not.toBeNull();
+    expect(await captainAppointment(a.osuId, edition.slug)).toBeNull();
     expect(await captainAppointment(a.osuId, "second-test-cup")).toBeNull();
     await expect(
       updateCaptains(
@@ -115,6 +123,75 @@ describe.skipIf(!url)("captain setup, publication and eligibility", () => {
     await expect(
       withdrawRegistration(a, r.id, { confirmed: true }),
     ).rejects.toMatchObject({ status: 409 });
+  });
+  it("keeps an appointment invisible to the player until published and hides it again when withdrawn", async () => {
+    const slug = edition.slug;
+    await updateCaptains(
+      staff,
+      slug,
+      command(0, { action: "appoint", userId: a.osuId }),
+    );
+    async function expectHidden() {
+      const [application] = await playerApplications(a.osuId);
+      expect(application).toMatchObject({
+        captainAssigned: false,
+        withdrawable: true,
+      });
+      expect(await captainAppointment(a.osuId, slug)).toBeNull();
+      expect(await ownTeam(a.osuId, slug)).toBeNull();
+      await expect(captainDraft(a, slug)).rejects.toMatchObject({
+        status: 403,
+      });
+      await expect(scheduleWorkspace(a, slug)).rejects.toMatchObject({
+        status: 403,
+      });
+      expect(await playerPracticeWorkspace(a, slug)).toMatchObject({
+        team: null,
+        participants: [a],
+      });
+      expect(await playerTimetableWorkspace(a, slug)).toMatchObject({
+        players: [a],
+        teamAvailability: [],
+      });
+      expect((await captainSetup(staff, slug)).captains).toMatchObject([
+        { userId: a.osuId, published: false },
+      ]);
+      await expect(
+        withdrawRegistration(a, application.registration.id, {
+          confirmed: true,
+        }),
+      ).rejects.toMatchObject({
+        status: 409,
+        message:
+          "Withdrawal is not available. Contact tournament staff for review.",
+      });
+    }
+    await expectHidden();
+    await updateCaptains(
+      staff,
+      slug,
+      command(1, { action: "publish", published: true, poolPublished: true }),
+    );
+    expect(await captainAppointment(a.osuId, slug)).toMatchObject({
+      published: true,
+    });
+    expect((await playerApplications(a.osuId))[0]).toMatchObject({
+      captainAssigned: true,
+      withdrawable: false,
+    });
+    expect(await ownTeam(a.osuId, slug)).toMatchObject({ captainId: a.osuId });
+    expect(await captainDraft(a, slug)).toBeNull();
+    expect(await scheduleWorkspace(a, slug)).toMatchObject({ captain: true });
+    expect((await playerPracticeWorkspace(a, slug)).team).not.toBeNull();
+    expect(
+      (await playerTimetableWorkspace(a, slug)).teamAvailability,
+    ).toHaveLength(1);
+    await updateCaptains(
+      staff,
+      slug,
+      command(2, { action: "publish", published: false, poolPublished: true }),
+    );
+    await expectHidden();
   });
   it("allows one concurrent appointment and guards duplicate/cross-edition players", async () => {
     const results = await Promise.allSettled([
@@ -307,7 +384,9 @@ describe.skipIf(!url)("captain setup, publication and eligibility", () => {
       expect(await db().select().from(teams)).toEqual(beforeTeams);
       expect(await db().select().from(memberships)).toEqual(beforeMembers);
       expect((await captainSetup(staff, edition.slug)).version).toBe(2);
-      expect(await captainAppointment(a.osuId, edition.slug)).not.toBeNull();
+      expect((await captainSetup(staff, edition.slug)).captains).toMatchObject([
+        { userId: a.osuId },
+      ]);
       expect(await db().select().from(editionEvents)).toHaveLength(2);
     },
   );
@@ -412,9 +491,7 @@ describe.skipIf(!url)("captain setup, publication and eligibility", () => {
       await expect(publish()).rejects.toThrow();
       expect(await captainSetup(staff, edition.slug)).toEqual(before);
       expect(await publicCaptains(edition.slug)).toEqual([]);
-      expect(await captainAppointment(b.osuId, edition.slug)).toMatchObject({
-        published: false,
-      });
+      expect(await captainAppointment(b.osuId, edition.slug)).toBeNull();
       expect(await db().select().from(editionEvents)).toHaveLength(3);
     } finally {
       await db().execute(sql`

@@ -117,6 +117,7 @@ describe.skipIf(!url)("private player workspace #671", () => {
           editionSlug: slug,
           userId: user.osuId,
           position: index + 1,
+          published: true,
         })),
       );
     const ts = await db()
