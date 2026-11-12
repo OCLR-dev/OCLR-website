@@ -9,6 +9,8 @@ import { getEditionChoices } from "@/lib/content";
 import { formatDate } from "@/lib/editions";
 import { BulkManualRegistration } from "./bulk-manual-registration";
 import { ManualRegistration } from "./manual-registration";
+import { PlayerRatingImport } from "./player-rating-import";
+import { importedRatingsEdition } from "@/lib/player-rating-import-contract";
 import { PageHeading } from "@/components/ui";
 export async function RegistrationList({
   actor,
@@ -49,6 +51,10 @@ export async function RegistrationList({
         >
           {tr("Acceptance does not appoint a captain or assign a team.")}
         </PageHeading>
+        {editionSlug === importedRatingsEdition &&
+          permits(access, "manage_registrations", editionSlug) && (
+            <PlayerRatingImport />
+          )}
         <div className="section-title">
           <p className="muted small">
             {tr(

@@ -4026,6 +4026,27 @@
     "m8a6ac00f00b4": "Publish all team captains first.",
     "mddfc75f2e0b1": "Publish all team identities",
     "m040f52c064aa": "Publish all team identities?",
-    "m3efb01053139": "Each team’s captain must already be public. Rosters require separate approval."
+    "m3efb01053139": "Each team’s captain must already be public. Rosters require separate approval.",
+    "m401257cc9ec9": "Provisional rating",
+    "m9bc425817c72": "Outdated rating",
+    "m74e90eeb08c1": "SIP: highest first",
+    "m1a53e5120975": "SIP: lowest first",
+    "m281d5e41c9f3": "ETX: highest first",
+    "maffca9d16366": "ETX: lowest first",
+    "m023c3aebed99": "SIP minimum",
+    "m0f2ca6e4bbb0": "SIP maximum",
+    "mfd8a0f8f56f1": "ETX minimum",
+    "mf1a6317b0158": "ETX maximum",
+    "m9517f50e6278": "Choose a CSV export to import.",
+    "m0c1fcd0c58ff": "Import SIP or ETX ratings",
+    "ma353cd18157d": "Import updates matching accepted players on the public S11 list. SIP matches current usernames and ETX matches osu! IDs.",
+    "m76cefcfe5405": "Rating source",
+    "m684c522e9b1f": "CSV export",
+    "m3f296dc9e7b6": "Import ratings",
+    "m4b078b3f5d4b": "Matched {matched} players, updated {updated} ratings, skipped {unmatched} unmatched rows and {missing} rows without a rating.",
+    "m55f866f98a6d": "First unmatched CSV rows: {rows}",
+    "mb55d97e32514": "Upload a valid CSV export for the selected rating source.",
+    "m5dca53cc4f93": "The CSV contains conflicting ratings for the same player.",
+    "mbd56d50cfc3d": "Enter valid rating bounds, with minimum no greater than maximum."
   }
 }

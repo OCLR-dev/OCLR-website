@@ -14,6 +14,7 @@ import { english } from "../../src/i18n/translate";
 import messages from "../../messages/en.json";
 import { edition } from "../fixtures/edition";
 const callbacks = vi.hoisted(() => [] as (() => Promise<void>)[]);
+const importedRows = vi.hoisted(() => vi.fn());
 vi.mock("next/server", () => ({
   after: (callback: () => Promise<void>) => callbacks.push(callback),
 }));
@@ -43,7 +44,10 @@ vi.mock("../../src/lib/draft-reads", () => ({
 }));
 vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
 vi.mock("../../src/db", () => ({
-  db: () => ({ transaction: (read: () => unknown) => read() }),
+  db: () => ({
+    transaction: (read: () => unknown) => read(),
+    select: () => ({ from: () => ({ where: importedRows }) }),
+  }),
   readOnlyData: (read: () => unknown) => read(),
 }));
 vi.mock("../../src/lib/tournament-reads", async (importOriginal) => ({
@@ -180,13 +184,26 @@ describe("cache-first edition player cards", () => {
     expect(cachedDirectoryStatistics).not.toHaveBeenCalled();
     expect(getDirectoryOtrRatings).not.toHaveBeenCalled();
   });
-  it("loads o!TR for the public S11 directory by osu! ID", async () => {
+  it("loads o!TR and displays saved SIP and ETX for the public S11 directory", async () => {
     vi.mocked(getPublicEdition).mockResolvedValue({ ...edition, slug: "s11" });
     vi.mocked(getDirectoryOtrRatings).mockResolvedValue({ 1220001: 1572.48 });
+    importedRows.mockResolvedValue([
+      { userId: 1220001, source: "sip", value: -2563 },
+      {
+        userId: 1220001,
+        source: "etx",
+        value: 6.15,
+        provisional: true,
+        outdated: false,
+      },
+    ]);
 
     const page = await html({}, "s11");
     expect(page).toContain("<dt>o!TR</dt>");
     expect(page).toContain("Synthetic Player");
+    expect(page).toContain("<dt>SIP</dt><dd>-2,563</dd>");
+    expect(page).toContain("<dt>ETX</dt><dd>6.15");
+    expect(page).toContain("Provisional rating");
     expect(getDirectoryOtrRatings).toHaveBeenCalledExactlyOnceWith([1220001]);
   });
 });

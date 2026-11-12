@@ -343,6 +343,29 @@ export const editionRevisions = pgTable(
   },
   (t) => [primaryKey({ columns: [t.editionSlug, t.version] })],
 );
+export const importedPlayerRatings = pgTable(
+  "imported_player_ratings",
+  {
+    editionSlug: text("edition_slug")
+      .notNull()
+      .references(() => editionState.slug, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId, { onDelete: "cascade" }),
+    source: text("source").$type<"sip" | "etx">().notNull(),
+    value: doublePrecision("value").notNull(),
+    provisional: boolean("provisional").notNull().default(false),
+    outdated: boolean("outdated").notNull().default(false),
+  },
+  (t) => [
+    primaryKey({ columns: [t.editionSlug, t.source, t.userId] }),
+    check("imported_player_ratings_source", sql`${t.source} IN ('sip', 'etx')`),
+    check(
+      "imported_player_ratings_value",
+      sql`${t.value} > '-Infinity'::float8 AND ${t.value} < 'Infinity'::float8 AND (${t.source} = 'sip' OR ${t.value} >= 0)`,
+    ),
+  ],
+);
 // Reviewed graphs can be installed before their historical archive is imported.
 // Readers verify them against the matching saved archive before showing them.
 export const historicalBrackets = pgTable("historical_brackets", {

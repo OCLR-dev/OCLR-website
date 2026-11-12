@@ -21,16 +21,23 @@ export function EventPlayers({
   signedIn = false,
   viewerId,
   otrRatings,
+  showImportedRatings = false,
 }: {
   remote?: boolean;
   players: (EventPlayer &
-    Partial<Pick<DirectoryPlayer, "aliases" | "teams" | "roles">>)[];
+    Partial<
+      Pick<DirectoryPlayer, "aliases" | "teams" | "roles" | "sip" | "etx">
+    > & {
+      etxProvisional?: boolean;
+      etxOutdated?: boolean;
+    })[];
   edition: string;
   grouped?: boolean;
   preview?: boolean;
   signedIn?: boolean;
   viewerId?: number;
   otrRatings?: Promise<Record<number, number>>;
+  showImportedRatings?: boolean;
 }) {
   const tr = useAppTranslations();
   const [ratingSnapshot, setRatingSnapshot] = useState<{
@@ -181,6 +188,37 @@ export function EventPlayers({
                             }) ?? (otrLoading ? "…" : "—")}
                           </dd>
                         </div>
+                      )}
+                      {showImportedRatings && (
+                        <>
+                          <div>
+                            <dt>{"SIP"}</dt>
+                            <dd>
+                              {p.sip?.toLocaleString(tr.locale, {
+                                maximumFractionDigits: 2,
+                              }) ?? "—"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>{"ETX"}</dt>
+                            <dd>
+                              {p.etx?.toLocaleString(tr.locale, {
+                                maximumFractionDigits: 2,
+                              }) ?? "—"}
+                              {(p.etxProvisional || p.etxOutdated) && (
+                                <small className="muted">
+                                  {[
+                                    p.etxProvisional &&
+                                      tr("Provisional rating"),
+                                    p.etxOutdated && tr("Outdated rating"),
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                                </small>
+                              )}
+                            </dd>
+                          </div>
+                        </>
                       )}
                     </dl>
                   </div>

@@ -387,6 +387,18 @@ export const publicPlayerSchema = z
     tier: z.number().int().min(0).max(32).nullable(),
     tierLabel: text.nullable(),
     bio: text.nullable(),
+    importedRatings: z
+      .strictObject({
+        sip: z.number().optional(),
+        etx: z
+          .strictObject({
+            value: z.number().nonnegative(),
+            provisional: z.boolean(),
+            outdated: z.boolean(),
+          })
+          .optional(),
+      })
+      .optional(),
     statistics: z
       .object({
         globalRank: z.number().int().positive().nullable(),

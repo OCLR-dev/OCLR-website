@@ -472,6 +472,20 @@
     }
   },
   {
+    "route": "/api/admin/tournaments/{edition}/player-ratings",
+    "source": "src/app/api/admin/tournaments/[edition]/player-ratings/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "importPlayerRatings",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-rating-import.tsx"
+        ]
+      }
+    }
+  },
+  {
     "route": "/api/admin/tournaments/{edition}/registrations/{id}/bws",
     "source": "src/app/api/admin/tournaments/[edition]/registrations/[id]/bws/route.ts",
     "methods": {
