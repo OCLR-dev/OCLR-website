@@ -179,50 +179,53 @@ export function EventPlayers({
                         <dt>PP</dt>
                         <dd>{p.pp?.toLocaleString(tr.locale) ?? "—"}</dd>
                       </div>
-                      {otrRatings && (
-                        <div>
-                          <dt>o!TR</dt>
-                          <dd>
-                            {p.otr?.toLocaleString(tr.locale, {
-                              maximumFractionDigits: 2,
-                            }) ?? (otrLoading ? "…" : "—")}
-                          </dd>
-                        </div>
-                      )}
-                      {showImportedRatings && (
-                        <>
-                          <div>
-                            <dt>{"SIP"}</dt>
-                            <dd>
-                              {p.sip?.toLocaleString(tr.locale, {
-                                maximumFractionDigits: 2,
-                              }) ?? "—"}
-                            </dd>
-                          </div>
-                          <div>
-                            <dt>{"ETX"}</dt>
-                            <dd>
-                              {p.etx?.toLocaleString(tr.locale, {
-                                maximumFractionDigits: 2,
-                              }) ?? "—"}
-                              {(p.etxProvisional || p.etxOutdated) && (
-                                <small className="muted">
-                                  {[
-                                    p.etxProvisional &&
-                                      tr("Provisional rating"),
-                                    p.etxOutdated && tr("Outdated rating"),
-                                  ]
-                                    .filter(Boolean)
-                                    .join(" · ")}
-                                </small>
-                              )}
-                            </dd>
-                          </div>
-                        </>
-                      )}
                     </dl>
                   </div>
                 </div>
+                {(otrRatings || showImportedRatings) && (
+                  <dl className="event-player-ratings">
+                    {otrRatings && (
+                      <div>
+                        <dt>o!TR</dt>
+                        <dd>
+                          {p.otr?.toLocaleString(tr.locale, {
+                            maximumFractionDigits: 2,
+                          }) ?? (otrLoading ? "…" : "—")}
+                        </dd>
+                      </div>
+                    )}
+                    {showImportedRatings && (
+                      <>
+                        <div>
+                          <dt>{"SIP"}</dt>
+                          <dd>
+                            {p.sip?.toLocaleString(tr.locale, {
+                              maximumFractionDigits: 2,
+                            }) ?? "—"}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>{"ETX"}</dt>
+                          <dd>
+                            {p.etx?.toLocaleString(tr.locale, {
+                              maximumFractionDigits: 2,
+                            }) ?? "—"}
+                            {(p.etxProvisional || p.etxOutdated) && (
+                              <small className="muted">
+                                {[
+                                  p.etxProvisional && tr("Provisional rating"),
+                                  p.etxOutdated && tr("Outdated rating"),
+                                ]
+                                  .filter(Boolean)
+                                  .join(" · ")}
+                              </small>
+                            )}
+                          </dd>
+                        </div>
+                      </>
+                    )}
+                  </dl>
+                )}
                 {!remote && (
                   <PlayerReactions
                     edition={edition}
