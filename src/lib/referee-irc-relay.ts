@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, notLike } from "drizzle-orm";
 import { db } from "@/db";
 import {
   fixtureReferees,
@@ -27,12 +27,22 @@ import {
   refereeRelayWrite,
   type RefereeRelayReceipt,
 } from "./referee-relay-contract";
-import { bpSyncSource, isBpNotice } from "./referee-sync";
+import {
+  bpSyncSource,
+  isBpNotice,
+  isScoreNotice,
+  scoreNoticePrefix,
+  scoreNoticeSource,
+} from "./referee-sync";
 import { assertRefereeAccess, readRefereeWorkspace } from "./referee-workspace";
 
 type DesktopActor = User & { sessionId: string };
 
-async function assigned(tx: IrcTransaction, actor: DesktopActor, fixtureId: string) {
+async function assigned(
+  tx: IrcTransaction,
+  actor: DesktopActor,
+  fixtureId: string,
+) {
   if (!refereeRelayWrite.parameters.fixtureId.safeParse(fixtureId).success)
     throw new HttpError(404, "Fixture not found.");
   const [f] = await tx
@@ -108,6 +118,7 @@ export async function refereeIrcRelay(
         command: null,
         receiptReasons: true,
         bpSync: true,
+        scoreNotices: true,
       };
     }
     const [c] = await tx
@@ -193,7 +204,7 @@ export async function refereeIrcRelay(
       if (receipt.status === "notified") {
         if (
           command.automation?.step !== "notice" ||
-          !isBpNotice(command.text) ||
+          !(isBpNotice(command.text) || isScoreNotice(command.text)) ||
           command.selection
         )
           continue;
@@ -280,11 +291,18 @@ export async function refereeIrcRelay(
         .select()
         .from(commands)
         .where(
-          and(eq(commands.connectionId, c.id), eq(commands.status, "queued")),
+          and(
+            eq(commands.connectionId, c.id),
+            eq(commands.status, "queued"),
+            action.scoreNotices && action.bpSync
+              ? undefined
+              : notLike(commands.text, `${scoreNoticePrefix}%`),
+          ),
         )
         .orderBy(commands.createdAt)
         .limit(1);
       if (queued) {
+        let dispatchText = queued.text;
         const [issuer] = await tx
           .select()
           .from(users)
@@ -292,7 +310,23 @@ export async function refereeIrcRelay(
         try {
           if (!issuer) throw new HttpError(403, "Referee access has changed.");
           await assertRefereeAccess(tx, issuer, slug, fixtureId, true);
-          if (queued.automation) {
+          if (queued.automation && isScoreNotice(queued.text)) {
+            const w = await readRefereeWorkspace(tx, issuer, slug, fixtureId);
+            const event = w.events.find(
+              (item) => item.id === queued.automation?.eventId,
+            );
+            const text = event && scoreNoticeSource(w, event);
+            if (
+              !text ||
+              !w.canRecord ||
+              w.session?.dependencyFingerprint !== w.dependencyFingerprint
+            )
+              throw new HttpError(
+                409,
+                "The saved BP event changed. Reload before syncing.",
+              );
+            dispatchText = text;
+          } else if (queued.automation) {
             const w = await readRefereeWorkspace(tx, issuer, slug, fixtureId);
             const a = queued.automation;
             const source = bpSyncSource(w, a.eventId);
@@ -365,11 +399,12 @@ export async function refereeIrcRelay(
           .update(commands)
           .set({
             status: "sending",
+            text: dispatchText,
             dispatchedAt: new Date(),
             baselineMessageIds: messages.map((m) => m.id),
           })
           .where(eq(commands.id, queued.id));
-        command = { id: queued.id, text: queued.text, target: queued.target };
+        command = { id: queued.id, text: dispatchText, target: queued.target };
       }
     }
     return { connectionId: c.id, sequence: action.sequence, command };

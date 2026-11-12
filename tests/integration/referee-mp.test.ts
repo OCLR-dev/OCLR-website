@@ -235,6 +235,17 @@ describe.skipIf(!url)("MP binding and atomic provisional scores", () => {
     return call({ action: "sync", expectedRevision: status.binding!.revision });
   }
   it("binds without provider work, automatically scores once across simultaneous polls and reload, without official publication", async () => {
+    const { connectionId } = await bindRoom();
+    const syncRelay = (sequence: number) => refereeIrcRelay(desktopActor, w.fixture.id, {
+      action: "sync",
+      connectionId,
+      sequence,
+      bpSync: true,
+      scoreNotices: true,
+      projection: { status: "connected", messages: [] },
+      receipts: [],
+    });
+    expect((await syncRelay(1)).command).toBeNull();
     const response = await post(w.fixture.id, bindInput());
     expect(response.status).toBe(200);
     const bound = await response.json();
@@ -250,6 +261,11 @@ describe.skipIf(!url)("MP binding and atomic provisional scores", () => {
     await Promise.all([sync(), sync()]);
     w = await refereeWorkspace(actor, "test-cup", w.fixture.id);
     expect(w.projection.score[w.teams[0].id]).toBe(1);
+    expect((await syncRelay(2)).command).toMatchObject({
+      target: "#mp_880001",
+      text: expect.stringMatching(/^\[OCLR SCORE #\d+\].*RED 0 - 1 BLUE/),
+    });
+    expect((await syncRelay(3)).command).toBeNull();
     const [score] = await db().select().from(refereeMpScores);
     const [outcome] = await db()
       .select()

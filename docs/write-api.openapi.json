@@ -11870,6 +11870,10 @@
                         "type": "boolean",
                         "const": true
                       },
+                      "scoreNotices": {
+                        "type": "boolean",
+                        "const": true
+                      },
                       "projection": {
                         "type": "object",
                         "properties": {
@@ -12075,6 +12079,9 @@
                           "type": "boolean"
                         },
                         "bpSync": {
+                          "type": "boolean"
+                        },
+                        "scoreNotices": {
                           "type": "boolean"
                         }
                       },
