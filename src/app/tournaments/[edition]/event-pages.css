@@ -803,28 +803,44 @@
 .event-player-row dl > div {
   white-space: nowrap;
 }
-.event-player-summary {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.4rem;
-}
-.event-player-row .event-player-summary dl {
-  flex-wrap: nowrap;
-  gap: 0.5rem;
-  margin: 0;
-}
+.event-player-summary,
 .event-player-row .event-player-ratings {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
+  margin-top: 0.5rem;
 }
+.event-player-row .event-player-summary dl {
+  display: grid;
+  grid-column: span 2;
+  grid-template-columns: subgrid;
+  gap: inherit;
+  margin: 0;
+}
+.event-player-summary .text-link {
+  align-self: end;
+  justify-self: start;
+  color: var(--site-accent);
+  font-size: var(--text-label);
+}
+.event-player-row .event-player-ratings {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--site-border);
+}
+.event-player-row .event-player-summary dl > div,
 .event-player-row .event-player-ratings > div {
   white-space: normal;
 }
+.event-player-summary dd,
+.event-player-ratings dd {
+  font-weight: 600;
+}
 .event-player-ratings dd small {
   display: block;
+  font-weight: 400;
+}
+.event-player-details .player-reactions {
+  margin-top: 0.5rem;
 }
 .event-player-messages,
 .event-player-bio {
