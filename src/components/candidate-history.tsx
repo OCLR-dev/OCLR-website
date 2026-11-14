@@ -2,6 +2,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { CandidateHistory as History } from "@/lib/mappool-history";
+import { mappoolDisplayName } from "@/lib/mappool-label";
 import { parseBeatmapId } from "@/lib/mappool-model";
 import { WorkbenchActionIcon } from "./workbench-action-icon";
 import styles from "./mappool-workbench.module.css";
@@ -171,7 +172,16 @@ export function CandidateHistory({
                     <p>
                       {[
                         ...new Set(
-                          [match.roundName, match.poolName].filter(Boolean),
+                          (match.roundName
+                            ? [match.roundName, match.poolName]
+                            : [
+                                mappoolDisplayName(
+                                  tr,
+                                  match.poolName,
+                                  match.poolId,
+                                ),
+                              ]
+                          ).filter(Boolean),
                         ),
                       ].join(" · ")}{" "}
                       · <strong>{match.slot}</strong>

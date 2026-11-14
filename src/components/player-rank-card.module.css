@@ -176,8 +176,6 @@
 }
 
 .pp {
-  position: relative;
-  inset-block-start: -2px;
   overflow: hidden;
   max-width: 100%;
   color: rgb(255 255 255 / 92%);
@@ -247,7 +245,7 @@
   overflow: hidden;
   max-width: 100%;
   color: rgb(255 255 255 / 84%);
-  font-size: var(--text-small);
+  font-size: var(--text-support);
   font-weight: 600;
   line-height: 1.2;
   text-overflow: ellipsis;

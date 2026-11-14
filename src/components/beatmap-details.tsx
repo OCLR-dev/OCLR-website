@@ -2,6 +2,7 @@ import type { HistoricalMapSource } from "@/lib/exhibition-pools";
 import { InfoNote } from "@/components/info-note";
 import { useAppTranslations } from "@/i18n/shared";
 import type { BeatmapMetadata, MappoolCategory } from "@/lib/mappool-model";
+import { mappoolDisplayName } from "@/lib/mappool-label";
 import {
   formatBeatmapDuration,
   formatBeatmapNumber,
@@ -30,7 +31,8 @@ export function BeatmapDetails({
       <div className="beatmap-copy">
         {source && (
           <p className="muted small">
-            {tr("Historical source")}: {source.editionName} · {source.poolName}{" "}
+            {tr("Historical source")}: {source.editionName} ·{" "}
+            {mappoolDisplayName(tr, source.poolName, source.poolId)}{" "}
             · {source.slot}
           </p>
         )}

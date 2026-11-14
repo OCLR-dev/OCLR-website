@@ -18,6 +18,7 @@ import { sameHistoricalMatches } from "@/lib/archive-progression-display";
 import { publicBracket } from "@/lib/brackets";
 import { frontendConnection } from "@/lib/frontend-data";
 import { archiveEventMatches } from "@/lib/archive-event-matches";
+import { mappoolDisplayName } from "@/lib/mappool-label";
 import { archiveStaff, archiveMatchStaffLabel } from "@/lib/archive-staff";
 import { archivePlayerRoleLabel } from "@/lib/archive-player-role";
 import {
@@ -814,6 +815,7 @@ async function HistoricalArchiveContent({
             href,
             edition.timeZone,
             tr.locale,
+            (name, id) => mappoolDisplayName(tr, name, id),
           )}
         />
       );
@@ -844,6 +846,7 @@ async function HistoricalArchiveContent({
           key={pool.id}
           pool={{
             ...display.pool,
+            name: mappoolDisplayName(tr, display.pool.name, display.pool.id),
             maps: display.pool.maps.map((m) => ({
               ...m,
               difficultySnapshot:
@@ -857,7 +860,7 @@ async function HistoricalArchiveContent({
           ]}
           stages={a.pools.map((p) => ({
             id: p.id,
-            name: p.name,
+            name: mappoolDisplayName(tr, p.name, p.id),
             count: p.maps.length,
             href: href("mappools", p.id),
           }))}

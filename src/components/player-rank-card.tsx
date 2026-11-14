@@ -8,100 +8,21 @@ import { contrastInk } from "@/lib/color-contrast";
 import { modColors } from "@/lib/mod-colors";
 import type { PlayerClass } from "@/lib/player-class";
 import { playerClassLabels } from "@/lib/player-class-labels";
+import {
+  APPEARANCE_STOPS,
+  bandColor,
+  GRAY_STOPS,
+  LOSS_STOPS,
+  mixColor,
+  PERFORMANCE_STOPS,
+  TROPHY_STOPS,
+  WIN_STOPS,
+  type ColorStops,
+} from "@/lib/rank-colors";
+import { formatStat } from "@/lib/stat-format";
 import { Avatar } from "./avatar";
 import { PlacementTrophy } from "./player-trophy";
 import styles from "./player-rank-card.module.css";
-
-const STAT_STOPS = {
-  red: "#d32f2f",
-  yellow: "#fedc45",
-  green: "#31b16c",
-} as const;
-
-const WHITE = "#ffffff";
-
-function linearChannel(channel: number) {
-  return (channel / 255) ** 2.2;
-}
-
-function gammaChannel(value: number) {
-  const clamped = Math.min(Math.max(value, 0), 1);
-  return Math.round(clamped ** (1 / 2.2) * 255);
-}
-
-function hexToRgb(hex: string): [number, number, number] {
-  const value = hex.replace("#", "");
-  return [
-    parseInt(value.slice(0, 2), 16),
-    parseInt(value.slice(2, 4), 16),
-    parseInt(value.slice(4, 6), 16),
-  ];
-}
-
-/** Mix two sRGB colours in linear light so the mid-tones stay even. */
-function mixColor(from: string, to: string, t: number): string {
-  const start = hexToRgb(from);
-  const end = hexToRgb(to);
-  const channels = start.map((channel, index) =>
-    gammaChannel(
-      linearChannel(channel) * (1 - t) + linearChannel(end[index]) * t,
-    ),
-  );
-  return `#${channels
-    .map((channel) => channel.toString(16).padStart(2, "0"))
-    .join("")}`;
-}
-
-type ColorStops = { min: string; mid: string; max: string };
-
-const PERFORMANCE_STOPS: ColorStops = {
-  min: STAT_STOPS.red,
-  mid: STAT_STOPS.yellow,
-  max: STAT_STOPS.green,
-};
-
-const WIN_STOPS: ColorStops = {
-  min: WHITE,
-  mid: mixColor(WHITE, STAT_STOPS.green, 0.5),
-  max: STAT_STOPS.green,
-};
-
-const LOSS_STOPS: ColorStops = {
-  min: WHITE,
-  mid: mixColor(WHITE, STAT_STOPS.red, 0.5),
-  max: STAT_STOPS.red,
-};
-
-const APPEARANCE_STOPS: ColorStops = {
-  min: WHITE,
-  mid: mixColor(WHITE, "#00b7ee", 0.5),
-  max: "#00b7ee",
-};
-
-const GRAY_STOPS: ColorStops = {
-  min: WHITE,
-  mid: mixColor(WHITE, "#aaaaaa", 0.5),
-  max: "#aaaaaa",
-};
-
-/** The podium metals, matching the trophy marks used on player profiles. */
-const TROPHY_STOPS = {
-  champion: {
-    min: WHITE,
-    mid: mixColor(WHITE, "#f3c33f", 0.5),
-    max: "#f3c33f",
-  },
-  runnerUp: {
-    min: WHITE,
-    mid: mixColor(WHITE, "#c8d2dc", 0.5),
-    max: "#c8d2dc",
-  },
-  third: {
-    min: WHITE,
-    mid: mixColor(WHITE, "#c9834a", 0.5),
-    max: "#c9834a",
-  },
-} satisfies Record<"champion" | "runnerUp" | "third", ColorStops>;
 
 /** Ten-step colour anchors for every stat box. */
 const STAT_COLOR_STOPS: Record<StatKey, ColorStops> = {
@@ -113,23 +34,23 @@ const STAT_COLOR_STOPS: Record<StatKey, ColorStops> = {
   participation: PERFORMANCE_STOPS,
   nm: GRAY_STOPS,
   mod: {
-    min: WHITE,
-    mid: mixColor(WHITE, modColors.FM.bg, 0.5),
+    min: "#ffffff",
+    mid: mixColor("#ffffff", modColors.FM.bg, 0.5),
     max: modColors.FM.bg,
   },
   hd: {
-    min: WHITE,
-    mid: mixColor(WHITE, modColors.HD.bg, 0.5),
+    min: "#ffffff",
+    mid: mixColor("#ffffff", modColors.HD.bg, 0.5),
     max: modColors.HD.bg,
   },
   hr: {
-    min: WHITE,
-    mid: mixColor(WHITE, modColors.HR.bg, 0.5),
+    min: "#ffffff",
+    mid: mixColor("#ffffff", modColors.HR.bg, 0.5),
     max: modColors.HR.bg,
   },
   dt: {
-    min: WHITE,
-    mid: mixColor(WHITE, modColors.DT.bg, 0.5),
+    min: "#ffffff",
+    mid: mixColor("#ffffff", modColors.DT.bg, 0.5),
     max: modColors.DT.bg,
   },
   championships: TROPHY_STOPS.champion,
@@ -148,30 +69,6 @@ const STAT_COLOR_STOPS: Record<StatKey, ColorStops> = {
 
 const MRA_COLOR_STOPS = PERFORMANCE_STOPS;
 
-const BAND_COUNT = 10;
-const MID_BAND = 5;
-
-/**
- * Turn a 0-1 rank position into one of ten solid colour bands. The minimum,
- * middle and maximum values land on bands 1, 5 and 10; the lower band owns a
- * shared boundary.
- */
-function bandColor(stops: ColorStops, position: number): string {
-  const clamped = Math.min(Math.max(position, 0), 1);
-  const band = Math.max(
-    1,
-    Math.min(BAND_COUNT, Math.ceil(clamped * BAND_COUNT)),
-  );
-  if (band <= MID_BAND) {
-    return mixColor(stops.min, stops.mid, (band - 1) / (MID_BAND - 1));
-  }
-  return mixColor(
-    stops.mid,
-    stops.max,
-    (band - MID_BAND) / (BAND_COUNT - MID_BAND),
-  );
-}
-
 function statColor(
   key: StatKey,
   value: number | null,
@@ -180,27 +77,6 @@ function statColor(
   if (value === null || !Number.isFinite(value)) return "#aaaaaa";
   if (position === null || !Number.isFinite(position)) return "#aaaaaa";
   return bandColor(STAT_COLOR_STOPS[key], position);
-}
-
-/** Split a number into the large integer part and the smaller fraction. */
-function formatStat(value: number | null, digits: number, suffix = "") {
-  if (value === null || !Number.isFinite(value)) {
-    return { text: "—", integer: "—", fraction: "" };
-  }
-  const [integer, fraction = ""] = value.toFixed(digits).split(".");
-  if (digits === 0) {
-    const text = `${integer}${suffix}`;
-    return { text, integer: text, fraction: "" };
-  }
-  const trimmed = fraction.replace(/0+$/, "");
-  if (!trimmed) {
-    return { text: `${integer}${suffix}`, integer, fraction: suffix };
-  }
-  return {
-    text: `${integer}.${trimmed}${suffix}`,
-    integer,
-    fraction: `.${trimmed}${suffix}`,
-  };
 }
 
 export type PlayerRankStats = {
