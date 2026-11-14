@@ -5,6 +5,13 @@ export function beatmapCoverUrl(setId: number | null | undefined) {
     : null;
 }
 
+/** Square list artwork used for compact rows and card thumbnails. */
+export function beatmapListCoverUrl(setId: number | null | undefined) {
+  return Number.isSafeInteger(setId) && setId! > 0
+    ? `https://assets.ppy.sh/beatmaps/${setId}/covers/list@2x.jpg`
+    : null;
+}
+
 /** A reviewed background alternative affects artwork only, never map identity. */
 export function beatmapCoverSources({
   setId,

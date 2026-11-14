@@ -1,6 +1,7 @@
 "use client";
 
 import { useAppTranslations } from "@/i18n/shared";
+import { mappoolDisplayName } from "@/lib/mappool-label";
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
@@ -113,7 +114,12 @@ function MapDetails({
         {entry.source && (
           <p className="muted small">
             {tr("Historical source")}: {entry.source.editionName} ·{" "}
-            {entry.source.poolName} · {entry.source.slot}
+            {mappoolDisplayName(
+              tr,
+              entry.source.poolName,
+              entry.source.poolId,
+            )}{" "}
+            · {entry.source.slot}
           </p>
         )}
         {entry.category === "FM" && (

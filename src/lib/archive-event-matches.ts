@@ -14,6 +14,7 @@ export function archiveEventMatches(
   href: (section: string, id?: string) => string,
   timeZone: string,
   locale: string,
+  poolName: (name: string, id?: string) => string = (name) => name,
 ): EventMatch[] {
   return matches.map((m) => {
     const pool = archiveMatchPool(archive, m);
@@ -22,7 +23,7 @@ export function archiveEventMatches(
       label: m.label,
       round: m.stage,
       stage: m.stage,
-      pool: pool?.name ?? "—",
+      pool: pool ? poolName(pool.name, pool.id) : "—",
       poolHref: pool ? href("mappools", pool.id) : undefined,
       time: m.scheduledAt ? formatDate(m.scheduledAt, timeZone, locale) : "—",
       ...((m.roomOpenedAt ?? m.review?.startedAt)

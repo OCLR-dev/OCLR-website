@@ -10,11 +10,15 @@ import styles from "./ranking-context.module.css";
 export function RankingContext({
   current = "performance",
 }: {
-  current?: "performance" | "career";
+  current?: "performance" | "career" | "beatmap";
 }) {
   const tr = useAppTranslations();
-  const career = current === "career";
-  const currentLabel = career ? tr("Career") : tr("Performance");
+  const currentLabel =
+    current === "career"
+      ? tr("Career")
+      : current === "beatmap"
+        ? tr("Beatmaps")
+        : tr("Performance");
   const context = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const bar = context.current;
@@ -48,26 +52,32 @@ export function RankingContext({
         </Link>
         <span aria-hidden="true">/</span>
         <Link
-          href={career ? "/ranking/career" : "/ranking/performance"}
+          href={`/ranking/${current}`}
           className="context-link"
           aria-current="page"
         >
           {currentLabel}
         </Link>
       </div>
-      <nav className={styles.tabs} aria-label={tr("Player leaderboard")}>
+      <nav className={styles.tabs} aria-label={tr("Ranking")}>
         <Link
           href="/ranking/performance"
-          aria-current={career ? undefined : "page"}
+          aria-current={current === "performance" ? "page" : undefined}
         >
           {tr("Performance")}
         </Link>
-        <Link href="/ranking/career" aria-current={career ? "page" : undefined}>
+        <Link
+          href="/ranking/career"
+          aria-current={current === "career" ? "page" : undefined}
+        >
           {tr("Career")}
         </Link>
-        <button type="button" disabled title={tr("Coming soon")}>
+        <Link
+          href="/ranking/beatmap"
+          aria-current={current === "beatmap" ? "page" : undefined}
+        >
           {tr("Beatmaps")}
-        </button>
+        </Link>
       </nav>
     </div>
   );
