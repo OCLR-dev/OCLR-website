@@ -16,6 +16,8 @@ export type BeatmapLeaderboardRow = {
   /** osu! beatmapset ID used for cover and list artwork. */
   beatmapSetId: number | null;
   title: string;
+  /** Parsed difficulty name, or null when the title carries none. */
+  difficulty: string | null;
   /** Display label such as `HD2`; a lone tiebreaker map stays `TB`. */
   slot: string;
   /** Season of the edition whose pool owns `slot`. */
