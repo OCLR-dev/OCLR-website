@@ -4072,6 +4072,8 @@
     "m02e9d1d76834": "Elimination Stage {round}",
     "m6c858e17ef8e": "osu! beatmap",
     "m5959ce9bede1": "Original MP and game details",
-    "m33b93476cf59": "Time"
+    "m33b93476cf59": "Time",
+    "m75ac15d7ba9b": "This console address is not allowed by the website configuration. Ask the website administrator to allow it, or choose an allowed address in your console.",
+    "m210c9555feb6": "Enter the console address including its port, without a path or trailing slash. If the protocol or port changes, create new access. localhost and 127.0.0.1 share access on the same protocol and port."
   }
 }

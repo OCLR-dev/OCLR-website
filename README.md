@@ -13,6 +13,7 @@ One Next.js App Router application built with TypeScript, React, Tailwind CSS, n
 - Mappool editing and official beatmap metadata, private Pooler/Tester candidate selection and comments, plus private staff Replay attachments without a selection-lock or Showcase timing prerequisite.
 - Fixtures, multiplayer imports, automatic provisional referee scores from a bound MP link, reviewed and approved results, brackets, standings, statistics and weekly player awards.
 - Tournament archives, news, accepted-player directories, osu! profile snapshots and community information pages.
+- Streaming authorization supports custom local console ports; explicit server origin restrictions remain enforced. See [Streaming API setup](docs/streaming-api.md#custom-console-ports-1093).
 - Simplified Chinese (default), Traditional Chinese and English; independent light/dark and default, cute-pastel or swiss-minimal appearance choices.
 
 Permissions and publication are enforced on the server. Drafts, private registration answers and Replay files do not become public merely because an edition or mappool is published. See the guides below for each workflow's release rules.

@@ -14,7 +14,11 @@ import { appUrl } from "./app-url";
 import { editionSchema } from "./editions";
 import { DeveloperApiError, developerApiLimiter } from "./developer-api";
 import { developerTokenMisses } from "./developer-token-misses";
-import { isDeveloperOrigin } from "./developer-api-model";
+import {
+  isStreamingOrigin,
+  sameStreamingOrigin,
+  streamingOriginAllowed,
+} from "./streaming-origin-model";
 import {
   streamingApiScopes,
   streamingTokenPrefix,
@@ -181,7 +185,7 @@ export async function createStreamingToken(
       "INVALID_REQUEST",
       "Choose a valid local origin and read scopes.",
     );
-  if (!streamingOrigins().includes(parsed.data.origin))
+  if (!streamingOriginAllowed(parsed.data.origin, streamingOrigins()))
     throw new DeveloperApiError(
       403,
       "ORIGIN_NOT_ALLOWED",
@@ -365,7 +369,7 @@ export async function authenticateStreamingRead(
         );
       await assertStreamer(row.access.userId, editionSlug, tx);
       const origin = request.headers.get("origin");
-      if (origin !== null && origin !== row.access.origin)
+      if (origin !== null && !sameStreamingOrigin(origin, row.access.origin))
         throw new DeveloperApiError(
           403,
           "ORIGIN_NOT_ALLOWED",
@@ -395,17 +399,15 @@ export async function authenticateStreamingRead(
 }
 
 export function streamingOrigins() {
-  const origins = (
-    process.env.OCLR_STREAMING_ORIGINS ??
-    "http://127.0.0.1:3001,http://localhost:3001"
-  )
-    .split(",")
+  // Explicit lists retain scheme/port restrictions, with localhost/127.0.0.1 aliases.
+  if (process.env.OCLR_STREAMING_ORIGINS === undefined) return null;
+  const origins = process.env.OCLR_STREAMING_ORIGINS.split(",")
     .map((v) => v.trim())
     .filter(Boolean);
   if (
     !origins.length ||
     origins.length > 20 ||
-    origins.some((v) => !isDeveloperOrigin(v))
+    origins.some((v) => !isStreamingOrigin(v))
   )
     throw new DeveloperApiError(
       503,

@@ -7,6 +7,7 @@ import { streamingReturnPath } from "@/lib/streaming-connect-model";
 import { StreamingConnect } from "@/components/streaming-connect";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
+import { streamingOriginAllowed } from "@/lib/streaming-origin-model";
 export const metadata = { robots: { index: false, follow: false } };
 export default async function Page({
   params,
@@ -25,10 +26,26 @@ export default async function Page({
       origin: typeof query.origin === "string" ? query.origin : "",
       state: typeof query.state === "string" ? query.state : "",
     })}`,
-    streamingOrigins(),
+    null,
   );
   if (!path) notFound();
   const tr = await getAppTranslations();
+  if (!streamingOriginAllowed(query.origin as string, streamingOrigins())) {
+    return (
+      <div className="container page auth-page">
+        <PageHeading title={tr("Connect OCLR Overlay")} />
+        <section className="panel form-stack">
+          <p role="alert">
+            {tr(
+              "This console address is not allowed by the website configuration. Ask the website administrator to allow it, or choose an allowed address in your console.",
+            )}
+          </p>
+          <code>{query.origin}</code>
+          <a href={`/streaming/${edition}`}>{tr("Streaming API access")}</a>
+        </section>
+      </div>
+    );
+  }
   let session;
   try {
     session = await requireBrowserSession();

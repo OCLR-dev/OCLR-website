@@ -38,39 +38,47 @@ afterEach(() => {
   fake.consumed = null;
 });
 describe("streaming OAuth return (mocked identity and DB transport)", () => {
-  it("binds the exact local connection to OAuth state, returns after login and clears cookies", async () => {
-    vi.stubEnv("APP_URL", "https://oclr.example.test");
-    const path = `/streaming/s11/connect?${new URLSearchParams({ origin: "http://localhost:3001", state: "x".repeat(43) })}`;
-    const begun = await start(
-      new Request(
-        `https://oclr.example.test/auth/osu?streaming_return=${encodeURIComponent(path)}`,
-      ),
-    );
-    const state = new URL(begun.headers.get("location")!).searchParams.get(
-      "state",
-    )!;
-    const context = begun.cookies.get("__Host-oclr_oauth_streaming")!.value;
-    expect(context).toBeTruthy();
-    expect(begun.headers.get("set-cookie")).toContain("HttpOnly");
-    fake.consumed = { stateHash: hashToken(state), desktopRequestId: null };
-    const result = await callback(
-      new NextRequest(
-        `https://oclr.example.test/auth/osu/callback?state=${state}&code=synthetic`,
-        {
-          headers: {
-            cookie: `__Host-oclr_oauth=${state}; __Host-oclr_oauth_streaming=${context}`,
+  it.each([
+    "http://localhost:3001",
+    "http://127.0.0.1:3011",
+    "http://[::1]:43123",
+  ])(
+    "binds %s to OAuth state, returns after login and clears cookies",
+    async (origin) => {
+      vi.stubEnv("APP_URL", "https://oclr.example.test");
+      vi.stubEnv("OCLR_STREAMING_ORIGINS", undefined);
+      const path = `/streaming/s11/connect?${new URLSearchParams({ origin, state: "x".repeat(43) })}`;
+      const begun = await start(
+        new Request(
+          `https://oclr.example.test/auth/osu?streaming_return=${encodeURIComponent(path)}`,
+        ),
+      );
+      const state = new URL(begun.headers.get("location")!).searchParams.get(
+        "state",
+      )!;
+      const context = begun.cookies.get("__Host-oclr_oauth_streaming")!.value;
+      expect(context).toBeTruthy();
+      expect(begun.headers.get("set-cookie")).toContain("HttpOnly");
+      fake.consumed = { stateHash: hashToken(state), desktopRequestId: null };
+      const result = await callback(
+        new NextRequest(
+          `https://oclr.example.test/auth/osu/callback?state=${state}&code=synthetic`,
+          {
+            headers: {
+              cookie: `__Host-oclr_oauth=${state}; __Host-oclr_oauth_streaming=${context}`,
+            },
           },
-        },
-      ),
-    );
-    expect(result.headers.get("location")).toBe(
-      `https://oclr.example.test${path}`,
-    );
-    expect(result.cookies.get("__Host-oclr_oauth_streaming")?.value).toBe("");
-    expect(result.cookies.get("__Host-oclr_session")?.value).toBe(
-      "synthetic-session",
-    );
-  });
+        ),
+      );
+      expect(result.headers.get("location")).toBe(
+        `https://oclr.example.test${path}`,
+      );
+      expect(result.cookies.get("__Host-oclr_oauth_streaming")?.value).toBe("");
+      expect(result.cookies.get("__Host-oclr_session")?.value).toBe(
+        "synthetic-session",
+      );
+    },
+  );
   it("does not accept an external return target and leaves legacy login intact", async () => {
     vi.stubEnv("APP_URL", "https://oclr.example.test");
     const begun = await start(

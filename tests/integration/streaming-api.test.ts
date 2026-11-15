@@ -100,6 +100,7 @@ describe.skipIf(!url)("streaming read channel #540", () => {
     vi.stubEnv("APP_URL", backend);
   });
   beforeEach(async () => {
+    vi.stubEnv("OCLR_STREAMING_ORIGINS", undefined);
     ownerId++;
     await db().execute(sql`TRUNCATE edition_state, users CASCADE`);
     await seedEditions([edition, { ...edition, slug: "other-test" }]);
@@ -168,6 +169,52 @@ describe.skipIf(!url)("streaming read channel #540", () => {
   afterAll(async () => {
     await closeDb();
     vi.unstubAllEnvs();
+  });
+  it("issues custom-port access with localhost aliases while retaining scheme/port restrictions", async () => {
+    const localOrigin = "http://127.0.0.1:3011";
+    const issued = await createStreamingToken(subject!, {
+      editionSlug: slug,
+      origin: localOrigin,
+    });
+    expect(issued.access.origin).toBe(localOrigin);
+    expect(
+      (await read(request("GET", "", issued.token, localOrigin))).status,
+    ).toBe(200);
+    expect((await read(request("GET", "", issued.token, origin))).status).toBe(
+      403,
+    );
+    expect(
+      (await read(request("GET", "", issued.token, "http://localhost:3011")))
+        .status,
+    ).toBe(200);
+    expect(
+      (await read(request("GET", "", issued.token, "https://localhost:3011")))
+        .status,
+    ).toBe(403);
+    vi.stubEnv("OCLR_STREAMING_ORIGINS", "http://localhost:3011");
+    expect(
+      (await read(request("GET", "", issued.token, localOrigin))).status,
+    ).toBe(200);
+    const alias = await createStreamingToken(subject!, {
+      editionSlug: slug,
+      origin: "http://localhost:3011",
+    });
+    expect(
+      (await read(request("GET", "", alias.token, localOrigin))).status,
+    ).toBe(200);
+    expect((await read(request("GET", "", issued.token, null))).status).toBe(
+      200,
+    );
+    vi.stubEnv("OCLR_STREAMING_ORIGINS", origin);
+    expect(
+      (await read(request("GET", "", issued.token, localOrigin))).status,
+    ).toBe(403);
+    await expect(
+      createStreamingToken(subject!, {
+        editionSlug: slug,
+        origin: localOrigin,
+      }),
+    ).rejects.toMatchObject({ code: "ORIGIN_NOT_ALLOWED" });
   });
   it("lists only live Streamer editions and never infers API access from Admin or Developer", async () => {
     await seedEditions([

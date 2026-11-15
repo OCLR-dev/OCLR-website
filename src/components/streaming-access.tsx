@@ -7,6 +7,10 @@ import { LoadingRegion } from "./loading-region";
 import { useState, type FormEvent } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import {
+  streamingOriginAllowed,
+  type StreamingOrigins,
+} from "@/lib/streaming-origin-model";
+import {
   type StreamingApiScope,
   type StreamingTokenMetadata,
 } from "@/lib/streaming-api-model";
@@ -20,15 +24,19 @@ export function StreamingAccess({
   editionSlug,
   backend,
   origins,
+  initialOrigin,
   initialTokens,
 }: {
   editionSlug: string;
   backend: string;
-  origins: string[];
+  origins: StreamingOrigins;
+  initialOrigin?: string;
   initialTokens: StreamingTokenMetadata[];
 }) {
   const tr = useAppTranslations();
-  const [origin, setOrigin] = useState(origins[0] ?? "");
+  const [origin, setOrigin] = useState(
+    initialOrigin ?? origins?.[0] ?? "http://127.0.0.1:3001",
+  );
   const [tokens, setTokens] = useState(initialTokens);
   const [issued, setIssued] = useState<{ id: string; token: string } | null>(
     null,
@@ -48,7 +56,7 @@ export function StreamingAccess({
     }).format(new Date(value));
   async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
+    if (pending || !streamingOriginAllowed(origin, origins)) return;
     setActiveAction("create");
     setPending(true);
     setError("");
@@ -135,19 +143,56 @@ export function StreamingAccess({
         <form className="form-stack" onSubmit={create}>
           <label className="field">
             {tr("Local origin")}
-            <select
-              value={origin}
-              onChange={(event) => setOrigin(event.target.value)}
-              disabled={pending}
-              required
-            >
-              {origins.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
+            {origins === null ? (
+              <input
+                type="url"
+                value={origin}
+                onChange={(event) => {
+                  setOrigin(event.target.value);
+                  setIssued(null);
+                }}
+                disabled={pending}
+                required
+                maxLength={200}
+                autoComplete="off"
+                spellCheck={false}
+                aria-describedby="streaming-origin-help"
+              />
+            ) : (
+              <select
+                value={origin}
+                onChange={(event) => {
+                  setOrigin(event.target.value);
+                  setIssued(null);
+                }}
+                disabled={pending}
+                required
+              >
+                {[
+                  ...new Set([
+                    ...(streamingOriginAllowed(origin, origins)
+                      ? [origin]
+                      : []),
+                    ...origins,
+                  ]),
+                ].map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            )}
           </label>
+          <p className="muted" id="streaming-origin-help">
+            {tr(
+              "Enter the console address including its port, without a path or trailing slash. If the protocol or port changes, create new access. localhost and 127.0.0.1 share access on the same protocol and port.",
+            )}
+          </p>
+          {origin && !streamingOriginAllowed(origin, origins) && (
+            <p role="alert" className="notice error-text">
+              {tr("Choose a valid local origin and read scopes.")}
+            </p>
+          )}
           <p className="muted">
             {tr(
               "Only your next assigned fixture, its published mappool and stage are available.",
@@ -155,7 +200,7 @@ export function StreamingAccess({
           </p>
           <div className="actions">
             <button
-              disabled={pending || !origin}
+              disabled={pending || !streamingOriginAllowed(origin, origins)}
               aria-busy={pending && activeAction === "create"}
             >
               {tr("Create token")}

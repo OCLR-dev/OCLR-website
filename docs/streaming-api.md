@@ -97,10 +97,17 @@ no business record, provider cache or published result is modified by this API.
 
 The preferred client is the Overlay's Node service. It sends no browser cookies
 and keeps the token server-side. Server requests without Origin are authenticated
-normally. Direct browser reads additionally require an exact allowed loopback
-origin and `credentials: "omit"`. Configure `OCLR_STREAMING_ORIGINS` (comma-separated,
-up to 20); defaults are `http://127.0.0.1:3001,http://localhost:3001`. Origins must
-also match the credential's bound origin. No wildcard, reflected or null origins.
+normally. Direct browser reads additionally require an allowed loopback
+origin and `credentials: "omit"`. With `OCLR_STREAMING_ORIGINS` unset, any canonical
+HTTP/HTTPS loopback origin with a valid effective port (1–65535) is accepted:
+`localhost`, `127.0.0.1` and `[::1]`. Operators can restrict this using
+`OCLR_STREAMING_ORIGINS` (comma-separated, up to 20 origins). Explicitly empty
+or invalid lists fail closed. Both the allowlist and credential binding treat
+`localhost` and `127.0.0.1` as equivalent when protocol and effective port match.
+HTTP/HTTPS, different ports and IPv6 `[::1]` remain distinct. Existing credentials
+gain the localhost/IPv4 alias behavior without rewriting their stored origin.
+No wildcard or null origins, credentials, paths, trailing slashes, queries or fragments.
+Browser CORS returns only the validated request origin, never a wildcard.
 Upstream transport must be HTTPS outside explicit local test environments.
 
 ```js
@@ -149,7 +156,11 @@ available at `/streaming/{edition}` and as a fallback on the connect page.
 The Overlay update and this website update must both be installed before automatic
 connection works. This change does not deploy either application.
 
-Only an exact configured `OCLR_STREAMING_ORIGINS` entry is accepted. The connect
+The same loopback policy applies to connect, OAuth return, token creation and CORS.
+When an operator configures `OCLR_STREAMING_ORIGINS`, only entries matching that
+policy are accepted, including the localhost/IPv4 alias equivalence.
+Valid local console addresses denied by that policy show an explanation and next
+step on the connect page; malformed connection requests still return not found. The connect
 page and Overlay exchange messages with exact origins and window references; the
 Overlay also consumes its own one-time, ten-minute state. Credentials travel in
 message/JSON bodies, never URLs, browser storage or logs. After the console
@@ -163,6 +174,42 @@ HttpOnly cookie bound to the consumed OAuth state hash. Callback handling
 revalidates the origin configuration and clears the cookie on success or failure.
 Ordinary login and desktop authorization retain their existing destinations.
 No database migration, new role, scope or business write is introduced.
+
+### Custom console ports (#1093)
+
+The website accepts custom console ports without changing server configuration
+when `OCLR_STREAMING_ORIGINS` is unset. The manual access page accepts the full
+console origin (for example `http://127.0.0.1:3011`), and the connect page's manual
+fallback link carries that origin forward. The credential remains bound to the
+selected protocol and port; switching between `localhost` and `127.0.0.1` on that
+same protocol/port does not require a new credential. Changing protocol or port
+does require new access. Browser `postMessage` targets and source/window checks
+still use the initiating console's actual origin, because browser origins remain
+distinct even when the server's authorization policy considers them equivalent.
+
+Existing installations that explicitly set the old 3001-only list retain that
+restriction. To enable arbitrary valid local ports, the website operator must
+remove `OCLR_STREAMING_ORIGINS` from the deployed environment and restart through
+the normal deployment workflow; alternatively add the intended origins to
+the existing list. The application never silently discards an explicit restriction.
+Existing credentials, expiry/revocation and edition-scoped Streamer grants are unchanged.
+
+For the documented Rocky installation, edit `/etc/oclr/runtime.env`. Remove the
+entire assignment to allow custom local ports, or keep an explicit list such as:
+
+```dotenv
+OCLR_STREAMING_ORIGINS=http://localhost:3001,http://localhost:3011
+```
+
+Each entry also allows `127.0.0.1` on the same protocol and port. Do not replace
+the assignment with an empty value. Deploy this website change
+and restart the service through the normal operator workflow. Editing the
+repository's `.env.example` alone does not update an existing installation.
+
+This website change does not implement the Overlay launcher port setting tracked
+in [OCLR-stream-overlay #36](https://github.com/OCLR-dev/OCLR-stream-overlay/issues/36).
+Website-only synthetic verification and outstanding real integration checks are
+recorded in [#1093 verification](verification/issue-1093/README.md).
 
 The Overlay reads a page of up to five assignments by following `afterFixtureId`
 serially, refreshing every 15 seconds. Its task picker changes the preview only;

@@ -1,7 +1,10 @@
-import { isDeveloperOrigin } from "./developer-api-model";
+import {
+  streamingOriginAllowed,
+  type StreamingOrigins,
+} from "./streaming-origin-model";
 
 /** Only this same-site path can survive OAuth; no generic return URL. */
-export function streamingReturnPath(value: unknown, origins: string[]) {
+export function streamingReturnPath(value: unknown, origins: StreamingOrigins) {
   if (typeof value !== "string" || value.length > 1000) return null;
   try {
     const url = new URL(value, "https://oclr.invalid");
@@ -15,8 +18,7 @@ export function streamingReturnPath(value: unknown, origins: string[]) {
     const state = url.searchParams.get("state");
     if (
       !origin ||
-      !isDeveloperOrigin(origin) ||
-      !origins.includes(origin) ||
+      !streamingOriginAllowed(origin, origins) ||
       !state ||
       !/^[A-Za-z0-9_-]{43}$/.test(state) ||
       [...url.searchParams.keys()].length !== 2
@@ -31,7 +33,7 @@ export function streamingReturnPath(value: unknown, origins: string[]) {
 export function streamingOAuthReturn(
   value: string | undefined,
   stateHash: string,
-  origins: string[],
+  origins: StreamingOrigins,
 ) {
   try {
     const context = JSON.parse(

@@ -134,7 +134,9 @@ export function StreamingConnect({
           </label>
         </details>
       )}
-      <a href={`/streaming/${edition}`}>{tr("Streaming API access")}</a>
+      <a href={`/streaming/${edition}?${new URLSearchParams({ origin })}`}>
+        {tr("Streaming API access")}
+      </a>
     </section>
   );
 }

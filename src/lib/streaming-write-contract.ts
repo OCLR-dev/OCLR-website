@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isDeveloperOrigin } from "./developer-api-model";
+import { isStreamingOrigin } from "./streaming-origin-model";
 import { editionSlugSchema } from "./editions";
 import {
   streamingTokenMetadataSchema,
@@ -31,12 +31,12 @@ export const createStreamingAccessWrite = {
   request: z
     .object({
       editionSlug: editionSlugSchema,
-      origin: z.string().max(200).refine(isDeveloperOrigin),
+      origin: z.string().max(200).refine(isStreamingOrigin),
     })
     .strict(),
   summary: "Create edition-scoped, read-only streaming access",
   description:
-    "Requires a current Streamer grant for the selected edition. The request body origin must be a configured canonical HTTP or HTTPS loopback origin. The issued credential has only streaming:read scope and its lease is bounded by the browser session. Each successful call creates a new token. After an uncertain response, refresh the token list before retrying.",
+    "Requires a current Streamer grant for the selected edition. The request body origin must be a canonical HTTP or HTTPS loopback origin with a valid port, allowed by any explicitly configured streaming origin list. Origin policy and credential binding treat localhost and 127.0.0.1 as equivalent with the same scheme and port; other hosts, schemes and ports remain distinct. The credential has only streaming:read scope and its lease is bounded by the browser session. Each successful call creates a new token. After an uncertain response, refresh the token list before retrying.",
   successStatus: 201,
   successDescription:
     "The token is shown only on creation. The response is never cached.",

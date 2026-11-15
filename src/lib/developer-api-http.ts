@@ -19,6 +19,10 @@ import type { ReadPayload } from "./read-api-contract";
 import { withReadChannel } from "./read-channel";
 import type { ReadMedia } from "./read-media";
 import { mediaDisposition } from "./read-media";
+import {
+  streamingOriginAllowed,
+  type StreamingOrigins,
+} from "./streaming-origin-model";
 
 // Anonymous traffic has an independent budget and cannot consume token quotas.
 const anonymousLimiter = new DeveloperApiLimiter(
@@ -76,7 +80,7 @@ function failure(error: unknown, id: string, headers: Headers, head: boolean) {
 }
 export type ReadResponseOptions<T, P = DeveloperReadPrincipal> = {
   onSuccess?: () => Promise<void>;
-  origins?: () => string[];
+  origins?: () => StreamingOrigins;
   authenticate?: (request: Request) => Promise<P>;
   anonymous?: boolean;
   query?: readonly string[];
@@ -105,13 +109,13 @@ export async function readDataResponse<T, P = DeveloperReadPrincipal>(
   });
   try {
     const origin = request.headers.get("origin");
-    // Streaming supplies its own exact-origin policy; Developer port rules do not apply there.
-    const origins = options.origins?.();
-    const ports = origins ? null : developerPorts();
+    // Streaming retains scheme/port binding; Developer port rules do not apply there.
+    const origins = options.origins ? options.origins() : undefined;
+    const ports = origins === undefined ? developerPorts() : null;
     const allowedOrigin =
       origin !== null &&
-      (origins
-        ? origins.includes(origin)
+      (origins !== undefined
+        ? streamingOriginAllowed(origin, origins)
         : developerOriginAllowed(origin, ports));
     headers = responseHeaders(request, id, allowedOrigin);
     appUrl();
