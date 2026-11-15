@@ -1,5 +1,5 @@
 import { remoteMode } from "./data-source";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, readOnlyData } from "@/db";
@@ -191,6 +191,7 @@ export async function reconcileRefereeAttempt(
       "Choose a saved MP game and the current reconciliation revision.",
     );
   const command = parsed.data;
+  const changes = "links" in command ? command.links : [command];
   if (!z.uuid().safeParse(fixtureId).success)
     throw new HttpError(404, "Fixture not found.");
   const payloadHash = createHash("sha256")
@@ -241,99 +242,109 @@ export async function reconcileRefereeAttempt(
         409,
         "Fixture dependencies changed. Withdraw affected steps and recheck the saved configuration.",
       );
-    const selection = workspace.projection.activeSelections.find((s) =>
-      s.attempts.some((a) => a.id === command.attemptId),
+    const attempts = new Map(
+      workspace.projection.activeSelections.flatMap((selection) =>
+        selection.attempts.map(
+          (attempt) => [attempt.id, selection.beatmapId] as const,
+        ),
+      ),
     );
-    if (!selection)
-      throw new HttpError(
-        409,
-        "This attempt is no longer active. Refresh the referee record.",
-      );
-    if (command.importId !== null) {
-      const sources = await sourcesFor(tx, actor, slug, fixtureId);
+    const sources = changes.some((change) => change.importId !== null)
+      ? await sourcesFor(tx, actor, slug, fixtureId)
+      : [];
+    const oldLinks = new Map(saved.links.map((link) => [link.attemptId, link]));
+    const changedAttempts = new Set(changes.map((change) => change.attemptId));
+    // Check the final assignment so a batch can move or swap links atomically.
+    const occupied = new Set(
+      saved.links.flatMap((link) =>
+        link.gameId !== null &&
+        link.importId !== null &&
+        attempts.has(link.attemptId) &&
+        !changedAttempts.has(link.attemptId)
+          ? [link.gameId]
+          : [],
+      ),
+    );
+    for (const change of changes) {
+      const beatmapId = attempts.get(change.attemptId);
+      if (beatmapId === undefined)
+        throw new HttpError(
+          409,
+          "This attempt is no longer active. Refresh the referee record.",
+        );
+      if (change.gameId === null) continue;
       const source = sources.find(
         (s) =>
-          s.importId === command.importId &&
+          s.importId === change.importId &&
           s.current &&
-          s.fingerprint === command.sourceFingerprint,
+          s.fingerprint === change.sourceFingerprint,
       );
-      const game = source?.games.find((g) => g.id === command.gameId);
-      if (!source || !game)
+      const game = source?.games.find((g) => g.id === change.gameId);
+      if (!game)
         throw new HttpError(
           409,
           "The MP source changed. Refresh and choose a current saved game.",
         );
-      if (game.beatmapId !== selection.beatmapId)
+      if (game.beatmapId !== beatmapId)
         throw new HttpError(
           400,
           "The selected MP game uses a different beatmap.",
         );
-      const activeIds = new Set(
-        workspace.projection.activeSelections.flatMap((s) =>
-          s.attempts.map((a) => a.id),
-        ),
-      );
-      if (
-        saved.links.some(
-          (l) =>
-            l.attemptId !== command.attemptId &&
-            activeIds.has(l.attemptId) &&
-            l.gameId === command.gameId &&
-            l.importId !== null,
-        )
-      )
+      if (occupied.has(game.id))
         throw new HttpError(
           409,
           "This MP game is already linked to another active attempt.",
         );
+      occupied.add(game.id);
     }
-    const [record] = await tx
-      .insert(refereeReconciliations)
-      .values({
-        fixtureId,
-        actorId: actor.osuId,
-        requestKey: command.requestKey,
-        payloadHash,
-        revision: saved.revision + 1,
-        sessionRevision: command.expectedSessionRevision,
-        dependencyFingerprint: command.dependencyFingerprint,
-        attemptId: command.attemptId,
-        importId: command.importId,
-        sourceFingerprint: command.sourceFingerprint,
-        gameId: command.gameId,
-      })
-      .returning({
-        id: refereeReconciliations.id,
-        revision: refereeReconciliations.revision,
-      });
-    const oldLink = saved.links.find(
-      (link) => link.attemptId === command.attemptId,
-    );
-    await tx.insert(resultAuditEvents).values({
+    const records = changes.map((change, index) => ({
+      id: randomUUID(),
       fixtureId,
       actorId: actor.osuId,
-      action: "referee_reconcile",
-      detail: {
-        entity: { type: "referee_attempt", id: command.attemptId },
-        before: oldLink
-          ? {
-              reconciliationId: oldLink.id,
-              importId: oldLink.importId,
-              gameId: oldLink.gameId,
-              sessionRevision: oldLink.sessionRevision,
-            }
-          : null,
-        after: {
-          reconciliationId: record.id,
-          importId: command.importId,
-          gameId: command.gameId,
-          sessionRevision: command.expectedSessionRevision,
-          dependencyFingerprint: command.dependencyFingerprint,
-          sourceFingerprint: command.sourceFingerprint,
-        },
-      },
-    });
-    return record;
+      // Keep the public idempotency key on the row returned as the receipt.
+      requestKey:
+        index === changes.length - 1 ? command.requestKey : randomUUID(),
+      payloadHash,
+      revision: saved.revision + index + 1,
+      sessionRevision: command.expectedSessionRevision,
+      dependencyFingerprint: command.dependencyFingerprint,
+      attemptId: change.attemptId,
+      importId: change.importId,
+      sourceFingerprint: change.sourceFingerprint,
+      gameId: change.gameId,
+    }));
+    await tx.insert(refereeReconciliations).values(records);
+    await tx.insert(resultAuditEvents).values(
+      records.map((record) => {
+        const oldLink = oldLinks.get(record.attemptId);
+        return {
+          fixtureId,
+          actorId: actor.osuId,
+          action: "referee_reconcile",
+          detail: {
+            entity: { type: "referee_attempt", id: record.attemptId },
+            before: oldLink
+              ? {
+                  reconciliationId: oldLink.id,
+                  importId: oldLink.importId,
+                  gameId: oldLink.gameId,
+                  sessionRevision: oldLink.sessionRevision,
+                }
+              : null,
+            after: {
+              reconciliationId: record.id,
+              importId: record.importId,
+              gameId: record.gameId,
+              sessionRevision: record.sessionRevision,
+              dependencyFingerprint: record.dependencyFingerprint,
+              sourceFingerprint: record.sourceFingerprint,
+            },
+          },
+        };
+      }),
+    );
+    const last = records[records.length - 1];
+    return { id: last.id, revision: last.revision };
   });
   return {
     receipt,

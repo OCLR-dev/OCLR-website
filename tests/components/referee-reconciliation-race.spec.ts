@@ -207,3 +207,73 @@ test("current refresh errors remain visible and an unknown save retries the same
   expect(writes[1]).toEqual(writes[0]);
   await expect(page.getByRole("combobox")).toBeEnabled();
 });
+
+test("saves a selection in one request and restores saved games after reload", async ({
+  page,
+}) => {
+  const secondAttempt = "00000000-0000-4000-8000-000000000005";
+  const first = workspace();
+  first.rows.push({
+    ...first.rows[0],
+    attemptId: secondAttempt,
+    beatmapId: 1002,
+  });
+  first.sources[0].games.push({
+    ...first.sources[0].games[0],
+    id: 568,
+    beatmapId: 1002,
+  });
+  const saved = workspace(2);
+  saved.rows.push({
+    ...first.rows[1],
+    status: "stale",
+    link: {
+      ...saved.rows[0].link!,
+      attemptId: secondAttempt,
+      gameId: 568,
+      sessionRevision: 0,
+    },
+    sourceWinnerTeamId: "home",
+  });
+  saved.sources = first.sources;
+  const writes: Record<string, unknown>[] = [];
+  await page.route(endpoint, async (route) => {
+    if (route.request().method() === "POST") {
+      writes.push(route.request().postDataJSON());
+      await route.fulfill({ json: { workspace: saved } });
+    } else {
+      await route.fulfill({ json: writes.length ? saved : first });
+    }
+  });
+  await page.goto("/referee-reconciliation");
+  const games = page.getByRole("combobox");
+  await expect(games).toHaveCount(2);
+  await page.getByRole("button", { name: "Select unique matches" }).click();
+  await expect(page.getByRole("checkbox", { checked: true })).toHaveCount(2);
+  await page.getByRole("button", { name: "Clear selection" }).click();
+  await page.getByRole("button", { name: "Select all ready rows" }).click();
+  await page.getByRole("button", { name: "Save selected links" }).click();
+  await expect(
+    page.getByText("Recorded result matches this MP game"),
+  ).toBeVisible();
+  expect(writes).toEqual([
+    expect.objectContaining({
+      expectedRevision: 0,
+      links: [
+        expect.objectContaining({ attemptId, importId, gameId: 567 }),
+        expect.objectContaining({
+          attemptId: secondAttempt,
+          importId,
+          gameId: 568,
+        }),
+      ],
+    }),
+  ]);
+
+  await page.reload();
+  await expect(games.nth(0)).toHaveValue(`${importId}:567`);
+  await expect(games.nth(1)).toHaveValue(`${importId}:568`);
+  await expect(
+    page.getByText("Record or source changed; confirm the link again"),
+  ).toBeVisible();
+});

@@ -98,3 +98,76 @@ export function compareRefereeAttempts(
     }),
   );
 }
+
+export const noGameLink = "unlink";
+export const unavailableGameLink = "unavailable";
+
+type AttemptForLinking = {
+  attemptId: string;
+  beatmapId: number;
+  link: ReconciliationLink | null;
+  attemptStatus: string;
+  winnerTeamId: string | null;
+};
+
+export function reconciliationOptions<T extends AttemptForLinking>(
+  rows: T[],
+  sources: ReconciliationSource[],
+) {
+  const currentGames = sources
+    .filter((source) => source.current)
+    .flatMap((source) =>
+      source.games.map((game) => ({
+        ...game,
+        importId: source.importId,
+        fingerprint: source.fingerprint,
+        matchId: source.matchId,
+        complete: source.complete,
+        value: `${source.importId}:${game.id}`,
+      })),
+    );
+  const occupiedGameIds = new Set(rows.map((row) => row.link?.gameId));
+  return rows.map((row) => {
+    const games = currentGames.filter(
+      (game) => game.beatmapId === row.beatmapId,
+    );
+    const savedSource = sources.find(
+      (source) => source.importId === row.link?.importId,
+    );
+    const savedGame = games.find(
+      (game) =>
+        game.id === row.link?.gameId &&
+        (game.importId === row.link?.importId ||
+          game.matchId === savedSource?.matchId),
+    );
+    const pickedOnce =
+      rows.filter((attempt) => attempt.beatmapId === row.beatmapId).length ===
+      1;
+    const uniqueGame = games.length === 1 ? games[0] : null;
+    const agreesWithRecord =
+      uniqueGame &&
+      (row.attemptStatus === "tied"
+        ? uniqueGame.tied
+        : row.attemptStatus === "completed" &&
+          row.winnerTeamId !== null &&
+          !uniqueGame.tied &&
+          uniqueGame.winnerTeamId === row.winnerTeamId);
+    return {
+      ...row,
+      games,
+      savedValue: row.link?.importId
+        ? (savedGame?.value ?? unavailableGameLink)
+        : "",
+      suggestion:
+        !row.link?.importId &&
+        pickedOnce &&
+        uniqueGame?.ended &&
+        uniqueGame.complete &&
+        !uniqueGame.problems.length &&
+        agreesWithRecord &&
+        !occupiedGameIds.has(uniqueGame.id)
+          ? uniqueGame.value
+          : null,
+    };
+  });
+}

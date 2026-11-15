@@ -36,11 +36,15 @@ import {
   refereeReconciliation,
   reconcileRefereeAttempt,
 } from "../../src/lib/referee-reconciliation";
-import { POST as route } from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/reconciliation/route";
+import {
+  GET,
+  POST as route,
+} from "../../src/app/api/admin/tournaments/[edition]/matches/[fixtureId]/referee/reconciliation/route";
 import {
   reconcileRefereeAttemptWrite,
   refereeReconciliationReceipt,
 } from "../../src/lib/referee-write-contracts";
+import { matchSourceSchema } from "../../src/lib/match-model";
 import { extendedSchemas } from "../../src/lib/extended-read-resources";
 const origin = "https://oclr.example.test";
 vi.mock("../../src/lib/auth/user", async (original) => ({
@@ -279,6 +283,94 @@ describe.skipIf(!url)("saved referee MP reconciliation boundaries", () => {
     expect(await db().select().from(refereeReconciliations)).toHaveLength(1);
     const conflict = await post(fixtureId, { ...input, gameId: 999 });
     expect(conflict.status).toBe(409);
+  });
+  it("saves a batch atomically, replays one receipt, and returns both links on reload", async () => {
+    const pickId = w.projection.lastSelectionId!;
+    for (const action of ["resolve_attempt", "replay_attempt"] as const) {
+      w = (
+        await refereeCommand(actor, "test-cup", fixtureId, {
+          action,
+          pickId,
+          ...(action === "resolve_attempt"
+            ? { status: "aborted", winnerTeamId: null }
+            : {}),
+          requestKey: randomUUID(),
+          expectedRevision: w.session!.revision,
+          dependencyFingerprint: w.dependencyFingerprint,
+        })
+      ).workspace;
+    }
+    const [original] = await db()
+      .select()
+      .from(matchImports)
+      .where(eq(matchImports.fixtureId, fixtureId));
+    const source = matchSourceSchema.parse(original.source);
+    const replayGameId = 20001;
+    const firstGame = source.games.find((game) => game.beatmapId === 10001)!;
+    await db()
+      .update(matchImports)
+      .set({
+        source: {
+          ...source,
+          games: [...source.games, { ...firstGame, id: replayGameId }],
+        },
+      })
+      .where(eq(matchImports.id, original.id));
+    const data = await refereeReconciliation(actor, "test-cup", fixtureId);
+    const {
+      requestKey,
+      expectedRevision,
+      expectedSessionRevision,
+      dependencyFingerprint,
+      ...firstLink
+    } = await command();
+    const secondAttempt = data.rows[1].attemptId;
+    const batch = {
+      requestKey,
+      expectedRevision,
+      expectedSessionRevision,
+      dependencyFingerprint,
+    };
+    const duplicate = await post(fixtureId, {
+      ...batch,
+      links: [firstLink, { ...firstLink, attemptId: secondAttempt }],
+    });
+    expect(duplicate.status).toBe(409);
+    expect((await duplicate.json()).error).toContain("already linked");
+    expect(await db().select().from(refereeReconciliations)).toHaveLength(0);
+
+    const links = [
+      firstLink,
+      { ...firstLink, attemptId: secondAttempt, gameId: replayGameId },
+    ];
+    const saved = await post(fixtureId, { ...batch, links });
+    expect(saved.status, await saved.clone().text()).toBe(200);
+    const { receipt } = await saved.json();
+    expect(receipt.revision).toBe(2);
+    const retry = await post(fixtureId, { ...batch, links });
+    expect((await retry.json()).receipt).toEqual(receipt);
+    const params = { edition: "test-cup", fixtureId };
+    const reloaded = await GET(
+      new Request(
+        origin +
+          reconcileRefereeAttemptWrite.path
+            .replace("{edition}", params.edition)
+            .replace("{fixtureId}", fixtureId),
+      ),
+      { params: Promise.resolve(params) },
+    );
+    expect(reloaded.status).toBe(200);
+    const fresh = await reloaded.json();
+    expect(fresh.rows.map((row: { link: unknown }) => row.link)).toEqual(
+      links.map((link) => expect.objectContaining(link)),
+    );
+    expect(await db().select().from(refereeReconciliations)).toHaveLength(2);
+    expect(
+      await db()
+        .select()
+        .from(resultAuditEvents)
+        .where(eq(resultAuditEvents.action, "referee_reconcile")),
+    ).toHaveLength(2);
   });
   it("serializes concurrent confirmation and requires current session revision", async () => {
     const input = await command();

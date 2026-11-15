@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   compareRefereeAttempts,
+  reconciliationOptions,
+  unavailableGameLink,
   type ReconciliationSource,
   type ReconciliationLink,
 } from "../../src/lib/referee-reconciliation-model";
@@ -90,6 +92,44 @@ describe("explicit referee/MP reconciliation", () => {
     expect(compare([link], [{ ...source, fingerprint: "new" }]).status).toBe(
       "stale",
     );
+  });
+  it("restores the exact saved game from a newer import of the same lobby", () => {
+    const row = compare([link]);
+    const newer = { ...source, importId: "new", fingerprint: "new-fp" };
+    const historical = { ...source, current: false };
+    expect(
+      reconciliationOptions([row], [historical, newer])[0].savedValue,
+    ).toBe("new:7");
+    expect(
+      reconciliationOptions([row], [historical, { ...newer, games: [] }])[0]
+        .savedValue,
+    ).toBe(unavailableGameLink);
+  });
+
+  it("suggests only unique plays with a matching result", () => {
+    const row = compare([]);
+    expect(reconciliationOptions([row], [source])[0].suggestion).toBe(
+      "import:7",
+    );
+    const replay = { ...row, attemptId: "retry", attemptNumber: 2 };
+    expect(
+      reconciliationOptions([row, replay], [source]).map((r) => r.suggestion),
+    ).toEqual([null, null]);
+    expect(
+      reconciliationOptions(
+        [row],
+        [
+          {
+            ...source,
+            games: [...source.games, { ...source.games[0], id: 8 }],
+          },
+        ],
+      )[0].suggestion,
+    ).toBeNull();
+    expect(
+      reconciliationOptions([{ ...row, winnerTeamId: "a" }], [source])[0]
+        .suggestion,
+    ).toBeNull();
   });
   it("does not invent results for incomplete games", () =>
     expect(

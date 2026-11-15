@@ -30272,8 +30272,8 @@
     "/api/admin/tournaments/{edition}/matches/{fixtureId}/referee/reconciliation": {
       "post": {
         "operationId": "reconcileRefereeAttempt",
-        "summary": "Link or unlink saved multiplayer evidence for a referee attempt",
-        "description": "Requires a direct browser session and current referee assignment or authorized staff access. A link includes import ID, source fingerprint and game ID together. An unlink sets all three to null. The transaction checks current revisions and dependencies. An identical request key replays the original receipt. Linking does not publish an official result.",
+        "summary": "Link or unlink saved multiplayer evidence for referee attempts",
+        "description": "Requires a direct browser session and current referee assignment or authorized staff access. A link includes import ID, source fingerprint and game ID together. An unlink sets all three to null. Send a single link or a batch of distinct attempts. The entire batch commits together after checking current revisions, dependencies, sources and final game assignments. The receipt identifies the last saved row. An identical request key replays the original receipt. Linking does not publish an official result.",
         "security": [
           {
             "browserSession": []
@@ -30317,79 +30317,172 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "requestKey": {
-                    "type": "string",
-                    "format": "uuid",
-                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                  },
-                  "expectedRevision": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 9007199254740991
-                  },
-                  "expectedSessionRevision": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 9007199254740991
-                  },
-                  "dependencyFingerprint": {
-                    "type": "string",
-                    "pattern": "^[a-f0-9]{64}$"
-                  },
-                  "attemptId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                  },
-                  "importId": {
-                    "anyOf": [
-                      {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "requestKey": {
                         "type": "string",
                         "format": "uuid",
                         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                       },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sourceFingerprint": {
-                    "anyOf": [
-                      {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "expectedSessionRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "dependencyFingerprint": {
                         "type": "string",
                         "pattern": "^[a-f0-9]{64}$"
                       },
-                      {
-                        "type": "null"
+                      "attemptId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "importId": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sourceFingerprint": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "gameId": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       }
-                    ]
+                    },
+                    "required": [
+                      "requestKey",
+                      "expectedRevision",
+                      "expectedSessionRevision",
+                      "dependencyFingerprint",
+                      "attemptId",
+                      "importId",
+                      "sourceFingerprint",
+                      "gameId"
+                    ],
+                    "additionalProperties": false
                   },
-                  "gameId": {
-                    "anyOf": [
-                      {
+                  {
+                    "type": "object",
+                    "properties": {
+                      "requestKey": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedRevision": {
                         "type": "integer",
-                        "exclusiveMinimum": 0,
+                        "minimum": 0,
                         "maximum": 9007199254740991
                       },
-                      {
-                        "type": "null"
+                      "dependencyFingerprint": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      },
+                      "expectedSessionRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "links": {
+                        "minItems": 1,
+                        "maxItems": 100,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "attemptId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "importId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "sourceFingerprint": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-f0-9]{64}$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "gameId": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "attemptId",
+                            "importId",
+                            "sourceFingerprint",
+                            "gameId"
+                          ],
+                          "additionalProperties": false
+                        }
                       }
-                    ]
+                    },
+                    "required": [
+                      "requestKey",
+                      "expectedRevision",
+                      "dependencyFingerprint",
+                      "expectedSessionRevision",
+                      "links"
+                    ],
+                    "additionalProperties": false
                   }
-                },
-                "required": [
-                  "requestKey",
-                  "expectedRevision",
-                  "expectedSessionRevision",
-                  "dependencyFingerprint",
-                  "attemptId",
-                  "importId",
-                  "sourceFingerprint",
-                  "gameId"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }

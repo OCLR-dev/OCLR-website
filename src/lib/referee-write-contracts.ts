@@ -2,7 +2,10 @@ import { z } from "zod";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 import { refereeSettingsSchema } from "./referee-commands";
 import { refereeActionSchema, refereePolicySchema } from "./referee-model";
-import { defaultJsonBodyLimit } from "./request-body-limits";
+import {
+  defaultJsonBodyLimit,
+  reconciliationBatchLimit,
+} from "./request-body-limits";
 import type { WriteApiOperation } from "./write-api-contract";
 
 const common = {
@@ -67,26 +70,53 @@ const mpRequest = z.discriminatedUnion("action", [
     .strict(),
 ]);
 
-const reconciliationRequest = z
-  .object({
-    requestKey: z.uuid(),
-    expectedRevision: z.number().int().nonnegative(),
-    expectedSessionRevision: z.number().int().nonnegative(),
-    dependencyFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
-    attemptId: z.uuid(),
-    importId: z.uuid().nullable(),
-    sourceFingerprint: z
-      .string()
-      .regex(/^[a-f0-9]{64}$/)
-      .nullable(),
-    gameId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).nullable(),
-  })
-  .strict()
-  .refine((v) =>
-    v.importId === null
-      ? v.gameId === null && v.sourceFingerprint === null
-      : v.gameId !== null && v.sourceFingerprint !== null,
-  );
+const reconciliationVersion = {
+  ...common,
+  expectedSessionRevision: version,
+};
+const reconciliationLink = {
+  attemptId: z.uuid(),
+  importId: z.uuid().nullable(),
+  sourceFingerprint: z
+    .string()
+    .regex(/^[a-f0-9]{64}$/)
+    .nullable(),
+  gameId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).nullable(),
+};
+function hasCompleteLink(v: z.infer<z.ZodObject<typeof reconciliationLink>>) {
+  return v.importId === null
+    ? v.gameId === null && v.sourceFingerprint === null
+    : v.gameId !== null && v.sourceFingerprint !== null;
+}
+
+const reconciliationRequest = z.union([
+  z
+    .object({
+      requestKey: reconciliationVersion.requestKey,
+      expectedRevision: reconciliationVersion.expectedRevision,
+      expectedSessionRevision: reconciliationVersion.expectedSessionRevision,
+      dependencyFingerprint: reconciliationVersion.dependencyFingerprint,
+      ...reconciliationLink,
+    })
+    .strict()
+    .refine(hasCompleteLink),
+  z
+    .object({
+      ...reconciliationVersion,
+      links: z
+        .array(z.object(reconciliationLink).strict().refine(hasCompleteLink))
+        .min(1)
+        .max(reconciliationBatchLimit)
+        .refine(
+          (links) =>
+            new Set(links.map((link) => link.attemptId)).size === links.length,
+        ),
+    })
+    .strict(),
+]);
+export type RefereeReconciliationRequest = z.input<
+  typeof reconciliationRequest
+>;
 
 export const refereeEventReceipt = z.object({
   requestKey: z.uuid(),
@@ -220,9 +250,9 @@ export const reconcileRefereeAttemptWrite = {
   path: `${base}/reconciliation`,
   method: "POST",
   request: reconciliationRequest,
-  summary: "Link or unlink saved multiplayer evidence for a referee attempt",
+  summary: "Link or unlink saved multiplayer evidence for referee attempts",
   description:
-    "Requires a direct browser session and current referee assignment or authorized staff access. A link includes import ID, source fingerprint and game ID together. An unlink sets all three to null. The transaction checks current revisions and dependencies. An identical request key replays the original receipt. Linking does not publish an official result.",
+    "Requires a direct browser session and current referee assignment or authorized staff access. A link includes import ID, source fingerprint and game ID together. An unlink sets all three to null. Send a single link or a batch of distinct attempts. The entire batch commits together after checking current revisions, dependencies, sources and final game assignments. The receipt identifies the last saved row. An identical request key replays the original receipt. Linking does not publish an official result.",
   successDescription:
     "Reconciliation receipt and the current private reconciliation workspace.",
   response: {
