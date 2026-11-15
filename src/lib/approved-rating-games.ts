@@ -29,6 +29,7 @@ export async function approvedRatingGames(
     .select({
       fixture: fixtures,
       revision: resultRevisions,
+      importId: matchImports.id,
       fingerprint: matchImports.fingerprint,
     })
     .from(fixtures)
@@ -62,7 +63,7 @@ export async function approvedRatingGames(
         isNotNull(resultRevisions.approvedBy),
       ),
     );
-  const importIds = sources.map((s) => s.revision.importId);
+  const importIds = sources.map((s) => s.importId);
   const normalized = importIds.length
     ? await reader
         .select()
@@ -105,7 +106,7 @@ export async function approvedRatingGames(
     for (const reviewed of proposal.data.games) {
       const row = normalized.find(
         (g) =>
-          g.importId === source.revision.importId &&
+          g.importId === source.importId &&
           g.externalGameId === reviewed.gameId,
       );
       const parsed = matchGameSchema.safeParse(row?.data);

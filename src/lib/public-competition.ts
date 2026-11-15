@@ -246,7 +246,7 @@ async function databasePublicCompetition(
         aligned &&
         row.approvedAt &&
         row.resultPublishedAt &&
-        row.mpId &&
+        (p!.referee ? row.mpId === null : row.mpId !== null) &&
         row.revision
           ? {
               revision: row.revision,
@@ -267,7 +267,20 @@ async function databasePublicCompetition(
                 tied: g.tied,
               })),
               mpId: row.mpId,
-              mpUrl: `https://osu.ppy.sh/community/matches/${row.mpId}`,
+              mpUrl: row.mpId
+                ? `https://osu.ppy.sh/community/matches/${row.mpId}`
+                : null,
+              ...(p!.referee
+                ? {
+                    refereeGames: p!.referee.games.map(
+                      ({ beatmapId, category, winnerTeamId }) => ({
+                        beatmapId,
+                        category,
+                        winnerTeamId,
+                      }),
+                    ),
+                  }
+                : {}),
               publicNote: p!.publicNote,
               updatedAt: row.resultPublishedAt.toISOString(),
             }
@@ -389,7 +402,7 @@ async function databasePublicFixture(
       );
       if (!fixture) return null;
       const result = { ...fixture, details: null as MatchDetails | null };
-      if (!fixture.result) return result;
+      if (!fixture.result?.mpId) return result;
       const [row] = await tx
         .select({
           proposal: resultRevisions.proposal,

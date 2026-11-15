@@ -431,6 +431,7 @@
         "access": "browser",
         "actions": [
           "submit",
+          "submit_referee",
           "approve",
           "approve_publish",
           "reject",

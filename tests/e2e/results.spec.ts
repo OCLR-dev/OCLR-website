@@ -82,52 +82,46 @@ test.describe("private referee review and Admin publication", () => {
       await expect(
         page.getByLabel("osu! MP link or match ID", { exact: true }),
       ).toBeVisible();
-      for (let i = 1; i <= 3; i++) {
-        await page
-          .getByText(new RegExp(`^Game ${i} · Synthetic Map ${i}`))
-          .click();
-        await page
-          .getByRole("combobox", { name: new RegExp(`^Game ${i} decision`) })
-          .selectOption("true");
-        if (i === 1) {
-          const explanation = page.getByRole("textbox", {
-            name: "Game 1 scoring decision explanation",
-            exact: true,
-          });
-          await expect(explanation).toBeVisible();
-          await explanation.fill(
-            "Synthetic roster evidence resolves the missing provider color.",
-          );
-        } else
-          await expect(
-            page.getByRole("textbox", {
-              name: new RegExp(`^Game ${i} .*explanation`),
-            }),
-          ).toHaveCount(0);
-        await page
-          .getByLabel(
-            `Game ${i}: I verified mods and the approved tournament rules`,
-            { exact: true },
-          )
-          .check();
-      }
+      await page.getByLabel("Select all games", { exact: true }).check();
       await page
-        .getByRole("combobox", { name: /^Game 2 decision/ })
-        .selectOption("false");
-      await expect(
-        page.getByRole("textbox", {
-          name: "Game 2 exclusion explanation",
-          exact: true,
-        }),
-      ).toBeVisible();
+        .getByRole("button", {
+          name: "Include eligible games and confirm rules (2)",
+        })
+        .click();
+      await page.getByText(/^Game 1 · Synthetic Map 1/).click();
       await page
-        .getByRole("combobox", { name: /^Game 2 decision/ })
+        .getByRole("combobox", { name: "Game 1 decision" })
         .selectOption("true");
+      await page
+        .getByRole("textbox", { name: "Game 1 scoring decision explanation" })
+        .fill("Synthetic roster evidence resolves the missing provider color.");
+      await page
+        .getByLabel(
+          "Game 1: I verified mods and the approved tournament rules",
+          { exact: true },
+        )
+        .check();
+      await page.getByLabel("Select game 1", { exact: true }).uncheck();
+
+      await page.getByLabel("Select game 2", { exact: true }).check();
+      await page
+        .getByLabel("Shared exclusion reason")
+        .fill("Reviewing a possible rematch.");
+      await page
+        .getByRole("button", { name: "Exclude selected games" })
+        .click();
+      await page.getByText(/^Game 2 · Synthetic Map 2/).click();
       await expect(
-        page.getByRole("textbox", {
-          name: "Game 2 exclusion explanation",
-          exact: true,
-        }),
+        page.getByRole("textbox", { name: "Game 2 exclusion explanation" }),
+      ).toHaveValue("Reviewing a possible rematch.");
+      await page.getByLabel("Select game 2", { exact: true }).check();
+      await page
+        .getByRole("button", {
+          name: "Include eligible games and confirm rules (1)",
+        })
+        .click();
+      await expect(
+        page.getByRole("textbox", { name: "Game 2 exclusion explanation" }),
       ).toHaveCount(0);
       await page
         .getByLabel(

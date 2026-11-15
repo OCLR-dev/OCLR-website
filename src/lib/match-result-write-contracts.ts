@@ -38,6 +38,13 @@ const resultRequest = z.discriminatedUnion("action", [
       publicNote: z.string().trim().max(1000),
     })
     .strict(),
+  z.strictObject({
+    ...common,
+    action: z.literal("submit_referee"),
+    refereeRevision: z.number().int().positive(),
+    dependencyFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+    publicNote: z.string().trim().max(1000),
+  }),
   z
     .object({
       ...common,
@@ -222,7 +229,7 @@ export const changeMatchResultWrite = {
   request: resultRequest,
   summary: "Review, approve, publish, withdraw or void a result",
   description:
-    "Submitting requires record_results. Approval, rejection and void require approve_results. Publishing or unpublishing requires publish_results, and approve_publish requires both approval and publication grants. Commands check fixture and result versions and replay identical requests. Publication and void require explicit acknowledgement of progression effects.",
+    "Submitting requires record_results. Referee submissions require the current saved session revision and dependency fingerprint. Approval, rejection and void require approve_results. Publishing or unpublishing requires publish_results, and approve_publish requires both approval and publication grants. Commands check fixture and result versions and replay identical requests. Publication and void require explicit acknowledgement of progression effects.",
   successDescription: "The current private match review workspace.",
   response: { readResource: "matchReview" },
   errors: {

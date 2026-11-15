@@ -31,26 +31,12 @@ import {
   resultRequestHash,
 } from "./result-command-receipts";
 import { matchReview, type MatchReview } from "./result-review";
+import { previewRefereeResult } from "./referee-result";
+import { readRefereeWorkspace } from "./referee-workspace";
 
-function proposalFrom(
-  context: FixtureReviewContext,
-  source: MatchSource,
-  decisions: GameDecision[],
-  publicNote: string,
-  useRoundRules = false,
-): ReviewedResult {
-  const exhibitionMp = context.round.stage === "exhibition" && !useRoundRules;
-  const preview = previewMatch(source, context, decisions, useRoundRules);
-  if (!preview.canSubmit)
-    throw new HttpError(
-      400,
-      preview.blockers[0] ?? "Resolve the game review before submitting.",
-    );
-  return reviewedResultSchema.parse({
-    ...(!exhibitionMp && context.exDeclarations.some((p) => p.exMode)
-      ? { exDeclarations: context.exDeclarations }
-      : {}),
-    schemaVersion: 1,
+function proposalContext(context: FixtureReviewContext) {
+  return {
+    schemaVersion: 1 as const,
     fixtureVersion: context.fixture.version,
     roundId: context.fixture.roundId,
     poolSnapshot: context.pool
@@ -78,6 +64,28 @@ function proposalFrom(
         osuIds: t.members.map((m) => m.osuId).sort((a, b) => a - b),
       }))
       .sort((a, b) => a.teamId.localeCompare(b.teamId)),
+  };
+}
+
+function proposalFrom(
+  context: FixtureReviewContext,
+  source: MatchSource,
+  decisions: GameDecision[],
+  publicNote: string,
+  useRoundRules = false,
+): ReviewedResult {
+  const exhibitionMp = context.round.stage === "exhibition" && !useRoundRules;
+  const preview = previewMatch(source, context, decisions, useRoundRules);
+  if (!preview.canSubmit)
+    throw new HttpError(
+      400,
+      preview.blockers[0] ?? "Resolve the game review before submitting.",
+    );
+  return reviewedResultSchema.parse({
+    ...(!exhibitionMp && context.exDeclarations.some((p) => p.exMode)
+      ? { exDeclarations: context.exDeclarations }
+      : {}),
+    ...proposalContext(context),
     rulesSnapshot: exhibitionMp
       ? null
       : scoringRulesSchema.parse(context.round.scoringRules),
@@ -109,6 +117,40 @@ function proposalFrom(
   });
 }
 
+async function proposalFromReferee(
+  tx: Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0],
+  actor: User,
+  slug: string,
+  context: FixtureReviewContext,
+  revision: number,
+  dependencyFingerprint: string,
+  publicNote: string,
+): Promise<ReviewedResult> {
+  const review = previewRefereeResult(
+    await readRefereeWorkspace(tx, actor, slug, context.fixture.id),
+  );
+  if (
+    review?.revision !== revision ||
+    review.dependencyFingerprint !== dependencyFingerprint
+  )
+    throw new HttpError(
+      409,
+      "The referee record changed. Refresh and review it again.",
+    );
+  if (review.blocker) throw new HttpError(409, review.blocker);
+
+  return reviewedResultSchema.parse({
+    ...proposalContext(context),
+    rulesSnapshot: scoringRulesSchema.parse(context.round.scoringRules),
+    sourceFingerprint: dependencyFingerprint,
+    referee: { revision, games: review.games },
+    decisions: [],
+    publicNote,
+    games: [],
+    series: review.series,
+  });
+}
+
 export async function resultCommand(
   actor: User,
   slug: string,
@@ -124,7 +166,7 @@ export async function resultCommand(
     );
   const c = parsed.data;
   const capability =
-    c.action === "submit"
+    c.action === "submit" || c.action === "submit_referee"
       ? "record_results"
       : c.action === "publish" || c.action === "unpublish"
         ? "publish_results"
@@ -159,7 +201,18 @@ export async function resultCommand(
         await hasResultCommandReceipt(tx, actor, fixtureId, c.requestKey, hash)
       )
         return;
-      const state = context.result;
+      let state = context.result;
+      if (
+        !state &&
+        c.action === "submit_referee" &&
+        c.expectedVersion === 0 &&
+        context.fixture.version === c.expectedFixtureVersion
+      ) {
+        [state] = await tx
+          .insert(matchResults)
+          .values({ fixtureId })
+          .returning();
+      }
       if (
         !state ||
         state.version !== c.expectedVersion ||
@@ -171,43 +224,53 @@ export async function resultCommand(
         );
       const before = { ...state };
       let detail: Record<string, unknown> = {};
-      if (c.action === "submit") {
-        if (context.round.stage !== "exhibition" && c.rulesConfirmed !== true)
-          throw new HttpError(
-            400,
-            "Confirm the approved scoring rules before submitting.",
+      if (c.action === "submit" || c.action === "submit_referee") {
+        let importId: string | null = null;
+        let proposal: ReviewedResult;
+        if (c.action === "submit_referee") {
+          proposal = await proposalFromReferee(
+            tx,
+            actor,
+            slug,
+            context,
+            c.refereeRevision,
+            c.dependencyFingerprint,
+            c.publicNote,
           );
-        if (!state.latestImportId || c.importId !== state.latestImportId)
-          throw new HttpError(
-            409,
-            "The upstream source changed. Review the latest import explicitly.",
+        } else {
+          if (context.round.stage !== "exhibition" && c.rulesConfirmed !== true)
+            throw new HttpError(
+              400,
+              "Confirm the approved scoring rules before submitting.",
+            );
+          if (!state.latestImportId || c.importId !== state.latestImportId)
+            throw new HttpError(
+              409,
+              "The upstream source changed. Review the latest import explicitly.",
+            );
+          const [record] = await tx
+            .select()
+            .from(matchImports)
+            .where(
+              and(
+                eq(matchImports.id, c.importId),
+                eq(matchImports.fixtureId, fixtureId),
+              ),
+            );
+          if (!record)
+            throw new HttpError(404, "Import not found for this fixture.");
+          const source = checkedStoredMatchSource(
+            record.source,
+            record.fingerprint,
           );
-        const [record] = await tx
-          .select()
-          .from(matchImports)
-          .where(
-            and(
-              eq(matchImports.id, c.importId),
-              eq(matchImports.fixtureId, fixtureId),
-            ),
-          );
-        if (!record)
-          throw new HttpError(404, "Import not found for this fixture.");
-        const source = checkedStoredMatchSource(
-          record.source,
-          record.fingerprint,
-        );
-        const proposal = proposalFrom(
-          context,
-          source,
-          c.decisions,
-          c.publicNote,
-        );
+          proposal = proposalFrom(context, source, c.decisions, c.publicNote);
+          importId = record.id;
+        }
         const revision = state.currentRevision + 1;
         await tx.insert(resultRevisions).values({
           fixtureId,
           revision,
-          importId: record.id,
+          importId,
           proposal,
           createdBy: actor.osuId,
         });
@@ -219,7 +282,12 @@ export async function resultCommand(
             version: state.version + 1,
           })
           .where(eq(matchResults.fixtureId, fixtureId));
-        detail = { revision, importId: record.id, series: proposal.series };
+        detail = {
+          revision,
+          importId,
+          refereeRevision: proposal.referee?.revision ?? null,
+          series: proposal.series,
+        };
       } else if (
         c.action === "approve" ||
         c.action === "publish" ||
@@ -247,7 +315,9 @@ export async function resultCommand(
         if (
           !revision ||
           !proposal.success ||
-          revision.importId !== state.latestImportId
+          (proposal.data.referee
+            ? revision.importId !== null
+            : !revision.importId || revision.importId !== state.latestImportId)
         )
           throw new HttpError(
             409,
@@ -268,28 +338,41 @@ export async function resultCommand(
             409,
             "Fixture, mappool or scoring rules changed after review. Submit a fresh proposal.",
           );
-        const [sourceRecord] = await tx
-          .select()
-          .from(matchImports)
-          .where(
-            and(
-              eq(matchImports.id, revision.importId),
-              eq(matchImports.fixtureId, fixtureId),
-            ),
+        let reconstructed: ReviewedResult;
+        if (p.referee) {
+          reconstructed = await proposalFromReferee(
+            tx,
+            actor,
+            slug,
+            context,
+            p.referee.revision,
+            p.sourceFingerprint,
+            p.publicNote,
           );
-        if (!sourceRecord)
-          throw new HttpError(409, "The proposal's source is missing.");
-        const source = checkedStoredMatchSource(
-          sourceRecord.source,
-          sourceRecord.fingerprint,
-        );
-        const reconstructed = proposalFrom(
-          context,
-          source,
-          p.decisions,
-          p.publicNote,
-          p.rulesSnapshot !== null,
-        );
+        } else {
+          const [sourceRecord] = await tx
+            .select()
+            .from(matchImports)
+            .where(
+              and(
+                eq(matchImports.id, revision.importId!),
+                eq(matchImports.fixtureId, fixtureId),
+              ),
+            );
+          if (!sourceRecord)
+            throw new HttpError(409, "The proposal's source is missing.");
+          const source = checkedStoredMatchSource(
+            sourceRecord.source,
+            sourceRecord.fingerprint,
+          );
+          reconstructed = proposalFrom(
+            context,
+            source,
+            p.decisions,
+            p.publicNote,
+            p.rulesSnapshot !== null,
+          );
+        }
         if (
           !isDeepStrictEqual(
             {
@@ -391,17 +474,18 @@ export async function resultCommand(
           await tx
             .delete(resultGameClaims)
             .where(eq(resultGameClaims.fixtureId, fixtureId));
-          await tx.insert(resultGameClaims).values(
-            p.games.map((g) => ({
-              fixtureId,
-              editionSlug: slug,
-              externalGameId: g.gameId,
-            })),
-          );
+          if (p.games.length)
+            await tx.insert(resultGameClaims).values(
+              p.games.map((g) => ({
+                fixtureId,
+                editionSlug: slug,
+                externalGameId: g.gameId,
+              })),
+            );
         }
         detail = {
           revision: c.revision,
-          sourceFingerprint: source.fingerprint,
+          sourceFingerprint: p.sourceFingerprint,
           series: p.series,
         };
       } else if (c.action === "reject") {

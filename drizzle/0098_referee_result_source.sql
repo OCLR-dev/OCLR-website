@@ -1,0 +1,1 @@
+ALTER TABLE "result_revisions" ALTER COLUMN "import_id" DROP NOT NULL;

@@ -46,8 +46,17 @@ const publicMatchResult = z.strictObject({
       tied: flag,
     }),
   ),
-  mpId: number,
-  mpUrl: text,
+  mpId: nullableNumber,
+  mpUrl: nullableString,
+  refereeGames: z
+    .array(
+      z.strictObject({
+        beatmapId: number,
+        category: text,
+        winnerTeamId: nullableString,
+      }),
+    )
+    .optional(),
   publicNote: text,
   updatedAt: text,
 });

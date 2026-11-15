@@ -2,6 +2,7 @@ import { db } from "@/db";
 import {
   fixtures,
   matchImports,
+  refereeSessions,
   resultAuditEvents,
   resultRevisions,
 } from "@/db/schema";
@@ -15,6 +16,8 @@ import { assertRemoteSubject, frontendResource } from "./frontend-resource";
 import { matchSourceSchema, reviewedResultSchema } from "./match-model";
 import { previewMatch } from "./match-scoring";
 import { compareMatchSources } from "./match-source";
+import { previewRefereeResult } from "./referee-result";
+import { readRefereeWorkspace } from "./referee-workspace";
 
 const sourceDiffSchema = z
   .object({
@@ -84,7 +87,7 @@ async function databaseMatchReview(
         }
       }
       const [baseline] =
-        current && current.importId !== latest?.id
+        current?.importId && current.importId !== latest?.id
           ? await tx
               .select()
               .from(matchImports)
@@ -118,7 +121,7 @@ async function databaseMatchReview(
       const diff =
         source && previous?.success
           ? compareMatchSources(previous.data, source)
-          : !current && recordedDiff.success
+          : !current?.importId && recordedDiff.success
             ? recordedDiff.data
             : null;
       const imports = await tx
@@ -159,8 +162,18 @@ async function databaseMatchReview(
             changed = true;
           }
       }
+      const [hasRefereeSession] = await tx
+        .select({ fixtureId: refereeSessions.fixtureId })
+        .from(refereeSessions)
+        .where(eq(refereeSessions.fixtureId, fixtureId));
+      const refereeReview = hasRefereeSession
+        ? previewRefereeResult(
+            await readRefereeWorkspace(tx, actor, slug, fixtureId),
+          )
+        : null;
       return {
         context,
+        ...(refereeReview ? { refereeReview } : {}),
         source,
         importId: latest?.id ?? null,
         sourceError:

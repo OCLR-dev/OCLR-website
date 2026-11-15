@@ -11,6 +11,7 @@ import type {
   MatchSource,
   ReviewedResult,
 } from "./match-model";
+import type { RefereeResultReview } from "./referee-result";
 import type { RefereeSettings } from "./referee-commands";
 import type {
   RefereeEvent,
@@ -108,7 +109,7 @@ type ResultRevision = {
   proposal: ReviewedResult | null;
   fixtureId: string;
   revision: number;
-  importId: string;
+  importId: string | null;
   reason: string | null;
   createdBy: number;
   createdAt: Date;
@@ -120,6 +121,7 @@ export type MatchReview<
 > = {
   context: Context;
   source: MatchSource | null;
+  refereeReview?: RefereeResultReview;
   importId: string | null;
   sourceError: string | null;
   preview: MatchImportPreview | null;

@@ -7927,6 +7927,49 @@
               }
             ]
           },
+          "refereeReview": {
+            "anyOf": [
+              {
+                "type": "null",
+                "x-oclr-undefined": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "revision": {
+                    "type": "number"
+                  },
+                  "dependencyFingerprint": {
+                    "type": "string"
+                  },
+                  "games": {
+                    "$ref": "#/components/schemas/Read5ba1ffd9c346"
+                  },
+                  "series": {
+                    "$ref": "#/components/schemas/Read00677a8037d2"
+                  },
+                  "blocker": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "revision",
+                  "dependencyFingerprint",
+                  "games",
+                  "series",
+                  "blocker"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
           "importId": {
             "anyOf": [
               {
@@ -8320,47 +8363,7 @@
                     }
                   },
                   "series": {
-                    "type": "object",
-                    "properties": {
-                      "homeWins": {
-                        "type": "number"
-                      },
-                      "awayWins": {
-                        "type": "number"
-                      },
-                      "tiedMaps": {
-                        "type": "number"
-                      },
-                      "includedGames": {
-                        "type": "number"
-                      },
-                      "winnerTeamId": {
-                        "anyOf": [
-                          {
-                            "type": "null"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ]
-                      },
-                      "draw": {
-                        "type": "boolean"
-                      },
-                      "complete": {
-                        "type": "boolean"
-                      }
-                    },
-                    "required": [
-                      "homeWins",
-                      "awayWins",
-                      "tiedMaps",
-                      "includedGames",
-                      "winnerTeamId",
-                      "draw",
-                      "complete"
-                    ],
-                    "additionalProperties": false
+                    "$ref": "#/components/schemas/Read00677a8037d2"
                   },
                   "blockers": {
                     "type": "array",
@@ -8421,14 +8424,14 @@
           "revisions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Readf3b0cbd6f86e"
+              "$ref": "#/components/schemas/Read822221703084"
             }
           },
           "current": {
-            "$ref": "#/components/schemas/Readf61efb553b24"
+            "$ref": "#/components/schemas/Reada8154583603a"
           },
           "published": {
-            "$ref": "#/components/schemas/Readf61efb553b24"
+            "$ref": "#/components/schemas/Reada8154583603a"
           },
           "diff": {
             "anyOf": [
@@ -9037,6 +9040,86 @@
         ],
         "additionalProperties": false
       },
+      "Read5ba1ffd9c346": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Read7b2cfbfc0b4d"
+        }
+      },
+      "Read7b2cfbfc0b4d": {
+        "type": "object",
+        "properties": {
+          "attemptId": {
+            "type": "string"
+          },
+          "beatmapId": {
+            "type": "number"
+          },
+          "category": {
+            "type": "string"
+          },
+          "winnerTeamId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "attemptId",
+          "beatmapId",
+          "category",
+          "winnerTeamId"
+        ],
+        "additionalProperties": false
+      },
+      "Read00677a8037d2": {
+        "type": "object",
+        "properties": {
+          "homeWins": {
+            "type": "number"
+          },
+          "awayWins": {
+            "type": "number"
+          },
+          "tiedMaps": {
+            "type": "number"
+          },
+          "includedGames": {
+            "type": "number"
+          },
+          "winnerTeamId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "draw": {
+            "type": "boolean"
+          },
+          "complete": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "homeWins",
+          "awayWins",
+          "tiedMaps",
+          "includedGames",
+          "winnerTeamId",
+          "draw",
+          "complete"
+        ],
+        "additionalProperties": false
+      },
       "Readed79fffe39ce": {
         "type": "object",
         "properties": {
@@ -9088,11 +9171,11 @@
           "additionalProperties": false
         }
       },
-      "Readf3b0cbd6f86e": {
+      "Read822221703084": {
         "type": "object",
         "properties": {
           "proposal": {
-            "$ref": "#/components/schemas/Readf8b47a7c717e"
+            "$ref": "#/components/schemas/Readc9a3e9764aab"
           },
           "fixtureId": {
             "type": "string"
@@ -9101,7 +9184,14 @@
             "type": "number"
           },
           "importId": {
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "reason": {
             "anyOf": [
@@ -9157,17 +9247,17 @@
         ],
         "additionalProperties": false
       },
-      "Readf8b47a7c717e": {
+      "Readc9a3e9764aab": {
         "anyOf": [
           {
             "type": "null"
           },
           {
-            "$ref": "#/components/schemas/Read114556a5556f"
+            "$ref": "#/components/schemas/Readd7f3f8828166"
           }
         ]
       },
-      "Read114556a5556f": {
+      "Readd7f3f8828166": {
         "type": "object",
         "properties": {
           "schemaVersion": {
@@ -9249,6 +9339,9 @@
           },
           "exDeclarations": {
             "$ref": "#/components/schemas/Read398c4afb2a22"
+          },
+          "referee": {
+            "$ref": "#/components/schemas/Readcb996c5a9ea6"
           }
         },
         "required": [
@@ -9596,13 +9689,40 @@
           }
         ]
       },
-      "Readf61efb553b24": {
+      "Readcb996c5a9ea6": {
+        "anyOf": [
+          {
+            "type": "null",
+            "x-oclr-undefined": true
+          },
+          {
+            "$ref": "#/components/schemas/Read7eb1b6fd3fb0"
+          }
+        ]
+      },
+      "Read7eb1b6fd3fb0": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "number"
+          },
+          "games": {
+            "$ref": "#/components/schemas/Read5ba1ffd9c346"
+          }
+        },
+        "required": [
+          "revision",
+          "games"
+        ],
+        "additionalProperties": false
+      },
+      "Reada8154583603a": {
         "anyOf": [
           {
             "type": "null"
           },
           {
-            "$ref": "#/components/schemas/Readf3b0cbd6f86e"
+            "$ref": "#/components/schemas/Read822221703084"
           }
         ]
       },
@@ -28254,7 +28374,7 @@
       "post": {
         "operationId": "changeMatchResult",
         "summary": "Review, approve, publish, withdraw or void a result",
-        "description": "Submitting requires record_results. Approval, rejection and void require approve_results. Publishing or unpublishing requires publish_results, and approve_publish requires both approval and publication grants. Commands check fixture and result versions and replay identical requests. Publication and void require explicit acknowledgement of progression effects.",
+        "description": "Submitting requires record_results. Referee submissions require the current saved session revision and dependency fingerprint. Approval, rejection and void require approve_results. Publishing or unpublishing requires publish_results, and approve_publish requires both approval and publication grants. Commands check fixture and result versions and replay identical requests. Publication and void require explicit acknowledgement of progression effects.",
         "security": [
           {
             "browserSession": []
@@ -28414,6 +28534,58 @@
                       "importId",
                       "sourceChangesConfirmed",
                       "decisions",
+                      "publicNote"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "requestKey": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "expectedFixtureVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "submit_referee"
+                      },
+                      "refereeRevision": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "dependencyFingerprint": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      },
+                      "publicNote": {
+                        "type": "string",
+                        "maxLength": 1000
+                      }
+                    },
+                    "required": [
+                      "requestKey",
+                      "expectedVersion",
+                      "expectedFixtureVersion",
+                      "confirmed",
+                      "action",
+                      "refereeRevision",
+                      "dependencyFingerprint",
                       "publicNote"
                     ],
                     "additionalProperties": false

@@ -16,6 +16,7 @@ import type { MatchReview } from "@/lib/result-review";
 import type { GameDecision } from "@/lib/match-model";
 import { previewMatch } from "@/lib/match-scoring";
 import { ConfirmMutation } from "./confirm-mutation";
+import styles from "./match-review.module.css";
 
 function Operation({
   label,
@@ -100,6 +101,8 @@ function SourceReview({
   const source = data.source!;
   const exhibition = data.context.round.stage === "exhibition";
   const [decisions, setDecisions] = useState<Record<number, GameDecision>>({});
+  const [selected, setSelected] = useState<number[]>([]);
+  const [exclusionReason, setExclusionReason] = useState("");
   const [rulesConfirmed, setRules] = useState(false);
   const [sourceConfirmed, setSource] = useState(false);
   const [publicNote, setNote] = useState("");
@@ -107,6 +110,32 @@ function SourceReview({
   const preview = previewMatch(source, data.context, list);
   const teamName = (id: string | null) =>
     data.context.teams.find((t) => t.id === id)?.name ?? "Unresolved";
+  const eligible = preview.games.filter(
+    (g) =>
+      selected.includes(g.game.id) &&
+      !g.problems.length &&
+      (exhibition || !g.warnings.length),
+  );
+  const allSelected =
+    source.games.length > 0 && selected.length === source.games.length;
+  function applySelected(included: boolean) {
+    const ids = included ? eligible.map((g) => g.game.id) : selected;
+    setDecisions((old) => {
+      const next = { ...old };
+      for (const id of ids) {
+        next[id] = {
+          gameId: id,
+          included,
+          reason: included ? "" : exclusionReason.trim(),
+          complianceConfirmed: included && !exhibition,
+          substitutions: old[id]?.substitutions ?? [],
+        };
+      }
+      return next;
+    });
+    setSelected((old) => old.filter((id) => !ids.includes(id)));
+    if (!included) setExclusionReason("");
+  }
   function update(id: number, value: Partial<GameDecision>) {
     setDecisions((old) => ({
       ...old,
@@ -126,7 +155,7 @@ function SourceReview({
     <ReadOnlyFields>
       <section className="section-space stack" aria-labelledby="games-heading">
         <div>
-          <h2 id="games-heading">{tr("Review every game")}</h2>
+          <h2 id="games-heading">{tr("Review MP games")}</h2>
           <p className="muted">
             {tr(
               "Include valid games and explicitly exclude warmups, rematches or invalid games with a reason. Raw provider scores cannot be edited here.",
@@ -151,271 +180,363 @@ function SourceReview({
             </p>
           </div>
         )}
-        {preview.games.map((g, i) => {
-          const decision = decisions[g.game.id];
-          const unknown = data.context.fixture.openExhibition
-            ? []
-            : g.players.filter(
-                (p) =>
-                  p.osuId &&
-                  !data.context.teams.some((t) =>
-                    t.members.some((m) => m.osuId === p.osuId),
-                  ),
-              );
-          return (
-            <details className="panel" key={g.game.id} open={undefined}>
-              <summary>
-                {g.exMode && <span className="badge">{tr("EX mode")}</span>}
-                <strong>
-                  {tr("Game ")}
-                  {i + 1} ·{" "}
-                  {g.game.beatmap?.title ??
-                    (g.game.beatmapId
-                      ? tr("Beatmap {value0}", { value0: g.game.beatmapId })
-                      : tr("Unavailable beatmap"))}
-                </strong>{" "}
-                ·{" "}
-                {decision
-                  ? decision.included
-                    ? tr("Included")
-                    : tr("Excluded")
-                  : tr("Unreviewed")}
-              </summary>
-              <div className="form-stack">
-                <p className="muted">
-                  {tr("Game ID ")}
-                  {g.game.id} · {g.game.teamType ?? tr("Unknown team mode")} ·{" "}
-                  {g.game.scoringType ?? tr("Unknown scoring")} ·{" "}
-                  {g.game.problems.includes("Game mod data is unavailable.")
-                    ? tr("Unavailable")
-                    : g.game.mods.join(", ") || "NM"}
-                </p>
-                {g.game.beatmapId && (
-                  <a
-                    className="text-link"
-                    href={`https://osu.ppy.sh/beatmaps/${g.game.beatmapId}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {tr("Open beatmap ↗")}
-                  </a>
-                )}
-                <div
-                  className="table-scroll"
-                  role="region"
-                  tabIndex={0}
-                  aria-label={tr(
-                    "Recorded game {value0} scores; scroll horizontally",
-                    { value0: i + 1 },
-                  )}
-                >
-                  <table>
-                    <caption>
-                      {tr("Recorded player scores for game ")}
-                      {i + 1}
-                    </caption>
-                    <thead>
-                      <tr>
-                        <th>{tr("osu! player")}</th>
-                        <th>{tr("Team evidence")}</th>
-                        <th>{tr("Score")}</th>
-                        <th>{tr("Lobby side")}</th>
-                        <th>{tr("Passed")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {g.players.map((p, n) => (
-                        <tr key={`${p.osuId}-${n}`}>
-                          <td>
-                            {data.context.teams
-                              .flatMap((t) => t.members)
-                              .find((m) => m.osuId === p.osuId)?.username ??
-                              (data.context.fixture.openExhibition
-                                ? source.players?.find(
-                                    (player) => player.osuId === p.osuId,
-                                  )?.username
-                                : undefined) ??
-                              tr("osu! ID {value0}", {
-                                value0: p.osuId ?? "unavailable",
-                              })}
-                          </td>
-                          <td>
-                            {p.teamId
-                              ? `${teamName(p.teamId)} (${p.evidence})`
-                              : tr("Unresolved")}
-                          </td>
-                          <td>
-                            {p.total?.toLocaleString() ?? tr("Unavailable")}
-                          </td>
-                          <td>{p.team ?? tr("Unknown")}</td>
-                          <td>
-                            {p.passed === null
-                              ? tr("Unknown")
-                              : p.passed
-                                ? tr("Yes")
-                                : tr("No")}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {g.exMode && <p className="badge">{tr("EX mode")}</p>}
-                <label className="field">
-                  <span>
-                    {tr("Game ")}
-                    {i + 1} {tr(" decision")}
-                  </span>
-                  <select
-                    value={decision ? String(decision.included) : ""}
-                    onChange={(e) => {
-                      if (!e.target.value) {
-                        setDecisions((old) => {
-                          const next = { ...old };
-                          delete next[g.game.id];
-                          return next;
-                        });
-                      } else
-                        update(g.game.id, {
-                          included: e.target.value === "true",
-                        });
-                    }}
-                  >
-                    <option value="">{tr("Choose after reviewing")}</option>
-                    <option value="true">{tr("Include in result")}</option>
-                    <option value="false">{tr("Exclude from result")}</option>
-                  </select>
-                </label>
-                {decision &&
-                  (!decision.included ||
-                    (!exhibition && g.warnings.length > 0)) && (
+        {source.games.length > 0 && (
+          <div className={styles.batch}>
+            <div className={styles.batchActions}>
+              <label className="check-label">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  ref={(input) => {
+                    if (input)
+                      input.indeterminate = !allSelected && selected.length > 0;
+                  }}
+                  onChange={() =>
+                    setSelected(
+                      allSelected ? [] : source.games.map((g) => g.id),
+                    )
+                  }
+                />
+                {tr("Select all games")}
+              </label>
+              <span className="small muted" role="status">
+                {tr("Selected: {value0}", { value0: selected.length })}
+              </span>
+              <button
+                className="button secondary"
+                type="button"
+                disabled={!eligible.length}
+                onClick={() => applySelected(true)}
+              >
+                {exhibition
+                  ? tr("Include eligible games ({value0})", {
+                      value0: eligible.length,
+                    })
+                  : tr("Include eligible games and confirm rules ({value0})", {
+                      value0: eligible.length,
+                    })}
+              </button>
+            </div>
+            <div className={styles.batchActions}>
+              <label className={`field ${styles.batchReason}`}>
+                <span>{tr("Shared exclusion reason")}</span>
+                <input
+                  value={exclusionReason}
+                  maxLength={1000}
+                  onChange={(e) => setExclusionReason(e.target.value)}
+                />
+              </label>
+              <button
+                className="button secondary"
+                type="button"
+                disabled={!selected.length || !exclusionReason.trim()}
+                onClick={() => applySelected(false)}
+              >
+                {tr("Exclude selected games")}
+              </button>
+            </div>
+          </div>
+        )}
+        <div className={styles.games}>
+          {preview.games.map((g, i) => {
+            const decision = decisions[g.game.id];
+            const unknown = data.context.fixture.openExhibition
+              ? []
+              : g.players.filter(
+                  (p) =>
+                    p.osuId &&
+                    !data.context.teams.some((t) =>
+                      t.members.some((m) => m.osuId === p.osuId),
+                    ),
+                );
+            return (
+              <div className={styles.gameRow} key={g.game.id}>
+                <input
+                  className={styles.selectGame}
+                  type="checkbox"
+                  aria-label={tr("Select game {value0}", { value0: i + 1 })}
+                  checked={selected.includes(g.game.id)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setSelected((old) =>
+                      checked
+                        ? [...old, g.game.id]
+                        : old.filter((id) => id !== g.game.id),
+                    );
+                  }}
+                />
+                <details className={styles.gameDetails}>
+                  <summary>
+                    <strong>
+                      {tr("Game ")}
+                      {i + 1} ·{" "}
+                      {g.game.beatmap?.title ??
+                        (g.game.beatmapId
+                          ? tr("Beatmap {value0}", { value0: g.game.beatmapId })
+                          : tr("Unavailable beatmap"))}
+                    </strong>
+                    <span className={styles.gameMeta}>
+                      {g.exMode && (
+                        <span className="badge">{tr("EX mode")}</span>
+                      )}
+                      <span className={styles.score}>
+                        {g.homeScore ?? "—"} : {g.awayScore ?? "—"}
+                      </span>
+                      <span className="muted">
+                        {decision
+                          ? decision.included
+                            ? tr("Included")
+                            : tr("Excluded")
+                          : tr("Unreviewed")}
+                      </span>
+                      {Boolean(
+                        g.problems.length || (!exhibition && g.warnings.length),
+                      ) && (
+                        <span className="badge">{tr("Needs attention")}</span>
+                      )}
+                    </span>
+                  </summary>
+                  <div className="form-stack">
+                    <p className="muted">
+                      {tr("Game ID ")}
+                      {g.game.id} · {g.game.teamType ?? tr("Unknown team mode")}{" "}
+                      · {g.game.scoringType ?? tr("Unknown scoring")} ·{" "}
+                      {g.game.problems.includes("Game mod data is unavailable.")
+                        ? tr("Unavailable")
+                        : g.game.mods.join(", ") || "NM"}
+                    </p>
+                    {g.game.beatmapId && (
+                      <a
+                        className="text-link"
+                        href={`https://osu.ppy.sh/beatmaps/${g.game.beatmapId}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {tr("Open beatmap ↗")}
+                      </a>
+                    )}
+                    <div
+                      className="table-scroll"
+                      role="region"
+                      tabIndex={0}
+                      aria-label={tr(
+                        "Recorded game {value0} scores; scroll horizontally",
+                        { value0: i + 1 },
+                      )}
+                    >
+                      <table>
+                        <caption>
+                          {tr("Recorded player scores for game ")}
+                          {i + 1}
+                        </caption>
+                        <thead>
+                          <tr>
+                            <th>{tr("osu! player")}</th>
+                            <th>{tr("Team evidence")}</th>
+                            <th>{tr("Score")}</th>
+                            <th>{tr("Lobby side")}</th>
+                            <th>{tr("Passed")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {g.players.map((p, n) => (
+                            <tr key={`${p.osuId}-${n}`}>
+                              <td>
+                                {data.context.teams
+                                  .flatMap((t) => t.members)
+                                  .find((m) => m.osuId === p.osuId)?.username ??
+                                  (data.context.fixture.openExhibition
+                                    ? source.players?.find(
+                                        (player) => player.osuId === p.osuId,
+                                      )?.username
+                                    : undefined) ??
+                                  tr("osu! ID {value0}", {
+                                    value0: p.osuId ?? "unavailable",
+                                  })}
+                              </td>
+                              <td>
+                                {p.teamId
+                                  ? `${teamName(p.teamId)} (${p.evidence})`
+                                  : tr("Unresolved")}
+                              </td>
+                              <td>
+                                {p.total?.toLocaleString() ?? tr("Unavailable")}
+                              </td>
+                              <td>{p.team ?? tr("Unknown")}</td>
+                              <td>
+                                {p.passed === null
+                                  ? tr("Unknown")
+                                  : p.passed
+                                    ? tr("Yes")
+                                    : tr("No")}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {g.exMode && <p className="badge">{tr("EX mode")}</p>}
                     <label className="field">
                       <span>
                         {tr("Game ")}
-                        {i + 1}{" "}
-                        {decision.included
-                          ? tr("scoring decision explanation")
-                          : tr("exclusion explanation")}
+                        {i + 1} {tr(" decision")}
                       </span>
-                      <textarea
-                        maxLength={1000}
-                        value={decision?.reason ?? ""}
-                        onChange={(e) =>
-                          update(g.game.id, { reason: e.target.value })
-                        }
-                      />
+                      <select
+                        value={decision ? String(decision.included) : ""}
+                        onChange={(e) => {
+                          if (!e.target.value) {
+                            setDecisions((old) => {
+                              const next = { ...old };
+                              delete next[g.game.id];
+                              return next;
+                            });
+                          } else
+                            update(g.game.id, {
+                              included: e.target.value === "true",
+                            });
+                        }}
+                      >
+                        <option value="">{tr("Choose after reviewing")}</option>
+                        <option value="true">{tr("Include in result")}</option>
+                        <option value="false">
+                          {tr("Exclude from result")}
+                        </option>
+                      </select>
                     </label>
-                  )}
-                {!exhibition && (
-                  <label className="check-label">
-                    <input
-                      type="checkbox"
-                      checked={decision?.complianceConfirmed ?? false}
-                      onChange={(e) =>
-                        update(g.game.id, {
-                          complianceConfirmed: e.target.checked,
-                        })
-                      }
-                    />
-                    {tr("Game ")}
-                    {i + 1}
-                    {tr(": I verified mods and the approved tournament rules")}
-                  </label>
-                )}
-                {unknown.map((p) => {
-                  const existing = decision?.substitutions.find(
-                    (s) => s.osuId === p.osuId,
-                  );
-                  const replace = (teamId: string, reason: string) =>
-                    update(g.game.id, {
-                      substitutions: [
-                        ...(decision?.substitutions.filter(
-                          (s) => s.osuId !== p.osuId,
-                        ) ?? []),
-                        ...(teamId
-                          ? [{ osuId: p.osuId!, teamId, reason }]
-                          : []),
-                      ],
-                    });
-                  return (
-                    <fieldset key={p.osuId}>
-                      <legend>
-                        {tr("Non-roster player ")}
-                        {p.osuId}
-                        {tr(": substitution evidence")}
-                      </legend>
-                      <InfoNote>
-                        <p className="muted">
-                          {exhibition
-                            ? tr(
-                                "Identify the player’s side and give a reason.",
-                              )
-                            : tr(
-                                "Requires a configured substitution policy. This does not change the official roster.",
-                              )}
-                        </p>
-                      </InfoNote>
-                      <label className="field">
-                        <span>
-                          {tr("Confirmed team for osu! ID ")}
-                          {p.osuId}
-                        </span>
-                        <select
-                          value={existing?.teamId ?? ""}
-                          onChange={(e) =>
-                            replace(e.target.value, existing?.reason ?? "")
-                          }
-                        >
-                          <option value="">{tr("Unresolved")}</option>
-                          {data.context.teams.map((t) => (
-                            <option key={t.id} value={t.id}>
-                              {t.name}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="field">
-                        <span>
-                          {tr("Substitution reason for osu! ID ")}
-                          {p.osuId}
-                        </span>
+                    {decision &&
+                      (!decision.included ||
+                        (!exhibition && g.warnings.length > 0)) && (
+                        <label className="field">
+                          <span>
+                            {tr("Game ")}
+                            {i + 1}{" "}
+                            {decision.included
+                              ? tr("scoring decision explanation")
+                              : tr("exclusion explanation")}
+                          </span>
+                          <textarea
+                            maxLength={1000}
+                            value={decision?.reason ?? ""}
+                            onChange={(e) =>
+                              update(g.game.id, { reason: e.target.value })
+                            }
+                          />
+                        </label>
+                      )}
+                    {!exhibition && (
+                      <label className="check-label">
                         <input
-                          value={existing?.reason ?? ""}
-                          maxLength={500}
+                          type="checkbox"
+                          checked={decision?.complianceConfirmed ?? false}
                           onChange={(e) =>
-                            replace(existing?.teamId ?? "", e.target.value)
+                            update(g.game.id, {
+                              complianceConfirmed: e.target.checked,
+                            })
                           }
                         />
+                        {tr("Game ")}
+                        {i + 1}
+                        {tr(
+                          ": I verified mods and the approved tournament rules",
+                        )}
                       </label>
-                    </fieldset>
-                  );
-                })}
-                {g.problems.map((p, n) => (
-                  <p className="notice error-text" key={n}>
-                    {p}
-                  </p>
-                ))}
-                {g.warnings.map((p, n) => (
-                  <p className="notice" key={n}>
-                    {p}
-                  </p>
-                ))}
-                <p>
-                  {tr("Calculated team score: ")}
-                  {g.homeScore ?? "—"} : {g.awayScore ?? "—"}.{" "}
-                  {g.tied
-                    ? tr("Tied game")
-                    : g.winnerTeamId
-                      ? tr("Winner: {value0}", {
-                          value0: teamName(g.winnerTeamId),
-                        })
-                      : tr("No verified winner")}
-                  .
-                </p>
+                    )}
+                    {unknown.map((p) => {
+                      const existing = decision?.substitutions.find(
+                        (s) => s.osuId === p.osuId,
+                      );
+                      const replace = (teamId: string, reason: string) =>
+                        update(g.game.id, {
+                          substitutions: [
+                            ...(decision?.substitutions.filter(
+                              (s) => s.osuId !== p.osuId,
+                            ) ?? []),
+                            ...(teamId
+                              ? [{ osuId: p.osuId!, teamId, reason }]
+                              : []),
+                          ],
+                        });
+                      return (
+                        <fieldset key={p.osuId}>
+                          <legend>
+                            {tr("Non-roster player ")}
+                            {p.osuId}
+                            {tr(": substitution evidence")}
+                          </legend>
+                          <InfoNote>
+                            <p className="muted">
+                              {exhibition
+                                ? tr(
+                                    "Identify the player’s side and give a reason.",
+                                  )
+                                : tr(
+                                    "Requires a configured substitution policy. This does not change the official roster.",
+                                  )}
+                            </p>
+                          </InfoNote>
+                          <label className="field">
+                            <span>
+                              {tr("Confirmed team for osu! ID ")}
+                              {p.osuId}
+                            </span>
+                            <select
+                              value={existing?.teamId ?? ""}
+                              onChange={(e) =>
+                                replace(e.target.value, existing?.reason ?? "")
+                              }
+                            >
+                              <option value="">{tr("Unresolved")}</option>
+                              {data.context.teams.map((t) => (
+                                <option key={t.id} value={t.id}>
+                                  {t.name}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="field">
+                            <span>
+                              {tr("Substitution reason for osu! ID ")}
+                              {p.osuId}
+                            </span>
+                            <input
+                              value={existing?.reason ?? ""}
+                              maxLength={500}
+                              onChange={(e) =>
+                                replace(existing?.teamId ?? "", e.target.value)
+                              }
+                            />
+                          </label>
+                        </fieldset>
+                      );
+                    })}
+                    {g.problems.map((p, n) => (
+                      <p className="notice error-text" key={n}>
+                        {p}
+                      </p>
+                    ))}
+                    {g.warnings.map((p, n) => (
+                      <p className="notice" key={n}>
+                        {p}
+                      </p>
+                    ))}
+                    <p>
+                      {tr("Calculated team score: ")}
+                      {g.homeScore ?? "—"} : {g.awayScore ?? "—"}.{" "}
+                      {g.tied
+                        ? tr("Tied game")
+                        : g.winnerTeamId
+                          ? tr("Winner: {value0}", {
+                              value0: teamName(g.winnerTeamId),
+                            })
+                          : tr("No verified winner")}
+                      .
+                    </p>
+                  </div>
+                </details>
               </div>
-            </details>
-          );
-        })}
+            );
+          })}
+        </div>
         <article className="panel stack">
           <h3>{tr("New review preview")}</h3>
           <p className="score">
@@ -497,6 +618,118 @@ function SourceReview({
     </ReadOnlyFields>
   );
 }
+function RefereeResultReview({
+  data,
+  slug,
+  onError,
+}: {
+  data: MatchReview;
+  slug: string;
+  onError: (message: string) => void;
+}) {
+  const tr = useAppTranslations();
+  const record = data.refereeReview!;
+  const [confirmed, setConfirmed] = useState(false);
+  const [publicNote, setPublicNote] = useState("");
+  return (
+    <ReadOnlyFields>
+      <section
+        className="panel form-stack"
+        aria-labelledby="referee-review-heading"
+      >
+        <h2 id="referee-review-heading">{tr("Review referee record")}</h2>
+        <p className="score">
+          {record.series.homeWins} : {record.series.awayWins}
+        </p>
+        <RefereeResultGames data={data} games={record.games} />
+        {record.blocker ? (
+          <p className="notice">
+            {record.blocker ===
+            "Reconfirm the fixture dependencies in the referee workspace."
+              ? tr(
+                  "Reconfirm the fixture dependencies in the referee workspace.",
+                )
+              : tr(
+                  "The saved referee outcomes do not complete the configured series.",
+                )}
+          </p>
+        ) : (
+          <>
+            <label className="field">
+              <span>
+                {tr("Public result note (optional, visible after publication)")}
+              </span>
+              <textarea
+                maxLength={1000}
+                value={publicNote}
+                onChange={(e) => setPublicNote(e.target.value)}
+              />
+            </label>
+            <label className="check-label">
+              <input
+                type="checkbox"
+                checked={confirmed}
+                onChange={(e) => setConfirmed(e.target.checked)}
+              />
+              {tr(
+                "I reviewed the referee-recorded map outcomes and confirmed the series result",
+              )}
+            </label>
+            {confirmed && (
+              <Operation
+                label={tr("Submit proposed result")}
+                action="submit_referee"
+                data={data}
+                slug={slug}
+                extra={{
+                  refereeRevision: record.revision,
+                  dependencyFingerprint: record.dependencyFingerprint,
+                  publicNote,
+                }}
+                onError={onError}
+              />
+            )}
+          </>
+        )}
+      </section>
+    </ReadOnlyFields>
+  );
+}
+
+function RefereeResultGames({
+  data,
+  games,
+}: {
+  data: MatchReview;
+  games: NonNullable<MatchReview["refereeReview"]>["games"];
+}) {
+  const tr = useAppTranslations();
+  return (
+    <ol className={styles.games}>
+      {games.map((game, i) => (
+        <li key={game.attemptId} className={styles.refereeGame}>
+          <span>
+            {tr("Game ")}
+            {i + 1} · {game.category} ·{" "}
+            <a
+              className="text-link"
+              href={`https://osu.ppy.sh/beatmaps/${game.beatmapId}`}
+            >
+              {tr("Beatmap {value0}", { value0: game.beatmapId })}
+            </a>
+          </span>
+          <strong>
+            {game.winnerTeamId
+              ? data.context.teams.find((team) => team.id === game.winnerTeamId)
+                  ?.name
+              : tr("Tied game")}
+          </strong>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function MatchReviewPanel({
   data,
   slug,
@@ -512,6 +745,15 @@ export function MatchReviewPanel({
   const [requestKey, setKey] = useState(() => crypto.randomUUID());
   const [notice, setNotice] = useState("");
   const [progression, setProgression] = useState(false);
+  const [reviewKind, setReviewKind] = useState<"mp" | "referee">(
+    data.refereeReview && (!data.source || data.current?.proposal?.referee)
+      ? "referee"
+      : "mp",
+  );
+  const referee = data.refereeReview;
+  const showReferee = Boolean(
+    referee && (reviewKind === "referee" || !data.source),
+  );
   const { context } = data;
   const state = context.result;
   const base = `/api/admin/tournaments/${slug}/matches/${context.fixture.id}`;
@@ -646,14 +888,39 @@ export function MatchReviewPanel({
             </details>
           )}
         </section>
+        {referee && data.source && (
+          <label className="field">
+            <span>{tr("Result source")}</span>
+            <select
+              value={reviewKind}
+              onChange={(e) =>
+                setReviewKind(e.target.value === "referee" ? "referee" : "mp")
+              }
+            >
+              <option value="mp">{tr("MP Link")}</option>
+              <option value="referee">{tr("Referee record")}</option>
+            </select>
+          </label>
+        )}
+        {referee && (
+          <div hidden={!showReferee}>
+            <RefereeResultReview
+              key={`${referee.revision}-${referee.dependencyFingerprint}`}
+              data={data}
+              slug={slug}
+              onError={setNotice}
+            />
+          </div>
+        )}
         {data.source && (
-          <SourceReview
-            key={`${data.importId}-${context.fixture.version}-${context.round.version}-${context.pool?.version ?? 0}`}
-            data={data}
-            slug={slug}
-
-            onError={setNotice}
-          />
+          <div hidden={showReferee}>
+            <SourceReview
+              key={`${data.importId}-${context.fixture.version}-${context.round.version}-${context.pool?.version ?? 0}`}
+              data={data}
+              slug={slug}
+              onError={setNotice}
+            />
+          </div>
         )}
         <section className="panel stack">
           <h2>{tr("Approval and publication")}</h2>
@@ -676,6 +943,15 @@ export function MatchReviewPanel({
                 ? tr("Approved")
                 : tr("Awaiting approval")}
             </p>
+          )}
+          {data.current?.proposal?.referee && (
+            <details>
+              <summary>{tr("Referee-recorded map outcomes")}</summary>
+              <RefereeResultGames
+                data={data}
+                games={data.current.proposal.referee.games}
+              />
+            </details>
           )}
           {data.published?.proposal && (
             <p>

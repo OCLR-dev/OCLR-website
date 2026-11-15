@@ -12,6 +12,8 @@ import { sql, eq } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import {
   matchResults,
+  matchGames,
+  resultGameClaims,
   refereeReconciliations,
   fixtureReferees,
   matchImports,
@@ -25,6 +27,9 @@ import {
   refereeTestUser as actor,
 } from "../fixtures/referee";
 import { assertTestDatabase } from "../database";
+import { matchReview } from "../../src/lib/result-review";
+import { resultCommand } from "../../src/lib/results";
+import { publicFixture } from "../../src/lib/public-competition";
 import { refereeCommand } from "../../src/lib/referee";
 import { type RefereeWorkspace } from "../../src/lib/referee-workspace";
 import {
@@ -117,6 +122,133 @@ describe.skipIf(!url)("saved referee MP reconciliation boundaries", () => {
       gameId: game.id,
     };
   }
+  it("publishes a reviewed referee series without MP data and rejects stale revisions", async () => {
+    const [result] = await db()
+      .delete(matchResults)
+      .where(eq(matchResults.fixtureId, fixtureId))
+      .returning();
+    await db()
+      .delete(matchGames)
+      .where(eq(matchGames.importId, result.latestImportId!));
+    await db()
+      .delete(matchImports)
+      .where(eq(matchImports.id, result.latestImportId!));
+
+    async function record(payload: Record<string, unknown>) {
+      w = (
+        await refereeCommand(actor, "test-cup", fixtureId, {
+          ...payload,
+          requestKey: randomUUID(),
+          expectedRevision: w.session!.revision,
+          dependencyFingerprint: w.dependencyFingerprint,
+        })
+      ).workspace;
+    }
+    const home = w.teams[0].id;
+    const away = w.teams[1].id;
+    const resolve = (winnerTeamId: string | null) =>
+      record({
+        action: "resolve_attempt",
+        pickId: w.projection.lastSelectionId,
+        status: winnerTeamId ? "completed" : "aborted",
+        winnerTeamId,
+      });
+    const submit = (review: Awaited<ReturnType<typeof matchReview>>) => ({
+      action: "submit_referee",
+      confirmed: true,
+      expectedVersion: review.context.result?.version ?? 0,
+      expectedFixtureVersion: review.context.fixture.version,
+      refereeRevision: review.refereeReview!.revision,
+      dependencyFingerprint: review.refereeReview!.dependencyFingerprint,
+      publicNote: "",
+      requestKey: randomUUID(),
+    });
+
+    const incomplete = await matchReview(actor, "test-cup", fixtureId);
+    expect(incomplete.refereeReview?.blocker).toBeTruthy();
+    await expect(
+      resultCommand(actor, "test-cup", fixtureId, submit(incomplete)),
+    ).rejects.toMatchObject({ status: 409 });
+    await resolve(null);
+    await record({
+      action: "replay_attempt",
+      pickId: w.projection.lastSelectionId,
+    });
+    await resolve(home);
+    await record({
+      action: "record_selection",
+      entryId: w.maps.find((m) => m.beatmapId === 10005)!.id,
+    });
+    await record({
+      action: "record_selection",
+      entryId: w.maps.find((m) => m.beatmapId === 10002)!.id,
+    });
+    await resolve(home);
+
+    const reviewed = await matchReview(actor, "test-cup", fixtureId);
+    expect(reviewed.source).toBeNull();
+    expect(reviewed.refereeReview?.games.map((g) => g.beatmapId)).toEqual([
+      10001, 10002,
+    ]);
+    const submission = submit(reviewed);
+    let submitted = (
+      await resultCommand(actor, "test-cup", fixtureId, submission)
+    ).review;
+    const replay = await resultCommand(
+      actor,
+      "test-cup",
+      fixtureId,
+      submission,
+    );
+    expect(replay.review.current?.revision).toBe(submitted.current?.revision);
+    const approval = () => ({
+      action: "approve_publish",
+      expectedVersion: submitted.context.result!.version,
+      expectedFixtureVersion: submitted.context.fixture.version,
+      revision: submitted.current!.revision,
+      confirmed: true,
+      progressionAcknowledged: true,
+      requestKey: randomUUID(),
+    });
+    expect((await publicFixture("test-cup", fixtureId))?.result).toBeNull();
+    await expect(
+      resultCommand(actor, "test-cup", fixtureId, approval()),
+    ).rejects.toMatchObject({ status: 403 });
+    await resolve(away);
+    await expect(
+      resultCommand(admin, "test-cup", fixtureId, approval()),
+    ).rejects.toMatchObject({ status: 409 });
+
+    await resolve(home);
+    submitted = (
+      await resultCommand(
+        actor,
+        "test-cup",
+        fixtureId,
+        submit(await matchReview(actor, "test-cup", fixtureId)),
+      )
+    ).review;
+    await resultCommand(admin, "test-cup", fixtureId, approval());
+    const published = await publicFixture("test-cup", fixtureId);
+    expect(published?.result).toMatchObject({
+      homeWins: 2,
+      awayWins: 0,
+      winnerTeamId: home,
+      mpId: null,
+      mpUrl: null,
+      games: [],
+      refereeGames: [
+        { beatmapId: 10001, winnerTeamId: home },
+        { beatmapId: 10002, winnerTeamId: home },
+      ],
+    });
+    expect(published?.details).toBeNull();
+    expect(await db().select().from(resultGameClaims)).toHaveLength(0);
+    await resolve(away);
+    expect((await publicFixture("test-cup", fixtureId))?.result).toEqual(
+      published?.result,
+    );
+  });
   it("reads no automatic mappings and preserves official result state", async () => {
     const before = await db().select().from(matchResults);
     const data = await refereeReconciliation(actor, "test-cup", fixtureId);

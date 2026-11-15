@@ -106,9 +106,11 @@ export function MatchCard({
                 {tr("· Updated")}{" "}
                 {tr(formatDate(f.result.updatedAt, f.timeZone, tr.locale))}
               </p>
-              <a className="text-link" href={f.result.mpUrl}>
-                {tr("osu! match source")}
-              </a>
+              {f.result.mpUrl && (
+                <a className="text-link" href={f.result.mpUrl}>
+                  {tr("osu! match source")}
+                </a>
+              )}
             </>
           )}
           <p>

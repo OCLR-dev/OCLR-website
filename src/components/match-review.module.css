@@ -1,0 +1,75 @@
+.batch {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.batchActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.5rem 0.75rem;
+}
+
+.batchActions > label:first-child:not(.batchReason),
+.batchActions > span {
+  align-self: center;
+}
+
+.batchReason {
+  flex: 1 1 16rem;
+}
+
+.games {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-block-start: 1px solid var(--site-border);
+}
+
+.gameRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0 0.5rem;
+  border-block-end: 1px solid var(--site-border);
+}
+
+.selectGame {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  margin-block-start: 0.8rem;
+}
+
+.gameDetails > summary {
+  min-height: 2.75rem;
+  padding-block: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.gameDetails[open] {
+  padding-block-end: 0.75rem;
+}
+
+.gameMeta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  align-items: baseline;
+  margin-inline-start: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.score {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.refereeGame {
+  display: flex;
+  gap: 0.25rem 0.75rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding-block: 0.5rem;
+  border-block-end: 1px solid var(--site-border);
+}

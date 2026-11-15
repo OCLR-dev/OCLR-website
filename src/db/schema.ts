@@ -1301,7 +1301,7 @@ export const resultRevisions = pgTable(
       .notNull()
       .references(() => matchResults.fixtureId),
     revision: integer("revision").notNull(),
-    importId: uuid("import_id").notNull(),
+    importId: uuid("import_id"),
     proposal: jsonb("proposal").$type<unknown>().notNull(),
     reason: text("reason"),
     createdBy: bigint("created_by", { mode: "number" }).notNull(),

@@ -192,6 +192,14 @@ export type MatchContext = {
   } | null;
 };
 
+const refereeResultGameSchema = z.strictObject({
+  attemptId: z.uuid(),
+  beatmapId: id,
+  category: z.string().max(8),
+  winnerTeamId: z.uuid().nullable(),
+});
+export type RefereeResultGame = z.infer<typeof refereeResultGameSchema>;
+
 export const reviewedResultSchema = z
   .object({
     exDeclarations: z
@@ -231,6 +239,12 @@ export const reviewedResultSchema = z
       .length(2),
     rulesSnapshot: scoringRulesSchema.nullable(),
     sourceFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+    referee: z
+      .strictObject({
+        revision: integer,
+        games: z.array(refereeResultGameSchema).min(1).max(200),
+      })
+      .optional(),
     decisions: z.array(gameDecisionSchema).max(3000),
     publicNote: z.string().trim().max(1000),
     games: z
@@ -276,7 +290,6 @@ export const reviewedResultSchema = z
           })
           .strict(),
       )
-      .min(1)
       .max(3000),
     series: z
       .object({
@@ -291,26 +304,42 @@ export const reviewedResultSchema = z
       .strict(),
   })
   .strict()
-  .refine(
-    (r) =>
-      new Set(r.games.map((g) => g.gameId)).size === r.games.length &&
-      r.games.every((g) =>
+  .refine((r) => {
+    if (
+      r.referee
+        ? r.games.length ||
+          r.decisions.length ||
+          !r.rulesSnapshot ||
+          new Set(r.referee.games.map((g) => g.attemptId)).size !==
+            r.referee.games.length
+        : !r.games.length ||
+          new Set(r.games.map((g) => g.gameId)).size !== r.games.length
+    )
+      return false;
+    const games =
+      r.referee?.games.map((g) => ({
+        winnerTeamId: g.winnerTeamId,
+        tied: g.winnerTeamId === null,
+      })) ?? r.games;
+    return (
+      games.every((g) =>
         g.tied
           ? g.winnerTeamId === null
           : r.teamIds.includes(g.winnerTeamId ?? ""),
       ) &&
-      r.series.includedGames === r.games.length &&
+      r.series.includedGames === games.length &&
       r.series.homeWins ===
-        r.games.filter((g) => g.winnerTeamId === r.teamIds[0]).length &&
+        games.filter((g) => g.winnerTeamId === r.teamIds[0]).length &&
       r.series.awayWins ===
-        r.games.filter((g) => g.winnerTeamId === r.teamIds[1]).length &&
-      r.series.tiedMaps === r.games.filter((g) => g.tied).length &&
+        games.filter((g) => g.winnerTeamId === r.teamIds[1]).length &&
+      r.series.tiedMaps === games.filter((g) => g.tied).length &&
       (r.series.draw
         ? r.series.winnerTeamId === null &&
           r.series.homeWins === r.series.awayWins
         : r.series.winnerTeamId ===
             (r.series.homeWins > r.series.awayWins
               ? r.teamIds[0]
-              : r.teamIds[1]) && r.series.homeWins !== r.series.awayWins),
-  );
+              : r.teamIds[1]) && r.series.homeWins !== r.series.awayWins)
+    );
+  });
 export type ReviewedResult = z.infer<typeof reviewedResultSchema>;

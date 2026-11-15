@@ -124,15 +124,39 @@ async function Issue271Page({
                 <p className="notice">{result.publicNote}</p>
               </InfoNote>
             )}
-            <a
-              className="text-link"
-              href={result.mpUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {tr("osu! multiplayer source #")}
-              {result.mpId} ↗
-            </a>
+            {result.mpUrl && (
+              <a
+                className="text-link"
+                href={result.mpUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {tr("osu! multiplayer source #")}
+                {result.mpId} ↗
+              </a>
+            )}
+            {result.refereeGames && (
+              <section>
+                <h2>{tr("Referee-recorded map outcomes")}</h2>
+                <ul>
+                  {result.refereeGames.map((game, index) => (
+                    <li key={index}>
+                      <a
+                        className="text-link"
+                        href={`https://osu.ppy.sh/beatmaps/${game.beatmapId}`}
+                      >
+                        {game.category} ·{" "}
+                        {tr("Beatmap {value0}", { value0: game.beatmapId })}
+                      </a>
+                      {" · "}
+                      {game.winnerTeamId
+                        ? teamName(game.winnerTeamId)
+                        : tr("Tied game")}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
             <p className="muted small">
               {tr("Published · Updated")}{" "}
               {tr(formatDate(result.updatedAt, f.timeZone, tr.locale))}
@@ -148,12 +172,14 @@ async function Issue271Page({
           </InfoNote>
         )}
       </section>
-      <MatchDetailsView
-        details={f.details}
-        slug={slug}
-        teams={[f.home.team, f.away.team].flatMap((t) => (t ? [t] : []))}
-        timeZone={f.timeZone}
-      />
+      {!result?.refereeGames && (
+        <MatchDetailsView
+          details={f.details}
+          slug={slug}
+          teams={[f.home.team, f.away.team].flatMap((t) => (t ? [t] : []))}
+          timeZone={f.timeZone}
+        />
+      )}
     </>
   );
 }

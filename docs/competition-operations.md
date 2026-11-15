@@ -404,11 +404,19 @@ active attempts. Source refresh or ledger/dependency changes mark old confirmati
 stale. Link changes retain their history and the exact referee revision reviewed.
 Incomplete sources, unresolved winners and disagreements remain visible.
 
-Use **Open MP review** to perform the existing include/exclude, substitution,
-compliance and official submission workflow. A manual ledger winner never creates
-MP player scores, Rating credit, a result revision or an approval. Published and
-approved revisions remain immutable; changing a referee record does not change
-public standings, bracket advancement, or OBS output.
+Open the match review to choose the result source. **MP Link** uses imported
+player scores. Select eligible games to include and confirm their rule checks
+together, or select games to exclude with a shared reason. Open individual rows
+for score evidence, warnings, substitutions and exceptions.
+
+**Referee record** uses the final attempt of each active pick or tiebreak from
+the saved referee session, including corrections and replays. Staff can submit
+a complete series from that record even without an MP import. The proposal stores
+the session revision and map outcomes. Changes to the session or its dependencies
+require a fresh review before approval or publication. Only the approved,
+published revision feeds public results, standings and bracket advancement.
+Referee outcomes contribute map wins and allowed ties. Player scores, appearances
+and Rating require actual reviewed MP data.
 
 ### Persistence and recovery
 
