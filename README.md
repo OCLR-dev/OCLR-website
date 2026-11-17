@@ -122,6 +122,14 @@ Artwork and tournament dates shown in [design references](docs/design/) are exam
 - [\[SHK\]ShandenYMD](https://osu.ppy.sh/users/13413713)
 - [Muziyami](https://osu.ppy.sh/users/7003013)
 
+## Acknowledgments
+
+Thank you to the following projects for providing data to OCLR.
+
+- [Elitebotix](https://github.com/Eliteronix/Elitebotix)
+- [SkillIssue](https://github.com/JustRoxy/SkillIssue)
+- [o!TR](https://github.com/osu-tournament-rating/otr)
+
 ## License
 
 Project code is licensed under the [MIT License](LICENSE). Adapted yumu-bot components retain their [Apache-2.0 license](LICENSES/yumu-bot-Apache-2.0.txt) and [attribution](docs/yumu-rating.md).

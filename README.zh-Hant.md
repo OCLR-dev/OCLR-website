@@ -118,6 +118,14 @@ Playwright 會在本機回送位址的 3100 連接埠啟動正式建置。若要
 - [\[SHK\]ShandenYMD](https://osu.ppy.sh/users/13413713)
 - [Muziyami](https://osu.ppy.sh/users/7003013)
 
+## 致謝
+
+感謝以下專案為 OCLR 提供資料。
+
+- [Elitebotix](https://github.com/Eliteronix/Elitebotix)
+- [SkillIssue](https://github.com/JustRoxy/SkillIssue)
+- [o!TR](https://github.com/osu-tournament-rating/otr)
+
 ## 授權
 
 本專案程式碼採用 [MIT License](LICENSE)。改編自 yumu-bot 的元件保留其 [Apache-2.0 授權](LICENSES/yumu-bot-Apache-2.0.txt)與[來源標示](docs/yumu-rating.md)。

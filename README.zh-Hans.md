@@ -118,6 +118,14 @@ Playwright 会在本地回环地址的 3100 端口启动生产构建。如需使
 - [\[SHK\]ShandenYMD](https://osu.ppy.sh/users/13413713)
 - [Muziyami](https://osu.ppy.sh/users/7003013)
 
+## 致谢
+
+感谢以下项目为 OCLR 提供数据。
+
+- [Elitebotix](https://github.com/Eliteronix/Elitebotix)
+- [SkillIssue](https://github.com/JustRoxy/SkillIssue)
+- [o!TR](https://github.com/osu-tournament-rating/otr)
+
 ## 许可
 
 本项目代码采用 [MIT License](LICENSE)。改编自 yumu-bot 的组件保留其 [Apache-2.0 许可](LICENSES/yumu-bot-Apache-2.0.txt)与[来源标注](docs/yumu-rating.md)。
