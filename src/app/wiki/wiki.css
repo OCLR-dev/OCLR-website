@@ -158,7 +158,7 @@
   display: block;
   padding: clamp(0.5rem, 1.2vw, 1rem);
   border-radius: 12px;
-  background: #241c2e;
+  background: transparent;
   outline-offset: 4px;
   overflow: hidden;
 }
