@@ -155,6 +155,7 @@
   margin-block-start: 0.65rem;
 }
 .wiki-gallery a {
+  cursor: zoom-in;
   display: block;
   padding: clamp(0.5rem, 1.2vw, 1rem);
   border-radius: 12px;

@@ -1,9 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useState } from "react";
+import { useAppTranslations } from "@/i18n/shared";
 import type { WikiGalleryFigure } from "@/lib/wiki-articles";
 import { EmojiReactions } from "./player-reactions";
+
+const WikiGalleryLightbox = dynamic(() => import("./wiki-gallery-lightbox"));
 
 export function WikiGallery({
   figures,
@@ -14,7 +18,9 @@ export function WikiGallery({
   initialIndex: number;
   showAnotherLabel: string;
 }) {
+  const tr = useAppTranslations();
   const [index, setIndex] = useState(initialIndex);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const figure = figures[index];
 
   function showAnother() {
@@ -26,7 +32,25 @@ export function WikiGallery({
   return (
     <div className="wiki-gallery">
       <figure>
-        <a href={figure.src} target="_blank" rel="noreferrer">
+        <a
+          href={figure.src}
+          target="_blank"
+          rel="noreferrer"
+          aria-haspopup="dialog"
+          aria-label={`${tr("Zoom in")}: ${figure.caption}`}
+          onClick={(event) => {
+            if (
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey
+            )
+              return;
+            event.preventDefault();
+            event.currentTarget.focus({ preventScroll: true });
+            setPreviewOpen(true);
+          }}
+        >
           <Image
             key={figure.src}
             src={figure.previewSrc}
@@ -72,6 +96,12 @@ export function WikiGallery({
           <span>{showAnotherLabel}</span>
         </button>
       </div>
+      {previewOpen && (
+        <WikiGalleryLightbox
+          figure={figure}
+          close={() => setPreviewOpen(false)}
+        />
+      )}
     </div>
   );
 }

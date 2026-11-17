@@ -4367,6 +4367,8 @@
     "mdf0e921498d8": "{name} for {round} is published.",
     "m3160d05dd86f": "{round}: {home} vs {away}. {time}",
     "m8e8a60b16654": "{round}: {home} {homeWins}–{awayWins} {away}.",
-    "m61d7e36aa8c7": "Registration window: {opens} to {closes}."
+    "m61d7e36aa8c7": "Registration window: {opens} to {closes}.",
+    "m352cfc749e55": "Gallery",
+    "m1aa4cb0bcca7": "Image"
   }
 }

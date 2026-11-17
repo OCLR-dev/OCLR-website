@@ -4367,6 +4367,8 @@
     "mdf0e921498d8": "轮次「{round}」的图池「{name}」已发布。",
     "m3160d05dd86f": "轮次「{round}」：{home} 对阵 {away}。{time}",
     "m8e8a60b16654": "轮次「{round}」：{home} {homeWins}–{awayWins} {away}。",
-    "m61d7e36aa8c7": "报名时段：{opens} 至 {closes}。"
+    "m61d7e36aa8c7": "报名时段：{opens} 至 {closes}。",
+    "m352cfc749e55": "画集",
+    "m1aa4cb0bcca7": "图片"
   }
 }
