@@ -279,8 +279,7 @@ describe("localized News categories", () => {
       expect(publicNewsKind({ kind: "registration", future: true }, tr)).toBe(
         expected[6],
       );
-      const source =
-        "{name} for {round} is published. View the released beatmaps and slot configuration.";
+      const source = "{name} for {round} is published.";
       if (locale !== "en") {
         const english = (await import("../../messages/en.json")).default.ui;
         for (const [key, source] of Object.entries(english))
