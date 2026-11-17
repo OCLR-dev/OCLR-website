@@ -142,18 +142,10 @@ export function projectPublicNews(
         "registration",
         "opens",
         available ? tr("Registration is open") : tr("Registration window"),
-        tr(
-          "Configured registration window: {opens} to {closes}. {availability}",
-          {
-            opens: formatDate(r.opensAt, e.timeZone, tr.locale),
-            closes: formatDate(r.closesAt, e.timeZone, tr.locale),
-            availability: available
-              ? tr("Applications are currently accepted.")
-              : tr(
-                  "Applications require enabled registration and an available tournament; check the registration page for current availability.",
-                ),
-          },
-        ),
+        tr("Registration window: {opens} to {closes}.", {
+          opens: formatDate(r.opensAt, e.timeZone, tr.locale),
+          closes: formatDate(r.closesAt, e.timeZone, tr.locale),
+        }),
         r.opensAt,
         `/tournaments/${e.slug}/register`,
       );
@@ -174,10 +166,9 @@ export function projectPublicNews(
           "registration",
           "withdrawal",
           tr("Withdrawal deadline"),
-          tr(
-            "The configured withdrawal cutoff is {time}. Available actions depend on the application's status and tournament lock.",
-            { time: formatDate(r.withdrawUntil, e.timeZone, tr.locale) },
-          ),
+          tr("The withdrawal deadline is {time}.", {
+            time: formatDate(r.withdrawUntil, e.timeZone, tr.locale),
+          }),
           r.withdrawUntil,
           `/tournaments/${e.slug}/register`,
         );
@@ -188,20 +179,17 @@ export function projectPublicNews(
           "schedule",
           JSON.stringify([entry.label, entry.at]),
           tr("Scheduled: {label}", { label: entry.label }),
-          tr(
-            "{label} is scheduled for {time}. This published date is a plan, not confirmation that the event took place.",
-            {
-              label: entry.label,
-              time: publicNewsDate(
-                {
-                  at: entry.at,
-                  timeZone: e.timeZone,
-                  precision: entry.precision,
-                },
-                tr.locale,
-              ),
-            },
-          ),
+          tr("{label} is scheduled for {time}.", {
+            label: entry.label,
+            time: publicNewsDate(
+              {
+                at: entry.at,
+                timeZone: e.timeZone,
+                precision: entry.precision,
+              },
+              tr.locale,
+            ),
+          }),
           entry.at,
           `/tournaments/${e.slug}/schedule`,
           entry.precision,

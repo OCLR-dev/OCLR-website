@@ -52,10 +52,10 @@ async function loadNews(
         kind: "mappool" as const,
         id: p.id,
         title: tr("Mappool released: {name}", { name: p.name }),
-        summary: tr(
-          "{name} for {round} is published. View the released beatmaps and slot configuration.",
-          { name: p.name, round: p.round },
-        ),
+        summary: tr("{name} for {round} is published.", {
+          name: p.name,
+          round: p.round,
+        }),
         at: p.at!.toISOString(),
         url: `/tournaments/${p.slug}/mappools/${p.id}`,
       })),
@@ -77,19 +77,16 @@ async function loadNews(
           kind: "fixture",
           id: f.id,
           title: `${f.stage === "exhibition" ? `${tr("Exhibition")} · ` : ""}${tr("Fixture published: {label}", { label: f.label })}`,
-          summary: tr(
-            "{round}: {home} vs {away}. {time} A published fixture does not establish a completed result.",
-            {
-              round: f.roundName,
-              home: f.home.label,
-              away: f.away.label,
-              time: f.scheduledAt
-                ? tr("Scheduled for {time}.", {
-                    time: formatDate(f.scheduledAt, f.timeZone, tr.locale),
-                  })
-                : tr("Match time is to be announced."),
-            },
-          ),
+          summary: tr("{round}: {home} vs {away}. {time}", {
+            round: f.roundName,
+            home: f.home.label,
+            away: f.away.label,
+            time: f.scheduledAt
+              ? tr("Scheduled for {time}.", {
+                  time: formatDate(f.scheduledAt, f.timeZone, tr.locale),
+                })
+              : tr("Match time is to be announced."),
+          }),
           at: f.publishedAt,
           url: `/tournaments/${slug}/matches/${f.id}`,
         });
@@ -99,16 +96,13 @@ async function loadNews(
             kind: "result",
             id: f.id,
             title: `${f.stage === "exhibition" ? `${tr("Exhibition")} · ` : ""}${tr("Result published: {label}", { label: f.label })}`,
-            summary: tr(
-              "{round}: {home} {homeWins}–{awayWins} {away}. View the approved match result and latest published updates.",
-              {
-                round: f.roundName,
-                home: f.home.label,
-                homeWins: f.result.homeWins,
-                awayWins: f.result.awayWins,
-                away: f.away.label,
-              },
-            ),
+            summary: tr("{round}: {home} {homeWins}–{awayWins} {away}.", {
+              round: f.roundName,
+              home: f.home.label,
+              homeWins: f.result.homeWins,
+              awayWins: f.result.awayWins,
+              away: f.away.label,
+            }),
             at: f.result.updatedAt,
             url: `/tournaments/${slug}/matches/${f.id}`,
           });

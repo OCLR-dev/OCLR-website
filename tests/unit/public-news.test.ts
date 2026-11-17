@@ -179,7 +179,7 @@ describe("read-only deterministic public News", () => {
     expect(past.slug).toBe(item.slug);
     expect(past.title).toBe(item.title);
     expect(past.future).toBe(false);
-    expect(past.summary).toContain("plan, not confirmation");
+    expect(past.summary).toContain("is scheduled for");
     expect(item.summary).toContain("UTC+8");
   });
   it("claims open registration only within its enabled window with privacy, active state and no lock", () => {
@@ -187,7 +187,7 @@ describe("read-only deterministic public News", () => {
       projectPublicNews([r], [], [], privacy, time).find(
         (i) =>
           i.kind === "registration" &&
-          i.summary.startsWith("Configured registration window:"),
+          i.summary.startsWith("Registration window:"),
       )!;
     const open = title();
     expect(open.title).toContain("Registration is open");
