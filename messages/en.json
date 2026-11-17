@@ -4277,6 +4277,11 @@
     "mfd9c4095dd88": "Liru has translucent butterfly wings and wears a pastel dress decorated with pearls and butterfly clasps.",
     "m656297a6d111": "Galaxy dream",
     "mdc85fd64cb64": "Liru wears a star-embroidered gown with sheer lavender layers, with a small glowing star floating above her palm.",
-    "me48e0f6178d2": "Show another look"
+    "me48e0f6178d2": "Show another look",
+    "md4259fd26b30": "Export registrations",
+    "m91f71c14c8d6": "Export CSV",
+    "m20d2be907e17": "Export UID (ETX bot)",
+    "m11ca40173fe8": "Export username (SIP bot)",
+    "mc461546e018b": "Invalid export format."
   }
 }

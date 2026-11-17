@@ -659,6 +659,41 @@
   gap: 0.5rem;
   flex-wrap: wrap;
 }
+.registration-export {
+  position: relative;
+}
+.registration-export > summary {
+  list-style: none;
+}
+.registration-export > summary::-webkit-details-marker {
+  display: none;
+}
+.registration-export-options {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: calc(100% + 0.25rem);
+  inset-inline-end: 0;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  border: 1px solid var(--site-border);
+  border-radius: var(--button-radius);
+  background: var(--site-surface);
+  box-shadow: 0 0.75rem 2rem var(--site-shadow);
+}
+.registration-export-options a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--button-radius);
+  color: var(--site-foreground);
+}
+.registration-export-options a:is(:hover, :focus-visible) {
+  background: var(--site-tint);
+}
 @media (max-width: 600px) {
   .registration-review-actions {
     width: 100%;
