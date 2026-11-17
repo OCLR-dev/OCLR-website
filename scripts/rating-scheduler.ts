@@ -22,7 +22,7 @@ export async function runDailyRatingRefresh({
 }: {
   day: string;
   stateDir: string;
-  env: NodeJS.ProcessEnv;
+  env: Readonly<Record<string, string | undefined>>;
   run: (provider: Provider) => Promise<boolean>;
 }) {
   await mkdir(stateDir, { recursive: true, mode: 0o700 });
