@@ -4,8 +4,16 @@ import sharp from "sharp";
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { exportCurrentHero } from "./export-current-hero.mjs";
+import { execFileSync } from "node:child_process";
 
 const root = new URL("../../../", import.meta.url);
+execFileSync(
+  "python3",
+  [fileURLToPath(new URL("sync-logo.py", import.meta.url))],
+  {
+    stdio: "inherit",
+  },
+);
 const studio = new URL("design/home-visual/layer-studio/assets/", root);
 const publicDir = new URL("public/", root);
 const data = async (name, type) =>
@@ -54,7 +62,9 @@ async function webp(buffer, filename, width, height) {
     .toFile(fileURLToPath(new URL(filename, publicDir)));
 }
 try {
-  await exportCurrentHero(browser);
+  await exportCurrentHero(browser, {
+    includeBackground: !process.argv.includes("--logo-only"),
+  });
   const square = await render(
     400,
     400,

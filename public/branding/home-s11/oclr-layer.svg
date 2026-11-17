@@ -5,16 +5,16 @@
   <defs><path id="r-fill-centerline" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" />
     <!-- A single blurred centreline produces continuous shading across the track width. -->
     <filter id="r-fill-soften" filterUnits="userSpaceOnUse" x="-80" y="-130" width="750" height="850" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="25" />
+      <feGaussianBlur stdDeviation="18.7931" />
     </filter>
     <mask id="r-fill-mask" maskUnits="userSpaceOnUse" x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" style="mask-type:luminance">
-      <use href="#r-fill-centerline" fill="none" stroke="#fff" stroke-width="145" stroke-linecap="round" stroke-linejoin="round" />
-      <circle cx="122.5" cy="482.5" r="73.25" fill="#fff" />
-      <circle cx="388.562171280" cy="486.758538202" r="73.25" fill="#fff" />
+      <use href="#r-fill-centerline" fill="none" stroke="#fff" stroke-width="109" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="122.5" cy="482.5" r="55.25" fill="#fff" />
+      <circle cx="388.562171280" cy="486.758538202" r="55.25" fill="#fff" />
     </mask>
     <g id="r-fill-shading" mask="url(#r-fill-mask)">
-      <rect x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" fill="#17131f" />
-      <use href="#r-fill-centerline" fill="none" stroke="#75658c" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" filter="url(#r-fill-soften)" />
+      <rect x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" fill="#ded3ff" fill-opacity="0.06" />
+      <use href="#r-fill-centerline" fill="none" stroke="#ded3ff" stroke-opacity="0.4" stroke-width="27.0621" stroke-linecap="round" stroke-linejoin="round" filter="url(#r-fill-soften)" />
     </g>
     <linearGradient id="ocl-fill" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#b8efff" /><stop offset="50%" stop-color="#c4b4ff" /><stop offset="100%" stop-color="#f1b7e8" /></linearGradient><linearGradient id="acc-fill" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#efb3df" /><stop offset="50%" stop-color="#ae9bff" /><stop offset="100%" stop-color="#8de6ef" /></linearGradient><filter id="star-glow" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="9" result="halo" /><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="near" /><feMerge><feMergeNode in="halo" /><feMergeNode in="halo" /><feMergeNode in="near" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs><g transform="translate(0 60)">
     <path id="O-angular" d="M62 0H212L238 28L196 232L163 260H14L0 232L38 28Z M86 52H174L179 59L151 204L145 210H59L56 204L83 59Z" transform="translate(68.76 71.2) scale(.96)" fill="url(#ocl-fill)" stroke="#e4e3ff" stroke-width="1.4" stroke-linejoin="miter" stroke-miterlimit="4" fill-rule="evenodd" />
@@ -32,9 +32,9 @@
           </g>
           <g color="#000" fill="#000">
             <g id="r-inner-r-slider-shape">
-              <path id="r-inner-r-track" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="#000" stroke-width="145" stroke-linecap="round" stroke-linejoin="round" />
-              <circle id="r-inner-r-head-cap" cx="122.5" cy="482.5" r="73.25" fill="#000" />
-              <circle id="r-inner-r-tail-cap" cx="388.562171280" cy="486.758538202" r="73.25" fill="#000" />
+              <path id="r-inner-r-track" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="#000" stroke-width="109" stroke-linecap="round" stroke-linejoin="round" />
+              <circle id="r-inner-r-head-cap" cx="122.5" cy="482.5" r="55.25" fill="#000" />
+              <circle id="r-inner-r-tail-cap" cx="388.562171280" cy="486.758538202" r="55.25" fill="#000" />
             </g>
           </g>
         </mask>
@@ -75,9 +75,9 @@
           </g>
           <g color="#000" fill="#000">
             <g id="mini-r-inner-r-slider-shape">
-              <path id="mini-r-inner-r-track" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="#000" stroke-width="145" stroke-linecap="round" stroke-linejoin="round" />
-              <circle id="mini-r-inner-r-head-cap" cx="122.5" cy="482.5" r="73.25" fill="#000" />
-              <circle id="mini-r-inner-r-tail-cap" cx="388.562171280" cy="486.758538202" r="73.25" fill="#000" />
+              <path id="mini-r-inner-r-track" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="#000" stroke-width="109" stroke-linecap="round" stroke-linejoin="round" />
+              <circle id="mini-r-inner-r-head-cap" cx="122.5" cy="482.5" r="55.25" fill="#000" />
+              <circle id="mini-r-inner-r-tail-cap" cx="388.562171280" cy="486.758538202" r="55.25" fill="#000" />
             </g>
           </g>
         </mask>

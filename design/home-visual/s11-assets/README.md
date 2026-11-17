@@ -1,3 +1,40 @@
+## Logo synchronization — 2026-11-17
+
+`public/branding/home-s11/oclr-layer.svg` is the source for the constellation
+R geometry, continuous purple opacity shading and tail control point. Run:
+
+```sh
+python3 design/home-visual/s11-assets/sync-logo.py
+python3 design/home-visual/s11-assets/sync-logo.py --check
+PLAYWRIGHT_CHANNEL=chromium node design/home-visual/s11-assets/export.mjs --logo-only
+```
+
+The full exporter runs synchronization before reading its sources.
+`--logo-only` skips the text-free website background to preserve its existing
+encoding byte for byte. The banner
+exporter also synchronizes the centered studio source before rendering.
+`sync-logo.py` updates the full season logo, alternate layout, embedded winter
+banner and active studio sources. Each embedded R gets local, uniquely named
+filter/mask definitions. It preserves the surrounding artwork and placement.
+Selected weight B uses a 27-unit inward outline (3× the original 9), with
+109-unit inner track, 55.25-unit cap radius, 27.0621-unit highlight width and
+18.7931-unit blur. The outer contour and control points remain fixed.
+
+The header variants retain their separate light/dark OCL palettes and R outline
+colors. Their R fill follows the same alpha-only shading, using the outline
+color at 6% base opacity and a 40% blurred centreline highlight; backgrounds
+remain visible through the track. Tail stars and control guides share the
+canonical geometry.
+Historical `revision-*` studies, the alternate swirl identity and favicons are
+not export masters for this logo family.
+
+The raster exports must be regenerated after SVG synchronization: updating a
+vector source cannot change an already flattened WebP or PNG. Keep existing
+URLs and dimensions so saved edition branding continues to resolve. The
+website background contains no lettering; a logo-only refresh should leave
+that output identical. The `--check` command detects stale vector copies
+without writing files; it does not assert that raster exports are current.
+
 # S11 tournament asset exports
 
 ## Current homepage artwork — 2026-11-03 (#754)
@@ -58,7 +95,7 @@ All original studio files, prior generation outputs, alternate swirl wordmarks, 
 
 ## Reproduce
 
-Use Node 24 LTS, Python-free export, npm dependencies and the configured Playwright Chromium browser:
+Use Node 24 LTS, Python 3, npm dependencies and the configured Playwright Chromium browser:
 
 ```sh
 npm ci

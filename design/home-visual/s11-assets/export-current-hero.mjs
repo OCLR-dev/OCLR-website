@@ -9,7 +9,10 @@ async function asset(path, mime) {
   return `data:${mime};base64,${(await readFile(new URL(path, publicDir))).toString("base64")}`;
 }
 
-export async function exportCurrentHero(browser) {
+export async function exportCurrentHero(
+  browser,
+  { includeBackground = true } = {},
+) {
   const [sky, person, mist, logo, season, katu] = await Promise.all([
     asset("branding/home-hero/nebula-v2-2560.webp", "image/webp"),
     asset("branding/home-hero/liru-cn-v3-1111.webp", "image/webp"),
@@ -70,16 +73,18 @@ export async function exportCurrentHero(browser) {
         (width * 9) / 16,
       );
     }
-    await page.locator(".logo").evaluate((element) => {
-      element.remove();
-    });
-    await page.setViewportSize({ width: 1280, height: 600 });
-    await webp(
-      await page.screenshot(),
-      "oclr-s11-website-background.webp",
-      3840,
-      1800,
-    );
+    if (includeBackground) {
+      await page.locator(".logo").evaluate((element) => {
+        element.remove();
+      });
+      await page.setViewportSize({ width: 1280, height: 600 });
+      await webp(
+        await page.screenshot(),
+        "oclr-s11-website-background.webp",
+        3840,
+        1800,
+      );
+    }
   } finally {
     await context.close();
   }

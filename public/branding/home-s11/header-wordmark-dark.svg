@@ -22,50 +22,47 @@
     <path id="C-angular" d="M64 0H229L221 52H96L85 63L58 197L66 208H195L185 260H22L0 235L39 29Z" transform="translate(330.58 71.2) scale(.96)" fill="url(#ocl-fill)" stroke="#e4e3ff" stroke-width="1.4" stroke-linejoin="miter" stroke-miterlimit="4" fill-rule="evenodd" />
     <path id="L-angular" d="M52 0H109L72 208H213L203 260H0Z" transform="translate(571.26 71.2) scale(.96)" fill="url(#ocl-fill)" stroke="#e4e3ff" stroke-width="1.4" stroke-linejoin="miter" stroke-miterlimit="4" fill-rule="evenodd" />
     <svg viewBox="46.250000000 -17.903110124 449.125713310 580.911648326" id="R-reference-slider" x="803.7160613072293" y="66" width="201.01625745860187" height="260" overflow="visible" color="#ded3ff">
-      <defs>
-        <!-- Feather the inset of the R to shade across each stroke. -->
-        <filter id="r-fill-shading" filterUnits="userSpaceOnUse" x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" color-interpolation-filters="sRGB">
-          <feMorphology in="SourceAlpha" operator="erode" radius="33" result="inset" />
-          <feGaussianBlur in="inset" stdDeviation="23" result="feathered" />
-          <feComposite in="feathered" in2="SourceAlpha" operator="in" result="center-mask" />
-          <feFlood flood-color="#614a74" result="center-color" />
-          <feComposite in="center-color" in2="center-mask" operator="in" result="center-shading" />
-          <feMerge>
-            <feMergeNode in="SourceGraphic" />
-            <feMergeNode in="center-shading" />
-          </feMerge>
-        </filter>
-        <mask id="r-outline-mask" maskUnits="userSpaceOnUse" x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" style="mask-type:luminance">
+<defs>
+        <mask id="R-reference-slider-synced-r-outline-mask" maskUnits="userSpaceOnUse" x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" style="mask-type:luminance">
           <g color="#fff" fill="#fff">
-            <g id="r-outer-r-slider-shape">
-              <path id="r-outer-r-track" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="#fff" stroke-width="163" stroke-linecap="round" stroke-linejoin="round" />
-              <circle id="r-outer-r-head-cap" cx="122.5" cy="482.5" r="82.25" fill="#fff" />
-              <circle id="r-outer-r-tail-cap" cx="388.562171280" cy="486.758538202" r="82.25" fill="#fff" />
+            <g id="R-reference-slider-synced-r-outer-r-slider-shape">
+              <path id="R-reference-slider-synced-r-outer-r-track" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="#fff" stroke-width="163" stroke-linecap="round" stroke-linejoin="round" />
+              <circle id="R-reference-slider-synced-r-outer-r-head-cap" cx="122.5" cy="482.5" r="82.25" fill="#fff" />
+              <circle id="R-reference-slider-synced-r-outer-r-tail-cap" cx="388.562171280" cy="486.758538202" r="82.25" fill="#fff" />
             </g>
           </g>
           <g color="#000" fill="#000">
-            <g id="r-inner-r-slider-shape">
-              <path id="r-inner-r-track" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="currentColor" stroke-width="145" stroke-linecap="round" stroke-linejoin="round" />
-              <circle id="r-inner-r-head-cap" cx="122.5" cy="482.5" r="73.25" fill="currentColor" />
-              <circle id="r-inner-r-tail-cap" cx="388.562171280" cy="486.758538202" r="73.25" fill="currentColor" />
+            <g id="R-reference-slider-synced-r-inner-r-slider-shape">
+              <path id="R-reference-slider-synced-r-inner-r-track" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" fill="none" stroke="#000" stroke-width="109" stroke-linecap="round" stroke-linejoin="round" />
+              <circle id="R-reference-slider-synced-r-inner-r-head-cap" cx="122.5" cy="482.5" r="55.25" fill="#000" />
+              <circle id="R-reference-slider-synced-r-inner-r-tail-cap" cx="388.562171280" cy="486.758538202" r="55.25" fill="#000" />
             </g>
           </g>
         </mask>
-      </defs>
-      <use href="#r-inner-r-slider-shape" color="#100d16" />
-      <use href="#r-inner-r-slider-shape" color="#9278aa" filter="url(#r-fill-shading)" opacity="0.58" />
-      <g filter="url(#star-glow)">
-        <rect x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" fill="currentColor" mask="url(#r-outline-mask)" />
+      <path id="R-reference-slider-synced-r-fill-centerline" d="M122.5 482.5 A1948.265514393 1948.265514393 0 0 1 205.5 81.5 A137.043984736 137.043984736 0 1 1 178.5 283.5 L388.562171280 486.758538202" />
+
+    <filter id="R-reference-slider-synced-r-fill-soften" filterUnits="userSpaceOnUse" x="-80" y="-130" width="750" height="850" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="18.7931" />
+    </filter>
+    <mask id="R-reference-slider-synced-r-fill-mask" maskUnits="userSpaceOnUse" x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" style="mask-type:luminance">
+      <use href="#R-reference-slider-synced-r-fill-centerline" fill="none" stroke="#fff" stroke-width="109" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="122.5" cy="482.5" r="55.25" fill="#fff" />
+      <circle cx="388.562171280" cy="486.758538202" r="55.25" fill="#fff" />
+    </mask>
+    <g id="R-reference-slider-synced-r-fill-shading" mask="url(#R-reference-slider-synced-r-fill-mask)">
+      <rect x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" fill="currentColor" fill-opacity="0.06" />
+      <use href="#R-reference-slider-synced-r-fill-centerline" fill="none" stroke="currentColor" stroke-opacity="0.4" stroke-width="27.0621" stroke-linecap="round" stroke-linejoin="round" filter="url(#R-reference-slider-synced-r-fill-soften)" />
+    </g>
+    <filter id="R-reference-slider-synced-star-glow" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="9" result="halo" /><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="near" /><feMerge><feMergeNode in="halo" /><feMergeNode in="halo" /><feMergeNode in="near" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
+
+<use id="R-reference-slider-synced-r-slider-fill" href="#R-reference-slider-synced-r-fill-shading" />
+
+<g filter="url(#R-reference-slider-synced-star-glow)"><rect x="34.25" y="-29.903110124" width="473.12571331" height="604.911648326" fill="currentColor" mask="url(#R-reference-slider-synced-r-outline-mask)" />
       </g>
-      <g id="r-control-points">
-        <polyline points="122.5,482.5 153.5,279.5 205.5,81.5 419.5,184.5 178.5,283.5 425.5,522.5" fill="none" stroke="#d9d4ff" stroke-width="3" stroke-dasharray="5 5" opacity="1" />
-        <polygon id="r-control-0" points="122.500,466.000 125.767,479.233 139.000,482.500 125.767,485.767 122.500,499.000 119.233,485.767 106.000,482.500 119.233,479.233" fill="#fff2cb" filter="url(#star-glow)" />
-        <polygon id="r-control-1" points="153.500,259.700 157.420,275.580 173.300,279.500 157.420,283.420 153.500,299.300 149.580,283.420 133.700,279.500 149.580,275.580" fill="#fff2cb" filter="url(#star-glow)" />
-        <polygon id="r-control-2" points="205.500,65.000 208.767,78.233 222.000,81.500 208.767,84.767 205.500,98.000 202.233,84.767 189.000,81.500 202.233,78.233" fill="#fff2cb" filter="url(#star-glow)" />
-        <polygon id="r-control-3" points="419.500,168.000 422.767,181.233 436.000,184.500 422.767,187.767 419.500,201.000 416.233,187.767 403.000,184.500 416.233,181.233" fill="#fff2cb" filter="url(#star-glow)" />
-        <polygon id="r-control-4" points="178.500,263.700 182.420,279.580 198.300,283.500 182.420,287.420 178.500,303.300 174.580,287.420 158.700,283.500 174.580,279.580" fill="#fff2cb" filter="url(#star-glow)" />
-        <polygon id="r-control-5" points="425.500,506.000 428.767,519.233 442.000,522.500 428.767,525.767 425.500,539.000 422.233,525.767 409.000,522.500 422.233,519.233" fill="#fff2cb" filter="url(#star-glow)" />
-      </g>
-    </svg>
+<g id="R-reference-slider-synced-r-control-points">
+        <polyline points="122.5,482.5 153.5,279.5 205.5,81.5 419.5,184.5 178.5,283.5 388.562171280,486.758538202" fill="none" stroke="#d9d4ff" stroke-width="3" stroke-dasharray="5 5" opacity="1" />
+        <polygon id="R-reference-slider-synced-r-control-0" points="122.500,466.000 125.767,479.233 139.000,482.500 125.767,485.767 122.500,499.000 119.233,485.767 106.000,482.500 119.233,479.233" fill="#fff2cb" filter="url(#R-reference-slider-synced-star-glow)" /><polygon id="R-reference-slider-synced-r-control-1" points="153.500,259.700 157.420,275.580 173.300,279.500 157.420,283.420 153.500,299.300 149.580,283.420 133.700,279.500 149.580,275.580" fill="#fff2cb" filter="url(#R-reference-slider-synced-star-glow)" /><polygon id="R-reference-slider-synced-r-control-2" points="205.500,65.000 208.767,78.233 222.000,81.500 208.767,84.767 205.500,98.000 202.233,84.767 189.000,81.500 202.233,78.233" fill="#fff2cb" filter="url(#R-reference-slider-synced-star-glow)" /><polygon id="R-reference-slider-synced-r-control-3" points="419.500,168.000 422.767,181.233 436.000,184.500 422.767,187.767 419.500,201.000 416.233,187.767 403.000,184.500 416.233,181.233" fill="#fff2cb" filter="url(#R-reference-slider-synced-star-glow)" /><polygon id="R-reference-slider-synced-r-control-4" points="178.500,263.700 182.420,279.580 198.300,283.500 182.420,287.420 178.500,303.300 174.580,287.420 158.700,283.500 174.580,279.580" fill="#fff2cb" filter="url(#R-reference-slider-synced-star-glow)" /><polygon id="R-reference-slider-synced-r-control-5" points="388.562171,470.258538 391.829171,483.491538 405.062171,486.758538 391.829171,490.025538 388.562171,503.258538 385.295171,490.025538 372.062171,486.758538 385.295171,483.491538" fill="#fff2cb" filter="url(#R-reference-slider-synced-star-glow)" /></g>
+
+</svg>
   </g>
 </svg>

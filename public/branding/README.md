@@ -93,3 +93,13 @@ wordmark layers. Existing branding selections keep their paths. Source artwork,
 credits and the square logo remain as recorded above. The reproducible
 [current hero export](../../design/home-visual/s11-assets/README.md#current-homepage-artwork--2026-11-03-754)
 preserves the existing output dimensions.
+
+## Constellation R synchronization — 2026-11-17
+
+The homepage wordmark is the source for the R's shaded slider and centered tail
+star. Current S11 season wordmarks, the winter banner, studio sources and raster
+exports are synchronized through
+[`sync-logo.py`](../../design/home-visual/s11-assets/sync-logo.py) and the
+[asset exporter](../../design/home-visual/s11-assets/README.md#logo-synchronization--2026-11-17).
+The header SVGs keep their surface-specific colors and use the same translucent
+R fill as the homepage. Their star/guide endpoint tracks the homepage geometry. Global favicons remain the separate R/star identity.

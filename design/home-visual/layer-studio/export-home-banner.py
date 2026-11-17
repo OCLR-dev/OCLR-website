@@ -1,8 +1,9 @@
 """Export the approved layered winter composition as a self-contained SVG."""
 from pathlib import Path
-import re,base64,subprocess,xml.etree.ElementTree as E
+import re,base64,subprocess,sys,xml.etree.ElementTree as E
 from copy import deepcopy
 root=Path(__file__).resolve().parent
+subprocess.run([sys.executable,str(root.parent/'s11-assets/sync-logo.py')],check=True)
 ns='http://www.w3.org/2000/svg';E.register_namespace('',ns)
 def svg_at(s,start):
  depth=0
