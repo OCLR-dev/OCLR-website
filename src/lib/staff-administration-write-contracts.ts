@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { contributorListSchema } from "./contributor-model";
-import { defaultJsonBodyLimit } from "./request-body-limits";
+import {
+  contributorBodyLimit,
+  defaultJsonBodyLimit,
+} from "./request-body-limits";
 import { roles } from "./staff-role-model";
 import type { WriteApiOperation } from "./write-api-contract";
 
@@ -87,7 +90,7 @@ export const updateContributorsWrite = {
   path: "/api/admin/contributors",
   method: "PATCH",
   access: "browser",
-  maxBodyBytes: defaultJsonBodyLimit,
+  maxBodyBytes: contributorBodyLimit,
   request: z.strictObject({
     entries: contributorListSchema.describe(
       "Ordered entries with unique entry IDs and unique osu! IDs.",

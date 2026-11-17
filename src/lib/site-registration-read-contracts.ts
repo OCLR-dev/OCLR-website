@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { contributionDescriptionSchema } from "./contributor-model";
 import { appearances } from "./preferences";
 import { auditModules } from "./read-api-queries";
 
@@ -33,7 +34,15 @@ const settingSchema = <Appearance extends z.ZodType, Updated extends z.ZodType>(
     revision: z.number(),
     updatedAt,
   });
-const contributor = { name: z.string(), osuId: z.number() };
+const contributor = {
+  name: z.string(),
+  osuId: z.number(),
+  description: contributionDescriptionSchema.optional(),
+  countryCode: z
+    .string()
+    .regex(/^[A-Z]{2}$/)
+    .optional(),
+};
 const grant = {
   role: z.union(
     literalChoices([

@@ -92,6 +92,30 @@
                 "osuId": {
                   "type": "number"
                 },
+                "description": {
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  ]
+                },
+                "countryCode": {
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^[A-Z]{2}$"
+                    }
+                  ]
+                },
                 "published": {
                   "type": "boolean"
                 }
@@ -14451,7 +14475,7 @@
         ],
         "requestBody": {
           "required": true,
-          "x-max-body-bytes": 32768,
+          "x-max-body-bytes": 393216,
           "content": {
             "application/json": {
               "schema": {
@@ -14480,6 +14504,10 @@
                         },
                         "published": {
                           "type": "boolean"
+                        },
+                        "description": {
+                          "type": "string",
+                          "maxLength": 500
                         }
                       },
                       "required": [

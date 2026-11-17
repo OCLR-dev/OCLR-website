@@ -2,23 +2,42 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
-import type { Contributor } from "@/lib/contributor-model";
+import {
+  CONTRIBUTION_DESCRIPTION_LIMIT,
+  type Contributor,
+} from "@/lib/contributor-model";
 import type { UpdateContributorsInput } from "@/lib/staff-administration-write-contracts";
 import type { ExplicitReadData } from "@/lib/explicit-read-contracts";
 import { ReadOnlyFields } from "./staff-read-only";
 import { Avatar } from "./avatar";
+import { CountryFlag } from "./country-flag";
 type Draft = Omit<Contributor, "osuId"> & { osuId: string };
 export function ContributorManager({
   initial,
 }: {
-  initial: { entries: Contributor[]; revision: number };
+  initial: ExplicitReadData<"contributorsForAdmin">;
 }) {
   const tr = useAppTranslations();
   const router = useRouter();
+  const countries = new Map(
+    initial.entries.map(({ osuId, countryCode }) => [osuId, countryCode]),
+  );
+  const editable = (directory: typeof initial) => ({
+    revision: directory.revision,
+    entries: directory.entries.map(
+      ({ id, name, osuId, published, description }) => ({
+        id,
+        name,
+        osuId,
+        published,
+        description,
+      }),
+    ),
+  });
   const drafts = (entries: Contributor[]): Draft[] =>
     entries.map((entry) => ({ ...entry, osuId: String(entry.osuId) }));
-  const [entries, setEntries] = useState(() => drafts(initial.entries));
-  const [saved, setSaved] = useState(initial);
+  const [saved, setSaved] = useState(() => editable(initial));
+  const [entries, setEntries] = useState(() => drafts(saved.entries));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -64,7 +83,7 @@ export function ContributorManager({
         setError(tr(body.error));
         return;
       }
-      const directory = body as ExplicitReadData<"contributorsForAdmin">;
+      const directory = editable(body as typeof initial);
       setSaved(directory);
       setEntries(drafts(directory.entries));
       setFeedback(tr("Contributors saved."));
@@ -97,10 +116,21 @@ export function ContributorManager({
               <legend className="sr-only">
                 {tr("Contributor {number}", { number: index + 1 })}
               </legend>
-              <div className="contributor-avatar" aria-hidden="true">
+              <div className="contributor-avatar">
                 {/^[1-9]\d*$/.test(entry.osuId) &&
                   Number.isSafeInteger(Number(entry.osuId)) && (
-                    <Avatar osuId={Number(entry.osuId)} username={entry.name} />
+                    <>
+                      <span aria-hidden="true">
+                        <Avatar
+                          osuId={Number(entry.osuId)}
+                          username={entry.name}
+                        />
+                      </span>
+                      <CountryFlag
+                        code={countries.get(Number(entry.osuId))}
+                        size="small"
+                      />
+                    </>
                   )}
               </div>
               <div className="contributor-fields">
@@ -125,6 +155,17 @@ export function ContributorManager({
                     value={entry.osuId}
                     onChange={(event) =>
                       edit(entry.id, { osuId: event.target.value })
+                    }
+                  />
+                </label>
+                <label className="field contributor-description-field">
+                  <span>{tr("Contribution description")}</span>
+                  <textarea
+                    rows={2}
+                    maxLength={CONTRIBUTION_DESCRIPTION_LIMIT}
+                    value={entry.description ?? ""}
+                    onChange={(event) =>
+                      edit(entry.id, { description: event.target.value })
                     }
                   />
                 </label>

@@ -103,7 +103,7 @@ test.describe("compact contributor management (#359)", () => {
     await rows.first().getByLabel("osu! user ID").fill("359001");
     await save.click();
     await expect(form.getByRole("alert")).toContainText(
-      "Check contributor names, unique osu! IDs and revision.",
+      "Check contributor names, descriptions, unique osu! IDs and revision.",
     );
     await rows
       .first()

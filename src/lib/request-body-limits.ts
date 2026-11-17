@@ -5,6 +5,9 @@ export const defaultJsonBodyLimit = 32 * 1024;
 // for JSON \uXXXX escaping, plus acknowledgments, versions and the JSON envelope.
 export const registrationBodyLimit = 256 * 1024;
 
+// 100 entries with 500 description and 80 name code units, including JSON escapes.
+export const contributorBodyLimit = 384 * 1024;
+
 // 4,096 UUIDs × (36 characters × 6 escaped bytes + quotes/comma) is 897,024
 // bytes. Leave room for command/version fields, including escaped property names.
 export const draftCommandBodyLimit = 1024 * 1024;

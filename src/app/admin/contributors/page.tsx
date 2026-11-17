@@ -5,6 +5,7 @@ import { contributorsForAdmin } from "@/lib/contributors";
 import { PageHeading } from "@/components/ui";
 import { ContributorManager } from "@/components/contributor-manager";
 import { remotePage } from "@/lib/remote-page";
+import { after } from "next/server";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Contributor management") };
@@ -12,7 +13,7 @@ export async function generateMetadata() {
 async function ContributorsPage() {
   return authorizedPage(async () => {
     const tr = await getAppTranslations();
-    const directory = await contributorsForAdmin(await requireUser());
+    const directory = await contributorsForAdmin(await requireUser(), after);
     return (
       <div className="contributors-workspace">
         <PageHeading

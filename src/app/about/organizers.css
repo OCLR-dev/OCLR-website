@@ -111,6 +111,10 @@
   line-height: 1.7;
   margin: 0;
 }
+.organizer-people .contribution-description {
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
 .organizer-contact {
   display: flex;
   justify-content: space-between;

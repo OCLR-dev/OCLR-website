@@ -118,6 +118,7 @@ describe("cache-first edition player cards", () => {
         ],
       ]),
       refreshIds: [1220001],
+      countries: new Map(),
       art: new Map(),
     });
   });

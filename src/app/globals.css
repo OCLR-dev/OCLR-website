@@ -6866,6 +6866,9 @@ button.staff-role-save {
   padding: 0.75rem;
 }
 .contributor-avatar {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
   padding-top: 1.5rem;
 }
 .contributor-avatar .avatar {
@@ -6884,6 +6887,12 @@ button.staff-role-save {
 }
 .contributor-fields input {
   min-height: 44px;
+}
+.contributor-description-field {
+  grid-column: 1 / -1;
+}
+.contributor-description-field textarea {
+  resize: vertical;
 }
 .contributor-row-footer {
   grid-column: 1 / -1;

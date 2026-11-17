@@ -9,6 +9,7 @@ import { frontendSite } from "@/lib/frontend-data";
 import { organizerDirectory } from "@/lib/organizer-directory";
 import { remotePage } from "@/lib/remote-page";
 import Link from "next/link";
+import { after } from "next/server";
 import "./organizers.css";
 
 export async function generateMetadata() {
@@ -20,7 +21,7 @@ export const dynamic = "force-dynamic";
 async function Issue271Page() {
   const tr = await getAppTranslations();
   const staff = await publicStaff();
-  const contributors = await publicContributors();
+  const contributors = await publicContributors(after);
   const contact = remoteMode()
     ? (await frontendSite()).privacyContact
     : privacyContact();
@@ -192,8 +193,14 @@ async function Issue271Page() {
                       <h3>
                         <a href={`https://osu.ppy.sh/users/${person.osuId}`}>
                           {person.name}
-                        </a>
+                        </a>{" "}
+                        <CountryFlag code={person.countryCode} />
                       </h3>
+                      {person.description && (
+                        <p className="contribution-description">
+                          {person.description}
+                        </p>
+                      )}
                     </div>
                   </li>
                 ))}

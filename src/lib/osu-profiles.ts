@@ -98,8 +98,9 @@ export async function cachedDirectoryStatistics(
   for (const id of ids) parseOsuProfile(String(id), "osu");
   const statistics = new Map<number, DirectoryStatistics>();
   const art = new Map<number, DirectoryArt>();
+  const countries = new Map<number, string>();
   if (!ids.length || !process.env.DATABASE_URL)
-    return { statistics, refreshIds: [] as number[], art };
+    return { statistics, refreshIds: [] as number[], art, countries };
   const rows: (typeof userProfileCache.$inferSelect)[] = [];
   for (let offset = 0; offset < ids.length; offset += 500) {
     rows.push(
@@ -119,6 +120,7 @@ export async function cachedDirectoryStatistics(
   for (const row of rows) {
     const profile = safeSavedOsuProfile(row.profile, row.osuId, "osu");
     if (!profile || row.errorStatus === 404) continue;
+    if (profile.countryCode) countries.set(row.osuId, profile.countryCode);
     statistics.set(row.osuId, {
       globalRank: profile.statistics.globalRank,
       pp: profile.statistics.pp,
@@ -146,7 +148,7 @@ export async function cachedDirectoryStatistics(
         (byId.get(a)?.attemptedAt.getTime() ?? 0) -
         (byId.get(b)?.attemptedAt.getTime() ?? 0),
     );
-  return { statistics, refreshIds, art };
+  return { statistics, refreshIds, art, countries };
 }
 let directoryRefreshAfter = 0;
 /** Post-response only: at most two sequential lookups per 10s per Node process.

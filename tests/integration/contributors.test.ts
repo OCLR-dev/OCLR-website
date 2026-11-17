@@ -13,6 +13,7 @@ import {
   contributorDirectory,
   contributorEvents,
   staffRoles,
+  userProfileCache,
   users,
 } from "../../src/db/schema";
 import {
@@ -28,7 +29,11 @@ import { assertTestDatabase } from "../database";
 import { updateContributorsWrite } from "../../src/lib/staff-administration-write-contracts";
 import { extendedSchemas } from "../../src/lib/extended-read-resources";
 import { seedEditions } from "../fixtures/editions";
+import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
+import { profileResponse } from "../fixtures/osu-profile";
+import { osuApi } from "../../src/lib/osu-api";
 vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
+vi.mock("../../src/lib/osu-api", () => ({ osuApi: vi.fn() }));
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 275001, username: "Synthetic Admin" };
 const other = { osuId: 275002, username: "Synthetic Contributor Operator" };
@@ -57,8 +62,9 @@ describe.skipIf(!url)("global contributor directory (#275)", () => {
   });
   beforeEach(async () => {
     vi.mocked(requireUser).mockReset();
+    vi.mocked(osuApi).mockReset();
     await db().execute(
-      sql`TRUNCATE contributor_directory, contributor_events, edition_state, users CASCADE`,
+      sql`TRUNCATE contributor_directory, contributor_events, edition_state, users, user_profile_cache CASCADE`,
     );
     await seedEditions();
     await db().insert(users).values([admin, other]);
@@ -68,12 +74,43 @@ describe.skipIf(!url)("global contributor directory (#275)", () => {
     await closeDb();
     vi.unstubAllEnvs();
   });
-  it("saves ordered identities independently of accounts, publishes only minimal identities and audits the actual actor", async () => {
-    const saved = await updateContributors(admin, save());
+  it("saves ordered entries, publishes only approved profiles and contributions, and audits the actual actor", async () => {
+    const input = [
+      {
+        ...first,
+        description: "  Maintained the archive\nEdited the handbook.  ",
+      },
+      { ...second, description: "Unpublished contribution" },
+    ];
+    const published = { ...first, description: input[0].description.trim() };
+    const saved = await updateContributors(admin, save(input));
+    const profile = normalizeOsuProfile(
+      { ...profileResponse, id: first.osuId, country_code: "TW" },
+      first.osuId,
+      "osu",
+      new Date().toISOString(),
+    );
+    await db()
+      .insert(userProfileCache)
+      .values({
+        osuId: first.osuId,
+        mode: "osu",
+        profile,
+        attemptedAt: new Date(),
+        retryAt: new Date(0),
+      });
     expect(saved.revision).toBe(1);
-    expect(await contributorsForAdmin(admin)).toEqual(saved);
+    expect(await contributorsForAdmin(admin)).toEqual({
+      ...saved,
+      entries: [{ ...published, countryCode: "TW" }, input[1]],
+    });
     expect(await publicContributors()).toEqual([
-      { name: first.name, osuId: first.osuId },
+      {
+        name: first.name,
+        osuId: first.osuId,
+        countryCode: "TW",
+        description: published.description,
+      },
     ]);
     expect(await db().select().from(staffRoles)).toHaveLength(0);
     const log = await auditLog(admin, { module: "site" });
@@ -81,16 +118,17 @@ describe.skipIf(!url)("global contributor directory (#275)", () => {
       actorId: admin.osuId,
       action: "contributors_updated",
       edition: null,
-      after: { entries: [first, second], revision: 1 },
+      after: { entries: [published, input[1]], revision: 1 },
     });
     const reordered = [
       { ...second, published: true },
-      { ...first, name: "Updated literal name" },
+      { ...published, name: "Updated literal name", description: "" },
     ];
     await updateContributors(admin, save(reordered, 1));
-    expect(await publicContributors()).toEqual(
-      reordered.map(({ name, osuId }) => ({ name, osuId })),
-    );
+    expect(await publicContributors()).toEqual([
+      { name: second.name, osuId: second.osuId },
+      { name: reordered[1].name, osuId: first.osuId, countryCode: "TW" },
+    ]);
     await updateContributors(admin, save([], 2));
     expect(await publicContributors()).toEqual([]);
   });
@@ -101,6 +139,29 @@ describe.skipIf(!url)("global contributor directory (#275)", () => {
       result,
     );
     expect(await db().select().from(contributorEvents)).toHaveLength(1);
+  });
+  it("loads flags in the background and rechecks publication before contacting osu!", async () => {
+    await updateContributors(
+      admin,
+      save([first, { ...second, published: true }]),
+    );
+    vi.mocked(osuApi).mockResolvedValue({
+      ...profileResponse,
+      id: first.osuId,
+    });
+    const scheduleRefresh = vi.fn<(refresh: () => Promise<void>) => void>();
+    await publicContributors(scheduleRefresh);
+    expect(osuApi).not.toHaveBeenCalled();
+
+    await updateContributors(admin, save([first, second], 1));
+    await scheduleRefresh.mock.calls[0][0]();
+
+    expect(osuApi).toHaveBeenCalledExactlyOnceWith(
+      `/users/${first.osuId}/osu?key=id`,
+    );
+    expect(await publicContributors()).toEqual([
+      { name: first.name, osuId: first.osuId, countryCode: "TW" },
+    ]);
   });
   it.each(["none", "edition-admin", "developer"])(
     "rejects writes from %s and keeps Developer reads available",
@@ -135,6 +196,9 @@ describe.skipIf(!url)("global contributor directory (#275)", () => {
       save([{ ...first, osuId: Number.MAX_SAFE_INTEGER + 1 }]),
       save([{ ...first, id: "bad" }]),
       save([{ ...first, profileUrl: "javascript:alert(1)" }]),
+      save([{ ...first, countryCode: "TW" }]),
+      save([{ ...first, description: "a".repeat(501) }]),
+      save([{ ...first, description: "embedded\u0000control" }]),
       { ...save(), actorId: other.osuId },
       save([first], -1),
     ]) {

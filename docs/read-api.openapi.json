@@ -28239,7 +28239,19 @@
           "type": "object",
           "properties": {
             "name": { "type": "string" },
-            "osuId": { "type": "number" }
+            "osuId": { "type": "number" },
+            "description": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "string", "maxLength": 500 }
+              ]
+            },
+            "countryCode": {
+              "anyOf": [
+                { "type": "null", "x-oclr-undefined": true },
+                { "type": "string", "pattern": "^[A-Z]{2}$" }
+              ]
+            }
           },
           "required": ["name", "osuId"],
           "additionalProperties": false
@@ -28257,6 +28269,18 @@
                 "id": { "type": "string" },
                 "name": { "type": "string" },
                 "osuId": { "type": "number" },
+                "description": {
+                  "anyOf": [
+                    { "type": "null", "x-oclr-undefined": true },
+                    { "type": "string", "maxLength": 500 }
+                  ]
+                },
+                "countryCode": {
+                  "anyOf": [
+                    { "type": "null", "x-oclr-undefined": true },
+                    { "type": "string", "pattern": "^[A-Z]{2}$" }
+                  ]
+                },
                 "published": { "type": "boolean" }
               },
               "required": ["id", "name", "osuId", "published"],

@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const CONTRIBUTION_DESCRIPTION_LIMIT = 500;
+export const contributionDescriptionSchema = z
+  .string()
+  .trim()
+  .max(CONTRIBUTION_DESCRIPTION_LIMIT)
+  .refine(
+    (value) => !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value),
+  );
+
 export const contributorSchema = z
   .object({
     id: z.uuid(),
@@ -11,6 +20,7 @@ export const contributorSchema = z
       .refine((value) => !/[\u0000-\u001f\u007f]/.test(value)),
     osuId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
     published: z.boolean(),
+    description: contributionDescriptionSchema.optional(),
   })
   .strict();
 export const contributorListSchema = z
