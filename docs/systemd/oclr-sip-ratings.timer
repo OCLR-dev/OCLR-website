@@ -1,0 +1,10 @@
+[Unit]
+Description=Synchronize OCLR S11 Skill Issue ratings daily
+
+[Timer]
+OnCalendar=*-*-* 04:00:00 UTC
+Persistent=true
+Unit=oclr-sip-ratings.service
+
+[Install]
+WantedBy=timers.target

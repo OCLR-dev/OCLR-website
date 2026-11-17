@@ -513,8 +513,10 @@ empty results in `pending` state while the snapshot is missing or stale. See
 worker and its publication checks.
 
 Contract 1.34.0 adds optional `importedRatings` to published S11 player rows.
-It contains the imported SIP total and ETX total with provisional and outdated
-flags when available. The browser write contract 0.5.0 adds the Admin CSV import.
+It contains the [cached Skill Issue SIP total](sip-ratings.md) and the imported
+ETX total with provisional and outdated flags when available. Public reads
+never call Skill Issue. Browser write contract 0.6.0 limits the Admin CSV import
+to ETX.
 
 Contract 1.33.0 adds an optional positive integer `tier` to each published
 broadcast draft pick. It represents the confirmed draft round and is omitted

@@ -13,8 +13,10 @@ import { getDirectoryOtrRatings } from "../../src/lib/otr-rating";
 import { english } from "../../src/i18n/translate";
 import messages from "../../messages/en.json";
 import { edition } from "../fixtures/edition";
+import { etxRatingCache, sipRatingCache } from "../../src/db/schema";
 const callbacks = vi.hoisted(() => [] as (() => Promise<void>)[]);
 const importedRows = vi.hoisted(() => vi.fn());
+const sipRows = vi.hoisted(() => vi.fn());
 vi.mock("next/server", () => ({
   after: (callback: () => Promise<void>) => callbacks.push(callback),
 }));
@@ -46,7 +48,16 @@ vi.mock("../../src/lib/content", () => ({ getPublicEdition: vi.fn() }));
 vi.mock("../../src/db", () => ({
   db: () => ({
     transaction: (read: () => unknown) => read(),
-    select: () => ({ from: () => ({ where: importedRows }) }),
+    select: () => ({
+      from: (table: unknown) => ({
+        where:
+          table === sipRatingCache
+            ? sipRows
+            : table === etxRatingCache
+              ? async () => []
+              : importedRows,
+      }),
+    }),
   }),
   readOnlyData: (read: () => unknown) => read(),
 }));
@@ -188,11 +199,10 @@ describe("cache-first edition player cards", () => {
   it("loads o!TR and displays saved SIP and ETX for the public S11 directory", async () => {
     vi.mocked(getPublicEdition).mockResolvedValue({ ...edition, slug: "s11" });
     vi.mocked(getDirectoryOtrRatings).mockResolvedValue({ 1220001: 1572.48 });
+    sipRows.mockResolvedValue([{ osuId: 1220001, value: -2563 }]);
     importedRows.mockResolvedValue([
-      { userId: 1220001, source: "sip", value: -2563 },
       {
         userId: 1220001,
-        source: "etx",
         value: 6.15,
         provisional: true,
         outdated: false,

@@ -1,7 +1,7 @@
 import { isActiveFixtureStatus } from "./fixture-status";
 import { compareTournamentSeasons } from "./tournament-order";
 import { db, readOnlyData } from "@/db";
-import { importedPlayerRatings } from "@/db/schema";
+import { importedPlayerRatings, sipRatingCache } from "@/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { importedRatingsEdition } from "./player-rating-import-contract";
 import {
@@ -451,24 +451,27 @@ async function readPublicPlayerDirectory(
     NonNullable<PublicPlayer["importedRatings"]>
   >();
   if (slug === importedRatingsEdition && result.rows.length) {
+    const ids = result.rows.map((player) => player.osuId);
     const rows = await db()
       .select()
       .from(importedPlayerRatings)
       .where(
         and(
           eq(importedPlayerRatings.editionSlug, slug),
-          inArray(
-            importedPlayerRatings.userId,
-            result.rows.map((player) => player.osuId),
-          ),
+          eq(importedPlayerRatings.source, "etx"),
+          inArray(importedPlayerRatings.userId, ids),
         ),
       );
-    for (const { userId, source, value, provisional, outdated } of rows) {
-      const ratings = imported.get(userId) ?? {};
-      if (source === "sip") ratings.sip = value;
-      else ratings.etx = { value, provisional, outdated };
-      imported.set(userId, ratings);
-    }
+    for (const { userId, value, provisional, outdated } of rows)
+      imported.set(userId, { etx: { value, provisional, outdated } });
+
+    const sip = await db()
+      .select({ osuId: sipRatingCache.osuId, value: sipRatingCache.value })
+      .from(sipRatingCache)
+      .where(inArray(sipRatingCache.osuId, ids));
+    for (const { osuId, value } of sip)
+      if (value !== null)
+        imported.set(osuId, { ...imported.get(osuId), sip: value });
   }
   return {
     source: row.source,

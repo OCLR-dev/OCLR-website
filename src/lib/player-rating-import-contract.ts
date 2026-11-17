@@ -2,7 +2,6 @@ import { z } from "zod";
 import type { WriteApiOperation } from "./write-api-contract";
 
 export const importedRatingsEdition = "s11";
-export const importedRatingSource = z.enum(["sip", "etx"]);
 export const playerRatingCsvLimit = 2 * 1024 * 1024;
 
 export const importPlayerRatingsWrite = {
@@ -12,12 +11,12 @@ export const importPlayerRatingsWrite = {
   access: "browser",
   maxBodyBytes: 2 * playerRatingCsvLimit + 64 * 1024,
   request: z.strictObject({
-    source: importedRatingSource,
+    source: z.literal("etx"),
     csv: z.string().min(1).max(playerRatingCsvLimit),
   }),
-  summary: "Import S11 SIP or ETX ratings",
+  summary: "Import S11 ETX ratings",
   description:
-    "Requires manage_registrations in S11. Imports the selected source for matched accepted registrations. SIP matches a unique case-insensitive current username and ETX matches osu! ID. Changes and their audit event commit together.",
+    "Requires manage_registrations in S11. Imports ETX ratings for accepted registrations matched by osu! ID. Changes and their audit event commit together.",
   successStatus: 200,
   successDescription: "Counts and a sample of unmatched CSV row numbers.",
   response: z.strictObject({

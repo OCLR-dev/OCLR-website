@@ -54,15 +54,13 @@ function flag(value: string) {
   return invalidCsv();
 }
 
-export function parsePlayerRatingCsv(contents: string, source: "sip" | "etx") {
+export function parsePlayerRatingCsv(contents: string) {
   const [first, ...rows] = csvRows(contents);
   if (!first) invalidCsv();
   const header = first.map((cell) => cell.trim().toLowerCase());
   if (new Set(header).size !== header.length) invalidCsv();
-  const identityIndex = header.indexOf(
-    source === "sip" ? "username" : "osuuserid",
-  );
-  const valueIndex = header.indexOf(source === "sip" ? "rating" : "duelrating");
+  const identityIndex = header.indexOf("osuuserid");
+  const valueIndex = header.indexOf("duelrating");
   if (identityIndex < 0 || valueIndex < 0 || rows.length > 50_000) invalidCsv();
   const flagIndex = (key: string) =>
     header.includes(key) ? header.indexOf(key) : header.indexOf(`duel${key}`);
@@ -71,13 +69,8 @@ export function parsePlayerRatingCsv(contents: string, source: "sip" | "etx") {
   return rows.flatMap((row, index) => {
     if (row.every((cell) => !cell.trim())) return [];
     if (row.length !== header.length) invalidCsv();
-    const identity = row[identityIndex].trim().toLowerCase();
-    if (
-      !identity ||
-      (source === "etx" &&
-        (!/^[1-9]\d*$/.test(identity) ||
-          !Number.isSafeInteger(Number(identity))))
-    )
+    const identity = row[identityIndex].trim();
+    if (!/^[1-9]\d*$/.test(identity) || !Number.isSafeInteger(Number(identity)))
       invalidCsv();
     const raw = row[valueIndex].trim();
     const value = raw === "" || /^nan$/i.test(raw) ? null : Number(raw);
@@ -85,7 +78,7 @@ export function parsePlayerRatingCsv(contents: string, source: "sip" | "etx") {
       value !== null &&
       (!/^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i.test(raw) ||
         !Number.isFinite(value) ||
-        (source === "etx" && value < 0))
+        value < 0)
     )
       invalidCsv();
     return [
@@ -93,8 +86,8 @@ export function parsePlayerRatingCsv(contents: string, source: "sip" | "etx") {
         identity,
         value,
         row: index + 2,
-        provisional: source === "etx" && flag(row[provisionalIndex] ?? ""),
-        outdated: source === "etx" && flag(row[outdatedIndex] ?? ""),
+        provisional: flag(row[provisionalIndex] ?? ""),
+        outdated: flag(row[outdatedIndex] ?? ""),
       },
     ];
   });

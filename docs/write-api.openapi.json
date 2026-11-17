@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OCLR write API",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "Incremental documentation of existing OCLR browser and desktop routes. See write-api-inventory.json for coverage."
   },
   "components": {
@@ -19026,8 +19026,8 @@
     "/api/admin/tournaments/{edition}/player-ratings": {
       "post": {
         "operationId": "importPlayerRatings",
-        "summary": "Import S11 SIP or ETX ratings",
-        "description": "Requires manage_registrations in S11. Imports the selected source for matched accepted registrations. SIP matches a unique case-insensitive current username and ETX matches osu! ID. Changes and their audit event commit together.",
+        "summary": "Import S11 ETX ratings",
+        "description": "Requires manage_registrations in S11. Imports ETX ratings for accepted registrations matched by osu! ID. Changes and their audit event commit together.",
         "security": [
           {
             "browserSession": []
@@ -19065,10 +19065,7 @@
                 "properties": {
                   "source": {
                     "type": "string",
-                    "enum": [
-                      "sip",
-                      "etx"
-                    ]
+                    "const": "etx"
                   },
                   "csv": {
                     "type": "string",

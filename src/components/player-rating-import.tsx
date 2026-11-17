@@ -44,7 +44,7 @@ export function PlayerRatingImport() {
           method: importPlayerRatingsWrite.method,
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            source: fields.get("source"),
+            source: "etx",
             csv: await file.text(),
           }),
         },
@@ -69,20 +69,11 @@ export function PlayerRatingImport() {
   }
   return (
     <details className="panel spaced">
-      <summary>{tr("Import SIP or ETX ratings")}</summary>
+      <summary>{tr("Import ETX ratings")}</summary>
       <form className="form-stack spaced" onSubmit={submit} aria-busy={pending}>
         <p className="small muted">
-          {tr(
-            "Import updates matching accepted players on the public S11 list. SIP matches current usernames and ETX matches osu! IDs.",
-          )}
+          {tr("Import matches accepted S11 players by osu! ID.")}
         </p>
-        <label className="field">
-          <span>{tr("Rating source")}</span>
-          <select name="source" required disabled={pending}>
-            <option value="sip">{"SIP (SkillIssue)"}</option>
-            <option value="etx">{"ETX (Elitebotix)"}</option>
-          </select>
-        </label>
         <label className="field">
           <span>{tr("CSV export")}</span>
           <input

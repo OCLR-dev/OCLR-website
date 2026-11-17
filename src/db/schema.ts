@@ -146,6 +146,14 @@ export const etxRatingCache = pgTable("etx_rating_cache", {
   attemptedOn: date("attempted_on").notNull(),
   fetchedAt: timestamp("fetched_at", { withTimezone: true }),
 });
+// Only the daily Skill Issue worker writes this public rating projection.
+export const sipRatingCache = pgTable("sip_rating_cache", {
+  osuId: bigint("osu_id", { mode: "number" })
+    .primaryKey()
+    .references(() => users.osuId, { onDelete: "cascade" }),
+  value: doublePrecision("value"),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
+});
 export const sessions = pgTable(
   "sessions",
   {

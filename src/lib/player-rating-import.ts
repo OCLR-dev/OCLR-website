@@ -4,7 +4,6 @@ import {
   editionState,
   importedPlayerRatings,
   registrations,
-  users,
 } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { assertOperationalEdition } from "./archive-guard";
@@ -35,7 +34,7 @@ export async function importPlayerRatings(
   const { source, csv } = parsed.data;
   if (Buffer.byteLength(csv) > playerRatingCsvLimit)
     throw new HttpError(413, "The request is too large.");
-  const rows = parsePlayerRatingCsv(csv, source);
+  const rows = parsePlayerRatingCsv(csv);
 
   return db().transaction(async (tx) => {
     await tx
@@ -46,23 +45,15 @@ export async function importPlayerRatings(
     await assertCapability(actor, "manage_registrations", slug, tx);
     await assertOperationalEdition(slug, tx);
     const accepted = await tx
-      .select({ userId: users.osuId, username: users.username })
+      .select({ userId: registrations.userId })
       .from(registrations)
-      .innerJoin(users, eq(users.osuId, registrations.userId))
       .where(
         and(
           eq(registrations.editionSlug, slug),
           eq(registrations.status, "accepted"),
         ),
       );
-    const ids = new Map<string, number | null>();
-    for (const player of accepted) {
-      const identity =
-        source === "sip"
-          ? player.username.trim().toLowerCase()
-          : String(player.userId);
-      ids.set(identity, ids.has(identity) ? null : player.userId);
-    }
+    const ids = new Map(accepted.map(({ userId }) => [String(userId), userId]));
     const matched = new Map<
       number,
       typeof importedPlayerRatings.$inferInsert
