@@ -1209,6 +1209,42 @@
     }
   },
   {
+    "route": "/api/wiki/liru-gallery/messages/{messageId}",
+    "source": "src/app/api/wiki/liru-gallery/messages/[messageId]/route.ts",
+    "methods": {
+      "PATCH": {
+        "status": "documented",
+        "operationId": "editLiruGalleryMessage",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-message-board.tsx"
+        ]
+      },
+      "DELETE": {
+        "status": "documented",
+        "operationId": "deleteLiruGalleryMessage",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-message-board.tsx"
+        ]
+      }
+    }
+  },
+  {
+    "route": "/api/wiki/liru-gallery/messages",
+    "source": "src/app/api/wiki/liru-gallery/messages/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "postLiruGalleryMessage",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-message-board.tsx"
+        ]
+      }
+    }
+  },
+  {
     "route": "/auth/logout",
     "source": "src/app/auth/logout/route.ts",
     "methods": {

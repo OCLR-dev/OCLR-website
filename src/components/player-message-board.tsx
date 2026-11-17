@@ -22,6 +22,29 @@ export function PlayerMessageBoard({
   signedIn: boolean;
   viewerId?: number;
 }) {
+  return (
+    <SignedMessageBoard
+      endpoint={`/api/tournaments/${edition}/players/${playerId}/messages`}
+      name={name}
+      signedIn={signedIn}
+      viewerId={viewerId}
+    />
+  );
+}
+
+export function SignedMessageBoard({
+  endpoint,
+  name,
+  signedIn,
+  viewerId,
+  readOnly = false,
+}: {
+  endpoint: string;
+  name: string;
+  signedIn: boolean;
+  viewerId?: number;
+  readOnly?: boolean;
+}) {
   const tr = useAppTranslations();
   const id = useId();
   const [messages, setMessages] = useState<PlayerMessage[]>([]);
@@ -46,7 +69,6 @@ export function PlayerMessageBoard({
   const input = useRef<HTMLTextAreaElement>(null);
   const requestId = useRef<string | null>(null);
   const readGeneration = useRef(0);
-  const endpoint = `/api/tournaments/${edition}/players/${playerId}/messages`;
   const loadError = tr(
     "Messages could not be loaded. Please refresh to try again.",
   );
@@ -305,11 +327,11 @@ export function PlayerMessageBoard({
           >
             {tr("Leave a message")}
           </button>
-        ) : (
+        ) : !readOnly ? (
           <Link className="text-link small" href="/login">
             {tr("Sign in with osu! to leave a signed message")}
           </Link>
-        )}
+        ) : null}
         {current &&
           viewerId !== undefined &&
           current.authorId === viewerId &&

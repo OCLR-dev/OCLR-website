@@ -38,6 +38,11 @@ import {
   editPlayerMessageWrite,
   postPlayerMessageWrite,
 } from "../src/lib/player-message-write-contract";
+import {
+  deleteLiruGalleryMessageWrite,
+  editLiruGalleryMessageWrite,
+  postLiruGalleryMessageWrite,
+} from "../src/lib/liru-gallery-message-write-contract";
 import { historicalSeasonJsonSchema } from "../src/lib/historical-season-json";
 import { transferHistoricalSeasonWrite } from "../src/lib/historical-season-transfer-contract";
 import { lookupArchiveStaffWrite } from "../src/lib/archive-staff-write-contract";
@@ -174,6 +179,9 @@ const operations: readonly WriteApiOperation[] = [
   postPlayerMessageWrite,
   editPlayerMessageWrite,
   deletePlayerMessageWrite,
+  postLiruGalleryMessageWrite,
+  editLiruGalleryMessageWrite,
+  deleteLiruGalleryMessageWrite,
   requestDesktopAuthWrite,
   decideDesktopAuthWrite,
   exchangeDesktopAuthWrite,

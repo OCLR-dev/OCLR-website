@@ -722,6 +722,13 @@
       "when": 1794885163917,
       "tag": "0102_historical_name_transfer",
       "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1794897482200,
+      "tag": "0103_liru_gallery_messages",
+      "breakpoints": true
     }
   ]
 }

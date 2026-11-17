@@ -1,3 +1,4 @@
+import "../community-interactions.css";
 import "../tournaments/[edition]/information.css";
 import "./wiki.css";
 export default function WikiLayout({

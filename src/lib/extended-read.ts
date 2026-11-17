@@ -88,6 +88,10 @@ export async function extendedRead(
         slug,
         playerId,
       );
+    case "publicLiruGalleryMessages":
+      return (
+        await import("./liru-gallery-messages")
+      ).publicLiruGalleryMessages();
     case "tournamentForAdmin":
       return (await import("./tournament-reads")).tournamentForAdmin(actor!, slug);
     case "captainSetup":

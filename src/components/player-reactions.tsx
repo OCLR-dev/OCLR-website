@@ -71,6 +71,21 @@ export function PlayerReactions({
   edition: string;
   name: string;
 }) {
+  return (
+    <EmojiReactions
+      storageKey={`oclr-reactions:${edition}:${playerId}`}
+      name={name}
+    />
+  );
+}
+
+export function EmojiReactions({
+  storageKey,
+  name,
+}: {
+  storageKey: string;
+  name: string;
+}) {
   const tr = useAppTranslations();
   const pickerId = useId();
   const picker = useRef<HTMLDivElement>(null);
@@ -82,10 +97,9 @@ export function PlayerReactions({
   const [limit, setLimit] = useState(batchSize);
   const [hovered, setHovered] = useState<string | null>(null);
   const [focused, setFocused] = useState<string | null>(null);
-  const key = `oclr-reactions:${edition}:${playerId}`;
   const snapshot = useSyncExternalStore(
     subscribe,
-    () => storedValue(key, emptySelection()),
+    () => storedValue(storageKey, emptySelection()),
     emptySelection,
   );
   const pickSnapshot = useSyncExternalStore(
@@ -145,12 +159,14 @@ export function PlayerReactions({
 
   async function setReaction(id: string, add: boolean) {
     function save() {
-      const current = parsePlayerReactions(localStorage.getItem(key) ?? "[]");
+      const current = parsePlayerReactions(
+        localStorage.getItem(storageKey) ?? "[]",
+      );
       if (current.includes(id) === add) return;
       const next = add
         ? [...current, id]
         : current.filter((value) => value !== id);
-      localStorage.setItem(key, JSON.stringify(next));
+      localStorage.setItem(storageKey, JSON.stringify(next));
       try {
         if (add) {
           const picks = parsePlayerReactionPicks(

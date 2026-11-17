@@ -17,7 +17,7 @@ export type WikiArticle = {
   slug: string;
   title: string;
   category: string;
-  intro: string;
+  intro?: string;
   sections: {
     id: string;
     title: string;
@@ -742,7 +742,6 @@ function liruGallery(tr: AppTranslator): WikiArticle {
     slug: "liru-gallery",
     title: tr("Liru Gallery"),
     category: tr("Community"),
-    intro: tr("Select the image to see it full size."),
     sections: [],
     gallery: outfits.map(([id, caption, alt]) => ({
       src: `/mascot/liru/gallery/${id}.webp`,

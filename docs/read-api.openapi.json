@@ -3523,6 +3523,157 @@
         }
       }
     },
+    "/api/v1/wiki/liru-gallery/messages": {
+      "get": {
+        "operationId": "publicLiruGalleryMessages",
+        "description": "Saved-only domain projection for the existing site. Subject-bound resources use the actual token identity; no initialization, provider request or mutation.",
+        "x-oclr-issues": [269, 271, 272, 186],
+        "x-oclr-scopes": ["tournaments:read"],
+        "x-oclr-query-model": "publicLiruGalleryMessages",
+        "x-oclr-coverage": "docs/remote-coverage.json",
+        "x-oclr-read-only": true,
+        "x-response-size-limit": 2097152,
+        "security": [{}, { "DeveloperBearer": [] }],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Saved read projection; no provider work or business writes",
+            "headers": {
+              "Cache-Control": {
+                "schema": { "type": "string", "const": "no-store" }
+              },
+              "X-Request-Id": {
+                "schema": { "type": "string", "format": "uuid" }
+              },
+              "X-OCLR-Read-Contract": {
+                "schema": { "type": "string", "const": "1.37.0" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "meta"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/publicLiruGalleryMessages"
+                    },
+                    "meta": { "$ref": "#/components/schemas/ReadMeta" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "401": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "403": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "404": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "409": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "413": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "429": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "headers": {
+              "Retry-After": {
+                "description": "Wait this many seconds before a new request; no automatic replay",
+                "schema": { "type": "integer", "minimum": 1 }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "500": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          },
+          "503": {
+            "description": "Machine-readable error; no-store and matching CORS headers for allowed origins",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReadError" }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "publicLiruGalleryMessagesHead",
+        "description": "Identical authorization, status and headers; no response body.",
+        "x-oclr-issues": [269, 271, 272, 186],
+        "security": [{}, { "DeveloperBearer": [] }],
+        "parameters": [],
+        "responses": {
+          "200": { "description": "Identical GET status and headers; no body" },
+          "400": { "description": "Identical GET status and headers; no body" },
+          "401": { "description": "Identical GET status and headers; no body" },
+          "403": { "description": "Identical GET status and headers; no body" },
+          "404": { "description": "Identical GET status and headers; no body" },
+          "409": { "description": "Identical GET status and headers; no body" },
+          "413": { "description": "Identical GET status and headers; no body" },
+          "429": { "description": "Identical GET status and headers; no body" },
+          "500": { "description": "Identical GET status and headers; no body" },
+          "503": { "description": "Identical GET status and headers; no body" }
+        }
+      },
+      "options": {
+        "operationId": "publicLiruGalleryMessagesPreflight",
+        "x-oclr-issues": [269, 271, 272, 186],
+        "security": [],
+        "responses": {
+          "204": { "description": "Read-only preflight, no private data" },
+          "403": { "description": "Origin, method or headers denied" }
+        }
+      }
+    },
     "/api/v1/staff/tournaments/{edition}/workspace": {
       "get": {
         "operationId": "tournamentForAdmin",
@@ -19823,6 +19974,10 @@
           { "$ref": "#/components/schemas/Read4c0a952e974c" }
         ]
       },
+      "Read1acb5f96945e": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/Read83f9786a8197" }
+      },
       "Read1c2a15b000ac": {
         "type": "object",
         "properties": {
@@ -21532,6 +21687,26 @@
       "Read830209cb7c31": {
         "type": "array",
         "items": { "$ref": "#/components/schemas/Read31678959f126" }
+      },
+      "Read83f9786a8197": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "authorId": { "type": "number" },
+          "author": { "type": "string" },
+          "text": { "type": "string" },
+          "createdAt": { "type": "string" },
+          "version": { "type": "string" }
+        },
+        "required": [
+          "id",
+          "authorId",
+          "author",
+          "text",
+          "createdAt",
+          "version"
+        ],
+        "additionalProperties": false
       },
       "Read8403b8fab385": {
         "anyOf": [
@@ -24786,27 +24961,10 @@
         ]
       },
       "publicPlayerMessages": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": { "type": "string" },
-            "authorId": { "type": "number" },
-            "author": { "type": "string" },
-            "text": { "type": "string" },
-            "createdAt": { "type": "string" },
-            "version": { "type": "string" }
-          },
-          "required": [
-            "id",
-            "authorId",
-            "author",
-            "text",
-            "createdAt",
-            "version"
-          ],
-          "additionalProperties": false
-        }
+        "$ref": "#/components/schemas/Read1acb5f96945e"
+      },
+      "publicLiruGalleryMessages": {
+        "$ref": "#/components/schemas/Read1acb5f96945e"
       },
       "tournamentForAdmin": {
         "type": "object",

@@ -1,3 +1,5 @@
+@import "../../community-interactions.css";
+
 .event-tools {
   display: flex;
   align-items: end;
@@ -580,150 +582,6 @@
   gap: 0.75rem;
   min-width: 0;
 }
-.event-message-scroll {
-  max-height: 112px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--site-control-border) transparent;
-  padding-right: 0.6rem;
-  overflow-wrap: anywhere;
-}
-.event-message-scroll > div + div {
-  margin-top: 0.65rem;
-  padding-top: 0.65rem;
-  border-top: 1px solid var(--site-border);
-}
-.player-reactions {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-}
-.themed-site .player-reactions button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  min-height: 28px;
-  min-width: 32px;
-  padding: 0.15rem 0.4rem;
-  background: transparent;
-  color: var(--site-foreground);
-  border: 1px solid var(--site-control-border);
-  border-radius: 0.4rem;
-  box-shadow: none;
-  font-size: var(--text-small);
-  line-height: 1.2;
-  cursor: pointer;
-  transform: none;
-}
-.themed-site .player-reactions button:focus-visible {
-  outline: 2px solid var(--site-accent);
-  outline-offset: -3px;
-}
-.themed-site .player-reactions button[aria-pressed="true"],
-.themed-site .player-reactions button:hover {
-  transform: none;
-  border-color: var(--site-accent);
-  background: var(--site-tint);
-}
-.reaction-count {
-  font-size: var(--text-label);
-  color: var(--site-accent);
-}
-.themed-site .reaction-picker {
-  position: fixed;
-  inset: auto;
-  margin: 0;
-  width: 360px;
-  max-width: calc(100vw - 24px);
-  height: min(264px, calc(100dvh - 24px));
-  padding: 10px;
-  border: 1px solid var(--site-control-border);
-  border-radius: 0.65rem;
-  background: var(--site-surface);
-  color: var(--site-foreground);
-  box-shadow: 0 8px 28px var(--site-shadow);
-}
-.themed-site .reaction-picker:popover-open {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.reaction-picker-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: none;
-}
-.themed-site .reaction-picker-toolbar input {
-  width: 100%;
-  min-width: 0;
-  padding: 8px;
-  font-size: 16px;
-}
-.reaction-picker-filter {
-  justify-content: space-between;
-}
-.reaction-picker-total {
-  flex: none;
-  color: var(--site-muted);
-  font-size: var(--text-label);
-  font-variant-numeric: tabular-nums;
-}
-.reaction-picker-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-}
-.reaction-picker-grid {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 3px;
-}
-.themed-site .reaction-picker-grid button {
-  min-width: 0;
-  min-height: 38px;
-  padding: 3px;
-  border-color: transparent;
-  font-size: var(--text-heading);
-}
-.reaction-image {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 24px;
-  height: 24px;
-}
-.reaction-image img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.reaction-picker-grid .reaction-image {
-  width: 28px;
-  height: 28px;
-}
-.reaction-image-mod {
-  border-radius: 4px;
-  background: #30263e;
-  padding: 2px;
-}
-.player-reactions {
-  max-height: 65px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
-.themed-site .player-reactions .reaction-add {
-  flex: none;
-  border-style: dashed;
-  color: var(--site-muted);
-}
 .event-players > .event-tools {
   align-items: flex-end;
   gap: 1rem;
@@ -858,16 +716,6 @@
   margin-left: 0.5rem;
   font-size: var(--text-label);
 }
-.player-message-controls,
-.player-message-navigation {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-.player-message-controls {
-  margin-top: 0.5rem;
-}
 .themed-site .event-player-row .player-message-controls button,
 .themed-site .event-player-row [role="alert"] button {
   min-height: 32px;
@@ -875,16 +723,6 @@
   font-size: var(--text-label);
   transform: none;
   box-shadow: none;
-}
-.player-message-navigation {
-  flex-wrap: nowrap;
-}
-.player-message-navigation span {
-  font-size: var(--text-label);
-}
-.player-message-form,
-.player-message-confirm {
-  margin-top: 0.5rem;
 }
 @media (pointer: coarse) {
   .themed-site .event-player-row .player-message-controls button {

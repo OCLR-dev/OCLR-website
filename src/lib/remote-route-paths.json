@@ -115,6 +115,7 @@
     "/api/tournaments/[edition]/players/[osuId]/messages",
     "/api/tournaments/[edition]/players",
     "/api/tournaments/[edition]",
-    "/api/tournaments"
+    "/api/tournaments",
+    "/api/wiki/liru-gallery/messages"
   ]
 }

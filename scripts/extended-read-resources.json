@@ -140,6 +140,16 @@
     "scope": "tournaments:read"
   },
   {
+    "module": "liru-gallery-messages",
+    "fn": "publicLiruGalleryMessages",
+    "id": "publicLiruGalleryMessages",
+    "path": "/wiki/liru-gallery/messages",
+    "args": [],
+    "public": true,
+    "query": [],
+    "scope": "tournaments:read"
+  },
+  {
     "module": "tournament-reads",
     "fn": "tournamentForAdmin",
     "id": "tournamentForAdmin",

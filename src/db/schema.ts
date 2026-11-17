@@ -1524,6 +1524,57 @@ export const playerMessages = pgTable(
   ],
 );
 
+// The gallery's public messages are independent of tournament registrations.
+export const liruGalleryMessages = pgTable(
+  "liru_gallery_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    authorId: bigint("author_id", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("liru_gallery_messages_recent_idx").on(t.createdAt, t.id),
+    check(
+      "liru_gallery_messages_body_length",
+      sql`char_length(btrim(${t.body})) BETWEEN 1 AND 1000`,
+    ),
+  ],
+);
+
+export const liruGalleryMessageEvents = pgTable(
+  "liru_gallery_message_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    authorId: bigint("author_id", { mode: "number" }).references(
+      () => users.osuId,
+      { onDelete: "set null" },
+    ),
+    messageId: uuid("message_id").notNull(),
+    requestId: uuid("request_id"),
+    kind: text("kind").$type<"posted" | "edited" | "deleted">().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("liru_gallery_message_request_unique").on(t.authorId, t.requestId),
+    index("liru_gallery_message_activity_idx").on(
+      t.authorId,
+      t.kind,
+      t.createdAt,
+    ),
+    check(
+      "liru_gallery_message_event_kind",
+      sql`(${t.kind} = 'posted' AND ${t.requestId} IS NOT NULL) OR (${t.kind} IN ('edited', 'deleted') AND ${t.requestId} IS NULL)`,
+    ),
+  ],
+);
+
 // Ordered, global display identities. These entries never grant staff access.
 export const contributorDirectory = pgTable(
   "contributor_directory",

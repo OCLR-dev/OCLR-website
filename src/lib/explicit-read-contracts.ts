@@ -212,6 +212,7 @@ export const explicitReadContracts = {
   staffTeams,
   ownTeam,
   publicPlayerMessages,
+  publicLiruGalleryMessages: publicPlayerMessages,
   publicPlayerMra,
   publicPlayerParticipation: publicPlayerParticipationReadContract,
   playerLeaderboard: playerLeaderboardReadContract,
