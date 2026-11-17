@@ -37,7 +37,7 @@ export async function WikiDocument({ article }: { article: WikiArticle }) {
           </Link>
         ))}
       </nav>
-      <div className="information-layout">
+      <div className={article.gallery ? undefined : "information-layout"}>
         <article
           className="information-document document-typeset"
           aria-labelledby="wiki-title"
@@ -49,6 +49,32 @@ export async function WikiDocument({ article }: { article: WikiArticle }) {
             <h1 id="wiki-title">{article.title}</h1>
           </header>
           <p className="information-intro">{article.intro}</p>
+          {article.related && (
+            <p>
+              <Link href={wikiHref(article.related.slug)}>
+                {article.related.title}
+              </Link>
+            </p>
+          )}
+          {article.gallery && (
+            <div className="wiki-gallery">
+              {article.gallery.map((figure, index) => (
+                <figure key={figure.src}>
+                  <a href={figure.src} target="_blank" rel="noreferrer">
+                    <Image
+                      src={figure.previewSrc}
+                      alt={figure.alt}
+                      width={figure.width}
+                      height={figure.height}
+                      loading={index < 3 ? "eager" : "lazy"}
+                      unoptimized
+                    />
+                  </a>
+                  <figcaption>{figure.caption}</figcaption>
+                </figure>
+              ))}
+            </div>
+          )}
           {article.sections.map((section) => (
             <section key={section.id} id={section.id}>
               <h2>{section.title}</h2>
@@ -134,26 +160,28 @@ export async function WikiDocument({ article }: { article: WikiArticle }) {
             </footer>
           )}
         </article>
-        <aside className="information-contents">
-          <nav aria-label={tr("Contents")}>
-            <h2>{tr("Contents")}</h2>
-            <ol>
-              {article.sections.map((section, i) => (
-                <li key={section.id}>
-                  <a href={`#${section.id}`}>
-                    <span aria-hidden="true">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    {section.title}
-                  </a>
-                </li>
-              ))}
-            </ol>
-            <a className="information-back-top" href="#wiki-title">
-              {tr("Back to top")} ↑
-            </a>
-          </nav>
-        </aside>
+        {article.sections.length > 0 && (
+          <aside className="information-contents">
+            <nav aria-label={tr("Contents")}>
+              <h2>{tr("Contents")}</h2>
+              <ol>
+                {article.sections.map((section, i) => (
+                  <li key={section.id}>
+                    <a href={`#${section.id}`}>
+                      <span aria-hidden="true">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      {section.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+              <a className="information-back-top" href="#wiki-title">
+                {tr("Back to top")} ↑
+              </a>
+            </nav>
+          </aside>
+        )}
       </div>
     </div>
   );

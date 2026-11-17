@@ -5,7 +5,7 @@ import en from "../../messages/en.json";
 import hans from "../../messages/zh-Hans.json";
 import hant from "../../messages/zh-Hant.json";
 import { appTranslator } from "../../src/i18n/translate";
-import { wikiArticles } from "../../src/lib/wiki-articles";
+import { wikiArticles, wikiHref } from "../../src/lib/wiki-articles";
 
 // WebP canvas size from the VP8X/VP8L/VP8 header, so declared figure sizes cannot drift from the files.
 function webpSize(path: string) {
@@ -121,6 +121,30 @@ describe("Liru Wiki article (#334, #442, #536)", () => {
       });
     },
   );
+});
+
+it("links the Liru gallery and serves all seven portraits at both sizes", () => {
+  const native = createTranslator({ locale: "en", messages: en.ui });
+  const tr = appTranslator(
+    (key, values) => native(key as keyof typeof en.ui, values),
+    "en",
+  );
+  const articles = wikiArticles(tr);
+  const profile = articles.find((article) => article.slug === "liru")!;
+  const gallery = articles.find((article) => article.slug === "liru-gallery")!;
+  expect(wikiHref(profile.related!.slug)).toBe(wikiHref(gallery.slug));
+  expect(gallery.gallery).toHaveLength(7);
+  expect(new Set(gallery.gallery!.map((figure) => figure.src)).size).toBe(7);
+  for (const figure of gallery.gallery!) {
+    expect(webpSize(`public${figure.src}`)).toEqual({
+      width: 1024,
+      height: 1536,
+    });
+    expect(webpSize(`public${figure.previewSrc}`)).toEqual({
+      width: 640,
+      height: 960,
+    });
+  }
 });
 
 describe("Liru sticker pack (#536)", () => {

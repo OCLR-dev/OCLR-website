@@ -3,6 +3,14 @@ import type { AppTranslator } from "@/i18n/translate";
 // Plain text, or text mixed with links.
 export type WikiText = string | (string | { label: string; href: string })[];
 
+type WikiFigure = {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+  caption: string;
+};
+
 export type WikiArticle = {
   slug: string;
   title: string;
@@ -14,14 +22,10 @@ export type WikiArticle = {
     paragraphs?: WikiText[];
     items?: string[];
     table?: { headers: string[]; rows: WikiText[][] };
-    figures?: {
-      src: string;
-      width: number;
-      height: number;
-      alt: string;
-      caption: string;
-    }[];
+    figures?: WikiFigure[];
   }[];
+  gallery?: (WikiFigure & { previewSrc: string })[];
+  related?: { slug: string; title: string };
   source?: { title: string; author: string; date: string; href: string };
 };
 
@@ -202,6 +206,7 @@ export function wikiArticles(tr: AppTranslator): WikiArticle[] {
       },
     },
     liruArticle(tr),
+    liruGallery(tr),
   ];
 }
 
@@ -230,6 +235,7 @@ function liruArticle(tr: AppTranslator): WikiArticle {
       "Liru (LR-chan) is the official mascot of osu! Chinese League Rookie (OCLR), in the spirit of pippi and the other osu! mode mascots. Her design began as a community proposal by {designer}.",
       { designer: LIRU_DESIGNER },
     ),
+    related: { slug: "liru-gallery", title: tr("Liru Gallery") },
     sections: [
       {
         id: "profile",
@@ -521,6 +527,67 @@ function liruArticle(tr: AppTranslator): WikiArticle {
         ],
       },
     ],
+  };
+}
+
+function liruGallery(tr: AppTranslator): WikiArticle {
+  const outfits = [
+    [
+      "elegant-maid",
+      tr("Elegant maid outfit"),
+      tr("Liru in a ruffled maid dress, holding a teacup on a tray"),
+    ],
+    [
+      "purple-punk",
+      tr("Purple punk streetwear"),
+      tr("Liru in a leather jacket, purple plaid skirt and lace-up boots"),
+    ],
+    [
+      "shrine-maiden",
+      tr("Red and white shrine maiden outfit"),
+      tr("Liru in white robes and red hakama, holding a paper streamer wand"),
+    ],
+    [
+      "lavender-gown",
+      tr("Lavender gown"),
+      tr(
+        "Liru in a floor-length lavender gown with lace and floral embroidery",
+      ),
+    ],
+    [
+      "sailor-uniform",
+      tr("Sailor uniform"),
+      tr("Liru smiles and waves in a navy and white sailor uniform"),
+    ],
+    [
+      "gothic-lolita",
+      tr("Gothic Lolita dress"),
+      tr("Liru holds up the hem of a black lace dress with purple bows"),
+    ],
+    [
+      "wisteria-furisode",
+      tr("Wisteria-patterned furisode"),
+      tr(
+        "Liru holds out a long sleeve of her lavender wisteria-patterned kimono",
+      ),
+    ],
+  ];
+  return {
+    slug: "liru-gallery",
+    title: tr("Liru Gallery"),
+    category: tr("Community"),
+    intro: tr(
+      "Seven outfit illustrations of Liru. Select an image to see it full size.",
+    ),
+    sections: [],
+    gallery: outfits.map(([id, caption, alt]) => ({
+      src: `/mascot/liru/gallery/${id}.webp`,
+      previewSrc: `/mascot/liru/gallery/${id}-640.webp`,
+      width: 1024,
+      height: 1536,
+      alt,
+      caption,
+    })),
   };
 }
 
