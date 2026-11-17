@@ -42,7 +42,7 @@ rating jobs before updating the website.
 sudo systemctl disable --now oclr-sip-ratings.timer oclr-otr-ratings.timer oclr-etx-ratings.timer
 sudo systemctl stop oclr-sip-ratings.service oclr-otr-ratings.service oclr-etx-ratings.service
 sudo oclr update
-sudo journalctl -u oclr.service --since today --no-pager --grep='\[ratings\]'
+sudo journalctl -u oclr.service --since today --no-pager
 ```
 
 For hosts that only installed some of the old units, list only those units
@@ -51,11 +51,16 @@ through the existing service definition. If the release is rolled back
 to a version that used separate timers, restore the previous token
 configuration and re-enable its timers after verifying the website.
 
-The individual `npm run db:refresh-{sip,otr,etx}-ratings -- --apply`
-commands remain available to operators for a deliberate manual refresh,
-with the approved runtime environment exported. Provider counts and errors
-appear in the website journal during scheduled runs. When a provider
-returns HTTP 429, let the next scheduled run resume it.
+Provider counts and errors appear in the website journal during scheduled
+runs. When a provider returns HTTP 429, let the next scheduled run resume it.
+For a deliberate manual refresh, export the approved runtime environment and
+run the command for the intended provider:
+
+```bash
+npm run db:refresh-sip-ratings -- --apply
+npm run db:refresh-otr-ratings -- --apply
+npm run db:refresh-etx-ratings -- --apply
+```
 
 ## Recorded release evidence — 2026-10-23
 
