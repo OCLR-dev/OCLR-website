@@ -18,33 +18,17 @@ independent databases using the same token do not share the lock.
 
 ## Operator setup
 
-After the normal reviewed deployment and migration, confirm that the approved
-worker DB role can read registrations and edition settings and can select,
-insert and update `sip_rating_cache`. Store `SIP_API_TOKEN` in a root-owned
-`/etc/oclr/sip-ratings.env` with mode 0600. Keep it out of the web service
-environment and source control. The service sends it only in the `source`
-header to `https://skillissue.app` and rejects redirects.
+The existing `oclr.service` runs SIP at the
+[daily rating refresh](deployment.md#daily-rating-refresh). Set
+`SIP_API_TOKEN` in the protected `/etc/oclr/runtime.env`. The provider
+receives it in the `source` header on the fixed `https://skillissue.app`
+origin, and the client rejects redirects.
 
-The optional [service](systemd/oclr-sip-ratings.service) and
-[timer](systemd/oclr-sip-ratings.timer) follow the Rocky deployment layout.
-Review the Node and release paths for the intended host. From a trusted
-installer checkout, an authorized operator can run:
-
-```sh
-sudo install -o root -g root -m 0644 docs/systemd/oclr-sip-ratings.service /etc/systemd/system/
-sudo install -o root -g root -m 0644 docs/systemd/oclr-sip-ratings.timer /etc/systemd/system/
-sudo systemd-analyze verify /etc/systemd/system/oclr-sip-ratings.{service,timer}
-sudo systemctl daemon-reload
-sudo systemctl start oclr-sip-ratings.service
-sudo systemctl enable --now oclr-sip-ratings.timer
-sudo systemctl list-timers oclr-sip-ratings.timer
-sudo journalctl -u oclr-sip-ratings.service -n 20 --no-pager
-```
-
-The first run populates the cache; afterward the timer runs daily at 04:00 UTC
-(12:00 Asia/Taipei). Count-only output reports pending, updated, missing and
-failed lookups and whether the worker stopped early. Check that the public S11
-list shows ratings after this run. ETX continues to use the Admin CSV import.
+The runtime database role needs read access to published S11 registrations
+and edition settings, plus SELECT, INSERT and UPDATE on `sip_rating_cache`.
+Check the public S11 list after the first successful run. The job reports
+only counts for pending, updated, missing and failed lookups and whether it
+stopped early.
 
 For local verification with an isolated database, export its `DATABASE_URL`
 and use `npm run db:refresh-sip-ratings -- --dry-run`. This counts pending

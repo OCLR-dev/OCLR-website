@@ -3,49 +3,59 @@
 For the reviewed cross-season ranking worker, see [background player analytics](background-player-analytics.md).
 After migrations 0081 and 0096, the existing `oclr-leaderboard.timer` can update all three rankings using the same command. Public page and API requests read the snapshots.
 For official osu! v2 difficulty snapshots, see the [background mappool difficulty job](mappools.md#background-difficulty-job).
-For S11 SIP, see the [daily Skill Issue ratings worker](sip-ratings.md).
+For SIP, o!TR and ETX, see the [daily rating refresh](#daily-rating-refresh).
 
 The deployment target is a Rocky Linux 10 Node.js application host, an existing separate PostgreSQL server and an existing separate Nginx proxy. CI verifies Node.js 24 and PostgreSQL 17; the actual external database version, permissions and networking must be rehearsed before launch. No deployment, domain, DNS or OAuth application has been provisioned by this repository. The local isolated tests are not a production launch.
 
-## Daily o!TR refresh
+## Daily rating refresh
 
-The [o!TR service](systemd/oclr-otr-ratings.service) and
-[timer](systemd/oclr-otr-ratings.timer) refresh the shared PostgreSQL rating
-cache (migration `0097_otr_rating_cache`) at **03:00 Asia/Taipei** every day.
-If the host misses the scheduled run, systemd catches up once when the timer
-starts. The public profile and S11 player directory only read the cache.
+The existing `oclr.service` starts the daily SIP, o!TR and ETX work through
+`scripts/production.sh start`. At **12:00 Asia/Taipei (04:00 UTC)** it runs
+the three provider jobs in sequence as `oclr`. If the site starts after that
+time, it runs the work still due for the current UTC day. Each provider
+keeps its request pacing and database lock. A provider failure leaves the
+other jobs eligible to run.
 
-The worker uses public native and historical player listings, skips `dev-`
-preview editions and deduplicates by osu! UID. It sends requests one at a time,
-at least a second apart. A PostgreSQL advisory lock prevents overlapping
-workers using the same database. Run a single timer per o!TR key across
-independent databases. A player is attempted at most once per Taipei calendar
-day. Provider failures preserve the previous rating; HTTP 429 or an invalid
-key stops the run. The worker logs only status and counts. It does not retry
-automatically before the next scheduled run.
+Keep `SIP_API_TOKEN` and `OTR_API_KEY` in the protected
+`/etc/oclr/runtime.env` to enable those providers. ETX uses its public
+endpoint. The daemon loads environment changes on service start. The
+runtime database role needs read access to the published
+player sources and SELECT, INSERT and UPDATE on the three cache tables
+(`sip_rating_cache`, `otr_rating_cache`, `etx_rating_cache`).
 
-Set `OTR_API_KEY` in the protected `/etc/oclr/runtime.env`. Without the key,
-the worker reports `disabled`; pages can still display cached values. The
-existing runtime database role needs read access to the public player sources
-and SELECT, INSERT and UPDATE on `otr_rating_cache`. With the approved operator
-environment already exported, `npm run db:refresh-otr-ratings -- --dry-run`
-shows candidate counts without writing or contacting o!TR. Use `--apply` to
-run once from the same reviewed release. New players appear after the next
-successful refresh.
+The daemon records each attempt before starting the provider process in
+`/var/lib/oclr/rating-refresh`. A same-day restart can start providers it had
+yet to reach. It skips providers already started that UTC day, even if
+they failed or were interrupted. Custom installations can set
+`OCLR_RATING_STATE_DIR` to an absolute, durable directory writable by the
+service user. Keep it across releases. The default path uses the existing
+`/var/lib/oclr` data directory created by the installer.
 
-After a reviewed release is installed, an authorized operator can enable the
-timer. Keep the installed units root-owned. Check the Node path, service
-account and release paths before installation, as for the leaderboard timer.
+### Retire the three standalone timers
 
-```sh
-sudo install -o root -g root -m 0644 docs/systemd/oclr-otr-ratings.service /etc/systemd/system/oclr-otr-ratings.service
-sudo install -o root -g root -m 0644 docs/systemd/oclr-otr-ratings.timer /etc/systemd/system/oclr-otr-ratings.timer
-sudo systemd-analyze verify /etc/systemd/system/oclr-otr-ratings.service /etc/systemd/system/oclr-otr-ratings.timer
-sudo systemctl daemon-reload
-sudo systemctl enable --now oclr-otr-ratings.timer
-sudo systemctl list-timers oclr-otr-ratings.timer
-sudo journalctl -u oclr-otr-ratings.service -n 20 --no-pager
+Copy the existing SIP token into `runtime.env` using `sudoedit` if it was
+stored separately. Keep the existing `OTR_API_KEY`. At the start of the
+update window, disable the installed rating timers and stop any active
+rating jobs before updating the website.
+
+```bash
+sudo systemctl disable --now oclr-sip-ratings.timer oclr-otr-ratings.timer oclr-etx-ratings.timer
+sudo systemctl stop oclr-sip-ratings.service oclr-otr-ratings.service oclr-etx-ratings.service
+sudo oclr update
+sudo journalctl -u oclr.service --since today --no-pager --grep='\[ratings\]'
 ```
+
+For hosts that only installed some of the old units, list only those units
+in the first two commands. The scheduler starts with the updated website,
+through the existing service definition. If the release is rolled back
+to a version that used separate timers, restore the previous token
+configuration and re-enable its timers after verifying the website.
+
+The individual `npm run db:refresh-{sip,otr,etx}-ratings -- --apply`
+commands remain available to operators for a deliberate manual refresh,
+with the approved runtime environment exported. Provider counts and errors
+appear in the website journal during scheduled runs. When a provider
+returns HTTP 429, let the next scheduled run resume it.
 
 ## Recorded release evidence — 2026-10-23
 

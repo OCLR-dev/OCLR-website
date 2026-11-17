@@ -120,9 +120,9 @@ else
     [[ -f .next/BUILD_ID ]] || fail 'No production build found. Run production setup first.'
   fi
   run 'npm run release:check' npm run release:check
-  printf '> node node_modules/next/dist/bin/next start --hostname %s --port %s\n' "$host" "$port"
+  printf '> node --import tsx --import ./scripts/start-rating-scheduler.ts node_modules/next/dist/bin/next start --hostname %s --port %s\n' "$host" "$port"
   if ! "$dry_run"; then
     # Node becomes the service's main process and receives systemd signals directly.
-    exec node node_modules/next/dist/bin/next start --hostname "$host" --port "$port"
+    exec node --import tsx --import ./scripts/start-rating-scheduler.ts node_modules/next/dist/bin/next start --hostname "$host" --port "$port"
   fi
 fi
