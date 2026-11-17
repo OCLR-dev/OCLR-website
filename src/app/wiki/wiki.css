@@ -86,9 +86,6 @@
   max-width: 52rem;
   margin-inline: auto;
 }
-.wiki-gallery-controls .player-reactions {
-  margin-block-start: 0.75rem;
-}
 .themed-site button.wiki-gallery-shuffle {
   --shuffle-accent: color-mix(
     in srgb,
@@ -153,6 +150,10 @@
   line-height: 1.4;
   text-align: center;
 }
+.wiki-gallery figcaption .player-reactions {
+  justify-content: center;
+  margin-block-start: 0.65rem;
+}
 .wiki-gallery a {
   display: block;
   padding: clamp(0.5rem, 1.2vw, 1rem);
@@ -192,9 +193,6 @@
   }
   .wiki-gallery-controls {
     text-align: center;
-  }
-  .wiki-gallery-controls .player-reactions {
-    justify-content: center;
   }
   .wiki-page {
     padding-block: 1.5rem 3rem;

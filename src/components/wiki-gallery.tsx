@@ -37,8 +37,15 @@ export function WikiGallery({
             unoptimized
           />
         </a>
-        <figcaption id="wiki-gallery-caption" aria-live="polite">
-          {figure.caption}
+        <figcaption>
+          <span id="wiki-gallery-caption" aria-live="polite">
+            {figure.caption}
+          </span>
+          <EmojiReactions
+            key={figure.src}
+            storageKey={`oclr-liru-gallery-reactions:${figure.src}`}
+            name={figure.caption}
+          />
         </figcaption>
       </figure>
       <div className="wiki-gallery-controls">
@@ -64,11 +71,6 @@ export function WikiGallery({
           </svg>
           <span>{showAnotherLabel}</span>
         </button>
-        <EmojiReactions
-          key={figure.src}
-          storageKey={`oclr-liru-gallery-reactions:${figure.src}`}
-          name={figure.caption}
-        />
       </div>
     </div>
   );
