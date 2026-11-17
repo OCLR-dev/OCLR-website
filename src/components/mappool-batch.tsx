@@ -222,6 +222,7 @@ export function MappoolBatch({
                           "Artist / title",
                           "Difficulty / mapper",
                           "Base SR",
+                          tr("Official Mod SR"),
                           "BPM / duration",
                           "Validation",
                         ].map((h) => (
@@ -253,6 +254,11 @@ export function MappoolBatch({
                           </td>
                           <td>
                             {formatBeatmapNumber(r.snapshot?.metadata.stars, 2)}
+                          </td>
+                          <td>
+                            {r.snapshot?.metadata.attributes
+                              ? `${r.snapshot.metadata.attributes.configuration} · ${formatBeatmapNumber(r.snapshot.metadata.attributes.stars, 2)}`
+                              : "—"}
                           </td>
                           <td>
                             {r.snapshot

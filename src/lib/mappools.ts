@@ -38,6 +38,7 @@ import {
 import {
   fetchBeatmap,
   fetchBeatmaps,
+  withBatchImportAttributes,
   withBeatmapAttributes,
   refreshDifficultyPreviews,
 } from "./osu-beatmaps";
@@ -99,6 +100,7 @@ export async function mappoolCommand(
   let beatmapId: number | undefined;
   let metadataFetchedAt: Date | undefined;
   const batchMetadata = new Map<number, BeatmapSnapshot>();
+  const importedEntries: BeatmapSnapshot[] = [];
   const refreshedEntries = new Map<string, BeatmapSnapshot>();
   if (c.action === "history_import") {
     const [target] = await db()
@@ -192,18 +194,20 @@ export async function mappoolCommand(
           entry.metadata.attributes?.configuration ?? null,
         ),
       );
-    if (
-      c.action === "batch_import" &&
-      c.rows.some(
-        (r) =>
-          batchMetadata.get(parseBeatmapId(r.beatmap)!)?.fingerprint !==
-          r.expectedMetadataFingerprint,
-      )
-    )
-      throw new HttpError(
-        409,
-        "Official metadata changed. Preview the batch again.",
-      );
+    if (c.action === "batch_import") {
+      for (const row of c.rows) {
+        const snapshot = await withBatchImportAttributes(
+          batchMetadata.get(parseBeatmapId(row.beatmap)!)!,
+          row.category,
+        );
+        if (snapshot.fingerprint !== row.expectedMetadataFingerprint)
+          throw new HttpError(
+            409,
+            "Official metadata changed. Preview the batch again.",
+          );
+        importedEntries.push(snapshot);
+      }
+    }
   }
   // Provider work happens before the transaction; the version is checked again under lock.
   if (c.action === "entry_save" || c.action === "entry_refresh") {
@@ -742,13 +746,14 @@ export async function mappoolCommand(
         }
       } else if (c.action === "batch_import") {
         validateImport(c, entries);
-        for (const row of c.rows) {
-          const id = parseBeatmapId(row.beatmap)!;
+        for (const [index, row] of c.rows.entries()) {
+          const snapshot = importedEntries[index];
           if (
             entries.some(
               (e) =>
                 e.category === row.category &&
-                (e.position === row.position || e.beatmapId === id),
+                (e.position === row.position ||
+                  e.beatmapId === snapshot.beatmapId),
             )
           )
             throw new HttpError(
@@ -757,12 +762,11 @@ export async function mappoolCommand(
             );
           if (row.category === "FM" && !pool.fmMode)
             throw new HttpError(409, "Configure FM before importing FM slots.");
-          const snapshot = batchMetadata.get(id)!;
           await tx.insert(mappoolEntries).values({
             poolId: pool.id,
             category: row.category,
             position: row.position,
-            beatmapId: id,
+            beatmapId: snapshot.beatmapId,
             metadata: snapshot.metadata,
             metadataFetchedAt: new Date(snapshot.fetchedAt),
           });

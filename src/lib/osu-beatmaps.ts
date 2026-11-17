@@ -9,6 +9,7 @@ import {
   type BeatmapAttributes,
   type BeatmapSnapshot,
   type DifficultySnapshot,
+  type MappoolCategory,
 } from "./mappool-model";
 const positiveId = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const beatmap = z.object({
@@ -104,6 +105,18 @@ export async function refreshDifficultyPreviews(
     metadata: { ...selected.metadata, difficultySnapshot },
   };
 }
+export function withBatchImportAttributes(
+  snapshot: BeatmapSnapshot,
+  category: MappoolCategory,
+): Promise<BeatmapSnapshot> {
+  return withBeatmapAttributes(
+    snapshot,
+    category === "HD" || category === "HR" || category === "DT"
+      ? category
+      : null,
+  );
+}
+
 function normalizeBeatmap(value: unknown, id: number): BeatmapSnapshot {
   const parsed = beatmap.safeParse(value);
   if (!parsed.success || parsed.data.id !== id)

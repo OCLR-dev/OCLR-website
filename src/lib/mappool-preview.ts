@@ -16,7 +16,12 @@ import {
   singleBeatmapPreviewInput,
   type MappoolBatchPreview,
 } from "./mappool-write-contracts";
-import { fetchBeatmap, fetchBeatmaps, withBeatmapAttributes } from "./osu-beatmaps";
+import {
+  fetchBeatmap,
+  fetchBeatmaps,
+  withBatchImportAttributes,
+  withBeatmapAttributes,
+} from "./osu-beatmaps";
 
 // Preview is a protected read, not a mutation. No registration or audit data is returned.
 export async function previewBeatmap(
@@ -87,24 +92,26 @@ export async function previewMappoolBatch(
   const snapshots = ids.length
     ? await fetchBeatmaps(ids)
     : new Map<number, BeatmapSnapshot | HttpError>();
-  return {
-    poolId: pool.id,
-    version: pool.version,
-    rows: rows.map((r) => {
-      const snapshot = snapshots.get(r.beatmapId!);
-      return {
-        ...r,
-        snapshot: snapshot instanceof HttpError ? null : (snapshot ?? null),
-        error:
-          r.error ??
-          (snapshot instanceof HttpError
-            ? snapshot.message
-            : snapshot &&
-                round.rules &&
-                snapshot.metadata.mode !== round.rules.mode
-              ? "Beatmap ruleset does not match the configured round."
-              : null),
-      };
-    }),
-  };
+  const previewRows: MappoolBatchPreview["rows"] = [];
+  // Attribute requests share the provider's paced queue. Resolve one row at a time.
+  for (const row of rows) {
+    const base = snapshots.get(row.beatmapId!);
+    let snapshot = base instanceof HttpError ? null : (base ?? null);
+    let error = row.error;
+    if (!error && base instanceof HttpError) error = base.message;
+    if (!error && snapshot && row.category) {
+      if (round.rules && snapshot.metadata.mode !== round.rules.mode) {
+        error = "Beatmap ruleset does not match the configured round.";
+      } else {
+        try {
+          snapshot = await withBatchImportAttributes(snapshot, row.category);
+        } catch (failure) {
+          if (!(failure instanceof HttpError)) throw failure;
+          error = failure.message;
+        }
+      }
+    }
+    previewRows.push({ ...row, snapshot, error });
+  }
+  return { poolId: pool.id, version: pool.version, rows: previewRows };
 }

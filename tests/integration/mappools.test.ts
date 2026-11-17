@@ -21,7 +21,10 @@ import {
   mappoolEvents,
   tournamentRounds,
 } from "../../src/db/schema";
-import { previewBeatmap, previewMappoolBatch } from "../../src/lib/mappool-preview";
+import {
+  previewBeatmap,
+  previewMappoolBatch,
+} from "../../src/lib/mappool-preview";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { mappoolWorkspace, publicMappools } from "../../src/lib/mappool-reads";
 import { fetchBeatmap, fetchBeatmaps } from "../../src/lib/osu-beatmaps";
@@ -73,6 +76,7 @@ const metadata = {
   stars: 4.5,
   bpm: 180,
   duration: 123,
+  mode: "osu" as const,
 };
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 190001, username: "Synthetic Admin" };
@@ -98,6 +102,11 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
     vi.stubEnv("ADMIN_OSU_IDS", String(admin.osuId));
   });
   beforeEach(async () => {
+    vi.mocked(osuApi)
+      .mockReset()
+      .mockResolvedValue({
+        attributes: { star_rating: 6.75, max_combo: 1234 },
+      });
     vi.mocked(fetchBeatmap)
       .mockReset()
       .mockImplementation(async (id) => ({
@@ -832,7 +841,14 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
   }
   it("saves one atomic batch revision and audit, rejects stale/colliding/forged requests", async () => {
     const pool = await create();
-    const payload = await batch(pool.id);
+    const payload = await batch(
+      pool.id,
+      0,
+      "123\nHD1 123\nHR1 123\nDT1 123\nTB 123",
+    );
+    expect(
+      new Set(payload.rows.map((row) => row.expectedMetadataFingerprint)).size,
+    ).toBe(4);
     const save = async () => {
       const response = await post(
         changeRoute,
@@ -849,9 +865,23 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
     };
     const outcomes = await Promise.all([save(), save()]);
     expect(outcomes.sort()).toEqual([200, 409]);
-    expect((await mappoolWorkspace(mapper, edition.slug)).entries).toHaveLength(
-      2,
-    );
+    const { entries } = await mappoolWorkspace(mapper, edition.slug);
+    expect(entries).toHaveLength(5);
+    for (const entry of entries) {
+      expect(entry.metadata.stars).toBe(4.5);
+      if (
+        entry.category === "HD" ||
+        entry.category === "HR" ||
+        entry.category === "DT"
+      )
+        expect(entry.metadata.attributes).toMatchObject({
+          configuration: entry.category,
+          mods: [entry.category],
+          stars: 6.75,
+          maxCombo: 1234,
+        });
+      else expect(entry.metadata.attributes).toBeUndefined();
+    }
     expect(
       (await auditEvents()).filter((e) => e.action === "batch_import"),
     ).toHaveLength(1);
@@ -1123,6 +1153,41 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
     await expect(
       mappoolCommand(mapper, edition.slug, payload),
     ).rejects.toMatchObject({ status: 502 });
+    vi.mocked(osuApi).mockRejectedValueOnce(
+      new HttpError(502, "Synthetic attributes outage"),
+    );
+    const preview = await previewMappoolBatch(mapper, edition.slug, {
+      poolId: pool.id,
+      expectedVersion: 0,
+      category: "DT",
+      text: "789",
+    });
+    expect(preview.rows[0]).toMatchObject({
+      category: "DT",
+      error: "Synthetic attributes outage",
+    });
+    expect(preview.rows[0].snapshot?.metadata.attributes).toBeUndefined();
+    const lookup = vi.mocked(fetchBeatmaps).getMockImplementation()!;
+    vi.mocked(fetchBeatmaps).mockImplementationOnce(async (ids) => {
+      const snapshots = await lookup(ids);
+      const snapshot = snapshots.get(456);
+      if (snapshot && !(snapshot instanceof HttpError))
+        snapshots.set(456, { ...snapshot, fingerprint: "b".repeat(64) });
+      return snapshots;
+    });
+    vi.mocked(osuApi).mockRejectedValueOnce(
+      new HttpError(502, "Synthetic attributes outage"),
+    );
+    await expect(
+      mappoolCommand(mapper, edition.slug, payload),
+    ).rejects.toMatchObject({
+      status: 502,
+      message: "Synthetic attributes outage",
+    });
+    expect((await mappoolWorkspace(mapper, edition.slug)).entries).toEqual([]);
+    expect(
+      (await mappoolWorkspace(mapper, edition.slug)).pools[0].version,
+    ).toBe(0);
     await db().execute(
       sql`CREATE FUNCTION oclr_test_fail_batch() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Synthetic batch audit failure'; END $$`,
     );
