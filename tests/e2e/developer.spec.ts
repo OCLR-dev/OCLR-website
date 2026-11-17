@@ -151,7 +151,7 @@ test.describe("Developer private read workspace", () => {
         "1861",
       );
       await expect(
-        page.getByRole("link", { name: "Export CSV ↓" }),
+        page.getByText("Export registrations", { exact: true }),
       ).toHaveCount(0);
       expect(
         (await context.request.get("/api/admin/registrations/export")).status(),

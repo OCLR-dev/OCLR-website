@@ -4341,6 +4341,11 @@
     "m4418b7480498": "Mint lily of the valley dress",
     "mcf36fc4be12f": "Liru wears a sleeveless mint green dress with a scalloped hem and holds a bouquet of white lily of the valley flowers.",
     "maa03dab65956": "Import ETX ratings",
-    "m64309e00fcf3": "Import matches accepted S11 players by osu! ID."
+    "m64309e00fcf3": "Import matches accepted S11 players by osu! ID.",
+    "md4259fd26b30": "Export registrations",
+    "m91f71c14c8d6": "Export CSV",
+    "m20d2be907e17": "Export UID (ETX bot)",
+    "m11ca40173fe8": "Export username (SIP bot)",
+    "mc461546e018b": "Invalid export format."
   }
 }

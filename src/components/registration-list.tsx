@@ -9,6 +9,7 @@ import { getEditionChoices } from "@/lib/content";
 import { formatDate } from "@/lib/editions";
 import { BulkManualRegistration } from "./bulk-manual-registration";
 import { ManualRegistration } from "./manual-registration";
+import { RegistrationExport } from "./registration-export";
 import { PlayerRatingImport } from "./player-rating-import";
 import { importedRatingsEdition } from "@/lib/player-rating-import-contract";
 import { PageHeading } from "@/components/ui";
@@ -87,12 +88,23 @@ export async function RegistrationList({
                   grant.editionSlug ?? undefined,
                 ),
               ) && (
-                <a
-                  className="button secondary"
-                  href={`/api/admin/registrations/export?${query}`}
-                >
-                  {tr("Export CSV ↓")}
-                </a>
+                <RegistrationExport
+                  label={tr("Export registrations")}
+                  links={[
+                    {
+                      label: tr("Export CSV"),
+                      href: `/api/admin/registrations/export?${query}`,
+                    },
+                    {
+                      label: tr("Export UID (ETX bot)"),
+                      href: `/api/admin/registrations/export?${query}&format=uid`,
+                    },
+                    {
+                      label: tr("Export username (SIP bot)"),
+                      href: `/api/admin/registrations/export?${query}&format=username`,
+                    },
+                  ]}
+                />
               )}
           </div>
         </div>

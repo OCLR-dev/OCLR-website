@@ -119,6 +119,13 @@ export async function exportApplications(actor: User, input: unknown) {
   // authorization, list and batched saved-statistics readers.
   return readOnlyData(() => exportApplicationSnapshot(actor, input));
 }
+export async function exportApplicationIdentities(actor: User, input: unknown) {
+  if (remoteMode()) throw new RemoteDataError("REMOTE_FORBIDDEN", 403);
+  return readOnlyData(async () => {
+    const { rows } = await listApplications(actor, input, true);
+    return rows.map(({ userId, username }) => ({ userId, username }));
+  });
+}
 async function exportApplicationSnapshot(actor: User, input: unknown) {
   const { rows } = await listApplications(actor, input, true);
   if (!rows.length) return [];

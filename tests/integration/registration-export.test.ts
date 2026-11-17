@@ -9,6 +9,9 @@ import {
   vi,
 } from "vitest";
 import { Client } from "pg";
+import { NextRequest } from "next/server";
+import { GET } from "../../src/app/api/admin/registrations/export/route";
+import { requireStaff } from "../../src/lib/auth/staff-request";
 import { sql } from "drizzle-orm";
 import { closeDb, db } from "../../src/db";
 import {
@@ -31,6 +34,7 @@ import { assertTestDatabase } from "../database";
 import { edition } from "../fixtures/edition";
 import { seedEditions } from "../fixtures/editions";
 import { profileResponse } from "../fixtures/osu-profile";
+vi.mock("../../src/lib/auth/staff-request", () => ({ requireStaff: vi.fn() }));
 vi.mock("../../src/lib/osu-api", () => ({ osuApi: vi.fn() }));
 import { osuApi } from "../../src/lib/osu-api";
 
@@ -237,6 +241,55 @@ describe.skipIf(!url)("private registration export statistics", () => {
     // The private list endpoint must not gain the export-only projection.
     expect(listed.rows[0]).not.toHaveProperty("statistics");
     expect(osuApi).not.toHaveBeenCalled();
+  });
+
+  it("downloads only the selected bot field for all matching authorized rows", async () => {
+    await db().insert(registrations).values({
+      userId: base,
+      editionSlug: "other-test-cup",
+      rulesVersion: "test-v1",
+      answers: {},
+    });
+    vi.mocked(requireStaff).mockResolvedValue(scoped);
+    const search = "q=Synthetic+Export+Player&status=&page=2";
+    const request = (query: string) =>
+      GET(
+        new NextRequest(
+          `http://localhost/api/admin/registrations/export?${query}`,
+        ),
+      );
+    const matching = Array.from({ length: 30 }, (_, i) => 29 - i);
+
+    for (const [format, body] of [
+      ["uid", matching.map((i) => base + i).join("\n")],
+      [
+        "username",
+        matching.map((i) => `Synthetic Export Player ${i}`).join(","),
+      ],
+    ]) {
+      const download = await request(`${search}&format=${format}`);
+      expect(download.status).toBe(200);
+      expect(download.headers.get("content-type")).toBe(
+        "text/plain; charset=utf-8",
+      );
+      expect(download.headers.get("content-disposition")).toBe(
+        `attachment; filename="oclr-registrations-${format}.txt"`,
+      );
+      expect(download.headers.get("cache-control")).toBe("no-store");
+      expect(await download.text()).toBe(body);
+    }
+
+    expect(
+      await (await request("format=uid&status=accepted&q=2000001")).text(),
+    ).toBe(String(base + 1));
+    expect(
+      await (await request("format=username&status=accepted&q=2000000")).text(),
+    ).toBe("");
+    expect((await request("format=unknown")).status).toBe(400);
+
+    vi.mocked(requireStaff).mockResolvedValue(referee);
+    for (const format of ["uid", "username"])
+      expect((await request(`format=${format}`)).status).toBe(403);
   });
 
   it("does not read profile data for unauthorized or empty exports", async () => {

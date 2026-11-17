@@ -1,14 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireStaff } from "@/lib/auth/staff-request";
-import { exportApplications } from "@/lib/staff-registration-reads";
+import {
+  exportApplicationIdentities,
+  exportApplications,
+} from "@/lib/staff-registration-reads";
 import { csv } from "@/lib/csv";
-import { apiError } from "@/lib/http";
+import { apiError, HttpError } from "@/lib/http";
+function download(body: string, type: string, filename: string) {
+  return new NextResponse(body, {
+    headers: {
+      "Content-Type": `${type}; charset=utf-8`,
+      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
 export async function GET(request: NextRequest) {
   try {
-    const rows = await exportApplications(
-      await requireStaff(),
-      Object.fromEntries(request.nextUrl.searchParams),
+    const actor = await requireStaff();
+    const { format = "csv", ...filters } = Object.fromEntries(
+      request.nextUrl.searchParams,
     );
+    if (format === "uid" || format === "username") {
+      const rows = await exportApplicationIdentities(actor, filters);
+      const body =
+        format === "uid"
+          ? rows.map(({ userId }) => userId).join("\n")
+          : rows.map(({ username }) => username).join(",");
+      return download(body, "text/plain", `oclr-registrations-${format}.txt`);
+    }
+    if (format !== "csv") throw new HttpError(400, "Invalid export format.");
+
+    const rows = await exportApplications(actor, filters);
     const body = csv([
       [
         "osu! ID",
@@ -35,14 +59,7 @@ export async function GET(request: NextRequest) {
         r.statistics?.status ?? "unavailable",
       ]),
     ]);
-    return new NextResponse(body, {
-      headers: {
-        "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": 'attachment; filename="oclr-registrations.csv"',
-        "Cache-Control": "no-store",
-        "X-Content-Type-Options": "nosniff",
-      },
-    });
+    return download(body, "text/csv", "oclr-registrations.csv");
   } catch (error) {
     return apiError(error);
   }

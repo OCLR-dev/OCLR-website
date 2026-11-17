@@ -212,8 +212,9 @@ test.describe("staff registration review", () => {
       "/admin/tournaments/test-cup/registrations",
     ]) {
       await page.goto(`${path}?q=${playerId}`);
+      await page.getByText("Export registrations", { exact: true }).click();
       const downloadPromise = page.waitForEvent("download");
-      await page.locator('a[href^="/api/admin/registrations/export?"]').click();
+      await page.getByRole("link", { name: "Export CSV", exact: true }).click();
       const download = await downloadPromise;
       expect(download.suggestedFilename()).toBe("oclr-registrations.csv");
       expect(await readFile((await download.path())!, "utf8")).toBe(
