@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh OCLR S11 Elitebotix ratings daily
+
+[Timer]
+OnCalendar=*-*-* 04:00:00 Asia/Taipei
+Persistent=true
+Unit=oclr-etx-ratings.service
+
+[Install]
+WantedBy=timers.target

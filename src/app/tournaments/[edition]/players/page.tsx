@@ -19,6 +19,7 @@ import { Action, PageHeading } from "@/components/ui";
 import { after } from "next/server";
 import { refreshDirectoryStatistics } from "@/lib/osu-profiles";
 import { getDirectoryOtrRatings } from "@/lib/otr-rating";
+import { readDirectoryEtxRatings } from "@/lib/etx-rating";
 import { importedRatingsEdition } from "@/lib/player-rating-import-contract";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
@@ -89,10 +90,12 @@ async function PlayersContent({
   }
   // Filtering runs over the complete public collection, including remote pages.
   const { rows, refreshIds } = await frontendPlayers(edition);
+  const showRatings = edition === importedRatingsEdition;
+  const osuIds = rows.map((player) => player.osuId);
   const otrRatings =
-    edition === importedRatingsEdition && !remote
-      ? getDirectoryOtrRatings(rows.map((player) => player.osuId))
-      : undefined;
+    showRatings && !remote ? getDirectoryOtrRatings(osuIds) : undefined;
+  const etxRatings =
+    showRatings && !remote ? await readDirectoryEtxRatings(osuIds) : undefined;
   if (refreshIds.length)
     after(async () => {
       try {
@@ -116,17 +119,24 @@ async function PlayersContent({
         viewerId={viewer?.osuId}
         grouped={rows.some((p) => p.participation === "finalized_roster")}
         otrRatings={otrRatings}
-        showImportedRatings={edition === importedRatingsEdition}
-        players={rows.map((p) => ({
-          ...publicDirectoryPlayer(p),
-          etxProvisional: p.importedRatings?.etx?.provisional,
-          etxOutdated: p.importedRatings?.etx?.outdated,
-          team: p.team?.name ?? null,
-          captain: p.captain,
-          bio: p.bio ?? undefined,
-          href: `/players/${p.osuId}?edition=${edition}`,
-          fetchedAt: p.statistics.fetchedAt ?? undefined,
-        }))}
+        showImportedRatings={showRatings}
+        players={rows.map((p) => {
+          const cachedEtx = etxRatings?.get(p.osuId);
+          // A confirmed upstream miss is null. Undefined means no saved result yet.
+          const etx =
+            cachedEtx === undefined ? p.importedRatings?.etx : cachedEtx;
+          return {
+            ...publicDirectoryPlayer(p),
+            etx: etx?.value,
+            etxProvisional: etx?.provisional,
+            etxOutdated: etx?.outdated,
+            team: p.team?.name ?? null,
+            captain: p.captain,
+            bio: p.bio ?? undefined,
+            href: `/players/${p.osuId}?edition=${edition}`,
+            fetchedAt: p.statistics.fetchedAt ?? undefined,
+          };
+        })}
       />
     </div>
   );

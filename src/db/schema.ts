@@ -13,6 +13,7 @@ import {
   uuid,
   unique,
   bigint,
+  date,
   index,
   pgTable,
   text,
@@ -136,6 +137,14 @@ export const otrRatingCache = pgTable("otr_rating_cache", {
   osuId: bigint("osu_id", { mode: "number" }).primaryKey(),
   rating: jsonb("rating").$type<import("@/lib/otr-rating-cache").OtrRating>(),
   retryAt: timestamp("retry_at", { withTimezone: true }).notNull(),
+});
+export const etxRatingCache = pgTable("etx_rating_cache", {
+  osuId: bigint("osu_id", { mode: "number" })
+    .primaryKey()
+    .references(() => users.osuId, { onDelete: "cascade" }),
+  rating: jsonb("rating").$type<import("@/lib/etx-rating").EtxRating>(),
+  attemptedOn: date("attempted_on").notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }),
 });
 export const sessions = pgTable(
   "sessions",
