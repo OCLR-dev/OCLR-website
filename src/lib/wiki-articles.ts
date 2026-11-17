@@ -947,6 +947,69 @@ function liruGallery(tr: AppTranslator): WikiArticle {
         "Liru wears a sleeveless mint green dress with a scalloped hem and holds a bouquet of white lily of the valley flowers.",
       ),
     ],
+    [
+      "paper-butterfly-collection",
+      tr("Paper butterfly collection"),
+      tr(
+        "Liru wears an apricot pinafore with a butterfly on its pocket and holds a wooden frame displaying three paper butterflies.",
+      ),
+    ],
+    [
+      "milk-tea-violinist",
+      tr("Milk tea violinist"),
+      tr(
+        "Liru holds a violin and wears a milk-tea brown vest and skirt with a burgundy ribbon at her collar.",
+      ),
+    ],
+    [
+      "blueberry-candy-shop",
+      tr("Blueberry candy shop"),
+      tr(
+        "Liru wears a blue-violet dress and a cream apron with a blueberry motif, and holds a glass jar of wrapped candies.",
+      ),
+    ],
+    [
+      "peach-embroidered-dress",
+      tr("Peach embroidered dress"),
+      tr(
+        "Liru holds an embroidery hoop with a peach-colored flower that matches the flowers on her dress.",
+      ),
+    ],
+    [
+      "mint-paper-pinwheel",
+      tr("Mint paper pinwheel"),
+      tr(
+        "Liru wears a mint and cream dress, holds a paper pinwheel, and carries a crossbody bag with a matching pinwheel motif.",
+      ),
+    ],
+    [
+      "cream-cocoa-detective",
+      tr("Cream and cocoa detective"),
+      tr(
+        "Liru wears a cream cape over a cocoa brown plaid dress and carries a magnifying glass and a notebook with a gold sprout on the cover.",
+      ),
+    ],
+    [
+      "star-music-box",
+      tr("Star music box"),
+      tr(
+        "Liru wears a dusty blue dress with gold stars along the hem and holds an open wooden music box with a purple star inside.",
+      ),
+    ],
+    [
+      "lemon-garden-dress",
+      tr("Lemon garden dress"),
+      tr(
+        "Liru wears a pale yellow dress with a green sash and carries a wicker basket with white blossoms and a lemon.",
+      ),
+    ],
+    [
+      "cherry-red-painter",
+      tr("Cherry red painter"),
+      tr(
+        "Liru wears a cherry red apron with a cherry motif on its pocket and holds a paintbrush and a wooden palette.",
+      ),
+    ],
   ];
   return {
     slug: "liru-gallery",
