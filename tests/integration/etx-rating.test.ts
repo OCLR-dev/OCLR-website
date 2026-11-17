@@ -114,7 +114,7 @@ describe.skipIf(!url)("S11 ETX refresh", () => {
 
     await db()
       .update(editionState)
-      .set({ configuration: { ...edition, slug, published: false } })
+      .set({ configuration: { ...edition, published: false } })
       .where(eq(editionState.slug, slug));
     expect(await refreshEtxRatings()).toEqual({ state: "unavailable" });
     expect(fetchRating).toHaveBeenCalledTimes(2);

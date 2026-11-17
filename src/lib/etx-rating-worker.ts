@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { z } from "zod";
 import { db, getPool, readOnlyData } from "@/db";
 import { etxRatingCache } from "@/db/schema";
+import type { EtxRating } from "./etx-rating";
 import { importedRatingsEdition } from "./player-rating-import-contract";
 import { publicPlayerFilters, publicPlayersForEditions } from "./players";
 import { readTournament } from "./tournament-reads";
@@ -30,7 +31,9 @@ const duelRating = z.object({
   }),
 });
 
-async function fetchEtxRating(osuId: number) {
+async function fetchEtxRating(
+  osuId: number,
+): Promise<EtxRating | "throttled" | null> {
   const url = new URL(providerUrl);
   url.searchParams.set("u", String(osuId));
   const response = await fetch(url, {
