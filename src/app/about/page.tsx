@@ -3,6 +3,7 @@ import { CountryFlag } from "@/components/country-flag";
 import { publicContributors } from "@/lib/contributors";
 import { publicStaff } from "@/lib/public-staff";
 import { getAppTranslations } from "@/i18n/server";
+import { contributionDescriptionOptions } from "@/i18n/contributor-descriptions";
 import { privacyContact } from "@/lib/auth/config";
 import { remoteMode } from "@/lib/data-source";
 import { frontendSite } from "@/lib/frontend-data";
@@ -20,6 +21,7 @@ export async function generateMetadata() {
 export const dynamic = "force-dynamic";
 async function Issue271Page() {
   const tr = await getAppTranslations();
+  const descriptionOptions = contributionDescriptionOptions(tr);
   const staff = await publicStaff();
   const contributors = await publicContributors(after);
   const contact = remoteMode()
@@ -198,7 +200,8 @@ async function Issue271Page() {
                       </h3>
                       {person.description && (
                         <p className="contribution-description">
-                          {person.description}
+                          {descriptionOptions.get(person.description) ??
+                            person.description}
                         </p>
                       )}
                     </div>

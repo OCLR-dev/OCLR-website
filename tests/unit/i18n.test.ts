@@ -7,6 +7,7 @@ import en from "../../messages/en.json";
 import hans from "../../messages/zh-Hans.json";
 import hant from "../../messages/zh-Hant.json";
 import { defaultLocale, locales, readLocale } from "../../src/i18n/config";
+import { contributionDescriptionOptions } from "../../src/i18n/contributor-descriptions";
 import { matchReviewMessage } from "../../src/i18n/match-review";
 import { appTranslator } from "../../src/i18n/translate";
 import { readThemePreference } from "../../src/lib/preferences";
@@ -14,6 +15,51 @@ import { formatDate } from "../../src/lib/editions";
 import { historicalOverviewSummary } from "../../src/lib/historical-archive";
 
 describe("localized interface catalogs", () => {
+  it("looks up saved contributor descriptions in each language", () => {
+    const savedDescriptions = [
+      "Contribute to OCLR historical data discovery",
+      "Contribute code to the OCLR website",
+      "Contribute testing to the OCLR website",
+      "Contribute design to the OCLR website",
+      "Provide SIP API for the OCLR website",
+    ];
+    for (const [locale, catalog, expected] of [
+      ["en", en, savedDescriptions],
+      [
+        "zh-Hans",
+        hans,
+        [
+          "历史资料发掘",
+          "网站代码贡献",
+          "网站测试贡献",
+          "网站设计贡献",
+          "提供网站 SIP API",
+        ],
+      ],
+      [
+        "zh-Hant",
+        hant,
+        [
+          "歷史資料發掘",
+          "網站程式碼貢獻",
+          "網站測試貢獻",
+          "網站設計貢獻",
+          "提供網站 SIP API",
+        ],
+      ],
+    ] as const) {
+      const native = createTranslator({ locale, messages: catalog.ui });
+      const tr = appTranslator(
+        (key, values) => native(key as keyof typeof en.ui, values),
+        locale,
+      );
+      const options = contributionDescriptionOptions(tr);
+      expect(
+        savedDescriptions.map((description) => options.get(description)),
+      ).toEqual(expected);
+      expect(options.has("Helped review the original records.")).toBe(false);
+    }
+  });
   it("localizes the standard archive caption across seasons and preserves authored summaries", () => {
     const native = createTranslator({ locale: "zh-Hans", messages: hans.ui });
     const tr = appTranslator(

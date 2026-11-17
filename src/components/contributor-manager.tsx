@@ -2,10 +2,8 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAppTranslations } from "@/i18n/shared";
-import {
-  CONTRIBUTION_DESCRIPTION_LIMIT,
-  type Contributor,
-} from "@/lib/contributor-model";
+import { contributionDescriptionOptions } from "@/i18n/contributor-descriptions";
+import type { Contributor } from "@/lib/contributor-model";
 import type { UpdateContributorsInput } from "@/lib/staff-administration-write-contracts";
 import type { ExplicitReadData } from "@/lib/explicit-read-contracts";
 import { ReadOnlyFields } from "./staff-read-only";
@@ -18,6 +16,7 @@ export function ContributorManager({
   initial: ExplicitReadData<"contributorsForAdmin">;
 }) {
   const tr = useAppTranslations();
+  const descriptionOptions = contributionDescriptionOptions(tr);
   const router = useRouter();
   const countries = new Map(
     initial.entries.map(({ osuId, countryCode }) => [osuId, countryCode]),
@@ -46,6 +45,15 @@ export function ContributorManager({
     osuId: Number(entry.osuId),
   }));
   const changed = JSON.stringify(values) !== JSON.stringify(saved.entries);
+  const savedDescriptions = new Map(
+    saved.entries.map(({ id, description }) => [id, description]),
+  );
+  function descriptionChoices(id: string) {
+    const savedDescription = savedDescriptions.get(id);
+    return savedDescription && !descriptionOptions.has(savedDescription)
+      ? ([[savedDescription, savedDescription], ...descriptionOptions] as const)
+      : descriptionOptions;
+  }
   function edit(id: string, patch: Partial<Draft>) {
     setEntries((rows) =>
       rows.map((entry) => (entry.id === id ? { ...entry, ...patch } : entry)),
@@ -160,14 +168,24 @@ export function ContributorManager({
                 </label>
                 <label className="field contributor-description-field">
                   <span>{tr("Contribution description")}</span>
-                  <textarea
-                    rows={2}
-                    maxLength={CONTRIBUTION_DESCRIPTION_LIMIT}
+                  <select
                     value={entry.description ?? ""}
                     onChange={(event) =>
-                      edit(entry.id, { description: event.target.value })
+                      edit(entry.id, {
+                        description: event.target.value || undefined,
+                      })
                     }
-                  />
+                  >
+                    <option value="">{tr("None")}</option>
+                    {Array.from(
+                      descriptionChoices(entry.id),
+                      ([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ),
+                    )}
+                  </select>
                 </label>
               </div>
               <div className="contributor-row-footer">
