@@ -11,6 +11,8 @@ type WikiFigure = {
   caption: string;
 };
 
+export type WikiGalleryFigure = WikiFigure & { previewSrc: string };
+
 export type WikiArticle = {
   slug: string;
   title: string;
@@ -24,7 +26,7 @@ export type WikiArticle = {
     table?: { headers: string[]; rows: WikiText[][] };
     figures?: WikiFigure[];
   }[];
-  gallery?: (WikiFigure & { previewSrc: string })[];
+  gallery?: WikiGalleryFigure[];
   related?: { slug: string; title: string };
   source?: { title: string; author: string; date: string; href: string };
 };
@@ -740,7 +742,7 @@ function liruGallery(tr: AppTranslator): WikiArticle {
     slug: "liru-gallery",
     title: tr("Liru Gallery"),
     category: tr("Community"),
-    intro: tr("Explore Liru's outfits. Select an image to see it full size."),
+    intro: tr("Select the image to see it full size."),
     sections: [],
     gallery: outfits.map(([id, caption, alt]) => ({
       src: `/mascot/liru/gallery/${id}.webp`,

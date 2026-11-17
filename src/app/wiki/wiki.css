@@ -80,9 +80,63 @@
 }
 .wiki-gallery {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(1.5rem, 3vw, 2.75rem) clamp(0.75rem, 2vw, 1.5rem);
-  margin-block-start: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: minmax(0, 18rem) minmax(0, 23rem);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4.5rem);
+  max-width: 52rem;
+  margin-inline: auto;
+}
+.themed-site .wiki-page .information-document .wiki-gallery-controls h2 {
+  --document-font-size: clamp(1.35rem, 3vw, 2rem);
+  --document-line-height: 1.3;
+  margin-block-end: 1rem;
+  padding: 0;
+  border: 0;
+}
+.wiki-gallery-controls p {
+  margin-block: 0.75rem 0;
+  font-size: var(--text-support);
+  color: var(--site-muted);
+}
+.themed-site button.wiki-gallery-shuffle {
+  --shuffle-accent: color-mix(
+    in srgb,
+    var(--site-primary) 82%,
+    var(--site-accent)
+  );
+  min-width: 8.75rem;
+  min-height: 3.25rem;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem 0.5rem 0.5rem;
+  border-radius: 0.9rem;
+  border-color: color-mix(in srgb, var(--site-accent) 70%, var(--site-primary));
+  background: linear-gradient(
+    140deg,
+    var(--shuffle-accent),
+    var(--site-primary)
+  );
+  box-shadow: 0 5px 16px
+    color-mix(in srgb, var(--site-primary) 28%, transparent);
+  font-size: var(--text-support);
+}
+.themed-site button.wiki-gallery-shuffle:hover {
+  background: linear-gradient(
+    140deg,
+    var(--shuffle-accent),
+    var(--site-primary-hover)
+  );
+}
+.wiki-gallery-shuffle-icon {
+  display: grid;
+  flex: 0 0 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+.wiki-gallery-shuffle:focus-visible {
+  outline-offset: 4px;
 }
 .wiki-gallery figure {
   min-width: 0;
@@ -100,12 +154,6 @@
   display: block;
   width: 100%;
   height: auto;
-}
-.wiki-gallery figcaption {
-  margin-top: 0.65rem;
-  font-size: var(--text-support);
-  font-weight: 650;
-  overflow-wrap: anywhere;
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .wiki-gallery img {
@@ -127,7 +175,9 @@
 }
 @media (max-width: 760px) {
   .wiki-gallery {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 23rem);
+    justify-content: center;
+    gap: 1rem;
   }
   .wiki-page {
     padding-block: 1.5rem 3rem;
