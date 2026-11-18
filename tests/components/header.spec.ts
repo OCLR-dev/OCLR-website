@@ -208,7 +208,7 @@ test("anonymous English navigation fits across the collapse boundaries", async (
   page,
 }) => {
   await page.goto("/header?locale=en");
-  for (const width of [768, 950, 951, 1100, 1440]) {
+  for (const width of [768, 1100, 1101, 1321, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await expect(page.locator(".nav-login")).toBeVisible();
     await expect(page.locator(".appearance-trigger")).toBeVisible();

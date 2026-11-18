@@ -222,7 +222,7 @@ html[data-appearance="frutiger-aero"] .themed-site .main-nav > a {
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  padding-inline: 1.15rem;
+  padding-inline: 0.75rem;
   border: 1px solid transparent;
   border-radius: var(--button-radius);
   color: var(--site-secondary-text);
@@ -239,52 +239,8 @@ html[data-appearance="frutiger-aero"] .themed-site .main-nav > a[aria-current] {
   color: var(--site-accent-strong);
   font-weight: 700;
 }
-/* Wide-but-not-desktop: the padded capsules need more room than the base
- * 950px breakpoint allows, so collapse to the real mobile menu earlier. */
-@media (min-width: 951px) and (max-width: 1100px) {
-  html[data-appearance="frutiger-aero"] .themed-site .nav-wrap {
-    height: 72px;
-    padding-inline: 1.25rem;
-    gap: 0.75rem;
-  }
-  html[data-appearance="frutiger-aero"] .themed-site .menu-toggle {
-    display: inline-flex;
-    order: 2;
-    margin-left: 0;
-    width: 44px;
-    min-width: 44px;
-    padding: 0;
-  }
-  html[data-appearance="frutiger-aero"] .themed-site .site-preferences {
-    margin-left: auto;
-  }
-  html[data-appearance="frutiger-aero"] .themed-site .nav-actions {
-    order: 1;
-  }
-  html[data-appearance="frutiger-aero"] .themed-site .main-nav {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: 0;
-    margin: 0;
-    padding: 1.2rem;
-    border-bottom: 1px solid var(--site-border);
-    background: var(--site-surface);
-    box-shadow: 0 24px 40px -28px var(--site-dialog-shadow);
-  }
-  html[data-appearance="frutiger-aero"] .themed-site .main-nav.open {
-    display: grid;
-    gap: 0.25rem;
-  }
-  html[data-appearance="frutiger-aero"] .themed-site .main-nav > a {
-    justify-content: flex-start;
-    padding-inline: 1rem;
-  }
-}
-/* 1101-1360px keeps the horizontal navigation but tightens only the gaps and
- * the padding back to the 16px lower bound; text is never squeezed. */
-@media (min-width: 1101px) and (max-width: 1360px) {
+/* Fit the full desktop navigation before restoring the wider capsule spacing. */
+@media (min-width: 1101px) and (max-width: 1320px) {
   html[data-appearance="frutiger-aero"] .themed-site .nav-wrap {
     gap: 0.5rem;
     padding-inline: 1rem;
@@ -293,13 +249,7 @@ html[data-appearance="frutiger-aero"] .themed-site .main-nav > a[aria-current] {
     gap: 0.1rem;
   }
   html[data-appearance="frutiger-aero"] .themed-site .main-nav > a {
-    padding-inline: 1rem;
-  }
-}
-/* English labels overflow 1101-1200px while the desktop header is shown. */
-@media (min-width: 1101px) and (max-width: 1200px) {
-  html[data-appearance="frutiger-aero"] .themed-site .main-nav > a {
-    padding-inline: 0.6rem;
+    padding-inline: 0.4rem;
   }
 }
 
@@ -419,7 +369,7 @@ html[data-appearance="frutiger-aero"] .themed-site .account-dropdown {
   border-radius: 18px;
   background: var(--site-surface);
 }
-@media (max-width: 950px) {
+@media (max-width: 1100px) {
   html[data-appearance="frutiger-aero"] .themed-site .main-nav.open {
     border: 1px solid var(--site-control-border);
     background: var(--site-surface);

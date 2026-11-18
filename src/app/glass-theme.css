@@ -449,7 +449,7 @@ html[data-appearance="glassmorphism"]
   color: var(--site-accent-strong);
   font-weight: 600;
 }
-@media (max-width: 950px) {
+@media (max-width: 1100px) {
   html[data-appearance="glassmorphism"] .themed-site .main-nav.open {
     border-color: var(--site-border);
     background: var(--site-surface);

@@ -485,7 +485,7 @@ html[data-appearance="esports-broadcast"]
   color: var(--esports-on-cyan);
   font-weight: 700;
 }
-@media (max-width: 950px) {
+@media (max-width: 1100px) {
   html[data-appearance="esports-broadcast"] .themed-site .main-nav.open {
     background: var(--site-surface);
     border-bottom: 3px solid var(--esports-rule);
