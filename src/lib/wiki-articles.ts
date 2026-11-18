@@ -11,7 +11,12 @@ type WikiFigure = {
   caption: string;
 };
 
-export type WikiGalleryFigure = WikiFigure & { previewSrc: string };
+type WikiCardRarity = "UR" | "SSR" | "SR" | "R";
+
+export type WikiGalleryFigure = WikiFigure & {
+  previewSrc: string;
+  rarity: WikiCardRarity;
+};
 
 export type WikiArticle = {
   slug: string;
@@ -531,6 +536,51 @@ function liruArticle(tr: AppTranslator): WikiArticle {
     ],
   };
 }
+
+// Rarity is assigned per artwork and stays the same when the gallery shuffles.
+const liruRarities: Partial<Record<string, WikiCardRarity>> = {
+  "apricot-lantern": "SR",
+  "berry-rose-side-bow": "SR",
+  "black-rock": "SR",
+  "blackberry-bow-dress": "SR",
+  "blue-white-fairy-tale-dress": "SR",
+  "butterfly-dream-fairy": "UR",
+  "cherry-blossom-tea-party": "SR",
+  "cream-cocoa-detective": "SR",
+  "cream-petal-tea": "SR",
+  "dreamy-wave-dress": "SSR",
+  "elegant-maid": "SSR",
+  "flower-mage": "SSR",
+  "galaxy-dream": "UR",
+  "gothic-lolita": "SSR",
+  "lavender-ballet-dress": "SR",
+  "lavender-bridal": "UR",
+  "lavender-gown": "SSR",
+  "lavender-lolita": "SSR",
+  "lemon-garden-dress": "SR",
+  "light-armored-knight": "SSR",
+  "midnight-moon-dress": "SR",
+  "mint-lily-cape": "SR",
+  "misty-moon-clutch": "SR",
+  "moon-cat-cape": "SSR",
+  "moonwhite-astrologer": "UR",
+  "paper-butterfly-collection": "SR",
+  "peach-embroidered-dress": "SR",
+  "powder-blue-cape": "SR",
+  "purple-punk": "SR",
+  "rose-princess": "UR",
+  "sea-mist-bottle": "SR",
+  "shrine-maiden": "SSR",
+  "snow-bunny-cape": "SR",
+  "sprout-fantasy-traveler": "SR",
+  "star-candy-mage": "SSR",
+  "star-music-box": "SSR",
+  "starry-dream-dress": "SSR",
+  "starry-evening-reader": "SR",
+  "starry-night-gown": "UR",
+  "wisteria-furisode": "UR",
+  "wisteria-messenger": "SR",
+};
 
 function liruGallery(tr: AppTranslator): WikiArticle {
   const outfits = [
@@ -1252,6 +1302,7 @@ function liruGallery(tr: AppTranslator): WikiArticle {
       previewSrc: `/mascot/liru/gallery/${id}-640.webp`,
       width: 1024,
       height: 1536,
+      rarity: liruRarities[id] ?? "R",
       alt,
       caption,
     })),

@@ -11,6 +11,7 @@ test("previews in place, zooms, restores focus and downloads the current origina
   await page.goto(`/wiki-gallery?theme=${isMobile ? "light" : "dark"}`);
   const trigger = page.locator('.wiki-gallery a[aria-haspopup="dialog"]');
   const originalUrl = page.url();
+  await expect(trigger).toHaveAccessibleName(/Elegant maid outfit \(SSR\)$/);
   await trigger.focus();
   if (isMobile) await trigger.tap();
   else await page.keyboard.press("Enter");
@@ -28,6 +29,7 @@ test("previews in place, zooms, restores focus and downloads the current origina
   await expect(trigger).toBeFocused();
 
   await page.getByRole("button", { name: "Show another look" }).click();
+  await expect(trigger).toHaveAccessibleName(/Purple punk streetwear \(SR\)$/);
   await trigger.click();
   const nextDialog = page.getByRole("dialog", {
     name: "Purple punk streetwear",

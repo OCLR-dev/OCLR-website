@@ -155,21 +155,196 @@
   margin-block-start: 0.65rem;
 }
 .wiki-gallery-preview {
-  --gallery-edge-glow: drop-shadow(
-    0 0 0.4rem color-mix(in srgb, var(--site-accent) 75%, transparent)
-  );
   cursor: zoom-in;
   display: block;
-  padding: clamp(0.5rem, 1.2vw, 1rem);
-  border-radius: 12px;
+  border-radius: 16px;
   background: transparent;
   outline-offset: 4px;
   text-align: center;
 }
-.wiki-gallery-preview img {
+.wiki-gallery-card {
+  --card-ink: #ebf1e9;
+  --card-metal: linear-gradient(150deg, #b1bcb0, #596c62 60%, #98a99c);
+  --card-field: radial-gradient(ellipse at 50% 44%, #4a6057, #1f2b28 78%);
+  --card-line: #b1beab;
+  --card-glow: #789b8270;
+  --card-inset: 4px;
+  --card-ornament: none;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  aspect-ratio: 2 / 3;
+  padding: clamp(0.7rem, 2vw, 1rem);
+  border-radius: inherit;
+  background: var(--card-metal);
+  color: var(--card-ink);
+  transition: box-shadow 180ms ease;
+}
+.wiki-gallery-card[data-rarity="SR"] {
+  --card-ink: #edf6ff;
+  --card-metal: linear-gradient(
+    155deg,
+    #e1f3ff,
+    #648cae 36%,
+    #abc8dd 64%,
+    #406682
+  );
+  --card-field: radial-gradient(ellipse at 50% 43%, #355f82, #14273d 79%);
+  --card-line: #afcfe5;
+  --card-glow: #83bdfc80;
+  --card-inset: 5px;
+  --card-ornament:
+    repeating-linear-gradient(55deg, #a5d1f318 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(-55deg, #a5d1f318 0 1px, transparent 1px 24px);
+}
+.wiki-gallery-card[data-rarity="SSR"] {
+  --card-ink: #fff2cb;
+  --card-metal: linear-gradient(
+    146deg,
+    #fff4ba,
+    #bd8742 29%,
+    #ffe5a2 51%,
+    #946230 78%,
+    #f1d48c
+  );
+  --card-field: radial-gradient(ellipse at 50% 43%, #725238, #2c1a24 78%);
+  --card-line: #ecc482;
+  --card-glow: #edba6590;
+  --card-inset: 6px;
+  --card-ornament: repeating-conic-gradient(
+      from 45deg,
+      #ffdf8a12 0deg 90deg,
+      transparent 90deg 180deg
+    )
+    center / 1.8rem 1.8rem;
+}
+.wiki-gallery-card[data-rarity="UR"] {
+  --card-ink: #fff3ff;
+  --card-metal: conic-gradient(
+    from 24deg,
+    #b0ecff,
+    #f1c4ff,
+    #eac68b,
+    #e6aeea,
+    #98deff,
+    #a799ed,
+    #ffe2b5,
+    #b0ecff
+  );
+  --card-field:
+    radial-gradient(ellipse at 32% 31%, #853c8b80, transparent 60%),
+    radial-gradient(ellipse at 72% 66%, #397fae90, transparent 58%),
+    radial-gradient(ellipse at 50% 43%, #44356b, #19142f 80%);
+  --card-line: #e6c4ff;
+  --card-glow: #cf9aff9c;
+  --card-inset: 7px;
+  --card-ornament: repeating-conic-gradient(
+    from 10deg at 50% 46%,
+    transparent 0deg 13deg,
+    #e9c6ff21 14deg 15deg,
+    transparent 16deg 24deg
+  );
+}
+.wiki-gallery-card::before,
+.wiki-gallery-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+.wiki-gallery-card::before {
+  inset: var(--card-inset);
+  border: 1px solid color-mix(in srgb, var(--card-line), transparent 42%);
+  border-radius: calc(16px - var(--card-inset));
+  background: var(--card-field);
+}
+.wiki-gallery-card::after {
+  inset: calc(var(--card-inset) + 4px);
+  background: var(--card-ornament);
+  mask-image: radial-gradient(ellipse at center, #000, transparent 76%);
+}
+.wiki-gallery-card-rarity {
+  justify-self: center;
+  min-width: 3em;
+  margin-block-start: 0.2rem;
+  padding: 0.15em 0.55em;
+  border: 1px solid var(--card-line);
+  border-radius: 0.2rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: 0.13em;
+}
+.wiki-gallery-card:is([data-rarity="SSR"], [data-rarity="UR"])
+  .wiki-gallery-card-rarity {
+  background: var(--card-metal);
+  color: #221730;
+  outline: 1px solid var(--card-line);
+  outline-offset: 2px;
+}
+.wiki-gallery-card-art {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  margin-block: 0.375rem;
+  min-height: 0;
+}
+.wiki-gallery-card-art img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
+}
+.wiki-gallery-card-art::before,
+.wiki-gallery-card-art::after {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+.wiki-gallery-card:is([data-rarity="SSR"], [data-rarity="UR"])
+  .wiki-gallery-card-art::before {
+  content: "";
+  inset: 9% 10%;
+  border: 1px solid color-mix(in srgb, var(--card-line), transparent 28%);
+  border-radius: 50% 50% 12% 12% / 30% 30% 8% 8%;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--card-line), transparent 81%);
+}
+.wiki-gallery-card[data-rarity="UR"] .wiki-gallery-card-art::before {
+  inset: 12% 12%;
+  border-radius: 50%;
+  transform: rotate(-19deg);
+  box-shadow:
+    0 0 0 5px #e5c9ff29,
+    0 0 1.2rem #d9b3ff65;
+}
+.wiki-gallery-card[data-rarity="UR"] .wiki-gallery-card-art::after {
+  content: "";
+  inset: 7% 6%;
+  background:
+    radial-gradient(circle at 15% 22%, #fff3fa 0 1px, transparent 2px),
+    radial-gradient(circle at 88% 14%, #fff3fa 0 1px, transparent 2px),
+    radial-gradient(circle at 88% 62%, #fff3fa 0 2px, transparent 3px),
+    radial-gradient(circle at 8% 73%, #fff3fa 0 2px, transparent 3px),
+    radial-gradient(circle at 81% 89%, #fff3fa 0 1px, transparent 2px);
+}
+.wiki-gallery-card-name {
+  display: grid;
+  align-content: center;
+  min-block-size: 3.2em;
+  margin-inline: 0.35rem;
+  padding: 0.35rem 0.25rem 0.15rem;
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--card-line), transparent 35%);
+  font-size: clamp(0.875rem, 2.4vw, 1.125rem);
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wiki-gallery-card {
+    transition: none;
+  }
 }
 .wiki-gallery-preview-hint {
   display: block;
@@ -177,19 +352,22 @@
   color: var(--site-muted);
   font-size: var(--text-support);
 }
+.wiki-page .information-document .wiki-gallery-preview:hover {
+  text-decoration: none;
+}
 .wiki-gallery-preview:focus-visible {
   outline: 2px solid var(--site-accent);
 }
-.wiki-gallery-preview:focus-visible img {
-  filter: var(--gallery-edge-glow);
+.wiki-gallery-preview:focus-visible .wiki-gallery-card {
+  box-shadow: 0 0 1.3rem var(--card-glow);
 }
 @media (hover: hover) {
   .wiki-gallery-preview:not(:is(:hover, :focus-visible))
     .wiki-gallery-preview-hint {
     visibility: hidden;
   }
-  .wiki-gallery-preview:hover img {
-    filter: var(--gallery-edge-glow);
+  .wiki-gallery-preview:hover .wiki-gallery-card {
+    box-shadow: 0 0 1.3rem var(--card-glow);
   }
 }
 .wiki-source {

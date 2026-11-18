@@ -135,6 +135,9 @@ it("links the Liru gallery and includes every portrait at both sizes", () => {
   expect(wikiHref(profile.related!.slug)).toBe(wikiHref(gallery.slug));
   expect(gallery.gallery).toHaveLength(103);
   expect(new Set(gallery.gallery!.map((figure) => figure.src)).size).toBe(103);
+  expect(new Set(gallery.gallery!.map((figure) => figure.rarity))).toEqual(
+    new Set(["UR", "SSR", "SR", "R"]),
+  );
   for (const figure of gallery.gallery!) {
     expect(webpSize(`public${figure.src}`)).toEqual({
       width: 1024,

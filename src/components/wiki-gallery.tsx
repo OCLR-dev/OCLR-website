@@ -39,7 +39,7 @@ export function WikiGallery({
           target="_blank"
           rel="noreferrer"
           aria-haspopup="dialog"
-          aria-label={`${enlargeLabel}: ${figure.caption}`}
+          aria-label={`${enlargeLabel}: ${figure.caption} (${figure.rarity})`}
           onClick={(event) => {
             if (
               event.metaKey ||
@@ -53,22 +53,32 @@ export function WikiGallery({
             setPreviewOpen(true);
           }}
         >
-          <Image
-            key={figure.src}
-            src={figure.previewSrc}
-            alt={figure.alt}
-            width={figure.width}
-            height={figure.height}
-            loading="eager"
-            unoptimized
-          />
+          <span className="wiki-gallery-card" data-rarity={figure.rarity}>
+            <span className="wiki-gallery-card-rarity" aria-hidden="true">
+              {figure.rarity}
+            </span>
+            <span className="wiki-gallery-card-art">
+              <Image
+                key={figure.src}
+                src={figure.previewSrc}
+                alt={figure.alt}
+                width={figure.width}
+                height={figure.height}
+                loading="eager"
+                unoptimized
+              />
+            </span>
+            <span className="wiki-gallery-card-name" aria-hidden="true">
+              {figure.caption}
+            </span>
+          </span>
           <span className="wiki-gallery-preview-hint" aria-hidden="true">
             {enlargeLabel}
           </span>
         </a>
         <figcaption>
-          <span id="wiki-gallery-caption" aria-live="polite">
-            {figure.caption}
+          <span className="sr-only" aria-live="polite">
+            {figure.caption} ({figure.rarity})
           </span>
           <EmojiReactions
             key={figure.src}
