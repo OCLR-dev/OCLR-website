@@ -1,4 +1,5 @@
 import { randomInt } from "node:crypto";
+import { LiruGalleryPanel } from "@/components/liru-card-display";
 import { LiruGacha } from "@/components/liru-gacha";
 import { SignedMessageBoard } from "@/components/player-message-board";
 import { WikiGallery } from "@/components/wiki-gallery";
@@ -45,20 +46,22 @@ async function GalleryPage() {
           initialIndex={randomInt(gallery.length)}
           showAnotherLabel={tr("Show another look")}
         />
-        <section
+        <LiruGalleryPanel
           className="wiki-gallery-comments"
-          aria-labelledby="wiki-gallery-comments"
+          headingId="wiki-gallery-comments"
+          title={tr("Message board")}
         >
-          <h2 id="wiki-gallery-comments">{tr("Message board")}</h2>
-          <SignedMessageBoard
-            endpoint="/api/wiki/liru-gallery/messages"
-            name={title}
-            signedIn={!!viewer}
-            viewerId={viewer?.osuId}
-            readOnly={remote}
-            showAll
-          />
-        </section>
+          <div className="wiki-gallery-comment-board">
+            <SignedMessageBoard
+              endpoint="/api/wiki/liru-gallery/messages"
+              name={title}
+              signedIn={!!viewer}
+              viewerId={viewer?.osuId}
+              readOnly={remote}
+              showAll
+            />
+          </div>
+        </LiruGalleryPanel>
       </article>
     </div>
   );

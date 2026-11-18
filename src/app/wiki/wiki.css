@@ -123,22 +123,142 @@
   outline-offset: 4px;
 }
 .themed-site .wiki-page .information-document > .wiki-gallery-comments {
-  width: 100%;
-  margin: clamp(2.5rem, 6vw, 4rem) 0 0;
-  padding-block-start: 1.25rem;
-  border-top: 1px solid var(--site-border);
+  --site-foreground: var(--gallery-ink);
+  --site-muted: var(--gallery-muted);
+  --site-accent: var(--gallery-gilt);
+  --site-accent-strong: #ffebce;
+  --site-surface: #251a33;
+  --site-control-border: #9c7cb3;
+  --site-primary: #f0cc9f;
+  --site-primary-hover: #ffe5bc;
+  --site-on-primary: #2d1940;
+  --site-danger: #ffafc6;
+  --site-button-shadow: none;
+  margin-block: clamp(2.5rem, 6vw, 4rem) 0;
+  color-scheme: dark;
 }
-.themed-site .wiki-page .information-document .wiki-gallery-comments h2 {
-  --document-font-size: var(--text-heading);
-  --document-line-height: 1.4;
+
+.wiki-gallery-comment-board {
+  --document-line-height: 1.5;
+  display: grid;
+  gap: 0.875rem;
 }
-.wiki-gallery-comments time {
-  margin-inline-start: 0.5rem;
+
+.wiki-gallery-comment-board > .player-message-controls,
+.wiki-gallery-comment-board > .event-message-list {
+  margin-block-start: 0;
 }
-.wiki-gallery-comments textarea {
+
+.themed-site
+  .wiki-gallery-comment-board
+  > .player-message-controls
+  > :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  padding-inline: 1rem;
+  border: 1px solid #efd0ae91;
+  border-radius: 0.7rem;
+  background: #f6d7f319;
+  color: var(--gallery-gilt);
+  font-size: var(--text-support);
+  line-height: 1.35;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.themed-site
+  .wiki-gallery-comment-board
+  > .player-message-controls
+  > :is(a, button):hover {
+  background: #f6d7f333;
+  text-decoration: none;
+}
+
+.wiki-gallery-comments .event-message-list {
+  gap: 0.875rem;
+}
+
+.wiki-gallery-comments .event-message-entry {
+  display: grid;
+  gap: 0.75rem;
+  min-inline-size: 0;
+  padding: clamp(0.75rem, 2.4vw, 1.25rem);
+  border: 1px solid var(--gallery-trim);
+  border-inline-start: 2px solid #d9b5ef91;
+  border-radius: 0.875rem;
+  background: linear-gradient(120deg, #392649, #261a35 75%);
+  box-shadow:
+    inset 0 1px #eed1ff26,
+    0 5px 14px #10071f47;
+}
+
+.wiki-gallery-comments .event-message-entry:focus-within {
+  border-color: #d9b5ef91;
+}
+
+.wiki-gallery-comments .event-message-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  padding-block-end: 0.625rem;
+  border-block-end: 1px solid var(--gallery-trim);
+}
+
+.wiki-gallery-comments .event-message-meta a {
+  color: var(--gallery-gilt);
+}
+
+.wiki-gallery-comments .event-message-meta a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.wiki-gallery-comments .event-message-meta time {
+  color: var(--gallery-muted);
+  font-size: var(--text-support);
+  line-height: 1.4;
+}
+
+.wiki-gallery-comments .event-message-entry > .preserve-lines {
+  --document-line-height: 1.55;
+}
+
+.wiki-gallery-comments .event-message-entry > .player-message-controls,
+.wiki-gallery-comments .player-message-form {
+  margin-block-start: 0;
+}
+
+.wiki-gallery-comments .player-message-form,
+.wiki-gallery-comments .player-message-confirm {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.wiki-gallery-comments .player-message-form textarea {
   display: block;
   width: 100%;
+  min-block-size: 5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--site-control-border);
+  border-radius: 0.7rem;
+  background: #191222;
+  color: var(--gallery-ink);
+  resize: vertical;
 }
+
+.wiki-gallery-comments [role="alert"] {
+  color: var(--site-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .themed-site .wiki-gallery-comments button:hover {
+    transform: none;
+  }
+}
+
 .wiki-gallery figure {
   min-width: 0;
   margin: 0;

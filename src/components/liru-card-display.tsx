@@ -12,6 +12,44 @@ export function countLiruCards(
   return counts;
 }
 
+export function LiruGalleryPanel({
+  title,
+  headingId,
+  headerContent,
+  children,
+  id,
+  className,
+}: {
+  title: string;
+  headingId: string;
+  headerContent?: ReactNode;
+  children?: ReactNode;
+  id?: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={className ? `${styles.display} ${className}` : styles.display}
+      id={id}
+      role="region"
+      aria-labelledby={headingId}
+    >
+      <header className={styles.header}>
+        <div className={styles.heading}>
+          <span className={styles.emblem} aria-hidden="true">
+            ✦
+          </span>
+          <h2 className={styles.title} id={headingId}>
+            {title}
+          </h2>
+        </div>
+        {headerContent}
+      </header>
+      {children}
+    </div>
+  );
+}
+
 export function LiruCardDisplay({
   title,
   headingId,
@@ -28,32 +66,25 @@ export function LiruCardDisplay({
   id?: string;
 }) {
   return (
-    <div
-      className={styles.display}
+    <LiruGalleryPanel
+      title={title}
+      headingId={headingId}
       id={id}
-      role="region"
-      aria-labelledby={headingId}
+      headerContent={
+        <>
+          {action}
+          <ul className={styles.rarities} role="list">
+            {Object.entries(counts).map(([rarity, count]) => (
+              <li key={rarity} data-rarity={rarity}>
+                <span>{rarity}</span>
+                <strong>{count}</strong>
+              </li>
+            ))}
+          </ul>
+        </>
+      }
     >
-      <header className={styles.header}>
-        <div className={styles.heading}>
-          <span className={styles.emblem} aria-hidden="true">
-            ✦
-          </span>
-          <h2 className={styles.title} id={headingId}>
-            {title}
-          </h2>
-        </div>
-        {action}
-        <ul className={styles.rarities} role="list">
-          {Object.entries(counts).map(([rarity, count]) => (
-            <li key={rarity} data-rarity={rarity}>
-              <span>{rarity}</span>
-              <strong>{count}</strong>
-            </li>
-          ))}
-        </ul>
-      </header>
       {children}
-    </div>
+    </LiruGalleryPanel>
   );
 }

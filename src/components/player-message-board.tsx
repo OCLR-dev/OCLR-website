@@ -512,18 +512,28 @@ export function SignedMessageBoard({
           visibleMessages.map((message) => {
             const isEditing = editing?.id === message.id;
             const isDeleting = deleting?.id === message.id;
-            return (
-              <div
-                key={message.id}
-                id={showAll ? `${id}-message-${message.id}` : undefined}
-                tabIndex={showAll ? -1 : undefined}
-              >
+            const meta = (
+              <>
                 <a href={`https://osu.ppy.sh/users/${message.authorId}`}>
                   <strong>{message.author}</strong>
                 </a>
                 <time className="small muted" dateTime={message.createdAt}>
                   {new Date(message.createdAt).toLocaleString(tr.locale)}
                 </time>
+              </>
+            );
+            return (
+              <div
+                key={message.id}
+                className={showAll ? "event-message-entry" : undefined}
+                id={showAll ? `${id}-message-${message.id}` : undefined}
+                tabIndex={showAll ? -1 : undefined}
+              >
+                {showAll ? (
+                  <div className="event-message-meta">{meta}</div>
+                ) : (
+                  meta
+                )}
                 <p className="preserve-lines">{message.text}</p>
                 {showAll && (
                   <>
@@ -539,7 +549,9 @@ export function SignedMessageBoard({
             );
           })
         ) : (
-          <p>{loaded ? "—" : tr("Loading…")}</p>
+          <p>
+            {loaded ? (showAll ? tr("No comments yet.") : "—") : tr("Loading…")}
+          </p>
         )}
       </div>
       {!showAll && (
