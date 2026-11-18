@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type RefObject } from "react";
-import Lightbox, { IconButton, createIcon } from "yet-another-react-lightbox";
+import Lightbox, { createIcon } from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import { useAppTranslations } from "@/i18n/shared";
 import type { WikiGalleryFigure } from "@/lib/wiki-articles";
@@ -104,14 +104,18 @@ export default function WikiGalleryLightbox({
           >
             <DownloadArtworkIcon className="yarl__icon" />
           </a>,
-          <IconButton
+          <button
             key="download-card"
-            icon={DownloadCardIcon}
-            label={cardLabel}
+            className="yarl__button"
+            type="button"
+            aria-label={cardLabel}
+            title={cardLabel}
             onClick={() => void downloadCard()}
             disabled={cardDownload === "busy"}
             aria-busy={cardDownload === "busy"}
-          />,
+          >
+            <DownloadCardIcon className="yarl__icon" />
+          </button>,
           "close",
           cardDownload === "error" && (
             <span
