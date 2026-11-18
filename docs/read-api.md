@@ -509,6 +509,9 @@ Published participation gates the saved o!TR and SkillIssue metrics.
 S11 CSV metrics additionally require a published S11 edition and an accepted
 registration for the same osu! UID. A missing observation is null. Times are
 OCLR fetch or import times. The read does not contact providers.
+The ETX value prefers the saved Elitebotix API result over the S11 CSV import.
+For ETX, `importedAt` is the time OCLR saved the API response or imported the CSV
+row. A confirmed missing API rating has no total.
 
 Contract 1.37.0 adds [Showcase pools](streaming-api.md#showcase-pools-1115)
 to the edition-bound Streaming bearer channel. The staff mappool workspace

@@ -23,6 +23,7 @@ export const profileCsvTotalSchema = z.strictObject({
   value: z.number().finite(),
   importedAt: time.nullable(),
 });
+// importedAt is when OCLR saved the API response or imported the CSV row.
 export const profileEtxSchema = profileCsvTotalSchema.extend({
   value: z.number().finite().nonnegative(),
   provisional: z.boolean(),

@@ -99,6 +99,11 @@ the backend.
 
 The S11 website directory reads the saved overall [Elitebotix Duel Rating](https://www.eliteronix.de/elitebotix/api/player-duelrating?u=1176704) and its provisional and outdated flags. Existing ETX sorting and filters use the displayed score. Imported ETX remains the fallback until the provider confirms a result. A confirmed missing rating shows `—`. Timeouts, unexpected responses and network errors preserve the last confirmed result. Saved remote mode continues to use the backend's imported ratings.
 
+The public player profile and player dashboard prefer the same saved Elitebotix
+API result. Before a confirmed API response, they can show an eligible S11 CSV
+rating. The profile cover shows SIP and ETX totals beside o!TR and gives the
+provider and OCLR fetch or import time in each rating note.
+
 The worker looks up public S11 directory UIDs and stores results in PostgreSQL.
 The existing daemon runs ETX alongside SIP and o!TR during the
 [daily rating refresh](deployment.md#daily-rating-refresh). A database lock

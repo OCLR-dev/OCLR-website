@@ -4513,6 +4513,9 @@
     "me459795b34a0": "Fully rated public matches (before map filter)",
     "m60fd12418e25": "Partial coverage",
     "m414a8e721cd5": "No published games can be rated in this scope.",
-    "m3c3cb068aa9a": "No players match these filters."
+    "m3c3cb068aa9a": "No players match these filters.",
+    "m35bb428da849": "osu!standard tournament rating from SkillIssue.",
+    "m3f852680be1a": "osu!standard tournament rating from Elitebotix.",
+    "me115a7a06bed": "About the {value0} rating"
   }
 }

@@ -6,6 +6,7 @@ import {
   sipRatingCache,
 } from "@/db/schema";
 import { eventPreview } from "./event-preview";
+import { readEtxRatingSnapshots } from "./etx-rating";
 import { getOtrRating } from "./otr-rating";
 import { importedRatingsEdition as s11 } from "./player-rating-import-contract";
 import { publicPlayerStillListed } from "./players";
@@ -80,6 +81,7 @@ export async function readPublishedProfileRatings(
           : [];
       const sip = csv.find((row) => row.source === "sip");
       const etx = csv.find((row) => row.source === "etx");
+      const etxSnapshot = (await readEtxRatingSnapshots([osuId])).get(osuId);
       const [cache] = await db()
         .select({
           value: sipRatingCache.value,
@@ -102,13 +104,19 @@ export async function readPublishedProfileRatings(
         },
       );
       const stars = profileEtxSchema.safeParse(
-        etx && {
-          value: etx.value,
-          provisional: etx.provisional,
-          outdated: etx.outdated,
-          importedAt: etx.importedAt?.toISOString() ?? null,
-          mods: etx.mods,
-        },
+        etxSnapshot
+          ? etxSnapshot.rating && {
+              ...etxSnapshot.rating,
+              importedAt: etxSnapshot.fetchedAt.toISOString(),
+              mods: null,
+            }
+          : etx && {
+              value: etx.value,
+              provisional: etx.provisional,
+              outdated: etx.outdated,
+              importedAt: etx.importedAt?.toISOString() ?? null,
+              mods: etx.mods,
+            },
       );
       const otr = profileOtrSchema.safeParse(await getOtrRating(osuId));
       return {

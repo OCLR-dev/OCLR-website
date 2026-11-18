@@ -1,5 +1,8 @@
-import { ProfileInfo } from "./profile-info";
-import { CoverPlayerRatings } from "./player-profile-ratings";
+import { BwsCardNoteTrigger, ProfileInfo } from "./profile-info";
+import {
+  CoverPlayerRatings,
+  RatingObservation,
+} from "./player-profile-ratings";
 import { useAppTranslations } from "@/i18n/shared";
 import {
   calculateBadgeWeightedPp,
@@ -113,42 +116,6 @@ function RankValue({
   );
 }
 
-function InfoTrigger({ onOpenLabel }: { onOpenLabel: string }) {
-  return (
-    <button
-      type="button"
-      className="bws-card-note-trigger"
-      aria-label={onOpenLabel}
-    >
-      <svg
-        className="bws-card-note-icon"
-        viewBox="0 0 16 16"
-        width="18"
-        height="18"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <circle
-          cx="8"
-          cy="8"
-          r="6.4"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.2"
-        />
-        <circle cx="8" cy="4.9" r="0.95" fill="currentColor" />
-        <path
-          d="M8 7.1v4.2"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-        />
-      </svg>
-    </button>
-  );
-}
-
 /**
  * Compact badge-weighted seeding card overlaid on the player cover: BWS, the
  * plain country rank and weighted pp side by side, the original rank/pp in small
@@ -229,7 +196,7 @@ function CompactBwsSummary({
             {plainLabels ? "pp" : tr("BW-PP")}
           </span>
           <div className="bws-card-note">
-            <InfoTrigger onOpenLabel={tr("Explanation")} />
+            <BwsCardNoteTrigger onOpenLabel={tr("Explanation")} />
             <div className="bws-card-note-panel" role="note">
               {value.rawPp !== null && (
                 <p className="small muted">
@@ -267,7 +234,7 @@ function CompactBwsSummary({
             {plainLabels ? tr("Global rank") : tr("BW-rank")}
           </span>
           <div className="bws-card-note">
-            <InfoTrigger onOpenLabel={tr("Explanation")} />
+            <BwsCardNoteTrigger onOpenLabel={tr("Explanation")} />
             <div className="bws-card-note-panel" role="note">
               <BwsNote value={value} includePpFormula={false} />
             </div>
@@ -307,7 +274,7 @@ function CompactBwsSummary({
             {gameplayBadgeCount ? tr("Weighted badge") : tr("Badges")}
           </span>
           <div className="bws-card-note">
-            <InfoTrigger onOpenLabel={tr("Explanation")} />
+            <BwsCardNoteTrigger onOpenLabel={tr("Explanation")} />
             <div className="bws-card-note-panel" role="note">
               <BadgeNote badges={badges} />
             </div>
@@ -335,7 +302,7 @@ function CompactBwsSummary({
         <div className="bws-card-label-row">
           <span className="bws-card-label">{tr("OII")}</span>
           <div className="bws-card-note">
-            <InfoTrigger onOpenLabel={tr("Explanation")} />
+            <BwsCardNoteTrigger onOpenLabel={tr("Explanation")} />
             <div className="bws-card-note-panel" role="note">
               <p className="small muted">
                 <code>{"expected play hours / play hours"}</code>
@@ -369,23 +336,16 @@ function CompactBwsSummary({
             <div className="bws-card-label-row">
               <span className="bws-card-label">o!TR</span>
               <div className="bws-card-note">
-                <InfoTrigger onOpenLabel={tr("About the o!TR rating")} />
+                <BwsCardNoteTrigger onOpenLabel={tr("About the o!TR rating")} />
                 <div className="bws-card-note-panel" role="note">
                   <p className="small muted">
                     {tr("osu!standard tournament rating from o!TR.")}
                   </p>
                   {otrRating && (
-                    <p className="small muted">
-                      {tr("Rating fetched")}:{" "}
-                      <time dateTime={otrRating.fetchedAt}>
-                        {new Intl.DateTimeFormat(tr.locale, {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                          timeZone: "UTC",
-                        }).format(new Date(otrRating.fetchedAt))}{" "}
-                        UTC
-                      </time>
-                    </p>
+                    <RatingObservation
+                      label={tr("Rating fetched")}
+                      time={otrRating.fetchedAt}
+                    />
                   )}
                   <p className="small muted">
                     <a

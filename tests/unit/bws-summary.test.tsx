@@ -98,28 +98,46 @@ describe("shared public and staff BWS display", () => {
   });
   it("shows SIP and ETX totals after o!TR and preserves zero and ETX status", () => {
     const fetchedAt = "2026-11-10T02:30:00.000Z";
-    const html = render(10000, 1234, false, "compact", null, null, {
+    const sipImportTime = "2026-11-11T02:30:00.000Z";
+    const etxReadTime = "2026-11-12T02:30:00.000Z";
+    const ratings: ProfileRatings = {
       otr: null,
       sip: {
         api: { value: 0, fetchedAt, snapshot: null },
-        csv: { value: 75, importedAt: null },
+        csv: { value: 75, importedAt: sipImportTime },
       },
       etx: {
         value: 6.234567891,
         provisional: true,
         outdated: true,
-        importedAt: null,
+        importedAt: etxReadTime,
         mods: { NM: 3.5 },
       },
-    });
+    };
+    const html = render(10000, 1234, false, "compact", null, null, ratings);
     expect(html).toMatch(/>o!TR<[\s\S]*>SIP<[\s\S]*>0<\/strong>[\s\S]*>ETX</);
     expect(html).toContain("6.234567891 ★");
     expect(html).toContain("Provisional rating");
     expect(html).toContain("Outdated rating");
     expect(html).not.toContain("3.5 ★");
+    expect(html).toContain(`dateTime="${fetchedAt}"`);
+    expect(html).toContain(`dateTime="${etxReadTime}"`);
+    expect(html).not.toContain(sipImportTime);
+
+    const withCsv = render(10000, 1234, false, "compact", null, null, {
+      ...ratings,
+      sip: { ...ratings.sip, api: null },
+    });
+    expect(withCsv).toContain(`dateTime="${sipImportTime}"`);
+    expect(withCsv).not.toContain(fetchedAt);
 
     const empty = render(10000, 1234, false, "compact", null, null, null);
     expect(empty.match(/>No rating data</g)).toHaveLength(3);
+    expect(empty).toContain('aria-label="About the SIP rating"');
+    expect(empty).toContain('aria-label="About the ETX rating"');
+    expect(empty).toContain("osu!standard tournament rating from SkillIssue.");
+    expect(empty).toContain("osu!standard tournament rating from Elitebotix.");
+    expect(empty).not.toContain("Rating fetched");
   });
   it("shows the plain rank and pp while badges await review", () => {
     expect(render(null, 0)).toContain('class="bws-value">0</strong>');

@@ -2,6 +2,7 @@ import { db, closeDb } from "../../src/db";
 import {
   editionEvents,
   editionState,
+  etxRatingCache,
   importedPlayerRatings,
   registrations,
   sipRatingCache,
@@ -97,6 +98,36 @@ describe.skipIf(!url)("S11 imported player ratings", () => {
     expect(oclrProfileSchema.parse((await wire.json()).data).ratings).toEqual(
       published.ratings,
     );
+    await db()
+      .insert(etxRatingCache)
+      .values(
+        [player, pending].map(({ osuId }) => ({
+          osuId,
+          attemptedOn: "2025-01-01",
+          fetchedAt,
+          rating: { value: 5.125, provisional: false, outdated: true },
+        })),
+      );
+    const providerRating = {
+      value: 5.125,
+      provisional: false,
+      outdated: true,
+      importedAt: fetchedAt.toISOString(),
+      mods: null,
+    };
+    expect((await read(player.osuId)).ratings?.etx).toEqual(providerRating);
+    const apiProviderRating = await readApiRoute(
+      new Request(url + "?ratings=1"),
+    );
+    expect(
+      oclrProfileSchema.parse((await apiProviderRating.json()).data).ratings
+        ?.etx,
+    ).toEqual(providerRating);
+    await db()
+      .update(etxRatingCache)
+      .set({ rating: null })
+      .where(eq(etxRatingCache.osuId, player.osuId));
+    expect((await read(player.osuId)).ratings?.etx).toBeNull();
     const legacy = await readApiRoute(new Request(url));
     expect(legacy.status).toBe(200);
     expect((await legacy.json()).data).not.toHaveProperty("ratings");
@@ -116,14 +147,14 @@ describe.skipIf(!url)("S11 imported player ratings", () => {
           answers: {},
         })),
       );
-    // Public elsewhere: API data is a current player metric; the pending S11
+    // Public elsewhere: API ratings are current player metrics; the pending S11
     // application and even already-existing S11 import rows grant nothing.
     expect((await read(pending.osuId)).ratings).toMatchObject({
       sip: {
         api: { value: 0, fetchedAt: fetchedAt.toISOString(), snapshot: null },
         csv: null,
       },
-      etx: null,
+      etx: providerRating,
     });
     await db()
       .update(editionState)

@@ -8,6 +8,7 @@ import {
   type ProfileRatings,
 } from "@/lib/profile-ratings-model";
 import type { SipRating } from "@/lib/sip-rating-model";
+import { BwsCardNoteTrigger } from "./profile-info";
 import styles from "./player-profile-ratings.module.css";
 
 type Props = { ratings?: ProfileRatings | null };
@@ -64,45 +65,77 @@ export function CompactPlayerRatings({ ratings }: Props) {
 
 export function CoverPlayerRatings({ ratings }: Props) {
   const tr = useAppTranslations();
+  const sipApi = ratings?.sip.api;
   const etx = ratings?.etx;
   const metrics = [
-    { label: tr("SIP"), value: profileSipTotal(ratings) },
+    {
+      label: tr("SIP"),
+      value: profileSipTotal(ratings),
+      description: tr("osu!standard tournament rating from SkillIssue."),
+      time:
+        sipApi?.value != null
+          ? sipApi.fetchedAt
+          : (ratings?.sip.csv?.importedAt ?? null),
+    },
     {
       label: tr("ETX"),
       value: etx?.value ?? null,
+      description: tr("osu!standard tournament rating from Elitebotix."),
+      time: etx?.importedAt ?? null,
       unit: " ★",
       provisional: etx?.provisional,
       outdated: etx?.outdated,
     },
   ];
 
-  return metrics.map(({ label, value, unit, provisional, outdated }) => (
-    <Fragment key={label}>
-      <span className="bws-card-divider" aria-hidden="true" />
-      <div className="bws-card-metric">
-        <span className="bws-card-label">{label}</span>
-        <div className="bws-card-value-row">
-          {value === null ? (
-            <span className="bws-card-state">{tr("No rating data")}</span>
-          ) : (
-            <strong className="bws-value">
-              {number(tr.locale, value)}
-              {unit}
-            </strong>
+  return metrics.map(
+    ({ label, value, description, time, unit, provisional, outdated }) => (
+      <Fragment key={label}>
+        <span className="bws-card-divider" aria-hidden="true" />
+        <div className="bws-card-metric">
+          <div className="bws-card-label-row">
+            <span className="bws-card-label">{label}</span>
+            <div className="bws-card-note">
+              <BwsCardNoteTrigger
+                onOpenLabel={tr("About the {value0} rating", { value0: label })}
+              />
+              <div className="bws-card-note-panel" role="note">
+                <p className="small muted">{description}</p>
+                {value !== null && (
+                  <RatingObservation label={tr("Rating fetched")} time={time} />
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="bws-card-value-row">
+            {value === null ? (
+              <span className="bws-card-state">{tr("No rating data")}</span>
+            ) : (
+              <strong className="bws-value">
+                {number(tr.locale, value)}
+                {unit}
+              </strong>
+            )}
+          </div>
+          {provisional && (
+            <span className="bws-card-state">{tr("Provisional rating")}</span>
+          )}
+          {outdated && (
+            <span className="bws-card-state">{tr("Outdated rating")}</span>
           )}
         </div>
-        {provisional && (
-          <span className="bws-card-state">{tr("Provisional rating")}</span>
-        )}
-        {outdated && (
-          <span className="bws-card-state">{tr("Outdated rating")}</span>
-        )}
-      </div>
-    </Fragment>
-  ));
+      </Fragment>
+    ),
+  );
 }
 
-function Observation({ label, time }: { label: string; time: string | null }) {
+export function RatingObservation({
+  label,
+  time,
+}: {
+  label: string;
+  time: string | null;
+}) {
   const tr = useAppTranslations();
   return (
     <p className="small muted">
@@ -206,13 +239,13 @@ export function PlayerRatingDetails({ ratings }: Props) {
             </strong>
           </p>
           {api?.value == null && csv && (
-            <Observation
+            <RatingObservation
               label={tr("S11 CSV · OCLR import time")}
               time={csv.importedAt}
             />
           )}
           {api && (
-            <Observation
+            <RatingObservation
               label={tr("SkillIssue API · OCLR fetch time")}
               time={api.fetchedAt}
             />
@@ -240,8 +273,8 @@ export function PlayerRatingDetails({ ratings }: Props) {
             </strong>
           </p>
           {etx && (
-            <Observation
-              label={tr("S11 CSV · OCLR import time")}
+            <RatingObservation
+              label={tr("Rating fetched")}
               time={etx.importedAt}
             />
           )}

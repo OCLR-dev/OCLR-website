@@ -10,9 +10,24 @@ export type EtxRating = {
 
 /** Only look up IDs from the publication-checked directory. */
 export async function readDirectoryEtxRatings(osuIds: number[]) {
-  if (!osuIds.length) return new Map<number, EtxRating | null>();
+  return new Map(
+    [...(await readEtxRatingSnapshots(osuIds))].map(([osuId, { rating }]) => [
+      osuId,
+      rating,
+    ]),
+  );
+}
+
+/** Only look up IDs with publication-checked participation. */
+export async function readEtxRatingSnapshots(osuIds: number[]) {
+  if (!osuIds.length)
+    return new Map<number, { rating: EtxRating | null; fetchedAt: Date }>();
   const rows = await db()
-    .select({ osuId: etxRatingCache.osuId, rating: etxRatingCache.rating })
+    .select({
+      osuId: etxRatingCache.osuId,
+      rating: etxRatingCache.rating,
+      fetchedAt: etxRatingCache.fetchedAt,
+    })
     .from(etxRatingCache)
     .where(
       and(
@@ -20,5 +35,12 @@ export async function readDirectoryEtxRatings(osuIds: number[]) {
         isNotNull(etxRatingCache.fetchedAt),
       ),
     );
-  return new Map(rows.map(({ osuId, rating }) => [osuId, rating]));
+  const snapshots = new Map<
+    number,
+    { rating: EtxRating | null; fetchedAt: Date }
+  >();
+  for (const { osuId, rating, fetchedAt } of rows) {
+    if (fetchedAt) snapshots.set(osuId, { rating, fetchedAt });
+  }
+  return snapshots;
 }
