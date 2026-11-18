@@ -27,7 +27,7 @@ export function LiruProfileCollection({
     >
       <div className={styles.header}>
         <h2 id="liru-collection-title">{tr("Liru Gallery")}</h2>
-        <Link href="/wiki/liru-gallery" className="text-link">
+        <Link href="/gallery" className="text-link">
           {tr("Liru daily draw")} →
         </Link>
       </div>

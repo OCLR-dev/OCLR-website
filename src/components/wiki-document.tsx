@@ -1,18 +1,12 @@
-import { randomInt } from "node:crypto";
 import Image from "next/image";
 import Link from "next/link";
 import { getAppTranslations } from "@/i18n/server";
-import { currentUser } from "@/lib/auth/user";
-import { remoteMode } from "@/lib/data-source";
 import {
   wikiArticles,
   wikiHref,
   type WikiArticle,
   type WikiText,
 } from "@/lib/wiki-articles";
-import { WikiGallery } from "./wiki-gallery";
-import { LiruGacha } from "./liru-gacha";
-import { SignedMessageBoard } from "./player-message-board";
 
 function WikiTextContent({ text }: { text: WikiText }) {
   return typeof text === "string"
@@ -30,11 +24,6 @@ function WikiTextContent({ text }: { text: WikiText }) {
 
 export async function WikiDocument({ article }: { article: WikiArticle }) {
   const tr = await getAppTranslations();
-  const remote = remoteMode();
-  const viewer =
-    article.gallery?.length && !remote
-      ? await currentUser().catch(() => null)
-      : null;
   return (
     <div className="container page wiki-page information-page">
       <nav className="wiki-articles" aria-label={tr("Wiki articles")}>
@@ -48,7 +37,7 @@ export async function WikiDocument({ article }: { article: WikiArticle }) {
           </Link>
         ))}
       </nav>
-      <div className={article.gallery ? undefined : "information-layout"}>
+      <div className="information-layout">
         <article
           className="information-document document-typeset"
           aria-labelledby="wiki-title"
@@ -64,43 +53,8 @@ export async function WikiDocument({ article }: { article: WikiArticle }) {
           )}
           {article.related && (
             <p>
-              <Link href={wikiHref(article.related.slug)}>
-                {article.related.title}
-              </Link>
+              <Link href={article.related.href}>{article.related.title}</Link>
             </p>
-          )}
-          {!!article.gallery?.length && (
-            <>
-              {!remote && (
-                <LiruGacha
-                  key={viewer?.osuId}
-                  profileHref={
-                    viewer
-                      ? `/players/${viewer.osuId}#liru-collection`
-                      : undefined
-                  }
-                  figures={article.gallery}
-                />
-              )}
-              <WikiGallery
-                figures={article.gallery}
-                initialIndex={randomInt(article.gallery.length)}
-                showAnotherLabel={tr("Show another look")}
-              />
-              <section
-                className="wiki-gallery-comments"
-                aria-labelledby="wiki-gallery-comments"
-              >
-                <h2 id="wiki-gallery-comments">{tr("Message board")}</h2>
-                <SignedMessageBoard
-                  endpoint="/api/wiki/liru-gallery/messages"
-                  name={article.title}
-                  signedIn={!!viewer}
-                  viewerId={viewer?.osuId}
-                  readOnly={remote}
-                />
-              </section>
-            </>
           )}
           {article.sections.map((section) => (
             <section key={section.id} id={section.id}>

@@ -233,6 +233,7 @@ export function Header({
     { href: "/ranking/performance", label: tr("Ranking") },
     { href: "/news", label: tr("Announcements") },
     { href: "/wiki", label: tr("Handbook") },
+    { href: "/gallery", label: tr("Gallery") },
     { href: "/games/ocl-chess", label: tr("Chess") },
     { href: "/about", label: tr("Organizers") },
   ];

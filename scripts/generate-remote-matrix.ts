@@ -164,7 +164,7 @@ const rows = files.map((file) => {
   ] ?? [])
     operations.add(op);
   if (file.includes("/api/v1/")) operations.add("ALL_REGISTERED_READS");
-  if (file.includes("/wiki/[article]/page"))
+  if (file === "src/app/gallery/page.tsx")
     operations.add("publicLiruGalleryMessages");
   if (file.includes("/avatar/route")) operations.add("getTeamAvatar");
   if (file.includes("/replays/[replayId]/route"))

@@ -41,6 +41,11 @@ const config: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/wiki/liru-gallery",
+        destination: "/gallery",
+        permanent: true,
+      },
+      {
         source: "/tournaments/:edition/participants",
         destination: "/tournaments/:edition/players",
         permanent: true,

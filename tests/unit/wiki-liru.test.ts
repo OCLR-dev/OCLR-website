@@ -5,7 +5,7 @@ import en from "../../messages/en.json";
 import hans from "../../messages/zh-Hans.json";
 import hant from "../../messages/zh-Hant.json";
 import { appTranslator } from "../../src/i18n/translate";
-import { wikiArticles, wikiHref } from "../../src/lib/wiki-articles";
+import { liruGallery, wikiArticles } from "../../src/lib/wiki-articles";
 
 // WebP canvas size from the VP8X/VP8L/VP8 header, so declared figure sizes cannot drift from the files.
 function webpSize(path: string) {
@@ -131,14 +131,17 @@ it("links the Liru gallery and includes every portrait at both sizes", () => {
   );
   const articles = wikiArticles(tr);
   const profile = articles.find((article) => article.slug === "liru")!;
-  const gallery = articles.find((article) => article.slug === "liru-gallery")!;
-  expect(wikiHref(profile.related!.slug)).toBe(wikiHref(gallery.slug));
+  const gallery = liruGallery(tr);
+  expect(articles.some((article) => article.slug === "liru-gallery")).toBe(
+    false,
+  );
+  expect(profile.related).toEqual({ href: "/gallery", title: gallery.title });
   expect(gallery.gallery).toHaveLength(124);
-  expect(new Set(gallery.gallery!.map((figure) => figure.src)).size).toBe(124);
-  expect(new Set(gallery.gallery!.map((figure) => figure.rarity))).toEqual(
+  expect(new Set(gallery.gallery.map((figure) => figure.src)).size).toBe(124);
+  expect(new Set(gallery.gallery.map((figure) => figure.rarity))).toEqual(
     new Set(["UR", "SSR", "SR", "R"]),
   );
-  for (const figure of gallery.gallery!) {
+  for (const figure of gallery.gallery) {
     expect(webpSize(`public${figure.src}`)).toEqual({
       width: 1024,
       height: 1536,

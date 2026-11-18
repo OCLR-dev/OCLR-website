@@ -31,8 +31,7 @@ export type WikiArticle = {
     table?: { headers: string[]; rows: WikiText[][] };
     figures?: WikiFigure[];
   }[];
-  gallery?: WikiGalleryFigure[];
-  related?: { slug: string; title: string };
+  related?: { href: string; title: string };
   source?: { title: string; author: string; date: string; href: string };
 };
 
@@ -213,7 +212,6 @@ export function wikiArticles(tr: AppTranslator): WikiArticle[] {
       },
     },
     liruArticle(tr),
-    liruGallery(tr),
   ];
 }
 
@@ -242,7 +240,7 @@ function liruArticle(tr: AppTranslator): WikiArticle {
       "Liru (LR-chan) is the official mascot of osu! Chinese League Rookie (OCLR), in the spirit of pippi and the other osu! mode mascots. Her design began as a community proposal by {designer}.",
       { designer: LIRU_DESIGNER },
     ),
-    related: { slug: "liru-gallery", title: tr("Liru Gallery") },
+    related: { href: "/gallery", title: tr("Liru Gallery") },
     sections: [
       {
         id: "profile",
@@ -592,7 +590,10 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "wisteria-messenger": "SR",
 };
 
-export function liruGallery(tr: AppTranslator): WikiArticle {
+export function liruGallery(tr: AppTranslator): {
+  title: string;
+  gallery: WikiGalleryFigure[];
+} {
   const outfits = [
     [
       "elegant-maid",
@@ -1448,10 +1449,7 @@ export function liruGallery(tr: AppTranslator): WikiArticle {
     ],
   ];
   return {
-    slug: "liru-gallery",
     title: tr("Liru Gallery"),
-    category: tr("Community"),
-    sections: [],
     gallery: outfits.map(([id, caption, alt]) => ({
       src: `/mascot/liru/gallery/${id}.webp`,
       previewSrc: `/mascot/liru/gallery/${id}-640.webp`,

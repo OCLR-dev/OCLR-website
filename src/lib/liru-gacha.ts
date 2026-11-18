@@ -32,7 +32,7 @@ export function rollLiruRarity(roll: number, guaranteed: boolean) {
   return roll < UR + SSR + SR || guaranteed ? "SR" : "R";
 }
 
-const galleryPool = liruGallery(english).gallery ?? [];
+const galleryPool = liruGallery(english).gallery;
 type Rarity = WikiGalleryFigure["rarity"];
 const byRarity = Object.fromEntries(
   (Object.keys(liruRarityRates) as Rarity[]).map((rarity) => [
