@@ -9,6 +9,7 @@ test("previews in place, restores focus and downloads the current card and artwo
   isMobile,
   context,
 }) => {
+  if (isMobile) await page.setViewportSize({ width: 320, height: 640 });
   await page.goto(`/wiki-gallery?theme=${isMobile ? "light" : "dark"}`);
   const trigger = page.locator('.wiki-gallery a[aria-haspopup="dialog"]');
   const originalUrl = page.url();
@@ -18,6 +19,23 @@ test("previews in place, restores focus and downloads the current card and artwo
   else await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog", { name: "Elegant maid outfit" });
   await expect(dialog).toBeVisible();
+  const toolbar = await dialog
+    .locator(".yarl__toolbar :is(button, a)")
+    .evaluateAll((controls) =>
+      controls.map((control) => {
+        const { x, y, width, height } = control.getBoundingClientRect();
+        return { x, y, width, height };
+      }),
+    );
+  expect(toolbar).toHaveLength(5);
+  for (const control of toolbar) {
+    expect(control.y).toBeCloseTo(toolbar[0].y);
+    expect(control.width).toBeGreaterThanOrEqual(44);
+    expect(control.height).toBeGreaterThanOrEqual(44);
+    expect(control.x + control.width).toBeLessThanOrEqual(
+      page.viewportSize()!.width,
+    );
+  }
   const image = dialog.getByRole("img");
   await expect(image).toHaveJSProperty("naturalWidth", 1024);
   const width = (await image.boundingBox())!.width;

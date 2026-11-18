@@ -4,6 +4,8 @@
   --yarl__color_button_active: var(--site-accent);
   --yarl__color_button_disabled: var(--site-muted);
   --yarl__button_filter: none;
+  --yarl__icon_size: 24px;
+  --yarl__toolbar_padding: 4px;
 }
 
 .wiki-gallery-lightbox .yarl__toolbar {
@@ -14,6 +16,12 @@
 }
 
 .wiki-gallery-lightbox .yarl__button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
   background: transparent;
   box-shadow: none;
 }
@@ -27,29 +35,14 @@
   outline-offset: -4px;
 }
 
-.wiki-gallery-lightbox .yarl__toolbar {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  max-inline-size: calc(100% - env(safe-area-inset-right, 0px));
-}
-
-.wiki-gallery-lightbox-downloads {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.wiki-gallery-lightbox-downloads .yarl__button {
-  min-height: 44px;
-  padding-inline: 0.65rem;
-  font-size: var(--text-support);
-  font-weight: 650;
-  text-decoration: none;
-}
-
-.wiki-gallery-lightbox-downloads [role="alert"] {
-  flex-basis: 100%;
+.wiki-gallery-lightbox .wiki-gallery-download-error {
+  position: absolute;
+  inset-block-start: calc(100% + 0.25rem);
+  inset-inline-end: 0;
+  width: 100%;
   padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+  background: var(--site-surface);
+  color: var(--site-foreground);
   font-size: var(--text-support);
 }
