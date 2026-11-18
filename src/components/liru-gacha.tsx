@@ -140,7 +140,7 @@ export function LiruGacha({
             </span>
             {profileHref && (
               <Link className="text-link" href={profileHref} prefetch={false}>
-                {tr("OCLR profile")} →
+                {tr("View my Liru gallery")}
               </Link>
             )}
             {error && (
