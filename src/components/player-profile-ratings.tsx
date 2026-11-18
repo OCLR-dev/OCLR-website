@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { etxMods } from "@/lib/etx-rating-model";
 import {
@@ -59,6 +60,46 @@ export function CompactPlayerRatings({ ratings }: Props) {
       </div>
     </dl>
   );
+}
+
+export function CoverPlayerRatings({ ratings }: Props) {
+  const tr = useAppTranslations();
+  const etx = ratings?.etx;
+  const metrics = [
+    { label: tr("SIP"), value: profileSipTotal(ratings) },
+    {
+      label: tr("ETX"),
+      value: etx?.value ?? null,
+      unit: " ★",
+      provisional: etx?.provisional,
+      outdated: etx?.outdated,
+    },
+  ];
+
+  return metrics.map(({ label, value, unit, provisional, outdated }) => (
+    <Fragment key={label}>
+      <span className="bws-card-divider" aria-hidden="true" />
+      <div className="bws-card-metric">
+        <span className="bws-card-label">{label}</span>
+        <div className="bws-card-value-row">
+          {value === null ? (
+            <span className="bws-card-state">{tr("No rating data")}</span>
+          ) : (
+            <strong className="bws-value">
+              {number(tr.locale, value)}
+              {unit}
+            </strong>
+          )}
+        </div>
+        {provisional && (
+          <span className="bws-card-state">{tr("Provisional rating")}</span>
+        )}
+        {outdated && (
+          <span className="bws-card-state">{tr("Outdated rating")}</span>
+        )}
+      </div>
+    </Fragment>
+  ));
 }
 
 function Observation({ label, time }: { label: string; time: string | null }) {

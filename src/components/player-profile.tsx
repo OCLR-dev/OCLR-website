@@ -12,16 +12,19 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import type { ProfileSnapshot } from "@/lib/osu-profile-model";
 import type { OtrRating } from "@/lib/otr-rating";
+import type { ProfileRatings } from "@/lib/profile-ratings-model";
 import { calculateOii, oiiMode } from "@/lib/oii";
 export function PlayerProfile({
   snapshot,
   bws,
   otrRating,
+  profileRatings,
   heading,
 }: {
   snapshot: ProfileSnapshot;
   bws?: BwsData | null;
   otrRating?: OtrRating | null;
+  profileRatings?: ProfileRatings | null;
   heading?: ReactNode;
 }) {
   const tr = useAppTranslations();
@@ -108,6 +111,7 @@ export function PlayerProfile({
                 globalRankPercent={s.globalRankPercent}
                 oii={oii}
                 otrRating={otrRating}
+                profileRatings={profileRatings}
                 badges={p.badges}
               />
             )}

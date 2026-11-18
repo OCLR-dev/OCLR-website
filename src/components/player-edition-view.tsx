@@ -19,8 +19,11 @@ import { PlayerCompetition, PlayerTeamRecord } from "./player-competition";
 import { PlayerMapPerformance as PlayerMapPerformanceView } from "./player-map-performance";
 import { PlayerParticipatedTournaments } from "./player-participated-tournaments";
 import { PlayerProfile } from "./player-profile";
-import { PlayerRatingDetails } from "./player-profile-ratings";
-import type { ProfileRatings } from "@/lib/profile-ratings-model";
+import { CompactPlayerRatings } from "./player-profile-ratings";
+import {
+  profileSipTotal,
+  type ProfileRatings,
+} from "@/lib/profile-ratings-model";
 import { HistoricalStaffHistory } from "./historical-staff-history";
 import type { HistoricalStaffHistory as StaffHistory } from "@/lib/archive-staff-history";
 import { PlayerTimeline as PlayerTimelineView } from "./player-timeline";
@@ -127,6 +130,13 @@ export function PlayerEditionView({
     ? (timelines[selected] ?? allTimeline)
     : allTimeline;
   const ratings = selected ? ratingsByEdition[selected] : undefined;
+  const selectedBws = selected ? (bwsByEdition[selected] ?? null) : bws;
+  const showRatingFallback =
+    (!snapshot || !selectedBws) &&
+    profileRatings &&
+    (profileRatings.otr ||
+      profileSipTotal(profileRatings) !== null ||
+      profileRatings.etx);
   const staffDuties = selected
     ? staffHistory.filter((record) => record.editionSlug === selected)
     : staffHistory;
@@ -179,8 +189,9 @@ export function PlayerEditionView({
           <PlayerProfile
             heading={heading}
             snapshot={snapshot}
-            bws={selected ? (bwsByEdition[selected] ?? null) : bws}
+            bws={selectedBws}
             otrRating={profileRatings?.otr ?? otrRating}
+            profileRatings={profileRatings ?? null}
           />
         ) : (
           <>
@@ -190,7 +201,9 @@ export function PlayerEditionView({
             </p>
           </>
         )}
-        <PlayerRatingDetails ratings={profileRatings} />
+        {showRatingFallback && (
+          <CompactPlayerRatings ratings={profileRatings} />
+        )}
         {selected && ratings && <RoundRatings data={ratings} slug={selected} />}
         {(timeline.marks.length > 0 || timeline.spans.length > 0) && (
           <PlayerTimelineView timeline={timeline} />

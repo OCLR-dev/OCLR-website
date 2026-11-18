@@ -6,6 +6,7 @@ import { BwsSummary } from "../../src/components/bws-summary";
 import { summarizeBws } from "../../src/lib/bws-model";
 import { normalizeOsuProfile } from "../../src/lib/osu-profile-model";
 import type { OtrRating } from "../../src/lib/otr-rating";
+import type { ProfileRatings } from "../../src/lib/profile-ratings-model";
 import messages from "../../messages/en.json";
 
 function render(
@@ -15,6 +16,7 @@ function render(
   variant: "detail" | "compact" = "detail",
   globalRankPercent: number | null = null,
   otrRating?: OtrRating | null,
+  profileRatings?: ProfileRatings | null,
 ) {
   const profile = normalizeOsuProfile(
     {
@@ -38,6 +40,7 @@ function render(
         countryRank={profile.statistics.countryRank}
         globalRankPercent={profile.statistics.globalRankPercent}
         otrRating={otrRating}
+        profileRatings={profileRatings}
         value={summarizeBws({ profile, stale: true, notice: null }, null)}
       />
     </NextIntlClientProvider>,
@@ -77,7 +80,7 @@ describe("shared public and staff BWS display", () => {
     expect(html).toContain('<strong class="bws-value">');
     expect(html).not.toContain("bws-value--rank-tier");
   });
-  it("shows the o!TR rating in the last column with its source and fetch time", () => {
+  it("shows the o!TR rating with its source and fetch time", () => {
     const html = render(10000, 1234, false, "compact", null, {
       value: 1572.48,
       fetchedAt: "2026-11-10T02:30:00.000Z",
@@ -92,6 +95,31 @@ describe("shared public and staff BWS display", () => {
     expect(render(10000, 1234, false, "compact", null, null)).toContain(
       "No rating data",
     );
+  });
+  it("shows SIP and ETX totals after o!TR and preserves zero and ETX status", () => {
+    const fetchedAt = "2026-11-10T02:30:00.000Z";
+    const html = render(10000, 1234, false, "compact", null, null, {
+      otr: null,
+      sip: {
+        api: { value: 0, fetchedAt, snapshot: null },
+        csv: { value: 75, importedAt: null },
+      },
+      etx: {
+        value: 6.234567891,
+        provisional: true,
+        outdated: true,
+        importedAt: null,
+        mods: { NM: 3.5 },
+      },
+    });
+    expect(html).toMatch(/>o!TR<[\s\S]*>SIP<[\s\S]*>0<\/strong>[\s\S]*>ETX</);
+    expect(html).toContain("6.234567891 ★");
+    expect(html).toContain("Provisional rating");
+    expect(html).toContain("Outdated rating");
+    expect(html).not.toContain("3.5 ★");
+
+    const empty = render(10000, 1234, false, "compact", null, null, null);
+    expect(empty.match(/>No rating data</g)).toHaveLength(3);
   });
   it("shows the plain rank and pp while badges await review", () => {
     expect(render(null, 0)).toContain('class="bws-value">0</strong>');

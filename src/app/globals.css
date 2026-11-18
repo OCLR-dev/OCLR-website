@@ -3146,6 +3146,25 @@ html[data-appearance]
 .profile-cover-content .bws-card-divider {
   background: rgb(255 255 255 / 22%);
 }
+.bws-card--with-ratings {
+  max-width: 100%;
+}
+.bws-card--with-ratings .bws-card-metric {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.bws-card--with-ratings .bws-card-label {
+  white-space: normal;
+}
+@media (48rem < width < 64rem) {
+  .bws-card--with-ratings {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .bws-card--with-ratings .bws-card-divider {
+    display: none;
+  }
+}
 @media (max-width: 48rem) {
   .profile-cover-content {
     align-items: stretch;

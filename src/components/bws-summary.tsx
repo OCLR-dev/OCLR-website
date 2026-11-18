@@ -1,4 +1,5 @@
 import { ProfileInfo } from "./profile-info";
+import { CoverPlayerRatings } from "./player-profile-ratings";
 import { useAppTranslations } from "@/i18n/shared";
 import {
   calculateBadgeWeightedPp,
@@ -7,6 +8,7 @@ import {
 } from "@/lib/bws-model";
 import type { ProfileBadge } from "@/lib/osu-profile-model";
 import type { OtrRating } from "@/lib/otr-rating";
+import type { ProfileRatings } from "@/lib/profile-ratings-model";
 import { isGameplayBadge } from "@/lib/badge-activity";
 import { globalRankTier, type GlobalRankTier } from "@/lib/rank-tier";
 
@@ -159,6 +161,7 @@ function CompactBwsSummary({
   globalRankPercent,
   oii,
   otrRating,
+  profileRatings,
   badges,
 }: {
   value: Summary;
@@ -166,6 +169,7 @@ function CompactBwsSummary({
   globalRankPercent: number | null;
   oii: number | null;
   otrRating?: OtrRating | null;
+  profileRatings?: ProfileRatings | null;
   badges: ProfileBadge[] | null;
 }) {
   // The index carries the rank-tier gradient only where it says something:
@@ -211,7 +215,11 @@ function CompactBwsSummary({
   const plainLabels = pending || unweighted;
   return (
     <section
-      className="bws-card"
+      className={
+        profileRatings === undefined
+          ? "bws-card"
+          : "bws-card bws-card--with-ratings"
+      }
       aria-label={tr("Badge-weighted seeding")}
       role="group"
     >
@@ -402,6 +410,9 @@ function CompactBwsSummary({
           </div>
         </>
       )}
+      {profileRatings !== undefined && (
+        <CoverPlayerRatings ratings={profileRatings} />
+      )}
     </section>
   );
 }
@@ -413,6 +424,7 @@ export function BwsSummary({
   globalRankPercent = null,
   oii = null,
   otrRating,
+  profileRatings,
   badges = null,
 }: {
   value: Summary;
@@ -421,6 +433,7 @@ export function BwsSummary({
   globalRankPercent?: number | null;
   oii?: number | null;
   otrRating?: OtrRating | null;
+  profileRatings?: ProfileRatings | null;
   badges?: ProfileBadge[] | null;
 }) {
   const tr = useAppTranslations();
@@ -432,6 +445,7 @@ export function BwsSummary({
         globalRankPercent={globalRankPercent}
         oii={oii}
         otrRating={otrRating}
+        profileRatings={profileRatings}
         badges={badges}
       />
     );
