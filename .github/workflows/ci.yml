@@ -83,7 +83,8 @@ jobs:
       - run: npm run db:migrate
       - run: npm run check
       - run: npm test
-      - run: npm audit --omit=dev
+      - name: Audit production dependencies
+        run: node scripts/check-production-audit.ts
 
   build:
     needs: [plan]

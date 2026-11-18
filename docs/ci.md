@@ -113,6 +113,18 @@ closure and release acceptance need their own evidence.
 
 ## Local verification
 
+Run `node scripts/check-production-audit.ts` to reproduce the production audit
+gate. It prints the full `npm audit --omit=dev --json` report. The gate temporarily
+accepts [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf)
+only for the locked `next-intl@4.14.9` → `@parcel/watcher@2.6.0` →
+`picomatch@4.0.7` path. The watcher is used by next-intl's optional message
+extractor, which OCLR leaves disabled. OCLR extracts messages with its own
+`npm run i18n:extract` command. npm had no fixed picomatch release when the
+advisory failed [run 44229829469](https://github.com/OCLR-dev/OCLR-website/actions/runs/44229829469).
+Any other finding fails the gate. Remove the exception and restore the plain
+audit once the lockfile resolves the advisory. Review the exception before
+changing that dependency chain or enabling the next-intl extractor.
+
 Do not run these browser suites for routine development or agent verification:
 they are slow and belong to nightly/core CI or an explicitly requested browser
 check. Run them only when the change under test is browser behavior or a

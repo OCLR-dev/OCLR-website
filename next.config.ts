@@ -68,4 +68,5 @@ const config: NextConfig = {
     ];
   },
 };
+// Review the watcher audit exception in docs/ci.md before enabling extraction.
 export default createNextIntlPlugin()(config);
