@@ -1,4 +1,6 @@
 import { PlayerEditionView } from "@/components/player-edition-view";
+import { LiruProfileCollection } from "@/components/liru-profile-collection";
+import { readLiruCollection } from "@/lib/liru-collection";
 import { Avatar } from "@/components/avatar";
 import { CountryFlag } from "@/components/country-flag";
 import { PreviousUsernames } from "@/components/previous-usernames";
@@ -72,16 +74,15 @@ async function ProfileContent({
     if (!owner) notFound();
     redirect(`/players/${owner.osuId}${edition ? `?edition=${edition}` : ""}`);
   }
+  const viewer = remoteMode() ? null : await localBrowserUser();
   let data: Awaited<ReturnType<typeof frontendProfile>>;
   let publishedEditions: Awaited<ReturnType<typeof getPublicEditions>>;
   try {
     [data, publishedEditions] = await Promise.all([
-      (remoteMode() ? Promise.resolve(null) : localBrowserUser()).then((viewer) =>
-        frontendProfile(osuId, undefined, {
-          selfId: viewer?.osuId,
-          scheduleRefresh: after,
-        }),
-      ),
+      frontendProfile(osuId, undefined, {
+        selfId: viewer?.osuId,
+        scheduleRefresh: after,
+      }),
       getPublicEditions(),
     ]);
   } catch (e) {
@@ -170,41 +171,47 @@ async function ProfileContent({
     data.bws && participation.length && !remoteMode()
       ? getOtrRating(data.identity.osuId)
       : null;
-  const [competition, mapPerformance, leaderboard, ratingsByEdition] =
-    await Promise.all([
-      participation.length ? playerCompetitionRecord(participation) : null,
-      participation.length ? playerMapPerformance(participation) : null,
-      participation.length
-        ? publicPlayerMra(Number(osuId)).catch(() => null)
-        : Promise.resolve(null),
-      Promise.all(
-        selectableEditions.map(async (entry) => {
-          const playerId = Number(osuId);
-          const rows = (await publicRoundRatings(entry.editionSlug))
-            .filter((rating) =>
-              rating.report.players.some(
+  const [
+    competition,
+    mapPerformance,
+    leaderboard,
+    ratingsByEdition,
+    liruCards,
+  ] = await Promise.all([
+    participation.length ? playerCompetitionRecord(participation) : null,
+    participation.length ? playerMapPerformance(participation) : null,
+    participation.length
+      ? publicPlayerMra(Number(osuId)).catch(() => null)
+      : Promise.resolve(null),
+    Promise.all(
+      selectableEditions.map(async (entry) => {
+        const playerId = Number(osuId);
+        const rows = (await publicRoundRatings(entry.editionSlug))
+          .filter((rating) =>
+            rating.report.players.some((person) => person.userId === playerId),
+          )
+          .map((rating) => ({
+            ...rating,
+            report: {
+              ...rating.report,
+              players: rating.report.players.filter(
                 (person) => person.userId === playerId,
               ),
-            )
-            .map((rating) => ({
-              ...rating,
-              report: {
-                ...rating.report,
-                players: rating.report.players.filter(
-                  (person) => person.userId === playerId,
-                ),
-              },
-            }));
-          return [entry.editionSlug, rows] as const;
-        }),
-      ).then(
-        (entries) =>
-          Object.fromEntries(entries) as Record<
-            string,
-            Awaited<ReturnType<typeof publicRoundRatings>>
-          >,
-      ),
-    ]);
+            },
+          }));
+        return [entry.editionSlug, rows] as const;
+      }),
+    ).then(
+      (entries) =>
+        Object.fromEntries(entries) as Record<
+          string,
+          Awaited<ReturnType<typeof publicRoundRatings>>
+        >,
+    ),
+    !remoteMode() && process.env.DATABASE_URL
+      ? readLiruCollection(data.identity.osuId, tr)
+      : null,
+  ]);
 
   const mra = leaderboard?.mra ?? null;
 
@@ -295,6 +302,12 @@ async function ProfileContent({
       initial={edition}
       snapshot={snapshot}
       heading={heading}
+      liruCollection={
+        liruCards &&
+        (liruCards.length > 0 || viewer?.osuId === data.identity.osuId) ? (
+          <LiruProfileCollection key={data.identity.osuId} cards={liruCards} />
+        ) : null
+      }
       bws={data.bws}
       otrRating={await otrRating}
       bwsByEdition={bwsByEdition}

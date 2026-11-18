@@ -1,5 +1,6 @@
 import { useId, type Ref } from "react";
 import type { WikiGalleryFigure } from "@/lib/wiki-articles";
+import "./wiki-gallery-card.css";
 
 export const galleryCardSize = { width: 1024, height: 1536 };
 export const galleryCardPortrait = { x: 124, y: 132, width: 776, height: 1164 };

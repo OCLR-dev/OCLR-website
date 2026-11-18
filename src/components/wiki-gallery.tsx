@@ -1,13 +1,9 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useRef, useState } from "react";
-import { useAppTranslations } from "@/i18n/shared";
+import { useState } from "react";
 import type { WikiGalleryFigure } from "@/lib/wiki-articles";
 import { EmojiReactions } from "./player-reactions";
-import { WikiGalleryCard } from "./wiki-gallery-card";
-
-const WikiGalleryLightbox = dynamic(() => import("./wiki-gallery-lightbox"));
+import { WikiGalleryPreview } from "./wiki-gallery-preview";
 
 export function WikiGallery({
   figures,
@@ -18,12 +14,8 @@ export function WikiGallery({
   initialIndex: number;
   showAnotherLabel: string;
 }) {
-  const tr = useAppTranslations();
   const [index, setIndex] = useState(initialIndex);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const cardRef = useRef<SVGSVGElement>(null);
   const figure = figures[index];
-  const enlargeLabel = tr("Click to enlarge");
 
   function showAnother() {
     // Draw from one fewer slot, then skip the currently displayed index.
@@ -34,31 +26,7 @@ export function WikiGallery({
   return (
     <div className="wiki-gallery">
       <figure>
-        <a
-          className="wiki-gallery-preview"
-          href={figure.src}
-          target="_blank"
-          rel="noreferrer"
-          aria-haspopup="dialog"
-          aria-label={`${enlargeLabel}: ${figure.caption} (${figure.rarity})`}
-          onClick={(event) => {
-            if (
-              event.metaKey ||
-              event.ctrlKey ||
-              event.shiftKey ||
-              event.altKey
-            )
-              return;
-            event.preventDefault();
-            event.currentTarget.focus({ preventScroll: true });
-            setPreviewOpen(true);
-          }}
-        >
-          <WikiGalleryCard figure={figure} cardRef={cardRef} />
-          <span className="wiki-gallery-preview-hint" aria-hidden="true">
-            {enlargeLabel}
-          </span>
-        </a>
+        <WikiGalleryPreview figure={figure} showHint />
         <figcaption>
           <span className="sr-only" aria-live="polite">
             {figure.caption} ({figure.rarity})
@@ -94,13 +62,6 @@ export function WikiGallery({
           <span>{showAnotherLabel}</span>
         </button>
       </div>
-      {previewOpen && (
-        <WikiGalleryLightbox
-          figure={figure}
-          cardRef={cardRef}
-          close={() => setPreviewOpen(false)}
-        />
-      )}
     </div>
   );
 }

@@ -154,50 +154,6 @@
   justify-content: center;
   margin-block-start: 0.65rem;
 }
-.wiki-gallery-preview {
-  cursor: zoom-in;
-  display: block;
-  border-radius: 16px;
-  background: transparent;
-  outline-offset: 4px;
-  text-align: center;
-}
-.wiki-gallery-card {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: inherit;
-  transition: box-shadow 180ms ease;
-}
-@media (prefers-reduced-motion: reduce) {
-  .wiki-gallery-card {
-    transition: none;
-  }
-}
-.wiki-gallery-preview-hint {
-  display: block;
-  margin-block-start: 0.5rem;
-  color: var(--site-muted);
-  font-size: var(--text-support);
-}
-.wiki-page .information-document .wiki-gallery-preview:hover {
-  text-decoration: none;
-}
-.wiki-gallery-preview:focus-visible {
-  outline: 2px solid var(--site-accent);
-}
-.wiki-gallery-preview:focus-visible .wiki-gallery-card {
-  box-shadow: 0 0 1.3rem color-mix(in srgb, currentColor 62%, transparent);
-}
-@media (hover: hover) {
-  .wiki-gallery-preview:not(:is(:hover, :focus-visible))
-    .wiki-gallery-preview-hint {
-    visibility: hidden;
-  }
-  .wiki-gallery-preview:hover .wiki-gallery-card {
-    box-shadow: 0 0 1.3rem color-mix(in srgb, currentColor 62%, transparent);
-  }
-}
 .wiki-source {
   margin-top: 3rem;
   padding-top: 1rem;

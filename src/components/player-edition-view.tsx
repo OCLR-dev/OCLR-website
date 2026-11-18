@@ -39,6 +39,7 @@ export function PlayerEditionView({
   initial,
   snapshot,
   heading,
+  liruCollection,
   bws,
   otrRating,
   bwsByEdition,
@@ -56,6 +57,7 @@ export function PlayerEditionView({
   initial: string | null;
   snapshot: ProfileSnapshot | null;
   heading: ReactNode;
+  liruCollection?: ReactNode;
   bws?: BwsData | null;
   otrRating: OtrRating | null;
   bwsByEdition: Record<string, BwsData | null>;
@@ -184,6 +186,7 @@ export function PlayerEditionView({
             </p>
           </>
         )}
+        {!selected && liruCollection}
         {selected && ratings && <RoundRatings data={ratings} slug={selected} />}
         {(timeline.marks.length > 0 || timeline.spans.length > 0) && (
           <PlayerTimelineView timeline={timeline} />

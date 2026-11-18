@@ -20,10 +20,10 @@ async function loadStatus(signal?: AbortSignal) {
 }
 
 export function LiruGacha({
-  signedIn,
+  profileHref,
   figures,
 }: {
-  signedIn: boolean;
+  profileHref?: string;
   figures: WikiGalleryFigure[];
 }) {
   const tr = useAppTranslations();
@@ -32,7 +32,7 @@ export function LiruGacha({
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!signedIn) return;
+    if (!profileHref) return;
     const abort = new AbortController();
     void loadStatus(abort.signal).then(
       (result) => {
@@ -43,7 +43,7 @@ export function LiruGacha({
       },
     );
     return () => abort.abort();
-  }, [signedIn]);
+  }, [profileHref]);
 
   async function act(action?: LiruGachaAction["action"]) {
     if (busy) return;
@@ -93,7 +93,7 @@ export function LiruGacha({
           <p>{tr("The tenth card is SR or higher: UR 4%, SSR 6%, SR 90%.")}</p>
         </div>
         <div className="liru-gacha-action" aria-busy={busy}>
-          {!signedIn ? (
+          {!profileHref ? (
             <Link className="text-link" href="/login">
               {tr("Sign in with osu!")}
             </Link>
@@ -123,6 +123,11 @@ export function LiruGacha({
                 ? tr("One ten-pull available.")
                 : ""}
           </span>
+          {profileHref && (
+            <Link className="text-link" href={profileHref} prefetch={false}>
+              {tr("OCLR profile")} →
+            </Link>
+          )}
           {error && (
             <span role="alert">
               {tr("This request could not be completed. Please try again.")}

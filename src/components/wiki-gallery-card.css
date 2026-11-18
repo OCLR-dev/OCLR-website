@@ -1,0 +1,12 @@
+.wiki-gallery-card {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: inherit;
+  transition: box-shadow 180ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wiki-gallery-card {
+    transition: none;
+  }
+}

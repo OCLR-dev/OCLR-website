@@ -1,3 +1,5 @@
+import { english } from "../../src/i18n/translate";
+import { readLiruCollection } from "../../src/lib/liru-collection";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { closeDb, db } from "../../src/db";
@@ -117,6 +119,50 @@ describe.skipIf(!url)("Liru daily draw persistence", () => {
       cards: null,
     });
     expect((await post(draw)).status).toBe(409);
+  });
+
+  it("collects cards from prior draws without exposing dates or mixing accounts", async () => {
+    const maid = {
+      src: "/mascot/liru/gallery/elegant-maid.webp",
+      rarity: "SSR",
+    } as const;
+    const punk = {
+      src: "/mascot/liru/gallery/purple-punk.webp",
+      rarity: "SR",
+    } as const;
+    const earlierRarity = { ...punk, rarity: "UR" } as const;
+    await db()
+      .insert(liruDailyGacha)
+      .values([
+        {
+          osuId: other.osuId,
+          day: "2026-01-01",
+          drawnAt: new Date("2026-01-01T03:00:00Z"),
+          cards: Array(10).fill(maid),
+        },
+        {
+          osuId: other.osuId,
+          day: "2026-01-02",
+          drawnAt: new Date("2026-01-02T03:00:00Z"),
+          cards: [...Array(8).fill(maid), punk, earlierRarity],
+        },
+        { osuId: other.osuId, day: "2026-01-03" },
+      ]);
+    const cards = await readLiruCollection(other.osuId, english);
+    expect(
+      cards.map(({ figure, count }) => ({
+        src: figure.src,
+        rarity: figure.rarity,
+        count,
+      })),
+    ).toEqual([
+      { ...earlierRarity, count: 1 },
+      { ...maid, count: 18 },
+      { ...punk, count: 1 },
+    ]);
+    expect(cards[1].figure.caption).toBe("Elegant maid outfit");
+    expect(Object.keys(cards[1]).sort()).toEqual(["count", "figure"]);
+    expect(await readLiruCollection(321099, english)).toEqual([]);
   });
 });
 

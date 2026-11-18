@@ -74,7 +74,11 @@ export async function WikiDocument({ article }: { article: WikiArticle }) {
               {!remote && (
                 <LiruGacha
                   key={viewer?.osuId}
-                  signedIn={!!viewer}
+                  profileHref={
+                    viewer
+                      ? `/players/${viewer.osuId}#liru-collection`
+                      : undefined
+                  }
                   figures={article.gallery}
                 />
               )}
