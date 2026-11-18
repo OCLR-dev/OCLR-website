@@ -40217,6 +40217,202 @@
         }
       }
     },
+    "/api/wiki/liru-gallery/gacha": {
+      "post": {
+        "operationId": "updateLiruGacha",
+        "summary": "Check in or spend today's Liru ten-pull",
+        "description": "Use the day returned by GET on the same path. Each account can check in once per UTC+8 calendar day and spend that day's reward once. Repeating an action for the current day returns the existing state and any saved result. On the last card an R roll is upgraded to SR.",
+        "security": [
+          {
+            "browserSession": []
+          },
+          {
+            "localBrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "Must match the configured site origin.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-body-bytes": 1024,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "day": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "check-in",
+                      "draw"
+                    ]
+                  }
+                },
+                "required": [
+                  "day",
+                  "action"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The account's saved check-in and draw result for today.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "day": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "checkedIn": {
+                      "type": "boolean"
+                    },
+                    "cards": {
+                      "anyOf": [
+                        {
+                          "minItems": 10,
+                          "maxItems": 10,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "src": {
+                                "type": "string"
+                              },
+                              "rarity": {
+                                "type": "string",
+                                "enum": [
+                                  "UR",
+                                  "SSR",
+                                  "SR",
+                                  "R"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "src",
+                              "rarity"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "day",
+                    "checkedIn",
+                    "cards"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An active browser session is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin or authentication channel rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The day changed or the daily check-in is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The request is too large.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Send JSON data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Site origin configuration is unavailable or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrowserWriteError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/desktop/v1/auth/requests": {
       "post": {
         "operationId": "requestDesktopAuthorization",

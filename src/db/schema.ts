@@ -1541,6 +1541,33 @@ export const playerMessages = pgTable(
   ],
 );
 
+// A private, per-account daily receipt. A saved roll is also the spend marker.
+export const liruDailyGacha = pgTable(
+  "liru_daily_gacha",
+  {
+    osuId: bigint("osu_id", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId, { onDelete: "cascade" }),
+    day: date("day").notNull(),
+    checkedInAt: timestamp("checked_in_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    drawnAt: timestamp("drawn_at", { withTimezone: true }),
+    cards: jsonb("cards").$type<import("@/lib/liru-gacha-model").LiruGachaCard[]>(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.osuId, t.day] }),
+    check(
+      "liru_daily_gacha_draw_receipt",
+      sql`CASE WHEN ${t.cards} IS NULL THEN ${t.drawnAt} IS NULL
+          WHEN jsonb_typeof(${t.cards}) = 'array' THEN
+            ${t.drawnAt} IS NOT NULL AND jsonb_array_length(${t.cards}) = 10
+            AND COALESCE(${t.cards}->9->>'rarity' IN ('UR', 'SSR', 'SR'), FALSE)
+          ELSE FALSE END`,
+    ),
+  ],
+);
+
 // The gallery's public messages are independent of tournament registrations.
 export const liruGalleryMessages = pgTable(
   "liru_gallery_messages",

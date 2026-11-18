@@ -228,3 +228,126 @@
     padding: 0.6rem 0.5rem;
   }
 }
+
+.themed-site .wiki-page .information-document > .liru-gacha {
+  width: 100%;
+  margin: 0 auto clamp(1.75rem, 5vw, 3.5rem);
+  padding: clamp(1rem, 4vw, 2rem);
+  border: 1px solid var(--site-border);
+  border-block-start: 2px solid var(--site-accent);
+  border-radius: 0.75rem;
+  background: var(--site-surface);
+}
+
+.liru-gacha-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.themed-site .wiki-page .information-document .liru-gacha h2 {
+  --document-font-size: var(--text-heading);
+  --document-line-height: 1.4;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.themed-site .wiki-page .information-document .liru-gacha p {
+  margin-block: 0.45rem;
+  color: var(--site-muted);
+}
+
+.wiki-page .information-document .liru-gacha-odds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.themed-site
+  .wiki-page
+  .information-document
+  .liru-gacha
+  :is(.liru-gacha-odds, .liru-gacha-results)
+  > li {
+  margin: 0;
+  padding: 0;
+}
+
+.liru-gacha-odds li {
+  border-block-end: 2px solid var(--draw-accent, var(--site-border));
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.liru-gacha-odds [data-rarity="UR"] {
+  --draw-accent: #9861ca;
+}
+
+.liru-gacha-odds [data-rarity="SSR"] {
+  --draw-accent: #ba802f;
+}
+
+.liru-gacha-odds [data-rarity="SR"] {
+  --draw-accent: #5b91bc;
+}
+
+.liru-gacha-action {
+  display: grid;
+  justify-items: start;
+  gap: 0.45rem;
+  max-inline-size: 14rem;
+}
+
+.liru-gacha-action > span:empty {
+  display: none;
+}
+
+.wiki-page .information-document .liru-gacha-results {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.liru-gacha-results .wiki-gallery-card {
+  animation: liru-draw-reveal 220ms ease-out both;
+}
+
+.liru-gacha-results li:last-child .wiki-gallery-card {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 3px;
+  animation-delay: 100ms;
+}
+
+@keyframes liru-draw-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+}
+
+@media (max-width: 700px) {
+  .liru-gacha-header {
+    grid-template-columns: 1fr;
+  }
+
+  .wiki-page .information-document .liru-gacha-results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .liru-gacha-action {
+    max-inline-size: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liru-gacha-results .wiki-gallery-card {
+    animation: none;
+  }
+}

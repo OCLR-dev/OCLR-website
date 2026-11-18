@@ -592,7 +592,7 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "wisteria-messenger": "SR",
 };
 
-function liruGallery(tr: AppTranslator): WikiArticle {
+export function liruGallery(tr: AppTranslator): WikiArticle {
   const outfits = [
     [
       "elegant-maid",

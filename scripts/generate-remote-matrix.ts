@@ -180,6 +180,8 @@ const rows = files.map((file) => {
     );
   const denied =
     desktopLiveOnly ||
+    file === "src/app/api/wiki/liru-gallery/gacha/route.ts" ||
+    file === "src/components/liru-gacha.tsx" ||
     /\/tournaments\/\[edition\]\/player\//.test(file) ||
     /\/components\/player-(?:practice|timetable|workspace-save)\.tsx?$/.test(
       file,

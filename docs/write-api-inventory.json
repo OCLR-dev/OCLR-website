@@ -1209,6 +1209,24 @@
     }
   },
   {
+    "route": "/api/wiki/liru-gallery/gacha",
+    "source": "src/app/api/wiki/liru-gallery/gacha/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "updateLiruGacha",
+        "access": "browser",
+        "actions": [
+          "check-in",
+          "draw"
+        ],
+        "consumers": [
+          "src/components/liru-gacha.tsx"
+        ]
+      }
+    }
+  },
+  {
     "route": "/api/wiki/liru-gallery/messages/{messageId}",
     "source": "src/app/api/wiki/liru-gallery/messages/[messageId]/route.ts",
     "methods": {

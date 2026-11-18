@@ -11,6 +11,7 @@ import {
   type WikiText,
 } from "@/lib/wiki-articles";
 import { WikiGallery } from "./wiki-gallery";
+import { LiruGacha } from "./liru-gacha";
 import { SignedMessageBoard } from "./player-message-board";
 
 function WikiTextContent({ text }: { text: WikiText }) {
@@ -70,6 +71,13 @@ export async function WikiDocument({ article }: { article: WikiArticle }) {
           )}
           {!!article.gallery?.length && (
             <>
+              {!remote && (
+                <LiruGacha
+                  key={viewer?.osuId}
+                  signedIn={!!viewer}
+                  figures={article.gallery}
+                />
+              )}
               <WikiGallery
                 figures={article.gallery}
                 initialIndex={randomInt(article.gallery.length)}

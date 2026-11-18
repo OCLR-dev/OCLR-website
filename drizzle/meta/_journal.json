@@ -743,6 +743,13 @@
       "when": 1794904965259,
       "tag": "0105_sip_rating_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1794979836516,
+      "tag": "0106_liru_daily_gacha",
+      "breakpoints": true
     }
   ]
 }
