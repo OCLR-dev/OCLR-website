@@ -1010,6 +1010,237 @@ function liruGallery(tr: AppTranslator): WikiArticle {
         "Liru wears a cherry red apron with a cherry motif on its pocket and holds a paintbrush and a wooden palette.",
       ),
     ],
+    [
+      "mint-lily-cape",
+      tr("Mint lily cape"),
+      tr(
+        "Liru wears a mint cape over a cream dress and holds a bouquet of lily of the valley flowers.",
+      ),
+    ],
+    [
+      "blackberry-bow-dress",
+      tr("Blackberry bow dress"),
+      tr(
+        "Liru wears a blackberry purple dress with a pink bow and carries a matching handbag.",
+      ),
+    ],
+    [
+      "midnight-moon-dress",
+      tr("Midnight moon dress"),
+      tr(
+        "Liru wears a midnight blue dress with crescent decorations and holds a silver moon clasp purse.",
+      ),
+    ],
+    [
+      "peach-painter",
+      tr("Peach painter"),
+      tr(
+        "Liru wears a peach apron dress and holds a paintbrush and a pastel palette.",
+      ),
+    ],
+    [
+      "slate-academy-shorts",
+      tr("Slate academy outfit"),
+      tr(
+        "Liru wears a slate blue blazer, cream shorts and white socks while holding a book with a sprout on its cover.",
+      ),
+    ],
+    [
+      "cream-blossom-dress",
+      tr("Cream blossom dress"),
+      tr(
+        "Liru wears a cream dress with pink trim and carries a blossom handbag with a pearl handle.",
+      ),
+    ],
+    [
+      "paper-boat-sailor",
+      tr("Paper boat sailor"),
+      tr(
+        "Liru wears a sailor blouse and navy skirt, holding a folded paper boat in one hand.",
+      ),
+    ],
+    [
+      "mint-argyle-academy",
+      tr("Mint argyle academy"),
+      tr(
+        "Liru waves while wearing a mint argyle vest, dark green shorts and ivory ribbed socks.",
+      ),
+    ],
+    [
+      "berry-acorn-cape",
+      tr("Berry acorn cape"),
+      tr(
+        "Liru wears a berry red cape fastened with an acorn clasp over a belted cream dress.",
+      ),
+    ],
+    [
+      "misty-moon-clutch",
+      tr("Misty blue moon dress"),
+      tr(
+        "Liru wears a misty blue dress with star and moon details and holds a silver crescent purse.",
+      ),
+    ],
+    [
+      "berry-knit-shorts",
+      tr("Berry knit casual outfit"),
+      tr(
+        "Liru makes a peace sign while wearing a berry purple sweater, cream shorts and matching ribbed socks.",
+      ),
+    ],
+    [
+      "cherry-academy-blazer",
+      tr("Cherry academy blazer"),
+      tr(
+        "Liru wears a cherry red blazer with a lavender bow and holds a cream book against her pleated skirt.",
+      ),
+    ],
+    [
+      "sea-mist-bottle",
+      tr("Sea mist collector"),
+      tr(
+        "Liru wears a pale blue cape over a navy dress and holds a glass bottle containing a seashell.",
+      ),
+    ],
+    [
+      "cream-petal-tea",
+      tr("Cream petal tea dress"),
+      tr(
+        "Liru holds a floral teacup while wearing a cream petal skirt with a powder blue underskirt and sash.",
+      ),
+    ],
+    [
+      "cherry-newspaper",
+      tr("Cherry newspaper outfit"),
+      tr(
+        "Liru carries a rolled newspaper and wears a cherry red shirt with brown pleated shorts.",
+      ),
+    ],
+    [
+      "berry-knit-bunny",
+      tr("Berry knit bunny"),
+      tr(
+        "Liru hugs a cream rabbit plush while wearing a berry purple knitted vest and cropped cream trousers.",
+      ),
+    ],
+    [
+      "apricot-lantern",
+      tr("Apricot lantern traveler"),
+      tr(
+        "Liru wears an apricot jacket over a cream dress and carries a brass lantern.",
+      ),
+    ],
+    [
+      "mint-ice-cream",
+      tr("Mint ice cream dress"),
+      tr(
+        "Liru holds an ice cream cone and wears a mint dress with a scalloped hem and an ice cream pocket motif.",
+      ),
+    ],
+    [
+      "wisteria-messenger",
+      tr("Wisteria messenger"),
+      tr(
+        "Liru holds a sealed envelope and wears a lavender dress with a cream cape and a wisteria messenger bag.",
+      ),
+    ],
+    [
+      "honey-lemon-picnic",
+      tr("Honey lemon picnic"),
+      tr(
+        "Liru waves in a yellow gingham dress while carrying a wicker basket filled with lemons.",
+      ),
+    ],
+    [
+      "powder-blue-pottery",
+      tr("Powder blue pottery outfit"),
+      tr(
+        "Liru wears a powder blue romper with a cream apron and holds a seafoam green cup with a white flower.",
+      ),
+    ],
+    [
+      "moonwhite-astrologer",
+      tr("Moonwhite astrologer"),
+      tr(
+        "Liru holds a golden astrolabe and wears a moonwhite robe with gold stars over a lavender dress.",
+      ),
+    ],
+    [
+      "berry-rose-side-bow",
+      tr("Berry rose side-bow dress"),
+      tr(
+        "Liru wears a berry rose dress with a cream side bow and carries a flower-shaped handbag.",
+      ),
+    ],
+    [
+      "cream-tulip-gardener",
+      tr("Cream tulip gardener"),
+      tr(
+        "Liru wears cream short overalls over a green shirt and holds a pink tulip and watering can.",
+      ),
+    ],
+    [
+      "starry-evening-reader",
+      tr("Starry evening reader"),
+      tr(
+        "Liru wears a star blue shirt dress and carries a star-shaped lantern and a book with a crescent moon.",
+      ),
+    ],
+    [
+      "strawberry-cream-baker",
+      tr("Strawberry cream baker"),
+      tr(
+        "Liru wears a pink dress with a cream strawberry apron and presents a slice of strawberry cream cake.",
+      ),
+    ],
+    [
+      "matcha-camera-traveler",
+      tr("Matcha camera traveler"),
+      tr(
+        "Liru wears a matcha green jacket with cream shorts and carries a camera on a neck strap.",
+      ),
+    ],
+    [
+      "sea-salt-summer",
+      tr("Sea salt summer outfit"),
+      tr(
+        "Liru wears a sea salt blue sleeveless top and a long cream skirt, carrying a round woven handbag.",
+      ),
+    ],
+    [
+      "caramel-pinafore-scholar",
+      tr("Caramel pinafore scholar"),
+      tr(
+        "Liru wears round glasses and a caramel pinafore over a cream blouse, holding a book with a golden leaf design.",
+      ),
+    ],
+    [
+      "pastel-tennis",
+      tr("Pastel tennis outfit"),
+      tr(
+        "Liru wears a pink polo shirt and cream pleated skirt while holding a tennis ball and a mint green racket.",
+      ),
+    ],
+    [
+      "lavender-ballet-dress",
+      tr("Lavender ballet dress"),
+      tr(
+        "Liru waves in a lavender ballet-inspired dress with a cream waist bow and a layered tulle skirt.",
+      ),
+    ],
+    [
+      "cherry-denim",
+      tr("Cherry denim day"),
+      tr(
+        "Liru wears a red shirt and denim short overalls with a cherry pocket motif, holding a cream instant camera.",
+      ),
+    ],
+    [
+      "cream-knit-fox",
+      tr("Cream knit fox"),
+      tr(
+        "Liru wears a cream cable-knit dress and brown ankle boots while hugging a small fox plush.",
+      ),
+    ],
   ];
   return {
     slug: "liru-gallery",

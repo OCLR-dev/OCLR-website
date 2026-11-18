@@ -133,8 +133,8 @@ it("links the Liru gallery and includes every portrait at both sizes", () => {
   const profile = articles.find((article) => article.slug === "liru")!;
   const gallery = articles.find((article) => article.slug === "liru-gallery")!;
   expect(wikiHref(profile.related!.slug)).toBe(wikiHref(gallery.slug));
-  expect(gallery.gallery).toHaveLength(70);
-  expect(new Set(gallery.gallery!.map((figure) => figure.src)).size).toBe(70);
+  expect(gallery.gallery).toHaveLength(103);
+  expect(new Set(gallery.gallery!.map((figure) => figure.src)).size).toBe(103);
   for (const figure of gallery.gallery!) {
     expect(webpSize(`public${figure.src}`)).toEqual({
       width: 1024,
