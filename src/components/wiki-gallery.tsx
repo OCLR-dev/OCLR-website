@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { WikiGalleryFigure } from "@/lib/wiki-articles";
 import { EmojiReactions } from "./player-reactions";
+import { WikiGalleryCard } from "./wiki-gallery-card";
 
 const WikiGalleryLightbox = dynamic(() => import("./wiki-gallery-lightbox"));
 
@@ -21,6 +21,7 @@ export function WikiGallery({
   const tr = useAppTranslations();
   const [index, setIndex] = useState(initialIndex);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const cardRef = useRef<SVGSVGElement>(null);
   const figure = figures[index];
   const enlargeLabel = tr("Click to enlarge");
 
@@ -53,25 +54,7 @@ export function WikiGallery({
             setPreviewOpen(true);
           }}
         >
-          <span className="wiki-gallery-card" data-rarity={figure.rarity}>
-            <span className="wiki-gallery-card-rarity" aria-hidden="true">
-              {figure.rarity}
-            </span>
-            <span className="wiki-gallery-card-art">
-              <Image
-                key={figure.src}
-                src={figure.previewSrc}
-                alt={figure.alt}
-                width={figure.width}
-                height={figure.height}
-                loading="eager"
-                unoptimized
-              />
-            </span>
-            <span className="wiki-gallery-card-name" aria-hidden="true">
-              {figure.caption}
-            </span>
-          </span>
+          <WikiGalleryCard figure={figure} cardRef={cardRef} />
           <span className="wiki-gallery-preview-hint" aria-hidden="true">
             {enlargeLabel}
           </span>
@@ -114,6 +97,7 @@ export function WikiGallery({
       {previewOpen && (
         <WikiGalleryLightbox
           figure={figure}
+          cardRef={cardRef}
           close={() => setPreviewOpen(false)}
         />
       )}

@@ -1,9 +1,10 @@
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
+import sharp from "sharp";
 
 // Real lightbox interactions need a browser: focus restoration, zoom gestures,
 // native downloads, and reopening the newly shuffled image. No DB workflow.
-test("previews in place, zooms, restores focus and downloads the current original", async ({
+test("previews in place, restores focus and downloads the current card and artwork", async ({
   page,
   isMobile,
   context,
@@ -39,12 +40,32 @@ test("previews in place, zooms, restores focus and downloads the current origina
     "/mascot/liru/gallery/purple-punk.webp",
   );
   const downloadPromise = page.waitForEvent("download");
-  await nextDialog.getByRole("button", { name: "Download" }).click();
+  await nextDialog
+    .getByRole("link", { name: "Download transparent artwork" })
+    .click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe("Purple punk streetwear.webp");
   expect(await readFile((await download.path())!)).toEqual(
     await readFile("public/mascot/liru/gallery/purple-punk.webp"),
   );
+  const cardPromise = page.waitForEvent("download");
+  await nextDialog.getByRole("button", { name: "Download card" }).click();
+  const card = await cardPromise;
+  expect(card.suggestedFilename()).toBe("Purple punk streetwear - SR.png");
+  const cardImage = sharp((await card.path())!);
+  await expect(cardImage.metadata()).resolves.toMatchObject({
+    format: "png",
+    width: 1024,
+    height: 1536,
+  });
+  const { data, info } = await cardImage
+    .extract({ left: 70, top: 80, width: 1, height: 1 })
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  expect(info.channels).toBe(4);
+  // This point is outside the portrait area but inside the blue SR frame.
+  expect(data[3]).toBe(255);
+  expect(data[2]).toBeGreaterThan(data[0]);
   await nextDialog.getByRole("button", { name: "Close" }).click();
   await expect(nextDialog).toHaveCount(0);
   await expect(trigger).toBeFocused();

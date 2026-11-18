@@ -26,3 +26,30 @@
   outline: 2px solid var(--site-focus);
   outline-offset: -4px;
 }
+
+.wiki-gallery-lightbox .yarl__toolbar {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-inline-size: calc(100% - env(safe-area-inset-right, 0px));
+}
+
+.wiki-gallery-lightbox-downloads {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.wiki-gallery-lightbox-downloads .yarl__button {
+  min-height: 44px;
+  padding-inline: 0.65rem;
+  font-size: var(--text-support);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.wiki-gallery-lightbox-downloads [role="alert"] {
+  flex-basis: 100%;
+  padding: 0.35rem 0.65rem;
+  font-size: var(--text-support);
+}
