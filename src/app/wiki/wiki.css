@@ -199,16 +199,29 @@
 
 .wiki-gallery-comments .event-message-meta {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.25rem 1rem;
+  gap: 0.5rem 1rem;
   padding-block-end: 0.625rem;
   border-block-end: 1px solid var(--gallery-trim);
 }
 
 .wiki-gallery-comments .event-message-meta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-inline-size: 0;
   color: var(--gallery-gilt);
+}
+
+.wiki-gallery-comments .event-message-meta .avatar {
+  inline-size: 2rem;
+  block-size: 2rem;
+  border: 1px solid var(--gallery-trim);
+  font-size: var(--text-label);
+  font-weight: 700;
+  line-height: 1;
 }
 
 .wiki-gallery-comments .event-message-meta a:hover {

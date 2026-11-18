@@ -1,4 +1,5 @@
 "use client";
+import { Avatar } from "./avatar";
 import { LoadingRegion } from "./loading-region";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
@@ -515,6 +516,12 @@ export function SignedMessageBoard({
             const meta = (
               <>
                 <a href={`https://osu.ppy.sh/users/${message.authorId}`}>
+                  {showAll && (
+                    <Avatar
+                      osuId={message.authorId}
+                      username={message.author}
+                    />
+                  )}
                   <strong>{message.author}</strong>
                 </a>
                 <time className="small muted" dateTime={message.createdAt}>

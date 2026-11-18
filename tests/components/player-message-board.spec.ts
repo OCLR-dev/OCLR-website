@@ -60,12 +60,31 @@ test("gallery displays the full history and edits older messages in place", asyn
       : json(route, {}),
   );
 
+  await page.route("https://a.ppy.sh/*", (route) =>
+    route.request().url().endsWith(`/${oldest.authorId}`)
+      ? route.abort()
+      : route.fulfill({
+          contentType: "image/svg+xml",
+          body: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"/>',
+        }),
+  );
+
   await page.goto("/?gallery");
   const list = page.getByRole("region", { name: "Messages for Liru Gallery" });
   const rows = list.locator("> div");
   await expect(rows).toHaveCount(25);
   await expect(rows.first()).toContainText(history[0].text);
   await expect(rows.last()).toContainText(oldest.text);
+  const authorLink = rows
+    .first()
+    .getByRole("link", { name: history[0].author });
+  await expect(authorLink.locator("img")).toHaveAttribute(
+    "src",
+    `https://a.ppy.sh/${history[0].authorId}`,
+  );
+  await expect(authorLink.locator("img")).toHaveJSProperty("naturalWidth", 32);
+  await rows.last().scrollIntoViewIfNeeded();
+  await expect(rows.last().locator(".avatar")).toHaveText("Sy");
   await expect(
     page.getByRole("group", { name: "Message navigation" }),
   ).toHaveCount(0);
