@@ -188,37 +188,92 @@
 .themed-site .wiki-page .information-document > .liru-gacha {
   width: 100%;
   margin: 0 auto clamp(1.75rem, 5vw, 3.5rem);
-  padding: clamp(1rem, 4vw, 2rem);
-  border: 1px solid var(--site-border);
-  border-block-start: 2px solid var(--site-accent);
-  border-radius: 0.75rem;
-  background: var(--site-surface);
+  gap: 1rem;
 }
 
-.liru-gacha-header {
+.liru-gacha-stage {
+  --draw-ink: #fff6ff;
+  --draw-muted: #e3cfee;
+  --draw-gold: #ffe1a8;
+  position: relative;
+  isolation: isolate;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.68fr);
   align-items: center;
-  gap: 1.25rem;
+  gap: clamp(1rem, 3.5vw, 3rem);
+  overflow: hidden;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  border: 1px solid #ba89d6;
+  border-radius: 1rem;
+  background:
+    radial-gradient(ellipse at 76% 42%, #602c7c 0, transparent 46%),
+    radial-gradient(ellipse at 95% 5%, #b4587c70 0, transparent 52%),
+    linear-gradient(128deg, #1d122e 10%, #231238 62%, #140e2a);
+  color: var(--draw-ink);
+  box-shadow: 0 12px 32px #140b2b2e;
 }
 
-.themed-site .wiki-page .information-document .liru-gacha h2 {
-  --document-font-size: var(--text-heading);
-  --document-line-height: 1.4;
+.liru-gacha-stage::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 0.5rem;
+  z-index: -1;
+  border: 1px solid #edc0ff3b;
+  border-radius: calc(1rem - 0.5rem);
+}
+
+.liru-gacha-copy {
+  display: grid;
+  gap: 0.9rem;
+  min-inline-size: 0;
+  z-index: 1;
+}
+
+.themed-site .wiki-page .information-document .liru-gacha-copy h2 {
+  --document-font-size: clamp(2rem, 4vw, 3.25rem);
+  --document-line-height: 1.13;
   margin: 0;
   padding: 0;
   border: 0;
+  font-family: Georgia, var(--font-sans, system-ui), serif;
+  font-weight: 700;
+  color: var(--draw-ink);
 }
 
-.themed-site .wiki-page .information-document .liru-gacha p {
-  margin-block: 0.45rem;
-  color: var(--site-muted);
+.themed-site .wiki-page .information-document .liru-gacha-copy p {
+  --document-line-height: 1.55;
+  margin: 0;
+  text-wrap: pretty;
+  color: var(--draw-muted);
+}
+
+.themed-site
+  .wiki-page
+  .information-document
+  .liru-gacha-copy
+  .liru-gacha-pity {
+  --document-font-size: var(--text-support);
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  color: var(--draw-gold);
+}
+
+.liru-gacha-pity::before {
+  content: "";
+  flex: 0 0 0.4rem;
+  block-size: 0.4rem;
+  background: currentColor;
+  transform: rotate(45deg);
 }
 
 .wiki-page .information-document .liru-gacha-odds {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.35rem, 1.2vw, 0.75rem);
+  max-inline-size: 32rem;
+  margin-block: 0.25rem 0;
   padding: 0;
   list-style: none;
 }
@@ -234,76 +289,243 @@
 }
 
 .liru-gacha-odds li {
-  border-block-end: 2px solid var(--draw-accent, var(--site-border));
-  white-space: nowrap;
+  --document-line-height: 1.2;
+  --draw-accent: #b6cebf;
+  display: grid;
+  row-gap: 0.18rem;
+  justify-items: center;
+  align-content: center;
+  min-block-size: 4.3rem;
+  border: 1px solid color-mix(in srgb, var(--draw-accent), transparent 56%);
+  border-block-start: 2px solid var(--draw-accent);
+  border-radius: 0.5rem;
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--draw-accent), transparent 86%),
+      transparent 88%
+    ),
+    #1e132c;
+  color: var(--draw-accent);
+  font-weight: 750;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
+.liru-gacha-odds li strong {
+  color: var(--draw-ink);
+  font-size: clamp(0.95rem, 2vw, 1.25rem);
+}
+
 .liru-gacha-odds [data-rarity="UR"] {
-  --draw-accent: #9861ca;
+  --draw-accent: #e0adff;
 }
-
 .liru-gacha-odds [data-rarity="SSR"] {
-  --draw-accent: #ba802f;
+  --draw-accent: #ffd689;
 }
-
 .liru-gacha-odds [data-rarity="SR"] {
-  --draw-accent: #5b91bc;
+  --draw-accent: #a8d7fc;
 }
 
 .liru-gacha-action {
-  display: grid;
-  justify-items: start;
-  gap: 0.45rem;
-  max-inline-size: 14rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-block-start: 0.4rem;
 }
 
 .liru-gacha-action > span:empty {
   display: none;
 }
 
+.liru-gacha-status {
+  color: var(--draw-muted);
+  font-size: var(--text-support);
+}
+
+.themed-site .wiki-page .information-document .liru-gacha-action .text-link {
+  color: var(--draw-gold);
+}
+
+.themed-site
+  .wiki-page
+  .information-document
+  .liru-gacha-action
+  .liru-gacha-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 3rem;
+  min-inline-size: 7.25rem;
+  max-inline-size: 100%;
+  padding: 0.6rem 1.45rem;
+  border: 1px solid #ffedc7;
+  border-radius: 0.55rem;
+  background: linear-gradient(115deg, #ffe5a7, #efb985 58%, #f1c2d4);
+  color: #371b31;
+  box-shadow: 0 0 1.4rem #f6b28754;
+  font-weight: 800;
+  text-decoration: none;
+  text-align: center;
+}
+
+.themed-site
+  .wiki-page
+  .information-document
+  .liru-gacha-action
+  .liru-gacha-primary:not(:disabled):hover {
+  background: linear-gradient(115deg, #fff2cc, #f6c998 58%, #f9d3e2);
+}
+
+.liru-gacha-stage :is(button, a):focus-visible {
+  outline: 2px solid var(--draw-gold);
+  outline-offset: 3px;
+}
+
+.liru-gacha-action > [role="alert"] {
+  flex-basis: 100%;
+  color: #ffd5e4;
+}
+
+.liru-gacha-art {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  min-inline-size: 0;
+  min-block-size: clamp(16rem, 29vw, 22rem);
+  pointer-events: none;
+}
+
+.liru-gacha-orbit {
+  position: absolute;
+  inset: 4% 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 12% 30%, #fff4d4 0 2px, transparent 3px),
+    radial-gradient(circle at 83% 14%, #f6cafc 0 2px, transparent 3px),
+    radial-gradient(circle at 91% 69%, #fff4d4 0 2px, transparent 3px),
+    radial-gradient(circle at 28% 84%, #e6a5ff 0 2px, transparent 3px),
+    radial-gradient(ellipse at center, #ed9eff32, transparent 70%);
+}
+
+.liru-gacha-orbit::before,
+.liru-gacha-orbit::after {
+  content: "";
+  position: absolute;
+  inset: 13% 0;
+  border: 1px solid #ecc9ff64;
+  border-radius: 50%;
+  transform: rotate(-24deg);
+}
+
+.liru-gacha-orbit::after {
+  inset: 18% 6%;
+  border-color: #ffdaa766;
+  transform: rotate(22deg);
+}
+
+.liru-gacha-featured-card,
+.liru-gacha-card-back {
+  inline-size: clamp(7rem, 14vw, 11rem);
+  aspect-ratio: 2 / 3;
+}
+
+.liru-gacha-featured-card {
+  position: relative;
+  border-radius: 0.65rem;
+  transform: rotate(4deg);
+  box-shadow:
+    0 1rem 2rem #11071aa0,
+    0 0 2rem #da9bfc7a;
+  animation: liru-stage-enter 520ms ease-out both;
+}
+
+.liru-gacha-card-back {
+  position: absolute;
+  border: 1px solid #edc383c0;
+  border-radius: 0.65rem;
+  background:
+    radial-gradient(ellipse at center, #9b5d9657, transparent 62%),
+    repeating-linear-gradient(45deg, transparent 0 9px, #e8b8d714 9px 10px),
+    linear-gradient(140deg, #4b235f, #231436);
+  box-shadow:
+    inset 0 0 0 0.24rem #291739,
+    inset 0 0 0 0.3rem #e9b8b86b;
+}
+
+.liru-gacha-card-back-left {
+  transform: translateX(-42%) rotate(-17deg) scale(0.92);
+}
+.liru-gacha-card-back-right {
+  transform: translateX(42%) rotate(18deg) scale(0.92);
+}
+
+@keyframes liru-stage-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) rotate(0);
+  }
+}
+
 .wiki-page .information-document .liru-gacha-results {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.75rem;
-  margin: 1.25rem 0 0;
-  padding: 0;
+  margin: 0;
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+  border: 1px solid var(--site-border);
+  border-radius: 0.75rem;
+  background: var(--site-surface);
   list-style: none;
 }
 
-.liru-gacha-results .wiki-gallery-card {
-  animation: liru-draw-reveal 220ms ease-out both;
+.liru-gacha-results li {
+  animation: liru-draw-reveal 260ms ease-out both;
 }
 
 .liru-gacha-results li:last-child .wiki-gallery-card {
-  outline: 2px solid var(--site-accent);
-  outline-offset: 3px;
-  animation-delay: 100ms;
+  border-radius: 0.6rem;
+  outline: 2px solid #d09b42;
+  outline-offset: 2px;
 }
 
 @keyframes liru-draw-reveal {
   from {
     opacity: 0;
-    transform: translateY(0.4rem);
+    transform: translateY(0.55rem) scale(0.98);
   }
 }
 
 @media (max-width: 700px) {
-  .liru-gacha-header {
+  .liru-gacha-stage {
     grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .liru-gacha-art {
+    grid-row: 1;
+    min-block-size: 10.5rem;
+  }
+
+  .liru-gacha-featured-card,
+  .liru-gacha-card-back {
+    inline-size: 6.3rem;
+  }
+
+  .liru-gacha-odds li {
+    min-block-size: 3.65rem;
   }
 
   .wiki-page .information-document .liru-gacha-results {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .liru-gacha-action {
-    max-inline-size: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .liru-gacha-results .wiki-gallery-card {
+  .liru-gacha-featured-card,
+  .liru-gacha-results li {
     animation: none;
   }
 }

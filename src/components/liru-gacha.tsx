@@ -30,6 +30,9 @@ export function LiruGacha({
   const [status, setStatus] = useState<LiruGachaStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const showcase = figures.find((figure) =>
+    figure.src.endsWith("/galaxy-dream.webp"),
+  );
 
   useEffect(() => {
     if (!profileHref) return;
@@ -75,8 +78,8 @@ export function LiruGacha({
 
   return (
     <section className="liru-gacha" aria-labelledby="liru-gacha-title">
-      <div className="liru-gacha-header">
-        <div>
+      <div className="liru-gacha-stage">
+        <div className="liru-gacha-copy">
           <h2 id="liru-gacha-title">{tr("Liru daily draw")}</h2>
           <p>
             {tr(
@@ -91,56 +94,82 @@ export function LiruGacha({
             ))}
           </ul>
           <p>{tr("The tenth card is SR or higher: UR 4%, SSR 6%, SR 90%.")}</p>
-        </div>
-        <div className="liru-gacha-action" aria-busy={busy}>
-          {!profileHref ? (
-            <Link className="text-link" href="/login">
-              {tr("Sign in with osu!")}
-            </Link>
-          ) : status?.cards ? (
-            <button type="button" onClick={() => void act()} disabled={busy}>
-              {tr("Refresh")}
-            </button>
-          ) : status ? (
-            <button
-              type="button"
-              onClick={() => void act(status.checkedIn ? "draw" : "check-in")}
-              disabled={busy}
-            >
-              {status.checkedIn ? tr("Draw 10 cards") : tr("Daily check-in")}
-            </button>
-          ) : error ? (
-            <button type="button" onClick={() => void act()} disabled={busy}>
-              {tr("Try again")}
-            </button>
-          ) : (
-            <span role="status">{tr("Loading…")}</span>
-          )}
-          <span role="status">
-            {status?.cards
-              ? tr("Today's ten-pull is complete.")
-              : status?.checkedIn
-                ? tr("One ten-pull available.")
-                : ""}
-          </span>
-          {profileHref && (
-            <Link className="text-link" href={profileHref} prefetch={false}>
-              {tr("OCLR profile")} →
-            </Link>
-          )}
-          {error && (
-            <span role="alert">
-              {tr("This request could not be completed. Please try again.")}
+          <div className="liru-gacha-action" aria-busy={busy}>
+            {!profileHref ? (
+              <Link className="liru-gacha-primary" href="/login">
+                {tr("Sign in with osu!")}
+              </Link>
+            ) : status?.cards ? (
+              <button
+                className="liru-gacha-primary"
+                type="button"
+                onClick={() => void act()}
+                disabled={busy}
+              >
+                {tr("Refresh")}
+              </button>
+            ) : status ? (
+              <button
+                className="liru-gacha-primary"
+                type="button"
+                onClick={() => void act(status.checkedIn ? "draw" : "check-in")}
+                disabled={busy}
+              >
+                {status.checkedIn ? tr("Draw 10 cards") : tr("Daily check-in")}
+              </button>
+            ) : error ? (
+              <button
+                className="liru-gacha-primary"
+                type="button"
+                onClick={() => void act()}
+                disabled={busy}
+              >
+                {tr("Try again")}
+              </button>
+            ) : (
+              <span className="liru-gacha-status" role="status">
+                {tr("Loading…")}
+              </span>
+            )}
+            <span className="liru-gacha-status" role="status">
+              {status?.cards
+                ? tr("Today's ten-pull is complete.")
+                : status?.checkedIn
+                  ? tr("One ten-pull available.")
+                  : ""}
             </span>
-          )}
+            {profileHref && (
+              <Link className="text-link" href={profileHref} prefetch={false}>
+                {tr("OCLR profile")} →
+              </Link>
+            )}
+            {error && (
+              <span role="alert">
+                {tr("This request could not be completed. Please try again.")}
+              </span>
+            )}
+          </div>
         </div>
+        {showcase && (
+          <div className="liru-gacha-art" aria-hidden="true">
+            <div className="liru-gacha-orbit" />
+            <div className="liru-gacha-card-back liru-gacha-card-back-left" />
+            <div className="liru-gacha-card-back liru-gacha-card-back-right" />
+            <div className="liru-gacha-featured-card">
+              <WikiGalleryCard figure={showcase} cardRef={null} />
+            </div>
+          </div>
+        )}
       </div>
       {status?.cards && (
         <ol className="liru-gacha-results">
           {status.cards.map(({ src, rarity }, index) => {
             const figure = figures.find((item) => item.src === src);
             return (
-              <li key={`${status.day}:${index}`}>
+              <li
+                key={`${status.day}:${index}`}
+                style={{ animationDelay: `${index * 40}ms` }}
+              >
                 {figure ? (
                   <>
                     <WikiGalleryCard

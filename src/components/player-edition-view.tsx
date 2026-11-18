@@ -186,7 +186,6 @@ export function PlayerEditionView({
             </p>
           </>
         )}
-        {!selected && liruCollection}
         {selected && ratings && <RoundRatings data={ratings} slug={selected} />}
         {(timeline.marks.length > 0 || timeline.spans.length > 0) && (
           <PlayerTimelineView timeline={timeline} />
@@ -217,6 +216,7 @@ export function PlayerEditionView({
         {staffDuties.length > 0 && (
           <HistoricalStaffHistory history={staffDuties} />
         )}
+        {!selected && liruCollection}
       </div>
     </>
   );
