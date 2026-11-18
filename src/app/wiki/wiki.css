@@ -282,7 +282,7 @@
   .wiki-page
   .information-document
   .liru-gacha
-  :is(.liru-gacha-odds, .liru-gacha-results)
+  .liru-gacha-odds
   > li {
   margin: 0;
   padding: 0;
@@ -469,35 +469,6 @@
   }
 }
 
-.wiki-page .information-document .liru-gacha-results {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin: 0;
-  padding: clamp(0.75rem, 2vw, 1.25rem);
-  border: 1px solid var(--site-border);
-  border-radius: 0.75rem;
-  background: var(--site-surface);
-  list-style: none;
-}
-
-.liru-gacha-results li {
-  animation: liru-draw-reveal 260ms ease-out both;
-}
-
-.liru-gacha-results li:last-child .wiki-gallery-card {
-  border-radius: 0.6rem;
-  outline: 2px solid #d09b42;
-  outline-offset: 2px;
-}
-
-@keyframes liru-draw-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(0.55rem) scale(0.98);
-  }
-}
-
 @media (max-width: 700px) {
   .liru-gacha-stage {
     grid-template-columns: 1fr;
@@ -517,15 +488,10 @@
   .liru-gacha-odds li {
     min-block-size: 3.65rem;
   }
-
-  .wiki-page .information-document .liru-gacha-results {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .liru-gacha-featured-card,
-  .liru-gacha-results li {
+  .liru-gacha-featured-card {
     animation: none;
   }
 }

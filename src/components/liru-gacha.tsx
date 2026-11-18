@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import {
+  liruDrawSize,
   liruGachaPath,
   liruGachaStatusSchema,
   liruRarityRates,
@@ -12,6 +13,8 @@ import {
 } from "@/lib/liru-gacha-model";
 import type { WikiGalleryFigure } from "@/lib/wiki-articles";
 import { WikiGalleryCard } from "./wiki-gallery-card";
+import { countLiruCards, LiruCardDisplay } from "./liru-card-display";
+import styles from "./liru-card-display.module.css";
 
 async function loadStatus(signal?: AbortSignal) {
   const response = await fetch(liruGachaPath, { cache: "no-store", signal });
@@ -162,31 +165,50 @@ export function LiruGacha({
         )}
       </div>
       {status?.cards && (
-        <ol className="liru-gacha-results">
-          {status.cards.map(({ src, rarity }, index) => {
-            const figure = figures.find((item) => item.src === src);
-            return (
-              <li
-                key={`${status.day}:${index}`}
-                style={{ animationDelay: `${index * 40}ms` }}
-              >
-                {figure ? (
-                  <>
-                    <WikiGalleryCard
-                      figure={{ ...figure, rarity }}
-                      cardRef={null}
-                    />
-                    <span className="sr-only">
-                      {figure.caption} ({rarity})
+        <LiruCardDisplay
+          title={tr("Results")}
+          headingId="liru-gacha-results-title"
+          counts={countLiruCards(status.cards)}
+        >
+          <ol
+            className={`liru-gacha-results ${styles.cards} ${styles.results}`}
+            role="list"
+          >
+            {status.cards.map(({ src, rarity }, index) => {
+              const figure = figures.find((item) => item.src === src);
+              const guaranteed = index === liruDrawSize - 1;
+              return (
+                <li
+                  className={styles.card}
+                  key={`${status.day}:${index}`}
+                  data-rarity={rarity}
+                  data-guaranteed={guaranteed ? "" : undefined}
+                  style={{ animationDelay: `${index * 40}ms` }}
+                >
+                  <div className={styles.surface}>
+                    {figure ? (
+                      <WikiGalleryCard
+                        figure={{ ...figure, rarity }}
+                        cardRef={null}
+                      />
+                    ) : (
+                      <span>{rarity}</span>
+                    )}
+                  </div>
+                  <div className={styles.caption}>
+                    <span className={styles.ordinal} aria-hidden="true">
+                      {String(index + 1).padStart(2, "0")}
                     </span>
-                  </>
-                ) : (
-                  <span>{rarity}</span>
-                )}
-              </li>
-            );
-          })}
-        </ol>
+                    <span className={styles.name}>
+                      {figure?.caption ?? rarity}
+                    </span>
+                    {figure && <span className="sr-only"> ({rarity})</span>}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </LiruCardDisplay>
       )}
     </section>
   );
