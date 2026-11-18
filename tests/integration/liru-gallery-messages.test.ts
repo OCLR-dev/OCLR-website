@@ -10,7 +10,11 @@ import {
 } from "vitest";
 import { asc, sql } from "drizzle-orm";
 import { closeDb, db } from "../../src/db";
-import { liruGalleryMessageEvents, users } from "../../src/db/schema";
+import {
+  liruGalleryMessageEvents,
+  liruGalleryMessages,
+  users,
+} from "../../src/db/schema";
 import { GET, POST } from "../../src/app/api/wiki/liru-gallery/messages/route";
 import {
   DELETE,
@@ -123,6 +127,21 @@ describe.skipIf(!url)("Liru gallery messages", () => {
     expect(events).toEqual(
       ["posted", "edited", "deleted"].map((kind) => ({ kind, messageId: id })),
     );
+  });
+
+  it("returns the complete gallery history with the newest messages first", async () => {
+    const rows = Array.from({ length: 25 }, (_, index) => ({
+      authorId: author.osuId,
+      body: `Gallery comment ${index}`,
+      createdAt: new Date(Date.UTC(2026, 0, 1, 0, index)),
+    }));
+    await db().insert(liruGalleryMessages).values(rows);
+
+    const response = await GET();
+    expect(response.status).toBe(200);
+    expect(
+      (await response.json()).map((message: { text: string }) => message.text),
+    ).toEqual(rows.map((row) => row.body).reverse());
   });
 
   it("serializes duplicate posts and enforces the author limit after deletion", async () => {

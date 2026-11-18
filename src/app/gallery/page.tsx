@@ -56,6 +56,7 @@ async function GalleryPage() {
             signedIn={!!viewer}
             viewerId={viewer?.osuId}
             readOnly={remote}
+            showAll
           />
         </section>
       </article>

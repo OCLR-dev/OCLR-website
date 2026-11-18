@@ -35,8 +35,7 @@ export async function publicLiruGalleryMessages(): Promise<PlayerMessage[]> {
     })
     .from(liruGalleryMessages)
     .innerJoin(users, eq(users.osuId, liruGalleryMessages.authorId))
-    .orderBy(desc(liruGalleryMessages.createdAt), desc(liruGalleryMessages.id))
-    .limit(20);
+    .orderBy(desc(liruGalleryMessages.createdAt), desc(liruGalleryMessages.id));
   return rows.map((row) => ({
     ...row,
     createdAt: row.createdAt.toISOString(),

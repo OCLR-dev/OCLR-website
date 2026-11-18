@@ -1,7 +1,10 @@
 import { createRoot } from "react-dom/client";
 import { useState } from "react";
 import { NextIntlClientProvider } from "next-intl";
-import { PlayerMessageBoard } from "../../src/components/player-message-board";
+import {
+  PlayerMessageBoard,
+  SignedMessageBoard,
+} from "../../src/components/player-message-board";
 import en from "../../messages/en.json";
 import hans from "../../messages/zh-Hans.json";
 import hant from "../../messages/zh-Hant.json";
@@ -20,14 +23,24 @@ function Harness() {
         messages={locale === "en" ? en : locale === "zh-Hans" ? hans : hant}
         timeZone="UTC"
       >
-        <PlayerMessageBoard
-          key={playerId}
-          edition="synthetic-test"
-          playerId={playerId}
-          name="Synthetic Player"
-          signedIn
-          viewerId={190001}
-        />
+        {new URLSearchParams(location.search).has("gallery") ? (
+          <SignedMessageBoard
+            endpoint="/api/wiki/liru-gallery/messages"
+            name="Liru Gallery"
+            signedIn
+            viewerId={190001}
+            showAll
+          />
+        ) : (
+          <PlayerMessageBoard
+            key={playerId}
+            edition="synthetic-test"
+            playerId={playerId}
+            name="Synthetic Player"
+            signedIn
+            viewerId={190001}
+          />
+        )}
       </NextIntlClientProvider>
     </>
   );

@@ -37,6 +37,60 @@ async function json(route: Route, body: unknown, status = 200) {
   await route.fulfill({ json: body, status });
 }
 
+test("gallery displays the full history and edits older messages in place", async ({
+  page,
+}) => {
+  const gallery = "/api/wiki/liru-gallery/messages";
+  const history = Array.from({ length: 25 }, (_, index) => ({
+    ...original,
+    id: `comment-${index}`,
+    text: `Comment ${index}`,
+    authorId: index === 24 ? original.authorId : 190002,
+  }));
+  const newest = { ...original, id: "new", text: "New gallery comment" };
+  const oldest = history.at(-1)!;
+  await page.route(`**${gallery}`, (route) =>
+    route.request().method() === "GET"
+      ? json(route, history)
+      : json(route, newest, 201),
+  );
+  await page.route(`**${gallery}/${oldest.id}`, (route) =>
+    route.request().method() === "PATCH"
+      ? json(route, { ...oldest, text: "Edited older comment", version: "2" })
+      : json(route, {}),
+  );
+
+  await page.goto("/?gallery");
+  const list = page.getByRole("region", { name: "Messages for Liru Gallery" });
+  const rows = list.locator("> div");
+  await expect(rows).toHaveCount(25);
+  await expect(rows.first()).toContainText(history[0].text);
+  await expect(rows.last()).toContainText(oldest.text);
+  await expect(
+    page.getByRole("group", { name: "Message navigation" }),
+  ).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Leave a message" }).click();
+  await page.getByRole("textbox").fill(newest.text);
+  await page.getByRole("button", { name: "Post message" }).click();
+  await expect(rows).toHaveCount(26);
+  await expect(rows.first()).toContainText(newest.text);
+  await expect(rows.last()).toContainText(oldest.text);
+
+  const oldestRow = rows.last();
+  await oldestRow.getByRole("button", { name: "Edit message" }).click();
+  const editor = oldestRow.getByRole("textbox", { name: "Edit message" });
+  await expect(editor).toBeFocused();
+  await editor.fill("Edited older comment");
+  await oldestRow.getByRole("button", { name: "Save message" }).click();
+  await expect(oldestRow).toContainText("Edited older comment");
+  await expect(oldestRow).toBeFocused();
+  await oldestRow.getByRole("button", { name: "Delete message" }).click();
+  await oldestRow.getByRole("button", { name: "Confirm delete" }).click();
+  await expect(rows).toHaveCount(25);
+  await expect(list).not.toContainText("Edited older comment");
+});
+
 for (const status of [200, 503]) {
   test(`a late initial GET (${status}) cannot hide a successful post or change its selection`, async ({
     page,

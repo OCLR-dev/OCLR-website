@@ -7,6 +7,22 @@
   padding-right: 0.6rem;
   overflow-wrap: anywhere;
 }
+.event-message-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-block-start: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.event-message-list .player-message-controls:empty {
+  display: none;
+}
+
+.event-message-list > div + div {
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--site-border);
+}
+
 .event-message-scroll > div + div {
   margin-top: 0.65rem;
   padding-top: 0.65rem;
