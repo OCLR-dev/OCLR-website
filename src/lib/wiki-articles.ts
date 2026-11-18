@@ -544,6 +544,7 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "black-rock": "SR",
   "blackberry-bow-dress": "SR",
   "blue-white-fairy-tale-dress": "SR",
+  "burgundy-velvet-dress": "SSR",
   "butterfly-dream-fairy": "UR",
   "cherry-blossom-tea-party": "SR",
   "cream-cocoa-detective": "SR",
@@ -551,16 +552,23 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "dreamy-wave-dress": "SSR",
   "elegant-maid": "SSR",
   "flower-mage": "SSR",
+  "forest-green-detective": "SR",
+  "forest-green-violinist": "SSR",
   "galaxy-dream": "UR",
   "gothic-lolita": "SSR",
+  "indigo-moonlight-dress": "UR",
   "lavender-ballet-dress": "SR",
   "lavender-bridal": "UR",
   "lavender-gown": "SSR",
   "lavender-lolita": "SSR",
+  "lavender-tea-caddy": "SR",
   "lemon-garden-dress": "SR",
   "light-armored-knight": "SSR",
   "midnight-moon-dress": "SR",
+  "midnight-starflower-dress": "SR",
   "mint-lily-cape": "SR",
+  "mint-windup-music-box": "SSR",
+  "misty-lilac-bell-cape": "UR",
   "misty-moon-clutch": "SR",
   "moon-cat-cape": "SSR",
   "moonwhite-astrologer": "UR",
@@ -570,6 +578,7 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "purple-punk": "SR",
   "rose-princess": "UR",
   "sea-mist-bottle": "SR",
+  "sea-salt-shell-dress": "SR",
   "shrine-maiden": "SSR",
   "snow-bunny-cape": "SR",
   "sprout-fantasy-traveler": "SR",
@@ -578,6 +587,7 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "starry-dream-dress": "SSR",
   "starry-evening-reader": "SR",
   "starry-night-gown": "UR",
+  "strawberry-tea-party-dress": "SR",
   "wisteria-furisode": "UR",
   "wisteria-messenger": "SR",
 };
@@ -1289,6 +1299,151 @@ function liruGallery(tr: AppTranslator): WikiArticle {
       tr("Cream knit fox"),
       tr(
         "Liru wears a cream cable-knit dress and brown ankle boots while hugging a small fox plush.",
+      ),
+    ],
+    [
+      "forest-green-violinist",
+      tr("Forest green violinist"),
+      tr(
+        "Liru wears a forest green dress with a cream bow and holds a violin and bow.",
+      ),
+    ],
+    [
+      "cream-berry-messenger",
+      tr("Cream and berry blue messenger"),
+      tr(
+        "Liru holds a sealed letter and carries a cream and berry blue messenger bag.",
+      ),
+    ],
+    [
+      "apricot-marigold-gardener",
+      tr("Apricot marigold gardener"),
+      tr(
+        "Liru wears apricot overalls and green boots while holding a potted marigold.",
+      ),
+    ],
+    [
+      "berry-vintage-photographer",
+      tr("Berry red vintage photographer"),
+      tr("Liru wears a berry red corduroy jacket and holds a vintage camera."),
+    ],
+    [
+      "sea-salt-shell-dress",
+      tr("Sea salt shell dress"),
+      tr(
+        "Liru waves in a sea salt blue dress and carries a shell-shaped handbag with a pearl handle.",
+      ),
+    ],
+    [
+      "lavender-tea-caddy",
+      tr("Lavender tea caddy"),
+      tr(
+        "Liru wears a cream top with lavender frog closures and holds a tea caddy with a lavender motif.",
+      ),
+    ],
+    [
+      "midnight-starflower-dress",
+      tr("Midnight starflower dress"),
+      tr(
+        "Liru waves in a midnight blue dress with pale starflowers and carries a matching round handbag.",
+      ),
+    ],
+    [
+      "cream-plaid-traveler",
+      tr("Cream plaid traveler"),
+      tr(
+        "Liru reads a map while wearing a cream plaid cape with an acorn clasp.",
+      ),
+    ],
+    [
+      "butterfly-hoop-embroidery",
+      tr("Butterfly hoop embroidery"),
+      tr(
+        "Liru wears a peach dress and cream apron and holds an embroidery hoop with a purple butterfly.",
+      ),
+    ],
+    [
+      "burgundy-velvet-dress",
+      tr("Burgundy velvet dress"),
+      tr(
+        "Liru wears a burgundy velvet dress with a black belt and holds a cream clutch.",
+      ),
+    ],
+    [
+      "mist-blue-bow-umbrella",
+      tr("Misty blue bow and umbrella"),
+      tr(
+        "Liru wears a misty blue jacket with a cream bow and holds a folded umbrella.",
+      ),
+    ],
+    [
+      "cream-daisy-pinafore",
+      tr("Cream daisy pinafore"),
+      tr(
+        "Liru holds a daisy bouquet in a cream pinafore with daisy embroidery and a sage blouse.",
+      ),
+    ],
+    [
+      "cocoa-rose-bookshop",
+      tr("Cocoa rose bookshop"),
+      tr(
+        "Liru adjusts her round glasses and holds two books, wearing a cocoa brown pinafore over a rose blouse.",
+      ),
+    ],
+    [
+      "mint-windup-music-box",
+      tr("Mint windup music box"),
+      tr(
+        "Liru wears a mint dress trimmed with music notes and holds a windup music box.",
+      ),
+    ],
+    [
+      "cherry-soda-sailor",
+      tr("Cherry soda sailor"),
+      tr(
+        "Liru makes a peace sign in a cherry-trimmed sailor dress and holds a bottle of pink soda.",
+      ),
+    ],
+    [
+      "misty-lilac-bell-cape",
+      tr("Misty lilac bell cape"),
+      tr(
+        "Liru wears a misty lilac cape with gold bells at its bow and carries a ribbon-tied scroll.",
+      ),
+    ],
+    [
+      "forest-green-detective",
+      tr("Forest green detective"),
+      tr(
+        "Liru wears a forest green belted coat and carries a magnifying glass and a notebook.",
+      ),
+    ],
+    [
+      "honey-apricot-bow-dress",
+      tr("Honey apricot bow dress"),
+      tr(
+        "Liru wears a honey apricot dress with a large bow and carries a heart-shaped handbag.",
+      ),
+    ],
+    [
+      "indigo-moonlight-dress",
+      tr("Indigo moonlight dress"),
+      tr(
+        "Liru waves in an indigo dress with silver stars and holds a book decorated with a crescent moon.",
+      ),
+    ],
+    [
+      "strawberry-tea-party-dress",
+      tr("Strawberry tea party dress"),
+      tr(
+        "Liru holds a strawberry teacup and saucer while wearing a cream tiered dress with berry embroidery.",
+      ),
+    ],
+    [
+      "rose-milk-tea-academy",
+      tr("Rose milk tea academy outfit"),
+      tr(
+        "Liru wears a rose pink toggle jacket and carries a takeaway cup and a brown handbag.",
       ),
     ],
   ];

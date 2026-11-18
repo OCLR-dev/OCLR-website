@@ -45,3 +45,31 @@ The gallery uses the full-size file for its in-page preview and download.
 | lavender-ballet-dress    | 薰衣草芭蕾風洋裝莉露-3.png         |
 | cherry-denim             | 莉露的櫻桃牛仔日-2.png             |
 | cream-knit-fox           | 奶油針織裙與小狐狸-1.png           |
+
+## Additional 21 portraits
+
+Both WebP sizes retain source alpha, with effort 5 for this batch. The primary files match the PNG alpha byte for byte.
+
+| Basename                   | Supplied source PNG            |
+| -------------------------- | ------------------------------ |
+| forest-green-violinist     | 森林綠禮服的小提琴手-3.png     |
+| cream-berry-messenger      | 奶油莓藍信使造型-2.png         |
+| apricot-marigold-gardener  | 薰衣草髮的杏橘花園女子-1.png   |
+| berry-vintage-photographer | 莓紅復古攝影少女-3.png         |
+| sea-salt-shell-dress       | 紫髮大學生的海鹽藍洋裝-2.png   |
+| lavender-tea-caddy         | 薰衣草茶匣佳人-1.png           |
+| midnight-starflower-dress  | 午夜藍星花洋裝-3.png           |
+| cream-plaid-traveler       | 奶油格紋小旅人-2.png           |
+| butterfly-hoop-embroidery  | 薰衣草髮刺繡女學生-1.png       |
+| burgundy-velvet-dress      | 紫髮少女的酒紅絨裙-3.png       |
+| mist-blue-bow-umbrella     | 霧藍蝴蝶結摺傘造型-2.png       |
+| cream-daisy-pinafore       | 薰衣草髮的奶油雛菊吊帶裙-1.png |
+| cocoa-rose-bookshop        | 莉露的可可玫瑰書店裝-3.png     |
+| mint-windup-music-box      | 薄荷音樂盒少女-2.png           |
+| cherry-soda-sailor         | 紫髮女學生與櫻桃汽水裙-1.png   |
+| misty-lilac-bell-cape      | 霧紫鐘鈴披風莉露-3.png         |
+| forest-green-detective     | 莉露的森林綠偵探造型-2.png     |
+| honey-apricot-bow-dress    | 薰衣草髮的蜜杏蝴蝶結少女-1.png |
+| indigo-moonlight-dress     | 靛藍月光洋裝校園少女-3.png     |
+| strawberry-tea-party-dress | 草莓茶會少女全身造型-2.png     |
+| rose-milk-tea-academy      | 莉露的玫瑰奶茶學院風-1.png     |
