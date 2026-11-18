@@ -22,6 +22,7 @@ export function WikiGallery({
   const [index, setIndex] = useState(initialIndex);
   const [previewOpen, setPreviewOpen] = useState(false);
   const figure = figures[index];
+  const enlargeLabel = tr("Click to enlarge");
 
   function showAnother() {
     // Draw from one fewer slot, then skip the currently displayed index.
@@ -33,11 +34,12 @@ export function WikiGallery({
     <div className="wiki-gallery">
       <figure>
         <a
+          className="wiki-gallery-preview"
           href={figure.src}
           target="_blank"
           rel="noreferrer"
           aria-haspopup="dialog"
-          aria-label={`${tr("Zoom in")}: ${figure.caption}`}
+          aria-label={`${enlargeLabel}: ${figure.caption}`}
           onClick={(event) => {
             if (
               event.metaKey ||
@@ -60,6 +62,9 @@ export function WikiGallery({
             loading="eager"
             unoptimized
           />
+          <span className="wiki-gallery-preview-hint" aria-hidden="true">
+            {enlargeLabel}
+          </span>
         </a>
         <figcaption>
           <span id="wiki-gallery-caption" aria-live="polite">

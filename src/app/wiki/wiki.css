@@ -154,26 +154,42 @@
   justify-content: center;
   margin-block-start: 0.65rem;
 }
-.wiki-gallery a {
+.wiki-gallery-preview {
+  --gallery-edge-glow: drop-shadow(
+    0 0 0.4rem color-mix(in srgb, var(--site-accent) 75%, transparent)
+  );
   cursor: zoom-in;
   display: block;
   padding: clamp(0.5rem, 1.2vw, 1rem);
   border-radius: 12px;
   background: transparent;
   outline-offset: 4px;
-  overflow: hidden;
+  text-align: center;
 }
-.wiki-gallery img {
+.wiki-gallery-preview img {
   display: block;
   width: 100%;
   height: auto;
 }
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .wiki-gallery img {
-    transition: filter 180ms ease;
+.wiki-gallery-preview-hint {
+  display: block;
+  margin-block-start: 0.5rem;
+  color: var(--site-muted);
+  font-size: var(--text-support);
+}
+.wiki-gallery-preview:focus-visible {
+  outline: 2px solid var(--site-accent);
+}
+.wiki-gallery-preview:focus-visible img {
+  filter: var(--gallery-edge-glow);
+}
+@media (hover: hover) {
+  .wiki-gallery-preview:not(:is(:hover, :focus-visible))
+    .wiki-gallery-preview-hint {
+    visibility: hidden;
   }
-  .wiki-gallery a:hover img {
-    filter: brightness(1.08);
+  .wiki-gallery-preview:hover img {
+    filter: var(--gallery-edge-glow);
   }
 }
 .wiki-source {
