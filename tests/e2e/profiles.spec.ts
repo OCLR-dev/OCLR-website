@@ -93,7 +93,9 @@ test.describe("published osu! profiles", () => {
     ).toEqual([]);
     const response = await context.request.get(`/api/players/${base}`);
     expect(response.status()).toBe(200);
-    expect(JSON.stringify(await response.json())).not.toMatch(
+    const publicProfile = await response.json();
+    expect(publicProfile.snapshot.profile.statistics.pp).toBe(1234.56);
+    expect(JSON.stringify(publicProfile)).not.toMatch(
       /PRIVATE_CONTACT|INTERNAL_REASON|account_history|answers|statusReason/,
     );
     for (const id of [fixture.privateId, 651307])
@@ -133,7 +135,17 @@ test.describe("published osu! profiles", () => {
         })
         .first(),
     ).toBeVisible();
-    await expect(page.getByText("1,234.56 pp", { exact: true })).toBeVisible();
+    await expect(
+      page.locator(".bws-card").getByText("1,234", { exact: true }),
+    ).toBeVisible();
+    const dismiss = page.getByRole("button", {
+      name: "Dismiss single-season notice",
+    });
+    await expect(dismiss).toBeVisible();
+    const notice = page.locator(".notice").filter({ has: dismiss });
+    const noticeBox = (await notice.boundingBox())!;
+    const profileBox = (await page.locator(".profile-summary").boundingBox())!;
+    expect(noticeBox.y + noticeBox.height).toBeLessThan(profileBox.y);
     await expect(
       page.getByText("9,007,199,254,740,993", { exact: true }),
     ).toBeVisible();
@@ -220,6 +232,6 @@ test.describe("published osu! profiles", () => {
       404,
     );
     const html = await (await context.request.get(`/players/${base}`)).text();
-    expect(html).not.toContain("1,234.56 pp");
+    expect(html).not.toContain(`Synthetic Profile ${base}`);
   });
 });

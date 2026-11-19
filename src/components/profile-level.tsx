@@ -57,6 +57,7 @@ export function ProfileLevel({
   return (
     <div
       className="profile-level"
+      role="img"
       style={
         {
           "--level-from": tier.from,

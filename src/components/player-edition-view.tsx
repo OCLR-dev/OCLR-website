@@ -1,8 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import type { BwsSummary as BwsData } from "@/lib/bws-model";
 import type { ProfileSnapshot } from "@/lib/osu-profile-model";
@@ -81,18 +80,8 @@ export function PlayerEditionView({
   const urlEdition = params.get("edition");
   const [selected, setSelected] = useState(initial);
   const [previousEdition, setPreviousEdition] = useState(urlEdition);
-  const [header, setHeader] = useState<HTMLElement | null>(null);
   const [noticeDismissed, setNoticeDismissed] = useState(false);
   const profile = useRef<HTMLDivElement>(null);
-
-  // The portal target exists by the time effects run, but it is read one frame
-  // later so the first paint can stay server-rendered.
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      setHeader(document.querySelector<HTMLElement>("header.site-header"));
-    });
-    return () => cancelAnimationFrame(frame);
-  }, []);
 
   // Back/forward and any other router-driven URL change updates the panel.
   if (previousEdition !== urlEdition) {
@@ -146,117 +135,105 @@ export function PlayerEditionView({
     : staffHistory;
 
   return (
-    <>
-      {/* Floating below the header keeps opening and closing the filter from
-          shifting the page content. */}
-      {selected &&
-        !noticeDismissed &&
-        header &&
-        createPortal(
-          <div className={`notice ${styles.filterNotice}`}>
-            <a
-              className={styles.noticeLink}
-              href={`/players/${osuId}`}
-              onClick={(event) => {
-                if (
-                  event.defaultPrevented ||
-                  event.button !== 0 ||
-                  event.metaKey ||
-                  event.ctrlKey ||
-                  event.shiftKey ||
-                  event.altKey
-                )
-                  return;
-                if (select(null)) event.preventDefault();
-              }}
+    <div
+      ref={profile}
+      tabIndex={-1}
+      className={`${
+        selected ? "public-tournament public-player-page" : "container page"
+      } ${styles.playerPage}`}
+    >
+      {selected && !noticeDismissed && (
+        <div className={`notice ${styles.filterNotice}`}>
+          <a
+            className={styles.noticeLink}
+            href={`/players/${osuId}`}
+            onClick={(event) => {
+              if (
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey
+              )
+                return;
+              if (select(null)) event.preventDefault();
+            }}
+          >
+            {tr(
+              "You’re viewing this player’s match data for a single season. Click here to view all data.",
+            )}
+          </a>
+          <button
+            className={styles.dismissNotice}
+            type="button"
+            aria-label={tr("Dismiss single-season notice")}
+            onClick={() => {
+              profile.current?.focus({ preventScroll: true });
+              setNoticeDismissed(true);
+            }}
+          >
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
             >
-              {tr(
-                "You’re viewing this player’s match data for a single season. Click here to view all data.",
-              )}
-            </a>
-            <button
-              className={styles.dismissNotice}
-              type="button"
-              aria-label={tr("Dismiss single-season notice")}
-              onClick={() => {
-                profile.current?.focus({ preventScroll: true });
-                setNoticeDismissed(true);
-              }}
-            >
-              <svg
-                aria-hidden="true"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              >
-                <path d="m4 4 8 8m0-8-8 8" />
-              </svg>
-            </button>
-          </div>,
-          header,
-        )}
-      <div
-        ref={profile}
-        tabIndex={-1}
-        className={`${
-          selected ? "public-tournament public-player-page" : "container page"
-        } ${styles.playerPage}`}
-      >
-        {snapshot ? (
-          <PlayerProfile
-            heading={heading}
-            snapshot={snapshot}
-            bws={selectedBws}
-            otrRating={profileRatings?.otr ?? otrRating}
-            profileRatings={profileRatings ?? null}
-          />
-        ) : (
-          <>
-            {heading}
-            <p className="notice" role="status">
-              {tr("osu! statistics are temporarily unavailable.")}
-            </p>
-          </>
-        )}
-        {showRatingFallback && (
-          <CompactPlayerRatings ratings={profileRatings} />
-        )}
-        {selected && ratings && <RoundRatings data={ratings} slug={selected} />}
-        {(timeline.marks.length > 0 || timeline.spans.length > 0) && (
-          <PlayerTimelineView timeline={timeline} />
-        )}
-        <PlayerParticipatedTournaments
-          editions={editions}
-          osuId={osuId}
-          selected={selected}
-          onSelect={select}
+              <path d="m4 4 8 8m0-8-8 8" />
+            </svg>
+          </button>
+        </div>
+      )}
+      {snapshot ? (
+        <PlayerProfile
+          heading={heading}
+          snapshot={snapshot}
+          bws={selectedBws}
+          otrRating={profileRatings?.otr ?? otrRating}
+          profileRatings={profileRatings ?? null}
         />
-        {selectedCompetition && (
-          <PlayerCompetition
-            record={selectedCompetition}
-            mapRecord={selectedMapPerformance}
-            resetHref={null}
-          />
-        )}
-        {selectedMapPerformance && (
-          <PlayerMapPerformanceView
-            record={selectedMapPerformance}
-            mra={mra}
-            career={!selected}
-          />
-        )}
-        {selectedCompetition && (
-          <PlayerTeamRecord record={selectedCompetition} />
-        )}
-        {staffDuties.length > 0 && (
-          <HistoricalStaffHistory history={staffDuties} />
-        )}
-        {!selected && liruCollection}
-      </div>
-    </>
+      ) : (
+        <>
+          {heading}
+          <p className="notice" role="status">
+            {tr("osu! statistics are temporarily unavailable.")}
+          </p>
+        </>
+      )}
+      {showRatingFallback && <CompactPlayerRatings ratings={profileRatings} />}
+      {selected && ratings && <RoundRatings data={ratings} slug={selected} />}
+      {(timeline.marks.length > 0 || timeline.spans.length > 0) && (
+        <PlayerTimelineView timeline={timeline} />
+      )}
+      <PlayerParticipatedTournaments
+        editions={editions}
+        osuId={osuId}
+        selected={selected}
+        onSelect={select}
+      />
+      {selectedCompetition && (
+        <PlayerCompetition
+          record={selectedCompetition}
+          mapRecord={selectedMapPerformance}
+          resetHref={null}
+        />
+      )}
+      {selectedMapPerformance && (
+        <PlayerMapPerformanceView
+          record={selectedMapPerformance}
+          mra={mra}
+          career={!selected}
+        />
+      )}
+      {selectedCompetition && <PlayerTeamRecord record={selectedCompetition} />}
+      {staffDuties.length > 0 && (
+        <HistoricalStaffHistory history={staffDuties} />
+      )}
+      {!selected && liruCollection}
+    </div>
   );
 }

@@ -83,6 +83,9 @@
   :global(.profile-cover-content) .heading {
     align-items: flex-start;
   }
+  .nameRow {
+    flex-wrap: wrap;
+  }
 }
 
 :global(.profile-cover-content) .headingText h1 {

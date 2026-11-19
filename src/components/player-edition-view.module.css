@@ -3,24 +3,12 @@
 }
 
 .filterNotice {
-  position: absolute;
-  inset-block-start: 100%;
-  inset-inline: 0;
-  z-index: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.5rem;
   padding: 0.25rem 0.375rem 0.25rem 1rem;
-  width: min(1240px, calc(100% - 6rem));
-  margin: 0.5rem auto 0;
-  border-left-color: var(--site-accent, #ba79e4);
-  box-shadow: 0 0.75rem 2rem #00000059;
-  animation: filterNoticeIn 180ms ease-out;
-  /* The notice is portaled into the site header, which sets
-     pointer-events: none while it is scrolled away on mobile. Opting back in
-     keeps the controls tappable when the header itself has left the screen. */
-  pointer-events: auto;
+  margin-block: 0.5rem 1rem;
 }
 
 .noticeLink {
@@ -50,23 +38,4 @@
 
 :global(.themed-site) button.dismissNotice:is(:hover, :focus-visible) {
   background: var(--site-tint);
-}
-
-@keyframes filterNoticeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-0.35rem);
-  }
-}
-
-@media (max-width: 760px) {
-  .filterNotice {
-    width: calc(100% - 2.5rem);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .filterNotice {
-    animation: none;
-  }
 }
