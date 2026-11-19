@@ -33,8 +33,10 @@ test("previews in place, restores focus and downloads the current card and artwo
       0,
     );
   } else {
+    expect(panel.width).toBeLessThanOrEqual(52 * 16);
+    await expect(shuffle).toBeInViewport({ ratio: 1 });
     expect(button.x).toBeGreaterThan(cardBox.x + cardBox.width);
-    expect(button.x - cardBox.x - cardBox.width).toBeLessThanOrEqual(24);
+    expect(button.x - cardBox.x - cardBox.width).toBeLessThanOrEqual(40);
     expect(button.y + button.height / 2).toBeCloseTo(
       cardBox.y + cardBox.height / 2,
       0,

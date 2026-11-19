@@ -33,30 +33,32 @@ export function WikiGallery({
       title={title}
       headingId={headingId}
     >
-      <figure>
+      <figure className="wiki-gallery-layout">
         <WikiGalleryPreview figure={figure} showHint />
-        <button
-          className="secondary wiki-gallery-shuffle"
-          type="button"
-          onClick={showAnother}
-          disabled={figures.length < 2}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            focusable="false"
-            aria-hidden="true"
+        <div className="wiki-gallery-controls">
+          <button
+            className="wiki-gallery-shuffle"
+            type="button"
+            onClick={showAnother}
+            disabled={figures.length < 2}
           >
-            <path d="M3 7h3c2 0 3.1 1.1 4.3 2.7M3 17h3c2.6 0 4-2 6-5s3.4-5 6-5h3M14.5 14.9c1 1.4 2 2.1 3.5 2.1h3m-3-13 3 3-3 3m0 4 3 3-3 3" />
-          </svg>
-          <span>{showAnotherLabel}</span>
-        </button>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              focusable="false"
+              aria-hidden="true"
+            >
+              <path d="M3 7h3c2 0 3.1 1.1 4.3 2.7M3 17h3c2.6 0 4-2 6-5s3.4-5 6-5h3M14.5 14.9c1 1.4 2 2.1 3.5 2.1h3m-3-13 3 3-3 3m0 4 3 3-3 3" />
+            </svg>
+            <span>{showAnotherLabel}</span>
+          </button>
+        </div>
         <figcaption>
           <span className="sr-only" aria-live="polite">
             {figure.caption} ({figure.rarity})
