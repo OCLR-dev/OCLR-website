@@ -79,8 +79,7 @@
   color: var(--site-muted);
 }
 .themed-site .wiki-page .information-document > .wiki-gallery {
-  inline-size: min(100%, 52rem);
-  margin-inline: auto;
+  inline-size: 100%;
   background:
     radial-gradient(ellipse at 35% 36%, #503461, transparent 70%),
     linear-gradient(145deg, #30213f, #191525 74%);
