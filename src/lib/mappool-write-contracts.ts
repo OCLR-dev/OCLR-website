@@ -152,7 +152,14 @@ const mappoolRequest = z.discriminatedUnion("action", [
   z.strictObject({
     ...confirmation,
     ...versioned,
-    action: z.enum(["pool_showcase", "pool_showcase_replays"]),
+    action: z.literal("pool_showcase"),
+    userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+    enabled: z.boolean(),
+  }),
+  z.strictObject({
+    ...confirmation,
+    ...versioned,
+    action: z.literal("pool_showcase_replays"),
     userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
     enabled: z.boolean(),
   }),
