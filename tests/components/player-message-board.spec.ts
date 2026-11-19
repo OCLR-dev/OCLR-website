@@ -83,7 +83,7 @@ test("gallery displays the full history and edits older messages in place", asyn
   await expect(rows.last()).toContainText(oldest.text);
   const authorLink = rows
     .first()
-    .getByRole("link", { name: history[0].author });
+    .getByRole("link", { name: history[0].author, exact: true });
   await expect(authorLink.locator("img")).toHaveAttribute(
     "src",
     `https://a.ppy.sh/${history[0].authorId}`,
@@ -121,7 +121,12 @@ test("gallery composes replies beneath the selected original comment", async ({
 }) => {
   const gallery = "/api/wiki/liru-gallery/messages";
   const parent = { ...original, authorId: 190002, text: "Original comment" };
-  const other = { ...parent, id: "other", text: "A separate comment" };
+  const other = {
+    ...parent,
+    id: "other",
+    authorId: 190003,
+    text: "A separate comment",
+  };
   const existing = {
     ...parent,
     id: "existing-reply",
@@ -149,6 +154,16 @@ test("gallery composes replies beneath the selected original comment", async ({
   const rows = page.locator(".event-message-list > .event-message-entry");
   await expect(rows).toHaveCount(2);
   const thread = rows.last();
+  const profileLink = thread.locator(
+    "> .event-message-meta .event-message-collection-link",
+  );
+  await expect(profileLink).toHaveAttribute(
+    "href",
+    "/players/190002#liru-collection",
+  );
+  await expect(
+    rows.first().locator(".event-message-collection-link"),
+  ).toHaveCount(0);
   await expect(thread.locator(".event-message-replies")).toContainText(
     existing.text,
   );
@@ -163,6 +178,9 @@ test("gallery composes replies beneath the selected original comment", async ({
   await expect(replies).toHaveCount(2);
   await expect(replies.first()).toContainText(existing.text);
   await expect(replies.last()).toContainText(posted.text);
+  await expect(
+    replies.last().locator(".event-message-collection-link"),
+  ).toHaveAttribute("href", "/players/190001#liru-collection");
   await expect(thread).toBeFocused();
   await expect(
     replies.getByRole("button", { name: "Reply", exact: true }),

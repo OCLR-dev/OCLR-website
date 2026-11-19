@@ -29,6 +29,7 @@ function Harness() {
             name="Liru Gallery"
             signedIn
             viewerId={190001}
+            collectionAuthorIds={[190002]}
             showAll
           />
         ) : (

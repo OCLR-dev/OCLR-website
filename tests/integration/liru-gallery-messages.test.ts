@@ -8,11 +8,15 @@ import {
   it,
   vi,
 } from "vitest";
-import { asc, sql } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { closeDb, db } from "../../src/db";
 import {
+  editionRevisions,
+  editionState,
+  liruDailyGacha,
   liruGalleryMessageEvents,
   liruGalleryMessages,
+  registrations,
   users,
 } from "../../src/db/schema";
 import { GET, POST } from "../../src/app/api/wiki/liru-gallery/messages/route";
@@ -27,7 +31,12 @@ import {
 } from "../../src/lib/liru-gallery-messages";
 import { HttpError } from "../../src/lib/http-error";
 import { withReadChannel } from "../../src/lib/read-channel";
+import { publicLiruCollectionAuthors } from "../../src/lib/liru-collection";
+import { liruGallery } from "../../src/lib/wiki-articles";
+import { english } from "../../src/i18n/translate";
 import { assertTestDatabase } from "../database";
+import { edition } from "../fixtures/edition";
+import { seedEditions } from "../fixtures/editions";
 
 vi.mock("../../src/lib/auth/user", () => ({ requireUser: vi.fn() }));
 
@@ -213,6 +222,58 @@ describe.skipIf(!url)("Liru gallery messages", () => {
       (await POST(request("POST", { ...input, requestId: randomUUID() })))
         .status,
     ).toBe(404);
+  });
+
+  it("links collections only for authors with public profiles and matching cards", async () => {
+    const slug = "liru-collections-test";
+    const empty = { osuId: 321003, username: "Empty Collection" };
+    await db().insert(users).values(empty);
+    await seedEditions([{ ...edition, slug }]);
+    try {
+      await db()
+        .insert(registrations)
+        .values(
+          [author, empty].map(({ osuId }) => ({
+            userId: osuId,
+            editionSlug: slug,
+            status: "accepted" as const,
+            answers: {},
+          })),
+        );
+      await db()
+        .insert(liruGalleryMessages)
+        .values(
+          [author, other, empty].map(({ osuId }) => ({
+            authorId: osuId,
+            body: "Hello",
+          })),
+        );
+      const figures = liruGallery(english).gallery;
+      const { src, rarity } = figures.find((figure) => figure.rarity === "UR")!;
+      await db()
+        .insert(liruDailyGacha)
+        .values(
+          [author, other].map(({ osuId }) => ({
+            osuId,
+            day: "2026-01-01",
+            drawnAt: new Date("2026-01-01T03:00:00Z"),
+            cards: Array.from({ length: 10 }, () => ({ src, rarity })),
+          })),
+        );
+      expect(await publicLiruCollectionAuthors(figures)).toEqual([
+        author.osuId,
+      ]);
+      await seedEditions([{ ...edition, slug, published: false }]);
+      expect(await publicLiruCollectionAuthors(figures)).toEqual([]);
+    } finally {
+      await db()
+        .delete(registrations)
+        .where(eq(registrations.editionSlug, slug));
+      await db()
+        .delete(editionRevisions)
+        .where(eq(editionRevisions.editionSlug, slug));
+      await db().delete(editionState).where(eq(editionState.slug, slug));
+    }
   });
 
   it("serializes duplicate posts and enforces the author limit after deletion", async () => {

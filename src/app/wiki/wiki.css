@@ -221,6 +221,14 @@
   border-block-end: 1px solid var(--gallery-trim);
 }
 
+.wiki-gallery-comments .event-message-author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
 .wiki-gallery-comments .event-message-meta a {
   display: inline-flex;
   align-items: center;
@@ -241,6 +249,31 @@
 .wiki-gallery-comments .event-message-meta a:hover {
   text-decoration: underline;
   text-underline-offset: 0.2em;
+}
+
+.wiki-gallery-comments .event-message-meta .event-message-collection-link {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border: 1px solid var(--gallery-trim);
+  border-radius: 0.6rem;
+  background: #f6d7f319;
+}
+
+.wiki-gallery-comments
+  .event-message-meta
+  .event-message-collection-link:hover {
+  border-color: var(--gallery-gilt);
+  background: #f6d7f333;
+}
+
+@media (pointer: coarse) {
+  .wiki-gallery-comments .event-message-meta .event-message-collection-link {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+  }
 }
 
 .wiki-gallery-comments .event-message-meta time {

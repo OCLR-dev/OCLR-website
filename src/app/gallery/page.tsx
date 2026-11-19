@@ -6,6 +6,7 @@ import { WikiGallery } from "@/components/wiki-gallery";
 import { getAppTranslations } from "@/i18n/server";
 import { currentUser } from "@/lib/auth/user";
 import { remoteMode } from "@/lib/data-source";
+import { publicLiruCollectionAuthors } from "@/lib/liru-collection";
 import { remotePage } from "@/lib/remote-page";
 import { liruGallery } from "@/lib/wiki-articles";
 import "../community-interactions.css";
@@ -21,7 +22,12 @@ async function GalleryPage() {
   const tr = await getAppTranslations();
   const { title, gallery } = liruGallery(tr);
   const remote = remoteMode();
-  const viewer = remote ? null : await currentUser().catch(() => null);
+  const [viewer, collectionAuthorIds] = remote
+    ? [null, undefined]
+    : await Promise.all([
+        currentUser().catch(() => null),
+        publicLiruCollectionAuthors(gallery).catch(() => []),
+      ]);
 
   return (
     <div className="container page wiki-page information-page">
@@ -58,6 +64,7 @@ async function GalleryPage() {
               signedIn={!!viewer}
               viewerId={viewer?.osuId}
               readOnly={remote}
+              collectionAuthorIds={collectionAuthorIds}
               showAll
             />
           </div>

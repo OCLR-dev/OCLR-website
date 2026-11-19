@@ -47,6 +47,7 @@ export function SignedMessageBoard({
   viewerId,
   readOnly = false,
   showAll = false,
+  collectionAuthorIds,
 }: {
   endpoint: string;
   name: string;
@@ -54,6 +55,7 @@ export function SignedMessageBoard({
   viewerId?: number;
   readOnly?: boolean;
   showAll?: boolean;
+  collectionAuthorIds?: number[];
 }) {
   const tr = useAppTranslations();
   const id = useId();
@@ -535,18 +537,61 @@ export function SignedMessageBoard({
     }
   } else if (current) visibleMessages.push(current);
 
+  const publicCollectionAuthors = new Set(collectionAuthorIds);
   function renderMessage(message: Message, replies?: ReactNode) {
     const isEditing = editing?.id === message.id;
     const isDeleting = deleting?.id === message.id;
     const isReplying = replyTo === message.id;
+    const canOpenCollection =
+      collectionAuthorIds !== undefined &&
+      (message.authorId === viewerId ||
+        publicCollectionAuthors.has(message.authorId));
+    const collectionLabel = canOpenCollection
+      ? `${tr("OCLR profile for {username}", { username: message.author })} · ${tr("Liru Gallery")}`
+      : undefined;
+    const authorLink = (
+      <a href={`https://osu.ppy.sh/users/${message.authorId}`}>
+        {showAll && (
+          <Avatar osuId={message.authorId} username={message.author} />
+        )}
+        <strong>{message.author}</strong>
+      </a>
+    );
     const meta = (
       <>
-        <a href={`https://osu.ppy.sh/users/${message.authorId}`}>
-          {showAll && (
-            <Avatar osuId={message.authorId} username={message.author} />
-          )}
-          <strong>{message.author}</strong>
-        </a>
+        {showAll ? (
+          <div className="event-message-author">
+            {authorLink}
+            {collectionLabel && (
+              <Link
+                className="event-message-collection-link"
+                href={`/players/${message.authorId}#liru-collection`}
+                prefetch={false}
+                aria-label={collectionLabel}
+                title={collectionLabel}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+                  <circle cx="8.25" cy="10.5" r="1.8" />
+                  <path d="M5.25 15.5a3 3 0 0 1 6 0M14 10h4.5M14 14h4.5" />
+                </svg>
+              </Link>
+            )}
+          </div>
+        ) : (
+          authorLink
+        )}
         <time className="small muted" dateTime={message.createdAt}>
           {new Date(message.createdAt).toLocaleString(tr.locale)}
         </time>
