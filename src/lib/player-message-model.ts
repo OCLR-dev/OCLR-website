@@ -8,3 +8,8 @@ export const playerMessageSchema = z.strictObject({
   createdAt: z.string(),
   version: z.string(),
 });
+
+export const liruGalleryMessageSchema = playerMessageSchema.extend({
+  parentId: z.uuid().optional(),
+});
+export type LiruGalleryMessage = z.infer<typeof liruGalleryMessageSchema>;

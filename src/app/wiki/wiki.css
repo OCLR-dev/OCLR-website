@@ -128,6 +128,7 @@
   --site-accent: var(--gallery-gilt);
   --site-accent-strong: #ffebce;
   --site-surface: #251a33;
+  --site-tint: #49345e;
   --site-control-border: #9c7cb3;
   --site-primary: #f0cc9f;
   --site-primary-hover: #ffe5bc;
@@ -191,6 +192,19 @@
   box-shadow:
     inset 0 1px #eed1ff26,
     0 5px 14px #10071f47;
+}
+
+.wiki-gallery-comments .event-message-replies {
+  display: grid;
+  gap: 0.625rem;
+  min-inline-size: 0;
+  padding-inline-start: clamp(0.5rem, 2vw, 1rem);
+  border-inline-start: 1px solid var(--gallery-trim);
+}
+
+.wiki-gallery-comments .event-message-replies .event-message-entry {
+  padding: clamp(0.625rem, 2vw, 1rem);
+  background: #261b34;
 }
 
 .wiki-gallery-comments .event-message-entry:focus-within {

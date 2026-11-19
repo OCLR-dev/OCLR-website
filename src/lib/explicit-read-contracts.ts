@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { replaySummarySchema } from "./replay-model";
-import { playerMessageSchema } from "./player-message-model";
+import {
+  liruGalleryMessageSchema,
+  playerMessageSchema,
+} from "./player-message-model";
 import { siteRegistrationReadContracts } from "./site-registration-read-contracts";
 import { playerLeaderboardReadContract } from "./player-leaderboard-model";
 import { publicBracketReadContract } from "./bracket-read-contract";
@@ -212,7 +215,7 @@ export const explicitReadContracts = {
   staffTeams,
   ownTeam,
   publicPlayerMessages,
-  publicLiruGalleryMessages: publicPlayerMessages,
+  publicLiruGalleryMessages: z.array(liruGalleryMessageSchema),
   publicPlayerMra,
   publicPlayerParticipation: publicPlayerParticipationReadContract,
   playerLeaderboard: playerLeaderboardReadContract,

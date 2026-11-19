@@ -1588,12 +1588,19 @@ export const liruGalleryMessages = pgTable(
     authorId: bigint("author_id", { mode: "number" })
       .notNull()
       .references(() => users.osuId, { onDelete: "cascade" }),
+    parentId: uuid("parent_id"),
     body: text("body").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (t) => [
+    foreignKey({
+      name: "liru_gallery_messages_parent_fk",
+      columns: [t.parentId],
+      foreignColumns: [t.id],
+    }).onDelete("set null"),
+    index("liru_gallery_messages_parent_idx").on(t.parentId),
     index("liru_gallery_messages_recent_idx").on(t.createdAt, t.id),
     check(
       "liru_gallery_messages_body_length",
@@ -1611,6 +1618,8 @@ export const liruGalleryMessageEvents = pgTable(
       { onDelete: "set null" },
     ),
     messageId: uuid("message_id").notNull(),
+    // The request's original parent survives a parent deletion and detachment.
+    parentId: uuid("parent_id"),
     requestId: uuid("request_id"),
     kind: text("kind").$type<"posted" | "edited" | "deleted">().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })

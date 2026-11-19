@@ -16,6 +16,10 @@ generated contracts, and `npm run read-api:check` verifies it before a push (see
 
 ## Resources and authorization
 
+Contract 1.41 adds an optional `parentId` to Liru gallery messages. It identifies
+the top-level message being replied to. Top-level messages and replies whose
+parent has been deleted omit the field.
+
 Contract 1.21 adds optional `rankHistory.dayOffsets` alongside the numeric rank
 history. Each offset identifies that sample's day relative to the snapshot date
 (0 is the snapshot day), preserving gaps for unranked days. Older cached snapshots

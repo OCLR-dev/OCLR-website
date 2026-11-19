@@ -1,14 +1,21 @@
 "use client";
 import { Avatar } from "./avatar";
 import { LoadingRegion } from "./loading-region";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
 import { useAppTranslations } from "@/i18n/shared";
-import type { PlayerMessage } from "@/lib/player-messages";
+import type { PostLiruGalleryMessageInput } from "@/lib/liru-gallery-message-write-contract";
+import type { LiruGalleryMessage as Message } from "@/lib/player-message-model";
 import type {
   DeletePlayerMessageInput,
   EditPlayerMessageInput,
-  PostPlayerMessageInput,
 } from "@/lib/player-message-write-contract";
 export function PlayerMessageBoard({
   edition,
@@ -50,19 +57,21 @@ export function SignedMessageBoard({
 }) {
   const tr = useAppTranslations();
   const id = useId();
-  const [messages, setMessages] = useState<PlayerMessage[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [text, setText] = useState("");
   const [editText, setEditText] = useState("");
+  const [replyText, setReplyText] = useState("");
+  const [replyTo, setReplyTo] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<PlayerMessage | null>(null);
+  const [editing, setEditing] = useState<Message | null>(null);
   const [recovery, setRecovery] = useState<{
     draft: string;
-    latest: PlayerMessage | null;
+    latest: Message | null;
   } | null>(null);
   const [editConflict, setEditConflict] = useState(false);
-  const [deleting, setDeleting] = useState<PlayerMessage | null>(null);
+  const [deleting, setDeleting] = useState<Message | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [reloading, setReloading] = useState(false);
@@ -71,11 +80,12 @@ export function SignedMessageBoard({
   const trigger = useRef<HTMLButtonElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const requestId = useRef<string | null>(null);
+  const replyRequestId = useRef<string | null>(null);
   const readGeneration = useRef(0);
   const loadError = tr(
     "Messages could not be loaded. Please refresh to try again.",
   );
-  const receive = useCallback((rows: PlayerMessage[]) => {
+  const receive = useCallback((rows: Message[]) => {
     setMessages(rows);
     setCurrentId((previous) =>
       rows.some((m) => m.id === previous)
@@ -85,12 +95,12 @@ export function SignedMessageBoard({
     setLoaded(true);
   }, []);
   const load = useCallback(
-    async (signal?: AbortSignal): Promise<PlayerMessage[] | null> => {
+    async (signal?: AbortSignal): Promise<Message[] | null> => {
       const generation = ++readGeneration.current;
       try {
         const response = await fetch(endpoint, { signal });
         if (!response.ok) throw new Error();
-        const rows: PlayerMessage[] = await response.json();
+        const rows: Message[] = await response.json();
         if (signal?.aborted || generation !== readGeneration.current)
           return null;
         receive(rows);
@@ -131,9 +141,11 @@ export function SignedMessageBoard({
     messages.findIndex((m) => m.id === currentId),
   );
   const current = messages[index];
-  function close(messageId = editing?.id ?? deleting?.id) {
+  const draft = editing ? editText : replyTo ? replyText : text;
+  function close(messageId = editing?.id ?? deleting?.id ?? replyTo) {
     setOpen(false);
     setEditing(null);
+    setReplyTo(null);
     setEditConflict(false);
     setDeleting(null);
     setError("");
@@ -145,7 +157,7 @@ export function SignedMessageBoard({
       (row ?? trigger.current)?.focus();
     });
   }
-  function showMessage(message: PlayerMessage) {
+  function showMessage(message: Message) {
     // A confirmed write supersedes every list read already in flight.
     readGeneration.current++;
     setLoaded(true);
@@ -162,16 +174,17 @@ export function SignedMessageBoard({
     if (pending || editConflict) return;
     setBusy(true);
     setError("");
-    requestId.current ??= crypto.randomUUID();
+    const postId = replyTo ? replyRequestId : requestId;
     const payload = editing
       ? ({
           text: editText,
           version: editing.version,
         } satisfies EditPlayerMessageInput)
       : ({
-          text,
-          requestId: requestId.current,
-        } satisfies PostPlayerMessageInput);
+          text: draft,
+          requestId: (postId.current ??= crypto.randomUUID()),
+          ...(replyTo ? { parentId: replyTo } : {}),
+        } satisfies PostLiruGalleryMessageInput);
     try {
       const response = await fetch(
         editing ? `${endpoint}/${editing.id}` : endpoint,
@@ -188,10 +201,11 @@ export function SignedMessageBoard({
           setEditConflict(true);
         return;
       }
-      showMessage(result as PlayerMessage);
+      showMessage(result as Message);
       if (!editing) {
-        setText("");
-        requestId.current = null;
+        if (replyTo) setReplyText("");
+        else setText("");
+        postId.current = null;
       }
       close();
     } catch {
@@ -223,9 +237,16 @@ export function SignedMessageBoard({
       const remaining = messages.filter((m) => m.id !== deleting.id);
       const nextId =
         remaining[Math.min(deletedIndex, remaining.length - 1)]?.id ?? null;
-      setMessages((rows) => rows.filter((m) => m.id !== deleting.id));
+      setMessages((rows) =>
+        rows
+          .filter((m) => m.id !== deleting.id)
+          .map((m) =>
+            m.parentId === deleting.id ? { ...m, parentId: undefined } : m,
+          ),
+      );
       setCurrentId(nextId);
-      close(nextId ?? undefined);
+      close(nextId);
+      if (showAll && !deleting.parentId) await load();
     } catch {
       setError(tr("This request could not be completed. Please try again."));
     } finally {
@@ -251,6 +272,11 @@ export function SignedMessageBoard({
         setEditConflict(false);
         setOpen(false);
         if (latest) setCurrentId(latest.id);
+      }
+      if (replyTo && !rows.some((message) => message.id === replyTo)) {
+        setRecovery({ draft: replyText, latest: null });
+        setReplyTo(null);
+        setOpen(false);
       }
       setDeleting(null);
       setError("");
@@ -317,7 +343,7 @@ export function SignedMessageBoard({
     </Link>
   ) : null;
 
-  function messageActions(message: PlayerMessage) {
+  function messageActions(message: Message) {
     return (
       signedIn &&
       viewerId !== undefined &&
@@ -390,15 +416,20 @@ export function SignedMessageBoard({
       <label className="sr-only" htmlFor={id}>
         {editing
           ? tr("Edit message")
-          : tr("Leave a signed message for {name}", { name })}
+          : replyTo
+            ? tr("Reply")
+            : tr("Leave a signed message for {name}", { name })}
       </label>
       <textarea
         ref={input}
         id={id}
-        value={editing ? editText : text}
+        value={draft}
         onChange={(e) => {
           if (editing) setEditText(e.target.value);
-          else {
+          else if (replyTo) {
+            setReplyText(e.target.value);
+            replyRequestId.current = null;
+          } else {
             setText(e.target.value);
             requestId.current = null;
           }
@@ -409,16 +440,14 @@ export function SignedMessageBoard({
         disabled={pending}
       />
       <div className="player-message-controls">
-        <button
-          disabled={
-            pending || editConflict || !(editing ? editText : text).trim()
-          }
-        >
+        <button disabled={pending || editConflict || !draft.trim()}>
           {busy
             ? tr("Saving…")
             : editing
               ? tr("Save message")
-              : tr("Post message")}
+              : replyTo
+                ? tr("Reply")
+                : tr("Post message")}
         </button>
         <button
           type="button"
@@ -489,16 +518,88 @@ export function SignedMessageBoard({
       </button>
     </div>
   );
-  const visibleMessages = showAll ? messages : current ? [current] : [];
+  const repliesByParent = new Map<string, Message[]>();
+  const visibleMessages: Message[] = [];
+  if (showAll) {
+    const rootIds = new Set(
+      messages
+        .filter((message) => !message.parentId)
+        .map((message) => message.id),
+    );
+    for (const message of messages) {
+      if (message.parentId && rootIds.has(message.parentId)) {
+        const replies = repliesByParent.get(message.parentId);
+        if (replies) replies.push(message);
+        else repliesByParent.set(message.parentId, [message]);
+      } else visibleMessages.push(message);
+    }
+  } else if (current) visibleMessages.push(current);
+
+  function renderMessage(message: Message, replies?: ReactNode) {
+    const isEditing = editing?.id === message.id;
+    const isDeleting = deleting?.id === message.id;
+    const isReplying = replyTo === message.id;
+    const meta = (
+      <>
+        <a href={`https://osu.ppy.sh/users/${message.authorId}`}>
+          {showAll && (
+            <Avatar osuId={message.authorId} username={message.author} />
+          )}
+          <strong>{message.author}</strong>
+        </a>
+        <time className="small muted" dateTime={message.createdAt}>
+          {new Date(message.createdAt).toLocaleString(tr.locale)}
+        </time>
+      </>
+    );
+    return (
+      <div
+        key={message.id}
+        className={showAll ? "event-message-entry" : undefined}
+        id={showAll ? `${id}-message-${message.id}` : undefined}
+        tabIndex={showAll ? -1 : undefined}
+      >
+        {showAll ? <div className="event-message-meta">{meta}</div> : meta}
+        <p className="preserve-lines">{message.text}</p>
+        {showAll && (
+          <>
+            <div className="player-message-controls">
+              {signedIn && !message.parentId && !open && !deleting && (
+                <button
+                  className="secondary"
+                  type="button"
+                  disabled={pending}
+                  onClick={() => {
+                    setReplyTo(message.id);
+                    setReplyText("");
+                    replyRequestId.current = null;
+                    setError("");
+                    setOpen(true);
+                  }}
+                >
+                  {tr("Reply")}
+                </button>
+              )}
+              {messageActions(message)}
+            </div>
+            {(isEditing || isReplying) && form}
+            {isDeleting && confirmation}
+            {(isEditing || isDeleting || isReplying) && errorPanel}
+          </>
+        )}
+        {replies}
+      </div>
+    );
+  }
 
   return (
     <>
       {showAll && (
         <>
           <div className="player-message-controls">{compose}</div>
-          {!editing && form}
+          {!editing && !replyTo && form}
           {draftRecovery}
-          {!editing && !deleting && errorPanel}
+          {!editing && !deleting && !replyTo && errorPanel}
         </>
       )}
       <div
@@ -511,48 +612,14 @@ export function SignedMessageBoard({
       >
         {visibleMessages.length > 0 ? (
           visibleMessages.map((message) => {
-            const isEditing = editing?.id === message.id;
-            const isDeleting = deleting?.id === message.id;
-            const meta = (
-              <>
-                <a href={`https://osu.ppy.sh/users/${message.authorId}`}>
-                  {showAll && (
-                    <Avatar
-                      osuId={message.authorId}
-                      username={message.author}
-                    />
-                  )}
-                  <strong>{message.author}</strong>
-                </a>
-                <time className="small muted" dateTime={message.createdAt}>
-                  {new Date(message.createdAt).toLocaleString(tr.locale)}
-                </time>
-              </>
-            );
-            return (
-              <div
-                key={message.id}
-                className={showAll ? "event-message-entry" : undefined}
-                id={showAll ? `${id}-message-${message.id}` : undefined}
-                tabIndex={showAll ? -1 : undefined}
-              >
-                {showAll ? (
-                  <div className="event-message-meta">{meta}</div>
-                ) : (
-                  meta
-                )}
-                <p className="preserve-lines">{message.text}</p>
-                {showAll && (
-                  <>
-                    <div className="player-message-controls">
-                      {messageActions(message)}
-                    </div>
-                    {isEditing && form}
-                    {isDeleting && confirmation}
-                    {(isEditing || isDeleting) && errorPanel}
-                  </>
-                )}
-              </div>
+            const replies = repliesByParent.get(message.id);
+            return renderMessage(
+              message,
+              replies && (
+                <div className="event-message-replies">
+                  {replies.toReversed().map((reply) => renderMessage(reply))}
+                </div>
+              ),
             );
           })
         ) : (

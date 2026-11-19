@@ -638,10 +638,6 @@
         { "$ref": "#/$defs/Read4c0a952e974c" }
       ]
     },
-    "Read1acb5f96945e": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/Read83f9786a8197" }
-    },
     "Read1c2a15b000ac": {
       "type": "object",
       "properties": {
@@ -2295,19 +2291,6 @@
     "Read830209cb7c31": {
       "type": "array",
       "items": { "$ref": "#/$defs/Read31678959f126" }
-    },
-    "Read83f9786a8197": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "authorId": { "type": "number" },
-        "author": { "type": "string" },
-        "text": { "type": "string" },
-        "createdAt": { "type": "string" },
-        "version": { "type": "string" }
-      },
-      "required": ["id", "authorId", "author", "text", "createdAt", "version"],
-      "additionalProperties": false
     },
     "Read8403b8fab385": {
       "anyOf": [
@@ -5553,8 +5536,62 @@
     "publicMatchRating": {
       "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Readb4689c6deb28" }]
     },
-    "publicPlayerMessages": { "$ref": "#/$defs/Read1acb5f96945e" },
-    "publicLiruGalleryMessages": { "$ref": "#/$defs/Read1acb5f96945e" },
+    "publicPlayerMessages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "authorId": { "type": "number" },
+          "author": { "type": "string" },
+          "text": { "type": "string" },
+          "createdAt": { "type": "string" },
+          "version": { "type": "string" }
+        },
+        "required": [
+          "id",
+          "authorId",
+          "author",
+          "text",
+          "createdAt",
+          "version"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "publicLiruGalleryMessages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "authorId": { "type": "number" },
+          "author": { "type": "string" },
+          "text": { "type": "string" },
+          "createdAt": { "type": "string" },
+          "version": { "type": "string" },
+          "parentId": {
+            "anyOf": [
+              { "type": "null", "x-oclr-undefined": true },
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "authorId",
+          "author",
+          "text",
+          "createdAt",
+          "version"
+        ],
+        "additionalProperties": false
+      }
+    },
     "tournamentForAdmin": {
       "type": "object",
       "properties": {

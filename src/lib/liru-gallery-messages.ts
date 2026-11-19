@@ -4,7 +4,7 @@ import {
   liruGalleryMessages,
   users,
 } from "@/db/schema";
-import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import type { User } from "./auth/sessions";
 import { assertUserWriteChannel } from "./auth/staff";
 import { remoteMode } from "./data-source";
@@ -15,18 +15,24 @@ import {
   editLiruGalleryMessageWrite,
   postLiruGalleryMessageWrite,
 } from "./liru-gallery-message-write-contract";
-import type { PlayerMessage } from "./player-messages";
+import type { LiruGalleryMessage } from "./player-message-model";
 
 const messageFields = {
   id: liruGalleryMessages.id,
   text: liruGalleryMessages.body,
+  parentId: liruGalleryMessages.parentId,
   createdAt: liruGalleryMessages.createdAt,
   version: sql<string>`liru_gallery_messages.xmin::text`,
 };
 
-export async function publicLiruGalleryMessages(): Promise<PlayerMessage[]> {
+export async function publicLiruGalleryMessages(): Promise<
+  LiruGalleryMessage[]
+> {
   if (remoteMode())
-    return frontendResource<PlayerMessage[]>("publicLiruGalleryMessages", {});
+    return frontendResource<LiruGalleryMessage[]>(
+      "publicLiruGalleryMessages",
+      {},
+    );
   const rows = await db()
     .select({
       ...messageFields,
@@ -36,24 +42,33 @@ export async function publicLiruGalleryMessages(): Promise<PlayerMessage[]> {
     .from(liruGalleryMessages)
     .innerJoin(users, eq(users.osuId, liruGalleryMessages.authorId))
     .orderBy(desc(liruGalleryMessages.createdAt), desc(liruGalleryMessages.id));
-  return rows.map((row) => ({
-    ...row,
-    createdAt: row.createdAt.toISOString(),
-  }));
+  return rows.map(publicMessage);
+}
+
+function publicMessage({
+  parentId,
+  createdAt,
+  ...message
+}: Omit<LiruGalleryMessage, "parentId" | "createdAt"> & {
+  parentId: string | null;
+  createdAt: Date;
+}): LiruGalleryMessage {
+  return {
+    ...message,
+    createdAt: createdAt.toISOString(),
+    ...(parentId ? { parentId } : {}),
+  };
 }
 
 function signedMessage(
   actor: User,
-  row: Omit<PlayerMessage, "author" | "authorId" | "createdAt"> & {
-    createdAt: Date;
-  },
-): PlayerMessage {
-  return {
+  row: Omit<Parameters<typeof publicMessage>[0], "author" | "authorId">,
+): LiruGalleryMessage {
+  return publicMessage({
     ...row,
     authorId: actor.osuId,
     author: actor.username,
-    createdAt: row.createdAt.toISOString(),
-  };
+  });
 }
 
 export async function postLiruGalleryMessage(actor: User, input: unknown) {
@@ -61,14 +76,17 @@ export async function postLiruGalleryMessage(actor: User, input: unknown) {
   const parsed = postLiruGalleryMessageWrite.request.safeParse(input);
   if (!parsed.success)
     throw new HttpError(400, "Enter a message of 1 to 1000 characters.");
-  const { text, requestId } = parsed.data;
+  const { text, requestId, parentId } = parsed.data;
   return db().transaction(async (tx) => {
     // Keep retries and the posting limit consistent across concurrent requests.
     await tx.execute(
       sql`SELECT pg_advisory_xact_lock(hashtextextended(${`liru-gallery-message:${actor.osuId}`}, 0))`,
     );
     const [receipt] = await tx
-      .select({ messageId: liruGalleryMessageEvents.messageId })
+      .select({
+        messageId: liruGalleryMessageEvents.messageId,
+        parentId: liruGalleryMessageEvents.parentId,
+      })
       .from(liruGalleryMessageEvents)
       .where(
         and(
@@ -87,9 +105,26 @@ export async function postLiruGalleryMessage(actor: User, input: unknown) {
           ),
         )
         .for("update");
-      if (!existing || existing.text !== text)
+      if (
+        !existing ||
+        existing.text !== text ||
+        receipt.parentId !== (parentId ?? null)
+      )
         throw new HttpError(409, "This message request has already been used.");
       return signedMessage(actor, existing);
+    }
+    if (parentId) {
+      const [parent] = await tx
+        .select({ id: liruGalleryMessages.id })
+        .from(liruGalleryMessages)
+        .where(
+          and(
+            eq(liruGalleryMessages.id, parentId),
+            isNull(liruGalleryMessages.parentId),
+          ),
+        )
+        .for("key share");
+      if (!parent) throw new HttpError(404, "Message not found.");
     }
     const recent = await tx.$count(
       liruGalleryMessageEvents,
@@ -106,12 +141,13 @@ export async function postLiruGalleryMessage(actor: User, input: unknown) {
       throw new HttpError(429, "Please wait before posting another message.");
     const [saved] = await tx
       .insert(liruGalleryMessages)
-      .values({ authorId: actor.osuId, body: text })
+      .values({ authorId: actor.osuId, body: text, parentId })
       .returning(messageFields);
     await tx.insert(liruGalleryMessageEvents).values({
       authorId: actor.osuId,
       messageId: saved.id,
       requestId,
+      parentId,
       kind: "posted",
     });
     return signedMessage(actor, saved);
@@ -159,7 +195,7 @@ export async function changeLiruGalleryMessage(
         409,
         "This message has changed. Refresh before trying again.",
       );
-    let result: PlayerMessage | null = null;
+    let result: LiruGalleryMessage | null = null;
     if (text !== undefined) {
       const [saved] = await tx
         .update(liruGalleryMessages)

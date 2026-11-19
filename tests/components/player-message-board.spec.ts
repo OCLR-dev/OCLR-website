@@ -49,16 +49,22 @@ test("gallery displays the full history and edits older messages in place", asyn
   }));
   const newest = { ...original, id: "new", text: "New gallery comment" };
   const oldest = history.at(-1)!;
-  await page.route(`**${gallery}`, (route) =>
-    route.request().method() === "GET"
-      ? json(route, history)
-      : json(route, newest, 201),
-  );
-  await page.route(`**${gallery}/${oldest.id}`, (route) =>
-    route.request().method() === "PATCH"
-      ? json(route, { ...oldest, text: "Edited older comment", version: "2" })
-      : json(route, {}),
-  );
+  let saved = history;
+  await page.route(`**${gallery}`, (route) => {
+    if (route.request().method() === "GET") return json(route, saved);
+    saved = [newest, ...saved];
+    return json(route, newest, 201);
+  });
+  await page.route(`**${gallery}/${oldest.id}`, (route) => {
+    if (route.request().method() === "PATCH")
+      return json(route, {
+        ...oldest,
+        text: "Edited older comment",
+        version: "2",
+      });
+    saved = saved.filter((message) => message.id !== oldest.id);
+    return json(route, {});
+  });
 
   await page.route("https://a.ppy.sh/*", (route) =>
     route.request().url().endsWith(`/${oldest.authorId}`)
@@ -108,6 +114,62 @@ test("gallery displays the full history and edits older messages in place", asyn
   await oldestRow.getByRole("button", { name: "Confirm delete" }).click();
   await expect(rows).toHaveCount(25);
   await expect(list).not.toContainText("Edited older comment");
+});
+
+test("gallery composes replies beneath the selected original comment", async ({
+  page,
+}) => {
+  const gallery = "/api/wiki/liru-gallery/messages";
+  const parent = { ...original, authorId: 190002, text: "Original comment" };
+  const other = { ...parent, id: "other", text: "A separate comment" };
+  const existing = {
+    ...parent,
+    id: "existing-reply",
+    parentId: parent.id,
+    text: "Earlier reply",
+  };
+  const posted = {
+    ...original,
+    id: "new-reply",
+    parentId: parent.id,
+    text: "New reply",
+  };
+  await page.route("https://a.ppy.sh/*", (route) => route.abort());
+  await page.route(`**${gallery}`, (route) => {
+    if (route.request().method() === "GET")
+      return json(route, [existing, other, parent]);
+    expect(route.request().postDataJSON()).toMatchObject({
+      parentId: parent.id,
+      text: posted.text,
+    });
+    return json(route, posted, 201);
+  });
+
+  await page.goto("/?gallery");
+  const rows = page.locator(".event-message-list > .event-message-entry");
+  await expect(rows).toHaveCount(2);
+  const thread = rows.last();
+  await expect(thread.locator(".event-message-replies")).toContainText(
+    existing.text,
+  );
+  await thread.getByRole("button", { name: "Reply", exact: true }).click();
+  const editor = thread.getByRole("textbox", { name: "Reply", exact: true });
+  await expect(editor).toBeFocused();
+  await editor.fill(posted.text);
+  await thread.getByRole("button", { name: "Reply", exact: true }).click();
+  const replies = thread.locator(
+    ".event-message-replies > .event-message-entry",
+  );
+  await expect(replies).toHaveCount(2);
+  await expect(replies.first()).toContainText(existing.text);
+  await expect(replies.last()).toContainText(posted.text);
+  await expect(thread).toBeFocused();
+  await expect(
+    replies.getByRole("button", { name: "Reply", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    replies.last().getByRole("button", { name: "Edit message" }),
+  ).toBeVisible();
 });
 
 for (const status of [200, 503]) {

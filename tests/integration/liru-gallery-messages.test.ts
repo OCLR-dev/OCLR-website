@@ -144,6 +144,77 @@ describe.skipIf(!url)("Liru gallery messages", () => {
     ).toEqual(rows.map((row) => row.body).reverse());
   });
 
+  it("threads a signed reply and preserves it when its parent is deleted", async () => {
+    const parent = await (
+      await POST(
+        request("POST", { requestId: randomUUID(), text: "First message" }),
+      )
+    ).json();
+    expect(parent).not.toHaveProperty("parentId");
+
+    vi.mocked(requireUser).mockResolvedValue(other);
+    const input = {
+      requestId: randomUUID(),
+      text: "A reply",
+      parentId: parent.id,
+    };
+    const response = await POST(request("POST", input));
+    expect(response.status).toBe(201);
+    const reply = await response.json();
+    expect(reply).toMatchObject({ parentId: parent.id, authorId: other.osuId });
+    expect(await (await POST(request("POST", input))).json()).toEqual(reply);
+    expect(
+      (await POST(request("POST", { ...input, parentId: undefined }))).status,
+    ).toBe(409);
+    expect(
+      (
+        await POST(
+          request("POST", {
+            ...input,
+            requestId: randomUUID(),
+            parentId: reply.id,
+          }),
+        )
+      ).status,
+    ).toBe(404);
+    expect(await (await GET()).json()).toEqual([reply, parent]);
+
+    vi.mocked(requireUser).mockResolvedValue(author);
+    expect(
+      (
+        await DELETE(request("DELETE", { version: reply.version }, reply.id), {
+          params: Promise.resolve({ messageId: reply.id }),
+        })
+      ).status,
+    ).toBe(404);
+    expect(
+      (
+        await DELETE(
+          request("DELETE", { version: parent.version }, parent.id),
+          {
+            params: Promise.resolve({ messageId: parent.id }),
+          },
+        )
+      ).status,
+    ).toBe(200);
+
+    const [preserved] = await (await GET()).json();
+    expect(preserved).toMatchObject({
+      id: reply.id,
+      authorId: other.osuId,
+      text: "A reply",
+    });
+    expect(preserved).not.toHaveProperty("parentId");
+    vi.mocked(requireUser).mockResolvedValue(other);
+    expect(await (await POST(request("POST", input))).json()).toEqual(
+      preserved,
+    );
+    expect(
+      (await POST(request("POST", { ...input, requestId: randomUUID() })))
+        .status,
+    ).toBe(404);
+  });
+
   it("serializes duplicate posts and enforces the author limit after deletion", async () => {
     const input = { text: "Concurrent comment", requestId: randomUUID() };
     const [first, replay] = await Promise.all([

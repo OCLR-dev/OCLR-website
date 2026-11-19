@@ -39674,8 +39674,8 @@
     "/api/wiki/liru-gallery/messages": {
       "post": {
         "operationId": "postLiruGalleryMessage",
-        "summary": "Post a signed message on the Liru gallery",
-        "description": "Requires a browser session. Replaying the same request and text returns the saved message. Posting is limited per author, including recently deleted messages.",
+        "summary": "Post a signed message or reply on the Liru gallery",
+        "description": "Requires a browser session. Replaying the same request, parent and text returns the saved message. Top-level posts and replies share the posting limit per author, including recently deleted messages.",
         "security": [
           {
             "browserSession": []
@@ -39711,6 +39711,12 @@
                   "text": {
                     "description": "After trimming surrounding whitespace, 1 to 1000 UTF-16 code units.",
                     "type": "string"
+                  },
+                  "parentId": {
+                    "description": "ID of the top-level message to reply to.",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
                 "required": [
@@ -39747,6 +39753,11 @@
                     },
                     "version": {
                       "type": "string"
+                    },
+                    "parentId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     }
                   },
                   "required": [
@@ -39793,7 +39804,7 @@
             }
           },
           "404": {
-            "description": "The gallery message was not found.",
+            "description": "The top-level message to reply to was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -39951,6 +39962,11 @@
                     },
                     "version": {
                       "type": "string"
+                    },
+                    "parentId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     }
                   },
                   "required": [
@@ -40061,7 +40077,7 @@
       "delete": {
         "operationId": "deleteLiruGalleryMessage",
         "summary": "Delete the signed-in author's Liru gallery message",
-        "description": "Checks message ownership and version. Replaying the original post after deletion returns a conflict.",
+        "description": "Checks message ownership and version. Replies to a deleted top-level message become top-level messages. Replaying the original post after deletion returns a conflict.",
         "security": [
           {
             "browserSession": []
