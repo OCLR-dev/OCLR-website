@@ -1941,129 +1941,93 @@ export function liruGallery(tr: AppTranslator): {
     ],
     [
       "lolita-librarian-open-book",
-      tr("Spellbook librarian · Turning the page"),
-      tr(
-        "Liru turns the page of a gilt book in a green dress embroidered with keys.",
-      ),
+      tr("Gilded spellbook"),
+      tr("Liru in a green dress with gold keys and a gilt book."),
     ],
     [
       "lolita-vampire-sweeping-cape",
-      tr("Moonlit vampire · Sweeping cape"),
-      tr(
-        "Liru shows a small fang and lifts her cape to reveal its crimson lining.",
-      ),
+      tr("Crimson night cape"),
+      tr("Liru in a cape with crimson lining and a ruby clasp."),
     ],
     [
       "lolita-desert-sash-dance",
-      tr("Desert sun princess · Sash dance"),
-      tr(
-        "Liru holds out both ends of a coral sash with gold tassels over her teal skirt.",
-      ),
+      tr("Sunburst tassels"),
+      tr("Liru in a teal skirt with a coral sash and gold tassels."),
     ],
     [
       "lolita-detective-closer-look",
-      tr("Houndstooth detective · A closer look"),
-      tr(
-        "Liru leans forward with her magnifying glass, wearing a houndstooth cape and lace cuffs.",
-      ),
+      tr("Gilt magnifying glass"),
+      tr("Liru in a houndstooth cape with a gilt magnifying glass."),
     ],
     [
       "lolita-fern-leaf-dress",
-      tr("Fern leaf dress"),
-      tr(
-        "Liru smiles with her eyes closed, holding a fern frond against a moss green dress.",
-      ),
+      tr("Fern dress"),
+      tr("Liru in a moss green dress with a fern and lilac bow."),
     ],
     [
       "lolita-mist-blue-fan",
-      tr("Mist blue fan dress"),
-      tr(
-        "Liru holds a closed fan in a mist blue pinafore with a rose pink bow.",
-      ),
+      tr("Mist blue fan"),
+      tr("Liru in a mist blue dress with a pink bow and a closed fan."),
     ],
     [
       "lolita-pocket-watch-pinafore",
       tr("Pocket watch pinafore"),
-      tr(
-        "Liru looks down at a brass pocket watch on a chain, wearing a charcoal dress with brown trim.",
-      ),
+      tr("Liru in a charcoal dress with a brass pocket watch."),
     ],
     [
       "lolita-cocoa-handkerchief",
-      tr("Cocoa handkerchief dress"),
-      tr(
-        "Liru smiles with her eyes closed and holds a cream handkerchief in a cocoa brown dress.",
-      ),
+      tr("Cocoa and cream"),
+      tr("Liru in a cocoa brown dress with a cream handkerchief."),
     ],
     [
       "lolita-burgundy-uniform",
-      tr("Burgundy short uniform"),
-      tr(
-        "Liru adjusts her cuff in a cropped burgundy uniform jacket with brass buttons.",
-      ),
+      tr("Burgundy uniform"),
+      tr("Liru in a burgundy jacket with brass buttons."),
     ],
     [
       "lolita-indigo-kimono-dress",
       tr("Indigo kimono dress"),
-      tr(
-        "Liru lifts a wide sleeve of her indigo dress beside a peach obi tied with a white cord.",
-      ),
+      tr("Liru in an indigo dress with wide sleeves and a peach sash."),
     ],
     [
       "lolita-porcelain-unfolded-fan",
-      tr("Blue porcelain Lolita · Unfolded fan"),
-      tr(
-        "Liru opens a fan painted with blue peonies and lifts the matching skirt with her other hand.",
-      ),
+      tr("Porcelain peony fan"),
+      tr("Liru in a blue and white dress with a matching peony fan."),
     ],
     [
       "lolita-rose-knight-salute",
-      tr("Rose knight · Greeting"),
-      tr(
-        "Liru touches a silver rose brooch while lifting one side of her wine red skirt.",
-      ),
+      tr("Silver rose dress"),
+      tr("Liru in a wine red dress with a silver rose brooch."),
     ],
     [
       "lolita-antique-doll-curtsy",
-      tr("Antique rose doll · Curtsy"),
-      tr(
-        "Liru curtsies with both hands holding out a layered rose dress trimmed with pearls and tassels.",
-      ),
+      tr("Pearl rose dress"),
+      tr("Liru in a layered rose dress with pearls and tassels."),
     ],
     [
       "lolita-mermaid-shell-dance",
-      tr("Deep sea mermaid · Shell dance"),
-      tr(
-        "Liru holds a spiral shell aloft and lifts the iridescent ruffles of her navy skirt.",
-      ),
+      tr("Spiral shell mermaid"),
+      tr("Liru in a navy dress with iridescent ruffles and a spiral shell."),
     ],
     [
       "lolita-candy-witch-leap",
-      tr("Candy witch · Lollipop leap"),
-      tr(
-        "Liru leaps with a wink and stretches out a swirl lollipop as her purple skirt flares.",
-      ),
+      tr("Swirl candy witch"),
+      tr("Liru in a purple candy dress with a swirl lollipop."),
     ],
     [
       "lolita-astrolabe-raised",
-      tr("Astrolabe keeper · Reading the sky"),
-      tr(
-        "Liru looks up at a raised brass astrolabe as her constellation cape billows.",
-      ),
+      tr("Star chart cape"),
+      tr("Liru in a constellation cape with a brass astrolabe."),
     ],
     [
       "lolita-circus-opening",
-      tr("Circus ringmaster · Opening act"),
-      tr(
-        "Liru winks and raises a red baton, with a gold circus tent embroidered on her skirt.",
-      ),
+      tr("Circus baton"),
+      tr("Liru with a red baton and a skirt embroidered with a circus tent."),
     ],
     [
       "lolita-snow-queen-scepter",
-      tr("Snow queen · Scepter dance"),
-      tr(
-        "Liru raises a snowflake scepter and holds out her pale blue cape with white fur trim.",
-      ),
+      tr("Snow crystal scepter"),
+      tr("Liru in a pale blue fur-trimmed cape with a snowflake scepter."),
     ],
   ];
   // Saved draws still refer to these images by their original URLs.
