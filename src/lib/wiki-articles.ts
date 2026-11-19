@@ -537,37 +537,32 @@ function liruArticle(tr: AppTranslator): WikiArticle {
 
 // Rarity is assigned per artwork and stays the same when the gallery shuffles.
 const liruRarities: Partial<Record<string, WikiCardRarity>> = {
-  accordion: "SR",
   "apricot-lantern": "SR",
   "arcade-streetwear": "R",
-  badminton: "R",
-  baker: "R",
   "baseball-fielding": "R",
   "berry-rose-side-bow": "SR",
   "black-rock": "SR",
   "blackberry-bow-dress": "SR",
   "blue-white-fairy-tale-dress": "SR",
-  bouldering: "R",
+  bookbinding: "SR",
   "bubble-walk": "R",
   "burgundy-velvet-dress": "SSR",
   "butterfly-dream-fairy": "UR",
-  camellia: "SSR",
   "cello-tuning": "SR",
   "cherry-blossom-tea-party": "SR",
-  chess: "SR",
   "circus-juggler": "SSR",
+  "color-cube": "R",
   "cream-cocoa-detective": "SR",
   "cream-petal-tea": "SR",
-  cyanotype: "SR",
   "dreamy-wave-dress": "SSR",
   "elegant-maid": "SSR",
-  equestrian: "SR",
   "fern-gardener": "R",
   "flower-mage": "SSR",
   "flower-ribbon": "SR",
   "forest-green-detective": "SR",
   "forest-green-violinist": "SSR",
   "fossil-researcher": "SR",
+  "frame-drum": "SSR",
   "galaxy-dream": "UR",
   "gothic-lolita": "SSR",
   "ice-skates": "SR",
@@ -583,11 +578,8 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "lavender-tea-caddy": "SR",
   "lemon-garden-dress": "SR",
   "light-armored-knight": "SSR",
-  marine: "R",
-  matcha: "SSR",
   "midnight-moon-dress": "SR",
   "midnight-starflower-dress": "SR",
-  mime: "R",
   "mint-bunny-picnic": "SR",
   "mint-carousel-dress": "SR",
   "mint-lily-cape": "SR",
@@ -606,13 +598,15 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "peach-embroidered-dress": "SR",
   "pinwheel-festival": "R",
   "plum-knit-campus": "R",
+  "pool-chalk": "SR",
+  "pottery-wheel": "R",
   "powder-blue-cape": "SR",
   "purple-punk": "SR",
-  raincoat: "R",
-  roller: "SR",
   "rose-princess": "UR",
   "sea-mist-bottle": "SR",
   "sea-salt-shell-dress": "SR",
+  seaglass: "R",
+  "shadow-puppet": "UR",
   "shrine-maiden": "SSR",
   "snow-bunny-cape": "SR",
   "snow-post": "SR",
@@ -622,7 +616,6 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "star-candy-mage": "SSR",
   "star-music-box": "SSR",
   "star-note-academy": "UR",
-  stargazer: "SSR",
   "starry-dream-dress": "SSR",
   "starry-evening-reader": "SR",
   "starry-night-gown": "UR",
@@ -632,12 +625,27 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "strawberry-tea-party-dress": "SR",
   "street-photographer": "SR",
   "sunset-astronaut": "UR",
+  "surf-wax": "R",
   "vinyl-dj": "SSR",
   "violet-carousel-dress": "SR",
   "wicker-weaver": "R",
   "wisteria-furisode": "UR",
   "wisteria-messenger": "SR",
   "woodland-birdcare": "SR",
+  accordion: "SR",
+  badminton: "R",
+  baker: "R",
+  bouldering: "R",
+  camellia: "SSR",
+  chess: "SR",
+  cyanotype: "SR",
+  equestrian: "SR",
+  marine: "R",
+  matcha: "SSR",
+  mime: "R",
+  raincoat: "R",
+  roller: "SR",
+  stargazer: "SSR",
 };
 
 export function liruGallery(tr: AppTranslator): {
@@ -648,1200 +656,938 @@ export function liruGallery(tr: AppTranslator): {
     [
       "elegant-maid",
       tr("Elegant maid outfit"),
-      tr("Liru in a ruffled maid dress, holding a teacup on a tray"),
+      tr("Liru carries a teacup in a ruffled maid dress."),
     ],
     [
       "purple-punk",
-      tr("Purple punk streetwear"),
-      tr("Liru in a leather jacket, purple plaid skirt and lace-up boots"),
+      tr("Purple punk"),
+      tr("Liru wears a leather jacket and purple plaid skirt."),
     ],
     [
       "shrine-maiden",
-      tr("Red and white shrine maiden outfit"),
-      tr("Liru in white robes and red hakama, holding a paper streamer wand"),
+      tr("Red and white shrine maiden"),
+      tr("Liru holds a paper wand in red and white shrine attire."),
     ],
     [
       "lavender-gown",
       tr("Lavender gown"),
-      tr(
-        "Liru in a floor-length lavender gown with lace and floral embroidery",
-      ),
+      tr("Liru wears an embroidered lavender gown."),
     ],
     [
       "sailor-uniform",
       tr("Sailor uniform"),
-      tr("Liru smiles and waves in a navy and white sailor uniform"),
+      tr("Liru waves in a navy sailor uniform."),
     ],
     [
       "gothic-lolita",
       tr("Gothic Lolita dress"),
-      tr("Liru holds up the hem of a black lace dress with purple bows"),
+      tr("Liru lifts a black lace skirt with purple bows."),
     ],
     [
       "wisteria-furisode",
-      tr("Wisteria-patterned furisode"),
-      tr(
-        "Liru holds out a long sleeve of her lavender wisteria-patterned kimono",
-      ),
+      tr("Wisteria furisode"),
+      tr("Liru spreads the long sleeves of a wisteria kimono."),
     ],
     [
       "cat-ear-dress",
-      tr("Black and purple cat-ear dress"),
-      tr(
-        "Liru wears cat ears and a black and purple dress, raising her paw mittens",
-      ),
+      tr("Cat-ear dress"),
+      tr("Liru wears cat ears and raises a paw glove."),
     ],
     [
       "lavender-swimwear",
       tr("Lavender swimsuit"),
-      tr("Liru waves in a lavender swimsuit with ruffles, bows and green trim"),
+      tr("Liru waves in a ruffled lavender swimsuit."),
     ],
     [
       "lavender-lolita",
       tr("Lavender Lolita dress"),
-      tr(
-        "Liru holds out a cream lace skirt trimmed with lavender ribbons and floral embroidery",
-      ),
+      tr("Liru lifts her lace skirt trimmed with lavender ribbons."),
     ],
     [
       "nun-habit",
       tr("Nun's habit"),
-      tr("Liru waves in a black and white nun's habit while holding a book"),
+      tr("Liru waves with a book in black and white nun’s attire."),
     ],
     [
       "lavender-bridal",
-      tr("Lavender-accented wedding gown"),
-      tr(
-        "Liru holds a bouquet in a white lace wedding gown with a lavender sash",
-      ),
+      tr("Lavender wedding gown"),
+      tr("Liru carries a bouquet in a wedding dress with a lavender sash."),
     ],
     [
       "black-rock",
       tr("Black rock outfit"),
-      tr(
-        "Liru wears a black leather jacket and pleated skirt with purple-striped socks and lace-up boots.",
-      ),
+      tr("Liru wears a black leather jacket and purple striped socks."),
     ],
     [
       "cream-knit",
-      tr("Cream knit outfit"),
-      tr(
-        "Liru wears a cream cable-knit cardigan and sage green skirt, with a brown shoulder bag.",
-      ),
+      tr("Cream knit"),
+      tr("Liru wears a cream cardigan and sage skirt."),
     ],
     [
       "navy-academy",
       tr("Navy academy uniform"),
       tr(
-        "Liru wears a navy blazer with gold buttons, a plaid skirt and black over-the-knee socks.",
+        "Liru wears a navy school blazer with gold buttons and a plaid skirt.",
       ),
     ],
     [
       "forest-green-dress",
       tr("Forest green dress"),
-      tr(
-        "Liru waves in a belted forest green dress with a cream lace collar and gold buttons.",
-      ),
+      tr("Liru waves in a forest green dress with a lace collar."),
     ],
     [
       "citywear",
       tr("City outfit"),
-      tr(
-        "Liru wears a charcoal jacket, cream turtleneck and gray skirt, with a taupe shoulder bag.",
-      ),
+      tr("Liru wears a charcoal coat and carries a taupe shoulder bag."),
     ],
     [
       "burgundy-academy",
       tr("Burgundy academy outfit"),
-      tr(
-        "Liru wears a burgundy cardigan, plaid skirt and black tights, carrying a brown satchel.",
-      ),
+      tr("Liru carries a satchel in a burgundy cardigan."),
     ],
     [
       "lavender-knit",
       tr("Lavender knit set"),
-      tr(
-        "Liru wears a lavender cable-knit cardigan and matching skirt, with white tights and a round bag.",
-      ),
+      tr("Liru carries a round bag in a lavender knit set."),
     ],
     [
       "cream-academy",
       tr("Cream academy outfit"),
-      tr(
-        "Liru wears a cream blazer, green ribbon tie, pleated skirt and white tights.",
-      ),
+      tr("Liru wears a cream school uniform with a green bow."),
     ],
     [
       "powder-blue-cape",
       tr("Powder blue cape dress"),
-      tr(
-        "Liru lifts the hem of a powder blue dress with a short cape and white scalloped trim.",
-      ),
+      tr("Liru lifts her powder blue dress with white scalloped trim."),
     ],
     [
       "lavender-bow-academy",
-      tr("Lavender bow academy outfit"),
-      tr(
-        "Liru wears a navy blazer with lavender piping, a matching bow and a purple plaid skirt.",
-      ),
+      tr("Lavender bow uniform"),
+      tr("Liru wears a navy uniform with a lavender bow."),
     ],
     [
       "sprout-fantasy-traveler",
-      tr("Sprout and lavender fantasy traveler"),
-      tr(
-        "Liru wears a green cape embroidered with leaves and a layered purple skirt, with a brown satchel and lace-up boots.",
-      ),
+      tr("Sprout traveler"),
+      tr("Liru carries a travel satchel in a green leaf-patterned cape."),
     ],
     [
       "spring-garden-dress",
       tr("Spring garden dress"),
-      tr(
-        "Liru carries a wicker basket in a cream dress with petal sleeves, a green sash and purple floral embroidery.",
-      ),
+      tr("Liru carries a wicker basket in an embroidered dress."),
     ],
     [
       "starry-night-gown",
       tr("Starry night gown"),
-      tr(
-        "Liru wears a deep purple gown with silver constellations and a cape fastened with a crescent moon.",
-      ),
+      tr("Liru wears a purple constellation gown with a crescent clasp."),
     ],
     [
       "light-armored-knight",
       tr("Light-armored knight"),
-      tr(
-        "Liru wears white and gold armor with a lavender cape and holds a round shield marked with a sprout.",
-      ),
+      tr("Liru wears white and gold armor and holds a sprout-emblem shield."),
     ],
     [
       "lavender-nautical-outfit",
       tr("Lavender nautical outfit"),
-      tr(
-        "Liru waves in a white sailor-collar jacket and lavender skirt, wearing a compass pendant.",
-      ),
+      tr("Liru waves in a lavender sailor outfit with a compass pendant."),
     ],
     [
       "flower-mage",
       tr("Flower mage"),
-      tr(
-        "Liru wears a green cape embroidered with flowers and holds a wooden staff topped with a purple crystal.",
-      ),
+      tr("Liru holds a crystal-tipped staff in a flower-embroidered cape."),
     ],
     [
       "dreamy-wave-dress",
       tr("Dreamy wave dress"),
-      tr(
-        "Liru wears a dress with layers of mint, blue and lavender ruffles and carries a shell-shaped bag.",
-      ),
+      tr("Liru carries a shell bag in a layered sea-colored dress."),
     ],
     [
       "butterfly-dream-fairy",
       tr("Butterfly dream fairy"),
-      tr(
-        "Liru has translucent butterfly wings and wears a pastel dress decorated with pearls and butterfly clasps.",
-      ),
+      tr("Liru spreads translucent butterfly wings in a pearl-trimmed dress."),
     ],
     [
       "galaxy-dream",
       tr("Galaxy dream"),
       tr(
-        "Liru wears a star-embroidered gown with sheer lavender layers, with a small glowing star floating above her palm.",
+        "Liru wears a lavender star-print gown with a star floating above her palm.",
       ),
     ],
     [
       "music-academy",
       tr("Music academy uniform"),
-      tr(
-        "Liru waves while holding a music notebook and wearing a lavender sweater vest, pleated skirt, and white tights.",
-      ),
+      tr("Liru waves with a music book in a lavender school uniform."),
     ],
     [
       "snow-bunny-cape",
       tr("Snow bunny cape"),
-      tr(
-        "Liru wears a pale blue bunny-eared cape with cream trim and holds a white rabbit plush.",
-      ),
+      tr("Liru hugs a white rabbit plush in a pale blue bunny-ear cape."),
     ],
     [
       "cherry-blossom-tea-party",
-      tr("Cherry blossom tea party dress"),
-      tr(
-        "Liru holds a ribboned gift box and wears a cream dress with pink trim and cherry blossoms along the hem.",
-      ),
+      tr("Cherry blossom tea dress"),
+      tr("Liru holds a ribbon-tied gift in a cherry blossom dress."),
     ],
     [
       "lily-of-the-valley-courier",
-      tr("Lily of the valley courier"),
+      tr("Lily courier"),
       tr(
-        "Liru wears a green cape with a lily of the valley clasp and carries a sealed letter and a brown satchel.",
+        "Liru holds a wax-sealed letter and wears a lily-of-the-valley clasp.",
       ),
     ],
     [
       "cherry-milk-tea-uniform",
-      tr("Cherry milk tea shop uniform"),
-      tr(
-        "Liru wears a brown shop uniform and a cream apron with a cherry pocket, and holds a matching cherry mug.",
-      ),
+      tr("Cherry milk tea server"),
+      tr("Liru holds a cherry mug in a matching apron."),
     ],
     [
       "butter-yellow-raincoat",
       tr("Butter yellow raincoat"),
-      tr(
-        "Liru wears a yellow raincoat with a duck motif and blue rain boots, and holds a folded blue umbrella.",
-      ),
+      tr("Liru carries a blue umbrella in a yellow duck-patterned raincoat."),
     ],
     [
       "lemon-soda-dress",
       tr("Lemon soda dress"),
-      tr(
-        "Liru holds a bottle of lemon soda and wears a pale yellow dress with blue trim and lemon slices along the hem.",
-      ),
+      tr("Liru holds a lemon soda in a pale yellow dress."),
     ],
     [
       "cloud-dream-pajamas",
       tr("Cloud dream pajamas"),
-      tr(
-        "Liru hugs a cloud pillow while wearing blue-purple pajamas patterned with clouds and stars and matching slippers.",
-      ),
+      tr("Liru hugs a cloud pillow in blue-purple pajamas."),
     ],
     [
       "honey-bear-outfit",
       tr("Honey bear outfit"),
-      tr(
-        "Liru wears a honey-yellow cardigan with bear-shaped pockets and carries a honey jar shoulder bag.",
-      ),
+      tr("Liru wears a bear-themed cardigan and carries a honey-pot bag."),
     ],
     [
       "bunny-ear-hoodie",
       tr("Bunny ear hoodie"),
-      tr(
-        "Liru wears a cream hoodie with floppy bunny ears and a carrot zipper pull, paired with light blue shorts.",
-      ),
+      tr("Liru wears a bunny-ear hoodie with a carrot zipper charm."),
     ],
     [
       "mint-cat-apron",
       tr("Mint cat apron"),
-      tr(
-        "Liru wears a mint-green apron with a cat-face pocket and a lavender bow over a cream blouse.",
-      ),
+      tr("Liru wears a mint apron with a cat-face pocket."),
     ],
     [
       "strawberry-cream-dress",
       tr("Strawberry cream dress"),
-      tr(
-        "Liru waves in a pink and cream dress with strawberry motifs and carries a strawberry-shaped bag.",
-      ),
+      tr("Liru waves in a pink and white dress with a strawberry bag."),
     ],
     [
       "rose-princess",
       tr("Rose princess"),
-      tr(
-        "Liru holds a pink rose and wears a layered rose-pink and cream gown with floral embroidery.",
-      ),
+      tr("Liru holds a pink rose in a rose-embroidered gown."),
     ],
     [
       "red-hood-picnic",
       tr("Red hood picnic"),
-      tr(
-        "Liru wears a red hooded cape with gold embroidery and carries a wicker picnic basket with a red apple.",
-      ),
+      tr("Liru wears a red hood and carries a wicker basket with an apple."),
     ],
     [
       "blue-white-fairy-tale-dress",
-      tr("Blue and white fairy tale dress"),
-      tr(
-        "Liru wears a blue dress with a white lace apron, holds a small brass key, and has a pocket watch at her waist.",
-      ),
+      tr("Blue fairy tale dress"),
+      tr("Liru holds a brass key in a blue and white dress."),
     ],
     [
       "rose-cookie-tea-party",
       tr("Rose cookie tea party"),
-      tr(
-        "Liru wears a dusty rose dress with cream trim and holds a round cookie tin decorated with a rose.",
-      ),
+      tr("Liru holds a rose-patterned cookie tin in a dusty pink dress."),
     ],
     [
       "sea-salt-sailor-dress",
       tr("Sea salt sailor dress"),
-      tr(
-        "Liru wears a cream sailor dress with light blue trim and mint green tights, and carries a shell-shaped bag.",
-      ),
+      tr("Liru carries a shell bag in a white sailor dress with blue trim."),
     ],
     [
       "apricot-traveler",
       tr("Apricot traveler"),
-      tr(
-        "Liru waves in an apricot jacket with a paper plane patch and carries a small suitcase decorated with a purple flower.",
-      ),
+      tr("Liru carries a flower-patterned suitcase in an apricot jacket."),
     ],
     [
       "peach-soda-dress",
       tr("Peach soda dress"),
-      tr(
-        "Liru holds a bottle of peach soda and wears a peach-pink dress with a cream bow and dusty blue tights.",
-      ),
+      tr("Liru holds a peach soda in a peach-pink dress."),
     ],
     [
       "matcha-bear-outfit",
       tr("Matcha bear outfit"),
-      tr(
-        "Liru hugs a teddy bear while wearing a matcha green toggle jacket, a cream skirt, and cocoa brown tights.",
-      ),
+      tr("Liru hugs a teddy bear in a matcha green toggle coat."),
     ],
     [
       "blueberry-cream-outfit",
       tr("Blueberry cream outfit"),
-      tr(
-        "Liru carries a jar with a blueberry motif that matches her cream blouse and wears a blue-violet skirt.",
-      ),
+      tr("Liru wears a blueberry-patterned top and holds a matching jar."),
     ],
     [
       "berry-tulip-bouquet",
-      tr("Berry cardigan and tulips"),
-      tr(
-        "Liru wears a berry-purple cardigan over a cream pinafore and holds a bouquet of pink and purple tulips.",
-      ),
+      tr("Berry tulips"),
+      tr("Liru holds tulips in a berry-purple cardigan."),
     ],
     [
       "starry-dream-dress",
       tr("Starry dream dress"),
-      tr(
-        "Liru waves in a pale blue dress with stars along the hem and holds a crescent-shaped purse.",
-      ),
+      tr("Liru waves in a star-patterned blue dress with a crescent bag."),
     ],
     [
       "caramel-pudding-cook",
       tr("Caramel pudding cook"),
-      tr(
-        "Liru wears a caramel-colored apron and holds up a wooden spoon and a plate of caramel pudding.",
-      ),
+      tr("Liru holds a wooden spoon and a plate of caramel pudding."),
     ],
     [
       "lavender-library-outfit",
       tr("Lavender library outfit"),
       tr(
-        "Liru wears a lavender sweater with a book emblem and a plaid skirt, and holds a book with a flower on the cover.",
+        "Liru holds a book with a flower on its cover, wearing a lavender sweater.",
       ),
     ],
     [
       "moon-cat-cape",
       tr("Moon cat cape"),
       tr(
-        "Liru holds a sleeping white cat and wears a lavender cape with a crescent clasp and a skirt with a moon and cat motif.",
+        "Liru cradles a sleeping white cat in a lilac cape with a crescent clasp.",
       ),
     ],
     [
       "berry-chocolate-outfit",
-      tr("Berry chocolate outfit"),
-      tr(
-        "Liru waves in a berry-red cardigan with heart-shaped buttons and a chocolate brown pleated skirt.",
-      ),
+      tr("Berry and chocolate"),
+      tr("Liru waves in a berry red cardigan and chocolate skirt."),
     ],
     [
       "peach-bow-outfit",
       tr("Peach bow outfit"),
-      tr(
-        "Liru wears a peach-pink jacket over a cream pleated skirt with a large two-tone bow at the waist.",
-      ),
+      tr("Liru wears a peach jacket and a two-tone bow at her waist."),
     ],
     [
       "star-candy-mage",
       tr("Star candy mage"),
-      tr(
-        "Liru wears a lilac cape with star charms and carries a star-tipped wand and a spellbook.",
-      ),
+      tr("Liru holds a star wand and spellbook in a lilac cape."),
     ],
     [
       "mint-lily-of-the-valley-dress",
-      tr("Mint lily of the valley dress"),
-      tr(
-        "Liru wears a sleeveless mint green dress with a scalloped hem and holds a bouquet of white lily of the valley flowers.",
-      ),
+      tr("Mint lily dress"),
+      tr("Liru holds lilies of the valley in a sleeveless mint dress."),
     ],
     [
       "paper-butterfly-collection",
-      tr("Paper butterfly collection"),
-      tr(
-        "Liru wears an apricot pinafore with a butterfly on its pocket and holds a wooden frame displaying three paper butterflies.",
-      ),
+      tr("Framed paper butterflies"),
+      tr("Liru holds framed paper butterflies in an apricot pinafore."),
     ],
     [
       "milk-tea-violinist",
       tr("Milk tea violinist"),
-      tr(
-        "Liru holds a violin and wears a milk-tea brown vest and skirt with a burgundy ribbon at her collar.",
-      ),
+      tr("Liru holds a violin in a milky brown vest and skirt."),
     ],
     [
       "blueberry-candy-shop",
       tr("Blueberry candy shop"),
-      tr(
-        "Liru wears a blue-violet dress and a cream apron with a blueberry motif, and holds a glass jar of wrapped candies.",
-      ),
+      tr("Liru holds a jar of colorful candies in a blueberry apron."),
     ],
     [
       "peach-embroidered-dress",
       tr("Peach embroidered dress"),
-      tr(
-        "Liru holds an embroidery hoop with a peach-colored flower that matches the flowers on her dress.",
-      ),
+      tr("Liru holds an embroidery hoop with flowers matching her skirt."),
     ],
     [
       "mint-paper-pinwheel",
       tr("Mint paper pinwheel"),
-      tr(
-        "Liru wears a mint and cream dress, holds a paper pinwheel, and carries a crossbody bag with a matching pinwheel motif.",
-      ),
+      tr("Liru holds up a paper pinwheel in a mint green dress."),
     ],
     [
       "cream-cocoa-detective",
-      tr("Cream and cocoa detective"),
-      tr(
-        "Liru wears a cream cape over a cocoa brown plaid dress and carries a magnifying glass and a notebook with a gold sprout on the cover.",
-      ),
+      tr("Cocoa detective"),
+      tr("Liru holds a magnifying glass and notebook in a cream cape."),
     ],
     [
       "star-music-box",
       tr("Star music box"),
-      tr(
-        "Liru wears a dusty blue dress with gold stars along the hem and holds an open wooden music box with a purple star inside.",
-      ),
+      tr("Liru holds an open wooden music box with a purple star inside."),
     ],
     [
       "lemon-garden-dress",
       tr("Lemon garden dress"),
-      tr(
-        "Liru wears a pale yellow dress with a green sash and carries a wicker basket with white blossoms and a lemon.",
-      ),
+      tr("Liru carries a wicker basket of lemons in a pale yellow dress."),
     ],
     [
       "cherry-red-painter",
       tr("Cherry red painter"),
-      tr(
-        "Liru wears a cherry red apron with a cherry motif on its pocket and holds a paintbrush and a wooden palette.",
-      ),
+      tr("Liru holds a brush and palette in a cherry red apron."),
     ],
     [
       "mint-lily-cape",
       tr("Mint lily cape"),
-      tr(
-        "Liru wears a mint cape over a cream dress and holds a bouquet of lily of the valley flowers.",
-      ),
+      tr("Liru holds lilies of the valley in a mint shawl."),
     ],
     [
       "blackberry-bow-dress",
       tr("Blackberry bow dress"),
-      tr(
-        "Liru wears a blackberry purple dress with a pink bow and carries a matching handbag.",
-      ),
+      tr("Liru carries a matching bag in a blackberry dress with a pink bow."),
     ],
     [
       "midnight-moon-dress",
-      tr("Midnight moon dress"),
+      tr("Midnight crescent dress"),
       tr(
-        "Liru wears a midnight blue dress with crescent decorations and holds a silver moon clasp purse.",
+        "Liru wears a midnight blue crescent dress and carries a silver-clasp bag.",
       ),
     ],
     [
       "peach-painter",
       tr("Peach painter"),
-      tr(
-        "Liru wears a peach apron dress and holds a paintbrush and a pastel palette.",
-      ),
+      tr("Liru holds a brush and pastel palette in a peach apron."),
     ],
     [
       "slate-academy-shorts",
-      tr("Slate academy outfit"),
+      tr("Slate academy shorts"),
       tr(
-        "Liru wears a slate blue blazer, cream shorts and white socks while holding a book with a sprout on its cover.",
+        "Liru holds a book with a sprout on its cover, wearing a slate blue blazer.",
       ),
     ],
     [
       "cream-blossom-dress",
       tr("Cream blossom dress"),
-      tr(
-        "Liru wears a cream dress with pink trim and carries a blossom handbag with a pearl handle.",
-      ),
+      tr("Liru carries a floral bag with a pearl handle in a cream dress."),
     ],
     [
       "paper-boat-sailor",
       tr("Paper boat sailor"),
-      tr(
-        "Liru wears a sailor blouse and navy skirt, holding a folded paper boat in one hand.",
-      ),
+      tr("Liru holds a paper boat in a navy sailor outfit."),
     ],
     [
       "mint-argyle-academy",
       tr("Mint argyle academy"),
-      tr(
-        "Liru waves while wearing a mint argyle vest, dark green shorts and ivory ribbed socks.",
-      ),
+      tr("Liru waves in a mint argyle vest."),
     ],
     [
       "berry-acorn-cape",
       tr("Berry acorn cape"),
-      tr(
-        "Liru wears a berry red cape fastened with an acorn clasp over a belted cream dress.",
-      ),
+      tr("Liru wears a berry red cape with an acorn clasp."),
     ],
     [
       "misty-moon-clutch",
       tr("Misty blue moon dress"),
-      tr(
-        "Liru wears a misty blue dress with star and moon details and holds a silver crescent purse.",
-      ),
+      tr("Liru holds a silver crescent bag in a mist blue celestial dress."),
     ],
     [
       "berry-knit-shorts",
       tr("Berry knit casual outfit"),
-      tr(
-        "Liru makes a peace sign while wearing a berry purple sweater, cream shorts and matching ribbed socks.",
-      ),
+      tr("Liru makes a peace sign in a berry sweater and cream shorts."),
     ],
     [
       "cherry-academy-blazer",
-      tr("Cherry academy blazer"),
-      tr(
-        "Liru wears a cherry red blazer with a lavender bow and holds a cream book against her pleated skirt.",
-      ),
+      tr("Cherry blazer"),
+      tr("Liru holds a cream-colored book in a cherry red blazer."),
     ],
     [
       "sea-mist-bottle",
-      tr("Sea mist collector"),
-      tr(
-        "Liru wears a pale blue cape over a navy dress and holds a glass bottle containing a seashell.",
-      ),
+      tr("Sea mist bottle"),
+      tr("Liru holds a jar of seashells in a pale blue cape."),
     ],
     [
       "cream-petal-tea",
       tr("Cream petal tea dress"),
-      tr(
-        "Liru holds a floral teacup while wearing a cream petal skirt with a powder blue underskirt and sash.",
-      ),
+      tr("Liru holds a flower teacup in a cream petal skirt."),
     ],
     [
       "cherry-newspaper",
       tr("Cherry newspaper outfit"),
-      tr(
-        "Liru carries a rolled newspaper and wears a cherry red shirt with brown pleated shorts.",
-      ),
+      tr("Liru holds a rolled newspaper in a cherry red shirt."),
     ],
     [
       "berry-knit-bunny",
-      tr("Berry knit bunny"),
-      tr(
-        "Liru hugs a cream rabbit plush while wearing a berry purple knitted vest and cropped cream trousers.",
-      ),
+      tr("Berry knit and bunny"),
+      tr("Liru hugs a white rabbit plush in a berry knit vest."),
     ],
     [
       "apricot-lantern",
       tr("Apricot lantern traveler"),
-      tr(
-        "Liru wears an apricot jacket over a cream dress and carries a brass lantern.",
-      ),
+      tr("Liru carries a brass lantern in an apricot coat."),
     ],
     [
       "mint-ice-cream",
       tr("Mint ice cream dress"),
-      tr(
-        "Liru holds an ice cream cone and wears a mint dress with a scalloped hem and an ice cream pocket motif.",
-      ),
+      tr("Liru holds an ice cream cone in a mint green dress."),
     ],
     [
       "wisteria-messenger",
       tr("Wisteria messenger"),
-      tr(
-        "Liru holds a sealed envelope and wears a lavender dress with a cream cape and a wisteria messenger bag.",
-      ),
+      tr("Liru holds a sealed letter and carries a wisteria messenger bag."),
     ],
     [
       "honey-lemon-picnic",
       tr("Honey lemon picnic"),
-      tr(
-        "Liru waves in a yellow gingham dress while carrying a wicker basket filled with lemons.",
-      ),
+      tr("Liru waves with a basket of lemons in a yellow gingham dress."),
     ],
     [
       "powder-blue-pottery",
-      tr("Powder blue pottery outfit"),
-      tr(
-        "Liru wears a powder blue romper with a cream apron and holds a seafoam green cup with a white flower.",
-      ),
+      tr("Powder blue potter"),
+      tr("Liru holds a seafoam floral cup in a powder blue romper."),
     ],
     [
       "moonwhite-astrologer",
       tr("Moonwhite astrologer"),
-      tr(
-        "Liru holds a golden astrolabe and wears a moonwhite robe with gold stars over a lavender dress.",
-      ),
+      tr("Liru holds a golden astrolabe in a star-embroidered robe."),
     ],
     [
       "berry-rose-side-bow",
-      tr("Berry rose side-bow dress"),
-      tr(
-        "Liru wears a berry rose dress with a cream side bow and carries a flower-shaped handbag.",
-      ),
+      tr("Berry rose bow dress"),
+      tr("Liru wears a berry rose dress with a cream bow at her hip."),
     ],
     [
       "cream-tulip-gardener",
-      tr("Cream tulip gardener"),
-      tr(
-        "Liru wears cream short overalls over a green shirt and holds a pink tulip and watering can.",
-      ),
+      tr("Tulip gardener"),
+      tr("Liru holds pink tulips and a watering can in cream overalls."),
     ],
     [
       "starry-evening-reader",
-      tr("Starry evening reader"),
-      tr(
-        "Liru wears a star blue shirt dress and carries a star-shaped lantern and a book with a crescent moon.",
-      ),
+      tr("Starry evening reading"),
+      tr("Liru holds a star lantern and a book in a star-blue dress."),
     ],
     [
       "strawberry-cream-baker",
       tr("Strawberry cream baker"),
-      tr(
-        "Liru wears a pink dress with a cream strawberry apron and presents a slice of strawberry cream cake.",
-      ),
+      tr("Liru carries strawberry shortcake in a strawberry apron."),
     ],
     [
       "matcha-camera-traveler",
       tr("Matcha camera traveler"),
-      tr(
-        "Liru wears a matcha green jacket with cream shorts and carries a camera on a neck strap.",
-      ),
+      tr("Liru wears a matcha green jacket with a camera around her neck."),
     ],
     [
       "sea-salt-summer",
       tr("Sea salt summer outfit"),
-      tr(
-        "Liru wears a sea salt blue sleeveless top and a long cream skirt, carrying a round woven handbag.",
-      ),
+      tr("Liru carries a round woven bag in a sea-salt blue top."),
     ],
     [
       "caramel-pinafore-scholar",
-      tr("Caramel pinafore scholar"),
+      tr("Caramel pinafore"),
       tr(
-        "Liru wears round glasses and a caramel pinafore over a cream blouse, holding a book with a golden leaf design.",
+        "Liru wears round glasses and holds a book with a gold leaf on its cover.",
       ),
     ],
     [
       "pastel-tennis",
       tr("Pastel tennis outfit"),
-      tr(
-        "Liru wears a pink polo shirt and cream pleated skirt while holding a tennis ball and a mint green racket.",
-      ),
+      tr("Liru holds a tennis ball and mint racket in a pink polo."),
     ],
     [
       "lavender-ballet-dress",
       tr("Lavender ballet dress"),
-      tr(
-        "Liru waves in a lavender ballet-inspired dress with a cream waist bow and a layered tulle skirt.",
-      ),
+      tr("Liru waves in a lavender tulle ballet dress."),
     ],
     [
       "cherry-denim",
       tr("Cherry denim day"),
       tr(
-        "Liru wears a red shirt and denim short overalls with a cherry pocket motif, holding a cream instant camera.",
+        "Liru holds an instant camera in denim overalls with a cherry pocket.",
       ),
     ],
     [
       "cream-knit-fox",
-      tr("Cream knit fox"),
-      tr(
-        "Liru wears a cream cable-knit dress and brown ankle boots while hugging a small fox plush.",
-      ),
+      tr("Cream knit and fox"),
+      tr("Liru hugs a fox plush in a cream knit dress."),
     ],
     [
       "forest-green-violinist",
       tr("Forest green violinist"),
-      tr(
-        "Liru wears a forest green dress with a cream bow and holds a violin and bow.",
-      ),
+      tr("Liru holds a violin and bow in a forest green dress."),
     ],
     [
       "cream-berry-messenger",
-      tr("Cream and berry blue messenger"),
+      tr("Cream and blue messenger"),
       tr(
-        "Liru holds a sealed letter and carries a cream and berry blue messenger bag.",
+        "Liru holds an envelope and carries a cream and blueberry messenger bag.",
       ),
     ],
     [
       "apricot-marigold-gardener",
       tr("Apricot marigold gardener"),
-      tr(
-        "Liru wears apricot overalls and green boots while holding a potted marigold.",
-      ),
+      tr("Liru holds a potted marigold in apricot overalls."),
     ],
     [
       "berry-vintage-photographer",
-      tr("Berry red vintage photographer"),
-      tr("Liru wears a berry red corduroy jacket and holds a vintage camera."),
+      tr("Berry red photographer"),
+      tr("Liru holds a vintage camera in a berry red corduroy jacket."),
     ],
     [
       "sea-salt-shell-dress",
       tr("Sea salt shell dress"),
-      tr(
-        "Liru waves in a sea salt blue dress and carries a shell-shaped handbag with a pearl handle.",
-      ),
+      tr("Liru waves in a sea-salt blue dress with a shell bag."),
     ],
     [
       "lavender-tea-caddy",
       tr("Lavender tea caddy"),
-      tr(
-        "Liru wears a cream top with lavender frog closures and holds a tea caddy with a lavender motif.",
-      ),
+      tr("Liru holds a lavender tea tin in a top with lilac frog buttons."),
     ],
     [
       "midnight-starflower-dress",
       tr("Midnight starflower dress"),
-      tr(
-        "Liru waves in a midnight blue dress with pale starflowers and carries a matching round handbag.",
-      ),
+      tr("Liru waves in a midnight blue starflower dress with a round bag."),
     ],
     [
       "cream-plaid-traveler",
-      tr("Cream plaid traveler"),
-      tr(
-        "Liru reads a map while wearing a cream plaid cape with an acorn clasp.",
-      ),
+      tr("Plaid traveler"),
+      tr("Liru holds a map in a cream plaid cape."),
     ],
     [
       "butterfly-hoop-embroidery",
       tr("Butterfly hoop embroidery"),
-      tr(
-        "Liru wears a peach dress and cream apron and holds an embroidery hoop with a purple butterfly.",
-      ),
+      tr("Liru holds a purple butterfly embroidery hoop in a cream apron."),
     ],
     [
       "burgundy-velvet-dress",
       tr("Burgundy velvet dress"),
-      tr(
-        "Liru wears a burgundy velvet dress with a black belt and holds a cream clutch.",
-      ),
+      tr("Liru carries a cream clutch in a burgundy velvet dress."),
     ],
     [
       "mist-blue-bow-umbrella",
-      tr("Misty blue bow and umbrella"),
-      tr(
-        "Liru wears a misty blue jacket with a cream bow and holds a folded umbrella.",
-      ),
+      tr("Misty blue umbrella"),
+      tr("Liru carries a folded umbrella in a mist blue jacket with a bow."),
     ],
     [
       "cream-daisy-pinafore",
       tr("Cream daisy pinafore"),
-      tr(
-        "Liru holds a daisy bouquet in a cream pinafore with daisy embroidery and a sage blouse.",
-      ),
+      tr("Liru holds daisies in a cream daisy-patterned pinafore."),
     ],
     [
       "cocoa-rose-bookshop",
       tr("Cocoa rose bookshop"),
-      tr(
-        "Liru adjusts her round glasses and holds two books, wearing a cocoa brown pinafore over a rose blouse.",
-      ),
+      tr("Liru adjusts her glasses and holds books in a cocoa pinafore."),
     ],
     [
       "mint-windup-music-box",
       tr("Mint windup music box"),
-      tr(
-        "Liru wears a mint dress trimmed with music notes and holds a windup music box.",
-      ),
+      tr("Liru holds a windup music box in a mint dress patterned with notes."),
     ],
     [
       "cherry-soda-sailor",
       tr("Cherry soda sailor"),
-      tr(
-        "Liru makes a peace sign in a cherry-trimmed sailor dress and holds a bottle of pink soda.",
-      ),
+      tr("Liru makes a peace sign with pink soda in a cherry sailor dress."),
     ],
     [
       "misty-lilac-bell-cape",
       tr("Misty lilac bell cape"),
-      tr(
-        "Liru wears a misty lilac cape with gold bells at its bow and carries a ribbon-tied scroll.",
-      ),
+      tr("Liru holds a ribbon-tied scroll in a lilac cape with gold bells."),
     ],
     [
       "forest-green-detective",
       tr("Forest green detective"),
-      tr(
-        "Liru wears a forest green belted coat and carries a magnifying glass and a notebook.",
-      ),
+      tr("Liru holds a magnifying glass and notebook in a forest green coat."),
     ],
     [
       "honey-apricot-bow-dress",
       tr("Honey apricot bow dress"),
-      tr(
-        "Liru wears a honey apricot dress with a large bow and carries a heart-shaped handbag.",
-      ),
+      tr("Liru carries a heart-shaped bag in an apricot dress with a bow."),
     ],
     [
       "indigo-moonlight-dress",
       tr("Indigo moonlight dress"),
-      tr(
-        "Liru waves in an indigo dress with silver stars and holds a book decorated with a crescent moon.",
-      ),
+      tr("Liru waves in an indigo star dress with a crescent-covered book."),
     ],
     [
       "strawberry-tea-party-dress",
-      tr("Strawberry tea party dress"),
-      tr(
-        "Liru holds a strawberry teacup and saucer while wearing a cream tiered dress with berry embroidery.",
-      ),
+      tr("Strawberry tea dress"),
+      tr("Liru holds a strawberry teacup in a cream strawberry dress."),
     ],
     [
       "rose-milk-tea-academy",
-      tr("Rose milk tea academy outfit"),
-      tr(
-        "Liru wears a rose pink toggle jacket and carries a takeaway cup and a brown handbag.",
-      ),
+      tr("Rose milk tea uniform"),
+      tr("Liru holds a takeaway cup and handbag in a rose pink toggle coat."),
     ],
     [
       "spring-embroidered-maxi-dress",
-      tr("Spring embroidered maxi dress"),
-      tr(
-        "Liru waves while lifting the hem of a cream maxi dress embroidered with flowers and leaves and tied with an olive sash.",
-      ),
+      tr("Spring embroidered dress"),
+      tr("Liru lifts a cream yellow skirt with floral embroidery at the hem."),
     ],
     [
       "arcade-streetwear",
       tr("Arcade streetwear"),
-      tr(
-        "Liru raises a fist in a blue-and-white jacket and cargo trousers, with red and blue accents on her sneakers.",
-      ),
+      tr("Liru raises a fist in a blue and white jacket and cargo trousers."),
     ],
     [
       "plum-knit-campus",
-      tr("Plum knit campus outfit"),
-      tr(
-        "Liru holds a lilac notebook in a plum cable-knit cardigan, a green ribbon tie and a plaid skirt.",
-      ),
+      tr("Plum campus cardigan"),
+      tr("Liru holds a lilac notebook in a plum cardigan."),
     ],
     [
       "star-note-academy",
       tr("Star Note Academy"),
-      tr(
-        "Liru waves in a lavender cardigan and a navy skirt embroidered with stars and notes, holding a music notebook.",
-      ),
+      tr("Liru waves with a music book in a star-patterned navy skirt."),
     ],
     [
       "mint-bunny-picnic",
       tr("Mint bunny picnic"),
-      tr(
-        "Liru makes a peace sign in a mint bunny-ear hoodie and carries a picnic basket filled with bread, strawberries, and daisies.",
-      ),
+      tr("Liru carries a picnic basket in a mint bunny-ear hoodie."),
     ],
     [
       "strawberry-cream-cafe",
       tr("Strawberry cream café"),
-      tr(
-        "Liru presents a slice of strawberry cake in a pink dress with strawberry embroidery and a cream lace apron.",
-      ),
+      tr("Liru carries a plate of strawberry cake in a pink strawberry apron."),
     ],
     [
       "peach-carousel-dress",
       tr("Peach carousel dress"),
-      tr(
-        "Liru waves in a peach-pink and cream carousel dress, with embroidered horses and a ticket-shaped bag.",
-      ),
+      tr("Liru wears a peach-pink carousel dress with a ticket-shaped bag."),
     ],
     [
       "violet-carousel-dress",
       tr("Violet carousel dress"),
-      tr(
-        "Liru waves in a violet and cream carousel dress, with embroidered horses and a ticket-shaped bag.",
-      ),
+      tr("Liru wears a violet carousel dress with a ticket-shaped bag."),
     ],
     [
       "mint-carousel-dress",
       tr("Mint carousel dress"),
-      tr(
-        "Liru waves in a mint-green and cream carousel dress, with embroidered horses and a ticket-shaped bag.",
-      ),
+      tr("Liru wears a mint carousel dress with a ticket-shaped bag."),
     ],
     [
       "starry-pajamas",
       tr("Starry pajamas"),
-      tr("Liru yawns in gold-trimmed purple pajamas while holding a quilt."),
+      tr("Liru yawns in star-patterned pajamas while holding a quilt."),
     ],
     [
       "flower-ribbon",
       tr("Flower ribbon"),
-      tr("Liru ties a plum-colored ribbon around a bouquet of pink flowers."),
+      tr("Liru ties a plum ribbon around a pink bouquet."),
     ],
     [
       "cyanotype",
       tr("Ginkgo cyanotype"),
       tr(
-        "Liru holds a golden ginkgo leaf beside its white silhouette on a blue print.",
+        "Liru holds a golden ginkgo leaf beside its silhouette on a cyanotype.",
       ),
     ],
     [
       "late-night-radio",
       tr("Late-night radio"),
-      tr(
-        "Liru turns the dial of a red radio in a teal cardigan and orange sweater.",
-      ),
+      tr("Liru turns the dial of a red radio in a teal cardigan."),
     ],
     [
       "woodland-birdcare",
       tr("Woodland birdkeeper"),
       tr(
-        "Liru wears a mustard jacket while a small brown bird perches on her finger.",
+        "Liru wears a mustard jacket with a small bird perched on her finger.",
       ),
     ],
     [
       "origami-swallow",
       tr("Paper swallow"),
-      tr(
-        "Liru holds a pale blue paper swallow in a navy sailor dress with an orange tie.",
-      ),
+      tr("Liru holds a blue paper swallow in a navy sailor dress."),
     ],
     [
       "morning-yoga",
       tr("Morning yoga"),
-      tr(
-        "Liru sits cross-legged with her eyes closed in a coral wrap top and lilac trousers.",
-      ),
+      tr("Liru sits cross-legged with eyes closed in a coral wrap top."),
     ],
     [
       "bubble-walk",
       tr("Bubble walk"),
-      tr(
-        "Liru lifts a bubble wand to her lips in a denim vest and olive skirt.",
-      ),
+      tr("Liru lifts a bubble wand to her lips in a denim vest."),
     ],
     [
       "wicker-weaver",
       tr("Wicker basket weaver"),
-      tr(
-        "Liru wears an ochre vest and holds a small woven basket by its handle.",
-      ),
+      tr("Liru carries a small wicker basket in an ochre vest."),
     ],
     [
       "ice-skates",
       tr("Lacing up skates"),
-      tr(
-        "Liru sits on a wooden bench in a burgundy jacket and ties her white ice skate.",
-      ),
+      tr("Liru sits on a bench in a burgundy jacket and laces an ice skate."),
     ],
     [
       "lantern-festival",
       tr("Lantern festival"),
-      tr(
-        "Liru carries a glowing lantern in a pale green embroidered top and golden pleated skirt.",
-      ),
+      tr("Liru carries a glowing lantern in an embroidered golden skirt."),
     ],
     [
       "mime",
       tr("Street mime"),
-      tr(
-        "Liru raises both palms in a striped shirt, black suspenders, and a red neck scarf.",
-      ),
+      tr("Liru raises both palms in a striped shirt and red neckerchief."),
     ],
     [
       "baseball-fielding",
       tr("Baseball fielding"),
-      tr(
-        "Liru wears a pinstriped baseball uniform and holds a ball in a brown glove.",
-      ),
+      tr("Liru holds a baseball in a glove, wearing a pinstriped uniform."),
     ],
     [
       "fern-gardener",
       tr("Fern gardener"),
-      tr(
-        "Liru waters a potted fern with a small copper can while wearing an olive shirt dress.",
-      ),
+      tr("Liru waters a potted fern in an olive shirt dress."),
     ],
     [
       "moonlight-gala",
       tr("Moonlight gala"),
-      tr(
-        "Liru wears a lilac satin gown with a silver belt and carries a matching clutch.",
-      ),
+      tr("Liru carries a silver clutch in a lavender satin gown."),
     ],
     [
       "equestrian",
       tr("Equestrian outfit"),
-      tr(
-        "Liru fastens a brown riding glove in a tweed waistcoat and tall boots.",
-      ),
+      tr("Liru fastens a riding glove in a tweed vest and tall boots."),
     ],
     [
       "pinwheel-festival",
       tr("Pinwheel festival"),
-      tr(
-        "Liru holds a multicolored pinwheel in blue checkered overalls with an orange sash.",
-      ),
+      tr("Liru holds a colorful pinwheel in blue gingham overalls."),
     ],
     [
       "night-train",
       tr("Night train attendant"),
-      tr(
-        "Liru opens a gold pocket watch in a dark green railway uniform trimmed with gold.",
-      ),
+      tr("Liru checks a pocket watch in a gold-trimmed green railway uniform."),
     ],
     [
       "fossil-researcher",
       tr("Fossil researcher"),
-      tr(
-        "Liru brushes an ammonite fossil while wearing a white lab coat over a blue sweater vest.",
-      ),
+      tr("Liru brushes an ammonite fossil in a white lab coat."),
     ],
     [
       "bouldering",
       tr("Bouldering outfit"),
-      tr(
-        "Liru reaches into a blue chalk bag in a lime vest and rust-colored climbing trousers.",
-      ),
+      tr("Liru reaches into her chalk bag in a bright green climbing vest."),
     ],
     [
       "matcha",
       tr("Matcha tea ceremony"),
-      tr(
-        "Liru kneels on a red cushion in a floral green kimono and offers a bowl of matcha.",
-      ),
+      tr("Liru kneels in a floral green kimono and offers matcha."),
     ],
     [
       "accordion",
       tr("Folk accordion"),
-      tr(
-        "Liru plays a red accordion trimmed with gold in a cream jacket embroidered with green leaves.",
-      ),
+      tr("Liru plays a red accordion in a leaf-embroidered jacket."),
     ],
     [
       "stained-glass",
       tr("Stained-glass sunlight"),
-      tr(
-        "Liru holds up a stained-glass panel with yellow sun rays against a teal background.",
-      ),
+      tr("Liru holds stained glass patterned with a golden sun."),
     ],
     [
       "street-photographer",
       tr("Street photographer"),
-      tr(
-        "Liru kneels in a mustard corduroy jacket and holds a vintage camera.",
-      ),
+      tr("Liru kneels in a mustard corduroy jacket with a camera."),
     ],
     [
       "circus-juggler",
       tr("Circus juggler"),
-      tr(
-        "Liru juggles colorful balls in a diamond-patterned vest and a ruffled collar.",
-      ),
+      tr("Liru juggles colorful balls in a diamond-patterned vest."),
     ],
     [
       "badminton",
       tr("Badminton outfit"),
-      tr(
-        "Liru holds a racket and a shuttlecock in a yellow polo and green pleated skirt.",
-      ),
+      tr("Liru holds a racket and shuttlecock in yellow and green sportswear."),
     ],
     [
       "chess",
       tr("White knight"),
-      tr(
-        "Liru sits on a stool in a dress with a checkerboard panel and holds up a white knight.",
-      ),
+      tr("Liru holds up a white chess knight in a checkerboard dress."),
     ],
     [
       "vinyl-dj",
       tr("Vinyl DJ"),
-      tr(
-        "Liru holds a vinyl record in a black biker vest with headphones around her neck.",
-      ),
+      tr("Liru holds a vinyl record with headphones around her neck."),
     ],
     [
       "patchwork-tailor",
       tr("Patchwork tailor"),
-      tr(
-        "Liru displays a patchwork star with a tomato-shaped pincushion hanging from her waist.",
-      ),
+      tr("Liru shows a patchwork star and wears a tomato pincushion."),
     ],
     [
       "sunset-astronaut",
       tr("Sunset astronaut"),
-      tr(
-        "Liru salutes in a bright orange spacesuit while holding a white helmet.",
-      ),
+      tr("Liru salutes in an orange spacesuit while holding a white helmet."),
     ],
     [
       "jellyfish-dancer",
       tr("Jellyfish dancer"),
-      tr(
-        "Liru lifts her arms in a dance pose in a shimmering blue dress with layered ruffles.",
-      ),
+      tr("Liru dances in a shimmering blue dress with layered ruffles."),
     ],
     [
       "steam-workshop",
       tr("Steam workshop"),
-      tr(
-        "Liru wears green overalls and holds a wrench and a round brass gear assembly.",
-      ),
+      tr("Liru holds a wrench and brass gears in green overalls."),
     ],
     [
       "jazz-conductor",
       tr("Jazz conductor"),
-      tr(
-        "Liru raises a baton in a black tailcoat with plum lapels and a gold bow tie.",
-      ),
+      tr("Liru raises a baton in a black tailcoat with a gold bow tie."),
     ],
     [
       "snow-post",
       tr("Snowbound post"),
-      tr(
-        "Liru offers a wax-sealed envelope in a white quilted coat and blue scarf.",
-      ),
+      tr("Liru offers a wax-sealed letter in a white quilted coat."),
     ],
     [
       "roller",
       tr("Roller skating"),
       tr(
-        "Liru balances with both arms out in a teal and coral vest, wearing mismatched roller skates.",
+        "Liru balances with arms out on mismatched red and blue roller skates.",
       ),
     ],
     [
       "marine",
       tr("Marine field notes"),
-      tr(
-        "Liru holds a pencil and an open notebook in a navy vest with a wave emblem.",
-      ),
+      tr("Liru holds a pencil and open notebook in a vest with a wave emblem."),
     ],
     [
       "camellia",
       tr("Camellia fan"),
-      tr(
-        "Liru holds a camellia fan in a red frog-button jacket and a cream embroidered skirt.",
-      ),
+      tr("Liru holds a camellia fan in a red frog-button jacket."),
     ],
     [
       "raincoat",
       tr("Mint raincoat"),
-      tr(
-        "Liru makes a peace sign in a mint raincoat while carrying a closed yellow umbrella.",
-      ),
+      tr("Liru makes a peace sign in a mint raincoat with a yellow umbrella."),
     ],
     [
       "baker",
       tr("Orange bun baker"),
-      tr(
-        "Liru wears an orange apron and presents two glazed buns topped with orange slices.",
-      ),
+      tr("Liru presents two glazed orange buns in an orange apron."),
     ],
     [
       "stargazer",
       tr("Constellation stargazer"),
-      tr(
-        "Liru carries a brass spyglass in a dark cape embroidered with stars and a constellation.",
-      ),
+      tr("Liru holds a brass spyglass in a purple constellation cape."),
     ],
     [
       "cello-tuning",
       tr("Cello tuning"),
-      tr(
-        "Liru sits in a cream embroidered blouse and turns a tuning peg on her cello.",
-      ),
+      tr("Liru turns a cello tuning peg in a cream embroidered blouse."),
+    ],
+    [
+      "shadow-puppet",
+      tr("Golden crane shadow puppet"),
+      tr("Liru in red brocade raises a golden crane shadow puppet."),
+    ],
+    [
+      "surf-wax",
+      tr("Waxing the surfboard"),
+      tr("Liru kneels in a wetsuit and waxes a striped surfboard."),
+    ],
+    [
+      "bookbinding",
+      tr("Handbound notebook"),
+      tr("Liru wears a blue knit shawl and stitches a book spine."),
+    ],
+    [
+      "pool-chalk",
+      tr("Chalking the cue"),
+      tr("Liru in a plum waistcoat chalks a pool cue."),
+    ],
+    [
+      "seaglass",
+      tr("Sea glass"),
+      tr("Liru crouches in yellow boots and holds up turquoise sea glass."),
+    ],
+    [
+      "color-cube",
+      tr("Puzzle cube"),
+      tr("Liru twists a colorful puzzle cube in a peach vest."),
+    ],
+    [
+      "frame-drum",
+      tr("Frame drum"),
+      tr("Liru in a lilac vest holds a round frame drum."),
+    ],
+    [
+      "pottery-wheel",
+      tr("Pottery wheel workshop"),
+      tr("Liru shapes a clay cup on a pottery wheel."),
     ],
   ];
   return {
