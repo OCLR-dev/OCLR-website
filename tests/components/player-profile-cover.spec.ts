@@ -69,3 +69,51 @@ test("the improvement index carries the faster-than-typical colour band", async 
   await expect(value).toHaveClass(/bws-value--oii-up/);
   await expect(value).toHaveClass(/bws-value--rank-tier/);
 });
+
+// The sticky header and the actual browser top layer determine whether the
+// formula can be read and activated when there is too little room above.
+test("the global rank explanation clears the sticky header and stays operable", async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto("/player-profile-cover?sticky-header");
+  const trigger = page
+    .locator(".bws-card")
+    .getByRole("button")
+    .and(page.locator("button[popovertarget]"));
+  await trigger.evaluate((node) => {
+    const header = document.querySelector("header.site-header")!;
+    window.scrollBy(
+      0,
+      node.getBoundingClientRect().top -
+        header.getBoundingClientRect().bottom -
+        20,
+    );
+  });
+  if (isMobile) await trigger.tap();
+  else await trigger.press("Enter");
+  const note = page.locator(".bws-rank-note-panel");
+  const formula = note.getByRole("link", { name: "BWS formula" });
+  await expect(formula).toBeVisible();
+  const noteBox = (await note.boundingBox())!;
+  const triggerBox = (await trigger.boundingBox())!;
+  expect(noteBox.y).toBeGreaterThan(triggerBox.y + triggerBox.height);
+  if (!isMobile)
+    expect(noteBox.width).toBeLessThan(
+      (await page.locator(".bws-card").boundingBox())!.width,
+    );
+  expect(noteBox.x).toBeGreaterThanOrEqual(0);
+  expect(noteBox.x + noteBox.width).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
+  expect(noteBox.y + noteBox.height).toBeLessThanOrEqual(
+    page.viewportSize()!.height,
+  );
+  if (!isMobile) {
+    await page.keyboard.press("Tab");
+    await expect(formula).toBeFocused();
+  }
+  await formula.click({ trial: true });
+  await page.keyboard.press("Escape");
+  await expect(formula).toBeHidden();
+});

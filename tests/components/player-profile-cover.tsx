@@ -82,6 +82,11 @@ createRoot(document.getElementById("root")!).render(
         data-appearance="default"
         style={themeTokens}
       >
+        {new URLSearchParams(location.search).has("sticky-header") && (
+          <header className="site-header">
+            <div className="nav-wrap">OCLR</div>
+          </header>
+        )}
         <section className="panel profile-summary">
           <PlayerIdBadge osuId={7003013} palette={rankTierPalette(0.0142)} />
           <div className="profile-cover">

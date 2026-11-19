@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 export function ProfileInfo({
   label,
@@ -14,9 +14,16 @@ export function ProfileInfo({
   );
 }
 
-export function BwsCardNoteTrigger({ onOpenLabel }: { onOpenLabel: string }) {
+export function BwsCardNoteTrigger({
+  onOpenLabel,
+  ...button
+}: { onOpenLabel: string } & Pick<
+  ComponentProps<"button">,
+  "ref" | "popoverTarget"
+>) {
   return (
     <button
+      {...button}
       type="button"
       className="bws-card-note-trigger"
       aria-label={onOpenLabel}

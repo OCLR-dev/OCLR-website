@@ -1,4 +1,5 @@
 import { BwsCardNoteTrigger, ProfileInfo } from "./profile-info";
+import { BwsRankNote } from "./bws-rank-note";
 import {
   CoverPlayerRatings,
   RatingObservation,
@@ -233,12 +234,9 @@ function CompactBwsSummary({
           <span className="bws-card-label">
             {plainLabels ? tr("Global rank") : tr("BW-rank")}
           </span>
-          <div className="bws-card-note">
-            <BwsCardNoteTrigger onOpenLabel={tr("Explanation")} />
-            <div className="bws-card-note-panel" role="note">
-              <BwsNote value={value} includePpFormula={false} />
-            </div>
-          </div>
+          <BwsRankNote label={tr("Explanation")}>
+            <BwsNote value={value} includePpFormula={false} />
+          </BwsRankNote>
         </div>
         <div className="bws-card-value-row">
           {weightedRank !== null ? (
