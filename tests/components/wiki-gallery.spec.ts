@@ -16,10 +16,18 @@ test("previews in place, restores focus and downloads the current card and artwo
   const shuffle = showcase.getByRole("button", { name: "Show another look" });
   const originalUrl = page.url();
   await expect(trigger).toBeVisible();
+  // In the real article, the showcase heading and artwork need their own inset.
+  const panel = (await showcase.boundingBox())!;
+  const heading = (await showcase.getByRole("heading").boundingBox())!;
   const cardBox = (await trigger.locator(".wiki-gallery-card").boundingBox())!;
   const button = (await shuffle.boundingBox())!;
+  expect(heading.x - panel.x).toBeGreaterThanOrEqual(16);
+  expect(heading.y - panel.y).toBeGreaterThanOrEqual(16);
+  expect(cardBox.y - heading.y - heading.height).toBeGreaterThanOrEqual(16);
   if (isMobile) {
-    expect(button.y).toBeGreaterThan(cardBox.y + cardBox.height);
+    const gap = button.y - cardBox.y - cardBox.height;
+    expect(gap).toBeGreaterThan(0);
+    expect(gap).toBeLessThanOrEqual(40);
     expect(button.x + button.width / 2).toBeCloseTo(
       cardBox.x + cardBox.width / 2,
       0,

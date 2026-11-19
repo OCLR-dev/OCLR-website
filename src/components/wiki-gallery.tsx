@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import type { WikiGalleryFigure } from "@/lib/wiki-articles";
+import { LiruGalleryPanel } from "./liru-card-display";
 import { EmojiReactions } from "./player-reactions";
 import { WikiGalleryPreview } from "./wiki-gallery-preview";
 
@@ -27,8 +28,11 @@ export function WikiGallery({
   }
 
   return (
-    <section className="wiki-gallery" aria-labelledby={headingId}>
-      <h2 id={headingId}>{title}</h2>
+    <LiruGalleryPanel
+      className="wiki-gallery"
+      title={title}
+      headingId={headingId}
+    >
       <figure>
         <WikiGalleryPreview figure={figure} showHint />
         <button
@@ -64,6 +68,6 @@ export function WikiGallery({
           />
         </figcaption>
       </figure>
-    </section>
+    </LiruGalleryPanel>
   );
 }

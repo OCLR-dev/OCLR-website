@@ -6,6 +6,8 @@ import { english } from "../../src/i18n/translate";
 import en from "../../messages/en.json";
 import "../../src/app/globals.css";
 import "../../src/app/public-tournament.css";
+import "../../src/app/community-interactions.css";
+import "../../src/app/tournaments/[edition]/information.css";
 import "../../src/app/wiki/wiki.css";
 
 document.documentElement.dataset.theme =
@@ -14,13 +16,17 @@ const figures = liruGallery(english).gallery.slice(0, 2);
 
 createRoot(document.getElementById("root")!).render(
   <NextIntlClientProvider locale="en" messages={en} timeZone="UTC">
-    <main className="themed-site" style={{ padding: 24 }}>
-      <WikiGallery
-        title={english("Liru Card Showcase")}
-        figures={figures}
-        initialIndex={0}
-        showAnotherLabel="Show another look"
-      />
+    <main className="themed-site">
+      <div className="container page wiki-page information-page">
+        <article className="information-document document-typeset">
+          <WikiGallery
+            title={english("Liru Card Showcase")}
+            figures={figures}
+            initialIndex={0}
+            showAnotherLabel="Show another look"
+          />
+        </article>
+      </div>
     </main>
   </NextIntlClientProvider>,
 );

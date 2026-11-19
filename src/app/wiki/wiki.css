@@ -78,24 +78,6 @@
   font-size: var(--text-support);
   color: var(--site-muted);
 }
-.wiki-gallery {
-  --document-gap: clamp(0.75rem, 2vw, 1.25rem);
-  display: grid;
-  gap: var(--document-gap);
-  min-inline-size: 0;
-  padding: clamp(0.875rem, 2.5vw, 1.75rem);
-  border: 1px solid var(--site-border);
-  border-radius: var(--radius-panel, 0.75rem);
-  background: var(--site-surface);
-}
-
-.wiki-gallery > h2 {
-  --document-font-size: var(--text-heading);
-  --document-line-height: 1.35;
-  margin: 0;
-  color: var(--site-foreground);
-}
-
 .wiki-gallery figure {
   display: grid;
   grid-template-columns: [card] minmax(0, 23rem) [control] max-content;
@@ -114,6 +96,10 @@
   min-inline-size: 0;
 }
 
+.wiki-gallery .wiki-gallery-preview-hint {
+  line-height: 1.35;
+}
+
 .themed-site button.wiki-gallery-shuffle {
   grid-column: control;
   grid-row: 1;
@@ -129,10 +115,10 @@
 .wiki-gallery-shuffle svg {
   flex: none;
 }
-.wiki-gallery-shuffle:focus-visible {
-  outline-offset: 4px;
-}
-.themed-site .wiki-page .information-document > .wiki-gallery-comments {
+.themed-site
+  .wiki-page
+  .information-document
+  > :is(.wiki-gallery, .wiki-gallery-comments) {
   --site-foreground: var(--gallery-ink);
   --site-muted: var(--gallery-muted);
   --site-accent: var(--gallery-gilt);
@@ -145,8 +131,11 @@
   --site-on-primary: #2d1940;
   --site-danger: #ffafc6;
   --site-button-shadow: none;
-  margin-block: clamp(2.5rem, 6vw, 4rem) 0;
   color-scheme: dark;
+}
+
+.themed-site .wiki-page .information-document > .wiki-gallery-comments {
+  margin-block: clamp(2.5rem, 6vw, 4rem) 0;
 }
 
 .wiki-gallery-comment-board {
@@ -333,14 +322,9 @@
   grid-column: card;
   grid-row: 3;
   margin-block-start: 0.75rem;
-  font-size: clamp(1.125rem, 2.5vw, 1.5rem);
-  font-weight: 700;
-  line-height: 1.4;
-  text-align: center;
 }
 .wiki-gallery figcaption .player-reactions {
   justify-content: center;
-  margin-block-start: 0.65rem;
 }
 .wiki-source {
   margin-top: 3rem;
@@ -354,13 +338,13 @@
 }
 @media (max-width: 760px) {
   .wiki-gallery figure {
-    grid-template-columns: [card] minmax(0, 23rem);
+    grid-template-columns: [card] minmax(0, 20rem);
   }
   .themed-site button.wiki-gallery-shuffle {
     grid-column: card;
     grid-row: 3;
     justify-self: center;
-    margin-block-start: 0.5rem;
+    margin-block-start: 0.75rem;
   }
   .wiki-gallery figcaption {
     grid-row: 4;
