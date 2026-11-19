@@ -1,25 +1,41 @@
+import { useId, useState } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { etxMods, type EtxMod } from "@/lib/etx-rating-model";
+import { getModInfo } from "@/lib/mod-colors";
+import { accentForColor, accentForColors } from "@/lib/panel-accent";
 import type { ProfileRatings } from "@/lib/profile-ratings-model";
+import { RATING_COLORS } from "@/lib/rating-colors";
+import accentStyles from "./panel-accent.module.css";
+import modStyles from "./player-mod-usage.module.css";
 import styles from "./player-rating-radar.module.css";
 
-const sipModNames: Partial<Record<EtxMod, string>> = {
-  NM: "NoMod",
-  HD: "Hidden",
-  HR: "Hard Rock",
-  DT: "Double Time",
-};
+const sipMods = [
+  ["NM", "NoMod"],
+  ["HD", "Hidden"],
+  ["HR", "Hard Rock"],
+  ["DT", "Double Time"],
+] as const;
 
-const center = { x: 140, y: 126 };
-const radius = 88;
+const sipSkills = [
+  "Aim",
+  "Tapping",
+  "Low AR",
+  "High AR",
+  "High BPM",
+  "Precision",
+  "Technical",
+] as const;
+
+const center = { x: 160, y: 120 };
+const radius = 91;
 const rings = [0.2, 0.4, 0.6, 0.8, 1];
-const axes = etxMods.map((mod, index) => {
-  const angle = (index / etxMods.length) * 2 * Math.PI - Math.PI / 2;
-  return { mod, x: Math.cos(angle), y: Math.sin(angle) };
-});
 
-type Provider = "etx" | "sip";
 type Point = { x: number; y: number };
+type RatingAxis = { label: string; value: number | null; mod?: EtxMod };
+
+function starRating(value: number | undefined): number | null {
+  return value !== undefined && value >= 0 ? value : null;
+}
 
 function pointOnAxis(axis: Point, distance: number): Point {
   return {
@@ -28,193 +44,293 @@ function pointOnAxis(axis: Point, distance: number): Point {
   };
 }
 
-function SeriesMarker({ provider, x, y }: Point & { provider: Provider }) {
-  return provider === "etx" ? (
-    <circle className={styles.marker} cx={x} cy={y} r="4.5" />
-  ) : (
-    <path className={styles.marker} d={`M ${x} ${y - 3} l 3 3 -3 3 -3 -3 Z`} />
-  );
+function pointsAttribute(points: Point[]) {
+  return points.map(({ x, y }) => `${x},${y}`).join(" ");
 }
 
-function RadarSeries({
-  provider,
-  values,
-  maximum,
+function RatingPlot({
+  axes,
+  locale,
+  highlighted,
+  onPreview,
 }: {
-  provider: Provider;
-  values: (number | null)[];
-  maximum: number;
+  axes: RatingAxis[];
+  locale: string;
+  highlighted: string | null;
+  onPreview: (label: string | null) => void;
 }) {
-  const points = axes.map((axis, index) => {
-    const value = values[index];
-    return value === null
-      ? null
-      : pointOnAxis(axis, (value / maximum) * radius);
+  const gradient = useId();
+  const highest = Math.max(10, ...axes.map(({ value }) => value ?? 0));
+  const rounded = Math.ceil(highest / rings.length) * rings.length;
+  const maximum = Number.isFinite(rounded) ? rounded : highest;
+  const ticks = new Intl.NumberFormat(locale, {
+    notation: maximum >= 1e4 ? "scientific" : "standard",
+    maximumFractionDigits: 1,
   });
-  const segments = points
-    .map((point, index) => {
-      const next = points[(index + 1) % points.length];
-      return point && next
-        ? `M ${point.x} ${point.y} L ${next.x} ${next.y}`
-        : "";
-    })
-    .filter(Boolean)
-    .join(" ");
+  const directions = axes.map((_, index) => {
+    const angle = (index / axes.length) * 2 * Math.PI - Math.PI / 2;
+    return { x: Math.cos(angle), y: Math.sin(angle) };
+  });
+  const points = axes.map(({ value }, index) =>
+    value === null
+      ? null
+      : pointOnAxis(directions[index], (value / maximum) * radius),
+  );
+  const complete = points.every((point) => point !== null);
+  const segments = complete
+    ? ""
+    : points
+        .map((point, index) => {
+          const next = points[(index + 1) % points.length];
+          return point && next
+            ? `M ${point.x} ${point.y} L ${next.x} ${next.y}`
+            : "";
+        })
+        .join(" ")
+        .trim();
 
   return (
-    <g data-provider={provider}>
-      {segments && <path className={styles.seriesLine} d={segments} />}
-      {points.map((point, index) =>
-        point ? (
-          <SeriesMarker key={axes[index].mod} provider={provider} {...point} />
-        ) : null,
+    <svg className={styles.radar} viewBox="0 0 320 244" aria-hidden="true">
+      {rings.map((ring) => (
+        <polygon
+          className={styles.gridLine}
+          data-outer={ring === 1 || undefined}
+          key={ring}
+          points={pointsAttribute(
+            directions.map((axis) => pointOnAxis(axis, radius * ring)),
+          )}
+        />
+      ))}
+      {axes.map(({ label }, index) => {
+        const edge = pointOnAxis(directions[index], radius);
+        const position = pointOnAxis(directions[index], radius + 21);
+        return (
+          <g key={label} data-highlighted={highlighted === label || undefined}>
+            <line
+              className={styles.spoke}
+              x1={center.x}
+              y1={center.y}
+              x2={edge.x}
+              y2={edge.y}
+            />
+            <text
+              className={styles.axisLabel}
+              x={position.x}
+              y={position.y}
+              textAnchor="middle"
+              dominantBaseline="central"
+            >
+              {label}
+            </text>
+          </g>
+        );
+      })}
+      {complete ? (
+        <>
+          <defs>
+            <linearGradient id={gradient} x2="0" y2="1">
+              <stop className={styles.areaTop} offset="0" />
+              <stop className={styles.areaBottom} offset="1" />
+            </linearGradient>
+          </defs>
+          <polygon
+            className={styles.outline}
+            points={pointsAttribute(points)}
+            fill={`url(#${gradient})`}
+          />
+        </>
+      ) : (
+        segments && <path className={styles.outline} d={segments} fill="none" />
       )}
-    </g>
+      {rings.map((ring) => (
+        <text
+          className={styles.tick}
+          key={ring}
+          x={center.x + 5}
+          y={center.y - radius * ring - 3}
+        >
+          {ticks.format(maximum * ring)}
+        </text>
+      ))}
+      {points.map((point, index) => {
+        const { mod, label } = axes[index];
+        return (
+          point && (
+            <g
+              key={label}
+              data-highlighted={highlighted === label || undefined}
+              onMouseEnter={() => onPreview(label)}
+              onMouseLeave={() => onPreview(null)}
+            >
+              <circle cx={point.x} cy={point.y} r="12" fill="transparent" />
+              <circle
+                className={styles.marker}
+                cx={point.x}
+                cy={point.y}
+                r="4.5"
+                fill={mod ? getModInfo(mod).bg : "var(--accent-bottom)"}
+              />
+            </g>
+          )
+        );
+      })}
+    </svg>
   );
 }
 
-function SeriesKey({ provider }: { provider: Provider }) {
+function RatingPanel({
+  id,
+  title,
+  axes,
+}: {
+  id: string;
+  title: string;
+  axes: RatingAxis[];
+}) {
+  const tr = useAppTranslations();
+  const [selected, setSelected] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const highlighted = preview ?? selected;
+  const strongest = axes.reduce<RatingAxis | null>((best, axis) => {
+    if (axis.value === null) return best;
+    return best === null || axis.value > (best.value ?? 0) ? axis : best;
+  }, null);
+  if (!strongest) return null;
+
+  const accent = strongest.mod
+    ? accentForColor(getModInfo(strongest.mod).bg)
+    : accentForColors(RATING_COLORS.blue[1], RATING_COLORS.blue[0]);
+  const stars = new Intl.NumberFormat(tr.locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const largeStars = new Intl.NumberFormat(tr.locale, {
+    notation: "scientific",
+    maximumFractionDigits: 2,
+  });
+
   return (
-    <svg aria-hidden="true" data-provider={provider} width="24" height="12">
-      <path className={styles.seriesLine} d="M 1 6 H 23" />
-      <SeriesMarker provider={provider} x={12} y={6} />
-    </svg>
+    <article
+      className={`panel ${styles.card} ${accentStyles.border}`}
+      style={accent}
+      aria-labelledby={id}
+    >
+      <h3 id={id}>{title}</h3>
+      <div className={styles.content}>
+        <RatingPlot
+          axes={axes}
+          locale={tr.locale}
+          highlighted={highlighted}
+          onPreview={setPreview}
+        />
+        <ul className={styles.values} role="list">
+          {axes.map(({ label, mod, value }) => {
+            const color = mod ? getModInfo(mod) : null;
+            const row = (
+              <>
+                <span className={styles.category}>
+                  {color ? (
+                    <span
+                      className={modStyles.chip}
+                      style={{ backgroundColor: color.bg, color: color.color }}
+                    >
+                      {label}
+                    </span>
+                  ) : (
+                    label
+                  )}
+                </span>
+                <span className={modStyles.value}>
+                  {value === null ? (
+                    <>
+                      <span className={modStyles.unit} aria-hidden="true">
+                        —
+                      </span>
+                      <span className="sr-only">{tr("No rating data")}</span>
+                    </>
+                  ) : (
+                    <>
+                      {value >= 1e6
+                        ? largeStars.format(value)
+                        : stars.format(value)}
+                      <span className={modStyles.unit}> ★</span>
+                    </>
+                  )}
+                </span>
+              </>
+            );
+            return (
+              <li key={label}>
+                {value === null ? (
+                  <div className={styles.row}>{row}</div>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.row}
+                    aria-pressed={selected === label}
+                    data-highlighted={highlighted === label || undefined}
+                    onMouseEnter={() => setPreview(label)}
+                    onMouseLeave={() => setPreview(null)}
+                    onClick={() =>
+                      setSelected((previous) =>
+                        previous === label ? null : label,
+                      )
+                    }
+                  >
+                    {row}
+                  </button>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </article>
   );
 }
 
 export function PlayerRatingRadar({ ratings }: { ratings?: ProfileRatings }) {
   const tr = useAppTranslations();
-  const sipMods = ratings?.sip.api?.snapshot?.modifications;
-  const rows = etxMods.map((mod) => {
-    const sipName = sipModNames[mod];
-    const sr = sipName ? sipMods?.[sipName]?.sr : undefined;
-    return {
-      mod,
-      etx: ratings?.etx?.mods?.[mod] ?? null,
-      sip: sr !== undefined && sr >= 0 ? sr : null,
-    };
-  });
-  if (rows.every(({ etx, sip }) => etx === null && sip === null)) return null;
-
-  const highest = Math.max(
-    10,
-    ...rows.flatMap(({ etx, sip }) => [etx ?? 0, sip ?? 0]),
-  );
-  const rounded = Math.ceil(highest / rings.length) * rings.length;
-  const maximum = Number.isFinite(rounded) ? rounded : highest;
-  const tickFormat = new Intl.NumberFormat(tr.locale, {
-    notation: maximum >= 1e4 ? "scientific" : "standard",
-    maximumFractionDigits: 1,
-  });
-  const starFormat = new Intl.NumberFormat(tr.locale, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  const starValue = (value: number | null) =>
-    value === null ? (
-      <>
-        <span aria-hidden="true">—</span>
-        <span className="sr-only">{tr("No rating data")}</span>
-      </>
-    ) : (
-      <>
-        {value >= 1e6 ? tickFormat.format(value) : starFormat.format(value)} ★
-      </>
-    );
+  const sip = ratings?.sip.api?.snapshot;
+  const panels = [
+    {
+      id: "player-rating-etx-mods",
+      title: `${tr("ETX")} · ${tr("Mod ratings")}`,
+      axes: etxMods.map((mod) => ({
+        label: mod,
+        mod,
+        value: ratings?.etx?.mods?.[mod] ?? null,
+      })),
+    },
+    {
+      id: "player-rating-sip-mods",
+      title: `${tr("SIP")} · ${tr("Mod ratings")}`,
+      axes: sipMods.map(([mod, name]) => ({
+        label: mod,
+        mod,
+        value: starRating(sip?.modifications?.[name]?.sr),
+      })),
+    },
+    {
+      id: "player-rating-sip-skills",
+      title: `${tr("SIP")} · ${tr("Skillset ratings")}`,
+      axes: sipSkills.map((label) => ({
+        label,
+        value: starRating(sip?.skillsets?.[label]?.sr),
+      })),
+    },
+  ];
+  if (panels.every(({ axes }) => axes.every(({ value }) => value === null))) {
+    return null;
+  }
 
   return (
     <section className="spaced" aria-labelledby="player-rating-radar">
-      <h2 id="player-rating-radar">{tr("Mod rating radar")}</h2>
-      <div className={`panel ${styles.card}`}>
-        <svg className={styles.radar} viewBox="0 0 280 234" aria-hidden="true">
-          {rings.map((ring) => (
-            <polygon
-              className={styles.grid}
-              key={ring}
-              points={axes
-                .map((axis) => {
-                  const point = pointOnAxis(axis, radius * ring);
-                  return `${point.x},${point.y}`;
-                })
-                .join(" ")}
-            />
-          ))}
-          {axes.map((axis) => {
-            const edge = pointOnAxis(axis, radius);
-            const label = pointOnAxis(axis, radius + 24);
-            return (
-              <g key={axis.mod}>
-                <line
-                  className={styles.grid}
-                  x1={center.x}
-                  y1={center.y}
-                  x2={edge.x}
-                  y2={edge.y}
-                />
-                <text
-                  className={styles.mod}
-                  x={label.x}
-                  y={label.y}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                >
-                  {axis.mod}
-                </text>
-              </g>
-            );
-          })}
-          {rings.map((ring) => (
-            <text
-              className={styles.tick}
-              key={ring}
-              x={center.x + 5}
-              y={center.y - radius * ring - 3}
-            >
-              {tickFormat.format(maximum * ring)}
-            </text>
-          ))}
-          <RadarSeries
-            provider="etx"
-            values={rows.map(({ etx }) => etx)}
-            maximum={maximum}
-          />
-          <RadarSeries
-            provider="sip"
-            values={rows.map(({ sip }) => sip)}
-            maximum={maximum}
-          />
-        </svg>
-        <div className={styles.values}>
-          <table className={styles.table} aria-labelledby="player-rating-radar">
-            <thead>
-              <tr>
-                <th scope="col">{tr("Mods")}</th>
-                <th scope="col">
-                  <SeriesKey provider="etx" />
-                  {tr("Elitebotix")}
-                </th>
-                <th scope="col">
-                  <SeriesKey provider="sip" />
-                  {tr("SkillIssue SR")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(({ mod, etx, sip }) => (
-                <tr key={mod}>
-                  <th scope="row">{mod}</th>
-                  <td>{starValue(etx)}</td>
-                  <td>{starValue(sip)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="small muted">
-            {tr(
-              "Each source uses its own star rating model. A dash indicates missing data.",
-            )}
-          </p>
-        </div>
+      <h2 id="player-rating-radar">{tr("Player ratings")}</h2>
+      <div className={styles.panels}>
+        {panels.map((panel) => (
+          <RatingPanel key={panel.id} {...panel} />
+        ))}
       </div>
     </section>
   );

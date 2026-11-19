@@ -76,7 +76,7 @@ it("labels SIP sources separately and shows profile ETX ratings to two decimal p
   ).toBe(0);
 });
 
-it("compares saved mod stars on one scale while preserving zero and gaps", () => {
+it("plots ETX mods, SIP mods and SIP skills separately with zero values and gaps", () => {
   const ratings = profileRatingsSchema.parse({
     otr: null,
     sip: {
@@ -90,7 +90,10 @@ it("compares saved mod stars on one scale while preserving zero and gaps", () =>
             "Hard Rock": { ...sipRating("Hard Rock", 500), sr: 0 },
             "Double Time": { ...sipRating("Double Time", -12), sr: 12.25 },
           },
-          skillsets: { "High AR": { ...sipRating("High AR", 0), sr: 8.75 } },
+          skillsets: {
+            "High AR": { ...sipRating("High AR", 0), sr: 8.75 },
+            "Low AR": { ...sipRating("Low AR", 10), sr: -1 },
+          },
         },
       },
       csv: null,
@@ -105,22 +108,39 @@ it("compares saved mod stars on one scale while preserving zero and gaps", () =>
     },
   });
   const html = renderToStaticMarkup(<PlayerRatingRadar ratings={ratings} />);
-  expect(html).toContain(">15</text>");
-  expect(html).toMatch(/scope="row">NM<\/th><td>0\.00 ★<\/td><td>5\.42 ★/);
-  expect(html).toMatch(/scope="row">HR<\/th><td>6\.15 ★<\/td><td>0\.00 ★/);
-  expect(html).toMatch(
-    /scope="row">DT<\/th><td>.*?No rating data.*?<td>12\.25 ★/,
+  const card = (id: string) =>
+    html.match(
+      new RegExp(`aria-labelledby="player-rating-${id}">(.*?)</article>`),
+    )?.[1];
+  const etx = card("etx-mods");
+  const sipMods = card("sip-mods");
+  const sipSkills = card("sip-skills");
+  expect(etx).toContain("ETX · Mod ratings");
+  expect(etx).toContain(">10</text>");
+  expect(etx).toContain(">FM</text>");
+  expect(etx).toContain(">5.00");
+  expect(etx).toContain('cx="160" cy="120"');
+  expect(etx?.match(/ L /g)).toHaveLength(1);
+  expect(sipMods).toContain("SIP · Mod ratings");
+  expect(sipMods).toContain(">15</text>");
+  expect(sipMods).toContain(">0.00");
+  expect(sipMods).toContain(">12.25");
+  expect(sipMods).not.toMatch(/2450|>FM<|8\.75/);
+  expect(sipSkills).toContain("SIP · Skillset ratings");
+  expect(sipSkills).toContain(">High AR</text>");
+  expect(sipSkills).toContain(">8.75");
+  expect(sipSkills?.match(/r="4\.5"/g)).toHaveLength(1);
+  expect(sipSkills).not.toContain("<path");
+  expect(sipSkills).not.toContain(">12.25");
+
+  const sipOnly = renderToStaticMarkup(
+    <PlayerRatingRadar ratings={{ ...ratings, etx: null }} />,
   );
-  expect(html).toMatch(
-    /scope="row">FM<\/th><td>5\.00 ★<\/td><td>.*?No rating data/,
-  );
-  expect(html).not.toMatch(/2450|8\.75/);
-  const series = html.match(/<g data-provider="etx">(.*?)<\/g>/)?.[1];
-  expect(series).toContain('cx="140" cy="126"');
-  expect(series?.match(/ L /g)).toHaveLength(1);
+  expect(sipOnly).not.toContain("ETX · Mod ratings");
+  expect(sipOnly.match(/<article/g)).toHaveLength(2);
 });
 
-it("omits the radar for saved overall ratings without mod values", () => {
+it("omits charts for saved overall ratings without category values", () => {
   const ratings = profileRatingsSchema.parse({
     otr: null,
     sip: { api: null, csv: { value: 2000, importedAt: null } },

@@ -43,7 +43,7 @@ test.describe("published osu! profiles", () => {
       });
     }
     await expect(
-      page.getByRole("heading", { name: "Mod rating radar" }),
+      page.getByRole("heading", { name: "Player ratings", exact: true }),
     ).toHaveCount(0);
 
     const fetchedAt = new Date("2025-02-12T12:00:00Z");
@@ -90,6 +90,15 @@ test.describe("published osu! profiles", () => {
     await expect(
       page.getByText("osu! statistics are temporarily unavailable."),
     ).toBeVisible();
+    for (const name of [
+      "ETX · Mod ratings",
+      "SIP · Mod ratings",
+      "SIP · Skillset ratings",
+    ]) {
+      await expect(
+        page.getByRole("heading", { name, exact: true }),
+      ).toBeVisible();
+    }
     await page.getByRole("button", { name: "About the ETX rating" }).click();
     const note = page.locator("[popover]:popover-open");
     await expect(note).toContainText("0.00 ★");

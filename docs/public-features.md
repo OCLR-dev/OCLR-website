@@ -115,11 +115,13 @@ available in the compact layout when the osu! snapshot is unavailable. On a
 published player's profile, this list also identifies ratings with no saved
 data. ETX shows five mod slots, preserves zero and leaves missing entries unscored.
 SIP identifies its API observation separately if a CSV supplies the total.
-The profile also compares saved Elitebotix Mod stars and SkillIssue Mod SR in
-one radar chart on NM, HD, HR, DT and FM. SkillIssue supplies no FM rating.
-The chart shows available values, including zero, and leaves gaps on missing
-axes. A profile with only overall ratings has no radar chart. SkillIssue
-points and skillset ratings remain available in the SIP details.
+The profile shows separate radar charts for Elitebotix Mod stars, SkillIssue
+Mod SR, and SkillIssue skillset SR. Elitebotix uses NM, HD, HR, DT and FM.
+SkillIssue uses NM, HD, HR and DT for Mods, with a separate chart for Aim,
+Tapping, Low AR, High AR, High BPM, Precision and Technical. Each chart
+appears when it has a saved category value, including zero, and leaves gaps
+on missing axes. Hover over a point or select a score row to highlight its
+axis. The SIP details still show the provider's points and ranks.
 
 The ETX worker reads the existing `duelRating` response envelope, checks an
 echoed osu! UID against the request, and projects the five mod fields named in
