@@ -370,7 +370,7 @@ results are lost. Other seasons in that collection are outside this task.
 - [Supplementary pool snapshot](imports/s6-pool-source-snapshot.json): bounded
   native Sheets reads of B4:J70, plus empty Map ID tails J71:J1000 for each S6
   tab. Sheet IDs: GS **405667568**, ES **1310799675**, FS **1503362078**.
-- [Original S6 key visual](../public/archive/s6/key-visual.jpg): unchanged JPEG,
+- [Original S6 key visual](https://github.com/OCLR-dev/OCLR-website/blob/76d460e1c8f31e0b1592e9fb6c25b049c5a2c93b/public/archive/s6/key-visual.jpg): unchanged JPEG,
   1920 × 1080. It has been collected as an asset; edition branding choices and
   automatic archive artwork mappings are not changed in this phase.
 

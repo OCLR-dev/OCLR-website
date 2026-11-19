@@ -45,13 +45,7 @@ again after file reading. MIME, `nosniff`, sandbox and download headers are reta
 no storage path or guessed public URL is exposed. Polls stop and discard private
 snapshots after 401/403; reconnecting reloads the application.
 
-Regenerate the contracts and inventory after changing a read service or route:
-
-```sh
-node --import tsx scripts/generate-extended-contracts.ts
-node --import tsx scripts/read-api-spec.ts
-node --import tsx scripts/generate-remote-matrix.ts
-```
+After a read schema or resource registry change, follow [contract and inventory generation](read-api.md#generating-and-checking-contracts).
 
 The contract generator uses the existing TypeScript compiler with checked array
 indexing, so a missing first database row remains nullable in JSON. It rejects

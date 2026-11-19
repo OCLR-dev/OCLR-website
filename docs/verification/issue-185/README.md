@@ -60,7 +60,7 @@ The before/after images below represent workflow states in this implementation, 
 
 ## Deployment/review boundary
 
-Apply migration `0035_mappool_replays`, provision private durable media and Python 3/LZMA on the intended app host, and adapt the existing separate Nginx's 9 MiB body limit before using the feature. Existing media backups include replays; cleanup requires stopped writes. [Mappool operation guide](../../mappools.md#internal-replay-workflow-185) and [Rocky/storage/backup instructions](../../deployment.md#private-mappool-replay-storage-185) describe the limits and recovery order.
+Apply migration `0035_mappool_replays`, provision private durable media and Python 3/LZMA on the intended app host, and adapt the existing separate Nginx's 9 MiB body limit before using the feature. Existing media backups include replays; cleanup requires stopped writes. [Mappool operation guide](../../mappools.md#internal-replay-workflow-185-updated-by-692) and [Rocky/storage/backup instructions](../../deployment.md#private-mappool-replay-storage-185) describe the limits and recovery order.
 
 No real account uploads, real osu! playback, live OAuth, official deployment or organizer wording acceptance is claimed. The PR's actual GitHub Checks remain authoritative; no pending CI run is described as passed.
 

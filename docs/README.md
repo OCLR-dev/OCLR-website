@@ -1,74 +1,42 @@
 # OCLR documentation
 
-The repository root README ([English](../README.md) / [简体中文](../README.zh-Hans.md) / [繁體中文](../README.zh-Hant.md)) contains the project overview, a quick start and common commands. Detailed technical and operational material is organized here by responsibility.
+Project overview and setup choices are available in [English](../README.md), [简体中文](../README.zh-Hans.md), and [繁體中文](../README.zh-Hant.md).
 
-| Guide                                                            | Contents                                                                                     |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| [Development](development.md)                                    | Local setup, checks, authentication, PostgreSQL, design notes                                |
-| [Tournament administration](tournament-management.md)            | Edition settings, registration lifecycle, roles, staff reviews and audits                    |
-| [Competition workflows](competition-operations.md)               | Captains, teams, draft engine, fixtures, multiplayer import and result review                |
-| [Mappools](mappools.md)                                          | Beatmap metadata, slot/order management, publication rules and private staff Replays         |
-| [Player workspace](player-workspace.md)                          | Team practice records and private season-wide player availability                            |
-| [Public features](public-features.md)                            | News, About, players, published profiles, bracket and standings                              |
-| [Rating model](yumu-rating.md)                                   | yumu-bot attribution, formulas and OCLR adaptations                                          |
-| [Localization and appearance](localization.md)                   | Locale messages, Simplified/Traditional Chinese and appearance preferences                   |
-| [Deployment and operations](deployment.md)                       | Host setup, release scripts, database migrations, backup and rollback                        |
-| [Design references](design/)                                     | Artwork and UI references (illustrative only)                                                |
-| [Appearance design backlog](design/appearance-backlog/README.md) | Unimplemented reference styles, P3 issues, extracted CSS and detailed MainSheet design notes |
+## Develop and operate the site
 
-**Where to start:** use [Development](development.md) to work locally, [Tournament administration](tournament-management.md) to understand enrollment and permissions, and [Deployment](deployment.md) for running or updating production. Never use production credentials or personal registration records in tests.
+- [Development](development.md) covers local setup, synthetic data, OAuth, and isolated tests.
+- [CI coverage](ci.md) describes the checks, core and full suites and how to verify a run.
+- [Deployment](deployment.md) covers Rocky Linux, PostgreSQL, Nginx, migrations, updates, and recovery. [Backup operator](../operator/README.md) covers encrypted database exports and isolated restore.
+- [Next.js and service boundaries](next-service-boundaries.md) and [competition service modules](service-modules.md) cover request handling, authorization, and transactions.
+- [Performance baselines](api-performance-baseline.md) cover HTTP and database timing, with separate guides for [paginated collections](collection-pagination-baseline.md) and [background workers](worker-performance-baseline.md).
 
-- [CI coverage and acceptance](ci.md) — core/full lanes, scope selection, main checks and maintainer workflow.
-- [Country flags](country-flags.md) — pinned osu!-style Twemoji artwork, licensing, shared component and integration inventory.
-- [Write API inventory and contracts](write-api.md) — coverage of existing write routes and the generated browser OpenAPI.
-- [Competition service modules](service-modules.md) — ownership of draft snapshots, commands and read transactions.
+## Run a tournament
 
-## Developer read API and remote frontend
+- [Tournament administration](tournament-management.md) covers editions, registration, roles, and audits.
+- [Competition workflows](competition-operations.md) covers captains, teams, drafts, fixtures, and result review.
+- [Mappools](mappools.md) covers beatmap metadata, slot order, candidates, and private Replays.
+- [Player workspace](player-workspace.md) and [schedule requests](schedule-requests.md) cover practice, availability, and rescheduling.
+- [Referee MP sync](referee-mp-sync.md) covers provisional scores and reconciliation. See the [desktop integration design](referee-panel-integration.md) for proposed interfaces and the [rehearsal guide](referee-acceptance.md) for what to verify.
+- [Streaming tasks](streaming.md), [Streaming API](streaming-api.md), and [draft broadcast access](draft-broadcast-access.md) cover assignments, Overlay access, and OBS/presenter permissions.
 
-- [Known player identities and name evidence](player-identity.md) — UID aggregation,
-  publication boundaries, migration/backfill and the additive v1.3 profile resources (#360).
+## Integrate with OCLR
 
-- [Remote setup and troubleshooting](remote-development.md) — fresh frontend without a local DB/OAuth secret.
-- [Full coverage and service boundaries](remote-coverage.md), [generated page/module inventory](remote-coverage.json).
-- [Read API contract and browser/SSR examples](read-api.md), [OpenAPI](read-api.openapi.json).
-- [Developer grant, short-lived access and exact-origin CORS](developer-api.md).
-- [Developer website permission audit](developer-permissions.md) — ordinary frontend participation, staff reads and delegated read-only boundaries (#904).
+- [Remote frontend setup](remote-development.md) describes read-only development against an existing backend. See [coverage and service boundaries](remote-coverage.md) and the [generated inventory](remote-coverage.json).
+- [Developer access](developer-api.md) covers grants, credentials, and origins. See the [website permission audit](developer-permissions.md) for direct sessions and delegated reads.
+- [Read API](read-api.md) and [OpenAPI](read-api.openapi.json) describe saved-data resources and browser/SSR clients.
+- [Write API inventory and contracts](write-api.md) describes existing browser-session write routes.
 
-Local synthetic acceptance and actual CI are recorded per commit on #271/#272;
-real grants/OAuth/deployment and new Chinese wording acceptance remain separate.
+## Public pages, design, and ratings
 
-- [Published match details](match-details.md) — source/review/public projection matrix, revision consistency and verification boundaries (#283).
+- [Public features](public-features.md) covers news, player profiles, and competition pages. See [player identity](player-identity.md) and [published match details](match-details.md) for data boundaries.
+- [Localization and appearance](localization.md) covers language, theme selection, and compatibility. See the [MainSheet reference](design/mainsheet-light/README.md), [season themes](design/season-themes/README.md), and [appearance backlog](design/appearance-backlog/README.md) for design work.
+- [Country flag assets and attribution](country-flags.md) and [OCL Chess](ocl-chess.md) document their respective public features.
+- [OCLR rating model](yumu-rating.md), [SIP ratings](sip-ratings.md), and [background player analytics](background-player-analytics.md) cover formulas, data sources, and saved ranking snapshots.
 
-## Referee desktop integration design
+## Historical data and evidence
 
-- [Referee panel and OCLR-ref-tools integration](referee-panel-integration.md) — shared panel data, desktop Bearer scopes, proposed read/write APIs, revision/idempotency, IRC execution boundaries and phased delivery (#312–#317). Design draft only; not a deployed endpoint or permission expansion. The same document is maintained in OCLR-ref-tools.
-
-## Historical source preparation
-
-- [Historical season JSON transfer](historical-season-json.md) — shared schema, saved field inventory, private transfer, and compatibility with the original source files.
-
-- [OCLR β (S5) sources](s5-archive.md) — MainSheet-authoritative rosters,
-  separate draft screenshot, 34 recorded source scores and four mappools;
-  preparation only, with identity/date/rule uncertainties tracked (#288).
-- [S6 surviving sources and missing evidence](s6-archive.md) — source review,
-  original artwork and format 2 organizer-confirmed package; S6 is imported and
-  published, with remaining source/result review items recorded separately (#289).
-- [S6 match and bracket reconstruction](s6-match-reconstruction.md) — corrected
-  2021 MP histories, preliminary/knockout tables, replay and format uncertainties.
-- [S7 archive](s7-archive.md), [S8 archive](s8-archive.md),
-  [S9 archive](s9-archive.md), [S10 archive](s10-archive.md).
-
-- [OCL Chess](ocl-chess.md) — shared pixel canvas, permissions, persistence and verification scope (#379).
-
-- [Streaming API](streaming-api.md) — edition-bound Streamer access, one-hour idle
-  lease, next fixture/pool/stage contract and future Overlay integration (#540).
-
-- [Structured historical metadata](archive-metadata.md) — typed placements, rounds, season dates and S5 review material (#610).
-- [S5 statistics publication](s5-statistics-publication.md) — four approved UID corrections, all 34 matches published, preserved B28/GF score differences and unauthenticated checks (#610).
-
-- [裁判面板 MP 比分同步](referee-mp-sync.md) — MP 綁定、逐局自動暫記、重賽與來源變更人工核對、輪詢及交易邊界。
-- [Referee match and recovery acceptance](referee-acceptance.md) — explicit isolated BO9 rehearsal, pinned desktop Main, real HTTP/TCP, fault/revocation/handoff matrix and evidence limits (#525/#526).
-
-- [Historical JSONB correction and relational reads](archive-relational-queries.md) — S2 saved-data correction, complete typed relations for all historical seasons, direct relation reads without source archive JSONB transfer, incremental transaction synchronization, backfill and compatible reads (#899, #900, #902, #905, #919).
-- [Historical JSONB read/write inventory](archive-jsonb-inventory.md) — remaining-path audit, typed public summary/facts, transactional mirror writes and the intentionally retained evidence/fallback paths (#929).
-- [Background player analytics](background-player-analytics.md) — versioned ranking snapshots, source invalidation, personal MRA reads and the operator timer (#916).
+- [Season JSON transfer](historical-season-json.md) covers the shared format and transfer workflow.
+- [Historical metadata](archive-metadata.md), [beatmap metadata](archive-map-metadata.md), and [historical statistics](historical-statistics.md) describe the saved fields and their public projections.
+- [Relational archive reads](archive-relational-queries.md) and [the JSONB inventory](archive-jsonb-inventory.md) cover storage, backfill, and compatibility.
+- Season records are available for [S2](s2-followup.md), [S4](s4-archive.md), [S5](s5-archive.md), [S6](s6-archive.md), [S7](s7-archive.md), [S8](s8-archive.md), [S9](s9-archive.md), and [S10](s10-archive.md). See also [S3 bracket reconstruction](s3-bracket-reconstruction.md), [S5 statistics publication](s5-statistics-publication.md), and [S6 match reconstruction](s6-match-reconstruction.md).
+- [Issue verification records](verification/) contain evidence for specific changes. [Website release archive](website-release-archive.md) documents historical site captures.

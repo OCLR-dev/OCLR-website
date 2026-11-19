@@ -1,72 +1,12 @@
 # Deployment and operations
 
-For the reviewed cross-season ranking worker, see [background player analytics](background-player-analytics.md).
-After migrations 0081 and 0096, the existing `oclr-leaderboard.timer` can update all three rankings using the same command. Public page and API requests read the snapshots.
-For official osu! v2 difficulty snapshots, see the [background mappool difficulty job](mappools.md#background-difficulty-job).
-For SIP, o!TR and ETX, see the [daily rating refresh](#daily-rating-refresh).
-
-The deployment target is a Rocky Linux 10 Node.js application host, an existing separate PostgreSQL server and an existing separate Nginx proxy. CI verifies Node.js 24 and PostgreSQL 17; the actual external database version, permissions and networking must be rehearsed before launch. No deployment, domain, DNS or OAuth application has been provisioned by this repository. The local isolated tests are not a production launch.
-
-## Daily rating refresh
-
-The existing `oclr.service` starts the daily SIP, o!TR and ETX work through
-`scripts/production.sh start`. At **12:00 Asia/Taipei (04:00 UTC)** it runs
-the three provider jobs in sequence as `oclr`. If the site starts after that
-time, it runs the work still due for the current UTC day. Each provider
-keeps its request pacing and database lock. A provider failure leaves the
-other jobs eligible to run.
-
-Keep `SIP_API_TOKEN` and `OTR_API_KEY` in the protected
-`/etc/oclr/runtime.env` to enable those providers. ETX uses its public
-endpoint. The daemon loads environment changes on service start. The
-runtime database role needs read access to the published
-player sources and SELECT, INSERT and UPDATE on the three cache tables
-(`sip_rating_cache`, `otr_rating_cache`, `etx_rating_cache`).
-
-The daemon records each attempt before starting the provider process in
-`/var/lib/oclr/rating-refresh`. A same-day restart can start providers it had
-yet to reach. It skips providers already started that UTC day, even if
-they failed or were interrupted. Custom installations can set
-`OCLR_RATING_STATE_DIR` to an absolute, durable directory writable by the
-service user. Keep it across releases. The default path uses the existing
-`/var/lib/oclr` data directory created by the installer.
-
-### Retire the three standalone timers
-
-Copy the existing SIP token into `runtime.env` using `sudoedit` if it was
-stored separately. Keep the existing `OTR_API_KEY`. At the start of the
-update window, disable the installed rating timers and stop any active
-rating jobs before updating the website.
-
-```bash
-sudo systemctl disable --now oclr-sip-ratings.timer oclr-otr-ratings.timer oclr-etx-ratings.timer
-sudo systemctl stop oclr-sip-ratings.service oclr-otr-ratings.service oclr-etx-ratings.service
-sudo oclr update
-sudo journalctl -u oclr.service --since today --no-pager
-```
-
-For hosts that only installed some of the old units, list only those units
-in the first two commands. The scheduler starts with the updated website,
-through the existing service definition. If the release is rolled back
-to a version that used separate timers, restore the previous token
-configuration and re-enable its timers after verifying the website.
-
-Provider counts and errors appear in the website journal during scheduled
-runs. When a provider returns HTTP 429, let the next scheduled run resume it.
-For a deliberate manual refresh, export the approved runtime environment and
-run the command for the intended provider:
-
-```bash
-npm run db:refresh-sip-ratings -- --apply
-npm run db:refresh-otr-ratings -- --apply
-npm run db:refresh-etx-ratings -- --apply
-```
+Deploy to Rocky Linux 10 with systemd, an existing separate PostgreSQL server, and an existing separate Nginx HTTPS proxy. Start with [installation and updates](#simple-deployment-and-update), [host preparation](#rocky-linux-10-application-host), or [update recovery](#routine-whole-site-updates). Review the actual database version, permissions, and network in staging.
 
 ## Recorded release evidence — 2026-10-23
 
 The organizer confirmed the real multi-account captain/staff draft rehearsal passed, in response to the checklist covering captain-direct/staff-on-behalf picks, concurrent conflicts, pause/reconnect and spectator/OBS synchronization. Earlier organizer confirmations cover live OAuth/API access, Rocky/Nginx HTTPS deploy/update, two persisted staging upgrades (one with a migration), backup restore and the designated privacy contact. These are organizer attestations, not production checks performed by the coding agent.
 
-This satisfies the previously outstanding external rehearsal gate in #10. Historical local-only test notes below retain their limited scope; they do not supersede the organizer's later confirmations. Every subsequent release still needs its own normal backup, migration, health and CI checks. A pending CI run is not a pass. The development-tool maintenance review due 2026-11-05 remains scheduled independently of this completed rehearsal.
+This satisfies the previously outstanding external rehearsal gate in #10. Historical local-only test notes below retain their limited scope; they do not supersede the organizer's later confirmations. Every subsequent release still needs its own normal backup, migration, health and CI checks. A pending CI run is not a pass. The [development-tool maintenance review](#development-tool-dependency-review-92-2026-10-22) is tracked separately.
 
 ## Simple deployment and update
 
@@ -104,7 +44,7 @@ Root handles packages and service configuration only. It does not source `runtim
 
 The root-owned shortcut and fixed service definition come from the trusted installer invocation, not the app-writable checkout. Ordinary site updates do not silently replace privileged bootstrap code. To upgrade that bootstrap itself, review a new installer checkout and explicitly invoke it with sudo. Existing local service units are retained, and conflicting managed sudo policies are preserved/rejected. Nonstandard paths/services can continue using the advanced commands below.
 
-Preview either action safely with `sudo bash scripts/oclr.sh deploy --dry-run` or `sudo oclr update --dry-run`; previews perform no configuration reads, downloads or writes. `deploy` refuses to overwrite an installed release. `update` refuses to restart a stopped installation from an uncertain previous failure. On errors, read the reported private log and follow [recovery](#routine-whole-site-updates); no automatic database restore/down migration is attempted. Local simulated service tests and isolated DB fixtures do not verify your real Rocky host, package installation, TLS/proxy, OAuth or organizer rehearsal. #10 remains open until those release gates are met.
+Preview either action safely with `sudo bash scripts/oclr.sh deploy --dry-run` or `sudo oclr update --dry-run`; previews perform no configuration reads, downloads or writes. `deploy` refuses to overwrite an installed release. `update` refuses to restart a stopped installation from an uncertain previous failure. On errors, read the reported private log and follow [recovery](#routine-whole-site-updates); no automatic database restore/down migration is attempted. See [recorded release evidence](#recorded-release-evidence--2026-10-23) for the organizer's completed #10 rehearsal.
 
 ## Clean up old release instances
 
@@ -165,7 +105,7 @@ Migration `0014` makes registration rule versions nullable and adds a nullable e
 
    OCLR install/deploy/update scripts do not run E2E or install browser binaries. They retain dependency installation, build, applicable static/release checks, backup/migration safeguards and local/public health verification. Run browser acceptance separately against an isolated test database.
 
-4. For routine releases use [the Bash update command](#routine-whole-site-updates), which reviews the committed/applied journal, backs up and applies pending SQL once before activation. For first install use the Rocky setup steps below. Do not run migrations from application startup or every instance. This release requires migrations through `0017`: `0012` makes routine audit explanations nullable and adds staff-role before/after state; `0013` adds canonical tournament configuration and registration revision references; `0014` supports optional Rules/Eligibility consent; `0015` adds referee assignment revisions; `0016` permits planned fixture participants; `0017` adds private-by-default staff About visibility. The Drizzle configuration loads Next.js environment files (development by default; set `NODE_ENV=production` for production files); an explicitly supplied `DATABASE_URL` takes precedence. Confirm the target before applying migrations. Historical records remain intact; release preflight checks the new columns and missing legacy configuration. Follow the tournament configuration cutover above before restoring traffic. Do not use `drizzle-kit push` in production. Migrations are tracked in the database; repeated migration runs are safe. Coordinate a single release process.
+4. Use the [committed migration journal and Bash updater](#routine-whole-site-updates). Confirm the database target, take a verified backup, and apply the pending migrations from the reviewed release once before activation. Check the [legacy edition cutover](#tournament-configuration-cutover) only when upgrading an installation that still needs it. Keep migrations out of application startup and keep `drizzle-kit push` out of production.
 5. Configure approved edition content, privacy/contact policy and verified staff IDs. Run `npm run release:check` using the target environment. This checks configuration and database reachability, not live OAuth consent or deployment.
 6. Start `npm start -- --hostname 127.0.0.1` under a supervised process manager. Keep the checkout, `.next`, `public`, runtime dependencies and mounted content available. Build as a separate release directory and switch traffic only when healthy. Full installation is the simplest supported deployment; standalone output is not configured.
 7. Put a trusted HTTPS reverse proxy in front. Preserve the canonical **Host** header, reject unexpected hosts at ingress, redirect HTTP to HTTPS and avoid caching authenticated HTML/API responses. Do not expose the Node port directly. Canonical GET/HEAD redirects use `APP_URL`; per-request script nonces, frame restrictions, MIME protection and HTTPS HSTS are emitted by the app.
@@ -190,6 +130,63 @@ Rollback application code to the last verified commit/release directory and rest
 Run `npm run db:cleanup` daily to remove expired OAuth state and session records. Signing out revokes the current session. Revoking a persistent role at `/admin/staff` applies on the next server authorization check, including existing sessions. Removing a bootstrap Admin ID from the environment requires an application restart. For account compromise, an operator may revoke all of a player's session hashes using a parameterized database query against `sessions.user_id`.
 
 Organizers remain responsible for factual retention/deletion procedures covering identities, private answers, audit records and backups, including any tournament-integrity exceptions. Handle requests through the designated contact after verifying identity. Use reviewed transactions that respect active tournament obligations and foreign keys; do not promise an unimplemented automatic deletion schedule. Restrict exported CSV access and remove exports according to the actual policy. If the deployment requires a more specific public notice, obtain approved factual wording before collecting data; removing a configuration field does not establish legal compliance.
+
+## Daily rating refresh
+
+The [ranking snapshot timer](background-player-analytics.md) and [mappool difficulty job](mappools.md#background-difficulty-job) run separately. With migrations 0081 and 0096 applied, the existing `oclr-leaderboard.timer` can update all three rankings with the same command.
+
+The existing `oclr.service` starts the daily SIP, o!TR and ETX work through
+`scripts/production.sh start`. At **12:00 Asia/Taipei (04:00 UTC)** it runs
+the three provider jobs in sequence as `oclr`. If the site starts after that
+time, it runs the work still due for the current UTC day. Each provider
+keeps its request pacing and database lock. A provider failure leaves the
+other jobs eligible to run.
+
+Keep `SIP_API_TOKEN` and `OTR_API_KEY` in the protected
+`/etc/oclr/runtime.env` to enable those providers. ETX uses its public
+endpoint. The daemon loads environment changes on service start. The
+runtime database role needs read access to the published
+player sources and SELECT, INSERT and UPDATE on the three cache tables
+(`sip_rating_cache`, `otr_rating_cache`, `etx_rating_cache`).
+
+The daemon records each attempt before starting the provider process in
+`/var/lib/oclr/rating-refresh`. A same-day restart can start providers it had
+yet to reach. It skips providers already started that UTC day, even if
+they failed or were interrupted. Custom installations can set
+`OCLR_RATING_STATE_DIR` to an absolute, durable directory writable by the
+service user. Keep it across releases. The default path uses the existing
+`/var/lib/oclr` data directory created by the installer.
+
+### Retire the three standalone timers
+
+Copy the existing SIP token into `runtime.env` using `sudoedit` if it was
+stored separately. Keep the existing `OTR_API_KEY`. At the start of the
+update window, disable the installed rating timers and stop any active
+rating jobs before updating the website.
+
+```bash
+sudo systemctl disable --now oclr-sip-ratings.timer oclr-otr-ratings.timer oclr-etx-ratings.timer
+sudo systemctl stop oclr-sip-ratings.service oclr-otr-ratings.service oclr-etx-ratings.service
+sudo oclr update
+sudo journalctl -u oclr.service --since today --no-pager
+```
+
+For hosts that only installed some of the old units, list only those units
+in the first two commands. The scheduler starts with the updated website,
+through the existing service definition. If the release is rolled back
+to a version that used separate timers, restore the previous token
+configuration and re-enable its timers after verifying the website.
+
+Provider counts and errors appear in the website journal during scheduled
+runs. When a provider returns HTTP 429, let the next scheduled run resume it.
+For a deliberate manual refresh, export the approved runtime environment and
+run the command for the intended provider:
+
+```bash
+npm run db:refresh-sip-ratings -- --apply
+npm run db:refresh-otr-ratings -- --apply
+npm run db:refresh-etx-ratings -- --apply
+```
 
 ## Release acceptance and ongoing operator checks
 
@@ -217,7 +214,7 @@ Confirm actual captain/team counts, eligibility, maximum roster capacity (includ
 6. Complete all configured turns, publish the last picks, then finalize. Separately approve final roster publication on the team page. The read-only bracket consumes finalized, published team identities.
 7. Disconnect/reconnect spectators and reload all roles. Restart a staging app process during an ongoing draft and verify persisted revision/order/rosters before enabling writes again. Exercise backup restoration separately in a disposable database. Test the actual hosting ingress and organizer-approved event scale before a real broadcast.
 
-`TEST_DATABASE_URL=... npm run test:e2e` performs the isolated multi-browser rehearsal with synthetic accounts/session hashes only (no production authentication bypass). `npm test` additionally checks database races, idempotency, audited correction/finalization and reconstruction of an ongoing draft in a fresh Node.js process. Browser artifacts are saved under Playwright's portable test-results directory. Tests are serialized around the shared isolated database; individual race scenarios still send concurrent server requests. Automated fixtures demonstrate two captains/two planned picks, not a claim of capacity at an unconfirmed real event scale. Live OAuth/staging hosting and organizer rehearsal remain external launch gates.
+`TEST_DATABASE_URL=... npm run test:e2e` performs the isolated multi-browser rehearsal with synthetic accounts/session hashes only (no production authentication bypass). `npm test` additionally checks database races, idempotency, audited correction/finalization and reconstruction of an ongoing draft in a fresh Node.js process. Browser artifacts are saved under Playwright's portable test-results directory. Tests are serialized around the shared isolated database; individual race scenarios still send concurrent server requests. Automated fixtures demonstrate two captains/two planned picks, not a claim of capacity at an unconfirmed real event scale. See the recorded organizer evidence above for the separate live OAuth, hosting, and rehearsal checks.
 
 ## Availability and publication safeguards
 
@@ -241,7 +238,7 @@ Staff preview the same public URL and explicitly publish from the staff draft ro
 
 The isolated browser rehearsal covers a four-turn repeating A/B/A/B order with both pick modes, withheld publication, stale-response rejection, disconnect/reconnect, pause, audited last-pick correction, finalization, transparent/opaque backgrounds, reduced motion, privacy checks, desktop/mobile reflow and automated accessibility. It runs against the production build and PostgreSQL using synthetic data; it does not establish that real OAuth or public hosting is operational.
 
-A separate local rehearsal also loaded the production application in **OBS 32.0.4** with a 1920×1080 Browser source. Both captain-direct and staff-on-behalf selections were observed with correct team/captain attribution, including an embargoed staff pick, published pause, opaque/transparent variants and recovery after a real Next.js process restart. Four A/B/A/B picks were then finalized. No stream, recording, public deployment or real OAuth session was used. Native automation hit Qt accessibility crashes during dialog/collection changes; the isolated browser source rendered successfully after recovery, and the original OBS collection was restored afterward. Keep an independent organizer rehearsal on the actual broadcast machine as a release gate.
+A separate local rehearsal also loaded the production application in **OBS 32.0.4** with a 1920×1080 Browser source. Both captain-direct and staff-on-behalf selections were observed with correct team/captain attribution, including an embargoed staff pick, published pause, opaque/transparent variants and recovery after a real Next.js process restart. Four A/B/A/B picks were then finalized. No stream, recording, public deployment or real OAuth session was used. Native automation hit Qt accessibility crashes during dialog/collection changes; the isolated browser source rendered successfully after recovery, and the original OBS collection was restored afterward. The organizer's separate broadcast rehearsal is recorded above. Repeat it when the broadcast setup materially changes.
 
 The final local recovery drill used `pg_dump` (custom format) and `pg_restore --no-owner --no-privileges --exit-on-error` to restore the separate synthetic broadcast database into a new UTF-8 test database. Ordered JSON fingerprints matched for all 12 application tables and the migration journal, including the finalized draft, rosters, picks, actor/mode history and test sessions; applying migrations again succeeded without changes. This verifies the local PostgreSQL backup/restore path. The production provider's backup retention, restore permissions, recovery time and operational restore rehearsal still require verification on the actual hosting environment.
 
@@ -338,7 +335,7 @@ exit
 
 The hidden prompt takes the **migration** connection URL, with the same database/transport settings as the runtime URL and its separate migration-role credentials. It is not written into shell history. Check each command succeeds; stop if setup reports an error. Setup installs locked dependencies, runs committed migrations with migration credentials, checks runtime configuration/schema and builds. Only the migration subprocess receives the privileged URL. Dry-run executes nothing and does not validate real credentials or connectivity. The npm aliases invoke the same Bash script.
 
-These first-install preparation/start commands require explicit `--apply` for setup after operator backup/target review. Use [the guarded update command](#routine-whole-site-updates) for later releases. #10 remains open for full hosted staging upgrades and external launch verification. There is no automatic legacy JSON import, account creation, publication or database rollback.
+These first-install preparation/start commands require explicit `--apply` for setup after operator backup/target review. Use [the guarded update command](#routine-whole-site-updates) for later releases. There is no automatic legacy JSON import, account creation, publication or database rollback.
 
 **5. Start under systemd.** For this fresh installation, point `current` at the prepared release and install the supplied unit:
 
@@ -591,11 +588,11 @@ automatic rollback. Review compatibility before switching releases.
 
 ### Site default appearance
 
-Migration `0026_site_appearance.sql` adds a single site default and its automatic audit events, preserving the original design until a global Admin changes `/admin/settings`. The normal deployment/update script applies it; no new environment variables are required. Visitor appearance cookies override the site default. Rollback to the previous application can leave these additive tables in place; do not drop them or lose settings/history during recovery.
+Migration `0026_site_appearance` adds the site default and its audit history. Global Admins manage it at `/admin/settings`. Apply committed migrations through the normal updater and preserve settings and audit records during recovery.
 
 ## Tournament appearance defaults (#143)
 
-Tournament Admins can select Original design, Cute pastel, Swiss minimal, Claymorphism, Manga halftone, Glassmorphism, Esports broadcast, Retro arcade, Frutiger Aero, S10 Skyline Pop or Use site default in General settings, using the existing versioned tournament configuration and automatic audit. Valid public visitor `oclr-appearance` cookies take priority over tournament and public site defaults; season-valued cookies are ignored (#445). Route inheritance never writes a visitor cookie; other pages return to the site default. Light/dark and broadcast output remain independent. The optional `defaultAppearance` JSON field defaults to inheritance when absent, so no schema migration or legacy backfill is required. The Swiss minimal option additionally requires migration `0027_swiss_minimal_appearance` to expand the site settings and audit appearance constraints; apply it through the existing reviewed update workflow before using the new option. This migration preserves existing values and does not opt any visitor or tournament into Swiss. Claymorphism likewise requires migration `0038_claymorphism_appearance`, Manga halftone requires `0039_manga_halftone_appearance`, Glassmorphism requires `0040_glassmorphism_appearance`, Esports broadcast requires `0041_esports_broadcast_appearance`, Retro arcade requires `0042_retro_arcade_appearance`, Frutiger Aero requires `0044_frutiger_aero_appearance`, and S10 Skyline Pop requires `0045_skyline_pop_appearance`; each only expands the same constraints. Older strict tournament parsers may reject a newly saved field; retain a compatible reviewed application during recovery rather than silently discarding edition configuration.
+Edition Admins manage the optional `defaultAppearance` in General settings. An absent value inherits the public site default. See the [current selection and compatibility rules](localization.md#season-theme-selection-policy-445) for the allowed choices and visitor overrides. Before rolling back, confirm the reviewed build can read the saved configuration and select supported defaults where needed.
 
 ### Historical archive imports (#145)
 
@@ -617,45 +614,9 @@ Files are flushed and atomically renamed before metadata/audit commit; a rollbac
 
 Agent verification uses synthetic replay/provider fixtures and an isolated test database. It does not establish a real Rocky deployment, production restore or actual osu! replay playback.
 
-### S9 Glacier Blue appearance (#196)
-
-The registered `glacier-blue` option requires migration `0046_glacier_blue_appearance` for site-default saves. The normal reviewed update workflow applies it before activation. It expands only the site-setting and audit constraints; no existing defaults, tournament configurations or history are changed. Before an intentional rollback to an older application, select a supported site/tournament default; do not delete audit history or down-migrate a live database.
-
-### S8 Sakura Circuit appearance (#197)
-
-The registered `sakura-circuit` option requires migration `0047_sakura_circuit_appearance` for site-default saves. Apply it through the normal reviewed update workflow before activation. Only site-setting/audit constraints expand; existing defaults, tournament settings and history remain unchanged. Before deliberately rolling back to an older application, select a supported site/tournament default; never delete audit history or down-migrate a live database.
-
-### S7 Graphite Arena appearance (#198)
-
-S7 Graphite Arena (`graphite-arena`, #198) extends the season design with silver/graphite surfaces, fine hexagonal linework and competition-yellow accents. `src/app/graphite-theme.css` is scoped to ordinary `.themed-site` pages; complete original artwork and OBS/presenter isolation are preserved. Migration `0048_graphite_arena_appearance` expands only site-setting/audit appearance constraints. This historical migration preserves existing site/audit values; #445 permits new S7 choices only in tournament settings through the normal reviewed update workflow. Existing defaults, tournament configuration and audit history are unchanged. Before an intentional older-version rollback, choose a supported site/tournament default; never delete history or down-migrate a live database.
-
-### S6 Orbital Pulse appearance (#346)
-
-S6 Orbital Pulse (`orbital-pulse`) adds red/blue surfaces and a static horizontal segmented spectrum, derived from an attributed public music sample. `src/app/orbital-theme.css` is scoped to ordinary `.themed-site` pages; the complete original S6 artwork and OBS/presenter isolation are preserved. Migration `0050_orbital_pulse_appearance` expands only the site-setting/audit appearance constraints. This historical migration preserves site/audit compatibility; #445 permits new S6 choices only in tournament settings. It does not select a new site/tournament default, change publication or rewrite audit history. Before an intentional older-version rollback, choose a supported default; never down-migrate a live database or delete history. See [S6 design and verification](design/season-themes/s6/DESIGN.md).
-
-### S5 Prism Overture appearance (#345)
-
-S5 Prism Overture (`prism-overture`) uses lavender/ink surfaces, 110 irregular prismatic facets and an outlined EB Garamond Italic β embedded in the banner texture. `src/app/prism-theme.css` is scoped to ordinary `.themed-site` pages; the complete original OCLR β artwork and OBS/presenter isolation are preserved. The two static SVG textures and SIL OFL licence are bundled under `/themes/prism-overture/`; no font is loaded at runtime. Migration `0051_prism_overture_appearance` expands only the site-setting/audit appearance constraints. This historical migration preserves site/audit compatibility; #445 permits new S5 choices only in tournament settings. Existing site/tournament defaults, pending archive results and audit history are unchanged. Before an intentional older-version rollback, select a supported site/tournament default; never down-migrate a live database or delete history. See [S5 design and verification](design/season-themes/s5/DESIGN.md).
-
-S2 Verdant Prelude (`verdant-prelude`) uses mint paper surfaces, refined swallows and asymmetric botanical leaves. `src/app/verdant-theme.css` applies only to ordinary `.themed-site` pages; original S2 artwork and OBS/presenter isolation are preserved. Both SVG textures are bundled under `/themes/verdant-prelude/`. Migration `0053_verdant_prelude_appearance` only expands site-setting/audit appearance constraints. This historical migration preserves site/audit compatibility; #445 permits new S2 choices only in tournament settings; it does not change any current site/tournament defaults or history. Before intentionally rolling back to older code, select defaults supported by that version; do not down-migrate live data. See [S2 design and verification](design/season-themes/s2/DESIGN.md).
-
-### S4 Azure Brush appearance (#344)
-
-### S3 Frost Waltz appearance (#343)
-
-S3 Frost Waltz (`frost-waltz`) uses snow-white/blue-grey surfaces and the approved crystalline snowflake waltz banner. `src/app/frost-theme.css` is scoped to ordinary `.themed-site` pages; original 995×621 artwork and OBS/presenter isolation are preserved. The two static SVG textures are bundled under `/themes/frost-waltz/`. Migration `0055_frost_waltz_appearance` only expands site-setting/audit constraints. This historical migration preserves site/audit compatibility; #445 permits new S3 choices only in tournament settings. Existing defaults and audit history remain unchanged. Before intentionally rolling back to older code, select defaults supported by that version; never down-migrate live data. See [S3 design and verification](design/season-themes/s3/DESIGN.md).
-
-S4 Azure Brush (`azure-brush`) uses paper-white/ink-blue surfaces, 2–4px geometry and original azure Chinese ink-wash brushwork in the banner. `src/app/azure-theme.css` is scoped to ordinary `.themed-site` pages. The complete original 1728×1080 S4 AVIF and OBS/presenter isolation are preserved. The generated alpha-preserving WebP is bundled under `/themes/azure-brush/`; prompt and provenance are documented with the design. Migration `0052_azure_brush_appearance` expands only site-setting/audit appearance constraints, without changing existing defaults, archive review/publication or audit history. This historical migration preserves site/audit compatibility; #445 permits new S4 choices only in tournament settings. Before an intentional older-version rollback, select supported site/tournament defaults; never down-migrate a live database or delete history. See [S4 design and verification](design/season-themes/s4/DESIGN.md).
-
 ## Season theme selection policy (#445)
 
-Season themes are available only in edition Admin settings. Header choices and
-site-wide defaults accept only `publicAppearances`; valid public visitor choices
-still override edition defaults. Old season cookies are ignored and expired;
-legacy season-valued site settings render as `default` without rewriting data or
-audit history. No migration is needed. See the [selection and compatibility
-policy](localization.md#season-theme-selection-policy-445) for route inheritance,
-explicit repair of old global values, remote reads and broadcast isolation.
+Season themes are edition choices. Earlier migrations expanded the stored appearance and audit constraints to preserve compatibility with historical values. See the [season design records](design/season-themes/README.md) for individual migration history and the [current selection rules](localization.md#season-theme-selection-policy-445) for legacy site settings, visitor cookies, and route inheritance. Keep audit history and committed migrations during application rollback.
 
 ## Global Admin database backups (#369)
 

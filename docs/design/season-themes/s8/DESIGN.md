@@ -33,7 +33,7 @@
 - **原 banner**：[source-rules-banner.png](source-rules-banner.png)，750×110，使用者提供，保留原檔。圖中文字是 RULES，因此沿用現有 RulesHandbook 規則封面位置，完整 contain；既有三語規則標題與正文保留，不將 RULES 置於無關頁面。
 - **半身女主角**：[heroine-half.webp](heroine-half.webp)，1536×1024 透明插畫。使用內建 image_gen，依原 banner 補全後按回饋改為半身；金髮、琥珀眼、髮帶及手靠臉的姿態呼應原圖。衣飾為候選延伸，並非原圖未顯示部分的還原保證。保留 [PNG](heroine-half.png) 與 [完整提示詞／來源](ARTWORK.md)。
 - **櫻花枝紋**：[sakura-sprig.svg](sakura-sprig.svg)，自繪五瓣缺口櫻花、細枝與橙色折角。只佔用非閱讀區。
-- **原主視覺**：[thumbnail.jpg](../../../../public/archive/s8/thumbnail.jpg)，完整 1920×1080／16:9、無框 contain；不裁切、重繪、調色或修改原圖文字。
+- **原主視覺**：[thumbnail.jpg](https://github.com/OCLR-dev/OCLR-website/blob/76d460e1c8f31e0b1592e9fb6c25b049c5a2c93b/public/archive/s8/thumbnail.jpg)，完整 1920×1080／16:9、無框 contain；不裁切、重繪、調色或修改原圖文字。
 
 ## 候選 tokens
 

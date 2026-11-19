@@ -38,7 +38,7 @@
 
 ## 素材與資料
 
-- [完整原圖](../../../../public/archive/s5/key-visual.png)：原有1920×1080 PNG，SHA-256 `26fb173d1641df56a81fa7e9d7a2948b5280927d3c93fbd2324b7f169a9c80e4`，不裁切、重繪、調色或改字，保留原檔與既有透明資訊。
+- [完整原圖](https://github.com/OCLR-dev/OCLR-website/blob/76d460e1c8f31e0b1592e9fb6c25b049c5a2c93b/public/archive/s5/key-visual.png)：原有1920×1080 PNG，SHA-256 `26fb173d1641df56a81fa7e9d7a2948b5280927d3c93fbd2324b7f169a9c80e4`，不裁切、重繪、調色或改字，保留原檔與既有透明資訊。
 - [Light紋理](../../../../public/themes/prism-overture/prism-field-light.svg)／[Dark紋理](../../../../public/themes/prism-overture/prism-field-dark.svg)：原生SVG自繪，每份含110片不規則折面、6組色面漸層、選擇性的細反射稜線與藝術斜體β壓印。β字形已轉成向量，執行時不載入字型或外部資源；不是新增賽事logo。兩份紋理合計約34KB，依明暗分別控制色面與反光強度，沒有腳本或循環動效。
 - [β字形來源與轉製說明](fonts/BETA.md)：EB Garamond Italic 400的Greek U+03B2，採SIL OFL 1.1授權，來源及完整版權／授權文字隨文件保存。只嵌入字形輪廓，不加入整套字型或改變MainSheet文字字體。
 - 使用已提交的 `s5-reviewed-import.json` 與 `s5-rulebook.json`，沿用既有歷史資料schema及公開投影；來源與限制見 [S5來源整理](../../../s5-archive.md)。

@@ -2,7 +2,7 @@
 
 - 工具：內建 image_gen，兩步生成／風格調整；沒有使用 CLI 或 API key。
 - 成品：[city-pop-coast.webp](city-pop-coast.webp)，2172×724，488,896 bytes。生成原圖只做 WebP 編碼，沒有裁切、縮放或改字；應用截圖中的響應式取景由候選 CSS 控制。
-- 角色主視覺：[原始 S10 圖](../../../../public/archive/s10/thumbnail.png) 僅作第二步的配色／筆觸參考，檔案與畫面內容保持原樣。
+- 角色主視覺：[原始 S10 圖](https://github.com/OCLR-dev/OCLR-website/blob/76d460e1c8f31e0b1592e9fb6c25b049c5a2c93b/public/archive/s10/thumbnail.png) 僅作第二步的配色／筆觸參考，檔案與畫面內容保持原樣。
 - 場景：海岸城市、棕櫚、夕陽與海浪；晴空藍／亮青主導，桃粉、奶油白和藍紫輪廓呼應 S10 原圖。沒有角色、字樣、Logo 或賽事資料。
 - 使用範圍：review-only 的頁面標題插畫；不替代原主視覺，也不是譜面封面、正式外觀或賽事事實。
 - 生成具有隨機性，以下保存本次實際 prompt set，不能保證再次生成逐像素相同結果。

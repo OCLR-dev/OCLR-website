@@ -56,7 +56,7 @@ S9 的晶枝、霜邊、折光面與冰層厚度共同呼應原圖；主要資�
 
 ## 原圖與候選 tokens
 
-[原始 S9 主視覺](../../../../public/archive/s9/thumbnail.png) 為 **1920×1080／16:9**。保留完整構圖、所有原圖文字與色彩，維持 `object-fit: contain`；不重繪、不裁切、不調色。原圖內歷史名稱與 `2023 Winter` 原樣呈現；網站介面沿用官方 **osu! Chinese League Rookie (OCLR)**。
+[原始 S9 主視覺](https://github.com/OCLR-dev/OCLR-website/blob/76d460e1c8f31e0b1592e9fb6c25b049c5a2c93b/public/archive/s9/thumbnail.png) 為 **1920×1080／16:9**。保留完整構圖、所有原圖文字與色彩，維持 `object-fit: contain`；不重繪、不裁切、不調色。原圖內歷史名稱與 `2023 Winter` 原樣呈現；網站介面沿用官方 **osu! Chinese League Rookie (OCLR)**。
 
 | Token                               | Light     | Dark      |
 | ----------------------------------- | --------- | --------- |

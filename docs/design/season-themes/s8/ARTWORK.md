@@ -26,7 +26,7 @@ No text, lettering, logos, RULES, watermark, UI, border, floating floral backgro
 ## 原始來源與舊版生成紀錄
 
 - 原始 banner：[source-rules-banner.png](source-rules-banner.png)，使用者於本 chat 提供，750×110，原檔逐位元組保留。圖內文字為 `RULES`，用於現有 RulesHandbook 封面位置，完整 contain，不重繪／改字。
-- 原始主視覺：[thumbnail.jpg](../../../../public/archive/s8/thumbnail.jpg)，1920×1080，仍完整無框呈現，不改字／裁切／調色。
+- 原始主視覺：[thumbnail.jpg](https://github.com/OCLR-dev/OCLR-website/blob/76d460e1c8f31e0b1592e9fb6c25b049c5a2c93b/public/archive/s8/thumbnail.jpg)，1920×1080，仍完整無框呈現，不改字／裁切／調色。
 - 舊版角色（歷史）：[heroine-half.webp](heroine-half.webp)／[生成 PNG](heroine-half.png)，1536×1024、透明 alpha。依使用者「補全女主角」與後續「僅取半身像」要求，以原 banner 為參考，先補全再製成半身構圖。保持金髮、琥珀眼、淡藍紫髮帶及手靠臉的姿態；未顯示衣飾為候選延伸，非原圖還原保證。WebP 僅編碼轉換，無裁切／重繪。
 - [sakura-sprig.svg](sakura-sprig.svg)：本次以 SVG 自繪的五瓣缺口櫻花、細枝與橙色折角，用於標題留白。
 

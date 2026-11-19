@@ -8,11 +8,6 @@ running the existing synthetic workflows.
 
 ## Fresh frontend checkout
 
-Tournament rules are displayed on each current or historical edition's overview
-at `#rules`. Legacy `/tournaments/{edition}/rules` links only redirect to that
-edition's overview or a recognized chapter there; they are not a separate content
-page. Anonymous and Developer reads use the same publication boundaries.
-
 Use Node.js 24 LTS (minimum 22.13) and the existing npm lockfile:
 
 ```sh
@@ -50,11 +45,7 @@ and revocation stay on the backend's existing paths.
 
 ## Backend prerequisites and compatibility
 
-An operator must separately provide a configured OCLR backend with saved data,
-its existing PostgreSQL and durable media storage where applicable. Apply the
-existing migration history through `0043_contributor_directory` for this batch,
-including `0037_developer_api_access`. #271–#272 add no migration. Provisioning that backend is
-not part of a frontend checkout and does not authorize a deployment or real grant.
+Use a configured OCLR backend with saved data, its reviewed release's committed migrations, and durable media storage where applicable.
 
 The full-site adapter requires read contract **1.2.0 or a newer additive v1
 version**, exposed as `X-OCLR-Read-Contract`. The OpenAPI document reports the same
@@ -77,55 +68,15 @@ layouts/metadata, GET routes and client fetch/poll modules. Its
 `requiredVerification` entries state required checks, not test results. See
 [coverage implementation and evidence](remote-coverage.md) for service mappings.
 
-The existing public, historical and private components are reused: public
-information/news/wiki/privacy, every tournament section, saved profiles/ratings,
-global administration and edition workspaces, the actual subject's dashboard,
-registration/team/Captain pages, and approved OBS/presenter snapshots. Historical
-statistics and MP reviews consume saved source evidence. Current and archived
-edition profiles both use `/players/{osuId}?edition=...`; the historical archive
-and staff routes retain their original archive-only behavior.
+Public and published historical pages, saved staff workspaces, the actual subject's dashboard, registrations and team, appointed Captain rooms, and approved OBS/presenter snapshots share their existing authorization and publication rules. The [Player workspace's](player-workspace.md) practice records and season timetable require a direct browser session.
 
-The [Player workspace](player-workspace.md) practice sheet and season timetable
-contain personal team records and availability. They require a direct browser
-session and are excluded from remote pages and saved-read resources.
+The frontend disables business commands, uploads, reactions, and provider refreshes, including for accounts that also hold Admin or staff roles. Locale, color mode, appearance, and connection management are local. Sign in and manage credentials on the backend.
 
-Missing, unreleased or unavailable records keep the existing empty/not-recorded
-or authorization state. A Captain room without an actual appointment remains
-denied. No read creates records, setup state, locks, imports, cached provider
-claims or publications. Commands, uploads, reactions and provider refreshes are
-disabled; forms retain their existing structure with read-only controls. Developer
-plus Admin/Mappooler/Referee roles still cannot write through this channel. Ordinary
-database-backed sessions keep their independent original capabilities.
-
-Local locale, theme and appearance preferences remain separate cookies. Connection
-POST/DELETE is local credential management, not a business write. Use the backend
-site for real login/logout and credential management. None of these mechanisms
-bypass edition appointments or publication boundaries.
-
-Bundled public assets under `/branding/`, `/archive/`, `/fonts/`, `/mascot/` and
-`/themes/`, plus generated CSS files directly under `/appearance-styles/`, are
-served by the local frontend in remote mode. Shared page layout and appearance
-styles use these local CSS files. The four registered
-season designs use their shipped `/themes/` images without a backend read or a
-Developer connection. Asset requests still pass the exact-host, cross-site,
-read-only method and credential checks; unknown page/API routes retain their
-existing restrictions. Regression tests derive the season image inventory from
-the four production stylesheets and check GET/HEAD against the actual files.
+The frontend serves bundled public assets and generated appearance CSS locally. Protected team avatars and Replays use authorized backend reads through the same local URLs. See [coverage and service boundaries](remote-coverage.md) for routing, resource scope, and inventory.
 
 ## Request and credential lifecycle
 
-The BFF stores the credential only in a bounded process-memory map behind a random
-HttpOnly, SameSite=Strict local cookie. At most 50 connections exist per process;
-Developer access expires with the backend token/parent session. Explicit anonymous
-browsing has no local time limit and uses a browser-session cookie.
-At capacity, a new connection reclaims the least recently used anonymous entry
-and clears its public snapshots. Developer entries are never evicted for capacity;
-if all 50 entries are Developer connections, new connections receive HTTP 503.
-Replacing an existing connection reuses its slot.
-The connection endpoint accepts at most 1 KiB and 20 connection attempts/minute.
-Reconnect rotates the ID and reloads the application. Disconnect, expiry, backend
-auth rejection or process restart removes access. Never put tokens in files,
-environment variables, URLs, browser storage, React props, screenshots or logs.
+An HttpOnly, SameSite=Strict cookie points to a process-local connection. At capacity (50 connections), the server reclaims the least recently used anonymous connection, or returns HTTP 503 if all slots belong to Developer connections. Replacing a connection reuses its slot, rotates its ID, and reloads the app. Connection requests are bounded at 1 KiB and 20 attempts per minute. See [credential retention](#remote-credential-retention-465) for storage and expiry.
 
 Each request verifies `/me`; domain reads recheck token, parent session, origin,
 scopes and live Developer grant. Request-local memoization deduplicates repeated
@@ -184,48 +135,24 @@ storage or provider service supplies missing remote data.
 
 ## Troubleshooting
 
-| Result                                            | Action                                                                                           |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Disconnected / process restarted                  | Open `/remote` and reconnect or explicitly select anonymous mode.                                |
-| 401 / expired or revoked                          | Issue fresh access on the backend; check the parent login session.                               |
-| 403                                               | Check the live Developer grant, requested scopes, allowed ports and actual edition appointment.   |
-| `REMOTE_INCOMPATIBLE`                             | Update the separate backend to read API 1.2.0+ within v1 and preserve its contract header.       |
-| Missing saved profile / historical “Not recorded” | These are saved-data states; a GET cannot refresh or invent a profile.                           |
-| 409 collection changed                            | Discard the whole collection and restart; the adapter retries one complete read.                 |
-| 413                                               | Narrow a supported filter; no truncated response is accepted.                                    |
-| 429                                               | Respect `Retry-After` (currently 60 seconds); do not bypass issuance/read quotas.                |
-| 5xx / invalid response                            | Check backend availability, migration/configuration and request ID; no local DB fallback occurs. |
-| CORS / preflight denied                           | Include the local port in the token and server policy; use `credentials: "omit"` for direct browser Bearer reads.         |
+| Result                                            | Action                                                                                                            |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Disconnected / process restarted                  | Open `/remote` and reconnect or explicitly select anonymous mode.                                                 |
+| 401 / expired or revoked                          | Issue fresh access on the backend; check the parent login session.                                                |
+| 403                                               | Check the live Developer grant, requested scopes, allowed ports and actual edition appointment.                   |
+| `REMOTE_INCOMPATIBLE`                             | Update the separate backend to read API 1.2.0+ within v1 and preserve its contract header.                        |
+| Missing saved profile / historical “Not recorded” | These are saved-data states; a GET cannot refresh or invent a profile.                                            |
+| 409 collection changed                            | Discard the whole collection and restart; the adapter retries one complete read.                                  |
+| 413                                               | Narrow a supported filter; no truncated response is accepted.                                                     |
+| 429                                               | Respect `Retry-After` (currently 60 seconds); do not bypass issuance/read quotas.                                 |
+| 5xx / invalid response                            | Check backend availability, migration/configuration and request ID; no local DB fallback occurs.                  |
+| CORS / preflight denied                           | Include the local port in the token and server policy; use `credentials: "omit"` for direct browser Bearer reads. |
 
 ## Verification and remaining external gates
 
-The isolated acceptance harness runs a real database-backed backend separately
-from a frontend with empty database/OAuth/storage configuration and a PostgreSQL
-connection trap. After building the backend, run:
+See the [CI suite matrix](ci.md#events-and-scope) and [isolated browser commands](ci.md#local-verification). The remote harness uses a separate database-backed backend and a frontend with empty database, OAuth, and storage configuration. A shared monitor records and blocks attempted frontend PostgreSQL connections. The full-site suite records per-page and read-route evidence. Backend read limits and token issuance limits remain active.
 
-```sh
-PLAYWRIGHT_CHANNEL=chrome TEST_DATABASE_URL=postgresql://USER@127.0.0.1:PORT/oclr_test \
-  npm run test:e2e:remote
-```
-
-Tests use a dedicated disposable backend database; never use the demo/production
-DB. The full-site browser test emits per-page/read-route evidence. Integration
-tests cover every domain resource, saved MP/replay evidence, subject/role/scope
-boundaries, unchanged business data and denied mutations. Transport tests cover
-version mismatch, invalid/oversized data, redirects, session isolation, expiry,
-revocation and unavailable upstreams. The ordinary database-mode browser suite and
-production audit remain part of batch verification.
-
-The frontend server and browser workers inherit the same monitor file; workers
-never truncate it. Its self-test proves that an attempted PostgreSQL connection
-is recorded and blocked before connecting. Large browser workloads wait for the
-backend's real read windows and use normal token issuance limits; acceptance
-does not disable or raise quotas. These waits are part of the test duration.
-
-Commit-specific local results and actual CI status are recorded on #271/#272.
-Synthetic local evidence does not establish a real OAuth login, real grant,
-external backend deployment or organizer acceptance of new Chinese wording. The
-previous organizer-attested #10 rehearsal remains completed independently.
+See [coverage verification](remote-coverage.md) for which tests own each boundary. Report the commit and CI result separately from operator evidence for live OAuth, grants, and deployment.
 
 ## Remote credential retention (#465)
 
