@@ -30,17 +30,26 @@ test.describe("published osu! profiles", () => {
     const notice = page.getByRole("link", {
       name: "You’re viewing this player’s match data for a single season. Click here to view all data.",
     });
-    await expect(back).toHaveAttribute("href", "/tournaments/test-cup/players");
+    const dismiss = page.getByRole("button", {
+      name: "Dismiss single-season notice",
+    });
+    await expect(back).toHaveCount(0);
     await expect(notice).toHaveAttribute("href", `/players/${uid}`);
+    const selectedUrl = page.url();
+    await dismiss.press("Enter");
+    await expect(notice).toHaveCount(0);
+    await expect(page).toHaveURL(selectedUrl);
+
+    await page.reload();
     await notice.click();
     await expect(page).toHaveURL(new RegExp(`/players/${uid}$`));
     await expect(notice).toHaveCount(0);
-    await expect(back).toHaveCount(0);
     await expect(
       page.getByRole("link", { name: "← Tournaments", exact: true }),
     ).toHaveCount(0);
     await page.goBack();
-    await expect(back).toBeVisible();
+    await expect(notice).toBeVisible();
+    await expect(back).toHaveCount(0);
   });
   test("reads dated standard snapshots anonymously and enforces private lookup permissions", async ({
     page,
@@ -145,7 +154,7 @@ test.describe("published osu! profiles", () => {
     }
     await expect(
       page.getByRole("link", { name: "← Tournament players", exact: true }),
-    ).toHaveAttribute("href", "/tournaments/test-cup/players");
+    ).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Career" })).toBeVisible();
     const operator = await browser.newContext({
       storageState: englishStorage,

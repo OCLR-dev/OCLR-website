@@ -2,38 +2,54 @@
   padding-block-start: 0;
 }
 
-.pageHeader {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding-block: 0.75rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--site-border);
-  background: var(--site-background);
-}
-
 .filterNotice {
   position: absolute;
   inset-block-start: 100%;
   inset-inline: 0;
   z-index: 0;
-  display: block;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.375rem 0.25rem 1rem;
   width: min(1240px, calc(100% - 6rem));
   margin: 0.5rem auto 0;
   border-left-color: var(--site-accent, #ba79e4);
-  color: #f4eefc;
-  text-decoration: none;
   box-shadow: 0 0.75rem 2rem #00000059;
   animation: filterNoticeIn 180ms ease-out;
   /* The notice is portaled into the site header, which sets
      pointer-events: none while it is scrolled away on mobile. Opting back in
-     keeps the link tappable when the header itself has left the screen. */
+     keeps the controls tappable when the header itself has left the screen. */
   pointer-events: auto;
 }
 
-.filterNotice:is(:hover, :focus-visible) {
+.noticeLink {
+  color: inherit;
+  padding-block: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.noticeLink:is(:hover, :focus-visible) {
   text-decoration: underline;
   text-underline-offset: 0.2rem;
+}
+
+:global(.themed-site) button.dismissNotice {
+  display: grid;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control, 0.5rem);
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+  transform: none;
+}
+
+:global(.themed-site) button.dismissNotice:is(:hover, :focus-visible) {
+  background: var(--site-tint);
 }
 
 @keyframes filterNoticeIn {

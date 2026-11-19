@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useAppTranslations } from "@/i18n/shared";
 import type { BwsSummary as BwsData } from "@/lib/bws-model";
@@ -83,6 +82,8 @@ export function PlayerEditionView({
   const [selected, setSelected] = useState(initial);
   const [previousEdition, setPreviousEdition] = useState(urlEdition);
   const [header, setHeader] = useState<HTMLElement | null>(null);
+  const [noticeDismissed, setNoticeDismissed] = useState(false);
+  const profile = useRef<HTMLDivElement>(null);
 
   // The portal target exists by the time effects run, but it is read one frame
   // later so the first paint can stay server-rendered.
@@ -96,14 +97,17 @@ export function PlayerEditionView({
   // Back/forward and any other router-driven URL change updates the panel.
   if (previousEdition !== urlEdition) {
     setPreviousEdition(urlEdition);
-    if (urlEdition && timelines[urlEdition]) setSelected(urlEdition);
-    else if (!urlEdition) setSelected(null);
+    if (!urlEdition || timelines[urlEdition]) {
+      setSelected(urlEdition);
+      setNoticeDismissed(false);
+    }
   }
 
   const select = (slug: string | null) => {
     if (slug && !timelines[slug]) return false;
     if (slug === selected) return true;
     setSelected(slug);
+    setNoticeDismissed(false);
     window.history.pushState(
       null,
       "",
@@ -146,45 +150,62 @@ export function PlayerEditionView({
       {/* Floating below the header keeps opening and closing the filter from
           shifting the page content. */}
       {selected &&
+        !noticeDismissed &&
         header &&
         createPortal(
-          <a
-            className={`notice ${styles.filterNotice}`}
-            href={`/players/${osuId}`}
-            onClick={(event) => {
-              if (
-                event.defaultPrevented ||
-                event.button !== 0 ||
-                event.metaKey ||
-                event.ctrlKey ||
-                event.shiftKey ||
-                event.altKey
-              )
-                return;
-              if (select(null)) event.preventDefault();
-            }}
-          >
-            {tr(
-              "You’re viewing this player’s match data for a single season. Click here to view all data.",
-            )}
-          </a>,
+          <div className={`notice ${styles.filterNotice}`}>
+            <a
+              className={styles.noticeLink}
+              href={`/players/${osuId}`}
+              onClick={(event) => {
+                if (
+                  event.defaultPrevented ||
+                  event.button !== 0 ||
+                  event.metaKey ||
+                  event.ctrlKey ||
+                  event.shiftKey ||
+                  event.altKey
+                )
+                  return;
+                if (select(null)) event.preventDefault();
+              }}
+            >
+              {tr(
+                "You’re viewing this player’s match data for a single season. Click here to view all data.",
+              )}
+            </a>
+            <button
+              className={styles.dismissNotice}
+              type="button"
+              aria-label={tr("Dismiss single-season notice")}
+              onClick={() => {
+                profile.current?.focus({ preventScroll: true });
+                setNoticeDismissed(true);
+              }}
+            >
+              <svg
+                aria-hidden="true"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              >
+                <path d="m4 4 8 8m0-8-8 8" />
+              </svg>
+            </button>
+          </div>,
           header,
         )}
       <div
+        ref={profile}
+        tabIndex={-1}
         className={`${
           selected ? "public-tournament public-player-page" : "container page"
         } ${styles.playerPage}`}
       >
-        {selected && (
-          <div className={styles.pageHeader}>
-            <Link
-              className="context-link"
-              href={`/tournaments/${selected}/players`}
-            >
-              {tr("← Tournament players")}
-            </Link>
-          </div>
-        )}
         {snapshot ? (
           <PlayerProfile
             heading={heading}
