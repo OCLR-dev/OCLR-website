@@ -1,5 +1,5 @@
-import { BwsCardNoteTrigger, ProfileInfo } from "./profile-info";
-import { BwsRankNote } from "./bws-rank-note";
+import { ProfileInfo } from "./profile-info";
+import { BwsCardNote } from "./bws-card-note";
 import {
   CoverPlayerRatings,
   RatingObservation,
@@ -196,19 +196,16 @@ function CompactBwsSummary({
           <span className="bws-card-label">
             {plainLabels ? "pp" : tr("BW-PP")}
           </span>
-          <div className="bws-card-note">
-            <BwsCardNoteTrigger onOpenLabel={tr("Explanation")} />
-            <div className="bws-card-note-panel" role="note">
-              {value.rawPp !== null && (
-                <p className="small muted">
-                  {tr("Original pp")}: {number(value.rawPp, 2)}
-                </p>
-              )}
+          <BwsCardNote label={tr("Explanation")}>
+            {value.rawPp !== null && (
               <p className="small muted">
-                <code>{BWS_PP_FORMULA}</code>
+                {tr("Original pp")}: {number(value.rawPp, 2)}
               </p>
-            </div>
-          </div>
+            )}
+            <p className="small muted">
+              <code>{BWS_PP_FORMULA}</code>
+            </p>
+          </BwsCardNote>
         </div>
         <div className="bws-card-value-row">
           {weightedPp !== null ? (
@@ -234,9 +231,9 @@ function CompactBwsSummary({
           <span className="bws-card-label">
             {plainLabels ? tr("Global rank") : tr("BW-rank")}
           </span>
-          <BwsRankNote label={tr("Explanation")}>
+          <BwsCardNote label={tr("Explanation")}>
             <BwsNote value={value} includePpFormula={false} />
-          </BwsRankNote>
+          </BwsCardNote>
         </div>
         <div className="bws-card-value-row">
           {weightedRank !== null ? (
@@ -271,12 +268,9 @@ function CompactBwsSummary({
           <span className="bws-card-label">
             {gameplayBadgeCount ? tr("Weighted badge") : tr("Badges")}
           </span>
-          <div className="bws-card-note">
-            <BwsCardNoteTrigger onOpenLabel={tr("Explanation")} />
-            <div className="bws-card-note-panel" role="note">
-              <BadgeNote badges={badges} />
-            </div>
-          </div>
+          <BwsCardNote label={tr("Explanation")}>
+            <BadgeNote badges={badges} />
+          </BwsCardNote>
         </div>
         <div className="bws-card-value-row">
           {badges !== null && gameplayBadgeCount !== null ? (
@@ -299,19 +293,16 @@ function CompactBwsSummary({
       <div className="bws-card-metric">
         <div className="bws-card-label-row">
           <span className="bws-card-label">{tr("OII")}</span>
-          <div className="bws-card-note">
-            <BwsCardNoteTrigger onOpenLabel={tr("Explanation")} />
-            <div className="bws-card-note-panel" role="note">
-              <p className="small muted">
-                <code>{"expected play hours / play hours"}</code>
-              </p>
-              <p className="small muted">
-                {tr(
-                  "OII compares the play time this pp usually needs with the account's actual play time. Above 1.1 means faster than typical, below 0.9 slower.",
-                )}
-              </p>
-            </div>
-          </div>
+          <BwsCardNote label={tr("Explanation")}>
+            <p className="small muted">
+              <code>{"expected play hours / play hours"}</code>
+            </p>
+            <p className="small muted">
+              {tr(
+                "OII compares the play time this pp usually needs with the account's actual play time. Above 1.1 means faster than typical, below 0.9 slower.",
+              )}
+            </p>
+          </BwsCardNote>
         </div>
         <div className="bws-card-value-row">
           {oii !== null ? (
@@ -333,28 +324,25 @@ function CompactBwsSummary({
           <div className="bws-card-metric">
             <div className="bws-card-label-row">
               <span className="bws-card-label">o!TR</span>
-              <div className="bws-card-note">
-                <BwsCardNoteTrigger onOpenLabel={tr("About the o!TR rating")} />
-                <div className="bws-card-note-panel" role="note">
-                  <p className="small muted">
-                    {tr("osu!standard tournament rating from o!TR.")}
-                  </p>
-                  {otrRating && (
-                    <RatingObservation
-                      label={tr("Rating fetched")}
-                      time={otrRating.fetchedAt}
-                    />
-                  )}
-                  <p className="small muted">
-                    <a
-                      className="text-link"
-                      href={otrRating?.profileUrl ?? "https://otr.stagec.net"}
-                    >
-                      {tr("View on o!TR")}
-                    </a>
-                  </p>
-                </div>
-              </div>
+              <BwsCardNote label={tr("About the o!TR rating")}>
+                <p className="small muted">
+                  {tr("osu!standard tournament rating from o!TR.")}
+                </p>
+                {otrRating && (
+                  <RatingObservation
+                    label={tr("Rating fetched")}
+                    time={otrRating.fetchedAt}
+                  />
+                )}
+                <p className="small muted">
+                  <a
+                    className="text-link"
+                    href={otrRating?.profileUrl ?? "https://otr.stagec.net"}
+                  >
+                    {tr("View on o!TR")}
+                  </a>
+                </p>
+              </BwsCardNote>
             </div>
             <div className="bws-card-value-row">
               {otrRating ? (

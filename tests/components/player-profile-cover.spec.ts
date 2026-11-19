@@ -129,50 +129,66 @@ for (const display of ["rating-notes", "compact-notes"]) {
   });
 }
 
-// The sticky header and the actual browser top layer determine whether the
-// formula can be read and activated when there is too little room above.
-test("the global rank explanation clears the sticky header and stays operable", async ({
+test("stat explanations open by their triggers and fit below the sticky header", async ({
   page,
   isMobile,
 }) => {
   await page.goto("/player-profile-cover?sticky-header");
-  const trigger = page
-    .locator(".bws-card")
-    .getByRole("button")
-    .and(page.locator("button[popovertarget]"));
-  await trigger.evaluate((node) => {
-    const header = document.querySelector("header.site-header")!;
-    window.scrollBy(
-      0,
-      node.getBoundingClientRect().top -
-        header.getBoundingClientRect().bottom -
-        20,
+  const viewport = page.viewportSize()!;
+  const card = page.locator(".bws-card");
+
+  for (const [label, linkName] of [
+    ["pp"],
+    ["Global rank", "BWS formula"],
+    ["Badges"],
+    ["OII"],
+    ["o!TR", "View on o!TR"],
+    ["SIP"],
+    ["ETX"],
+  ]) {
+    const metric = card.locator(".bws-card-metric").filter({
+      has: page.getByText(label, { exact: true }),
+    });
+    const trigger = metric.getByRole("button");
+    // Put each trigger just below the sticky header, including when the
+    // metrics stack vertically on the phone.
+    await trigger.evaluate((node) => {
+      const header = document.querySelector("header.site-header")!;
+      window.scrollBy(
+        0,
+        node.getBoundingClientRect().top -
+          header.getBoundingClientRect().bottom -
+          8,
+      );
+    });
+    if (isMobile) await trigger.tap();
+    else await trigger.press("Enter");
+
+    const note = metric.getByRole("note");
+    await expect(note).toBeVisible();
+    const noteBox = (await note.boundingBox())!;
+    const triggerBox = (await trigger.boundingBox())!;
+    expect(noteBox.y).toBeGreaterThan(triggerBox.y + triggerBox.height);
+    expect(noteBox.x).toBeGreaterThanOrEqual(0);
+    expect(noteBox.x + noteBox.width).toBeLessThanOrEqual(viewport.width);
+    expect(noteBox.y + noteBox.height).toBeLessThanOrEqual(viewport.height);
+    expect(noteBox.width).toBeLessThanOrEqual(21 * 16);
+    expect(triggerBox.x + triggerBox.width / 2).toBeGreaterThanOrEqual(
+      noteBox.x,
     );
-  });
-  if (isMobile) await trigger.tap();
-  else await trigger.press("Enter");
-  const note = page.locator(".bws-rank-note-panel");
-  const formula = note.getByRole("link", { name: "BWS formula" });
-  await expect(formula).toBeVisible();
-  const noteBox = (await note.boundingBox())!;
-  const triggerBox = (await trigger.boundingBox())!;
-  expect(noteBox.y).toBeGreaterThan(triggerBox.y + triggerBox.height);
-  if (!isMobile)
-    expect(noteBox.width).toBeLessThan(
-      (await page.locator(".bws-card").boundingBox())!.width,
+    expect(triggerBox.x + triggerBox.width / 2).toBeLessThanOrEqual(
+      noteBox.x + noteBox.width,
     );
-  expect(noteBox.x).toBeGreaterThanOrEqual(0);
-  expect(noteBox.x + noteBox.width).toBeLessThanOrEqual(
-    page.viewportSize()!.width,
-  );
-  expect(noteBox.y + noteBox.height).toBeLessThanOrEqual(
-    page.viewportSize()!.height,
-  );
-  if (!isMobile) {
-    await page.keyboard.press("Tab");
-    await expect(formula).toBeFocused();
+
+    if (linkName) {
+      const link = note.getByRole("link", { name: linkName });
+      if (!isMobile) {
+        await page.keyboard.press("Tab");
+        await expect(link).toBeFocused();
+      }
+      await link.click({ trial: true });
+    }
+    await page.keyboard.press("Escape");
+    await expect(note).toBeHidden();
   }
-  await formula.click({ trial: true });
-  await page.keyboard.press("Escape");
-  await expect(formula).toBeHidden();
 });

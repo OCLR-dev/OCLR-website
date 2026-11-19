@@ -8,7 +8,7 @@ import {
   type ProfileRatings,
 } from "@/lib/profile-ratings-model";
 import type { SipRating } from "@/lib/sip-rating-model";
-import { BwsRankNote } from "./bws-rank-note";
+import { BwsCardNote } from "./bws-card-note";
 import styles from "./player-profile-ratings.module.css";
 
 type Props = { ratings?: ProfileRatings | null };
@@ -252,7 +252,7 @@ function PlayerRatingNote({
   const csv = ratings?.sip.csv;
   const etx = ratings?.etx;
   return (
-    <BwsRankNote label={tr("About the {value0} rating", { value0: provider })}>
+    <BwsCardNote label={tr("About the {value0} rating", { value0: provider })}>
       <div className={styles.noteContent}>
         {provider === "SIP" ? (
           <>
@@ -338,6 +338,6 @@ function PlayerRatingNote({
           </>
         )}
       </div>
-    </BwsRankNote>
+    </BwsCardNote>
   );
 }

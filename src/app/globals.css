@@ -3087,8 +3087,13 @@ html[data-appearance]
 .bws-card-note-icon {
   display: block;
 }
-.bws-card-note-panel,
-.bws-rank-note-panel {
+.bws-card-note-panel {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  inline-size: max-content;
+  max-inline-size: min(21rem, var(--bws-note-width, calc(100vw - 1.5rem)));
+  max-block-size: min(24rem, var(--bws-note-height, calc(100dvh - 1.5rem)));
   padding: 0.75rem 0.85rem;
   border: 1px solid var(--site-border, var(--color-border));
   border-radius: 0.75rem;
@@ -3096,51 +3101,22 @@ html[data-appearance]
   color: var(--site-foreground, var(--color-foreground));
   box-shadow: 0 0.6rem 1.6rem rgb(0 0 0 / 45%);
   overflow-y: auto;
-  text-align: left;
-}
-.bws-card-note-panel {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 0.5rem);
-  left: 0;
-  z-index: 6;
-  max-height: min(24rem, 60vh);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(0.25rem);
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease,
-    visibility 0.15s;
-}
-.bws-rank-note-panel {
-  position: fixed;
-  inset: auto;
-  margin: 0;
-  inline-size: max-content;
-  max-inline-size: min(21rem, var(--rank-note-width, calc(100vw - 1.5rem)));
-  max-block-size: min(24rem, var(--rank-note-height, calc(100dvh - 1.5rem)));
   overflow-wrap: anywhere;
   overscroll-behavior: contain;
+  text-align: left;
   visibility: hidden;
 }
-.bws-rank-note-panel[data-positioned] {
+.bws-card-note-panel[data-positioned] {
   visibility: visible;
 }
-:is(.bws-card-note-panel, .bws-rank-note-panel) p {
+.bws-card-note-panel p {
   margin: 0 0 0.4rem;
 }
-:is(.bws-card-note-panel, .bws-rank-note-panel) p:last-child {
+.bws-card-note-panel p:last-child {
   margin-bottom: 0;
 }
-:is(.bws-card-note-panel, .bws-rank-note-panel) code {
+.bws-card-note-panel code {
   font-size: var(--text-label);
-}
-.bws-card-note:hover .bws-card-note-panel,
-.bws-card-note:focus-within .bws-card-note-panel {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
 }
 .profile-cover-content .bws-card {
   --bws-note-color: rgb(255 255 255 / 72%);
@@ -3198,13 +3174,6 @@ html[data-appearance]
   .bws-card-divider {
     width: 100%;
     height: 1px;
-  }
-  /* The card sits near the top on phones, so open the note downwards where
-     the page has room. */
-  .bws-card-note-panel {
-    top: calc(100% + 0.5rem);
-    bottom: auto;
-    max-height: 60vh;
   }
 }
 /* Rank chart on the left, key/value statistics on the right. */

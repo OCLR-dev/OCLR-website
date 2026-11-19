@@ -9,7 +9,7 @@ import {
 } from "react";
 import { BwsCardNoteTrigger } from "./profile-info";
 
-export function BwsRankNote({
+export function BwsCardNote({
   label,
   children,
 }: {
@@ -45,7 +45,7 @@ export function BwsRankNote({
       const anchor = button.getBoundingClientRect();
 
       note.style.setProperty(
-        "--rank-note-width",
+        "--bws-note-width",
         `${Math.max(0, right - left)}px`,
       );
       const width = note.offsetWidth;
@@ -57,7 +57,7 @@ export function BwsRankNote({
       const openAbove = roomAbove >= height || roomAbove > roomBelow;
       const room = openAbove ? roomAbove : roomBelow;
 
-      note.style.setProperty("--rank-note-height", `${Math.max(0, room)}px`);
+      note.style.setProperty("--bws-note-height", `${Math.max(0, room)}px`);
       note.style.left = `${Math.max(left, Math.min(anchor.left + (anchor.width - width) / 2, right - width))}px`;
       note.style.top = `${openAbove ? above - note.offsetHeight : below}px`;
       note.dataset.positioned = "";
@@ -88,7 +88,7 @@ export function BwsRankNote({
       <div
         ref={panel}
         id={id}
-        className="bws-rank-note-panel"
+        className="bws-card-note-panel"
         role="note"
         popover="auto"
         onToggle={(event) =>

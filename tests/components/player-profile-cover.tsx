@@ -74,6 +74,7 @@ const previousNames = [
 ];
 
 const scenario = new URLSearchParams(location.search);
+const stickyHeader = scenario.has("sticky-header");
 const { modifications, skillsets } = sipResponse(42, 0);
 const externalRatings: ProfileRatings = {
   otr: null,
@@ -105,9 +106,12 @@ createRoot(document.getElementById("root")!).render(
       <div
         className="themed-site"
         data-appearance="default"
-        style={themeTokens}
+        style={{
+          ...themeTokens,
+          paddingBottom: stickyHeader ? "100vh" : undefined,
+        }}
       >
-        {new URLSearchParams(location.search).has("sticky-header") && (
+        {stickyHeader && (
           <header className="site-header">
             <div className="nav-wrap">OCLR</div>
           </header>
@@ -143,10 +147,13 @@ createRoot(document.getElementById("root")!).render(
                 countryRank={321}
                 globalRankPercent={0.0142}
                 oii={1.35}
+                otrRating={stickyHeader ? null : undefined}
                 profileRatings={
-                  scenario.has("rating-notes") ? externalRatings : undefined
+                  scenario.has("rating-notes") || stickyHeader
+                    ? externalRatings
+                    : undefined
                 }
-                badges={badges}
+                badges={stickyHeader ? [] : badges}
               />
             </div>
           </div>

@@ -85,8 +85,6 @@ export function PlayerProfile({
           p.coverUrl ? "profile-cover" : "profile-cover profile-cover--plain"
         }
       >
-        {/* Inside the cover so the card's open notes (later in the tree and
-            z-index 6) still paint above this badge. */}
         {level !== null && (
           <ProfileLevel level={level} progress={s.level?.progress ?? null} />
         )}
