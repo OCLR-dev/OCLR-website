@@ -48,6 +48,7 @@ async function GalleryPage() {
           />
         )}
         <WikiGallery
+          title={tr("Liru Card Showcase")}
           figures={gallery}
           initialIndex={randomInt(gallery.length)}
           showAnotherLabel={tr("Show another look")}

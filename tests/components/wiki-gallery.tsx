@@ -16,6 +16,7 @@ createRoot(document.getElementById("root")!).render(
   <NextIntlClientProvider locale="en" messages={en} timeZone="UTC">
     <main className="themed-site" style={{ padding: 24 }}>
       <WikiGallery
+        title={english("Liru Card Showcase")}
         figures={figures}
         initialIndex={0}
         showAnotherLabel="Show another look"

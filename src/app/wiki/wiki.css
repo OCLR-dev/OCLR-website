@@ -79,43 +79,53 @@
   color: var(--site-muted);
 }
 .wiki-gallery {
+  --document-gap: clamp(0.75rem, 2vw, 1.25rem);
   display: grid;
-  grid-template-columns: minmax(0, 23rem) minmax(0, 18rem);
-  align-items: center;
-  gap: clamp(1.5rem, 5vw, 4.5rem);
-  max-width: 52rem;
-  margin-inline: auto;
+  gap: var(--document-gap);
+  min-inline-size: 0;
+  padding: clamp(0.875rem, 2.5vw, 1.75rem);
+  border: 1px solid var(--site-border);
+  border-radius: var(--radius-panel, 0.75rem);
+  background: var(--site-surface);
 }
+
+.wiki-gallery > h2 {
+  --document-font-size: var(--text-heading);
+  --document-line-height: 1.35;
+  margin: 0;
+  color: var(--site-foreground);
+}
+
+.wiki-gallery figure {
+  display: grid;
+  grid-template-columns: [card] minmax(0, 23rem) [control] max-content;
+  justify-content: center;
+  column-gap: clamp(0.75rem, 2vw, 1.5rem);
+  min-inline-size: 0;
+  margin: 0;
+}
+
+.wiki-gallery figure > .wiki-gallery-preview {
+  grid-column: card;
+  grid-row: 1 / span 2;
+  display: grid;
+  /* Give the enlargement hint its own row so the control centers on the artwork. */
+  grid-template-rows: subgrid;
+  min-inline-size: 0;
+}
+
 .themed-site button.wiki-gallery-shuffle {
-  --shuffle-accent: color-mix(
-    in srgb,
-    var(--site-primary) 82%,
-    var(--site-accent)
-  );
-  inline-size: clamp(7rem, 11vw, 8rem);
-  aspect-ratio: 1;
-  flex-direction: column;
-  gap: 0.45rem;
-  padding: 0.75rem;
-  border-radius: 50%;
-  border-color: color-mix(in srgb, var(--site-accent) 70%, var(--site-primary));
-  background: linear-gradient(
-    140deg,
-    var(--shuffle-accent),
-    var(--site-primary)
-  );
-  box-shadow: 0 5px 16px
-    color-mix(in srgb, var(--site-primary) 28%, transparent);
-  font-size: 1rem;
-  line-height: 1.2;
+  grid-column: control;
+  grid-row: 1;
+  align-self: center;
+  justify-self: start;
+  max-inline-size: 100%;
+  padding: 0.5rem 0.875rem;
+  gap: 0.5rem;
+  font-size: var(--text-support);
+  line-height: 1.35;
 }
-.themed-site button.wiki-gallery-shuffle:hover {
-  background: linear-gradient(
-    140deg,
-    var(--shuffle-accent),
-    var(--site-primary-hover)
-  );
-}
+
 .wiki-gallery-shuffle svg {
   flex: none;
 }
@@ -319,11 +329,9 @@
   }
 }
 
-.wiki-gallery figure {
-  min-width: 0;
-  margin: 0;
-}
 .wiki-gallery figcaption {
+  grid-column: card;
+  grid-row: 3;
   margin-block-start: 0.75rem;
   font-size: clamp(1.125rem, 2.5vw, 1.5rem);
   font-weight: 700;
@@ -345,13 +353,17 @@
   color: var(--site-muted);
 }
 @media (max-width: 760px) {
-  .wiki-gallery {
-    grid-template-columns: minmax(0, 23rem);
-    justify-content: center;
-    gap: 1rem;
+  .wiki-gallery figure {
+    grid-template-columns: [card] minmax(0, 23rem);
   }
-  .wiki-gallery-controls {
-    text-align: center;
+  .themed-site button.wiki-gallery-shuffle {
+    grid-column: card;
+    grid-row: 3;
+    justify-self: center;
+    margin-block-start: 0.5rem;
+  }
+  .wiki-gallery figcaption {
+    grid-row: 4;
   }
   .wiki-page {
     padding-block: 1.5rem 3rem;

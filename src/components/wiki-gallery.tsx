@@ -1,19 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { WikiGalleryFigure } from "@/lib/wiki-articles";
 import { EmojiReactions } from "./player-reactions";
 import { WikiGalleryPreview } from "./wiki-gallery-preview";
 
 export function WikiGallery({
+  title,
   figures,
   initialIndex,
   showAnotherLabel,
 }: {
+  title: string;
   figures: WikiGalleryFigure[];
   initialIndex: number;
   showAnotherLabel: string;
 }) {
+  const headingId = useId();
   const [index, setIndex] = useState(initialIndex);
   const figure = figures[index];
 
@@ -24,30 +27,19 @@ export function WikiGallery({
   }
 
   return (
-    <div className="wiki-gallery">
+    <section className="wiki-gallery" aria-labelledby={headingId}>
+      <h2 id={headingId}>{title}</h2>
       <figure>
         <WikiGalleryPreview figure={figure} showHint />
-        <figcaption>
-          <span className="sr-only" aria-live="polite">
-            {figure.caption} ({figure.rarity})
-          </span>
-          <EmojiReactions
-            key={figure.src}
-            storageKey={`oclr-liru-gallery-reactions:${figure.src}`}
-            name={figure.caption}
-          />
-        </figcaption>
-      </figure>
-      <div className="wiki-gallery-controls">
         <button
-          className="wiki-gallery-shuffle"
+          className="secondary wiki-gallery-shuffle"
           type="button"
           onClick={showAnother}
           disabled={figures.length < 2}
         >
           <svg
-            width="36"
-            height="36"
+            width="18"
+            height="18"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -61,7 +53,17 @@ export function WikiGallery({
           </svg>
           <span>{showAnotherLabel}</span>
         </button>
-      </div>
-    </div>
+        <figcaption>
+          <span className="sr-only" aria-live="polite">
+            {figure.caption} ({figure.rarity})
+          </span>
+          <EmojiReactions
+            key={figure.src}
+            storageKey={`oclr-liru-gallery-reactions:${figure.src}`}
+            name={figure.caption}
+          />
+        </figcaption>
+      </figure>
+    </section>
   );
 }

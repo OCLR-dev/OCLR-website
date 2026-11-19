@@ -11,8 +11,30 @@ test("previews in place, restores focus and downloads the current card and artwo
 }) => {
   if (isMobile) await page.setViewportSize({ width: 320, height: 640 });
   await page.goto(`/wiki-gallery?theme=${isMobile ? "light" : "dark"}`);
-  const trigger = page.locator('.wiki-gallery a[aria-haspopup="dialog"]');
+  const showcase = page.getByRole("region", { name: "Liru Card Showcase" });
+  const trigger = showcase.locator('a[aria-haspopup="dialog"]');
+  const shuffle = showcase.getByRole("button", { name: "Show another look" });
   const originalUrl = page.url();
+  await expect(trigger).toBeVisible();
+  const cardBox = (await trigger.locator(".wiki-gallery-card").boundingBox())!;
+  const button = (await shuffle.boundingBox())!;
+  if (isMobile) {
+    expect(button.y).toBeGreaterThan(cardBox.y + cardBox.height);
+    expect(button.x + button.width / 2).toBeCloseTo(
+      cardBox.x + cardBox.width / 2,
+      0,
+    );
+  } else {
+    expect(button.x).toBeGreaterThan(cardBox.x + cardBox.width);
+    expect(button.x - cardBox.x - cardBox.width).toBeLessThanOrEqual(24);
+    expect(button.y + button.height / 2).toBeCloseTo(
+      cardBox.y + cardBox.height / 2,
+      0,
+    );
+  }
+  expect(button.x + button.width).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
   await expect(trigger).toHaveAccessibleName(/Elegant maid outfit \(SSR\)$/);
   await trigger.focus();
   if (isMobile) await trigger.tap();
@@ -47,7 +69,7 @@ test("previews in place, restores focus and downloads the current card and artwo
   await expect(dialog).toHaveCount(0);
   await expect(trigger).toBeFocused();
 
-  await page.getByRole("button", { name: "Show another look" }).click();
+  await shuffle.click();
   await expect(trigger).toHaveAccessibleName(/Purple punk streetwear \(SR\)$/);
   await trigger.click();
   const nextDialog = page.getByRole("dialog", {
