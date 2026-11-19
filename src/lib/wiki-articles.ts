@@ -685,6 +685,15 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "lolita-sailor-shell": "SR",
   "lolita-court-blue-rose": "SSR",
   "lolita-classic-rose": "SR",
+  "lolita-daisy-gingham": "R",
+  "lolita-mint-tie-sailor": "R",
+  "lolita-pink-bow-pinafore": "R",
+  "lolita-monochrome-gothic": "R",
+  "lolita-burgundy-bow-academy": "R",
+  "lolita-sage-pocket-dress": "R",
+  "lolita-opera-phantom": "SSR",
+  "lolita-spring-flower-goddess": "UR",
+  "lolita-rose-music-box": "SSR",
 };
 
 export function liruGallery(tr: AppTranslator): {
@@ -1847,6 +1856,69 @@ export function liruGallery(tr: AppTranslator): {
       tr("Classic rose Lolita"),
       tr(
         "Liru holds a single pink rose in a moss-green dress with dusty pink ribbons.",
+      ),
+    ],
+    [
+      "lolita-daisy-gingham",
+      tr("Daisy gingham dress"),
+      tr(
+        "Liru holds a white daisy in a peach gingham pinafore with a cream pocket.",
+      ),
+    ],
+    [
+      "lolita-mint-tie-sailor",
+      tr("Mint tie sailor dress"),
+      tr(
+        "Liru winks in a navy sailor dress with a striped white collar and a mint green tie.",
+      ),
+    ],
+    [
+      "lolita-pink-bow-pinafore",
+      tr("Pink bow pinafore"),
+      tr(
+        "Liru smiles in a pink pinafore with a waist bow and a white eyelet hem.",
+      ),
+    ],
+    [
+      "lolita-monochrome-gothic",
+      tr("Monochrome gothic dress"),
+      tr(
+        "Liru adjusts a cream cuff on her black dress with a ribbon at the ruffled collar.",
+      ),
+    ],
+    [
+      "lolita-burgundy-bow-academy",
+      tr("Burgundy bow academy outfit"),
+      tr(
+        "Liru holds a cream book in a blue-violet jacket with a burgundy bow.",
+      ),
+    ],
+    [
+      "lolita-sage-pocket-dress",
+      tr("Sage pocket dress"),
+      tr(
+        "Liru slips one hand into the pocket of a sage green pinafore with a lace hem.",
+      ),
+    ],
+    [
+      "lolita-opera-phantom",
+      tr("Opera phantom"),
+      tr(
+        "Liru raises an ivory mask beside a black cape and a skirt draped in burgundy.",
+      ),
+    ],
+    [
+      "lolita-spring-flower-goddess",
+      tr("Spring flower goddess"),
+      tr(
+        "Liru holds a flowering branch in a petal cape and a yellow skirt embroidered with tulips.",
+      ),
+    ],
+    [
+      "lolita-rose-music-box",
+      tr("Rose windup music box"),
+      tr(
+        "Liru opens a brass music box with a rose on its lid, wearing a peach dress trimmed with gears.",
       ),
     ],
   ];
