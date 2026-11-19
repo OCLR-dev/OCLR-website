@@ -46,18 +46,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const tr = await getAppTranslations();
   return {
     icons: {
-      icon: [
-        {
-          url: "/branding/oclr-mark.svg?v=3",
-          type: "image/svg+xml",
-          sizes: "any",
-        },
-        ...[16, 32, 48].map((size) => ({
-          url: `/branding/oclr-${size}.webp?v=3`,
-          type: "image/webp",
-          sizes: `${size}x${size}`,
-        })),
-      ],
+      icon: {
+        url: "/branding/oclr-s11-r.svg",
+        type: "image/svg+xml",
+        sizes: "any",
+      },
       apple: [
         {
           url: "/branding/oclr-180.png?v=3",
@@ -65,7 +58,6 @@ export async function generateMetadata(): Promise<Metadata> {
           type: "image/png",
         },
       ],
-      shortcut: "/branding/oclr-32.webp?v=3",
     },
     title: {
       default: "OCLR — osu! Chinese League Rookie",
