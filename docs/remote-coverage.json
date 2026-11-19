@@ -1659,6 +1659,38 @@
       "requiredVerification": "Backend contract/CORS and local frontend 403 without database/provider access"
     },
     {
+      "file": "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/[replayId]/route.ts",
+      "kind": "read-route",
+      "authority": "backend-only",
+      "operations": ["showcaseReplayFile"],
+      "commands": "Read-only",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/streaming-showcase-read.ts#streamingShowcaseReplayFile"
+      ],
+      "test": "integration/streaming-api.test.ts",
+      "authorization": "Edition-bound Streaming Bearer, non-participant and version-specific replay grant; remote frontend rejects these URLs with 403",
+      "adapter": "Streaming API for the Overlay server",
+      "media": "Private replay attachments",
+      "requiredVerification": "Versioned replay and attachment authorization"
+    },
+    {
+      "file": "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/route.ts",
+      "kind": "read-route",
+      "authority": "backend-only",
+      "operations": ["showcaseReplays"],
+      "commands": "Read-only",
+      "metadata": "Inherited or static",
+      "services": [
+        "src/lib/streaming-showcase-read.ts#streamingShowcaseReplays"
+      ],
+      "test": "integration/streaming-api.test.ts",
+      "authorization": "Edition-bound Streaming Bearer, non-participant and version-specific replay grant; remote frontend rejects these URLs with 403",
+      "adapter": "Streaming API for the Overlay server",
+      "media": "Private replay attachments",
+      "requiredVerification": "Versioned replay and attachment authorization"
+    },
+    {
       "file": "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/route.ts",
       "kind": "read-route",
       "authority": "backend-only",

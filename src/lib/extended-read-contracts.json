@@ -6262,7 +6262,30 @@
                   }
                 ]
               },
-              "showcaseGrants": { "$ref": "#/$defs/Read191c82966f01" },
+              "showcaseGrants": {
+                "anyOf": [
+                  { "type": "null", "x-oclr-undefined": true },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "osuId": { "type": "number" },
+                        "username": { "type": "string" },
+                        "allowReplays": {
+                          "anyOf": [
+                            { "type": "null", "x-oclr-undefined": true },
+                            { "type": "boolean", "const": false },
+                            { "type": "boolean", "const": true }
+                          ]
+                        }
+                      },
+                      "required": ["osuId", "username"],
+                      "additionalProperties": false
+                    }
+                  }
+                ]
+              },
               "updatedAt": {
                 "type": "string",
                 "format": "date-time",

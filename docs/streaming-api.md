@@ -124,19 +124,20 @@ rules. Migration `0100_mappool_showcase_access` starts with zero grants.
 The list and detail each use one saved read snapshot. A pool reports its saved
 UUID, name, version, UTC update time, stage UUID and kind, round UUID, name and
 position, and entry count. Entries are sorted by category and position and
-include `slot` (for example `NM1`), `category`, `position`, `beatmapId`,
-`title`, `difficulty` and nullable `coverUrl`. An empty list means no pools are
-available to the caller. An approved empty pool returns count 0 and
+include `entryId` (from 1.42.0), `slot` (for example `NM1`), `category`,
+`position`, `beatmapId`, `title`, `difficulty` and nullable `coverUrl`. An empty
+list means no pools are available to the caller. An approved empty pool returns count 0 and
 `entries: []`. Preview the detail and import only after operator confirmation.
 Use `beatmapId` to match the ordinary osu! client difficulty.
 
 The cover route rechecks the same gates before fetching artwork and again
 before returning bytes. It only reads bounded JPEG, PNG or WebP from the
 official osu! CDN, using the entry's saved beatmapset ID. The API returns no
-upstream artwork URL, replay, beatmap download, mirror, candidate or private
-management metadata. Existing public map and staff replay routes retain their
-separate access rules. In the Overlay Node service, resolve `coverUrl` against
-the trusted OCLR backend and send the bearer only to that origin. Keep
+upstream artwork URL, beatmap download, mirror, candidate or private management
+metadata. Replays have their own routes and grant. Existing public map and staff
+replay routes retain their separate access rules. In the Overlay Node service,
+resolve `coverUrl` against the trusted OCLR backend and send the bearer only to
+that origin. Keep
 artwork and pool data out of shared caches. The API uses `private, no-store`
 and `CDN-Cache-Control: no-store` even for errors. Use a placeholder when
 artwork is absent. Clear protected previews when access fails, and apply a
@@ -154,6 +155,51 @@ reads do not renew it.
 The companion selection/import workflow and the real Windows
 osu! → tosu → OBS check are tracked in
 [Overlay #51](https://github.com/OCLR-dev/OCLR-stream-overlay/issues/51).
+
+## Showcase replays (#1189)
+
+Contract **1.42.0** adds two routes under
+`/api/v1/streaming/tournaments/{edition}/showcase/pools`.
+
+| GET path | Response |
+| --- | --- |
+| `/{poolId}/replays?version={version}` | `data: { poolId, version, entries }`. Every saved slot has its stable `entryId`, `slot`, and `replays` array. |
+| `/{poolId}/replays/{replayId}?version={version}` | Original `.osr` bytes as `application/octet-stream`, with the saved filename in `Content-Disposition`. |
+
+Use the same Streaming bearer credential and the selected pool's version for both
+requests. Join the replay list to the pool detail by `entryId`, whether or not
+the entry has artwork. Each replay reports its `replayId`, `filename`,
+`playerName` from the replay header, and the stored osu! Mods bitmask `mods`.
+Slots use pool detail order, and replays are ordered by upload time then ID.
+See the [OpenAPI example](read-api.openapi.json) for a response with an empty
+`NM1` and two replays on `HD1`.
+
+In **Mappool management → Showcase access**, an edition Admin first grants
+Showcase access for the locked, unpublished pool version, then selects **Allow
+replay access** for that Streamer. Replay access starts disabled, including
+for grants saved before migration `0109_mappool_showcase_replay_access`.
+**Withdraw replay access** leaves the map import grant in effect. With a
+current map-only grant, both routes return 403
+`SHOWCASE_REPLAYS_FORBIDDEN`. With replay access, a slot without uploads has
+`replays: []` in a 200 response.
+
+Both routes recheck the role, edition, non-participant status, selection lock,
+version and grant. The file route also verifies that the attachment belongs to a
+saved entry in that pool, checks the private file's stored size and hash, and
+rechecks access after reading storage. Public pool release ends Showcase access.
+Published pools' replays remain private staff attachments. Each actual upload or
+deletion increments the pool version. The Admin must grant Showcase and replay
+access again for the new version. The Overlay should refresh the pool selection
+on 404 or 409 and clear stale replay data. A duplicate upload or repeated
+deletion of a missing attachment does not change the version.
+
+The list limit is 2 MiB. The download limit is 8 MiB, matching the upload limit.
+Both routes support HEAD and OPTIONS and use `private, no-store` and
+`CDN-Cache-Control: no-store`. Successful replay-list GETs renew the idle lease.
+File downloads use the same lease behavior as covers. A missing or damaged
+storage file returns 503. Keep both routes server-side in Overlay, send
+credentials only to the configured OCLR backend and keep the original files
+out of shared caches.
 
 ## Transport and future Overlay adapter
 

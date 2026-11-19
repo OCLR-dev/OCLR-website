@@ -507,6 +507,10 @@ published fixtures, public identities and eligible game scores together.
 Historical Series use the same published archive statistics release as the
 other statistics views. See [YumuRating](yumu-rating.md).
 
+Contract 1.42.0 adds [Showcase replay lists and original file downloads](streaming-api.md#showcase-replays-1189)
+to the Streaming bearer channel. Showcase pool details include a stable
+`entryId` for every slot, and Admin-only Showcase grants report replay access.
+
 Contract 1.39.0 adds the optional `ratings=1` query to public, self and
 edition-scoped staff OCLR profile reads. The field is omitted by default.
 Published participation gates the saved o!TR and SkillIssue metrics.

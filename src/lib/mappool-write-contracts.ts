@@ -156,6 +156,13 @@ const mappoolRequest = z.discriminatedUnion("action", [
     userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
     enabled: z.boolean(),
   }),
+  z.strictObject({
+    ...confirmation,
+    ...versioned,
+    action: z.literal("pool_showcase_replays"),
+    userId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+    enabled: z.boolean(),
+  }),
   z
     .object({
       ...confirmation,
@@ -439,7 +446,7 @@ export const changeMappoolWrite = {
   request: mappoolRequest,
   summary: "Manage rounds and official mappools",
   description:
-    "Requires manage_mappools and explicit confirmation. Existing pool and round edits check their current version. Batch and historical imports also check the resolved slots and source fingerprints. Publication and map edits enforce the current pool and fixture locks. Selection locking and Showcase access require configure_tournament. Grants apply to one eligible Streamer and the confirmed, locked, unpublished pool version.",
+    "Requires manage_mappools and explicit confirmation. Existing pool and round edits check their current version. Batch and historical imports also check the resolved slots and source fingerprints. Publication and map edits enforce the current pool and fixture locks. Selection locking and Showcase access require configure_tournament. Grants apply to one eligible Streamer and the confirmed, locked, unpublished pool version. Replay access starts disabled and can be changed on an existing grant.",
   successDescription: "The current staff mappool workspace.",
   response: { readResource: "mappoolWorkspace" },
   errors: {

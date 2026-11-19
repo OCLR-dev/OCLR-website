@@ -6181,7 +6181,47 @@
                   ]
                 },
                 "showcaseGrants": {
-                  "$ref": "#/components/schemas/Read191c82966f01"
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "osuId": {
+                            "type": "number"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "allowReplays": {
+                            "anyOf": [
+                              {
+                                "type": "null",
+                                "x-oclr-undefined": true
+                              },
+                              {
+                                "type": "boolean",
+                                "const": false
+                              },
+                              {
+                                "type": "boolean",
+                                "const": true
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "osuId",
+                          "username"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  ]
                 },
                 "updatedAt": {
                   "type": "string",
@@ -21988,7 +22028,7 @@
       "post": {
         "operationId": "changeMappool",
         "summary": "Manage rounds and official mappools",
-        "description": "Requires manage_mappools and explicit confirmation. Existing pool and round edits check their current version. Batch and historical imports also check the resolved slots and source fingerprints. Publication and map edits enforce the current pool and fixture locks. Selection locking and Showcase access require configure_tournament. Grants apply to one eligible Streamer and the confirmed, locked, unpublished pool version.",
+        "description": "Requires manage_mappools and explicit confirmation. Existing pool and round edits check their current version. Batch and historical imports also check the resolved slots and source fingerprints. Publication and map edits enforce the current pool and fixture locks. Selection locking and Showcase access require configure_tournament. Grants apply to one eligible Streamer and the confirmed, locked, unpublished pool version. Replay access starts disabled and can be changed on an existing grant.",
         "security": [
           {
             "browserSession": []
@@ -22597,6 +22637,46 @@
                       "action": {
                         "type": "string",
                         "const": "pool_showcase"
+                      },
+                      "userId": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "confirmed",
+                      "poolId",
+                      "expectedVersion",
+                      "action",
+                      "userId",
+                      "enabled"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "poolId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "pool_showcase_replays"
                       },
                       "userId": {
                         "type": "integer",

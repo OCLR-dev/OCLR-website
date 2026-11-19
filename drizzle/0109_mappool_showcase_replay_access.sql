@@ -1,0 +1,1 @@
+ALTER TABLE "mappool_showcase_access" ADD COLUMN "allow_replays" boolean DEFAULT false NOT NULL;

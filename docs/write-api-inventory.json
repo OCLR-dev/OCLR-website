@@ -301,6 +301,7 @@
           "pool_publish",
           "pool_selection_lock",
           "pool_showcase",
+          "pool_showcase_replays",
           "entry_save",
           "entry_remove",
           "entry_refresh",
@@ -1157,6 +1158,42 @@
   {
     "route": "/api/v1/streaming/tournaments/{edition}/showcase/pools/{poolId}/covers/{entryId}",
     "source": "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/covers/[entryId]/route.ts",
+    "methods": {
+      "POST": {
+        "status": "read-only"
+      },
+      "PUT": {
+        "status": "read-only"
+      },
+      "PATCH": {
+        "status": "read-only"
+      },
+      "DELETE": {
+        "status": "read-only"
+      }
+    }
+  },
+  {
+    "route": "/api/v1/streaming/tournaments/{edition}/showcase/pools/{poolId}/replays/{replayId}",
+    "source": "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/[replayId]/route.ts",
+    "methods": {
+      "POST": {
+        "status": "read-only"
+      },
+      "PUT": {
+        "status": "read-only"
+      },
+      "PATCH": {
+        "status": "read-only"
+      },
+      "DELETE": {
+        "status": "read-only"
+      }
+    }
+  },
+  {
+    "route": "/api/v1/streaming/tournaments/{edition}/showcase/pools/{poolId}/replays",
+    "source": "src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/route.ts",
     "methods": {
       "POST": {
         "status": "read-only"

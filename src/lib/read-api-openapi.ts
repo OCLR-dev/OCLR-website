@@ -3,19 +3,55 @@ import { readContractVersion } from "./read-api-version";
 import { z } from "zod";
 import contracts from "./extended-read-contracts.json" with { type: "json" };
 import { readOperations, readSchemas } from "./read-api-operations";
+import { REPLAY_MAX_BYTES } from "./replay-model";
 import {
   showcasePath,
   showcasePoolSchema,
   showcasePoolsSchema,
   showcaseReadMaxBytes,
+  showcaseReplaysSchema,
   showcaseVersionQuery,
 } from "./streaming-showcase-contract";
+const showcaseReplaysExample = {
+  data: showcaseReplaysSchema.parse({
+    poolId: "a9ad1565-b323-4eba-8572-54a6258d05d2",
+    version: 7,
+    entries: [
+      {
+        entryId: "b9ad1565-b323-4eba-8572-54a6258d05d2",
+        slot: "NM1",
+        replays: [],
+      },
+      {
+        entryId: "c9ad1565-b323-4eba-8572-54a6258d05d2",
+        slot: "HD1",
+        replays: [
+          {
+            replayId: "d9ad1565-b323-4eba-8572-54a6258d05d2",
+            filename: "HD1-A.osr",
+            playerName: "Showcase A",
+            mods: 8,
+          },
+          {
+            replayId: "e9ad1565-b323-4eba-8572-54a6258d05d2",
+            filename: "HD1-B.osr",
+            playerName: "Showcase B",
+            mods: 8,
+          },
+        ],
+      },
+    ],
+  }),
+  meta: { apiVersion: "1", requestId: "f9ad1565-b323-4eba-8572-54a6258d05d2" },
+};
+
 export function readApiSpecification() {
   const components = Object.fromEntries(
     Object.entries({
       ...readSchemas,
       showcasePools: showcasePoolsSchema,
       showcasePool: showcasePoolSchema,
+      showcaseReplays: showcaseReplaysSchema,
     })
       .filter(([name]) => !(name in contracts.resources))
       .map(([name, schema]) => {
@@ -219,21 +255,59 @@ export function readApiSpecification() {
     required: true,
     schema: { type: "string", format: "uuid" },
   });
-  for (const operationId of [
-    "showcasePools",
-    "showcasePool",
-    "showcaseCover",
-  ]) {
-    const detail = operationId !== "showcasePools";
-    const cover = operationId === "showcaseCover";
+  const showcaseOperations = [
+    {
+      operationId: "showcasePools",
+      path: "",
+      description:
+        "List the current locked and unpublished pool versions granted to this Streamer.",
+    },
+    {
+      operationId: "showcasePool",
+      path: "/{poolId}",
+      versionRequired: false,
+      description:
+        "Read all saved entries of the assigned Showcase pool version in one snapshot.",
+    },
+    {
+      operationId: "showcaseCover",
+      path: "/{poolId}/covers/{entryId}",
+      versionRequired: true,
+      description:
+        "Read an authenticated cover for an entry in the currently locked, approved pool.",
+      contentTypes: ["image/jpeg", "image/png", "image/webp"],
+    },
+    {
+      operationId: "showcaseReplays",
+      path: "/{poolId}/replays",
+      versionRequired: true,
+      description:
+        "List replays by stable entry ID for every slot in this Showcase pool version, including slots without replays. Requires a separate replay grant.",
+    },
+    {
+      operationId: "showcaseReplayFile",
+      path: "/{poolId}/replays/{replayId}",
+      versionRequired: true,
+      description:
+        "Download the original private .osr attachment for this Showcase pool version. Requires a separate replay grant.",
+      contentTypes: ["application/octet-stream"],
+    },
+  ];
+  for (const {
+    operationId,
+    path,
+    versionRequired,
+    description,
+    contentTypes,
+  } of showcaseOperations) {
     const parameters = [editionParameter];
-    if (detail) parameters.push(idParameter("poolId"));
-    if (cover) parameters.push(idParameter("entryId"));
-    if (detail)
+    for (const param of ["poolId", "entryId", "replayId"])
+      if (path.includes(`{${param}}`)) parameters.push(idParameter(param));
+    if (versionRequired !== undefined)
       parameters.push({
         in: "query",
         name: "version",
-        required: cover,
+        required: versionRequired,
         schema: {
           type: "string",
           pattern: showcaseVersionQuery.toJSONSchema().pattern,
@@ -242,27 +316,33 @@ export function readApiSpecification() {
           "Use the selected pool version. Refresh the list after a 404 or 409.",
       });
     const security = [{ StreamingBearer: [] }];
-    const description = cover
-      ? "Read an authenticated cover for an entry in the currently locked, approved pool."
-      : detail
-        ? "Read all saved entries of the assigned Showcase pool version in one snapshot."
-        : "List the current locked and unpublished pool versions granted to this Streamer.";
-    paths[
-      showcasePath +
-        (detail ? "/{poolId}" : "") +
-        (cover ? "/covers/{entryId}" : "")
-    ] = {
+    const cover = operationId === "showcaseCover";
+    const replayFile = operationId === "showcaseReplayFile";
+    const replayList = operationId === "showcaseReplays";
+    const issues = replayFile || replayList ? [1189] : [1115];
+    paths[showcasePath + path] = {
       get: {
         operationId,
         description,
-        "x-oclr-issues": [1115],
+        "x-oclr-issues": issues,
         "x-oclr-scopes": ["streaming:read"],
         "x-oclr-read-only": true,
-        "x-response-size-limit": showcaseReadMaxBytes,
+        "x-response-size-limit": replayFile
+          ? REPLAY_MAX_BYTES
+          : showcaseReadMaxBytes,
         security,
         parameters,
         responses: {
           ...responses,
+          ...(replayList || replayFile
+            ? {
+                "403": {
+                  ...responses["403"],
+                  description:
+                    "Streamer or participant check failed, or SHOWCASE_REPLAYS_FORBIDDEN for a pool-only grant.",
+                },
+              }
+            : {}),
           ...(cover
             ? {
                 "502": {
@@ -282,10 +362,22 @@ export function readApiSpecification() {
               "CDN-Cache-Control": {
                 schema: { type: "string", const: "no-store" },
               },
+              ...(replayFile
+                ? {
+                    "Content-Disposition": {
+                      description:
+                        "Original replay filename as an attachment; CORS-exposed.",
+                      schema: { type: "string" },
+                    },
+                    "Content-Length": {
+                      schema: { type: "integer", maximum: REPLAY_MAX_BYTES },
+                    },
+                  }
+                : {}),
             },
-            content: cover
+            content: contentTypes
               ? Object.fromEntries(
-                  ["image/jpeg", "image/png", "image/webp"].map((type) => [
+                  contentTypes.map((type) => [
                     type,
                     { schema: { type: "string", format: "binary" } },
                   ]),
@@ -301,6 +393,7 @@ export function readApiSpecification() {
                         meta: { $ref: "#/components/schemas/ReadMeta" },
                       },
                     },
+                    ...(replayList ? { example: showcaseReplaysExample } : {}),
                   },
                 },
           },
@@ -309,14 +402,14 @@ export function readApiSpecification() {
       head: {
         ...shared.head,
         operationId: `${operationId}Head`,
-        "x-oclr-issues": [1115],
+        "x-oclr-issues": issues,
         security,
         parameters,
       },
       options: {
         ...shared.options,
         operationId: `${operationId}Preflight`,
-        "x-oclr-issues": [1115],
+        "x-oclr-issues": issues,
         parameters,
       },
     };

@@ -513,7 +513,10 @@ export async function mappoolCommand(
         });
         return;
       }
-      if (c.action === "pool_showcase") {
+      if (
+        c.action === "pool_showcase" ||
+        c.action === "pool_showcase_replays"
+      ) {
         await assertCapability(actor, "configure_tournament", slug, tx);
         const grant = and(
           eq(mappoolShowcaseAccess.poolId, pool.id),
@@ -523,8 +526,20 @@ export async function mappoolCommand(
           .select()
           .from(mappoolShowcaseAccess)
           .where(grant);
-        let approval: { approvedVersion: number; approvedLockAt: Date } | null =
-          null;
+        const currentGrant =
+          previous &&
+          previous.approvedVersion === pool.version &&
+          previous.approvedLockAt.getTime() ===
+            pool.selectionLockedAt?.getTime()
+            ? previous
+            : null;
+        const replayOnly = c.action === "pool_showcase_replays";
+        if (replayOnly && (!currentGrant || pool.publishedAt))
+          throw new HttpError(
+            409,
+            "Grant Showcase access to this pool version first.",
+          );
+
         if (c.enabled) {
           if (!pool.selectionLockedAt || pool.publishedAt)
             throw new HttpError(
@@ -539,15 +554,31 @@ export async function mappoolCommand(
               403,
               "Only non-participating Streamers for this edition can receive Showcase access.",
             );
-          if (
-            previous?.approvedVersion === pool.version &&
-            previous.approvedLockAt.getTime() ===
-              pool.selectionLockedAt.getTime()
-          )
-            return;
+        }
+
+        let approval: {
+          approvedVersion: number;
+          approvedLockAt: Date;
+          allowReplays: boolean;
+        } | null = null;
+        if (replayOnly && currentGrant) {
+          if (currentGrant.allowReplays === c.enabled) return;
+          const { approvedVersion, approvedLockAt } = currentGrant;
+          approval = {
+            approvedVersion,
+            approvedLockAt,
+            allowReplays: c.enabled,
+          };
+          await tx
+            .update(mappoolShowcaseAccess)
+            .set({ allowReplays: c.enabled })
+            .where(grant);
+        } else if (c.enabled && pool.selectionLockedAt) {
+          if (currentGrant) return;
           approval = {
             approvedVersion: pool.version,
             approvedLockAt: pool.selectionLockedAt,
+            allowReplays: false,
           };
           await tx
             .insert(mappoolShowcaseAccess)
@@ -574,6 +605,7 @@ export async function mappoolCommand(
             userId: c.userId,
             approvedVersion: approval?.approvedVersion ?? null,
             approvedLockAt: approval?.approvedLockAt ?? null,
+            allowReplays: approval?.allowReplays ?? false,
           },
         });
         return;
