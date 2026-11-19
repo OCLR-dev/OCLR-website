@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db, readOnlyData } from "@/db";
 import {
   mappoolEntries,
+  mappoolReplays,
   mappoolShowcaseAccess,
   mappools,
   tournamentRounds,
@@ -12,6 +13,8 @@ import { editionOperationState } from "./archive-guard";
 import { beatmapCoverUrl } from "./beatmap-artwork";
 import { DeveloperApiError } from "./developer-api";
 import { readDataResponse } from "./developer-api-http";
+import { REPLAY_MAX_BYTES } from "./replay-model";
+import { readReplay } from "./replay-storage";
 import { isShowcaseParticipant } from "./streaming-showcase-access";
 import {
   assertStreamer,
@@ -24,6 +27,7 @@ import {
   showcasePath,
   showcasePoolSchema,
   showcasePoolsSchema,
+  showcaseReplaysSchema,
   showcaseReadMaxBytes,
   showcaseVersionQuery,
 } from "./streaming-showcase-contract";
@@ -50,6 +54,7 @@ async function allowedPools(edition: string, osuId: number, poolId?: string) {
         position: tournamentRounds.position,
       },
       entryCount: count(mappoolEntries.id),
+      allowReplays: mappoolShowcaseAccess.allowReplays,
     })
     .from(mappools)
     .innerJoin(
@@ -74,16 +79,21 @@ async function allowedPools(edition: string, osuId: number, poolId?: string) {
         poolId ? eq(mappools.id, poolId) : undefined,
       ),
     )
-    .groupBy(mappools.id, tournamentRounds.id, tournamentStages.id)
+    .groupBy(
+      mappools.id,
+      tournamentRounds.id,
+      tournamentStages.id,
+      mappoolShowcaseAccess.allowReplays,
+    )
     .orderBy(
       tournamentStages.kind,
       tournamentRounds.position,
       mappools.name,
       mappools.id,
     );
-  return rows.map((pool) => ({
-    ...pool,
-    updatedAt: pool.updatedAt.toISOString(),
+  return rows.map(({ allowReplays, ...pool }) => ({
+    pool: { ...pool, updatedAt: pool.updatedAt.toISOString() },
+    allowReplays,
   }));
 }
 
@@ -123,15 +133,15 @@ async function currentPool(
   version: number | null,
 ) {
   if (!z.uuid().safeParse(poolId).success) throw notFound();
-  const [pool] = await allowedPools(edition, osuId, poolId);
-  if (!pool) throw notFound();
-  if (version !== null && version !== pool.version)
+  const [source] = await allowedPools(edition, osuId, poolId);
+  if (!source) throw notFound();
+  if (version !== null && version !== source.pool.version)
     throw new DeveloperApiError(
       409,
       "SHOWCASE_VERSION_CHANGED",
       "Refresh the Showcase pool list before importing.",
     );
-  return pool;
+  return source;
 }
 
 function privateShowcase(response: Response) {
@@ -153,9 +163,11 @@ export async function streamingShowcaseResponse(
       async (principal, query) => {
         const osuId = principal!.subject.osuId;
         await assertShowcaseReader(edition, osuId);
-        if (poolId === undefined)
-          return { data: { pools: await allowedPools(edition, osuId) } };
-        const pool = await currentPool(
+        if (poolId === undefined) {
+          const sources = await allowedPools(edition, osuId);
+          return { data: { pools: sources.map(({ pool }) => pool) } };
+        }
+        const { pool } = await currentPool(
           edition,
           osuId,
           poolId,
@@ -177,6 +189,7 @@ export async function streamingShowcaseResponse(
             pool,
             entries: rows.map(({ id, metadata, ...entry }) => ({
               ...entry,
+              entryId: id,
               slot: `${entry.category}${entry.position}`,
               title: metadata.title,
               difficulty: metadata.difficulty,
@@ -316,6 +329,178 @@ export async function streamingShowcaseCover(
         query: ["version"],
         binary: true,
         maxBytes: showcaseReadMaxBytes,
+      },
+    ),
+  );
+}
+
+async function showcaseReplayPool(
+  edition: string,
+  osuId: number,
+  poolId: string,
+  version: number,
+) {
+  await assertShowcaseReader(edition, osuId);
+  const { pool, allowReplays } = await currentPool(
+    edition,
+    osuId,
+    poolId,
+    version,
+  );
+  if (!allowReplays)
+    throw new DeveloperApiError(
+      403,
+      "SHOWCASE_REPLAYS_FORBIDDEN",
+      "Replay access has not been granted for this Showcase pool version.",
+    );
+  return pool;
+}
+
+export async function streamingShowcaseReplays(
+  request: Request,
+  edition: string,
+  poolId: string,
+) {
+  return privateShowcase(
+    await readDataResponse<
+      z.infer<typeof showcaseReplaysSchema>,
+      StreamingReadPrincipal
+    >(
+      request,
+      "identity:read",
+      async (principal, query) => {
+        const version = requestedVersion(query, true)!;
+        const pool = await showcaseReplayPool(
+          edition,
+          principal!.subject.osuId,
+          poolId,
+          version,
+        );
+        const rows = await db()
+          .select({
+            entryId: mappoolEntries.id,
+            category: mappoolEntries.category,
+            position: mappoolEntries.position,
+            replay: {
+              replayId: mappoolReplays.id,
+              filename: mappoolReplays.filename,
+              summary: mappoolReplays.summary,
+            },
+          })
+          .from(mappoolEntries)
+          .leftJoin(
+            mappoolReplays,
+            eq(mappoolReplays.entryId, mappoolEntries.id),
+          )
+          .where(eq(mappoolEntries.poolId, poolId))
+          .orderBy(
+            mappoolEntries.category,
+            mappoolEntries.position,
+            mappoolReplays.createdAt,
+            mappoolReplays.id,
+          );
+        type Entry = z.infer<typeof showcaseReplaysSchema>["entries"][number];
+        const entries = new Map<string, Entry>();
+        for (const { entryId, category, position, replay } of rows) {
+          let entry = entries.get(entryId);
+          if (!entry) {
+            entry = { entryId, slot: `${category}${position}`, replays: [] };
+            entries.set(entryId, entry);
+          }
+          if (replay) {
+            const { playerName, mods } = replay.summary;
+            entry.replays.push({
+              replayId: replay.replayId,
+              filename: replay.filename,
+              playerName,
+              mods,
+            });
+          }
+        }
+        return {
+          data: { poolId: pool.id, version, entries: [...entries.values()] },
+        };
+      },
+      {
+        onSuccess:
+          request.method === "GET"
+            ? () => touchStreamingAccess(request, edition)
+            : undefined,
+        origins: streamingOrigins,
+        authenticate: (r) => authenticateStreamingRead(r, edition),
+        query: ["version"],
+        schema: showcaseReplaysSchema,
+        database: true,
+        maxBytes: showcaseReadMaxBytes,
+      },
+    ),
+  );
+}
+
+async function authorizedReplay(
+  edition: string,
+  osuId: number,
+  poolId: string,
+  version: number,
+  replayId: string,
+) {
+  return readOnlyData(async () => {
+    await showcaseReplayPool(edition, osuId, poolId, version);
+    if (!z.uuid().safeParse(replayId).success) throw notFound();
+    const [replay] = await db()
+      .select({
+        id: mappoolReplays.id,
+        filename: mappoolReplays.filename,
+        size: mappoolReplays.size,
+        sha256: mappoolReplays.sha256,
+      })
+      .from(mappoolReplays)
+      .innerJoin(mappoolEntries, eq(mappoolEntries.id, mappoolReplays.entryId))
+      .where(
+        and(eq(mappoolEntries.poolId, poolId), eq(mappoolReplays.id, replayId)),
+      );
+    if (!replay) throw notFound();
+    return replay;
+  });
+}
+
+export async function streamingShowcaseReplayFile(
+  request: Request,
+  edition: string,
+  poolId: string,
+  replayId: string,
+) {
+  return privateShowcase(
+    await readDataResponse<unknown, StreamingReadPrincipal>(
+      request,
+      "identity:read",
+      async (principal, query) => {
+        const osuId = principal!.subject.osuId;
+        const version = requestedVersion(query, true)!;
+        const replay = await authorizedReplay(
+          edition,
+          osuId,
+          poolId,
+          version,
+          replayId,
+        );
+        const bytes = await readReplay(replay.id, replay.size, replay.sha256);
+        // Recheck the grant, version and attachment after reading from private storage.
+        await authorizedReplay(edition, osuId, poolId, version, replayId);
+        return {
+          data: {
+            bytes,
+            contentType: "application/octet-stream",
+            filename: replay.filename,
+          },
+        };
+      },
+      {
+        origins: streamingOrigins,
+        authenticate: (r) => authenticateStreamingRead(r, edition),
+        query: ["version"],
+        binary: true,
+        maxBytes: REPLAY_MAX_BYTES,
       },
     ),
   );

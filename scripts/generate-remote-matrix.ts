@@ -120,6 +120,29 @@ const files = [
   ),
 ].sort();
 const rows = files.map((file) => {
+  const replayRoute = file.match(
+    /\/showcase\/pools\/\[poolId\]\/replays\/(?:([^/]+)\/)?route\.ts$/,
+  );
+  if (replayRoute) {
+    const download = Boolean(replayRoute[1]);
+    return {
+      file,
+      kind: "read-route",
+      authority: "backend-only",
+      operations: [download ? "showcaseReplayFile" : "showcaseReplays"],
+      commands: "Read-only",
+      metadata: "Inherited or static",
+      services: [
+        `src/lib/streaming-showcase-read.ts#${download ? "streamingShowcaseReplayFile" : "streamingShowcaseReplays"}`,
+      ],
+      test: "integration/streaming-api.test.ts",
+      authorization:
+        "Edition-bound Streaming Bearer, non-participant and version-specific replay grant; remote frontend rejects these URLs with 403",
+      adapter: "Streaming API for the Overlay server",
+      media: "Private replay attachments",
+      requiredVerification: "Versioned replay and attachment authorization",
+    };
+  }
   const text = fs.readFileSync(file, "utf8");
   const source = ts.createSourceFile(
     file,

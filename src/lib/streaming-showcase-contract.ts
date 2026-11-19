@@ -23,6 +23,7 @@ export const showcasePoolSchema = z.strictObject({
   pool,
   entries: z.array(
     z.strictObject({
+      entryId: z.uuid(),
       slot: z.string(),
       category: z.enum(categories),
       position: z.number().int().positive(),
@@ -30,6 +31,24 @@ export const showcasePoolSchema = z.strictObject({
       title: z.string(),
       difficulty: z.string(),
       coverUrl: z.string().startsWith("/api/v1/streaming/").nullable(),
+    }),
+  ),
+});
+export const showcaseReplaysSchema = z.strictObject({
+  poolId: z.uuid(),
+  version: z.number().int().nonnegative(),
+  entries: z.array(
+    z.strictObject({
+      entryId: z.uuid(),
+      slot: z.string(),
+      replays: z.array(
+        z.strictObject({
+          replayId: z.uuid(),
+          filename: z.string(),
+          playerName: z.string(),
+          mods: z.number().int().nonnegative(),
+        }),
+      ),
     }),
   ),
 });

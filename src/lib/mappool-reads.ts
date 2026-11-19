@@ -102,6 +102,7 @@ async function databaseMappoolWorkspace(
           ? await tx
               .select({
                 poolId: mappoolShowcaseAccess.poolId,
+                allowReplays: mappoolShowcaseAccess.allowReplays,
                 osuId: users.osuId,
                 username: users.username,
               })
@@ -154,7 +155,11 @@ async function databaseMappoolWorkspace(
             ? {
                 showcaseGrants: grants
                   .filter(({ poolId }) => poolId === pool.id)
-                  .map(({ osuId, username }) => ({ osuId, username })),
+                  .map(({ osuId, username, allowReplays }) => ({
+                    osuId,
+                    username,
+                    allowReplays,
+                  })),
               }
             : {}),
         })),

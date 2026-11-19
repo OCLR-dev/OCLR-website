@@ -1,4 +1,7 @@
 import { randomUUID } from "node:crypto";
+import { mkdtemp, realpath, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { readContractVersion } from "../../src/lib/read-api-version";
 import { emptyRefereeSettings } from "../../src/lib/referee-commands";
 import * as poolsModule from "../../src/lib/mappool-reads";
@@ -44,10 +47,17 @@ import {
 import { createDeveloperToken } from "../../src/lib/developer-api";
 import { nextStreamingRead } from "../../src/lib/streaming-read";
 import { mappoolCommand } from "../../src/lib/mappools";
+import {
+  deleteMappoolReplay,
+  uploadMappoolReplay,
+} from "../../src/lib/mappool-replays";
+import * as replayStorage from "../../src/lib/replay-storage";
 import { GET as publicPool } from "../../src/app/api/tournaments/[edition]/mappools/[poolId]/route";
 import { GET as showcaseList } from "../../src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/route";
 import { GET as showcaseDetail } from "../../src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/route";
 import { GET as showcaseCover } from "../../src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/covers/[entryId]/route";
+import { GET as showcaseReplays } from "../../src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/route";
+import { GET as showcaseReplayFile } from "../../src/app/api/v1/streaming/tournaments/[edition]/showcase/pools/[poolId]/replays/[replayId]/route";
 import { GET as stream } from "../../src/app/api/v1/streaming/tournaments/[edition]/next/route";
 import { GET as me } from "../../src/app/api/v1/me/route";
 import { POST as issueAccess } from "../../src/app/api/streaming/tokens/route";
@@ -60,6 +70,7 @@ import { readApiRoute } from "../../src/lib/read-api";
 import { assertTestDatabase } from "../database";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
+import { syntheticReplay } from "../fixtures/replay";
 let ownerId = 541000;
 const url = process.env.TEST_DATABASE_URL;
 const slug = "test-cup",
@@ -528,6 +539,27 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       ),
       { params: Promise.resolve({ edition: slug, poolId, entryId }) },
     );
+  const listReplays = (poolId: string, version: number, edition = slug) =>
+    showcaseReplays(
+      showcaseRequest(`/${poolId}/replays?version=${version}`, token, edition),
+      { params: Promise.resolve({ edition, poolId }) },
+    );
+  const downloadReplay = (
+    poolId: string,
+    replayId: string,
+    version: number,
+    edition = slug,
+    method = "GET",
+  ) =>
+    showcaseReplayFile(
+      showcaseRequest(
+        `/${poolId}/replays/${replayId}?version=${version}`,
+        token,
+        edition,
+        method,
+      ),
+      { params: Promise.resolve({ edition, poolId, replayId }) },
+    );
   const showcaseAdmin = { osuId: 540002, username: "Other streamer" };
   async function configureShowcaseAdmin() {
     await db().insert(staffRoles).values({
@@ -571,7 +603,7 @@ describe.skipIf(!url)("streaming read channel #540", () => {
         ),
       )
       .returning();
-    const [entry] = await db()
+    const [entry, uncovered] = await db()
       .insert(mappoolEntries)
       .values([
         {
@@ -662,6 +694,7 @@ describe.skipIf(!url)("streaming read channel #540", () => {
     });
     expect(data.entries).toEqual([
       {
+        entryId: entry.id,
         slot: "NM1",
         category: "NM",
         position: 1,
@@ -671,6 +704,7 @@ describe.skipIf(!url)("streaming read channel #540", () => {
         coverUrl: `${showcasePath(slug)}/${pool.id}/covers/${entry.id}?version=1`,
       },
       {
+        entryId: uncovered.id,
         slot: "HD2",
         category: "HD",
         position: 2,
@@ -864,6 +898,302 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       fetchCover.mockRestore();
     }
   });
+  it("lists every Showcase slot and downloads original replays only for the separately approved version", async () => {
+    await configureShowcaseAdmin();
+    await db().delete(fixtureStreams);
+    const media = await realpath(
+      await mkdtemp(join(tmpdir(), "oclr-1189-media-")),
+    );
+    vi.stubEnv("OCLR_MEDIA_DIR", media);
+    const replayAccess = (
+      poolId: string,
+      expectedVersion: number,
+      enabled = true,
+    ) =>
+      mappoolCommand(showcaseAdmin, slug, {
+        action: "pool_showcase_replays",
+        poolId,
+        expectedVersion,
+        userId: ownerId,
+        enabled,
+        confirmed: true,
+      });
+
+    const [pool, other] = await db()
+      .insert(mappools)
+      .values(
+        ["Replay Showcase", "Other Showcase"].map((name) => ({
+          editionSlug: slug,
+          roundId,
+          name,
+        })),
+      )
+      .returning();
+    const metadata = {
+      setId: 0,
+      title: "Synthetic track",
+      difficulty: "Insane",
+      artist: "Synthetic artist",
+      mapper: "Synthetic mapper",
+      stars: 5,
+      bpm: 180,
+      duration: 100,
+    };
+    const [empty, one, many] = await db()
+      .insert(mappoolEntries)
+      .values(
+        [1, 2, 3].map((position) => ({
+          poolId: pool.id,
+          category: "NM" as const,
+          position,
+          beatmapId: 9100 + position,
+          metadata,
+        })),
+      )
+      .returning();
+
+    const bytes = syntheticReplay({ player: "Replay A", mods: 8 });
+    const secondBytes = syntheticReplay({ player: "Replay B", mods: 0 });
+    const filename = "示範 A.osr";
+    const upload = (
+      entryId: string,
+      expectedVersion: number,
+      original = bytes,
+      name = filename,
+    ) =>
+      uploadMappoolReplay(
+        showcaseAdmin,
+        slug,
+        entryId,
+        { confirmed: true, expectedVersion },
+        name,
+        "Private notes",
+        original,
+      );
+    const expectDenied = async (
+      version: number,
+      replayId: string,
+      status: number,
+      code?: string,
+    ) => {
+      const responses = await Promise.all([
+        listReplays(pool.id, version),
+        downloadReplay(pool.id, replayId, version),
+      ]);
+      for (const response of responses) {
+        expect(response.status).toBe(status);
+        expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+        const error = (await response.json()).error;
+        if (code) expect(error.code).toBe(code);
+        expect(error.message).not.toContain(filename);
+      }
+    };
+
+    try {
+      await lock(pool.id, 0);
+      const single = await upload(one.id, 1);
+      const firstReplay = await upload(many.id, single.version);
+      const secondReplay = await upload(
+        many.id,
+        firstReplay.version,
+        secondBytes,
+        "B.osr",
+      );
+      const version = secondReplay.version;
+      await expect(replayAccess(pool.id, version)).rejects.toMatchObject({
+        status: 409,
+      });
+      await grant(pool.id, version);
+      expect(
+        (await detailShowcase(pool.id, `?version=${version}`)).status,
+      ).toBe(200);
+      await expectDenied(
+        version,
+        firstReplay.id,
+        403,
+        "SHOWCASE_REPLAYS_FORBIDDEN",
+      );
+      await replayAccess(pool.id, version);
+      const workspace = await poolsModule.mappoolWorkspace(showcaseAdmin, slug);
+      expect(
+        workspace.pools.find(({ id }) => id === pool.id)?.showcaseGrants,
+      ).toEqual([
+        { osuId: ownerId, username: "Synthetic streamer", allowReplays: true },
+      ]);
+
+      const list = await listReplays(pool.id, version);
+      expect(list.status).toBe(200);
+      expect(list.headers.get("Cache-Control")).toBe("private, no-store");
+      expect(list.headers.get("CDN-Cache-Control")).toBe("no-store");
+      const replayA = { filename, playerName: "Replay A", mods: 8 };
+      expect((await list.json()).data).toEqual({
+        poolId: pool.id,
+        version,
+        entries: [
+          { entryId: empty.id, slot: "NM1", replays: [] },
+          {
+            entryId: one.id,
+            slot: "NM2",
+            replays: [{ replayId: single.id, ...replayA }],
+          },
+          {
+            entryId: many.id,
+            slot: "NM3",
+            replays: [
+              { replayId: firstReplay.id, ...replayA },
+              {
+                replayId: secondReplay.id,
+                filename: "B.osr",
+                playerName: "Replay B",
+                mods: 0,
+              },
+            ],
+          },
+        ],
+      });
+      const file = await downloadReplay(pool.id, firstReplay.id, version);
+      expect(file.status).toBe(200);
+      expect(file.headers.get("Content-Type")).toBe("application/octet-stream");
+      expect(file.headers.get("Content-Disposition")).toContain(
+        encodeURIComponent(filename),
+      );
+      expect(file.headers.get("Content-Length")).toBe(String(bytes.length));
+      expect(Buffer.from(await file.arrayBuffer())).toEqual(bytes);
+      const head = await downloadReplay(
+        pool.id,
+        firstReplay.id,
+        version,
+        slug,
+        "HEAD",
+      );
+      expect(head.status).toBe(200);
+      expect(await head.text()).toBe("");
+
+      await lock(other.id, 0);
+      await grant(other.id, 1);
+      await replayAccess(other.id, 1);
+      expect((await downloadReplay(other.id, firstReplay.id, 1)).status).toBe(
+        404,
+      );
+      expect((await listReplays(pool.id, version, "other-test")).status).toBe(
+        403,
+      );
+      expect(
+        (await downloadReplay(pool.id, firstReplay.id, version, "other-test"))
+          .status,
+      ).toBe(403);
+
+      await db().insert(registrations).values({
+        editionSlug: slug,
+        userId: ownerId,
+        status: "accepted",
+        answers: {},
+      });
+      await expectDenied(version, firstReplay.id, 403, "SHOWCASE_FORBIDDEN");
+      await db().delete(registrations).where(eq(registrations.userId, ownerId));
+      await db().insert(captains).values({
+        editionSlug: slug,
+        userId: ownerId,
+        position: 1,
+        published: false,
+      });
+      await expectDenied(version, firstReplay.id, 403, "SHOWCASE_FORBIDDEN");
+      await db().delete(captains).where(eq(captains.userId, ownerId));
+
+      const readReplay = replayStorage.readReplay;
+      const revokeDuringRead = vi
+        .spyOn(replayStorage, "readReplay")
+        .mockImplementationOnce(async (...args) => {
+          const original = await readReplay(...args);
+          await replayAccess(pool.id, version, false);
+          return original;
+        });
+      try {
+        const denied = await downloadReplay(pool.id, firstReplay.id, version);
+        expect(denied.status).toBe(403);
+        expect((await denied.json()).error.code).toBe(
+          "SHOWCASE_REPLAYS_FORBIDDEN",
+        );
+      } finally {
+        revokeDuringRead.mockRestore();
+      }
+      await expectDenied(
+        version,
+        firstReplay.id,
+        403,
+        "SHOWCASE_REPLAYS_FORBIDDEN",
+      );
+      expect((await detailShowcase(pool.id)).status).toBe(200);
+
+      await replayAccess(pool.id, version);
+      await grant(pool.id, version, false);
+      await expectDenied(version, firstReplay.id, 404);
+      await expect(replayAccess(pool.id, version)).rejects.toMatchObject({
+        status: 409,
+      });
+      await grant(pool.id, version);
+      await replayAccess(pool.id, version);
+      expect(await upload(many.id, version)).toMatchObject({
+        duplicate: true,
+        version,
+      });
+      const added = await upload(empty.id, version);
+      expect(added.version).toBe(version + 1);
+      await expectDenied(version, added.id, 404);
+      await expectDenied(added.version, added.id, 404);
+      await grant(pool.id, added.version);
+      await expectDenied(
+        added.version,
+        added.id,
+        403,
+        "SHOWCASE_REPLAYS_FORBIDDEN",
+      );
+      await replayAccess(pool.id, added.version);
+      await expectDenied(version, added.id, 409, "SHOWCASE_VERSION_CHANGED");
+      expect(
+        (await downloadReplay(pool.id, added.id, added.version)).status,
+      ).toBe(200);
+      const deleted = await deleteMappoolReplay(
+        showcaseAdmin,
+        slug,
+        many.id,
+        firstReplay.id,
+        {
+          expectedVersion: added.version,
+          confirmed: true,
+        },
+      );
+      expect(deleted).toEqual({ removed: true, version: added.version + 1 });
+      await expectDenied(added.version, secondReplay.id, 404);
+      await grant(pool.id, deleted.version);
+      await replayAccess(pool.id, deleted.version);
+      expect(
+        (await downloadReplay(pool.id, firstReplay.id, deleted.version)).status,
+      ).toBe(404);
+      expect((await listReplays(pool.id, deleted.version)).status).toBe(200);
+
+      await lock(pool.id, deleted.version, false);
+      await expectDenied(deleted.version, secondReplay.id, 404);
+      await lock(pool.id, deleted.version + 1);
+      const relockedVersion = deleted.version + 2;
+      await grant(pool.id, relockedVersion);
+      await replayAccess(pool.id, relockedVersion);
+      await mappoolCommand(showcaseAdmin, slug, {
+        action: "pool_publish",
+        poolId: pool.id,
+        expectedVersion: relockedVersion,
+        published: true,
+        confirmed: true,
+      });
+      await expectDenied(relockedVersion, secondReplay.id, 404);
+      expect(
+        (await poolsModule.publicMappools(slug)).map(({ id }) => id),
+      ).toContain(pool.id);
+    } finally {
+      await rm(media, { recursive: true, force: true });
+    }
+  });
+
   it("handles unassigned, cancelled, unscheduled and unpublished fixtures without fallback", async () => {
     await db()
       .update(fixtures)

@@ -1027,6 +1027,7 @@ export const mappoolShowcaseAccess = pgTable(
       .notNull()
       .references(() => users.osuId, { onDelete: "cascade" }),
     approvedVersion: integer("approved_version").notNull(),
+    allowReplays: boolean("allow_replays").notNull().default(false),
     approvedLockAt: timestamp("approved_lock_at", {
       withTimezone: true,
     }).notNull(),

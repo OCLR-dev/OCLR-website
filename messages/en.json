@@ -4517,6 +4517,12 @@
     "m35bb428da849": "osu!standard tournament rating from SkillIssue.",
     "m3f852680be1a": "osu!standard tournament rating from Elitebotix.",
     "me115a7a06bed": "About the {value0} rating",
-    "mc253f451bdd5": "Reply"
+    "mc253f451bdd5": "Reply",
+    "mbcfcf46caac1": "Withdraw replay access",
+    "m5abb38ad27c2": "Allow replay access",
+    "mcc123c1699f2": "Withdraw replay access for this pool version",
+    "m5896898ec714": "Allow replay access for this pool version",
+    "mec4e4db5e2aa": "Grant Showcase access to this pool version first.",
+    "m702b64025e09": "Replay access has not been granted for this Showcase pool version."
   }
 }

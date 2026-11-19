@@ -4517,6 +4517,12 @@
     "m35bb428da849": "由 SkillIssue 提供的 osu!standard 赛事评分。",
     "m3f852680be1a": "由 Elitebotix 提供的 osu!standard 赛事评分。",
     "me115a7a06bed": "关于 {value0} 评分",
-    "mc253f451bdd5": "回复"
+    "mc253f451bdd5": "回复",
+    "mbcfcf46caac1": "撤回回放权限",
+    "m5abb38ad27c2": "允许读取回放",
+    "mcc123c1699f2": "撤回此图池版本的回放权限",
+    "m5896898ec714": "允许读取此图池版本的回放",
+    "mec4e4db5e2aa": "请先授予此图池版本的 Showcase 权限。",
+    "m702b64025e09": "尚未获得此 Showcase 图池版本的回放权限。"
   }
 }

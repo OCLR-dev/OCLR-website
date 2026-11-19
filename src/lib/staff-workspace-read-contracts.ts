@@ -120,7 +120,7 @@ export type StaffWorkspaceReadContracts = {
         lockedAt: Date | null;
         selectionLockedAt: Date | null;
         showcaseAt: Date | null;
-        showcaseGrants?: Identity[];
+        showcaseGrants?: (Identity & { allowReplays?: boolean })[];
         updatedAt: Date;
       })[];
     entries: (CompetitionDetailReadContracts["publicMappools"][number]["entries"][number] & {
