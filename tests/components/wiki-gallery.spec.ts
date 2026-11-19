@@ -70,10 +70,10 @@ test("previews in place, restores focus and downloads the current card and artwo
   await expect(trigger).toBeFocused();
 
   await shuffle.click();
-  await expect(trigger).toHaveAccessibleName(/Purple punk streetwear \(SR\)$/);
+  await expect(trigger).toHaveAccessibleName(/Purple punk \(SR\)$/);
   await trigger.click();
   const nextDialog = page.getByRole("dialog", {
-    name: "Purple punk streetwear",
+    name: "Purple punk",
   });
   await expect(nextDialog.getByRole("img")).toHaveAttribute(
     "src",
@@ -84,14 +84,14 @@ test("previews in place, restores focus and downloads the current card and artwo
     .getByRole("link", { name: "Download transparent artwork" })
     .click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toBe("Purple punk streetwear.webp");
+  expect(download.suggestedFilename()).toBe("Purple punk.webp");
   expect(await readFile((await download.path())!)).toEqual(
     await readFile("public/mascot/liru/gallery/purple-punk.webp"),
   );
   const cardPromise = page.waitForEvent("download");
   await nextDialog.getByRole("button", { name: "Download card" }).click();
   const card = await cardPromise;
-  expect(card.suggestedFilename()).toBe("Purple punk streetwear - SR.png");
+  expect(card.suggestedFilename()).toBe("Purple punk - SR.png");
   const cardImage = sharp((await card.path())!);
   await expect(cardImage.metadata()).resolves.toMatchObject({
     format: "png",

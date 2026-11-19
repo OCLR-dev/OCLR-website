@@ -13,7 +13,13 @@ import styles from "./player-profile-ratings.module.css";
 
 type Props = { ratings?: ProfileRatings | null };
 
-function number(locale: string, value: number) {
+function number(locale: string, value: number, fractionDigits?: number) {
+  if (fractionDigits !== undefined) {
+    return new Intl.NumberFormat(locale, {
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    }).format(value);
+  }
   const abs = Math.abs(value);
   return new Intl.NumberFormat(locale, {
     maximumSignificantDigits: 17,
@@ -22,19 +28,28 @@ function number(locale: string, value: number) {
   }).format(value);
 }
 
-function EtxTotal({ etx }: { etx?: ProfileRatings["etx"] }) {
+function EtxTotal({
+  etx,
+  fractionDigits,
+}: {
+  etx?: ProfileRatings["etx"];
+  fractionDigits?: number;
+}) {
   const tr = useAppTranslations();
   if (!etx) return <>{tr("No rating data")}</>;
   return (
     <>
-      {number(tr.locale, etx.value)} ★
+      {number(tr.locale, etx.value, fractionDigits)} ★
       {etx.provisional && <> · {tr("Provisional rating")}</>}
       {etx.outdated && <> · {tr("Outdated rating")}</>}
     </>
   );
 }
 
-export function CompactPlayerRatings({ ratings }: Props) {
+export function CompactPlayerRatings({
+  ratings,
+  etxFractionDigits,
+}: Props & { etxFractionDigits?: number }) {
   const tr = useAppTranslations();
   const sip = profileSipTotal(ratings);
   return (
@@ -56,7 +71,7 @@ export function CompactPlayerRatings({ ratings }: Props) {
       <div>
         <dt>{tr("ETX")}</dt>
         <dd>
-          <EtxTotal etx={ratings?.etx} />
+          <EtxTotal etx={ratings?.etx} fractionDigits={etxFractionDigits} />
         </dd>
       </div>
     </dl>
@@ -83,13 +98,23 @@ export function CoverPlayerRatings({ ratings }: Props) {
       description: tr("osu!standard tournament rating from Elitebotix."),
       time: etx?.importedAt ?? null,
       unit: " ★",
+      fractionDigits: 2,
       provisional: etx?.provisional,
       outdated: etx?.outdated,
     },
   ];
 
   return metrics.map(
-    ({ label, value, description, time, unit, provisional, outdated }) => (
+    ({
+      label,
+      value,
+      description,
+      time,
+      unit,
+      fractionDigits,
+      provisional,
+      outdated,
+    }) => (
       <Fragment key={label}>
         <span className="bws-card-divider" aria-hidden="true" />
         <div className="bws-card-metric">
@@ -112,7 +137,7 @@ export function CoverPlayerRatings({ ratings }: Props) {
               <span className="bws-card-state">{tr("No rating data")}</span>
             ) : (
               <strong className="bws-value">
-                {number(tr.locale, value)}
+                {number(tr.locale, value, fractionDigits)}
                 {unit}
               </strong>
             )}
@@ -269,7 +294,7 @@ export function PlayerRatingDetails({ ratings }: Props) {
           <h3>{tr("Elitebotix (ETX)")}</h3>
           <p>
             <strong>
-              <EtxTotal etx={etx} />
+              <EtxTotal etx={etx} fractionDigits={2} />
             </strong>
           </p>
           {etx && (
@@ -287,7 +312,7 @@ export function PlayerRatingDetails({ ratings }: Props) {
                   <dd>
                     {stars == null
                       ? tr("No rating data")
-                      : `${number(tr.locale, stars)} ★`}
+                      : `${number(tr.locale, stars, 2)} ★`}
                   </dd>
                 </div>
               );

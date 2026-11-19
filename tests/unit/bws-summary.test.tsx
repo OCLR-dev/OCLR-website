@@ -116,10 +116,10 @@ describe("shared public and staff BWS display", () => {
     };
     const html = render(10000, 1234, false, "compact", null, null, ratings);
     expect(html).toMatch(/>o!TR<[\s\S]*>SIP<[\s\S]*>0<\/strong>[\s\S]*>ETX</);
-    expect(html).toContain("6.234567891 ★");
+    expect(html).toContain("6.23 ★");
     expect(html).toContain("Provisional rating");
     expect(html).toContain("Outdated rating");
-    expect(html).not.toContain("3.5 ★");
+    expect(html).not.toContain("3.50 ★");
     expect(html).toContain(`dateTime="${fetchedAt}"`);
     expect(html).toContain(`dateTime="${etxReadTime}"`);
     expect(html).not.toContain(sipImportTime);

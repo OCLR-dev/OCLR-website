@@ -1,6 +1,9 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it, vi } from "vitest";
-import { PlayerRatingDetails } from "../../src/components/player-profile-ratings";
+import {
+  CompactPlayerRatings,
+  PlayerRatingDetails,
+} from "../../src/components/player-profile-ratings";
 import {
   profileRatingsSchema,
   profileSipTotal,
@@ -12,7 +15,7 @@ vi.mock("../../src/i18n/shared", () => ({
     Object.assign((text: string) => text, { locale: "en" }),
 }));
 
-it("labels API details separately from a CSV fallback total and preserves ETX precision", () => {
+it("labels SIP sources separately and shows profile ETX ratings to two decimal places", () => {
   const time = "2025-06-04T12:34:00Z";
   const { modifications, skillsets } = sipResponse(1, 0);
   const ratings = profileRatingsSchema.parse({
@@ -26,9 +29,9 @@ it("labels API details separately from a CSV fallback total and preserves ETX pr
       csv: { value: -4, importedAt: null },
     },
     etx: {
-      value: 6.234567891,
-      mods: { NM: 0 },
-      provisional: false,
+      value: 6.13512525816855,
+      mods: { NM: 0, HD: 6.1 },
+      provisional: true,
       outdated: true,
       importedAt: time,
     },
@@ -43,12 +46,22 @@ it("labels API details separately from a CSV fallback total and preserves ETX pr
     "High AR: -12",
     "26%",
     "74%",
-    "6.234567891 ★",
+    "6.14 ★",
+    "Provisional rating",
     "Outdated rating",
-    "0 ★",
+    "0.00 ★",
+    "6.10 ★",
     "No rating data",
   ])
     expect(html).toContain(text);
+  expect(
+    renderToStaticMarkup(
+      <CompactPlayerRatings ratings={ratings} etxFractionDigits={2} />,
+    ),
+  ).toContain("6.14 ★");
+  expect(
+    renderToStaticMarkup(<CompactPlayerRatings ratings={ratings} />),
+  ).toContain("6.13512525816855 ★");
   expect(
     profileSipTotal({
       ...ratings,
