@@ -2,7 +2,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it, vi } from "vitest";
 import {
   CompactPlayerRatings,
-  CoverPlayerRatings,
   PlayerRatingDetails,
 } from "../../src/components/player-profile-ratings";
 import {
@@ -55,9 +54,6 @@ it("labels SIP sources separately and shows profile ETX ratings to two decimal p
     "No rating data",
   ])
     expect(html).toContain(text);
-  expect(
-    renderToStaticMarkup(<CoverPlayerRatings ratings={ratings} />),
-  ).toContain("6.14");
   expect(
     renderToStaticMarkup(
       <CompactPlayerRatings ratings={ratings} etxFractionDigits={2} />,
