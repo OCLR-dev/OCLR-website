@@ -38,6 +38,7 @@ import {
   editPlayerMessageWrite,
   postPlayerMessageWrite,
 } from "../src/lib/player-message-write-contract";
+import { setPlayerReactionWrite } from "../src/lib/player-reaction-write-contract";
 import {
   deleteLiruGalleryMessageWrite,
   editLiruGalleryMessageWrite,
@@ -180,6 +181,7 @@ const operations: readonly WriteApiOperation[] = [
   postPlayerMessageWrite,
   editPlayerMessageWrite,
   deletePlayerMessageWrite,
+  setPlayerReactionWrite,
   postLiruGalleryMessageWrite,
   editLiruGalleryMessageWrite,
   deleteLiruGalleryMessageWrite,

@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import {
   useId,
   useLayoutEffect,
@@ -16,6 +17,7 @@ import {
   searchPlayerReactions,
   type PlayerReaction,
 } from "@/lib/player-reactions";
+import type { PlayerReactionSummary } from "@/lib/player-reaction-write-contract";
 
 const changeEvent = "oclr-player-reactions";
 const picksKey = "oclr-reaction-picks";
@@ -38,6 +40,28 @@ function storedValue(key: string, fallback: string) {
   } catch {
     return fallback;
   }
+}
+
+function incrementPick(id: string) {
+  const picks = parsePlayerReactionPicks(
+    localStorage.getItem(picksKey) ?? "{}",
+  );
+  picks.set(id, Math.min((picks.get(id) ?? 0) + 1, Number.MAX_SAFE_INTEGER));
+  localStorage.setItem(picksKey, JSON.stringify(Object.fromEntries(picks)));
+}
+
+async function saveLocally(save: () => void) {
+  function update() {
+    try {
+      save();
+    } finally {
+      window.dispatchEvent(new Event(changeEvent));
+    }
+  }
+  try {
+    if (navigator.locks) await navigator.locks.request(picksKey, update);
+    else update();
+  } catch {}
 }
 
 function ReactionImage({
@@ -66,16 +90,74 @@ export function PlayerReactions({
   playerId,
   edition,
   name,
+  signedIn,
+  reactions,
+  onChange,
 }: {
   playerId: number;
   edition: string;
   name: string;
+  signedIn: boolean;
+  reactions: PlayerReactionSummary;
+  onChange: (reactions: PlayerReactionSummary) => void;
 }) {
+  const tr = useAppTranslations();
+  const endpoint = `/api/tournaments/${encodeURIComponent(edition)}/players/${playerId}/reactions`;
+  const inFlight = useRef(false);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState<{ id: string; selected: boolean }>();
+
+  async function setReaction(id: string, selected: boolean) {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setBusy(true);
+    setFailed(undefined);
+    try {
+      const response = await fetch(endpoint, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, selected }),
+      });
+      if (!response.ok) throw new Error();
+      onChange(await response.json());
+      if (selected) void saveLocally(() => incrementPick(id));
+    } catch {
+      // A lost response can follow a committed write. Recover the saved count
+      // before offering the same idempotent action again.
+      try {
+        const response = await fetch(endpoint);
+        if (response.ok) onChange(await response.json());
+      } catch {}
+      setFailed({ id, selected });
+    } finally {
+      inFlight.current = false;
+      setBusy(false);
+    }
+  }
+
   return (
-    <EmojiReactions
-      storageKey={`oclr-reactions:${edition}:${playerId}`}
-      name={name}
-    />
+    <>
+      <ReactionPicker
+        name={name}
+        reactions={reactions}
+        setReaction={signedIn ? setReaction : undefined}
+        busy={busy}
+      />
+      {failed && (
+        <div className="player-message-controls small">
+          <span role="alert">
+            {tr("This request could not be completed. Please try again.")}
+          </span>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => void setReaction(failed.id, failed.selected)}
+          >
+            {tr("Retry")}
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -85,6 +167,50 @@ export function EmojiReactions({
 }: {
   storageKey: string;
   name: string;
+}) {
+  const snapshot = useSyncExternalStore(
+    subscribe,
+    () => storedValue(storageKey, emptySelection()),
+    emptySelection,
+  );
+
+  function setReaction(id: string, add: boolean) {
+    return saveLocally(() => {
+      const current = parsePlayerReactions(
+        localStorage.getItem(storageKey) ?? "[]",
+      );
+      if (current.includes(id) === add) return;
+      const next = add
+        ? [...current, id]
+        : current.filter((value) => value !== id);
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      if (add) incrementPick(id);
+    });
+  }
+
+  return (
+    <ReactionPicker
+      name={name}
+      reactions={parsePlayerReactions(snapshot).map((id) => ({
+        id,
+        count: 1,
+        selected: true,
+      }))}
+      setReaction={setReaction}
+    />
+  );
+}
+
+function ReactionPicker({
+  name,
+  reactions,
+  setReaction,
+  busy = false,
+}: {
+  name: string;
+  reactions: PlayerReactionSummary;
+  setReaction?: (id: string, selected: boolean) => Promise<void>;
+  busy?: boolean;
 }) {
   const tr = useAppTranslations();
   const pickerId = useId();
@@ -97,18 +223,15 @@ export function EmojiReactions({
   const [limit, setLimit] = useState(batchSize);
   const [hovered, setHovered] = useState<string | null>(null);
   const [focused, setFocused] = useState<string | null>(null);
-  const snapshot = useSyncExternalStore(
-    subscribe,
-    () => storedValue(storageKey, emptySelection()),
-    emptySelection,
-  );
   const pickSnapshot = useSyncExternalStore(
     subscribe,
     () =>
       open && frequent ? storedValue(picksKey, emptyPicks()) : emptyPicks(),
     emptyPicks,
   );
-  const selected = parsePlayerReactions(snapshot);
+  const selected = new Set(
+    reactions.filter((row) => row.selected).map((row) => row.id),
+  );
   const picks = useMemo(
     () => parsePlayerReactionPicks(pickSnapshot),
     [pickSnapshot],
@@ -157,81 +280,80 @@ export function EmojiReactions({
     scroll.current?.scrollTo(0, 0);
   }
 
-  async function setReaction(id: string, add: boolean) {
-    function save() {
-      const current = parsePlayerReactions(
-        localStorage.getItem(storageKey) ?? "[]",
-      );
-      if (current.includes(id) === add) return;
-      const next = add
-        ? [...current, id]
-        : current.filter((value) => value !== id);
-      localStorage.setItem(storageKey, JSON.stringify(next));
-      try {
-        if (add) {
-          const picks = parsePlayerReactionPicks(
-            localStorage.getItem(picksKey) ?? "{}",
-          );
-          picks.set(
-            id,
-            Math.min((picks.get(id) ?? 0) + 1, Number.MAX_SAFE_INTEGER),
-          );
-          localStorage.setItem(
-            picksKey,
-            JSON.stringify(Object.fromEntries(picks)),
-          );
-        }
-      } finally {
-        window.dispatchEvent(new Event(changeEvent));
-      }
-    }
-
-    // Serialize updates across same-origin tabs when Web Locks is available.
-    try {
-      if (navigator.locks) await navigator.locks.request(picksKey, save);
-      else save();
-    } catch {}
-  }
-
   return (
     <div
       className="player-reactions"
       role="group"
       aria-label={tr("Reactions for {name}", { name })}
     >
-      {selected.map((id) => {
+      {reactions.map(({ id, count, selected }) => {
         const reaction = playerReactionById.get(id);
         const label = reaction?.name ?? id;
-        return (
+        const countId = `${pickerId}-count-${id}`;
+        const content = (
+          <>
+            {reaction ? (
+              <ReactionImage reaction={reaction} animated />
+            ) : (
+              <span aria-hidden="true">{id}</span>
+            )}
+            <span className="reaction-count" id={countId}>
+              {count}
+            </span>
+          </>
+        );
+        return setReaction ? (
           <button
             type="button"
             key={id}
             className="player-reaction"
             title={label}
             aria-label={tr("React with {emoji}", { emoji: label })}
-            aria-pressed="true"
-            onClick={() => void setReaction(id, false)}
+            aria-pressed={selected}
+            aria-describedby={countId}
+            aria-disabled={busy || undefined}
+            onClick={() => {
+              if (busy) return;
+              if (selected && count === 1) trigger.current?.focus();
+              void setReaction(id, !selected);
+            }}
           >
-            {reaction ? (
-              <ReactionImage reaction={reaction} animated />
-            ) : (
-              <span aria-hidden="true">{id}</span>
-            )}
-            <span className="reaction-count">1</span>
+            {content}
           </button>
+        ) : (
+          <span className="player-reaction" key={id} title={label}>
+            <span className="sr-only">{label} </span>
+            {content}
+          </span>
         );
       })}
-      <button
-        ref={trigger}
-        type="button"
-        className="reaction-add"
-        popoverTarget={pickerId}
-        aria-label={tr("Add reaction")}
-        title={tr("Add reaction")}
-        aria-expanded={open}
-      >
-        ＋
-      </button>
+      {setReaction ? (
+        <button
+          ref={trigger}
+          type="button"
+          className="reaction-add"
+          popoverTarget={pickerId}
+          aria-label={tr("Add reaction")}
+          title={tr("Add reaction")}
+          aria-expanded={open}
+          aria-disabled={busy || undefined}
+          onClick={(event) => {
+            if (busy) event.preventDefault();
+          }}
+        >
+          ＋
+        </button>
+      ) : (
+        <Link
+          className="reaction-add"
+          href="/login"
+          prefetch={false}
+          aria-label={tr("Sign in with osu!")}
+          title={tr("Sign in with osu!")}
+        >
+          ＋
+        </Link>
+      )}
       <div
         ref={picker}
         id={pickerId}
@@ -315,15 +437,17 @@ export function EmojiReactions({
                     aria-label={tr("React with {emoji}", {
                       emoji: reaction.name,
                     })}
-                    aria-pressed={selected.includes(reaction.id)}
+                    aria-pressed={selected.has(reaction.id)}
+                    aria-disabled={busy || undefined}
                     onMouseEnter={() => setHovered(reaction.id)}
                     onMouseLeave={() => setHovered(null)}
                     onFocus={() => setFocused(reaction.id)}
                     onBlur={() => setFocused(null)}
                     onClick={() => {
-                      void setReaction(
+                      if (busy) return;
+                      void setReaction?.(
                         reaction.id,
-                        !selected.includes(reaction.id),
+                        !selected.has(reaction.id),
                       );
                       picker.current?.hidePopover();
                       trigger.current?.focus();

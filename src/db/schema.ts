@@ -1553,6 +1553,30 @@ export const playerMessages = pgTable(
   ],
 );
 
+export const tournamentPlayerReactions = pgTable(
+  "tournament_player_reactions",
+  {
+    editionSlug: text("edition_slug").notNull(),
+    playerId: bigint("player_id", { mode: "number" }).notNull(),
+    emojiId: text("emoji_id").notNull(),
+    authorId: bigint("author_id", { mode: "number" })
+      .notNull()
+      .references(() => users.osuId, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({
+      name: "tournament_player_reactions_pk",
+      columns: [t.editionSlug, t.playerId, t.emojiId, t.authorId],
+    }),
+    foreignKey({
+      name: "tournament_player_reactions_registration_fk",
+      columns: [t.editionSlug, t.playerId],
+      foreignColumns: [registrations.editionSlug, registrations.userId],
+    }).onDelete("cascade"),
+    index("tournament_player_reactions_author_idx").on(t.authorId),
+  ],
+);
+
 // A private, per-account daily receipt. A saved roll is also the spend marker.
 export const liruDailyGacha = pgTable(
   "liru_daily_gacha",

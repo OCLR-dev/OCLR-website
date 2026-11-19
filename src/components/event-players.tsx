@@ -10,7 +10,8 @@ import {
 } from "./player-directory-tools";
 import { Avatar } from "./avatar";
 import { PlayerMessageBoard } from "./player-message-board";
-import { PlayerReactions } from "./player-reactions";
+import { EmojiReactions, PlayerReactions } from "./player-reactions";
+import type { PlayerReactionSummary } from "@/lib/player-reaction-write-contract";
 const PAGE_SIZE = 40;
 export function EventPlayers({
   players,
@@ -22,6 +23,7 @@ export function EventPlayers({
   viewerId,
   otrRatings,
   showImportedRatings = false,
+  reactionDirectory,
 }: {
   remote?: boolean;
   players: (EventPlayer &
@@ -38,8 +40,16 @@ export function EventPlayers({
   viewerId?: number;
   otrRatings?: Promise<Record<number, number>>;
   showImportedRatings?: boolean;
+  reactionDirectory?: Record<number, PlayerReactionSummary>;
 }) {
   const tr = useAppTranslations();
+  const [playerReactions, setPlayerReactions] = useState({
+    source: reactionDirectory,
+    saved: reactionDirectory,
+  });
+  if (playerReactions.source !== reactionDirectory) {
+    setPlayerReactions({ source: reactionDirectory, saved: reactionDirectory });
+  }
   const [ratingSnapshot, setRatingSnapshot] = useState<{
     source: typeof otrRatings;
     values: Record<number, number>;
@@ -227,12 +237,35 @@ export function EventPlayers({
                         )}
                       </dl>
                     )}
-                    {!remote && (
-                      <PlayerReactions
-                        edition={edition}
-                        playerId={p.id}
+                    {preview ? (
+                      <EmojiReactions
+                        storageKey={`oclr-reactions:${edition}:${p.id}`}
                         name={p.name}
                       />
+                    ) : (
+                      !remote && (
+                        <PlayerReactions
+                          key={`${edition}:${viewerId ?? "guest"}`}
+                          edition={edition}
+                          playerId={p.id}
+                          name={p.name}
+                          signedIn={signedIn}
+                          reactions={playerReactions.saved?.[p.id] ?? []}
+                          onChange={(reactions) =>
+                            setPlayerReactions((current) =>
+                              current.source === reactionDirectory
+                                ? {
+                                    ...current,
+                                    saved: {
+                                      ...current.saved,
+                                      [p.id]: reactions,
+                                    },
+                                  }
+                                : current,
+                            )
+                          }
+                        />
+                      )
                     )}
                   </div>
                 </div>

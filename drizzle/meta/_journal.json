@@ -771,6 +771,13 @@
       "when": 1795053711083,
       "tag": "0109_mappool_showcase_replay_access",
       "breakpoints": true
+    },
+    {
+      "idx": 110,
+      "version": "7",
+      "when": 1795056798817,
+      "tag": "0110_tournament_player_reactions",
+      "breakpoints": true
     }
   ]
 }

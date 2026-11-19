@@ -38,7 +38,7 @@ About lists active persistent staff grants with public visibility in `/admin/sta
 
 ## Public player directory
 
-### Local player reactions (#969)
+### Player reactions (#969, #1193)
 
 The player-list reaction picker contains 407 bundled image entries: 395 QQ
 resources, 11 osu! Mod icons and the Twemoji circled congratulation. The 33
@@ -48,9 +48,9 @@ without an image are omitted. Names remain literal asset names; search also
 recognizes IDs and the aliases 按按钮 / 跪拜. Search and empty-state controls use
 the shared three-language catalogs.
 
-The 11 selectable Mod icons use the classic osu! skin PNGs. Previously saved
-No Mod reactions (`osu-NM`) still display their SVG and can be removed. The
-picker excludes No Mod from the catalog and the Frequently used filter.
+The 11 selectable Mod icons use the classic osu! skin PNGs. The picker excludes
+No Mod from the catalog and the Frequently used filter. On browser-local
+previews, saved No Mod and legacy Unicode reactions can still be removed.
 
 The picker mounts only while open, uses a bounded scrolling grid and lazy images,
 and plays an animation on hover/focus. Selected reactions play their available
@@ -70,10 +70,18 @@ ties following catalog order. Counts use stable emoji IDs in `localStorage`
 under `oclr-reaction-picks`, shared across players and editions in the same
 browser profile and site origin. Removing a reaction leaves its count intact.
 
-Reactions remain browser-local, keyed by edition and player. Existing Unicode
-selections can still be displayed and removed, but are not added to the new
-image-only candidate list. Remote read-only player lists continue to omit the
-reaction controls. This change adds no server-side reaction counts or writes.
+On the tournament player list, signed-in visitors can add or remove their own
+reactions. PostgreSQL stores at most one selection per account, edition, player
+and emoji. Repeated requests for the same state leave the count intact. The
+server checks that the registration is accepted and the edition is public.
+Visitors see aggregate counts on load or refresh, and signed-in visitors also
+see their own selections across devices. Each successful write returns the
+current counts for that player. Other visitors see changes when they reload.
+
+The `oclr-reactions:<edition>:<playerId>` selections made before #1193 have no
+verified account owner and are excluded from shared counts. The synthetic
+preview continues to use local reactions. Remote read-only player lists omit
+the reaction controls.
 
 ### Directory behavior
 

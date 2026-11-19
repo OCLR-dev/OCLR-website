@@ -33,6 +33,11 @@ vi.mock("../../src/lib/auth/user", () => ({ currentUser: async () => null }));
 vi.mock("../../src/lib/player-messages", () => ({
   publicPlayerIntroductions: async () => new Map(),
 }));
+vi.mock("../../src/lib/tournament-player-reactions", () => ({
+  playerReactionDirectory: async () => ({
+    1220001: [{ id: "qq-13", count: 2, selected: false }],
+  }),
+}));
 vi.mock("../../src/lib/player-identity", () => ({
   visiblePlayerNames: async () => [],
 }));
@@ -147,6 +152,7 @@ describe("cache-first edition player cards", () => {
     expect(page).toContain('dateTime="2026-10-23T00:00:00Z"');
     expect(page).toContain('href="https://osu.ppy.sh/users/1220001"');
     expect(page).toContain('href="/players/1220001?edition=test-cup"');
+    expect(page).toMatch(/class="reaction-count"[^>]*>2<\/span>/);
     expect(page).not.toContain("Player profile &amp; statistics");
     expect(cachedDirectoryStatistics).toHaveBeenCalledExactlyOnceWith(
       [1220001],

@@ -34,7 +34,9 @@
   flex-wrap: wrap;
   gap: 0.3rem;
 }
-.themed-site .player-reactions button {
+.themed-site .player-reactions button,
+.themed-site .player-reactions a.reaction-add,
+.themed-site .player-reactions span.player-reaction {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -52,15 +54,20 @@
   cursor: pointer;
   transform: none;
 }
-.themed-site .player-reactions button:focus-visible {
+.themed-site .player-reactions button:focus-visible,
+.themed-site .player-reactions a.reaction-add:focus-visible {
   outline: 2px solid var(--site-accent);
   outline-offset: -3px;
 }
 .themed-site .player-reactions button[aria-pressed="true"],
-.themed-site .player-reactions button:hover {
+.themed-site .player-reactions button:hover,
+.themed-site .player-reactions a.reaction-add:hover {
   transform: none;
   border-color: var(--site-accent);
   background: var(--site-tint);
+}
+.themed-site .player-reactions span.player-reaction {
+  cursor: default;
 }
 .reaction-count {
   font-size: var(--text-label);

@@ -1066,6 +1066,20 @@
     }
   },
   {
+    "route": "/api/tournaments/{edition}/players/{osuId}/reactions",
+    "source": "src/app/api/tournaments/[edition]/players/[osuId]/reactions/route.ts",
+    "methods": {
+      "PUT": {
+        "status": "documented",
+        "operationId": "setPlayerReaction",
+        "access": "browser",
+        "consumers": [
+          "src/components/player-reactions.tsx"
+        ]
+      }
+    }
+  },
+  {
     "route": "/api/tournaments/{edition}/registrations",
     "source": "src/app/api/tournaments/[edition]/registrations/route.ts",
     "methods": {

@@ -21,6 +21,7 @@ import { refreshDirectoryStatistics } from "@/lib/osu-profiles";
 import { getDirectoryOtrRatings } from "@/lib/otr-rating";
 import { readDirectoryEtxRatings } from "@/lib/etx-rating";
 import { importedRatingsEdition } from "@/lib/player-rating-import-contract";
+import { playerReactionDirectory } from "@/lib/tournament-player-reactions";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return {
@@ -109,6 +110,9 @@ async function PlayersContent({
       }
     });
   const viewer = await currentUser();
+  const reactionDirectory = remote
+    ? undefined
+    : await playerReactionDirectory(edition, viewer?.osuId);
   return (
     <div className="directory-page edition-players">
       <PageHeading title={tr("Players")} />
@@ -117,6 +121,7 @@ async function PlayersContent({
         remote={remote}
         signedIn={Boolean(viewer)}
         viewerId={viewer?.osuId}
+        reactionDirectory={reactionDirectory}
         grouped={rows.some((p) => p.participation === "finalized_roster")}
         otrRatings={otrRatings}
         showImportedRatings={showRatings}
