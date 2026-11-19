@@ -537,25 +537,45 @@ function liruArticle(tr: AppTranslator): WikiArticle {
 
 // Rarity is assigned per artwork and stays the same when the gallery shuffles.
 const liruRarities: Partial<Record<string, WikiCardRarity>> = {
+  accordion: "SR",
   "apricot-lantern": "SR",
   "arcade-streetwear": "R",
+  badminton: "R",
+  baker: "R",
+  "baseball-fielding": "R",
   "berry-rose-side-bow": "SR",
   "black-rock": "SR",
   "blackberry-bow-dress": "SR",
   "blue-white-fairy-tale-dress": "SR",
+  bouldering: "R",
+  "bubble-walk": "R",
   "burgundy-velvet-dress": "SSR",
   "butterfly-dream-fairy": "UR",
+  camellia: "SSR",
+  "cello-tuning": "SR",
   "cherry-blossom-tea-party": "SR",
+  chess: "SR",
+  "circus-juggler": "SSR",
   "cream-cocoa-detective": "SR",
   "cream-petal-tea": "SR",
+  cyanotype: "SR",
   "dreamy-wave-dress": "SSR",
   "elegant-maid": "SSR",
+  equestrian: "SR",
+  "fern-gardener": "R",
   "flower-mage": "SSR",
+  "flower-ribbon": "SR",
   "forest-green-detective": "SR",
   "forest-green-violinist": "SSR",
+  "fossil-researcher": "SR",
   "galaxy-dream": "UR",
   "gothic-lolita": "SSR",
+  "ice-skates": "SR",
   "indigo-moonlight-dress": "UR",
+  "jazz-conductor": "UR",
+  "jellyfish-dancer": "UR",
+  "lantern-festival": "UR",
+  "late-night-radio": "R",
   "lavender-ballet-dress": "SR",
   "lavender-bridal": "UR",
   "lavender-gown": "SSR",
@@ -563,8 +583,11 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "lavender-tea-caddy": "SR",
   "lemon-garden-dress": "SR",
   "light-armored-knight": "SSR",
+  marine: "R",
+  matcha: "SSR",
   "midnight-moon-dress": "SR",
   "midnight-starflower-dress": "SR",
+  mime: "R",
   "mint-bunny-picnic": "SR",
   "mint-carousel-dress": "SR",
   "mint-lily-cape": "SR",
@@ -572,31 +595,49 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "misty-lilac-bell-cape": "UR",
   "misty-moon-clutch": "SR",
   "moon-cat-cape": "SSR",
+  "moonlight-gala": "SSR",
   "moonwhite-astrologer": "UR",
+  "morning-yoga": "R",
+  "night-train": "SSR",
+  "origami-swallow": "R",
   "paper-butterfly-collection": "SR",
+  "patchwork-tailor": "SR",
   "peach-carousel-dress": "SR",
   "peach-embroidered-dress": "SR",
+  "pinwheel-festival": "R",
   "plum-knit-campus": "R",
   "powder-blue-cape": "SR",
   "purple-punk": "SR",
+  raincoat: "R",
+  roller: "SR",
   "rose-princess": "UR",
   "sea-mist-bottle": "SR",
   "sea-salt-shell-dress": "SR",
   "shrine-maiden": "SSR",
   "snow-bunny-cape": "SR",
+  "snow-post": "SR",
   "spring-embroidered-maxi-dress": "SSR",
   "sprout-fantasy-traveler": "SR",
+  "stained-glass": "SSR",
   "star-candy-mage": "SSR",
   "star-music-box": "SSR",
   "star-note-academy": "UR",
+  stargazer: "SSR",
   "starry-dream-dress": "SSR",
   "starry-evening-reader": "SR",
   "starry-night-gown": "UR",
+  "starry-pajamas": "R",
+  "steam-workshop": "SSR",
   "strawberry-cream-cafe": "SSR",
   "strawberry-tea-party-dress": "SR",
+  "street-photographer": "SR",
+  "sunset-astronaut": "UR",
+  "vinyl-dj": "SSR",
   "violet-carousel-dress": "SR",
+  "wicker-weaver": "R",
   "wisteria-furisode": "UR",
   "wisteria-messenger": "SR",
+  "woodland-birdcare": "SR",
 };
 
 export function liruGallery(tr: AppTranslator): {
@@ -1517,6 +1558,289 @@ export function liruGallery(tr: AppTranslator): {
       tr("Mint carousel dress"),
       tr(
         "Liru waves in a mint-green and cream carousel dress, with embroidered horses and a ticket-shaped bag.",
+      ),
+    ],
+    [
+      "starry-pajamas",
+      tr("Starry pajamas"),
+      tr("Liru yawns in gold-trimmed purple pajamas while holding a quilt."),
+    ],
+    [
+      "flower-ribbon",
+      tr("Flower ribbon"),
+      tr("Liru ties a plum-colored ribbon around a bouquet of pink flowers."),
+    ],
+    [
+      "cyanotype",
+      tr("Ginkgo cyanotype"),
+      tr(
+        "Liru holds a golden ginkgo leaf beside its white silhouette on a blue print.",
+      ),
+    ],
+    [
+      "late-night-radio",
+      tr("Late-night radio"),
+      tr(
+        "Liru turns the dial of a red radio in a teal cardigan and orange sweater.",
+      ),
+    ],
+    [
+      "woodland-birdcare",
+      tr("Woodland birdkeeper"),
+      tr(
+        "Liru wears a mustard jacket while a small brown bird perches on her finger.",
+      ),
+    ],
+    [
+      "origami-swallow",
+      tr("Paper swallow"),
+      tr(
+        "Liru holds a pale blue paper swallow in a navy sailor dress with an orange tie.",
+      ),
+    ],
+    [
+      "morning-yoga",
+      tr("Morning yoga"),
+      tr(
+        "Liru sits cross-legged with her eyes closed in a coral wrap top and lilac trousers.",
+      ),
+    ],
+    [
+      "bubble-walk",
+      tr("Bubble walk"),
+      tr(
+        "Liru lifts a bubble wand to her lips in a denim vest and olive skirt.",
+      ),
+    ],
+    [
+      "wicker-weaver",
+      tr("Wicker basket weaver"),
+      tr(
+        "Liru wears an ochre vest and holds a small woven basket by its handle.",
+      ),
+    ],
+    [
+      "ice-skates",
+      tr("Lacing up skates"),
+      tr(
+        "Liru sits on a wooden bench in a burgundy jacket and ties her white ice skate.",
+      ),
+    ],
+    [
+      "lantern-festival",
+      tr("Lantern festival"),
+      tr(
+        "Liru carries a glowing lantern in a pale green embroidered top and golden pleated skirt.",
+      ),
+    ],
+    [
+      "mime",
+      tr("Street mime"),
+      tr(
+        "Liru raises both palms in a striped shirt, black suspenders, and a red neck scarf.",
+      ),
+    ],
+    [
+      "baseball-fielding",
+      tr("Baseball fielding"),
+      tr(
+        "Liru wears a pinstriped baseball uniform and holds a ball in a brown glove.",
+      ),
+    ],
+    [
+      "fern-gardener",
+      tr("Fern gardener"),
+      tr(
+        "Liru waters a potted fern with a small copper can while wearing an olive shirt dress.",
+      ),
+    ],
+    [
+      "moonlight-gala",
+      tr("Moonlight gala"),
+      tr(
+        "Liru wears a lilac satin gown with a silver belt and carries a matching clutch.",
+      ),
+    ],
+    [
+      "equestrian",
+      tr("Equestrian outfit"),
+      tr(
+        "Liru fastens a brown riding glove in a tweed waistcoat and tall boots.",
+      ),
+    ],
+    [
+      "pinwheel-festival",
+      tr("Pinwheel festival"),
+      tr(
+        "Liru holds a multicolored pinwheel in blue checkered overalls with an orange sash.",
+      ),
+    ],
+    [
+      "night-train",
+      tr("Night train attendant"),
+      tr(
+        "Liru opens a gold pocket watch in a dark green railway uniform trimmed with gold.",
+      ),
+    ],
+    [
+      "fossil-researcher",
+      tr("Fossil researcher"),
+      tr(
+        "Liru brushes an ammonite fossil while wearing a white lab coat over a blue sweater vest.",
+      ),
+    ],
+    [
+      "bouldering",
+      tr("Bouldering outfit"),
+      tr(
+        "Liru reaches into a blue chalk bag in a lime vest and rust-colored climbing trousers.",
+      ),
+    ],
+    [
+      "matcha",
+      tr("Matcha tea ceremony"),
+      tr(
+        "Liru kneels on a red cushion in a floral green kimono and offers a bowl of matcha.",
+      ),
+    ],
+    [
+      "accordion",
+      tr("Folk accordion"),
+      tr(
+        "Liru plays a red accordion trimmed with gold in a cream jacket embroidered with green leaves.",
+      ),
+    ],
+    [
+      "stained-glass",
+      tr("Stained-glass sunlight"),
+      tr(
+        "Liru holds up a stained-glass panel with yellow sun rays against a teal background.",
+      ),
+    ],
+    [
+      "street-photographer",
+      tr("Street photographer"),
+      tr(
+        "Liru kneels in a mustard corduroy jacket and holds a vintage camera.",
+      ),
+    ],
+    [
+      "circus-juggler",
+      tr("Circus juggler"),
+      tr(
+        "Liru juggles colorful balls in a diamond-patterned vest and a ruffled collar.",
+      ),
+    ],
+    [
+      "badminton",
+      tr("Badminton outfit"),
+      tr(
+        "Liru holds a racket and a shuttlecock in a yellow polo and green pleated skirt.",
+      ),
+    ],
+    [
+      "chess",
+      tr("White knight"),
+      tr(
+        "Liru sits on a stool in a dress with a checkerboard panel and holds up a white knight.",
+      ),
+    ],
+    [
+      "vinyl-dj",
+      tr("Vinyl DJ"),
+      tr(
+        "Liru holds a vinyl record in a black biker vest with headphones around her neck.",
+      ),
+    ],
+    [
+      "patchwork-tailor",
+      tr("Patchwork tailor"),
+      tr(
+        "Liru displays a patchwork star with a tomato-shaped pincushion hanging from her waist.",
+      ),
+    ],
+    [
+      "sunset-astronaut",
+      tr("Sunset astronaut"),
+      tr(
+        "Liru salutes in a bright orange spacesuit while holding a white helmet.",
+      ),
+    ],
+    [
+      "jellyfish-dancer",
+      tr("Jellyfish dancer"),
+      tr(
+        "Liru lifts her arms in a dance pose in a shimmering blue dress with layered ruffles.",
+      ),
+    ],
+    [
+      "steam-workshop",
+      tr("Steam workshop"),
+      tr(
+        "Liru wears green overalls and holds a wrench and a round brass gear assembly.",
+      ),
+    ],
+    [
+      "jazz-conductor",
+      tr("Jazz conductor"),
+      tr(
+        "Liru raises a baton in a black tailcoat with plum lapels and a gold bow tie.",
+      ),
+    ],
+    [
+      "snow-post",
+      tr("Snowbound post"),
+      tr(
+        "Liru offers a wax-sealed envelope in a white quilted coat and blue scarf.",
+      ),
+    ],
+    [
+      "roller",
+      tr("Roller skating"),
+      tr(
+        "Liru balances with both arms out in a teal and coral vest, wearing mismatched roller skates.",
+      ),
+    ],
+    [
+      "marine",
+      tr("Marine field notes"),
+      tr(
+        "Liru holds a pencil and an open notebook in a navy vest with a wave emblem.",
+      ),
+    ],
+    [
+      "camellia",
+      tr("Camellia fan"),
+      tr(
+        "Liru holds a camellia fan in a red frog-button jacket and a cream embroidered skirt.",
+      ),
+    ],
+    [
+      "raincoat",
+      tr("Mint raincoat"),
+      tr(
+        "Liru makes a peace sign in a mint raincoat while carrying a closed yellow umbrella.",
+      ),
+    ],
+    [
+      "baker",
+      tr("Orange bun baker"),
+      tr(
+        "Liru wears an orange apron and presents two glazed buns topped with orange slices.",
+      ),
+    ],
+    [
+      "stargazer",
+      tr("Constellation stargazer"),
+      tr(
+        "Liru carries a brass spyglass in a dark cape embroidered with stars and a constellation.",
+      ),
+    ],
+    [
+      "cello-tuning",
+      tr("Cello tuning"),
+      tr(
+        "Liru sits in a cream embroidered blouse and turns a tuning peg on her cello.",
       ),
     ],
   ];
