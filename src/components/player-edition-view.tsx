@@ -202,7 +202,10 @@ export function PlayerEditionView({
           </>
         )}
         {showRatingFallback && (
-          <CompactPlayerRatings ratings={profileRatings} />
+          <CompactPlayerRatings
+            ratings={profileRatings}
+            etxFractionDigits={2}
+          />
         )}
         {selected && ratings && <RoundRatings data={ratings} slug={selected} />}
         {(timeline.marks.length > 0 || timeline.spans.length > 0) && (
