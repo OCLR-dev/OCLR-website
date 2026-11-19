@@ -538,6 +538,7 @@ function liruArticle(tr: AppTranslator): WikiArticle {
 // Rarity is assigned per artwork and stays the same when the gallery shuffles.
 const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "apricot-lantern": "SR",
+  "arcade-streetwear": "R",
   "berry-rose-side-bow": "SR",
   "black-rock": "SR",
   "blackberry-bow-dress": "SR",
@@ -564,6 +565,8 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "light-armored-knight": "SSR",
   "midnight-moon-dress": "SR",
   "midnight-starflower-dress": "SR",
+  "mint-bunny-picnic": "SR",
+  "mint-carousel-dress": "SR",
   "mint-lily-cape": "SR",
   "mint-windup-music-box": "SSR",
   "misty-lilac-bell-cape": "UR",
@@ -571,7 +574,9 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "moon-cat-cape": "SSR",
   "moonwhite-astrologer": "UR",
   "paper-butterfly-collection": "SR",
+  "peach-carousel-dress": "SR",
   "peach-embroidered-dress": "SR",
+  "plum-knit-campus": "R",
   "powder-blue-cape": "SR",
   "purple-punk": "SR",
   "rose-princess": "UR",
@@ -579,13 +584,17 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "sea-salt-shell-dress": "SR",
   "shrine-maiden": "SSR",
   "snow-bunny-cape": "SR",
+  "spring-embroidered-maxi-dress": "SSR",
   "sprout-fantasy-traveler": "SR",
   "star-candy-mage": "SSR",
   "star-music-box": "SSR",
+  "star-note-academy": "UR",
   "starry-dream-dress": "SSR",
   "starry-evening-reader": "SR",
   "starry-night-gown": "UR",
+  "strawberry-cream-cafe": "SSR",
   "strawberry-tea-party-dress": "SR",
+  "violet-carousel-dress": "SR",
   "wisteria-furisode": "UR",
   "wisteria-messenger": "SR",
 };
@@ -1445,6 +1454,69 @@ export function liruGallery(tr: AppTranslator): {
       tr("Rose milk tea academy outfit"),
       tr(
         "Liru wears a rose pink toggle jacket and carries a takeaway cup and a brown handbag.",
+      ),
+    ],
+    [
+      "spring-embroidered-maxi-dress",
+      tr("Spring embroidered maxi dress"),
+      tr(
+        "Liru waves while lifting the hem of a cream maxi dress embroidered with flowers and leaves and tied with an olive sash.",
+      ),
+    ],
+    [
+      "arcade-streetwear",
+      tr("Arcade streetwear"),
+      tr(
+        "Liru raises a fist in a blue-and-white jacket and cargo trousers, with red and blue accents on her sneakers.",
+      ),
+    ],
+    [
+      "plum-knit-campus",
+      tr("Plum knit campus outfit"),
+      tr(
+        "Liru holds a lilac notebook in a plum cable-knit cardigan, a green ribbon tie and a plaid skirt.",
+      ),
+    ],
+    [
+      "star-note-academy",
+      tr("Star Note Academy"),
+      tr(
+        "Liru waves in a lavender cardigan and a navy skirt embroidered with stars and notes, holding a music notebook.",
+      ),
+    ],
+    [
+      "mint-bunny-picnic",
+      tr("Mint bunny picnic"),
+      tr(
+        "Liru makes a peace sign in a mint bunny-ear hoodie and carries a picnic basket filled with bread, strawberries, and daisies.",
+      ),
+    ],
+    [
+      "strawberry-cream-cafe",
+      tr("Strawberry cream café"),
+      tr(
+        "Liru presents a slice of strawberry cake in a pink dress with strawberry embroidery and a cream lace apron.",
+      ),
+    ],
+    [
+      "peach-carousel-dress",
+      tr("Peach carousel dress"),
+      tr(
+        "Liru waves in a peach-pink and cream carousel dress, with embroidered horses and a ticket-shaped bag.",
+      ),
+    ],
+    [
+      "violet-carousel-dress",
+      tr("Violet carousel dress"),
+      tr(
+        "Liru waves in a violet and cream carousel dress, with embroidered horses and a ticket-shaped bag.",
+      ),
+    ],
+    [
+      "mint-carousel-dress",
+      tr("Mint carousel dress"),
+      tr(
+        "Liru waves in a mint-green and cream carousel dress, with embroidered horses and a ticket-shaped bag.",
       ),
     ],
   ];
