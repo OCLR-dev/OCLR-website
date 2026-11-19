@@ -663,8 +663,10 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
 export function liruGallery(tr: AppTranslator): {
   title: string;
   gallery: WikiGalleryFigure[];
+  collection: WikiGalleryFigure[];
 } {
-  const outfits = [
+  type Outfit = [id: string, caption: string, alt: string];
+  const outfits: Outfit[] = [
     [
       "elegant-maid",
       tr("Elegant maid outfit"),
@@ -1321,36 +1323,6 @@ export function liruGallery(tr: AppTranslator): {
       tr("Liru holds a lilac notebook in a plum cardigan."),
     ],
     [
-      "star-note-academy",
-      tr("Star Note Academy"),
-      tr("Liru waves with a music book in a star-patterned navy skirt."),
-    ],
-    [
-      "mint-bunny-picnic",
-      tr("Mint bunny picnic"),
-      tr("Liru carries a picnic basket in a mint bunny-ear hoodie."),
-    ],
-    [
-      "strawberry-cream-cafe",
-      tr("Strawberry cream café"),
-      tr("Liru carries a plate of strawberry cake in a pink strawberry apron."),
-    ],
-    [
-      "peach-carousel-dress",
-      tr("Peach carousel dress"),
-      tr("Liru wears a peach-pink carousel dress with a ticket-shaped bag."),
-    ],
-    [
-      "violet-carousel-dress",
-      tr("Violet carousel dress"),
-      tr("Liru wears a violet carousel dress with a ticket-shaped bag."),
-    ],
-    [
-      "mint-carousel-dress",
-      tr("Mint carousel dress"),
-      tr("Liru wears a mint carousel dress with a ticket-shaped bag."),
-    ],
-    [
       "starry-pajamas",
       tr("Starry pajamas"),
       tr("Liru yawns in star-patterned pajamas while holding a quilt."),
@@ -1664,9 +1636,41 @@ export function liruGallery(tr: AppTranslator): {
       tr("Liru in a red blouse types on a cream typewriter."),
     ],
   ];
-  return {
-    title: tr("Liru Gallery"),
-    gallery: outfits.map(([id, caption, alt]) => ({
+  // Saved draws still refer to these images by their original URLs.
+  const retired: Outfit[] = [
+    [
+      "star-note-academy",
+      tr("Star Note Academy"),
+      tr("Liru waves with a music book in a star-patterned navy skirt."),
+    ],
+    [
+      "mint-bunny-picnic",
+      tr("Mint bunny picnic"),
+      tr("Liru carries a picnic basket in a mint bunny-ear hoodie."),
+    ],
+    [
+      "strawberry-cream-cafe",
+      tr("Strawberry cream café"),
+      tr("Liru carries a plate of strawberry cake in a pink strawberry apron."),
+    ],
+    [
+      "peach-carousel-dress",
+      tr("Peach carousel dress"),
+      tr("Liru wears a peach-pink carousel dress with a ticket-shaped bag."),
+    ],
+    [
+      "violet-carousel-dress",
+      tr("Violet carousel dress"),
+      tr("Liru wears a violet carousel dress with a ticket-shaped bag."),
+    ],
+    [
+      "mint-carousel-dress",
+      tr("Mint carousel dress"),
+      tr("Liru wears a mint carousel dress with a ticket-shaped bag."),
+    ],
+  ];
+  function figure([id, caption, alt]: Outfit): WikiGalleryFigure {
+    return {
       src: `/mascot/liru/gallery/${id}.webp`,
       previewSrc: `/mascot/liru/gallery/${id}-640.webp`,
       width: 1024,
@@ -1674,7 +1678,13 @@ export function liruGallery(tr: AppTranslator): {
       rarity: liruRarities[id] ?? "R",
       alt,
       caption,
-    })),
+    };
+  }
+  const gallery = outfits.map(figure);
+  return {
+    title: tr("Liru Gallery"),
+    gallery,
+    collection: [...gallery, ...retired.map(figure)],
   };
 }
 

@@ -30,7 +30,7 @@ export async function readLiruCollection(
     GROUP BY card.src, card.rarity
   `);
   if (rows.length === 0) return [];
-  const figures = new Map(liruGallery(tr).gallery.map((f) => [f.src, f]));
+  const figures = new Map(liruGallery(tr).collection.map((f) => [f.src, f]));
   return rows
     .flatMap(({ src, rarity, count }) => {
       const figure = figures.get(src);

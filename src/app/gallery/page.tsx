@@ -20,13 +20,13 @@ export async function generateMetadata() {
 
 async function GalleryPage() {
   const tr = await getAppTranslations();
-  const { title, gallery } = liruGallery(tr);
+  const { title, gallery, collection } = liruGallery(tr);
   const remote = remoteMode();
   const [viewer, collectionAuthorIds] = remote
     ? [null, undefined]
     : await Promise.all([
         currentUser().catch(() => null),
-        publicLiruCollectionAuthors(gallery).catch(() => []),
+        publicLiruCollectionAuthors(collection).catch(() => []),
       ]);
 
   return (
@@ -44,7 +44,7 @@ async function GalleryPage() {
             profileHref={
               viewer ? `/players/${viewer.osuId}#liru-collection` : undefined
             }
-            figures={gallery}
+            figures={collection}
           />
         )}
         <WikiGallery

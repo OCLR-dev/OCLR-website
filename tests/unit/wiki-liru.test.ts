@@ -123,7 +123,7 @@ describe("Liru Wiki article (#334, #442, #536)", () => {
   );
 });
 
-it("links the Liru gallery and includes every portrait at both sizes", () => {
+it("links the Liru gallery and keeps retired portraits available for collections", () => {
   const native = createTranslator({ locale: "en", messages: en.ui });
   const tr = appTranslator(
     (key, values) => native(key as keyof typeof en.ui, values),
@@ -136,12 +136,26 @@ it("links the Liru gallery and includes every portrait at both sizes", () => {
     false,
   );
   expect(profile.related).toEqual({ href: "/gallery", title: gallery.title });
-  expect(gallery.gallery).toHaveLength(194);
-  expect(new Set(gallery.gallery.map((figure) => figure.src)).size).toBe(194);
+  expect(gallery.gallery).toHaveLength(188);
+  const active = new Set(gallery.gallery.map(({ src }) => src));
+  expect(active.size).toBe(188);
+  expect(
+    gallery.collection
+      .filter(({ src }) => !active.has(src))
+      .map(({ src }) => src.split("/").at(-1))
+      .sort(),
+  ).toEqual([
+    "mint-bunny-picnic.webp",
+    "mint-carousel-dress.webp",
+    "peach-carousel-dress.webp",
+    "star-note-academy.webp",
+    "strawberry-cream-cafe.webp",
+    "violet-carousel-dress.webp",
+  ]);
   expect(new Set(gallery.gallery.map((figure) => figure.rarity))).toEqual(
     new Set(["UR", "SSR", "SR", "R"]),
   );
-  for (const figure of gallery.gallery) {
+  for (const figure of gallery.collection) {
     expect(webpSize(`public${figure.src}`)).toEqual({
       width: 1024,
       height: 1536,
