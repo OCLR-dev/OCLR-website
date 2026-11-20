@@ -90,7 +90,7 @@ export function MappoolReplays({
       : entry.beatmapCached;
   const slot = slotLabel(entry.category, entry.position);
   const [loaded, setLoaded] = useState(false),
-    [loading, setLoading] = useState(false);
+    [reloading, setReloading] = useState(false);
   const [file, setFile] = useState<File | null>(null),
     [description, setDescription] = useState("");
   const [requestPending, setPending] = useState(false),
@@ -136,11 +136,11 @@ export function MappoolReplays({
       ? tr("Upload replays")
       : tr("Replays");
   const labeledTrigger = writable || hasReplays;
-  async function load(atVersion = version) {
+  async function load(atVersion = version, { showProgress = false } = {}) {
     listRequest.current?.abort();
     const controller = new AbortController();
     listRequest.current = controller;
-    setLoading(true);
+    setReloading(showProgress);
     setListError("");
     try {
       const response = await fetch(url, {
@@ -165,7 +165,7 @@ export function MappoolReplays({
     } finally {
       if (listRequest.current === controller) {
         listRequest.current = null;
-        setLoading(false);
+        setReloading(false);
       }
     }
   }
@@ -433,7 +433,7 @@ export function MappoolReplays({
         onClose={() => {
           listRequest.current?.abort();
           listRequest.current = null;
-          setLoading(false);
+          setReloading(false);
           setExpanded(false);
           summary.current?.focus();
         }}
@@ -455,12 +455,12 @@ export function MappoolReplays({
               className="secondary mappool-icon-action"
               aria-label={tr("Reload replay list")}
               title={tr("Reload replay list")}
-              aria-busy={loading}
+              aria-busy={reloading}
               onClick={() => {
                 setError("");
-                void load();
+                void load(version, { showProgress: true });
               }}
-              disabled={loading}
+              disabled={reloading}
             >
               <MappoolActionIcon kind="refresh" />
             </button>

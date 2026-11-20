@@ -44,13 +44,17 @@ for (const stale of ["success", "error"]) {
         await finish;
       } else await route.fulfill({ json: [replay(1), replay(2)] });
     });
-    await page.goto("/mappool-actions");
+    await page.goto("/mappool-actions?replay-count=1");
     const trigger = page
       .locator('[data-map-entry="entry-1"]')
-      .getByRole("button", { name: /^Replays/ });
+      .getByRole("button", { name: "Saved replays (1)", exact: true });
     await trigger.click();
     await expect.poll(() => Boolean(release)).toBe(true);
     const dialog = page.getByRole("dialog", { name: "Replays for NM1" });
+    const reload = dialog.getByRole("button", { name: "Reload replay list" });
+    await expect(dialog.getByRole("status")).toHaveCount(0);
+    await expect(reload).toBeEnabled();
+    await expect(dialog.getByText("No replays attached.")).toHaveCount(0);
     await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await trigger.click();
     await expect(dialog.getByText("two.osr", { exact: true })).toBeVisible();
@@ -62,9 +66,7 @@ for (const stale of ["success", "error"]) {
       "two.osr",
     ]);
     await expect(dialog.getByRole("alert")).toHaveCount(0);
-    await expect(
-      dialog.getByRole("button", { name: "Reload replay list" }),
-    ).toBeEnabled();
+    await expect(reload).toBeEnabled();
     await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await expect(
       page
