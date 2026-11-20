@@ -335,6 +335,7 @@ export function MappoolReplays({
             <button
               type="button"
               className="secondary mappool-labeled-action"
+              aria-haspopup="dialog"
               aria-expanded={playbackOpen}
               aria-controls={playbackOpen ? playbackId : undefined}
               onClick={(event) => onOpenPlayback(url, event.currentTarget)}

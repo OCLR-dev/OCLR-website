@@ -254,7 +254,7 @@ test("replay dialog keeps the map row compact and restores focus", async ({
   await expect(trigger).toBeFocused();
 });
 
-test("the map opens an inline player with controls in its frame", async ({
+test("the map opens a player dialog with controls in its frame", async ({
   page,
 }) => {
   await page.route("**/entries/entry-1/replays", (route) =>
@@ -271,11 +271,11 @@ test("the map opens an inline player with controls in its frame", async ({
   const open = entry.getByRole("button", { name: "Open replay player" });
   await open.click();
 
-  const viewer = page.getByRole("region", { name: "Replay player for NM1" });
+  const viewer = page.getByRole("dialog", { name: "Replay player for NM1" });
   await expect(
     viewer.getByRole("heading", { name: "Replay player for NM1" }),
   ).toBeFocused();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.locator("dialog:modal")).toHaveCount(1);
   const frame = viewer.getByRole("group", {
     name: "Replay playback for First.osr",
   });
@@ -299,6 +299,12 @@ test("the map opens an inline player with controls in its frame", async ({
   await expect(frame).toHaveCount(0);
   const box = (await viewer.boundingBox())!;
   expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+  await page.keyboard.press("Escape");
+  await expect(open).toBeFocused();
+  await expect(viewer).toHaveCount(0);
+  await open.click();
+  await expect(viewer).toBeVisible();
   await viewer.getByRole("button", { name: "Close player" }).click();
   await expect(open).toBeFocused();
   await expect(viewer).toHaveCount(0);
