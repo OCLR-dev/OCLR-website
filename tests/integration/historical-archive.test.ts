@@ -17,6 +17,9 @@ import {
   teams,
 } from "../../src/db/schema";
 import { tournamentCommand } from "../../src/lib/tournaments";
+import { statisticsCommand } from "../../src/lib/archive-statistics";
+import { publicArchiveStatistics } from "../../src/lib/archive-statistics-reads";
+import { fetchMatchSource } from "../../src/lib/osu-matches";
 import { readTournament } from "../../src/lib/tournament-reads";
 import { getPublicEdition } from "../../src/lib/content";
 import { assertOperationalEdition } from "../../src/lib/archive-guard";
@@ -24,6 +27,10 @@ import { mappoolCommand } from "../../src/lib/mappools";
 import { seedEditions } from "../fixtures/editions";
 import { edition } from "../fixtures/edition";
 import { historicalArchive } from "../fixtures/historical-archive";
+import {
+  statisticsArchive,
+  statisticsSource,
+} from "../fixtures/archive-statistics";
 import { historicalSourceDetails } from "../fixtures/historical-source-details";
 import { assertTestDatabase } from "../database";
 import { readFileSync } from "node:fs";
@@ -31,6 +38,7 @@ import {
   archiveCounts,
   publicHistoricalArchive,
 } from "../../src/lib/historical-archive";
+vi.mock("../../src/lib/osu-matches", () => ({ fetchMatchSource: vi.fn() }));
 const url = process.env.TEST_DATABASE_URL;
 const admin = { osuId: 390001, username: "Archive Admin" };
 const scoped = { osuId: 390002, username: "Other edition Admin" };
@@ -151,6 +159,92 @@ describe.skipIf(!url)("historical archive transactions", () => {
     await expect(
       tournamentCommand(admin, slug, command(3, archive)),
     ).rejects.toMatchObject({ status: 409 });
+  });
+  it("corrects the roster name and resolves the ID while retaining the published statistics", async () => {
+    const season = "s3";
+    const person = {
+      id: "unresolved-vice",
+      username: "Original Name",
+      role: "player" as const,
+      sourceRole: "VICE" as const,
+      teamId: "alpha",
+      tier: null,
+      source: "Synthetic roster!F5",
+    };
+    await seedEditions([
+      {
+        ...edition,
+        slug: season,
+        status: "completed",
+        published: true,
+        registration: null,
+        archive: {
+          ...statisticsArchive,
+          editionSlug: season,
+          formatVersion: 2,
+          unresolvedPlayers: [person],
+        },
+      },
+    ]);
+    vi.mocked(fetchMatchSource).mockResolvedValueOnce(statisticsSource());
+    await statisticsCommand(admin, season, {
+      action: "import",
+      mpId: 999177,
+      expectedVersion: 0,
+    });
+    await statisticsCommand(admin, season, {
+      action: "review",
+      mpId: 999177,
+      expectedVersion: 1,
+      poolId: "final",
+      included: [1, 2],
+      excludedScores: [],
+    });
+    await statisticsCommand(admin, season, {
+      action: "publish",
+      fixtureId: "one",
+      expectedVersions: { "999177": 2 },
+      confirmed: true,
+    });
+    const before = await publicArchiveStatistics(season);
+    expect(before.plays).toHaveLength(8);
+    await tournamentCommand(admin, season, {
+      action: "resolve-archive-identity",
+      unresolvedId: person.id,
+      username: "Corrected Name",
+      osuId: 91999,
+      source: "Synthetic organizer confirmation",
+      expectedRevision: 0,
+      confirmed: true,
+    });
+    const { archive, published } = (await readTournament(season))!.edition;
+    expect(published).toBe(true);
+    expect(archive?.unresolvedPlayers).toEqual([]);
+    expect(archive?.players.at(-1)).toEqual({
+      ...person,
+      id: undefined,
+      username: "Corrected Name",
+      osuId: 91999,
+    });
+    expect(archive?.sourceFacts?.at(-1)?.text).toContain(
+      "Original Name → Corrected Name → osu! UID 91999",
+    );
+    const after = await publicArchiveStatistics(season);
+    expect(after.archiveKey).not.toBe(before.archiveKey);
+    expect(after).toEqual({
+      ...before,
+      archiveKey: after.archiveKey,
+      players: [
+        ...before.players,
+        {
+          osuId: 91999,
+          username: "Corrected Name",
+          teamId: "alpha",
+          role: "player",
+          tier: null,
+        },
+      ],
+    });
   });
   it("imports privately, keeps source identities out of accounts, and publishes separately", async () => {
     await tournamentCommand(admin, slug, command(0));

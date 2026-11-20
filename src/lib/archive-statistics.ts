@@ -31,6 +31,8 @@ import type { User } from "./auth/sessions";
 import { assertCapability } from "./auth/staff";
 import {
   exchangeArchivePlayers,
+  resolveArchiveIdentity,
+  type archiveIdentityConfirmation,
   type archivePlayerExchangeConfirmation,
   type HistoricalArchive,
 } from "./historical-archive";
@@ -74,6 +76,19 @@ export async function preserveStatisticsForRosterExchange(
 ) {
   await assertCapability(actor, "approve_results", before.editionSlug, tx);
   if (!isDeepStrictEqual(after, exchangeArchivePlayers(before, confirmation)))
+    throw new HttpError(409, "Archive changed. Reload before retrying.");
+  await preserveStatisticsForRosterChange(tx, actor, before, after);
+}
+
+export async function preserveStatisticsForIdentityResolution(
+  tx: Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0],
+  actor: User,
+  before: HistoricalArchive,
+  after: HistoricalArchive,
+  confirmation: z.infer<typeof archiveIdentityConfirmation>,
+) {
+  await assertCapability(actor, "approve_results", before.editionSlug, tx);
+  if (!isDeepStrictEqual(after, resolveArchiveIdentity(before, confirmation)))
     throw new HttpError(409, "Archive changed. Reload before retrying.");
   await preserveStatisticsForRosterChange(tx, actor, before, after);
 }

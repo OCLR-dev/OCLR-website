@@ -31,16 +31,29 @@ function ArchiveIdentityResolver({
 }) {
   const tr = useAppTranslations();
   const router = useRouter();
+  const [username, setUsername] = useState(person.username);
   const [osuId, setOsuId] = useState("");
   const [source, setSource] = useState("");
-  const validId =
-    /^\d+$/.test(osuId) && Number(osuId) > 0 && Number(osuId) <= 2147483647;
+  const valid =
+    /^\d+$/.test(osuId) &&
+    Number(osuId) > 0 &&
+    Number(osuId) <= 2147483647 &&
+    !!username.trim() &&
+    !!source.trim();
   return (
     <section className="panel form-stack">
       <h2>{tr("Resolve archive identity")}</h2>
       <p>
         {person.username} · {person.teamId} · {person.source}
       </p>
+      <label className="field">
+        <span>{tr("Historical username")}</span>
+        <input
+          maxLength={300}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </label>
       <label className="field">
         <span>{tr("osu! ID")}</span>
         <input
@@ -67,17 +80,19 @@ function ArchiveIdentityResolver({
         payload={{
           action: "resolve-archive-identity",
           unresolvedId: person.id,
+          username: username.trim(),
           osuId: Number(osuId),
           source: source.trim(),
           expectedRevision: revision,
           confirmed: true,
         }}
-        canConfirm={validId && source.trim().length > 0}
-        disabled={!validId || !source.trim()}
+        canConfirm={valid}
+        disabled={!valid}
         onSuccess={() => router.refresh()}
       >
         <p>
-          {person.username} → {osuId}
+          {person.username !== username.trim() && `${person.username} → `}
+          {username.trim()} · {osuId}
         </p>
         <p>{source}</p>
       </ConfirmMutation>

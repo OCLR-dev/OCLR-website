@@ -31872,6 +31872,11 @@
                         "exclusiveMinimum": 0,
                         "maximum": 2147483647
                       },
+                      "username": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 300
+                      },
                       "source": {
                         "type": "string",
                         "minLength": 1,

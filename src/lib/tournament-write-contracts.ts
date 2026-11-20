@@ -2,6 +2,7 @@ import { z } from "zod";
 import { resolveArchiveStaffCommand } from "./archive-staff-identity-model";
 import { editionSchema, editionSlugSchema } from "./editions";
 import {
+  archiveIdentityConfirmation,
   archivePlayerExchangeConfirmation,
   archiveSubstituteConfirmation,
 } from "./historical-archive";
@@ -52,9 +53,7 @@ const commandSchema = z.discriminatedUnion("action", [
     .object({
       ...version,
       action: z.literal("resolve-archive-identity"),
-      unresolvedId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/),
-      osuId: z.number().int().positive().max(2147483647),
-      source: z.string().trim().min(1).max(160),
+      ...archiveIdentityConfirmation.shape,
     })
     .strict(),
   z

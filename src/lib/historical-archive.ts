@@ -53,6 +53,13 @@ const url = z
 const score = z.number().int().min(0).max(100);
 const metric = z.number().finite().nonnegative().max(10000).nullable();
 
+export const archiveIdentityConfirmation = z.object({
+  unresolvedId: key,
+  osuId: id,
+  username: text.optional(),
+  source,
+});
+
 /** Historical evidence is not a registration, OAuth account or live result approval. */
 export const historicalArchiveSchema = z
   .object({
@@ -679,7 +686,7 @@ export function exchangeArchivePlayers(
 /** Resolve one source-only identity without replacing competition history. */
 export function resolveArchiveIdentity(
   archive: HistoricalArchive,
-  confirmation: { unresolvedId: string; osuId: number; source: string },
+  confirmation: z.infer<typeof archiveIdentityConfirmation>,
 ): HistoricalArchive {
   const person = archive.unresolvedPlayers?.find(
     (p) => p.id === confirmation.unresolvedId,
@@ -693,9 +700,17 @@ export function resolveArchiveIdentity(
   )
     throw new Error("Identity is missing or already recorded.");
   const { id: unresolvedId, ...identity } = person;
+  const username = confirmation.username ?? person.username;
+  const nameChange =
+    username === person.username
+      ? person.username
+      : `${person.username} → ${username}`;
   return historicalArchiveSchema.parse({
     ...archive,
-    players: [...archive.players, { ...identity, osuId: confirmation.osuId }],
+    players: [
+      ...archive.players,
+      { ...identity, username, osuId: confirmation.osuId },
+    ],
     unresolvedPlayers: archive.unresolvedPlayers!.filter(
       (p) => p.id !== unresolvedId,
     ),
@@ -704,7 +719,7 @@ export function resolveArchiveIdentity(
       {
         category: "review",
         label: "Archive identity confirmation",
-        text: `${unresolvedId}: ${person.username} → osu! UID ${confirmation.osuId}. Original roster source: ${person.source}`,
+        text: `${unresolvedId}: ${nameChange} → osu! UID ${confirmation.osuId}. Original roster source: ${person.source}`,
         source: confirmation.source,
       },
     ],

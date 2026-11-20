@@ -260,6 +260,15 @@ export async function tournamentCommand(
           "Select an unresolved archive identity and an unused osu! ID.",
         );
       }
+      const { preserveStatisticsForIdentityResolution } =
+        await import("./archive-statistics");
+      await preserveStatisticsForIdentityResolution(
+        tx,
+        actor,
+        e.archive,
+        next.archive!,
+        c,
+      );
     }
     if (c.action === "approve-archive-matches") {
       if (!e.archive || e.status !== "completed" || e.registration)
