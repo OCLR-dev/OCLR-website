@@ -119,11 +119,14 @@ describe("beatmap mirror transport", () => {
   it("abandons a stalled connection while the next mirror can still respond", async () => {
     vi.useFakeTimers();
     try {
+      const started = Promise.withResolvers<void>();
       request.mockImplementationOnce(() => {
         const outgoing = new EventEmitter();
         return Object.assign(outgoing, {
           setTimeout() {},
-          end() {},
+          end() {
+            started.resolve();
+          },
           destroy(error: Error) {
             outgoing.emit("error", error);
           },
@@ -135,6 +138,7 @@ describe("beatmap mirror transport", () => {
         new AbortController().signal,
         [new URL("https://catboy.best/d/75")],
       );
+      await started.promise;
       await vi.advanceTimersByTimeAsync(8_000);
       await expect(result).resolves.toEqual(Buffer.from("archive"));
       expect(request).toHaveBeenCalledTimes(2);
