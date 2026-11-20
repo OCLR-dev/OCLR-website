@@ -748,6 +748,9 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "lolita-ginkgo-rubbing": "R",
   "lolita-tangram-dress": "R",
   "lolita-cinema-reel": "SSR",
+  "beach-lifeguard": "R",
+  "capsule-mechanic": "SSR",
+  "mural-painter": "SR",
 };
 
 export function liruGallery(tr: AppTranslator): {
@@ -2284,6 +2287,21 @@ export function liruGallery(tr: AppTranslator): {
       tr(
         "Liru in a deep purple dress with gold geometric trim and a film reel.",
       ),
+    ],
+    [
+      "beach-lifeguard",
+      tr("Beach lifeguard"),
+      tr("Liru in a coral jacket and navy shorts with a rescue buoy."),
+    ],
+    [
+      "capsule-mechanic",
+      tr("Capsule mechanic"),
+      tr("Liru in a white mechanic suit with orange straps and a wrench."),
+    ],
+    [
+      "mural-painter",
+      tr("Mural painter"),
+      tr("Liru in paint splattered denim overalls with a yellow roller."),
     ],
   ];
   // Saved draws still refer to these images by their original URLs.
