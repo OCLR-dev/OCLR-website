@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type FormEvent,
@@ -110,6 +111,9 @@ export function MappoolReplays({
   const request = useRef<XMLHttpRequest | null>(null),
     listRequest = useRef<AbortController | null>(null),
     dialog = useRef<HTMLDialogElement>(null);
+  useLayoutEffect(() => {
+    if (expanded && !panel.current?.open) panel.current?.showModal();
+  }, [expanded]);
   useEffect(
     () => () => {
       request.current?.abort();
@@ -137,7 +141,10 @@ export function MappoolReplays({
       ? tr("Upload replays")
       : tr("Replays");
   const labeledTrigger = writable || hasReplays;
-  async function load(atVersion = version, { showProgress = false } = {}) {
+  async function load(
+    atVersion = version,
+    { showProgress = false, openWhenReady = false } = {},
+  ) {
     listRequest.current?.abort();
     const controller = new AbortController();
     listRequest.current = controller;
@@ -167,6 +174,12 @@ export function MappoolReplays({
       if (listRequest.current === controller) {
         listRequest.current = null;
         setReloading(false);
+        if (
+          openWhenReady &&
+          !controller.signal.aborted &&
+          summary.current === document.activeElement
+        )
+          setExpanded(true);
       }
     }
   }
@@ -372,10 +385,12 @@ export function MappoolReplays({
             aria-haspopup="dialog"
             aria-expanded={expanded}
             aria-controls={`${id}-panel`}
-            onClick={() => {
-              setExpanded(true);
-              panel.current?.showModal();
-              void load();
+            onClick={(event) => {
+              if (hasReplays) {
+                if (listRequest.current) return;
+                event.currentTarget.focus({ preventScroll: true });
+              } else setExpanded(true);
+              void load(version, { openWhenReady: hasReplays });
             }}
           >
             <MappoolActionIcon kind="replays" />

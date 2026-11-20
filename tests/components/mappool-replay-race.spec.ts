@@ -5,6 +5,7 @@ for (const stale of ["success", "error"]) {
     page,
   }) => {
     let reads = 0;
+    const firstRead = Promise.withResolvers<void>();
     let release: (() => void) | undefined;
     let finish: Promise<void> | undefined;
     const writes: string[] = [];
@@ -31,6 +32,9 @@ for (const stale of ["success", "error"]) {
         writes.push(route.request().method());
       reads += 1;
       if (reads === 1) {
+        await firstRead.promise;
+        await route.fulfill({ json: [replay(1)] });
+      } else if (reads === 2) {
         await new Promise<void>((resolve) => {
           release = resolve;
         });
@@ -49,12 +53,23 @@ for (const stale of ["success", "error"]) {
       .locator('[data-map-entry="entry-1"]')
       .getByRole("button", { name: "Saved replays (1)", exact: true });
     await trigger.click();
-    await expect.poll(() => Boolean(release)).toBe(true);
     const dialog = page.getByRole("dialog", { name: "Replays for NM1" });
+    try {
+      await expect.poll(() => reads).toBe(1);
+      await expect(page.locator("dialog:modal")).toHaveCount(0);
+      await trigger.click();
+      await expect(trigger).toHaveAttribute("aria-expanded", "false");
+      expect(reads).toBe(1);
+    } finally {
+      firstRead.resolve();
+    }
+    await expect(dialog.getByText("one.osr", { exact: true })).toBeVisible();
     const reload = dialog.getByRole("button", { name: "Reload replay list" });
     await expect(dialog.getByRole("status")).toHaveCount(0);
     await expect(reload).toBeEnabled();
     await expect(dialog.getByText("No replays attached.")).toHaveCount(0);
+    await reload.click();
+    await expect.poll(() => Boolean(release)).toBe(true);
     await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await trigger.click();
     await expect(dialog.getByText("two.osr", { exact: true })).toBeVisible();
