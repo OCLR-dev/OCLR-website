@@ -1,10 +1,16 @@
-.viewer {
+dialog.viewer {
+  /* Reserve vertical space for the header and controls around the 16:9 frame. */
+  width: min(
+    64rem,
+    calc(100% - 2rem),
+    max(25rem, calc((100dvh - 13rem) * 16 / 9))
+  );
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.viewer[open] {
   display: grid;
   gap: 0.75rem;
-  min-width: 0;
-  margin-block: 0.75rem 1.5rem;
-  padding-block: 0.75rem 1rem;
-  border-block: 1px solid var(--color-border);
 }
 
 .header {
@@ -28,7 +34,6 @@
 
 .heading h3 {
   font-size: var(--text-body);
-  scroll-margin-block: 5rem;
 }
 
 .heading p {
