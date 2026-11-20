@@ -31,6 +31,7 @@ import {
 import {
   addArchiveSubstitute,
   approveArchiveMatches,
+  confirmS1TierFourRoster,
   exchangeArchivePlayers,
   resolveArchiveIdentity,
 } from "./historical-archive";
@@ -241,6 +242,26 @@ export async function tournamentCommand(
         e.archive,
         next.archive!,
         confirmation,
+      );
+    }
+    if (c.action === "confirm-s1-tier-four-roster") {
+      if (!e.archive || e.status !== "completed" || e.registration)
+        throw new HttpError(
+          409,
+          "Select a completed historical archive without registration.",
+        );
+      try {
+        next = { ...e, archive: confirmS1TierFourRoster(e.archive) };
+      } catch {
+        throw new HttpError(409, "Archive changed. Reload before retrying.");
+      }
+      const { preserveStatisticsForS1TierFourRoster } =
+        await import("./archive-statistics");
+      await preserveStatisticsForS1TierFourRoster(
+        tx,
+        actor,
+        e.archive,
+        next.archive!,
       );
     }
     if (c.action === "resolve-archive-identity") {

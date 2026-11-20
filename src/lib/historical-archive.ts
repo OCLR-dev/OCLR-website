@@ -12,6 +12,7 @@ import type { AppTranslator } from "@/i18n/translate";
 
 import { downloadMirrorSchema } from "./mappool-download";
 import { difficultySnapshotSchema } from "./difficulty-snapshot";
+import { s1TierFourSourcePair } from "./s1-archive";
 import {
   unresolvedArchivePlayer,
   archiveReplacement,
@@ -721,6 +722,46 @@ export function resolveArchiveIdentity(
         label: "Archive identity confirmation",
         text: `${unresolvedId}: ${nameChange} → osu! UID ${confirmation.osuId}. Original roster source: ${person.source}`,
         source: confirmation.source,
+      },
+    ],
+  });
+}
+
+export function confirmS1TierFourRoster(
+  archive: HistoricalArchive,
+): HistoricalArchive {
+  const pair = s1TierFourSourcePair(archive);
+  if (!pair)
+    throw new Error("The S1 Tier 4 source row is no longer applicable.");
+
+  return historicalArchiveSchema.parse({
+    ...archive,
+    players: [
+      ...archive.players,
+      ...pair.people.map((person) => ({
+        ...person,
+        teamId: pair.teamId,
+        role: "player" as const,
+        tier: pair.tier,
+      })),
+    ],
+    rosterReplacements: archive.rosterReplacements!.filter(
+      (row) => row !== pair,
+    ),
+    sourceFacts: [
+      ...(archive.sourceFacts ?? []),
+      {
+        category: "review",
+        label: "S1 Team F Tier 4 roster confirmation",
+        text: `${pair.note}
+Both source identities are Tier 4. ${pair.people
+          .map(
+            (person) =>
+              `${person.username} (${person.osuId}, ${person.source})`,
+          )
+          .join(", ")}.`,
+        source:
+          "https://github.com/OCLR-dev/OCLR-website/issues/284#issuecomment-7028522028",
       },
     ],
   });

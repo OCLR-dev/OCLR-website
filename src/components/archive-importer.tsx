@@ -17,6 +17,7 @@ import { ArchiveSubstitute } from "./archive-substitute";
 import { ArchivePlayerExchange } from "./archive-player-exchange";
 import { ArchiveStaffResolver } from "./archive-staff-resolver";
 import type { HistoricalSeasonPreview } from "@/lib/historical-season-transfer-contract";
+import { s1TierFourSourcePair } from "@/lib/s1-archive";
 import { historicalSeasonJsonLimit } from "@/lib/request-body-limits";
 import { jsonMutationRequest } from "./json-mutation-request";
 
@@ -117,6 +118,7 @@ export function ArchiveImporter({
   const router = useRouter();
   const readOnly = useStaffReadOnly();
   const transferUrl = `/api/admin/tournaments/${slug}/archive-json`;
+  const s1TierFourPair = eligible && archive && s1TierFourSourcePair(archive);
   const pendingMatches =
     archive?.matches.filter(
       (m) => m.review?.status === "pending" && m.review.workingScore,
@@ -219,6 +221,36 @@ export function ArchiveImporter({
               />
             </>
           )}
+        {s1TierFourPair && (
+          <section className="panel form-stack">
+            <p>
+              {
+                archive?.teams.find((team) => team.id === s1TierFourPair.teamId)
+                  ?.name
+              }{" "}
+              · Tier {s1TierFourPair.tier}
+            </p>
+            <ConfirmMutation
+              label={tr("Confirm both S1 Tier 4 players")}
+              title={tr("Confirm both S1 Tier 4 players")}
+              url={`/api/admin/tournaments/${slug}`}
+              payload={{
+                action: "confirm-s1-tier-four-roster",
+                expectedRevision: revision,
+                confirmed: true,
+              }}
+            >
+              <ul>
+                {s1TierFourPair.people.map((person) => (
+                  <li key={person.osuId}>
+                    {person.username} · {person.osuId}
+                  </li>
+                ))}
+              </ul>
+              <p>{s1TierFourPair.note}</p>
+            </ConfirmMutation>
+          </section>
+        )}
         {eligible &&
           archive?.unresolvedPlayers?.map((person) => (
             <ArchiveIdentityResolver

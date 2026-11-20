@@ -629,6 +629,7 @@
         "access": "browser",
         "actions": [
           "resolve-archive-staff",
+          "confirm-s1-tier-four-roster",
           "exchange-archive-players",
           "add-archive-substitute",
           "resolve-archive-identity",

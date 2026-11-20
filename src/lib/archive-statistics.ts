@@ -30,6 +30,7 @@ import {
 import type { User } from "./auth/sessions";
 import { assertCapability } from "./auth/staff";
 import {
+  confirmS1TierFourRoster,
   exchangeArchivePlayers,
   resolveArchiveIdentity,
   type archiveIdentityConfirmation,
@@ -89,6 +90,18 @@ export async function preserveStatisticsForIdentityResolution(
 ) {
   await assertCapability(actor, "approve_results", before.editionSlug, tx);
   if (!isDeepStrictEqual(after, resolveArchiveIdentity(before, confirmation)))
+    throw new HttpError(409, "Archive changed. Reload before retrying.");
+  await preserveStatisticsForRosterChange(tx, actor, before, after);
+}
+
+export async function preserveStatisticsForS1TierFourRoster(
+  tx: Parameters<Parameters<ReturnType<typeof db>["transaction"]>[0]>[0],
+  actor: User,
+  before: HistoricalArchive,
+  after: HistoricalArchive,
+) {
+  await assertCapability(actor, "approve_results", before.editionSlug, tx);
+  if (!isDeepStrictEqual(after, confirmS1TierFourRoster(before)))
     throw new HttpError(409, "Archive changed. Reload before retrying.");
   await preserveStatisticsForRosterChange(tx, actor, before, after);
 }

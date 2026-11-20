@@ -7,6 +7,31 @@ export function isS1Archive(archive: Pick<HistoricalArchive, "sourceUrl">) {
   );
 }
 
+export function s1TierFourSourcePair(archive: HistoricalArchive) {
+  if (
+    archive.editionSlug !== "s1" ||
+    archive.formatVersion !== 2 ||
+    archive.draftMode !== "final-tiers" ||
+    !isS1Archive(archive)
+  )
+    return undefined;
+  return archive.rosterReplacements?.find(
+    (row) =>
+      row.id === "f-tier4-source-pair" &&
+      row.teamId === "f" &&
+      row.tier === 4 &&
+      row.replacedAt === null &&
+      row.source === "Teams!J26" &&
+      row.people.length === 2 &&
+      row.people.some(
+        (person) => person.osuId === 4879360 && person.username === "qquonb",
+      ) &&
+      row.people.some(
+        (person) => person.osuId === 10250326 && person.username === "shynzlx",
+      ),
+  );
+}
+
 export function hasS1FinalStandings(archive: HistoricalArchive) {
   return (
     isS1Archive(archive) &&

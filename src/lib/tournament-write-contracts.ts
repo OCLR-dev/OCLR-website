@@ -35,6 +35,12 @@ const createSchema = z
   .strict();
 const commandSchema = z.discriminatedUnion("action", [
   resolveArchiveStaffCommand,
+  z
+    .object({
+      ...version,
+      action: z.literal("confirm-s1-tier-four-roster"),
+    })
+    .strict(),
   archivePlayerExchangeConfirmation
     .extend({
       ...version,

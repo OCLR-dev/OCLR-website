@@ -31735,6 +31735,30 @@
                   {
                     "type": "object",
                     "properties": {
+                      "expectedRevision": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "confirmed": {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "const": "confirm-s1-tier-four-roster"
+                      }
+                    },
+                    "required": [
+                      "expectedRevision",
+                      "confirmed",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
                       "firstOsuId": {
                         "type": "integer",
                         "exclusiveMinimum": 0,

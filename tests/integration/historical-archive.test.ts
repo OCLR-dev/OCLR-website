@@ -246,6 +246,107 @@ describe.skipIf(!url)("historical archive transactions", () => {
       ],
     });
   });
+  it("lists both S1 Team F players in Tier 4 while retaining the published plays and original evidence", async () => {
+    const season = "s1";
+    const pair = {
+      id: "f-tier4-source-pair",
+      teamId: "f",
+      tier: 4,
+      replacedAt: null,
+      note: "Original two-name cell; replacement order and date are unknown.",
+      source: "Teams!J26",
+      people: [
+        { osuId: 4879360, username: "qquonb", source: "Teams!J26" },
+        { osuId: 10250326, username: "shynzlx", source: "Teams!J26" },
+      ],
+    };
+    await seedEditions([
+      {
+        ...edition,
+        slug: season,
+        status: "completed",
+        registration: null,
+        published: true,
+        archive: {
+          ...statisticsArchive,
+          formatVersion: 2,
+          editionSlug: season,
+          draftMode: "final-tiers",
+          picks: [],
+          sourceUrl:
+            "https://docs.google.com/spreadsheets/d/10OvY6V2_nJpmv3LekQJZw6Eo5Hy1V-ggSoOQIxIdm6I",
+          teams: [
+            ...statisticsArchive.teams,
+            { id: "f", name: "白菜", source: "Teams!J26" },
+          ],
+          players: [
+            ...statisticsArchive.players,
+            {
+              osuId: 90201,
+              username: "Synthetic team F captain",
+              teamId: "f",
+              role: "captain",
+              tier: 0,
+              source: "Synthetic",
+            },
+          ],
+          rosterReplacements: [pair],
+        },
+      },
+    ]);
+    vi.mocked(fetchMatchSource).mockResolvedValueOnce(statisticsSource());
+    await statisticsCommand(admin, season, {
+      action: "import",
+      mpId: 999177,
+      expectedVersion: 0,
+    });
+    await statisticsCommand(admin, season, {
+      action: "review",
+      mpId: 999177,
+      expectedVersion: 1,
+      poolId: "final",
+      included: [1, 2],
+      excludedScores: [],
+    });
+    await statisticsCommand(admin, season, {
+      action: "publish",
+      fixtureId: "one",
+      expectedVersions: { "999177": 2 },
+      confirmed: true,
+    });
+    const before = await publicArchiveStatistics(season);
+    expect(before.plays).toHaveLength(8);
+    const confirm = {
+      action: "confirm-s1-tier-four-roster",
+      expectedRevision: 0,
+      confirmed: true,
+    };
+    await expect(
+      tournamentCommand(scoped, season, confirm),
+    ).rejects.toMatchObject({ status: 403 });
+    await tournamentCommand(admin, season, confirm);
+
+    const corrected = (await getPublicEdition(season))!.archive!;
+    expect(corrected.rosterReplacements).toEqual([]);
+    expect(corrected.players.slice(-2)).toEqual(
+      pair.people.map((person) => ({
+        ...person,
+        teamId: "f",
+        role: "player",
+        tier: 4,
+      })),
+    );
+    const saved = (await readTournament(season))!.edition.archive!;
+    expect(saved.sourceFacts?.at(-1)?.text).toContain(pair.note);
+    expect(corrected.sourceFacts).toBeUndefined();
+    const after = await publicArchiveStatistics(season);
+    expect(after.archiveKey).not.toBe(before.archiveKey);
+    expect(after.plays).toEqual(before.plays);
+    expect(after.fixtures).toEqual(before.fixtures);
+    await expect(
+      tournamentCommand(admin, season, { ...confirm, expectedRevision: 1 }),
+    ).rejects.toMatchObject({ status: 409 });
+  });
   it("imports privately, keeps source identities out of accounts, and publishes separately", async () => {
     await tournamentCommand(admin, slug, command(0));
     expect((await readTournament(slug))?.edition.archive).toEqual(
