@@ -873,6 +873,10 @@ async function HistoricalArchiveContent({
     content = competition(await competitionBracket());
   } else if (section === "draft") {
     title = tr("Draft results");
+    const vicePlayers =
+      edition.slug === "s3"
+        ? a.players.filter((p) => p.sourceRole === "VICE")
+        : [];
     if (a.draftMode === "final-tiers")
       notes = (
         <p>{tr("Final Tier allocations; selection order was not recorded.")}</p>
@@ -898,6 +902,12 @@ async function HistoricalArchiveContent({
                 )}
               </section>
             ))}
+          {vicePlayers.length > 0 && (
+            <section className="archive-draft-round">
+              <h2>VICE</h2>
+              {roster(vicePlayers)}
+            </section>
+          )}
         </div>
       ) : (
         <div className="archive-draft">
