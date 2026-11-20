@@ -1,3 +1,4 @@
+import "../../src/instrumentation-client";
 import { createRoot } from "react-dom/client";
 import { useEffect, useRef, useState } from "react";
 import { NextIntlClientProvider } from "next-intl";

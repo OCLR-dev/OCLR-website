@@ -23,11 +23,13 @@ export function MappoolBeatmapCache({
   url,
   version,
   disabled,
+  onSavingChange,
   onChanged,
 }: {
   url: string;
   version: number;
   disabled: boolean;
+  onSavingChange: (saving: boolean) => void;
   onChanged: (version: number) => void;
 }) {
   const tr = useAppTranslations();
@@ -82,6 +84,7 @@ export function MappoolBeatmapCache({
     const controller = new AbortController();
     request.current = controller;
     setPending(action);
+    onSavingChange(true);
     setError("");
     try {
       const response = await fetch(url, {
@@ -110,6 +113,7 @@ export function MappoolBeatmapCache({
       if (!controller.signal.aborted) {
         request.current = null;
         setPending(undefined);
+        onSavingChange(false);
       }
     }
   }
@@ -118,7 +122,6 @@ export function MappoolBeatmapCache({
     disabled || !!pending || !cache || loadError || cache.version < version;
   return (
     <div className="form-stack mappool-beatmap-cache">
-      <h4>{tr("Server beatmap cache")}</h4>
       <p className="small muted" role="status">
         {pending === "sync"
           ? tr("Syncing beatmap package…")

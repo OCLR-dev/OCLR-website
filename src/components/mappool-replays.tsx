@@ -38,7 +38,7 @@ export function MappoolReplays({
   canManage,
   canPlay,
   canManageCache,
-  renderTrigger = (trigger) => trigger,
+  renderActions = (actions) => actions,
 }: {
   slug: string;
   pool: Pool;
@@ -46,7 +46,7 @@ export function MappoolReplays({
   canManage: boolean;
   canPlay?: boolean;
   canManageCache?: boolean;
-  renderTrigger?: (trigger: ReactNode) => ReactNode;
+  renderActions?: (actions: ReactNode) => ReactNode;
 }) {
   const tr = useAppTranslations(),
     format = useFormatter(),
@@ -57,6 +57,12 @@ export function MappoolReplays({
     .replace("{entryId}", entry.id);
   const [expanded, setExpanded] = useState(false),
     [items, setItems] = useState<ReplayItem[]>([]);
+  const [cacheOpen, setCacheOpen] = useState(false);
+  const [cacheSaving, setCacheSaving] = useState(false);
+  const cacheTrigger = useRef<HTMLButtonElement>(null);
+  const cachePanel = useRef<HTMLDialogElement>(null);
+  const showCacheAction = canPlay && canManageCache;
+  const slot = slotLabel(entry.category, entry.position);
   const [loaded, setLoaded] = useState(false),
     [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null),
@@ -278,30 +284,95 @@ export function MappoolReplays({
   return (
     <section
       className="mappool-replays"
-      aria-label={tr("Replays for {value0}", {
-        value0: slotLabel(entry.category, entry.position),
-      })}
+      aria-label={tr("Replays for {value0}", { value0: slot })}
     >
       {pending && !deleting && operation === "delete" && <LoadingRegion />}
-      {renderTrigger(
-        <button
-          type="button"
-          ref={summary}
-          className={`secondary ${labeledTrigger ? "mappool-labeled-action" : "mappool-icon-action"}`}
-          aria-label={triggerLabel}
-          title={triggerLabel}
-          aria-haspopup="dialog"
-          aria-expanded={expanded}
-          aria-controls={`${id}-panel`}
-          onClick={() => {
-            setExpanded(true);
-            panel.current?.showModal();
-            void load();
+      {renderActions(
+        <>
+          <button
+            type="button"
+            ref={summary}
+            className={`secondary ${labeledTrigger ? "mappool-labeled-action" : "mappool-icon-action"}`}
+            aria-label={triggerLabel}
+            title={triggerLabel}
+            aria-haspopup="dialog"
+            aria-expanded={expanded}
+            aria-controls={`${id}-panel`}
+            onClick={() => {
+              setExpanded(true);
+              panel.current?.showModal();
+              void load();
+            }}
+          >
+            <MappoolActionIcon kind="replays" />
+            {labeledTrigger && <span>{triggerLabel}</span>}
+          </button>
+          {showCacheAction && (
+            <button
+              type="button"
+              ref={cacheTrigger}
+              className="secondary mappool-labeled-action"
+              aria-haspopup="dialog"
+              aria-expanded={cacheOpen}
+              aria-controls={`${id}-cache`}
+              onClick={() => {
+                setCacheOpen(true);
+                cachePanel.current?.showModal();
+              }}
+            >
+              {tr("Beatmap cache")}
+            </button>
+          )}
+        </>,
+      )}
+      {showCacheAction && (
+        <dialog
+          ref={cachePanel}
+          id={`${id}-cache`}
+          className="mappool-cache-dialog"
+          aria-labelledby={`${id}-cache-title`}
+          aria-describedby={`${id}-cache-map`}
+          onCancel={(event) => {
+            if (cacheSaving) event.preventDefault();
+          }}
+          onClose={() => {
+            setCacheOpen(false);
+            cacheTrigger.current?.focus();
           }}
         >
-          <MappoolActionIcon kind="replays" />
-          {labeledTrigger && <span>{triggerLabel}</span>}
-        </button>,
+          <header className="replay-dialog-heading">
+            <div>
+              <h3 id={`${id}-cache-title`}>{tr("Server beatmap cache")}</h3>
+              <p id={`${id}-cache-map`} className="small muted">
+                {slot} · {tr("Beatmap ID")} {entry.beatmapId}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="secondary mappool-icon-action"
+              aria-label={tr("Close")}
+              title={tr("Close")}
+              disabled={cacheSaving}
+              onClick={() => cachePanel.current?.close()}
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </header>
+          {cacheOpen && (
+            <MappoolBeatmapCache
+              url={beatmapCacheWrite.path
+                .replace("{edition}", slug)
+                .replace("{entryId}", entry.id)}
+              version={version}
+              disabled={pending}
+              onSavingChange={setCacheSaving}
+              onChanged={(newVersion) => {
+                setKnownVersion(newVersion);
+                refresh();
+              }}
+            />
+          )}
+        </dialog>
       )}
       <dialog
         ref={panel}
@@ -324,9 +395,7 @@ export function MappoolReplays({
         <header className="replay-dialog-heading">
           <div>
             <h3 id={`${id}-title`}>
-              {tr("Replays for {value0}", {
-                value0: slotLabel(entry.category, entry.position),
-              })}
+              {tr("Replays for {value0}", { value0: slot })}
             </h3>
             <p id={`${id}-map`} className="small muted">
               {tr("Beatmap ID")} {entry.beatmapId}
@@ -527,19 +596,6 @@ export function MappoolReplays({
                 />
               )}
             </form>
-          )}
-          {expanded && canPlay && canManageCache && (
-            <MappoolBeatmapCache
-              url={beatmapCacheWrite.path
-                .replace("{edition}", slug)
-                .replace("{entryId}", entry.id)}
-              version={version}
-              disabled={pending}
-              onChanged={(newVersion) => {
-                setKnownVersion(newVersion);
-                refresh();
-              }}
-            />
           )}
           {status && <p role="status">{tr(status)}</p>}
           {listError && (
