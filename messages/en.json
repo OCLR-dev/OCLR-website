@@ -4916,6 +4916,9 @@
     "m67da0d025ce1": "Saved replays ({value0})",
     "m825bb6f9650c": "Replay details",
     "m7d4cf86fbc9a": "{value0} KiB",
-    "m09260e298321": "Beatmap cache"
+    "m09260e298321": "Beatmap cache",
+    "me3d2880b5b12": "Loading replay list…",
+    "mbc978cbf7343": "No playable osu!standard replays for this map.",
+    "m7b70e3179842": "Replay player for {value0}"
   }
 }

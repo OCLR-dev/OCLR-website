@@ -1,7 +1,7 @@
 export function MappoolActionIcon({
   kind,
 }: {
-  kind: "edit" | "refresh" | "remove" | "replays";
+  kind: "edit" | "refresh" | "remove" | "replays" | "play";
 }) {
   return (
     <svg
@@ -28,6 +28,7 @@ export function MappoolActionIcon({
       {kind === "remove" && (
         <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" />
       )}
+      {kind === "play" && <path d="m9 6 10 6-10 6Z" fill="currentColor" />}
       {kind === "replays" && (
         <>
           <rect x="3" y="3" width="18" height="18" rx="4" />

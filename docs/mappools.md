@@ -123,11 +123,15 @@ Files stay private even when the pool is published. There is no public replay AP
 
 ## Staff replay player (#1224)
 
-On the mappool management page, open a map's **Replays** dialog and choose
-**Open replay player** for a saved stable osu!standard replay. The player loads
-the original attachment through the existing edition-scoped download route.
-It looks for a server-installed beatmap package by default. Staff can also
-select a local `.osz` for the current player. That file stays in the browser.
+In mappool management, choose **Open replay player** from a map's actions.
+The player appears above the map slots. For a map with several saved stable
+osu!standard replays, choose the file in the player header. The playback
+frame includes the timeline, play and pause, and volume. Use **Replays** to
+upload, download, or delete attachments.
+
+Playback reads the saved attachment through the edition-scoped route and
+uses the cached beatmap package. Staff can also select a local `.osz`
+for the current playback session. That file stays in the browser.
 
 Under **Server beatmap cache**, edition Admins and Mappoolers can sync a map's
 approved saved mirror or choose a direct mirror for the saved beatmapset ID.

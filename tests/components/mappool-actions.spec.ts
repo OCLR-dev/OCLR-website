@@ -254,6 +254,56 @@ test("replay dialog keeps the map row compact and restores focus", async ({
   await expect(trigger).toBeFocused();
 });
 
+test("the map opens an inline player with controls in its frame", async ({
+  page,
+}) => {
+  await page.route("**/entries/entry-1/replays", (route) =>
+    route.fulfill({
+      json: ["First", "Second"].map((player, index) => ({
+        id: `replay-${index}`,
+        filename: `${player}.osr`,
+        summary: { mode: "osu", beatmapMd5: "a".repeat(32) },
+      })),
+    }),
+  );
+  await page.goto("/mappool-actions?playback=1");
+  const entry = page.locator('[data-map-entry="entry-1"]');
+  const open = entry.getByRole("button", { name: "Open replay player" });
+  await open.click();
+
+  const viewer = page.getByRole("region", { name: "Replay player for NM1" });
+  await expect(
+    viewer.getByRole("heading", { name: "Replay player for NM1" }),
+  ).toBeFocused();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const frame = viewer.getByRole("group", {
+    name: "Replay playback for First.osr",
+  });
+  await expect(frame.locator("canvas")).toBeVisible();
+  const timeline = frame.getByRole("slider", { name: "Replay progress" });
+  const volume = frame.getByRole("slider", { name: "Replay volume" });
+  await expect(timeline).toBeVisible();
+  await expect(timeline).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(volume).toHaveValue("70");
+  await frame.getByRole("slider", { name: "Replay volume" }).press("End");
+  await expect(
+    frame.getByRole("slider", { name: "Replay volume" }),
+  ).toHaveValue("100");
+
+  await viewer
+    .getByRole("combobox", { name: "Replay file" })
+    .selectOption("replay-1");
+  await expect(
+    viewer.getByRole("group", { name: "Replay playback for Second.osr" }),
+  ).toBeVisible();
+  await expect(frame).toHaveCount(0);
+  const box = (await viewer.boundingBox())!;
+  expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  await viewer.getByRole("button", { name: "Close player" }).click();
+  await expect(open).toBeFocused();
+  await expect(viewer).toHaveCount(0);
+});
+
 test("saved mirror cache reports progress and lets staff replace or remove the package", async ({
   page,
 }) => {

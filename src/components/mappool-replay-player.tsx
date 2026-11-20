@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import styles from "./mappool-replay-player.module.css";
 import type { CoreSession, SkinAssets } from "replayviewer-js";
 import { useAppTranslations } from "@/i18n/shared";
 import {
@@ -83,12 +84,10 @@ export function MappoolReplayPlayer({
   replayUrl,
   beatmapMd5,
   filename,
-  id,
 }: {
   replayUrl: string;
   beatmapMd5: string;
   filename: string;
-  id: string;
 }) {
   const tr = useAppTranslations();
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -306,42 +305,109 @@ export function MappoolReplayPlayer({
     playback: tr("Could not play this replay. Try again."),
   };
 
+  const ready = duration > 0;
+  const playLabel = playing ? tr("Pause replay") : tr("Play replay");
+
   return (
-    <div className="replay-player" id={id}>
-      <canvas
-        ref={canvas}
-        width={960}
-        height={540}
+    <>
+      <div
+        className={styles.frame}
+        role="group"
         aria-label={tr("Replay playback for {value0}", { value0: filename })}
-      />
-      {duration > 0 ? (
-        <Fragment key="transport">
-          <label className="field">
-            <span>
-              {tr("Replay progress")} · {mediaTime(time)} /{" "}
-              {mediaTime(duration)}
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={duration}
-              step="any"
-              value={time}
-              aria-valuetext={mediaTime(time)}
-              onChange={(event) => seek(event.currentTarget.valueAsNumber)}
-            />
-          </label>
-          <div className="actions">
-            <button type="button" className="secondary" onClick={toggle}>
-              {playing ? tr("Pause replay") : tr("Play replay")}
+        aria-busy={loading}
+      >
+        <div className={styles.stage}>
+          <canvas ref={canvas} width={960} height={540} aria-hidden="true" />
+          {!ready && (
+            <div className={styles.poster}>
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                aria-hidden="true"
+              >
+                <rect x="3" y="4" width="18" height="16" rx="3" />
+                <path d="m10 8 6 4-6 4z" />
+              </svg>
+              {loading ? (
+                <span role="status">{tr("Loading replay…")}</span>
+              ) : (
+                <span>{filename}</span>
+              )}
+            </div>
+          )}
+        </div>
+        <div className={styles.controls}>
+          <input
+            className={styles.timeline}
+            type="range"
+            min={0}
+            max={duration || 1}
+            step="any"
+            value={time}
+            disabled={!ready}
+            style={
+              {
+                "--replay-value": ready ? `${(100 * time) / duration}%` : "0%",
+              } as CSSProperties
+            }
+            aria-label={tr("Replay progress")}
+            aria-valuetext={mediaTime(time)}
+            onChange={(event) => seek(event.currentTarget.valueAsNumber)}
+          />
+          <div className={styles.transport}>
+            <button
+              type="button"
+              className={styles.play}
+              disabled={loading}
+              aria-label={playLabel}
+              title={playLabel}
+              onClick={() => (ready ? toggle() : void start())}
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                {playing ? (
+                  <path d="M8 5h3v14H8zm5 0h3v14h-3z" />
+                ) : (
+                  <path d="M8 5v14l11-7z" />
+                )}
+              </svg>
             </button>
-            <label className="field">
-              <span>{tr("Replay volume")}</span>
+            <span className={styles.time}>
+              {mediaTime(time)} <span aria-hidden="true">/</span>{" "}
+              {ready ? mediaTime(duration) : "–:––"}
+            </span>
+            <label className={styles.volume}>
+              <svg
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 9h4l5-4v14l-5-4H3zM15 9a4 4 0 0 1 0 6m2-8a7 7 0 0 1 0 10" />
+              </svg>
+              <span className="sr-only">{tr("Replay volume")}</span>
               <input
                 type="range"
                 min={0}
                 max={100}
                 value={volume}
+                disabled={loading}
+                style={{ "--replay-value": `${volume}%` } as CSSProperties}
+                aria-valuetext={`${volume}%`}
                 onChange={(event) => {
                   const value = event.currentTarget.valueAsNumber;
                   setVolume(value);
@@ -353,38 +419,28 @@ export function MappoolReplayPlayer({
               />
             </label>
           </div>
-        </Fragment>
-      ) : (
-        <Fragment key="source">
-          <label className="field">
-            <span>{tr("Use a local beatmap package (.osz)")}</span>
-            <input
-              type="file"
-              accept=".osz"
-              disabled={loading}
-              onChange={(event) => {
-                setBeatmapFile(event.currentTarget.files?.[0] ?? null);
-                setFailure(null);
-              }}
-            />
-          </label>
-          <div className="actions">
-            <button
-              type="button"
-              disabled={loading}
-              onClick={() => void start()}
-            >
-              {tr("Play replay")}
-            </button>
-          </div>
-          {loading && <p role="status">{tr("Loading replay…")}</p>}
-        </Fragment>
-      )}
+        </div>
+      </div>
       {failure && (
         <p className="error-text" role="alert">
           {messages[failure]}
         </p>
       )}
-    </div>
+      {!ready && (
+        <details className={styles.source}>
+          <summary>{tr("Use a local beatmap package (.osz)")}</summary>
+          <input
+            aria-label={tr("Use a local beatmap package (.osz)")}
+            type="file"
+            accept=".osz"
+            disabled={loading}
+            onChange={(event) => {
+              setBeatmapFile(event.currentTarget.files?.[0] ?? null);
+              setFailure(null);
+            }}
+          />
+        </details>
+      )}
+    </>
   );
 }

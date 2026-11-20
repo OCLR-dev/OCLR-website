@@ -142,7 +142,12 @@ const rows = files.map((file) => {
   const playbackRoute = file.endsWith(
     "/replays/[replayId]/playback/[asset]/route.ts",
   );
-  if (playbackRoute || file.endsWith("/mappool-replay-player.tsx")) {
+  const playbackViewer = file.endsWith("/mappool-replay-viewer.tsx");
+  if (
+    playbackRoute ||
+    playbackViewer ||
+    file.endsWith("/mappool-replay-player.tsx")
+  ) {
     return {
       file,
       kind: playbackRoute ? "read-route" : "client",
@@ -150,12 +155,22 @@ const rows = files.map((file) => {
       operations: [],
       commands: "Read-only",
       metadata: "Inherited or static",
-      services: ["src/lib/mappool-replays.ts#loadMappoolReplayPlaybackAsset"],
-      test: "integration/mappool-replays.test.ts + unit/replay-playback-archive.test.ts",
+      services: [
+        playbackViewer
+          ? "src/lib/mappool-replays.ts#replayList"
+          : "src/lib/mappool-replays.ts#loadMappoolReplayPlaybackAsset",
+      ],
+      test: playbackRoute
+        ? "integration/mappool-replays.test.ts + unit/replay-playback-archive.test.ts"
+        : "components/mappool-actions.spec.ts",
       authorization:
         "Edition-scoped browser session and saved replay membership; remote frontend does not offer site-hosted playback",
-      adapter: "Browser-session media route",
-      media: "Private beatmap and skin archives",
+      adapter: playbackViewer
+        ? "Browser-session replay list"
+        : "Browser-session media route",
+      media: playbackViewer
+        ? "Private replay list"
+        : "Private beatmap and skin archives",
       requiredVerification:
         "Replay membership, revocation and exact beatmap checksum",
     };

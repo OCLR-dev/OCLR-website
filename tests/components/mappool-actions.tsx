@@ -62,7 +62,10 @@ const data: MappoolWorkspace = {
     category: "NM",
     position,
     beatmapId: 100 + position,
-    replayCount: position === 1 && params.has("replay-count") ? 1 : 0,
+    replayCount:
+      position === 1
+        ? Number(params.has("replay-count")) + (params.has("playback") ? 2 : 0)
+        : 0,
     source: null,
     metadataFetchedAt: date,
     metadata: {
@@ -140,7 +143,7 @@ function Fixture() {
             data={workspace}
             readOnlyMaps={params.has("readonly")}
             canManageReplays={params.has("manage")}
-            canPlayReplays={params.has("cache")}
+            canPlayReplays={params.has("cache") || params.has("playback")}
             canConfigureShowcase={params.has("showcase")}
             suggesters={
               params.has("suggesters")

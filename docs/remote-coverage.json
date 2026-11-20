@@ -3040,10 +3040,24 @@
       "commands": "Read-only",
       "metadata": "Inherited or static",
       "services": ["src/lib/mappool-replays.ts#loadMappoolReplayPlaybackAsset"],
-      "test": "integration/mappool-replays.test.ts + unit/replay-playback-archive.test.ts",
+      "test": "components/mappool-actions.spec.ts",
       "authorization": "Edition-scoped browser session and saved replay membership; remote frontend does not offer site-hosted playback",
       "adapter": "Browser-session media route",
       "media": "Private beatmap and skin archives",
+      "requiredVerification": "Replay membership, revocation and exact beatmap checksum"
+    },
+    {
+      "file": "src/components/mappool-replay-viewer.tsx",
+      "kind": "client",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Read-only",
+      "metadata": "Inherited or static",
+      "services": ["src/lib/mappool-replays.ts#replayList"],
+      "test": "components/mappool-actions.spec.ts",
+      "authorization": "Edition-scoped browser session and saved replay membership; remote frontend does not offer site-hosted playback",
+      "adapter": "Browser-session replay list",
+      "media": "Private replay list",
       "requiredVerification": "Replay membership, revocation and exact beatmap checksum"
     },
     {

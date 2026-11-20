@@ -6596,23 +6596,6 @@ body:has([data-broadcast]) .site-shell {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
-.replay-player {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-}
-.replay-player canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  background: #000;
-  border-radius: var(--radius-panel);
-}
-.replay-player input[type="range"] {
-  width: 100%;
-  accent-color: var(--color-accent);
-}
 .replay-content input[type="file"] {
   max-width: 100%;
   min-width: 0;

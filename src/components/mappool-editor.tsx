@@ -33,6 +33,7 @@ import { MappoolOrder } from "./mappool-order";
 import { MappoolBatch } from "./mappool-batch";
 import { BeatmapPreview } from "./beatmap-preview";
 import { MappoolReplays } from "./mappool-replays";
+import { MappoolReplayViewer } from "./mappool-replay-viewer";
 import { MappoolSuggester } from "./mappool-suggester";
 import { MappoolActionIcon } from "./mappool-action-icon";
 import showcaseStyles from "./mappool-showcase-access.module.css";
@@ -631,6 +632,12 @@ function MappoolEditorContent({
   const [task, setTask] = useState<Task>("maps");
   const [creatingPool, setCreatingPool] = useState(false);
   const [editingEntry, setEditingEntry] = useState<string | null>(null);
+  const [replayTarget, setReplayTarget] = useState<{
+    entryId: string;
+    url: string;
+  } | null>(null);
+  const replayTrigger = useRef<HTMLButtonElement>(null);
+  const replayViewerId = `${id}-replay-viewer`;
   const addButton = useRef<HTMLButtonElement>(null);
   const [feedback, updateFeedback] = useState("");
   const [feedbackFailed, setFeedbackFailed] = useState(false);
@@ -647,7 +654,14 @@ function MappoolEditorContent({
   const editable = Boolean(pool && !pool.lockedAt && !pool.selectionLockedAt);
   const activeTask = editable ? task : "maps";
   const selectedCategory = category;
+  const replayEntry = replayTarget
+    ? poolEntries.find(
+        (entry) =>
+          entry.id === replayTarget.entryId && entry.category === category,
+      )
+    : undefined;
   function resetContext() {
+    setReplayTarget(null);
     setTask("maps");
     setCategory("NM");
     setCreatingPool(false);
@@ -900,6 +914,7 @@ function MappoolEditorContent({
             value={activeTask}
             onChange={(value) => {
               setTask(value);
+              setReplayTarget(null);
               setFeedback("");
             }}
             items={
@@ -922,12 +937,30 @@ function MappoolEditorContent({
           >
             <div hidden={activeTask !== "maps"}>
               <h3 className="sr-only">{tr("Map slots")}</h3>
+              {canPlayReplays &&
+                activeTask === "maps" &&
+                replayEntry &&
+                replayTarget && (
+                  <MappoolReplayViewer
+                    key={replayEntry.id}
+                    id={replayViewerId}
+                    entry={replayEntry}
+                    listUrl={replayTarget.url}
+                    onClose={() => {
+                      setReplayTarget(null);
+                      replayTrigger.current?.focus();
+                    }}
+                  />
+                )}
               <WorkspaceTabs
                 id={`${id}-mods`}
                 label={tr("Mod categories")}
                 appearance="line"
                 value={category}
-                onChange={setCategory}
+                onChange={(value) => {
+                  setCategory(value);
+                  setReplayTarget(null);
+                }}
                 items={mappoolEditorCategories.map((c) => ({
                   value: c,
                   label: `${c} (${poolEntries.filter((e) => e.category === c).length})`,
@@ -982,6 +1015,16 @@ function MappoolEditorContent({
                                   entry={entry}
                                   canManage={canManageReplays}
                                   canPlay={canPlayReplays}
+                                  playbackId={replayViewerId}
+                                  playbackOpen={replayEntry?.id === entry.id}
+                                  onOpenPlayback={(url, trigger) => {
+                                    replayTrigger.current = trigger;
+                                    setReplayTarget(
+                                      replayEntry?.id === entry.id
+                                        ? null
+                                        : { entryId: entry.id, url },
+                                    );
+                                  }}
                                   canManageCache={!readOnly}
                                   renderActions={(mediaActions) =>
                                     editable && !readOnly ? (

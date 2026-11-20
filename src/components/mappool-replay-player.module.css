@@ -1,0 +1,250 @@
+.viewer {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  margin-block: 0.75rem 1.5rem;
+  padding-block: 0.75rem 1rem;
+  border-block: 1px solid var(--color-border);
+}
+
+.header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.heading {
+  min-width: 0;
+}
+
+.heading h3,
+.heading p,
+.viewer > p,
+.listError p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.heading h3 {
+  font-size: var(--text-body);
+  scroll-margin-block: 5rem;
+}
+
+.heading p {
+  font-size: var(--text-small);
+  color: var(--color-muted);
+}
+
+.header button {
+  display: grid;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  place-items: center;
+  font-size: 1.25rem;
+}
+
+.selection {
+  min-width: 0;
+}
+
+.selection select {
+  width: min(100%, 30rem);
+  text-overflow: ellipsis;
+}
+
+.frame {
+  --replay-accent: color-mix(in srgb, var(--color-accent) 50%, #e4e7ff);
+  overflow: hidden;
+  border: 1px solid #343a4b;
+  border-radius: min(var(--radius-panel), 1rem);
+  color: #f7f8ff;
+  background: #151a25;
+}
+
+.stage {
+  position: relative;
+  background: #080b12;
+}
+
+.stage canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+.poster {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.625rem;
+  padding: 1rem;
+  color: #c3c8d8;
+  font-size: var(--text-small);
+  text-align: center;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+.poster svg {
+  color: var(--replay-accent);
+}
+
+.controls {
+  display: grid;
+  gap: 0.125rem;
+  padding: 0.125rem 0.75rem 0.5rem;
+  border-top: 1px solid #343a4b;
+}
+
+.transport {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.controls button.play {
+  display: grid;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  place-items: center;
+  color: #0b1020;
+  background: var(--replay-accent);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+.controls button.play:hover:not(:disabled) {
+  background: #f1f2ff;
+}
+
+.controls :is(button, input):focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.time {
+  white-space: nowrap;
+  color: #e2e5f2;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.time span {
+  margin-inline: 0.12rem;
+  color: #9aa1b5;
+}
+
+.volume {
+  --replay-slider-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: clamp(4.5rem, 25%, 9rem);
+  margin-inline-start: auto;
+  color: #e2e5f2;
+}
+
+.volume svg {
+  flex: none;
+}
+
+/* The timeline and volume share the media surface in every appearance. */
+:global(.themed-site) .viewer .frame .controls input[type="range"] {
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--replay-slider-height, 1.5rem);
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0.2rem;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.controls input[type="range"]:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.controls input[type="range"]::-webkit-slider-runnable-track {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--replay-accent) var(--replay-value),
+    #52596d var(--replay-value)
+  );
+}
+
+.controls input[type="range"]::-moz-range-track {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: #52596d;
+}
+
+.controls input[type="range"]::-moz-range-progress {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--replay-accent);
+}
+
+.controls input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 0.6875rem;
+  height: 0.6875rem;
+  margin-top: -0.21875rem;
+  border: 0;
+  border-radius: 50%;
+  background: #f7f8ff;
+}
+
+.controls input[type="range"]::-moz-range-thumb {
+  width: 0.6875rem;
+  height: 0.6875rem;
+  border: 0;
+  border-radius: 50%;
+  background: #f7f8ff;
+}
+
+.source {
+  font-size: var(--text-small);
+}
+
+.source summary {
+  width: fit-content;
+  min-height: 1.5rem;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.source input {
+  display: block;
+  max-width: 100%;
+  margin-block-start: 0.5rem;
+}
+
+.listError {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (pointer: coarse) {
+  .timeline {
+    --replay-slider-height: 2.75rem;
+  }
+}
