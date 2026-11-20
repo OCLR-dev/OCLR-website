@@ -257,25 +257,32 @@ test("replay dialog keeps the map row compact and restores focus", async ({
 test("the map opens a player dialog with controls in its frame", async ({
   page,
 }) => {
-  await page.route("**/entries/entry-1/replays", (route) =>
-    route.fulfill({
+  const replayList = Promise.withResolvers<void>();
+  await page.route("**/entries/entry-1/replays", async (route) => {
+    await replayList.promise;
+    await route.fulfill({
       json: ["First", "Second"].map((player, index) => ({
         id: `replay-${index}`,
         filename: `${player}.osr`,
         summary: { mode: "osu", beatmapMd5: "a".repeat(32) },
       })),
-    }),
-  );
+    });
+  });
   await page.goto("/mappool-actions?playback=1");
   const entry = page.locator('[data-map-entry="entry-1"]');
   const open = entry.getByRole("button", { name: "Open replay player" });
   await open.click();
 
   const viewer = page.getByRole("dialog", { name: "Replay player for NM1" });
-  await expect(
-    viewer.getByRole("heading", { name: "Replay player for NM1" }),
-  ).toBeFocused();
-  await expect(page.locator("dialog:modal")).toHaveCount(1);
+  try {
+    await expect(
+      viewer.getByRole("heading", { name: "Replay player for NM1" }),
+    ).toBeFocused();
+    await expect(page.locator("dialog:modal")).toHaveCount(1);
+    await expect(viewer.getByRole("status")).toHaveCount(0);
+  } finally {
+    replayList.resolve();
+  }
   const frame = viewer.getByRole("group", {
     name: "Replay playback for First.osr",
   });

@@ -106,7 +106,6 @@ export function MappoolReplayViewer({
           filename={selected.filename}
         />
       )}
-      {replays === null && <p role="status">{tr("Loading replay list…")}</p>}
       {Array.isArray(replays) && !replays.length && (
         <p role="status">
           {tr("No playable osu!standard replays for this map.")}
