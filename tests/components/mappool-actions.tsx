@@ -138,6 +138,7 @@ function Fixture() {
             data={workspace}
             readOnlyMaps={params.has("readonly")}
             canManageReplays={params.has("manage")}
+            canPlayReplays={params.has("cache")}
             canConfigureShowcase={params.has("showcase")}
             suggesters={
               params.has("suggesters")

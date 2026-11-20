@@ -8,7 +8,8 @@ import {
   vi,
 } from "vitest";
 import { tmpdir } from "node:os";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+import { strToU8, zipSync } from "fflate";
 import {
   realpath,
   mkdtemp,
@@ -29,6 +30,7 @@ import {
   staffRoles,
   mappools,
   mappoolEntries,
+  mappoolBeatmapCache,
   mappoolReplays,
   mappoolEvents,
 } from "../../src/db/schema";
@@ -40,6 +42,13 @@ import {
   loadMappoolReplayPlaybackAsset,
 } from "../../src/lib/mappool-replays";
 import { cleanupReplayFiles } from "../../src/lib/replay-storage";
+import {
+  changeMappoolBeatmapCache,
+  mappoolBeatmapCacheStatus,
+} from "../../src/lib/mappool-beatmap-cache";
+import { downloadBeatmapMirror } from "../../src/lib/beatmap-cache-mirror";
+import { requireUser } from "../../src/lib/auth/user";
+import { POST as postBeatmapCache } from "../../src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/beatmap-cache/route";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { mappoolWorkspace, publicMappools } from "../../src/lib/mappool-reads";
 import { statisticsArchive } from "../fixtures/archive-statistics";
@@ -74,7 +83,11 @@ const admin = { osuId: 185001, username: "Synthetic Admin" },
   outsider = { osuId: 185005, username: "Synthetic Outsider" };
 vi.mock("../../src/lib/auth/user", async (original) => ({
   ...(await original<typeof import("../../src/lib/auth/user")>()),
-  requireUser: async () => tester,
+  requireUser: vi.fn(async () => tester),
+}));
+vi.mock("../../src/lib/beatmap-cache-mirror", async (original) => ({
+  ...(await original<typeof import("../../src/lib/beatmap-cache-mirror")>()),
+  downloadBeatmapMirror: vi.fn(),
 }));
 const metadata = {
   setId: 1,
@@ -148,6 +161,7 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
         },
       ]);
     await rm(join(root, "replays"), { recursive: true, force: true });
+    await rm(join(root, "beatmaps"), { recursive: true, force: true });
     vi.mocked(fetchBeatmap)
       .mockReset()
       .mockImplementation(async (beatmapId) => ({
@@ -230,6 +244,161 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     await expect(read(outsider)).rejects.toMatchObject({ status: 403 });
     await db().delete(staffRoles).where(eq(staffRoles.userId, mapper.osuId));
     await expect(read()).rejects.toMatchObject({ status: 403 });
+  });
+
+  it("caches one verified OSZ, preserves it on failure or conflict, and serves it only to authorized replay readers", async () => {
+    const difficulty =
+      "osu file format v14\r\n[General]\r\nAudioFilename: song.wav\r\n[Metadata]\r\nBeatmapID:123\r\n";
+    const checksum = createHash("md5").update(difficulty).digest("hex");
+    const archive = Buffer.from(
+      zipSync({
+        "map.osu": strToU8(difficulty),
+        "other.osu": strToU8(difficulty.replace("123", "124")),
+        "song.wav": strToU8("synthetic audio"),
+      }),
+    );
+    await db()
+      .update(mappoolEntries)
+      .set({
+        metadata: { ...metadata, checksum },
+        downloadMirror: "https://catboy.best/d/1",
+      })
+      .where(eq(mappoolEntries.id, entryId));
+    const { id: replayId } = await upload(
+      tester,
+      syntheticReplay({ md5: checksum }),
+    );
+    const read = () =>
+      loadMappoolReplayPlaybackAsset(
+        tester,
+        edition.slug,
+        entryId,
+        replayId,
+        "beatmap.osz",
+      );
+    const signal = new AbortController().signal;
+    const status = () =>
+      mappoolBeatmapCacheStatus(mapper, edition.slug, entryId);
+    const sync = async () => ({
+      action: "sync" as const,
+      mirror: "saved" as const,
+      ...(await command()),
+    });
+    await expect(
+      mappoolBeatmapCacheStatus(tester, edition.slug, entryId),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      mappoolBeatmapCacheStatus(mapper, "other-test-cup", entryId),
+    ).rejects.toMatchObject({ status: 403 });
+    expect((await status()).mirrors[0]).toMatchObject({ id: "saved" });
+    vi.mocked(downloadBeatmapMirror).mockResolvedValueOnce(archive);
+    const saved = await changeMappoolBeatmapCache(
+      mapper,
+      edition.slug,
+      entryId,
+      sync,
+      signal,
+    );
+    expect(saved.package).toMatchObject({
+      size: archive.length,
+      source: "mirror",
+    });
+    expect(Buffer.from(await read())).toEqual(archive);
+    const [record] = await db().select().from(mappoolBeatmapCache);
+    expect(await readdir(join(root, "beatmaps"))).toEqual([
+      `${record.fileKey}.osz`,
+    ]);
+
+    vi.mocked(downloadBeatmapMirror).mockResolvedValueOnce(
+      Buffer.from("not a ZIP"),
+    );
+    await expect(
+      changeMappoolBeatmapCache(mapper, edition.slug, entryId, sync, signal),
+    ).rejects.toMatchObject({ status: 422 });
+    const stale = await sync();
+    vi.mocked(downloadBeatmapMirror).mockImplementationOnce(async () => {
+      await mappoolCommand(mapper, edition.slug, {
+        action: "entry_refresh",
+        poolId,
+        entryId,
+        ...(await command()),
+      });
+      return archive;
+    });
+    vi.mocked(fetchBeatmap).mockResolvedValueOnce({
+      beatmapId: 123,
+      metadata: { ...metadata, checksum },
+      fetchedAt: new Date().toISOString(),
+      fingerprint: "a".repeat(64),
+    });
+    await expect(
+      changeMappoolBeatmapCache(
+        mapper,
+        edition.slug,
+        entryId,
+        async () => stale,
+        signal,
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(Buffer.from(await read())).toEqual(archive);
+    expect(await readdir(join(root, "beatmaps"))).toEqual([
+      `${record.fileKey}.osz`,
+    ]);
+
+    const form = new FormData();
+    form.set("action", "upload");
+    form.set("confirmed", "true");
+    form.set("expectedVersion", String(await version()));
+    form.set("file", new File([Uint8Array.from(archive)], "synthetic.osz"));
+    vi.mocked(requireUser).mockResolvedValueOnce(mapper);
+    const response = await postBeatmapCache(
+      new Request(`${origin}/beatmap-cache`, {
+        method: "POST",
+        headers: { origin },
+        body: form,
+      }),
+      { params: Promise.resolve({ edition: edition.slug, entryId }) },
+    );
+    expect(response.status).toBe(200);
+    expect((await response.json()).package.source).toBe("upload");
+    expect(await readdir(join(root, "beatmaps"))).not.toContain(
+      `${record.fileKey}.osz`,
+    );
+    const asset = await playbackAsset(
+      new Request(`${origin}/playback/beatmap.osz`),
+      {
+        params: Promise.resolve({
+          edition: edition.slug,
+          entryId,
+          replayId,
+          asset: "beatmap.osz",
+        }),
+      },
+    );
+    expect(asset.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(Buffer.from(await asset.arrayBuffer())).toEqual(archive);
+    await db().delete(staffRoles).where(eq(staffRoles.userId, tester.osuId));
+    await expect(read()).rejects.toMatchObject({ status: 403 });
+    await changeMappoolBeatmapCache(
+      mapper,
+      edition.slug,
+      entryId,
+      async () => ({
+        action: "remove",
+        ...(await command()),
+      }),
+      signal,
+    );
+    expect((await status()).package).toBeNull();
+    expect(await readdir(join(root, "beatmaps"))).toEqual([]);
+    const events = await db().select().from(mappoolEvents);
+    expect(events.map(({ action }) => action)).toEqual(
+      expect.arrayContaining([
+        "beatmap_cache_sync",
+        "beatmap_cache_upload",
+        "beatmap_cache_remove",
+      ]),
+    );
   });
 
   it("allows uploads and deletions without a window and after legacy deadlines", async () => {

@@ -982,6 +982,7 @@ function MappoolEditorContent({
                                   entry={entry}
                                   canManage={canManageReplays}
                                   canPlay={canPlayReplays}
+                                  canManageCache={!readOnly}
                                   renderTrigger={(replayTrigger) =>
                                     editable && !readOnly ? (
                                       <EntryEditor

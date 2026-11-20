@@ -11,8 +11,10 @@ import {
   type ReactNode,
 } from "react";
 import { MappoolActionIcon } from "./mappool-action-icon";
+import { MappoolBeatmapCache } from "./mappool-beatmap-cache";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { useAppTranslations } from "@/i18n/shared";
+import { beatmapCacheWrite } from "@/lib/beatmap-cache-contract";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import type { ReplayItem } from "@/lib/mappool-replays";
 import { REPLAY_MAX_BYTES, REPLAY_ENTRY_LIMIT } from "@/lib/replay-model";
@@ -34,6 +36,7 @@ export function MappoolReplays({
   entry,
   canManage,
   canPlay,
+  canManageCache,
   renderTrigger = (trigger) => trigger,
 }: {
   slug: string;
@@ -41,6 +44,7 @@ export function MappoolReplays({
   entry: Entry;
   canManage: boolean;
   canPlay?: boolean;
+  canManageCache?: boolean;
   renderTrigger?: (trigger: ReactNode) => ReactNode;
 }) {
   const tr = useAppTranslations(),
@@ -307,6 +311,19 @@ export function MappoolReplays({
           </button>
         </header>
         <div className="replay-content">
+          {expanded && canPlay && canManageCache && (
+            <MappoolBeatmapCache
+              url={beatmapCacheWrite.path
+                .replace("{edition}", slug)
+                .replace("{entryId}", entry.id)}
+              version={version}
+              disabled={pending}
+              onChanged={(newVersion) => {
+                setKnownVersion(newVersion);
+                refresh();
+              }}
+            />
+          )}
           <div className="replay-toolbar">
             <span className="small muted">
               {items.length} / {REPLAY_ENTRY_LIMIT}

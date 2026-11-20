@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const REPLAY_MAX_BYTES = 8 * 1024 * 1024;
 export const REPLAY_BEATMAP_MAX_BYTES = 64 * 1024 * 1024;
+export const REPLAY_ARCHIVE_MAX_EXPANDED_BYTES = 128 * 1024 * 1024;
+export const REPLAY_ARCHIVE_MAX_ENTRIES = 2048;
 export const REPLAY_SKIN_MAX_BYTES = 32 * 1024 * 1024;
 export const REPLAY_ENTRY_LIMIT = 10;
 export const REPLAY_STORAGE_MAX_BYTES = 1024 * 1024 * 1024;

@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { publicAssetCacheHeaders } from "./src/lib/static-asset-cache";
 import { join } from "node:path";
+import { REPLAY_BEATMAP_MAX_BYTES } from "./src/lib/replay-model";
 if (
   process.env.OCLR_DATA_SOURCE &&
   process.env.OCLR_DATA_SOURCE !== "database" &&
@@ -32,9 +33,16 @@ const config: NextConfig = {
     ? { allowedDevOrigins: developmentOrigins }
     : {}),
   distDir: process.env.OCLR_DATA_SOURCE === "remote" ? ".next-remote" : ".next",
+  experimental: {
+    // Next clones request bodies for Proxy. The OSZ handler enforces the file
+    // and multipart limits, and the edge still caps unrelated request paths.
+    proxyClientMaxBodySize: REPLAY_BEATMAP_MAX_BYTES + 16384,
+    ...(process.env.OCLR_DATA_SOURCE === "remote"
+      ? { serverComponentsHmrCache: false }
+      : {}),
+  },
   ...(process.env.OCLR_DATA_SOURCE === "remote"
     ? {
-        experimental: { serverComponentsHmrCache: false },
         logging: { fetches: { fullUrl: false, hmrRefreshes: false } },
       }
     : {}),

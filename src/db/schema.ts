@@ -1070,6 +1070,17 @@ export const mappoolEntrySuggesters = pgTable("mappool_entry_suggesters", {
   // Retain the original attribution if the private candidate is later removed.
   candidateId: uuid("candidate_id"),
 });
+export const mappoolBeatmapCache = pgTable("mappool_beatmap_cache", {
+  entryId: uuid("entry_id")
+    .primaryKey()
+    .references(() => mappoolEntries.id, { onDelete: "cascade" }),
+  fileKey: uuid("file_key").notNull().unique(),
+  beatmapMd5: text("beatmap_md5").notNull(),
+  sha256: text("sha256").notNull(),
+  size: integer("size").notNull(),
+  source: text("source", { enum: ["mirror", "upload"] }).notNull(),
+  cachedAt: timestamp("cached_at", { withTimezone: true }).notNull(),
+});
 /** Current provider data shared by published pools, independent of tournament revisions. */
 export const beatmapDifficultySnapshots = pgTable(
   "beatmap_difficulty_snapshots",

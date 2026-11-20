@@ -120,6 +120,25 @@ const files = [
   ),
 ].sort();
 const rows = files.map((file) => {
+  const beatmapCacheRoute = file.endsWith("/beatmap-cache/route.ts");
+  if (beatmapCacheRoute || file.endsWith("/mappool-beatmap-cache.tsx")) {
+    return {
+      file,
+      kind: beatmapCacheRoute ? "read-route" : "client",
+      authority: "denied",
+      operations: [],
+      commands: "Browser-session mutation only",
+      metadata: "Native cache state",
+      services: ["src/lib/mappool-beatmap-cache.ts#mappoolBeatmapCacheStatus"],
+      test: "integration/mappool-replays.test.ts",
+      authorization:
+        "Current edition-scoped mappool management, local browser session",
+      adapter: "Browser-session media route",
+      media: "Private beatmap archive cache",
+      requiredVerification:
+        "Edition scope, pool version, archive identity and atomic replacement",
+    };
+  }
   const playbackRoute = file.endsWith(
     "/replays/[replayId]/playback/[asset]/route.ts",
   );

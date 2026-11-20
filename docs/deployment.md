@@ -614,6 +614,41 @@ Files are flushed and atomically renamed before metadata/audit commit; a rollbac
 
 Agent verification uses synthetic replay/provider fixtures and an isolated test database. It does not establish a real Rocky deployment, production restore or actual osu! replay playback.
 
+### Private beatmap cache (#1224)
+
+Apply migration `0112_mappool_beatmap_cache` in the usual update workflow. The
+app creates `beatmaps/` with mode 0700 inside the existing durable
+`OCLR_MEDIA_DIR` and writes archive files with mode 0600. With the standard
+root, the directory is `/var/lib/oclr/media/beatmaps/`. Retain service ownership
+and the existing private media SELinux policy. No static route is needed.
+
+The management dialog uses the saved mirror or a known direct download URL.
+The default HTTPS origins are `beatconnect.io`, `dl.sayobot.cn`,
+`tc1.sayobot.cn:25225`, `catboy.best`, `github.com` and
+`raw.githubusercontent.com`. Add approved exact `host` or `host:port`
+values to the optional comma-separated `OCLR_BEATMAP_MIRROR_HOSTS` runtime
+setting, including any additional mirror CDN destinations. Each hop resolves
+to public IPv4 and the connection uses the checked address with TLS verified
+against the original name. Sync allows up to three redirects and 30 seconds
+in total. A failed mirror can be replaced by a manual upload.
+
+The app accepts up to 64 MiB per `.osz`, 128 MiB expanded and 2,048 ZIP
+entries. The cache allows 4 GiB and 1,024 files, including orphaned files.
+The existing Python 3 installation validates archives with its standard
+library. For manual uploads, use a 65 MiB Nginx body limit on the
+`/api/admin/tournaments/<edition>/mappools/entries/<entryId>/beatmap-cache`
+location only, as in the example. Keep the existing default body limit for
+other routes. Mirror downloads occur on the OCLR app host.
+
+Install the licensed skin as `replay-skins/default.osk` under the same media
+root. Copy it to the same filesystem, set service ownership and mode 0600,
+then rename it into place. Keep its version and license with the deployment
+records. The existing media archive covers `beatmaps/` and `replay-skins/`.
+Restore it together with the matching database backup, then load a saved
+replay through the authorized dialog to verify the pair. Offline
+`npm run media:cleanup` reclaims unreferenced managed packages and partial
+files older than 24 hours. Run it with writes stopped.
+
 ## Season theme selection policy (#445)
 
 Season themes are edition choices. Earlier migrations expanded the stored appearance and audit constraints to preserve compatibility with historical values. See the [season design records](design/season-themes/README.md) for individual migration history and the [current selection rules](localization.md#season-theme-selection-policy-445) for legacy site settings, visitor cookies, and route inheritance. Keep audit history and committed migrations during application rollback.

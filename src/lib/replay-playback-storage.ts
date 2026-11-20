@@ -27,6 +27,14 @@ export async function readReplayPlaybackAsset(
     ? `${entryId.toLowerCase()}-${beatmapMd5.toLowerCase()}.osz`
     : "default.osk";
   const maxBytes = isBeatmap ? REPLAY_BEATMAP_MAX_BYTES : REPLAY_SKIN_MAX_BYTES;
+  return readPrivatePlaybackFile(directory, filename, maxBytes);
+}
+
+export async function readPrivatePlaybackFile(
+  directory: string,
+  filename: string,
+  maxBytes: number,
+) {
   try {
     const file = await open(
       join(directory, filename),

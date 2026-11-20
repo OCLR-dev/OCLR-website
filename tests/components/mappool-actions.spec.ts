@@ -254,6 +254,79 @@ test("replay dialog keeps the map row compact and restores focus", async ({
   await expect(trigger).toBeFocused();
 });
 
+test("saved mirror cache reports progress and lets staff replace or remove the package", async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  const cached = {
+    source: "mirror",
+    size: 1024 ** 2,
+    cachedAt: "2026-11-20T00:00:00.000Z",
+  };
+  let status: {
+    version: number;
+    mirrors: { id: string; name: string }[];
+    package: typeof cached | null;
+  } = {
+    version: 7,
+    mirrors: [{ id: "saved", name: "Saved mirror" }],
+    package: null,
+  };
+  let completeSync: (() => void) | undefined;
+  await page.route("**/entries/*/beatmap-cache", async (route) => {
+    const body = route.request().postData() ?? "";
+    if (route.request().method() === "POST") {
+      const operation = body.match(/name="action"\r\n\r\n(\w+)/)?.[1];
+      requests.push(operation ?? "");
+      if (operation === "sync")
+        await new Promise<void>((resolve) => {
+          completeSync = resolve;
+        });
+      status = {
+        ...status,
+        version: status.version + 1,
+        package:
+          operation === "remove"
+            ? null
+            : {
+                ...cached,
+                source: operation === "upload" ? "upload" : "mirror",
+              },
+      };
+    }
+    await route.fulfill({ json: status });
+  });
+  await page.goto("/mappool-actions?cache&manage");
+  await page
+    .getByRole("button", { name: "Upload replays", exact: true })
+    .first()
+    .click();
+  const dialog = page.getByRole("dialog", { name: "Replays for NM1" });
+  await dialog.getByRole("button", { name: "Sync from mirror" }).click();
+  await expect(dialog.getByText("Syncing beatmap package…")).toBeVisible();
+  await expect.poll(() => !!completeSync).toBe(true);
+  completeSync?.();
+  await expect(dialog.getByText("Cached OSZ · 1.0 MiB")).toBeVisible();
+  await dialog
+    .getByLabel("Beatmap package (.osz)", { exact: true })
+    .setInputFiles({
+      name: "synthetic.osz",
+      mimeType: "application/zip",
+      buffer: Buffer.from("synthetic archive"),
+    });
+  await dialog.getByRole("button", { name: "Upload beatmap package" }).click();
+  await expect.poll(() => requests).toEqual(["sync", "upload"]);
+  await dialog.getByRole("button", { name: "Remove cached package" }).click();
+  await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
+  await expect(dialog.getByText("No beatmap package cached.")).toBeVisible();
+  expect(requests).toEqual(["sync", "upload", "remove"]);
+  expect(
+    await dialog.evaluate((element) => element.scrollWidth),
+  ).toBeLessThanOrEqual(
+    await dialog.evaluate((element) => element.clientWidth),
+  );
+});
+
 test("suggester picker inherits a matching workbench candidate", async ({
   page,
 }) => {

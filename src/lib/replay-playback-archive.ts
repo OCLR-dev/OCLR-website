@@ -3,10 +3,10 @@ import { md5 } from "replayviewer-js";
 import {
   REPLAY_BEATMAP_MAX_BYTES,
   REPLAY_SKIN_MAX_BYTES,
+  REPLAY_ARCHIVE_MAX_ENTRIES,
+  REPLAY_ARCHIVE_MAX_EXPANDED_BYTES,
 } from "./replay-model";
 
-const maxExpandedBytes = 128 * 1024 * 1024;
-const maxArchiveEntries = 2048;
 const mediaFile = /\.(?:png|jpe?g|mp3|ogg|wav)$/i;
 
 export class ReplayArchiveError extends Error {
@@ -39,8 +39,8 @@ export function prepareReplayArchive(
         const lower = name.toLowerCase();
         expandedBytes += Math.max(originalSize, size);
         if (
-          names.size >= maxArchiveEntries ||
-          expandedBytes > maxExpandedBytes ||
+          names.size >= REPLAY_ARCHIVE_MAX_ENTRIES ||
+          expandedBytes > REPLAY_ARCHIVE_MAX_EXPANDED_BYTES ||
           names.has(lower) ||
           /[\\:\x00-\x1f]/.test(name) ||
           name.startsWith("/") ||

@@ -129,26 +129,28 @@ the original attachment through the existing edition-scoped download route.
 It looks for a server-installed beatmap package by default. Staff can also
 select a local `.osz` for the current player. That file stays in the browser.
 
-For this first integration, a maintainer provisions the playback media inside
-the existing `OCLR_MEDIA_DIR` (normally `/var/lib/oclr/media/`):
+Under **Server beatmap cache**, edition Admins and Mappoolers can sync a map's
+approved saved mirror or choose a direct mirror for the saved beatmapset ID.
+Use **Upload beatmap package** when the mirror is unavailable, or to provide
+another copy. Both operations validate the archive before replacing the cache.
+**Remove cached package** clears the managed copy after confirmation.
 
-- `beatmaps/<entryId>-<beatmapMd5>.osz` for each playable map revision.
-  Use lowercase UUID and MD5 values. The replay list displays the MD5 and its
-  download URL includes the entry UUID. The player verifies the original
-  `.osu` bytes and uses the matching difficulty's audio.
-- `replay-skins/default.osk` for the shared osu!standard skin. Use a skin with
-  suitable redistribution rights and retain its source, version, license and
-  attribution with the deployment records. The npm package does not provide
-  production skin assets.
+The managed package is stored under `OCLR_MEDIA_DIR/beatmaps/`
+(`/var/lib/oclr/media/beatmaps/` in the standard installation) and shared by
+matching replays on that entry. The server checks the known official
+difficulty MD5, or the embedded BID when the saved checksum is absent.
+Playback checks the replay MD5 against the cached bytes and uses the matching
+difficulty's audio. Reordering keeps the cache association. Replacing the BID
+or removing the entry clears it. Version conflicts and failed replacements
+preserve the last saved package.
 
-Use the same service ownership, private directory permissions and backup
-location as [private replay storage](deployment.md#private-mappool-replay-storage-185).
-Copy new files into place with a rename on the same filesystem. Both media
-routes require current permission to read the selected replay. The browser
-accepts beatmap packages up to 64 MiB and a skin up to 32 MiB. Each archive is
-also limited to 2,048 entries and 128 MiB expanded. Use the saved download
-mirror as the source when preparing a package. The mirror synchronization and
-web management controls tracked by #1224 are a subsequent phase.
+A maintainer provisions the shared osu!standard skin at
+`OCLR_MEDIA_DIR/replay-skins/default.osk`. Use a skin with redistribution
+rights and record the source, version, license and attribution. A draft-era
+operator-provisioned `beatmaps/<entryId>-<beatmapMd5>.osz` remains
+available when an entry has no managed cache. Both playback asset routes
+require current permission for the selected replay. See
+[deployment, mirror settings and backups](deployment.md#private-beatmap-cache-1224).
 
 ## Historical S4–S6 metadata
 

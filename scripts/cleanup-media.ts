@@ -4,7 +4,8 @@ import { readdir, lstat, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { db, closeDb } from "../src/db";
 import { cleanupReplayFiles } from "../src/lib/replay-storage";
-import { teams, mappoolReplays } from "../src/db/schema";
+import { cleanupBeatmapCache } from "../src/lib/beatmap-cache-storage";
+import { teams, mappoolReplays, mappoolBeatmapCache } from "../src/db/schema";
 try {
   const directory = await mediaDirectory("teams", false);
   const active = new Set(
@@ -38,8 +39,16 @@ try {
     ),
   );
   const removedReplays = await cleanupReplayFiles(replays);
+  const cachedBeatmaps = new Set(
+    (
+      await db()
+        .select({ key: mappoolBeatmapCache.fileKey })
+        .from(mappoolBeatmapCache)
+    ).map(({ key }) => key),
+  );
+  const removedBeatmaps = await cleanupBeatmapCache(cachedBeatmaps);
   console.log(
-    `Removed ${removed} unreferenced old team images and ${removedReplays} old replay files.`,
+    `Removed ${removed} unreferenced old team images, ${removedReplays} old replay files and ${removedBeatmaps} old beatmap packages.`,
   );
 } finally {
   await closeDb();

@@ -21,6 +21,7 @@ import {
   type ReplaySummary,
 } from "./replay-model";
 import { parseReplay } from "./replay-parser";
+import { cachedBeatmapForReplay } from "./mappool-beatmap-cache";
 import {
   deleteReplayWrite,
   replayDescription,
@@ -275,11 +276,10 @@ export async function loadMappoolReplayPlaybackAsset(
   const row = await findMappoolReplay(actor, slug, entryId, replayId);
   if (row.summary.mode !== "osu")
     throw new HttpError(404, "Replay playback is available for osu!standard.");
-  const bytes = await readReplayPlaybackAsset(
-    entryId,
-    row.summary.beatmapMd5,
-    asset,
-  );
+  const bytes =
+    (asset === "beatmap.osz" &&
+      (await cachedBeatmapForReplay(entryId, row.summary.beatmapMd5))) ||
+    (await readReplayPlaybackAsset(entryId, row.summary.beatmapMd5, asset));
   await assertReadCapability(actor, "view_replays", slug);
   return bytes;
 }

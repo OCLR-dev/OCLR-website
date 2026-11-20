@@ -3,6 +3,7 @@ import {
   editionState,
   fixtures,
   mappoolEntries,
+  mappoolBeatmapCache,
   mappoolEntrySuggesters,
   mappoolEvents,
   mappoolReplays,
@@ -937,10 +938,14 @@ export async function mappoolCommand(
               entry?.beatmapId === beatmapId ? (entry?.source ?? null) : null,
           };
           if (entry) {
-            if (entry.beatmapId !== beatmapId)
+            if (entry.beatmapId !== beatmapId) {
               await tx
                 .delete(mappoolEntrySuggesters)
                 .where(eq(mappoolEntrySuggesters.entryId, entry.id));
+              await tx
+                .delete(mappoolBeatmapCache)
+                .where(eq(mappoolBeatmapCache.entryId, entry.id));
+            }
             await tx
               .update(mappoolEntries)
               .set(values)

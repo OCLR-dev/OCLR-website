@@ -846,6 +846,22 @@
       "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
     },
     {
+      "file": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/beatmap-cache/route.ts",
+      "kind": "read-route",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Browser-session mutation only",
+      "metadata": "Native cache state",
+      "services": [
+        "src/lib/mappool-beatmap-cache.ts#mappoolBeatmapCacheStatus"
+      ],
+      "test": "integration/mappool-replays.test.ts",
+      "authorization": "Current edition-scoped mappool management, local browser session",
+      "adapter": "Browser-session media route",
+      "media": "Private beatmap archive cache",
+      "requiredVerification": "Edition scope, pool version, archive identity and atomic replacement"
+    },
+    {
       "file": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/playback/[asset]/route.ts",
       "kind": "read-route",
       "authority": "denied",
@@ -2985,6 +3001,22 @@
       "adapter": "no database; repository content/navigation/preferences",
       "media": "Replay list/file authorization",
       "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/mappool-beatmap-cache.tsx",
+      "kind": "client",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Browser-session mutation only",
+      "metadata": "Native cache state",
+      "services": [
+        "src/lib/mappool-beatmap-cache.ts#mappoolBeatmapCacheStatus"
+      ],
+      "test": "integration/mappool-replays.test.ts",
+      "authorization": "Current edition-scoped mappool management, local browser session",
+      "adapter": "Browser-session media route",
+      "media": "Private beatmap archive cache",
+      "requiredVerification": "Edition scope, pool version, archive identity and atomic replacement"
     },
     {
       "file": "src/components/mappool-order.tsx",

@@ -237,6 +237,25 @@
     }
   },
   {
+    "route": "/api/admin/tournaments/{edition}/mappools/entries/{entryId}/beatmap-cache",
+    "source": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/beatmap-cache/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "changeMappoolBeatmapCache",
+        "access": "browser",
+        "actions": [
+          "sync",
+          "upload",
+          "remove"
+        ],
+        "consumers": [
+          "src/components/mappool-beatmap-cache.tsx"
+        ]
+      }
+    }
+  },
+  {
     "route": "/api/admin/tournaments/{edition}/mappools/entries/{entryId}/replays/{replayId}",
     "source": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/route.ts",
     "methods": {

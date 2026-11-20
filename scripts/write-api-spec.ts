@@ -98,6 +98,7 @@ import {
 } from "../src/lib/referee-write-contracts";
 import { changeRefereeIrcBrowserWrite } from "../src/lib/referee-irc-browser-contract";
 import { refereeRelayWrite } from "../src/lib/referee-relay-contract";
+import { beatmapCacheWrite } from "../src/lib/beatmap-cache-contract";
 import {
   removeRegistrationWrite,
   restoreRegistrationWrite,
@@ -129,6 +130,7 @@ import {
 
 const writeMethods = ["POST", "PUT", "PATCH", "DELETE"];
 const operations: readonly WriteApiOperation[] = [
+  beatmapCacheWrite,
   uploadReplayWrite,
   deleteReplayWrite,
   refereeRelayWrite,
@@ -618,7 +620,10 @@ const openapi = {
 for (const [file, value] of Object.entries({
   "docs/write-api-inventory.json": routes,
   "docs/write-api.openapi.json": openapi,
-  "docs/historical-season.v1.schema.json": z.toJSONSchema(historicalSeasonJsonSchema, { reused: "ref" }),
+  "docs/historical-season.v1.schema.json": z.toJSONSchema(
+    historicalSeasonJsonSchema,
+    { reused: "ref" },
+  ),
 })) {
   const generated = `${JSON.stringify(value, null, 2)}\n`;
   if (process.argv.includes("--check")) {

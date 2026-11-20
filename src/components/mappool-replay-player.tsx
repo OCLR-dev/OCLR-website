@@ -44,6 +44,8 @@ async function fetchAsset(
   failure: Failure,
 ) {
   const response = await fetch(url, { cache: "no-store", signal });
+  if (failure === "beatmap" && response.status === 409)
+    throw new PlaybackFailure("mismatch");
   if (
     !response.ok ||
     !response.body ||
