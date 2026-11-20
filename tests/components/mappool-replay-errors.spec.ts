@@ -14,6 +14,12 @@ const replay = {
     mods: "NM",
     version: 20260101,
     beatmapMd5: "a".repeat(32),
+    performance: {
+      score: 987654,
+      accuracy: 0.9825,
+      grade: "S",
+      fullCombo: true,
+    },
   },
   verification: "matched",
 };
@@ -76,6 +82,15 @@ for (const operation of ["upload", "delete"] as const) {
     await expect(
       dialog.getByRole("button", { name: "Reload replay list" }),
     ).toBeEnabled();
+    if (operation === "delete") {
+      const performance = dialog.locator(".replay-performance");
+      await expect(performance.locator("dd")).toHaveText([
+        "98.25%",
+        "987,654",
+        "S",
+        "Yes",
+      ]);
+    }
     const act = async () => {
       if (operation === "upload") {
         await dialog

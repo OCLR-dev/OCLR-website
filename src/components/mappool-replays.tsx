@@ -501,6 +501,44 @@ export function MappoolReplays({
                       })}
                     </p>
                   </div>
+                  {item.summary.performance ? (
+                    <dl className="replay-performance small">
+                      <div>
+                        <dt>{tr("Accuracy")}</dt>
+                        <dd>
+                          {item.summary.performance.accuracy === null
+                            ? tr("Unavailable")
+                            : format.number(item.summary.performance.accuracy, {
+                                style: "percent",
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{tr("Score")}</dt>
+                        <dd>{format.number(item.summary.performance.score)}</dd>
+                      </div>
+                      <div>
+                        <dt>{tr("Grade")}</dt>
+                        <dd>
+                          {item.summary.performance.grade ?? tr("Unavailable")}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{tr("Full combo (FC)")}</dt>
+                        <dd>
+                          {item.summary.performance.fullCombo
+                            ? tr("Yes")
+                            : tr("No")}
+                        </dd>
+                      </div>
+                    </dl>
+                  ) : (
+                    <p className="small muted">
+                      {tr("Replay score analysis unavailable.")}
+                    </p>
+                  )}
                   {item.description && <p>{item.description}</p>}
                   <div className="actions">
                     <a className="button secondary" href={`${url}/${item.id}`}>

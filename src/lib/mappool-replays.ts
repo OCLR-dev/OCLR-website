@@ -20,7 +20,7 @@ import {
   REPLAY_MAX_BYTES,
   type ReplaySummary,
 } from "./replay-model";
-import { parseReplay } from "./replay-parser";
+import { parseReplay, readSavedReplaySummary } from "./replay-parser";
 import { cachedBeatmapForReplay } from "./mappool-beatmap-cache";
 import {
   deleteReplayWrite,
@@ -92,14 +92,30 @@ async function databaseReplayList(
     .from(mappoolReplays)
     .where(eq(mappoolReplays.entryId, entryId))
     .orderBy(mappoolReplays.createdAt, mappoolReplays.id);
-  return rows.map((row) => ({
-    ...row,
-    verification:
-      entry.metadata.checksum &&
-      entry.metadata.checksum.toLowerCase() === row.summary.beatmapMd5
-        ? ("matched" as const)
-        : ("unverified" as const),
-  }));
+  const items: ReplayList = [];
+  for (const row of rows) {
+    let summary = row.summary;
+    if (!summary.performance) {
+      try {
+        const bytes = await readReplay(row.id, row.size, row.sha256);
+        const { performance } = readSavedReplaySummary(bytes);
+        summary = { ...summary, performance };
+      } catch (error) {
+        if (!(error instanceof HttpError)) throw error;
+        // Keep unavailable attachments visible so staff can restore or remove them.
+      }
+    }
+    items.push({
+      ...row,
+      summary,
+      verification:
+        entry.metadata.checksum &&
+        entry.metadata.checksum.toLowerCase() === summary.beatmapMd5
+          ? "matched"
+          : "unverified",
+    });
+  }
+  return items;
 }
 export async function replayList(
   actor: User,

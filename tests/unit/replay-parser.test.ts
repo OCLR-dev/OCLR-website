@@ -45,6 +45,83 @@ describe("bounded stable replay validation", () => {
       parseReplay(Buffer.alloc(REPLAY_MAX_BYTES + 1)),
     ).rejects.toMatchObject({ status: 413 });
   });
+  it("uses stable judgements and the recorded score and FC flag across the four modes", async () => {
+    const samples = [
+      // Exactly 1% 50s qualifies for silver S. A slider break can leave zero misses.
+      {
+        mode: 0,
+        mods: (1 << 29) | (1 << 3),
+        hits: [95, 4, 1, 70, 10, 0],
+        accuracy: 579 / 600,
+        grade: "SH",
+      },
+      {
+        mode: 0,
+        mods: 0,
+        hits: [90, 10, 0, 0, 0, 0],
+        accuracy: 560 / 600,
+        grade: "A",
+      },
+      {
+        mode: 1,
+        mods: 0,
+        hits: [91, 9, 82, 1, 2, 0],
+        accuracy: 191 / 200,
+        grade: "S",
+      },
+      {
+        mode: 2,
+        mods: 0,
+        hits: [50, 20, 28, 9, 2, 0],
+        accuracy: 0.98,
+        grade: "A",
+      },
+      {
+        mode: 3,
+        mods: 1 << 20,
+        hits: [75, 0, 0, 25, 0, 0],
+        accuracy: 1,
+        grade: "SSH",
+      },
+      {
+        mode: 3,
+        mods: 1 << 29,
+        hits: [75, 0, 0, 25, 0, 0],
+        accuracy: 30125 / 30500,
+        grade: "S",
+      },
+    ] as const;
+    for (const { mode, mods, hits, accuracy, grade } of samples) {
+      const summary = await parseReplay(
+        syntheticReplay({
+          mode,
+          mods,
+          judgements: hits,
+          score: 999_999,
+          fullCombo: mode === 3,
+        }),
+      );
+      expect(summary.performance).toEqual({
+        score: 999_999,
+        accuracy,
+        grade,
+        fullCombo: mode === 3,
+      });
+    }
+  });
+  it("leaves accuracy and grade unavailable for no judgements or Target Practice", async () => {
+    for (const replay of [
+      syntheticReplay(),
+      syntheticReplay({ mods: 1 << 23, judgements: [80, 0, 0, 0, 0, 0] }),
+    ]) {
+      expect((await parseReplay(replay)).performance).toEqual({
+        score: 123456,
+        accuracy: null,
+        grade: null,
+        fullCombo: false,
+      });
+    }
+  });
   it("rejects damaged LZMA, excessive expansion and dictionary allocation", async () => {
     const b = syntheticReplay();
     b[b.length - 12] ^= 255;

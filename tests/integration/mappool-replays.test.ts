@@ -704,6 +704,46 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
         .username,
     ).toBe(tester.username);
   });
+  it("reads score analysis for older attachments without rewriting them or hiding unavailable files", async () => {
+    const { id } = await upload(
+      tester,
+      syntheticReplay({
+        judgements: [95, 5, 0, 0, 0, 0],
+        score: 987654,
+        fullCombo: true,
+      }),
+    );
+    const performance = {
+      score: 987654,
+      grade: "S",
+      accuracy: 580 / 600,
+      fullCombo: true,
+    };
+    expect((await replayList(tester, edition.slug, entryId))[0]).toMatchObject({
+      id,
+      summary: { performance },
+    });
+    await db()
+      .update(mappoolReplays)
+      .set({ summary: sql`${mappoolReplays.summary} - 'performance'` })
+      .where(eq(mappoolReplays.id, id));
+    expect((await replayList(tester, edition.slug, entryId))[0]).toMatchObject({
+      id,
+      summary: { performance },
+    });
+    const [saved] = await db()
+      .select({ summary: mappoolReplays.summary })
+      .from(mappoolReplays)
+      .where(eq(mappoolReplays.id, id));
+    expect(saved.summary).not.toHaveProperty("performance");
+    await rename(
+      join(root, "replays", `${id}.osr`),
+      join(root, "unavailable.osr"),
+    );
+    const [unavailable] = await replayList(tester, edition.slug, entryId);
+    expect(unavailable.id).toBe(id);
+    expect(unavailable.summary).not.toHaveProperty("performance");
+  });
   it("rolls back metadata/audit failures, detects missing files, retains files across releases and restores backups", async () => {
     const bytes = syntheticReplay();
     await db().execute(

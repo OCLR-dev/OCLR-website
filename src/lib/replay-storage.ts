@@ -69,7 +69,7 @@ export async function storeReplay(key: string, bytes: Buffer) {
 }
 export async function readReplay(key: string, size: number, sha256: string) {
   try {
-    const directory = await replayDirectory();
+    const directory = await mediaDirectory("replays", false);
     const handle = await open(
       replayPath(directory, key),
       constants.O_RDONLY | constants.O_NOFOLLOW,

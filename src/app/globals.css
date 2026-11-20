@@ -6588,6 +6588,25 @@ body:has([data-broadcast]) .site-shell {
 .replay-technical p {
   margin-top: 0.25rem;
 }
+.replay-performance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.replay-performance > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.replay-performance dt {
+  color: var(--color-muted);
+}
+.replay-performance dd {
+  margin: 0;
+  font-weight: 600;
+}
 .replay-technical summary {
   cursor: pointer;
   overflow-wrap: anywhere;

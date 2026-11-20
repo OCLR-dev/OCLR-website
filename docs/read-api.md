@@ -507,6 +507,11 @@ published fixtures, public identities and eligible game scores together.
 Historical Series use the same published archive statistics release as the
 other statistics views. See [YumuRating](yumu-rating.md).
 
+Contract 1.46.0 adds optional `summary.performance` to staff `replayList`
+attachments. It includes the stored score and full-combo flag, plus the
+accuracy fraction and letter grade calculated from the replay's recorded hits.
+Accuracy and grade can be null for unsupported judgement formats or empty hits.
+
 Contract 1.45.0 adds optional `beatmapCached` to staff `mappoolWorkspace`
 entries for viewers with edition mappool management access. It indicates
 whether an OSZ package has been saved for the entry.

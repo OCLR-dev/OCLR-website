@@ -8,6 +8,9 @@ export function syntheticReplay(
     player?: string;
     frames?: string;
     mods?: number;
+    judgements?: readonly [number, number, number, number, number, number];
+    score?: number;
+    fullCombo?: boolean;
   } = {},
 ) {
   const int = (n: number) => {
@@ -40,15 +43,19 @@ export function syntheticReplay(
   );
   if (compressed.status !== 0)
     throw new Error("Synthetic replay compression failed");
+  const judgements = Buffer.alloc(12);
+  options.judgements?.forEach((count, index) => {
+    judgements.writeUInt16LE(count, index * 2);
+  });
   return Buffer.concat([
     Buffer.from([options.mode ?? 0]),
     int(options.version ?? 20260101),
     str(options.md5 ?? replayChecksum),
     str(options.player ?? "Synthetic Replay Player"),
     str("b".repeat(32)),
-    Buffer.alloc(12),
-    int(123456),
-    Buffer.from([1, 0, 0]),
+    judgements,
+    int(options.score ?? 123456),
+    Buffer.from([1, 0, Number(options.fullCombo ?? false)]),
     int(options.mods ?? 0),
     Buffer.from([0]),
     Buffer.alloc(8),

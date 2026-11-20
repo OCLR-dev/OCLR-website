@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import { HttpError } from "./http-error";
 import { REPLAY_MAX_BYTES, type ReplaySummary } from "./replay-model";
+import { replayPerformance, TARGET_PRACTICE } from "./replay-score";
 
 const EXPANDED_LIMIT = 16 * 1024 * 1024;
 // A fixed isolated decoder; neither filenames nor uploaded text become code/argv.
@@ -55,7 +56,7 @@ async function decompress(bytes: Buffer): Promise<Buffer> {
     active--;
   }
 }
-export async function parseReplay(bytes: Buffer): Promise<ReplaySummary> {
+function readReplayContainer(bytes: Buffer) {
   if (!bytes.length || bytes.length > REPLAY_MAX_BYTES)
     throw new HttpError(413, "Choose a stable .osr replay up to 8 MiB.");
   let summary: ReplaySummary;
@@ -69,6 +70,7 @@ export async function parseReplay(bytes: Buffer): Promise<ReplaySummary> {
       return result;
     };
     const byte = () => take(1)[0];
+    const short = () => take(2).readUInt16LE();
     const int = () => take(4).readInt32LE();
     const string = (limit: number) => {
       const tag = byte();
@@ -104,10 +106,19 @@ export async function parseReplay(bytes: Buffer): Promise<ReplaySummary> {
       /[\p{Cc}\p{Cf}]/u.test(playerName)
     )
       throw new Error();
-    take(12);
-    if (int() < 0) throw new Error();
-    take(2);
-    if (byte() > 1) throw new Error();
+    const judgements = [
+      short(),
+      short(),
+      short(),
+      short(),
+      short(),
+      short(),
+    ] as const;
+    const score = int();
+    if (score < 0) throw new Error();
+    short(); // Maximum combo
+    const fullCombo = byte();
+    if (fullCombo > 1) throw new Error();
     const mods = int();
     if (mods < 0) throw new Error();
     string(65536);
@@ -117,17 +128,25 @@ export async function parseReplay(bytes: Buffer): Promise<ReplaySummary> {
     if (length < 13) throw new Error();
     compressed = take(length);
     take(8);
-    if (mods & (1 << 23)) {
+    if (mods & TARGET_PRACTICE) {
       if (!Number.isFinite(take(8).readDoubleLE())) throw new Error();
     }
     if (offset !== bytes.length) throw new Error();
+    const ruleset = (["osu", "taiko", "fruits", "mania"] as const)[mode];
     summary = {
       format: "stable",
       version,
       beatmapMd5: beatmapMd5.toLowerCase(),
       playerName,
-      mode: (["osu", "taiko", "fruits", "mania"] as const)[mode],
+      mode: ruleset,
       mods,
+      performance: replayPerformance(
+        ruleset,
+        mods,
+        judgements,
+        score,
+        fullCombo === 1,
+      ),
     };
   } catch (error) {
     if (error instanceof HttpError) throw error;
@@ -136,6 +155,16 @@ export async function parseReplay(bytes: Buffer): Promise<ReplaySummary> {
       "Replay data is corrupt, unsupported or exceeds validation limits.",
     );
   }
+  return { summary, compressed };
+}
+
+/** For previously validated files after storage size and digest verification. */
+export function readSavedReplaySummary(bytes: Buffer): ReplaySummary {
+  return readReplayContainer(bytes).summary;
+}
+
+export async function parseReplay(bytes: Buffer): Promise<ReplaySummary> {
+  const { summary, compressed } = readReplayContainer(bytes);
   const expanded = await decompress(compressed);
   // Bounded linear scan, without allocating an unbounded array of frames.
   let text: string;
