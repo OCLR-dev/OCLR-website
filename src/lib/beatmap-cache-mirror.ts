@@ -55,7 +55,7 @@ export function cacheMirrorOptions(setId: number, saved: string | null) {
   const savedUrl = safeDownloadMirror(saved);
   return beatmapDownloadMirrors(setId, savedUrl).flatMap((mirror) => {
     const url = !mirror.search && approvedBeatmapMirror(mirror.href);
-    const id = mirror.href === savedUrl ? "saved" : mirror.icon;
+    const id = mirror.href === savedUrl ? ("saved" as const) : mirror.icon;
     return url && id && id !== "github" ? [{ id, name: mirror.name, url }] : [];
   });
 }

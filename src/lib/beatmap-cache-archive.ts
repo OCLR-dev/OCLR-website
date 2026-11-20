@@ -61,7 +61,7 @@ except Exception:
 export async function inspectBeatmapPackage(
   bytes: Buffer,
   beatmapId: number,
-  officialChecksum: string | undefined,
+  officialChecksum: string | null | undefined,
   signal?: AbortSignal,
 ) {
   if (!bytes.length || bytes.length > REPLAY_BEATMAP_MAX_BYTES)
