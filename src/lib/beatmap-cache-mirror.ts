@@ -98,9 +98,20 @@ async function getMirrorResponse(url: URL, signal: AbortSignal) {
         agent: false,
         signal,
       },
-      resolve,
+      (response) => {
+        clearTimeout(headerTimer);
+        resolve(response);
+      },
     );
-    outgoing.on("error", reject);
+    const stalled = () =>
+      outgoing.destroy(new Error("Mirror request stalled."));
+    const headerTimer = setTimeout(stalled, 8_000);
+    headerTimer.unref();
+    outgoing.setTimeout(8_000, stalled);
+    outgoing.on("error", (error) => {
+      clearTimeout(headerTimer);
+      reject(error);
+    });
     outgoing.end();
   });
 }

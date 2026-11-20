@@ -632,6 +632,8 @@ to public IPv4 and the connection uses the checked address with TLS verified
 against the original name. Sync tries the selected source first and can fall
 back to the built-in mirrors on an unavailable or rate-limited response. Each
 source allows up to three redirects within one 30-second download budget.
+An attempt can move to the next source after eight seconds without headers or
+network activity.
 Choose osu! official download to open the signed-in osu! website and then
 upload the downloaded `.osz` in the cache dialog.
 

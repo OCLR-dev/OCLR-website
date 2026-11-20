@@ -26,6 +26,7 @@ function respond(
 ) {
   request.mockImplementationOnce((_options, respond) =>
     Object.assign(new EventEmitter(), {
+      setTimeout() {},
       end() {
         respond(
           Object.assign(Readable.from([bytes]), {
@@ -113,6 +114,33 @@ describe("beatmap mirror transport", () => {
       downloadBeatmapMirror(origin, new AbortController().signal),
     ).rejects.toMatchObject({ status: 429 });
     expect(request).toHaveBeenCalledTimes(1);
+  });
+
+  it("abandons a stalled connection while the next mirror can still respond", async () => {
+    vi.useFakeTimers();
+    try {
+      request.mockImplementationOnce(() => {
+        const outgoing = new EventEmitter();
+        return Object.assign(outgoing, {
+          setTimeout() {},
+          end() {},
+          destroy(error: Error) {
+            outgoing.emit("error", error);
+          },
+        });
+      });
+      respond(200, {});
+      const result = downloadBeatmapMirror(
+        origin,
+        new AbortController().signal,
+        [new URL("https://catboy.best/d/75")],
+      );
+      await vi.advanceTimersByTimeAsync(8_000);
+      await expect(result).resolves.toEqual(Buffer.from("archive"));
+      expect(request).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("rejects oversize and partial HTTP bodies", async () => {
