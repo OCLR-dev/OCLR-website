@@ -6502,12 +6502,15 @@ body:has([data-broadcast]) .site-shell {
   display: grid;
   gap: 1rem;
 }
-.replay-dialog-heading,
-.replay-toolbar {
+.replay-dialog-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+}
+.replay-toolbar {
+  display: flex;
+  gap: 0.5rem;
 }
 .replay-dialog-heading > div {
   min-width: 0;
@@ -6542,8 +6545,8 @@ body:has([data-broadcast]) .site-shell {
   gap: 0.5rem;
 }
 .mappool-beatmap-cache {
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--color-border);
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
 }
 .mappool-beatmap-cache .actions {
   align-items: end;
@@ -6565,17 +6568,25 @@ body:has([data-broadcast]) .site-shell {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 0.5rem;
 }
 .replay-item {
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-panel);
+  display: grid;
+  gap: 0.5rem;
+  padding-block: 0.75rem;
   min-width: 0;
 }
+.replay-item + .replay-item {
+  border-top: 1px solid var(--color-border);
+}
 .replay-item p {
-  margin-block: 0.25rem;
+  overflow-wrap: anywhere;
+}
+.replay-item .replay-item-meta,
+.replay-technical p {
+  margin-top: 0.25rem;
+}
+.replay-technical summary {
+  cursor: pointer;
   overflow-wrap: anywhere;
 }
 .replay-filename {

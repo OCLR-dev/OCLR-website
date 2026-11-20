@@ -65,6 +65,12 @@ for (const stale of ["success", "error"]) {
     await expect(
       dialog.getByRole("button", { name: "Reload replay list" }),
     ).toBeEnabled();
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(
+      page
+        .locator('[data-map-entry="entry-1"]')
+        .getByRole("button", { name: "Saved replays (2)", exact: true }),
+    ).toBeVisible();
     expect(writes).toEqual([]);
   });
 }

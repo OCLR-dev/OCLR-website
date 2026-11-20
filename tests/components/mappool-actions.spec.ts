@@ -122,7 +122,7 @@ test("sorting disables edits and leaves replays accessible", async ({
   await expect(
     entry.getByRole("dialog", { name: "Replays for NM1", exact: true }),
   ).toBeVisible();
-  await expect(replay).toHaveAccessibleName("Replays (0)");
+  await expect(replay).toHaveAccessibleName("Replays");
 });
 
 test("editing hides preview details while retaining verified save data", async ({

@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import {
   mappoolEntries,
+  mappoolReplays,
   mappoolShowcaseAccess,
   mappools,
   refereeRoundPolicies,
@@ -8,7 +9,7 @@ import {
   tournamentStages,
   users,
 } from "@/db/schema";
-import { and, eq, inArray, isNotNull } from "drizzle-orm";
+import { and, eq, getTableColumns, inArray, isNotNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { User } from "./auth/sessions";
 import { assertReadCapability, hasCapability } from "./auth/staff";
@@ -124,7 +125,14 @@ async function databaseMappoolWorkspace(
           : [];
       const entries = pools.length
         ? await tx
-            .select()
+            .select({
+              ...getTableColumns(mappoolEntries),
+              // Qualify the outer id so it cannot resolve to the replay row's id.
+              replayCount: sql<number>`(
+                select count(*)::int from ${mappoolReplays}
+                where ${mappoolReplays.entryId} = ${mappoolEntries}.${sql.identifier(mappoolEntries.id.name)}
+              )`,
+            })
             .from(mappoolEntries)
             .where(
               inArray(

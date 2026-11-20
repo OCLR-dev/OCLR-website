@@ -507,6 +507,11 @@ published fixtures, public identities and eligible game scores together.
 Historical Series use the same published archive statistics release as the
 other statistics views. See [YumuRating](yumu-rating.md).
 
+Contract 1.44.0 adds optional `replayCount` to each entry of the staff
+`mappoolWorkspace`. It counts saved private attachments on that entry.
+The workspace's existing edition replay-read authorization applies.
+Earlier backends may omit the field.
+
 Contract 1.43.0 adds `ratings=2` on the public, self and edition-scoped staff
 OCLR profile reads. ETX includes its selected `source` (`api` or `csv`),
 available NM/HD/HR/DT/FM stars, and nullable provisional/outdated flags.
