@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import {
+  mappoolBeatmapCache,
   mappoolEntries,
   mappoolReplays,
   mappoolShowcaseAccess,
@@ -90,6 +91,12 @@ async function databaseMappoolWorkspace(
         slug,
         tx,
       );
+      const canManageCache = await hasCapability(
+        actor,
+        "manage_mappools",
+        slug,
+        tx,
+      );
       const streamers = canConfigureShowcase
         ? await eligibleBroadcastStaff(tx, slug, "streamer")
         : [];
@@ -132,6 +139,12 @@ async function databaseMappoolWorkspace(
                 select count(*)::int from ${mappoolReplays}
                 where ${mappoolReplays.entryId} = ${mappoolEntries}.${sql.identifier(mappoolEntries.id.name)}
               )`,
+              ...(canManageCache && {
+                beatmapCached: sql<boolean>`exists (
+                  select 1 from ${mappoolBeatmapCache}
+                  where ${mappoolBeatmapCache.entryId} = ${mappoolEntries}.${sql.identifier(mappoolEntries.id.name)}
+                )`,
+              }),
             })
             .from(mappoolEntries)
             .where(

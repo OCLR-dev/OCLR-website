@@ -629,8 +629,11 @@ The default HTTPS origins are `beatconnect.io`, `dl.sayobot.cn`,
 values to the optional comma-separated `OCLR_BEATMAP_MIRROR_HOSTS` runtime
 setting, including any additional mirror CDN destinations. Each hop resolves
 to public IPv4 and the connection uses the checked address with TLS verified
-against the original name. Sync allows up to three redirects and 30 seconds
-in total. A failed mirror can be replaced by a manual upload.
+against the original name. Sync tries the selected source first and can fall
+back to the built-in mirrors on an unavailable or rate-limited response. Each
+source allows up to three redirects within one 30-second download budget.
+Choose osu! official download to open the signed-in osu! website and then
+upload the downloaded `.osz` in the cache dialog.
 
 The app accepts up to 64 MiB per `.osz`, 128 MiB expanded and 2,048 ZIP
 entries. The cache allows 4 GiB and 1,024 files, including orphaned files.

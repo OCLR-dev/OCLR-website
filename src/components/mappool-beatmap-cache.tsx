@@ -22,14 +22,18 @@ async function readStatus(response: Response) {
 export function MappoolBeatmapCache({
   url,
   version,
+  officialUrl,
   disabled,
   onSavingChange,
+  onStatus,
   onChanged,
 }: {
   url: string;
   version: number;
+  officialUrl: string | null;
   disabled: boolean;
   onSavingChange: (saving: boolean) => void;
+  onStatus: (status: BeatmapCacheStatus) => void;
   onChanged: (version: number) => void;
 }) {
   const tr = useAppTranslations();
@@ -53,6 +57,7 @@ export function MappoolBeatmapCache({
           setCache((current) =>
             !current || current.version <= status.version ? status : current,
           );
+          onStatus(status);
           setLoadError(false);
         }
       })
@@ -60,10 +65,12 @@ export function MappoolBeatmapCache({
         if (!controller.signal.aborted) setLoadError(true);
       });
     return () => controller.abort();
-  }, [url, version, attempt]);
+  }, [url, version, attempt, onStatus]);
 
   const mirror =
     cache?.mirrors.find(({ id }) => id === selectedMirror) ?? cache?.mirrors[0];
+  const officialSelected =
+    Boolean(officialUrl) && (!mirror || selectedMirror === "official");
   async function change(action: Action) {
     if (!cache || disabled || request.current) return;
     const form = new FormData();
@@ -71,7 +78,7 @@ export function MappoolBeatmapCache({
     form.set("confirmed", "true");
     form.set("action", action);
     if (action === "sync") {
-      if (!mirror) return;
+      if (!mirror || officialSelected) return;
       form.set("mirror", mirror.id);
     } else if (action === "upload") {
       if (!file) return;
@@ -96,6 +103,7 @@ export function MappoolBeatmapCache({
       const status = await readStatus(response);
       if (controller.signal.aborted) return;
       setCache(status);
+      onStatus(status);
       setConfirmRemove(false);
       if (action === "upload") {
         setFile(undefined);
@@ -153,12 +161,12 @@ export function MappoolBeatmapCache({
           className="staff-readonly-fields form-stack"
           disabled={locked}
         >
-          {mirror && (
+          {(mirror || officialUrl) && (
             <div className="actions">
               <label className="field">
                 <span>{tr("Beatmap mirror")}</span>
                 <select
-                  value={mirror.id}
+                  value={officialSelected ? "official" : mirror?.id}
                   onChange={(event) =>
                     setSelectedMirror(event.currentTarget.value)
                   }
@@ -168,16 +176,35 @@ export function MappoolBeatmapCache({
                       {name}
                     </option>
                   ))}
+                  {officialUrl && (
+                    <option value="official">{tr("osu! official download")}</option>
+                  )}
                 </select>
               </label>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => void change("sync")}
-              >
-                {tr("Sync from mirror")}
-              </button>
+              {officialSelected && officialUrl ? (
+                <a
+                  className="button secondary"
+                  href={officialUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {tr("Download on osu!")}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => void change("sync")}
+                >
+                  {tr("Sync from mirror")}
+                </button>
+              )}
             </div>
+          )}
+          {officialSelected && (
+            <p className="small muted mb-0">
+              {tr("Download the .osz on osu!, then upload it here.")}
+            </p>
           )}
           <div className="actions">
             <label className="field">

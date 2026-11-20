@@ -1,7 +1,15 @@
 export function MappoolActionIcon({
   kind,
 }: {
-  kind: "edit" | "refresh" | "remove" | "replays" | "play";
+  kind:
+    | "edit"
+    | "refresh"
+    | "remove"
+    | "replays"
+    | "play"
+    | "cache"
+    | "cached"
+    | "suggester";
 }) {
   return (
     <svg
@@ -33,6 +41,22 @@ export function MappoolActionIcon({
         <>
           <rect x="3" y="3" width="18" height="18" rx="4" />
           <path d="m10 8 6 4-6 4Z" />
+        </>
+      )}
+      {(kind === "cache" || kind === "cached") && (
+        <>
+          <path d="M4 15v5h16v-5" />
+          {kind === "cached" ? (
+            <path d="m8 9 3 3 5-5" />
+          ) : (
+            <path d="M12 4v9m-4-4 4 4 4-4" />
+          )}
+        </>
+      )}
+      {kind === "suggester" && (
+        <>
+          <circle cx="9" cy="7" r="3.5" />
+          <path d="M3 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2m4-12v6m-3-3h6" />
         </>
       )}
     </svg>

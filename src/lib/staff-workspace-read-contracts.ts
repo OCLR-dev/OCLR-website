@@ -126,6 +126,7 @@ export type StaffWorkspaceReadContracts = {
     entries: (CompetitionDetailReadContracts["publicMappools"][number]["entries"][number] & {
       metadataFetchedAt: Date;
       replayCount?: number;
+      beatmapCached?: boolean;
     })[];
   };
   selectionWorkspace: {

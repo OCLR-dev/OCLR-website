@@ -54,7 +54,7 @@ export const beatmapCacheWrite = {
     413: "The package or multipart request exceeds its byte limit.",
     415: "Expected multipart/form-data.",
     422: "The package, archive, difficulty, or mirror destination could not be validated.",
-    429: "Beatmap package processing capacity is temporarily exhausted.",
+    429: "The service is busy or the mirror rate limited the request.",
     500: "Unexpected failure.",
     502: "The mirror failed to return the archive.",
     503: "Private storage or archive validation is unavailable.",

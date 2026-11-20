@@ -105,11 +105,11 @@ async function getMirrorResponse(url: URL, signal: AbortSignal) {
   });
 }
 
-export async function downloadBeatmapMirror(url: URL, abort: AbortSignal) {
-  const signal = AbortSignal.any([AbortSignal.timeout(30_000), abort]);
+async function downloadFromMirror(url: URL, signal: AbortSignal) {
   try {
     let next = url;
     for (let hop = 0; hop <= 3; hop++) {
+      signal.throwIfAborted();
       const target = approvedBeatmapMirror(next.href);
       if (!target)
         throw new HttpError(
@@ -123,8 +123,18 @@ export async function downloadBeatmapMirror(url: URL, abort: AbortSignal) {
         next = new URL(response.headers.location, target);
         continue;
       }
+      if (response.statusCode === 429) {
+        response.destroy();
+        throw new HttpError(
+          429,
+          "The mirror is rate limited. Try another mirror or upload an .osz.",
+        );
+      }
+      const contentType = response.headers["content-type"];
       if (
         response.statusCode !== 200 ||
+        (contentType &&
+          /^(?:text\/html|application\/json)\b/i.test(contentType)) ||
         (response.headers["content-encoding"] &&
           response.headers["content-encoding"] !== "identity")
       ) {
@@ -146,6 +156,7 @@ export async function downloadBeatmapMirror(url: URL, abort: AbortSignal) {
       const chunks: Buffer[] = [];
       let size = 0;
       for await (const chunk of response) {
+        signal.throwIfAborted();
         size += chunk.length;
         if (size > REPLAY_BEATMAP_MAX_BYTES)
           throw new HttpError(
@@ -174,4 +185,27 @@ export async function downloadBeatmapMirror(url: URL, abort: AbortSignal) {
       "The mirror could not be reached. Try another mirror or upload an .osz.",
     );
   }
+}
+
+export async function downloadBeatmapMirror(
+  url: URL,
+  abort: AbortSignal,
+  alternatives: readonly URL[] = [],
+) {
+  const signal = AbortSignal.any([AbortSignal.timeout(30_000), abort]);
+  const sources = [url, ...alternatives];
+  for (const [index, source] of sources.entries()) {
+    try {
+      return await downloadFromMirror(source, signal);
+    } catch (error) {
+      if (
+        signal.aborted ||
+        index === sources.length - 1 ||
+        !(error instanceof HttpError) ||
+        (error.status !== 429 && error.status !== 502)
+      )
+        throw error;
+    }
+  }
+  throw new HttpError(502, "The mirror did not return a beatmap package.");
 }

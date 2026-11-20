@@ -4,6 +4,7 @@ import { useAppTranslations } from "@/i18n/shared";
 import type { MappoolSuggesterEditorData } from "@/lib/mappool-suggesters";
 import { useId, useRef, useState } from "react";
 import { ConfirmMutation } from "./confirm-mutation";
+import { MappoolActionIcon } from "./mappool-action-icon";
 
 export function MappoolSuggester({
   url,
@@ -60,7 +61,8 @@ export function MappoolSuggester({
           dialog.current?.showModal();
         }}
       >
-        {title}
+        <MappoolActionIcon kind={saved ? "edit" : "suggester"} />
+        <span>{title}</span>
       </button>
       <dialog
         ref={dialog}

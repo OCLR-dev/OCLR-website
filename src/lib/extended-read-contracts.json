@@ -6346,6 +6346,13 @@
                   { "type": "null", "x-oclr-undefined": true },
                   { "type": "number" }
                 ]
+              },
+              "beatmapCached": {
+                "anyOf": [
+                  { "type": "null", "x-oclr-undefined": true },
+                  { "type": "boolean", "const": false },
+                  { "type": "boolean", "const": true }
+                ]
               }
             },
             "required": [

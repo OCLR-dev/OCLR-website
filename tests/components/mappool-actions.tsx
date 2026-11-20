@@ -66,6 +66,7 @@ const data: MappoolWorkspace = {
       position === 1
         ? Number(params.has("replay-count")) + (params.has("playback") ? 2 : 0)
         : 0,
+    beatmapCached: position === 2 && params.has("cached"),
     source: null,
     metadataFetchedAt: date,
     metadata: {

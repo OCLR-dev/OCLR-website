@@ -290,6 +290,9 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     await expect(
       mappoolBeatmapCacheStatus(mapper, "other-test-cup", entryId),
     ).rejects.toMatchObject({ status: 403 });
+    expect((await mappoolWorkspace(mapper, edition.slug)).entries).toMatchObject([
+      { id: entryId, beatmapCached: false },
+    ]);
     expect((await status()).mirrors[0]).toMatchObject({ id: "saved" });
     vi.mocked(downloadBeatmapMirror).mockResolvedValueOnce(archive);
     const saved = await changeMappoolBeatmapCache(
@@ -298,6 +301,12 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
       entryId,
       sync,
       signal,
+    );
+    expect((await mappoolWorkspace(mapper, edition.slug)).entries).toMatchObject([
+      { id: entryId, beatmapCached: true },
+    ]);
+    expect((await mappoolWorkspace(tester, edition.slug)).entries[0]).not.toHaveProperty(
+      "beatmapCached",
     );
     expect(saved.package).toMatchObject({
       size: archive.length,
@@ -390,6 +399,9 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
       signal,
     );
     expect((await status()).package).toBeNull();
+    expect((await mappoolWorkspace(mapper, edition.slug)).entries).toMatchObject([
+      { id: entryId, beatmapCached: false },
+    ]);
     expect(await readdir(join(root, "beatmaps"))).toEqual([]);
     const events = await db().select().from(mappoolEvents);
     expect(events.map(({ action }) => action)).toEqual(

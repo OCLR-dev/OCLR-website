@@ -2,6 +2,7 @@
 
 import { LoadingRegion } from "./loading-region";
 import {
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -14,7 +15,10 @@ import { MappoolBeatmapCache } from "./mappool-beatmap-cache";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { useAppTranslations } from "@/i18n/shared";
 import { useFormatter } from "next-intl";
-import { beatmapCacheWrite } from "@/lib/beatmap-cache-contract";
+import {
+  beatmapCacheWrite,
+  type BeatmapCacheStatus,
+} from "@/lib/beatmap-cache-contract";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import type { ReplayItem } from "@/lib/mappool-replays";
 import { REPLAY_MAX_BYTES, REPLAY_ENTRY_LIMIT } from "@/lib/replay-model";
@@ -24,6 +28,7 @@ import {
   type ReplayWriteCommand,
 } from "@/lib/replay-write-contract";
 import { slotLabel } from "@/lib/mappool-model";
+import { beatmapLinks } from "@/lib/beatmap-links";
 type Pool = MappoolWorkspace["pools"][number];
 type Entry = MappoolWorkspace["entries"][number];
 const uploadReceipt = uploadReplayWrite.response.pick({
@@ -64,9 +69,24 @@ export function MappoolReplays({
     [items, setItems] = useState<ReplayItem[]>([]);
   const [cacheOpen, setCacheOpen] = useState(false);
   const [cacheSaving, setCacheSaving] = useState(false);
+  const [observedCache, setObservedCache] = useState<{
+    version: number;
+    cached: boolean;
+  }>();
+  const observeCache = useCallback((status: BeatmapCacheStatus) => {
+    setObservedCache((previous) =>
+      previous && previous.version > status.version
+        ? previous
+        : { version: status.version, cached: status.package !== null },
+    );
+  }, []);
   const cacheTrigger = useRef<HTMLButtonElement>(null);
   const cachePanel = useRef<HTMLDialogElement>(null);
   const showCacheAction = canPlay && canManageCache;
+  const cached =
+    observedCache && observedCache.version >= pool.version
+      ? observedCache.cached
+      : entry.beatmapCached;
   const slot = slotLabel(entry.category, entry.position);
   const [loaded, setLoaded] = useState(false),
     [loading, setLoading] = useState(false);
@@ -336,7 +356,8 @@ export function MappoolReplays({
                 cachePanel.current?.showModal();
               }}
             >
-              {tr("Beatmap cache")}
+              <MappoolActionIcon kind={cached ? "cached" : "cache"} />
+              <span>{cached ? tr("Cached") : tr("Beatmap cache")}</span>
             </button>
           )}
         </>,
@@ -380,8 +401,12 @@ export function MappoolReplays({
                 .replace("{edition}", slug)
                 .replace("{entryId}", entry.id)}
               version={version}
+              officialUrl={
+                beatmapLinks(entry.beatmapId, entry.metadata.setId).web
+              }
               disabled={pending}
               onSavingChange={setCacheSaving}
+              onStatus={observeCache}
               onChanged={(newVersion) => {
                 setKnownVersion(newVersion);
                 refresh();

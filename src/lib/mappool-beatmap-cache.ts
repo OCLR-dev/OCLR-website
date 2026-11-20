@@ -112,7 +112,8 @@ export async function changeMappoolBeatmapCache(
     let record: typeof mappoolBeatmapCache.$inferInsert | undefined;
     if (command.action !== "remove") {
       if (command.action === "sync") {
-        const mirror = mirrorChoices(before.entry).find(
+        const mirrors = mirrorChoices(before.entry);
+        const mirror = mirrors.find(
           ({ id }) => id === command.mirror,
         );
         if (!mirror)
@@ -120,7 +121,13 @@ export async function changeMappoolBeatmapCache(
             409,
             "This direct beatmap mirror is no longer available.",
           );
-        bytes = await downloadBeatmapMirror(mirror.url, signal);
+        bytes = await downloadBeatmapMirror(
+          mirror.url,
+          signal,
+          mirrors
+            .filter(({ id }) => id !== mirror.id && id !== "saved")
+            .map(({ url }) => url),
+        );
       } else {
         if (!/\.osz$/i.test(command.file.name))
           throw new HttpError(422, "Choose an .osz beatmap package.");

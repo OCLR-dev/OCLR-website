@@ -6325,6 +6325,22 @@
                       "type": "number"
                     }
                   ]
+                },
+                "beatmapCached": {
+                  "anyOf": [
+                    {
+                      "type": "null",
+                      "x-oclr-undefined": true
+                    },
+                    {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  ]
                 }
               },
               "required": [
@@ -11856,7 +11872,7 @@
             }
           },
           "429": {
-            "description": "Beatmap package processing capacity is temporarily exhausted.",
+            "description": "The service is busy or the mirror rate limited the request.",
             "content": {
               "application/json": {
                 "schema": {
