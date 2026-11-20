@@ -904,7 +904,7 @@ async function HistoricalArchiveContent({
             ))}
           {vicePlayers.length > 0 && (
             <section className="archive-draft-round">
-              <h2>VICE</h2>
+              <h2>{role(vicePlayers[0])}</h2>
               {roster(vicePlayers)}
             </section>
           )}
