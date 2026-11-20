@@ -224,23 +224,6 @@ dialog.viewer {
   background: #f7f8ff;
 }
 
-.source {
-  font-size: var(--text-small);
-}
-
-.source summary {
-  width: fit-content;
-  min-height: 1.5rem;
-  color: var(--color-muted);
-  cursor: pointer;
-}
-
-.source input {
-  display: block;
-  max-width: 100%;
-  margin-block-start: 0.5rem;
-}
-
 .listError {
   display: flex;
   flex-wrap: wrap;

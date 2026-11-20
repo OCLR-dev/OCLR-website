@@ -268,6 +268,14 @@ test("the map opens a player dialog with controls in its frame", async ({
       })),
     });
   });
+  await page.route(/\/entries\/entry-1\/replays\/replay-0(?:\/|$)/, (route) =>
+    route.request().url().endsWith("/playback/beatmap.osz")
+      ? route.fulfill({ status: 404 })
+      : route.fulfill({
+          contentType: "application/octet-stream",
+          body: "synthetic asset",
+        }),
+  );
   await page.goto("/mappool-actions?playback=1");
   const entry = page.locator('[data-map-entry="entry-1"]');
   const open = entry.getByRole("button", { name: "Open replay player" });
@@ -287,6 +295,7 @@ test("the map opens a player dialog with controls in its frame", async ({
     name: "Replay playback for First.osr",
   });
   await expect(frame.locator("canvas")).toBeVisible();
+  await expect(viewer.locator('input[type="file"]')).toHaveCount(0);
   const timeline = frame.getByRole("slider", { name: "Replay progress" });
   const volume = frame.getByRole("slider", { name: "Replay volume" });
   await expect(timeline).toBeVisible();
@@ -296,6 +305,14 @@ test("the map opens a player dialog with controls in its frame", async ({
   await expect(
     frame.getByRole("slider", { name: "Replay volume" }),
   ).toHaveValue("100");
+
+  await Promise.all([
+    page.waitForRequest("**/replay-0/playback/beatmap.osz"),
+    frame.getByRole("button", { name: "Play replay" }).click(),
+  ]);
+  await expect(viewer.getByRole("alert")).toHaveText(
+    "Could not load the beatmap package. Check the server beatmap cache for this map.",
+  );
 
   await viewer
     .getByRole("combobox", { name: "Replay file" })

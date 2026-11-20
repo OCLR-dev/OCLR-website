@@ -92,7 +92,6 @@ export function MappoolReplayPlayer({
   const tr = useAppTranslations();
   const canvas = useRef<HTMLCanvasElement>(null);
   const active = useRef<Playback | null>(null);
-  const [beatmapFile, setBeatmapFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -161,20 +160,17 @@ export function MappoolReplayPlayer({
     setLoading(true);
 
     try {
-      if (beatmapFile && beatmapFile.size > REPLAY_BEATMAP_MAX_BYTES)
-        throw new PlaybackFailure("beatmap");
       const [viewer, archives, replayBytes, beatmapBytes, skinBytes] =
         await Promise.all([
           import("replayviewer-js"),
           import("@/lib/replay-playback-archive"),
           fetchAsset(replayUrl, signal, REPLAY_MAX_BYTES, "replay"),
-          beatmapFile?.arrayBuffer() ??
-            fetchAsset(
-              `${replayUrl}/playback/beatmap.osz`,
-              signal,
-              REPLAY_BEATMAP_MAX_BYTES,
-              "beatmap",
-            ),
+          fetchAsset(
+            `${replayUrl}/playback/beatmap.osz`,
+            signal,
+            REPLAY_BEATMAP_MAX_BYTES,
+            "beatmap",
+          ),
           fetchAsset(
             `${replayUrl}/playback/skin.osk`,
             signal,
@@ -293,7 +289,7 @@ export function MappoolReplayPlayer({
   const messages = {
     replay: tr("Could not load this replay. Reload the list and try again."),
     beatmap: tr(
-      "Could not load the beatmap package. Choose a matching .osz up to 64 MiB.",
+      "Could not load the beatmap package. Check the server beatmap cache for this map.",
     ),
     mismatch: tr("The beatmap package has no difficulty matching this replay."),
     skin: tr(
@@ -425,21 +421,6 @@ export function MappoolReplayPlayer({
         <p className="error-text" role="alert">
           {messages[failure]}
         </p>
-      )}
-      {!ready && (
-        <details className={styles.source}>
-          <summary>{tr("Use a local beatmap package (.osz)")}</summary>
-          <input
-            aria-label={tr("Use a local beatmap package (.osz)")}
-            type="file"
-            accept=".osz"
-            disabled={loading}
-            onChange={(event) => {
-              setBeatmapFile(event.currentTarget.files?.[0] ?? null);
-              setFailure(null);
-            }}
-          />
-        </details>
       )}
     </>
   );

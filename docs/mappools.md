@@ -133,8 +133,8 @@ with the close button or Escape. Use **Replays** to upload, download, or
 delete attachments.
 
 Playback reads the saved attachment through the edition-scoped route and
-uses the cached beatmap package. Staff can also select a local `.osz`
-for the current playback session. That file stays in the browser.
+uses the server's cached beatmap package. To provide a local `.osz` for
+playback, upload it through **Server beatmap cache**.
 
 The player uses [OCLR's replayviewer-js fork at `06bd864ee`](https://github.com/OCLR-dev/replayviewer-js/tree/06bd864ee6f0886c77ef18b71e4490aad3c0b9ba).
 Stable osu!standard replays with SV2 use the ScoreV2 timeline in the player.
