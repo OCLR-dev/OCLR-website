@@ -739,6 +739,15 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "lolita-vinyl-dress": "SR",
   "lolita-honey-tea": "SR",
   "lolita-hydrangea-parasol": "SSR",
+  "kite-artisan": "SR",
+  "alpine-guide": "R",
+  "burgundy-radio-host": "SR",
+  "lolita-cedar-fox": "SR",
+  "lolita-enamel-egg": "SSR",
+  "lolita-nautical-chart": "SR",
+  "lolita-ginkgo-rubbing": "R",
+  "lolita-tangram-dress": "R",
+  "lolita-cinema-reel": "SSR",
 };
 
 export function liruGallery(tr: AppTranslator): {
@@ -2219,6 +2228,61 @@ export function liruGallery(tr: AppTranslator): {
       tr("Hydrangea parasol"),
       tr(
         "Liru in a blue violet hydrangea dress with a sheer cape and a matching parasol.",
+      ),
+    ],
+    [
+      "kite-artisan",
+      tr("Swallow kite"),
+      tr("Liru in blue gray workwear with a multicolored swallow kite."),
+    ],
+    [
+      "alpine-guide",
+      tr("Alpine guide"),
+      tr("Liru in a yellow hiking jacket with a backpack and brass compass."),
+    ],
+    [
+      "burgundy-radio-host",
+      tr("Burgundy radio host"),
+      tr(
+        "Liru in a burgundy skirt suit with velvet lapels and a retro microphone.",
+      ),
+    ],
+    [
+      "lolita-cedar-fox",
+      tr("Cedar fox"),
+      tr(
+        "Liru in a rust and gold dress with an olive bow and a carved wooden fox.",
+      ),
+    ],
+    [
+      "lolita-enamel-egg",
+      tr("Enamel egg"),
+      tr(
+        "Liru in a mint dress with pink bows and a gold patterned enamel egg.",
+      ),
+    ],
+    [
+      "lolita-nautical-chart",
+      tr("Nautical chart"),
+      tr(
+        "Liru in a navy sailor dress with compass motifs and a rolled nautical chart.",
+      ),
+    ],
+    [
+      "lolita-ginkgo-rubbing",
+      tr("Ginkgo rubbing"),
+      tr("Liru in a brown leaf patterned dress with a golden ginkgo rubbing."),
+    ],
+    [
+      "lolita-tangram-dress",
+      tr("Colorful tangram"),
+      tr("Liru in a coral and teal geometric dress with a wooden tangram."),
+    ],
+    [
+      "lolita-cinema-reel",
+      tr("Cinema reel"),
+      tr(
+        "Liru in a deep purple dress with gold geometric trim and a film reel.",
       ),
     ],
   ];
