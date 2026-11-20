@@ -1,9 +1,5 @@
 "use client";
-import {
-  competitionStages,
-  competitionStageLabel,
-  exhibitionNotice,
-} from "@/lib/competition-stage";
+import { competitionStages, competitionStageLabel } from "@/lib/competition-stage";
 import { ExhibitionPoolImport } from "./exhibition-pool-import";
 import {
   StaffReadOnlyContext,
@@ -796,9 +792,6 @@ function MappoolEditorContent({
         >
           {tr(feedback)}
         </div>
-      )}
-      {stage === "exhibition" && (
-        <p className="notice">{tr(exhibitionNotice)}</p>
       )}
       {pool ? (
         <section className="mappool-active" aria-label={tr("Selected mappool")}>
