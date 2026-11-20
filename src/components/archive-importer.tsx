@@ -227,8 +227,7 @@ export function ArchiveImporter({
               {
                 archive?.teams.find((team) => team.id === s1TierFourPair.teamId)
                   ?.name
-              }{" "}
-              · Tier {s1TierFourPair.tier}
+              }
             </p>
             <ConfirmMutation
               label={tr("Confirm both S1 Tier 4 players")}
