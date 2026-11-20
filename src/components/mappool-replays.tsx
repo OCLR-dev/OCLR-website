@@ -14,6 +14,7 @@ import { MappoolActionIcon } from "./mappool-action-icon";
 import { MappoolBeatmapCache } from "./mappool-beatmap-cache";
 import { usePendingRefresh } from "./use-pending-refresh";
 import { useAppTranslations } from "@/i18n/shared";
+import { useFormatter } from "next-intl";
 import { beatmapCacheWrite } from "@/lib/beatmap-cache-contract";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import type { ReplayItem } from "@/lib/mappool-replays";
@@ -48,6 +49,7 @@ export function MappoolReplays({
   renderTrigger?: (trigger: ReactNode) => ReactNode;
 }) {
   const tr = useAppTranslations(),
+    format = useFormatter(),
     { refreshing, refresh } = usePendingRefresh(),
     id = useId();
   const url = uploadReplayWrite.path
@@ -85,11 +87,25 @@ export function MappoolReplays({
     [url],
   );
   const [knownVersion, setKnownVersion] = useState(pool.version);
+  const [observedCount, setObservedCount] = useState<{
+    version: number;
+    count: number;
+  }>();
   const version = Math.max(knownVersion, pool.version);
   const writable = canManage;
-  const triggerLabel = writable ? tr("Upload replays") : tr("Replays");
-  const triggerName = `${triggerLabel}${loaded ? ` (${items.length})` : ""}`;
-  async function load() {
+  const count =
+    observedCount &&
+    (entry.replayCount === undefined || observedCount.version >= pool.version)
+      ? observedCount.count
+      : entry.replayCount;
+  const hasReplays = count !== undefined && count > 0;
+  const triggerLabel = hasReplays
+    ? tr("Saved replays ({value0})", { value0: count })
+    : writable
+      ? tr("Upload replays")
+      : tr("Replays");
+  const labeledTrigger = writable || hasReplays;
+  async function load(atVersion = version) {
     listRequest.current?.abort();
     const controller = new AbortController();
     listRequest.current = controller;
@@ -105,6 +121,7 @@ export function MappoolReplays({
         return;
       if (!response.ok) throw new Error(data.error);
       setItems(data);
+      setObservedCount({ version: atVersion, count: data.length });
       setLoaded(true);
     } catch (err) {
       if (listRequest.current !== controller || controller.signal.aborted)
@@ -138,6 +155,7 @@ export function MappoolReplays({
     form.set("description", description);
     form.set("expectedVersion", String(version));
     form.set("confirmed", "true");
+    let listVersion = version;
     try {
       const result = await new Promise<{ duplicate: boolean; version: number }>(
         (resolve, reject) => {
@@ -182,6 +200,9 @@ export function MappoolReplays({
         },
       );
       setKnownVersion(result.version);
+      listVersion = result.version;
+      if (!result.duplicate && count !== undefined)
+        setObservedCount({ version: result.version, count: count + 1 });
       setStatus(
         result.duplicate
           ? tr("This file is already attached. No duplicate was created.")
@@ -198,7 +219,7 @@ export function MappoolReplays({
       );
     } finally {
       request.current = null;
-      await load();
+      await load(listVersion);
       refresh();
       setPending(false);
     }
@@ -210,6 +231,7 @@ export function MappoolReplays({
     setPending(true);
     setError("");
     setStatus("");
+    let listVersion = version;
     try {
       const command: ReplayWriteCommand = {
         expectedVersion: version,
@@ -228,6 +250,17 @@ export function MappoolReplays({
       const parsed = deleteReplayWrite.response.safeParse(body);
       if (!parsed.success) throw new Error(failure);
       setKnownVersion(parsed.data.version);
+      listVersion = parsed.data.version;
+      if (parsed.data.removed) {
+        setItems((current) =>
+          current.filter((item) => item.id !== deleting.id),
+        );
+        if (count !== undefined)
+          setObservedCount({
+            version: parsed.data.version,
+            count: Math.max(0, count - 1),
+          });
+      }
       dialog.current?.close();
       setDeleting(null);
       setStatus(tr("Replay deleted."));
@@ -236,7 +269,7 @@ export function MappoolReplays({
       dialog.current?.close();
       setDeleting(null);
     } finally {
-      await load();
+      await load(listVersion);
       refresh();
       setPending(false);
       requestAnimationFrame(() => reload.current?.focus());
@@ -254,9 +287,9 @@ export function MappoolReplays({
         <button
           type="button"
           ref={summary}
-          className={`secondary ${writable ? "mappool-labeled-action" : "mappool-icon-action"}`}
-          aria-label={triggerName}
-          title={triggerName}
+          className={`secondary ${labeledTrigger ? "mappool-labeled-action" : "mappool-icon-action"}`}
+          aria-label={triggerLabel}
+          title={triggerLabel}
           aria-haspopup="dialog"
           aria-expanded={expanded}
           aria-controls={`${id}-panel`}
@@ -267,7 +300,7 @@ export function MappoolReplays({
           }}
         >
           <MappoolActionIcon kind="replays" />
-          {writable && <span>{triggerLabel}</span>}
+          {labeledTrigger && <span>{triggerLabel}</span>}
         </button>,
       )}
       <dialog
@@ -297,37 +330,10 @@ export function MappoolReplays({
             </h3>
             <p id={`${id}-map`} className="small muted">
               {tr("Beatmap ID")} {entry.beatmapId}
+              {count !== undefined && ` · ${count} / ${REPLAY_ENTRY_LIMIT}`}
             </p>
           </div>
-          <button
-            type="button"
-            className="secondary mappool-icon-action"
-            aria-label={tr("Close")}
-            title={tr("Close")}
-            disabled={pending}
-            onClick={() => panel.current?.close()}
-          >
-            <span aria-hidden="true">×</span>
-          </button>
-        </header>
-        <div className="replay-content">
-          {expanded && canPlay && canManageCache && (
-            <MappoolBeatmapCache
-              url={beatmapCacheWrite.path
-                .replace("{edition}", slug)
-                .replace("{entryId}", entry.id)}
-              version={version}
-              disabled={pending}
-              onChanged={(newVersion) => {
-                setKnownVersion(newVersion);
-                refresh();
-              }}
-            />
-          )}
           <div className="replay-toolbar">
-            <span className="small muted">
-              {items.length} / {REPLAY_ENTRY_LIMIT}
-            </span>
             <button
               type="button"
               ref={reload}
@@ -343,7 +349,19 @@ export function MappoolReplays({
             >
               <MappoolActionIcon kind="refresh" />
             </button>
+            <button
+              type="button"
+              className="secondary mappool-icon-action"
+              aria-label={tr("Close")}
+              title={tr("Close")}
+              disabled={pending}
+              onClick={() => panel.current?.close()}
+            >
+              <span aria-hidden="true">×</span>
+            </button>
           </div>
+        </header>
+        <div className="replay-content">
           {loaded && !items.length && (
             <p className="small muted">{tr("No replays attached.")}</p>
           )}
@@ -353,29 +371,28 @@ export function MappoolReplays({
                 <li key={item.id} className="replay-item">
                   <div>
                     <strong className="replay-filename">{item.filename}</strong>
-                    <p className="muted small">
-                      {`${(item.size / 1024).toFixed(1)} KiB`} ·{" "}
-                      {item.uploaderName} (ID {item.uploaderId}) ·{" "}
+                    <p className="muted small replay-item-meta">
+                      <bdi>{item.uploaderName}</bdi> ·{" "}
                       <time dateTime={new Date(item.createdAt).toISOString()}>
-                        {new Date(item.createdAt).toISOString()}
+                        {format.dateTime(new Date(item.createdAt), {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          timeZone: "UTC",
+                          timeZoneName: "short",
+                        })}
                       </time>
+                      {" · "}
+                      {tr("{value0} KiB", {
+                        value0: format.number(item.size / 1024, {
+                          maximumFractionDigits: 1,
+                        }),
+                      })}
                     </p>
                   </div>
                   {item.description && <p>{item.description}</p>}
-                  <p className="small">
-                    {tr("Player name in file")}:{" "}
-                    <bdi>{item.summary.playerName}</bdi> · {item.summary.mode} ·{" "}
-                    {tr("Mods")} {item.summary.mods} ·{" "}
-                    {`stable ${item.summary.version}`}
-                  </p>
-                  <p className="small">
-                    {item.verification === "matched"
-                      ? tr("Beatmap checksum matched")
-                      : tr("Unverified: official beatmap checksum unavailable")}
-                  </p>
-                  <code className="small replay-filename">
-                    MD5 {item.summary.beatmapMd5}
-                  </code>
                   <div className="actions">
                     {canPlay && item.summary.mode === "osu" && (
                       <button
@@ -416,6 +433,29 @@ export function MappoolReplays({
                       </button>
                     )}
                   </div>
+                  <details className="replay-technical small muted">
+                    <summary>
+                      {tr("Replay details")} ·{" "}
+                      <span>
+                        {item.verification === "matched"
+                          ? tr("Beatmap checksum matched")
+                          : tr(
+                              "Unverified: official beatmap checksum unavailable",
+                            )}
+                      </span>
+                    </summary>
+                    <p>
+                      {tr("Player name in file")} ·{" "}
+                      <bdi>{item.summary.playerName}</bdi>
+                      {" · "}
+                      {item.summary.mode} · {tr("Mods")} {item.summary.mods} ·{" "}
+                      {`stable ${item.summary.version}`}
+                    </p>
+                    <p>
+                      <bdi>{item.uploaderName}</bdi> (ID {item.uploaderId}) ·{" "}
+                      <code>MD5 {item.summary.beatmapMd5}</code>
+                    </p>
+                  </details>
                   {expanded && canPlay && selectedReplay === item.id && (
                     <MappoolReplayPlayer
                       key={`${url}/${item.id}`}
@@ -487,6 +527,19 @@ export function MappoolReplays({
                 />
               )}
             </form>
+          )}
+          {expanded && canPlay && canManageCache && (
+            <MappoolBeatmapCache
+              url={beatmapCacheWrite.path
+                .replace("{edition}", slug)
+                .replace("{entryId}", entry.id)}
+              version={version}
+              disabled={pending}
+              onChanged={(newVersion) => {
+                setKnownVersion(newVersion);
+                refresh();
+              }}
+            />
           )}
           {status && <p role="status">{tr(status)}</p>}
           {listError && (

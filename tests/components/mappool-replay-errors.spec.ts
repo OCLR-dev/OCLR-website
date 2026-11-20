@@ -56,11 +56,19 @@ for (const operation of ["upload", "delete"] as const) {
         );
       }
     });
-    await page.goto("/mappool-actions?manage");
-    await page
-      .locator('[data-map-entry="entry-1"]')
-      .getByRole("button", { name: /^Upload replays/ })
-      .click();
+    await page.goto(
+      `/mappool-actions?manage${operation === "delete" ? "&replay-count=1" : ""}`,
+    );
+    const entry = page.locator('[data-map-entry="entry-1"]');
+    const initialLabel =
+      operation === "delete" ? "Saved replays (1)" : "Upload replays";
+    const trigger = entry.getByRole("button", {
+      name: initialLabel,
+      exact: true,
+    });
+    await expect(trigger).toHaveText(initialLabel);
+    expect(reads).toBe(0);
+    await trigger.click();
     const dialog = page.getByRole("dialog", {
       name: "Replays for NM1",
       exact: true,
@@ -101,6 +109,12 @@ for (const operation of ["upload", "delete"] as const) {
     await expect(dialog.locator("strong.replay-filename")).toHaveCount(
       operation === "upload" ? 1 : 0,
     );
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
+    const savedLabel =
+      operation === "upload" ? "Saved replays (1)" : "Upload replays";
+    await expect(
+      entry.getByRole("button", { name: savedLabel, exact: true }),
+    ).toHaveText(savedLabel);
     expect(writes).toBe(2);
   });
 }

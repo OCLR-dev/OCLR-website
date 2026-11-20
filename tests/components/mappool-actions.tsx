@@ -61,6 +61,7 @@ const data: MappoolWorkspace = {
     category: "NM",
     position,
     beatmapId: 100 + position,
+    replayCount: position === 1 && params.has("replay-count") ? 1 : 0,
     source: null,
     metadataFetchedAt: date,
     metadata: {

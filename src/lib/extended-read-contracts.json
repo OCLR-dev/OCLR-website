@@ -6340,6 +6340,12 @@
                 "type": "string",
                 "format": "date-time",
                 "x-oclr-date": true
+              },
+              "replayCount": {
+                "anyOf": [
+                  { "type": "null", "x-oclr-undefined": true },
+                  { "type": "number" }
+                ]
               }
             },
             "required": [

@@ -498,9 +498,12 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
       .update(staffRoles)
       .set({ revokedAt: new Date() })
       .where(eq(staffRoles.userId, outsider.osuId));
-    expect(await mappoolWorkspace(tester, edition.slug)).toHaveProperty(
-      "entries",
-    );
+    expect(
+      (await mappoolWorkspace(tester, edition.slug)).entries,
+    ).toMatchObject([{ id: entryId, replayCount: 2 }]);
+    await expect(
+      mappoolWorkspace(outsider, edition.slug),
+    ).rejects.toMatchObject({ status: 403 });
     const replayItems = await replayList(developer, edition.slug, entryId);
     expect(replayItems).toHaveLength(2);
     const readPath = `${origin}/api/v1/staff/tournaments/${edition.slug}/mappool-entries/${entryId}/replays`;

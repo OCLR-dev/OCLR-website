@@ -182,7 +182,9 @@ test.describe("private replay workflow", () => {
       .set({ showcaseAt: new Date() })
       .where(eq(mappools.id, poolId));
     await page.reload();
-    await page.getByRole("button", { name: /^Upload replays/ }).click();
+    await page
+      .getByRole("button", { name: "Saved replays (1)", exact: true })
+      .click();
     await expect(page.getByLabel("Replay file", { exact: true })).toBeEnabled();
     await expect(
       page.getByRole("button", { name: "Delete replay", exact: true }),
@@ -338,10 +340,10 @@ test.describe("private replay workflow", () => {
           .analyze()
       ).violations,
     ).toEqual([]);
-    await page.locator(".replay-item button").click();
+    await page.locator(".replay-item .actions button").last().click();
     await expect(page.locator(".replay-delete-dialog")).toBeVisible();
     await page.keyboard.press("Escape");
-    await expect(page.locator(".replay-toolbar button")).toBeFocused();
+    await expect(page.locator(".replay-toolbar button").first()).toBeFocused();
 
     expect(
       await db()
