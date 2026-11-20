@@ -89,7 +89,12 @@ cleanup() {
 trap cleanup EXIT
 stage=$(mktemp -d /opt/oclr-backup/.dependencies-XXXXXXXX)
 chown oclr-backup:oclr "$stage"
-git_read archive "$sha" package.json package-lock.json | tar --no-same-owner -xf - -C "$stage"
+dependency_paths=(package.json package-lock.json)
+vendor_path=$(git_read ls-tree --name-only "$sha" -- vendor)
+if [[ -n "$vendor_path" ]]; then
+  dependency_paths+=(vendor)
+fi
+git_read archive "$sha" -- "${dependency_paths[@]}" | tar --no-same-owner -xf - -C "$stage"
 chown -hR oclr-backup:oclr "$stage"
 # Install data only in a separate staging tree. No package lifecycle code runs.
 runuser -u oclr-backup -- env -i HOME=/var/lib/oclr-backup USER=oclr-backup LOGNAME=oclr-backup PATH="$operator_path" NODE_ENV=development npm --prefix "$stage" ci --include=dev --ignore-scripts 9>&-

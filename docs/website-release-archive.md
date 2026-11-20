@@ -11,6 +11,8 @@ beatmap packages. Check build, runtime, verification and licensing references
 when changing either list. Commits with only exclusions use their existing
 policy. Commits with neither list use the full source archive. Updaters from
 before the allowlist continue to apply the exclusions when packaging a new commit.
+The backup operator's separate npm staging directory also includes `vendor/`
+when that directory exists in the selected commit.
 
 | Paths | Purpose | Website archive |
 | --- | --- | --- |
