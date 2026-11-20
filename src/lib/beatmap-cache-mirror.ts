@@ -93,7 +93,12 @@ async function getMirrorResponse(url: URL, signal: AbortSignal) {
         port: url.port || 443,
         servername: url.hostname,
         path: url.pathname + url.search,
-        headers: { Host: url.host, "Accept-Encoding": "identity" },
+        headers: {
+          Host: url.host,
+          "Accept-Encoding": "identity",
+          "User-Agent":
+            "OCLR Beatmap Cache (+https://github.com/OCLR-dev/OCLR-website)",
+        },
         rejectUnauthorized: true,
         agent: false,
         signal,

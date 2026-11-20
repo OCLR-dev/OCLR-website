@@ -629,7 +629,8 @@ The default HTTPS origins are `beatconnect.io`, `dl.sayobot.cn`,
 values to the optional comma-separated `OCLR_BEATMAP_MIRROR_HOSTS` runtime
 setting, including any additional mirror CDN destinations. Each hop resolves
 to public IPv4 and the connection uses the checked address with TLS verified
-against the original name. Sync tries the selected source first and can fall
+against the original name. Requests identify OCLR in the `User-Agent` header.
+Sync tries the selected source first and can fall
 back to the built-in mirrors on an unavailable or rate-limited response. Each
 source allows up to three redirects within one 60-second download budget.
 An attempt can move to the next source after eight seconds without headers or
@@ -638,7 +639,8 @@ Choose osu! official download to open the signed-in osu! website and then
 upload the downloaded `.osz` in the cache dialog.
 
 The app accepts up to 64 MiB per `.osz`, 128 MiB expanded and 2,048 ZIP
-entries. The cache allows 4 GiB and 1,024 files, including orphaned files.
+entries. A mirror response exceeding the 64 MiB download limit returns HTTP
+413. The cache allows 4 GiB and 1,024 files, including orphaned files.
 The existing Python 3 installation validates archives with its standard
 library. For manual uploads, use a 65 MiB Nginx body limit on the
 `/api/admin/tournaments/<edition>/mappools/entries/<entryId>/beatmap-cache`

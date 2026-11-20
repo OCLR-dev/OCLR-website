@@ -63,7 +63,11 @@ describe("beatmap mirror transport", () => {
       hostname: "93.184.216.34",
       port: "25225",
       servername: "tc1.sayobot.cn",
-      headers: { Host: "tc1.sayobot.cn:25225" },
+      headers: {
+        Host: "tc1.sayobot.cn:25225",
+        "User-Agent":
+          "OCLR Beatmap Cache (+https://github.com/OCLR-dev/OCLR-website)",
+      },
       rejectUnauthorized: true,
     });
     expect(
@@ -103,6 +107,9 @@ describe("beatmap mirror transport", () => {
       "dl.sayobot.cn",
       "catboy.best",
     ]);
+    expect(request.mock.calls[2][0].headers["User-Agent"]).toBe(
+      "OCLR Beatmap Cache (+https://github.com/OCLR-dev/OCLR-website)",
+    );
     expect(
       new Set(request.mock.calls.map(([options]) => options.signal)).size,
     ).toBe(1);
@@ -151,10 +158,16 @@ describe("beatmap mirror transport", () => {
     respond(200, { "content-length": String(65 * 1024 ** 2) });
     await expect(
       downloadBeatmapMirror(origin, new AbortController().signal),
-    ).rejects.toMatchObject({ status: 413 });
+    ).rejects.toMatchObject({
+      status: 413,
+      message: "Choose an .osz beatmap package up to 64 MiB.",
+    });
     respond(206, {});
     await expect(
       downloadBeatmapMirror(origin, new AbortController().signal),
-    ).rejects.toMatchObject({ status: 502 });
+    ).rejects.toMatchObject({
+      status: 502,
+      message: "The mirror did not return a beatmap package.",
+    });
   });
 });
