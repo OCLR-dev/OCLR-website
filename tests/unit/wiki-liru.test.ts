@@ -136,9 +136,9 @@ it("links the Liru gallery and keeps retired portraits available for collections
     false,
   );
   expect(profile.related).toEqual({ href: "/gallery", title: gallery.title });
-  expect(gallery.gallery).toHaveLength(242);
+  expect(gallery.gallery).toHaveLength(269);
   const active = new Set(gallery.gallery.map(({ src }) => src));
-  expect(active.size).toBe(242);
+  expect(active.size).toBe(269);
   expect(
     gallery.collection
       .filter(({ src }) => !active.has(src))

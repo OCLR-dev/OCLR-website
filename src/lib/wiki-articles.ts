@@ -712,6 +712,33 @@ const liruRarities: Partial<Record<string, WikiCardRarity>> = {
   "lolita-astrolabe-raised": "SSR",
   "lolita-circus-opening": "SSR",
   "lolita-snow-queen-scepter": "UR",
+  "lolita-aurora-observer": "UR",
+  "lolita-moss-terrarium": "SR",
+  "lolita-shadow-puppeteer": "SSR",
+  "lolita-retro-table-tennis": "R",
+  "lolita-raspberry-baker": "SR",
+  "lolita-miniature-architect": "SR",
+  "lolita-equestrian-rosette": "SR",
+  "lolita-lighthouse-keeper": "SSR",
+  "lolita-pipa-musician": "SSR",
+  "lolita-trilobite-fossil": "SR",
+  "lolita-tuberose-perfumer": "SR",
+  "lolita-goldfish-festival": "SSR",
+  "lolita-wool-knitter": "R",
+  "lolita-blue-morpho": "UR",
+  "lolita-rail-conductor": "SR",
+  "lolita-mint-roller": "R",
+  "lolita-kintsugi": "SSR",
+  "lolita-cloud-aviator": "SR",
+  "lolita-travel-photographer": "R",
+  "lolita-chess-queen": "SSR",
+  "lolita-stained-glass-diamond": "SSR",
+  "lolita-moon-ballet": "UR",
+  "lolita-orange-blossom": "R",
+  "lolita-dove-post": "SR",
+  "lolita-vinyl-dress": "SR",
+  "lolita-honey-tea": "SR",
+  "lolita-hydrangea-parasol": "SSR",
 };
 
 export function liruGallery(tr: AppTranslator): {
@@ -2028,6 +2055,171 @@ export function liruGallery(tr: AppTranslator): {
       "lolita-snow-queen-scepter",
       tr("Snow crystal scepter"),
       tr("Liru in a pale blue fur-trimmed cape with a snowflake scepter."),
+    ],
+    [
+      "lolita-aurora-observer",
+      tr("Aurora compass"),
+      tr("Liru in a snowflake dress with aurora stripes and a brass compass."),
+    ],
+    [
+      "lolita-moss-terrarium",
+      tr("Moss terrarium"),
+      tr("Liru in an olive dress with a glass dome of moss and ferns."),
+    ],
+    [
+      "lolita-shadow-puppeteer",
+      tr("Phoenix shadow puppet"),
+      tr("Liru in a red and black peony dress with a golden phoenix puppet."),
+    ],
+    [
+      "lolita-retro-table-tennis",
+      tr("Retro table tennis"),
+      tr(
+        "Liru in a green dress with a red table tennis paddle and a white ball.",
+      ),
+    ],
+    [
+      "lolita-raspberry-baker",
+      tr("Raspberry tart"),
+      tr("Liru in a berry red dress with a cream apron and a raspberry tart."),
+    ],
+    [
+      "lolita-miniature-architect",
+      tr("Miniature house"),
+      tr("Liru in a blue dress with blueprint patterns and a model house."),
+    ],
+    [
+      "lolita-equestrian-rosette",
+      tr("Horseshoe rosette"),
+      tr(
+        "Liru in a brown riding outfit with a gold horseshoe on a red rosette.",
+      ),
+    ],
+    [
+      "lolita-lighthouse-keeper",
+      tr("Lighthouse lantern"),
+      tr(
+        "Liru in a wave patterned dress with lighthouse badges and a lantern.",
+      ),
+    ],
+    [
+      "lolita-pipa-musician",
+      tr("Plum blossom pipa"),
+      tr("Liru in a dark teal dress with plum blossom embroidery and a pipa."),
+    ],
+    [
+      "lolita-trilobite-fossil",
+      tr("Trilobite fossil"),
+      tr("Liru in a khaki outfit with fern motifs and a trilobite fossil."),
+    ],
+    [
+      "lolita-tuberose-perfumer",
+      tr("Tuberose perfume"),
+      tr(
+        "Liru in a purple dress with white tuberoses and a glass perfume bottle.",
+      ),
+    ],
+    [
+      "lolita-goldfish-festival",
+      tr("Goldfish festival"),
+      tr(
+        "Liru in an indigo festival dress with goldfish motifs and a matching pouch.",
+      ),
+    ],
+    [
+      "lolita-wool-knitter",
+      tr("Coral yarn"),
+      tr("Liru in a cream cable knit cape with a skein of coral yarn."),
+    ],
+    [
+      "lolita-blue-morpho",
+      tr("Blue morpho"),
+      tr("Liru in a black dress with iridescent blue butterfly wing panels."),
+    ],
+    [
+      "lolita-rail-conductor",
+      tr("Vintage rail conductor"),
+      tr(
+        "Liru in a burgundy uniform with gold rail motifs and a paper ticket.",
+      ),
+    ],
+    [
+      "lolita-mint-roller",
+      tr("Mint roller skates"),
+      tr("Liru in a mint dress with a coral bow and matching roller skates."),
+    ],
+    [
+      "lolita-kintsugi",
+      tr("Kintsugi tea bowl"),
+      tr("Liru in a plum dress with gold seams and a matching kintsugi bowl."),
+    ],
+    [
+      "lolita-cloud-aviator",
+      tr("Paper plane aviator"),
+      tr(
+        "Liru in a blue flight jacket with a cloud motif skirt and a paper plane.",
+      ),
+    ],
+    [
+      "lolita-travel-photographer",
+      tr("Travel camera"),
+      tr("Liru in an olive travel outfit with a folding bellows camera."),
+    ],
+    [
+      "lolita-chess-queen",
+      tr("Chessboard queen"),
+      tr(
+        "Liru in a black and white dress with a checkered hem and a white queen piece.",
+      ),
+    ],
+    [
+      "lolita-stained-glass-diamond",
+      tr("Diamond stained glass"),
+      tr(
+        "Liru in a jewel toned dress with stained glass motifs and a diamond panel.",
+      ),
+    ],
+    [
+      "lolita-moon-ballet",
+      tr("Moonlit ballet"),
+      tr(
+        "Liru in lavender tulle with crescent motifs, pink bows and pearl strands.",
+      ),
+    ],
+    [
+      "lolita-orange-blossom",
+      tr("Orange blossom marmalade"),
+      tr(
+        "Liru in an orange blossom dress with a cream apron and a jar of marmalade.",
+      ),
+    ],
+    [
+      "lolita-dove-post",
+      tr("Dove post"),
+      tr(
+        "Liru in a blue postal uniform with dove motifs and a wax sealed envelope.",
+      ),
+    ],
+    [
+      "lolita-vinyl-dress",
+      tr("Vinyl dress"),
+      tr(
+        "Liru in a red dress with record motifs and a vinyl with a mint label.",
+      ),
+    ],
+    [
+      "lolita-honey-tea",
+      tr("Clover honey tea"),
+      tr(
+        "Liru in a honey yellow dress with clover embroidery and a matching teacup.",
+      ),
+    ],
+    [
+      "lolita-hydrangea-parasol",
+      tr("Hydrangea parasol"),
+      tr(
+        "Liru in a blue violet hydrangea dress with a sheer cape and a matching parasol.",
+      ),
     ],
   ];
   // Saved draws still refer to these images by their original URLs.
