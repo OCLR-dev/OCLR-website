@@ -203,7 +203,7 @@ export async function downloadBeatmapMirror(
   abort: AbortSignal,
   alternatives: readonly URL[] = [],
 ) {
-  const signal = AbortSignal.any([AbortSignal.timeout(30_000), abort]);
+  const signal = AbortSignal.any([AbortSignal.timeout(60_000), abort]);
   const sources = [url, ...alternatives];
   for (const [index, source] of sources.entries()) {
     try {
