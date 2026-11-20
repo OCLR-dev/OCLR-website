@@ -25,6 +25,7 @@ import { notifyReplayListChanged } from "@/lib/replay-list-updates";
 import { REPLAY_MAX_BYTES, REPLAY_ENTRY_LIMIT } from "@/lib/replay-model";
 import {
   deleteReplayWrite,
+  preferredReplayWrite,
   uploadReplayWrite,
   type ReplayWriteCommand,
 } from "@/lib/replay-write-contract";
@@ -167,6 +168,50 @@ export function MappoolReplays({
         listRequest.current = null;
         setReloading(false);
       }
+    }
+  }
+  async function changePreference(item: ReplayItem) {
+    if (pending || !writable) return;
+    const failure = tr("Could not update the preferred replay. Try again.");
+    setOperation(null);
+    setPending(true);
+    setError("");
+    setStatus("");
+    let listVersion = version;
+    try {
+      const response = await fetch(`${url}/${item.id}`, {
+        method: preferredReplayWrite.method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          expectedVersion: version,
+          confirmed: true,
+          preferred: !item.preferred,
+        }),
+      });
+      const body: unknown = await response.json();
+      if (!response.ok) {
+        const error = preferredReplayWrite.error.safeParse(body);
+        throw new Error(error.success ? error.data.error : failure);
+      }
+      const receipt = preferredReplayWrite.response.safeParse(body);
+      if (!receipt.success) throw new Error(failure);
+      const { preferredReplayId, version: savedVersion } = receipt.data;
+      listVersion = savedVersion;
+      setKnownVersion(savedVersion);
+      setItems((current) =>
+        current.map((replay) => ({
+          ...replay,
+          preferred: replay.id === preferredReplayId,
+        })),
+      );
+      notifyReplayListChanged(url);
+      setStatus(tr("Preferred replay updated."));
+    } catch (error) {
+      setError(error instanceof Error ? error.message : failure);
+    } finally {
+      await load(listVersion);
+      refresh();
+      setPending(false);
     }
   }
   async function upload(event: FormEvent) {
@@ -486,6 +531,9 @@ export function MappoolReplays({
                 <li key={item.id} className="replay-item">
                   <div>
                     <strong className="replay-filename">{item.filename}</strong>
+                    {item.preferred && (
+                      <p className="small muted">{tr("Preferred replay")}</p>
+                    )}
                     <p className="muted small replay-item-meta">
                       <bdi>{item.uploaderName}</bdi> ·{" "}
                       <time dateTime={new Date(item.createdAt).toISOString()}>
@@ -550,6 +598,18 @@ export function MappoolReplays({
                     <a className="button secondary" href={`${url}/${item.id}`}>
                       {tr("Download replay")}
                     </a>
+                    {writable && item.summary.mode === "osu" && (
+                      <button
+                        type="button"
+                        className="secondary"
+                        disabled={pending}
+                        onClick={() => void changePreference(item)}
+                      >
+                        {item.preferred
+                          ? tr("Clear preferred replay")
+                          : tr("Set as preferred replay")}
+                      </button>
+                    )}
                     {writable && (
                       <button
                         type="button"

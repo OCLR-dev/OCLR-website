@@ -1105,6 +1105,7 @@ export const mappoolReplays = pgTable(
     filename: text("filename").notNull(),
     size: integer("size").notNull(),
     description: text("description").notNull().default(""),
+    preferred: boolean("preferred").notNull().default(false),
     uploaderId: bigint("uploader_id", { mode: "number" }).notNull(),
     uploaderName: text("uploader_name").notNull(),
     summary: jsonb("summary")
@@ -1114,7 +1115,12 @@ export const mappoolReplays = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (t) => [unique("replay_entry_sha_unique").on(t.entryId, t.sha256)],
+  (t) => [
+    unique("replay_entry_sha_unique").on(t.entryId, t.sha256),
+    uniqueIndex("replay_entry_preferred_unique")
+      .on(t.entryId)
+      .where(sql`${t.preferred}`),
+  ],
 );
 
 export const mappoolEvents = pgTable(

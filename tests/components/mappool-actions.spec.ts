@@ -263,11 +263,12 @@ test("the map opens a player dialog with controls in its frame", async ({
     await route.fulfill({
       json: [
         ["Keys", "mania"],
-        ["First", "osu"],
         ["Second", "osu"],
+        ["First", "osu"],
       ].map(([name, mode]) => ({
         id: name,
         filename: `${name}.osr`,
+        preferred: name === "First",
         summary: { mode, beatmapMd5: "a".repeat(32) },
       })),
     });
@@ -321,8 +322,8 @@ test("the map opens a player dialog with controls in its frame", async ({
   const files = viewer.getByRole("combobox", { name: "Replay file" });
   await expect(files.getByRole("option")).toHaveText([
     "Keys.osr",
-    "First.osr",
     "Second.osr",
+    "First.osr",
   ]);
   await expect(files).toHaveValue("First");
   await files.selectOption("Keys");

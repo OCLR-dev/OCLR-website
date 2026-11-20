@@ -792,6 +792,13 @@
       "when": 1795159339984,
       "tag": "0112_mappool_beatmap_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 113,
+      "version": "7",
+      "when": 1795183467500,
+      "tag": "0113_mappool_preferred_replay",
+      "breakpoints": true
     }
   ]
 }

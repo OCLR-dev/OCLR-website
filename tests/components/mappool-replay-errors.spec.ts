@@ -29,6 +29,44 @@ const file = {
   buffer: Buffer.from("synthetic mock upload"),
 };
 
+test("saved replays can set and clear the preferred replay", async ({
+  page,
+}) => {
+  const first = { ...replay, id: "0a000000-0000-4000-8000-000000000001" };
+  const second = {
+    ...replay,
+    id: "0a000000-0000-4000-8000-000000000002",
+    filename: "Second.osr",
+  };
+  let preferredReplayId: string | null = null;
+  let version = 7;
+  await page.route("https://assets.ppy.sh/**", (route) => route.abort());
+  await page.route("**/entries/entry-1/replays", (route) =>
+    route.fulfill({
+      json: [first, second].map((item) => ({
+        ...item,
+        preferred: item.id === preferredReplayId,
+      })),
+    }),
+  );
+  await page.route(`**/replays/${second.id}`, (route) => {
+    const { preferred, ...confirmation } = route.request().postDataJSON();
+    expect(route.request().method()).toBe("PATCH");
+    expect(confirmation).toEqual({ confirmed: true, expectedVersion: version });
+    preferredReplayId = preferred ? second.id : null;
+    return route.fulfill({ json: { preferredReplayId, version: ++version } });
+  });
+  await page.goto("/mappool-actions?manage=1&playback=1");
+  await page.getByRole("button", { name: "Saved replays (2)" }).click();
+  const dialog = page.getByRole("dialog", { name: "Replays for NM1" });
+  const row = dialog.getByRole("listitem").filter({ hasText: second.filename });
+  const badge = row.getByText("Preferred replay", { exact: true });
+  await row.getByRole("button", { name: "Set as preferred replay" }).click();
+  await expect(badge).toBeVisible();
+  await row.getByRole("button", { name: "Clear preferred replay" }).click();
+  await expect(badge).toHaveCount(0);
+});
+
 test("the open player follows attachment changes from another tab and keeps a surviving selection", async ({
   context,
   page,

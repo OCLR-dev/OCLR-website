@@ -259,6 +259,14 @@
     "route": "/api/admin/tournaments/{edition}/mappools/entries/{entryId}/replays/{replayId}",
     "source": "src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/route.ts",
     "methods": {
+      "PATCH": {
+        "status": "documented",
+        "operationId": "setPreferredMappoolReplay",
+        "access": "browser",
+        "consumers": [
+          "src/components/mappool-replays.tsx"
+        ]
+      },
       "DELETE": {
         "status": "documented",
         "operationId": "deleteMappoolReplay",

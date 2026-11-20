@@ -32,12 +32,6 @@ const showcaseReplaysExample = {
             playerName: "Showcase A",
             mods: 8,
           },
-          {
-            replayId: "e9ad1565-b323-4eba-8572-54a6258d05d2",
-            filename: "HD1-B.osr",
-            playerName: "Showcase B",
-            mods: 8,
-          },
         ],
       },
     ],
@@ -282,14 +276,14 @@ export function readApiSpecification() {
       path: "/{poolId}/replays",
       versionRequired: true,
       description:
-        "List replays by stable entry ID for every slot in this Showcase pool version, including slots without replays. Requires a separate replay grant.",
+        "List the preferred replay for each slot in this Showcase pool version. Slots without a preferred replay have an empty array. Requires a separate replay grant.",
     },
     {
       operationId: "showcaseReplayFile",
       path: "/{poolId}/replays/{replayId}",
       versionRequired: true,
       description:
-        "Download the original private .osr attachment for this Showcase pool version. Requires a separate replay grant.",
+        "Download a slot's preferred original private .osr for this Showcase pool version. Unselected attachments are unavailable. Requires a separate replay grant.",
       contentTypes: ["application/octet-stream"],
     },
   ];

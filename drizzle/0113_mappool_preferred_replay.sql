@@ -1,0 +1,2 @@
+ALTER TABLE "mappool_replays" ADD COLUMN "preferred" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "replay_entry_preferred_unique" ON "mappool_replays" USING btree ("entry_id") WHERE "mappool_replays"."preferred";

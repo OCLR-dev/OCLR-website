@@ -57,9 +57,15 @@ import { edition } from "../fixtures/edition";
 import { assertTestDatabase } from "../database";
 import { syntheticReplay, replayChecksum } from "../fixtures/replay";
 import { fetchBeatmap } from "../../src/lib/osu-beatmaps";
-import { POST as postReplay } from "../../src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/route";
+import {
+  GET as getReplays,
+  POST as postReplay,
+} from "../../src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/route";
 import { GET as playbackAsset } from "../../src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/playback/[asset]/route";
-import { DELETE as removeReplay } from "../../src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/route";
+import {
+  DELETE as removeReplay,
+  PATCH as patchPreference,
+} from "../../src/app/api/admin/tournaments/[edition]/mappools/entries/[entryId]/replays/[replayId]/route";
 import {
   deleteReplayWrite,
   uploadReplayWrite,
@@ -199,6 +205,68 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
     await closeDb();
     await rm(root, { recursive: true, force: true });
     vi.unstubAllEnvs();
+  });
+  it("sets, replaces, and clears one preferred replay with versioned staff authorization", async () => {
+    const first = await upload();
+    const second = await upload(tester, syntheticReplay({ player: "Second" }));
+    const path = `${origin}/api/admin/tournaments/${edition.slug}/mappools/entries/${entryId}/replays`;
+    const params = { edition: edition.slug, entryId };
+    const prefer = (
+      replayId: string,
+      expectedVersion: number,
+      preferred = true,
+    ) =>
+      patchPreference(
+        new Request(`${path}/${replayId}`, {
+          method: "PATCH",
+          headers: { Origin: origin, "Content-Type": "application/json" },
+          body: JSON.stringify({ confirmed: true, expectedVersion, preferred }),
+        }),
+        { params: Promise.resolve({ ...params, replayId }) },
+      );
+    vi.mocked(requireUser).mockResolvedValueOnce(mapper);
+    expect((await prefer(first.id, second.version)).status).toBe(403);
+    expect((await prefer(randomUUID(), second.version)).status).toBe(404);
+    const [a, b] = await Promise.all([
+      prefer(first.id, second.version),
+      prefer(second.id, second.version),
+    ]);
+    expect([a.status, b.status].sort()).toEqual([200, 409]);
+    const preferred = a.ok ? first.id : second.id;
+    const other = a.ok ? second.id : first.id;
+    const receipt = {
+      preferredReplayId: preferred,
+      version: second.version + 1,
+    };
+    expect(await (a.ok ? a : b).json()).toEqual(receipt);
+    expect(await (await prefer(preferred, second.version)).json()).toEqual(
+      receipt,
+    );
+    expect(await (await prefer(other, receipt.version)).json()).toEqual({
+      preferredReplayId: other,
+      version: receipt.version + 1,
+    });
+    const list = await getReplays(new Request(path), {
+      params: Promise.resolve(params),
+    });
+    expect(list.status).toBe(200);
+    const items: { id: string; preferred: boolean }[] = await list.json();
+    expect(
+      items.filter((item) => item.preferred).map((item) => item.id),
+    ).toEqual([other]);
+    expect(
+      await (await prefer(other, receipt.version + 1, false)).json(),
+    ).toEqual({
+      preferredReplayId: null,
+      version: receipt.version + 2,
+    });
+    const events = await db()
+      .select()
+      .from(mappoolEvents)
+      .where(eq(mappoolEvents.poolId, poolId));
+    expect(
+      events.filter((event) => event.action === "replay_preference"),
+    ).toHaveLength(3);
   });
   it("serves playback assets only for the authorized replay and entry", async () => {
     const { id: replayId } = await upload();

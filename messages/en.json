@@ -4931,6 +4931,11 @@
     "maa25b7d04192": "Download the .osz on osu!, then upload it here.",
     "m21da162c6274": "The mirror is rate limited. Try another mirror or upload an .osz.",
     "md2fd3284e6c8": "Full combo (FC)",
-    "me7ca2960fabd": "Replay score analysis unavailable."
+    "me7ca2960fabd": "Replay score analysis unavailable.",
+    "mea9f1b732277": "Could not update the preferred replay. Try again.",
+    "m13d5ea957b07": "Preferred replay updated.",
+    "mf84325775f51": "Preferred replay",
+    "m9e375a1d933c": "Clear preferred replay",
+    "m32f8b4f18a25": "Set as preferred replay"
   }
 }

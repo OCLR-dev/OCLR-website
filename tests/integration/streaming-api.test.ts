@@ -49,6 +49,7 @@ import { nextStreamingRead } from "../../src/lib/streaming-read";
 import { mappoolCommand } from "../../src/lib/mappools";
 import {
   deleteMappoolReplay,
+  setPreferredMappoolReplay,
   uploadMappoolReplay,
 } from "../../src/lib/mappool-replays";
 import * as replayStorage from "../../src/lib/replay-storage";
@@ -999,7 +1000,17 @@ describe.skipIf(!url)("streaming read channel #540", () => {
         secondBytes,
         "B.osr",
       );
-      const version = secondReplay.version;
+      const { version } = await setPreferredMappoolReplay(
+        showcaseAdmin,
+        slug,
+        many.id,
+        firstReplay.id,
+        {
+          confirmed: true,
+          expectedVersion: secondReplay.version,
+          preferred: true,
+        },
+      );
       await expect(replayAccess(pool.id, version)).rejects.toMatchObject({
         status: 409,
       });
@@ -1034,23 +1045,19 @@ describe.skipIf(!url)("streaming read channel #540", () => {
           {
             entryId: one.id,
             slot: "NM2",
-            replays: [{ replayId: single.id, ...replayA }],
+            replays: [],
           },
           {
             entryId: many.id,
             slot: "NM3",
-            replays: [
-              { replayId: firstReplay.id, ...replayA },
-              {
-                replayId: secondReplay.id,
-                filename: "B.osr",
-                playerName: "Replay B",
-                mods: 0,
-              },
-            ],
+            replays: [{ replayId: firstReplay.id, ...replayA }],
           },
         ],
       });
+      for (const replayId of [single.id, secondReplay.id])
+        expect((await downloadReplay(pool.id, replayId, version)).status).toBe(
+          404,
+        );
       const file = await downloadReplay(pool.id, firstReplay.id, version);
       expect(file.status).toBe(200);
       expect(file.headers.get("Content-Type")).toBe("application/octet-stream");
@@ -1152,7 +1159,7 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       await expectDenied(version, added.id, 409, "SHOWCASE_VERSION_CHANGED");
       expect(
         (await downloadReplay(pool.id, added.id, added.version)).status,
-      ).toBe(200);
+      ).toBe(404);
       const deleted = await deleteMappoolReplay(
         showcaseAdmin,
         slug,
@@ -1170,7 +1177,13 @@ describe.skipIf(!url)("streaming read channel #540", () => {
       expect(
         (await downloadReplay(pool.id, firstReplay.id, deleted.version)).status,
       ).toBe(404);
-      expect((await listReplays(pool.id, deleted.version)).status).toBe(200);
+      const afterDelete = await listReplays(pool.id, deleted.version);
+      expect(afterDelete.status).toBe(200);
+      expect((await afterDelete.json()).data.entries).toEqual([
+        { entryId: empty.id, slot: "NM1", replays: [] },
+        { entryId: one.id, slot: "NM2", replays: [] },
+        { entryId: many.id, slot: "NM3", replays: [] },
+      ]);
 
       await lock(pool.id, deleted.version, false);
       await expectDenied(deleted.version, secondReplay.id, 404);

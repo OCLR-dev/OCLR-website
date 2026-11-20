@@ -87,6 +87,32 @@ export const deleteReplayWrite = {
   errors,
 } as const satisfies WriteApiOperation;
 
+export const preferredReplayWrite = {
+  ...transport,
+  id: "setPreferredMappoolReplay",
+  path: deleteReplayWrite.path,
+  method: "PATCH",
+  parameters: deleteReplayWrite.parameters,
+  maxBodyBytes: deleteReplayWrite.maxBodyBytes,
+  request: replayWriteCommand.extend({ preferred: z.boolean() }).strict(),
+  summary: "Set or clear a mappool entry's preferred replay",
+  description:
+    "Requires edition replay management permission. Only stable osu!standard replays can be preferred. Setting a new preference replaces the previous one. Confirm the current pool version. A repeated request with no change returns the current preference and version.",
+  successDescription:
+    "The entry's preferred replay ID and current pool version.",
+  response: z.object({ preferredReplayId: z.uuid().nullable(), version }),
+  errors: {
+    ...errors,
+    400: "Missing or invalid confirmation, version, or preference.",
+    413: "Request body exceeds its byte limit.",
+    415: "Expected a JSON request body.",
+    422: "The requested replay does not support online playback.",
+  },
+} as const satisfies WriteApiOperation;
+
 export type ReplayUploadReceipt = z.infer<typeof uploadReplayWrite.response>;
 export type ReplayDeleteReceipt = z.infer<typeof deleteReplayWrite.response>;
+export type PreferredReplayReceipt = z.infer<
+  typeof preferredReplayWrite.response
+>;
 export type ReplayWriteCommand = z.input<typeof replayWriteCommand>;

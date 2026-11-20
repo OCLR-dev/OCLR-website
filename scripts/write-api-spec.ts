@@ -108,6 +108,7 @@ import {
 } from "../src/lib/registration-write-contract";
 import {
   deleteReplayWrite,
+  preferredReplayWrite,
   uploadReplayWrite,
 } from "../src/lib/replay-write-contract";
 import {
@@ -133,6 +134,7 @@ const operations: readonly WriteApiOperation[] = [
   beatmapCacheWrite,
   uploadReplayWrite,
   deleteReplayWrite,
+  preferredReplayWrite,
   refereeRelayWrite,
   createStreamingAccessWrite,
   revokeStreamingAccessWrite,

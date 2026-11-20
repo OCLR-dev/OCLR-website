@@ -28,6 +28,9 @@ export function MappoolReplayViewer({
   const [selectedId, setSelectedId] = useState("");
   const selected = Array.isArray(replays)
     ? (replays.find((replay) => replay.id === selectedId) ??
+      replays.find(
+        (replay) => replay.preferred && replay.summary.mode === "osu",
+      ) ??
       replays.find((replay) => replay.summary.mode === "osu") ??
       replays[0])
     : undefined;

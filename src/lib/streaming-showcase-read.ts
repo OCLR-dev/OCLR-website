@@ -390,35 +390,29 @@ export async function streamingShowcaseReplays(
           .from(mappoolEntries)
           .leftJoin(
             mappoolReplays,
-            eq(mappoolReplays.entryId, mappoolEntries.id),
+            and(
+              eq(mappoolReplays.entryId, mappoolEntries.id),
+              eq(mappoolReplays.preferred, true),
+            ),
           )
           .where(eq(mappoolEntries.poolId, poolId))
-          .orderBy(
-            mappoolEntries.category,
-            mappoolEntries.position,
-            mappoolReplays.createdAt,
-            mappoolReplays.id,
-          );
-        type Entry = z.infer<typeof showcaseReplaysSchema>["entries"][number];
-        const entries = new Map<string, Entry>();
-        for (const { entryId, category, position, replay } of rows) {
-          let entry = entries.get(entryId);
-          if (!entry) {
-            entry = { entryId, slot: `${category}${position}`, replays: [] };
-            entries.set(entryId, entry);
-          }
-          if (replay) {
-            const { playerName, mods } = replay.summary;
-            entry.replays.push({
-              replayId: replay.replayId,
-              filename: replay.filename,
-              playerName,
-              mods,
-            });
-          }
-        }
+          .orderBy(mappoolEntries.category, mappoolEntries.position);
+        const entries = rows.map(({ entryId, category, position, replay }) => ({
+          entryId,
+          slot: `${category}${position}`,
+          replays: replay
+            ? [
+                {
+                  replayId: replay.replayId,
+                  filename: replay.filename,
+                  playerName: replay.summary.playerName,
+                  mods: replay.summary.mods,
+                },
+              ]
+            : [],
+        }));
         return {
-          data: { poolId: pool.id, version, entries: [...entries.values()] },
+          data: { poolId: pool.id, version, entries },
         };
       },
       {
@@ -457,7 +451,11 @@ async function authorizedReplay(
       .from(mappoolReplays)
       .innerJoin(mappoolEntries, eq(mappoolEntries.id, mappoolReplays.entryId))
       .where(
-        and(eq(mappoolEntries.poolId, poolId), eq(mappoolReplays.id, replayId)),
+        and(
+          eq(mappoolEntries.poolId, poolId),
+          eq(mappoolReplays.id, replayId),
+          eq(mappoolReplays.preferred, true),
+        ),
       );
     if (!replay) throw notFound();
     return replay;

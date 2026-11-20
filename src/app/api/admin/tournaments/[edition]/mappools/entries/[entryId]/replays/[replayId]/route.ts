@@ -3,10 +3,14 @@ import { requireUser } from "@/lib/auth/user";
 import { remoteMode } from "@/lib/data-source";
 import { frontendMedia } from "@/lib/frontend-media";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
-import { deleteReplayWrite } from "@/lib/replay-write-contract";
+import {
+  deleteReplayWrite,
+  preferredReplayWrite,
+} from "@/lib/replay-write-contract";
 import {
   deleteMappoolReplay,
   downloadMappoolReplay,
+  setPreferredMappoolReplay,
 } from "@/lib/mappool-replays";
 type Context = {
   params: Promise<{ edition: string; entryId: string; replayId: string }>;
@@ -65,4 +69,25 @@ export async function DELETE(request: Request, context: Context) {
 
 export async function GET(...args: Parameters<typeof readGET>) {
   return withFrontendReadRequest(() => readGET(...args));
+}
+
+export async function PATCH(request: Request, context: Context) {
+  try {
+    requireSameOrigin(request);
+    const user = await requireUser();
+    const { edition, entryId, replayId } = await context.params;
+    const result = await setPreferredMappoolReplay(
+      user,
+      edition,
+      entryId,
+      replayId,
+      await readJson(request, preferredReplayWrite.maxBodyBytes),
+    );
+    return Response.json(result, {
+      status: preferredReplayWrite.successStatus,
+      headers: { "Cache-Control": "private, no-store" },
+    });
+  } catch (error) {
+    return apiError(error);
+  }
 }

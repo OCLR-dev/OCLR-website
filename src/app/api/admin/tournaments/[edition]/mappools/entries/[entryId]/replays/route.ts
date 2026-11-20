@@ -14,9 +14,14 @@ async function readGET(_request: Request, context: Context) {
   try {
     const user = await requireUser(),
       { edition, entryId } = await context.params;
-    return Response.json(await replayList(user, edition, entryId), {
-      headers: { "Cache-Control": "private, no-store" },
-    });
+    return Response.json(
+      await replayList(user, edition, entryId, {
+        includePreference: true,
+      }),
+      {
+        headers: { "Cache-Control": "private, no-store" },
+      },
+    );
   } catch (error) {
     return apiError(error);
   }

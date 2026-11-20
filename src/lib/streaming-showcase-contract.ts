@@ -41,14 +41,16 @@ export const showcaseReplaysSchema = z.strictObject({
     z.strictObject({
       entryId: z.uuid(),
       slot: z.string(),
-      replays: z.array(
-        z.strictObject({
-          replayId: z.uuid(),
-          filename: z.string(),
-          playerName: z.string(),
-          mods: z.number().int().nonnegative(),
-        }),
-      ),
+      replays: z
+        .array(
+          z.strictObject({
+            replayId: z.uuid(),
+            filename: z.string(),
+            playerName: z.string(),
+            mods: z.number().int().nonnegative(),
+          }),
+        )
+        .max(1),
     }),
   ),
 });

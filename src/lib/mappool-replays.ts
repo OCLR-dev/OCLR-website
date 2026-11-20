@@ -10,7 +10,11 @@ import { and, eq, sql } from "drizzle-orm";
 import { createHash, randomUUID } from "node:crypto";
 import { assertOperationalEdition } from "./archive-guard";
 import type { User } from "./auth/sessions";
-import { assertCapability, assertReadCapability } from "./auth/staff";
+import {
+  assertCapability,
+  assertReadCapability,
+  assertUserWriteChannel,
+} from "./auth/staff";
 import { remoteMode } from "./data-source";
 import type { ExplicitReadData } from "./explicit-read-contracts";
 import { assertRemoteSubject, frontendResource } from "./frontend-resource";
@@ -24,8 +28,10 @@ import { parseReplay, readSavedReplaySummary } from "./replay-parser";
 import { cachedBeatmapForReplay } from "./mappool-beatmap-cache";
 import {
   deleteReplayWrite,
+  preferredReplayWrite,
   replayDescription,
   replayWriteCommand,
+  type PreferredReplayReceipt,
   type ReplayDeleteReceipt,
   type ReplayUploadReceipt,
 } from "./replay-write-contract";
@@ -36,6 +42,7 @@ import {
 } from "./replay-playback-storage";
 type Reader = Pick<ReturnType<typeof db>, "select">;
 type ReplayList = ExplicitReadData<"replayList">;
+export type ReplayItem = ReplayList[number] & { preferred?: boolean };
 function validId(id: string) {
   if (!deleteReplayWrite.parameters.replayId.safeParse(id).success)
     throw new HttpError(404, "Replay target not found.");
@@ -74,7 +81,8 @@ async function databaseReplayList(
   actor: User,
   slug: string,
   entryId: string,
-): Promise<ReplayList> {
+  includePreference: boolean,
+): Promise<ReplayItem[]> {
   const { entry } = await target(actor, slug, entryId);
   const rows = await db()
     .select({
@@ -84,6 +92,7 @@ async function databaseReplayList(
       filename: mappoolReplays.filename,
       size: mappoolReplays.size,
       description: mappoolReplays.description,
+      preferred: mappoolReplays.preferred,
       uploaderId: mappoolReplays.uploaderId,
       uploaderName: mappoolReplays.uploaderName,
       summary: mappoolReplays.summary,
@@ -92,8 +101,8 @@ async function databaseReplayList(
     .from(mappoolReplays)
     .where(eq(mappoolReplays.entryId, entryId))
     .orderBy(mappoolReplays.createdAt, mappoolReplays.id);
-  const items: ReplayList = [];
-  for (const row of rows) {
+  const items: ReplayItem[] = [];
+  for (const { preferred, ...row } of rows) {
     let summary = row.summary;
     if (!summary.performance) {
       try {
@@ -107,6 +116,7 @@ async function databaseReplayList(
     }
     items.push({
       ...row,
+      ...(includePreference ? { preferred } : {}),
       summary,
       verification:
         entry.metadata.checksum &&
@@ -121,15 +131,15 @@ export async function replayList(
   actor: User,
   slug: string,
   entryId: string,
-): Promise<ReplayList> {
+  { includePreference = false } = {},
+): Promise<ReplayItem[]> {
   if (remoteMode()) {
     await assertRemoteSubject(actor.osuId);
     return frontendResource<ReplayList>("replayList", { slug, entryId });
   }
-  return databaseReplayList(actor, slug, entryId);
+  return databaseReplayList(actor, slug, entryId, includePreference);
 }
 
-export type ReplayItem = ReplayList[number];
 export async function authorizeReplayUpload(
   actor: User,
   slug: string,
@@ -355,4 +365,78 @@ export async function deleteMappoolReplay(
   });
   if (removed.removed) await removeReplayFile(replayId).catch(() => {}); // Safe orphan, reclaimed by offline cleanup.
   return removed;
+}
+
+export async function setPreferredMappoolReplay(
+  actor: User,
+  slug: string,
+  entryId: string,
+  replayId: string,
+  input: unknown,
+): Promise<PreferredReplayReceipt> {
+  assertUserWriteChannel();
+  await assertCapability(actor, "manage_replays", slug);
+  validId(entryId);
+  validId(replayId);
+  const parsed = preferredReplayWrite.request.safeParse(input);
+  if (!parsed.success)
+    throw new HttpError(
+      400,
+      "Confirm the current pool version before changing replays.",
+    );
+  return db().transaction(async (tx) => {
+    await tx
+      .select()
+      .from(editionState)
+      .where(eq(editionState.slug, slug))
+      .for("update");
+    await assertCapability(actor, "manage_replays", slug, tx);
+    await assertOperationalEdition(slug, tx);
+    const { pool, entry } = await target(actor, slug, entryId, tx);
+    const replays = await tx
+      .select({
+        id: mappoolReplays.id,
+        preferred: mappoolReplays.preferred,
+        summary: mappoolReplays.summary,
+      })
+      .from(mappoolReplays)
+      .where(eq(mappoolReplays.entryId, entryId));
+    const replay = replays.find(({ id }) => id === replayId);
+    if (!replay) throw new HttpError(404, "Replay not found.");
+    if (parsed.data.preferred && replay.summary.mode !== "osu")
+      throw new HttpError(
+        422,
+        "Replay playback is available for osu!standard.",
+      );
+    const previous = replays.find(({ preferred }) => preferred)?.id ?? null;
+    if (parsed.data.preferred === replay.preferred)
+      return { preferredReplayId: previous, version: pool.version };
+    if (pool.version !== parsed.data.expectedVersion)
+      throw new HttpError(409, "This pool changed. Refresh before confirming.");
+    const preferredReplayId = parsed.data.preferred ? replayId : null;
+    if (previous)
+      await tx
+        .update(mappoolReplays)
+        .set({ preferred: false })
+        .where(eq(mappoolReplays.id, previous));
+    if (preferredReplayId)
+      await tx
+        .update(mappoolReplays)
+        .set({ preferred: true })
+        .where(eq(mappoolReplays.id, preferredReplayId));
+    const version = pool.version + 1;
+    await tx
+      .update(mappools)
+      .set({ version, updatedAt: new Date() })
+      .where(eq(mappools.id, pool.id));
+    await tx.insert(mappoolEvents).values({
+      editionSlug: slug,
+      poolId: pool.id,
+      actorId: actor.osuId,
+      action: "replay_preference",
+      before: { entryId, preferredReplayId: previous },
+      after: { entryId, beatmapId: entry.beatmapId, preferredReplayId },
+    });
+    return { preferredReplayId, version };
+  });
 }

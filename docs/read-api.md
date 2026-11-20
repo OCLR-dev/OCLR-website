@@ -531,6 +531,10 @@ unknown flag, that format returns an eligible CSV observation or null.
 Clients request version 2 from 1.43+, version 1 from 1.39–1.42, and omit
 the query on older servers.
 
+Contract 1.47.0 limits [Showcase replay lists and original file downloads](streaming-api.md#showcase-replays-1189)
+to each slot's explicitly preferred replay. The list retains its existing
+`replays` array with zero or one attachment per slot.
+
 Contract 1.42.0 adds [Showcase replay lists and original file downloads](streaming-api.md#showcase-replays-1189)
 to the Streaming bearer channel. Showcase pool details include a stable
 `entryId` for every slot, and Admin-only Showcase grants report replay access.
