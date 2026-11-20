@@ -351,7 +351,7 @@ function EntryEditor({
   onOpen,
   onClose,
   disabled,
-  replayTrigger,
+  mediaActions,
   suggesterTrigger,
 }: {
   change: Change;
@@ -362,7 +362,7 @@ function EntryEditor({
   onOpen: () => void;
   onClose: () => void;
   disabled: boolean;
-  replayTrigger: ReactNode;
+  mediaActions: ReactNode;
   suggesterTrigger?: ReactNode;
 }) {
   const tr = useAppTranslations();
@@ -424,7 +424,7 @@ function EntryEditor({
             onSuccess={onClose}
           />
         </fieldset>
-        {replayTrigger}
+        {mediaActions}
         {suggesterTrigger}
       </div>
       <div ref={setErrorTarget} className="mappool-entry-feedback" />
@@ -983,7 +983,7 @@ function MappoolEditorContent({
                                   canManage={canManageReplays}
                                   canPlay={canPlayReplays}
                                   canManageCache={!readOnly}
-                                  renderTrigger={(replayTrigger) =>
+                                  renderActions={(mediaActions) =>
                                     editable && !readOnly ? (
                                       <EntryEditor
                                         key={`${entry.id}-${pool.version}`}
@@ -995,7 +995,7 @@ function MappoolEditorContent({
                                         onOpen={() => setEditingEntry(entry.id)}
                                         onClose={() => setEditingEntry(null)}
                                         disabled={disabled}
-                                        replayTrigger={replayTrigger}
+                                        mediaActions={mediaActions}
                                         suggesterTrigger={
                                           suggesters && (
                                             <MappoolSuggester
@@ -1016,7 +1016,9 @@ function MappoolEditorContent({
                                         }
                                       />
                                     ) : (
-                                      replayTrigger
+                                      <div className="mappool-media-actions">
+                                        {mediaActions}
+                                      </div>
                                     )
                                   }
                                 />

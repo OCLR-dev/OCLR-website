@@ -177,9 +177,9 @@ createServer((request, response) => {
   } else {
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     let nonce = "";
-    if (request.url?.startsWith("/team-editor")) {
+    if (/^\/(team-editor|mappool-actions)(\?|$)/.test(request.url ?? "")) {
       const policy = proxy(
-        new NextRequest("http://127.0.0.1:31449/team-editor", {
+        new NextRequest(`http://127.0.0.1:31449${request.url}`, {
           headers: { host: "127.0.0.1:31449" },
         }),
       ).headers.get("content-security-policy")!;

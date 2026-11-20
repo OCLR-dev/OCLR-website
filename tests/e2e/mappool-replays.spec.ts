@@ -318,7 +318,7 @@ test.describe("private replay workflow", () => {
       "data-appearance",
       appearance,
     );
-    const trigger = page.locator(".mappool-replays > button");
+    const trigger = page.getByRole("button", { name: "Saved replays (1)" });
     await trigger.focus();
     await page.keyboard.press("Enter");
     await expect(page.locator(".replay-item")).toHaveCount(1);

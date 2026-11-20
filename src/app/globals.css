@@ -5179,7 +5179,8 @@ html:lang(zh-Hant) .eyebrow {
 .mappool-workbench .beatmap-parameters {
   font-variant-numeric: tabular-nums;
 }
-.mappool-workbench :is(.mappool-entry-action-row, .mappool-entry-actions) {
+.mappool-workbench
+  :is(.mappool-entry-action-row, .mappool-entry-actions, .mappool-media-actions) {
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
@@ -6493,11 +6494,13 @@ body:has([data-broadcast]) .site-shell {
   padding-top: 12px;
 }
 .replay-dialog,
+.mappool-cache-dialog,
 .mappool-suggester-dialog {
   width: min(42rem, calc(100% - 2rem));
   padding: 1rem;
 }
 .replay-dialog[open],
+.mappool-cache-dialog[open],
 .mappool-suggester-dialog[open] {
   display: grid;
   gap: 1rem;
@@ -6540,13 +6543,13 @@ body:has([data-broadcast]) .site-shell {
 .replay-upload > :is(.replay-upload-help, .actions, progress) {
   grid-column: 1 / -1;
 }
-.replay-dialog .actions {
+.replay-dialog .actions,
+.mappool-cache-dialog .actions {
   margin-top: 0;
   gap: 0.5rem;
 }
-.mappool-beatmap-cache {
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--color-border);
+.mappool-beatmap-cache > p {
+  margin: 0;
 }
 .mappool-beatmap-cache .actions {
   align-items: end;

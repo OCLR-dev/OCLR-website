@@ -257,6 +257,19 @@ test("replay dialog keeps the map row compact and restores focus", async ({
 test("saved mirror cache reports progress and lets staff replace or remove the package", async ({
   page,
 }) => {
+  const evaluationViolations: string[] = [];
+  await page.exposeFunction("recordEvaluationViolation", (source: string) => {
+    evaluationViolations.push(source);
+  });
+  await page.addInitScript(() => {
+    const { recordEvaluationViolation } = window as typeof window & {
+      recordEvaluationViolation: (source: string) => void;
+    };
+    document.addEventListener("securitypolicyviolation", (event) => {
+      if (event.blockedURI === "eval")
+        recordEvaluationViolation(`${event.sourceFile}:${event.lineNumber}`);
+    });
+  });
   const requests: string[] = [];
   const cached = {
     source: "mirror",
@@ -273,6 +286,7 @@ test("saved mirror cache reports progress and lets staff replace or remove the p
     package: null,
   };
   let completeSync: (() => void) | undefined;
+  let statusReads = 0;
   await page.route("**/entries/*/beatmap-cache", async (route) => {
     const body = route.request().postData() ?? "";
     if (route.request().method() === "POST") {
@@ -293,17 +307,35 @@ test("saved mirror cache reports progress and lets staff replace or remove the p
                 source: operation === "upload" ? "upload" : "mirror",
               },
       };
-    }
+    } else statusReads++;
     await route.fulfill({ json: status });
   });
-  await page.goto("/mappool-actions?cache&manage");
-  await page
+  const response = await page.goto("/mappool-actions?cache&manage");
+  const policy = response?.headers()["content-security-policy"] ?? "";
+  expect(policy).toMatch(/script-src [^;]*'strict-dynamic'/);
+  expect(policy).not.toContain("'unsafe-eval'");
+  const entry = page.locator('[data-map-entry="entry-1"]');
+  const trigger = entry
+    .locator(".mappool-entry-action-row")
+    .getByRole("button", { name: "Beatmap cache", exact: true });
+  await expect(trigger).toBeVisible();
+  await entry
     .getByRole("button", { name: "Upload replays", exact: true })
-    .first()
     .click();
-  const dialog = page.getByRole("dialog", { name: "Replays for NM1" });
+  const replays = entry.getByRole("dialog", { name: "Replays for NM1" });
+  await expect(replays.getByText("No replays attached.")).toBeVisible();
+  await expect(replays.getByText("Server beatmap cache")).toHaveCount(0);
+  expect(statusReads).toBe(0);
+  await replays.getByRole("button", { name: "Close", exact: true }).click();
+  await trigger.click();
+  const dialog = entry.getByRole("dialog", { name: "Server beatmap cache" });
   await dialog.getByRole("button", { name: "Sync from mirror" }).click();
   await expect(dialog.getByText("Syncing beatmap package…")).toBeVisible();
+  await expect(
+    dialog.getByRole("button", { name: "Close", exact: true }),
+  ).toBeDisabled();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeVisible();
   await expect.poll(() => !!completeSync).toBe(true);
   completeSync?.();
   await expect(dialog.getByText("Cached OSZ · 1.0 MiB")).toBeVisible();
@@ -320,11 +352,15 @@ test("saved mirror cache reports progress and lets staff replace or remove the p
   await dialog.getByRole("button", { name: "Confirm", exact: true }).click();
   await expect(dialog.getByText("No beatmap package cached.")).toBeVisible();
   expect(requests).toEqual(["sync", "upload", "remove"]);
+  expect(evaluationViolations).toEqual([]);
   expect(
     await dialog.evaluate((element) => element.scrollWidth),
   ).toBeLessThanOrEqual(
     await dialog.evaluate((element) => element.clientWidth),
   );
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
 });
 
 test("suggester picker inherits a matching workbench candidate", async ({
