@@ -21,6 +21,7 @@ before the allowlist continue to apply the exclusions when packaging a new commi
 | `tests/`, other `docs/imports/` | Source validation, test fixtures and historical inputs | Included. The current type check covers test sources and their imports. |
 | `src/lib/extended-read-contracts.json`, `scripts/extended-read-resources.json`, generated API files under `docs/`, including `docs/historical-season.v1.schema.json` | Versioned contracts, inventories and coverage | Included |
 | `drizzle/`, `scripts/`, `operator/`, package and build inputs | Migrations, release tooling, shared backup identity and build configuration | Included |
+| `vendor/` | Local npm package archives referenced by the lockfile | Included |
 | Development guides, design work and repository metadata | Contributor reference and tooling | The allowlist keeps the operational guides, build inputs and files read by the test suite. Other references remain in Git. |
 
 ## Baseline

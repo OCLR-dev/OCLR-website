@@ -216,6 +216,7 @@ describe("Bash site updates", () => {
       "drizzle/migration.sql",
       "public/fonts/example.woff2",
       "public/fonts/OFL.txt",
+      "vendor/replayviewer-js.tgz",
     ];
     try {
       git("init", "-q");
