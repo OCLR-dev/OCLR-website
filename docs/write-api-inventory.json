@@ -305,12 +305,14 @@
           "entry_save",
           "entry_remove",
           "entry_refresh",
+          "entry_suggester_set",
           "reorder"
         ],
         "consumers": [
           "src/components/exhibition-pool-import.tsx",
           "src/components/mappool-batch.tsx",
           "src/components/mappool-editor.tsx",
+          "src/components/mappool-suggester.tsx",
           "src/components/mappool-workbench.tsx",
           "src/components/round-manager.tsx"
         ]

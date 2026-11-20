@@ -1447,13 +1447,17 @@ html[data-appearance]
   min-width: 0;
 }
 .beatmap-actions > :is(a.button, .beatmap-mirror-trigger),
-.mappool-icon-action {
+.mappool-icon-action,
+.mappool-labeled-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   min-height: 44px;
   white-space: normal;
+}
+.mappool-labeled-action {
+  white-space: nowrap;
 }
 .beatmap-actions svg {
   flex-shrink: 0;

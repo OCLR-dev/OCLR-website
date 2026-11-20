@@ -778,6 +778,13 @@
       "when": 1795056798817,
       "tag": "0110_tournament_player_reactions",
       "breakpoints": true
+    },
+    {
+      "idx": 111,
+      "version": "7",
+      "when": 1795155859072,
+      "tag": "0111_mappool_entry_suggesters",
+      "breakpoints": true
     }
   ]
 }

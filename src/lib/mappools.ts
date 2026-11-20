@@ -3,6 +3,7 @@ import {
   editionState,
   fixtures,
   mappoolEntries,
+  mappoolEntrySuggesters,
   mappoolEvents,
   mappoolReplays,
   mappoolShowcaseAccess,
@@ -31,6 +32,7 @@ import {
   type BeatmapSnapshot,
 } from "./mappool-model";
 import { mappoolWorkspace, type MappoolWorkspace } from "./mappool-reads";
+import { setMappoolEntrySuggester } from "./mappool-suggesters";
 import {
   changeMappoolWrite,
   type mappoolBatchRow,
@@ -620,6 +622,10 @@ export async function mappoolCommand(
           409,
           "Map selection is locked. Create a new pool to change maps.",
         );
+      if (c.action === "entry_suggester_set") {
+        await setMappoolEntrySuggester(tx, actor, slug, c);
+        return;
+      }
       const entries = await tx
         .select()
         .from(mappoolEntries)
@@ -930,12 +936,16 @@ export async function mappoolCommand(
             source:
               entry?.beatmapId === beatmapId ? (entry?.source ?? null) : null,
           };
-          if (entry)
+          if (entry) {
+            if (entry.beatmapId !== beatmapId)
+              await tx
+                .delete(mappoolEntrySuggesters)
+                .where(eq(mappoolEntrySuggesters.entryId, entry.id));
             await tx
               .update(mappoolEntries)
               .set(values)
               .where(eq(mappoolEntries.id, entry.id));
-          else
+          } else
             await tx
               .insert(mappoolEntries)
               .values({ poolId: pool.id, ...values });

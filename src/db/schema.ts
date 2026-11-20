@@ -1061,6 +1061,15 @@ export const mappoolEntries = pgTable(
     index("pool_entry_pool_idx").on(t.poolId),
   ],
 );
+export const mappoolEntrySuggesters = pgTable("mappool_entry_suggesters", {
+  entryId: uuid("entry_id")
+    .primaryKey()
+    .references(() => mappoolEntries.id, { onDelete: "cascade" }),
+  osuId: bigint("osu_id", { mode: "number" }).notNull(),
+  username: text("username").notNull(),
+  // Retain the original attribution if the private candidate is later removed.
+  candidateId: uuid("candidate_id"),
+});
 /** Current provider data shared by published pools, independent of tournament revisions. */
 export const beatmapDifficultySnapshots = pgTable(
   "beatmap_difficulty_snapshots",

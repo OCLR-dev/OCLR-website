@@ -199,6 +199,24 @@ const mappoolRequest = z.discriminatedUnion("action", [
       entryId: z.uuid(),
     })
     .strict(),
+  z.strictObject({
+    ...confirmation,
+    ...versioned,
+    action: z.literal("entry_suggester_set"),
+    entryId: z.uuid(),
+    suggester: z
+      .discriminatedUnion("source", [
+        z.strictObject({
+          source: z.literal("mappooler"),
+          osuId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+        }),
+        z.strictObject({
+          source: z.literal("workbench"),
+          candidateId: z.uuid(),
+        }),
+      ])
+      .nullable(),
+  }),
   z
     .object({
       ...confirmation,
@@ -446,7 +464,7 @@ export const changeMappoolWrite = {
   request: mappoolRequest,
   summary: "Manage rounds and official mappools",
   description:
-    "Requires manage_mappools and explicit confirmation. Existing pool and round edits check their current version. Batch and historical imports also check the resolved slots and source fingerprints. Publication and map edits enforce the current pool and fixture locks. Selection locking and Showcase access require configure_tournament. Grants apply to one eligible Streamer and the confirmed, locked, unpublished pool version. Replay access starts disabled and can be changed on an existing grant.",
+    "Requires manage_mappools and explicit confirmation. Existing pool and round edits check their current version. Batch and historical imports also check the resolved slots and source fingerprints. Publication and map edits enforce the current pool and fixture locks. Private suggester attribution uses a current Mappooler or a workbench candidate for the same edition and beatmap. Selection locking and Showcase access require configure_tournament. Grants apply to one eligible Streamer and the confirmed, locked, unpublished pool version. Replay access starts disabled and can be changed on an existing grant.",
   successDescription: "The current staff mappool workspace.",
   response: { readResource: "mappoolWorkspace" },
   errors: {
@@ -458,6 +476,7 @@ export const changeMappoolWrite = {
     "src/components/exhibition-pool-import.tsx",
     "src/components/mappool-batch.tsx",
     "src/components/mappool-editor.tsx",
+    "src/components/mappool-suggester.tsx",
     "src/components/mappool-workbench.tsx",
     "src/components/round-manager.tsx",
   ],

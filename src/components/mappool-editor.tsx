@@ -17,6 +17,7 @@ import { useAppTranslations } from "@/i18n/shared";
 import { WorkspaceTabs } from "./workspace-tabs";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
+import type { MappoolSuggesterEditorData } from "@/lib/mappool-suggesters";
 import {
   mappoolEditorCategories,
   difficultyConfigurations,
@@ -32,6 +33,7 @@ import { MappoolOrder } from "./mappool-order";
 import { MappoolBatch } from "./mappool-batch";
 import { BeatmapPreview } from "./beatmap-preview";
 import { MappoolReplays } from "./mappool-replays";
+import { MappoolSuggester } from "./mappool-suggester";
 import { MappoolActionIcon } from "./mappool-action-icon";
 import showcaseStyles from "./mappool-showcase-access.module.css";
 type Pool = MappoolWorkspace["pools"][number];
@@ -350,6 +352,7 @@ function EntryEditor({
   onClose,
   disabled,
   replayTrigger,
+  suggesterTrigger,
 }: {
   change: Change;
   pool: Pool;
@@ -360,6 +363,7 @@ function EntryEditor({
   onClose: () => void;
   disabled: boolean;
   replayTrigger: ReactNode;
+  suggesterTrigger?: ReactNode;
 }) {
   const tr = useAppTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -421,6 +425,7 @@ function EntryEditor({
           />
         </fieldset>
         {replayTrigger}
+        {suggesterTrigger}
       </div>
       <div ref={setErrorTarget} className="mappool-entry-feedback" />
       {open && (
@@ -574,12 +579,14 @@ export function MappoolEditor({
   readOnlyMaps = false,
   canManageReplays = false,
   canConfigureShowcase = false,
+  suggesters,
 }: {
   slug: string;
   data: MappoolWorkspace;
   readOnlyMaps?: boolean;
   canManageReplays?: boolean;
   canConfigureShowcase?: boolean;
+  suggesters?: MappoolSuggesterEditorData | null;
 }) {
   const readOnly = useStaffReadOnly() || readOnlyMaps;
   return (
@@ -589,6 +596,7 @@ export function MappoolEditor({
         data={data}
         canManageReplays={canManageReplays}
         canConfigureShowcase={canConfigureShowcase}
+        suggesters={suggesters}
       />
     </StaffReadOnlyContext>
   );
@@ -598,11 +606,13 @@ function MappoolEditorContent({
   data,
   canManageReplays,
   canConfigureShowcase,
+  suggesters,
 }: {
   slug: string;
   data: MappoolWorkspace;
   canManageReplays: boolean;
   canConfigureShowcase: boolean;
+  suggesters?: MappoolSuggesterEditorData | null;
 }) {
   const readOnly = useStaffReadOnly();
   const tr = useAppTranslations();
@@ -949,33 +959,63 @@ function MappoolEditorContent({
                           entries={entries}
                           editable={editable && !readOnly}
                           onFeedback={setFeedback}
-                          renderActions={(entry, disabled) => (
-                            <MappoolReplays
-                              key={entry.id}
-                              slug={slug}
-                              pool={pool}
-                              entry={entry}
-                              canManage={canManageReplays}
-                              renderTrigger={(replayTrigger) =>
-                                editable && !readOnly ? (
-                                  <EntryEditor
-                                    key={`${entry.id}-${pool.version}`}
-                                    change={change}
-                                    pool={pool}
-                                    category={category}
-                                    entry={entry}
-                                    open={editingEntry === entry.id}
-                                    onOpen={() => setEditingEntry(entry.id)}
-                                    onClose={() => setEditingEntry(null)}
-                                    disabled={disabled}
-                                    replayTrigger={replayTrigger}
-                                  />
-                                ) : (
-                                  replayTrigger
-                                )
-                              }
-                            />
-                          )}
+                          renderActions={(entry, disabled) => {
+                            const saved = suggesters?.saved.find(
+                              ({ entryId }) => entryId === entry.id,
+                            );
+                            return (
+                              <>
+                                {saved && (
+                                  <p className="small muted mb-0">
+                                    {tr("Suggester")} · {saved.username}
+                                  </p>
+                                )}
+                                <MappoolReplays
+                                  key={entry.id}
+                                  slug={slug}
+                                  pool={pool}
+                                  entry={entry}
+                                  canManage={canManageReplays}
+                                  renderTrigger={(replayTrigger) =>
+                                    editable && !readOnly ? (
+                                      <EntryEditor
+                                        key={`${entry.id}-${pool.version}`}
+                                        change={change}
+                                        pool={pool}
+                                        category={category}
+                                        entry={entry}
+                                        open={editingEntry === entry.id}
+                                        onOpen={() => setEditingEntry(entry.id)}
+                                        onClose={() => setEditingEntry(null)}
+                                        disabled={disabled}
+                                        replayTrigger={replayTrigger}
+                                        suggesterTrigger={
+                                          suggesters && (
+                                            <MappoolSuggester
+                                              url={change.url}
+                                              poolId={pool.id}
+                                              version={pool.version}
+                                              entryId={entry.id}
+                                              disabled={disabled}
+                                              mappoolers={suggesters.mappoolers}
+                                              candidates={suggesters.candidates.filter(
+                                                (candidate) =>
+                                                  candidate.beatmapId ===
+                                                  entry.beatmapId,
+                                              )}
+                                              saved={saved}
+                                            />
+                                          )
+                                        }
+                                      />
+                                    ) : (
+                                      replayTrigger
+                                    )
+                                  }
+                                />
+                              </>
+                            );
+                          }}
                         />
                       )}
                       {!entries.length && (

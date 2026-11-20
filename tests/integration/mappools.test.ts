@@ -16,6 +16,7 @@ import {
   editionState,
   users,
   staffRoles,
+  mappoolCandidates,
   mappools,
   mappoolEntries,
   mappoolEvents,
@@ -27,6 +28,7 @@ import {
 } from "../../src/lib/mappool-preview";
 import { mappoolCommand } from "../../src/lib/mappools";
 import { mappoolWorkspace, publicMappools } from "../../src/lib/mappool-reads";
+import { mappoolSuggesterEditorData } from "../../src/lib/mappool-suggesters";
 import { fetchBeatmap, fetchBeatmaps } from "../../src/lib/osu-beatmaps";
 import { osuApi } from "../../src/lib/osu-api";
 import { syntheticScoringRules } from "../fixtures/match";
@@ -196,6 +198,115 @@ describe.skipIf(!url)("edition mappool integrity and publication", () => {
     category,
     position,
     beatmap,
+  });
+  it("saves private suggester attribution from scoped staff or a matching candidate and clears it on map replacement", async () => {
+    const pool = await create();
+    const initial = await mappoolCommand(mapper, edition.slug, add(pool.id, 0));
+    const [entry] = initial.entries;
+    const [candidate, wrongMap, wrongEdition] = await db()
+      .insert(mappoolCandidates)
+      .values(
+        [
+          { editionSlug: edition.slug, beatmapId: 123 },
+          { editionSlug: edition.slug, beatmapId: 124 },
+          { editionSlug: "other-test-cup", beatmapId: 123 },
+        ].map((scope) => ({
+          ...scope,
+          authorId: player.osuId,
+          authorName: player.username,
+          metadata,
+          metadataFetchedAt: new Date(),
+        })),
+      )
+      .returning();
+    const change = {
+      ...confirm,
+      poolId: pool.id,
+      entryId: entry.id,
+      expectedVersion: 1,
+      action: "entry_suggester_set",
+    };
+    const editor = () =>
+      mappoolSuggesterEditorData(mapper, edition.slug, [entry]);
+    expect(await editor()).toMatchObject({
+      mappoolers: [mapper],
+      candidates: [{ candidateId: candidate.id }],
+      saved: [],
+    });
+    const manual = {
+      ...change,
+      suggester: { source: "mappooler", osuId: mapper.osuId },
+    };
+    await expect(
+      mappoolCommand(referee, edition.slug, manual),
+    ).rejects.toMatchObject({ status: 403 });
+    await expect(
+      mappoolCommand(mapper, edition.slug, {
+        ...change,
+        suggester: { source: "mappooler", osuId: referee.osuId },
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    for (const invalid of [wrongMap, wrongEdition])
+      await expect(
+        mappoolCommand(mapper, edition.slug, {
+          ...change,
+          suggester: { source: "workbench", candidateId: invalid.id },
+        }),
+      ).rejects.toMatchObject({ status: 409 });
+    await expect(
+      post(changeRoute, changeMappoolWrite.path, manual),
+    ).resolves.toHaveProperty("status", 200);
+    expect((await editor())?.saved).toMatchObject([
+      { ...mapper, candidateId: null },
+    ]);
+    const inherit = {
+      ...change,
+      suggester: { source: "workbench", candidateId: candidate.id },
+    };
+    await expect(
+      mappoolCommand(mapper, edition.slug, inherit),
+    ).rejects.toMatchObject({ status: 409 });
+    await mappoolCommand(mapper, edition.slug, {
+      ...inherit,
+      expectedVersion: 2,
+    });
+    expect((await auditEvents()).at(-1)).toMatchObject({
+      action: "entry_suggester_set",
+      before: { suggester: mapper },
+      after: { suggester: { ...player, candidateId: candidate.id } },
+    });
+    await db()
+      .delete(mappoolCandidates)
+      .where(eq(mappoolCandidates.id, candidate.id));
+    expect((await editor())?.saved).toMatchObject([
+      { ...player, candidateId: candidate.id },
+    ]);
+    await mappoolCommand(mapper, edition.slug, {
+      ...confirm,
+      action: "pool_publish",
+      poolId: pool.id,
+      expectedVersion: 3,
+      published: true,
+    });
+    expect(JSON.stringify(await publicMappools(edition.slug))).not.toContain(
+      player.username,
+    );
+    expect(
+      await mappoolSuggesterEditorData(referee, edition.slug, [entry]),
+    ).toBeNull();
+    const replacement = await mappoolCommand(mapper, edition.slug, {
+      ...add(pool.id, 4, 1, "NM", "124"),
+      entryId: entry.id,
+    });
+    expect(
+      (
+        await mappoolSuggesterEditorData(
+          mapper,
+          edition.slug,
+          replacement.entries,
+        )
+      )?.saved,
+    ).toEqual([]);
   });
   it("persists and audits a mirror, serves it publicly, retains it on refresh and clears it when replacing the map", async () => {
     const pool = await create();

@@ -77,6 +77,15 @@ const data: MappoolWorkspace = {
       od: 8.8,
       cs: 4,
       hp: 5,
+      attributes: {
+        configuration: "NM",
+        mods: [],
+        stars: 6.01,
+        ruleset: "osu",
+        maxCombo: 1200,
+        values: { aim_difficulty: 3.152, speed_difficulty: 2.663 },
+        fetchedAt: date.toISOString(),
+      },
     },
   })),
 };
@@ -130,6 +139,25 @@ function Fixture() {
             readOnlyMaps={params.has("readonly")}
             canManageReplays={params.has("manage")}
             canConfigureShowcase={params.has("showcase")}
+            suggesters={
+              params.has("suggesters")
+                ? {
+                    mappoolers: [
+                      { osuId: 1100, username: "Synthetic Mappooler" },
+                    ],
+                    candidates: [
+                      {
+                        candidateId: "5f994ec4-06be-48ab-a56c-5f3fbb5eca0c",
+                        beatmapId: 101,
+                        category: "NM",
+                        osuId: 1101,
+                        username: "Synthetic Candidate Author",
+                      },
+                    ],
+                    saved: [],
+                  }
+                : undefined
+            }
           />
         </main>
       </NextIntlClientProvider>

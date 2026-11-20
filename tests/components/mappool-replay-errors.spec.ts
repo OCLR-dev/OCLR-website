@@ -59,7 +59,7 @@ for (const operation of ["upload", "delete"] as const) {
     await page.goto("/mappool-actions?manage");
     await page
       .locator('[data-map-entry="entry-1"]')
-      .getByRole("button", { name: /^Replays/ })
+      .getByRole("button", { name: /^Upload replays/ })
       .click();
     const dialog = page.getByRole("dialog", {
       name: "Replays for NM1",
@@ -133,7 +133,7 @@ test("list and deletion failures stay visible together until manual reload, with
   await page.goto("/mappool-actions?manage");
   await page
     .locator('[data-map-entry="entry-1"]')
-    .getByRole("button", { name: /^Replays/ })
+    .getByRole("button", { name: /^Upload replays/ })
     .click();
   const dialog = page.getByRole("dialog", {
     name: "Replays for NM1",

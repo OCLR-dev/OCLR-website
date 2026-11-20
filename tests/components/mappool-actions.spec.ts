@@ -220,7 +220,14 @@ test("replay dialog keeps the map row compact and restores focus", async ({
   if (isMobile) await page.setViewportSize({ width: 320, height: 844 });
   await page.goto("/mappool-actions?manage=1");
   const entry = page.locator('[data-map-entry="entry-1"]');
-  const trigger = entry.getByRole("button", { name: /^Replays/ });
+  await expect(entry.getByText(/BID 101$/)).toBeVisible();
+  await expect(
+    entry.getByText(
+      /Official ruleset attributes.*aim difficulty 3\.152.*speed difficulty 2\.663/,
+    ),
+  ).toBeVisible();
+  const trigger = entry.getByRole("button", { name: /^Upload replays/ });
+  await expect(trigger).toHaveText("Upload replays");
   const before = (await entry.boundingBox())!;
   await trigger.click();
   const dialog = entry.getByRole("dialog", {
@@ -243,6 +250,45 @@ test("replay dialog keeps the map row compact and restores focus", async ({
   await expect(trigger).toBeFocused();
   await trigger.click();
   await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+});
+
+test("suggester picker inherits a matching workbench candidate", async ({
+  page,
+}) => {
+  const writes: unknown[] = [];
+  await page.route(
+    "**/api/admin/tournaments/synthetic/mappools",
+    async (route) => {
+      writes.push(route.request().postDataJSON());
+      await route.fulfill({ json: {} });
+    },
+  );
+  await page.goto("/mappool-actions?suggesters&manage");
+  const entry = page.locator('[data-map-entry="entry-1"]');
+  const trigger = entry.getByRole("button", { name: "Add suggester" });
+  await trigger.click();
+  const dialog = page.getByRole("dialog", { name: "Add suggester" });
+  const picker = dialog.getByRole("combobox", { name: "Suggester" });
+  await expect(
+    picker.getByRole("option", { name: "Synthetic Mappooler" }),
+  ).toHaveCount(1);
+  await picker.selectOption({ label: "Synthetic Candidate Author · NM" });
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
+  expect(writes).toEqual([
+    {
+      action: "entry_suggester_set",
+      confirmed: true,
+      poolId: "pool",
+      expectedVersion: 7,
+      entryId: "entry-1",
+      suggester: {
+        source: "workbench",
+        candidateId: "5f994ec4-06be-48ab-a56c-5f3fbb5eca0c",
+      },
+    },
+  ]);
   await expect(dialog).not.toBeVisible();
   await expect(trigger).toBeFocused();
 });

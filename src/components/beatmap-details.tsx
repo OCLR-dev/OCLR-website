@@ -15,6 +15,7 @@ export function BeatmapDetails({
   category,
   fetchedAt,
   source,
+  showBeatmapId = false,
 }: {
   beatmapId: number;
   metadata: BeatmapMetadata;
@@ -22,8 +23,10 @@ export function BeatmapDetails({
   category?: MappoolCategory;
   fetchedAt?: string;
   source?: HistoricalMapSource | null;
+  showBeatmapId?: boolean;
 }) {
   const tr = useAppTranslations();
+  const attributes = Object.entries(m.attributes?.values ?? {});
 
   return (
     <div className="beatmap-row">
@@ -32,8 +35,8 @@ export function BeatmapDetails({
         {source && (
           <p className="muted small">
             {tr("Historical source")}: {source.editionName} ·{" "}
-            {mappoolDisplayName(tr, source.poolName, source.poolId)}{" "}
-            · {source.slot}
+            {mappoolDisplayName(tr, source.poolName, source.poolId)} ·{" "}
+            {source.slot}
           </p>
         )}
         {label && <span className="badge">{label}</span>}
@@ -49,6 +52,12 @@ export function BeatmapDetails({
         <p className="muted small">
           {m.difficulty} {tr(" · mapped by ")}
           {m.mapper}
+          {showBeatmapId && (
+            <span className="ml-1 inline-block">
+              {" · "}
+              {tr("BID")} {beatmapId}
+            </span>
+          )}
         </p>
         <p className="small beatmap-stats">
           <span>
@@ -81,18 +90,16 @@ export function BeatmapDetails({
                 ? tr(" · {value0} max combo", { value0: m.attributes.maxCombo })
                 : ""}
             </p>
-            {Object.keys(m.attributes.values).length > 0 && (
-              <details>
-                <summary>{tr("Official ruleset attributes")}</summary>
-                <dl className="detail-list">
-                  {Object.entries(m.attributes.values).map(([key, value]) => (
-                    <div key={key}>
-                      <dt>{key.replaceAll("_", " ")}</dt>
-                      <dd>{Number(value.toFixed(3))}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </details>
+            {attributes.length > 0 && (
+              <p className="muted">
+                {tr("Official ruleset attributes")}
+                {attributes.map(([key, value]) => (
+                  <span className="ml-1 inline-block" key={key}>
+                    {" · "}
+                    {key.replaceAll("_", " ")} {Number(value.toFixed(3))}
+                  </span>
+                ))}
+              </p>
             )}
           </div>
         ) : (

@@ -77,7 +77,9 @@ test.describe("private replay workflow", () => {
     await expect(
       page.getByRole("heading", { name: "Replay upload window", exact: true }),
     ).toHaveCount(0);
-    await page.getByRole("button", { name: "Replays", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Upload replays", exact: true })
+      .click();
     await expect(page.getByLabel("Replay file", { exact: true })).toBeEnabled();
     const bytes = syntheticReplay(),
       filename = "示范-" + "Long filename ".repeat(10) + ".osr";
@@ -180,7 +182,7 @@ test.describe("private replay workflow", () => {
       .set({ showcaseAt: new Date() })
       .where(eq(mappools.id, poolId));
     await page.reload();
-    await page.getByRole("button", { name: /^Replays/ }).click();
+    await page.getByRole("button", { name: /^Upload replays/ }).click();
     await expect(page.getByLabel("Replay file", { exact: true })).toBeEnabled();
     await expect(
       page.getByRole("button", { name: "Delete replay", exact: true }),
@@ -222,7 +224,9 @@ test.describe("private replay workflow", () => {
     const { cookie, url } = await prepare(context, isMobile);
     await context.addCookies([cookie]);
     await page.goto("/admin/tournaments/test-cup/mappools");
-    await page.getByRole("button", { name: "Replays", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Upload replays", exact: true })
+      .click();
     await page.getByLabel("Replay file", { exact: true }).setInputFiles({
       name: "retry.osr",
       mimeType: "application/octet-stream",

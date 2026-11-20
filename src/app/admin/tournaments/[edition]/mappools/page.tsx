@@ -5,6 +5,7 @@ import { authorizedPage } from "@/lib/auth/page";
 import { hasCapability } from "@/lib/auth/staff";
 import { requireUser } from "@/lib/auth/user";
 import { mappoolWorkspace } from "@/lib/mappool-reads";
+import { mappoolSuggesterEditorData } from "@/lib/mappool-suggesters";
 import { remotePage } from "@/lib/remote-page";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
@@ -22,6 +23,11 @@ async function Issue271Page({
     const actor = await requireUser();
     const { edition } = await params;
     const data = await mappoolWorkspace(actor, edition);
+    const suggesters = await mappoolSuggesterEditorData(
+      actor,
+      edition,
+      data.entries,
+    );
     return (
       <>
         <PageHeading
@@ -31,9 +37,8 @@ async function Issue271Page({
         <MappoolEditor
           slug={edition}
           data={data}
-          readOnlyMaps={
-            !(await hasCapability(actor, "manage_mappools", edition))
-          }
+          readOnlyMaps={!suggesters}
+          suggesters={suggesters}
           canConfigureShowcase={await hasCapability(
             actor,
             "configure_tournament",

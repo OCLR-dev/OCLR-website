@@ -79,6 +79,8 @@ export function MappoolReplays({
   const [knownVersion, setKnownVersion] = useState(pool.version);
   const version = Math.max(knownVersion, pool.version);
   const writable = canManage;
+  const triggerLabel = writable ? tr("Upload replays") : tr("Replays");
+  const triggerName = `${triggerLabel}${loaded ? ` (${items.length})` : ""}`;
   async function load() {
     listRequest.current?.abort();
     const controller = new AbortController();
@@ -244,9 +246,9 @@ export function MappoolReplays({
         <button
           type="button"
           ref={summary}
-          className="secondary mappool-icon-action"
-          aria-label={`${tr("Replays")}${loaded ? ` (${items.length})` : ""}`}
-          title={`${tr("Replays")}${loaded ? ` (${items.length})` : ""}`}
+          className={`secondary ${writable ? "mappool-labeled-action" : "mappool-icon-action"}`}
+          aria-label={triggerName}
+          title={triggerName}
           aria-haspopup="dialog"
           aria-expanded={expanded}
           aria-controls={`${id}-panel`}
@@ -257,6 +259,7 @@ export function MappoolReplays({
           }}
         >
           <MappoolActionIcon kind="replays" />
+          {writable && <span>{triggerLabel}</span>}
         </button>,
       )}
       <dialog

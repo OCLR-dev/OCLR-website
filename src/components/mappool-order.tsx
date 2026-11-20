@@ -349,6 +349,7 @@ export function MappoolOrder({
                 label={editable ? undefined : label}
                 category={category}
                 source={entry.source}
+                showBeatmapId
               />
               {renderActions(entry, changed || busy || !!dragging)}
             </li>

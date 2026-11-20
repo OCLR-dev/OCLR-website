@@ -6492,11 +6492,13 @@ body:has([data-broadcast]) .site-shell {
   border-top: 1px solid var(--color-border);
   padding-top: 12px;
 }
-.replay-dialog {
+.replay-dialog,
+.mappool-suggester-dialog {
   width: min(42rem, calc(100% - 2rem));
   padding: 1rem;
 }
-.replay-dialog[open] {
+.replay-dialog[open],
+.mappool-suggester-dialog[open] {
   display: grid;
   gap: 1rem;
 }
