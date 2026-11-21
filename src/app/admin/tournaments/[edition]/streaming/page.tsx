@@ -1,4 +1,3 @@
-import { ObsSourceLink } from "@/components/obs-source-link";
 import { StreamingManager } from "@/components/streaming-manager";
 import { PageHeading } from "@/components/ui";
 import { getAppTranslations } from "@/i18n/server";
@@ -6,7 +5,6 @@ import { authorizedPage } from "@/lib/auth/page";
 import { requireUser } from "@/lib/auth/user";
 import { remotePage } from "@/lib/remote-page";
 import { streamingWorkspace } from "@/lib/streaming-workspace";
-import Link from "next/link";
 async function Issue271Page({
   params,
   searchParams,
@@ -30,24 +28,6 @@ async function Issue271Page({
           eyebrow={tr("COMPETITION")}
           title={tr("Streaming tasks")}
         />
-        <details>
-          <summary>{tr("Draft broadcast")}</summary>
-          <nav className="actions" aria-label={tr("Draft broadcast")}>
-            <Link
-              className="button secondary"
-              href={`/tournaments/${edition}/draft?presenter=1`}
-            >
-              {tr("Open presenter view")}
-            </Link>
-            <Link
-              className="button secondary"
-              href={`/tournaments/${edition}/draft/overlay`}
-            >
-              {tr("Open broadcast overlay")}
-            </Link>
-          </nav>
-          <ObsSourceLink slug={edition} />
-        </details>
         <StreamingManager slug={edition} data={data} />
       </>
     );

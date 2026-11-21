@@ -49,11 +49,7 @@ async function Issue271Page({
               {tr("Open broadcast overlay")}
             </Link>
           </nav>
-          <ObsSourceLink
-            slug={edition}
-            origin={origin}
-            showDescription={false}
-          />
+          <ObsSourceLink slug={edition} origin={origin} />
         </section>
         <StaffDraftRoom slug={edition} initial={initial} />
       </>

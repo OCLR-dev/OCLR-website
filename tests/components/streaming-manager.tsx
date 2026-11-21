@@ -6,7 +6,6 @@ import {
   type AppRouterInstance,
 } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { StreamingManager } from "../../src/components/streaming-manager";
-import { ObsSourceLink } from "../../src/components/obs-source-link";
 import { StaffReadOnlyContext } from "../../src/components/staff-read-only";
 import type { StreamingWorkspace } from "../../src/lib/streaming-workspace";
 import en from "../../messages/en.json";
@@ -135,12 +134,6 @@ function Harness() {
             style={{ padding: 16, maxWidth: 1100, margin: "0 auto" }}
           >
             <h1>Streaming tasks</h1>
-            {params.has("obs") && (
-              <details>
-                <summary>Draft broadcast</summary>
-                <ObsSourceLink slug="synthetic" />
-              </details>
-            )}
             <StreamingManager slug="synthetic" data={workspace} />
           </main>
         </StaffReadOnlyContext>

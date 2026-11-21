@@ -1,7 +1,5 @@
 "use client";
 
-import { InfoNote } from "@/components/info-note";
-
 import { useId, useRef, useState, useSyncExternalStore } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { draftOverlayUrl } from "@/lib/overlay-url";
@@ -11,11 +9,9 @@ const serverOrigin = () => "";
 export function ObsSourceLink({
   slug,
   origin,
-  showDescription = true,
 }: {
   slug: string;
   origin?: string;
-  showDescription?: boolean;
 }) {
   const tr = useAppTranslations();
   const id = useId();
@@ -62,13 +58,6 @@ export function ObsSourceLink({
           </button>
         </div>
       </div>
-      {showDescription && (
-        <InfoNote>
-          <p className="muted small">
-            {tr("Only released draft information appears in the overlay.")}
-          </p>
-        </InfoNote>
-      )}
       <p className="small obs-copy-feedback" role="status">
         {feedback}
       </p>

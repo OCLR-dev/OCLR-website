@@ -1,6 +1,6 @@
 # Back-office draft presentation (#234)
 
-Launch controls live in the edition draft/streaming workspaces. Presenter access is edition-scoped on the server. OBS output intentionally remains a public, read-only released-data URL; see docs/draft-broadcast-access.md.
+The original verification covered launch controls in the edition draft and streaming workspaces. Current launch controls are in the draft control room. Presenter access is edition-scoped on the server. OBS output is a public, read-only released-data URL. See [draft broadcast access](../../draft-broadcast-access.md).
 
 ## Local verification — 2026-10-25
 

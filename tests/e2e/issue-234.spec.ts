@@ -46,11 +46,27 @@ test("presentation tools are scoped staff controls and OBS remains a released-da
   await expect(page.locator(".site-header")).toBeHidden();
   await page.goto(`/admin/tournaments/${slug}/streaming`);
   await expect(
+    page.getByRole("heading", { name: "Streaming tasks" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Open presenter view" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "Open broadcast overlay" }),
+  ).toHaveCount(0);
+  await db()
+    .insert(staffRoles)
+    .values({ userId: id, role: "admin", editionSlug: slug, grantedBy: id });
+  await page.goto(`/admin/tournaments/${slug}/draft`);
+  await expect(
     page.getByRole("link", { name: "Open presenter view" }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Open broadcast overlay" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("textbox", { name: "OBS Browser Source / Overlay URL" }),
+  ).toHaveValue(new URL(`/tournaments/${slug}/draft/overlay`, page.url()).href);
   await context.clearCookies();
   expect(
     (
