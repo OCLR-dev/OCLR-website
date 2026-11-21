@@ -96,8 +96,9 @@ The removed `ranked` and `hasPp` presence filters are ignored in old links and c
 The S11 directory also shows the current osu!standard o!TR rating from the same PostgreSQL cache used by the OCLR player profile. It reads ratings for the complete public roster in one query. When ratings are available, visitors can sort by highest or lowest (`otr-desc` or `otr-asc`) and set inclusive decimal bounds (`otrMin` and `otrMax`) under Advanced filters. Players without a rating appear last in either sort direction and are excluded from rating ranges. Saved remote mode does not include o!TR ratings, and the worker skips synthetic preview editions.
 
 S11 shows the total SIP rating from the [daily Skill Issue cache](sip-ratings.md).
-S11 Admins can import fallback ETX from **Registrations → Import ETX ratings**. The Elitebotix
-export matches osu! ID, reports unmatched rows and blank scores, preserves
+On the S11 **Registrations** page, Admins can open **Import ETX ratings** next
+to **Export registrations** to upload the fallback ETX CSV. The import matches
+osu! IDs, reports unmatched rows and blank scores, preserves
 ratings omitted from a later export and retains provisional and outdated flags.
 The directory supports ascending and descending SIP and ETX sorting and inclusive
 bounds under Advanced filters. Remote frontends get SIP and imported ETX from

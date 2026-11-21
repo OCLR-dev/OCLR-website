@@ -42,6 +42,18 @@ export async function RegistrationList({
     const editions = (await getEditionChoices()).filter((e) =>
       canRead(access, "manage_registrations", e.slug),
     );
+    const canImportRatings =
+      editionSlug === importedRatingsEdition &&
+      permits(access, "manage_registrations", editionSlug);
+    const canExport =
+      total > 0 &&
+      access.some((grant) =>
+        permits(
+          [grant],
+          "manage_registrations",
+          grant.editionSlug ?? undefined,
+        ),
+      );
     return (
       <section
         className={`registration-review${editionSlug ? " edition-registration-review" : ""}`}
@@ -52,10 +64,6 @@ export async function RegistrationList({
         >
           {tr("Acceptance does not appoint a captain or assign a team.")}
         </PageHeading>
-        {editionSlug === importedRatingsEdition &&
-          permits(access, "manage_registrations", editionSlug) && (
-            <PlayerRatingImport />
-          )}
         <div className="section-title">
           <p className="muted small">
             {tr(
@@ -80,32 +88,30 @@ export async function RegistrationList({
                   />
                 </>
               )}
-            {total > 0 &&
-              access.some((grant) =>
-                permits(
-                  [grant],
-                  "manage_registrations",
-                  grant.editionSlug ?? undefined,
-                ),
-              ) && (
-                <RegistrationExport
-                  label={tr("Export registrations")}
-                  links={[
-                    {
-                      label: tr("Export CSV"),
-                      href: `/api/admin/registrations/export?${query}`,
-                    },
-                    {
-                      label: tr("Export UID (ETX bot)"),
-                      href: `/api/admin/registrations/export?${query}&format=uid`,
-                    },
-                    {
-                      label: tr("Export username (SIP bot)"),
-                      href: `/api/admin/registrations/export?${query}&format=username`,
-                    },
-                  ]}
-                />
-              )}
+            {(canExport || canImportRatings) && (
+              <div className="registration-transfer-actions">
+                {canExport && (
+                  <RegistrationExport
+                    label={tr("Export registrations")}
+                    links={[
+                      {
+                        label: tr("Export CSV"),
+                        href: `/api/admin/registrations/export?${query}`,
+                      },
+                      {
+                        label: tr("Export UID (ETX bot)"),
+                        href: `/api/admin/registrations/export?${query}&format=uid`,
+                      },
+                      {
+                        label: tr("Export username (SIP bot)"),
+                        href: `/api/admin/registrations/export?${query}&format=username`,
+                      },
+                    ]}
+                  />
+                )}
+                {canImportRatings && <PlayerRatingImport />}
+              </div>
+            )}
           </div>
         </div>
         <form className="filters" action={basePath} method="get">

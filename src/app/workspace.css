@@ -669,6 +669,12 @@
   gap: 0.5rem;
   flex-wrap: wrap;
 }
+.registration-transfer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: inherit;
+}
 .registration-export {
   position: relative;
 }
@@ -705,6 +711,9 @@
   background: var(--site-tint);
 }
 @media (max-width: 600px) {
+  .edition-registration-review > .section-title {
+    flex-wrap: wrap;
+  }
   .registration-review-actions {
     width: 100%;
   }

@@ -6,7 +6,7 @@ import {
   importPlayerRatingsWrite,
   playerRatingCsvLimit,
 } from "@/lib/player-rating-import-contract";
-import { useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import type { z } from "zod";
 import { PendingButtonLabel } from "./pending-button-label";
 
@@ -14,6 +14,9 @@ type Result = z.infer<typeof importPlayerRatingsWrite.response>;
 
 export function PlayerRatingImport() {
   const tr = useAppTranslations();
+  const id = useId();
+  const dialog = useRef<HTMLDialogElement>(null);
+  const title = tr("Import ETX ratings");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<Result>();
@@ -68,57 +71,88 @@ export function PlayerRatingImport() {
     }
   }
   return (
-    <details className="panel spaced">
-      <summary>{tr("Import ETX ratings")}</summary>
-      <form className="form-stack spaced" onSubmit={submit} aria-busy={pending}>
-        <p className="small muted">
-          {tr("Import matches accepted S11 players by osu! ID.")}
-        </p>
-        <label className="field">
-          <span>{tr("CSV export")}</span>
-          <input
-            name="file"
-            type="file"
-            accept=".csv,text/csv"
-            required
-            disabled={pending}
-          />
-        </label>
-        <div className="actions">
-          <button type="submit" disabled={pending}>
-            <PendingButtonLabel pending={pending}>
-              {tr("Import ratings")}
-            </PendingButtonLabel>
-          </button>
-        </div>
-        {error && (
-          <p className="notice error-text" role="alert">
-            {error}
+    <>
+      <button
+        type="button"
+        className="secondary"
+        aria-haspopup="dialog"
+        aria-controls={id}
+        onClick={() => dialog.current?.showModal()}
+      >
+        {title}
+      </button>
+      <dialog
+        ref={dialog}
+        id={id}
+        aria-labelledby={`${id}-title`}
+        aria-describedby={`${id}-help`}
+        onCancel={(event) => {
+          if (pending) event.preventDefault();
+        }}
+      >
+        <h2 id={`${id}-title`}>{title}</h2>
+        <form
+          className="form-stack spaced"
+          onSubmit={submit}
+          aria-busy={pending}
+        >
+          <p id={`${id}-help`} className="small muted">
+            {tr("Import matches accepted S11 players by osu! ID.")}
           </p>
-        )}
-        {result && (
-          <div role="status" className="small">
-            <p>
-              {tr(
-                "Matched {matched} players, updated {updated} ratings, skipped {unmatched} unmatched rows and {missing} rows without a rating.",
-                {
-                  matched: result.matched,
-                  updated: result.updated,
-                  unmatched: result.unmatched,
-                  missing: result.missing,
-                },
-              )}
-            </p>
-            {result.unmatchedRows.length > 0 && (
-              <p>
-                {tr("First unmatched CSV rows: {rows}", {
-                  rows: result.unmatchedRows.join(", "),
-                })}
-              </p>
-            )}
+          <label className="field">
+            <span>{tr("CSV export")}</span>
+            <input
+              name="file"
+              type="file"
+              accept=".csv,text/csv"
+              required
+              disabled={pending}
+            />
+          </label>
+          <div className="actions">
+            <button type="submit" disabled={pending}>
+              <PendingButtonLabel pending={pending}>
+                {tr("Import ratings")}
+              </PendingButtonLabel>
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              disabled={pending}
+              onClick={() => dialog.current?.close()}
+            >
+              {tr("Close")}
+            </button>
           </div>
-        )}
-      </form>
-    </details>
+          {error && (
+            <p className="notice error-text" role="alert">
+              {error}
+            </p>
+          )}
+          {result && (
+            <div role="status" className="small">
+              <p>
+                {tr(
+                  "Matched {matched} players, updated {updated} ratings, skipped {unmatched} unmatched rows and {missing} rows without a rating.",
+                  {
+                    matched: result.matched,
+                    updated: result.updated,
+                    unmatched: result.unmatched,
+                    missing: result.missing,
+                  },
+                )}
+              </p>
+              {result.unmatchedRows.length > 0 && (
+                <p>
+                  {tr("First unmatched CSV rows: {rows}", {
+                    rows: result.unmatchedRows.join(", "),
+                  })}
+                </p>
+              )}
+            </div>
+          )}
+        </form>
+      </dialog>
+    </>
   );
 }
