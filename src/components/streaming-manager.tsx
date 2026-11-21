@@ -202,6 +202,8 @@ function BroadcastBookings({
   );
   const available =
     data.operational && f.status === "scheduled" && !f.completed;
+  const showBookingActions =
+    commentary || (!f.completed && f.status !== "ended");
   const canSelect = commentary ? data.canSelectCommentary : data.canSelect;
   const assignments = commentary
     ? f.commentators
@@ -262,27 +264,28 @@ function BroadcastBookings({
                 commentary={commentary}
                 conflicts={task.conflicts}
               />
-              {(data.canManage ||
-                (task.userId === data.actorId && canSelect)) && (
-                <div className="actions">
-                  {available &&
-                    task.needsConfirmation &&
-                    action(
-                      "reconfirm",
+              {showBookingActions &&
+                (data.canManage ||
+                  (task.userId === data.actorId && canSelect)) && (
+                  <div className="actions">
+                    {available &&
+                      task.needsConfirmation &&
+                      action(
+                        "reconfirm",
+                        commentary
+                          ? tr("Reconfirm commentary booking")
+                          : tr("Reconfirm booking"),
+                        commentary ? task.userId : undefined,
+                      )}
+                    {action(
+                      "cancel",
                       commentary
-                        ? tr("Reconfirm commentary booking")
-                        : tr("Reconfirm booking"),
+                        ? tr("Cancel commentary task")
+                        : tr("Cancel streaming task"),
                       commentary ? task.userId : undefined,
                     )}
-                  {action(
-                    "cancel",
-                    commentary
-                      ? tr("Cancel commentary task")
-                      : tr("Cancel streaming task"),
-                    commentary ? task.userId : undefined,
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
             </div>
           </li>
         ))}

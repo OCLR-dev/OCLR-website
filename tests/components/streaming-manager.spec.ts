@@ -324,13 +324,15 @@ test("fits long task labels at the workflow viewport", async ({
   ).toEqual([]);
 });
 
-test("adds a valid recording from the confirmation dialog and refreshes the task link", async ({
+test("manages the recording of an ended fixture without offering to cancel the streaming task", async ({
   page,
 }) => {
   const vod = "https://video.example.test/watch?v=synthetic";
-  let fixture: { streamRevision: number; vodUrl: string | null } = {
+  let fixture = {
+    status: "ended",
+    completed: true,
     streamRevision: 8,
-    vodUrl: null,
+    vodUrl: null as string | null,
   };
   const writes: Record<string, unknown>[] = [];
   await page.route("**/synthetic-streaming-state", (route) =>
@@ -340,11 +342,18 @@ test("adds a valid recording from the confirmation dialog and refreshes the task
     "**/api/admin/tournaments/synthetic/streaming/*",
     async (route) => {
       writes.push(route.request().postDataJSON());
-      fixture = { streamRevision: 9, vodUrl: vod };
+      fixture = { ...fixture, streamRevision: 9, vodUrl: vod };
       await route.fulfill({ json: { saved: true } });
     },
   );
   await page.goto("/streaming-manager?vod&refresh");
+  await expect(page.getByText("Ended", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Synthetic Streamer", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Cancel streaming task", exact: true }),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Add match recording" }).click();
   const dialog = page.getByRole("dialog", { name: "Add match recording" });
   const field = dialog.getByLabel("Recording URL");
