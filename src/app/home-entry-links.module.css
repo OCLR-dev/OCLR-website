@@ -114,7 +114,7 @@
   .entries .contact,
   .entries .overview,
   .entries .registration {
-    grid-template-columns: 12px minmax(0, 1fr);
+    grid-template-columns: 16px minmax(0, 1fr);
     min-height: 36px;
     gap: 5px;
     padding: 4px;
@@ -124,7 +124,6 @@
   }
   .iconCell {
     height: 16px;
-    border-right: 0;
   }
   .icon {
     width: 12px;
