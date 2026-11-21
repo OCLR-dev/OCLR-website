@@ -3,3 +3,7 @@
 .page.page {
   padding-block-start: 0;
 }
+
+.page > :global(.info-note-box) > p {
+  max-width: none;
+}
