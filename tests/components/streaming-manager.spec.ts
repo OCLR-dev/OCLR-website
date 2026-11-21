@@ -1,6 +1,50 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+test("keeps the OBS URL and copy control on one line in the broadcast panel", async ({
+  page,
+  isMobile,
+}) => {
+  await page.setViewportSize({ width: isMobile ? 320 : 641, height: 818 });
+  let copied: string | undefined;
+  await page.exposeFunction("recordCopiedUrl", (value: string) => {
+    copied = value;
+  });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: (value: string) =>
+          (
+            window as unknown as {
+              recordCopiedUrl: (value: string) => Promise<void>;
+            }
+          ).recordCopiedUrl(value),
+      },
+    });
+  });
+  await page.goto("/streaming-manager?obs&locale=zh-Hant");
+  await page.getByText("Draft broadcast", { exact: true }).click();
+  const controls = page.locator(".obs-source-controls");
+  const input = controls.getByRole("textbox");
+  const copy = controls.getByRole("button", { name: "複製網址", exact: true });
+  await expect(input).toHaveValue(/\/tournaments\/synthetic\/draft\/overlay$/);
+  const [fieldBox, copyBox] = await Promise.all([
+    input.boundingBox(),
+    copy.boundingBox(),
+  ]);
+  expect(fieldBox!.x + fieldBox!.width).toBeLessThan(copyBox!.x);
+  expect(copyBox!.x + copyBox!.width).toBeLessThanOrEqual(
+    page.viewportSize()!.width,
+  );
+  expect(
+    Math.abs(
+      fieldBox!.y + fieldBox!.height / 2 - copyBox!.y - copyBox!.height / 2,
+    ),
+  ).toBeLessThan(2);
+  await copy.click();
+  await expect.poll(() => copied).toBe(await input.inputValue());
+});
+
 test("selects multiple commentators, retains the draft after a revision conflict, and refreshes all bookings", async ({
   page,
 }, testInfo) => {

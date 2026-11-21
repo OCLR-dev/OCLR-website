@@ -643,6 +643,16 @@
   min-width: 0;
   max-width: 100%;
 }
+.obs-source-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.obs-source-controls > input {
+  min-width: 0;
+}
 .obs-source-link .actions,
 .obs-source-link p {
   margin: 0;
