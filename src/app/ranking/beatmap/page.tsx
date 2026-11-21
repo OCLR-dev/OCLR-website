@@ -12,7 +12,7 @@ import { beatmapLeaderboard } from "@/lib/saved-rankings";
 import { mixColor } from "@/lib/rank-colors";
 import { remotePage } from "@/lib/remote-page";
 
-import styles from "./page.module.css";
+import styles from "../ranking-page.module.css";
 
 /** Value used to rank each box colour; percentages are displayed as 0-100. */
 const STAT_ACCESSORS: Record<

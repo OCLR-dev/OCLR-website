@@ -14,7 +14,7 @@ import {
 import type { DirectoryArt } from "@/lib/osu-profiles";
 import { remotePage } from "@/lib/remote-page";
 
-import styles from "./page.module.css";
+import styles from "../ranking-page.module.css";
 
 /** Value used to rank each stat; lower values get the cool end of the scale. */
 const STAT_ACCESSORS: Record<

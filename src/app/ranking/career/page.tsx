@@ -14,7 +14,7 @@ import type { CareerLeaderboardRow } from "@/lib/ranking-snapshot-model";
 import { careerLeaderboard } from "@/lib/saved-rankings";
 import { remotePage } from "@/lib/remote-page";
 
-import styles from "./page.module.css";
+import styles from "../ranking-page.module.css";
 
 /** Value used to rank each career stat; percentages are displayed as 0-100. */
 const CAREER_ACCESSORS: Record<
