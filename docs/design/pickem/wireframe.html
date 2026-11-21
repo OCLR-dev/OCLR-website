@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="zh-Hans" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OCLR Pick’em 玩家页低保真线框 · #1268</title>
+<!--
+  Low-fidelity wireframe for issue #1268. Self-contained: no remote fonts, images or scripts.
+  All teams, players, times and numbers are synthetic. This file is a design reference,
+  not application source. The COPY object below is the single source for copy.md;
+  regenerate it with `node docs/design/pickem/copy.mjs` after editing COPY.
+-->
+<style>
+/* MainSheet tokens copied from src/app/public-tournament.css (light / dark). */
+:root {
+  --site-background: #f4f1f7; --site-surface: #fff; --site-raised: #f8f4fb; --site-tint: #ece5f3;
+  --site-foreground: #1b1422; --site-muted: #6d6278; --site-secondary-text: #453a50;
+  --site-accent: #6c2e91; --site-accent-strong: #552074; --site-border: #ded5e7;
+  --site-control-border: #cec2da; --site-header: #fdfcfe; --site-success: #17644b;
+  --site-warning: #875505; --site-danger: #a4254a; --site-focus: #a52773;
+  --site-highlight: #ae2679; --site-shadow: #31113b18; --site-on-primary: #fff;
+  --site-primary: #6c2e91; --site-primary-hover: #552074;
+  --text-label: 0.75rem; --text-support: 0.8125rem; --text-small: 0.875rem;
+  --text-body: 1rem; --text-heading: 1.25rem;
+  --board: #e6e3ea; --board-ink: #2b2530; --note: #fff7d6; --note-ink: #5a4500;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --site-background: #090c17; --site-surface: #121626; --site-raised: #191d30; --site-tint: #282039;
+  --site-foreground: #f4f3fc; --site-muted: #b8b3ca; --site-secondary-text: #d4cce1;
+  --site-accent: #dba5f7; --site-accent-strong: #e8c3ff; --site-border: #363044;
+  --site-control-border: #685475; --site-header: #0e1120; --site-success: #72e3bc;
+  --site-warning: #f0cb83; --site-danger: #ff9eaf; --site-focus: #e3a6ef;
+  --site-highlight: #efa5d6; --site-shadow: #0004; --site-on-primary: #fff;
+  --site-primary: #713299; --site-primary-hover: #8740b2;
+  --board: #1d1b22; --board-ink: #e9e5ef; --note: #3a3218; --note-ink: #f3dd9a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--board); color: var(--board-ink);
+  font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+}
+:focus-visible { outline: 2px solid var(--site-focus); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Board chrome (annotation layer, not product UI) */
+.board-bar { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center;
+  padding: 12px 24px; background: var(--board); border-bottom: 1px solid #0002; }
+.board-bar h1 { font-size: 16px; margin: 0; }
+.board-bar label { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; }
+.board-bar select, .board-bar button { font: inherit; padding: 4px 8px; }
+.board { padding: 24px; display: grid; gap: 48px; }
+.board-section > h2 { font-size: 18px; margin: 0 0 4px; }
+.board-section > p.lede { margin: 0 0 16px; max-width: 72ch; opacity: .85; }
+.frames { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.frame-wrap > .frame-label { font-size: 12px; font-family: ui-monospace, Menlo, monospace; margin-bottom: 6px; opacity: .8; }
+.frame { container-type: inline-size; background: var(--site-background); color: var(--site-foreground);
+  border: 1px solid #0003; border-radius: 12px; overflow: hidden; }
+.frame.desktop { width: 1200px; }
+.frame.mobile { width: 390px; }
+.note { background: var(--note); color: var(--note-ink); border-radius: 8px; padding: 8px 12px; font-size: 12px; max-width: 72ch; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, 400px); gap: 24px 32px; }
+.gallery figure { margin: 0; }
+.gallery figcaption { font-size: 12px; margin-bottom: 6px; }
+.gallery figcaption code { font-weight: 700; }
+.gallery .frame { padding: 12px; }
+
+/* Fake site chrome. Mirrors .event-context and the public TournamentNavigation
+   (mobileMenu list) in src/components/tournament-navigation.tsx and public-tournament.css. */
+.site-top { display: flex; align-items: center; gap: 12px; padding: 10px 24px; background: var(--site-header);
+  border-bottom: 1px solid var(--site-border); font-size: var(--text-support); color: var(--site-muted); }
+.site-top b { color: var(--site-accent); font-size: 15px; }
+.ctx { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px;
+  padding: 12px 24px; border-bottom: 1px solid var(--site-border); }
+.ctx .crumb { flex: 1 1 14rem; min-width: 0; font-size: var(--text-small); color: var(--site-muted); }
+.ctx .crumb b { color: var(--site-foreground); font-weight: 650; }
+.ctx nav { display: flex; flex-wrap: nowrap; gap: 4px; padding: 4px; border-radius: 1.5rem; background: var(--site-tint); max-width: 100%; }
+.ctx nav a { display: flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: 999px; white-space: nowrap;
+  font-size: var(--text-small); font-weight: 600; color: var(--site-muted); text-decoration: none; }
+.ctx nav a[aria-current] { background: var(--site-surface); color: var(--site-accent); box-shadow: 0 2px 6px var(--site-shadow); }
+.ctx nav a[aria-current]::before { content: ""; width: 6px; height: 6px; margin-right: 7px; border-radius: 50%; background: var(--site-highlight); }
+.ctx .menu-btn { display: none; }
+@container (max-width: 52rem) {
+  .site-top, .ctx { padding-inline: 16px; }
+  .ctx { flex-wrap: nowrap; }
+  .ctx nav { display: none; position: absolute; z-index: 5; top: 100%; right: 16px; width: min(24rem, calc(100% - 32px)); margin-top: 8px; padding: 8px;
+    border: 1px solid var(--site-control-border); border-radius: 1rem; background: var(--site-surface); box-shadow: 0 8px 24px var(--site-shadow); }
+  .ctx[data-open] nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ctx nav a { white-space: normal; overflow-wrap: anywhere; }
+  .ctx .menu-btn { display: inline-flex; flex: none; gap: 16px; }
+}
+
+/* Shared controls */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 10px 16px;
+  border-radius: 0.45rem; border: 1px solid transparent; font: inherit; font-size: var(--text-support); font-weight: 600; cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--site-primary); color: var(--site-on-primary); }
+.btn.primary:hover { background: var(--site-primary-hover); }
+.btn.secondary { background: var(--site-surface); color: var(--site-accent); border-color: var(--site-control-border); }
+.btn[aria-disabled="true"] { background: var(--site-tint); color: var(--site-muted); border-color: var(--site-border); cursor: default; }
+.btn[aria-busy="true"] { opacity: .8; cursor: progress; }
+.link { background: none; border: 0; padding: 0; font: inherit; color: var(--site-accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.muted { color: var(--site-muted); }
+.small { font-size: var(--text-support); }
+.label { font-size: var(--text-label); color: var(--site-muted); }
+svg.i { width: 14px; height: 14px; flex: none; vertical-align: -2px; }
+
+/* Pick'em page */
+.pk { padding: 24px; }
+@container (max-width: 760px) { .pk { padding: 16px; } }
+.pk-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+.pk-head h1 { margin: 0; font-size: 1.75rem; line-height: 1.2; }
+.pk-head .rules { margin-left: auto; min-height: 44px; }
+.pk-intro { margin: 8px 0 0; color: var(--site-secondary-text); font-size: var(--text-small); max-width: 60ch; }
+.pk-tabs { display: flex; gap: 4px; margin: 20px 0 0; border-bottom: 1px solid var(--site-border); overflow-x: auto; }
+.pk-tabs a { padding: 10px 14px; font-size: var(--text-small); color: var(--site-muted); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+.pk-tabs a[aria-current] { color: var(--site-accent); border-bottom-color: var(--site-accent); font-weight: 600; }
+.pk-filters { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 16px 0; }
+.pk-filters select { font: inherit; font-size: var(--text-support); min-height: 40px; padding: 6px 10px; border-radius: 0.45rem;
+  border: 1px solid var(--site-control-border); background: var(--site-surface); color: var(--site-foreground); }
+.chips { display: flex; gap: 6px; overflow-x: auto; }
+.chips button { font: inherit; font-size: var(--text-support); min-height: 36px; padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid var(--site-control-border); background: var(--site-surface); color: var(--site-muted); cursor: pointer; }
+.chips button[aria-pressed="true"] { background: var(--site-tint); color: var(--site-accent); border-color: var(--site-accent); font-weight: 600; }
+.pk-count { margin-left: auto; font-size: var(--text-support); color: var(--site-muted); }
+@container (max-width: 760px) {
+  .pk-filters { flex-wrap: nowrap; flex-direction: column; align-items: stretch; }
+  .pk-filters .pk-count { margin-left: 0; }
+}
+.pk-layout { display: grid; gap: 24px; }
+@container (min-width: 900px) { .pk-layout { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; } .pk-aside { position: sticky; top: 16px; } }
+.pk-list { display: grid; gap: 16px; }
+.pk-group-title { margin: 8px 0 -4px; font-size: var(--text-label); letter-spacing: .04em; color: var(--site-muted); font-weight: 600; }
+
+/* Fixture card */
+.pk-card { background: var(--site-surface); border: 1px solid var(--site-control-border); border-radius: 0.6rem; box-shadow: 0 4px 12px var(--site-shadow); }
+.pk-card-body { padding: 16px; display: grid; gap: 12px; }
+.pk-card-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.pk-card-head h3 { margin: 0; font-size: var(--text-support); font-weight: 600; color: var(--site-accent); }
+.pk-times { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: var(--text-support); color: var(--site-secondary-text); }
+.pk-times .rel { color: var(--site-muted); }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: var(--text-label); font-weight: 600; white-space: nowrap;
+  border: 1px solid currentColor; }
+.badge[data-tone="accent"] { color: var(--site-accent); }
+.badge[data-tone="success"] { color: var(--site-success); }
+.badge[data-tone="warning"] { color: var(--site-warning); }
+.badge[data-tone="danger"] { color: var(--site-danger); }
+.badge[data-tone="muted"] { color: var(--site-muted); }
+fieldset.pk-options { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: stretch; }
+fieldset.pk-options.has-draw { grid-template-columns: minmax(0,1fr) minmax(0,.7fr) minmax(0,1fr); }
+.pk-vs { align-self: center; font-size: var(--text-label); color: var(--site-muted); padding: 0 4px; }
+.pk-option { display: grid; grid-template-columns: auto auto minmax(0,1fr); gap: 10px; align-items: center; min-height: 52px; padding: 10px 12px;
+  border: 1px solid var(--site-control-border); border-radius: 0.6rem; background: var(--site-surface); cursor: pointer; }
+.pk-option:hover { border-color: var(--site-accent); }
+.pk-option input { margin: 0; accent-color: var(--site-accent); width: 18px; height: 18px; }
+.pk-option:has(input:focus-visible) { outline: 2px solid var(--site-focus); outline-offset: 2px; }
+.pk-option:has(input:checked) { border: 2px solid var(--site-accent); padding: 9px 11px; background: var(--site-tint); }
+.pk-option:has(input:disabled) { cursor: default; opacity: .75; }
+.pk-option .name { overflow-wrap: anywhere; font-weight: 500; line-height: 1.3; }
+.pk-option:has(input:checked) .name { font-weight: 700; }
+.pk-option.draw { grid-template-columns: auto minmax(0,1fr); justify-items: start; }
+.mono { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--site-tint); color: var(--site-accent);
+  font-size: 11px; font-weight: 700; flex: none; border: 1px solid var(--site-border); }
+@container (max-width: 560px) {
+  fieldset.pk-options, fieldset.pk-options.has-draw { grid-template-columns: minmax(0,1fr); }
+  .pk-vs { display: none; }
+  .pk-option.draw { order: 3; }
+}
+.pk-foot { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; border-top: 1px solid var(--site-border); padding-top: 12px; }
+.pk-foot .msg { font-size: var(--text-support); color: var(--site-secondary-text); display: flex; gap: 6px; align-items: flex-start; flex: 1 1 220px; }
+.pk-foot .msg[data-tone="danger"] { color: var(--site-danger); }
+.pk-foot .msg[data-tone="success"] { color: var(--site-success); }
+.pk-foot .msg[data-tone="warning"] { color: var(--site-warning); }
+.pk-foot .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+@container (max-width: 560px) { .pk-foot .actions, .pk-foot .actions .btn { width: 100%; } }
+.pk-note { display: flex; gap: 6px; font-size: var(--text-support); padding: 8px 10px; border-radius: 0.45rem; background: var(--site-raised); border: 1px dashed var(--site-control-border); color: var(--site-secondary-text); }
+.pk-note[data-tone="warning"] { border-color: var(--site-warning); color: var(--site-warning); }
+.pk-live:empty { display: none; }
+.pk-live { margin: 0 16px 12px; font-size: var(--text-label); color: var(--site-muted); }
+
+/* Distribution & results */
+.pk-dist { display: grid; gap: 8px; }
+.pk-dist-row { display: grid; grid-template-columns: minmax(0, 11rem) minmax(60px, 1fr) auto; gap: 4px 12px; align-items: center; font-size: var(--text-support); }
+.pk-dist-row .name { overflow-wrap: anywhere; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.pk-dist-row .bar { height: 8px; background: var(--site-tint); border-radius: 999px; overflow: hidden; }
+.pk-dist-row .bar i { display: block; height: 100%; background: var(--site-accent); border-radius: 999px; }
+.pk-dist-row[data-mine] .name { font-weight: 700; }
+.pk-dist-row .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pk-dist-row .num small { color: var(--site-muted); margin-left: 4px; }
+.tag { display: inline-flex; align-items: center; gap: 3px; font-size: var(--text-label); padding: 0 6px; border-radius: 999px; background: var(--site-tint); color: var(--site-accent); font-weight: 600; white-space: nowrap; }
+.tag.win { background: transparent; border: 1px solid var(--site-success); color: var(--site-success); }
+@container (max-width: 560px) { .pk-dist-row { grid-template-columns: minmax(0,1fr) auto; } .pk-dist-row .bar { grid-column: 1 / -1; grid-row: 2; } }
+.pk-result { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: var(--text-support); }
+.score-chip { font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid currentColor; font-size: var(--text-support); white-space: nowrap; }
+.score-chip[data-tone="success"] { color: var(--site-success); }
+.score-chip[data-tone="muted"] { color: var(--site-muted); }
+.score-chip[data-tone="danger"] { color: var(--site-danger); }
+
+/* Aside */
+.panel { background: var(--site-surface); border: 1px solid var(--site-border); border-radius: 0.75rem; padding: 16px; display: grid; gap: 12px; }
+.panel + .panel { margin-top: 16px; }
+.panel h2 { margin: 0; font-size: var(--text-small); }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stat b { display: block; font-size: 1.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat span { font-size: var(--text-label); color: var(--site-muted); }
+.progress { height: 6px; background: var(--site-tint); border-radius: 999px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--site-accent); }
+.mini-board { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: var(--text-support); }
+.mini-board li { display: grid; grid-template-columns: 2.5rem minmax(0,1fr) auto; gap: 8px; padding: 6px 8px; border-radius: 0.45rem; align-items: center; }
+.mini-board li[data-me] { background: var(--site-tint); box-shadow: inset 3px 0 0 var(--site-accent); font-weight: 600; }
+.mini-board li.gap { color: var(--site-muted); grid-template-columns: 1fr; text-align: center; padding: 0; }
+.rank { font-variant-numeric: tabular-nums; color: var(--site-muted); }
+.rank small { display: block; font-size: 10px; line-height: 1; }
+
+/* Tables (my picks / leaderboard) */
+.tbl { width: 100%; border-collapse: collapse; background: var(--site-surface); border: 1px solid var(--site-border); border-radius: 0.6rem; overflow: hidden; font-size: var(--text-support); }
+.tbl th { text-align: left; font-size: var(--text-label); color: var(--site-muted); font-weight: 600; padding: 10px 12px; background: var(--site-raised); border-bottom: 1px solid var(--site-border); }
+.tbl td { padding: 10px 12px; border-bottom: 1px solid var(--site-border); vertical-align: top; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td.num, .tbl th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl tr[data-me] td { background: var(--site-tint); font-weight: 600; }
+.tbl tr[data-me] td:first-child { box-shadow: inset 3px 0 0 var(--site-accent); }
+.tbl .teams { overflow-wrap: anywhere; }
+.tbl .sub { display: block; color: var(--site-muted); font-size: var(--text-label); font-weight: 400; }
+.player { display: inline-flex; gap: 8px; align-items: center; }
+.player .mono { width: 24px; height: 24px; font-size: 10px; }
+@container (max-width: 640px) {
+  .tbl.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tbl.stack, .tbl.stack tbody, .tbl.stack tr, .tbl.stack td { display: block; width: 100%; }
+  .tbl.stack tr { padding: 10px 12px; border-bottom: 1px solid var(--site-border); }
+  .tbl.stack td { border: 0; padding: 2px 0; text-align: left; }
+  .tbl.stack td[data-label]::before { content: attr(data-label) "　"; color: var(--site-muted); font-size: var(--text-label); font-weight: 400; }
+  .tbl.stack td.num { text-align: left; }
+}
+.lb-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin: 16px 0; }
+.seg { display: inline-flex; border: 1px solid var(--site-control-border); border-radius: 999px; padding: 2px; background: var(--site-surface); }
+.seg button { font: inherit; font-size: var(--text-support); border: 0; background: none; padding: 6px 14px; border-radius: 999px; color: var(--site-muted); min-height: 36px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--site-tint); color: var(--site-accent); font-weight: 600; }
+.switch-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px 16px; align-items: start; }
+.switch { position: relative; width: 48px; height: 28px; border-radius: 999px; border: 1px solid var(--site-control-border); background: var(--site-tint); cursor: pointer; padding: 0; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--site-muted); transition: left .15s; }
+.switch[aria-checked="true"] { background: var(--site-primary); border-color: var(--site-primary); }
+.switch[aria-checked="true"]::after { left: 23px; background: #fff; }
+@media (prefers-reduced-motion: reduce) { .switch::after { transition: none; } }
+.pager { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+
+/* Page-level states */
+.state { display: grid; justify-items: start; gap: 8px; padding: 24px; background: var(--site-surface); border: 1px dashed var(--site-control-border); border-radius: 0.75rem; }
+.state h2 { margin: 0; font-size: var(--text-body); }
+.state p { margin: 0; color: var(--site-secondary-text); font-size: var(--text-small); }
+.banner { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 16px; border-radius: 0.6rem; border: 1px solid var(--site-control-border); background: var(--site-raised); font-size: var(--text-small); margin: 16px 0; }
+.banner[data-tone="danger"] { border-color: var(--site-danger); }
+.banner[data-tone="warning"] { border-color: var(--site-warning); }
+.banner p { margin: 0; flex: 1 1 240px; }
+.skel { background: linear-gradient(90deg, var(--site-tint), var(--site-raised), var(--site-tint)); border-radius: 6px; height: 12px; }
+.skel-card { background: var(--site-surface); border: 1px solid var(--site-border); border-radius: 0.6rem; padding: 16px; display: grid; gap: 12px; }
+.rules-list { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; font-size: var(--text-small); color: var(--site-secondary-text); }
+
+/* Rules dialog: modal on desktop, bottom sheet on narrow viewports. Esc and the close button dismiss it;
+   focus returns to the button that opened it. */
+.pk-dialog { width: min(34rem, calc(100% - 32px)); max-height: calc(100dvh - 64px); padding: 0; border: 1px solid var(--site-control-border);
+  border-radius: 0.75rem; background: var(--site-surface); color: var(--site-foreground); box-shadow: 0 16px 40px var(--site-shadow); }
+.pk-dialog::backdrop { background: #0006; }
+.pk-dialog-inner { display: grid; gap: 12px; padding: 20px; }
+.pk-dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.pk-dialog-head h2 { margin: 0; font-size: var(--text-heading); }
+.pk-dialog .rules-list { font-size: var(--text-small); gap: 8px; }
+.pk-dialog-foot { display: flex; justify-content: flex-end; }
+@media (max-width: 560px) {
+  .pk-dialog { width: 100%; max-width: 100%; margin: auto 0 0; border-radius: 0.75rem 0.75rem 0 0; }
+}
+.pk-dialog.static { position: static; display: block; width: 100%; box-shadow: none; }
+
+/* Leaderboard: own rank when the row is outside the loaded page */
+.lb-self { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between;
+  margin-top: 12px; padding: 10px 12px; border: 1px solid var(--site-accent); border-radius: 0.6rem; background: var(--site-tint);
+  font-size: var(--text-support); box-shadow: 0 -4px 12px var(--site-shadow); }
+.lb-self b { font-variant-numeric: tabular-nums; }
+.tbl tr.gap td { text-align: center; color: var(--site-muted); padding: 4px; }
+.tbl tr[tabindex]:focus-visible { outline: 2px solid var(--site-focus); outline-offset: -2px; }
+</style>
+</head>
+<body>
+<header class="board-bar">
+  <h1>OCLR Pick’em 玩家页 · 低保真线框（#1268）</h1>
+  <label>语言 <select id="lang"><option value="zh-Hans">zh-Hans</option><option value="zh-Hant">zh-Hant</option><option value="en">en</option></select></label>
+  <label>明暗 <select id="theme"><option value="light">light</option><option value="dark">dark</option></select></label>
+  <label><input type="checkbox" id="fail" /> 模拟保存失败</label>
+  <span class="note">所有队伍、玩家、时间与数字均为合成示例。规则与中文文案待主办确认。</span>
+</header>
+<main class="board" id="board"></main>
+<dialog class="pk-dialog" id="rules-dialog" aria-labelledby="rules-title"></dialog>
+<p class="sr-only" id="board-live" role="status" aria-live="polite"></p>
+
+<script>
+/* ------------------------------------------------------------------
+ * COPY: proposed interface strings. Keys starting with "x_" reuse existing
+ * catalog strings and are excluded from copy.md. Placeholders use {name}.
+ * ------------------------------------------------------------------ */
+const COPY = {
+  // existing catalog strings (reused); public nav order follows TournamentNavigation mobileMenu
+  x_tournaments: { "zh-Hans": "赛事", "zh-Hant": "賽事", en: "Tournaments" },
+  x_main_page: { "zh-Hans": "主页面", "zh-Hant": "主頁面", en: "Main page" },
+  x_players: { "zh-Hans": "选手", "zh-Hant": "選手", en: "Players" },
+  x_teams: { "zh-Hans": "队伍", "zh-Hant": "隊伍", en: "Teams" },
+  x_draft_results: { "zh-Hans": "选秀结果", "zh-Hant": "選秀結果", en: "Draft results" },
+  x_schedule: { "zh-Hans": "赛程", "zh-Hant": "賽程", en: "Schedule" },
+  x_pools: { "zh-Hans": "图池", "zh-Hant": "圖池", en: "Pools" },
+  x_statistics: { "zh-Hans": "数据统计", "zh-Hant": "數據統計", en: "Statistics" },
+  x_nav_label: { "zh-Hans": "赛事导航", "zh-Hant": "賽事導航", en: "Tournament navigation" },
+  x_menu: { "zh-Hans": "赛事菜单", "zh-Hant": "賽事選單", en: "Tournament menu" },
+  x_vs: { "zh-Hans": "对阵", "zh-Hant": "對陣", en: "vs" },
+  x_close: { "zh-Hans": "关闭", "zh-Hant": "關閉", en: "Close" },
+  x_round: { "zh-Hans": "轮次", "zh-Hant": "輪次", en: "Round" },
+  x_all: { "zh-Hans": "全部", "zh-Hant": "全部", en: "All" },
+  x_loading: { "zh-Hans": "加载中…", "zh-Hant": "載入中…", en: "Loading…" },
+  x_retry: { "zh-Hans": "重试", "zh-Hant": "重試", en: "Retry" },
+  x_signin_again: { "zh-Hans": "重新登录", "zh-Hant": "重新登入", en: "Sign in again" },
+  x_continue_osu: { "zh-Hans": "使用 osu! 继续", "zh-Hant": "使用 osu! 繼續", en: "Continue with osu!" },
+  x_points: { "zh-Hans": "积分", "zh-Hant": "積分", en: "Points" },
+  x_saving: { "zh-Hans": "正在保存…", "zh-Hant": "正在儲存…", en: "Saving…" },
+  x_saved: { "zh-Hans": "已保存", "zh-Hant": "已儲存", en: "Saved" },
+
+  // navigation & header
+  nav_pickem: { "zh-Hans": "赛事预测", "zh-Hant": "賽事預測", en: "Pick’em" },
+  page_title: { "zh-Hans": "赛事预测", "zh-Hant": "賽事預測", en: "Pick’em" },
+  rules_link: { "zh-Hans": "玩法", "zh-Hant": "玩法", en: "How it works" },
+  intro: {
+    "zh-Hans": "在截止前选出每场开放场次的胜方，猜中得 1 分。积分仅用于娱乐排名。",
+    "zh-Hant": "在截止前選出每場開放場次的勝方，猜中得 1 分。積分僅用於娛樂排名。",
+    en: "Pick the winner of each open match before it closes. Each correct pick earns 1 point. Points are only for a fun ranking.",
+  },
+  tab_matches: { "zh-Hans": "本轮场次", "zh-Hant": "本輪場次", en: "Matches" },
+  tab_mine: { "zh-Hans": "我的预测", "zh-Hant": "我的預測", en: "My picks" },
+  tab_board: { "zh-Hans": "排行榜", "zh-Hant": "排行榜", en: "Leaderboard" },
+  filter_status: { "zh-Hans": "场次状态", "zh-Hant": "場次狀態", en: "Match status" },
+  filter_open: { "zh-Hans": "可预测", "zh-Hant": "可預測", en: "Open" },
+  filter_closed: { "zh-Hans": "已截止", "zh-Hant": "已截止", en: "Closed" },
+  filter_settled: { "zh-Hans": "已结算", "zh-Hant": "已結算", en: "Settled" },
+  picked_count: { "zh-Hans": "已预测 {picked}/{total} 场开放场次", "zh-Hant": "已預測 {picked}/{total} 場開放場次", en: "{picked} of {total} open matches picked" },
+  group_open: { "zh-Hans": "可预测", "zh-Hant": "可預測", en: "Open for picks" },
+  group_locked: { "zh-Hans": "已截止", "zh-Hant": "已截止", en: "Closed" },
+  group_done: { "zh-Hans": "已结算与作废", "zh-Hant": "已結算與作廢", en: "Settled and voided" },
+
+  // rules panel
+  rules_title: { "zh-Hans": "玩法", "zh-Hant": "玩法", en: "How it works" },
+  rules_more: { "zh-Hans": "查看全部规则", "zh-Hant": "查看全部規則", en: "See all rules" },
+  rules_1: { "zh-Hans": "在截止前选出开放场次的胜方，截止前可随时修改。", "zh-Hant": "在截止前選出開放場次的勝方，截止前可隨時修改。", en: "Pick the winner of an open match. You can change your pick until it closes." },
+  rules_time: { "zh-Hans": "截止时间不晚于开赛时间。比赛提前时截止随之提前；比赛延后时截止时间不变。", "zh-Hant": "截止時間不晚於開賽時間。比賽提前時截止隨之提前；比賽延後時截止時間不變。", en: "Picks close no later than the scheduled start. If a match moves earlier, picks close earlier too. If it moves later, the closing time stays the same." },
+  rules_2: { "zh-Hans": "允许平局的轮次才会出现平局选项。", "zh-Hant": "允許平局的輪次才會出現平局選項。", en: "A draw option appears only in rounds that allow draws." },
+  rules_3: { "zh-Hans": "猜中得 1 分，猜错 0 分；同分并列。", "zh-Hant": "猜中得 1 分，猜錯 0 分；同分並列。", en: "A correct pick earns 1 point and a wrong pick earns 0. Equal points share a rank." },
+  rules_4: { "zh-Hans": "只计算已审核并发布的官方赛果。赛果更正后重新计分；对局取消或对战组合变更的预测不计分。", "zh-Hant": "只計算已審核並發布的官方賽果。賽果更正後重新計分；對局取消或對戰組合變更的預測不計分。", en: "Only reviewed and published official results count. Points are recalculated when a result is corrected. Picks for cancelled matches or changed matchups don’t count." },
+  rules_5: { "zh-Hans": "个人预测只有你自己能看到。截止后显示无记名的选择比例。", "zh-Hant": "個人預測只有你自己能看到。截止後顯示無記名的選擇比例。", en: "Only you can see your picks. Anonymous totals appear after a match closes." },
+  rules_6: { "zh-Hans": "排行榜只显示选择加入的玩家。", "zh-Hant": "排行榜只顯示選擇加入的玩家。", en: "The leaderboard only shows players who choose to appear on it." },
+
+  // card
+  starts_at: { "zh-Hans": "开赛 {time}", "zh-Hant": "開賽 {time}", en: "Starts {time}" },
+  closes_at: { "zh-Hans": "截止 {time}", "zh-Hant": "截止 {time}", en: "Closes {time}" },
+  closed_at: { "zh-Hans": "已于 {time} 截止", "zh-Hant": "已於 {time} 截止", en: "Closed {time}" },
+  time_left: { "zh-Hans": "还剩 {duration}", "zh-Hant": "還剩 {duration}", en: "{duration} left" },
+  dur_dh: { "zh-Hans": "{d} 天 {h} 小时", "zh-Hant": "{d} 天 {h} 小時", en: "{d} d {h} hr" },
+  dur_hm: { "zh-Hans": "{h} 小时 {m} 分", "zh-Hant": "{h} 小時 {m} 分", en: "{h} hr {m} min" },
+  dur_m: { "zh-Hans": "{m} 分钟", "zh-Hant": "{m} 分鐘", en: "{m} min" },
+  draw: { "zh-Hans": "平局", "zh-Hant": "平局", en: "Draw" },
+  options_legend: { "zh-Hans": "预测 {home} 对 {away} 的结果", "zh-Hant": "預測 {home} 對 {away} 的結果", en: "Pick a result for {home} vs {away}" },
+  status_open: { "zh-Hans": "可预测", "zh-Hant": "可預測", en: "Open" },
+  status_closing: { "zh-Hans": "截止确认中", "zh-Hant": "截止確認中", en: "Closing" },
+  status_closed: { "zh-Hans": "已截止", "zh-Hant": "已截止", en: "Closed" },
+  status_awaiting: { "zh-Hans": "待公布赛果", "zh-Hant": "待公布賽果", en: "Awaiting result" },
+  status_settled: { "zh-Hans": "已结算", "zh-Hant": "已結算", en: "Settled" },
+  status_voided: { "zh-Hans": "已作废", "zh-Hant": "已作廢", en: "Voided" },
+  status_saved: { "zh-Hans": "已保存", "zh-Hant": "已儲存", en: "Saved" },
+  save_pick: { "zh-Hans": "保存预测", "zh-Hant": "儲存預測", en: "Save pick" },
+  hint_choose: { "zh-Hans": "选择一支队伍后保存。", "zh-Hant": "選擇一支隊伍後儲存。", en: "Choose a team, then save." },
+  hint_choose_draw: { "zh-Hans": "选择一个结果后保存。", "zh-Hant": "選擇一個結果後儲存。", en: "Choose a result, then save." },
+  selected_unsaved: { "zh-Hans": "已选 {team}，尚未保存。", "zh-Hant": "已選 {team}，尚未儲存。", en: "{team} selected. Not saved yet." },
+  changed_unsaved: { "zh-Hans": "已改选 {team}，尚未保存。目前保存的是 {saved}。", "zh-Hant": "已改選 {team}，尚未儲存。目前儲存的是 {saved}。", en: "Changed to {team}. Not saved yet. Your saved pick is {saved}." },
+  receipt: { "zh-Hans": "你的预测：{team} · {time} 保存", "zh-Hant": "你的預測：{team} · {time} 儲存", en: "Your pick: {team} · saved {time}" },
+  editable_until: { "zh-Hans": "{time} 前可修改。", "zh-Hant": "{time} 前可修改。", en: "You can change it until {time}." },
+  live_saving: { "zh-Hans": "正在保存预测…", "zh-Hant": "正在儲存預測…", en: "Saving your pick…" },
+  live_saved: { "zh-Hans": "预测已保存：{team}", "zh-Hant": "預測已儲存：{team}", en: "Pick saved: {team}" },
+  err_network: { "zh-Hans": "未能保存。你的选择仍保留，请重试。", "zh-Hant": "未能儲存。你的選擇仍保留，請重試。", en: "Couldn’t save. Your choice is still selected. Try again." },
+  err_stale: { "zh-Hans": "此预测已在其他页面或设备上更新，目前保存的是 {saved}。请确认后重新保存。", "zh-Hant": "此預測已在其他頁面或裝置上更新，目前儲存的是 {saved}。請確認後重新儲存。", en: "This pick was updated on another page or device. Your saved pick is {saved}. Check your choice and save again." },
+  err_closed: { "zh-Hans": "此场次已截止，本次选择未保存。", "zh-Hant": "此場次已截止，本次選擇未儲存。", en: "This match closed before your pick was saved." },
+  err_session: { "zh-Hans": "登录已失效。重新登录后会回到本页，未保存的选择会保留。", "zh-Hant": "登入已失效。重新登入後會回到本頁，未儲存的選擇會保留。", en: "Your session has expired. Sign in again to return to this page. Your unsaved choice will be kept." },
+  err_voided: { "zh-Hans": "此场次的预测已作废，本次选择未保存。", "zh-Hant": "此場次的預測已作廢，本次選擇未儲存。", en: "Picks for this match were voided. Your choice wasn’t saved." },
+  closing_wait: { "zh-Hans": "已到截止时间，正在向服务器确认。", "zh-Hant": "已到截止時間，正在向伺服器確認。", en: "Closing time reached. Confirming with the server." },
+  live_closed: { "zh-Hans": "此场次已截止。", "zh-Hant": "此場次已截止。", en: "This match is now closed." },
+  dist_caption: { "zh-Hans": "共 {count} 人预测 · 截止后显示的无记名比例", "zh-Hant": "共 {count} 人預測 · 截止後顯示的無記名比例", en: "{count} picks · anonymous totals shown after closing" },
+  dist_zero: { "zh-Hans": "尚无预测", "zh-Hant": "尚無預測", en: "No picks yet" },
+  dist_zero_body: { "zh-Hans": "截止前没有人预测此场次。", "zh-Hant": "截止前沒有人預測此場次。", en: "Nobody picked this match before it closed." },
+  dist_votes: { "zh-Hans": "{count} 票", "zh-Hant": "{count} 票", en: "{count} picks" },
+  your_pick: { "zh-Hans": "你的预测", "zh-Hant": "你的預測", en: "Your pick" },
+  no_pick: { "zh-Hans": "你未预测此场次。", "zh-Hant": "你未預測此場次。", en: "You didn’t pick this match." },
+  awaiting_body: { "zh-Hans": "预测已锁定，正式赛果发布后计分。", "zh-Hant": "預測已鎖定，正式賽果發布後計分。", en: "Picks are locked. Points are added after the official result is published." },
+  winner_tag: { "zh-Hans": "胜方", "zh-Hant": "勝方", en: "Winner" },
+  result_win: { "zh-Hans": "赛果：{team} 胜 {score}", "zh-Hant": "賽果：{team} 勝 {score}", en: "Result: {team} won {score}" },
+  result_draw: { "zh-Hans": "赛果：平局 {score}", "zh-Hant": "賽果：平局 {score}", en: "Result: draw {score}" },
+  pts_hit: { "zh-Hans": "猜中 +1", "zh-Hant": "猜中 +1", en: "Correct +1" },
+  pts_miss: { "zh-Hans": "未猜中 0", "zh-Hant": "未猜中 0", en: "Missed 0" },
+  pts_none: { "zh-Hans": "未预测", "zh-Hant": "未預測", en: "No pick" },
+  pts_void: { "zh-Hans": "不计分", "zh-Hant": "不計分", en: "Not scored" },
+  pts_pending: { "zh-Hans": "待计分", "zh-Hant": "待計分", en: "Pending" },
+  view_result: { "zh-Hans": "查看赛果", "zh-Hant": "查看賽果", en: "View result" },
+  view_match: { "zh-Hans": "查看对局", "zh-Hant": "查看對局", en: "View match" },
+  revised: { "zh-Hans": "赛果已更正，积分已重新计算。", "zh-Hant": "賽果已更正，積分已重新計算。", en: "The result was corrected and points were recalculated." },
+  withdrawn: { "zh-Hans": "原赛果已撤回，积分暂时移除，等待有效赛果。", "zh-Hant": "原賽果已撤回，積分暫時移除，等待有效賽果。", en: "The published result was withdrawn. Points are removed until a valid result is published." },
+  void_cancelled: { "zh-Hans": "对局已取消，此场次的预测不计分。", "zh-Hant": "對局已取消，此場次的預測不計分。", en: "The match was cancelled. Picks for it don’t count." },
+  void_matchup: { "zh-Hans": "对战组合已变更，原预测不计分。如重新开放，需要重新预测。", "zh-Hant": "對戰組合已變更，原預測不計分。如重新開放，需要重新預測。", en: "The matchup changed, so earlier picks don’t count. If the match reopens, you’ll need to pick again." },
+  void_no_outcome: { "zh-Hans": "正式赛果没有可计分的胜负，此场次不计分。", "zh-Hant": "正式賽果沒有可計分的勝負，此場次不計分。", en: "The official result has no scorable outcome, so this match isn’t scored." },
+  resched_later: { "zh-Hans": "开赛时间已改为 {time}，截止时间保持 {close}。", "zh-Hant": "開賽時間已改為 {time}，截止時間保持 {close}。", en: "The match moved to {time}. Picks still close at {close}." },
+  resched_earlier: { "zh-Hans": "比赛提前，截止时间已改为 {close}。", "zh-Hant": "比賽提前，截止時間已改為 {close}。", en: "The match moved earlier. Picks now close at {close}." },
+  visitor_card_hint: { "zh-Hans": "登录后可预测", "zh-Hant": "登入後可預測", en: "Sign in to pick" },
+
+  // aside
+  progress_title: { "zh-Hans": "我的进度", "zh-Hant": "我的進度", en: "My progress" },
+  round_points: { "zh-Hans": "本轮积分", "zh-Hant": "本輪積分", en: "Round points" },
+  season_points: { "zh-Hans": "全季积分", "zh-Hant": "全季積分", en: "Season points" },
+  hits: { "zh-Hans": "猜中 {hit}/{settled} 场", "zh-Hant": "猜中 {hit}/{settled} 場", en: "{hit} of {settled} correct" },
+  next_close: { "zh-Hans": "最近截止 {time}", "zh-Hant": "最近截止 {time}", en: "Next closing {time}" },
+  rank_round: { "zh-Hans": "本轮第 {rank} 名", "zh-Hant": "本輪第 {rank} 名", en: "Round rank {rank}" },
+  rank_round_tied: { "zh-Hans": "本轮并列第 {rank} 名", "zh-Hant": "本輪並列第 {rank} 名", en: "Tied for {rank} this round" },
+  not_listed: { "zh-Hans": "未加入排行榜", "zh-Hant": "未加入排行榜", en: "Not on the leaderboard" },
+  board_summary: { "zh-Hans": "本轮排行榜", "zh-Hant": "本輪排行榜", en: "Round leaderboard" },
+  full_board: { "zh-Hans": "查看完整排行榜", "zh-Hant": "查看完整排行榜", en: "Full leaderboard" },
+
+  // my picks
+  mine_match: { "zh-Hans": "场次", "zh-Hant": "場次", en: "Match" },
+  mine_pick: { "zh-Hans": "我的预测", "zh-Hant": "我的預測", en: "My pick" },
+  mine_result: { "zh-Hans": "赛果", "zh-Hant": "賽果", en: "Result" },
+  mine_points: { "zh-Hans": "得分", "zh-Hant": "得分", en: "Points" },
+  mine_status: { "zh-Hans": "状态", "zh-Hant": "狀態", en: "Status" },
+  mine_caption: { "zh-Hans": "只有你能看到这些预测。", "zh-Hant": "只有你能看到這些預測。", en: "Only you can see these picks." },
+  mine_empty_title: { "zh-Hans": "你还没有预测", "zh-Hant": "你還沒有預測", en: "You haven’t made any picks" },
+  mine_empty_body: { "zh-Hans": "选择开放场次的胜方后，记录会显示在这里。", "zh-Hant": "選擇開放場次的勝方後，紀錄會顯示在這裡。", en: "Your picks appear here after you choose winners for open matches." },
+  go_open: { "zh-Hans": "前往可预测场次", "zh-Hant": "前往可預測場次", en: "Go to open matches" },
+  result_pending: { "zh-Hans": "待公布", "zh-Hant": "待公布", en: "Pending" },
+  dash: { "zh-Hans": "—", "zh-Hant": "—", en: "—" },
+
+  // leaderboard
+  scope_round: { "zh-Hans": "本轮", "zh-Hant": "本輪", en: "This round" },
+  scope_season: { "zh-Hans": "全季", "zh-Hant": "全季", en: "Season" },
+  scope_label: { "zh-Hans": "排行范围", "zh-Hant": "排行範圍", en: "Leaderboard scope" },
+  lb_rank: { "zh-Hans": "名次", "zh-Hant": "名次", en: "Rank" },
+  lb_player: { "zh-Hans": "玩家", "zh-Hant": "玩家", en: "Player" },
+  lb_hits: { "zh-Hans": "猜中", "zh-Hant": "猜中", en: "Correct" },
+  lb_tied: { "zh-Hans": "并列", "zh-Hant": "並列", en: "Tied" },
+  lb_tied_sr: { "zh-Hans": "并列第 {rank} 名", "zh-Hant": "並列第 {rank} 名", en: "Tied for rank {rank}" },
+  lb_you: { "zh-Hans": "你", "zh-Hant": "你", en: "You" },
+  lb_jump: { "zh-Hans": "定位到我", "zh-Hant": "定位到我", en: "Jump to my rank" },
+  lb_self: { "zh-Hans": "你的名次：第 {rank} 名 · {points} 分", "zh-Hant": "你的名次：第 {rank} 名 · {points} 分", en: "Your rank: {rank} · {points} pts" },
+  lb_self_tied: { "zh-Hans": "你的名次：并列第 {rank} 名 · {points} 分", "zh-Hant": "你的名次：並列第 {rank} 名 · {points} 分", en: "Your rank: tied for {rank} · {points} pts" },
+  lb_jumped: { "zh-Hans": "已显示你所在的位置：第 {rank} 名。", "zh-Hant": "已顯示你所在的位置：第 {rank} 名。", en: "Showing your position: rank {rank}." },
+  lb_back_top: { "zh-Hans": "回到榜首", "zh-Hant": "回到榜首", en: "Back to the top" },
+  board_season: { "zh-Hans": "全季排行榜", "zh-Hant": "全季排行榜", en: "Season leaderboard" },
+  lb_settled_round: { "zh-Hans": "{round} · 已结算 {settled}/{total} 场", "zh-Hant": "{round} · 已結算 {settled}/{total} 場", en: "{round} · {settled} of {total} matches settled" },
+  lb_settled_season: { "zh-Hans": "全季已结算 {settled} 场", "zh-Hant": "全季已結算 {settled} 場", en: "{settled} matches settled this season" },
+  lb_load_more: { "zh-Hans": "加载更多", "zh-Hant": "載入更多", en: "Load more" },
+  lb_rule: { "zh-Hans": "至少有一场预测结算后才会进入排行榜。", "zh-Hant": "至少有一場預測結算後才會進入排行榜。", en: "Players appear after at least one of their picks is settled." },
+  lb_empty_title: { "zh-Hans": "排行榜尚未开始", "zh-Hant": "排行榜尚未開始", en: "No leaderboard yet" },
+  lb_empty_body: { "zh-Hans": "第一场预测结算后会显示排行榜。", "zh-Hant": "第一場預測結算後會顯示排行榜。", en: "The leaderboard appears after the first match is settled." },
+  lb_not_listed_row: { "zh-Hans": "你未加入排行榜。你的积分：本轮 {round} 分，全季 {season} 分。", "zh-Hant": "你未加入排行榜。你的積分：本輪 {round} 分，全季 {season} 分。", en: "You’re not on the leaderboard. Your points: {round} this round, {season} this season." },
+  vis_title: { "zh-Hans": "在排行榜显示我", "zh-Hant": "在排行榜顯示我", en: "Show me on the leaderboard" },
+  vis_body: { "zh-Hans": "开启后，排行榜会显示你在本站的 osu! 公开名称（{name}）和积分。可以随时关闭，关闭后立即从排行榜移除；你仍能看到自己的积分。", "zh-Hant": "開啟後，排行榜會顯示你在本站的 osu! 公開名稱（{name}）和積分。可以隨時關閉，關閉後立即從排行榜移除；你仍能看到自己的積分。", en: "When on, the leaderboard shows your public osu! name on this site ({name}) and your points. You can turn it off at any time to be removed right away. You can still see your own points." },
+  vis_on: { "zh-Hans": "已显示在排行榜", "zh-Hant": "已顯示在排行榜", en: "Shown on the leaderboard" },
+  vis_off: { "zh-Hans": "未显示在排行榜", "zh-Hant": "未顯示在排行榜", en: "Not shown on the leaderboard" },
+  vis_saving: { "zh-Hans": "正在更新…", "zh-Hant": "正在更新…", en: "Updating…" },
+  vis_conflict: { "zh-Hans": "此设置已在其他页面更改，已显示最新状态。", "zh-Hant": "此設定已在其他頁面更改，已顯示最新狀態。", en: "This setting was changed on another page. The latest setting is shown." },
+  vis_failed: { "zh-Hans": "未能更新显示设置，请重试。", "zh-Hant": "未能更新顯示設定，請重試。", en: "Couldn’t update this setting. Try again." },
+
+  // visitor
+  visitor_title: { "zh-Hans": "使用 osu! 登录后参与预测", "zh-Hant": "使用 osu! 登入後參與預測", en: "Sign in with osu! to make picks" },
+  visitor_body: { "zh-Hans": "登录后会回到本页。登录不会报名赛事。", "zh-Hant": "登入後會回到本頁。登入不會報名賽事。", en: "You’ll return to this page after signing in. Signing in doesn’t register you for the tournament." },
+  visitor_open: { "zh-Hans": "开放中的场次", "zh-Hant": "開放中的場次", en: "Open matches" },
+  visitor_mine: { "zh-Hans": "登录后查看你的预测与积分。", "zh-Hant": "登入後查看你的預測與積分。", en: "Sign in to see your picks and points." },
+  visitor_board: { "zh-Hans": "登录后查看完整排行榜。", "zh-Hant": "登入後查看完整排行榜。", en: "Sign in to see the full leaderboard." },
+
+  // page states
+  empty_open_title: { "zh-Hans": "目前没有可预测的场次", "zh-Hant": "目前沒有可預測的場次", en: "No matches are open for picks" },
+  empty_open_body: { "zh-Hans": "新场次开放后会显示在这里。", "zh-Hant": "新場次開放後會顯示在這裡。", en: "New matches appear here when they open." },
+  view_schedule: { "zh-Hans": "查看赛程", "zh-Hant": "查看賽程", en: "View schedule" },
+  empty_filter_title: { "zh-Hans": "此筛选下没有场次", "zh-Hant": "此篩選下沒有場次", en: "No matches for this filter" },
+  show_all: { "zh-Hans": "显示全部场次", "zh-Hant": "顯示全部場次", en: "Show all matches" },
+  load_failed_title: { "zh-Hans": "暂时无法加载预测数据", "zh-Hant": "暫時無法載入預測資料", en: "Pick’em data couldn’t be loaded" },
+  load_failed_body: { "zh-Hans": "请稍后重试。已保存的预测不受影响。", "zh-Hant": "請稍後重試。已儲存的預測不受影響。", en: "Try again shortly. Saved picks are not affected." },
+  session_banner: { "zh-Hans": "登录已失效。请重新登录，完成后会回到本页。", "zh-Hant": "登入已失效。請重新登入，完成後會回到本頁。", en: "Your session has expired. Sign in again to come back to this page." },
+  ineligible_banner: { "zh-Hans": "你可以查看场次与赛果，但暂不符合本届预测的参与资格。", "zh-Hant": "你可以查看場次與賽果，但暫不符合本屆預測的參與資格。", en: "You can view matches and results, but you aren’t eligible to make picks in this edition." },
+  refreshed_banner: { "zh-Hans": "场次信息已更新。", "zh-Hant": "場次資訊已更新。", en: "Match information was updated." },
+};
+
+let LANG = "zh-Hans";
+function t(key, vars = {}) {
+  const entry = COPY[key];
+  if (!entry) return `⟦${key}⟧`;
+  return entry[LANG].replace(/\{(\w+)\}/g, (_, k) => (k in vars ? vars[k] : `{${k}}`));
+}
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+/* Same output as formatDate() in src/lib/editions.ts: medium date, 24-hour time and the edition offset.
+   Synthetic data is written as edition wall-clock time (Asia/Shanghai, UTC+8). */
+const TZ = "Asia/Shanghai";
+function fmt(local) {
+  const d = new Date(`${local.replace(" ", "T")}:00+08:00`);
+  const text = new Intl.DateTimeFormat(LANG, { timeZone: TZ, dateStyle: "medium", timeStyle: "short", hourCycle: "h23" }).format(d).replace(/\s+/g, " ");
+  return `<time datetime="${d.toISOString()}">${text} (UTC+8)</time>`;
+}
+
+const ICON = {
+  dot: '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4" fill="currentColor"/></svg>',
+  check: '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  lock: '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  clock: '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  hourglass: '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8M4 14h8M5 2c0 4 6 4 6 6s-6 2-6 6M11 2c0 4-6 4-6 6s6 2 6 6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+  cross: '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  alert: '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l6.5 12H1.5z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 6v4M8 11.5v1" stroke="currentColor" stroke-width="1.6"/></svg>',
+  ban: '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.8 12.2l8.4-8.4" stroke="currentColor" stroke-width="1.6"/></svg>',
+  info: '<svg class="i" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 7v4.5M8 4.5v1" stroke="currentColor" stroke-width="1.6"/></svg>',
+};
+
+/* ---------------------------- synthetic data ---------------------------- */
+const TEAMS = {
+  aur: "Aurora Rookies", nig: "Night Train", kum: "Kumo Kumo Club",
+  lng: "The Extremely Long Synthetic Team Name That Wraps", sak: "Sakura Drift", pix: "Pixel Owls",
+  mnt: "Mint Tea", lan: "Lantern", cob: "Cobalt Wave", ech: "Echo Garden",
+};
+// Fallback text of TeamAvatar (.team-monogram); the real component shows the team avatar or captain avatar first.
+const mono = (name) => name.trim().slice(0, 2).toLocaleUpperCase();
+const ROUND = "Group Stage W2"; // authored tournament text stays literal in every locale
+const ME = "SampleRookie";
+
+function base(id, home, away, extra = {}) {
+  return { id, label: `M${id}`, round: ROUND, home, away, starts: "2026-11-28 20:00", closes: "2026-11-28 19:30", left: { h: 2, m: 14 }, draw: false, ...extra };
+}
+// state: open | closing | closed | awaiting | settled | voided
+const MAIN_FIXTURES = [
+  base(9, "aur", "nig", { state: "open" }),
+  base(10, "kum", "lng", { state: "open", saved: "kum", pick: "kum", savedAt: "2026-11-27 21:03", starts: "2026-11-29 15:00", closes: "2026-11-29 14:30", left: { d: 1, h: 0 } }),
+  base(11, "sak", "pix", { state: "closed", starts: "2026-11-27 22:00", closes: "2026-11-27 21:30", saved: "sak", dist: { sak: 124, pix: 76 } }),
+  base(12, "mnt", "lan", { state: "awaiting", starts: "2026-11-27 20:00", closes: "2026-11-27 19:30", saved: "lan", dist: { mnt: 51, lan: 98 } }),
+  base(8, "cob", "ech", { state: "settled", starts: "2026-11-26 20:00", closes: "2026-11-26 19:30", saved: "cob", dist: { cob: 140, ech: 61 }, result: { winner: "cob", score: "4 : 2" } }),
+  base(7, "nig", "pix", { state: "voided", reason: "void_matchup", starts: "2026-11-26 22:00", closes: "2026-11-26 21:30", saved: "nig" }),
+];
+
+const GALLERY = [
+  ["A", "可预测 · 未选", "两队为平行选项；无默认选择；按钮在选择前为 aria-disabled，并提示先选择。", base(21, "aur", "nig", { state: "open" })],
+  ["B", "可预测 · 已选未保存", "选中项加粗、加框；底部文字说明尚未保存；只有一个“保存预测”按钮。", base(22, "aur", "nig", { state: "open", pick: "aur" })],
+  ["C", "保存中", "按钮 aria-busy 并显示“正在保存…”；选项暂时停用，焦点留在按钮上。", base(23, "aur", "nig", { state: "open", pick: "aur", saving: true })],
+  ["D", "已保存（回执）", "显示所选队伍、保存时间与可修改时限；按钮变为“已保存”并保持可聚焦。", base(24, "kum", "lng", { state: "open", pick: "kum", saved: "kum", savedAt: "2026-11-27 21:03" })],
+  ["E", "已保存 · 改选未保存", "说明当前保存的是哪一队，避免误以为已改好。", base(25, "kum", "lng", { state: "open", pick: "lng", saved: "kum", savedAt: "2026-11-27 21:03" })],
+  ["F", "保存失败 · 网络或服务器", "保留未送出的选择；同一个按钮可重试；错误用 role=alert 读出。", base(26, "aur", "nig", { state: "open", pick: "nig", error: "err_network" })],
+  ["G", "保存失败 · 版本冲突（409）", "显示服务器当前保存的选择；保留本地选择；用新版本重新保存。", base(27, "aur", "nig", { state: "open", pick: "nig", saved: "aur", savedAt: "2026-11-27 22:40", error: "err_stale" })],
+  ["H", "保存失败 · 登录失效（401）", "页面同时显示登录失效横幅；本地选择暂存于本标签页，登录回来后恢复为未保存。", base(28, "aur", "nig", { state: "open", pick: "aur", error: "err_session" })],
+  ["I", "保存失败 · 已截止（409）", "卡片切换为已截止并揭晓比例；说明本次选择未保存。", base(29, "sak", "pix", { state: "closed", error: "err_closed", dist: { sak: 124, pix: 76 } })],
+  ["J", "截止确认中", "本地倒数归零后停用选项，等待服务器确认，不自行判定截止。", base(30, "aur", "nig", { state: "closing", pick: "aur", saved: "aur", savedAt: "2026-11-28 18:02" })],
+  ["K", "已截止 · 揭晓比例", "截止后才出现比例条；本人选择以文字标签标出；无他人个别选择。", base(31, "sak", "pix", { state: "closed", saved: "sak", dist: { sak: 124, pix: 76 } })],
+  ["L", "已截止 · 零票", "无票时不画比例条，显示“尚无预测”。", base(32, "mnt", "lan", { state: "closed", dist: { mnt: 0, lan: 0 } })],
+  ["M", "已截止 · 本人未预测", "比例照常显示；说明本人未预测。", base(33, "cob", "ech", { state: "closed", dist: { cob: 33, ech: 41 } })],
+  ["N", "待公布赛果", "比赛结束或已开始、正式赛果未发布；积分显示待计分。", base(34, "mnt", "lan", { state: "awaiting", saved: "lan", dist: { mnt: 51, lan: 98 } })],
+  ["O", "已结算 · 猜中", "胜方标签 + 本人选择标签 + 得分；链接到赛果页。", base(35, "cob", "ech", { state: "settled", saved: "cob", dist: { cob: 140, ech: 61 }, result: { winner: "cob", score: "4 : 2" } })],
+  ["P", "已结算 · 未猜中", "得分 0，语气中性。", base(36, "cob", "ech", { state: "settled", saved: "ech", dist: { cob: 140, ech: 61 }, result: { winner: "cob", score: "4 : 2" } })],
+  ["Q", "已结算 · 未预测", "显示“未预测”，不显示 0 分以免混淆。", base(37, "cob", "ech", { state: "settled", dist: { cob: 140, ech: 61 }, result: { winner: "cob", score: "4 : 2" } })],
+  ["R", "允许平局的轮次 · 可预测", "平局选项只在场次契约提供时出现，位于两队之间；手机排在最后。", base(38, "sak", "mnt", { state: "open", draw: true, round: "Showmatch" })],
+  ["S", "已结算 · 平局赛果", "平局作为正式结果时，选择平局的预测得分。", base(39, "sak", "mnt", { state: "settled", draw: true, round: "Showmatch", saved: "draw", dist: { sak: 40, draw: 22, mnt: 38 }, result: { winner: "draw", score: "3 : 3" } })],
+  ["T", "已结算 · 赛果更正", "改判后按新赛果重算；提示文字 + 赛果链接。", base(40, "cob", "ech", { state: "settled", saved: "ech", dist: { cob: 140, ech: 61 }, result: { winner: "ech", score: "3 : 4" }, revised: true })],
+  ["U", "赛果撤回", "原分移除，回到待公布赛果。", base(41, "cob", "ech", { state: "awaiting", saved: "cob", dist: { cob: 140, ech: 61 }, withdrawn: true })],
+  ["V", "作废 · 对局取消", "不显示比例；说明原因与不计分。", base(42, "aur", "pix", { state: "voided", reason: "void_cancelled", saved: "aur" })],
+  ["W", "作废 · 对战组合变更", "原选择不带入新批次；如重新开放会出现新卡片。", base(43, "nig", "pix", { state: "voided", reason: "void_matchup", saved: "nig" })],
+  ["X", "作废 · 无可计分结果", "例如正式结果为平局但本轮无平局选项。", base(44, "kum", "sak", { state: "voided", reason: "void_no_outcome" })],
+  ["Y", "改期 · 延后", "截止时间不随延期延长；提示新开赛时间。", base(45, "lan", "ech", { state: "open", starts: "2026-11-30 20:00", resched: "later", left: { d: 1, h: 23 } })],
+  ["Z", "改期 · 提前", "截止时间收紧；提示新截止时间（警示色 + 图标）。", base(46, "lan", "ech", { state: "open", closes: "2026-11-28 17:30", starts: "2026-11-28 18:00", resched: "earlier", left: { m: 48 }, pick: "lan", saved: "lan", savedAt: "2026-11-27 20:11" })],
+  ["AA", "访客 · 开放场次摘要", "只读摘要：双方、开赛与截止；无选项与比例；登录入口在页首。", base(47, "aur", "nig", { state: "open", visitor: true })],
+  ["AB", "保存失败 · 场次已作废（409）", "提交时批次已作废：卡片切换为已作废，说明本次选择未保存及作废原因。", base(48, "kum", "sak", { state: "voided", reason: "void_matchup", error: "err_voided" })],
+];
+
+/* ------------------------------ renderers ------------------------------ */
+const nameOf = (key) => (key === "draw" ? t("draw") : TEAMS[key]);
+function duration(left) {
+  if (left.d != null) return t("dur_dh", { d: left.d, h: left.h });
+  if (left.h != null) return t("dur_hm", { h: left.h, m: left.m });
+  return t("dur_m", { m: left.m });
+}
+function badge(f) {
+  const map = {
+    open: f.saved && f.pick === f.saved && !f.error ? ["success", "check", "status_saved"] : ["accent", "dot", "status_open"],
+    closing: ["warning", "clock", "status_closing"],
+    closed: ["muted", "lock", "status_closed"],
+    awaiting: ["warning", "hourglass", "status_awaiting"],
+    settled: ["success", "check", "status_settled"],
+    voided: ["danger", "ban", "status_voided"],
+  };
+  if (f.visitor) return `<span class="badge" data-tone="accent">${ICON.dot}${t("status_open")}</span>`;
+  const [tone, icon, key] = map[f.state];
+  return `<span class="badge" data-tone="${tone}">${ICON[icon]}${t(key)}</span>`;
+}
+function times(f) {
+  const parts = [`<span>${t("starts_at", { time: fmt(f.starts) })}</span>`];
+  if (f.state === "open" || f.state === "closing") {
+    parts.push(`<span><b>${t("closes_at", { time: fmt(f.closes) })}</b></span>`);
+    // The countdown is a visual aid only; the closing time above is the authoritative text.
+    if (f.state === "open") parts.push(`<span class="rel" aria-hidden="true">${t("time_left", { duration: duration(f.left) })}</span>`);
+  } else {
+    parts.push(`<span>${t("closed_at", { time: fmt(f.closes) })}</span>`);
+  }
+  return `<div class="pk-times">${parts.join("")}</div>`;
+}
+function options(f, uid) {
+  const disabled = f.saving || f.state === "closing";
+  const keys = f.draw ? [f.home, "draw", f.away] : [f.home, f.away];
+  const opt = (key) => {
+    const isDraw = key === "draw";
+    const checked = f.pick === key ? "checked" : "";
+    return `<label class="pk-option${isDraw ? " draw" : ""}">
+      <input type="radio" name="${uid}" value="${key}" ${checked} ${disabled ? "disabled" : ""} data-focus="${uid}-${key}" />
+      ${isDraw ? "" : `<span class="mono" aria-hidden="true">${mono(TEAMS[key])}</span>`}
+      <span class="name">${esc(nameOf(key))}</span>
+    </label>`;
+  };
+  const inner = f.draw ? keys.map(opt).join("") : `${opt(f.home)}<span class="pk-vs" aria-hidden="true">${t("x_vs")}</span>${opt(f.away)}`;
+  return `<fieldset class="pk-options${f.draw ? " has-draw" : ""}">
+    <legend class="sr-only">${esc(t("options_legend", { home: TEAMS[f.home], away: TEAMS[f.away] }))}</legend>${inner}</fieldset>`;
+}
+function visitorTeams(f) {
+  return `<div class="pk-options" style="display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center">
+    <span class="player"><span class="mono">${mono(TEAMS[f.home])}</span><span class="name">${esc(TEAMS[f.home])}</span></span>
+    <span class="pk-vs">${t("x_vs")}</span>
+    <span class="player"><span class="mono">${mono(TEAMS[f.away])}</span><span class="name">${esc(TEAMS[f.away])}</span></span></div>`;
+}
+function dist(f) {
+  const keys = f.draw ? [f.home, "draw", f.away] : [f.home, f.away];
+  const total = keys.reduce((n, k) => n + (f.dist?.[k] ?? 0), 0);
+  if (!total) return `<div class="pk-note">${ICON.info}<span><b>${t("dist_zero")}</b> · ${t("dist_zero_body")}</span></div>`;
+  // Largest-remainder rounding so the shown percentages add up to 100.
+  const raw = keys.map((k) => ((f.dist[k] ?? 0) * 100) / total);
+  const pct = raw.map(Math.floor);
+  let rest = 100 - pct.reduce((a, b) => a + b, 0);
+  raw.map((v, i) => [v - Math.floor(v), i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (rest-- > 0) pct[i]++; });
+  const rows = keys.map((k, i) => {
+    const mine = f.saved === k;
+    const win = f.state === "settled" && f.result?.winner === k;
+    return `<div class="pk-dist-row"${mine ? " data-mine" : ""}>
+      <span class="name">${esc(nameOf(k))}${win ? `<span class="tag win">${ICON.check}${t("winner_tag")}</span>` : ""}${mine ? `<span class="tag">${t("your_pick")}</span>` : ""}</span>
+      <span class="bar" aria-hidden="true"><i style="width:${pct[i]}%"></i></span>
+      <span class="num">${pct[i]}%<small>${t("dist_votes", { count: f.dist[k] ?? 0 })}</small></span></div>`;
+  });
+  return `<div class="pk-dist">${rows.join("")}<p class="label" style="margin:0">${t("dist_caption", { count: total })}</p></div>`;
+}
+function footer(f) {
+  if (f.visitor) return `<div class="pk-foot"><span class="msg">${ICON.lock}<span>${t("visitor_card_hint")}</span></span></div>`;
+  if (f.state === "open") {
+    const dirty = f.pick && f.pick !== f.saved;
+    let msg = "", tone = "";
+    if (f.error) {
+      tone = "danger";
+      msg = `${ICON.alert}<span role="alert">${t(f.error, { saved: nameOf(f.saved) })}</span>`;
+    } else if (f.saving) msg = `<span>${t("selected_unsaved", { team: nameOf(f.pick) })}</span>`;
+    else if (dirty && f.saved) { tone = "warning"; msg = `${ICON.info}<span>${t("changed_unsaved", { team: nameOf(f.pick), saved: nameOf(f.saved) })}</span>`; }
+    else if (dirty) msg = `${ICON.info}<span>${t("selected_unsaved", { team: nameOf(f.pick) })}</span>`;
+    else if (f.saved) { tone = "success"; msg = `${ICON.check}<span>${t("receipt", { team: nameOf(f.saved), time: fmt(f.savedAt) })}<br><span class="muted">${t("editable_until", { time: fmt(f.closes) })}</span></span>`; }
+    else msg = `<span class="muted">${t(f.draw ? "hint_choose_draw" : "hint_choose")}</span>`;
+    const label = f.saving ? t("x_saving") : !dirty && f.saved && !f.error ? t("x_saved") : t("save_pick");
+    const inactive = !f.saving && !dirty && !f.error;
+    const sessionBtn = f.error === "err_session" ? `<a class="btn secondary" href="#">${t("x_signin_again")}</a>` : "";
+    return `<div class="pk-foot"><span class="msg" data-tone="${tone}">${msg}</span>
+      <span class="actions">${sessionBtn}<button type="button" class="btn ${inactive ? "" : "primary"}" data-save data-focus="${f.uid}-save"
+        ${f.saving ? 'aria-busy="true"' : ""} ${inactive || f.saving ? 'aria-disabled="true"' : ""}>${!dirty && f.saved && !f.error ? ICON.check : ""}${label}</button></span></div>`;
+  }
+  if (f.state === "closing") {
+    const mine = f.saved ? t("receipt", { team: nameOf(f.saved), time: fmt(f.savedAt) }) : `<span class="muted">${t("no_pick")}</span>`;
+    return `<div class="pk-foot"><span class="msg" data-tone="warning">${ICON.clock}<span>${t("closing_wait")}<br>${mine}</span></span></div>`;
+  }
+  const link = `<a class="link small" href="#">${f.state === "settled" ? t("view_result") : t("view_match")}</a>`;
+  if (f.state === "closed") {
+    const err = f.error ? `<span class="msg" data-tone="danger">${ICON.alert}<span role="alert">${t(f.error)}</span></span>` : "";
+    return `<div class="pk-foot">${err || `<span class="msg">${f.saved ? "" : `<span class="muted">${t("no_pick")}</span>`}</span>`}${link}</div>`;
+  }
+  if (f.state === "awaiting") return `<div class="pk-foot"><span class="msg">${ICON.hourglass}<span>${t("awaiting_body")}</span></span><span class="actions"><span class="score-chip" data-tone="muted">${t("pts_pending")}</span>${link}</span></div>`;
+  if (f.state === "settled") {
+    const hit = f.saved && f.saved === f.result.winner;
+    const chip = !f.saved ? `<span class="score-chip" data-tone="muted">${t("pts_none")}</span>` : hit ? `<span class="score-chip" data-tone="success">${ICON.check} ${t("pts_hit")}</span>` : `<span class="score-chip" data-tone="muted">${t("pts_miss")}</span>`;
+    const res = f.result.winner === "draw" ? t("result_draw", { score: f.result.score }) : t("result_win", { team: TEAMS[f.result.winner], score: f.result.score });
+    return `<div class="pk-foot"><span class="msg"><b>${esc(res)}</b></span><span class="actions">${chip}${link}</span></div>`;
+  }
+  if (f.state === "voided") return `<div class="pk-foot"><span class="msg"${f.error ? ' data-tone="danger"' : ""}>${f.error ? ICON.alert : ICON.ban}<span${f.error ? ' role="alert"' : ""}>${f.error ? `${t(f.error)} ` : ""}${t(f.reason)}</span></span><span class="actions"><span class="score-chip" data-tone="muted">${t("pts_void")}</span>${link}</span></div>`;
+  return "";
+}
+function notes(f) {
+  const out = [];
+  if (f.resched === "later") out.push(`<div class="pk-note">${ICON.info}<span>${t("resched_later", { time: fmt(f.starts), close: fmt(f.closes) })}</span></div>`);
+  if (f.resched === "earlier") out.push(`<div class="pk-note" data-tone="warning">${ICON.alert}<span>${t("resched_earlier", { close: fmt(f.closes) })}</span></div>`);
+  if (f.revised) out.push(`<div class="pk-note">${ICON.info}<span>${t("revised")}</span></div>`);
+  if (f.withdrawn) out.push(`<div class="pk-note" data-tone="warning">${ICON.alert}<span>${t("withdrawn")}</span></div>`);
+  return out.join("");
+}
+function cardBody(f) {
+  let middle = "";
+  if (f.visitor) middle = visitorTeams(f);
+  else if (f.state === "open" || f.state === "closing") middle = options(f, f.uid);
+  else if (f.state === "voided") middle = visitorTeams(f);
+  else middle = dist(f);
+  return `<div class="pk-card-head"><h3 id="${f.uid}-h" tabindex="-1">${esc(f.round)} · ${f.label}</h3>${badge(f)}</div>
+    ${times(f)}${notes(f)}${middle}${footer(f)}`;
+}
+function card(f) {
+  return `<article class="pk-card" data-card="${f.uid}" aria-labelledby="${f.uid}-h">
+    <div class="pk-card-body">${cardBody(f)}</div>
+    <p class="pk-live" role="status" aria-live="polite" data-live="${f.uid}"></p></article>`;
+}
+
+// Public tournament links in TournamentNavigation order. The Pick'em entry is appended only while the
+// edition's Pick'em is enabled and published; a disabled edition returns 404 for the page and its API.
+const NAV = ["x_main_page", "x_players", "x_teams", "x_draft_results", "x_schedule", "x_pools", "x_statistics"];
+function contextBar({ open = false } = {}) {
+  const nav = NAV.map((k) => `<a href="#">${t(k)}</a>`).join("");
+  return `<div class="ctx"${open ? " data-open" : ""}><span class="crumb">${t("x_tournaments")} / <b>OCLR S11 · Synthetic</b></span>
+      <button class="btn secondary menu-btn" type="button" aria-expanded="${open}" data-menu>${t("x_menu")} <span aria-hidden="true">${open ? "−" : "+"}</span></button>
+      <nav aria-label="${t("x_nav_label")}">${nav}<a href="#" aria-current="page">${t("nav_pickem")}</a></nav></div>`;
+}
+function chrome(inner, { mobile = false } = {}) {
+  return `<div class="site-top"><b>OCLR</b><span>${mobile ? "" : "（现有站点页首：语言 / 外观 / 账号）"}</span></div>
+    ${contextBar()}<div class="pk">${inner}</div>`;
+}
+function head({ tab = "matches" } = {}) {
+  // Tabs are links to separate routes: /pickem, /pickem/mine, /pickem/leaderboard.
+  const tabs = [["matches", "tab_matches"], ["mine", "tab_mine"], ["board", "tab_board"]]
+    .map(([id, k]) => `<a href="#" ${tab === id ? 'aria-current="page"' : ""}>${t(k)}</a>`).join("");
+  return `<div class="pk-head"><h1>${t("page_title")}</h1><button class="link small rules" type="button" data-rules aria-haspopup="dialog">${t("rules_link")}</button></div>
+    <p class="pk-intro">${t("intro")}</p>
+    <nav class="pk-tabs" aria-label="${t("page_title")}">${tabs}</nav>`;
+}
+const RULES = ["rules_1", "rules_time", "rules_2", "rules_3", "rules_4", "rules_5", "rules_6"];
+function rulesDialogBody() {
+  return `<div class="pk-dialog-inner"><div class="pk-dialog-head"><h2 id="rules-title">${t("rules_title")}</h2>
+      <button type="button" class="btn secondary" data-close-rules aria-label="${t("x_close")}">${ICON.cross}</button></div>
+    <p class="small muted" style="margin:0">${t("intro")}</p>
+    <ol class="rules-list">${RULES.map((k) => `<li>${t(k)}</li>`).join("")}</ol>
+    <div class="pk-dialog-foot"><button type="button" class="btn primary" data-close-rules>${t("x_close")}</button></div></div>`;
+}
+function filters({ status = "all", picked = 1, total = 2 } = {}) {
+  const chips = [["all", "x_all"], ["open", "filter_open"], ["closed", "filter_closed"], ["settled", "filter_settled"]]
+    .map(([id, k]) => `<button type="button" aria-pressed="${status === id}">${t(k)}</button>`).join("");
+  return `<div class="pk-filters"><select aria-label="${t("x_round")}"><option>${ROUND}</option><option>Group Stage W1</option></select>
+    <div class="chips" role="group" aria-label="${t("filter_status")}">${chips}</div>
+    <span class="pk-count">${t("picked_count", { picked, total })}</span></div>`;
+}
+// Round W2 has 8 matches and 4 are settled. A correct pick is worth 1 point, so the hits column shows
+// correct / settled picks; that tells apart players who skipped matches. Tie flags come from the server
+// in the real API because a tie can span pages; here they are computed from the visible rows.
+const BOARDS = {
+  round: [[1, "rookie_fox", 4, "4/4"], [2, "mintcandy", 3, "3/3"], [2, "kumo_fan", 3, "3/4"], [2, ME, 3, "3/4", true], [2, "lantern42", 3, "3/4"], [6, "nightowl", 2, "2/4"], [7, "pixel_tea", 1, "1/2"]],
+  season: [[1, "rookie_fox", 8, "8/9"], [2, "kumo_fan", 7, "7/9"], [2, "mintcandy", 7, "7/8"], [4, "lantern42", 6, "6/9"], [4, ME, 6, "6/9", true], [6, "nightowl", 5, "5/9"], [7, "pixel_tea", 4, "4/7"]],
+  // Scenario: the signed-in player ranks outside the first loaded page.
+  farTop: [[1, "rookie_fox", 4, "4/4"], [1, "mintcandy", 4, "4/4"], [1, "kumo_fan", 4, "4/4"], [4, "lantern42", 3, "3/4"], [4, "nightowl", 3, "3/3"], [4, "sora_beat", 3, "3/4"], [4, "pixel_tea", 3, "3/4"]],
+  farAround: [[55, "aoi_note", 2, "2/4"], [55, "ryuusei", 2, "2/3"], [57, "blue_wing", 1, "1/4"], [57, ME, 1, "1/4", true], [57, "hanabi", 1, "1/2"], [60, "late_joiner", 0, "0/1"]],
+};
+function rankCell(r, tied) {
+  return tied ? `<span class="rank"><span aria-hidden="true">${r}<small>${t("lb_tied")}</small></span><span class="sr-only">${t("lb_tied_sr", { rank: r })}</span></span>` : `<span class="rank">${r}</span>`;
+}
+const isTied = (rows, r) => rows.filter((x) => x[0] === r).length > 1;
+function aside({ listed = true } = {}) {
+  const rows = BOARDS.round;
+  const top = rows.slice(0, 5).map((row) => `<li ${row[4] ? "data-me" : ""}>${rankCell(row[0], isTied(rows, row[0]))}<span>${esc(row[1])}${row[4] ? ` <span class="tag">${t("lb_you")}</span>` : ""}</span><b>${row[2]}</b></li>`).join("");
+  return `<aside class="pk-aside" aria-label="${t("progress_title")}">
+    <section class="panel"><h2>${t("progress_title")}</h2>
+      <div class="small">${t("picked_count", { picked: 1, total: 2 })}</div><div class="progress" aria-hidden="true"><i style="width:50%"></i></div>
+      <div class="stats"><div class="stat"><b>3</b><span>${t("round_points")}</span></div><div class="stat"><b>6</b><span>${t("season_points")}</span></div></div>
+      <div class="small">${t("hits", { hit: 6, settled: 9 })} · ${listed ? t("rank_round_tied", { rank: 2 }) : t("not_listed")}</div>
+      <div class="label">${t("next_close", { time: fmt("2026-11-28 19:30") })}</div></section>
+    <section class="panel"><h2>${t("board_summary")}</h2><ol class="mini-board">${top}</ol>
+      <a class="link small" href="#">${t("full_board")}</a></section>
+    <section class="panel"><h2>${t("rules_title")}</h2><ul class="rules-list"><li>${t("rules_1")}</li><li>${t("rules_3")}</li><li>${t("rules_5")}</li></ul>
+      <button class="link small" type="button" style="justify-self:start;min-height:44px" data-rules aria-haspopup="dialog">${t("rules_more")}</button></section></aside>`;
+}
+function matchesPage(prefix, { visitor = false } = {}) {
+  const list = (visitor ? MAIN_FIXTURES.filter((f) => f.state === "open").map((f) => ({ ...f, visitor: true, saved: null, pick: null })) : MAIN_FIXTURES)
+    .map((f) => ({ ...f, uid: `${prefix}-${f.id}` }));
+  STORE[prefix] = Object.fromEntries(list.map((f) => [f.uid, f]));
+  const groups = visitor ? [["visitor_open", list]] : [
+    ["group_open", list.filter((f) => ["open", "closing"].includes(f.state))],
+    ["group_locked", list.filter((f) => ["closed", "awaiting"].includes(f.state))],
+    ["group_done", list.filter((f) => ["settled", "voided"].includes(f.state))],
+  ];
+  const main = groups.map(([k, fs]) => `<h2 class="pk-group-title">${t(k)}</h2>${fs.map(card).join("")}`).join("");
+  const visitorPanel = `<section class="panel"><h2>${t("visitor_title")}</h2><p class="small muted" style="margin:0">${t("visitor_body")}</p>
+    <a class="btn primary" href="#" style="justify-self:start">${t("x_continue_osu")}</a></section>`;
+  const rulesPanel = `<section class="panel"><h2>${t("rules_title")}</h2><ul class="rules-list">${RULES.map((k) => `<li>${t(k)}</li>`).join("")}</ul></section>`;
+  return chrome(`${head()}${visitor ? "" : filters()}
+    <div class="pk-layout" style="${visitor ? "margin-top:16px" : ""}"><section class="pk-list" aria-label="${t("tab_matches")}">${main}</section>
+    ${visitor ? `<aside class="pk-aside">${visitorPanel}${rulesPanel}</aside>` : aside()}</div>`, { mobile: prefix.includes("m") });
+}
+const MINE = [
+  [8, "cob", "ech", "cob", "Cobalt Wave 4 : 2", "+1", "settled"],
+  [6, "cob", "ech", "ech", "Echo Garden 4 : 3", "+1", "revised"],
+  [11, "sak", "pix", "sak", null, null, "closed"],
+  [12, "mnt", "lan", "lan", null, null, "awaiting"],
+  [7, "nig", "pix", "nig", null, null, "voided"],
+  [10, "kum", "lng", "kum", null, null, "open"],
+];
+function minePage(prefix) {
+  const statusText = { settled: ["success", "check", "status_settled"], revised: ["success", "info", "status_settled"], closed: ["muted", "lock", "status_closed"], awaiting: ["warning", "hourglass", "status_awaiting"], voided: ["danger", "ban", "status_voided"], open: ["success", "check", "status_saved"] };
+  const rows = MINE.map(([id, h, a, pick, res, pts, st]) => {
+    const [tone, icon, key] = statusText[st];
+    const extra = st === "revised" ? `<span class="sub">${t("revised")}</span>` : st === "voided" ? `<span class="sub">${t("void_matchup")}</span>` : "";
+    const points = pts ? `<b>${pts}</b>` : st === "voided" ? t("pts_void") : st === "awaiting" ? t("pts_pending") : t("dash");
+    return `<tr><td data-label="${t("mine_match")}"><span class="teams">${esc(TEAMS[h])} ${t("x_vs")} ${esc(TEAMS[a])}</span><span class="sub">${ROUND} · M${id}</span></td>
+      <td data-label="${t("mine_pick")}">${esc(TEAMS[pick])}</td>
+      <td data-label="${t("mine_result")}">${res ? esc(res) : st === "awaiting" ? t("result_pending") : t("dash")}</td>
+      <td class="num" data-label="${t("mine_points")}">${points}</td>
+      <td data-label="${t("mine_status")}"><span class="badge" data-tone="${tone}">${ICON[icon]}${t(key)}</span>${extra}${["settled", "revised", "voided"].includes(st) ? `<br><a class="link small" href="#">${t("view_result")}</a>` : ""}</td></tr>`;
+  }).join("");
+  return chrome(`${head({ tab: "mine" })}
+    <div class="pk-filters"><select aria-label="${t("x_round")}"><option>${t("x_all")}</option><option>${ROUND}</option></select></div>
+    <div class="pk-layout"><section>
+      <div class="stats panel" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px"><div class="stat"><b>6</b><span>${t("season_points")}</span></div><div class="stat"><b>3</b><span>${t("round_points")}</span></div><div class="stat"><b>6/9</b><span>${t("lb_hits")}</span></div></div>
+      <table class="tbl stack"><caption class="sr-only">${t("tab_mine")}</caption><thead><tr><th>${t("mine_match")}</th><th>${t("mine_pick")}</th><th>${t("mine_result")}</th><th class="num">${t("mine_points")}</th><th>${t("mine_status")}</th></tr></thead><tbody>${rows}</tbody></table>
+      <p class="label">${t("mine_caption")}</p></section>${aside()}</div>`, { mobile: prefix.includes("m") });
+}
+function boardRows(rows, listed) {
+  return rows.filter((r) => listed || !r[4]).map(([r, name, pts, hit, me]) => `<tr ${me ? 'data-me tabindex="-1"' : ""}><td>${rankCell(r, isTied(rows, r))}</td>
+    <td><span class="player"><span class="mono" aria-hidden="true">${mono(name)}</span>${esc(name)}${me ? ` <span class="tag">${t("lb_you")}</span>` : ""}</span></td><td class="num"><b>${pts}</b></td><td class="num">${hit}</td></tr>`).join("");
+}
+const BSTATE = {};
+function boardPage(prefix, { listed = true, far = false } = {}) {
+  const s = (BSTATE[prefix] ??= { scope: "round", jumped: false, listed, far, pending: false });
+  const season = s.scope === "season";
+  const rows = s.far ? (s.jumped ? BOARDS.farAround : BOARDS.farTop) : BOARDS[s.scope];
+  const meShown = s.listed && rows.some((r) => r[4]);
+  const seg = [["round", "scope_round"], ["season", "scope_season"]]
+    .map(([id, k]) => `<button type="button" aria-pressed="${s.scope === id}" data-scope="${id}" data-board="${prefix}">${t(k)}</button>`).join("");
+  const visStatus = s.pending ? t("vis_saving") : s.listed ? `${ICON.check} ${t("vis_on")}` : t("vis_off");
+  const vis = `<section class="panel"><div class="switch-row"><div><h2 id="${prefix}-vis">${t("vis_title")}</h2>
+      <p class="small muted" style="margin:4px 0 0">${t("vis_body", { name: ME })}</p></div>
+      <button type="button" class="switch" role="switch" aria-checked="${s.listed}" aria-labelledby="${prefix}-vis" data-switch="${prefix}"${s.pending ? ' aria-busy="true"' : ""}></button></div>
+      <p class="small" role="status" style="margin:0">${visStatus}</p></section>`;
+  const selfBar = s.listed && s.far && !s.jumped
+    ? `<div class="lb-self"><span>${t("lb_self_tied", { rank: 57, points: 1 })}</span><button type="button" class="btn primary" data-jump="${prefix}">${t("lb_jump")}</button></div>` : "";
+  const settled = season ? t("lb_settled_season", { settled: 9 }) : t("lb_settled_round", { round: ROUND, settled: 4, total: 8 });
+  return chrome(`${head({ tab: "board" })}
+    <div class="lb-head"><div class="seg" role="group" aria-label="${t("scope_label")}">${seg}</div>
+      ${season ? "" : `<select aria-label="${t("x_round")}" style="min-height:40px"><option>${ROUND}</option><option>Group Stage W1</option></select>`}
+      ${meShown ? `<button type="button" class="btn secondary" style="margin-left:auto" data-jump="${prefix}">${t("lb_jump")}</button>` : ""}</div>
+    <div class="pk-layout"><section>
+      ${s.listed ? "" : `<div class="banner">${ICON.info}<p>${t("lb_not_listed_row", { round: 3, season: 6 })}</p></div>`}
+      <p class="label" style="margin:0 0 8px">${settled}</p>
+      ${s.far && s.jumped ? `<div class="pager" style="justify-content:flex-start;margin:0 0 12px"><button class="btn secondary" type="button" data-top="${prefix}">${t("lb_back_top")}</button></div>` : ""}
+      <table class="tbl"><caption class="sr-only">${t(season ? "board_season" : "board_summary")}</caption><thead><tr><th>${t("lb_rank")}</th><th>${t("lb_player")}</th><th class="num">${t("x_points")}</th><th class="num">${t("lb_hits")}</th></tr></thead>
+        <tbody>${s.far && s.jumped ? '<tr class="gap"><td colspan="4" aria-hidden="true">⋯</td></tr>' : ""}${boardRows(rows, s.listed)}</tbody></table>
+      <div class="pager"><button class="btn secondary" type="button">${t("lb_load_more")}</button></div>
+      ${selfBar}
+      <p class="label">${t("lb_rule")}</p></section>
+      <aside class="pk-aside">${vis}</aside></div>`, { mobile: prefix.includes("m") });
+}
+function statesFrame(kind) {
+  const skel = `<div class="skel-card" aria-hidden="true"><div class="skel" style="width:40%"></div><div class="skel" style="width:70%"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="skel" style="height:44px"></div><div class="skel" style="height:44px"></div></div></div>`;
+  const body = {
+    loading: `<div aria-busy="true"><p class="sr-only" role="status">${t("x_loading")}</p>${skel}${skel}</div>`,
+    noopen: `<div class="state">${ICON.info}<h2>${t("empty_open_title")}</h2><p>${t("empty_open_body")}</p><a class="btn secondary" href="#">${t("view_schedule")}</a></div>`,
+    filter: `<div class="state"><h2>${t("empty_filter_title")}</h2><button class="btn secondary" type="button">${t("show_all")}</button></div>`,
+    nopicks: `<div class="state"><h2>${t("mine_empty_title")}</h2><p>${t("mine_empty_body")}</p><a class="btn primary" href="#">${t("go_open")}</a></div>`,
+    lbempty: `<div class="state"><h2>${t("lb_empty_title")}</h2><p>${t("lb_empty_body")}</p></div>`,
+    failed: `<div class="state" role="alert">${ICON.alert}<h2>${t("load_failed_title")}</h2><p>${t("load_failed_body")}</p><button class="btn secondary" type="button">${t("x_retry")}</button></div>`,
+    session: `<div class="banner" data-tone="danger" role="alert">${ICON.alert}<p>${t("session_banner")}</p><a class="btn primary" href="#">${t("x_signin_again")}</a></div>`,
+    ineligible: `<div class="banner" data-tone="warning" role="status">${ICON.info}<p>${t("ineligible_banner")}</p></div>`,
+    refreshed: `<div class="banner" role="status">${ICON.info}<p>${t("refreshed_banner")}</p></div>`,
+    vispending: `<section class="panel"><div class="switch-row"><div><h2>${t("vis_title")}</h2></div><button type="button" class="switch" role="switch" aria-checked="true" aria-busy="true"></button></div><p class="small" role="status" style="margin:0">${t("vis_saving")}</p></section>`,
+    visconflict: `<section class="panel"><div class="switch-row"><div><h2>${t("vis_title")}</h2></div><button type="button" class="switch" role="switch" aria-checked="false"></button></div><p class="small" role="status" style="margin:0;color:var(--site-warning)">${ICON.info} ${t("vis_conflict")}</p></section>`,
+    visitormine: `<div class="state"><h2>${t("tab_mine")}</h2><p>${t("visitor_mine")}</p><a class="btn primary" href="#">${t("x_continue_osu")}</a></div>`,
+    visitorboard: `<div class="state"><h2>${t("tab_board")}</h2><p>${t("visitor_board")}</p><a class="btn primary" href="#">${t("x_continue_osu")}</a></div>`,
+    visfailed: `<section class="panel"><div class="switch-row"><div><h2>${t("vis_title")}</h2></div><button type="button" class="switch" role="switch" aria-checked="false"></button></div><p class="small" role="alert" style="margin:0;color:var(--site-danger)">${ICON.alert} ${t("vis_failed")}</p><button class="btn secondary" type="button" style="justify-self:start">${t("x_retry")}</button></section>`,
+    rules: `<div class="pk-dialog static" role="dialog" aria-labelledby="static-rules-title">${rulesDialogBody("static-rules-title")}</div>`,
+  }[kind];
+  if (kind === "menu") return `<div style="min-height:340px;margin:-12px">${contextBar({ open: true })}</div>`;
+  return `<div class="pk" style="padding:0">${body}</div>`;
+}
+
+/* ------------------------------ board layout ------------------------------ */
+const STORE = {};
+const FRAMES = {};
+function frame(label, cls, id, build) {
+  FRAMES[id] = build;
+  return `<div class="frame-wrap"><div class="frame-label">${label}</div><div class="frame ${cls}" data-frame="${id}">${build()}</div></div>`;
+}
+function rerenderFrame(id, focusSelector) {
+  const el = document.querySelector(`[data-frame="${id}"]`);
+  el.innerHTML = FRAMES[id]();
+  const target = focusSelector && el.querySelector(focusSelector);
+  if (target) target.focus();
+  return el;
+}
+function render() {
+  document.documentElement.lang = LANG;
+  const gallery = GALLERY.map(([code, title, note, f]) => {
+    const g = { ...f, uid: `g-${code}` };
+    STORE.g = STORE.g || {};
+    STORE.g[g.uid] = STORE.g[g.uid] ? { ...g, ...pickState(STORE.g[g.uid]) } : g;
+    return `<figure><figcaption><code>${code}</code> ${title}<br><span style="opacity:.75">${note}</span></figcaption><div class="frame mobile" style="width:400px">${card(STORE.g[g.uid])}</div></figure>`;
+  }).join("");
+  const states = [
+    ["loading", "加载中（骨架 + aria-busy）"], ["noopen", "无开放场次"], ["filter", "筛选无结果"], ["nopicks", "我的预测为空"],
+    ["lbempty", "排行榜尚无结算"], ["failed", "加载失败"], ["session", "登录失效横幅（页首下方）"], ["ineligible", "不符合参与资格（只读）"],
+    ["refreshed", "局部刷新后提示（截止、改期、冲突后拉取新数据）"], ["vispending", "榜单显示设置 · 更新中"], ["visconflict", "榜单显示设置 · 版本冲突"], ["visfailed", "榜单显示设置 · 更新失败（开关回到原状态）"], ["visitormine", "访客点开“我的预测”"], ["visitorboard", "访客点开“排行榜”"],
+    ["rules", "玩法说明（桌面为对话框，手机为底部面板；Esc 或关闭按钮收起，焦点回到“玩法”按钮）"], ["menu", "手机赛事菜单（活动启用时末尾出现“赛事预测”）"],
+  ].map(([k, label]) => `<figure><figcaption><code>${k}</code> ${label}</figcaption><div class="frame mobile" style="width:400px;padding:12px">${statesFrame(k)}</div></figure>`).join("");
+
+  document.getElementById("board").innerHTML = `
+  <section class="board-section" data-shot="matches-desktop"><h2>1 · 本轮场次（已登录 · 桌面 ≥ 900px）</h2>
+    <p class="lede">主区按“可预测 → 已截止 → 已结算与作废”分组；右侧 320px 固定宽度侧栏放我的进度、榜单摘要与玩法摘要。第一张卡可直接操作：选择 → 保存（勾选顶部“模拟保存失败”可看失败与重试）。页首“玩法”打开完整规则对话框。</p>
+    <div class="frames">${frame("desktop · 1200px", "desktop", "d", () => matchesPage("d"))}</div></section>
+  <section class="board-section" data-shot="matches-mobile"><h2>2 · 本轮场次（手机 390px）</h2>
+    <p class="lede">单栏顺序：页首与分页签 → 筛选（轮次、状态、已预测计数）→ 场次清单 → 我的进度 → 榜单摘要。完整排行榜从页首“排行榜”分页签进入。赛事导航收进“赛事菜单”，可点开。</p>
+    <div class="frames">${frame("mobile · 390px", "mobile", "m", () => matchesPage("m"))}</div></section>
+  <section class="board-section" data-shot="cards"><h2>3 · 场次卡完整状态</h2>
+    <p class="lede">同一张卡在不同阶段的样子。状态同时用文字、图标与既有色票表示；比例只在服务器确认截止后出现。时间沿用站内 formatDate 格式（日期、24 小时制与赛季时区偏移）。</p>
+    <div class="gallery">${gallery}</div></section>
+  <section class="board-section" data-shot="mine"><h2>4 · 我的预测</h2>
+    <p class="lede">列出所选结果、实际赛果与得分。改判与作废显示当前状态和赛果链接。手机把表格转为逐行卡片。</p>
+    <div class="frames">${frame("desktop · 1200px", "desktop", "dm", () => minePage("dm"))}${frame("mobile · 390px", "mobile", "mm", () => minePage("mm"))}</div></section>
+  <section class="board-section" data-shot="board"><h2>5 · 排行榜与显示设置</h2>
+    <p class="lede">本轮 / 全季可切换（全季隐藏轮次选单）；同分同名次并标“并列”；“猜中”列显示猜中数 / 已结算的预测数。本人行高亮，“定位到我”把焦点移到本人行。本人不在当前页时，底部固定显示本人名次，点“定位到我”载入本人所在位置。显示开关可撤回，说明使用站内 osu! 公开名称；点开关可看更新中状态与榜单变化。</p>
+    <div class="frames">${frame("desktop · listed", "desktop", "dl", () => boardPage("dl"))}${frame("mobile · not listed", "mobile", "ml", () => boardPage("ml", { listed: false }))}${frame("mobile · listed · 本人第 57 名（不在第一页）", "mobile", "mf", () => boardPage("mf", { far: true }))}</div></section>
+  <section class="board-section" data-shot="visitor"><h2>6 · 访客</h2>
+    <p class="lede">访客看到玩法与开放场次摘要，以及 osu! 登录入口；登录后回到同一赛季的预测页。不显示个人预测、比例或完整榜单。</p>
+    <div class="frames">${frame("desktop · visitor", "desktop", "dv", () => matchesPage("dv", { visitor: true }))}${frame("mobile · visitor", "mobile", "mv", () => matchesPage("mv", { visitor: true }))}</div></section>
+  <section class="board-section" data-shot="states"><h2>7 · 页面级状态</h2>
+    <div class="gallery">${states}</div></section>`;
+}
+function pickState(s) { return { pick: s.pick, saved: s.saved, savedAt: s.savedAt, saving: s.saving, error: s.error, state: s.state, dist: s.dist }; }
+
+/* ---------------------------- demo interaction ---------------------------- */
+function findCard(uid) {
+  for (const bucket of Object.values(STORE)) if (bucket[uid]) return bucket;
+  return null;
+}
+function rerenderCard(uid, announce) {
+  const bucket = findCard(uid);
+  const el = document.querySelector(`[data-card="${uid}"] .pk-card-body`);
+  const focusId = document.activeElement?.dataset?.focus;
+  el.innerHTML = cardBody(bucket[uid]);
+  const target = focusId && el.querySelector(`[data-focus="${focusId}"]`);
+  if (target) target.focus();
+  if (announce != null) document.querySelector(`[data-live="${uid}"]`).textContent = announce;
+}
+function announce(text) {
+  const live = document.getElementById("board-live");
+  live.textContent = "";
+  setTimeout(() => { live.textContent = text; }, 50);
+}
+let rulesOpener = null;
+const rulesDialog = document.getElementById("rules-dialog");
+rulesDialog.addEventListener("close", () => { rulesOpener?.focus(); rulesOpener = null; });
+rulesDialog.addEventListener("click", (e) => { if (e.target === rulesDialog) rulesDialog.close(); });
+document.addEventListener("change", (e) => {
+  const input = e.target.closest(".pk-option input");
+  if (!input) return;
+  const uid = input.name; const bucket = findCard(uid); const f = bucket[uid];
+  f.pick = input.value; f.error = null;
+  rerenderCard(uid, "");
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  const ctx = e.target.closest?.(".ctx[data-open]");
+  if (!ctx) return;
+  e.preventDefault();
+  ctx.removeAttribute("data-open");
+  const btn = ctx.querySelector("[data-menu]");
+  btn.setAttribute("aria-expanded", "false"); btn.querySelector("span").textContent = "+"; btn.focus();
+});
+document.addEventListener("click", (e) => {
+  const save = e.target.closest("[data-save]");
+  if (save && save.getAttribute("aria-disabled") !== "true") {
+    const uid = save.closest("[data-card]").dataset.card; const f = findCard(uid)[uid];
+    f.saving = true; f.error = null; rerenderCard(uid, t("live_saving"));
+    setTimeout(() => {
+      f.saving = false;
+      if (document.getElementById("fail").checked) { f.error = "err_network"; rerenderCard(uid, ""); }
+      else { f.saved = f.pick; f.savedAt = "2026-11-27 21:05"; rerenderCard(uid, t("live_saved", { team: nameOf(f.pick) })); }
+    }, 900);
+  }
+  const rules = e.target.closest("[data-rules]");
+  if (rules) {
+    rulesDialog.innerHTML = rulesDialogBody("rules-title");
+    rulesOpener = rules; rulesDialog.showModal();
+  }
+  if (e.target.closest("[data-close-rules]") && rulesDialog.open) rulesDialog.close();
+  const menu = e.target.closest("[data-menu]");
+  if (menu) {
+    const ctx = menu.closest(".ctx"); const open = !ctx.hasAttribute("data-open");
+    ctx.toggleAttribute("data-open", open);
+    menu.setAttribute("aria-expanded", String(open)); menu.querySelector("span").textContent = open ? "−" : "+";
+  }
+  const scope = e.target.closest("[data-scope]");
+  if (scope) {
+    const id = scope.dataset.board; const s = BSTATE[id];
+    if (s.scope !== scope.dataset.scope) {
+      s.scope = scope.dataset.scope; s.jumped = false;
+      rerenderFrame(id, `[data-scope="${s.scope}"]`);
+      announce(t(s.scope === "season" ? "board_season" : "board_summary"));
+    }
+  }
+  const jump = e.target.closest("[data-jump]");
+  if (jump) {
+    const id = jump.dataset.jump; const s = BSTATE[id];
+    if (s.far && !s.jumped) { s.jumped = true; rerenderFrame(id); }
+    const row = document.querySelector(`[data-frame="${id}"] tr[data-me]`);
+    if (row) {
+      row.scrollIntoView({ block: "center" }); row.focus({ preventScroll: true });
+      const rank = (s.far ? BOARDS.farAround : BOARDS[s.scope]).find((r) => r[4])[0];
+      announce(t("lb_jumped", { rank }));
+    }
+  }
+  const top = e.target.closest("[data-top]");
+  if (top) { const id = top.dataset.top; BSTATE[id].jumped = false; rerenderFrame(id, "[data-jump]"); }
+  const sw = e.target.closest("[data-switch]");
+  if (sw && sw.getAttribute("aria-busy") !== "true") {
+    const id = sw.dataset.switch; const s = BSTATE[id];
+    s.pending = true; rerenderFrame(id, "[data-switch]");
+    setTimeout(() => {
+      s.pending = false; s.listed = !s.listed; s.jumped = false;
+      rerenderFrame(id, "[data-switch]");
+    }, 700);
+  }
+});
+document.getElementById("lang").addEventListener("change", (e) => { LANG = e.target.value; render(); });
+document.getElementById("theme").addEventListener("change", (e) => { document.documentElement.dataset.theme = e.target.value; });
+const params = new URLSearchParams(location.search);
+if (params.get("lang")) { LANG = params.get("lang"); document.getElementById("lang").value = LANG; }
+if (params.get("theme")) { document.documentElement.dataset.theme = params.get("theme"); document.getElementById("theme").value = params.get("theme"); }
+render();
+</script>
+</body>
+</html>

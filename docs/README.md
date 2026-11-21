@@ -29,7 +29,7 @@ Project overview and setup choices are available in [English](../README.md), [ç®
 ## Public pages, design, and ratings
 
 - [Public features](public-features.md) covers news, player profiles, and competition pages. See [player identity](player-identity.md) and [published match details](match-details.md) for data boundaries.
-- [Localization and appearance](localization.md) covers language, theme selection, and compatibility. See the [MainSheet reference](design/mainsheet-light/README.md), [season themes](design/season-themes/README.md), and [appearance backlog](design/appearance-backlog/README.md) for design work.
+- [Localization and appearance](localization.md) covers language, theme selection, and compatibility. See the [MainSheet reference](design/mainsheet-light/README.md), [season themes](design/season-themes/README.md), [appearance backlog](design/appearance-backlog/README.md), and the proposed [Pickâ€™em player page](design/pickem/README.md) for design work.
 - [Country flag assets and attribution](country-flags.md) and [OCL Chess](ocl-chess.md) document their respective public features.
 - [OCLR rating model](yumu-rating.md), [SIP ratings](sip-ratings.md), and [background player analytics](background-player-analytics.md) cover formulas, data sources, and saved ranking snapshots.
 
