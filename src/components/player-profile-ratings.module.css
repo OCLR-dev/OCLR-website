@@ -1,22 +1,15 @@
-.detailedMetrics,
-.compactMetrics {
-  display: grid;
-  gap: 0.65rem 1rem;
-}
-
-.detailedMetrics,
 dl.compactMetrics {
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
+  gap: 0.65rem 1rem;
   margin-block: 0.75rem;
 }
 
-.detailedMetrics div,
 .compactMetrics div {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.detailedMetrics dd,
 .compactMetrics dd {
   margin-inline-start: 0;
 }
@@ -28,10 +21,46 @@ dl.compactMetrics {
   gap: 0.4rem;
 }
 
-.noteContent details {
-  margin-block: 0.4rem;
+.noteContent {
+  font-size: var(--text-support);
+  line-height: 1.4;
+}
+
+.noteContent h4 {
+  margin-block: 0.5rem 0.125rem;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .noteContent summary {
+  min-block-size: 1.5rem;
+  padding-block: 0.125rem;
   cursor: pointer;
+}
+
+.detailedMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: 0.25rem 0.75rem;
+  margin-block: 0.35rem 0;
+}
+
+.detailedMetrics > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 0.5rem;
+  min-width: 0;
+}
+
+.detailedMetrics dt {
+  color: var(--site-muted, var(--color-muted));
+}
+
+.detailedMetrics dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
