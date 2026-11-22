@@ -595,6 +595,14 @@ export function MappoolReplays({
                         </dd>
                       </div>
                       <div>
+                        <dt>{tr("Max combo")}</dt>
+                        <dd>
+                          {item.summary.performance.maxCombo === undefined
+                            ? tr("Unavailable")
+                            : format.number(item.summary.performance.maxCombo)}
+                        </dd>
+                      </div>
+                      <div>
                         <dt>{tr("Full combo (FC)")}</dt>
                         <dd>
                           {item.summary.performance.fullCombo

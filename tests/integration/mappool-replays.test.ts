@@ -778,11 +778,13 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
       syntheticReplay({
         judgements: [95, 5, 0, 0, 0, 0],
         score: 987654,
+        maxCombo: 1_234,
         fullCombo: true,
       }),
     );
     const performance = {
       score: 987654,
+      maxCombo: 1_234,
       grade: "S",
       accuracy: 580 / 600,
       fullCombo: true,
@@ -791,6 +793,23 @@ describe.skipIf(!url)("private replay attachment lifecycle", () => {
       id,
       summary: { performance },
     });
+    await db()
+      .update(mappoolReplays)
+      .set({
+        summary: sql`${mappoolReplays.summary} #- '{performance,maxCombo}'`,
+      })
+      .where(eq(mappoolReplays.id, id));
+    expect((await replayList(tester, edition.slug, entryId))[0]).toMatchObject({
+      id,
+      summary: { performance },
+    });
+    const [savedWithoutCombo] = await db()
+      .select({ summary: mappoolReplays.summary })
+      .from(mappoolReplays)
+      .where(eq(mappoolReplays.id, id));
+    expect(savedWithoutCombo.summary.performance).not.toHaveProperty(
+      "maxCombo",
+    );
     await db()
       .update(mappoolReplays)
       .set({ summary: sql`${mappoolReplays.summary} - 'performance'` })

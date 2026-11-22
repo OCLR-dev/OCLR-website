@@ -511,6 +511,9 @@ Contract 1.46.0 adds optional `summary.performance` to staff `replayList`
 attachments. It includes the stored score and full-combo flag, plus the
 accuracy fraction and letter grade calculated from the replay's recorded hits.
 Accuracy and grade can be null for unsupported judgement formats or empty hits.
+Contract 1.48.0 adds optional `summary.performance.maxCombo`, the highest
+combo recorded in the replay header. Older backends and attachments with an
+unavailable original file can omit this field.
 
 Contract 1.45.0 adds optional `beatmapCached` to staff `mappoolWorkspace`
 entries for viewers with edition mappool management access. It indicates

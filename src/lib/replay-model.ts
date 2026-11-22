@@ -10,6 +10,7 @@ export const REPLAY_STORAGE_MAX_BYTES = 1024 * 1024 * 1024;
 export const REPLAY_STORAGE_MAX_FILES = 10000;
 const replayPerformanceSchema = z.strictObject({
   score: z.number().int().nonnegative(),
+  maxCombo: z.number().int().min(0).max(0xffff).optional(),
   accuracy: z.number().min(0).max(1).nullable(),
   grade: z.enum(["SS", "SSH", "S", "SH", "A", "B", "C", "D"]).nullable(),
   fullCombo: z.boolean(),

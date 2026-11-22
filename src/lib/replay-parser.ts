@@ -116,7 +116,7 @@ function readReplayContainer(bytes: Buffer) {
     ] as const;
     const score = int();
     if (score < 0) throw new Error();
-    short(); // Maximum combo
+    const maxCombo = short();
     const fullCombo = byte();
     if (fullCombo > 1) throw new Error();
     const mods = int();
@@ -140,13 +140,10 @@ function readReplayContainer(bytes: Buffer) {
       playerName,
       mode: ruleset,
       mods,
-      performance: replayPerformance(
-        ruleset,
-        mods,
-        judgements,
-        score,
-        fullCombo === 1,
-      ),
+      performance: {
+        ...replayPerformance(ruleset, mods, judgements, score, fullCombo === 1),
+        maxCombo,
+      },
     };
   } catch (error) {
     if (error instanceof HttpError) throw error;

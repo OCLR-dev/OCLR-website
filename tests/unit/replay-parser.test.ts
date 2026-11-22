@@ -98,11 +98,13 @@ describe("bounded stable replay validation", () => {
           mods,
           judgements: hits,
           score: 999_999,
+          maxCombo: 60_000,
           fullCombo: mode === 3,
         }),
       );
       expect(summary.performance).toEqual({
         score: 999_999,
+        maxCombo: 60_000,
         accuracy,
         grade,
         fullCombo: mode === 3,
@@ -111,11 +113,16 @@ describe("bounded stable replay validation", () => {
   });
   it("leaves accuracy and grade unavailable for no judgements or Target Practice", async () => {
     for (const replay of [
-      syntheticReplay(),
-      syntheticReplay({ mods: 1 << 23, judgements: [80, 0, 0, 0, 0, 0] }),
+      syntheticReplay({ maxCombo: 0 }),
+      syntheticReplay({
+        maxCombo: 0,
+        mods: 1 << 23,
+        judgements: [80, 0, 0, 0, 0, 0],
+      }),
     ]) {
       expect((await parseReplay(replay)).performance).toEqual({
         score: 123456,
+        maxCombo: 0,
         accuracy: null,
         grade: null,
         fullCombo: false,

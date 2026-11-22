@@ -104,7 +104,7 @@ async function databaseReplayList(
   const items: ReplayItem[] = [];
   for (const { preferred, ...row } of rows) {
     let summary = row.summary;
-    if (!summary.performance) {
+    if (summary.performance?.maxCombo === undefined) {
       try {
         const bytes = await readReplay(row.id, row.size, row.sha256);
         const { performance } = readSavedReplaySummary(bytes);

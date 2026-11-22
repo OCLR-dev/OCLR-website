@@ -10,6 +10,7 @@ export function syntheticReplay(
     mods?: number;
     judgements?: readonly [number, number, number, number, number, number];
     score?: number;
+    maxCombo?: number;
     fullCombo?: boolean;
   } = {},
 ) {
@@ -47,6 +48,8 @@ export function syntheticReplay(
   options.judgements?.forEach((count, index) => {
     judgements.writeUInt16LE(count, index * 2);
   });
+  const combo = Buffer.alloc(2);
+  combo.writeUInt16LE(options.maxCombo ?? 1);
   return Buffer.concat([
     Buffer.from([options.mode ?? 0]),
     int(options.version ?? 20260101),
@@ -55,7 +58,8 @@ export function syntheticReplay(
     str("b".repeat(32)),
     judgements,
     int(options.score ?? 123456),
-    Buffer.from([1, 0, Number(options.fullCombo ?? false)]),
+    combo,
+    Buffer.from([Number(options.fullCombo ?? false)]),
     int(options.mods ?? 0),
     Buffer.from([0]),
     Buffer.alloc(8),

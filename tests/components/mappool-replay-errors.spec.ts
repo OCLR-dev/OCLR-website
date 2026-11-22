@@ -16,6 +16,7 @@ const replay = {
     beatmapMd5: "a".repeat(32),
     performance: {
       score: 987654,
+      maxCombo: 1234,
       accuracy: 0.9825,
       grade: "S",
       fullCombo: true,
@@ -225,8 +226,10 @@ for (const operation of ["upload", "delete"] as const) {
         "98.25%",
         "987,654",
         "S",
+        "1,234",
         "Yes",
       ]);
+      await expect(performance.locator("dt").nth(3)).toHaveText("Max combo");
     }
     const act = async () => {
       if (operation === "upload") {
