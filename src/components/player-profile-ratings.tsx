@@ -234,12 +234,12 @@ function SipGroup({
 }) {
   if (!entries || !Object.keys(entries).length) return null;
   return (
-    <>
+    <div>
       <h4>{title}</h4>
       {Object.entries(entries).map(([key, rating]) => (
         <SipIndicators key={key} label={key} rating={rating} />
       ))}
-    </>
+    </div>
   );
 }
 
@@ -282,14 +282,16 @@ function PlayerRatingNote({
                 rating={api.snapshot.rating}
               />
             )}
-            <SipGroup
-              title={tr("Mod ratings")}
-              entries={api?.snapshot?.modifications}
-            />
-            <SipGroup
-              title={tr("Skillset ratings")}
-              entries={api?.snapshot?.skillsets}
-            />
+            <div className={styles.sipGroups}>
+              <SipGroup
+                title={tr("Mod ratings")}
+                entries={api?.snapshot?.modifications}
+              />
+              <SipGroup
+                title={tr("Skillset ratings")}
+                entries={api?.snapshot?.skillsets}
+              />
+            </div>
           </>
         ) : (
           <>
