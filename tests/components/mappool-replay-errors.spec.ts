@@ -11,7 +11,7 @@ const replay = {
   summary: {
     playerName: "Synthetic player",
     mode: "osu",
-    mods: "NM",
+    mods: 0,
     version: 20260101,
     beatmapMd5: "a".repeat(32),
     performance: {
@@ -226,7 +226,7 @@ for (const operation of ["upload", "delete"] as const) {
         "98.25%",
         "987,654",
         "S",
-        "1,234",
+        "1,234 / 1,275",
         "Yes",
       ]);
       await expect(performance.locator("dt").nth(3)).toHaveText("Max combo");

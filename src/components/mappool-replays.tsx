@@ -23,6 +23,7 @@ import {
 import type { MappoolWorkspace } from "@/lib/mappool-reads";
 import type { ReplayItem } from "@/lib/mappool-replays";
 import { notifyReplayListChanged } from "@/lib/replay-list-updates";
+import { replayBeatmapMaxCombo } from "@/lib/replay-beatmap-combo";
 import { REPLAY_MAX_BYTES, REPLAY_ENTRY_LIMIT } from "@/lib/replay-model";
 import {
   deleteReplayWrite,
@@ -91,6 +92,14 @@ export function MappoolReplays({
       ? observedCache.cached
       : entry.beatmapCached;
   const slot = slotLabel(entry.category, entry.position);
+  function comboText(summary: ReplayItem["summary"]) {
+    const achieved = summary.performance?.maxCombo;
+    if (achieved === undefined) return tr("Unavailable");
+    const maximum = replayBeatmapMaxCombo(entry, summary);
+    return maximum === undefined
+      ? format.number(achieved)
+      : `${format.number(achieved)} / ${format.number(maximum)}`;
+  }
   const [loaded, setLoaded] = useState(false),
     [reloading, setReloading] = useState(false);
   const [file, setFile] = useState<File | null>(null),
@@ -596,11 +605,7 @@ export function MappoolReplays({
                       </div>
                       <div>
                         <dt>{tr("Max combo")}</dt>
-                        <dd>
-                          {item.summary.performance.maxCombo === undefined
-                            ? tr("Unavailable")
-                            : format.number(item.summary.performance.maxCombo)}
-                        </dd>
+                        <dd>{comboText(item.summary)}</dd>
                       </div>
                       <div>
                         <dt>{tr("Full combo (FC)")}</dt>
