@@ -111,11 +111,28 @@ describe("official batch lookup", () => {
     const { osuApi } = await import("../../src/lib/osu-api");
     vi.mocked(osuApi)
       .mockReset()
-      .mockResolvedValue({ beatmaps: [map(123), map(456)] });
+      .mockResolvedValue({
+        beatmaps: [
+          {
+            ...map(123),
+            owners: [
+              { id: 111, username: "Synthetic Guest One" },
+              { id: 222, username: "Synthetic Guest Two" },
+            ],
+          },
+          { ...map(456), owners: [] },
+        ],
+      });
     const { fetchBeatmaps, fetchBeatmap } =
       await import("../../src/lib/osu-beatmaps");
     const rows = await fetchBeatmaps([123, 456, 123, 789]);
-    expect(rows.get(123)).toMatchObject({ beatmapId: 123 });
+    expect(rows.get(123)).toMatchObject({
+      beatmapId: 123,
+      metadata: { mapper: "Synthetic Guest One, Synthetic Guest Two" },
+    });
+    expect(rows.get(456)).toMatchObject({
+      metadata: { mapper: map(456).beatmapset.creator },
+    });
     expect(rows.get(789)).toMatchObject({ status: 502 });
     expect(osuApi).toHaveBeenCalledWith(
       "/beatmaps?ids[]=123&ids[]=456&ids[]=789",

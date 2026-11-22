@@ -40,6 +40,10 @@ const beatmap = z.object({
   accuracy: z.number().finite().nonnegative().nullable().optional(),
   cs: z.number().finite().nonnegative().nullable().optional(),
   drain: z.number().finite().nonnegative().nullable().optional(),
+  owners: z
+    .array(z.object({ username: z.string().trim().min(1).max(500) }))
+    .optional()
+    .catch(undefined),
   beatmapset: z.object({
     title: z.string().trim().min(1).max(500),
     artist: z.string().trim().min(1).max(500),
@@ -125,12 +129,13 @@ function normalizeBeatmap(value: unknown, id: number): BeatmapSnapshot {
       "osu! returned incomplete beatmap metadata. Saved records were preserved.",
     );
   const b = parsed.data;
+  const mappers = [...new Set(b.owners?.map(({ username }) => username))];
   const fetchedAt = Date.now();
   const metadata = {
     setId: b.beatmapset_id,
     title: b.beatmapset.title,
     artist: b.beatmapset.artist,
-    mapper: b.beatmapset.creator,
+    mapper: mappers.join(", ") || b.beatmapset.creator,
     difficulty: b.version,
     stars: b.difficulty_rating,
     bpm: b.bpm,

@@ -66,7 +66,13 @@ describe("official beatmap parsing and server API boundaries", () => {
       .fn()
       .mockResolvedValueOnce(token())
       .mockResolvedValueOnce(new Response(JSON.stringify(map)))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ ...map, id: 456 })));
+      .mockResolvedValueOnce(
+        Response.json({
+          ...map,
+          id: 456,
+          owners: [{ id: 789, username: "Synthetic Guest Mapper" }],
+        }),
+      );
     vi.stubGlobal("fetch", fetch);
     const { fetchBeatmap } = await import("../../src/lib/osu-beatmaps");
     const [first, simultaneous] = await Promise.all([
@@ -90,7 +96,9 @@ describe("official beatmap parsing and server API boundaries", () => {
       fingerprint: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
     await fetchBeatmap(123); // Cached metadata avoids duplicate provider reads.
-    await fetchBeatmap(456);
+    expect((await fetchBeatmap(456)).metadata.mapper).toBe(
+      "Synthetic Guest Mapper",
+    );
     expect(fetch).toHaveBeenCalledTimes(3);
     expect(fetch.mock.calls[0][0]).toBe("https://osu.ppy.sh/oauth/token");
     const body = fetch.mock.calls[0][1].body as URLSearchParams;
