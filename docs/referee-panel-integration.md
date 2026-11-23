@@ -282,3 +282,9 @@ ledger 或來源變動即使舊確認失效，不能默默覆蓋另一方。技�
 對應桌面修復提交：[1381a4c](https://github.com/OCLR-dev/OCLR-IRC/commit/1381a4c5a4e63601323a4f43512eba7249f4390f)。本地 Node 24.22.2 驗證：網站 `npm run check` 通過，獨立 `oclr_settings_test` 資料庫的完整 `npm test` 為 304 檔通過、2,642 項通過／2 項跳過（409.03 秒）；IRC 相關兩檔 73 項及 `read-api:check` 通過。網站 E2E 未執行（too slow）；桌面另以完整 Electron 合成煙霧測試驗證。
 
 同批 `npm run build` 與 `npm audit --omit=dev` 通過，執行依賴 0 項漏洞。這些結果屬本機合成驗證，feature branch 的 CI、合併及部署分別追蹤。
+
+## 完賽關房快捷指令（2026-11-23）
+
+IRC 常駐區提供 `!mp close`，沿用填入指令後確認傳送的操作。只有工作臺暫記賽程達到勝場／固定圖數完成條件時才能使用；單圖結束不代表整場完成。服務端在排隊與桌面領取指令時重新讀取完成狀態、指派和依賴版本。比分修正或依賴變更後不再符合條件的待送指令會被拒絕。
+
+需搭配支援 `close` 的新版 OCLR-IRC。關房結果沿用未確認／unknown 與不自動重送規則；socket 寫入或單圖完局訊息不代表關房成功。

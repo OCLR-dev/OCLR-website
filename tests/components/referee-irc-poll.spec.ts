@@ -130,3 +130,63 @@ for (const scenario of ["disconnect", "queue", "queue-error"] as const) {
     ]);
   });
 }
+
+test("close follows authoritative series completion, including later corrections", async ({
+  page,
+}) => {
+  let current = workspace();
+  let queued = 0;
+  const view = () => ({
+    workspace: current,
+    messages: [],
+    commands: [],
+    connection: {
+      id: id(400),
+      roomId: 123,
+      ircUsername: "SyntheticRef",
+      status: "connected",
+      connected: true,
+      bpSync: true,
+      lastSeenAt: new Date().toISOString(),
+    },
+  });
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 1000));
+  await page.route(api, (route) => route.fulfill({ json: current }));
+  await page.route(`${api}/mp`, (route) =>
+    route.fulfill({ json: { binding: null, workspace: current } }),
+  );
+  await page.route(`${api}/reconciliation`, (route) =>
+    route.fulfill({ status: 409, json: { error: "Synthetic" } }),
+  );
+  await page.route(`${api}/irc`, (route) => {
+    if (route.request().method() === "POST") queued++;
+    return route.fulfill({ json: view() });
+  });
+  await page.goto("/referee-panel?theme=light");
+  const panel = page.getByRole("complementary", { name: "IRC console" });
+  await expect(panel.getByText("IRC connected", { exact: true })).toBeVisible();
+  const close = panel.getByRole("button", { name: "!mp close", exact: true });
+  const send = panel.getByRole("button", { name: "Send to local IRC" });
+  const input = panel.getByRole("textbox", { name: "IRC command" });
+  await expect(close).toBeDisabled();
+  await input.fill("!mp close");
+  await expect(send).toBeDisabled();
+  current = structuredClone(current);
+  current.session!.revision++;
+  current.projection.complete = true;
+  await page.clock.runFor(2100);
+  await expect(close).toBeEnabled();
+  await close.click();
+  await expect(input).toHaveValue("!mp close");
+  await expect(send).toBeEnabled();
+  // Clicking the shortcut prepares the command; it still needs an explicit send.
+  expect(queued).toBe(0);
+  current = structuredClone(current);
+  current.session!.revision++;
+  current.projection.complete = false;
+  await page.clock.runFor(2100);
+  await expect(close).toBeDisabled();
+  await expect(send).toBeDisabled();
+  expect(queued).toBe(0);
+});

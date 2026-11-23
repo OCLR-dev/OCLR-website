@@ -12,6 +12,7 @@ import { eq, sql } from "drizzle-orm";
 import { db, closeDb } from "../../src/db";
 import {
   fixtureReferees,
+  fixtures,
   refereeIrcCommands,
   refereeIrcConnections,
 } from "../../src/db/schema";
@@ -144,6 +145,91 @@ describe.skipIf(!url)("IRC relay persistence and confirmation", () => {
     }
     expect(await db().select().from(refereeIrcCommands)).toEqual([]);
   });
+  async function resolveLast(status: "completed" | "aborted" = "completed") {
+    const w = await refereeWorkspace(referee, "test-cup", fixtureId);
+    return refereeCommand(referee, "test-cup", fixtureId, {
+      action: "resolve_attempt",
+      pickId: w.projection.lastSelectionId!,
+      status,
+      winnerTeamId: status === "completed" ? w.teams[0].id : null,
+      expectedRevision: w.session!.revision,
+      dependencyFingerprint: w.dependencyFingerprint,
+      requestKey: randomUUID(),
+    });
+  }
+  async function closeRequest(requestKey = randomUUID()) {
+    return refereeIrcBrowserCommand(referee, "test-cup", fixtureId, {
+      action: "queue",
+      requestKey,
+      text: "!mp close",
+    });
+  }
+  async function finishSeries() {
+    for (const beatmapId of [10001, 10002, 10003, 10004]) {
+      const w = await refereeWorkspace(referee, "test-cup", fixtureId);
+      await refereeCommand(referee, "test-cup", fixtureId, {
+        action: "record_selection",
+        entryId: w.maps.find((m) => m.beatmapId === beatmapId)!.id,
+        expectedRevision: w.session!.revision,
+        dependencyFingerprint: w.dependencyFingerprint,
+        requestKey: randomUUID(),
+      });
+      if (beatmapId % 2 === 0) await resolveLast();
+      if (beatmapId === 10002) {
+        // Finishing one map must not unlock closing the whole room.
+        await expect(closeRequest()).rejects.toMatchObject({ status: 409 });
+      }
+    }
+    expect(
+      (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
+        .complete,
+    ).toBe(true);
+  }
+  it("only queues close after the series is complete and never dispatches it twice", async () => {
+    await expect(closeRequest()).rejects.toMatchObject({ status: 409 });
+    await finishSeries();
+    const key = randomUUID();
+    await closeRequest(key);
+    await closeRequest(key);
+    const command = (await sync()).command!;
+    expect(command).toMatchObject({ text: "!mp close", target: "#mp_123" });
+    expect((await sync()).command).toBeNull();
+    await sync([{ commandId: command.id, status: "sent" }]);
+    expect((await sync()).command).toBeNull();
+    expect(
+      (await refereeIrcView(referee, "test-cup", fixtureId)).commands.filter(
+        (c) => c.text === "!mp close",
+      ),
+    ).toHaveLength(1);
+  });
+  it.each(["correction", "dependencies"])(
+    "rejects a queued close after %s invalidates completion",
+    async (change) => {
+      await finishSeries();
+      await closeRequest();
+      if (change === "correction") {
+        await resolveLast("aborted");
+        expect(
+          (await refereeWorkspace(referee, "test-cup", fixtureId)).projection
+            .complete,
+        ).toBe(false);
+      } else {
+        await db()
+          .update(fixtures)
+          .set({ version: sql`${fixtures.version} + 1` })
+          .where(eq(fixtures.id, fixtureId));
+      }
+      await expect(closeRequest()).rejects.toMatchObject({ status: 409 });
+      expect((await sync()).command).toBeNull();
+      const close = (
+        await refereeIrcView(referee, "test-cup", fixtureId)
+      ).commands.at(-1)!;
+      expect(close).toMatchObject({
+        status: "failed",
+        recordError: "Complete the series before closing the room.",
+      });
+    },
+  );
   async function queue() {
     const w = await refereeWorkspace(referee, "test-cup", fixtureId);
     const map = w.maps.find((m) => m.beatmapId === 10001)!;

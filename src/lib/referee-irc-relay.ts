@@ -20,6 +20,7 @@ import {
   safeIrcMessages,
 } from "./referee-irc-model";
 import {
+  assertRefereeRoomClosable,
   expireIrcCommands,
   lockRefereeIrc,
   type IrcTransaction,
@@ -368,6 +369,10 @@ export async function refereeIrcRelay(
         try {
           if (!issuer) throw new HttpError(403, "Referee access has changed.");
           await assertRefereeAccess(tx, issuer, slug, fixtureId, true);
+          if (queued.text === "!mp close")
+            assertRefereeRoomClosable(
+              await readRefereeWorkspace(tx, issuer, slug, fixtureId),
+            );
           if (queued.automation && isScoreNotice(queued.text)) {
             const w = await readRefereeWorkspace(tx, issuer, slug, fixtureId);
             const event = w.events.find(

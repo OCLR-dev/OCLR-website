@@ -21,6 +21,7 @@ export function RefereeIrc({
   fixtureId,
   simulation,
   disabled,
+  matchComplete,
   startSeconds,
   timers,
   selectedMods,
@@ -42,6 +43,7 @@ export function RefereeIrc({
   fixtureId: string;
   simulation: boolean;
   disabled: boolean;
+  matchComplete: boolean;
   startSeconds: number | null;
   timers: readonly (number | null | undefined)[];
   selectedMods: string | null;
@@ -253,6 +255,9 @@ export function RefereeIrc({
     record_failed: tr("IRC confirmed; referee record needs review"),
   };
   const failureReasons: Record<string, string> = {
+    "Complete the series before closing the room.": tr(
+      "Complete the series before closing the room.",
+    ),
     "Automatic BP sync stopped. Check the saved BP event and preceding IRC step.":
       tr(
         "Automatic BP sync stopped. Check the saved BP event and preceding IRC step.",
@@ -287,6 +292,7 @@ export function RefereeIrc({
       inFlight.current ||
       disabled ||
       !draft.trim() ||
+      (draft.trim() === "!mp close" && !matchComplete) ||
       /[\r\n\u0000]/.test(draft) ||
       (!simulation && !connected && !retry)
     )
@@ -615,6 +621,7 @@ export function RefereeIrc({
             disabled ||
             sending ||
             !draft.trim() ||
+            (draft.trim() === "!mp close" && !matchComplete) ||
             (!simulation && !connected && !retry) ||
             (!simulation &&
               (relay?.connection?.roomId === 0
@@ -677,12 +684,18 @@ export function RefereeIrc({
           "!mp aborttimer",
           ...(selectedMods ? [selectedMods] : []),
           "!mp abort",
+          "!mp close",
         ].map((text) => (
           <button
             key={text}
             type="button"
             className="secondary"
-            disabled={locked}
+            disabled={locked || (text === "!mp close" && !matchComplete)}
+            title={
+              text === "!mp close" && !matchComplete
+                ? tr("Complete the series before closing the room.")
+                : undefined
+            }
             onClick={() => onPrepare(text)}
           >
             {text}

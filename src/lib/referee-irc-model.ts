@@ -118,7 +118,7 @@ export const normalizedIrcUsername = (name: string) =>
 export function allowedIrcCommand(text: string) {
   const countdown = /^!mp (?:timer|start) (\d+)$/.exec(text);
   if (countdown && !validRefereeCountdown(Number(countdown[1]))) return false;
-  return /^(?:!mp map [1-9]\d{0,9}(?: [0-3])?|!mp mods (?:None|(?:NF|EZ|HD|HR|DT|HT|NC|FL|FI|SD|PF|SO|MR|[1-9]K|Freemod)(?: (?:NF|EZ|HD|HR|DT|HT|NC|FL|FI|SD|PF|SO|MR|[1-9]K|Freemod))*)|!mp set [0-3] [0-3] (?:[1-9]|1[0-6])|!mp (?:invite|addref) [A-Za-z0-9_\[\]-]{1,50}|!mp (?:timer|start) [1-9]\d{0,3}|!mp (?:abort|aborttimer))$/.test(
+  return /^(?:!mp map [1-9]\d{0,9}(?: [0-3])?|!mp mods (?:None|(?:NF|EZ|HD|HR|DT|HT|NC|FL|FI|SD|PF|SO|MR|[1-9]K|Freemod)(?: (?:NF|EZ|HD|HR|DT|HT|NC|FL|FI|SD|PF|SO|MR|[1-9]K|Freemod))*)|!mp set [0-3] [0-3] (?:[1-9]|1[0-6])|!mp (?:invite|addref) [A-Za-z0-9_\[\]-]{1,50}|!mp (?:timer|start) [1-9]\d{0,3}|!mp (?:abort|aborttimer|close))$/.test(
     text,
   );
 }

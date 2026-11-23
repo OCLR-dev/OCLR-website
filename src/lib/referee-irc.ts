@@ -21,7 +21,11 @@ import {
   readLatestIrcConnection,
   readRefereeIrcState,
 } from "./referee-irc-reads";
-import { expireIrcCommands, lockRefereeIrc } from "./referee-irc-transaction";
+import {
+  assertRefereeRoomClosable,
+  expireIrcCommands,
+  lockRefereeIrc,
+} from "./referee-irc-transaction";
 import { validateRefereeAction } from "./referee-model";
 import {
   bpSyncSource,
@@ -234,6 +238,10 @@ export async function refereeIrcBrowserCommand(
       throw new HttpError(
         400,
         "This IRC command is not available for remote sending.",
+      );
+    if (action.text === "!mp close")
+      assertRefereeRoomClosable(
+        await readRefereeWorkspace(tx, actor, slug, fixtureId),
       );
     if (action.selection) {
       const w = await readRefereeWorkspace(tx, actor, slug, fixtureId);

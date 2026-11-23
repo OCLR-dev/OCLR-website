@@ -1753,6 +1753,7 @@ export function RefereePanel({
         draft={ircDraft}
         simulation={simulation}
         disabled={disabled || stale}
+        matchComplete={state.complete}
         startSeconds={data.defaultSettings.startSeconds}
         timers={[
           data.policy?.commands?.banSeconds,

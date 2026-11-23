@@ -115,10 +115,13 @@ describe("IRC relay boundary", () => {
     "!mp set 2 3 8",
     "!mp start 5",
     "!mp aborttimer",
+    "!mp close",
   ])("allows bounded command %s", (text) =>
     expect(allowedIrcCommand(text)).toBe(true),
   );
   it.each([
+    "!mp close 123",
+    "!mp close\n!mp start 1",
     "!mp make hello",
     "!mp password secret",
     "PASS secret",
