@@ -158,7 +158,7 @@ async function Issue271Page({
                 </dd>
               </div>
             </dl>
-            <CompactPlayerRatings ratings={ratings} />
+            <CompactPlayerRatings ratings={ratings} etxFractionDigits={2} />
             <p className="muted small">
               {profile
                 ? tr("Updated {value0}{value1}", {

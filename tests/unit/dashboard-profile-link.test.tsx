@@ -115,31 +115,39 @@ describe("dashboard OCLR profile navigation", () => {
       expect(html).not.toContain(`href="/players/${osuId}?edition=`);
     },
   );
-  it("shows compact saved totals without osu! statistics", async () => {
-    vi.mocked(frontendDashboardRatings).mockResolvedValue({
-      otr: {
-        value: 421,
-        fetchedAt: "2025-01-01T00:00:00Z",
-        profileUrl: "https://otr.stagec.net",
-      },
-      sip: { api: null, csv: { value: -12, importedAt: null } },
-      etx: {
-        value: 0,
-        mods: null,
-        importedAt: null,
-        provisional: true,
-        outdated: true,
-      },
-    });
-    const html = renderToStaticMarkup(
-      await Dashboard({ searchParams: Promise.resolve({}) }),
-    );
-    expect(frontendDashboardRatings).toHaveBeenCalledWith(277003);
-    expect(html).toContain("<dt>o!TR</dt><dd>421</dd>");
-    expect(html).toContain("<dt>SIP</dt><dd>-12</dd>");
-    expect(html).toContain("0 ★ · Provisional rating · Outdated rating");
-    expect(html).toContain("osu! statistics are temporarily unavailable.");
-  });
+  it.each([
+    { value: 0, displayed: "0.00" },
+    { value: 6.02745665456774, displayed: "6.03" },
+  ])(
+    "shows compact saved totals without osu! statistics for ETX $value",
+    async ({ value, displayed }) => {
+      vi.mocked(frontendDashboardRatings).mockResolvedValue({
+        otr: {
+          value: 421,
+          fetchedAt: "2025-01-01T00:00:00Z",
+          profileUrl: "https://otr.stagec.net",
+        },
+        sip: { api: null, csv: { value: -12, importedAt: null } },
+        etx: {
+          value,
+          mods: null,
+          importedAt: null,
+          provisional: true,
+          outdated: true,
+        },
+      });
+      const html = renderToStaticMarkup(
+        await Dashboard({ searchParams: Promise.resolve({}) }),
+      );
+      expect(frontendDashboardRatings).toHaveBeenCalledWith(277003);
+      expect(html).toContain("<dt>o!TR</dt><dd>421</dd>");
+      expect(html).toContain("<dt>SIP</dt><dd>-12</dd>");
+      expect(html).toContain(
+        `<dt>ETX</dt><dd>${displayed} ★ · Provisional rating · Outdated rating</dd>`,
+      );
+      expect(html).toContain("osu! statistics are temporarily unavailable.");
+    },
+  );
   it("links a login-only account without requiring public participation", async () => {
     vi.mocked(currentUser).mockResolvedValue({
       osuId: 277003,
