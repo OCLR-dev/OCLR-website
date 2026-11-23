@@ -10,6 +10,7 @@ const props = {
   draft: "",
   simulation: false,
   disabled: false,
+  matchComplete: false,
   startSeconds: 5,
   timers: [60, 90, 120],
   selectedMods: null,

@@ -91,6 +91,7 @@ describe("inherited referee room settings", () => {
         draft=""
         simulation
         disabled={false}
+        matchComplete={false}
         startSeconds={null}
         timers={[45, 75, 75, null, undefined]}
         selectedMods={null}
