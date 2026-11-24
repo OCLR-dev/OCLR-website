@@ -12,6 +12,9 @@ vi.mock("../../src/i18n/server", () => ({
   getAppTranslations: async () => translator,
 }));
 vi.mock("../../src/i18n/shared", () => ({ useAppTranslations: () => english }));
+vi.mock("../../src/lib/contributors", () => ({
+  publicContributors: async () => [],
+}));
 vi.mock("../../src/lib/public-staff", () => ({ publicStaff: vi.fn() }));
 vi.mock("../../src/lib/auth/config", () => ({ privacyContact: () => null }));
 async function render() {
