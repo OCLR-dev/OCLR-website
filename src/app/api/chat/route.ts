@@ -8,6 +8,7 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { requireBrowserSession } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { chatConfiguration } from "@/lib/chat-config";
+import { chatProxyFetch } from "@/lib/chat-proxy";
 import { chatWrite } from "@/lib/chat-write-contract";
 import { chatEvidence } from "@/lib/chat-sources";
 import { DeveloperApiError, DeveloperApiLimiter } from "@/lib/developer-api";
@@ -64,6 +65,7 @@ export async function POST(request: Request) {
           name: "oclr",
           baseURL: config.baseURL,
           apiKey: config.apiKey,
+          fetch: chatProxyFetch(config.proxyURL),
         });
         const deadline = AbortSignal.timeout(30_000);
         const result = streamText({

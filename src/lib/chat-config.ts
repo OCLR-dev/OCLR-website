@@ -15,5 +15,24 @@ export function chatConfiguration() {
     !(url.protocol === "https:" || (loopback && url.protocol === "http:"))
   )
     return null;
-  return { baseURL, model, apiKey };
+  const proxyURL = process.env.OCLR_CHAT_PROXY_URL?.trim();
+  if (proxyURL) {
+    const proxy = URL.parse(proxyURL);
+    if (
+      !proxy ||
+      !["http:", "https:"].includes(proxy.protocol) ||
+      proxy.pathname !== "/" ||
+      proxy.search ||
+      proxy.hash
+    )
+      return null;
+    try {
+      // ProxyAgent decodes URL credentials before sending Basic authentication.
+      decodeURIComponent(proxy.username);
+      decodeURIComponent(proxy.password);
+    } catch {
+      return null;
+    }
+  }
+  return { baseURL, model, apiKey, proxyURL };
 }

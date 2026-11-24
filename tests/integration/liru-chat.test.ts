@@ -57,6 +57,7 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     vi.stubEnv("DATABASE_URL", testUrl);
     vi.stubEnv("APP_URL", origin);
     vi.stubEnv("OCLR_CHAT_MODEL", "test-chat");
+    vi.stubEnv("OCLR_CHAT_PROXY_URL", "");
     vi.stubEnv("OCLR_CHAT_API_KEY", "synthetic-key");
     vi.stubEnv("OCLR_CHAT_BASE_URL", "https://provider.example/v1");
     await db().execute(sql`TRUNCATE users, edition_state CASCADE`);
