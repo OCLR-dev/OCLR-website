@@ -420,13 +420,25 @@
       "file": "src/app/admin/tournaments/[edition]/page.tsx",
       "kind": "page",
       "authority": "saved-read",
-      "operations": ["staffAccess", "tournamentForAdmin", "tournamentList"],
+      "operations": [
+        "captainSetup",
+        "mappoolWorkspace",
+        "staffAccess",
+        "staffFixtures",
+        "streamingWorkspace",
+        "tournamentForAdmin",
+        "tournamentList"
+      ],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/auth/staff.ts#staffAccess",
         "src/lib/tournament-reads.ts#tournamentForAdmin",
-        "src/lib/tournament-reads.ts#tournamentList"
+        "src/lib/tournament-reads.ts#tournamentList",
+        "src/lib/captain-reads.ts#captainSetup",
+        "src/lib/fixture-reads.ts#staffFixtures",
+        "src/lib/mappool-reads.ts#mappoolWorkspace",
+        "src/lib/streaming-workspace.ts#streamingWorkspace"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Live Developer + private scope; write controls disabled",
