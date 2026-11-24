@@ -139,7 +139,7 @@ export function TournamentDashboardSummary({
       {(captains || pools) && (
         <div className={styles.columns}>
           {captains && (
-            <section>
+            <section className={styles.card}>
               <h2>
                 <Link href={`${base}/captains`}>{tr("Captains")}</Link>
                 <span className="badge">{captains.length}</span>
@@ -151,7 +151,9 @@ export function TournamentDashboardSummary({
                     <li key={c.userId}>
                       <span className={styles.number}>{index + 1}</span>
                       <strong>{c.username}</strong>
-                      {c.teamName && <small>{c.teamName}</small>}
+                      {c.teamName && c.teamName !== c.username && (
+                        <small>{c.teamName}</small>
+                      )}
                     </li>
                   ))}
                 />
@@ -161,7 +163,7 @@ export function TournamentDashboardSummary({
             </section>
           )}
           {pools && (
-            <section>
+            <section className={styles.card}>
               <h2>
                 <Link href={`${base}/mappools`}>{tr("Mappools")}</Link>
                 <span className="badge">{pools.pools.length}</span>
@@ -170,14 +172,19 @@ export function TournamentDashboardSummary({
                 <List
                   tr={tr}
                   rows={pools.pools.map((p) => (
-                    <li key={p.id}>
+                    <li key={p.id} className={styles.pool}>
                       <strong>{p.name}</strong>
                       <small>
                         {tr("{count} maps", {
                           count: mapCounts.get(p.id) ?? 0,
-                        })}{" "}
-                        · {p.publishedAt ? tr("Published") : tr("Unpublished")}
+                        })}
                       </small>
+                      <span
+                        className={styles.status}
+                        data-published={p.publishedAt ? true : undefined}
+                      >
+                        {p.publishedAt ? tr("Published") : tr("Unpublished")}
+                      </span>
                     </li>
                   ))}
                 />
