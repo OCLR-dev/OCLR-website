@@ -69,7 +69,6 @@ export const groupConfigurationInputSchema = z
             name: z.string().trim().min(1).max(80),
             teamIds: z
               .array(z.uuid())
-              .min(2)
               .max(128)
               .refine((ids) => new Set(ids).size === ids.length),
           })

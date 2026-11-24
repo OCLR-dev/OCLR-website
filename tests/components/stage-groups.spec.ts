@@ -88,7 +88,7 @@ test("generates cards, moves teams by drag, picker and keyboard without saving e
   ).toHaveCount(1);
   await expect(
     page.getByRole("button", { name: "Save group assignments", exact: true }),
-  ).toBeDisabled();
+  ).toBeEnabled();
   await a.getByRole("combobox").selectOption(teamId(1));
   await page
     .getByRole("button", { name: "Save group assignments", exact: true })
@@ -124,6 +124,25 @@ test("generates cards, moves teams by drag, picker and keyboard without saving e
       fullPage: true,
     });
   }
+});
+test("saves the group count before assigning teams and counts only current teams", async ({
+  page,
+}) => {
+  await page.goto("/stage-groups?saved&stale");
+  const group = page.getByRole("article", { name: "Group Alpha", exact: true });
+  await expect(group.locator(".badge")).toHaveText("0");
+  await expect(group.getByText("Drop teams here")).toBeVisible();
+  await page.getByLabel("Group count", { exact: true }).selectOption("4");
+  await page
+    .getByRole("button", { name: "Apply group count", exact: true })
+    .click();
+  const save = page.getByRole("button", {
+    name: "Save group assignments",
+    exact: true,
+  });
+  await expect(save).toBeEnabled();
+  await page.getByRole("switch").click();
+  await expect(save).toBeDisabled();
 });
 test("resizes existing groups without losing stable identities and confirms returning assigned teams", async ({
   page,

@@ -34,9 +34,14 @@ export function StageGroups({
   const tr = useAppTranslations();
   const readOnly = useStaffReadOnly();
   const id = useId();
-  const [groups, setGroups] = useState<Group[]>(
+  const [draftGroups, setGroups] = useState<Group[]>(
     stage.groupConfiguration?.groups ?? [],
   );
+  const teamsById = new Map(data.teams.map((team) => [team.id, team]));
+  const groups = draftGroups.map((group) => ({
+    ...group,
+    teamIds: group.teamIds.filter((id) => teamsById.has(id)),
+  }));
   const [count, setCount] = useState(
     stage.groupConfiguration &&
       stage.groupConfiguration.groups.length <= maxStageGroups
@@ -61,7 +66,10 @@ export function StageGroups({
   const invalid =
     groups.length > maxStageGroups ||
     groups.some(
-      (g) => !g.name.trim() || g.teamIds.length < 2 || g.teamIds.length > 128,
+      (g) =>
+        !g.name.trim() ||
+        (published && g.teamIds.length < 2) ||
+        g.teamIds.length > 128,
     ) ||
     (published && !groups.length);
   const destinationName = (target: Destination) =>
@@ -417,10 +425,9 @@ export function StageGroups({
                 </p>
               )}
               <ul className="group-team-list">
-                {group.teamIds
-                  .map((teamId) => data.teams.find((t) => t.id === teamId))
-                  .filter((t): t is Team => Boolean(t))
-                  .map((t) => card(t, index))}
+                {group.teamIds.map((teamId) =>
+                  card(teamsById.get(teamId)!, index),
+                )}
               </ul>
               {!group.teamIds.length && (
                 <p className="group-drop-hint small muted">
@@ -471,9 +478,9 @@ export function StageGroups({
             </article>
           ))}
         </div>
-        {groups.length > 0 && (
+        {published && groups.some((g) => g.teamIds.length < 2) && (
           <p className="small muted">
-            {tr("At least two teams per group are required before saving.")}
+            {tr("At least two teams per group are required before publishing.")}
           </p>
         )}
         <p className="small muted group-assignment-status" role="status">

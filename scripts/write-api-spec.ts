@@ -595,7 +595,7 @@ const openapi = {
   openapi: "3.1.0",
   info: {
     title: "OCLR write API",
-    version: "0.10.0",
+    version: "0.11.0",
     description:
       "Incremental documentation of existing OCLR browser and desktop routes. See write-api-inventory.json for coverage.",
   },

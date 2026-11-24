@@ -266,6 +266,11 @@ export async function fixtureCommand(
             400,
             "Configure approved groups before publication.",
           );
+        if (c.published && groups?.some((g) => g.teamIds.length < 2))
+          throw new HttpError(
+            400,
+            "At least two teams per group are required before publishing.",
+          );
         const official = c.published
           ? await officialTeams(tx, slug)
           : await configurationTeams(tx, slug);

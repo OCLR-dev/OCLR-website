@@ -719,6 +719,38 @@ describe.skipIf(!url)(
       expect(after.version).toBe(stage.version);
       expect(after.groupConfiguration).toEqual(stage.groupConfiguration);
     });
+    it("saves empty and partial private groups before assigning the rest of the teams", async () => {
+      const initial = await fixtureCommand(admin, "test-cup", body());
+      const stage = initial.stages.find((s) => s.kind === "group")!;
+      const command = {
+        ...confirm,
+        action: "stage_groups",
+        stageId: stage.id,
+        expectedVersion: stage.version,
+        configuration: {
+          groups: [
+            { name: "A", teamIds: [] },
+            { name: "B", teamIds: [homeId] },
+          ],
+        },
+        published: false,
+      };
+      const saved = (
+        await fixtureCommand(admin, "test-cup", command)
+      ).stages.find((s) => s.id === stage.id)!;
+      expect(saved.groupConfiguration?.groups.map((g) => g.teamIds)).toEqual([
+        [],
+        [homeId],
+      ]);
+      expect(saved.groupsPublishedAt).toBeNull();
+      await expect(
+        fixtureCommand(admin, "test-cup", {
+          ...command,
+          expectedVersion: saved.version,
+          published: true,
+        }),
+      ).rejects.toMatchObject({ status: 400 });
+    });
     it("generates stable unique group identifiers and rejects stale concurrent additions", async () => {
       const initial = await fixtureCommand(admin, "test-cup", body());
       const stage = initial.stages.find((s) => s.kind === "group")!;

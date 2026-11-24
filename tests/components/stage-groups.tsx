@@ -34,7 +34,13 @@ const stage = {
     ? {
         version: "saved-version",
         groups: [
-          { key: "g-a", name: "Alpha", teamIds: [teams[0].id, teams[1].id] },
+          {
+            key: "g-a",
+            name: "Alpha",
+            teamIds: params.has("stale")
+              ? ["00000000-0000-4000-8000-000000000099"]
+              : [teams[0].id, teams[1].id],
+          },
           { key: "g-b", name: "Beta", teamIds: [teams[2].id, teams[3].id] },
         ],
       }
