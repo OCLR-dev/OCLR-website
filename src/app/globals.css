@@ -6517,6 +6517,10 @@ body:has([data-broadcast]) .site-shell {
   line-break: strict;
   overflow-wrap: anywhere;
 }
+.application-disclosure {
+  max-width: none;
+  white-space: normal;
+}
 .application-privacy-link {
   white-space: nowrap;
 }

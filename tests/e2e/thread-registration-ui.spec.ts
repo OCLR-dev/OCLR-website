@@ -105,7 +105,7 @@ test.describe("registration wrapping and deferred overview", () => {
             await policy.evaluate((e) => getComputedStyle(e).whiteSpace),
           ).toBe("pre-line");
           const disclosure = page.locator(".application-disclosure");
-          expect((await disclosure.innerText()).split("\n\n").length).toBe(3);
+          expect(await disclosure.innerText()).not.toContain("\n");
           await expect(disclosure.locator('a[href="/privacy"]')).toBeVisible();
           expect(
             await page.evaluate(

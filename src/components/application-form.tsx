@@ -223,7 +223,7 @@ export function ApplicationForm({
             </span>
           </label>
         )}
-        <p className="small muted preserve-lines application-disclosure">
+        <p className="small muted application-disclosure">
           {tr(
             "Applications are reviewed by tournament staff. Submitting is not acceptance or official osu! validation.\n\nIf accepted, your osu! username, osu! ID and accepted participation in this tournament appear automatically in its public Players directory. Application answers and staff review notes remain private.\n\nRead the",
           )}
