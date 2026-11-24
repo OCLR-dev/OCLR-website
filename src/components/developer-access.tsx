@@ -1,6 +1,6 @@
 "use client";
 
-import { InfoNote } from "@/components/info-note";
+import { ApiAccessHistory } from "./api-access-history";
 
 import { LoadingRegion } from "./loading-region";
 
@@ -43,19 +43,12 @@ export function DeveloperAccess({
   const [pending, setPending] = useState(false);
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [openedAt] = useState(Date.now);
   const labels: Record<DeveloperApiScope, string> = {
     "identity:read": tr("Your API identity"),
     "tournaments:read": tr("Public tournament information"),
     "tournaments:private:read": tr("Private tournament information"),
     "profiles:read": tr("Saved osu! profiles"),
   };
-  const date = (value: string) =>
-    new Intl.DateTimeFormat(tr.locale, {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: "UTC",
-    }).format(new Date(value));
   function addPort() {
     const value = portInput.trim();
     const port = Number(value);
@@ -344,53 +337,20 @@ export function DeveloperAccess({
           </div>
         </section>
       )}
-      <section aria-labelledby="developer-existing">
-        <h2 id="developer-existing">{tr("Your API access")}</h2>
-        <InfoNote>
-          <p className="muted small">
-            {tr("Up to 50 recent entries are shown. Times are in UTC.")}
-          </p>
-        </InfoNote>
-        {tokens.length ? (
-          <div className="stack">
-            {tokens.map((entry) => (
-              <article className="panel" key={entry.id}>
-                <p>
-                  <strong>{tr("Allowed local ports")}</strong>{" "}
-                  <span className="developer-port-values">
-                    {entry.ports.join(" · ")}
-                  </span>
-                </p>
-                <p className="muted small">
-                  {tr("Expires {date}", { date: date(entry.expiresAt) })}
-                </p>
-                <p className="small">
-                  {entry.scopes.map((scope) => labels[scope]).join(" · ")}
-                </p>
-                {entry.revokedAt ? (
-                  <p>{tr("Revoked")}</p>
-                ) : new Date(entry.expiresAt).getTime() <= openedAt ? (
-                  <p>{tr("Expired")}</p>
-                ) : (
-                  <button
-                    className="secondary"
-                    type="button"
-                    disabled={pending}
-                    aria-busy={pending && activeAction === entry.id}
-                    onClick={() => void revoke(entry.id)}
-                  >
-                    {tr("Revoke token")}
-                  </button>
-                )}
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p className="muted">
-            {tr("No developer API access has been created.")}
-          </p>
-        )}
-      </section>
+      <ApiAccessHistory
+        entries={tokens.map((entry) => ({
+          id: entry.id,
+          title: tr("Allowed local ports") + " " + entry.ports.join(" · "),
+          scopeText: entry.scopes.map((scope) => labels[scope]).join(" · "),
+          expiresAt: entry.expiresAt,
+          revokedAt: entry.revokedAt,
+        }))}
+        emptyMessage={tr("No developer API access has been created.")}
+        expiryText={(date) => tr("Expires {date}", { date })}
+        pending={pending}
+        activeAction={activeAction}
+        onRevoke={revoke}
+      />
     </div>
   );
 }
