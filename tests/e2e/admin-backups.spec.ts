@@ -27,7 +27,15 @@ test.describe("Admin backup boundary and confirmation", () => {
         ],
       }),
     );
-    await page.goto("/admin/backups");
+    await page.goto("/admin");
+    const backupLink = page.getByRole("link", {
+      name: "Database backups",
+      exact: true,
+    });
+    await expect(backupLink).toHaveCount(0);
+    await page.goto("/admin/settings");
+    await backupLink.click();
+    await expect(page).toHaveURL(/\/admin\/backups$/);
     await expect(
       page.getByRole("heading", { name: "Database backups" }),
     ).toBeVisible();

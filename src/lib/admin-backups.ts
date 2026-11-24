@@ -9,14 +9,17 @@ export function backupChannelAllowed() {
   return !remoteMode() && !inReadChannel();
 }
 
-export async function authorizeBackupActor(actor: User | null) {
-  if (
-    !actor ||
-    !backupChannelAllowed() ||
-    !(await staffAccess(actor)).some(
-      (g) => g.role === "admin" && g.editionSlug === null,
+export async function canManageBackups(actor: User) {
+  return (
+    backupChannelAllowed() &&
+    (await staffAccess(actor)).some(
+      (grant) => grant.role === "admin" && grant.editionSlug === null,
     )
-  )
+  );
+}
+
+export async function authorizeBackupActor(actor: User | null) {
+  if (!actor || !(await canManageBackups(actor)))
     throw new HttpError(403, "You do not have permission for this operation.");
   return actor;
 }

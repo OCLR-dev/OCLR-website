@@ -41,9 +41,6 @@ async function Issue271Page({
     const isAdmin = access.some(
       (g) => g.role === "admin" || g.role === "developer",
     );
-    const globalAdmin = access.some(
-      (g) => g.role === "admin" && g.editionSlug === null,
-    );
     const data = await tournamentList(actor);
     const pending = isAdmin
       ? await listApplications(actor, { status: "pending" })
@@ -58,11 +55,6 @@ async function Issue271Page({
           title={tr("Administration overview")}
         />
         <div className="actions">
-          {globalAdmin && (
-            <Action href="/admin/backups" secondary>
-              {tr("Database backups")}
-            </Action>
-          )}
           <Action href="/admin/tournaments">
             {isAdmin ? tr("Manage tournaments") : tr("Assigned tournaments")}
           </Action>
