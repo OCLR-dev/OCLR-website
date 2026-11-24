@@ -48,6 +48,19 @@ test.describe("team configuration batch #543–#546", () => {
     await expect(page.getByLabel("Coach osu! ID", { exact: true })).toHaveCount(
       0,
     );
+    if (isMobile) {
+      const table = page.getByRole("table", {
+        name: "Team management",
+        exact: true,
+      });
+      await expect(table).toBeVisible();
+      expect(
+        await table.evaluate((el) => {
+          const frame = el.parentElement!;
+          return frame.scrollWidth <= frame.clientWidth;
+        }),
+      ).toBe(true);
+    }
     const groups = page.locator(".team-group-manager").first();
     await groups.getByLabel("Group count", { exact: true }).selectOption("1");
     await groups
