@@ -14,6 +14,8 @@ import { awardTierLabel } from "@/lib/award-tiers";
 import type { awardWorkspace } from "@/lib/award-reads";
 import type { AwardWeek, AwardPolicy as Policy } from "@/lib/award-model";
 import { ZonedDateInput } from "./zoned-date-input";
+import Link from "./pending-link";
+import { Avatar } from "./avatar";
 import { AwardPolicy } from "./award-policy";
 import { RoundRatings } from "./round-ratings";
 import { AwardTable } from "./award-table";
@@ -193,9 +195,31 @@ export function AwardManager({ initial }: { initial: Data }) {
                   )
                   .map((p) => (
                     <tr key={p.userId}>
-                      <th>
-                        {p.username}{" "}
-                        <span className="muted small">{p.userId}</span>
+                      <th scope="row">
+                        <div className="public-player-identity">
+                          <Avatar osuId={p.userId} username={p.username} />
+                          <div>
+                            <Link
+                              className="text-link"
+                              prefetch={false}
+                              aria-label={tr("OCLR profile for {username}", {
+                                username: p.username,
+                              })}
+                              href={`/players/${p.userId}?edition=${data.edition.slug}`}
+                            >
+                              {p.username}
+                            </Link>
+                            <p className="small">
+                              <a
+                                className="text-link"
+                                href={`https://osu.ppy.sh/users/${p.userId}`}
+                              >
+                                {tr("osu! ID ")}
+                                {p.userId} ↗
+                              </a>
+                            </p>
+                          </div>
+                        </div>
                       </th>
                       <td>
                         {awardTierLabel(
