@@ -110,7 +110,10 @@ async function Issue271Page({
           )}
         </section>
         <div className={styles.tableHeading}>
-          <h2 id="team-management-table-heading">{tr("Team management")}</h2>
+          <div className={styles.headingTitle}>
+            <h2 id="team-management-table-heading">{tr("Team management")}</h2>
+            <span className="badge">{data.teams.length}</span>
+          </div>
           {hasUnpublishedTeams && (
             <ConfirmMutation
               loadingFeedback="button"
@@ -131,26 +134,48 @@ async function Issue271Page({
         <div className={styles.tableScroll}>
           <table
             className={styles.teams}
+            role="table"
             aria-labelledby="team-management-table-heading"
           >
-            <thead>
-              <tr>
-                <th scope="col">{tr("Team")}</th>
-                <th scope="col">{tr("Captain")}</th>
-                <th scope="col">{tr("Members")}</th>
-                <th scope="col">{tr("Actions")}</th>
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">
+                  {tr("Team")}
+                </th>
+                <th role="columnheader" scope="col">
+                  {tr("Captain")}
+                </th>
+                <th role="columnheader" scope="col">
+                  {tr("Members")}
+                </th>
+                <th role="columnheader" scope="col">
+                  {tr("Actions")}
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {data.teams.map((t) => (
-                <tr key={t.id}>
-                  <td>
+                <tr key={t.id} role="row">
+                  <td role="cell">
                     <div className="public-team-heading">
                       <TeamAvatar team={t} />
-                      <strong>{t.name}</strong>
+                      <div className={styles.teamIdentity}>
+                        <strong>{t.name}</strong>
+                        <span
+                          className={styles.visibility}
+                          data-public={t.identityPublished}
+                        >
+                          {t.identityPublished
+                            ? tr("Published")
+                            : tr("Unpublished")}
+                        </span>
+                      </div>
                     </div>
                   </td>
-                  <td>
+                  <td role="cell">
+                    <span className={styles.mobileLabel} aria-hidden="true">
+                      {tr("Captain")}
+                    </span>
                     <a
                       className="text-link"
                       href={`https://osu.ppy.sh/users/${t.captainId}`}
@@ -158,18 +183,20 @@ async function Issue271Page({
                       {t.members.find((m) => m.osuId === t.captainId)
                         ?.username ?? t.captainId}
                     </a>
-                    <p className="small muted">{t.captainId}</p>
+                    <small className={styles.caption}>
+                      {tr("osu! ID ")}
+                      {t.captainId}
+                    </small>
                   </td>
-                  <td>
-                    <span>
-                      {t.members.length}
-                      {t.capacity ? ` / ${t.capacity}` : ""}
-                    </span>
-                    <p className="small muted">
-                      {t.finalizedAt ? tr("finalized") : tr("not finalized")}
-                    </p>
-                    <details>
-                      <summary>{tr("Members")}</summary>
+                  <td role="cell">
+                    <details className={styles.roster}>
+                      <summary>
+                        {tr("Members")}{" "}
+                        <strong>
+                          {t.members.length}
+                          {t.capacity ? ` / ${t.capacity}` : ""}
+                        </strong>
+                      </summary>
                       <ul>
                         {t.members.map((m) => (
                           <li key={m.osuId}>
@@ -178,8 +205,15 @@ async function Issue271Page({
                         ))}
                       </ul>
                     </details>
+                    <small className={styles.caption}>
+                      {t.rosterPublished
+                        ? tr("Published roster")
+                        : t.finalizedAt
+                          ? tr("finalized")
+                          : tr("not finalized")}
+                    </small>
                   </td>
-                  <td>
+                  <td role="cell">
                     <div className="actions">
                       <TeamEditor
                         key={`${t.id}:${data.version}`}
