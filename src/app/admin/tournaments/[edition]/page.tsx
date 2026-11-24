@@ -7,6 +7,11 @@ import { HttpError } from "@/lib/http";
 import { remotePage } from "@/lib/remote-page";
 import { tournamentForAdmin, tournamentList } from "@/lib/tournament-reads";
 import Link from "next/link";
+import { TournamentDashboardSummary } from "@/components/tournament-dashboard-summary";
+import { captainSetup } from "@/lib/captain-reads";
+import { staffFixtures } from "@/lib/fixture-reads";
+import { mappoolWorkspace } from "@/lib/mappool-reads";
+import { streamingWorkspace } from "@/lib/streaming-workspace";
 export async function generateMetadata() {
   const tr = await getAppTranslations();
   return { title: tr("Tournament dashboard") };
@@ -25,9 +30,24 @@ async function Issue271Page({
     const grants = await staffAccess(actor);
     const row = (await tournamentList(actor)).rows.find((r) => r.slug === slug);
     if (!row) throw new HttpError(404, "Tournament not found.");
-    const data = canRead(grants, "configure_tournament", slug)
-      ? await tournamentForAdmin(actor, slug)
-      : null;
+    const hasFixtures =
+      canRead(grants, "manage_fixtures", slug) ||
+      canRead(grants, "record_results", slug);
+    const [data, setup, pools, fixtures, streams] = await Promise.all([
+      canRead(grants, "configure_tournament", slug)
+        ? tournamentForAdmin(actor, slug)
+        : null,
+      canRead(grants, "manage_captains", slug)
+        ? captainSetup(actor, slug)
+        : null,
+      canRead(grants, "view_replays", slug)
+        ? mappoolWorkspace(actor, slug)
+        : null,
+      hasFixtures ? staffFixtures(actor, slug) : null,
+      !hasFixtures && canRead(grants, "view_streaming", slug)
+        ? streamingWorkspace(actor, slug)
+        : null,
+    ]);
     const primary = data
       ? row.links.find((link) => link.label === "Settings")
       : (row.links.find((link) => link.label === "Mappools") ??
@@ -60,6 +80,15 @@ async function Issue271Page({
             )}
           </div>
         </header>
+        <TournamentDashboardSummary
+          base={`/admin/tournaments/${slug}`}
+          captains={setup?.captains ?? null}
+          pools={pools}
+          fixtures={fixtures}
+          streams={streams}
+          tr={tr}
+          now={Date.now()}
+        />
         <section
           className="registration-readiness"
           aria-labelledby="registration-heading"
