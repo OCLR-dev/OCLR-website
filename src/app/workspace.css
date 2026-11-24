@@ -91,10 +91,14 @@
     .mappool-context,
     .mappool-mods,
     .mappool-setup,
-    .mappool-entry-controls,
-    .captain-player-card
+    .mappool-entry-controls
   ) {
   background: var(--site-surface);
+  border-color: var(--site-border);
+  border-radius: 1rem;
+}
+.themed-site.private-site .captain-player-card {
+  background-color: color-mix(in srgb, var(--site-tint) 60%, var(--site-surface));
   border-color: var(--site-border);
   border-radius: 1rem;
 }
