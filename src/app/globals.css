@@ -957,9 +957,11 @@ textarea {
 .player-workspace .section-title {
   margin-bottom: 1rem;
 }
-.player-workspace .registration-details .actions {
+.registration-card .actions {
   gap: 0.5rem;
-  margin-top: 1rem;
+}
+.registration-card .actions:empty {
+  display: none;
 }
 
 .avatar {
@@ -979,15 +981,23 @@ textarea {
   object-fit: cover;
 }
 .registration-card {
-  display: flex;
-  gap: 1.25rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.875rem;
   padding: 1.25rem;
-  align-items: flex-start;
+}
+.registration-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.875rem;
+  align-items: center;
+}
+.registration-card p {
+  margin: 0;
 }
 .registration-cover {
-  width: 100px;
-  min-width: 100px;
-  height: 100px;
+  width: 3.5rem;
+  height: 3.5rem;
   overflow: hidden;
   border-radius: 0.5rem;
   background:
@@ -995,7 +1005,7 @@ textarea {
     url("/rookie-stage.svg") 67% center / cover;
   display: grid;
   place-items: center;
-  font-size: 1.8rem;
+  font-size: var(--text-support);
   font-weight: 900;
   letter-spacing: -0.06em;
 }
@@ -1005,16 +1015,34 @@ textarea {
   object-fit: contain;
 }
 .registration-details {
-  flex: 1;
+  display: grid;
+  gap: 0.125rem;
   min-width: 0;
 }
 .registration-details h3 {
   margin: 0;
   overflow-wrap: anywhere;
 }
-.registration-details .section-title {
-  margin-bottom: 1rem;
-  align-items: start;
+.registration-answers {
+  border: 1px solid var(--site-border);
+  border-radius: 0.625rem;
+  background: var(--site-tint);
+}
+.registration-answers summary {
+  padding: 0.625rem 0.875rem;
+  cursor: pointer;
+  font-weight: 650;
+}
+.registration-answers .detail-list {
+  margin: 0 0.875rem;
+}
+.registration-answers .detail-list > div {
+  grid-template-columns: minmax(6rem, 25%) minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 0;
+  border-top: 1px solid var(--site-border);
+  overflow-wrap: anywhere;
 }
 .status-accepted {
   color: #93edcb;
@@ -1108,14 +1136,15 @@ dialog::backdrop {
     padding: 1rem;
   }
   .registration-cover {
-    width: 64px;
-    min-width: 64px;
-    height: 64px;
-    font-size: var(--text-heading);
+    width: 2.75rem;
+    height: 2.75rem;
   }
-  .registration-details .section-title {
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  .registration-heading {
+    gap: 0.625rem;
+  }
+  .registration-answers .detail-list > div {
+    grid-template-columns: 1fr;
+    gap: 0.125rem;
   }
   .registration-details h3 {
     font-size: var(--text-body);

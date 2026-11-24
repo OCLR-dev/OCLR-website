@@ -190,137 +190,132 @@ async function Issue271Page({
                   acknowledgedConfiguration,
                 }) => (
                   <article className="panel registration-card" key={r.id}>
-                    <div className="registration-cover" aria-hidden="true">
-                      {edition?.branding?.logo ? (
-                        <Image
-                          src={edition.branding.logo}
-                          alt=""
-                          width={120}
-                          height={120}
-                          unoptimized
-                        />
-                      ) : (
-                        <span>OCLR</span>
-                      )}
-                    </div>
-                    <div className="registration-details">
-                      <div className="section-title">
+                    <header className="registration-heading">
+                      <div className="registration-cover" aria-hidden="true">
+                        {edition?.branding?.logo ? (
+                          <Image
+                            src={edition.branding.logo}
+                            alt=""
+                            width={120}
+                            height={120}
+                            unoptimized
+                          />
+                        ) : (
+                          <span>OCLR</span>
+                        )}
+                      </div>
+                      <div className="registration-details">
                         <h3>
                           {edition?.name ??
                             tr("Edition: {value0}", { value0: r.editionSlug })}
                         </h3>
-                        <span className={`badge status-${r.status}`}>
-                          {tr(r.status)}
-                        </span>
-                      </div>
-                      <p className="muted small">
-                        {r.status === "withdrawn" &&
-                        lastOperation === "staff_remove"
-                          ? tr(
-                              "Staff withdrew this registration. Your application history is retained.",
-                            )
-                          : r.status === "deferred"
-                            ? tr(
-                                "Your rank eligibility is awaiting further review. You have not been accepted or rejected.",
-                              )
-                            : tr(statusCopy[r.status])}
-                      </p>
-                      <p className="small muted">
-                        {tr("Submitted")}{" "}
-                        {tr(
-                          formatDate(
-                            r.createdAt,
-                            edition?.timeZone ?? "UTC",
-                            tr.locale,
-                          ),
-                        )}
-                      </p>
-                      {r.source === "staff" && (
                         <p className="small muted">
+                          {tr("Submitted")}{" "}
                           {tr(
-                            "Staff-assisted entry. No player answers or acknowledgments are recorded.",
+                            formatDate(
+                              r.createdAt,
+                              edition?.timeZone ?? "UTC",
+                              tr.locale,
+                            ),
                           )}
                         </p>
+                      </div>
+                      <span className={`badge status-${r.status}`}>
+                        {tr(r.status)}
+                      </span>
+                    </header>
+                    <p className="muted small">
+                      {r.status === "withdrawn" &&
+                      lastOperation === "staff_remove"
+                        ? tr(
+                            "Staff withdrew this registration. Your application history is retained.",
+                          )
+                        : r.status === "deferred"
+                          ? tr(
+                              "Your rank eligibility is awaiting further review. You have not been accepted or rejected.",
+                            )
+                          : tr(statusCopy[r.status])}
+                    </p>
+                    {r.source === "staff" && (
+                      <p className="small muted">
+                        {tr(
+                          "Staff-assisted entry. No player answers or acknowledgments are recorded.",
+                        )}
+                      </p>
+                    )}
+                    {r.statusReason && r.status !== "withdrawn" && (
+                      <p className="notice small">
+                        {tr("Staff explanation: ")}
+                        {r.statusReason}
+                      </p>
+                    )}
+                    {Object.keys(r.answers).length > 0 && (
+                      <details className="registration-answers">
+                        <summary>{tr("My application")}</summary>
+                        <dl className="detail-list">
+                          {applicationAnswers(
+                            r.answers,
+                            acknowledgedConfiguration,
+                          ).map(({ id, label, value }) => (
+                            <div key={id}>
+                              <dt>{label}</dt>
+                              <dd className="preserve-lines">
+                                {value || tr("No answer")}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </details>
+                    )}
+                    <div className="actions">
+                      {edition && reapplyAvailable && (
+                        <Action href={`/tournaments/${edition.slug}/register`}>
+                          {tr("Apply again")}
+                        </Action>
                       )}
-                      {r.statusReason && r.status !== "withdrawn" && (
-                        <p className="notice small">
-                          {tr("Staff explanation: ")}
-                          {r.statusReason}
-                        </p>
-                      )}
-                      {Object.keys(r.answers).length > 0 && (
-                        <details className="spaced">
-                          <summary>{tr("My application")}</summary>
-                          <dl className="detail-list">
-                            {applicationAnswers(
-                              r.answers,
-                              acknowledgedConfiguration,
-                            ).map(({ id, label, value }) => (
-                              <div key={id}>
-                                <dt>{label}</dt>
-                                <dd className="preserve-lines">
-                                  {value || tr("No answer")}
-                                </dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </details>
-                      )}
-                      <div className="actions">
-                        {edition && reapplyAvailable && (
+                      {edition?.published &&
+                        !edition.archive &&
+                        !remoteMode() &&
+                        (r.status === "accepted" || captainAssigned) && (
                           <Action
-                            href={`/tournaments/${edition.slug}/register`}
+                            href={`/tournaments/${edition.slug}/player/practice`}
+                            secondary={captainAssigned}
                           >
-                            {tr("Apply again")}
+                            {tr("PLAYER WORKSPACE")}
                           </Action>
                         )}
-                        {edition?.published &&
-                          !edition.archive &&
-                          !remoteMode() &&
-                          (r.status === "accepted" || captainAssigned) && (
-                            <Action
-                              href={`/tournaments/${edition.slug}/player/practice`}
-                              secondary={captainAssigned}
-                            >
-                              {tr("PLAYER WORKSPACE")}
-                            </Action>
-                          )}
-                        {edition && captainAssigned && (
-                          <>
-                            <Action
-                              href={`/tournaments/${edition.slug}/team`}
-                              secondary
-                            >
-                              {tr("My captain team")}
-                            </Action>
-                            <Action
-                              href={`/tournaments/${edition.slug}/draft/captain`}
-                            >
-                              {tr("Captain draft room")}
-                            </Action>
-                          </>
-                        )}
-                        {edition && (
+                      {edition && captainAssigned && (
+                        <>
                           <Action
-                            href={`/tournaments/${edition.slug}`}
+                            href={`/tournaments/${edition.slug}/team`}
                             secondary
                           >
-                            {tr("Edition details")}
+                            {tr("My captain team")}
                           </Action>
-                        )}
-                        {withdrawable && (
-                          <ConfirmMutation
-                            loadingFeedback="button"
-                            label={tr("Withdraw application")}
-                            title={tr("Withdraw your application?")}
-                            description={tr(
-                              "This removes your application from consideration. You cannot resubmit automatically. Contact staff if you need help.",
-                            )}
-                            url={`/api/registrations/${r.id}/withdraw`}
-                            payload={{ confirmed: true }}
-                          />
-                        )}
-                      </div>
+                          <Action
+                            href={`/tournaments/${edition.slug}/draft/captain`}
+                          >
+                            {tr("Captain draft room")}
+                          </Action>
+                        </>
+                      )}
+                      {edition && (
+                        <Action href={`/tournaments/${edition.slug}`} secondary>
+                          {tr("Edition details")}
+                        </Action>
+                      )}
+                      {withdrawable && (
+                        <ConfirmMutation
+                          loadingFeedback="button"
+                          label={tr("Withdraw application")}
+                          title={tr("Withdraw your application?")}
+                          description={tr(
+                            "This removes your application from consideration. You cannot resubmit automatically. Contact staff if you need help.",
+                          )}
+                          url={`/api/registrations/${r.id}/withdraw`}
+                          payload={{ confirmed: true }}
+                        />
+                      )}
                     </div>
                   </article>
                 ),
