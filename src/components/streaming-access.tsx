@@ -2,6 +2,7 @@
 
 import { InfoNote } from "@/components/info-note";
 
+import styles from "./streaming-access.module.css";
 import { LoadingRegion } from "./loading-region";
 
 import { useState, type FormEvent } from "react";
@@ -119,70 +120,87 @@ export function StreamingAccess({
   return (
     <div className="stack developer-access">
       {pending && <LoadingRegion />}
-      <section aria-labelledby="developer-create">
-        <h2 id="developer-create">{tr("Create read-only access")}</h2>
-        <p className="muted">
-          {tr(
-            "Access stays active while used. It ends after one hour without a successful streaming read, or when this login session ends.",
-          )}
-        </p>
-        <p>
-          <strong>{tr("Backend")}</strong> <code>{backend}</code> ·{" "}
-          <strong>{editionSlug}</strong>
-        </p>
-        <p className="notice">
-          {tr(
-            "This token can only read data, even if your account has other roles.",
-          )}
-        </p>
-        <p>
+      <section className={styles.create} aria-labelledby="developer-create">
+        <header className={styles.heading}>
+          <h2 id="developer-create">{tr("Create read-only access")}</h2>
           <a className="context-link" href="/api/v1/openapi.json">
             {tr("View API specification")}
           </a>
-        </p>
-        <form className="form-stack" onSubmit={create}>
-          <label className="field">
-            {tr("Local origin")}
-            {origins === null ? (
-              <input
-                type="url"
-                value={origin}
-                onChange={(event) => {
-                  setOrigin(event.target.value);
-                  setIssued(null);
-                }}
-                disabled={pending}
-                required
-                maxLength={200}
-                autoComplete="off"
-                spellCheck={false}
-                aria-describedby="streaming-origin-help"
-              />
-            ) : (
-              <select
-                value={origin}
-                onChange={(event) => {
-                  setOrigin(event.target.value);
-                  setIssued(null);
-                }}
-                disabled={pending}
-                required
-              >
-                {[
-                  ...new Set([
-                    ...(streamingOriginAllowed(origin, origins)
-                      ? [origin]
-                      : []),
-                    ...origins,
-                  ]),
-                ].map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
+        </header>
+        <div className={styles.backend}>
+          <strong>{tr("Backend")}</strong>
+          <code>{backend}</code>
+          <span className="badge">{editionSlug}</span>
+        </div>
+        <div className={styles.description}>
+          <p>
+            {tr(
+              "This token can only read data, even if your account has other roles.",
             )}
-          </label>
+          </p>
+          <p>
+            {tr(
+              "Only your next assigned fixture, its published mappool and stage are available.",
+            )}
+          </p>
+          <p>
+            {tr(
+              "Access stays active while used. It ends after one hour without a successful streaming read, or when this login session ends.",
+            )}
+          </p>
+        </div>
+        <form className={styles.form} onSubmit={create}>
+          <div className={styles.controls}>
+            <label className="field">
+              {tr("Local origin")}
+              {origins === null ? (
+                <input
+                  type="url"
+                  value={origin}
+                  onChange={(event) => {
+                    setOrigin(event.target.value);
+                    setIssued(null);
+                  }}
+                  disabled={pending}
+                  required
+                  maxLength={200}
+                  autoComplete="off"
+                  spellCheck={false}
+                  aria-describedby="streaming-origin-help"
+                />
+              ) : (
+                <select
+                  aria-describedby="streaming-origin-help"
+                  value={origin}
+                  onChange={(event) => {
+                    setOrigin(event.target.value);
+                    setIssued(null);
+                  }}
+                  disabled={pending}
+                  required
+                >
+                  {[
+                    ...new Set([
+                      ...(streamingOriginAllowed(origin, origins)
+                        ? [origin]
+                        : []),
+                      ...origins,
+                    ]),
+                  ].map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </label>
+            <button
+              disabled={pending || !streamingOriginAllowed(origin, origins)}
+              aria-busy={pending && activeAction === "create"}
+            >
+              {tr("Create token")}
+            </button>
+          </div>
           <p className="muted" id="streaming-origin-help">
             {tr(
               "Enter the console address including its port, without a path or trailing slash. If the protocol or port changes, create new access. localhost and 127.0.0.1 share access on the same protocol and port.",
@@ -193,19 +211,6 @@ export function StreamingAccess({
               {tr("Choose a valid local origin and read scopes.")}
             </p>
           )}
-          <p className="muted">
-            {tr(
-              "Only your next assigned fixture, its published mappool and stage are available.",
-            )}
-          </p>
-          <div className="actions">
-            <button
-              disabled={pending || !streamingOriginAllowed(origin, origins)}
-              aria-busy={pending && activeAction === "create"}
-            >
-              {tr("Create token")}
-            </button>
-          </div>
         </form>
       </section>
       {error && (
