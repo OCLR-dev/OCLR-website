@@ -10,7 +10,8 @@
 }
 .chess-workspace > header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  align-content: center;
   gap: 8px 24px;
   flex-wrap: wrap;
 }
@@ -198,9 +199,6 @@
   .chess-workspace > .chess-toolbar {
     gap: 8px;
     font-size: var(--text-small);
-  }
-  .chess-workspace > header {
-    align-items: center;
   }
 }
 
