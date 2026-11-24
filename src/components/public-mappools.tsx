@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useSyncExternalStore } from "react";
+import { selectFragment, useUrlFragment } from "./url-fragment";
+import { useId } from "react";
 import { useAppTranslations } from "@/i18n/shared";
 import { competitionStageLabel } from "@/lib/competition-stage";
 import type { publicMappools } from "@/lib/mappool-reads";
@@ -13,26 +14,6 @@ type Pool = Awaited<ReturnType<typeof publicMappools>>[number];
 
 function poolFragment(poolId: string) {
   return `#pool-${encodeURIComponent(poolId)}`;
-}
-
-function subscribeToFragment(onChange: () => void) {
-  window.addEventListener("hashchange", onChange);
-  return () => window.removeEventListener("hashchange", onChange);
-}
-
-function readFragment() {
-  return window.location.hash;
-}
-
-function selectPool(poolId: string) {
-  const fragment = poolFragment(poolId);
-  if (readFragment() === fragment) return;
-  const oldURL = window.location.href;
-  window.history.pushState(null, "", fragment);
-  // pushState changes the URL without firing hashchange.
-  window.dispatchEvent(
-    new HashChangeEvent("hashchange", { oldURL, newURL: window.location.href }),
-  );
 }
 
 /** Only published snapshots cross this boundary; changing a tab is a local read. */
@@ -48,11 +29,7 @@ export function PublicMappools({
   const pools = (["group", "knockout", "exhibition"] as const).flatMap(
     (stage) => published.filter((pool) => pool.stage === stage),
   );
-  const fragment = useSyncExternalStore(
-    subscribeToFragment,
-    readFragment,
-    () => "",
-  );
+  const fragment = useUrlFragment();
   const active =
     pools.find((pool) => poolFragment(pool.id) === fragment) ?? pools[0];
   if (!active) return null;
@@ -119,7 +96,7 @@ export function PublicMappools({
           label={tr("Mappools")}
           appearance="line"
           value={active.id}
-          onChange={selectPool}
+          onChange={(poolId) => selectFragment(poolFragment(poolId))}
           items={pools.map((pool) => ({
             value: pool.id,
             label: `${poolLabel(pool)} · ${pool.entries.length}`,

@@ -1,6 +1,6 @@
 "use client";
 import styles from "./archive-competition.module.css";
-import { useState } from "react";
+import { selectFragment, useUrlFragment } from "./url-fragment";
 import { BracketView } from "./bracket-view";
 import { useAppTranslations } from "@/i18n/shared";
 import type { BracketDisplay } from "@/lib/bracket-model";
@@ -18,7 +18,7 @@ export function ArchiveCompetition({
   finalStandings?: ReactNode;
 }) {
   const tr = useAppTranslations();
-  const [phase, setPhase] = useState<"group" | "knockout">("group");
+  const phase = useUrlFragment() === "#knockout" ? "knockout" : "group";
   const groups =
     bracket?.groups.filter((g) =>
       phase === "group" ? g.layout === "grid" : g.layout !== "grid",
@@ -29,14 +29,14 @@ export function ArchiveCompetition({
         <button
           type="button"
           aria-pressed={phase === "group"}
-          onClick={() => setPhase("group")}
+          onClick={() => selectFragment("#group")}
         >
           {tr("GROUP STAGE")}
         </button>
         <button
           type="button"
           aria-pressed={phase === "knockout"}
-          onClick={() => setPhase("knockout")}
+          onClick={() => selectFragment("#knockout")}
         >
           {tr("Knockout")}
         </button>
