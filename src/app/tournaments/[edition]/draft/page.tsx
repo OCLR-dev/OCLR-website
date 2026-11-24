@@ -48,7 +48,9 @@ async function Issue271Page({
             eyebrow={tr("THE TEAM STORY STARTS HERE")}
             title={tr("Captain draft")}
           >
-            {tr("Published selections, captain turns and roster progress.")}
+            {tr(
+              "Follow each captain’s picks by round and see how the teams take shape.",
+            )}
           </PageHeading>
         </>
       )}
