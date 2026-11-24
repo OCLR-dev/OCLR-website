@@ -199,7 +199,6 @@ export function PlayerRankCard({
   const names = player.classification ? playerClassLabels(tr) : null;
   const nameViewportRef = useRef<HTMLSpanElement>(null);
   const nameTextRef = useRef<HTMLAnchorElement>(null);
-  const [nameWidth, setNameWidth] = useState(0);
   const [nameOverflow, setNameOverflow] = useState(0);
   const positions: Partial<Record<StatKey, number | null>> =
     "career" in player ? player.careerPositions : player.statPositions;
@@ -216,7 +215,6 @@ export function PlayerRankCard({
     if (!viewport || !text) return;
     const measure = () => {
       const width = text.scrollWidth;
-      setNameWidth(width);
       setNameOverflow(Math.max(0, width - viewport.clientWidth));
     };
     measure();
@@ -435,10 +433,8 @@ export function PlayerRankCard({
               style={
                 marquee
                   ? ({
-                      "--marquee-duration": `${Math.max(
-                        6,
-                        (nameWidth + 40) / 48,
-                      )}s`,
+                      "--marquee-offset": `${-nameOverflow}px`,
+                      "--marquee-duration": `${Math.max(2, nameOverflow / 32)}s`,
                     } as CSSProperties)
                   : undefined
               }
@@ -451,11 +447,6 @@ export function PlayerRankCard({
               >
                 {player.username}
               </Link>
-              {marquee && (
-                <span className={styles.nameClone} aria-hidden="true">
-                  {player.username}
-                </span>
-              )}
             </span>
           </span>
         </span>

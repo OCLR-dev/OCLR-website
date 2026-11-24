@@ -201,15 +201,13 @@
 }
 
 .nameTrack[data-marquee="true"] {
-  animation: name-marquee var(--marquee-duration, 8s) linear infinite;
+  animation: name-marquee var(--marquee-duration, 8s) linear infinite alternate;
   will-change: transform;
 }
 
-.name,
-.nameClone {
+.name {
   display: inline-block;
   flex: none;
-  margin-inline-end: 2.5rem;
   color: #fff;
   font-size: 1.35rem;
   font-weight: 800;
@@ -220,12 +218,14 @@
 }
 
 @keyframes name-marquee {
-  from {
+  0%,
+  15% {
     transform: translateX(0);
   }
 
-  to {
-    transform: translateX(-50%);
+  85%,
+  100% {
+    transform: translateX(var(--marquee-offset));
   }
 }
 
