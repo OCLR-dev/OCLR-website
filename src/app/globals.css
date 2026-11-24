@@ -6514,9 +6514,41 @@ body:has([data-broadcast]) .site-shell {
   background: var(--site-tint);
 }
 
-.registration-notice > p {
+.registration-policy {
+  margin-block: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--site-border);
+  border-inline-start: 0.25rem solid var(--site-accent);
+  border-radius: 0.625rem;
+  background: var(--site-surface);
+}
+.registration-policy h2 {
+  margin: 0 0 0.375rem;
+  font-size: var(--text-heading);
+}
+.registration-policy p,
+.registration-reapply p {
   max-width: none;
+  margin: 0;
   overflow-wrap: anywhere;
+}
+.registration-reapply {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin-block: 1rem;
+  font-size: var(--text-small);
+  color: var(--site-secondary-text);
+}
+.registration-reapply h2 {
+  margin: 0;
+  font-size: inherit;
+  color: var(--site-accent);
+}
+.application-answer .registration-answer-hint {
+  margin: 0.375rem 0 0;
+  max-width: none;
 }
 
 /* Preserve authored eligibility lines and locale punctuation without forcing wide text. */

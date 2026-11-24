@@ -101,13 +101,6 @@ export function ApplicationForm({
           {tr(". Your osu! identity comes from your signed-in session.")}
         </p>
         {verification && <EligibilitySummary value={verification} />}
-        {edition.registration?.publicIntroductionQuestionId && (
-          <p className="notice">
-            {tr(
-              "Your self introduction will be public if your application is accepted. Other answers remain private.",
-            )}
-          </p>
-        )}
         {edition.registration?.questions.map((q) => {
           const label = (
             <>
@@ -117,6 +110,10 @@ export function ApplicationForm({
           );
           const invalid = fieldError?.id === q.id;
           const description = invalid ? `${id}-${q.id}-error` : undefined;
+          const introductionHint =
+            q.id === edition.registration?.publicIntroductionQuestionId
+              ? `${id}-introduction-hint`
+              : undefined;
           const name = `answer_${q.id}`;
           return (
             <div key={q.id} className="application-answer">
@@ -183,9 +180,23 @@ export function ApplicationForm({
                     maxLength={q.maxLength}
                     rows={3}
                     aria-invalid={invalid || undefined}
-                    aria-describedby={description}
+                    aria-describedby={
+                      [introductionHint, description]
+                        .filter(Boolean)
+                        .join(" ") || undefined
+                    }
                   />
                 </label>
+              )}
+              {introductionHint && (
+                <p
+                  id={introductionHint}
+                  className="small muted registration-answer-hint"
+                >
+                  {tr(
+                    "Your self introduction will be public if your application is accepted. Other answers remain private.",
+                  )}
+                </p>
               )}
               {invalid && (
                 <p id={description} role="alert" className="small error-text">

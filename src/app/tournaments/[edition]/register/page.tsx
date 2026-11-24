@@ -73,23 +73,23 @@ async function Issue271Page({
         </div>
       ) : (
         <>
+          {edition.eligibility && (
+            <section className="registration-policy">
+              <h2>{tr("Eligibility")}</h2>
+              <p className="preserve-lines registration-eligibility">
+                {edition.eligibility}
+              </p>
+            </section>
+          )}
           {existing?.status === "withdrawn" && (
-            <div className="notice spaced registration-notice">
+            <aside className="registration-reapply">
               <h2>{tr("Apply again")}</h2>
               <p>
                 {tr(
                   "Complete the current application and applicable acknowledgments again. Previous applications and review history are retained; the new application needs a fresh review.",
                 )}
               </p>
-            </div>
-          )}
-          {edition.eligibility && (
-            <section className="notice spaced registration-notice">
-              <h2>{tr("Eligibility")}</h2>
-              <p className="preserve-lines registration-eligibility">
-                {edition.eligibility}
-              </p>
-            </section>
+            </aside>
           )}
           <ApplicationForm
             edition={edition}
