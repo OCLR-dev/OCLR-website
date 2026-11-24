@@ -60,3 +60,41 @@
   width: 100%;
   min-width: 0;
 }
+
+.group {
+  display: grid;
+  gap: 0.5rem;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0.75rem 0;
+  border: 0;
+}
+.group legend {
+  padding: 0;
+  font-weight: 700;
+}
+.group + .group {
+  border-top: 1px solid var(--color-border);
+}
+.scopes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.5rem;
+}
+.scopes label {
+  min-width: 0;
+  gap: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.55rem;
+  cursor: pointer;
+}
+.scopes label:has(input:checked) {
+  background: var(--site-raised);
+}
+.scopes code {
+  display: block;
+  color: var(--color-muted);
+  font-size: var(--text-support);
+  overflow-wrap: anywhere;
+}

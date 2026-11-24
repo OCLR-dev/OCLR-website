@@ -1,5 +1,7 @@
 "use client";
 
+import { ApiAccessForm } from "./api-access-form";
+import styles from "./api-access-form.module.css";
 import { ApiAccessHistory } from "./api-access-history";
 
 import { LoadingRegion } from "./loading-region";
@@ -140,165 +142,153 @@ export function DeveloperAccess({
   return (
     <div className="stack developer-access">
       {pending && <LoadingRegion />}
-      <section aria-labelledby="developer-create">
-        <h2 id="developer-create">{tr("Create read-only access")}</h2>
-        <p className="muted">
-          {tr(
-            "Use this backend from your local frontend. Access ends within one hour or when this login session ends.",
-          )}
-        </p>
-        <p>
-          <strong>{tr("Backend")}</strong> <code>{backend}</code>
-        </p>
-        <p className="notice">
-          {tr(
-            "This token can only read data, even if your account has other roles.",
-          )}
-        </p>
-        <p>
-          <a className="context-link" href="/api/v1/openapi.json">
-            {tr("View API specification")}
-          </a>
-        </p>
-        <form className="form-stack" onSubmit={create}>
-          <fieldset
-            className="developer-ports"
-            disabled={pending || allowedPorts?.length === 0}
-          >
-            <legend>{tr("Allowed local ports")}</legend>
-            <p id="developer-ports-help" className="muted small">
-              {tr(
-                "Add the ports used by your local frontends. One token can serve multiple development sessions.",
-              )}
-            </p>
-            <p className="muted small">
-              {tr(
-                "localhost, 127.0.0.1 and [::1] share the same port list for HTTP and HTTPS.",
-              )}
-            </p>
-            {allowedPorts !== null && (
-              <p className="small">
-                {allowedPorts.length
-                  ? tr("Server-allowed ports: {ports}", {
-                      ports: allowedPorts.join(", "),
-                    })
-                  : tr("The server has disabled local developer access.")}
-              </p>
-            )}
-            <div className="developer-port-entry">
-              <label className="field" htmlFor="developer-port-input">
-                {tr("Add local port")}
-                <input
-                  id="developer-port-input"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="5173"
-                  value={portInput}
-                  aria-describedby={`developer-ports-help${portError ? " developer-port-error" : ""}`}
-                  aria-invalid={Boolean(portError)}
-                  onChange={(event) => {
-                    setPortInput(event.target.value);
-                    setPortError("");
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      addPort();
-                    }
-                  }}
-                />
-              </label>
-              <button type="button" className="secondary" onClick={addPort}>
-                {tr("Add port")}
-              </button>
-            </div>
-            {portError && (
-              <p
-                id="developer-port-error"
-                className="error-text small"
-                role="alert"
-              >
-                {portError}
-              </p>
-            )}
-            {ports.length ? (
-              <ul
-                className="developer-port-list"
-                aria-label={tr("Allowed local ports")}
-              >
-                {ports.map((port) => (
-                  <li key={port}>
-                    <code>{port}</code>
-                    <button
-                      type="button"
-                      className="secondary"
-                      aria-label={tr("Remove port {port}", { port })}
-                      onClick={() => {
-                        setPorts((previous) =>
-                          previous.filter((value) => value !== port),
-                        );
-                        setPortError("");
-                      }}
-                    >
-                      <span aria-hidden="true">×</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="muted small">
-                {tr("Add at least one local port.")}
-              </p>
-            )}
-            <p className="muted small">
-              {tr("You can add up to 20 local ports.")}
-            </p>
-          </fieldset>
-          <fieldset>
-            <legend>{tr("Read scopes")}</legend>
-            <div className="stack">
-              {developerApiScopes.map((scope) => (
-                <label key={scope} className="check-field">
-                  <input
-                    type="checkbox"
-                    checked={scopes.includes(scope)}
-                    disabled={pending}
-                    onChange={(event) =>
-                      setScopes((previous) =>
-                        event.target.checked
-                          ? [...previous, scope]
-                          : previous.filter((value) => value !== scope),
-                      )
-                    }
-                  />
-                  <span>
-                    {labels[scope]} <code>{scope}</code>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-          <p className="muted small">
+      <ApiAccessForm
+        backend={backend}
+        onSubmit={create}
+        description={
+          <p>
             {tr(
-              "Private data requires an active Developer grant. Use the API specification to choose a resource and its read scope.",
+              "Use this backend from your local frontend. Access ends within one hour or when this login session ends.",
             )}
           </p>
-          <div className="actions">
-            <button
-              disabled={
-                pending ||
-                !ports.length ||
-                !scopes.length ||
-                Boolean(portInput.trim())
-              }
-              aria-busy={pending && activeAction === "create"}
-            >
-              {tr("Create token")}
+        }
+      >
+        <fieldset
+          className={styles.group}
+          disabled={pending || allowedPorts?.length === 0}
+        >
+          <legend>{tr("Allowed local ports")}</legend>
+          <p id="developer-ports-help" className="muted small">
+            {tr(
+              "Add the ports used by your local frontends. One token can serve multiple development sessions.",
+            )}
+          </p>
+          <p className="muted small">
+            {tr(
+              "localhost, 127.0.0.1 and [::1] share the same port list for HTTP and HTTPS.",
+            )}
+          </p>
+          {allowedPorts !== null && (
+            <p className="small">
+              {allowedPorts.length
+                ? tr("Server-allowed ports: {ports}", {
+                    ports: allowedPorts.join(", "),
+                  })
+                : tr("The server has disabled local developer access.")}
+            </p>
+          )}
+          <div className={styles.controls}>
+            <label className="field" htmlFor="developer-port-input">
+              {tr("Add local port")}
+              <input
+                id="developer-port-input"
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="5173"
+                value={portInput}
+                aria-describedby={`developer-ports-help${portError ? " developer-port-error" : ""}`}
+                aria-invalid={Boolean(portError)}
+                onChange={(event) => {
+                  setPortInput(event.target.value);
+                  setPortError("");
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addPort();
+                  }
+                }}
+              />
+            </label>
+            <button type="button" className="secondary" onClick={addPort}>
+              {tr("Add port")}
             </button>
           </div>
-        </form>
-      </section>
+          {portError && (
+            <p
+              id="developer-port-error"
+              className="error-text small"
+              role="alert"
+            >
+              {portError}
+            </p>
+          )}
+          {ports.length ? (
+            <ul
+              className="developer-port-list"
+              aria-label={tr("Allowed local ports")}
+            >
+              {ports.map((port) => (
+                <li key={port}>
+                  <code>{port}</code>
+                  <button
+                    type="button"
+                    className="secondary"
+                    aria-label={tr("Remove port {port}", { port })}
+                    onClick={() => {
+                      setPorts((previous) =>
+                        previous.filter((value) => value !== port),
+                      );
+                      setPortError("");
+                    }}
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted small">{tr("Add at least one local port.")}</p>
+          )}
+          <p className="muted small">
+            {tr("You can add up to 20 local ports.")}
+          </p>
+        </fieldset>
+        <fieldset className={styles.group}>
+          <legend>{tr("Read scopes")}</legend>
+          <div className={styles.scopes}>
+            {developerApiScopes.map((scope) => (
+              <label key={scope} className="check-field">
+                <input
+                  type="checkbox"
+                  checked={scopes.includes(scope)}
+                  disabled={pending}
+                  onChange={(event) =>
+                    setScopes((previous) =>
+                      event.target.checked
+                        ? [...previous, scope]
+                        : previous.filter((value) => value !== scope),
+                    )
+                  }
+                />
+                <span>
+                  {labels[scope]}
+                  <code>{scope}</code>
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <p className="muted small">
+          {tr(
+            "Private data requires an active Developer grant. Use the API specification to choose a resource and its read scope.",
+          )}
+        </p>
+        <div className="actions">
+          <button
+            disabled={
+              pending ||
+              !ports.length ||
+              !scopes.length ||
+              Boolean(portInput.trim())
+            }
+            aria-busy={pending && activeAction === "create"}
+          >
+            {tr("Create token")}
+          </button>
+        </div>
+      </ApiAccessForm>
       {error && (
         <p className="notice error-text" role="alert">
           {tr(error)}
