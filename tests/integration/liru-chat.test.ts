@@ -9,7 +9,7 @@ import {
 } from "vitest";
 import { sql, eq } from "drizzle-orm";
 import { db, closeDb } from "@/db";
-import { users, sessions } from "@/db/schema";
+import { users, sessions, registrations, staffRoles } from "@/db/schema";
 import { createSession, revokeSession } from "@/lib/auth/sessions";
 import { hashToken } from "@/lib/auth/tokens";
 import { chatEvidence } from "@/lib/chat-sources";
@@ -114,6 +114,14 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
   it("streams cited public evidence through the configured compatible provider and discards client instructions", async () => {
     context.token = (await createSession(1425001)).token;
     await seedEditions([season(slug, "Only after referee approval.")]);
+    await db()
+      .insert(registrations)
+      .values({
+        userId: 1425001,
+        editionSlug: slug,
+        answers: { private: "Synthetic private answer" },
+        statusReason: "Synthetic staff note",
+      });
     const upstream = vi.fn(async (url, init) => {
       expect(String(url)).toBe("https://provider.example/v1/chat/completions");
       expect(new Headers(init.headers).get("authorization")).toBe(
@@ -125,6 +133,9 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
         "Only after referee approval.",
       );
       expect(JSON.stringify(body.messages)).not.toContain("Beta ruling");
+      expect(JSON.stringify(body.messages)).not.toMatch(
+        /Synthetic private answer|Synthetic staff note/,
+      );
       const chunks = [
         {
           choices: [
@@ -153,6 +164,20 @@ describe.skipIf(!testUrl)("authenticated tournament assistant", () => {
     expect(upstream).toHaveBeenCalledTimes(1);
     expect(await (await ask(["zzz"])).text()).toContain("couldn’t find");
     expect(upstream).toHaveBeenCalledTimes(1);
+    await db()
+      .insert(staffRoles)
+      .values({
+        userId: 1425001,
+        grantedBy: 1425001,
+        role: "referee",
+        editionSlug: slug,
+      });
+    const staffReply = await (await ask()).text();
+    expect(staffReply).toContain("Check with the referee.");
+    expect(staffReply).not.toMatch(
+      /Synthetic private answer|Synthetic staff note/,
+    );
+    expect(upstream).toHaveBeenCalledTimes(2);
   });
   it("refreshes scheduled time, scores and pool entries from the published edition", async () => {
     const archive = structuredClone(historicalArchive);

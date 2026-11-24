@@ -45,6 +45,7 @@ import {
   postLiruGalleryMessageWrite,
 } from "../src/lib/liru-gallery-message-write-contract";
 import { updateLiruGachaWrite } from "../src/lib/liru-gacha-write-contract";
+import { chatWrite } from "../src/lib/chat-write-contract";
 import { historicalSeasonJsonSchema } from "../src/lib/historical-season-json";
 import { transferHistoricalSeasonWrite } from "../src/lib/historical-season-transfer-contract";
 import { lookupArchiveStaffWrite } from "../src/lib/archive-staff-write-contract";
@@ -197,6 +198,7 @@ const operations: readonly WriteApiOperation[] = [
   editLiruGalleryMessageWrite,
   deleteLiruGalleryMessageWrite,
   updateLiruGachaWrite,
+  chatWrite,
   requestDesktopAuthWrite,
   decideDesktopAuthWrite,
   exchangeDesktopAuthWrite,
@@ -429,6 +431,7 @@ function successResponse(
   description: string,
   response: WriteApiOperation["response"],
   headers: ReturnType<typeof headerSchemas>,
+  mediaType = "application/json",
 ) {
   return {
     description,
@@ -437,7 +440,7 @@ function successResponse(
       ? {}
       : {
           content: {
-            "application/json": { schema: responseSchema(response) },
+            [mediaType]: { schema: responseSchema(response) },
           },
         }),
   };
@@ -516,6 +519,7 @@ function openapiOperation(operation: WriteApiOperation) {
         operation.successDescription,
         operation.response,
         successHeaders,
+        operation.responseMediaType,
       ),
       ...Object.fromEntries(
         Object.entries(operation.additionalSuccess ?? {}).map(

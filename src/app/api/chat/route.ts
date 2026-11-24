@@ -5,23 +5,14 @@ import {
   toUIMessageStream,
 } from "ai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { z } from "zod";
 import { requireBrowserSession } from "@/lib/auth/user";
 import { apiError, readJson, requireSameOrigin } from "@/lib/http";
 import { chatConfiguration } from "@/lib/chat-config";
-import { chatEdition } from "@/lib/chat-edition";
+import { chatWrite } from "@/lib/chat-write-contract";
 import { chatEvidence } from "@/lib/chat-sources";
 import { DeveloperApiError, DeveloperApiLimiter } from "@/lib/developer-api";
-import { locales } from "@/i18n/config";
 import { getAppTranslations } from "@/i18n/server";
 
-const inputSchema = z
-  .object({
-    edition: z.string().refine(chatEdition),
-    locale: z.enum(locales),
-    questions: z.array(z.string().trim().min(1).max(1500)).min(1).max(4),
-  })
-  .strict();
 const limiter = new DeveloperApiLimiter();
 
 export async function POST(request: Request) {
@@ -29,9 +20,13 @@ export async function POST(request: Request) {
     const session = await requireBrowserSession();
     requireSameOrigin(request);
     const config = chatConfiguration();
-    if (!config) return new Response(null, { status: 503 });
-    const input = inputSchema.safeParse(await readJson(request, 32 * 1024));
-    if (!input.success) return new Response(null, { status: 400 });
+    if (!config)
+      return Response.json({ error: "Chat is unavailable." }, { status: 503 });
+    const input = chatWrite.request.safeParse(
+      await readJson(request, chatWrite.maxBodyBytes),
+    );
+    if (!input.success)
+      return Response.json({ error: "Invalid chat request." }, { status: 400 });
     const { edition, locale, questions } = input.data;
     limiter.take(String(session.osuId), 8);
     const question = questions.at(-1)!;
@@ -121,10 +116,13 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof DeveloperApiError && error.status === 429)
-      return new Response(null, {
-        status: 429,
-        headers: { "Retry-After": "60" },
-      });
+      return Response.json(
+        { error: "Too many chat requests." },
+        {
+          status: 429,
+          headers: { "Retry-After": "60" },
+        },
+      );
     return apiError(error);
   }
 }

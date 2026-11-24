@@ -828,6 +828,20 @@
     }
   },
   {
+    "route": "/api/chat",
+    "source": "src/app/api/chat/route.ts",
+    "methods": {
+      "POST": {
+        "status": "documented",
+        "operationId": "askLiru",
+        "access": "browser",
+        "consumers": [
+          "src/components/liru-chat.tsx"
+        ]
+      }
+    }
+  },
+  {
     "route": "/api/desktop/v1/auth/decision",
     "source": "src/app/api/desktop/v1/auth/decision/route.ts",
     "methods": {

@@ -40,6 +40,7 @@ export type WriteApiOperation = {
   query?: Readonly<Record<string, z.ZodType>>;
   successStatus: number;
   successDescription: string;
+  responseMediaType?: "text/event-stream";
   response: WriteOperationResponse;
   errors: Readonly<Record<number, string>>;
   errorResponses?: Readonly<Record<number, z.ZodType>>;
