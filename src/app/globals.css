@@ -2091,7 +2091,20 @@ body:has(.presenter-view) .site-footer,
   width: 3.5rem;
 }
 .mappool-col-actions {
-  width: 4rem;
+  width: 10.25rem;
+}
+@media (hover: hover) and (pointer: fine) {
+  .mappool-col-actions {
+    width: 7.875rem;
+  }
+}
+@container (max-width: 480px) {
+  .mappool-map .mappool-map-identity {
+    flex-direction: column;
+  }
+  .mappool-map .mappool-map-identity .beatmap-cover {
+    flex-basis: auto;
+  }
 }
 .mappool-col-sr {
   width: 8%;
@@ -2251,9 +2264,6 @@ body:has(.presenter-view) .site-footer,
   }
   .mappool-col-slot {
     width: 3rem;
-  }
-  .mappool-col-actions {
-    width: 3.75rem;
   }
   .mappool-map-identity {
     gap: 0.55rem;

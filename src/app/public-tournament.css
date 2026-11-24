@@ -1530,7 +1530,12 @@ html[data-appearance]
   text-align: center;
   vertical-align: middle;
 }
-.mappool-actions-cell .beatmap-actions,
+.mappool-actions-cell .beatmap-actions {
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 0.25rem;
+  margin: 0;
+}
 .archive-map-list .beatmap-actions {
   flex-direction: column;
   flex-wrap: nowrap;
