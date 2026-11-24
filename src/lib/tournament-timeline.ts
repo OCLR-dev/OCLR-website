@@ -113,8 +113,9 @@ export function tournamentTimeline(
       interval,
       order,
       authoritative: edition.status === "completed",
-      href: `${base}/schedule`,
-      action: tr("View schedule"),
+      ...(event.kind === "draft"
+        ? { href: `${base}/draft`, action: tr("Draft results") }
+        : { href: `${base}/schedule`, action: tr("View schedule") }),
     });
   });
   rows.sort(

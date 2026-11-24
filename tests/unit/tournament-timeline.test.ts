@@ -42,6 +42,11 @@ describe("competition timeline", () => {
       "總決賽",
       "表演賽 3",
     ]);
+    expect(model.stages[0]).toMatchObject({
+      href: "/tournaments/test-cup/draft",
+      action: "選秀結果",
+    });
+    expect(model.stages[1].href).toBe("/tournaments/test-cup/schedule");
     expect(model.schedule.map((row) => row.event)).toEqual(
       model.stages.map((stage) => stage.label),
     );
