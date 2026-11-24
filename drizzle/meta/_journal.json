@@ -820,6 +820,13 @@
       "when": 1795536053626,
       "tag": "0116_osu_image_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 117,
+      "version": "7",
+      "when": 1795538855781,
+      "tag": "0117_liru_chat",
+      "breakpoints": true
     }
   ]
 }

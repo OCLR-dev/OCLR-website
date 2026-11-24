@@ -5134,6 +5134,16 @@
     "mb5d6035a0a7c": "Could not refresh the official image.",
     "m477f18c1021d": "Official image not found.",
     "mc5d2b0962ffe": "Image cache is unavailable.",
-    "m38ac90efb434": "Invalid image cache settings or ID."
+    "m38ac90efb434": "Invalid image cache settings or ID.",
+    "mccca18175753": "Conversation",
+    "m162829119d2e": "Sign in to ask Liru",
+    "m6101b3d0245f": "Please wait a minute before asking again.",
+    "m1e60aace02a5": "Liru could not finish the answer. Please try again.",
+    "m83e3e7c37f94": "Ask Liru",
+    "m7689a3de8182": "Ask about this season…",
+    "mcae7d57bc067": "Stop",
+    "mf6f4688ff23d": "Send",
+    "m39e9d836af81": "Your question, recent questions and relevant public tournament information are sent to the configured AI provider.",
+    "mc486c16463a2": "I couldn’t find an answer in this season’s published information."
   }
 }

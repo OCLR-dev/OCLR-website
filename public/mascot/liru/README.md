@@ -27,3 +27,5 @@ Eight chibi stickers of Liru in her Chinese-style outfit, v1.0.0, for the websit
 - Scale proportionally. Do not stretch, recolour, crop the rim or flip horizontally (her left/right details are fixed).
 
 Same licence and credit as above (CC BY 4.0, "Liru by JerrYamada"; AI-assisted and retouched).
+
+The chat icon in `src/components/liru-chat-icon.tsx` is a monochrome head portrait redrawn from the official chibi design. Liru by JerrYamada, adapted for OCLR chat under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The design retains the two-tone character's sprout-shaped forelock, pointed side locks and eyes using outlines and negative space. [Character reference](https://oclr.org/wiki/liru).

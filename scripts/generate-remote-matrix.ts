@@ -121,6 +121,27 @@ const files = [
 ].sort();
 const rows = files.map((file) => {
   if (
+    file === "src/app/tournaments/[edition]/chat/page.tsx" ||
+    file === "src/components/liru-chat.tsx"
+  ) {
+    return {
+      file,
+      kind: file.endsWith("/page.tsx") ? "page" : "client",
+      authority: "denied",
+      operations: [],
+      commands: "Local website session only",
+      metadata: "Inherited",
+      services: ["src/lib/chat-sources.ts"],
+      test: "integration/liru-chat.test.ts + components/liru-chat.spec.ts",
+      authorization:
+        "Website session, published edition and public evidence only",
+      adapter: "Disabled in remote development",
+      media: "Local Liru icon",
+      requiredVerification:
+        "Published citations, expired sessions and provider isolation",
+    };
+  }
+  if (
     /\/pickem\/|\/components\/pickem-(?:admin|match-card|named-predictions)\.tsx$/.test(
       file,
     )
@@ -431,6 +452,7 @@ const pages = files
       p !== "src/app/streaming/page.tsx" &&
       !p.includes("/admin/backups/") &&
       !p.includes("/pickem/") &&
+      p !== "src/app/tournaments/[edition]/chat/page.tsx" &&
       !p.includes("/schedule/requests/") &&
       !p.includes("/matches/schedule-requests/") &&
       !/\/tournaments\/\[edition\]\/player\//.test(p),

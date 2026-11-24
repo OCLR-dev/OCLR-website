@@ -105,3 +105,11 @@ Use the [isolated API baseline](api-performance-baseline.md) to compare HTTP, Po
 ## Design and content
 
 Use the [MainSheet reference](design/mainsheet-light/README.md), shared tokens in `src/app/globals.css`, and the [localization and appearance guide](localization.md). See the [season theme designs](design/season-themes/README.md) and [S11 Nebula Bloom](design/nebula-bloom.md) for artwork and implementation notes. Reference dates, rules, and statistics are illustrative.
+
+## Liru tournament chat
+
+After applying the normal PostgreSQL migrations, set `OCLR_CHAT_BASE_URL` (for example `https://provider.example/v1`), `OCLR_CHAT_MODEL` (for example `example-chat`) and the provider's server-side `OCLR_CHAT_API_KEY`. The endpoint must support streaming Chat Completions. An HTTP loopback endpoint can be used for local models, and the key can be omitted for a provider that needs none. Remove the base URL or model and restart the app to disable chat. Use the normal approved runtime environment for service configuration.
+
+Open a published tournament overview and select **Ask Liru**. Visitors sign in with the existing osu! flow and return to that edition. The assistant uses the same public sources for every signed-in account. The browser keeps the conversation in memory. Each request sends up to four recent questions and selected public excerpts to the configured provider. The app stores no conversation transcripts. The API allows eight requests per account per minute per server process, limits questions to 1,500 characters, and cancels model generation on disconnect or after 30 seconds.
+
+Rules are split into overlapping excerpts with links to the original chapters. The edition-specific index in `chat_rule_indexes` is rebuilt on demand when the current published source fingerprint changes. To rebuild from scratch, delete that edition's derived row in a maintenance session. Its next question recreates it from the published page data. Fixtures, published scores and mappools are read at request time. Retrieval uses multilingual keywords and requires no embedding service. Chat is disabled in remote development mode.

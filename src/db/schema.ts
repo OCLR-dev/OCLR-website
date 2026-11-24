@@ -179,6 +179,7 @@ export const oauthStates = pgTable(
     stateHash: text("state_hash").primaryKey(),
     desktopRequestId: uuid("desktop_request_id"),
     pickemReturnTo: text("pickem_return_to"),
+    chatReturnEdition: text("chat_return_edition"),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   },
   (table) => [index("oauth_states_expiry_idx").on(table.expiresAt)],
@@ -3142,4 +3143,14 @@ export const osuImageEvents = pgTable("osu_image_events", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+});
+
+export const chatRuleIndexes = pgTable("chat_rule_indexes", {
+  editionSlug: text("edition_slug")
+    .primaryKey()
+    .references(() => editionState.slug, { onDelete: "cascade" }),
+  fingerprint: text("fingerprint").notNull(),
+  sections: jsonb("sections")
+    .$type<import("../lib/chat-retrieval").ChatSource[]>()
+    .notNull(),
 });

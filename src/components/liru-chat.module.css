@@ -1,0 +1,39 @@
+.chat {
+  display: grid;
+  gap: 1rem;
+  max-inline-size: 48rem;
+}
+.history,
+.parts,
+.composer {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.history:empty {
+  display: none;
+}
+.reply {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding-block: 0.75rem;
+}
+.question {
+  justify-self: end;
+  max-width: 90%;
+  padding: 0.65rem 1rem;
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: 0.8rem;
+}
+.parts,
+.question {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.composer textarea {
+  width: 100%;
+  resize: vertical;
+}

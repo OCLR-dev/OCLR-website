@@ -2340,6 +2340,20 @@
       "requiredVerification": "Desktop/mobile direct load, reload/navigation; authorized denial where applicable"
     },
     {
+      "file": "src/app/tournaments/[edition]/chat/page.tsx",
+      "kind": "page",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Local website session only",
+      "metadata": "Inherited",
+      "services": ["src/lib/chat-sources.ts"],
+      "test": "integration/liru-chat.test.ts + components/liru-chat.spec.ts",
+      "authorization": "Website session, published edition and public evidence only",
+      "adapter": "Disabled in remote development",
+      "media": "Local Liru icon",
+      "requiredVerification": "Published citations, expired sessions and provider isolation"
+    },
+    {
       "file": "src/app/tournaments/[edition]/draft/captain/page.tsx",
       "kind": "page",
       "authority": "saved-read",
@@ -2485,12 +2499,17 @@
       "file": "src/app/tournaments/[edition]/page.tsx",
       "kind": "page",
       "authority": "saved-read",
-      "operations": ["getPublicTournament", "publicEnrollment"],
+      "operations": [
+        "getApiIdentity",
+        "getPublicTournament",
+        "publicEnrollment"
+      ],
       "commands": "Denied in remote mode; connection management and preference cookies remain separate",
       "metadata": "Same file; shared request adapter for dynamic data",
       "services": [
         "src/lib/public-read-models.ts / frontend-data.ts (getPublicTournament)",
-        "src/lib/frontend-read-models.ts#publicEnrollment"
+        "src/lib/frontend-read-models.ts#publicEnrollment",
+        "src/lib/public-read-models.ts / frontend-data.ts (getApiIdentity)"
       ],
       "test": "remote-e2e/full-site.spec.ts + integration/extended-read.test.ts",
       "authorization": "Existing publication/subject boundaries",
@@ -3125,6 +3144,20 @@
       "adapter": "no database; repository content/navigation/preferences",
       "media": "Existing public assets",
       "requiredVerification": "Browser interaction/polling + API snapshot immutability"
+    },
+    {
+      "file": "src/components/liru-chat.tsx",
+      "kind": "client",
+      "authority": "denied",
+      "operations": [],
+      "commands": "Local website session only",
+      "metadata": "Inherited",
+      "services": ["src/lib/chat-sources.ts"],
+      "test": "integration/liru-chat.test.ts + components/liru-chat.spec.ts",
+      "authorization": "Website session, published edition and public evidence only",
+      "adapter": "Disabled in remote development",
+      "media": "Local Liru icon",
+      "requiredVerification": "Published citations, expired sessions and provider isolation"
     },
     {
       "file": "src/components/liru-gacha.tsx",

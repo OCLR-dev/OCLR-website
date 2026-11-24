@@ -8,6 +8,7 @@ import { createSession, revokeSession } from "@/lib/auth/sessions";
 import { cookieOptions, sessionCookie, stateCookie } from "@/lib/auth/config";
 import { appUrl } from "@/lib/http";
 import { pickemReturnPath } from "@/lib/pickem-model";
+import { chatEdition } from "@/lib/chat-edition";
 import { observeLoginNames } from "@/lib/player-identity";
 import { streamingOAuthReturn } from "@/lib/streaming-connect-model";
 import { streamingOrigins } from "@/lib/streaming-api";
@@ -54,8 +55,10 @@ export async function GET(request: NextRequest) {
             streamingOrigins(),
           )
         : null;
+      const edition = chatEdition(consumed.chatReturnEdition);
+      const chatReturn = edition ? `/tournaments/${edition}/chat` : null;
       response = NextResponse.redirect(
-        `${origin}${consumed.desktopRequestId ? `/desktop/authorize?request_id=${consumed.desktopRequestId}` : (streamingReturn ?? pickemReturnPath(consumed.pickemReturnTo) ?? "/dashboard")}`,
+        `${origin}${consumed.desktopRequestId ? `/desktop/authorize?request_id=${consumed.desktopRequestId}` : (streamingReturn ?? pickemReturnPath(consumed.pickemReturnTo) ?? chatReturn ?? "/dashboard")}`,
         303,
       );
       response.cookies.set(sessionCookie(), session.token, {

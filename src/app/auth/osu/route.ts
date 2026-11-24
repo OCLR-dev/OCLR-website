@@ -6,6 +6,7 @@ import { randomToken, hashToken } from "@/lib/auth/tokens";
 import { cookieOptions, stateCookie } from "@/lib/auth/config";
 import { apiError } from "@/lib/http";
 import { pickemReturnPath } from "@/lib/pickem-model";
+import { chatEdition } from "@/lib/chat-edition";
 import { streamingReturnPath } from "@/lib/streaming-connect-model";
 import { streamingOrigins } from "@/lib/streaming-api";
 export async function GET(request?: Request) {
@@ -37,6 +38,11 @@ export async function GET(request?: Request) {
         stateHash: hashToken(token),
         desktopRequestId,
         pickemReturnTo,
+        chatReturnEdition: chatEdition(
+          request
+            ? new URL(request.url).searchParams.get("chat_edition")
+            : null,
+        ),
         expiresAt: new Date(Date.now() + 600000),
       });
     const response = NextResponse.redirect(url);
