@@ -6506,6 +6506,11 @@ body:has([data-broadcast]) .site-shell {
   background: var(--site-tint);
 }
 
+.registration-notice > p {
+  max-width: none;
+  overflow-wrap: anywhere;
+}
+
 /* Preserve authored eligibility lines and locale punctuation without forcing wide text. */
 .registration-eligibility,
 .application-disclosure {

@@ -74,7 +74,7 @@ async function Issue271Page({
       ) : (
         <>
           {existing?.status === "withdrawn" && (
-            <div className="notice spaced">
+            <div className="notice spaced registration-notice">
               <h2>{tr("Apply again")}</h2>
               <p>
                 {tr(
@@ -84,7 +84,7 @@ async function Issue271Page({
             </div>
           )}
           {edition.eligibility && (
-            <section className="notice spaced">
+            <section className="notice spaced registration-notice">
               <h2>{tr("Eligibility")}</h2>
               <p className="preserve-lines registration-eligibility">
                 {edition.eligibility}
