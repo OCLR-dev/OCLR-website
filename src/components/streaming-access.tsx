@@ -1,6 +1,6 @@
 "use client";
 
-import { InfoNote } from "@/components/info-note";
+import { ApiAccessHistory } from "./api-access-history";
 
 import styles from "./streaming-access.module.css";
 import { LoadingRegion } from "./loading-region";
@@ -45,16 +45,9 @@ export function StreamingAccess({
   const [pending, setPending] = useState(false);
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [openedAt] = useState(Date.now);
   const labels: Record<StreamingApiScope, string> = {
     "streaming:read": tr("Streaming API access"),
   };
-  const date = (value: string) =>
-    new Intl.DateTimeFormat(tr.locale, {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: "UTC",
-    }).format(new Date(value));
   async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending || !streamingOriginAllowed(origin, origins)) return;
@@ -251,52 +244,20 @@ export function StreamingAccess({
           </div>
         </section>
       )}
-      <section aria-labelledby="developer-existing">
-        <h2 id="developer-existing">{tr("Your API access")}</h2>
-        <InfoNote>
-          <p className="muted small">
-            {tr("Up to 50 recent entries are shown. Times are in UTC.")}
-          </p>
-        </InfoNote>
-        {tokens.length ? (
-          <div className="stack">
-            {tokens.map((entry) => (
-              <article className="panel" key={entry.id}>
-                <p>
-                  <strong>{entry.origin}</strong>
-                </p>
-                <p className="muted small">
-                  {tr("Idle access ends {date}", {
-                    date: date(entry.expiresAt),
-                  })}
-                </p>
-                <p className="small">
-                  {entry.scopes.map((scope) => labels[scope]).join(" · ")}
-                </p>
-                {entry.revokedAt ? (
-                  <p>{tr("Revoked")}</p>
-                ) : new Date(entry.expiresAt).getTime() <= openedAt ? (
-                  <p>{tr("Expired")}</p>
-                ) : (
-                  <button
-                    className="secondary"
-                    type="button"
-                    disabled={pending}
-                    aria-busy={pending && activeAction === entry.id}
-                    onClick={() => void revoke(entry.id)}
-                  >
-                    {tr("Revoke token")}
-                  </button>
-                )}
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p className="muted">
-            {tr("No streaming API access has been created.")}
-          </p>
-        )}
-      </section>
+      <ApiAccessHistory
+        entries={tokens.map((entry) => ({
+          id: entry.id,
+          title: entry.origin,
+          scopeText: entry.scopes.map((scope) => labels[scope]).join(" · "),
+          expiresAt: entry.expiresAt,
+          revokedAt: entry.revokedAt,
+        }))}
+        emptyMessage={tr("No streaming API access has been created.")}
+        expiryText={(date) => tr("Idle access ends {date}", { date })}
+        pending={pending}
+        activeAction={activeAction}
+        onRevoke={revoke}
+      />
     </div>
   );
 }
