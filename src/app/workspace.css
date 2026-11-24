@@ -92,12 +92,17 @@
     .mappool-mods,
     .mappool-setup,
     .mappool-entry-controls,
-    .captain-player-card,
-    .captain-order > li
+    .captain-player-card
   ) {
   background: var(--site-surface);
   border-color: var(--site-border);
   border-radius: 1rem;
+}
+.themed-site.private-site .captain-order > li {
+  background: var(--site-raised);
+  border: 1px solid var(--site-border);
+  border-radius: 1rem;
+  box-shadow: 0 0.2rem 0.65rem var(--site-soft-shadow);
 }
 .themed-site.private-site :is(.workspace-tabs, .mappool-mods) {
   border-color: var(--site-border);
