@@ -180,14 +180,7 @@ export async function PickemPlayerPage({
   return (
     <div className={styles.page}>
       <header className={styles.heading}>
-        <div>
-          <h1>{tr("Match predictions")}</h1>
-          <p>
-            {tr(
-              "Pick each match before its deadline. A correct result earns 1 point.",
-            )}
-          </p>
-        </div>
+        <h1>{tr("Match predictions")}</h1>
       </header>
       <nav className={styles.tabs} aria-label={tr("Match predictions")}>
         {tabs.map((tab) => (
@@ -444,6 +437,11 @@ function Rules({ tr }: { tr: Awaited<ReturnType<typeof getAppTranslations>> }) {
       <h2>{tr("How to play")}</h2>
       <ul>
         <li>{tr("You can change your prediction until the deadline.")}</li>
+        <li>
+          {tr(
+            "Pick each match before its deadline. A correct result earns 1 point.",
+          )}
+        </li>
         <li>{tr("An exact score earns 1 extra point.")}</li>
         <li>
           {tr(
